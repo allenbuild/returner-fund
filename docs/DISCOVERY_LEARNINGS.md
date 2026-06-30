@@ -1,0 +1,71 @@
+# Discovery Learnings
+
+## Latest Learning Pass
+
+- Generated at: 2026-06-29T09:31:47.471Z.
+- Instagram follow-up tasks generated: 43.
+- Missing X posts are often caused by a profile URL existing on YC but public post pages not being clearly readable.
+- Missing Instagram is common when YC does not list an Instagram URL; website and search discovery should run before profile scraping.
+- Cross-company attribution anomalies should be treated as hard dedupe/profile-review tasks.
+- Long-run update: profile URLs stay identity context only; search-discovered X `/status/`, Instagram `/p/` or `/reel/`, and LinkedIn feed/post URLs can be promoted only after public readable text matches company/domain plus YC/startup context.
+- Long-run update: canonical discovery should merge `mobile.twitter.com`, `twitter.com`, and `x.com` status URL variants before dedupe/scoring.
+- Long-run update: when a public reader returns an explicit platform cooldown, record the block and avoid retrying that platform until the cooldown expires.
+- Product Hunt update: public search can repeat generic popular products across many companies. Keep Product Hunt candidates out of review/scoring unless the Product Hunt URL/title matches the target slug/name or is corroborated by official domain, founder, or descriptor context.
+- Product Hunt update: the repeated `screen-studio` candidate is a known false-positive pattern and should remain pruned from S2026 review queues unless a company has direct official evidence linking to it.
+
+## Query Seeds To Reuse
+
+- jo YC Spring 2026
+- Napkin Math YC Spring 2026
+- primitive YC Spring 2026
+- 9 Mothers YC Spring 2026
+- AgentPhone YC Spring 2026
+- Akkari YC Spring 2026
+- Alchemize YC Spring 2026
+- Allowance YC Spring 2026
+- Andco YC Spring 2026
+- Andustry YC Spring 2026
+- Archer YC Spring 2026
+- Arlo Industries YC Spring 2026
+- Atrisa YC Spring 2026
+- Autostep YC Spring 2026
+- Auxos YC Spring 2026
+- BentoLabs AI YC Spring 2026
+- Callab AI YC Spring 2026
+- CharacterQuilt YC Spring 2026
+- Cignara YC Spring 2026
+- Clara YC Spring 2026
+- Clawvisor YC Spring 2026
+- Cohesion YC Spring 2026
+- Deep Interactions YC Spring 2026
+- Drip YC Spring 2026
+- Fuchsia YC Spring 2026
+- General Aviation YC Spring 2026
+- Gravy YC Spring 2026
+- Harbor YC Spring 2026
+- Hedge YC Spring 2026
+- Imperfect YC Spring 2026
+- InLoop Robotics YC Spring 2026
+- InstaAgent YC Spring 2026
+- Keyframe Labs YC Spring 2026
+- Kinect YC Spring 2026
+- Kuli YC Spring 2026
+- Lattice Health YC Spring 2026
+- Light Anchor YC Spring 2026
+- Lightsprint YC Spring 2026
+- Limrun YC Spring 2026
+- Linzumi YC Spring 2026
+- Minicor YC Spring 2026
+- Oddpool YC Spring 2026
+- Ontora YC Spring 2026
+- Pavoot YC Spring 2026
+- Playabl.ai YC Spring 2026
+- Plena Health YC Spring 2026
+- Prototyping.io YC Spring 2026
+- qomplement YC Spring 2026
+- Regbase YC Spring 2026
+- River Markets YC Spring 2026
+- Saffron YC Spring 2026
+- Salesgraph YC Spring 2026
+- Synphony YC Spring 2026
+- Taiga YC Spring 2026

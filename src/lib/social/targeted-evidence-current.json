@@ -1,0 +1,85 @@
+{
+  "source": {
+    "label": "Targeted long-run public evidence",
+    "fetchedAt": "2026-06-28T07:25:00.000Z",
+    "notes": [
+      "Read-only public search/result snippets and accessible pages only.",
+      "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
+      "Used for targeted sanity checks where broad public ingestion missed a known company."
+    ]
+  },
+  "evidence": [
+    {
+      "id": "instagram-profile-company-heyclicky-instagram-com-_heyclicky",
+      "entityType": "company",
+      "entityId": "company-heyclicky",
+      "companyName": "HeyClicky",
+      "platform": "instagram",
+      "title": "heyclicky (@_heyclicky) Instagram profile",
+      "sourceUrl": "https://www.instagram.com/_heyclicky/",
+      "text": "heyclicky (@_heyclicky) Instagram profile; profile snippet describes Clicky as an AI buddy.",
+      "rawVisibleText": "heyclicky (@_heyclicky) • Instagram photos and videos. Instagram public search result snippet: clicky - aapka apna AI buddy.",
+      "postedAt": null,
+      "metrics": {},
+      "contributionScore": 0,
+      "review_state": "verified",
+      "matchReason": "Targeted public search found an Instagram profile whose name and handle match HeyClicky and whose visible snippet describes Clicky as an AI buddy. Stored as profile context only; profile pages do not score as post-level traction.",
+      "first_seen_at": "2026-06-28T07:25:00.000Z",
+      "last_checked_at": "2026-06-28T07:25:00.000Z",
+      "last_updated_at": "2026-06-28T07:25:00.000Z"
+    },
+    {
+      "id": "instagram-company-heyclicky-reel-dxxrdscjsl2",
+      "entityType": "company",
+      "entityId": "company-heyclicky",
+      "companyName": "HeyClicky",
+      "platform": "instagram",
+      "title": "clicky - aapka apna AI buddy",
+      "sourceUrl": "https://www.instagram.com/reel/DXxrDscJsL2/",
+      "text": "clicky - aapka apna AI buddy",
+      "rawVisibleText": "Published: last month; 217 likes, 19 comments - _heyclicky on April 30, 2026: \"clicky - aapka apna AI buddy\".",
+      "postedAt": "2026-04-30T00:00:00.000Z",
+      "metrics": {
+        "likes": 217,
+        "comments": 19
+      },
+      "contributionScore": 55,
+      "review_state": "verified",
+      "matchReason": "Targeted public Instagram search result exposed a post-level reel from @_heyclicky with visible likes/comments and a caption matching the product name.",
+      "first_seen_at": "2026-06-28T07:25:00.000Z",
+      "last_checked_at": "2026-06-28T07:25:00.000Z",
+      "last_updated_at": "2026-06-28T07:25:00.000Z"
+    },
+    {
+      "id": "web-company-heyclicky-dailydropout-viral-context",
+      "entityType": "company",
+      "entityId": "company-heyclicky",
+      "companyName": "HeyClicky",
+      "platform": "web",
+      "title": "HeyClicky: Give your cursor infinite brains",
+      "sourceUrl": "https://dailydropout.substack.com/p/heyclicky-give-your-cursor-infinite",
+      "text": "DailyDropout reported HeyClicky racked up roughly 3M views the week it launched and crossed 6,300 GitHub stars.",
+      "rawVisibleText": "Introducing HeyClicky: a tiny AI buddy that lives next to your cursor, sees what you see, and racked up ~3M views the week it launched. The Drop Down: Website: heyclicky.com; Traction: ~3M views on launch, 6.3K GitHub stars, #6 Product of the Day.",
+      "postedAt": "2026-06-09T00:00:00.000Z",
+      "metrics": {},
+      "contributionScore": 0,
+      "review_state": "verified",
+      "matchReason": "Public web article used as context only. It does not score because raw platform metrics were not directly visible from the underlying social post.",
+      "first_seen_at": "2026-06-28T07:25:00.000Z",
+      "last_checked_at": "2026-06-28T07:25:00.000Z",
+      "last_updated_at": "2026-06-28T07:25:00.000Z"
+    }
+  ],
+  "needsReview": [
+    {
+      "id": "review-instagram-company-heyclicky-instagram-com-heyclicky",
+      "entityType": "company",
+      "entityId": "company-heyclicky",
+      "entityName": "HeyClicky",
+      "platform": "instagram",
+      "candidateUrl": "https://www.instagram.com/heyclicky/",
+      "review_state": "needs_review",
+      "matchReason": "Instagram doctor probed this obvious handle candidate, but the public page returned a login wall and no visible post links."
+    }
+  ]
+}

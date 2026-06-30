@@ -1,0 +1,87 @@
+{
+  "generated_at": "2026-06-29T09:32:12.479Z",
+  "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026&includeRaw=1&includeNonScoring=1",
+  "summary": {
+    "status": "pass_with_findings",
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 5,
+    "info": 0
+  },
+  "metrics": {
+    "company_nodes": 197,
+    "founder_nodes": 0,
+    "evidence_rows": 3013,
+    "scored_evidence_rows": 1754,
+    "graph_api_ms": 138,
+    "graph_api_timings_ms": [
+      909,
+      138
+    ],
+    "graph_api_sample_count": 2,
+    "graph_payload_bytes": 11624047,
+    "attribution_loop_status": "finished",
+    "attribution_loop_elapsed_minutes": 300
+  },
+  "findings": [
+    {
+      "severity": "low",
+      "id": "attribution.first_party_social_review_queue",
+      "message": "1 high-priority first-party social posts need off-topic review before founder/social weighting is increased.",
+      "examples": [
+        {
+          "id": "x-founder-primitive-ethan-byrd-3342418-x-com-itsjustemail-status-2068957929772843506-article-it-was-always-email-if-you-know-where-the-headline-image-is-from-can-we-be-friends-most",
+          "company": "primitive",
+          "entityType": "founder",
+          "entityId": "founder-primitive-ethan-byrd-3342418",
+          "platform": "x",
+          "title": "Article it was always email (if you know where the headline image is from, can we be friends?) Most people's agents still live in single pl...",
+          "url": "https://x.com/itsjustemail/status/2068957929772843506",
+          "score": 70,
+          "metrics": {
+            "likes": 21,
+            "reposts": 4,
+            "views": 69692
+          },
+          "authorName": "itsjustemail X post",
+          "authorHandle": null,
+          "accountUrl": "",
+          "matchReason": "Opt-in read-only X browser timeline scrape for @itsjustemail; metrics came from visible aria-label post controls. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity.",
+          "reviewPriority": "high",
+          "reviewReason": "founder account is verified first-party, but the visible post body lacks a target company/founder/domain/handle signal and lacks obvious product/startup context and contains personal-context language",
+          "visibleText": "Article it was always email (if you know where the headline image is from, can we be friends?) Most people's agents still live in single player mode. Just as the invention of writing (hint on the headline image) exploded human... Article it was always email (if you know where th...",
+          "productContext": false,
+          "personalContext": true,
+          "clearOffTopicContext": false,
+          "maxVisibleMetric": 69692,
+          "conflictingCompanyNames": []
+        }
+      ]
+    },
+    {
+      "severity": "low",
+      "id": "coverage.x_strict_attribution_gap",
+      "message": "X has evidence for 133 companies, with 128 still scoring after stricter attribution guards.",
+      "examples": []
+    },
+    {
+      "severity": "low",
+      "id": "coverage.instagram_sparse",
+      "message": "Instagram remains sparse; only verified HeyClicky evidence is currently scored.",
+      "examples": []
+    },
+    {
+      "severity": "low",
+      "id": "coverage.product_hunt_empty",
+      "message": "Product Hunt has no scored evidence; needs reviewed verified launch URLs.",
+      "examples": []
+    },
+    {
+      "severity": "low",
+      "id": "instagram.doctor_needs_attention",
+      "message": "Instagram doctor still needs explicit reusable session config for browser probe.",
+      "examples": []
+    }
+  ]
+}

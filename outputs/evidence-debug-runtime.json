@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-06-28T07:27:36.055Z",
+  "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026",
+  "company": {
+    "id": "company-runtime",
+    "name": "Runtime",
+    "score": 37,
+    "related_founder_ids": [
+      "founder-runtime-gus-trigos-362619",
+      "founder-runtime-carlos-volante-952396"
+    ]
+  },
+  "evidence_count": 5,
+  "smol_machines_leak_count": 0,
+  "rows": [
+    {
+      "post_id": "evidence-github-repo-company-runtime-runtm-ai-runtm",
+      "post_url": "https://github.com/runtm-ai/runtm",
+      "platform": "github",
+      "score": 59,
+      "raw_engagement": 1112.5,
+      "normalized_score": 59,
+      "attached_company_id": "company-runtime",
+      "attached_company_name": "Runtime",
+      "entity_id": "company-runtime",
+      "social_account_id": "github:company-runtime:runtm-ai",
+      "account_url": "https://github.com/runtm-ai",
+      "match_reason": "GitHub URL linked from the official company website.",
+      "review_state": "verified"
+    },
+    {
+      "post_id": "evidence-github-profile-company-runtime",
+      "post_url": "https://github.com/runtm-ai",
+      "platform": "github",
+      "score": 59,
+      "raw_engagement": 1103.5,
+      "normalized_score": 59,
+      "attached_company_id": "company-runtime",
+      "attached_company_name": "Runtime",
+      "entity_id": "company-runtime",
+      "social_account_id": "github:company-runtime:runtm-ai",
+      "account_url": "https://github.com/runtm-ai",
+      "match_reason": "GitHub URL linked from the official company website.",
+      "review_state": "verified"
+    },
+    {
+      "post_id": "youtube-company-runtime-www-youtube-com-watch-v-m3h8yubdihy-runtime-yc-p26-launch-video",
+      "post_url": "https://www.youtube.com/watch?v=m3H8yUbdIHY",
+      "platform": "youtube",
+      "score": 25,
+      "raw_engagement": 7.12,
+      "normalized_score": 25,
+      "attached_company_id": "company-runtime",
+      "attached_company_name": "Runtime",
+      "entity_id": "company-runtime",
+      "social_account_id": "youtube:company:company-runtime",
+      "account_url": "",
+      "match_reason": "Exact company-name match in public YouTube search result.",
+      "review_state": "verified"
+    },
+    {
+      "post_id": "web-company-runtime-www-runtm-com-runtime-the-runtime-for-all-your-team-s-agents",
+      "post_url": "https://www.runtm.com/",
+      "platform": "web",
+      "score": 0,
+      "raw_engagement": 0,
+      "normalized_score": 0,
+      "attached_company_id": "company-runtime",
+      "attached_company_name": "Runtime",
+      "entity_id": "company-runtime",
+      "social_account_id": "web:company:company-runtime",
+      "account_url": "",
+      "match_reason": "Official company website from YC public profile. Stored as context only; not scored as traction.",
+      "review_state": "verified"
+    },
+    {
+      "post_id": "web-company-runtime-dailysignal-app-tools-yc-runtime-runtime-review-2025-productivity-ai-tool-yc-backed-pricing",
+      "post_url": "https://dailysignal.app/tools/yc-runtime",
+      "platform": "web",
+      "score": 0,
+      "raw_engagement": 0,
+      "normalized_score": 0,
+      "attached_company_id": "company-runtime",
+      "attached_company_name": "Runtime",
+      "entity_id": "company-runtime",
+      "social_account_id": "web:company:company-runtime",
+      "account_url": "",
+      "match_reason": "Public web/news result with exact company-name match. Stored as context only because no public engagement metrics were available.",
+      "review_state": "verified"
+    }
+  ]
+}

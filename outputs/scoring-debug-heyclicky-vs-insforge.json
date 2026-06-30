@@ -1,0 +1,440 @@
+{
+  "generated_at": "2026-06-29T09:31:42.650Z",
+  "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026&includeWhy=1",
+  "comparison": [
+    {
+      "company_id": "company-heyclicky",
+      "company_name": "HeyClicky",
+      "total_score": 80,
+      "top_platform": "x",
+      "platform_scores": {
+        "instagram": 76,
+        "x": 86
+      },
+      "score_breakdown": {
+        "totalScore": 80,
+        "weightedAvailableScore": 82.07,
+        "coverageFactor": 0.93,
+        "platformsWithEvidence": 2,
+        "totalSupportedPlatforms": 7,
+        "platformScores": {
+          "instagram": 76,
+          "x": 86
+        },
+        "weightedPlatforms": [
+          {
+            "platform": "x",
+            "score": 86,
+            "configuredWeight": 0.34,
+            "appliedWeight": 0.6071,
+            "contribution": 52.21,
+            "evidenceCount": 80
+          },
+          {
+            "platform": "instagram",
+            "score": 76,
+            "configuredWeight": 0.22,
+            "appliedWeight": 0.3929,
+            "contribution": 29.86,
+            "evidenceCount": 40
+          }
+        ],
+        "explanation": "x contributes 52.21 weighted points from 86/100 before coverage. 2/7 weighted platforms have evidence, applying 0.93 coverage. Evidence-depth factor 1 from 120 scored rows. Anchored batch calibration blended absolute score with peer spread to 80/100."
+      },
+      "instagram_metrics": {
+        "likes": 204703,
+        "comments": 33386,
+        "count": 40
+      },
+      "x_views": 15986881,
+      "x_likes": 101896,
+      "x_reposts": 8079,
+      "linkedin_metrics": {},
+      "product_hunt_metrics": {},
+      "youtube_metrics": {},
+      "reddit_metrics": {},
+      "hacker_news_metrics": {},
+      "context_counts": {
+        "web": 0,
+        "rss": 0
+      },
+      "evidence_count": 120,
+      "top_10_evidence": [
+        {
+          "post_id": "ev-3",
+          "platform": "instagram",
+          "score": 100,
+          "raw_engagement": 287508.8,
+          "normalized_score": 100,
+          "post_url": "https://www.instagram.com/reel/DXk3VriDylM/",
+          "metrics": {
+            "likes": 123458,
+            "comments": 30341
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 287508.8. Recency-adjusted by 0.368 to 105804.82. Log-normalized 100/100 within instagram."
+        },
+        {
+          "post_id": "ev-4",
+          "platform": "x",
+          "score": 100,
+          "raw_engagement": 263500.64,
+          "normalized_score": 100,
+          "post_url": "https://x.com/FarzaTV/status/2060865350036750847",
+          "metrics": {
+            "likes": 14191,
+            "reposts": 1515,
+            "comments": 935,
+            "views": 3749194
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 263500.64. Recency-adjusted by 0.629 to 165711.26. Log-normalized 100/100 within x."
+        },
+        {
+          "post_id": "ev-9",
+          "platform": "x",
+          "score": 92,
+          "raw_engagement": 223157.96,
+          "normalized_score": 92,
+          "post_url": "https://x.com/FarzaTV/status/2041314633978659092",
+          "metrics": {
+            "likes": 15776,
+            "reposts": 1762,
+            "comments": 1320,
+            "views": 2968966
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 223157.96. Recency-adjusted by 0.274 to 61086.71. Log-normalized 92/100 within x."
+        },
+        {
+          "post_id": "ev-d",
+          "platform": "x",
+          "score": 88,
+          "raw_engagement": 135553.52,
+          "normalized_score": 88,
+          "post_url": "https://x.com/FarzaTV/status/2040563939797504467",
+          "metrics": {
+            "likes": 4888,
+            "reposts": 483,
+            "comments": 236,
+            "views": 2050992
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Also mentions peer company while preserving a visible target-company signal: 9 Mothers, Advanced Metal Research, AgentPhone, Allowance, Andco, Andustry, ANORIA, Apollo Atomics, Inc.. Raw engagement 135553.52. Recency-adjusted by 0.265 to 35980.4. Log-normalized 88/100 within x."
+        },
+        {
+          "post_id": "ev-e",
+          "platform": "x",
+          "score": 88,
+          "raw_engagement": 47183.16,
+          "normalized_score": 88,
+          "post_url": "https://x.com/FarzaTV/status/2066983088035656086",
+          "metrics": {
+            "likes": 5122,
+            "reposts": 449,
+            "comments": 407,
+            "views": 561161
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 47183.16. Recency-adjusted by 0.817 to 38554.92. Log-normalized 88/100 within x."
+        },
+        {
+          "post_id": "ev-h",
+          "platform": "x",
+          "score": 87,
+          "raw_engagement": 86515.88,
+          "normalized_score": 87,
+          "post_url": "https://x.com/FarzaTV/status/2048203459976188261",
+          "metrics": {
+            "likes": 6154,
+            "reposts": 528,
+            "comments": 461,
+            "views": 1175423
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 86515.88. Recency-adjusted by 0.367 to 31734.51. Log-normalized 87/100 within x."
+        },
+        {
+          "post_id": "ev-m",
+          "platform": "x",
+          "score": 84,
+          "raw_engagement": 51547.84,
+          "normalized_score": 84,
+          "post_url": "https://x.com/FarzaTV/status/2051710472903336302",
+          "metrics": {
+            "likes": 5891,
+            "reposts": 656,
+            "comments": 279,
+            "views": 598814
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 51547.84. Recency-adjusted by 0.428 to 22056.77. Log-normalized 84/100 within x."
+        },
+        {
+          "post_id": "ev-n",
+          "platform": "x",
+          "score": 84,
+          "raw_engagement": 39105.8,
+          "normalized_score": 84,
+          "post_url": "https://x.com/FarzaTV/status/2057850008574308512",
+          "metrics": {
+            "likes": 2421,
+            "reposts": 165,
+            "comments": 272,
+            "views": 544305
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 39105.8. Recency-adjusted by 0.556 to 21741.78. Log-normalized 84/100 within x."
+        },
+        {
+          "post_id": "ev-o",
+          "platform": "instagram",
+          "score": 83,
+          "raw_engagement": 22748.6,
+          "normalized_score": 83,
+          "post_url": "https://www.instagram.com/reel/DZEX2WRgyMu/",
+          "metrics": {
+            "likes": 19426,
+            "comments": 276
+          },
+          "contribution_reason": "Verified social override for HeyClicky; profile links back to the official company identity. Attribution guard: low risk; Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 22748.6. Recency-adjusted by 0.651 to 14802.75. Log-normalized 83/100 within instagram."
+        },
+        {
+          "post_id": "ev-s",
+          "platform": "x",
+          "score": 81,
+          "raw_engagement": 52808.64,
+          "normalized_score": 81,
+          "post_url": "https://x.com/FarzaTV/status/2041691382008705321",
+          "metrics": {
+            "likes": 5937,
+            "reposts": 527,
+            "comments": 281,
+            "views": 635694
+          },
+          "contribution_reason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Also mentions peer company while preserving a visible target-company signal: Advanced Metal Research, Ara, Drip, Linzumi, Tolmo, Zenbu. Raw engagement 52808.64. Recency-adjusted by 0.278 to 14680.1. Log-normalized 81/100 within x."
+        }
+      ]
+    },
+    {
+      "company_id": "company-insforge",
+      "company_name": "InsForge",
+      "total_score": 70,
+      "top_platform": "x",
+      "platform_scores": {
+        "github": 92,
+        "youtube": 43,
+        "x": 66
+      },
+      "score_breakdown": {
+        "totalScore": 70,
+        "weightedAvailableScore": 70.7,
+        "coverageFactor": 0.948,
+        "platformsWithEvidence": 3,
+        "totalSupportedPlatforms": 7,
+        "platformScores": {
+          "github": 92,
+          "youtube": 43,
+          "x": 66
+        },
+        "weightedPlatforms": [
+          {
+            "platform": "x",
+            "score": 66,
+            "configuredWeight": 0.34,
+            "appliedWeight": 0.6415,
+            "contribution": 42.34,
+            "evidenceCount": 17
+          },
+          {
+            "platform": "github",
+            "score": 92,
+            "configuredWeight": 0.14,
+            "appliedWeight": 0.2642,
+            "contribution": 24.3,
+            "evidenceCount": 20
+          },
+          {
+            "platform": "youtube",
+            "score": 43,
+            "configuredWeight": 0.05,
+            "appliedWeight": 0.0943,
+            "contribution": 4.06,
+            "evidenceCount": 1
+          }
+        ],
+        "explanation": "x contributes 42.34 weighted points from 66/100 before coverage. 3/7 weighted platforms have evidence, applying 0.948 coverage. Evidence-depth factor 1 from 38 scored rows. Anchored batch calibration blended absolute score with peer spread to 70/100."
+      },
+      "github_stars": 11992,
+      "github_forks": 1029,
+      "github_watchers": 11992,
+      "instagram_metrics": {},
+      "x_views": 1158677,
+      "x_likes": 1987,
+      "x_reposts": 182,
+      "linkedin_metrics": {},
+      "product_hunt_metrics": {},
+      "youtube_metrics": {
+        "views": 1154,
+        "count": 1
+      },
+      "reddit_metrics": {},
+      "hacker_news_metrics": {},
+      "context_counts": {
+        "web": 0,
+        "rss": 0
+      },
+      "evidence_count": 38,
+      "top_10_evidence": [
+        {
+          "post_id": "ev-8",
+          "platform": "github",
+          "score": 97,
+          "raw_engagement": 46126.5,
+          "normalized_score": 97,
+          "post_url": "https://github.com/InsForge/InsForge",
+          "metrics": {
+            "stars": 11992,
+            "forks": 1029,
+            "watchers": 11992,
+            "issues": 75,
+            "recent_commits_30d": 1
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Attribution guard: low risk; GitHub evidence is linked to a target company/founder account, name, handle, or domain. Raw engagement 46126.5. Recency-adjusted by 1 to 46105.09. Log-normalized 97/100 within github."
+        },
+        {
+          "post_id": "ev-l",
+          "platform": "x",
+          "score": 85,
+          "raw_engagement": 37124.34,
+          "normalized_score": 85,
+          "post_url": "https://x.com/insforge/status/2062935372703629402",
+          "metrics": {
+            "likes": 338,
+            "reposts": 73,
+            "comments": 70,
+            "views": 594139
+          },
+          "contribution_reason": "Opt-in read-only X browser timeline scrape for @Insforge; metrics came from visible aria-label post controls. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 37124.34. Recency-adjusted by 0.693 to 25740.45. Log-normalized 85/100 within x."
+        },
+        {
+          "post_id": "ev-w",
+          "platform": "x",
+          "score": 80,
+          "raw_engagement": 14802.76,
+          "normalized_score": 80,
+          "post_url": "https://x.com/hanghuang_/status/2070261939452690564",
+          "metrics": {
+            "likes": 833,
+            "reposts": 74,
+            "comments": 57,
+            "views": 210796
+          },
+          "contribution_reason": "Opt-in read-only X browser timeline scrape for @hanghuang_; metrics came from visible aria-label post controls. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 14802.76. Recency-adjusted by 0.944 to 13966.62. Log-normalized 80/100 within x."
+        },
+        {
+          "post_id": "ev-1d",
+          "platform": "x",
+          "score": 74,
+          "raw_engagement": 22114,
+          "normalized_score": 74,
+          "post_url": "https://x.com/hanghuang_/status/2041597409168343503",
+          "metrics": {
+            "likes": 588,
+            "reposts": 27,
+            "comments": 91,
+            "views": 341925
+          },
+          "contribution_reason": "Opt-in read-only X browser timeline scrape for @hanghuang_; metrics came from visible aria-label post controls. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 22114. Recency-adjusted by 0.279 to 6179.32. Log-normalized 74/100 within x."
+        },
+        {
+          "post_id": "ev-81",
+          "platform": "x",
+          "score": 49,
+          "raw_engagement": 278.46,
+          "normalized_score": 49,
+          "post_url": "https://x.com/hanghuang_/status/2070539599592468780",
+          "metrics": {
+            "likes": 55,
+            "reposts": 1,
+            "comments": 13,
+            "views": 1941
+          },
+          "contribution_reason": "Opt-in read-only X browser timeline scrape for @hanghuang_; metrics came from visible aria-label post controls. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 278.46. Recency-adjusted by 0.958 to 266.81. Log-normalized 49/100 within x."
+        },
+        {
+          "post_id": "ev-8j",
+          "platform": "github",
+          "score": 48,
+          "raw_engagement": 176,
+          "normalized_score": 48,
+          "post_url": "https://github.com/InsForge/insforge-templates",
+          "metrics": {
+            "stars": 43,
+            "forks": 6,
+            "watchers": 43,
+            "issues": 1,
+            "recent_commits_30d": 1
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Attribution guard: low risk; GitHub evidence is linked to a target company/founder account, name, handle, or domain. Raw engagement 176. Recency-adjusted by 0.954 to 167.89. Log-normalized 48/100 within github."
+        },
+        {
+          "post_id": "ev-9a",
+          "platform": "github",
+          "score": 47,
+          "raw_engagement": 168.5,
+          "normalized_score": 47,
+          "post_url": "https://github.com/InsForge/insforge-mcp",
+          "metrics": {
+            "stars": 31,
+            "forks": 14,
+            "watchers": 31,
+            "issues": 6,
+            "recent_commits_30d": 1
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Attribution guard: low risk; GitHub evidence is linked to a target company/founder account, name, handle, or domain. Raw engagement 168.5. Recency-adjusted by 0.932 to 157.03. Log-normalized 47/100 within github."
+        },
+        {
+          "post_id": "ev-9i",
+          "platform": "x",
+          "score": 47,
+          "raw_engagement": 199.3,
+          "normalized_score": 47,
+          "post_url": "https://x.com/hanghuang_/status/2071009918786613657",
+          "metrics": {
+            "likes": 34,
+            "reposts": 3,
+            "comments": 10,
+            "views": 1155
+          },
+          "contribution_reason": "Opt-in read-only X browser timeline scrape for @hanghuang_; metrics came from visible aria-label post controls. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 199.3. Recency-adjusted by 0.988 to 196.95. Log-normalized 47/100 within x."
+        },
+        {
+          "post_id": "ev-9z",
+          "platform": "github",
+          "score": 46,
+          "raw_engagement": 146.5,
+          "normalized_score": 46,
+          "post_url": "https://github.com/InsForge/insforge-skills",
+          "metrics": {
+            "stars": 28,
+            "forks": 11,
+            "watchers": 28,
+            "issues": 7,
+            "recent_commits_30d": 1
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Attribution guard: low risk; GitHub evidence is linked to a target company/founder account, name, handle, or domain. Raw engagement 146.5. Recency-adjusted by 1 to 146.43. Log-normalized 46/100 within github."
+        },
+        {
+          "post_id": "ev-ah",
+          "platform": "github",
+          "score": 45,
+          "raw_engagement": 121,
+          "normalized_score": 45,
+          "post_url": "https://github.com/InsForge/CLI",
+          "metrics": {
+            "stars": 15,
+            "forks": 16,
+            "watchers": 15,
+            "issues": 7,
+            "recent_commits_30d": 1
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Attribution guard: low risk; GitHub evidence is linked to a target company/founder account, name, handle, or domain. Raw engagement 121. Recency-adjusted by 0.999 to 120.94. Log-normalized 45/100 within github."
+        }
+      ]
+    }
+  ],
+  "ranking_summary": "HeyClicky score 80; InsForge score 70."
+}

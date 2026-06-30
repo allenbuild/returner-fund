@@ -1,0 +1,407 @@
+{
+  "generated_at": "2026-06-28T08:20:53.548Z",
+  "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026",
+  "comparison": [
+    {
+      "company_id": "company-insforge",
+      "company_name": "InsForge",
+      "total_score": 66,
+      "top_platform": "github",
+      "platform_scores": {
+        "github": 87,
+        "youtube": 35
+      },
+      "score_breakdown": {
+        "totalScore": 66,
+        "weightedAvailableScore": 69.67,
+        "coverageFactor": 0.937,
+        "platformsWithEvidence": 2,
+        "totalSupportedPlatforms": 6,
+        "platformScores": {
+          "github": 87,
+          "youtube": 35
+        },
+        "weightedPlatforms": [
+          {
+            "platform": "github",
+            "score": 87,
+            "configuredWeight": 0.2,
+            "appliedWeight": 0.6667,
+            "contribution": 58,
+            "evidenceCount": 19
+          },
+          {
+            "platform": "youtube",
+            "score": 35,
+            "configuredWeight": 0.1,
+            "appliedWeight": 0.3333,
+            "contribution": 11.67,
+            "evidenceCount": 1
+          }
+        ],
+        "explanation": "github leads with 87/100. 2/6 weighted platforms have evidence, applying 0.937 coverage. Batch-calibrated to 66/100 for peer comparison."
+      },
+      "github_stars": 12143,
+      "github_forks": 1121,
+      "github_watchers": 12143,
+      "instagram_metrics": {},
+      "linkedin_metrics": {},
+      "product_hunt_metrics": {},
+      "youtube_metrics": {
+        "views": 1154,
+        "count": 1
+      },
+      "reddit_metrics": {},
+      "hacker_news_metrics": {},
+      "context_counts": {
+        "web": 4,
+        "rss": 0
+      },
+      "evidence_count": 25,
+      "top_10_evidence": [
+        {
+          "post_id": "evidence-github-profile-company-insforge",
+          "platform": "github",
+          "score": 89,
+          "raw_engagement": 46984.5,
+          "normalized_score": 89,
+          "post_url": "https://github.com/InsForge",
+          "metrics": {
+            "stars": 12143,
+            "forks": 1121,
+            "watchers": 12143
+          },
+          "contribution_reason": "Measured from the read-only public GitHub API. No YC/web metadata is counted in this score. Raw engagement 46984.5. Recency-adjusted by 1 to 46984.5. Log-normalized 89/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-insforge-insforge-insforge",
+          "platform": "github",
+          "score": 89,
+          "raw_engagement": 46125.5,
+          "normalized_score": 89,
+          "post_url": "https://github.com/InsForge/InsForge",
+          "metrics": {
+            "stars": 11992,
+            "forks": 1029,
+            "watchers": 11992,
+            "issues": 75
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 46125.5. Recency-adjusted by 1 to 46104.1. Log-normalized 89/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-insforge-insforge-insforge-mcp",
+          "platform": "github",
+          "score": 45,
+          "raw_engagement": 167.5,
+          "normalized_score": 45,
+          "post_url": "https://github.com/InsForge/insforge-mcp",
+          "metrics": {
+            "stars": 31,
+            "forks": 14,
+            "watchers": 31,
+            "issues": 6
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 167.5. Recency-adjusted by 0.932 to 156.1. Log-normalized 45/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-insforge-insforge-insforge-templates",
+          "platform": "github",
+          "score": 45,
+          "raw_engagement": 175,
+          "normalized_score": 45,
+          "post_url": "https://github.com/InsForge/insforge-templates",
+          "metrics": {
+            "stars": 43,
+            "forks": 6,
+            "watchers": 43,
+            "issues": 1
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 175. Recency-adjusted by 0.954 to 166.94. Log-normalized 45/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-insforge-insforge-insforge-skills",
+          "platform": "github",
+          "score": 44,
+          "raw_engagement": 145.5,
+          "normalized_score": 44,
+          "post_url": "https://github.com/InsForge/insforge-skills",
+          "metrics": {
+            "stars": 28,
+            "forks": 11,
+            "watchers": 28,
+            "issues": 7
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 145.5. Recency-adjusted by 1 to 145.43. Log-normalized 44/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-insforge-insforge-cli",
+          "platform": "github",
+          "score": 43,
+          "raw_engagement": 120,
+          "normalized_score": 43,
+          "post_url": "https://github.com/InsForge/CLI",
+          "metrics": {
+            "stars": 15,
+            "forks": 16,
+            "watchers": 15,
+            "issues": 7
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 120. Recency-adjusted by 0.999 to 119.94. Log-normalized 43/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-insforge-insforge-insforge-sdk-js",
+          "platform": "github",
+          "score": 41,
+          "raw_engagement": 100.5,
+          "normalized_score": 41,
+          "post_url": "https://github.com/InsForge/InsForge-sdk-js",
+          "metrics": {
+            "stars": 9,
+            "forks": 16,
+            "watchers": 9,
+            "issues": 10
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 100.5. Recency-adjusted by 1 to 100.45. Log-normalized 41/100 within github."
+        },
+        {
+          "post_id": "youtube-company-insforge-www-youtube-com-watch-v-7bax5qz0ifm-insforge-yc-launch-video",
+          "platform": "youtube",
+          "score": 37,
+          "raw_engagement": 23.08,
+          "normalized_score": 37,
+          "post_url": "https://www.youtube.com/watch?v=7Bax5qz0IfM",
+          "metrics": {
+            "views": 1154
+          },
+          "contribution_reason": "Exact company-name match in public YouTube search result. Raw engagement 23.08. Recency-adjusted by 1 to 23.08. Log-normalized 37/100 within youtube."
+        },
+        {
+          "post_id": "evidence-github-repo-company-insforge-insforge-insforge-db",
+          "platform": "github",
+          "score": 33,
+          "raw_engagement": 41,
+          "normalized_score": 33,
+          "post_url": "https://github.com/InsForge/insforge-db",
+          "metrics": {
+            "stars": 7,
+            "forks": 4,
+            "watchers": 7,
+            "issues": 1
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 41. Recency-adjusted by 0.89 to 36.48. Log-normalized 33/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-insforge-insforge-insforge-vscode-extension",
+          "platform": "github",
+          "score": 32,
+          "raw_engagement": 30,
+          "normalized_score": 32,
+          "post_url": "https://github.com/InsForge/insforge-vscode-extension",
+          "metrics": {
+            "stars": 7,
+            "forks": 1,
+            "watchers": 7,
+            "issues": 3
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 30. Recency-adjusted by 0.978 to 29.33. Log-normalized 32/100 within github."
+        }
+      ]
+    },
+    {
+      "company_id": "company-interfaze",
+      "company_name": "Interfaze",
+      "total_score": 61,
+      "top_platform": "github",
+      "platform_scores": {
+        "github": 68
+      },
+      "score_breakdown": {
+        "totalScore": 61,
+        "weightedAvailableScore": 68,
+        "coverageFactor": 0.911,
+        "platformsWithEvidence": 1,
+        "totalSupportedPlatforms": 6,
+        "platformScores": {
+          "github": 68
+        },
+        "weightedPlatforms": [
+          {
+            "platform": "github",
+            "score": 68,
+            "configuredWeight": 0.2,
+            "appliedWeight": 1,
+            "contribution": 68,
+            "evidenceCount": 20
+          }
+        ],
+        "explanation": "github leads with 68/100. 1/6 weighted platforms have evidence, applying 0.911 coverage. Batch-calibrated to 61/100 for peer comparison."
+      },
+      "github_stars": 857,
+      "github_forks": 125,
+      "github_watchers": 857,
+      "instagram_metrics": {},
+      "linkedin_metrics": {},
+      "product_hunt_metrics": {},
+      "youtube_metrics": {},
+      "reddit_metrics": {},
+      "hacker_news_metrics": {},
+      "context_counts": {
+        "web": 4,
+        "rss": 0
+      },
+      "evidence_count": 24,
+      "top_10_evidence": [
+        {
+          "post_id": "evidence-github-profile-company-interfaze",
+          "platform": "github",
+          "score": 69,
+          "raw_engagement": 3499.5,
+          "normalized_score": 69,
+          "post_url": "https://github.com/JigsawStack",
+          "metrics": {
+            "stars": 857,
+            "forks": 125,
+            "watchers": 857
+          },
+          "contribution_reason": "Measured from the read-only public GitHub API. No YC/web metadata is counted in this score. Raw engagement 3499.5. Recency-adjusted by 1 to 3499.5. Log-normalized 69/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-deep-research",
+          "platform": "github",
+          "score": 50,
+          "raw_engagement": 705.5,
+          "normalized_score": 50,
+          "post_url": "https://github.com/JigsawStack/deep-research",
+          "metrics": {
+            "stars": 175,
+            "forks": 23,
+            "watchers": 175,
+            "issues": 2
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 705.5. Recency-adjusted by 0.454 to 320.16. Log-normalized 50/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-postgres-llm",
+          "platform": "github",
+          "score": 45,
+          "raw_engagement": 196.5,
+          "normalized_score": 45,
+          "post_url": "https://github.com/JigsawStack/postgres-llm",
+          "metrics": {
+            "stars": 55,
+            "forks": 1,
+            "watchers": 55,
+            "issues": 0
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 196.5. Recency-adjusted by 0.815 to 160.2. Log-normalized 45/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-insanely-fast-whisper-api",
+          "platform": "github",
+          "score": 44,
+          "raw_engagement": 1487.5,
+          "normalized_score": 44,
+          "post_url": "https://github.com/JigsawStack/insanely-fast-whisper-api",
+          "metrics": {
+            "stars": 356,
+            "forks": 59,
+            "watchers": 356,
+            "issues": 11
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 1487.5. Recency-adjusted by 0.103 to 152.48. Log-normalized 44/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-omiai",
+          "platform": "github",
+          "score": 42,
+          "raw_engagement": 454.5,
+          "normalized_score": 42,
+          "post_url": "https://github.com/JigsawStack/omiai",
+          "metrics": {
+            "stars": 123,
+            "forks": 6,
+            "watchers": 123,
+            "issues": 0
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 454.5. Recency-adjusted by 0.258 to 117.32. Log-normalized 42/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-jigsawstack-js",
+          "platform": "github",
+          "score": 42,
+          "raw_engagement": 116,
+          "normalized_score": 42,
+          "post_url": "https://github.com/JigsawStack/jigsawstack-js",
+          "metrics": {
+            "stars": 26,
+            "forks": 6,
+            "watchers": 26,
+            "issues": 2
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 116. Recency-adjusted by 0.908 to 105.32. Log-normalized 42/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-sob",
+          "platform": "github",
+          "score": 40,
+          "raw_engagement": 92,
+          "normalized_score": 40,
+          "post_url": "https://github.com/JigsawStack/sob",
+          "metrics": {
+            "stars": 25,
+            "forks": 1,
+            "watchers": 25,
+            "issues": 1
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 92. Recency-adjusted by 0.988 to 90.86. Log-normalized 40/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-translation-widget",
+          "platform": "github",
+          "score": 39,
+          "raw_engagement": 121,
+          "normalized_score": 39,
+          "post_url": "https://github.com/JigsawStack/translation-widget",
+          "metrics": {
+            "stars": 27,
+            "forks": 6,
+            "watchers": 27,
+            "issues": 5
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 121. Recency-adjusted by 0.654 to 79.12. Log-normalized 39/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-jigsawstack-python",
+          "platform": "github",
+          "score": 39,
+          "raw_engagement": 87.5,
+          "normalized_score": 39,
+          "post_url": "https://github.com/JigsawStack/jigsawstack-python",
+          "metrics": {
+            "stars": 20,
+            "forks": 4,
+            "watchers": 20,
+            "issues": 3
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 87.5. Recency-adjusted by 0.908 to 79.44. Log-normalized 39/100 within github."
+        },
+        {
+          "post_id": "evidence-github-repo-company-interfaze-jigsawstack-jigsawstack-mcp-server",
+          "platform": "github",
+          "score": 31,
+          "raw_engagement": 109.5,
+          "normalized_score": 31,
+          "post_url": "https://github.com/JigsawStack/jigsawstack-mcp-server",
+          "metrics": {
+            "stars": 23,
+            "forks": 7,
+            "watchers": 23,
+            "issues": 2
+          },
+          "contribution_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Raw engagement 109.5. Recency-adjusted by 0.258 to 28.3. Log-normalized 31/100 within github."
+        }
+      ]
+    }
+  ],
+  "ranking_summary": "InsForge score 66; Interfaze score 61."
+}

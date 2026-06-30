@@ -1,0 +1,367 @@
+{
+  "runId": "run_1782720557760_nggsc1",
+  "status": "completed",
+  "logs": [
+    "Created demo ingestion run for S2026.",
+    "Normalized batch slug to S2026.",
+    "Manual refresh only: no schedule or autonomous scraper was created.",
+    "Read-only policy active: connector pipeline has no mutation actions.",
+    "Demo mode selected: using deterministic seed companies, founders, evidence, scores, and graph edges.",
+    "refreshProfiles=true: demo identity candidates and needs-review examples were rebuilt.",
+    "refreshPosts=true: demo evidence posts and metrics were refreshed.",
+    "Built demo graph with 3 nodes and 2 edges.",
+    "Created 3 leaderboard rows and 3 fastest-gaining rows."
+  ],
+  "errors": [],
+  "graph": {
+    "batch": {
+      "slug": "S2026",
+      "label": "YC Spring 2026",
+      "expectedCompanyCount": 197,
+      "observedCompanyCount": 3
+    },
+    "nodes": [
+      {
+        "id": "company-northstar",
+        "type": "company",
+        "label": "Northstar Robotics",
+        "score": 86,
+        "review_state": "verified",
+        "radius": 36,
+        "platformScores": {
+          "github": 78,
+          "youtube": 72,
+          "web": 88,
+          "product_hunt": 82
+        },
+        "summary": {
+          "batchSlug": "S2026",
+          "ycProfileUrl": "https://www.ycombinator.com/companies/northstar-robotics",
+          "websiteUrl": "https://example.com/northstar",
+          "tagline": "Warehouse robots that learn from operator corrections.",
+          "description": "Northstar Robotics is a demo YC-like company used to exercise graph, evidence, and scoring paths without credentials.",
+          "groupPartner": null,
+          "industries": [
+            "Robotics",
+            "Logistics",
+            "AI"
+          ],
+          "relatedEntityIds": [
+            "founder-maya-chen"
+          ]
+        },
+        "evidence": [
+          {
+            "id": "evidence-northstar-github",
+            "platform": "github",
+            "title": "Open-source robot planner stars",
+            "url": "https://github.com/example/northstar-planner",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Open-source robot planner stars contributes to the demo traction score through normalized github metrics.",
+            "metrics": {
+              "stars": 1260,
+              "forks": 84,
+              "issues": 19
+            },
+            "contributionScore": 72,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          },
+          {
+            "id": "evidence-northstar-web",
+            "platform": "web",
+            "title": "Robotics launch coverage",
+            "url": "https://example.com/coverage/northstar",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Robotics launch coverage contributes to the demo traction score through normalized web metrics.",
+            "metrics": {
+              "views": 18000,
+              "comments": 31
+            },
+            "contributionScore": 98,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          },
+          {
+            "id": "evidence-maya-demo-post",
+            "platform": "x",
+            "title": "Founder launch thread",
+            "url": "https://example.com/maya/thread",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Founder launch thread contributes to the demo traction score through normalized x metrics.",
+            "metrics": {
+              "likes": 420,
+              "reposts": 80,
+              "comments": 45
+            },
+            "contributionScore": 63,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          }
+        ]
+      },
+      {
+        "id": "company-ledgerloop",
+        "type": "company",
+        "label": "LedgerLoop",
+        "score": 78,
+        "review_state": "verified",
+        "radius": 34,
+        "platformScores": {
+          "product_hunt": 84,
+          "rss": 66,
+          "web": 76,
+          "github": 55
+        },
+        "summary": {
+          "batchSlug": "S2026",
+          "ycProfileUrl": "https://www.ycombinator.com/companies/ledgerloop",
+          "websiteUrl": "https://example.com/ledgerloop",
+          "tagline": "Real-time reconciliation for global commerce teams.",
+          "description": "LedgerLoop models a fintech startup with Product Hunt, RSS, and web evidence in the demo pipeline.",
+          "groupPartner": "Demo Partner",
+          "industries": [
+            "Fintech",
+            "B2B",
+            "Automation"
+          ],
+          "relatedEntityIds": [
+            "founder-jon-park"
+          ]
+        },
+        "evidence": [
+          {
+            "id": "evidence-ledgerloop-ph",
+            "platform": "product_hunt",
+            "title": "Product Hunt launch",
+            "url": "https://www.producthunt.com/products/ledgerloop",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Product Hunt launch contributes to the demo traction score through normalized product_hunt metrics.",
+            "metrics": {
+              "upvotes": 880,
+              "comments": 96
+            },
+            "contributionScore": 69,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          },
+          {
+            "id": "evidence-ledgerloop-rss",
+            "platform": "rss",
+            "title": "Engineering blog launch note",
+            "url": "https://example.com/ledgerloop/blog/rss",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Engineering blog launch note contributes to the demo traction score through normalized rss metrics.",
+            "metrics": {
+              "views": 7600,
+              "comments": 14
+            },
+            "contributionScore": 89,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          },
+          {
+            "id": "evidence-jon-podcast",
+            "platform": "web",
+            "title": "Founder podcast mention",
+            "url": "https://example.com/podcast/ledgerloop",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Founder podcast mention contributes to the demo traction score through normalized web metrics.",
+            "metrics": {
+              "views": 5200,
+              "comments": 12
+            },
+            "contributionScore": 86,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          }
+        ]
+      },
+      {
+        "id": "company-signalnest",
+        "type": "company",
+        "label": "SignalNest",
+        "score": 64,
+        "review_state": "verified",
+        "radius": 30,
+        "platformScores": {
+          "web": 70,
+          "youtube": 52,
+          "github": 43
+        },
+        "summary": {
+          "batchSlug": "S2026",
+          "ycProfileUrl": "https://www.ycombinator.com/companies/signalnest",
+          "websiteUrl": "https://example.com/signalnest",
+          "tagline": "AI inbox for construction procurement.",
+          "description": "SignalNest is included to demonstrate needs-review profile matching and same-partner graph edges.",
+          "groupPartner": "Demo Partner",
+          "industries": [
+            "Construction",
+            "AI",
+            "Procurement"
+          ],
+          "relatedEntityIds": [
+            "founder-ava-rivera"
+          ]
+        },
+        "evidence": [
+          {
+            "id": "evidence-signalnest-youtube",
+            "platform": "youtube",
+            "title": "Customer workflow demo",
+            "url": "https://www.youtube.com/watch?v=demo-signalnest-product",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Customer workflow demo contributes to the demo traction score through normalized youtube metrics.",
+            "metrics": {
+              "views": 9200,
+              "likes": 380,
+              "comments": 29
+            },
+            "contributionScore": 92,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          },
+          {
+            "id": "evidence-signalnest-web",
+            "platform": "web",
+            "title": "Procurement automation mention",
+            "url": "https://example.com/news/signalnest",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Procurement automation mention contributes to the demo traction score through normalized web metrics.",
+            "metrics": {
+              "views": 4400,
+              "comments": 6
+            },
+            "contributionScore": 84,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          },
+          {
+            "id": "evidence-ava-interview",
+            "platform": "youtube",
+            "title": "Founder interview transcript",
+            "url": "https://www.youtube.com/watch?v=demo-signalnest",
+            "author": "Demo source",
+            "timestamp": "2026-06-20T16:00:00.000Z",
+            "text": "Founder interview transcript contributes to the demo traction score through normalized youtube metrics.",
+            "metrics": {
+              "views": 3100,
+              "likes": 144,
+              "comments": 18
+            },
+            "contributionScore": 81,
+            "explanation": "Demo score uses deterministic normalized engagement so API, graph, feed, leaderboard, and refresh flows can be verified without credentials."
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "company-northstar-company-signalnest",
+        "source": "company-northstar",
+        "target": "company-signalnest",
+        "edgeType": "industry_similarity",
+        "weight": 0.72,
+        "explanation": {
+          "sharedSignals": [
+            "developer tools",
+            "automation",
+            "workflow intelligence"
+          ],
+          "method": "demo tag overlap"
+        }
+      },
+      {
+        "id": "company-ledgerloop-company-signalnest",
+        "source": "company-ledgerloop",
+        "target": "company-signalnest",
+        "edgeType": "same_group_partner",
+        "weight": 0.65,
+        "explanation": {
+          "groupPartner": "Demo Partner",
+          "source": "demo seed",
+          "warning": "Production must only create this edge from reliable public data."
+        }
+      }
+    ],
+    "leaderboard": [
+      {
+        "rank": 1,
+        "entityId": "company-northstar",
+        "company": "Northstar Robotics",
+        "score": 86,
+        "topPlatform": "web",
+        "biggestContributingPost": "Open-source robot planner stars"
+      },
+      {
+        "rank": 2,
+        "entityId": "company-ledgerloop",
+        "company": "LedgerLoop",
+        "score": 78,
+        "topPlatform": "product_hunt",
+        "biggestContributingPost": "Product Hunt launch"
+      },
+      {
+        "rank": 3,
+        "entityId": "company-signalnest",
+        "company": "SignalNest",
+        "score": 64,
+        "topPlatform": "web",
+        "biggestContributingPost": "Customer workflow demo"
+      }
+    ],
+    "fastestGaining": [
+      {
+        "entityId": "company-northstar",
+        "company": "Northstar Robotics",
+        "scoreDelta": 12.4,
+        "percentDelta": 18.1,
+        "rankDelta": 2,
+        "platformCausingJump": "web",
+        "newHighPerformingPosts": [
+          "Open-source robot planner stars",
+          "Robotics launch coverage"
+        ]
+      },
+      {
+        "entityId": "company-ledgerloop",
+        "company": "LedgerLoop",
+        "scoreDelta": 7.8,
+        "percentDelta": 11.6,
+        "rankDelta": 1,
+        "platformCausingJump": "product_hunt",
+        "newHighPerformingPosts": [
+          "Product Hunt launch",
+          "Engineering blog launch note"
+        ]
+      },
+      {
+        "entityId": "company-signalnest",
+        "company": "SignalNest",
+        "scoreDelta": 5.1,
+        "percentDelta": 8.5,
+        "rankDelta": -1,
+        "platformCausingJump": "web",
+        "newHighPerformingPosts": [
+          "Customer workflow demo",
+          "Procurement automation mention"
+        ]
+      }
+    ],
+    "needsReview": [
+      {
+        "id": "review-signalnest-linkedin",
+        "entityType": "company",
+        "entityId": "company-signalnest",
+        "entityName": "SignalNest",
+        "platform": "linkedin",
+        "candidateUrl": "https://www.linkedin.com/company/signalnest-demo-candidate",
+        "review_state": "needs_review",
+        "matchReason": "Name overlap exists, but the profile is not linked from the official website and the bio does not mention the YC batch."
+      }
+    ],
+    "generatedAt": "2026-06-29T08:09:17.760Z",
+    "mode": "demo"
+  }
+}

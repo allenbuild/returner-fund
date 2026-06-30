@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-06-28T07:46:30.157Z",
+  "node_count": 197,
+  "founder_node_count": 0,
+  "edge_count": 327,
+  "evidence_count": 1133,
+  "needs_review_count": 982,
+  "heyclicky": {
+    "score": 36,
+    "top_platform": "instagram",
+    "evidence_count": 7,
+    "instagram_evidence": [
+      {
+        "url": "https://www.instagram.com/reel/DXxrDscJsL2/",
+        "score": 50,
+        "metrics": {
+          "likes": 217,
+          "comments": 19
+        },
+        "text": "clicky - aapka apna AI buddy"
+      },
+      {
+        "url": "https://www.instagram.com/_heyclicky/",
+        "score": 0,
+        "metrics": {},
+        "text": "heyclicky (@_heyclicky) Instagram profile; profile snippet describes Clicky as an AI buddy."
+      }
+    ]
+  },
+  "leaderboard_top_10": [
+    {
+      "rank": 1,
+      "company": "Zibra Labs",
+      "score": 100,
+      "platform": "github"
+    },
+    {
+      "rank": 2,
+      "company": "OpenWork",
+      "score": 88,
+      "platform": "github"
+    },
+    {
+      "rank": 3,
+      "company": "Superset",
+      "score": 85,
+      "platform": "github"
+    },
+    {
+      "rank": 4,
+      "company": "smol machines",
+      "score": 77,
+      "platform": "github"
+    },
+    {
+      "rank": 5,
+      "company": "Stage",
+      "score": 74,
+      "platform": "youtube"
+    },
+    {
+      "rank": 6,
+      "company": "Miso Labs",
+      "score": 71,
+      "platform": "github"
+    },
+    {
+      "rank": 7,
+      "company": "InsForge",
+      "score": 66,
+      "platform": "github"
+    },
+    {
+      "rank": 8,
+      "company": "Inth",
+      "score": 66,
+      "platform": "github"
+    },
+    {
+      "rank": 9,
+      "company": "OpenProse",
+      "score": 64,
+      "platform": "github"
+    },
+    {
+      "rank": 10,
+      "company": "Interfaze",
+      "score": 61,
+      "platform": "github"
+    }
+  ]
+}

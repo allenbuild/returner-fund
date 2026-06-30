@@ -1,0 +1,108 @@
+{
+  "generated_at": "2026-06-29T09:30:03.075Z",
+  "started_at": "2026-06-29T09:30:00.389Z",
+  "policy": {
+    "read_only": true,
+    "max_workers": 2,
+    "disallowed_actions": [
+      "like",
+      "save",
+      "follow",
+      "comment",
+      "dm",
+      "post",
+      "edit",
+      "delete",
+      "subscribe"
+    ],
+    "captcha_bypass": false
+  },
+  "summary": {
+    "pass_count": 7,
+    "total_checks": 14,
+    "overall_status": "needs_attention"
+  },
+  "checks": [
+    {
+      "name": "playwright_installed",
+      "status": "pass",
+      "message": "Playwright package is importable."
+    },
+    {
+      "name": "opencli_installed",
+      "status": "pass",
+      "message": "OpenCLI main script found at C:\\Users\\swimd\\AppData\\Roaming\\npm\\node_modules\\@jackwener\\opencli\\dist\\src\\main.js."
+    },
+    {
+      "name": "browser_profile_available",
+      "status": "pass",
+      "message": "Found browser profile path(s): C:\\Users\\swimd\\AppData\\Local\\Google\\Chrome\\User Data"
+    },
+    {
+      "name": "logged_in_session_configured",
+      "status": "fail",
+      "message": "No explicit reusable Instagram browser profile/cookie file configured for safe logged-in read-only checks."
+    },
+    {
+      "name": "logged_in_session_browser_probe",
+      "status": "fail",
+      "message": "Skipped: set INSTAGRAM_BROWSER_PROFILE to a cloned browser profile or INSTAGRAM_COOKIE_FILE to a Playwright storage-state JSON file to run the read-only logged-in probe."
+    },
+    {
+      "name": "known-public-profile",
+      "status": "fail",
+      "message": "HTTP 200; blocked_or_login_wall=true; post_links_visible=false.",
+      "url": "https://www.instagram.com/instagram/"
+    },
+    {
+      "name": "heyclicky-candidate",
+      "status": "fail",
+      "message": "HTTP 200; blocked_or_login_wall=true; post_links_visible=false.",
+      "url": "https://www.instagram.com/heyclicky/"
+    },
+    {
+      "name": "heyclicky-underscore-candidate",
+      "status": "fail",
+      "message": "HTTP 200; blocked_or_login_wall=true; post_links_visible=false.",
+      "url": "https://www.instagram.com/_heyclicky/"
+    },
+    {
+      "name": "public-profile-post-listing",
+      "status": "fail",
+      "message": "Recent Instagram posts/reels were not visible from the direct public profile fetch; profile appears login-walled or post markup is hidden.",
+      "url": "https://www.instagram.com/instagram/"
+    },
+    {
+      "name": "known-heyclicky-reel",
+      "status": "fail",
+      "message": "HTTP 200; blocked_or_login_wall=true; visible_metric_text=true.",
+      "url": "https://www.instagram.com/reel/DXxrDscJsL2/"
+    },
+    {
+      "name": "targeted_evidence_metrics",
+      "status": "pass",
+      "message": "Stored targeted HeyClicky reel metrics: 217 likes, 19 comments, 0 views."
+    },
+    {
+      "name": "url_normalization",
+      "status": "pass",
+      "message": "Instagram /p/ and /reel/ URL normalization works."
+    },
+    {
+      "name": "app_feed_instagram_evidence",
+      "status": "pass",
+      "message": "40 Instagram evidence rows, 40 scored, 40 attached to HeyClicky.",
+      "instagramEvidenceCount": 40,
+      "scoredCount": 40,
+      "heyClickyEvidenceCount": 40
+    },
+    {
+      "name": "storage_writable",
+      "status": "pass",
+      "message": "Wrote outputs\\instagram-doctor-storage-check.json."
+    }
+  ],
+  "findings": [
+    "No explicit INSTAGRAM_BROWSER_PROFILE or INSTAGRAM_COOKIE_FILE was provided. Default Chrome User Data exists, but the doctor does not attach to it automatically to avoid disturbing the user's live account."
+  ]
+}

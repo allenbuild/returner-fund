@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="X post preview">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fffaf6"/>
+      <stop offset="1" stop-color="#eef5fb"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#7c2d12" flood-opacity=".16"/>
+    </filter>
+    <style>
+      .label { font-family: Inter, Arial, sans-serif; fill:#111827; }
+      .author { font: 800 34px Inter, Arial, sans-serif; fill:#111827; }
+      .handle { font: 700 24px Inter, Arial, sans-serif; fill:#536471; }
+      .date { font: 700 22px Inter, Arial, sans-serif; fill:#536471; }
+      .body { font: 700 29px Inter, Arial, sans-serif; fill:#111827; }
+      .metrics { font: 800 24px Inter, Arial, sans-serif; fill:#ff6600; }
+    </style>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <rect x="42" y="42" width="876" height="456" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+  <rect x="72" y="72" width="54" height="54" rx="14" fill="#111827"/>
+  <text x="99" y="110" text-anchor="middle" font-family="Arial, sans-serif" font-size="31" font-weight="900" fill="#ffffff">X</text>
+  <text x="146" y="94" class="author">Nanda Guntupalli</text>
+  <text x="146" y="128" class="handle">@nandaguntupalli</text>
+  <text x="92" y="113" class="date">April 6, 2026</text>
+  <text class="body"><tspan x="92" y="178">Today we're announcing that Taiga(https://t.co/Sk58lPEoY9) got into</tspan><tspan x="92" y="216">the YC Spring 26 batch.Growing up, I spent a lot of time at my mom's</tspan><tspan x="92" y="254">medical practice, helping out around the office. I saw firsthand how</tspan><tspan x="92" y="292">much overhead goes into getting doctors paid. Insurance calls,</tspan><tspan x="92" y="330">denials,… pic.twitter.com/tukjvvqkrQ</tspan></text>
+  <text x="92" y="476" class="metrics">6.5K views / 64 likes / 13 comments / 10 reposts</text>
+  <text x="826" y="476" text-anchor="end" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#111827">X</text>
+</svg>

@@ -1,0 +1,1386 @@
+{
+  "generated_at": "2026-06-29T09:29:58.588Z",
+  "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026&includeNonScoring=1",
+  "company_count": 197,
+  "evidence_count": 3013,
+  "non_github_scored_evidence_count": 1666,
+  "live_ingestion_checkpoint": {
+    "evidence_rows": 964,
+    "needs_review_rows": 890,
+    "failure_rows": 1684,
+    "discovery_attempt_rows": 629,
+    "source_discovery_path_rows": 4,
+    "platform_rows": {
+      "evidence": {
+        "web": 765,
+        "x": 31,
+        "linkedin": 25,
+        "youtube": 74,
+        "hacker_news": 49,
+        "rss": 20
+      },
+      "needs_review": {
+        "linkedin": 548,
+        "x": 340,
+        "instagram": 2
+      },
+      "failures": {
+        "hacker_news": 167,
+        "instagram": 197,
+        "linkedin": 20,
+        "product_hunt": 358,
+        "reddit": 197,
+        "rss": 3,
+        "web": 6,
+        "x": 596,
+        "youtube": 140
+      }
+    }
+  },
+  "logged_in_social": {
+    "evidence_rows": 1955,
+    "failure_rows": 107,
+    "platform_rows": {
+      "instagram": 41,
+      "x": 1914
+    },
+    "companies_by_platform": {
+      "instagram": 1,
+      "x": 130
+    }
+  },
+  "x_target_coverage": {
+    "known_x_targets": 367,
+    "companies_with_known_x_targets": 164,
+    "attempted_targets": 367,
+    "not_attempted_targets": 0,
+    "zero_post_targets": 107,
+    "failed_targets": 0,
+    "companies_with_x_evidence": 130,
+    "companies_with_known_x_but_no_evidence": 34,
+    "companies_with_zero_only": 34,
+    "examples_not_attempted": [],
+    "examples_zero_post": [
+      "Andustry / Andustry",
+      "AquaShield / AquaShield",
+      "Arden / Aryaman Khanna",
+      "Asendia AI / Asendia AI",
+      "Avea Robotics / Avea Robotics",
+      "Chert / Chert",
+      "Deep Interactions / Deep Interactions",
+      "Dispatch / Payton Case",
+      "Eden Robotics / Stamatios Floratos",
+      "Elyra / Elyra",
+      "Elyra / Felix Odeberg Glasenapp",
+      "Enjamb Labs / Enjamb Labs"
+    ],
+    "examples_failed": []
+  },
+  "instagram_discovery": {
+    "companies_checked": 197,
+    "candidates": 0,
+    "newly_verified": 0,
+    "total_verified_company_instagram_profiles": 1
+  },
+  "platform_coverage": [
+    {
+      "platform": "github",
+      "status": "working",
+      "evidence_rows": 209,
+      "scored_rows": 88,
+      "companies_with_evidence": 39,
+      "companies_with_scored_evidence": 23,
+      "needs_review_rows": 0
+    },
+    {
+      "platform": "x",
+      "status": "working",
+      "evidence_rows": 1892,
+      "scored_rows": 1559,
+      "companies_with_evidence": 133,
+      "companies_with_scored_evidence": 128,
+      "needs_review_rows": 340
+    },
+    {
+      "platform": "linkedin",
+      "status": "public_only",
+      "evidence_rows": 0,
+      "scored_rows": 0,
+      "companies_with_evidence": 0,
+      "companies_with_scored_evidence": 0,
+      "needs_review_rows": 548
+    },
+    {
+      "platform": "instagram",
+      "status": "working",
+      "evidence_rows": 41,
+      "scored_rows": 40,
+      "companies_with_evidence": 1,
+      "companies_with_scored_evidence": 1,
+      "needs_review_rows": 3
+    },
+    {
+      "platform": "product_hunt",
+      "status": "public_only",
+      "evidence_rows": 0,
+      "scored_rows": 0,
+      "companies_with_evidence": 0,
+      "companies_with_scored_evidence": 0,
+      "needs_review_rows": 0
+    },
+    {
+      "platform": "youtube",
+      "status": "working",
+      "evidence_rows": 74,
+      "scored_rows": 56,
+      "companies_with_evidence": 57,
+      "companies_with_scored_evidence": 47,
+      "needs_review_rows": 0
+    },
+    {
+      "platform": "rss",
+      "status": "working",
+      "evidence_rows": 20,
+      "scored_rows": 0,
+      "companies_with_evidence": 4,
+      "companies_with_scored_evidence": 0,
+      "needs_review_rows": 0
+    },
+    {
+      "platform": "web",
+      "status": "disabled",
+      "evidence_rows": 766,
+      "scored_rows": 0,
+      "companies_with_evidence": 197,
+      "companies_with_scored_evidence": 0,
+      "needs_review_rows": 0
+    },
+    {
+      "platform": "reddit",
+      "status": "public_only",
+      "evidence_rows": 0,
+      "scored_rows": 0,
+      "companies_with_evidence": 0,
+      "companies_with_scored_evidence": 0,
+      "needs_review_rows": 0
+    },
+    {
+      "platform": "hacker_news",
+      "status": "working",
+      "evidence_rows": 11,
+      "scored_rows": 11,
+      "companies_with_evidence": 10,
+      "companies_with_scored_evidence": 10,
+      "needs_review_rows": 0
+    },
+    {
+      "platform": "bilibili",
+      "status": "needs_config",
+      "evidence_rows": 0,
+      "scored_rows": 0,
+      "companies_with_evidence": 0,
+      "companies_with_scored_evidence": 0,
+      "needs_review_rows": 0
+    }
+  ],
+  "weakest_non_github_coverage": [
+    {
+      "company_id": "company-aice",
+      "company_name": "AICE",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-aquashield",
+      "company_name": "AquaShield",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 5,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-arctic-health",
+      "company_name": "Arctic Health",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-arden",
+      "company_name": "Arden",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-arzana",
+      "company_name": "Arzana",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-centralcoms",
+      "company_name": "CentralComs",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-complir",
+      "company_name": "Complir",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 9,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-dayjob",
+      "company_name": "Dayjob",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-dispatch",
+      "company_name": "Dispatch",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 5,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-eden-robotics",
+      "company_name": "Eden Robotics",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-elyra",
+      "company_name": "Elyra",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 6,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-flowscope",
+      "company_name": "flowscope",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-framewise-health",
+      "company_name": "Framewise Health",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-govguard",
+      "company_name": "GovGuard",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-hessian",
+      "company_name": "Hessian",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 5,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-hexa",
+      "company_name": "Hexa",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-huscarl",
+      "company_name": "Huscarl",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-incandor",
+      "company_name": "Incandor",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-infera",
+      "company_name": "Infera",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-intelligence-factory",
+      "company_name": "Intelligence Factory",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-klarify",
+      "company_name": "Klarify",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-korso",
+      "company_name": "Korso",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-lumius",
+      "company_name": "Lumius",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-maquoketa-research",
+      "company_name": "Maquoketa Research",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-modern",
+      "company_name": "Modern",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 2,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-mount",
+      "company_name": "Mount",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 3,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-netter",
+      "company_name": "Netter",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-nine-fives",
+      "company_name": "Nine Fives",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-pairio",
+      "company_name": "Pairio",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-panacea",
+      "company_name": "Panacea",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-perfectbit-inc",
+      "company_name": "PerfectBit, Inc.",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-plan0-ai",
+      "company_name": "PLAN0 AI",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-tryprism",
+      "company_name": "Prism",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-reasonblocks",
+      "company_name": "ReasonBlocks",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-saudara-ai",
+      "company_name": "Saudara AI",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 5,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-savant",
+      "company_name": "Savant",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 2,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-scope",
+      "company_name": "Scope",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 3,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-sherpa",
+      "company_name": "Sherpa",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-shotwellai",
+      "company_name": "shotwell.ai",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-textsidekick",
+      "company_name": "Sidekick",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-silmaril",
+      "company_name": "Silmaril",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-smartbase",
+      "company_name": "Smartbase",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-stablebrowse",
+      "company_name": "StableBrowse",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-stage",
+      "company_name": "Stage",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 6,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-standard-signal",
+      "company_name": "Standard Signal",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 5,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-standout",
+      "company_name": "Standout",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 3,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-superset",
+      "company_name": "Superset",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 6,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-surtr-defense-systems",
+      "company_name": "Surtr Defense Systems",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-the-company-company",
+      "company_name": "The Company Company",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 2,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-youart",
+      "company_name": "YouArt",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-zibra-labs",
+      "company_name": "Zibra Labs",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 6,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-tolmo",
+      "company_name": "Tolmo",
+      "score": 18,
+      "top_platform": "github",
+      "evidence_rows": 15,
+      "scored_rows": 1,
+      "non_github_scored_rows": 0,
+      "scored_platforms": [
+        "github"
+      ]
+    },
+    {
+      "company_id": "company-smol-machines",
+      "company_name": "smol machines",
+      "score": 67,
+      "top_platform": "github",
+      "evidence_rows": 28,
+      "scored_rows": 1,
+      "non_github_scored_rows": 0,
+      "scored_platforms": [
+        "github"
+      ]
+    },
+    {
+      "company_id": "company-miso-labs",
+      "company_name": "Miso Labs",
+      "score": 10,
+      "top_platform": "x",
+      "evidence_rows": 9,
+      "scored_rows": 2,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "github",
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-memoir",
+      "company_name": "Memoir",
+      "score": 12,
+      "top_platform": "youtube",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-trellistech",
+      "company_name": "Trellis",
+      "score": 18,
+      "top_platform": "youtube",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-wealor",
+      "company_name": "Wealor",
+      "score": 18,
+      "top_platform": "youtube",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-soria",
+      "company_name": "Soria",
+      "score": 19,
+      "top_platform": "youtube",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-zolvo",
+      "company_name": "Zolvo",
+      "score": 19,
+      "top_platform": "youtube",
+      "evidence_rows": 10,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-foresight",
+      "company_name": "Foresight",
+      "score": 24,
+      "top_platform": "x",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-finaldose",
+      "company_name": "FinalDose",
+      "score": 26,
+      "top_platform": "youtube",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-sazabi",
+      "company_name": "Sazabi",
+      "score": 26,
+      "top_platform": "youtube",
+      "evidence_rows": 6,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-abinitio-bio",
+      "company_name": "AbInitio Bio",
+      "score": 28,
+      "top_platform": "x",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-ornadyne",
+      "company_name": "Ornadyne",
+      "score": 32,
+      "top_platform": "youtube",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-rudus",
+      "company_name": "Rudus",
+      "score": 46,
+      "top_platform": "hacker_news",
+      "evidence_rows": 5,
+      "scored_rows": 1,
+      "non_github_scored_rows": 1,
+      "scored_platforms": [
+        "hacker_news"
+      ]
+    },
+    {
+      "company_id": "company-kugelaudio",
+      "company_name": "KugelAudio",
+      "score": 5,
+      "top_platform": "youtube",
+      "evidence_rows": 6,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "hacker_news",
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-withai",
+      "company_name": "WithAI",
+      "score": 9,
+      "top_platform": "youtube",
+      "evidence_rows": 6,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-tenet-industries",
+      "company_name": "Tenet Industries",
+      "score": 15,
+      "top_platform": "x",
+      "evidence_rows": 7,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-armature",
+      "company_name": "Armature",
+      "score": 16,
+      "top_platform": "x",
+      "evidence_rows": 7,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-klaimee",
+      "company_name": "Klaimee",
+      "score": 17,
+      "top_platform": "youtube",
+      "evidence_rows": 6,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-kinro",
+      "company_name": "Kinro",
+      "score": 21,
+      "top_platform": "youtube",
+      "evidence_rows": 6,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-takecareos",
+      "company_name": "TakeCareOS",
+      "score": 21,
+      "top_platform": "x",
+      "evidence_rows": 6,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-astraea",
+      "company_name": "Astraea",
+      "score": 22,
+      "top_platform": "x",
+      "evidence_rows": 6,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-adialante",
+      "company_name": "Adialante",
+      "score": 23,
+      "top_platform": "x",
+      "evidence_rows": 7,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-madrone",
+      "company_name": "Madrone",
+      "score": 26,
+      "top_platform": "x",
+      "evidence_rows": 7,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "x"
+      ]
+    }
+  ],
+  "missing_by_platform": [
+    {
+      "platform": "github",
+      "companies_missing_scored_evidence": 174,
+      "examples": [
+        "AICE",
+        "AquaShield",
+        "Arctic Health",
+        "Arden",
+        "Arzana",
+        "CentralComs",
+        "Complir",
+        "Dayjob",
+        "Dispatch",
+        "Eden Robotics",
+        "Elyra",
+        "flowscope"
+      ]
+    },
+    {
+      "platform": "x",
+      "companies_missing_scored_evidence": 69,
+      "examples": [
+        "AICE",
+        "AquaShield",
+        "Arctic Health",
+        "Arden",
+        "Arzana",
+        "CentralComs",
+        "Complir",
+        "Dayjob",
+        "Dispatch",
+        "Eden Robotics",
+        "Elyra",
+        "flowscope"
+      ]
+    },
+    {
+      "platform": "linkedin",
+      "companies_missing_scored_evidence": 197,
+      "examples": [
+        "AICE",
+        "AquaShield",
+        "Arctic Health",
+        "Arden",
+        "Arzana",
+        "CentralComs",
+        "Complir",
+        "Dayjob",
+        "Dispatch",
+        "Eden Robotics",
+        "Elyra",
+        "flowscope"
+      ]
+    },
+    {
+      "platform": "instagram",
+      "companies_missing_scored_evidence": 196,
+      "examples": [
+        "AICE",
+        "AquaShield",
+        "Arctic Health",
+        "Arden",
+        "Arzana",
+        "CentralComs",
+        "Complir",
+        "Dayjob",
+        "Dispatch",
+        "Eden Robotics",
+        "Elyra",
+        "flowscope"
+      ]
+    },
+    {
+      "platform": "product_hunt",
+      "companies_missing_scored_evidence": 197,
+      "examples": [
+        "AICE",
+        "AquaShield",
+        "Arctic Health",
+        "Arden",
+        "Arzana",
+        "CentralComs",
+        "Complir",
+        "Dayjob",
+        "Dispatch",
+        "Eden Robotics",
+        "Elyra",
+        "flowscope"
+      ]
+    },
+    {
+      "platform": "youtube",
+      "companies_missing_scored_evidence": 150,
+      "examples": [
+        "AICE",
+        "AquaShield",
+        "Arctic Health",
+        "Arden",
+        "Arzana",
+        "CentralComs",
+        "Complir",
+        "Dayjob",
+        "Dispatch",
+        "Eden Robotics",
+        "Elyra",
+        "flowscope"
+      ]
+    },
+    {
+      "platform": "reddit",
+      "companies_missing_scored_evidence": 197,
+      "examples": [
+        "AICE",
+        "AquaShield",
+        "Arctic Health",
+        "Arden",
+        "Arzana",
+        "CentralComs",
+        "Complir",
+        "Dayjob",
+        "Dispatch",
+        "Eden Robotics",
+        "Elyra",
+        "flowscope"
+      ]
+    },
+    {
+      "platform": "hacker_news",
+      "companies_missing_scored_evidence": 187,
+      "examples": [
+        "AICE",
+        "AquaShield",
+        "Arctic Health",
+        "Arden",
+        "Arzana",
+        "CentralComs",
+        "Complir",
+        "Dayjob",
+        "Dispatch",
+        "Eden Robotics",
+        "Elyra",
+        "flowscope"
+      ]
+    }
+  ],
+  "next_target_companies": [
+    {
+      "company_id": "company-aice",
+      "company_name": "AICE",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-aquashield",
+      "company_name": "AquaShield",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 5,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-arctic-health",
+      "company_name": "Arctic Health",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-arden",
+      "company_name": "Arden",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-arzana",
+      "company_name": "Arzana",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-centralcoms",
+      "company_name": "CentralComs",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-complir",
+      "company_name": "Complir",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 9,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-dayjob",
+      "company_name": "Dayjob",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-dispatch",
+      "company_name": "Dispatch",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 5,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-eden-robotics",
+      "company_name": "Eden Robotics",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-elyra",
+      "company_name": "Elyra",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 6,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-flowscope",
+      "company_name": "flowscope",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-framewise-health",
+      "company_name": "Framewise Health",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-govguard",
+      "company_name": "GovGuard",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-hessian",
+      "company_name": "Hessian",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 5,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-hexa",
+      "company_name": "Hexa",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-huscarl",
+      "company_name": "Huscarl",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-incandor",
+      "company_name": "Incandor",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-infera",
+      "company_name": "Infera",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-intelligence-factory",
+      "company_name": "Intelligence Factory",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-klarify",
+      "company_name": "Klarify",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-korso",
+      "company_name": "Korso",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-lumius",
+      "company_name": "Lumius",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-maquoketa-research",
+      "company_name": "Maquoketa Research",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 4,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    },
+    {
+      "company_id": "company-modern",
+      "company_name": "Modern",
+      "score": 0,
+      "top_platform": null,
+      "evidence_rows": 2,
+      "scored_rows": 0,
+      "non_github_scored_rows": 0,
+      "scored_platforms": []
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "path-heyclicky-heyclicky-com-x-com-farzatv-status-2057850008574308512",
+    "company_id": "company-heyclicky",
+    "company_slug": "heyclicky",
+    "company_name": "HeyClicky",
+    "source_url": "https://heyclicky.com/",
+    "discovered_url": "https://x.com/FarzaTV/status/2057850008574308512",
+    "discovered_platform": "x",
+    "discovered_entity_type": "company",
+    "discovered_entity_name": "HeyClicky",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "review_state": "needs_review",
+    "created_at": "2026-06-28T13:17:55.834Z"
+  },
+  {
+    "id": "path-heyclicky-duckduckgo-com-html-q-22heyclicky-22-20-22y-20combinator-22-20linkedin-linkedin-com-posts-prabhathsrinivas-your-scrappy-projects-might-get-you-into-activity-74542054",
+    "company_id": "company-heyclicky",
+    "company_slug": "heyclicky",
+    "company_name": "HeyClicky",
+    "source_url": "https://duckduckgo.com/html/?q=%22HeyClicky%22%20%22Y%20Combinator%22%20LinkedIn",
+    "discovered_url": "https://linkedin.com/posts/prabhathsrinivas_your-scrappy-projects-might-get-you-into-activity-7454205484951273472-ThFG",
+    "discovered_platform": "linkedin",
+    "discovered_entity_type": "company",
+    "discovered_entity_name": "HeyClicky",
+    "match_reason": "Verified post-level public evidence from search query \"HeyClicky linkedin from discovered public source path\".",
+    "review_state": "verified",
+    "created_at": "2026-06-29T08:09:38.644Z"
+  },
+  {
+    "id": "path-stage-duckduckgo-com-html-q-22stage-22-20site-3ainstagram-com-instagram-com-stage",
+    "company_id": "company-stage",
+    "company_slug": "stage",
+    "company_name": "Stage",
+    "source_url": "https://duckduckgo.com/html/?q=%22Stage%22%20site%3Ainstagram.com",
+    "discovered_url": "https://instagram.com/stage",
+    "discovered_platform": "instagram",
+    "discovered_entity_type": "company",
+    "discovered_entity_name": "Stage",
+    "match_reason": "Found from public search query \"Stage instagram from discovered public source path\".",
+    "review_state": "needs_review",
+    "created_at": "2026-06-29T08:09:38.644Z"
+  },
+  {
+    "id": "path-stage-duckduckgo-com-html-q-22stage-22-20site-3ainstagram-com-instagram-com-thestageuk",
+    "company_id": "company-stage",
+    "company_slug": "stage",
+    "company_name": "Stage",
+    "source_url": "https://duckduckgo.com/html/?q=%22Stage%22%20site%3Ainstagram.com",
+    "discovered_url": "https://instagram.com/thestageuk",
+    "discovered_platform": "instagram",
+    "discovered_entity_type": "company",
+    "discovered_entity_name": "Stage",
+    "match_reason": "Found from public search query \"Stage instagram from discovered public source path\".",
+    "review_state": "needs_review",
+    "created_at": "2026-06-29T08:09:38.644Z"
+  }
+]

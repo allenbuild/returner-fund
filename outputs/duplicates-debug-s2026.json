@@ -1,0 +1,9 @@
+{
+  "generated_at": "2026-06-29T09:29:59.910Z",
+  "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026&includeNonScoring=1",
+  "duplicate_group_count": 0,
+  "duplicate_evidence_count": 0,
+  "groups": [],
+  "duplicate_account_group_count": 0,
+  "duplicate_account_groups": []
+}

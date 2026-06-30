@@ -1,0 +1,343 @@
+{
+  "runId": "2026-06-28T02-13-20-05-00",
+  "startedAt": "2026-06-28T02:13:20-05:00",
+  "eventLog": [
+    {
+      "type": "run_started",
+      "at": "2026-06-28T08:02:46.980Z",
+      "elapsedMinutes": 0,
+      "runId": "2026-06-28T02-13-20-05-00",
+      "startedAt": "2026-06-28T02:13:20-05:00",
+      "durationMinutes": 360,
+      "checkpointMinutes": 30,
+      "maxCompanies": 3,
+      "workers": 2,
+      "delayMs": 250,
+      "once": true,
+      "skipBuild": true,
+      "skipTests": true,
+      "skipBroadIngest": true
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T08:02:46.982Z",
+      "elapsedMinutes": 0,
+      "phase": "baseline"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:02:46.983Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:coverage"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:02:48.675Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:coverage",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 1133\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-28T08:02:48.676Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-28T08:02:49.254Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:02:49.254Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:workers"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:02:50.610Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:workers",
+      "exitCode": 0,
+      "elapsedSeconds": 1,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:workers\n> node scripts/debug-workers-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\workers-debug-s2026.json\",\n  \"workerCount\": 12,\n  \"taskCount\": 2167,\n  \"statusCounts\": {\n    \"completed\": 357,\n    \"blocked_or_empty\": 623,\n    \"needs_review\": 408,\n    \"queued\": 779\n  }\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:02:50.611Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:duplicates"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:02:52.173Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:duplicates",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:02:52.174Z",
+      "elapsedMinutes": 0,
+      "command": "npm run instagram:doctor"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:02:54.914Z",
+      "elapsedMinutes": 0,
+      "command": "npm run instagram:doctor",
+      "exitCode": 0,
+      "elapsedSeconds": 3,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 instagram:doctor\n> node scripts/instagram-doctor.mjs\n\n{\n  \"outputPath\": \"outputs/instagram-doctor.json\",\n  \"summary\": {\n    \"pass_count\": 7,\n    \"total_checks\": 12,\n    \"overall_status\": \"needs_attention\"\n  }\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T08:02:54.915Z",
+      "elapsedMinutes": 0,
+      "phase": "baseline"
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-28T08:02:54.916Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-28T08:02:55.493Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T08:02:55.494Z",
+      "elapsedMinutes": 0,
+      "phase": "targeted-heyclicky"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:02:55.495Z",
+      "elapsedMinutes": 0,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --company=HeyClicky --workers=2 --delay-ms=500 --force --discover-missing-social"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:03:28.001Z",
+      "elapsedMinutes": 0,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --company=HeyClicky --workers=2 --delay-ms=500 --force --discover-missing-social",
+      "exitCode": 0,
+      "elapsedSeconds": 33,
+      "stdoutTail": "[web/worker-1] web:heyclicky\n[web/worker-2] web:heyclicky\n[rss/worker-1] rss:heyclicky\n[hacker_news/worker-1] hacker_news:heyclicky\n[youtube/worker-1] youtube:heyclicky\n[product_hunt/worker-1] product_hunt:heyclicky\n[reddit/worker-1] reddit:heyclicky\n[x/worker-1] x:heyclicky:company:31574\n[linkedin/worker-1] linkedin:heyclicky:company:31574\n[instagram/worker-1] instagram:heyclicky:company:31574\nWrote 959 evidence items, 983 review candidates, 903 failures, 301 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:03:28.002Z",
+      "elapsedMinutes": 0,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=instagram --company=HeyClicky --workers=2 --delay-ms=1500 --force --discover-missing-social"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:04:00.668Z",
+      "elapsedMinutes": 1,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=instagram --company=HeyClicky --workers=2 --delay-ms=1500 --force --discover-missing-social",
+      "exitCode": 0,
+      "elapsedSeconds": 33,
+      "stdoutTail": "[instagram/worker-1] instagram:heyclicky:company:31574\nWrote 959 evidence items, 983 review candidates, 903 failures, 301 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:04:00.669Z",
+      "elapsedMinutes": 1,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=x --company=HeyClicky --workers=2 --delay-ms=1500 --force"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:04:03.210Z",
+      "elapsedMinutes": 1,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=x --company=HeyClicky --workers=2 --delay-ms=1500 --force",
+      "exitCode": 0,
+      "elapsedSeconds": 3,
+      "stdoutTail": "[x/worker-1] x:heyclicky:company:31574\nWrote 959 evidence items, 983 review candidates, 903 failures, 301 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T08:04:03.211Z",
+      "elapsedMinutes": 1,
+      "phase": "targeted-heyclicky"
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-28T08:04:03.212Z",
+      "elapsedMinutes": 1
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-28T08:04:03.845Z",
+      "elapsedMinutes": 1
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T08:04:03.845Z",
+      "elapsedMinutes": 1,
+      "phase": "broad-ingest"
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T08:04:03.846Z",
+      "elapsedMinutes": 1,
+      "phase": "broad-ingest"
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-28T08:04:03.846Z",
+      "elapsedMinutes": 1
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-28T08:04:04.499Z",
+      "elapsedMinutes": 1
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T08:04:04.499Z",
+      "elapsedMinutes": 1,
+      "phase": "analysis"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:04:04.500Z",
+      "elapsedMinutes": 1,
+      "command": "npm run discovery:plan"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:04:06.214Z",
+      "elapsedMinutes": 1,
+      "command": "npm run discovery:plan",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 discovery:plan\n> node scripts/plan-discovery-tasks.mjs\n\n{\n  \"outputPath\": \"outputs/discovery-plan-s2026.json\",\n  \"tasks\": 1706,\n  \"queries\": 5989,\n  \"highPriority\": 170\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:04:06.216Z",
+      "elapsedMinutes": 1,
+      "command": "npm run scoring:experiments"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:04:07.871Z",
+      "elapsedMinutes": 1,
+      "command": "npm run scoring:experiments",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 5,\n  \"recommended\": \"C-developer-heavy\"\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:04:07.872Z",
+      "elapsedMinutes": 1,
+      "command": "npm run debug:anomalies"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:04:09.326Z",
+      "elapsedMinutes": 1,
+      "command": "npm run debug:anomalies",
+      "exitCode": 0,
+      "elapsedSeconds": 1,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:anomalies\n> node scripts/run-anomaly-report.mjs\n\n{\n  \"outputPath\": \"outputs/anomaly-report-s2026.json\",\n  \"anomalies\": 291,\n  \"followUpTasks\": 579\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:04:09.327Z",
+      "elapsedMinutes": 1,
+      "command": "npm run debug:coverage"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:04:10.631Z",
+      "elapsedMinutes": 1,
+      "command": "npm run debug:coverage",
+      "exitCode": 0,
+      "elapsedSeconds": 1,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 1133\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:04:10.632Z",
+      "elapsedMinutes": 1,
+      "command": "npm run debug:workers"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:04:12.058Z",
+      "elapsedMinutes": 1,
+      "command": "npm run debug:workers",
+      "exitCode": 0,
+      "elapsedSeconds": 1,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:workers\n> node scripts/debug-workers-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\workers-debug-s2026.json\",\n  \"workerCount\": 12,\n  \"taskCount\": 2167,\n  \"statusCounts\": {\n    \"completed\": 357,\n    \"blocked_or_empty\": 623,\n    \"needs_review\": 408,\n    \"queued\": 779\n  }\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:04:12.059Z",
+      "elapsedMinutes": 1,
+      "command": "npm run debug:duplicates"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:04:13.600Z",
+      "elapsedMinutes": 1,
+      "command": "npm run debug:duplicates",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T08:04:13.601Z",
+      "elapsedMinutes": 1,
+      "phase": "analysis"
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-28T08:04:13.602Z",
+      "elapsedMinutes": 1
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-28T08:04:14.258Z",
+      "elapsedMinutes": 1
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-28T08:04:14.259Z",
+      "elapsedMinutes": 1
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-28T08:04:14.881Z",
+      "elapsedMinutes": 1
+    },
+    {
+      "type": "run_finished",
+      "at": "2026-06-28T08:04:14.881Z",
+      "elapsedMinutes": 1
+    }
+  ]
+}

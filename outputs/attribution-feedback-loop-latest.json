@@ -1,0 +1,1708 @@
+{
+  "run_id": "attribution-20260628-230515",
+  "status": "finished",
+  "started_at": "2026-06-29T04:05:15.715Z",
+  "last_checkpoint_at": "2026-06-29T09:05:25.195Z",
+  "target_minutes": 300,
+  "elapsed_minutes": 300,
+  "deadline_at": "2026-06-29T09:05:15.715Z",
+  "workers": 14,
+  "event_count": 3544,
+  "latest_event": {
+    "type": "finished",
+    "at": "2026-06-29T09:05:25.195Z",
+    "iteration": 252
+  },
+  "latest_audit": {
+    "result": "pass",
+    "scored_evidence_count": 1764,
+    "high_risk_scored_count": 0,
+    "medium_risk_scored_count": 0,
+    "guarded_zero_score_rows": 1249
+  },
+  "coverage": {
+    "company_count": 197,
+    "evidence_count": 3013,
+    "logged_in_social": {
+      "evidence_rows": 1955,
+      "failure_rows": 107,
+      "platform_rows": {
+        "instagram": 41,
+        "x": 1914
+      },
+      "companies_by_platform": {
+        "instagram": 1,
+        "x": 130
+      }
+    },
+    "x_target_coverage": {
+      "known_x_targets": 367,
+      "companies_with_known_x_targets": 164,
+      "attempted_targets": 367,
+      "not_attempted_targets": 0,
+      "zero_post_targets": 107,
+      "failed_targets": 0,
+      "companies_with_x_evidence": 130,
+      "companies_with_known_x_but_no_evidence": 34,
+      "companies_with_zero_only": 34,
+      "examples_not_attempted": [],
+      "examples_zero_post": [
+        "Andustry / Andustry",
+        "AquaShield / AquaShield",
+        "Arden / Aryaman Khanna",
+        "Asendia AI / Asendia AI",
+        "Avea Robotics / Avea Robotics",
+        "Chert / Chert",
+        "Deep Interactions / Deep Interactions",
+        "Dispatch / Payton Case",
+        "Eden Robotics / Stamatios Floratos",
+        "Elyra / Elyra",
+        "Elyra / Felix Odeberg Glasenapp",
+        "Enjamb Labs / Enjamb Labs"
+      ],
+      "examples_failed": []
+    }
+  },
+  "duplicates": {
+    "duplicate_groups": 0,
+    "duplicate_account_groups": 0
+  },
+  "scoring": {
+    "recommended_config": "F-browser-social-v2",
+    "recommended_platform_weights": {
+      "x": 0.34,
+      "instagram": 0.22,
+      "github": 0.14,
+      "linkedin": 0.14,
+      "product_hunt": 0.07,
+      "youtube": 0.05,
+      "hacker_news": 0.04
+    }
+  },
+  "event_log": [
+    {
+      "type": "command_finished",
+      "iteration": 238,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1541\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:54:45.918Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:54:45.918Z",
+      "iteration": 238,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T08:54:45.931Z",
+      "iteration": 238,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T08:55:45.953Z",
+      "iteration": 239,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 239,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 13,\n    \"medium\": 511,\n    \"low\": 458\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:55:46.775Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:55:46.775Z",
+      "iteration": 239,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 239,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:55:47.539Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:55:47.539Z",
+      "iteration": 239,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 239,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:55:48.410Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:55:48.410Z",
+      "iteration": 239,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 239,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:55:50.289Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:55:50.289Z",
+      "iteration": 239,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 239,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1542\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:55:51.142Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:55:51.143Z",
+      "iteration": 239,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 239,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1542\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:55:52.025Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:55:52.025Z",
+      "iteration": 239,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T08:55:52.037Z",
+      "iteration": 239,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T08:56:52.057Z",
+      "iteration": 240,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 240,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:56:53.068Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:56:53.068Z",
+      "iteration": 240,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 240,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:56:53.839Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:56:53.839Z",
+      "iteration": 240,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 240,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:56:54.792Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:56:54.792Z",
+      "iteration": 240,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 240,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:56:56.636Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:56:56.636Z",
+      "iteration": 240,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 240,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1543\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:56:57.341Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:56:57.341Z",
+      "iteration": 240,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 240,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1543\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:56:57.940Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:56:57.940Z",
+      "iteration": 240,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T08:56:57.952Z",
+      "iteration": 240,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T08:57:57.977Z",
+      "iteration": 241,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 241,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 4,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:58:02.267Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:58:02.267Z",
+      "iteration": 241,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 241,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 13,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:58:15.737Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:58:15.737Z",
+      "iteration": 241,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 241,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 3,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:58:18.455Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:58:18.455Z",
+      "iteration": 241,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 241,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 4,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:58:22.346Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:58:22.346Z",
+      "iteration": 241,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 241,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1545\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:58:23.698Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:58:23.698Z",
+      "iteration": 241,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 241,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1545\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:58:25.169Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:58:25.169Z",
+      "iteration": 241,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T08:58:25.191Z",
+      "iteration": 241,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T08:59:25.227Z",
+      "iteration": 242,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 242,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:59:25.972Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:59:25.972Z",
+      "iteration": 242,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 242,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:59:26.712Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:59:26.712Z",
+      "iteration": 242,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 242,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:59:27.383Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:59:27.383Z",
+      "iteration": 242,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 242,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:59:28.940Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:59:28.940Z",
+      "iteration": 242,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 242,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1546\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:59:29.495Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:59:29.495Z",
+      "iteration": 242,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 242,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1546\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T08:59:30.105Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T08:59:30.105Z",
+      "iteration": 242,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T08:59:30.115Z",
+      "iteration": 242,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:00:30.141Z",
+      "iteration": 243,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 243,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:00:30.929Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:00:30.929Z",
+      "iteration": 243,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 243,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:00:31.661Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:00:31.661Z",
+      "iteration": 243,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 243,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:00:32.334Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:00:32.334Z",
+      "iteration": 243,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 243,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:00:34.004Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:00:34.004Z",
+      "iteration": 243,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 243,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1547\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:00:34.690Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:00:34.690Z",
+      "iteration": 243,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 243,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1547\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:00:35.266Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:00:35.266Z",
+      "iteration": 243,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:00:35.275Z",
+      "iteration": 243,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:01:35.291Z",
+      "iteration": 244,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 244,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:01:35.931Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:01:35.931Z",
+      "iteration": 244,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 244,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:01:36.591Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:01:36.591Z",
+      "iteration": 244,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 244,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:01:37.307Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:01:37.307Z",
+      "iteration": 244,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 244,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:01:39.194Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:01:39.194Z",
+      "iteration": 244,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 244,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1548\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:01:39.775Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:01:39.775Z",
+      "iteration": 244,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 244,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1548\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:01:40.464Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:01:40.464Z",
+      "iteration": 244,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:01:40.477Z",
+      "iteration": 244,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:02:40.504Z",
+      "iteration": 245,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 245,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:02:41.128Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:02:41.128Z",
+      "iteration": 245,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 245,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:02:41.723Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:02:41.723Z",
+      "iteration": 245,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 245,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:02:42.381Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:02:42.381Z",
+      "iteration": 245,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 245,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:02:44.238Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:02:44.238Z",
+      "iteration": 245,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 245,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1549\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:02:44.875Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:02:44.875Z",
+      "iteration": 245,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 245,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1549\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:02:45.555Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:02:45.555Z",
+      "iteration": 245,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:02:45.567Z",
+      "iteration": 245,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:03:45.589Z",
+      "iteration": 246,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 246,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:03:46.177Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:03:46.177Z",
+      "iteration": 246,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 246,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:03:46.785Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:03:46.785Z",
+      "iteration": 246,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 246,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:03:47.506Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:03:47.506Z",
+      "iteration": 246,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 246,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:03:49.016Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:03:49.016Z",
+      "iteration": 246,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 246,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1550\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:03:49.611Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:03:49.611Z",
+      "iteration": 246,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 246,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1550\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:03:50.149Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:03:50.149Z",
+      "iteration": 246,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:03:50.162Z",
+      "iteration": 246,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:04:50.179Z",
+      "iteration": 247,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 247,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:50.828Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:50.828Z",
+      "iteration": 247,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 247,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:51.472Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:51.472Z",
+      "iteration": 247,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 247,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:52.323Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:52.323Z",
+      "iteration": 247,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 247,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:54.197Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:54.197Z",
+      "iteration": 247,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 247,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:55.026Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:55.026Z",
+      "iteration": 247,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 247,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:55.858Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:55.858Z",
+      "iteration": 247,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:04:55.873Z",
+      "iteration": 247,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:04:55.889Z",
+      "iteration": 248,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 248,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:56.746Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:56.746Z",
+      "iteration": 248,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 248,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:57.624Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:57.624Z",
+      "iteration": 248,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 248,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:04:58.434Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:04:58.434Z",
+      "iteration": 248,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 248,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:00.281Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:00.281Z",
+      "iteration": 248,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 248,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:00.893Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:00.893Z",
+      "iteration": 248,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 248,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:01.611Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:01.611Z",
+      "iteration": 248,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:05:01.626Z",
+      "iteration": 248,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:05:01.639Z",
+      "iteration": 249,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 249,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:02.379Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:02.379Z",
+      "iteration": 249,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 249,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:03.163Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:03.163Z",
+      "iteration": 249,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 249,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:04.005Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:04.005Z",
+      "iteration": 249,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 249,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:05.869Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:05.869Z",
+      "iteration": 249,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 249,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:06.501Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:06.501Z",
+      "iteration": 249,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 249,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:07.186Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:07.186Z",
+      "iteration": 249,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:05:07.201Z",
+      "iteration": 249,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:05:07.216Z",
+      "iteration": 250,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 250,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:08.071Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:08.071Z",
+      "iteration": 250,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 250,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:08.795Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:08.795Z",
+      "iteration": 250,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 250,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:09.589Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:09.589Z",
+      "iteration": 250,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 250,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:11.469Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:11.469Z",
+      "iteration": 250,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 250,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:12.193Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:12.193Z",
+      "iteration": 250,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 250,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:12.906Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:12.906Z",
+      "iteration": 250,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:05:12.919Z",
+      "iteration": 250,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:05:12.933Z",
+      "iteration": 251,
+      "final": false
+    },
+    {
+      "type": "command_finished",
+      "iteration": 251,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:13.803Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:13.803Z",
+      "iteration": 251,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 251,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:14.679Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:14.679Z",
+      "iteration": 251,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 251,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:15.526Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:15.526Z",
+      "iteration": 251,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 251,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:17.558Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:17.558Z",
+      "iteration": 251,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 251,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:18.237Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:18.237Z",
+      "iteration": 251,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 251,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1551\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:19.020Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:19.020Z",
+      "iteration": 251,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:05:19.042Z",
+      "iteration": 251,
+      "final": false
+    },
+    {
+      "type": "iteration_started",
+      "at": "2026-06-29T09:05:19.058Z",
+      "iteration": 252,
+      "final": true
+    },
+    {
+      "type": "command_finished",
+      "iteration": 252,
+      "label": "attribution_audit",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "{\n  \"outputPath\": \"outputs/evidence-attribution-audit-s2026.json\",\n  \"result\": \"pass\",\n  \"workers\": 14,\n  \"scoredEvidence\": 1764,\n  \"highRiskScored\": 0,\n  \"mediumRiskScored\": 0,\n  \"firstPartySocialReview\": 982,\n  \"founderFirstPartyReview\": 788,\n  \"firstPartySocialReviewPriorityCounts\": {\n    \"high\": 11,\n    \"medium\": 511,\n    \"low\": 460\n  },\n  \"guardedZeroScoreRows\": 1249\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:19.886Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:19.886Z",
+      "iteration": 252,
+      "label": "attribution_audit",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 252,
+      "label": "duplicates",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0,\n  \"duplicateAccountGroups\": 0\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:20.700Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:20.700Z",
+      "iteration": 252,
+      "label": "duplicates",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 252,
+      "label": "coverage",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 3013\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:21.604Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:21.604Z",
+      "iteration": 252,
+      "label": "coverage",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 252,
+      "label": "scoring",
+      "exit_code": 0,
+      "elapsed_seconds": 2,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 6,\n  \"recommended\": \"F-browser-social-v2\"\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:23.607Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:23.607Z",
+      "iteration": 252,
+      "label": "scoring",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 252,
+      "label": "longrun_checkpoint",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:checkpoint\n> node scripts/long-run-checkpoint.mjs\n\n{\n  \"outputPath\": \"docs\\\\LONG_RUN_STATUS.md\",\n  \"elapsedMinutes\": 1552\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:24.269Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:24.269Z",
+      "iteration": 252,
+      "label": "longrun_checkpoint",
+      "exit_code": 0
+    },
+    {
+      "type": "command_finished",
+      "iteration": 252,
+      "label": "longrun_report",
+      "exit_code": 0,
+      "elapsed_seconds": 1,
+      "stdout_tail": "> yc-network-intelligence@0.1.0 longrun:report\n> node scripts/generate-long-run-report.mjs\n\n{\n  \"outputPath\": \"docs/LONG_RUN_FINAL_REPORT.md\",\n  \"elapsedMinutes\": 1552\n}",
+      "stderr_tail": "",
+      "at": "2026-06-29T09:05:25.160Z"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-29T09:05:25.160Z",
+      "iteration": 252,
+      "label": "longrun_report",
+      "exit_code": 0
+    },
+    {
+      "type": "iteration_finished",
+      "at": "2026-06-29T09:05:25.177Z",
+      "iteration": 252,
+      "final": true
+    },
+    {
+      "type": "finished",
+      "at": "2026-06-29T09:05:25.195Z",
+      "iteration": 252
+    }
+  ]
+}

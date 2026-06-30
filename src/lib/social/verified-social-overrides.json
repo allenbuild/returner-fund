@@ -1,0 +1,21 @@
+{
+  "heyclicky": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/_heyclicky/",
+      "x": "https://x.com/heyclicky"
+    },
+    "founders": [
+      {
+        "id": "manual-farza-majeed",
+        "name": "Farza Majeed",
+        "ycProfileUrl": null,
+        "sourceUrl": "https://www.instagram.com/farza954/",
+        "socialLinks": {
+          "instagram": "https://www.instagram.com/farza954/",
+          "x": "https://x.com/FarzaTV"
+        },
+        "matchReason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky."
+      }
+    ]
+  }
+}

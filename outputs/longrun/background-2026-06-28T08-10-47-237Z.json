@@ -1,0 +1,586 @@
+{
+  "runId": "background-2026-06-28T08-10-47-237Z",
+  "startedAt": "2026-06-28T02:13:20-05:00",
+  "eventLog": [
+    {
+      "type": "run_started",
+      "at": "2026-06-28T08:10:47.284Z",
+      "elapsedMinutes": 0,
+      "runId": "background-2026-06-28T08-10-47-237Z",
+      "startedAt": "2026-06-28T02:13:20-05:00",
+      "durationMinutes": 360,
+      "checkpointMinutes": 30,
+      "maxCompanies": 197,
+      "workers": 8,
+      "delayMs": 1200,
+      "once": false,
+      "skipBuild": false,
+      "skipTests": false,
+      "skipBroadIngest": false
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T08:10:47.286Z",
+      "elapsedMinutes": 0,
+      "phase": "baseline"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:10:47.287Z",
+      "elapsedMinutes": 0,
+      "command": "npm run typecheck"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:10:52.120Z",
+      "elapsedMinutes": 0,
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "elapsedSeconds": 5,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 typecheck\n> tsc --noEmit",
+      "stderrTail": ""
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-28T08:10:52.122Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-28T08:10:53.770Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:10:53.771Z",
+      "elapsedMinutes": 0,
+      "command": "npm test"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:11:07.062Z",
+      "elapsedMinutes": 0,
+      "command": "npm test",
+      "exitCode": 0,
+      "elapsedSeconds": 13,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.9 C:/Users/swimd/Documents/Codex/2026-06-27/i-want-this-environment-to-become\n\n\n Test Files  14 passed (14)\n      Tests  52 passed (52)\n   Start at  03:10:55\n   Duration  11.63s (transform 12.50s, setup 8.32s, import 19.34s, tests 8.44s, environment 72.55s)",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:11:07.064Z",
+      "elapsedMinutes": 0,
+      "command": "npm run build"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:11:28.086Z",
+      "elapsedMinutes": 0,
+      "command": "npm run build",
+      "exitCode": 0,
+      "elapsedSeconds": 21,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 build\n> next build\n\n▲ Next.js 16.2.9 (Turbopack)\n\n  Creating an optimized production build ...\n✓ Compiled successfully in 3.2s\n  Running TypeScript ...\n  Finished TypeScript in 8.9s ...\n  Collecting page data using 12 workers ...\n  Generating static pages using 12 workers (0/11) ...\n  Generating static pages using 12 workers (2/11) \r\n  Generating static pages using 12 workers (5/11) \r\n  Generating static pages using 12 workers (8/11) \r\n✓ Generating static pages using 12 workers (11/11) in 3.6s\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n├ ○ /_not-found\n├ ƒ /api/graph\n├ ƒ /api/graph/refresh\n├ ƒ /api/ingest/batch\n├ ○ /debug/coverage\n├ ○ /debug/duplicates\n├ ƒ /debug/evidence\n├ ƒ /debug/scoring\n└ ○ /debug/workers\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:11:28.087Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:coverage"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:11:31.469Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:coverage",
+      "exitCode": 0,
+      "elapsedSeconds": 3,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 1133\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:11:31.471Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:workers"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:11:34.180Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:workers",
+      "exitCode": 0,
+      "elapsedSeconds": 3,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:workers\n> node scripts/debug-workers-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\workers-debug-s2026.json\",\n  \"workerCount\": 12,\n  \"taskCount\": 2167,\n  \"statusCounts\": {\n    \"completed\": 357,\n    \"blocked_or_empty\": 623,\n    \"needs_review\": 408,\n    \"queued\": 779\n  }\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:11:34.181Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:duplicates"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:11:36.899Z",
+      "elapsedMinutes": 0,
+      "command": "npm run debug:duplicates",
+      "exitCode": 0,
+      "elapsedSeconds": 3,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:11:36.900Z",
+      "elapsedMinutes": 0,
+      "command": "npm run instagram:doctor"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:11:40.747Z",
+      "elapsedMinutes": 0,
+      "command": "npm run instagram:doctor",
+      "exitCode": 0,
+      "elapsedSeconds": 4,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 instagram:doctor\n> node scripts/instagram-doctor.mjs\n\n{\n  \"outputPath\": \"outputs/instagram-doctor.json\",\n  \"summary\": {\n    \"pass_count\": 7,\n    \"total_checks\": 12,\n    \"overall_status\": \"needs_attention\"\n  }\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T08:11:40.749Z",
+      "elapsedMinutes": 0,
+      "phase": "baseline"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T08:11:40.750Z",
+      "elapsedMinutes": 0,
+      "phase": "targeted-heyclicky"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:11:40.751Z",
+      "elapsedMinutes": 0,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --company=HeyClicky --workers=4 --delay-ms=500 --force --discover-missing-social"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:12:14.129Z",
+      "elapsedMinutes": 1,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --company=HeyClicky --workers=4 --delay-ms=500 --force --discover-missing-social",
+      "exitCode": 0,
+      "elapsedSeconds": 33,
+      "stdoutTail": "[web/worker-1] web:heyclicky\n[web/worker-2] web:heyclicky\n[rss/worker-1] rss:heyclicky\n[hacker_news/worker-1] hacker_news:heyclicky\n[youtube/worker-1] youtube:heyclicky\n[product_hunt/worker-1] product_hunt:heyclicky\n[reddit/worker-1] reddit:heyclicky\n[x/worker-1] x:heyclicky:company:31574\n[linkedin/worker-1] linkedin:heyclicky:company:31574\n[instagram/worker-1] instagram:heyclicky:company:31574\nWrote 960 evidence items, 983 review candidates, 903 failures, 302 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:12:14.130Z",
+      "elapsedMinutes": 1,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=instagram --company=HeyClicky --workers=2 --delay-ms=1500 --force --discover-missing-social"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:12:47.841Z",
+      "elapsedMinutes": 2,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=instagram --company=HeyClicky --workers=2 --delay-ms=1500 --force --discover-missing-social",
+      "exitCode": 0,
+      "elapsedSeconds": 34,
+      "stdoutTail": "[instagram/worker-1] instagram:heyclicky:company:31574\nWrote 960 evidence items, 983 review candidates, 903 failures, 302 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:12:47.843Z",
+      "elapsedMinutes": 2,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=x --company=HeyClicky --workers=2 --delay-ms=1500 --force"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T08:12:51.640Z",
+      "elapsedMinutes": 2,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=x --company=HeyClicky --workers=2 --delay-ms=1500 --force",
+      "exitCode": 0,
+      "elapsedSeconds": 4,
+      "stdoutTail": "[x/worker-1] x:heyclicky:company:31574\nWrote 960 evidence items, 983 review candidates, 903 failures, 302 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T08:12:51.642Z",
+      "elapsedMinutes": 2,
+      "phase": "targeted-heyclicky"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T08:12:51.643Z",
+      "elapsedMinutes": 2,
+      "phase": "broad-ingest"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T08:12:51.643Z",
+      "elapsedMinutes": 2,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --max-companies=197 --workers=8 --delay-ms=1200 --discover-missing-social"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:05:33.478Z",
+      "elapsedMinutes": 54,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --max-companies=197 --workers=8 --delay-ms=1200 --discover-missing-social",
+      "exitCode": 0,
+      "elapsedSeconds": 3162,
+      "stdoutTail": "er:2458948\n[instagram/worker-1] instagram:voquill:company:31430\n[instagram/worker-2] instagram:voquill:founder:2012620\n[instagram/worker-2] instagram:voquill:founder:3291143\n[instagram/worker-2] instagram:voquill:founder:2012629\n[instagram/worker-2] instagram:walter:company:31466\n[instagram/worker-1] instagram:walter:founder:3097279\n[instagram/worker-1] instagram:walter:founder:2725726\n[instagram/worker-1] instagram:wato:company:31472\n[instagram/worker-2] instagram:wato:founder:1516656\n[instagram/worker-2] instagram:wato:founder:3203486\n[instagram/worker-2] instagram:wealor:company:31390\n[instagram/worker-1] instagram:wealor:founder:2693699\n[instagram/worker-1] instagram:wealor:founder:3331290\n[instagram/worker-1] instagram:withai:company:31343\n[instagram/worker-2] instagram:withai:founder:3405246\n[instagram/worker-2] instagram:withai:founder:3276162\n[instagram/worker-2] instagram:youart:company:31517\n[instagram/worker-1] instagram:youart:founder:1404079\n[instagram/worker-1] instagram:youart:founder:3409877\n[instagram/worker-1] instagram:youart:founder:3172846\n[instagram/worker-1] instagram:zenbu-2:company:31368\n[instagram/worker-2] instagram:zenbu-2:founder:3026245\n[instagram/worker-2] instagram:zibra-labs:company:31459\n[instagram/worker-1] instagram:zibra-labs:founder:1593755\n[instagram/worker-1] instagram:zibra-labs:founder:3417957\n[instagram/worker-1] instagram:zolvo:company:31385\n[instagram/worker-2] instagram:zolvo:founder:3096630\n[instagram/worker-2] instagram:zolvo:founder:1909560\nWrote 960 evidence items, 983 review candidates, 903 failures, 302 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-28T09:05:33.480Z",
+      "elapsedMinutes": 54
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-28T09:05:34.804Z",
+      "elapsedMinutes": 54
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T09:05:34.805Z",
+      "elapsedMinutes": 54,
+      "phase": "broad-ingest"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T09:05:34.806Z",
+      "elapsedMinutes": 54,
+      "phase": "analysis"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:05:34.808Z",
+      "elapsedMinutes": 54,
+      "command": "npm run discovery:plan"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:05:37.303Z",
+      "elapsedMinutes": 54,
+      "command": "npm run discovery:plan",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 discovery:plan\n> node scripts/plan-discovery-tasks.mjs\n\n{\n  \"outputPath\": \"outputs/discovery-plan-s2026.json\",\n  \"tasks\": 1706,\n  \"queries\": 5989,\n  \"highPriority\": 170\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:05:37.305Z",
+      "elapsedMinutes": 54,
+      "command": "npm run scoring:experiments"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:05:39.674Z",
+      "elapsedMinutes": 54,
+      "command": "npm run scoring:experiments",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 scoring:experiments\n> node scripts/run-scoring-experiments.mjs\n\n{\n  \"outputPath\": \"outputs/scoring-experiments-s2026.json\",\n  \"configs\": 5,\n  \"recommended\": \"C-developer-heavy\"\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:05:39.675Z",
+      "elapsedMinutes": 54,
+      "command": "npm run debug:anomalies"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:05:42.037Z",
+      "elapsedMinutes": 54,
+      "command": "npm run debug:anomalies",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:anomalies\n> node scripts/run-anomaly-report.mjs\n\n{\n  \"outputPath\": \"outputs/anomaly-report-s2026.json\",\n  \"anomalies\": 291,\n  \"followUpTasks\": 579\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:05:42.038Z",
+      "elapsedMinutes": 54,
+      "command": "npm run debug:coverage"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:05:44.147Z",
+      "elapsedMinutes": 54,
+      "command": "npm run debug:coverage",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 1134\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:05:44.148Z",
+      "elapsedMinutes": 54,
+      "command": "npm run debug:workers"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:05:46.348Z",
+      "elapsedMinutes": 54,
+      "command": "npm run debug:workers",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:workers\n> node scripts/debug-workers-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\workers-debug-s2026.json\",\n  \"workerCount\": 12,\n  \"taskCount\": 2167,\n  \"statusCounts\": {\n    \"completed\": 358,\n    \"blocked_or_empty\": 623,\n    \"needs_review\": 407,\n    \"queued\": 779\n  }\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:05:46.349Z",
+      "elapsedMinutes": 54,
+      "command": "npm run debug:duplicates"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:05:48.638Z",
+      "elapsedMinutes": 55,
+      "command": "npm run debug:duplicates",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T09:05:48.640Z",
+      "elapsedMinutes": 55,
+      "phase": "analysis"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T09:05:48.641Z",
+      "elapsedMinutes": 55,
+      "phase": "baseline"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:05:48.642Z",
+      "elapsedMinutes": 55,
+      "command": "npm run typecheck"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:05:53.406Z",
+      "elapsedMinutes": 55,
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "elapsedSeconds": 5,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 typecheck\n> tsc --noEmit",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:05:53.407Z",
+      "elapsedMinutes": 55,
+      "command": "npm test"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:06:06.494Z",
+      "elapsedMinutes": 55,
+      "command": "npm test",
+      "exitCode": 0,
+      "elapsedSeconds": 13,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 test\n> vitest run\n\n\n RUN  v4.1.9 C:/Users/swimd/Documents/Codex/2026-06-27/i-want-this-environment-to-become\n\n\n Test Files  14 passed (14)\n      Tests  54 passed (54)\n   Start at  04:05:55\n   Duration  11.08s (transform 10.90s, setup 8.69s, import 18.85s, tests 7.55s, environment 68.81s)",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:06:06.495Z",
+      "elapsedMinutes": 55,
+      "command": "npm run build"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:06:25.948Z",
+      "elapsedMinutes": 55,
+      "command": "npm run build",
+      "exitCode": 0,
+      "elapsedSeconds": 19,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 build\n> next build\n\n▲ Next.js 16.2.9 (Turbopack)\n\n  Creating an optimized production build ...\n✓ Compiled successfully in 3.0s\n  Running TypeScript ...\n  Finished TypeScript in 8.5s ...\n  Collecting page data using 12 workers ...\n  Generating static pages using 12 workers (0/11) ...\n  Generating static pages using 12 workers (2/11) \r\n  Generating static pages using 12 workers (5/11) \r\n  Generating static pages using 12 workers (8/11) \r\n✓ Generating static pages using 12 workers (11/11) in 3.2s\n  Finalizing page optimization ...\n\nRoute (app)\n┌ ○ /\n├ ○ /_not-found\n├ ƒ /api/graph\n├ ƒ /api/graph/refresh\n├ ƒ /api/ingest/batch\n├ ○ /debug/coverage\n├ ○ /debug/duplicates\n├ ƒ /debug/evidence\n├ ƒ /debug/scoring\n└ ○ /debug/workers\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:06:25.949Z",
+      "elapsedMinutes": 55,
+      "command": "npm run debug:coverage"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:06:28.652Z",
+      "elapsedMinutes": 55,
+      "command": "npm run debug:coverage",
+      "exitCode": 0,
+      "elapsedSeconds": 3,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:coverage\n> node scripts/debug-coverage-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\coverage-debug-s2026.json\",\n  \"companyCount\": 197,\n  \"evidenceCount\": 1134\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:06:28.654Z",
+      "elapsedMinutes": 55,
+      "command": "npm run debug:workers"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:06:30.953Z",
+      "elapsedMinutes": 55,
+      "command": "npm run debug:workers",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:workers\n> node scripts/debug-workers-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\workers-debug-s2026.json\",\n  \"workerCount\": 12,\n  \"taskCount\": 2167,\n  \"statusCounts\": {\n    \"completed\": 358,\n    \"blocked_or_empty\": 623,\n    \"needs_review\": 407,\n    \"queued\": 779\n  }\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:06:30.954Z",
+      "elapsedMinutes": 55,
+      "command": "npm run debug:duplicates"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:06:33.377Z",
+      "elapsedMinutes": 55,
+      "command": "npm run debug:duplicates",
+      "exitCode": 0,
+      "elapsedSeconds": 2,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 debug:duplicates\n> node scripts/debug-duplicates-report.mjs\n\n{\n  \"outputPath\": \"outputs\\\\duplicates-debug-s2026.json\",\n  \"duplicateGroups\": 0\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:06:33.378Z",
+      "elapsedMinutes": 55,
+      "command": "npm run instagram:doctor"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:06:37.154Z",
+      "elapsedMinutes": 55,
+      "command": "npm run instagram:doctor",
+      "exitCode": 0,
+      "elapsedSeconds": 4,
+      "stdoutTail": "> yc-network-intelligence@0.1.0 instagram:doctor\n> node scripts/instagram-doctor.mjs\n\n{\n  \"outputPath\": \"outputs/instagram-doctor.json\",\n  \"summary\": {\n    \"pass_count\": 7,\n    \"total_checks\": 14,\n    \"overall_status\": \"needs_attention\"\n  }\n}",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T09:06:37.155Z",
+      "elapsedMinutes": 55,
+      "phase": "baseline"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T09:06:37.156Z",
+      "elapsedMinutes": 55,
+      "phase": "targeted-heyclicky"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:06:37.157Z",
+      "elapsedMinutes": 55,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --company=HeyClicky --workers=4 --delay-ms=500 --force --discover-missing-social"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:07:10.485Z",
+      "elapsedMinutes": 56,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --company=HeyClicky --workers=4 --delay-ms=500 --force --discover-missing-social",
+      "exitCode": 0,
+      "elapsedSeconds": 33,
+      "stdoutTail": "[web/worker-1] web:heyclicky\n[web/worker-2] web:heyclicky\n[rss/worker-1] rss:heyclicky\n[hacker_news/worker-1] hacker_news:heyclicky\n[youtube/worker-1] youtube:heyclicky\n[product_hunt/worker-1] product_hunt:heyclicky\n[reddit/worker-1] reddit:heyclicky\n[x/worker-1] x:heyclicky:company:31574\n[linkedin/worker-1] linkedin:heyclicky:company:31574\n[instagram/worker-1] instagram:heyclicky:company:31574\nWrote 960 evidence items, 983 review candidates, 903 failures, 302 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:07:10.486Z",
+      "elapsedMinutes": 56,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=instagram --company=HeyClicky --workers=2 --delay-ms=1500 --force --discover-missing-social"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:07:43.664Z",
+      "elapsedMinutes": 56,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=instagram --company=HeyClicky --workers=2 --delay-ms=1500 --force --discover-missing-social",
+      "exitCode": 0,
+      "elapsedSeconds": 33,
+      "stdoutTail": "[instagram/worker-1] instagram:heyclicky:company:31574\nWrote 960 evidence items, 983 review candidates, 903 failures, 302 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:07:43.666Z",
+      "elapsedMinutes": 56,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=x --company=HeyClicky --workers=2 --delay-ms=1500 --force"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:07:46.737Z",
+      "elapsedMinutes": 56,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --platform=x --company=HeyClicky --workers=2 --delay-ms=1500 --force",
+      "exitCode": 0,
+      "elapsedSeconds": 3,
+      "stdoutTail": "[x/worker-1] x:heyclicky:company:31574\nWrote 960 evidence items, 983 review candidates, 903 failures, 302 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T09:07:46.738Z",
+      "elapsedMinutes": 56,
+      "phase": "targeted-heyclicky"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T09:07:46.738Z",
+      "elapsedMinutes": 56,
+      "phase": "broad-ingest"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:07:46.739Z",
+      "elapsedMinutes": 56,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --max-companies=197 --workers=8 --delay-ms=1200 --discover-missing-social"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-28T09:11:15.420Z",
+      "elapsedMinutes": 60,
+      "command": "node scripts/fetch-public-traction.mjs --social=all --max-companies=197 --workers=8 --delay-ms=1200 --discover-missing-social",
+      "exitCode": 4294967295,
+      "elapsedSeconds": 209,
+      "stdoutTail": "n:eden-robotics:founder:2772947\n[linkedin/worker-1] linkedin:elyra:company:31388\n[linkedin/worker-1] linkedin:elyra:founder:2444964\n[linkedin/worker-1] linkedin:elyra:founder:2774754\n[linkedin/worker-1] linkedin:enjamb-labs:company:31549\n[linkedin/worker-1] linkedin:enjamb-labs:founder:3164441\n[linkedin/worker-1] linkedin:enjamb-labs:founder:3208056\n[linkedin/worker-1] linkedin:expanse:company:31516\n[linkedin/worker-1] linkedin:expanse:founder:3381342\n[linkedin/worker-1] linkedin:expanse:founder:3409042\n[linkedin/worker-1] linkedin:expanse:founder:3409418\n[linkedin/worker-1] linkedin:expanse:founder:2274795\n[linkedin/worker-1] linkedin:finaldose:company:30915\n[linkedin/worker-1] linkedin:finaldose:founder:2973703\n[linkedin/worker-1] linkedin:finaldose:founder:2973562\n[linkedin/worker-1] linkedin:finaldose:founder:2957085\n[linkedin/worker-1] linkedin:flowscope:company:31538\n[linkedin/worker-1] linkedin:flowscope:founder:2941497\n[linkedin/worker-1] linkedin:flowscope:founder:879666\n[linkedin/worker-1] linkedin:foaster:company:31488\n[linkedin/worker-1] linkedin:foaster:founder:3198551\n[linkedin/worker-1] linkedin:foaster:founder:3404765\n[linkedin/worker-1] linkedin:foresight:company:30737\n[linkedin/worker-1] linkedin:foresight:founder:2560156\n[linkedin/worker-1] linkedin:foresight:founder:2615403\n[linkedin/worker-1] linkedin:framewise-health:company:31553\n[linkedin/worker-1] linkedin:framewise-health:founder:3115980\n[linkedin/worker-1] linkedin:fuchsia:company:31102\n[linkedin/worker-1] linkedin:fuchsia:founder:2888106\n[linkedin/worker-1] linkedin:general-aviation:company:31501",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-06-28T09:11:15.422Z",
+      "elapsedMinutes": 60,
+      "phase": "broad-ingest"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-06-28T09:11:15.423Z",
+      "elapsedMinutes": 60,
+      "phase": "analysis"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-28T09:11:15.424Z",
+      "elapsedMinutes": 60,
+      "command": "npm run discovery:plan"
+    }
+  ]
+}
