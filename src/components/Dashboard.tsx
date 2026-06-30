@@ -57,6 +57,7 @@ export function Dashboard() {
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedGroupPartners, setSelectedGroupPartners] = useState<string[]>([]);
   const [minScore, setMinScore] = useState(0);
+  const [minScoreDraft, setMinScoreDraft] = useState(0);
   const [graphFocusRevision, setGraphFocusRevision] = useState(0);
   const [focusQuery, setFocusQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -69,8 +70,11 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterBandRef = useRef<HTMLElement | null>(null);
+  const graphRequestIdRef = useRef(0);
 
   const fetchGraph = useCallback(async () => {
+    const requestId = graphRequestIdRef.current + 1;
+    graphRequestIdRef.current = requestId;
     setLoading(true);
     setError(null);
 
@@ -93,14 +97,22 @@ export function Dashboard() {
         throw new Error(`Graph request failed with ${response.status}`);
       }
       const payload = (await response.json()) as GraphResponse;
+      if (requestId !== graphRequestIdRef.current) {
+        return;
+      }
       setGraph(payload);
       if (!selectedPlatforms.length && !selectedIndustries.length && !selectedGroupPartners.length && minScore === 0) {
         setFilterMetadataGraph(payload);
       }
     } catch (caught) {
+      if (requestId !== graphRequestIdRef.current) {
+        return;
+      }
       setError(caught instanceof Error ? caught.message : "Graph request failed");
     } finally {
-      setLoading(false);
+      if (requestId === graphRequestIdRef.current) {
+        setLoading(false);
+      }
     }
   }, [batchSlug, minScore, selectedGroupPartners, selectedIndustries, selectedPlatforms]);
 
@@ -121,6 +133,17 @@ export function Dashboard() {
   useEffect(() => {
     void fetchGraph();
   }, [fetchGraph]);
+
+  useEffect(() => {
+    setMinScoreDraft(minScore);
+  }, [minScore]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setMinScore((current) => (current === minScoreDraft ? current : minScoreDraft));
+    }, 650);
+    return () => window.clearTimeout(timeoutId);
+  }, [minScoreDraft]);
 
   useEffect(() => {
     const filtersActive =
@@ -339,6 +362,12 @@ export function Dashboard() {
     );
   }
 
+  function commitMinScore(value: number) {
+    const nextScore = clampScore(value);
+    setMinScoreDraft(nextScore);
+    setMinScore((current) => (current === nextScore ? current : nextScore));
+  }
+
   return (
     <main className="dashboard">
       <header className="topbar">
@@ -463,14 +492,20 @@ export function Dashboard() {
         <div className="score-filter">
           <div className="score-filter-header">
             <span>Min score</span>
-            <strong>{minScore}</strong>
+            <strong>{minScoreDraft}</strong>
           </div>
           <input
             type="range"
             min={0}
             max={100}
-            value={minScore}
-            onChange={(event) => setMinScore(Number(event.target.value))}
+            value={minScoreDraft}
+            onChange={(event) => setMinScoreDraft(clampScore(Number(event.target.value)))}
+            onPointerUp={(event) => commitMinScore(Number(event.currentTarget.value))}
+            onKeyUp={(event) => {
+              if (event.key.startsWith("Arrow") || event.key === "Home" || event.key === "End" || event.key === "Enter") {
+                commitMinScore(Number(event.currentTarget.value));
+              }
+            }}
             aria-label="Minimum score"
           />
           <div className="score-filter-footer">
@@ -478,11 +513,24 @@ export function Dashboard() {
               type="number"
               min={0}
               max={100}
-              value={minScore}
-              onChange={(event) => setMinScore(Math.max(0, Math.min(100, Number(event.target.value) || 0)))}
+              value={minScoreDraft}
+              onChange={(event) => setMinScoreDraft(clampScore(Number(event.target.value) || 0))}
+              onBlur={(event) => commitMinScore(Number(event.currentTarget.value) || 0)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  commitMinScore(Number(event.currentTarget.value) || 0);
+                }
+              }}
               aria-label="Minimum score value"
             />
-            <button type="button" onClick={() => setMinScore(0)} disabled={minScore === 0}>
+            <button
+              type="button"
+              onClick={() => {
+                setMinScoreDraft(0);
+                setMinScore(0);
+              }}
+              disabled={minScoreDraft === 0 && minScore === 0}
+            >
               Reset
             </button>
           </div>
@@ -582,7 +630,6 @@ function FilterDropdown<T extends string>({
         onClick={() => onOpenChange(!isOpen)}
       >
         <span>{buttonLabel}</span>
-        {selectedValues.length > 0 && <em>{selectedValues.length}</em>}
         <ChevronDown size={15} aria-hidden="true" />
       </button>
       {isOpen && (
@@ -648,4 +695,11 @@ function formatActionNotice(action: "ingest" | "refresh", graph: GraphResponse):
   const companyCount = graph.nodes.filter((node) => node.entityType === "company").length;
   const expectedCount = graph.batch.companyCountExpected ?? companyCount;
   return `${formatAction(action)} complete: ${companyCount}/${expectedCount} companies, ${graph.edges.length} links.`;
+}
+
+function clampScore(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+  return Math.max(0, Math.min(100, Math.round(value)));
 }

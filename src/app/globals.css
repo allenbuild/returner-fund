@@ -46,8 +46,10 @@ body {
   letter-spacing: 0;
 }
 
+html:has(body.graph-fullscreen-open),
 body.graph-fullscreen-open {
   overflow: hidden;
+  height: 100%;
 }
 
 button,
@@ -375,7 +377,7 @@ button:disabled {
 
 .filter-band {
   display: grid;
-  grid-template-columns: minmax(150px, 0.78fr) minmax(170px, 0.78fr) minmax(220px, 1.1fr) minmax(300px, 0.7fr);
+  grid-template-columns: minmax(150px, 0.72fr) minmax(170px, 0.72fr) minmax(220px, 1fr) minmax(360px, 0.86fr);
   align-items: start;
   gap: 10px;
   margin-top: 0;
@@ -625,25 +627,35 @@ button:disabled {
 }
 
 .score-filter {
-  display: grid;
-  grid-template-columns: auto 32px minmax(72px, 1fr) 44px 50px;
+  display: flex;
   align-items: center;
-  gap: 5px;
-  height: 32px;
-  min-height: 32px;
-  padding: 2px 7px;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+  padding: 4px 8px;
   border: 1px solid #f0c7aa;
   border-radius: 12px;
   background: linear-gradient(180deg, #fffefe, #fff7ef);
+  box-sizing: border-box;
   box-shadow: inset 0 0 0 1px rgba(255, 155, 102, 0.06);
+  overflow: visible;
 }
 
 .score-filter-header {
-  display: contents;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 .score-filter-footer {
-  display: contents;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 .score-filter-header span {
@@ -669,7 +681,9 @@ button:disabled {
 }
 
 .score-filter input[type="range"] {
-  width: 100%;
+  flex: 1 1 140px;
+  width: auto;
+  min-width: 120px;
   height: 26px;
   min-height: 26px;
   margin: 0;
@@ -678,7 +692,8 @@ button:disabled {
 }
 
 .score-filter input[type="number"] {
-  width: 44px;
+  flex: 0 0 54px;
+  width: 54px;
   height: 26px;
   min-height: 26px;
   padding: 0 6px;
@@ -690,9 +705,11 @@ button:disabled {
 }
 
 .score-filter button {
+  flex: 0 0 auto;
   height: 26px;
   min-height: 26px;
-  padding: 0 7px;
+  min-width: 58px;
+  padding: 0 9px;
   border-radius: 8px;
   border-color: #edcbb5;
   background: #ffffff;
@@ -916,16 +933,18 @@ button:disabled {
 
 .graph-shell-fullscreen {
   position: fixed;
-  inset: 12px;
-  z-index: 1000;
-  width: calc(100vw - 24px);
-  height: calc(100vh - 24px);
-  height: calc(100dvh - 24px);
+  inset: 0;
+  z-index: 10000;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   min-height: 0;
   max-height: none;
   grid-template-rows: auto minmax(0, 1fr);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 28px 80px rgba(16, 24, 40, 0.24);
+  border: 0;
+  border-radius: 0;
+  background: #fffefe;
+  box-shadow: none;
 }
 
 .graph-shell-fullscreen .graph-toolbar {
@@ -1324,12 +1343,12 @@ progress::-webkit-progress-value {
 .section-title-row span {
   color: var(--muted);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .top-post-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .top-post-card,
@@ -1337,9 +1356,9 @@ progress::-webkit-progress-value {
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 11px;
+  gap: 9px;
   min-height: 0;
-  padding: 11px;
+  padding: 10px;
   border: 1px solid #edcbb5;
   border-radius: 12px;
   background: #ffffff;
@@ -1424,7 +1443,7 @@ progress::-webkit-progress-value {
   overflow: hidden;
   color: rgba(23, 42, 58, 0.68);
   font-size: 0.68rem;
-  font-weight: 900;
+  font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1497,7 +1516,7 @@ progress::-webkit-progress-value {
   min-width: 0;
   color: var(--muted);
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .evidence-card-meta span:not(.platform-badge) {
@@ -1511,7 +1530,7 @@ progress::-webkit-progress-value {
   color: #1c2838;
   font-family: var(--font-ui);
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.35;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1524,7 +1543,7 @@ progress::-webkit-progress-value {
   color: var(--accent);
   font-family: var(--font-ui);
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 500;
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1856,7 +1875,7 @@ table {
 
 .overview-table {
   table-layout: fixed;
-  font-size: 0.96rem;
+  font-size: 1.08rem;
 }
 
 .overview-table th:nth-child(1),
@@ -1876,12 +1895,12 @@ table {
 
 .overview-table th:nth-child(4),
 .overview-table td:nth-child(4) {
-  width: 132px;
+  width: 170px;
 }
 
 th,
 td {
-  padding: 9px 10px;
+  padding: 8px 10px;
   border-bottom: 1px solid #e4e9f1;
   text-align: left;
   vertical-align: top;
@@ -1890,17 +1909,21 @@ td {
 
 .overview-table th,
 .overview-table td {
-  padding: 12px 12px;
-  font-size: 0.94rem;
+  padding: 9px 12px;
+  font-size: 1.08rem;
+  vertical-align: middle;
 }
 
 .overview-table th {
-  font-size: 0.76rem;
+  color: #7a6258;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 th {
   color: var(--muted);
   font-size: 0.72rem;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -1929,30 +1952,41 @@ td button {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #174e78;
+  color: var(--accent);
+  font-weight: 500;
 }
 
 .overview-rank-cell,
 .overview-score-cell {
+  font-size: 1.16rem;
+  font-weight: 600;
+}
+
+.overview-rank-cell {
+  color: var(--accent);
+}
+
+.overview-score-cell {
   color: #111827;
-  font-weight: 800;
 }
 
 .overview-company-cell button {
-  color: var(--accent);
-  font-size: 0.98rem;
-  font-weight: 900;
+  color: #111827;
+  font-size: 1.24rem;
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 .overview-platform-cell {
   color: #111827;
-  font-weight: 800;
+  font-size: 1.14rem;
+  font-weight: 500;
 }
 
 .overview-contribution-cell {
   display: grid;
   grid-template-rows: 1.2em 1.2em;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
   max-width: none;
   line-height: 1.2;
@@ -1962,9 +1996,9 @@ td button {
   display: block;
   min-width: 0;
   overflow: hidden;
-  color: #1f2937;
-  font-size: 0.94rem;
-  font-weight: 800;
+  color: #111827;
+  font-size: 1.08rem;
+  font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1974,8 +2008,8 @@ td button {
   min-width: 0;
   overflow: hidden;
   color: var(--accent);
-  font-size: 0.86rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 500;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
