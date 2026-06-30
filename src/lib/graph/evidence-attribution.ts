@@ -166,6 +166,19 @@ export function auditEvidenceAttribution(
     };
   }
 
+  if (item.platform === "instagram" && !hasVerifiedAccountSignal) {
+    return {
+      reviewState: "needs_review",
+      scoreMultiplier: 0,
+      risk: "high",
+      reasons: [
+        ...reasons,
+        "Instagram posts only score when the post author/profile handle matches a verified company or founder Instagram account."
+      ],
+      conflictingCompanyNames: conflictingCompanies
+    };
+  }
+
   if (isQuoteContext) {
     return {
       reviewState: "needs_review",
@@ -301,9 +314,33 @@ function hasVerifiedAccountSignalForCompany(item: EvidenceItem, signals: EntityS
   const handle = normalizeHandle(item.authorHandle ?? item.authorName);
   const accountHandle = handleFromUrl(item.accountUrl ?? item.sourceUrl);
   const sourceHandle = handleFromUrl(item.sourceUrl);
+  const rawInstagramHandle =
+    item.platform === "instagram" ? instagramProfileHandleFromRawVisibleText(item.rawVisibleText) : "";
   const platformHandles = signals.handlesByPlatform[item.platform] ?? new Set<string>();
 
-  return [handle, accountHandle, sourceHandle].filter(Boolean).some((candidate) => platformHandles.has(candidate));
+  return [handle, accountHandle, sourceHandle, rawInstagramHandle]
+    .filter(Boolean)
+    .some((candidate) => platformHandles.has(candidate));
+}
+
+function instagramProfileHandleFromRawVisibleText(rawVisibleText: string | undefined): string {
+  const raw = String(rawVisibleText ?? "");
+  try {
+    const parsed = JSON.parse(raw);
+    const profileUrl = parsed?.profile?.url;
+    const profileUsername = parsed?.profile?.username;
+    const rawHref = parsed?.gridUrl?.rawHref ?? parsed?.gridUrl?.href;
+    return (
+      handleFromUrl(profileUrl) ||
+      normalizeHandle(profileUsername) ||
+      normalizeHandle(String(rawHref ?? "").match(/instagram\.com\/([^/]+)\/(?:p|reel|tv)\//i)?.[1])
+    );
+  } catch {
+    return (
+      normalizeHandle(raw.match(/instagram\.com\/([^/]+)\/(?:p|reel|tv)\//i)?.[1]) ||
+      normalizeHandle(raw.match(/"url"\s*:\s*"https?:\/\/(?:www\.)?instagram\.com\/([^"/]+)/i)?.[1])
+    );
+  }
 }
 
 function hasEntitySignal(text: string, signals: EntitySignals, platform: Platform): boolean {

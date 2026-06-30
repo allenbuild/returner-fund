@@ -28,16 +28,18 @@ const finalizeOnly = booleanArg("--finalize-only");
 const retryEmpty = booleanArg("--retry-empty");
 const allowLinkedIn = platformFilter.has("linkedin") && booleanArg("--allow-linkedin");
 const openCliFormatArgs = ["-f", "json", "--site-session", "persistent"];
+const instagramTractionCutoffMs = Date.parse("2025-01-01T00:00:00.000Z");
 let writeSequence = 0;
 let checkpointWriteChain = Promise.resolve();
 
 const ycSnapshot = JSON.parse(await readFile(ycSnapshotPath, "utf8"));
 const verifiedSocialOverrides = await readJson(verifiedSocialOverridesPath, {});
 const checkpoint = await readJson(checkpointPath, { attempts: {}, evidence: [], failures: [], needsReview: [] });
+const currentOutput = await readJson(outputPath, { evidence: [], failures: [], needsReview: [] });
 const attemptMap = new Map(Object.entries(checkpoint.attempts ?? {}));
-const evidence = checkpoint.evidence ?? [];
-const failures = checkpoint.failures ?? [];
-const needsReview = checkpoint.needsReview ?? [];
+const evidence = dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.evidence ?? [])]);
+const failures = dedupeById([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
+const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])]);
 
 const targets = finalizeOnly ? [] : collectTargets(ycSnapshot.companies).slice(0, targetLimit);
 console.log(`Logged-in social targets: ${targets.length} (${workers} workers, up to ${postLimit} posts each, ${scrollPasses} scroll passes).`);
@@ -158,12 +160,17 @@ function manualTargetsForCompany(company) {
   if (entityFilter !== "founder") {
     for (const [platform, url] of Object.entries(override.companySocialLinks ?? override.company ?? {})) {
       if (platformFilter.has(platform)) {
+        if (platform === "instagram" && !instagramOverrideIsVerifiedForIngestion(override)) {
+          continue;
+        }
         targets.push(
           targetFor(
             company,
             {
               ...company,
-              matchReason: `Verified social override for ${company.name}; profile links back to the official company identity.`
+              matchReason:
+                override.matchReason ??
+                `Verified social override for ${company.name}; profile links back to the official company identity.`
             },
             "company",
             platform,
@@ -179,6 +186,9 @@ function manualTargetsForCompany(company) {
       for (const platform of ["instagram", "x"]) {
         const url = founder.socialLinks?.[platform] ?? founder[platform];
         if (url && platformFilter.has(platform)) {
+          if (platform === "instagram" && !instagramMatchReasonIsVerifiedForIngestion(founder.matchReason)) {
+            continue;
+          }
           targets.push(targetFor(company, founder, "founder", platform, url));
         }
       }
@@ -265,16 +275,39 @@ async function fetchInstagramPosts(target, workerIndex) {
     return { evidence: [], failures: [failure(target, "Could not parse Instagram username.")], needsReview: [] };
   }
 
+  const adapterFailures = [];
   const [profileRaw, postsRaw, gridUrls] = await Promise.all([
-    runOpenCli(["instagram", "profile", handle, ...openCliFormatArgs], { timeoutMs: perTargetTimeoutMs }).catch(() => "[]"),
+    runOpenCli(["instagram", "profile", handle, ...openCliFormatArgs], { timeoutMs: perTargetTimeoutMs }).catch((error) => {
+      adapterFailures.push(failure(target, `Instagram profile adapter failed: ${errorMessage(error)}`));
+      return "[]";
+    }),
     runOpenCli(["instagram", "user", handle, "--limit", String(postLimit), ...openCliFormatArgs], {
       timeoutMs: perTargetTimeoutMs
+    }).catch((error) => {
+      adapterFailures.push(failure(target, `Instagram user adapter failed: ${errorMessage(error)}`));
+      return "[]";
     }),
-    fetchInstagramGridUrls(handle, workerIndex, postLimit).catch(() => [])
+    fetchInstagramGridUrls(handle, workerIndex, postLimit).catch((error) => {
+      adapterFailures.push(failure(target, `Instagram browser grid extractor failed: ${errorMessage(error)}`));
+      return [];
+    })
   ]);
 
   const profile = parseJsonOutput(profileRaw)[0] ?? null;
   const posts = parseJsonOutput(postsRaw).slice(0, postLimit);
+  if (profile && !instagramProfileMatchesTarget(target, handle, profile)) {
+    return {
+      evidence: [],
+      failures: [
+        ...adapterFailures,
+        failure(
+          target,
+          `Instagram profile identity mismatch for @${handle}: visible profile name/bio/link did not match ${target.entityType === "company" ? target.companyName : target.name}.`
+        )
+      ],
+      needsReview: []
+    };
+  }
   const detailItems = instagramFetchDetails
     ? await fetchInstagramPostDetails(handle, gridUrls, workerIndex).catch(() => [])
     : [];
@@ -292,12 +325,13 @@ async function fetchInstagramPosts(target, workerIndex) {
       comments: maxMetric(post.comments, detail?.comments, gridItem?.comments),
       views: maxMetric(post.views, detail?.views, gridItem?.views)
     };
+    const caption = bestInstagramCaption(post.caption, gridItem?.caption, detail?.caption);
     return socialEvidenceItem({
       target,
       sourceUrl,
       platformPostId: instagramPostIdFromUrl(sourceUrl) ?? `${handle}-${post.index ?? index + 1}`,
-      title: post.caption || detail?.caption || gridItem?.caption || `${handle} Instagram ${post.type ?? "post"}`,
-      text: post.caption || detail?.caption || gridItem?.caption || `${handle} Instagram ${post.type ?? "post"}`,
+      title: caption || `${handle} Instagram ${post.type ?? "post"}`,
+      text: caption || `${handle} Instagram ${post.type ?? "post"}`,
       rawVisibleText: JSON.stringify({ profile, post, gridUrl: gridItem, detail }),
       postedAt: parseInstagramDateOrNull(post.date) ?? detail?.postedAt ?? null,
       metrics,
@@ -323,12 +357,13 @@ async function fetchInstagramPosts(target, workerIndex) {
         comments: maxMetric(detail?.comments, gridUrl.comments),
         views: maxMetric(detail?.views, gridUrl.views)
       };
+      const caption = bestInstagramCaption(gridUrl.caption, detail?.caption);
       return socialEvidenceItem({
         target,
         sourceUrl,
         platformPostId: instagramPostIdFromUrl(sourceUrl) ?? `${handle}-grid-${index + 1}`,
-        title: detail?.caption || gridUrl.caption || `${handle} Instagram post`,
-        text: detail?.caption || gridUrl.caption || `${handle} Instagram post`,
+        title: caption || `${handle} Instagram post`,
+        text: caption || `${handle} Instagram post`,
         rawVisibleText: JSON.stringify({ profile, gridUrl, detail }),
         postedAt: detail?.postedAt ?? null,
         metrics,
@@ -339,14 +374,23 @@ async function fetchInstagramPosts(target, workerIndex) {
           `Opt-in read-only Instagram grid/detail scrape for @${handle}; adapter did not return this visible grid item.`
       });
     });
-  const evidenceItems = dedupeById([...adapterEvidence, ...gridEvidence]);
+  const evidenceItems = dedupeById([...adapterEvidence, ...gridEvidence])
+    .filter(hasScoredTraction)
+    .filter(isRelevantInstagramTraction);
   if (!evidenceItems.length) {
-    return { evidence: [], failures: [failure(target, "No visible Instagram posts found with adapter or browser grid/detail extractor.")], needsReview: [] };
+    return {
+      evidence: [],
+      failures: [
+        ...adapterFailures,
+        failure(target, "No scored recent Instagram posts found with adapter or browser grid/detail extractor.")
+      ],
+      needsReview: []
+    };
   }
 
   return {
     evidence: evidenceItems,
-    failures: [],
+    failures: adapterFailures,
     needsReview: []
   };
 }
@@ -721,6 +765,101 @@ function maxMetric(...values) {
   return parsed.length ? Math.max(...parsed) : null;
 }
 
+function hasScoredTraction(item) {
+  return Number(item?.contributionScore ?? 0) > 0 && Object.values(item?.metrics ?? {}).some((value) => Number(value) > 0);
+}
+
+function isRelevantInstagramTraction(item) {
+  if (item?.platform !== "instagram" || !item.postedAt) return true;
+  const postedAtMs = Date.parse(item.postedAt);
+  return !Number.isFinite(postedAtMs) || postedAtMs >= instagramTractionCutoffMs;
+}
+
+function instagramProfileMatchesTarget(target, handle, profile) {
+  const displayName = normalizeIdentityText(profile?.name);
+  const externalText = normalizeIdentityText([profile?.externalUrl, profile?.website].filter(Boolean).join(" "));
+  const bioText = normalizeIdentityText(profile?.bio);
+  const entityName = normalizeIdentityText(target.entityType === "company" ? target.companyName : target.name);
+  const companyName = normalizeIdentityText(target.companyName);
+  const domainToken = normalizeIdentityText(domainIdentityToken(target.companyWebsiteUrl));
+
+  const externalTokens = [companyName, domainToken].filter((token) => token.length >= 4);
+  if (externalText && externalTokens.some((token) => externalText.includes(token))) return true;
+
+  const exactDisplayName = displayName && (displayName === entityName || displayName === companyName);
+  if (!exactDisplayName) return false;
+
+  const officialSiteDiscovered = /official company website|official website outbound|source chain starts/i.test(
+    target.matchReason ?? ""
+  );
+  const validatedOverride = /live instagram identity validation|manual verified|visible read-only social profiles/i.test(
+    target.matchReason ?? ""
+  );
+  const searchDerived = /(?:Web Instagram search|OpenCLI Instagram search)/i.test(target.matchReason ?? "");
+  if (searchDerived && !validatedOverride) {
+    return false;
+  }
+  if (target.entityType === "company" && officialSiteDiscovered) {
+    return true;
+  }
+
+  const rawName = target.entityType === "company" ? target.companyName : target.name;
+  const wordCount = String(rawName ?? "").trim().split(/\s+/).filter(Boolean).length;
+  if (target.entityType === "company") {
+    const followerCount = numberOrNull(profile?.followers);
+    return wordCount >= 2 && (followerCount === null || followerCount >= 100);
+  }
+
+  const founderContextTokens = [companyName, domainToken].filter((token) => token.length >= 4);
+  return wordCount >= 2 || founderContextTokens.some((token) => bioText.includes(token));
+}
+
+function instagramOverrideIsVerifiedForIngestion(override) {
+  if (override?.instagramValidation?.review_state === "verified") return true;
+  return instagramMatchReasonIsVerifiedForIngestion(override?.matchReason);
+}
+
+function instagramMatchReasonIsVerifiedForIngestion(matchReason) {
+  const reason = String(matchReason ?? "");
+  if (/official company website|official website outbound|source chain starts/i.test(reason)) return true;
+  if (/live instagram identity validation|manual verified|visible read-only social profiles/i.test(reason)) return true;
+  return !/(?:Web Instagram search|OpenCLI Instagram search)/i.test(reason);
+}
+
+function normalizeIdentityText(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function domainIdentityToken(url) {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    const parts = host.split(".");
+    if (parts.length >= 2 && parts.at(-2) === "co" && parts.at(-1)?.length === 2) return parts.at(-3) ?? parts[0];
+    return parts[0] ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function bestInstagramCaption(...values) {
+  return (
+    values
+      .map((value) => cleanText(value))
+      .find((value) => value && !isGenericInstagramAlt(value)) ?? ""
+  );
+}
+
+function isGenericInstagramAlt(value) {
+  return (
+    /\bprofile picture\b/i.test(value) ||
+    /^user avatar$/i.test(value) ||
+    /^photo by @?[a-z0-9_.]+ on [a-z]+ \d{1,2}, \d{4}\.?$/i.test(value)
+  );
+}
+
 function parseDateOrNull(value) {
   const timestamp = Date.parse(value ?? "");
   return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
@@ -909,7 +1048,35 @@ function removeTargetFailures(target) {
 }
 
 function dedupeById(items) {
-  return [...new Map(items.map((item) => [item.id, item])).values()];
+  const byId = new Map();
+  for (const item of items) {
+    if (!item?.id) continue;
+    byId.set(item.id, mergeEvidenceLikeRows(byId.get(item.id), item));
+  }
+  return [...byId.values()];
+}
+
+function mergeEvidenceLikeRows(existing, incoming) {
+  if (!existing) return incoming;
+  const merged = { ...existing, ...incoming };
+  for (const field of [
+    "thumbnailUrl",
+    "thumbnailSource",
+    "mediaUrl",
+    "mediaUrls",
+    "linkStatus",
+    "linkCheckedAt",
+    "linkFailureReason"
+  ]) {
+    if (isEmptyValue(incoming[field]) && !isEmptyValue(existing[field])) {
+      merged[field] = existing[field];
+    }
+  }
+  return merged;
+}
+
+function isEmptyValue(value) {
+  return value === null || value === undefined || value === "" || (Array.isArray(value) && value.length === 0);
 }
 
 function attemptKeyFor(target) {
@@ -1050,6 +1217,14 @@ function instagramPostDetailExtractJs() {
     return match ? match[1].replace(/\\\\n/g, "\\n").replace(/\\\\u0026/g, "&") : null;
   };
   const meta = (selector) => document.querySelector(selector)?.getAttribute("content") || "";
+  const usefulImageSrc = (img) => {
+    const src = img?.src || "";
+    const alt = img?.alt || "";
+    if (!src) return null;
+    if (/profile picture|^user avatar$/i.test(alt)) return null;
+    if(/\\/t51\\.[0-9-]+-19\\//i.test(src) || /profile_images|profile-displayphoto|_normal\\./i.test(src)) return null;
+    return src;
+  };
   const description = meta('meta[name="description"]') || meta('meta[property="og:description"]') || "";
   const text = document.body?.innerText || "";
   const metricText = description || text;
@@ -1065,8 +1240,13 @@ function instagramPostDetailExtractJs() {
   const caption =
     jsonString("text") ||
     (description.match(/:\\s*"([\\s\\S]*?)"\\.?\\s*$/) || [])[1] ||
-    Array.from(document.querySelectorAll('img[alt]')).map((img) => img.alt).find(Boolean) ||
+    Array.from(document.querySelectorAll('img[alt]')).map((img) => img.alt).find((alt) => alt && !/profile picture|^user avatar$/i.test(alt)) ||
     "";
+  const mediaUrls = [
+    meta('meta[property="og:image"]'),
+    meta('meta[name="twitter:image"]'),
+    ...Array.from(document.querySelectorAll("img[src]")).map(usefulImageSrc)
+  ].filter(Boolean);
   return {
     url: location.href,
     description,
@@ -1076,7 +1256,7 @@ function instagramPostDetailExtractJs() {
     likes,
     comments,
     views,
-    mediaUrls: Array.from(document.querySelectorAll("img[src]")).map((img) => img.src).filter(Boolean).slice(0, 4)
+    mediaUrls: Array.from(new Set(mediaUrls)).slice(0, 4)
   };
 })()`;
 }

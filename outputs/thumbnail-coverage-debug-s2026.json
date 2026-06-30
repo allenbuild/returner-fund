@@ -1,0 +1,201 @@
+{
+  "generatedAt": "2026-06-30T15:40:34.209Z",
+  "evidenceRows": 3053,
+  "rowsWithThumbnail": 3053,
+  "rowsWithRealThumbnail": 3045,
+  "rowsWithFallbackThumbnail": 8,
+  "rowsMissingThumbnail": 0,
+  "platformCoverage": [
+    {
+      "platform": "github",
+      "evidenceRows": 209,
+      "withThumbnail": 209,
+      "withRealThumbnail": 209,
+      "withFallback": 0,
+      "missing": 0,
+      "thumbnailSources": {
+        "github": 209
+      }
+    },
+    {
+      "platform": "hacker_news",
+      "evidenceRows": 11,
+      "withThumbnail": 11,
+      "withRealThumbnail": 11,
+      "withFallback": 0,
+      "missing": 0,
+      "thumbnailSources": {
+        "link-preview-og-image": 5,
+        "link-preview-page-image": 4,
+        "link-preview-favicon": 1,
+        "link-preview-favicon-blocked": 1
+      }
+    },
+    {
+      "platform": "instagram",
+      "evidenceRows": 86,
+      "withThumbnail": 86,
+      "withRealThumbnail": 86,
+      "withFallback": 0,
+      "missing": 0,
+      "thumbnailSources": {
+        "opencli-screenshot": 5,
+        "instagram-media": 80,
+        "opencli-instagram-profile-screenshot": 1
+      }
+    },
+    {
+      "platform": "rss",
+      "evidenceRows": 20,
+      "withThumbnail": 20,
+      "withRealThumbnail": 20,
+      "withFallback": 0,
+      "missing": 0,
+      "thumbnailSources": {
+        "link-preview-og-image": 20
+      }
+    },
+    {
+      "platform": "web",
+      "evidenceRows": 761,
+      "withThumbnail": 761,
+      "withRealThumbnail": 753,
+      "withFallback": 8,
+      "missing": 0,
+      "thumbnailSources": {
+        "link-preview-og-image": 459,
+        "link-preview-site-icon-blocked": 8,
+        "link-preview-page-image-relaxed": 4,
+        "link-preview-article-image": 171,
+        "link-preview-page-image": 17,
+        "link-preview-favicon": 22,
+        "link-preview-favicon-blocked": 54,
+        "link-preview-og-image-relaxed": 7,
+        "web-media": 2,
+        "link-preview-video-poster": 9,
+        "link-preview-article-image-relaxed": 2,
+        "link-preview-jsonld-image": 2,
+        "jina-reader-blocked-image": 1,
+        "link-preview-twitter-image": 1,
+        "link-preview-jsonld-image-relaxed": 2
+      }
+    },
+    {
+      "platform": "x",
+      "evidenceRows": 1892,
+      "withThumbnail": 1892,
+      "withRealThumbnail": 1892,
+      "withFallback": 0,
+      "missing": 0,
+      "thumbnailSources": {
+        "x-embed-screenshot": 996,
+        "x-media": 781,
+        "opencli-x-screenshot": 66,
+        "local-cache": 27,
+        "opencli-x-profile-screenshot": 22
+      }
+    },
+    {
+      "platform": "youtube",
+      "evidenceRows": 74,
+      "withThumbnail": 74,
+      "withRealThumbnail": 74,
+      "withFallback": 0,
+      "missing": 0,
+      "thumbnailSources": {
+        "youtube": 74
+      }
+    }
+  ],
+  "missingExamples": [],
+  "blockedOrFallbackExamples": [
+    {
+      "id": "web-company-9-mothers-corporation-www-weaving-news-news-019ea1f6-8175-7de2-bfc6-fc660365b1c5-9-mothers-yc-p26-is-hiring-weaving-news",
+      "platform": "web",
+      "companyName": "9 Mothers",
+      "title": "9 Mothers (YC P26) Is Hiring - weaving.news",
+      "sourceUrl": "https://www.weaving.news/news/019ea1f6-8175-7de2-bfc6-fc660365b1c5",
+      "thumbnailUrl": "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://www.weaving.news&size=256",
+      "thumbnailSource": "link-preview-site-icon-blocked",
+      "linkStatus": "unchecked",
+      "linkFailureReason": "HTTP 429 while fetching link preview."
+    },
+    {
+      "id": "web-company-advanced-metal-research-pitchbook-com-profiles-company-1396520-29-advanced-metal-research-pitchbook",
+      "platform": "web",
+      "companyName": "Advanced Metal Research",
+      "title": "Advanced Metal Research - PitchBook",
+      "sourceUrl": "https://pitchbook.com/profiles/company/1396520-29",
+      "thumbnailUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://pitchbook.com&size=256",
+      "thumbnailSource": "link-preview-site-icon-blocked",
+      "linkStatus": "blocked",
+      "linkFailureReason": "HTTP 403 while fetching link preview."
+    },
+    {
+      "id": "web-company-drafted-www-weaving-news-news-019ecc3c-0abc-74df-a81f-f58001a6403f-launch-hn-drafted-yc-p26-models-for-residential-architecture",
+      "platform": "web",
+      "companyName": "Drafted",
+      "title": "Launch HN: Drafted (YC P26) - Models for residential architecture",
+      "sourceUrl": "https://www.weaving.news/news/019ecc3c-0abc-74df-a81f-f58001a6403f",
+      "thumbnailUrl": "https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://www.weaving.news&size=256",
+      "thumbnailSource": "link-preview-site-icon-blocked",
+      "linkStatus": "unchecked",
+      "linkFailureReason": "HTTP 429 while fetching link preview."
+    },
+    {
+      "id": "web-company-elyra-pitchbook-com-profiles-company-1156318-75-elyra-2026-company-profile-valuation-funding-investors-pitchbook",
+      "platform": "web",
+      "companyName": "Elyra",
+      "title": "Elyra 2026 Company Profile: Valuation, Funding & Investors | PitchBook",
+      "sourceUrl": "https://pitchbook.com/profiles/company/1156318-75",
+      "thumbnailUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://pitchbook.com&size=256",
+      "thumbnailSource": "link-preview-site-icon-blocked",
+      "linkStatus": "blocked",
+      "linkFailureReason": "HTTP 403 while fetching link preview."
+    },
+    {
+      "id": "web-company-openprose-pitchbook-com-profiles-company-1396102-60-openprose-2026-company-profile-valuation-funding-investors-pitchbook",
+      "platform": "web",
+      "companyName": "OpenProse",
+      "title": "OpenProse 2026 Company Profile: Valuation, Funding & Investors - PitchBook",
+      "sourceUrl": "https://pitchbook.com/profiles/company/1396102-60",
+      "thumbnailUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://pitchbook.com&size=256",
+      "thumbnailSource": "link-preview-site-icon-blocked",
+      "linkStatus": "blocked",
+      "linkFailureReason": "HTTP 403 while fetching link preview."
+    },
+    {
+      "id": "web-company-plena-health-pitchbook-com-profiles-company-1232689-33-plena-health-2026-company-profile-valuation-funding-pitchbook",
+      "platform": "web",
+      "companyName": "Plena Health",
+      "title": "Plena Health 2026 Company Profile: Valuation, Funding ... - PitchBook",
+      "sourceUrl": "https://pitchbook.com/profiles/company/1232689-33",
+      "thumbnailUrl": "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://pitchbook.com&size=256",
+      "thumbnailSource": "link-preview-site-icon-blocked",
+      "linkStatus": "blocked",
+      "linkFailureReason": "HTTP 403 while fetching link preview."
+    },
+    {
+      "id": "web-company-ploy-www-startupresearcher-com-news-ploy-launches-ai-growth-platform-with-usd27-million-seed-round-ploy-launches-ai-growth-platform-with-27m-seed-funding",
+      "platform": "web",
+      "companyName": "Ploy",
+      "title": "Ploy Launches AI Growth Platform With $27M Seed Funding",
+      "sourceUrl": "https://www.startupresearcher.com/news/ploy-launches-ai-growth-platform-with-usd27-million-seed-round",
+      "thumbnailUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://www.startupresearcher.com&size=256",
+      "thumbnailSource": "link-preview-site-icon-blocked",
+      "linkStatus": "unchecked",
+      "linkFailureReason": "HTTP 429 while fetching link preview."
+    },
+    {
+      "id": "web-company-valctrl-pitchbook-com-profiles-company-1153669-87-valctrl-2026-company-profile-valuation-funding-investors-pitchbook",
+      "platform": "web",
+      "companyName": "ValCtrl",
+      "title": "ValCtrl 2026 Company Profile: Valuation, Funding & Investors - PitchBook",
+      "sourceUrl": "https://pitchbook.com/profiles/company/1153669-87",
+      "thumbnailUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://pitchbook.com&size=256",
+      "thumbnailSource": "link-preview-site-icon-blocked",
+      "linkStatus": "blocked",
+      "linkFailureReason": "HTTP 403 while fetching link preview."
+    }
+  ]
+}

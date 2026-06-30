@@ -1,62 +1,77 @@
 {
-  "generated_at": "2026-06-28T07:27:36.055Z",
-  "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026",
+  "generated_at": "2026-06-30T12:02:42.887Z",
+  "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026&includeNonScoring=1&includeWhy=1",
   "company": {
     "id": "company-runtime",
     "name": "Runtime",
-    "score": 37,
+    "score": 31,
     "related_founder_ids": [
       "founder-runtime-gus-trigos-362619",
       "founder-runtime-carlos-volante-952396"
     ]
   },
-  "evidence_count": 5,
+  "evidence_count": 7,
   "smol_machines_leak_count": 0,
   "rows": [
+    {
+      "post_id": "x-company-runtime-x-com-gustrigos-status-2033630002659660143-hey-i-m-gus-pronounced-goose-my-yc-company-got-acquired-6-months-ago-now-i-m-building-runtime-runtm-com-we-give-guardra",
+      "post_url": "https://x.com/gustrigos/status/2033630002659660143",
+      "platform": "x",
+      "score": 50,
+      "raw_engagement": 1764,
+      "normalized_score": 50,
+      "attached_company_id": "company-runtime",
+      "attached_company_name": "Runtime",
+      "entity_id": "company-runtime",
+      "social_account_id": "x:company:company-runtime",
+      "account_url": "",
+      "match_reason": "Opt-in read-only X browser timeline scrape for @gustrigos; metrics came from visible aria-label post controls. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 1764. Recency-adjusted by 0.198 to 349.41. Log-normalized 50/100 within x.",
+      "review_state": "verified"
+    },
+    {
+      "post_id": "x-company-runtime-x-com-gustrigos-status-2067334716823581066-yc-demo-day-2-done-1k-to-20k-mrr-in-three-months-runtime-started-as-an-idea-i-couldn-t-stop-thinking-about-over-the-win",
+      "post_url": "https://x.com/gustrigos/status/2067334716823581066",
+      "platform": "x",
+      "score": 49,
+      "raw_engagement": 336.7,
+      "normalized_score": 49,
+      "attached_company_id": "company-runtime",
+      "attached_company_name": "Runtime",
+      "entity_id": "company-runtime",
+      "social_account_id": "x:company:company-runtime",
+      "account_url": "",
+      "match_reason": "Opt-in read-only X browser timeline scrape for @gustrigos; metrics came from visible aria-label post controls. Attribution guard: low risk; Evidence came from a verified company or founder account for this company. Visible text, URL, author, or domain includes the target company/founder identity. Raw engagement 336.7. Recency-adjusted by 0.83 to 279.39. Log-normalized 49/100 within x.",
+      "review_state": "verified"
+    },
     {
       "post_id": "evidence-github-repo-company-runtime-runtm-ai-runtm",
       "post_url": "https://github.com/runtm-ai/runtm",
       "platform": "github",
-      "score": 59,
-      "raw_engagement": 1112.5,
-      "normalized_score": 59,
+      "score": 0,
+      "raw_engagement": 1113.5,
+      "normalized_score": 0,
       "attached_company_id": "company-runtime",
       "attached_company_name": "Runtime",
       "entity_id": "company-runtime",
       "social_account_id": "github:company-runtime:runtm-ai",
       "account_url": "https://github.com/runtm-ai",
-      "match_reason": "GitHub URL linked from the official company website.",
-      "review_state": "verified"
+      "match_reason": "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity. Attribution guard: high risk; GitHub evidence could not be tied to the target company/founder account, name, handle, or domain. Raw engagement 1113.5. Recency-adjusted by 0.988 to 1100.13.",
+      "review_state": "needs_review"
     },
     {
       "post_id": "evidence-github-profile-company-runtime",
       "post_url": "https://github.com/runtm-ai",
       "platform": "github",
-      "score": 59,
-      "raw_engagement": 1103.5,
-      "normalized_score": 59,
+      "score": 0,
+      "raw_engagement": 1104.5,
+      "normalized_score": 0,
       "attached_company_id": "company-runtime",
       "attached_company_name": "Runtime",
       "entity_id": "company-runtime",
       "social_account_id": "github:company-runtime:runtm-ai",
       "account_url": "https://github.com/runtm-ai",
-      "match_reason": "GitHub URL linked from the official company website.",
-      "review_state": "verified"
-    },
-    {
-      "post_id": "youtube-company-runtime-www-youtube-com-watch-v-m3h8yubdihy-runtime-yc-p26-launch-video",
-      "post_url": "https://www.youtube.com/watch?v=m3H8yUbdIHY",
-      "platform": "youtube",
-      "score": 25,
-      "raw_engagement": 7.12,
-      "normalized_score": 25,
-      "attached_company_id": "company-runtime",
-      "attached_company_name": "Runtime",
-      "entity_id": "company-runtime",
-      "social_account_id": "youtube:company:company-runtime",
-      "account_url": "",
-      "match_reason": "Exact company-name match in public YouTube search result.",
-      "review_state": "verified"
+      "match_reason": "Stored as account context only. Repo-level GitHub evidence exists, so the profile aggregate is not scored to avoid double-counting stars and forks. Attribution guard: high risk; GitHub evidence could not be tied to the target company/founder account, name, handle, or domain. Raw engagement 1104.5. Recency-adjusted by 1 to 1104.5.",
+      "review_state": "needs_review"
     },
     {
       "post_id": "web-company-runtime-www-runtm-com-runtime-the-runtime-for-all-your-team-s-agents",
@@ -70,8 +85,23 @@
       "entity_id": "company-runtime",
       "social_account_id": "web:company:company-runtime",
       "account_url": "",
-      "match_reason": "Official company website from YC public profile. Stored as context only; not scored as traction.",
+      "match_reason": "Official company website from YC public profile. Stored as context only; not scored as traction. Attribution guard: low risk; Context-only web/RSS evidence is already non-scoring.",
       "review_state": "verified"
+    },
+    {
+      "post_id": "youtube-company-runtime-www-youtube-com-watch-v-m3h8yubdihy-runtime-yc-p26-launch-video",
+      "post_url": "https://www.youtube.com/watch?v=m3H8yUbdIHY",
+      "platform": "youtube",
+      "score": 0,
+      "raw_engagement": 12.46,
+      "normalized_score": 0,
+      "attached_company_id": "company-runtime",
+      "attached_company_name": "Runtime",
+      "entity_id": "company-runtime",
+      "social_account_id": "youtube:company:company-runtime",
+      "account_url": "",
+      "match_reason": "Exact company-name match in public YouTube search result. Attribution guard: high risk; Scored youtube evidence lacks a visible company, founder, domain, or verified-account signal. Raw engagement 12.46. Recency-adjusted by 1 to 12.46.",
+      "review_state": "needs_review"
     },
     {
       "post_id": "web-company-runtime-dailysignal-app-tools-yc-runtime-runtime-review-2025-productivity-ai-tool-yc-backed-pricing",
@@ -85,7 +115,7 @@
       "entity_id": "company-runtime",
       "social_account_id": "web:company:company-runtime",
       "account_url": "",
-      "match_reason": "Public web/news result with exact company-name match. Stored as context only because no public engagement metrics were available.",
+      "match_reason": "Public web/news result with exact company-name match. Stored as context only because no public engagement metrics were available. Attribution guard: low risk; Context-only web/RSS evidence is already non-scoring.",
       "review_state": "verified"
     }
   ]

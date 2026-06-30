@@ -1,0 +1,1034 @@
+{
+  "generatedAt": "2026-06-30T17:24:47.758Z",
+  "companyCount": 197,
+  "rootCause": [
+    "The YC Spring 2026 snapshot has zero company-level Instagram profile URLs.",
+    "The YC Spring 2026 snapshot has zero founder-level Instagram profile URLs.",
+    "The last Instagram discovery report did not run broad Instagram search; it only crawled official websites."
+  ],
+  "profiles": {
+    "snapshotCompanyProfiles": 0,
+    "snapshotFounderProfiles": 0,
+    "verifiedCompanyOverrides": 13,
+    "verifiedFounderOverrides": 1,
+    "discoveredCandidates": 0,
+    "needsReviewCandidates": 0,
+    "rejectedCandidates": 0,
+    "failedCandidates": 0,
+    "discoveryAttempts": 0,
+    "noResultAttempts": 0,
+    "failedAttempts": 0
+  },
+  "evidence": {
+    "rows": 64,
+    "scoredRows": 63,
+    "companiesWithEvidence": 3,
+    "companiesWithScoredEvidence": 3,
+    "postsWithThumbnails": 64,
+    "realThumbnailRows": 64,
+    "thumbnailSources": {
+      "opencli-screenshot": 5,
+      "instagram-media": 58,
+      "opencli-instagram-profile-screenshot": 1
+    }
+  },
+  "feedCompanies": [
+    {
+      "companyName": "HeyClicky",
+      "companyId": "company-heyclicky",
+      "instagramRows": 41,
+      "scoredRows": 40,
+      "thumbnailRows": 41,
+      "topPostUrl": "https://www.instagram.com/reel/DXk3VriDylM/"
+    },
+    {
+      "companyName": "Saudara AI",
+      "companyId": "company-saudara-ai",
+      "instagramRows": 19,
+      "scoredRows": 19,
+      "thumbnailRows": 19,
+      "topPostUrl": "https://www.instagram.com/p/DZWoWFDlEO1/"
+    },
+    {
+      "companyName": "Synphony",
+      "companyId": "company-synphony",
+      "instagramRows": 4,
+      "scoredRows": 4,
+      "thumbnailRows": 4,
+      "topPostUrl": "https://www.instagram.com/reel/DZy-sxNRlki/"
+    }
+  ],
+  "missingCompanies": [
+    {
+      "companyName": "9 Mothers",
+      "companyId": "company-9-mothers-corporation",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "AbInitio Bio",
+      "companyId": "company-abinitio-bio",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Adialante",
+      "companyId": "company-adialante",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Advanced Metal Research",
+      "companyId": "company-advanced-metal-research",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "AgentPhone",
+      "companyId": "company-agentphone",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "AICE",
+      "companyId": "company-aice",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Akkari",
+      "companyId": "company-akkari",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Alchemize",
+      "companyId": "company-alchemize",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Allowance",
+      "companyId": "company-allowance",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Amboras",
+      "companyId": "company-amboras",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Andco",
+      "companyId": "company-andco",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Andustry",
+      "companyId": "company-andustry",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "ANORIA",
+      "companyId": "company-anoria",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Apollo Atomics, Inc.",
+      "companyId": "company-apollo-atomics-inc",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "AquaShield",
+      "companyId": "company-aquashield",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Ara",
+      "companyId": "company-ara",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Archer",
+      "companyId": "company-archer",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Arctic Health",
+      "companyId": "company-arctic-health",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Arden",
+      "companyId": "company-arden",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Ardent",
+      "companyId": "company-ardent",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Arga Labs",
+      "companyId": "company-arga-labs",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Arlo Industries",
+      "companyId": "company-arlo-industries",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Armature",
+      "companyId": "company-armature",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Arzana",
+      "companyId": "company-arzana",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Asendia AI",
+      "companyId": "company-asendia-ai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Aseon Labs",
+      "companyId": "company-aseon-labs",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Aster",
+      "companyId": "company-asterlab",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Astraea",
+      "companyId": "company-astraea",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Atrisa",
+      "companyId": "company-atrisa",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Autostep",
+      "companyId": "company-autostep",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Auxos",
+      "companyId": "company-auxos",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Avea Robotics",
+      "companyId": "company-avea-robotics",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "BentoLabs AI",
+      "companyId": "company-bentolabs-ai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "BioStack Platforms",
+      "companyId": "company-biostack-platforms",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Bloom",
+      "companyId": "company-trybloom",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Callab AI",
+      "companyId": "company-callab-ai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "CentralComs",
+      "companyId": "company-centralcoms",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "CharacterQuilt",
+      "companyId": "company-characterquilt",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Chert",
+      "companyId": "company-chert",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Chronicle Labs",
+      "companyId": "company-chronicle-labs",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Cignara",
+      "companyId": "company-cignara",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Clara",
+      "companyId": "company-clara-2",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Clawvisor",
+      "companyId": "company-clawvisor",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Cohesion",
+      "companyId": "company-cohesion",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Complir",
+      "companyId": "company-complir",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Datost",
+      "companyId": "company-datost",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Dayjob",
+      "companyId": "company-dayjob",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Deep Interactions",
+      "companyId": "company-deep-interactions",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Dispatch",
+      "companyId": "company-dispatch",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Drafted",
+      "companyId": "company-drafted",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Drip",
+      "companyId": "company-drippay",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Eden Robotics",
+      "companyId": "company-eden-robotics",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Elyra",
+      "companyId": "company-elyra",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Enjamb Labs",
+      "companyId": "company-enjamb-labs",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Expanse",
+      "companyId": "company-expanse",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "FinalDose",
+      "companyId": "company-finaldose",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "flowscope",
+      "companyId": "company-flowscope",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Foaster",
+      "companyId": "company-foaster",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Foresight",
+      "companyId": "company-foresight",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Framewise Health",
+      "companyId": "company-framewise-health",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Fuchsia",
+      "companyId": "company-fuchsia",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "General Aviation",
+      "companyId": "company-general-aviation",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "General Instinct",
+      "companyId": "company-general-instinct",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Gigacatalyst",
+      "companyId": "company-gigacatalyst",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Gojiberry AI",
+      "companyId": "company-gojiberry-ai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "GovGuard",
+      "companyId": "company-govguard",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Gravy",
+      "companyId": "company-gravy",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Harbor",
+      "companyId": "company-runharbor",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Hedge",
+      "companyId": "company-hedge",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Hessian",
+      "companyId": "company-hessian",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "HEVN, inc",
+      "companyId": "company-hevn-inc",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Hexa",
+      "companyId": "company-hexa",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Hub",
+      "companyId": "company-hub",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Humwork",
+      "companyId": "company-humwork",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Huscarl",
+      "companyId": "company-huscarl",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Hyper",
+      "companyId": "company-hyper-4",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Imperfect",
+      "companyId": "company-imperfect",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Incandor",
+      "companyId": "company-incandor",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Infera",
+      "companyId": "company-infera",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "InLoop Robotics",
+      "companyId": "company-inloop-robotics",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "InsForge",
+      "companyId": "company-insforge",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "InstaAgent",
+      "companyId": "company-instaagent",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Intelligence Factory",
+      "companyId": "company-intelligence-factory",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Interfaze",
+      "companyId": "company-interfaze",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Inth",
+      "companyId": "company-inth",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "jo",
+      "companyId": "company-jo",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Juno",
+      "companyId": "company-juno-chat",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "KelAI",
+      "companyId": "company-kelai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Keyframe Labs",
+      "companyId": "company-keyframe-labs",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Kimpton AI",
+      "companyId": "company-kimpton-ai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Kinect",
+      "companyId": "company-kinect",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Kinro",
+      "companyId": "company-kinro",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Klaimee",
+      "companyId": "company-klaimee",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Klarify",
+      "companyId": "company-klarify",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Korso",
+      "companyId": "company-korso",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "KugelAudio",
+      "companyId": "company-kugelaudio",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Kuli",
+      "companyId": "company-kuli",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Lab0",
+      "companyId": "company-lab0",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Lamina Labs",
+      "companyId": "company-lamina-labs",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Lattice Health",
+      "companyId": "company-lattice-health",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Light Anchor",
+      "companyId": "company-light-anchor",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Lightsprint",
+      "companyId": "company-lightsprint",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Limrun",
+      "companyId": "company-limrun",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Linzumi",
+      "companyId": "company-linzumi",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Lumius",
+      "companyId": "company-lumius",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Madrone",
+      "companyId": "company-madrone",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Manicule",
+      "companyId": "company-manicule",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Maquoketa Research",
+      "companyId": "company-maquoketa-research",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "matforge",
+      "companyId": "company-matforge",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Memoir",
+      "companyId": "company-memoir",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Memory Store",
+      "companyId": "company-memory-store",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Minicor",
+      "companyId": "company-minicor",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Miso Labs",
+      "companyId": "company-miso-labs",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Mochatrade",
+      "companyId": "company-mochatrade",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Modern",
+      "companyId": "company-modern",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Mount",
+      "companyId": "company-mount",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Napkin Math",
+      "companyId": "company-napkin-math",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Netter",
+      "companyId": "company-netter",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Nine Fives",
+      "companyId": "company-nine-fives",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Oddpool",
+      "companyId": "company-oddpool",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Ontora",
+      "companyId": "company-ontora",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "OpenProse",
+      "companyId": "company-openprose",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "OpenWork",
+      "companyId": "company-openwork",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Ornadyne",
+      "companyId": "company-ornadyne",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Pairio",
+      "companyId": "company-pairio",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Panacea",
+      "companyId": "company-panacea",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Parrot",
+      "companyId": "company-useparrot",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Pavoot",
+      "companyId": "company-pavoot",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Pentagon",
+      "companyId": "company-pentagon",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "PerfectBit, Inc.",
+      "companyId": "company-perfectbit-inc",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "PLAN0 AI",
+      "companyId": "company-plan0-ai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Playabl.ai",
+      "companyId": "company-playablai",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Plena Health",
+      "companyId": "company-plena-health",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Ploy",
+      "companyId": "company-ploy",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Pops",
+      "companyId": "company-pops",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "primitive",
+      "companyId": "company-primitive",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Prism",
+      "companyId": "company-tryprism",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "ProjectX",
+      "companyId": "company-projectx",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Prototyping.io",
+      "companyId": "company-prototypingio",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "qomplement",
+      "companyId": "company-qomplement",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "RASPIRE",
+      "companyId": "company-raspire",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "ReasonBlocks",
+      "companyId": "company-reasonblocks",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Regbase",
+      "companyId": "company-regbase",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "RentAHuman",
+      "companyId": "company-rentahuman",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Replicas",
+      "companyId": "company-replicas",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Result",
+      "companyId": "company-result",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Revnu",
+      "companyId": "company-revnu",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "River Markets",
+      "companyId": "company-river-markets",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Rudus",
+      "companyId": "company-rudus",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Runtime",
+      "companyId": "company-runtime",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Saffron",
+      "companyId": "company-saffron",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Salesgraph",
+      "companyId": "company-salesgraph",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Savant",
+      "companyId": "company-savant",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Sazabi",
+      "companyId": "company-sazabi",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Scope",
+      "companyId": "company-scope",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Sherpa",
+      "companyId": "company-sherpa",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "shotwell.ai",
+      "companyId": "company-shotwellai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Sidekick",
+      "companyId": "company-textsidekick",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Silmaril",
+      "companyId": "company-silmaril",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Smartbase",
+      "companyId": "company-smartbase",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "smol machines",
+      "companyId": "company-smol-machines",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Soria",
+      "companyId": "company-soria",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "StableBrowse",
+      "companyId": "company-stablebrowse",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Stage",
+      "companyId": "company-stage",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Standard Signal",
+      "companyId": "company-standard-signal",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Standout",
+      "companyId": "company-standout",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Superlog",
+      "companyId": "company-superlog",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Superset",
+      "companyId": "company-superset",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Surtr Defense Systems",
+      "companyId": "company-surtr-defense-systems",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Taiga",
+      "companyId": "company-taiga",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "TakeCareOS",
+      "companyId": "company-takecareos",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Tasklet",
+      "companyId": "company-tasklet-2",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "tday.com",
+      "companyId": "company-tdaycom",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Tenet Industries",
+      "companyId": "company-tenet-industries",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "TesterArmy",
+      "companyId": "company-testerarmy",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "The Company Company",
+      "companyId": "company-the-company-company",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Thomas",
+      "companyId": "company-thomas",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Tolmo",
+      "companyId": "company-tolmo",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Totalis",
+      "companyId": "company-totalis",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "transload",
+      "companyId": "company-transload",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Trellis",
+      "companyId": "company-trellistech",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Twolabs",
+      "companyId": "company-twolabs",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Uno Wallet",
+      "companyId": "company-uno-wallet",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Userlens",
+      "companyId": "company-userlens",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "ValCtrl",
+      "companyId": "company-valctrl",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Voquill",
+      "companyId": "company-voquill",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Walter",
+      "companyId": "company-walter",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Wato",
+      "companyId": "company-wato",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Wealor",
+      "companyId": "company-wealor",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "WithAI",
+      "companyId": "company-withai",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "YouArt",
+      "companyId": "company-youart",
+      "reason": "Verified Instagram profile exists but no scored Instagram post evidence is attached yet."
+    },
+    {
+      "companyName": "Zenbu",
+      "companyId": "company-zenbu-2",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Zibra Labs",
+      "companyId": "company-zibra-labs",
+      "reason": "No verified Instagram profile target is known yet."
+    },
+    {
+      "companyName": "Zolvo",
+      "companyId": "company-zolvo",
+      "reason": "No verified Instagram profile target is known yet."
+    }
+  ],
+  "attempts": []
+}

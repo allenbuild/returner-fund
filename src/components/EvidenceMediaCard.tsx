@@ -67,10 +67,6 @@ function shouldAttemptThumbnail(item: EvidenceItem): item is EvidenceItem & { th
     return false;
   }
 
-  if (item.platform === "instagram" && /(?:cdninstagram|fbcdn)\.com/i.test(item.thumbnailUrl)) {
-    return false;
-  }
-
   return true;
 }
 

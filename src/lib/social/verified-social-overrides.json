@@ -1,4 +1,268 @@
 {
+  "adialante": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Adialante; query=\"\"adialante\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/adialante/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @adialante: visible profile name/bio/link did not match Adialante.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "allowance": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Allowance; query=\"\"Allowance\" Instagram\".",
+    "needsReviewInstagram": [
+      {
+        "url": "https://www.instagram.com/allowance_/",
+        "movedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
+        "previousMatchReason": "Web Instagram search found exact company/domain handle match for Allowance; query=\"\"Allowance\" Instagram\".",
+        "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "amboras": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://amboras.com.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/amboras.ai/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @amboras.ai: visible profile name/bio/link did not match Amboras.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "anoria": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/anoria.inc/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.anoria.com."
+  },
+  "aquashield": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for AquaShield; query=\"\"AquaShield\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/aquashield/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @aquashield: visible profile name/bio/link did not match AquaShield.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "arctic-health": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Arctic Health; query=\"\"Arctic Health\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/arctic_health/",
+        "rejectedAt": "2026-06-30T10:56:21.883Z",
+        "reason": "Visible Instagram profile name/bio describes a Russian vitamins/nutrition account and does not match YC Arctic Health."
+      }
+    ]
+  },
+  "ardent": {
+    "companySocialLinks": {},
+    "matchReason": "Web Instagram search found exact company/domain handle match for Ardent; query=\"\"Ardent\" Instagram\".",
+    "prunedInstagram": {
+      "url": "https://www.instagram.com/ardent_/",
+      "matchReason": "Web Instagram search found exact company/domain handle match for Ardent; query=\"\"Ardent\" Instagram\".",
+      "prunedAt": "2026-06-30T10:05:34.849Z",
+      "pruneReason": "auto-verify rejected; exactHost=false, exactSlug=false, exactCompanyName=false, ambiguous=false"
+    }
+  },
+  "arlo-industries": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Arlo Industries; query=\"\"arlo1\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/arlo1/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @arlo1: visible profile name/bio/link did not match Arlo Industries.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "arzana": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.arzana.com/.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/arzana_automation/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @arzana_automation: visible profile name/bio/link did not match Arzana.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "asendia-ai": {
+    "matchReason": "Web Instagram search found a full official-domain Instagram handle match (asendiaai) for Asendia AI; query=\"\"Asendia AI\" site:instagram.com\".",
+    "needsReviewInstagram": [
+      {
+        "url": "https://www.instagram.com/asendia_ai/",
+        "movedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
+        "previousMatchReason": "Web Instagram search found a full official-domain Instagram handle match (asendiaai) for Asendia AI; query=\"\"Asendia AI\" site:instagram.com\".",
+        "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "astraea": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Astraea; query=\"\"Astraea\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/_.astraea/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @_.astraea: visible profile name/bio/link did not match Astraea.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "atrisa": {
+    "companySocialLinks": {},
+    "matchReason": "Web Instagram search found exact company/domain handle match for Atrisa; query=\"\"Atrisa\" Instagram\".",
+    "prunedInstagram": {
+      "url": "https://www.instagram.com/atrisa/",
+      "matchReason": "Web Instagram search found exact company/domain handle match for Atrisa; query=\"\"Atrisa\" Instagram\".",
+      "prunedAt": "2026-06-30T10:05:34.849Z",
+      "pruneReason": "auto-verify rejected; exactHost=false, exactSlug=false, exactCompanyName=false, ambiguous=false"
+    }
+  },
+  "autostep": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Autostep; query=\"\"autostep\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/autostep/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @autostep: visible profile name/bio/link did not match Autostep.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "callab-ai": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Callab AI; query=\"\"Callab AI\" site:instagram.com\".",
+    "needsReviewInstagram": [
+      {
+        "url": "https://www.instagram.com/callab.ai/",
+        "movedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
+        "previousMatchReason": "Web Instagram search found exact company/domain handle match for Callab AI; query=\"\"Callab AI\" site:instagram.com\".",
+        "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "chert": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/chert_hq/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.trychert.com/."
+  },
+  "cignara": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Cignara; query=\"\"cignara\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/cignara/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @cignara: visible profile name/bio/link did not match Cignara.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "cohesion": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Cohesion; query=\"\"Cohesion\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/cohesion._/",
+        "rejectedAt": "2026-06-30T11:06:04.099Z",
+        "reason": "Visible Instagram profile is a band/music account, not YC Cohesion."
+      }
+    ]
+  },
+  "datost": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Datost; query=\"\"datost\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/datost/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @datost: visible profile name/bio/link did not match Datost.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "eden-robotics": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Eden Robotics; query=\"\"Eden Robotics\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/eden_robotics/",
+        "rejectedAt": "2026-06-30T11:06:04.101Z",
+        "reason": "Visible Instagram profile is Eden Robotics Club, not YC Eden Robotics."
+      }
+    ]
+  },
+  "enjamb-labs": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Enjamb Labs; query=\"\"enjamb\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/enjamb/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @enjamb: visible profile name/bio/link did not match Enjamb Labs.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "finaldose": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for FinalDose; query=\"\"finaldose\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/finaldose/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @finaldose: visible profile name/bio/link did not match FinalDose.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "foaster": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Foaster; query=\"\"Foaster\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/foaster_/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @foaster_: visible profile name/bio/link did not match Foaster.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "fuchsia": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Fuchsia; query=\"\"Fuchsia\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/fuchsia/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @fuchsia: visible profile name/bio/link did not match Fuchsia.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "general-aviation": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for General Aviation; query=\"\"generalaviation\" Instagram\".",
+    "needsReviewInstagram": [
+      {
+        "url": "https://www.instagram.com/generalaviation_/",
+        "movedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
+        "previousMatchReason": "Web Instagram search found exact company/domain handle match for General Aviation; query=\"\"generalaviation\" Instagram\".",
+        "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "gojiberry-ai": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Gojiberry AI; query=\"\"gojiberry\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/gojiberry/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @gojiberry: visible profile name/bio/link did not match Gojiberry AI.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
   "heyclicky": {
     "companySocialLinks": {
       "instagram": "https://www.instagram.com/_heyclicky/",
@@ -16,6 +280,644 @@
         },
         "matchReason": "Verified from visible read-only social profiles: @farza954 bio says working on @_heyclicky, and @FarzaTV posts mention Clicky/HeyClicky."
       }
+    ],
+    "matchReason": "Manual verified Instagram profile for HeyClicky; Web Instagram search found exact company/domain handle match for HeyClicky; query=\"\"heyclicky\" Instagram\".",
+    "instagramValidation": {
+      "review_state": "verified",
+      "validatedAt": "2026-06-30T17:04:13.343Z",
+      "method": "explicit_keep_search_derived",
+      "reason": "Explicitly kept after user-visible profile review for HeyClicky."
+    }
+  },
+  "huscarl": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Huscarl; query=\"\"huscarl\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/huscarl/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @huscarl: visible profile name/bio/link did not match Huscarl.",
+        "source": "logged-in-instagram-identity-guard"
+      }
     ]
+  },
+  "incandor": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Incandor; query=\"\"incandor\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/incandor/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @incandor: visible profile name/bio/link did not match Incandor.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "infera": {
+    "matchReason": "Web Instagram search found exact company/domain handle match for Infera; query=\"\"infera\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/inf.era_/",
+        "rejectedAt": "2026-06-30T11:16:34.754Z",
+        "reason": "Visible Instagram profile is a beauty/lifestyle shop, not YC Infera."
+      }
+    ]
+  },
+  "insforge": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (insforge) for InsForge; query=\"\"insforge\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/insforge/",
+        "rejectedAt": "2026-06-30T11:16:34.756Z",
+        "reason": "Visible Instagram profile is a Venezuelan management training institute, not YC InsForge."
+      }
+    ]
+  },
+  "instaagent": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/instaagent.ai/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://instaagent.com."
+  },
+  "intelligence-factory": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (intelligencefactory) for Intelligence Factory; query=\"\"Intelligence Factory\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/intelligence_factory/",
+        "rejectedAt": "2026-06-30T11:24:17.342Z",
+        "reason": "Visible Instagram profile posts are medical billing/sales automation, not YC Intelligence Factory robot intelligence."
+      }
+    ]
+  },
+  "juno-chat": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://junocompanion.com/.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/junocompanion/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @junocompanion: visible profile name/bio/link did not match Juno.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "keyframe-labs": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (keyframelabs) for Keyframe Labs; query=\"\"Keyframe Labs\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/keyframe.labs/",
+        "rejectedAt": "2026-06-30T11:23:10.297Z",
+        "reason": "Visible Instagram profile is a tiny motion-graphics account without official-domain signal, not verified YC Keyframe Labs."
+      }
+    ]
+  },
+  "kimpton-ai": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (kimpton) for Kimpton AI; query=\"\"kimpton\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/kimpton/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @kimpton: visible profile name/bio/link did not match Kimpton AI.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "kinect": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (trykinect) for Kinect; query=\"\"trykinect\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/trykinect/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @trykinect: visible profile name/bio/link did not match Kinect.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "klaimee": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (klaimee) for Klaimee; query=\"\"klaimee\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/klaimee/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @klaimee: visible profile name/bio/link did not match Klaimee.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "klarify": {
+    "matchReason": "Web Instagram search found a full official-domain Instagram handle match (klarifyca) for Klarify; query=\"\"Klarify\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/klarify/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @klarify: visible profile name/bio/link did not match Klarify.",
+        "source": "logged-in-instagram-identity-guard"
+      },
+      {
+        "url": "https://www.instagram.com/klarify.ca/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @klarify.ca: visible profile name/bio/link did not match Klarify.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "kugelaudio": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (kugelaudio) for KugelAudio; query=\"\"KugelAudio\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/kugelaudio/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @kugelaudio: visible profile name/bio/link did not match KugelAudio.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "lamina-labs": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (laminalabs) for Lamina Labs; query=\"\"Lamina Labs\" site:instagram.com\".",
+    "needsReviewInstagram": [
+      {
+        "url": "https://www.instagram.com/laminalabs/",
+        "movedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
+        "previousMatchReason": "Web Instagram search found an exact official-domain Instagram handle match (laminalabs) for Lamina Labs; query=\"\"Lamina Labs\" site:instagram.com\".",
+        "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "lattice-health": {
+    "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (latticehealth) for Lattice Health; query=\"\"Lattice Health\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/latticehealth/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @latticehealth: visible profile name/bio/link did not match Lattice Health.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "light-anchor": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (lightanchor) for Light Anchor; query=\"\"Light Anchor\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/lightanchor/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @lightanchor: visible profile name/bio/link did not match Light Anchor.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "linzumi": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (linzumi) for Linzumi; query=\"\"linzumi\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/linzumi/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @linzumi: visible profile name/bio/link did not match Linzumi.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "madrone": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (madrone) for Madrone; query=\"\"madrone\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/madrone/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @madrone: visible profile name/bio/link did not match Madrone.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "manicule": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (manicule) for Manicule; query=\"\"manicule\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/manicule/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @manicule: visible profile name/bio/link did not match Manicule.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "maquoketa-research": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (maquoketa) for Maquoketa Research; query=\"\"maquoketa\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/Maquoketa/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @Maquoketa: visible profile name/bio/link did not match Maquoketa Research.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "minicor": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (minicor) for Minicor; query=\"\"Minicor\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/minicor/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @minicor: visible profile name/bio/link did not match Minicor.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "miso-labs": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/misolabsai/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://misolabs.ai."
+  },
+  "mochatrade": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (mochatrade) for Mochatrade; query=\"\"mochatrade\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/mochatrade/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @mochatrade: visible profile name/bio/link did not match Mochatrade.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "napkin-math": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/napkinmath.club/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://napkinmath.club."
+  },
+  "netter": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (netter) for Netter; query=\"\"Netter\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/netter._/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @netter._: visible profile name/bio/link did not match Netter.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "oddpool": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (oddpool) for Oddpool; query=\"\"Oddpool\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/odd_pool/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @odd_pool: visible profile name/bio/link did not match Oddpool.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "openprose": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (prose) for OpenProse; query=\"\"prose\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/prose/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @prose: visible profile name/bio/link did not match OpenProse.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "openwork": {
+    "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (openwork) for OpenWork; query=\"\"OpenWork\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/_openwork/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @_openwork: visible profile name/bio/link did not match OpenWork.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "ornadyne": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (ornadyne) for Ornadyne; query=\"\"ornadyne\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/ornadyne/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @ornadyne: visible profile name/bio/link did not match Ornadyne.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "pairio": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (pairio) for Pairio; query=\"\"pairio\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/pairio/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @pairio: visible profile name/bio/link did not match Pairio.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "panacea": {
+    "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (panacea) for Panacea; query=\"\"Panacea\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/panacea/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @panacea: visible profile name/bio/link did not match Panacea.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "pavoot": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://pavoot.com.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/pavoot/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @pavoot: visible profile name/bio/link did not match Pavoot.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ],
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/pavoot_com/"
+    }
+  },
+  "playablai": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://playabl.ai.",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/playabl_ai/"
+    }
+  },
+  "pops": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/pops.fyi/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://pops.fyi."
+  },
+  "projectx": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.projectx.cloud/.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/ProjectX/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @ProjectX: visible profile name/bio/link did not match ProjectX.",
+        "source": "logged-in-instagram-identity-guard"
+      },
+      {
+        "url": "https://www.instagram.com/projectx.cloud/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @projectx.cloud: visible profile name/bio/link did not match ProjectX.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "prototypingio": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (prototyping) for Prototyping.io; query=\"\"prototyping\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/prototyping/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @prototyping: visible profile name/bio/link did not match Prototyping.io.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "raspire": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (raspire) for RASPIRE; query=\"\"RASPIRE\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/raspire/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @raspire: visible profile name/bio/link did not match RASPIRE.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "runharbor": {
+    "companySocialLinks": {},
+    "matchReason": "Web Instagram search found exact company/domain handle match for Harbor; query=\"\"Harbor\" Instagram\".",
+    "prunedInstagram": {
+      "url": "https://www.instagram.com/harbor/",
+      "matchReason": "Web Instagram search found exact company/domain handle match for Harbor; query=\"\"Harbor\" Instagram\".",
+      "prunedAt": "2026-06-30T10:05:34.849Z",
+      "pruneReason": "auto-verify rejected; exactHost=false, exactSlug=false, exactCompanyName=false, ambiguous=false"
+    }
+  },
+  "saffron": {
+    "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (saffron) for Saffron; query=\"\"Saffron\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/saffron/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @saffron: visible profile name/bio/link did not match Saffron.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "saudara-ai": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/saudara.ai/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://saudara.ai."
+  },
+  "sazabi": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (sazabi) for Sazabi; query=\"\"sazabi\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/sazabi/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @sazabi: visible profile name/bio/link did not match Sazabi.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "smartbase": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (smartbase) for Smartbase; query=\"\"smartbase\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/smartbase/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @smartbase: visible profile name/bio/link did not match Smartbase.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "smol-machines": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (smolmachines) for smol machines; query=\"\"smol machines\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/smol_machines/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @smol_machines: visible profile name/bio/link did not match smol machines.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "standout": {
+    "matchReason": "Web Instagram search found a full official-domain Instagram handle match (standoutwork) for Standout; query=\"\"Standout\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/standout.work/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @standout.work: visible profile name/bio/link did not match Standout.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "superlog": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (superlog) for Superlog; query=\"\"superlog\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/superlog/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @superlog: visible profile name/bio/link did not match Superlog.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "superset": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (superset) for Superset; query=\"\"superset\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/Superset/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @Superset: visible profile name/bio/link did not match Superset.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "synphony": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.synphony.co/.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/Synphony/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @Synphony: visible profile name/bio/link did not match Synphony.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ],
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/synphonyco/"
+    }
+  },
+  "takecareos": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (takecareos) for TakeCareOS; query=\"\"takecareos\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/takecareos/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @takecareos: visible profile name/bio/link did not match TakeCareOS.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "tasklet-2": {
+    "matchReason": "Web Instagram search found a full official-domain Instagram handle match (taskletai) for Tasklet; query=\"\"tasklet\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/tasklet/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @tasklet: visible profile name/bio/link did not match Tasklet.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ],
+    "needsReviewInstagram": [
+      {
+        "url": "https://www.instagram.com/tasklet.ai/",
+        "movedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
+        "previousMatchReason": "Web Instagram search found a full official-domain Instagram handle match (taskletai) for Tasklet; query=\"\"tasklet\" Instagram\".",
+        "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "testerarmy": {
+    "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (testerarmy) for TesterArmy; query=\"\"TesterArmy\" site:instagram.com\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/tester.army/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @tester.army: visible profile name/bio/link did not match TesterArmy.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "textsidekick": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (textsidekick) for Sidekick; query=\"\"textsidekick\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/textsidekick/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @textsidekick: visible profile name/bio/link did not match Sidekick.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "thomas": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (madebythomas) for Thomas; query=\"\"madebythomas\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/madebythomas/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @madebythomas: visible profile name/bio/link did not match Thomas.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "transload": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (transload) for transload; query=\"\"transload\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/transload/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @transload: visible profile name/bio/link did not match transload.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "trellistech": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/usetrellis/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://trellistech.com."
+  },
+  "twolabs": {
+    "matchReason": "Web Instagram search found a full official-domain Instagram handle match (twolabsai) for Twolabs; query=\"\"Twolabs\" Instagram\".",
+    "needsReviewInstagram": [
+      {
+        "url": "https://www.instagram.com/twolabs.ai/",
+        "movedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
+        "previousMatchReason": "Web Instagram search found a full official-domain Instagram handle match (twolabsai) for Twolabs; query=\"\"Twolabs\" Instagram\".",
+        "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "uno-wallet": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (myunowallet) for Uno Wallet; query=\"\"myunowallet\" Instagram\".",
+    "needsReviewInstagram": [
+      {
+        "url": "https://www.instagram.com/myunowallet/",
+        "movedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
+        "previousMatchReason": "Web Instagram search found an exact official-domain Instagram handle match (myunowallet) for Uno Wallet; query=\"\"myunowallet\" Instagram\".",
+        "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "useparrot": {
+    "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (useparrot) for Parrot; query=\"\"useparrot\" Instagram\".",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/UseParrot/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @UseParrot: visible profile name/bio/link did not match Parrot.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "youart": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://youart.ai.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/_you.art/",
+        "rejectedAt": "2026-06-30T11:45:57.779Z",
+        "reason": "Instagram profile identity mismatch for @_you.art: visible profile name/bio/link did not match YouArt.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ],
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/youart_studio/"
+    }
   }
 }

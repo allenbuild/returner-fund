@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-29T09:30:03.075Z",
-  "started_at": "2026-06-29T09:30:00.389Z",
+  "generated_at": "2026-06-30T11:56:03.005Z",
+  "started_at": "2026-06-30T11:55:49.630Z",
   "policy": {
     "read_only": true,
     "max_workers": 2,
@@ -91,9 +91,9 @@
     {
       "name": "app_feed_instagram_evidence",
       "status": "pass",
-      "message": "40 Instagram evidence rows, 40 scored, 40 attached to HeyClicky.",
-      "instagramEvidenceCount": 40,
-      "scoredCount": 40,
+      "message": "81 Instagram evidence rows, 81 scored, 40 attached to HeyClicky.",
+      "instagramEvidenceCount": 81,
+      "scoredCount": 81,
       "heyClickyEvidenceCount": 40
     },
     {

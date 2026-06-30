@@ -2,26 +2,26 @@
 
 ## Latest Snapshot
 
-- Generated at: 2026-06-29T09:29:58.588Z.
+- Generated at: 2026-06-30T17:25:10.446Z.
 - Graph nodes: 197 company nodes.
 - Founder graph nodes: 0.
-- Evidence rows: 3013.
-- Non-GitHub scored evidence rows: 1666.
+- Evidence rows: 3031.
+- Non-GitHub scored evidence rows: 1689.
 - Live ingestion checkpoint: 964 evidence rows, 890 needs-review rows, 1684 failures, 629 discovery attempts.
-- Logged-in read-only social artifact: 1955 evidence rows, platform rows {"instagram":41,"x":1914}, companies by platform {"instagram":1,"x":130}.
+- Logged-in read-only social artifact: 2000 evidence rows, platform rows {"instagram":86,"x":1914}, companies by platform {"instagram":5,"x":130}.
 - X target coverage: 367 known X targets across 164 companies; 367 attempted, 0 not yet attempted, 107 zero-post, 130 companies with X evidence.
-- Instagram discovery: 197 companies checked, 0 candidates, 0 newly verified, 1 total verified company Instagram profiles.
+- Instagram discovery: 0 companies checked, 0 candidates, 0 newly verified, 13 total verified company Instagram profiles.
 
 ## Platform Coverage
 
 - github: 209 evidence rows, 88 scored rows, 39 companies with evidence, 23 companies with scored evidence, 0 needs-review candidates, status working.
 - x: 1892 evidence rows, 1559 scored rows, 133 companies with evidence, 128 companies with scored evidence, 340 needs-review candidates, status working.
 - linkedin: 0 evidence rows, 0 scored rows, 0 companies with evidence, 0 companies with scored evidence, 548 needs-review candidates, status public_only.
-- instagram: 41 evidence rows, 40 scored rows, 1 companies with evidence, 1 companies with scored evidence, 3 needs-review candidates, status working.
+- instagram: 64 evidence rows, 63 scored rows, 3 companies with evidence, 3 companies with scored evidence, 3 needs-review candidates, status working.
 - product_hunt: 0 evidence rows, 0 scored rows, 0 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status public_only.
 - youtube: 74 evidence rows, 56 scored rows, 57 companies with evidence, 47 companies with scored evidence, 0 needs-review candidates, status working.
 - rss: 20 evidence rows, 0 scored rows, 4 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status working.
-- web: 766 evidence rows, 0 scored rows, 197 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status disabled.
+- web: 761 evidence rows, 0 scored rows, 197 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status disabled.
 - reddit: 0 evidence rows, 0 scored rows, 0 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status public_only.
 - hacker_news: 11 evidence rows, 11 scored rows, 10 companies with evidence, 10 companies with scored evidence, 0 needs-review candidates, status working.
 - bilibili: 0 evidence rows, 0 scored rows, 0 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status needs_config.
@@ -59,7 +59,7 @@
 - github: 174 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
 - x: 69 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
 - linkedin: 197 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
-- instagram: 196 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
+- instagram: 194 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
 - product_hunt: 197 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
 - youtube: 150 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
 - reddit: 197 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.

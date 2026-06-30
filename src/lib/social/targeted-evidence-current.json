@@ -26,7 +26,10 @@
       "matchReason": "Targeted public search found an Instagram profile whose name and handle match HeyClicky and whose visible snippet describes Clicky as an AI buddy. Stored as profile context only; profile pages do not score as post-level traction.",
       "first_seen_at": "2026-06-28T07:25:00.000Z",
       "last_checked_at": "2026-06-28T07:25:00.000Z",
-      "last_updated_at": "2026-06-28T07:25:00.000Z"
+      "last_updated_at": "2026-06-28T07:25:00.000Z",
+      "thumbnailUrl": "/evidence-thumbnails/instagram/instagram-profile-company-heyclicky-instagram-com-heyclicky.png",
+      "thumbnailSource": "opencli-instagram-profile-screenshot",
+      "mediaUrl": "/evidence-thumbnails/instagram/instagram-profile-company-heyclicky-instagram-com-heyclicky.png"
     },
     {
       "id": "instagram-company-heyclicky-reel-dxxrdscjsl2",
@@ -48,7 +51,10 @@
       "matchReason": "Targeted public Instagram search result exposed a post-level reel from @_heyclicky with visible likes/comments and a caption matching the product name.",
       "first_seen_at": "2026-06-28T07:25:00.000Z",
       "last_checked_at": "2026-06-28T07:25:00.000Z",
-      "last_updated_at": "2026-06-28T07:25:00.000Z"
+      "last_updated_at": "2026-06-28T07:25:00.000Z",
+      "thumbnailUrl": "/evidence-thumbnails/instagram/instagram-company-heyclicky-reel-dxxrdscjsl2.png",
+      "thumbnailSource": "opencli-screenshot",
+      "mediaUrl": "/evidence-thumbnails/instagram/instagram-company-heyclicky-reel-dxxrdscjsl2.png"
     },
     {
       "id": "web-company-heyclicky-dailydropout-viral-context",
@@ -67,7 +73,16 @@
       "matchReason": "Public web article used as context only. It does not score because raw platform metrics were not directly visible from the underlying social post.",
       "first_seen_at": "2026-06-28T07:25:00.000Z",
       "last_checked_at": "2026-06-28T07:25:00.000Z",
-      "last_updated_at": "2026-06-28T07:25:00.000Z"
+      "last_updated_at": "2026-06-28T07:25:00.000Z",
+      "thumbnailFetchedAt": "2026-06-30T07:16:59.740Z",
+      "thumbnailError": null,
+      "thumbnailErrorCode": null,
+      "linkCheckedAt": "2026-06-30T07:16:59.740Z",
+      "linkStatus": "verified",
+      "linkFailureReason": null,
+      "thumbnailUrl": "https://substackcdn.com/image/fetch/$s_!Kvmp!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fca6588b4-a595-42e4-bf4c-3c7d06d7a381_1274x712.gif",
+      "thumbnailSource": "link-preview-og-image",
+      "mediaUrl": "https://substackcdn.com/image/fetch/$s_!Kvmp!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fca6588b4-a595-42e4-bf4c-3c7d06d7a381_1274x712.gif"
     }
   ],
   "needsReview": [

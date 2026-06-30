@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-06-29T09:29:58.588Z",
+  "generated_at": "2026-06-30T17:25:10.446Z",
   "api_url": "http://127.0.0.1:3001/api/graph?batch=S2026&includeNonScoring=1",
   "company_count": 197,
-  "evidence_count": 3013,
-  "non_github_scored_evidence_count": 1666,
+  "evidence_count": 3031,
+  "non_github_scored_evidence_count": 1689,
   "live_ingestion_checkpoint": {
     "evidence_rows": 964,
     "needs_review_rows": 890,
@@ -38,14 +38,14 @@
     }
   },
   "logged_in_social": {
-    "evidence_rows": 1955,
-    "failure_rows": 107,
+    "evidence_rows": 2000,
+    "failure_rows": 168,
     "platform_rows": {
-      "instagram": 41,
+      "instagram": 86,
       "x": 1914
     },
     "companies_by_platform": {
-      "instagram": 1,
+      "instagram": 5,
       "x": 130
     }
   },
@@ -77,10 +77,10 @@
     "examples_failed": []
   },
   "instagram_discovery": {
-    "companies_checked": 197,
+    "companies_checked": 0,
     "candidates": 0,
     "newly_verified": 0,
-    "total_verified_company_instagram_profiles": 1
+    "total_verified_company_instagram_profiles": 13
   },
   "platform_coverage": [
     {
@@ -113,10 +113,10 @@
     {
       "platform": "instagram",
       "status": "working",
-      "evidence_rows": 41,
-      "scored_rows": 40,
-      "companies_with_evidence": 1,
-      "companies_with_scored_evidence": 1,
+      "evidence_rows": 64,
+      "scored_rows": 63,
+      "companies_with_evidence": 3,
+      "companies_with_scored_evidence": 3,
       "needs_review_rows": 3
     },
     {
@@ -149,7 +149,7 @@
     {
       "platform": "web",
       "status": "disabled",
-      "evidence_rows": 766,
+      "evidence_rows": 761,
       "scored_rows": 0,
       "companies_with_evidence": 197,
       "companies_with_scored_evidence": 0,
@@ -519,17 +519,7 @@
       "company_name": "ReasonBlocks",
       "score": 0,
       "top_platform": null,
-      "evidence_rows": 4,
-      "scored_rows": 0,
-      "non_github_scored_rows": 0,
-      "scored_platforms": []
-    },
-    {
-      "company_id": "company-saudara-ai",
-      "company_name": "Saudara AI",
-      "score": 0,
-      "top_platform": null,
-      "evidence_rows": 5,
+      "evidence_rows": 3,
       "scored_rows": 0,
       "non_github_scored_rows": 0,
       "scored_platforms": []
@@ -697,7 +687,7 @@
     {
       "company_id": "company-tolmo",
       "company_name": "Tolmo",
-      "score": 18,
+      "score": 10,
       "top_platform": "github",
       "evidence_rows": 15,
       "scored_rows": 1,
@@ -709,7 +699,7 @@
     {
       "company_id": "company-smol-machines",
       "company_name": "smol machines",
-      "score": 67,
+      "score": 55,
       "top_platform": "github",
       "evidence_rows": 28,
       "scored_rows": 1,
@@ -721,7 +711,7 @@
     {
       "company_id": "company-miso-labs",
       "company_name": "Miso Labs",
-      "score": 10,
+      "score": 4,
       "top_platform": "x",
       "evidence_rows": 9,
       "scored_rows": 2,
@@ -734,7 +724,7 @@
     {
       "company_id": "company-memoir",
       "company_name": "Memoir",
-      "score": 12,
+      "score": 8,
       "top_platform": "youtube",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -746,7 +736,7 @@
     {
       "company_id": "company-trellistech",
       "company_name": "Trellis",
-      "score": 18,
+      "score": 11,
       "top_platform": "youtube",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -758,7 +748,7 @@
     {
       "company_id": "company-wealor",
       "company_name": "Wealor",
-      "score": 18,
+      "score": 13,
       "top_platform": "youtube",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -770,7 +760,7 @@
     {
       "company_id": "company-soria",
       "company_name": "Soria",
-      "score": 19,
+      "score": 14,
       "top_platform": "youtube",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -782,7 +772,7 @@
     {
       "company_id": "company-zolvo",
       "company_name": "Zolvo",
-      "score": 19,
+      "score": 14,
       "top_platform": "youtube",
       "evidence_rows": 10,
       "scored_rows": 1,
@@ -794,7 +784,7 @@
     {
       "company_id": "company-foresight",
       "company_name": "Foresight",
-      "score": 24,
+      "score": 15,
       "top_platform": "x",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -806,7 +796,7 @@
     {
       "company_id": "company-finaldose",
       "company_name": "FinalDose",
-      "score": 26,
+      "score": 19,
       "top_platform": "youtube",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -818,7 +808,7 @@
     {
       "company_id": "company-sazabi",
       "company_name": "Sazabi",
-      "score": 26,
+      "score": 19,
       "top_platform": "youtube",
       "evidence_rows": 6,
       "scored_rows": 1,
@@ -830,7 +820,7 @@
     {
       "company_id": "company-abinitio-bio",
       "company_name": "AbInitio Bio",
-      "score": 28,
+      "score": 20,
       "top_platform": "x",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -842,7 +832,7 @@
     {
       "company_id": "company-ornadyne",
       "company_name": "Ornadyne",
-      "score": 32,
+      "score": 25,
       "top_platform": "youtube",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -854,7 +844,7 @@
     {
       "company_id": "company-rudus",
       "company_name": "Rudus",
-      "score": 46,
+      "score": 35,
       "top_platform": "hacker_news",
       "evidence_rows": 5,
       "scored_rows": 1,
@@ -866,8 +856,8 @@
     {
       "company_id": "company-kugelaudio",
       "company_name": "KugelAudio",
-      "score": 5,
-      "top_platform": "youtube",
+      "score": 0,
+      "top_platform": "hacker_news",
       "evidence_rows": 6,
       "scored_rows": 2,
       "non_github_scored_rows": 2,
@@ -879,7 +869,7 @@
     {
       "company_id": "company-withai",
       "company_name": "WithAI",
-      "score": 9,
+      "score": 3,
       "top_platform": "youtube",
       "evidence_rows": 6,
       "scored_rows": 2,
@@ -889,9 +879,9 @@
       ]
     },
     {
-      "company_id": "company-tenet-industries",
-      "company_name": "Tenet Industries",
-      "score": 15,
+      "company_id": "company-armature",
+      "company_name": "Armature",
+      "score": 10,
       "top_platform": "x",
       "evidence_rows": 7,
       "scored_rows": 2,
@@ -901,9 +891,9 @@
       ]
     },
     {
-      "company_id": "company-armature",
-      "company_name": "Armature",
-      "score": 16,
+      "company_id": "company-tenet-industries",
+      "company_name": "Tenet Industries",
+      "score": 10,
       "top_platform": "x",
       "evidence_rows": 7,
       "scored_rows": 2,
@@ -915,45 +905,21 @@
     {
       "company_id": "company-klaimee",
       "company_name": "Klaimee",
-      "score": 17,
+      "score": 13,
       "top_platform": "youtube",
       "evidence_rows": 6,
       "scored_rows": 2,
       "non_github_scored_rows": 2,
       "scored_platforms": [
         "youtube"
-      ]
-    },
-    {
-      "company_id": "company-kinro",
-      "company_name": "Kinro",
-      "score": 21,
-      "top_platform": "youtube",
-      "evidence_rows": 6,
-      "scored_rows": 2,
-      "non_github_scored_rows": 2,
-      "scored_platforms": [
-        "youtube"
-      ]
-    },
-    {
-      "company_id": "company-takecareos",
-      "company_name": "TakeCareOS",
-      "score": 21,
-      "top_platform": "x",
-      "evidence_rows": 6,
-      "scored_rows": 2,
-      "non_github_scored_rows": 2,
-      "scored_platforms": [
-        "x"
       ]
     },
     {
       "company_id": "company-astraea",
       "company_name": "Astraea",
-      "score": 22,
+      "score": 14,
       "top_platform": "x",
-      "evidence_rows": 6,
+      "evidence_rows": 5,
       "scored_rows": 2,
       "non_github_scored_rows": 2,
       "scored_platforms": [
@@ -961,11 +927,11 @@
       ]
     },
     {
-      "company_id": "company-adialante",
-      "company_name": "Adialante",
-      "score": 23,
+      "company_id": "company-takecareos",
+      "company_name": "TakeCareOS",
+      "score": 17,
       "top_platform": "x",
-      "evidence_rows": 7,
+      "evidence_rows": 6,
       "scored_rows": 2,
       "non_github_scored_rows": 2,
       "scored_platforms": [
@@ -975,7 +941,44 @@
     {
       "company_id": "company-madrone",
       "company_name": "Madrone",
-      "score": 26,
+      "score": 18,
+      "top_platform": "x",
+      "evidence_rows": 7,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-kinro",
+      "company_name": "Kinro",
+      "score": 20,
+      "top_platform": "youtube",
+      "evidence_rows": 6,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "youtube"
+      ]
+    },
+    {
+      "company_id": "company-chert",
+      "company_name": "Chert",
+      "score": 21,
+      "top_platform": "x",
+      "evidence_rows": 12,
+      "scored_rows": 2,
+      "non_github_scored_rows": 2,
+      "scored_platforms": [
+        "hacker_news",
+        "x"
+      ]
+    },
+    {
+      "company_id": "company-adialante",
+      "company_name": "Adialante",
+      "score": 22,
       "top_platform": "x",
       "evidence_rows": 7,
       "scored_rows": 2,
@@ -1042,7 +1045,7 @@
     },
     {
       "platform": "instagram",
-      "companies_missing_scored_evidence": 196,
+      "companies_missing_scored_evidence": 194,
       "examples": [
         "AICE",
         "AquaShield",

@@ -71,4 +71,30 @@ describe("EvidenceMediaCard", () => {
     expect(screen.getAllByText("acme/widgets: GitHub repository.").length).toBeGreaterThan(0);
     expect(screen.queryByText(/preview pending/i)).not.toBeInTheDocument();
   });
+
+  it("renders Instagram CDN covers instead of blocking them as placeholders", () => {
+    const item: EvidenceItem = {
+      id: "ev-instagram-cover",
+      entityType: "founder",
+      entityId: "founder-ig",
+      platform: "instagram",
+      authorName: "Farza",
+      authorHandle: "farza954",
+      postedAt: "2026-04-25T00:00:00.000Z",
+      title: "im building a buddy for your computer cursor",
+      text: "im building a buddy for your computer cursor",
+      mediaType: "video",
+      thumbnailUrl: "https://scontent.cdninstagram.com/v/t51.71878-15/cover.jpg",
+      thumbnailSource: "instagram-media",
+      metrics: { likes: 123_500, comments: 30_300 },
+      contributionScore: 100,
+      sourceUrl: "https://www.instagram.com/reel/ABC123/",
+      why: "Visible Instagram reel metrics."
+    };
+
+    const { container } = render(<EvidenceMediaCard item={item} />);
+
+    expect(container.querySelector("img")).toHaveAttribute("src", item.thumbnailUrl);
+    expect(screen.queryByText(/cover blocked/i)).not.toBeInTheDocument();
+  });
 });

@@ -1,0 +1,298 @@
+{
+  "runId": "instagram-thumbnails-2026-06-30T06-20-41-668Z",
+  "startedAt": "2026-06-30T06:20:41.669Z",
+  "eventLog": [
+    {
+      "type": "run_started",
+      "at": "2026-06-30T06:20:41.673Z",
+      "payload": {
+        "runId": "instagram-thumbnails-2026-06-30T06-20-41-668Z",
+        "startedAt": "2026-06-30T06:20:41.669Z",
+        "durationMinutes": 5,
+        "checkpointMinutes": 1,
+        "discoveryShardSize": 2,
+        "discoveryWorkers": 2,
+        "instagramWorkers": 1,
+        "thumbnailLimit": 1,
+        "xThumbnailLimit": 1
+      }
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-30T06:20:41.677Z",
+      "payload": {
+        "reason": "initial",
+        "elapsedMinutes": 0
+      }
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-30T06:20:42.504Z",
+      "payload": {
+        "reason": "initial",
+        "exitCode": 0,
+        "elapsedMinutes": 0,
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "cycle_started",
+      "at": "2026-06-30T06:20:42.506Z",
+      "payload": {
+        "cycle": 1,
+        "discoveryOffset": 0
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:20:42.508Z",
+      "payload": {
+        "phase": "measure-instagram",
+        "command": "npm run debug:instagram-coverage"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:20:47.562Z",
+      "payload": {
+        "phase": "measure-instagram",
+        "command": "npm run debug:instagram-coverage",
+        "exitCode": 0,
+        "elapsedSeconds": 5,
+        "stdoutTail": "> yc-network-intelligence@0.1.0 debug:instagram-coverage\n> node scripts/debug-instagram-coverage.mjs\n{\n  \"outputPath\": \"outputs/instagram-coverage-debug-s2026.json\",\n  \"companies\": 197,\n  \"verifiedCompanyOverrides\": 1,\n  \"verifiedFounderOverrides\": 1,\n  \"instagramEvidenceRows\": 41,\n  \"companiesWithScoredInstagram\": 1,\n  \"missingCompanies\": 196\n}",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:20:47.564Z",
+      "payload": {
+        "phase": "measure-thumbnails",
+        "command": "npm run debug:thumbnails"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:20:48.614Z",
+      "payload": {
+        "phase": "measure-thumbnails",
+        "command": "npm run debug:thumbnails",
+        "exitCode": 0,
+        "elapsedSeconds": 1,
+        "stdoutTail": "> yc-network-intelligence@0.1.0 debug:thumbnails\n> node scripts/debug-thumbnails.mjs\n{\n  \"outputPath\": \"outputs/thumbnail-coverage-debug-s2026.json\",\n  \"evidenceRows\": 3009,\n  \"rowsWithThumbnail\": 2191,\n  \"rowsWithRealThumbnail\": 2186,\n  \"rowsMissingThumbnail\": 818,\n  \"rowsWithFallbackThumbnail\": 5\n}",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:20:48.616Z",
+      "payload": {
+        "phase": "instagram-discovery",
+        "command": "node scripts/discover-instagram-overrides.mjs --web-search --write --promote-search --promote-founder-search --workers=2 --offset=0 --max-companies=2"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:20:59.028Z",
+      "payload": {
+        "phase": "instagram-discovery",
+        "command": "node scripts/discover-instagram-overrides.mjs --web-search --write --promote-search --promote-founder-search --workers=2 --offset=0 --max-companies=2",
+        "exitCode": 0,
+        "elapsedSeconds": 10,
+        "stdoutTail": "{\n  \"outputPath\": \"C:\\\\Users\\\\swimd\\\\Documents\\\\Codex\\\\2026-06-27\\\\i-want-this-environment-to-become\\\\outputs\\\\instagram-discovery-candidates.json\",\n  \"write\": true,\n  \"offset\": 0,\n  \"companiesAvailable\": 197,\n  \"companies\": 2,\n  \"candidates\": 0,\n  \"newlyVerified\": 0,\n  \"newlyVerifiedFounders\": 0,\n  \"totalVerifiedCompanyInstagramProfiles\": 1\n}",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:20:59.029Z",
+      "payload": {
+        "phase": "instagram-ingest",
+        "command": "node scripts/fetch-logged-in-social-traction.mjs --platforms=instagram --entities=all --workers=1 --limit=40 --scrolls=16 --timeout-ms=120000 --delay-ms=2500 --retry-empty"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:20:59.617Z",
+      "payload": {
+        "phase": "instagram-ingest",
+        "command": "node scripts/fetch-logged-in-social-traction.mjs --platforms=instagram --entities=all --workers=1 --limit=40 --scrolls=16 --timeout-ms=120000 --delay-ms=2500 --retry-empty",
+        "exitCode": 0,
+        "elapsedSeconds": 1,
+        "stdoutTail": "Logged-in social targets: 2 (1 workers, up to 40 posts each, 16 scroll passes).\nWrote 1955 logged-in post evidence items, 107 failures.",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:20:59.618Z",
+      "payload": {
+        "phase": "instagram-thumbnails",
+        "command": "node scripts/backfill-evidence-thumbnails.mjs --platform=instagram --cache-instagram --force --limit=1 --max-rows=1 --delay-ms=1200 --timeout-ms=90000 --checkpoint-rows=5"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:21:12.588Z",
+      "payload": {
+        "phase": "instagram-thumbnails",
+        "command": "node scripts/backfill-evidence-thumbnails.mjs --platform=instagram --cache-instagram --force --limit=1 --max-rows=1 --delay-ms=1200 --timeout-ms=90000 --checkpoint-rows=5",
+        "exitCode": 0,
+        "elapsedSeconds": 13,
+        "stdoutTail": "  \"cachedInstagramRows\": 1,\n  \"cachedXRows\": 0,\n  \"xOembedPreviewRows\": 0,\n  \"xEmbedScreenshotRows\": 0,\n  \"xValidatedRows\": 0,\n  \"xInvalidRows\": 0,\n  \"cacheFailures\": [],\n  \"files\": [\n    {\n      \"file\": \"src/lib/social/public-evidence-current.json\",\n      \"scanned\": 964,\n      \"updated\": 0\n    },\n    {\n      \"file\": \"src/lib/social/logged-in-evidence-current.json\",\n      \"scanned\": 1955,\n      \"updated\": 1\n    }\n  ]\n}",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:21:12.589Z",
+      "payload": {
+        "phase": "x-fallback-thumbnails",
+        "command": "node scripts/backfill-evidence-thumbnails.mjs --platform=x --cache-x --validate-x --force --thumbnail-source=local-cache --limit=1 --max-rows=1 --delay-ms=300 --timeout-ms=90000 --checkpoint-rows=5"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:21:12.887Z",
+      "payload": {
+        "phase": "x-fallback-thumbnails",
+        "command": "node scripts/backfill-evidence-thumbnails.mjs --platform=x --cache-x --validate-x --force --thumbnail-source=local-cache --limit=1 --max-rows=1 --delay-ms=300 --timeout-ms=90000 --checkpoint-rows=5",
+        "exitCode": 0,
+        "elapsedSeconds": 0,
+        "stdoutTail": "  \"xInvalidRows\": 0,\n  \"cacheFailures\": [],\n  \"files\": [\n    {\n      \"file\": \"src/lib/social/public-evidence-current.json\",\n      \"scanned\": 964,\n      \"updated\": 0\n    },\n    {\n      \"file\": \"src/lib/social/logged-in-evidence-current.json\",\n      \"scanned\": 1955,\n      \"updated\": 0\n    },\n    {\n      \"file\": \"src/lib/social/targeted-evidence-current.json\",\n      \"scanned\": 3,\n      \"updated\": 0\n    }\n  ]\n}",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:21:12.888Z",
+      "payload": {
+        "phase": "x-missing-thumbnails",
+        "command": "node scripts/backfill-evidence-thumbnails.mjs --platform=x --cache-x --validate-x --missing-only --limit=1 --max-rows=1 --delay-ms=300 --timeout-ms=90000 --checkpoint-rows=5"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:21:14.331Z",
+      "payload": {
+        "phase": "x-missing-thumbnails",
+        "command": "node scripts/backfill-evidence-thumbnails.mjs --platform=x --cache-x --validate-x --missing-only --limit=1 --max-rows=1 --delay-ms=300 --timeout-ms=90000 --checkpoint-rows=5",
+        "exitCode": 0,
+        "elapsedSeconds": 1,
+        "stdoutTail": "  \"cachedInstagramRows\": 0,\n  \"cachedXRows\": 0,\n  \"xOembedPreviewRows\": 0,\n  \"xEmbedScreenshotRows\": 0,\n  \"xValidatedRows\": 1,\n  \"xInvalidRows\": 0,\n  \"cacheFailures\": [],\n  \"files\": [\n    {\n      \"file\": \"src/lib/social/public-evidence-current.json\",\n      \"scanned\": 964,\n      \"updated\": 0\n    },\n    {\n      \"file\": \"src/lib/social/logged-in-evidence-current.json\",\n      \"scanned\": 1955,\n      \"updated\": 1\n    }\n  ]\n}",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:21:14.333Z",
+      "payload": {
+        "phase": "post-measure-instagram",
+        "command": "npm run debug:instagram-coverage"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:21:58.933Z",
+      "payload": {
+        "phase": "post-measure-instagram",
+        "command": "npm run debug:instagram-coverage",
+        "exitCode": 0,
+        "elapsedSeconds": 45,
+        "stdoutTail": "> yc-network-intelligence@0.1.0 debug:instagram-coverage\n> node scripts/debug-instagram-coverage.mjs\n{\n  \"outputPath\": \"outputs/instagram-coverage-debug-s2026.json\",\n  \"companies\": 197,\n  \"verifiedCompanyOverrides\": 1,\n  \"verifiedFounderOverrides\": 1,\n  \"instagramEvidenceRows\": 41,\n  \"companiesWithScoredInstagram\": 1,\n  \"missingCompanies\": 196\n}",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-30T06:21:58.937Z",
+      "payload": {
+        "reason": "scheduled",
+        "elapsedMinutes": 1
+      }
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-30T06:21:59.992Z",
+      "payload": {
+        "reason": "scheduled",
+        "exitCode": 0,
+        "elapsedMinutes": 1,
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "command_started",
+      "at": "2026-06-30T06:21:59.995Z",
+      "payload": {
+        "phase": "post-measure-thumbnails",
+        "command": "npm run debug:thumbnails"
+      }
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-06-30T06:22:01.075Z",
+      "payload": {
+        "phase": "post-measure-thumbnails",
+        "command": "npm run debug:thumbnails",
+        "exitCode": 0,
+        "elapsedSeconds": 1,
+        "stdoutTail": "> yc-network-intelligence@0.1.0 debug:thumbnails\n> node scripts/debug-thumbnails.mjs\n{\n  \"outputPath\": \"outputs/thumbnail-coverage-debug-s2026.json\",\n  \"evidenceRows\": 3013,\n  \"rowsWithThumbnail\": 1107,\n  \"rowsWithRealThumbnail\": 1107,\n  \"rowsMissingThumbnail\": 1906,\n  \"rowsWithFallbackThumbnail\": 0\n}",
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-30T06:22:01.079Z",
+      "payload": {
+        "reason": "cycle-1",
+        "elapsedMinutes": 1
+      }
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-30T06:22:02.074Z",
+      "payload": {
+        "reason": "cycle-1",
+        "exitCode": 0,
+        "elapsedMinutes": 1,
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "cycle_finished",
+      "at": "2026-06-30T06:22:02.077Z",
+      "payload": {
+        "cycle": 1,
+        "nextDiscoveryOffset": 2
+      }
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-06-30T06:22:02.081Z",
+      "payload": {
+        "reason": "final",
+        "elapsedMinutes": 1
+      }
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-06-30T06:22:03.014Z",
+      "payload": {
+        "reason": "final",
+        "exitCode": 0,
+        "elapsedMinutes": 1,
+        "stderrTail": ""
+      }
+    },
+    {
+      "type": "run_finished",
+      "at": "2026-06-30T06:22:03.016Z",
+      "payload": {
+        "elapsedMinutes": 1,
+        "cycles": 1,
+        "nextDiscoveryOffset": 2
+      }
+    }
+  ]
+}

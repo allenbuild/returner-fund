@@ -1,11 +1,7 @@
 {
-  "runId": "background-2026-06-28T09-11-37-190Z",
-  "pid": 31184,
-  "startedAt": "2026-06-28T02:13:20-05:00",
-  "launchedAt": "2026-06-28T09:11:37.202Z",
-  "command": "C:\\Program Files\\nodejs\\node.exe scripts\\run-long-cycle.mjs --minutes=360 --checkpoint-minutes=30 --max-companies=197 --workers=8 --delay-ms=1200",
-  "stdoutPath": "C:\\Users\\swimd\\Documents\\Codex\\2026-06-27\\i-want-this-environment-to-become\\outputs\\longrun\\background-2026-06-28T09-11-37-190Z.stdout.log",
-  "stderrPath": "C:\\Users\\swimd\\Documents\\Codex\\2026-06-27\\i-want-this-environment-to-become\\outputs\\longrun\\background-2026-06-28T09-11-37-190Z.stderr.log",
-  "statusPath": "C:\\Users\\swimd\\Documents\\Codex\\2026-06-27\\i-want-this-environment-to-become\\docs\\LONG_RUN_STATUS.md",
-  "eventLogPath": "C:\\Users\\swimd\\Documents\\Codex\\2026-06-27\\i-want-this-environment-to-become\\outputs\\longrun\\background-2026-06-28T09-11-37-190Z.json"
+  "runId": "instagram-thumbnails-2026-06-30T06-20-41-668Z",
+  "startedAt": "2026-06-30T06:20:41.669Z",
+  "objective": "Instagram coverage plus real thumbnail remediation across YC Spring 2026.",
+  "nextDiscoveryOffset": 2,
+  "updatedAt": "2026-06-30T06:22:02.078Z"
 }

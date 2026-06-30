@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { extractLinkPreview } from "./link-preview-utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
@@ -22,12 +23,18 @@ let xOembedPreviewRows = 0;
 let xEmbedScreenshotRows = 0;
 let xValidatedRows = 0;
 let xInvalidRows = 0;
+let linkPreviewRows = 0;
+let linkPreviewFaviconRows = 0;
+let linkPreviewCheckedRows = 0;
 let xEmbedBrowser = null;
 let xEmbedPage = null;
 const cacheFailures = [];
+const linkPreviewFailures = [];
 
 let totalRows = 0;
 let updatedRows = 0;
+let resolvedThumbnailRows = 0;
+let patchedOnlyRows = 0;
 let reachedMaxRows = false;
 const summaries = [];
 
@@ -56,7 +63,11 @@ for (const relativePath of evidenceFiles) {
       continue;
     }
 
-    if (args.missingOnly && item.platform === "x" && !isXPostUrl(item.sourceUrl) && !item.platformPostId) {
+    if (args.fetchLinkPreview && args.missingOnly && item.thumbnailErrorCode && !args.force && !args.retryFailedPreviews) {
+      continue;
+    }
+
+    if (args.missingOnly && item.platform === "x" && !isXPostUrl(item.sourceUrl) && !isXProfileUrl(item.sourceUrl) && !item.platformPostId) {
       continue;
     }
 
@@ -78,6 +89,9 @@ for (const relativePath of evidenceFiles) {
       if (!item.mediaUrl && resolved.mediaUrl) {
         item.mediaUrl = resolved.mediaUrl;
       }
+      resolvedThumbnailRows += 1;
+    } else if (patched) {
+      patchedOnlyRows += 1;
     }
     fileUpdates += 1;
     fileUpdatesSinceWrite += 1;
@@ -118,13 +132,19 @@ console.log(
       },
       totalRows,
       updatedRows,
+      resolvedThumbnailRows,
+      patchedOnlyRows,
       cachedInstagramRows,
       cachedXRows,
       xOembedPreviewRows,
       xEmbedScreenshotRows,
       xValidatedRows,
       xInvalidRows,
+      linkPreviewRows,
+      linkPreviewFaviconRows,
+      linkPreviewCheckedRows,
       cacheFailures: cacheFailures.slice(0, 20),
+      linkPreviewFailures: linkPreviewFailures.slice(0, 20),
       files: summaries
     },
     null,
@@ -138,7 +158,11 @@ function parseArgs(argv) {
     force: false,
     cacheInstagram: false,
     cacheX: false,
+    allowXSvgFallback: false,
     validateX: false,
+    fetchLinkPreview: false,
+    retryFailedPreviews: false,
+    allowFavicon: true,
     missingOnly: false,
     maxRows: Number.POSITIVE_INFINITY,
     checkpointRows: 25,
@@ -151,7 +175,11 @@ function parseArgs(argv) {
     if (arg === "--force") parsed.force = true;
     if (arg === "--cache-instagram") parsed.cacheInstagram = true;
     if (arg === "--cache-x") parsed.cacheX = true;
+    if (arg === "--allow-x-svg-fallback") parsed.allowXSvgFallback = true;
     if (arg === "--validate-x") parsed.validateX = true;
+    if (arg === "--fetch-link-preview" || arg === "--fetch-og") parsed.fetchLinkPreview = true;
+    if (arg === "--retry-failed-previews") parsed.retryFailedPreviews = true;
+    if (arg === "--no-favicon") parsed.allowFavicon = false;
     if (arg === "--missing-only") parsed.missingOnly = true;
     if (arg.startsWith("--company=")) parsed.company = arg.slice("--company=".length).toLowerCase();
     if (arg.startsWith("--platform=")) parsed.platform = arg.slice("--platform=".length).toLowerCase();
@@ -159,6 +187,13 @@ function parseArgs(argv) {
     if (arg.startsWith("--id=")) parsed.id = arg.slice("--id=".length).toLowerCase();
     if (arg.startsWith("--thumbnail-source=")) {
       parsed.thumbnailSource = arg.slice("--thumbnail-source=".length).toLowerCase();
+    }
+    if (arg.startsWith("--link-preview-platforms=")) {
+      parsed.linkPreviewPlatforms = arg
+        .slice("--link-preview-platforms=".length)
+        .split(",")
+        .map((value) => value.trim().toLowerCase())
+        .filter(Boolean);
     }
     if (arg.startsWith("--limit=")) parsed.limit = Number(arg.slice("--limit=".length)) || parsed.limit;
     if (arg.startsWith("--max-rows=")) parsed.maxRows = Number(arg.slice("--max-rows=".length)) || parsed.maxRows;
@@ -205,7 +240,12 @@ async function resolveThumbnailForItem(item, args) {
     return resolveOrCacheXThumbnail(item, args);
   }
 
-  return resolveThumbnail(item);
+  const resolved = resolveThumbnail(item);
+  if (resolved.thumbnailUrl || !shouldFetchLinkPreview(item, args)) {
+    return resolved;
+  }
+
+  return resolveLinkPreviewThumbnail(item, args);
 }
 
 function applyResolvedPatch(item, resolved) {
@@ -267,6 +307,14 @@ async function resolveOrCacheInstagramThumbnail(item, args) {
     }
   }
 
+  if (cachedInstagramRows < args.limit && isInstagramProfileUrl(item.sourceUrl)) {
+    const cached = await cacheInstagramProfileScreenshot(item, args);
+    if (cached) {
+      cachedInstagramRows += 1;
+      return { thumbnailUrl: cached.publicUrl, thumbnailSource: "opencli-instagram-profile-screenshot", mediaUrl: cached.publicUrl };
+    }
+  }
+
   if (args.cacheInstagram) {
     return { thumbnailUrl: null, thumbnailSource: null, mediaUrl: null };
   }
@@ -312,17 +360,6 @@ async function resolveOrCacheXThumbnail(item, args) {
     };
   }
 
-  const oembedPreview = await cacheXOembedPreview(item, validation, args);
-  if (oembedPreview) {
-    xOembedPreviewRows += 1;
-    return {
-      thumbnailUrl: oembedPreview.publicUrl,
-      thumbnailSource: "x-oembed-preview",
-      mediaUrl: oembedPreview.publicUrl,
-      patch: validation?.patch ?? null
-    };
-  }
-
   if (args.cacheX && cachedXRows < args.limit && isXPostUrl(item.sourceUrl)) {
     const cached = await cacheXPostScreenshot(item, args);
     if (cached) {
@@ -336,7 +373,423 @@ async function resolveOrCacheXThumbnail(item, args) {
     }
   }
 
+  if (args.cacheX && cachedXRows < args.limit && isXProfileUrl(item.sourceUrl)) {
+    const cached = await cacheXProfileScreenshot(item, args);
+    if (cached) {
+      cachedXRows += 1;
+      return {
+        thumbnailUrl: cached.publicUrl,
+        thumbnailSource: "opencli-x-profile-screenshot",
+        mediaUrl: cached.publicUrl,
+        patch: validation?.patch ?? null
+      };
+    }
+  }
+
+  if (args.allowXSvgFallback) {
+    const oembedPreview = await cacheXOembedPreview(item, validation, args);
+    if (oembedPreview) {
+      xOembedPreviewRows += 1;
+      return {
+        thumbnailUrl: oembedPreview.publicUrl,
+        thumbnailSource: "x-oembed-preview",
+        mediaUrl: oembedPreview.publicUrl,
+        patch: validation?.patch ?? null
+      };
+    }
+  }
+
   return { ...resolved, patch: validation?.patch ?? null };
+}
+
+function shouldFetchLinkPreview(item, args) {
+  if (!args.fetchLinkPreview) {
+    return false;
+  }
+
+  if (!sanitizeUrl(item.sourceUrl)) {
+    return false;
+  }
+
+  if (args.linkPreviewPlatforms?.length) {
+    return args.linkPreviewPlatforms.includes(String(item.platform || "").toLowerCase());
+  }
+
+  return ["web", "rss", "hacker_news", "linkedin", "product_hunt", "reddit", "bilibili"].includes(
+    String(item.platform || "").toLowerCase()
+  );
+}
+
+async function resolveLinkPreviewThumbnail(item, args) {
+  const sourceUrl = await linkPreviewFetchUrlForItem(item, args);
+  if (!sourceUrl) {
+    return {
+      thumbnailUrl: null,
+      thumbnailSource: null,
+      mediaUrl: null,
+      patch: thumbnailPreviewPatch("invalid_source_url", "Source URL is missing or invalid.")
+    };
+  }
+
+  linkPreviewCheckedRows += 1;
+  const startedAt = new Date().toISOString();
+  try {
+    const response = await fetch(sourceUrl, {
+      redirect: "follow",
+      signal: AbortSignal.timeout(Math.min(args.timeoutMs, 25_000)),
+      headers: {
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "accept-language": "en-US,en;q=0.9",
+        "user-agent": "YCNetworkMap/1.0 public-link-preview"
+      }
+    });
+
+    const statusPatch =
+      response.status === 404 || response.status === 410
+        ? { linkStatus: "invalid", linkFailureReason: `HTTP ${response.status} while fetching link preview.` }
+        : response.status === 401 || response.status === 403
+          ? { linkStatus: "blocked", linkFailureReason: `HTTP ${response.status} while fetching link preview.` }
+          : response.ok
+            ? { linkStatus: "verified", linkFailureReason: null }
+            : { linkStatus: "unchecked", linkFailureReason: `HTTP ${response.status} while fetching link preview.` };
+
+    const contentType = response.headers.get("content-type") || "";
+    if (!response.ok) {
+      const favicon = await fallbackFaviconPreview(sourceUrl, args, "link-preview-favicon-blocked");
+      if (favicon) {
+        linkPreviewRows += 1;
+        linkPreviewFaviconRows += 1;
+        return {
+          ...favicon,
+          patch: thumbnailPreviewPatch(null, null, statusPatch, startedAt)
+        };
+      }
+      const readerPreview = await fallbackJinaReaderPreview(sourceUrl, args, "jina-reader-blocked-image");
+      if (readerPreview) {
+        linkPreviewRows += 1;
+        return {
+          ...readerPreview,
+          patch: thumbnailPreviewPatch(null, null, statusPatch, startedAt)
+        };
+      }
+      const siteIcon = await fallbackFaviconServicePreview(sourceUrl, args, "link-preview-site-icon-blocked");
+      if (siteIcon) {
+        linkPreviewRows += 1;
+        linkPreviewFaviconRows += 1;
+        return {
+          ...siteIcon,
+          patch: thumbnailPreviewPatch(null, null, statusPatch, startedAt)
+        };
+      }
+      recordLinkPreviewFailure(item, statusPatch.linkFailureReason);
+      return {
+        thumbnailUrl: null,
+        thumbnailSource: null,
+        mediaUrl: null,
+        patch: thumbnailPreviewPatch("fetch_failed", statusPatch.linkFailureReason, statusPatch, startedAt)
+      };
+    }
+
+    const finalUrl = response.url || sourceUrl;
+    if (/^image\//i.test(contentType)) {
+      linkPreviewRows += 1;
+      return {
+        thumbnailUrl: finalUrl,
+        thumbnailSource: "link-preview-direct-image",
+        mediaUrl: finalUrl,
+        patch: thumbnailPreviewPatch(null, null, statusPatch, startedAt)
+      };
+    }
+
+    if (!/(?:text\/html|application\/xhtml\+xml|application\/xml|text\/xml)/i.test(contentType)) {
+      const reason = `Unsupported preview content type: ${contentType || "unknown"}.`;
+      const favicon = await fallbackFaviconPreview(sourceUrl, args, "link-preview-favicon-unsupported");
+      if (favicon) {
+        linkPreviewRows += 1;
+        linkPreviewFaviconRows += 1;
+        return {
+          ...favicon,
+          patch: thumbnailPreviewPatch(null, null, statusPatch, startedAt)
+        };
+      }
+      recordLinkPreviewFailure(item, reason);
+      return {
+        thumbnailUrl: null,
+        thumbnailSource: null,
+        mediaUrl: null,
+        patch: thumbnailPreviewPatch("unsupported_content_type", reason, statusPatch, startedAt)
+      };
+    }
+
+    const html = await response.text();
+    const preview = extractLinkPreview(html, finalUrl, { allowFavicon: args.allowFavicon });
+    if (preview.thumbnailUrl) {
+      linkPreviewRows += 1;
+      if (/favicon/i.test(preview.thumbnailSource || "")) {
+        linkPreviewFaviconRows += 1;
+      }
+      return {
+        ...preview,
+        patch: thumbnailPreviewPatch(null, null, statusPatch, startedAt)
+      };
+    }
+
+    const reason = "No usable og:image, twitter:image, article image, video poster, or favicon found.";
+    const readerPreview = await fallbackJinaReaderPreview(sourceUrl, args, "jina-reader-image");
+    if (readerPreview) {
+      linkPreviewRows += 1;
+      return {
+        ...readerPreview,
+        patch: thumbnailPreviewPatch(null, null, statusPatch, startedAt)
+      };
+    }
+    const siteIcon = await fallbackFaviconServicePreview(sourceUrl, args, "link-preview-site-icon");
+    if (siteIcon) {
+      linkPreviewRows += 1;
+      linkPreviewFaviconRows += 1;
+      return {
+        ...siteIcon,
+        patch: thumbnailPreviewPatch(null, null, statusPatch, startedAt)
+      };
+    }
+    recordLinkPreviewFailure(item, reason);
+    return {
+      thumbnailUrl: null,
+      thumbnailSource: null,
+      mediaUrl: null,
+      patch: thumbnailPreviewPatch("no_preview_image", reason, statusPatch, startedAt)
+    };
+  } catch (error) {
+    const reason = `Link preview fetch failed: ${String(error.message || error).slice(0, 180)}`;
+    const favicon = await fallbackFaviconPreview(sourceUrl, args, "link-preview-favicon-error").catch(() => null);
+    if (favicon) {
+      linkPreviewRows += 1;
+      linkPreviewFaviconRows += 1;
+      return {
+        ...favicon,
+        patch: thumbnailPreviewPatch(null, null, { linkStatus: "blocked", linkFailureReason: reason }, startedAt)
+      };
+    }
+    const readerPreview = await fallbackJinaReaderPreview(sourceUrl, args, "jina-reader-error-image").catch(() => null);
+    if (readerPreview) {
+      linkPreviewRows += 1;
+      return {
+        ...readerPreview,
+        patch: thumbnailPreviewPatch(null, null, { linkStatus: "blocked", linkFailureReason: reason }, startedAt)
+      };
+    }
+    const siteIcon = await fallbackFaviconServicePreview(sourceUrl, args, "link-preview-site-icon-error").catch(() => null);
+    if (siteIcon) {
+      linkPreviewRows += 1;
+      linkPreviewFaviconRows += 1;
+      return {
+        ...siteIcon,
+        patch: thumbnailPreviewPatch(null, null, { linkStatus: "blocked", linkFailureReason: reason }, startedAt)
+      };
+    }
+    recordLinkPreviewFailure(item, reason);
+    return {
+      thumbnailUrl: null,
+      thumbnailSource: null,
+      mediaUrl: null,
+      patch: thumbnailPreviewPatch("fetch_exception", reason, { linkStatus: "blocked", linkFailureReason: reason }, startedAt)
+    };
+  }
+}
+
+async function linkPreviewFetchUrlForItem(item, args) {
+  const sourceUrl = sanitizeUrl(item.sourceUrl);
+  if (!sourceUrl) {
+    return null;
+  }
+
+  if (item.platform !== "hacker_news" || !/news\.ycombinator\.com\/item/i.test(sourceUrl)) {
+    return sourceUrl;
+  }
+
+  const itemId = hackerNewsItemId(sourceUrl) || hackerNewsItemId(item.platformPostId);
+  if (!itemId) {
+    return sourceUrl;
+  }
+
+  try {
+    const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${itemId}.json`, {
+      signal: AbortSignal.timeout(Math.min(args.timeoutMs, 12_000)),
+      headers: {
+        accept: "application/json",
+        "user-agent": "YCNetworkMap/1.0 public-link-preview"
+      }
+    });
+    if (!response.ok) {
+      return sourceUrl;
+    }
+    const payload = await response.json();
+    const externalUrl = sanitizeUrl(payload?.url);
+    return externalUrl || sourceUrl;
+  } catch {
+    return sourceUrl;
+  }
+}
+
+function hackerNewsItemId(value) {
+  if (!value) return null;
+  const direct = String(value).match(/^\d+$/)?.[0];
+  if (direct) return direct;
+  try {
+    return new URL(String(value)).searchParams.get("id");
+  } catch {
+    return String(value).match(/item\?id=(\d+)/i)?.[1] ?? null;
+  }
+}
+
+async function fallbackFaviconPreview(sourceUrl, args, source = "link-preview-favicon") {
+  if (!args.allowFavicon) {
+    return null;
+  }
+
+  const faviconUrl = siteFaviconUrl(sourceUrl);
+  if (!faviconUrl) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(faviconUrl, {
+      redirect: "follow",
+      signal: AbortSignal.timeout(Math.min(args.timeoutMs, 8_000)),
+      headers: {
+        accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "user-agent": "YCNetworkMap/1.0 public-link-preview"
+      }
+    });
+    const contentType = response.headers.get("content-type") || "";
+    if (!response.ok || !/(?:^image\/|icon|octet-stream)/i.test(contentType)) {
+      return null;
+    }
+    return {
+      thumbnailUrl: response.url || faviconUrl,
+      thumbnailSource: source,
+      mediaUrl: response.url || faviconUrl
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function fallbackJinaReaderPreview(sourceUrl, args, source = "jina-reader-image") {
+  const readerUrl = jinaReaderUrl(sourceUrl);
+  if (!readerUrl) return null;
+
+  try {
+    const response = await fetch(readerUrl, {
+      redirect: "follow",
+      signal: AbortSignal.timeout(Math.min(args.timeoutMs, 20_000)),
+      headers: {
+        accept: "text/plain,text/markdown,*/*;q=0.8",
+        "user-agent": "YCNetworkMap/1.0 public-link-preview"
+      }
+    });
+    if (!response.ok) return null;
+    const markdown = await response.text();
+    const selected = chooseJinaReaderImage(markdown);
+    if (!selected) return null;
+    return {
+      thumbnailUrl: selected.url,
+      thumbnailSource: selected.isLogoLike ? `${source}-source-image` : source,
+      mediaUrl: selected.url
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function fallbackFaviconServicePreview(sourceUrl, args, source = "link-preview-site-icon") {
+  if (!args.allowFavicon) {
+    return null;
+  }
+  const faviconUrl = faviconServiceUrl(sourceUrl);
+  if (!faviconUrl) return null;
+
+  try {
+    const response = await fetch(faviconUrl, {
+      redirect: "follow",
+      signal: AbortSignal.timeout(Math.min(args.timeoutMs, 8_000)),
+      headers: {
+        accept: "image/avif,image/webp,image/apng,image/png,image/*,*/*;q=0.8",
+        "user-agent": "YCNetworkMap/1.0 public-link-preview"
+      }
+    });
+    const contentType = response.headers.get("content-type") || "";
+    if (!response.ok || !/(?:^image\/|icon|octet-stream)/i.test(contentType)) return null;
+    return {
+      thumbnailUrl: response.url || faviconUrl,
+      thumbnailSource: source,
+      mediaUrl: response.url || faviconUrl
+    };
+  } catch {
+    return null;
+  }
+}
+
+function siteFaviconUrl(sourceUrl) {
+  try {
+    const parsed = new URL(sourceUrl);
+    return `${parsed.origin}/favicon.ico`;
+  } catch {
+    return null;
+  }
+}
+
+function faviconServiceUrl(sourceUrl) {
+  try {
+    const parsed = new URL(sourceUrl);
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(parsed.hostname)}&sz=256`;
+  } catch {
+    return null;
+  }
+}
+
+function jinaReaderUrl(sourceUrl) {
+  try {
+    const parsed = new URL(sourceUrl);
+    const target = `http://${parsed.host}${parsed.pathname}${parsed.search}`;
+    return `https://r.jina.ai/${target}`;
+  } catch {
+    return null;
+  }
+}
+
+function chooseJinaReaderImage(markdown) {
+  const candidates = [];
+  for (const match of String(markdown || "").matchAll(/!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/gi)) {
+    const url = sanitizeUrl(match[1]);
+    if (!url) continue;
+    const isLogoLike = /logo|wordmark|brandmark|favicon|apple-touch-icon|outlined-|icon\./i.test(url);
+    candidates.push({ url, isLogoLike });
+  }
+
+  const clean = cleanUrls(candidates.map((candidate) => candidate.url))
+    .filter((url) => isLikelyImage(url))
+    .map((url) => candidates.find((candidate) => candidate.url === url) ?? { url, isLogoLike: false });
+  return clean.find((candidate) => !candidate.isLogoLike) ?? clean[0] ?? null;
+}
+
+function thumbnailPreviewPatch(errorCode, errorMessage, statusPatch = {}, fetchedAt = new Date().toISOString()) {
+  return {
+    thumbnailFetchedAt: fetchedAt,
+    thumbnailError: errorMessage ?? null,
+    thumbnailErrorCode: errorCode ?? null,
+    linkCheckedAt: fetchedAt,
+    ...statusPatch
+  };
+}
+
+function recordLinkPreviewFailure(item, reason) {
+  linkPreviewFailures.push({
+    id: item.id,
+    platform: item.platform,
+    sourceUrl: item.sourceUrl,
+    reason: String(reason || "Unknown link preview failure.").slice(0, 240)
+  });
 }
 
 function localCachedThumbnail(item) {
@@ -396,6 +849,49 @@ async function cacheInstagramScreenshot(item, args) {
   }
 }
 
+async function cacheInstagramProfileScreenshot(item, args) {
+  if (!fs.existsSync(openCliMain)) {
+    cacheFailures.push({ id: item.id, reason: "OpenCLI is not installed at the expected path." });
+    return null;
+  }
+
+  const output = localThumbnailPaths(item);
+  if (!write) {
+    return output;
+  }
+
+  fs.mkdirSync(path.dirname(output.absolutePath), { recursive: true });
+  const session = args.session || `yc-thumb-ig-profile-${process.pid}`;
+
+  try {
+    await runOpenCli(["browser", session, "open", item.sourceUrl], args.timeoutMs);
+    await runOpenCli(["browser", session, "wait", "time", "4"], 15_000).catch(() => null);
+    const staged = await runOpenCli(["browser", session, "eval", instagramProfileCoverStageJs(item)], args.timeoutMs).catch(
+      () => ""
+    );
+    if (!/"ok"\s*:\s*true/.test(staged)) {
+      cacheFailures.push({ id: item.id, reason: "No visible Instagram profile card could be staged." });
+      return null;
+    }
+
+    const verified = await runOpenCli(["browser", session, "eval", stagedCoverStatusJs()], 15_000).catch(() => "");
+    if (!/"ok"\s*:\s*true/.test(verified)) {
+      cacheFailures.push({ id: item.id, reason: "Instagram profile cover staging verification failed." });
+      return null;
+    }
+
+    await runOpenCli(["browser", session, "screenshot", "--width", "960", "--height", "540", output.absolutePath], args.timeoutMs);
+    if (!fs.existsSync(output.absolutePath) || fs.statSync(output.absolutePath).size < 5000) {
+      cacheFailures.push({ id: item.id, reason: "Instagram profile screenshot file was missing or too small." });
+      return null;
+    }
+    return output;
+  } catch (error) {
+    cacheFailures.push({ id: item.id, reason: String(error.message || error).slice(0, 240) });
+    return null;
+  }
+}
+
 async function cacheXPostScreenshot(item, args) {
   if (!fs.existsSync(openCliMain)) {
     cacheFailures.push({ id: item.id, reason: "OpenCLI is not installed at the expected path." });
@@ -435,6 +931,53 @@ async function cacheXPostScreenshot(item, args) {
     await runOpenCli(["browser", session, "screenshot", "--width", "960", "--height", "540", output.absolutePath], args.timeoutMs);
     if (!fs.existsSync(output.absolutePath) || fs.statSync(output.absolutePath).size < 5000) {
       cacheFailures.push({ id: item.id, reason: "X screenshot file was missing or too small." });
+      return null;
+    }
+    return output;
+  } catch (error) {
+    cacheFailures.push({ id: item.id, reason: String(error.message || error).slice(0, 240) });
+    return null;
+  }
+}
+
+async function cacheXProfileScreenshot(item, args) {
+  if (!fs.existsSync(openCliMain)) {
+    cacheFailures.push({ id: item.id, reason: "OpenCLI is not installed at the expected path." });
+    return null;
+  }
+
+  const output = localThumbnailPaths(item);
+  if (!write) {
+    return output;
+  }
+
+  fs.mkdirSync(path.dirname(output.absolutePath), { recursive: true });
+  const session = args.session || `yc-thumb-x-profile-${process.pid}`;
+  const handle = xHandleFromUrl(item.sourceUrl);
+
+  try {
+    await runOpenCli(["browser", session, "open", item.sourceUrl], args.timeoutMs);
+    await runOpenCli(["browser", session, "wait", "time", "4"], 20_000).catch(() => null);
+    const staged = await runOpenCli(["browser", session, "eval", xProfileCoverStageJs(handle, item)], args.timeoutMs).catch(
+      (error) => {
+        cacheFailures.push({ id: item.id, reason: `X profile stage failed: ${error.message}` });
+        return "";
+      }
+    );
+    if (!/"ok"\s*:\s*true/.test(staged)) {
+      cacheFailures.push({ id: item.id, reason: "No visible X profile card could be staged." });
+      return null;
+    }
+
+    const verified = await runOpenCli(["browser", session, "eval", stagedCoverStatusJs()], 15_000).catch(() => "");
+    if (!/"ok"\s*:\s*true/.test(verified)) {
+      cacheFailures.push({ id: item.id, reason: "X profile cover staging verification failed." });
+      return null;
+    }
+
+    await runOpenCli(["browser", session, "screenshot", "--width", "960", "--height", "540", output.absolutePath], args.timeoutMs);
+    if (!fs.existsSync(output.absolutePath) || fs.statSync(output.absolutePath).size < 5000) {
+      cacheFailures.push({ id: item.id, reason: "X profile screenshot file was missing or too small." });
       return null;
     }
     return output;
@@ -913,10 +1456,31 @@ function isInstagramPostUrl(url) {
   }
 }
 
+function isInstagramProfileUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return /(^|\.)instagram\.com$/i.test(parsed.hostname) && /^\/[A-Za-z0-9._]{2,30}\/?$/i.test(parsed.pathname);
+  } catch {
+    return false;
+  }
+}
+
 function isXPostUrl(url) {
   try {
     const parsed = new URL(url);
     return /(^|\.)x\.com$|(^|\.)twitter\.com$/i.test(parsed.hostname) && /\/status\/\d+/i.test(parsed.pathname);
+  } catch {
+    return false;
+  }
+}
+
+function isXProfileUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      /(^|\.)x\.com$|(^|\.)twitter\.com$/i.test(parsed.hostname) &&
+      /^\/[A-Za-z0-9_]{1,30}\/?$/i.test(parsed.pathname)
+    );
   } catch {
     return false;
   }
@@ -1023,6 +1587,30 @@ function xPostCoverStageJs(statusId, item) {
     article;
   if (mediaElement) return stageElement(mediaElement, { mode: "x-tweet-card", statusId });
   return fallback();
+})()`;
+}
+
+function xProfileCoverStageJs(handle, item) {
+  return `(() => {
+  const handle = ${JSON.stringify(handle || item.authorHandle || item.authorName || "x")};
+  const title = ${JSON.stringify(item.title || item.authorName || item.text || "X profile")};
+  const stageElement = ${stageElementHelperJs()};
+  const profileRoot =
+    document.querySelector('[data-testid="primaryColumn"]') ||
+    document.querySelector('main section') ||
+    document.querySelector('main') ||
+    document.body;
+  if (!profileRoot) return { ok: false, reason: "profile root not found", handle };
+  const clone = profileRoot.cloneNode(true);
+  clone.querySelectorAll('nav, aside, [role="navigation"], [aria-label*="Timeline"], [data-testid="sidebarColumn"]').forEach((node) => node.remove());
+  const shell = document.createElement("section");
+  shell.style.cssText = "width:900px;max-height:500px;overflow:hidden;background:#fff;border-radius:22px;";
+  const header = document.createElement("div");
+  header.style.cssText = "display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid #eff3f4;font:800 24px Arial,sans-serif;color:#0f172a;";
+  header.innerHTML = '<span style="display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#111827;color:#fff;font-weight:900;">X</span><span>' + title.replace(/</g, "&lt;").slice(0, 80) + '</span><small style="margin-left:auto;color:#536471;font-size:18px;">@' + String(handle || "x").replace(/^@/, "").replace(/</g, "&lt;") + '</small>';
+  shell.appendChild(header);
+  shell.appendChild(clone);
+  return stageElement(shell, { mode: "x-profile", handle });
 })()`;
 }
 
@@ -1136,6 +1724,28 @@ function instagramCoverStageJs() {
   const chosen = candidates.find((candidate) => /t51\\.(?:71878|2885)-15|cdninstagram|fbcdn/i.test(candidate.src)) || candidates[0];
   if (!chosen) return { ok: false, reason: "no candidate images" };
   return stage(chosen.image, { mode: "post-page" });
+})()`;
+}
+
+function instagramProfileCoverStageJs(item) {
+  return `(() => {
+  const title = ${JSON.stringify(item.title || item.authorName || item.text || "Instagram profile")};
+  const stageElement = ${stageElementHelperJs()};
+  const root =
+    document.querySelector("header")?.parentElement ||
+    document.querySelector("main") ||
+    document.body;
+  if (!root) return { ok: false, reason: "profile root not found" };
+  const clone = root.cloneNode(true);
+  clone.querySelectorAll('nav, footer, [role="navigation"], [aria-label*="Suggested"]').forEach((node) => node.remove());
+  const shell = document.createElement("section");
+  shell.style.cssText = "width:900px;max-height:500px;overflow:hidden;background:#fff;border-radius:22px;";
+  const header = document.createElement("div");
+  header.style.cssText = "display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid #efefef;font:800 24px Arial,sans-serif;color:#0f172a;";
+  header.innerHTML = '<span style="display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#fd1d1d,#833ab4);color:#fff;font-weight:900;">IG</span><span>' + title.replace(/</g, "&lt;").slice(0, 90) + '</span>';
+  shell.appendChild(header);
+  shell.appendChild(clone);
+  return stageElement(shell, { mode: "instagram-profile" });
 })()`;
 }
 

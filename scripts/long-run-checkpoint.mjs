@@ -11,6 +11,8 @@ const coverage = await readJson(path.join("outputs", "coverage-debug-s2026.json"
 const workers = await readJson(path.join("outputs", "workers-debug-s2026.json"), null);
 const duplicates = await readJson(path.join("outputs", "duplicates-debug-s2026.json"), null);
 const instagram = await readJson(path.join("outputs", "instagram-doctor.json"), null);
+const instagramCoverage = await readJson(path.join("outputs", "instagram-coverage-debug-s2026.json"), null);
+const thumbnailCoverage = await readJson(path.join("outputs", "thumbnail-coverage-debug-s2026.json"), null);
 const scoring = await readJson(path.join("outputs", "scoring-experiments-s2026.json"), null);
 const anomalies = await readJson(path.join("outputs", "anomaly-report-s2026.json"), null);
 const discovery = await readJson(path.join("outputs", "discovery-plan-s2026.json"), null);
@@ -52,6 +54,12 @@ const lines = [
   `- Duplicate groups: ${duplicates?.duplicateGroups ?? duplicates?.duplicate_group_count ?? "unknown"}.`,
   `- Duplicate social-account groups: ${duplicates?.duplicateAccountGroupCount ?? duplicates?.duplicate_account_group_count ?? "unknown"}.`,
   `- Instagram doctor: ${instagram?.summary?.overall_status ?? "not run"}.`,
+  instagramCoverage
+    ? `- Instagram coverage: ${instagramCoverage.evidence?.companiesWithScoredEvidence ?? "unknown"}/${instagramCoverage.companyCount ?? "unknown"} companies with scored Instagram; ${instagramCoverage.evidence?.rows ?? "unknown"} Instagram rows; ${instagramCoverage.evidence?.realThumbnailRows ?? "unknown"} real Instagram thumbnails.`
+    : "- Instagram coverage: not run.",
+  thumbnailCoverage
+    ? `- Thumbnail coverage: ${thumbnailCoverage.rowsWithRealThumbnail ?? "unknown"}/${thumbnailCoverage.evidenceRows ?? "unknown"} real thumbnails; ${thumbnailCoverage.rowsWithFallbackThumbnail ?? "unknown"} fallback; ${thumbnailCoverage.rowsMissingThumbnail ?? "unknown"} missing.`
+    : "- Thumbnail coverage: not run.",
   loggedInSocial
     ? `- Logged-in read-only social rows: ${loggedInSocial.evidence_rows}; platform rows ${JSON.stringify(loggedInSocial.platform_rows)}; companies by platform ${JSON.stringify(loggedInSocial.companies_by_platform)}.`
     : "- Logged-in read-only social rows: not available.",
