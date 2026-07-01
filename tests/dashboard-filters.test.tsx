@@ -4,7 +4,13 @@ import { Dashboard } from "@/components/Dashboard";
 import type { GraphNode, GraphResponse } from "@/lib/graph/types";
 
 vi.mock("@/components/CytoscapeGraph", () => ({
-  CytoscapeGraph: () => <div data-testid="graph-canvas" />
+  CytoscapeGraph: ({ nodes }: { nodes: GraphNode[] }) => (
+    <div data-testid="graph-canvas">
+      {nodes.map((node) => (
+        <span key={node.id}>{node.label}</span>
+      ))}
+    </div>
+  )
 }));
 
 vi.mock("@/components/InsightsTabs", () => ({
@@ -27,21 +33,15 @@ describe("dashboard filters", () => {
       makeNode("company:b2b-b", "B2B B", "b2b", "#7dd3fc", "Partner A"),
       makeNode("company:fintech-a", "Fintech A", "fintech", "#2563eb", "Partner B")
     ]);
-    const industryFilteredGraph = graphResponse([makeNode("company:fintech-a", "Fintech A", "fintech", "#2563eb", "Partner B")]);
-    const groupFilteredGraph = graphResponse([makeNode("company:fintech-a", "Fintech A", "fintech", "#2563eb", "Partner B")]);
 
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL) => {
-        const url = String(input);
+        expect(String(input)).not.toContain("industries=fintech");
+        expect(String(input)).not.toContain("groupPartners=Partner+B");
         return {
           ok: true,
-          json: async () =>
-            url.includes("groupPartners=Partner+B")
-              ? groupFilteredGraph
-              : url.includes("industries=fintech")
-                ? industryFilteredGraph
-                : fullGraph
+          json: async () => fullGraph
         };
       })
     );
@@ -71,6 +71,8 @@ describe("dashboard filters", () => {
         "aria-checked",
         "true"
       );
+      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B A")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
     });
 
     fireEvent.click(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i }));
@@ -79,7 +81,8 @@ describe("dashboard filters", () => {
     fireEvent.click(partnerBButton);
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith(expect.stringContaining("groupPartners=Partner+B"), expect.any(Object));
+      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B B")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
     });
   });
 
@@ -99,6 +102,53 @@ describe("dashboard filters", () => {
     expect(screen.getByTestId("insights-tabs")).toBeInTheDocument();
     expect(screen.queryByText("Loading YC map...")).not.toBeInTheDocument();
     expect(screen.queryByText("Graph unavailable")).not.toBeInTheDocument();
+  });
+
+  it("keeps the batch selector visible with only YC Spring 2026 available", () => {
+    const fullGraph = graphResponse([
+      makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
+    ]);
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => undefined))
+    );
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    const batchSelector = screen.getByRole("combobox", { name: /batch/i }) as HTMLSelectElement;
+    const options = within(batchSelector).getAllByRole("option");
+
+    expect(batchSelector).toHaveValue("S2026");
+    expect(options).toHaveLength(1);
+    expect(options[0]).toHaveTextContent("YC Spring 2026");
+    expect(options[0]).toHaveValue("S2026");
+  });
+
+  it("filters minimum score locally without waiting for a graph request", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:low", "Low Score", "b2b", "#7dd3fc", "Partner A", 20),
+      makeNode("company:high", "High Score", "fintech", "#2563eb", "Partner B", 90)
+    ]);
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => undefined))
+    );
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    const canvas = screen.getByTestId("graph-canvas");
+    expect(within(canvas).getByText("Low Score")).toBeInTheDocument();
+    expect(within(canvas).getByText("High Score")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Minimum score"), { target: { value: "80" } });
+
+    await waitFor(() => {
+      expect(within(screen.getByTestId("graph-canvas")).queryByText("Low Score")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("High Score")).toBeInTheDocument();
+    });
+    expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("minScore=80"), expect.any(Object));
   });
 });
 
@@ -125,7 +175,14 @@ function graphResponse(nodes: GraphNode[]): GraphResponse {
   };
 }
 
-function makeNode(id: string, label: string, industry: string, color: string, groupPartner = "Partner"): GraphNode {
+function makeNode(
+  id: string,
+  label: string,
+  industry: string,
+  color: string,
+  groupPartner = "Partner",
+  score = 50
+): GraphNode {
   const entityId = id.replace("company:", "");
   return {
     id,
@@ -133,7 +190,7 @@ function makeNode(id: string, label: string, industry: string, color: string, gr
     entityId,
     label,
     batchSlug: "S2026",
-    score: 50,
+    score,
     previousScore: 45,
     scoreDelta: 5,
     radius: 20,

@@ -12,9 +12,7 @@ export const demoGraphDataset: DemoGraphDataset = {
       label: "YC Spring 2026",
       companyCountExpected: spring2026ExpectedCount,
       companyCountObserved: 5
-    },
-    { slug: "W2026", label: "YC Winter 2026" },
-    { slug: "S2025", label: "YC Summer 2025" }
+    }
   ],
   companies: [
     company({

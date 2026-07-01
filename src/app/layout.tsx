@@ -7,11 +7,11 @@ export const metadata: Metadata = {
   description: "Read-only YC startup and founder traction graph",
   icons: {
     icon: [
-      { url: "/favicon.ico?v=returner-2" },
-      { url: "/icon.png?v=returner-2", type: "image/png" }
+      { url: "/favicon.ico?v=returner-3" },
+      { url: "/icon.png?v=returner-3", type: "image/png" }
     ],
-    shortcut: "/favicon.ico?v=returner-2",
-    apple: "/icon.png?v=returner-2"
+    shortcut: "/favicon.ico?v=returner-3",
+    apple: "/icon.png?v=returner-3"
   }
 };
 

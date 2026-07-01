@@ -13,6 +13,7 @@ import { CytoscapeGraph } from "./CytoscapeGraph";
 import { InsightsTabs } from "./InsightsTabs";
 import { NodePanel } from "./NodePanel";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
+import { applyClientGraphFilters, type ClientGraphFilters } from "@/lib/graph/client-filters";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
 import type { GraphResponse, Platform } from "@/lib/graph/types";
@@ -42,9 +43,7 @@ const platformOptions: Platform[] = [
 ];
 
 const defaultBatches = [
-  { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 },
-  { slug: "W2026", label: "YC Winter 2026" },
-  { slug: "S2025", label: "YC Summer 2025" }
+  { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
 ];
 
 async function fetchGraphPayload(url: string, attempts = 3): Promise<GraphResponse> {
@@ -101,9 +100,26 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   const dashboardGridRef = useRef<HTMLElement | null>(null);
   const graphRequestIdRef = useRef(0);
   const initialGraphHydratedRef = useRef(Boolean(initialGraph));
+  const currentFilters = useMemo<ClientGraphFilters>(
+    () => ({
+      platforms: selectedPlatforms,
+      industries: selectedIndustries,
+      groupPartners: selectedGroupPartners,
+      minScore
+    }),
+    [minScore, selectedGroupPartners, selectedIndustries, selectedPlatforms]
+  );
+  const currentFiltersRef = useRef(currentFilters);
 
-  const fetchGraph = useCallback(async (options: { background?: boolean } = {}) => {
+  useEffect(() => {
+    currentFiltersRef.current = currentFilters;
+  }, [currentFilters]);
+
+  const fetchGraph = useCallback(async (options: { background?: boolean; unfiltered?: boolean } = {}) => {
     const background = options.background === true;
+    const requestFilters = options.unfiltered
+      ? { platforms: [], industries: [], groupPartners: [], minScore: 0 }
+      : currentFiltersRef.current;
     const requestId = graphRequestIdRef.current + 1;
     graphRequestIdRef.current = requestId;
     if (!background) {
@@ -112,27 +128,27 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
     setError(null);
 
     const params = new URLSearchParams({ batch: batchSlug });
-    if (selectedPlatforms.length) {
-      params.set("platforms", selectedPlatforms.join(","));
+    if (requestFilters.platforms.length) {
+      params.set("platforms", requestFilters.platforms.join(","));
     }
-    if (minScore > 0) {
-      params.set("minScore", String(minScore));
+    if (requestFilters.minScore > 0) {
+      params.set("minScore", String(requestFilters.minScore));
     }
-    if (selectedIndustries.length) {
-      params.set("industries", selectedIndustries.join(","));
+    if (requestFilters.industries.length) {
+      params.set("industries", requestFilters.industries.join(","));
     }
-    if (selectedGroupPartners.length) {
-      params.set("groupPartners", selectedGroupPartners.join(","));
+    if (requestFilters.groupPartners.length) {
+      params.set("groupPartners", requestFilters.groupPartners.join(","));
     }
     try {
       const payload = await fetchGraphPayload(`/api/graph?${params.toString()}`);
       if (requestId !== graphRequestIdRef.current) {
         return;
       }
-      setGraph(payload);
-      if (!selectedPlatforms.length && !selectedIndustries.length && !selectedGroupPartners.length && minScore === 0) {
+      if (options.unfiltered) {
         setFilterMetadataGraph(payload);
       }
+      setGraph(options.unfiltered ? applyClientGraphFilters(payload, currentFiltersRef.current) : payload);
     } catch (caught) {
       if (requestId !== graphRequestIdRef.current) {
         return;
@@ -145,74 +161,28 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
         setLoading(false);
       }
     }
-  }, [batchSlug, minScore, selectedGroupPartners, selectedIndustries, selectedPlatforms]);
-
-  const fetchFilterMetadata = useCallback(async () => {
-    try {
-      setFilterMetadataGraph(await fetchGraphPayload(`/api/graph?${new URLSearchParams({ batch: batchSlug }).toString()}`));
-    } catch {
-      // The filtered graph still renders if metadata refresh fails.
-    }
   }, [batchSlug]);
 
   useEffect(() => {
-    const canUseInitialGraph =
-      initialGraphHydratedRef.current &&
-      initialGraph &&
-      batchSlug === initialGraph.batch.slug &&
-      selectedPlatforms.length === 0 &&
-      selectedIndustries.length === 0 &&
-      selectedGroupPartners.length === 0 &&
-      minScore === 0;
+    if (filterMetadataGraph?.batch.slug === batchSlug) {
+      setGraph(applyClientGraphFilters(filterMetadataGraph, currentFilters));
+      setError(null);
+      setLoading(false);
 
-    if (canUseInitialGraph) {
-      initialGraphHydratedRef.current = false;
-      void fetchGraph({ background: true });
+      if (initialGraphHydratedRef.current && initialGraph && batchSlug === initialGraph.batch.slug) {
+        initialGraphHydratedRef.current = false;
+        void fetchGraph({ background: true, unfiltered: true });
+      }
       return;
     }
 
     initialGraphHydratedRef.current = false;
-    void fetchGraph();
-  }, [
-    batchSlug,
-    fetchGraph,
-    initialGraph,
-    minScore,
-    selectedGroupPartners.length,
-    selectedIndustries.length,
-    selectedPlatforms.length
-  ]);
+    void fetchGraph({ unfiltered: true });
+  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, initialGraph]);
 
   useEffect(() => {
     setMinScoreDraft(minScore);
   }, [minScore]);
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setMinScore((current) => (current === minScoreDraft ? current : minScoreDraft));
-    }, 650);
-    return () => window.clearTimeout(timeoutId);
-  }, [minScoreDraft]);
-
-  useEffect(() => {
-    const filtersActive =
-      selectedPlatforms.length > 0 ||
-      selectedIndustries.length > 0 ||
-      selectedGroupPartners.length > 0 ||
-      minScore > 0;
-    const missingBatchMetadata = filterMetadataGraph?.batch.slug !== batchSlug;
-    if (filtersActive && missingBatchMetadata) {
-      void fetchFilterMetadata();
-    }
-  }, [
-    batchSlug,
-    fetchFilterMetadata,
-    filterMetadataGraph?.batch.slug,
-    minScore,
-    selectedGroupPartners.length,
-    selectedIndustries.length,
-    selectedPlatforms.length
-  ]);
 
   useEffect(() => {
     if (!graph) {
@@ -541,7 +511,7 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
             min={0}
             max={100}
             value={minScoreDraft}
-            onChange={(event) => setMinScoreDraft(clampScore(Number(event.target.value)))}
+            onChange={(event) => commitMinScore(Number(event.target.value))}
             onPointerUp={(event) => commitMinScore(Number(event.currentTarget.value))}
             onKeyUp={(event) => {
               if (event.key.startsWith("Arrow") || event.key === "Home" || event.key === "End" || event.key === "Enter") {
@@ -556,7 +526,7 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
               min={0}
               max={100}
               value={minScoreDraft}
-              onChange={(event) => setMinScoreDraft(clampScore(Number(event.target.value) || 0))}
+              onChange={(event) => commitMinScore(Number(event.target.value) || 0)}
               onBlur={(event) => commitMinScore(Number(event.currentTarget.value) || 0)}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {

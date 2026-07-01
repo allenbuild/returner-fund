@@ -220,9 +220,7 @@ export const ycSpring2026GraphDataset: DemoGraphDataset = {
       label: "YC Spring 2026",
       companyCountExpected: snapshot.source.expectedCompanyCount,
       companyCountObserved: snapshot.source.observedCompanyCount
-    },
-    { slug: "W2026", label: "YC Winter 2026" },
-    { slug: "S2025", label: "YC Summer 2025" }
+    }
   ],
   companies: companyRecords,
   founders: founderRecordList,
