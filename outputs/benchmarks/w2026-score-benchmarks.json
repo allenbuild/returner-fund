@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "batchSlug": "W2026",
+  "updatedAt": "2026-07-01T05:30:37.139Z",
+  "daily": [
+    {
+      "recordedAt": "2026-07-01T05:30:37.139Z",
+      "companies": [
+        {
+          "companyId": "company-orbitdesk",
+          "companyName": "OrbitDesk",
+          "score": 72,
+          "rank": 1
+        }
+      ]
+    }
+  ],
+  "weekly": [
+    {
+      "recordedAt": "2026-07-01T05:30:37.139Z",
+      "companies": [
+        {
+          "companyId": "company-orbitdesk",
+          "companyName": "OrbitDesk",
+          "score": 72,
+          "rank": 1
+        }
+      ]
+    }
+  ]
+}

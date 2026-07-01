@@ -4,7 +4,15 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "YC Network Map",
-  description: "Read-only YC startup and founder traction graph"
+  description: "Read-only YC startup and founder traction graph",
+  icons: {
+    icon: [
+      { url: "/favicon.ico?v=returner-2" },
+      { url: "/icon.png?v=returner-2", type: "image/png" }
+    ],
+    shortcut: "/favicon.ico?v=returner-2",
+    apple: "/icon.png?v=returner-2"
+  }
 };
 
 const poppins = Poppins({

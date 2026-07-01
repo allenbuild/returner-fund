@@ -93,7 +93,7 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
 
       <section className="top-contribution-section">
         <div className="section-title-row">
-          <h3>Top contributing posts</h3>
+          <h3>Top Posts</h3>
           <span>{topItems.length}/20</span>
         </div>
         <div className="top-post-list">

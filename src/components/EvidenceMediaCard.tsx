@@ -40,6 +40,9 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
             {metrics && <small>{metrics}</small>}
           </div>
         )}
+        <div className="contribution-pill">
+          <strong>{item.contributionScore}</strong>
+        </div>
       </div>
 
       <div className="evidence-card-body">
@@ -52,11 +55,6 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
         </div>
         <h4>{snippet}</h4>
         {metrics && <p className="evidence-card-stats">{metrics}</p>}
-      </div>
-
-      <div className="contribution-pill">
-        <strong>{item.contributionScore}</strong>
-        <span>contribution</span>
       </div>
     </a>
   );

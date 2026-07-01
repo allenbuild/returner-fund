@@ -19,7 +19,6 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as RefreshRequest;
   const action = body.action === "refresh" ? "refresh" : "ingest";
   const dataset = !body.batchSlug || body.batchSlug === "S2026" ? ycSpring2026GraphDataset : undefined;
-  const benchmarkGraph = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug: body.batchSlug }, dataset)).graph;
   const filteredGraph = buildGraphResponse({
     batchSlug: body.batchSlug,
     platforms: body.platforms,
@@ -28,8 +27,14 @@ export async function POST(request: Request) {
     groupPartners: body.groupPartners,
     minScore: body.minScore
   }, dataset);
+  let benchmarkRows = filteredGraph.fastestGaining;
+  try {
+    benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug: body.batchSlug }, dataset)).graph.fastestGaining;
+  } catch (error) {
+    console.error("Graph refresh benchmark momentum failed; returning graph without persisted benchmark deltas", error);
+  }
   const graph = sanitizeGraphResponse(
-    applyBenchmarkMomentumRows(filteredGraph, benchmarkGraph.fastestGaining)
+    applyBenchmarkMomentumRows(filteredGraph, benchmarkRows)
   );
 
   return NextResponse.json({

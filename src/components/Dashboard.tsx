@@ -5,7 +5,6 @@ import {
   ChevronDown,
   Filter,
   Palette,
-  Play,
   RefreshCw,
   Search
 } from "lucide-react";
@@ -48,11 +47,41 @@ const defaultBatches = [
   { slug: "S2025", label: "YC Summer 2025" }
 ];
 
-export function Dashboard() {
-  const [batchSlug, setBatchSlug] = useState("S2026");
-  const [graph, setGraph] = useState<GraphResponse | null>(null);
-  const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(null);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+async function fetchGraphPayload(url: string, attempts = 3): Promise<GraphResponse> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Graph request failed with ${response.status}`);
+      }
+      return (await response.json()) as GraphResponse;
+    } catch (caught) {
+      lastError = caught instanceof Error ? caught : new Error("Graph request failed");
+      if (attempt < attempts) {
+        await new Promise((resolve) => window.setTimeout(resolve, 220 * attempt));
+      }
+    }
+  }
+
+  throw lastError ?? new Error("Graph request failed");
+}
+
+interface DashboardProps {
+  initialGraph?: GraphResponse;
+}
+
+function initialSelectedNodeId(graph: GraphResponse | undefined): string | null {
+  const topCompanyId = graph?.leaderboard[0]?.companyId;
+  return topCompanyId ? `company:${topCompanyId}` : graph?.nodes[0]?.id ?? null;
+}
+
+export function Dashboard({ initialGraph }: DashboardProps = {}) {
+  const [batchSlug, setBatchSlug] = useState(initialGraph?.batch.slug ?? "S2026");
+  const [graph, setGraph] = useState<GraphResponse | null>(initialGraph ?? null);
+  const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(initialGraph ?? null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(initialGraph));
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedGroupPartners, setSelectedGroupPartners] = useState<string[]>([]);
@@ -63,19 +92,23 @@ export function Dashboard() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [openFilterMenu, setOpenFilterMenu] = useState<FilterMenuId | null>(null);
   const [highlightedFounderId, setHighlightedFounderId] = useState<string | null>(null);
-  const [scoreDate, setScoreDate] = useState("latest");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialGraph);
   const [actionLoading, setActionLoading] = useState<"ingest" | "refresh" | null>(null);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterBandRef = useRef<HTMLElement | null>(null);
+  const dashboardGridRef = useRef<HTMLElement | null>(null);
   const graphRequestIdRef = useRef(0);
+  const initialGraphHydratedRef = useRef(Boolean(initialGraph));
 
-  const fetchGraph = useCallback(async () => {
+  const fetchGraph = useCallback(async (options: { background?: boolean } = {}) => {
+    const background = options.background === true;
     const requestId = graphRequestIdRef.current + 1;
     graphRequestIdRef.current = requestId;
-    setLoading(true);
+    if (!background) {
+      setLoading(true);
+    }
     setError(null);
 
     const params = new URLSearchParams({ batch: batchSlug });
@@ -92,11 +125,7 @@ export function Dashboard() {
       params.set("groupPartners", selectedGroupPartners.join(","));
     }
     try {
-      const response = await fetch(`/api/graph?${params.toString()}`, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(`Graph request failed with ${response.status}`);
-      }
-      const payload = (await response.json()) as GraphResponse;
+      const payload = await fetchGraphPayload(`/api/graph?${params.toString()}`);
       if (requestId !== graphRequestIdRef.current) {
         return;
       }
@@ -108,9 +137,11 @@ export function Dashboard() {
       if (requestId !== graphRequestIdRef.current) {
         return;
       }
-      setError(caught instanceof Error ? caught.message : "Graph request failed");
+      if (!background) {
+        setError(caught instanceof Error ? caught.message : "Graph request failed");
+      }
     } finally {
-      if (requestId === graphRequestIdRef.current) {
+      if (!background && requestId === graphRequestIdRef.current) {
         setLoading(false);
       }
     }
@@ -118,21 +149,39 @@ export function Dashboard() {
 
   const fetchFilterMetadata = useCallback(async () => {
     try {
-      const response = await fetch(`/api/graph?${new URLSearchParams({ batch: batchSlug }).toString()}`, {
-        cache: "no-store"
-      });
-      if (!response.ok) {
-        return;
-      }
-      setFilterMetadataGraph((await response.json()) as GraphResponse);
+      setFilterMetadataGraph(await fetchGraphPayload(`/api/graph?${new URLSearchParams({ batch: batchSlug }).toString()}`));
     } catch {
       // The filtered graph still renders if metadata refresh fails.
     }
   }, [batchSlug]);
 
   useEffect(() => {
+    const canUseInitialGraph =
+      initialGraphHydratedRef.current &&
+      initialGraph &&
+      batchSlug === initialGraph.batch.slug &&
+      selectedPlatforms.length === 0 &&
+      selectedIndustries.length === 0 &&
+      selectedGroupPartners.length === 0 &&
+      minScore === 0;
+
+    if (canUseInitialGraph) {
+      initialGraphHydratedRef.current = false;
+      void fetchGraph({ background: true });
+      return;
+    }
+
+    initialGraphHydratedRef.current = false;
     void fetchGraph();
-  }, [fetchGraph]);
+  }, [
+    batchSlug,
+    fetchGraph,
+    initialGraph,
+    minScore,
+    selectedGroupPartners.length,
+    selectedIndustries.length,
+    selectedPlatforms.length
+  ]);
 
   useEffect(() => {
     setMinScoreDraft(minScore);
@@ -206,6 +255,16 @@ export function Dashboard() {
     setHighlightedFounderId(null);
     setGraphFocusRevision((current) => current + 1);
   }, []);
+
+  const selectRankedNode = useCallback(
+    (nodeId: string) => {
+      selectNode(nodeId);
+      window.requestAnimationFrame(() => {
+        dashboardGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    },
+    [selectNode]
+  );
 
   const selectSearchResult = useCallback((result: GraphSearchResult) => {
     setSelectedNodeId(result.companyNodeId);
@@ -406,8 +465,8 @@ export function Dashboard() {
 
         <div className="control-strip">
           <div className="control-cluster control-cluster-selectors">
-            <label>
-              Batch
+            <label className="batch-control">
+              <span className="sr-only">Batch</span>
               <select value={batchSlug} onChange={(event) => setBatchSlug(event.target.value)}>
                 {batches.map((batch) => (
                   <option key={batch.slug} value={batch.slug}>
@@ -416,26 +475,9 @@ export function Dashboard() {
                 ))}
               </select>
             </label>
-
-            <label>
-              Snapshot
-              <select value={scoreDate} onChange={(event) => setScoreDate(event.target.value)}>
-                <option value="latest">Latest</option>
-                <option value="previous">Previous</option>
-              </select>
-            </label>
           </div>
 
           <div className="control-cluster control-cluster-actions">
-            <button
-              type="button"
-              onClick={() => void runDemoAction("ingest")}
-              disabled={!!actionLoading}
-              title="Ingest batch"
-            >
-              <Play size={16} />
-              {actionLoading === "ingest" ? "Ingesting" : "Ingest"}
-            </button>
             <button
               type="button"
               onClick={() => void runDemoAction("refresh")}
@@ -544,7 +586,7 @@ export function Dashboard() {
         </section>
       )}
 
-      <section className="dashboard-grid">
+      <section className="dashboard-grid" ref={dashboardGridRef}>
         <div className="graph-column">
           {graph ? (
             <CytoscapeGraph
@@ -573,7 +615,7 @@ export function Dashboard() {
           evidence={selectedEvidence}
           highlightedFounderId={highlightedFounderId}
         />
-        {graph && <InsightsTabs graph={graph} onSelectNode={selectNode} />}
+        {graph && <InsightsTabs graph={graph} onSelectNode={selectRankedNode} />}
       </section>
     </main>
   );

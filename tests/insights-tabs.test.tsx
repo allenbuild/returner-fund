@@ -28,9 +28,9 @@ describe("insights tabs", () => {
 
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Alpha AI");
 
-    fireEvent.click(screen.getByRole("button", { name: "Alpha AI" }));
-
-    expect(onSelectNode).toHaveBeenCalledWith("company:company-b");
+    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Alpha AI");
+    expect(screen.queryByRole("button", { name: "Alpha AI" })).not.toBeInTheDocument();
+    expect(onSelectNode).not.toHaveBeenCalled();
   });
 
   it("shows fastest gaining as DoD/WoW score and rank momentum without evidence columns", () => {

@@ -69,9 +69,14 @@ export function GET(request: Request) {
     return NextResponse.json(cached.graph);
   }
 
-  const benchmarkGraph = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph;
   const filteredGraph = buildGraphResponse(filters, dataset);
-  const graph = sanitizeGraphResponse(applyBenchmarkMomentumRows(filteredGraph, benchmarkGraph.fastestGaining), {
+  let benchmarkRows = filteredGraph.fastestGaining;
+  try {
+    benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph.fastestGaining;
+  } catch (error) {
+    console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
+  }
+  const graph = sanitizeGraphResponse(applyBenchmarkMomentumRows(filteredGraph, benchmarkRows), {
     includeRaw,
     includeNonScoring,
     includeWhy

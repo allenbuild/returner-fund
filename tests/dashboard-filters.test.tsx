@@ -82,6 +82,24 @@ describe("dashboard filters", () => {
       expect(fetch).toHaveBeenCalledWith(expect.stringContaining("groupPartners=Partner+B"), expect.any(Object));
     });
   });
+
+  it("renders the initial graph immediately without waiting for the first client fetch", () => {
+    const fullGraph = graphResponse([
+      makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
+    ]);
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => undefined))
+    );
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    expect(screen.getByTestId("graph-canvas")).toBeInTheDocument();
+    expect(screen.getByTestId("insights-tabs")).toBeInTheDocument();
+    expect(screen.queryByText("Loading YC map...")).not.toBeInTheDocument();
+    expect(screen.queryByText("Graph unavailable")).not.toBeInTheDocument();
+  });
 });
 
 function graphResponse(nodes: GraphNode[]): GraphResponse {

@@ -70,7 +70,13 @@ export function ensureBenchmarkMomentum(
 
   if (recordedDaily || recordedWeekly) {
     store.updatedAt = now.toISOString();
-    writeBenchmarkStore(storePath, store);
+    try {
+      writeBenchmarkStore(storePath, store);
+    } catch (error) {
+      console.error("Failed to persist score benchmark snapshot", error);
+      recordedDaily = false;
+      recordedWeekly = false;
+    }
   }
 
   return {

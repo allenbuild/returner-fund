@@ -1,9 +1,24 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ArrowUpDown, Settings, TrendingUp, Trophy } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Eye,
+  GitFork,
+  Heart,
+  MessageCircle,
+  Repeat2,
+  Settings,
+  Star,
+  ThumbsUp,
+  TrendingUp,
+  Trophy,
+  Users
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import type { EvidenceItem, FastestGainingRow, GraphResponse, LeaderboardRow, MomentumDelta } from "@/lib/graph/types";
-import { PlatformIdentity } from "./PlatformLogo";
+import { formatPlatform, PlatformIdentity, PlatformLogo } from "./PlatformLogo";
 
 type TabKey = "overview" | "gaining" | "settings";
 type MomentumPeriod = "dod" | "wow";
@@ -102,7 +117,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                 </th>
                 <th>Score</th>
                 <th>Top platform</th>
-                <th>Biggest contribution</th>
+                <th>Top Posts</th>
               </tr>
             </thead>
             <tbody>
@@ -110,15 +125,23 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                 const contribution = formatContribution(row.biggestContribution);
                 return (
                   <tr key={row.companyId}>
-                    <td className="insight-rank-cell overview-rank-cell">{row.rank}</td>
-                    <td className="overview-company-cell">
-                      <button type="button" onClick={() => onSelectNode(`company:${row.companyId}`)}>
-                        {row.companyName}
-                      </button>
+                    <td className="insight-rank-cell overview-rank-cell">
+                      <RankDisplay rank={row.rank} />
                     </td>
-                    <td className="overview-score-cell">{row.score}</td>
+                    <td className="overview-company-cell">
+                      <span>{row.companyName}</span>
+                    </td>
+                    <td className="overview-score-cell">
+                      <span>{row.score}</span>
+                    </td>
                     <td className="overview-platform-cell">
-                      {row.topPlatform ? <PlatformIdentity platform={row.topPlatform} /> : "None"}
+                      {row.topPlatform ? (
+                        <span className={`ranking-platform-chip ranking-platform-${row.topPlatform}`}>
+                          <PlatformIdentity platform={row.topPlatform} />
+                        </span>
+                      ) : (
+                        <span className="ranking-platform-chip">None</span>
+                      )}
                     </td>
                     <td className="overview-contribution-cell">
                       {contribution.url ? (
@@ -128,14 +151,14 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          <span>{contribution.title}</span>
-                          {contribution.metrics && <small>{contribution.metrics}</small>}
+                          <ContributionThumbnail item={row.biggestContribution} />
+                          <ContributionSummary contribution={contribution} item={row.biggestContribution} />
                         </a>
                       ) : (
-                        <>
-                          <span>{contribution.title}</span>
-                          {contribution.metrics && <small>{contribution.metrics}</small>}
-                        </>
+                        <div className="overview-contribution-empty">
+                          <ContributionThumbnail item={row.biggestContribution} />
+                          <ContributionSummary contribution={contribution} item={row.biggestContribution} />
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -164,7 +187,9 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                 const delta = row[momentumPeriod];
                 return (
                   <tr key={row.companyId}>
-                    <td className="insight-rank-cell">{index + 1}</td>
+                    <td className="insight-rank-cell">
+                      <RankDisplay rank={index + 1} />
+                    </td>
                     <td className="insight-company-cell">
                       <button type="button" onClick={() => onSelectNode(`company:${row.companyId}`)}>
                         {row.companyName}
@@ -212,6 +237,101 @@ function SortIcon({ active, direction }: { active: boolean; direction: SortDirec
   return direction === "asc" ? <ArrowUp size={13} aria-hidden="true" /> : <ArrowDown size={13} aria-hidden="true" />;
 }
 
+function RankDisplay({ rank }: { rank: number }) {
+  if (rank <= 3) {
+    const medalClass = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze";
+    return (
+      <span className={`rank-medal rank-medal-${medalClass}`} aria-label={`Rank ${rank}`}>
+        <span className="rank-medal-disc">{rank}</span>
+      </span>
+    );
+  }
+
+  return <span className="rank-number">{rank}</span>;
+}
+
+function ContributionThumbnail({ item }: { item: EvidenceItem | null }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const platform = item?.platform ?? null;
+  const thumbnailUrl = item?.thumbnailUrl && !imageFailed ? item.thumbnailUrl : null;
+
+  return (
+    <span className={`overview-post-thumbnail${platform ? ` overview-post-thumbnail-${platform}` : ""}`}>
+      {thumbnailUrl ? (
+        <img src={thumbnailUrl} alt="" loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
+      ) : platform ? (
+        <span className="overview-post-thumbnail-fallback" aria-hidden="true">
+          <PlatformLogo platform={platform} />
+          <span>{formatPlatform(platform)}</span>
+        </span>
+      ) : (
+        <span className="overview-post-thumbnail-fallback overview-post-thumbnail-empty" aria-hidden="true">
+          No evidence
+        </span>
+      )}
+    </span>
+  );
+}
+
+function ContributionSummary({
+  contribution,
+  item
+}: {
+  contribution: { title: string; metrics: string; metricPills: MetricPill[]; author: string };
+  item: EvidenceItem | null;
+}) {
+  return (
+    <span className="overview-post-summary">
+      <span className="overview-post-title">{contribution.title}</span>
+      <span className="overview-post-meta">
+        {item && (
+          <span className={`overview-post-platform ranking-platform-${item.platform}`}>
+            <PlatformLogo platform={item.platform} />
+            <span>{formatPlatform(item.platform)}</span>
+          </span>
+        )}
+        {contribution.author && <span className="overview-post-author">{contribution.author}</span>}
+      </span>
+      {contribution.metricPills.length > 0 && (
+        <span className="overview-metric-pills" aria-hidden="true">
+          {contribution.metricPills.map((metric) => (
+            <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}>
+              <MetricIcon metric={metric.key} />
+              <span>{metric.value}</span>
+            </span>
+          ))}
+        </span>
+      )}
+      {contribution.metrics && <span className="sr-only">{contribution.metrics}</span>}
+    </span>
+  );
+}
+
+function MetricIcon({ metric }: { metric: string }) {
+  if (metric === "views") {
+    return <Eye size={14} aria-hidden="true" />;
+  }
+  if (metric === "likes") {
+    return <Heart size={14} aria-hidden="true" />;
+  }
+  if (metric === "comments" || metric === "replies") {
+    return <MessageCircle size={14} aria-hidden="true" />;
+  }
+  if (metric === "reposts" || metric === "quotes") {
+    return <Repeat2 size={14} aria-hidden="true" />;
+  }
+  if (metric === "stars") {
+    return <Star size={14} aria-hidden="true" />;
+  }
+  if (metric === "forks") {
+    return <GitFork size={14} aria-hidden="true" />;
+  }
+  if (metric === "watchers") {
+    return <Users size={14} aria-hidden="true" />;
+  }
+  return <ThumbsUp size={14} aria-hidden="true" />;
+}
+
 function formatScoreDelta(delta: MomentumDelta): string {
   return `${signed(delta.scoreDelta)} pts (${signed(delta.percentDelta)}%)`;
 }
@@ -257,15 +377,29 @@ function overviewRowSort(sort: { key: OverviewSortKey; direction: SortDirection 
   };
 }
 
-function formatContribution(item: EvidenceItem | null): { title: string; metrics: string; url: string | null } {
+interface MetricPill {
+  key: string;
+  label: string;
+  value: string;
+}
+
+function formatContribution(item: EvidenceItem | null): {
+  title: string;
+  metrics: string;
+  metricPills: MetricPill[];
+  url: string | null;
+  author: string;
+} {
   if (!item) {
-    return { title: "No evidence", metrics: "", url: null };
+    return { title: "No evidence", metrics: "", metricPills: [], url: null, author: "" };
   }
 
   return {
     title: firstSentence(item.text || item.title || "No evidence"),
     metrics: formatMetrics(item.metrics),
-    url: item.sourceUrl || null
+    metricPills: formatMetricPills(item.metrics),
+    url: item.sourceUrl || null,
+    author: item.authorName || item.authorHandle || ""
   };
 }
 
@@ -281,6 +415,12 @@ function firstSentence(text: string): string {
 }
 
 function formatMetrics(metrics: EvidenceItem["metrics"]): string {
+  return formatMetricPills(metrics)
+    .map((metric) => `${metric.value} ${metric.label}`)
+    .join(" / ");
+}
+
+function formatMetricPills(metrics: EvidenceItem["metrics"]): MetricPill[] {
   const orderedMetrics = [
     "views",
     "likes",
@@ -293,15 +433,16 @@ function formatMetrics(metrics: EvidenceItem["metrics"]): string {
     "forks",
     "watchers"
   ];
-  const parts = orderedMetrics
+
+  return orderedMetrics
     .map((key) => {
       const value = metrics[key];
-      return typeof value === "number" && value > 0 ? `${compactNumber(value)} ${formatMetricLabel(key)}` : null;
+      return typeof value === "number" && value > 0
+        ? { key, label: formatMetricLabel(key), value: compactNumber(value) }
+        : null;
     })
-    .filter((part): part is string => Boolean(part))
+    .filter((part): part is MetricPill => Boolean(part))
     .slice(0, 4);
-
-  return parts.join(" / ");
 }
 
 function compactNumber(value: number): string {
