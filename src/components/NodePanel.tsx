@@ -31,7 +31,6 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
   return (
     <aside className="node-panel">
       <header className="node-panel-header">
-        <span className="eyebrow">company</span>
         <div className="node-title-row">
           <h2>{node.label}</h2>
           <div className="score-orb" aria-label={`Score ${node.score}`}>

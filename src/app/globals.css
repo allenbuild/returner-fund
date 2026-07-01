@@ -1,8 +1,9 @@
 :root {
   color-scheme: light;
   --background: #fff6ef;
+  --walnut: #6b4226;
   --foreground: #101828;
-  --muted: #78685f;
+  --muted: var(--walnut);
   --panel: #fffefe;
   --panel-border: #f2d5c1;
   --soft-panel: #fff8f2;
@@ -14,7 +15,7 @@
   --filter-fill: #ffd3b8;
   --filter-fill-active: #ffc39f;
   --filter-border: #ffb37e;
-  --filter-ink: #6f2d0f;
+  --filter-ink: var(--walnut);
   --nav: #fffefe;
   --nav-soft: #fff1e6;
   --font-ui: "Poppins", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -126,7 +127,7 @@ a {
   border: 1px solid #edc4aa;
   border-radius: 7px;
   background: #fffefe;
-  color: #8a4a21;
+  color: var(--walnut);
   font-size: 0.68rem;
   font-weight: 800;
 }
@@ -229,7 +230,7 @@ a {
 }
 
 .brand-block .eyebrow {
-  color: #9a4f1f;
+  color: var(--walnut);
 }
 
 .brand-block h1 {
@@ -305,7 +306,7 @@ h3 {
 }
 
 .topbar label {
-  color: #8a4a21;
+  color: var(--walnut);
 }
 
 .topbar select {
@@ -400,7 +401,7 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #6f4f3c;
+  color: var(--walnut);
   font-size: 0.76rem;
   font-weight: 900;
 }
@@ -478,7 +479,7 @@ button:disabled {
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #3b2b23;
+  color: var(--walnut);
   font-size: 0.79rem;
   text-align: left;
 }
@@ -516,7 +517,7 @@ button:disabled {
 }
 
 .filter-menu-option em {
-  color: #9a3412;
+  color: var(--walnut);
   font-size: 0.74rem;
   font-style: normal;
   font-weight: 900;
@@ -545,7 +546,7 @@ button:disabled {
 }
 
 .filter-title span {
-  color: #8b9aad;
+  color: var(--walnut);
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.02em;
@@ -568,7 +569,7 @@ button:disabled {
   align-items: center;
   gap: 5px;
   width: 100%;
-  color: #6f4f3c;
+  color: var(--walnut);
   font-size: 0.76rem;
   font-weight: 900;
 }
@@ -621,7 +622,7 @@ button:disabled {
 }
 
 .filter-group button em {
-  color: #9a3412;
+  color: var(--walnut);
   font-size: 0.76rem;
   font-style: normal;
   font-weight: 900;
@@ -661,7 +662,7 @@ button:disabled {
 
 .score-filter-header span {
   align-self: center;
-  color: #6f4f3c;
+  color: var(--walnut);
   font-size: 0.76rem;
   font-weight: 900;
   line-height: 1;
@@ -714,7 +715,7 @@ button:disabled {
   border-radius: 8px;
   border-color: #edcbb5;
   background: #ffffff;
-  color: #9a3412;
+  color: var(--walnut);
   font-size: 0.74rem;
   font-weight: 900;
 }
@@ -772,7 +773,7 @@ button:disabled {
     linear-gradient(rgba(255, 246, 239, 0.94), rgba(255, 246, 239, 0.94)),
     repeating-linear-gradient(0deg, transparent 0 31px, rgba(124, 45, 18, 0.05) 31px 32px),
     repeating-linear-gradient(90deg, transparent 0 31px, rgba(124, 45, 18, 0.05) 31px 32px);
-  color: #7a5843;
+  color: var(--walnut);
   text-align: center;
   box-shadow: var(--shadow-subtle);
 }
@@ -785,7 +786,7 @@ button:disabled {
 
 .graph-empty-state span {
   max-width: 460px;
-  color: #7a6659;
+  color: var(--walnut);
   font-size: 0.84rem;
   font-weight: 700;
   line-height: 1.45;
@@ -841,7 +842,7 @@ button:disabled {
 }
 
 .legend-item small {
-  color: #9a3412;
+  color: var(--walnut);
   font-size: 0.76rem;
   font-weight: 900;
 }
@@ -902,7 +903,7 @@ button:disabled {
   border-radius: 8px;
   border-color: #edcbb5;
   background: #fff8f2;
-  color: #5f3c25;
+  color: var(--walnut);
   font-size: 0.78rem;
   white-space: nowrap;
 }
@@ -910,7 +911,7 @@ button:disabled {
 .graph-toolbar-actions button.active {
   border-color: var(--accent);
   background: #fff0e6;
-  color: var(--accent-strong);
+  color: var(--walnut);
 }
 
 .graph-actions button.active {
@@ -998,14 +999,14 @@ button:disabled {
 }
 
 .node-panel-header h2 {
-  color: #231f20;
-  font-family: var(--font-company);
-  font-size: 1.45rem;
-  font-style: italic;
-  font-weight: 600;
+  color: #111827;
+  font-family: var(--font-ui);
+  font-size: 1.56rem;
+  font-style: normal;
+  font-weight: 700;
   font-optical-sizing: auto;
-  font-variation-settings: "SOFT" 0, "WONK" 1;
-  letter-spacing: -0.02em;
+  font-variation-settings: normal;
+  letter-spacing: 0;
   line-height: 1.08;
 }
 
@@ -1019,7 +1020,7 @@ button:disabled {
 
 .profile-context {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   padding: 12px;
   border: 1px solid var(--panel-border);
   border-radius: 12px;
@@ -1028,23 +1029,28 @@ button:disabled {
 
 .profile-context > div {
   display: grid;
-  gap: 6px;
+  gap: 7px;
+  min-width: 0;
 }
 
 .context-label {
+  display: block;
   color: var(--muted);
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.02em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
 .founder-chip-list,
 .account-chip-list,
 .founder-account-chip-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr));
+  align-items: stretch;
   gap: 6px;
+  min-width: 0;
 }
 
 .founder-chip-list a,
@@ -1053,12 +1059,14 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 27px;
-  padding: 0 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 9px;
   border: 1px solid #edcbb5;
   border-radius: 8px;
   background: #fffefe;
-  color: #3b2b23;
+  color: var(--walnut);
   font-size: 0.76rem;
   font-weight: 800;
   text-decoration: none;
@@ -1068,8 +1076,10 @@ button:disabled {
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  min-height: 38px;
-  gap: 1px;
+  min-height: 44px;
+  gap: 2px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .founder-account-chip-list small {
@@ -1089,6 +1099,11 @@ button:disabled {
   white-space: nowrap;
 }
 
+.account-chip-list .platform-identity,
+.founder-account-chip-list .platform-identity {
+  flex: 0 0 auto;
+}
+
 .founder-chip-list a.active {
   border-color: var(--accent);
   background: #fff0e6;
@@ -1098,6 +1113,10 @@ button:disabled {
 .node-panel-header {
   display: grid;
   gap: 6px;
+}
+
+.node-panel-header .eyebrow {
+  color: var(--walnut);
 }
 
 .node-panel-header p {
@@ -1131,7 +1150,7 @@ button:disabled {
 
 .score-orb span {
   font-size: 1rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .score-orb small {
@@ -1159,7 +1178,7 @@ button:disabled {
   border: 1px solid var(--panel-border);
   border-radius: 7px;
   background: #fff8f2;
-  color: #9a3412;
+  color: var(--walnut);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -1414,7 +1433,7 @@ progress::-webkit-progress-value {
     radial-gradient(circle at 84% 22%, rgba(255, 255, 255, 0.74), transparent 26%),
     radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.64), transparent 28%),
     linear-gradient(135deg, #fff0e6, #ffbe8f);
-  color: #9a3412;
+  color: var(--walnut);
   text-align: left;
 }
 
@@ -1767,7 +1786,7 @@ progress::-webkit-progress-value {
 
 .debug-dl dd {
   margin: 0;
-  color: #172033;
+  color: var(--walnut);
   font-weight: 900;
 }
 
@@ -1812,6 +1831,9 @@ progress::-webkit-progress-value {
 }
 
 .tab-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 10px;
   border-bottom: 1px solid #f0d3c0;
@@ -1824,7 +1846,7 @@ progress::-webkit-progress-value {
   border: 1px solid transparent;
   border-radius: 10px;
   background: transparent;
-  color: #76503a;
+  color: var(--walnut);
   font-size: 0.8rem;
   font-weight: 900;
 }
@@ -1832,13 +1854,19 @@ progress::-webkit-progress-value {
 .tab-list button.active {
   border-color: #f0c7aa;
   background: #ffffff;
-  color: #231f20;
+  color: var(--walnut);
   box-shadow: 0 8px 20px rgba(124, 45, 18, 0.08);
+}
+
+.tab-list-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .tab-body {
   min-height: 0;
-  padding: 12px;
+  padding: 8px 12px 12px;
   overflow: auto;
 }
 
@@ -1850,21 +1878,21 @@ progress::-webkit-progress-value {
 
 .segmented-toggle {
   display: inline-flex;
-  gap: 3px;
-  padding: 3px;
+  gap: 4px;
+  padding: 4px;
   border: 1px solid var(--panel-border);
   border-radius: 999px;
   background: #f4f7fb;
 }
 
 .segmented-toggle button {
-  min-height: 28px;
-  padding: 0 11px;
+  min-height: 34px;
+  padding: 0 16px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: #53657d;
-  font-size: 0.76rem;
+  font-size: 0.84rem;
 }
 
 .segmented-toggle button.active {
@@ -1882,7 +1910,7 @@ table {
 .overview-table,
 .momentum-table {
   table-layout: fixed;
-  font-size: 1.08rem;
+  font-size: 1.16rem;
 }
 
 .overview-table th:nth-child(1),
@@ -1929,14 +1957,14 @@ td {
 .momentum-table th,
 .momentum-table td {
   padding: 9px 12px;
-  font-size: 1.08rem;
+  font-size: 1.16rem;
   vertical-align: middle;
 }
 
 .overview-table th,
 .momentum-table th {
-  color: #7a6258;
-  font-size: 0.8rem;
+  color: var(--walnut);
+  font-size: 0.86rem;
   font-weight: 600;
 }
 
@@ -1978,8 +2006,8 @@ td button {
 
 .insight-rank-cell,
 .overview-score-cell {
-  color: #111827;
-  font-size: 1.08rem;
+  color: var(--walnut);
+  font-size: 1.16rem;
 }
 
 .insight-rank-cell {
@@ -1997,9 +2025,9 @@ td button {
 
 .insight-company-cell button,
 .overview-company-cell button {
-  color: #111827;
+  color: var(--walnut);
   font-family: var(--font-company);
-  font-size: 1.08rem;
+  font-size: 1.32rem;
   font-style: italic;
   font-weight: 400;
   font-optical-sizing: auto;
@@ -2010,7 +2038,7 @@ td button {
 
 .overview-platform-cell {
   color: #111827;
-  font-size: 1.08rem;
+  font-size: 1.16rem;
   font-weight: 500;
 }
 
@@ -2043,8 +2071,9 @@ td button {
   outline-offset: 3px;
 }
 
-.overview-contribution-link:hover span {
-  color: var(--accent-strong);
+.overview-contribution-link:hover span,
+.overview-contribution-link:hover small {
+  color: #3366cc;
 }
 
 .overview-contribution-cell span {
@@ -2052,7 +2081,7 @@ td button {
   min-width: 0;
   overflow: hidden;
   color: #111827;
-  font-size: 1.08rem;
+  font-size: 1.16rem;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2063,7 +2092,7 @@ td button {
   min-width: 0;
   overflow: hidden;
   color: var(--accent);
-  font-size: 1.08rem;
+  font-size: 1.16rem;
   font-weight: 500;
   line-height: 1.2;
   text-overflow: ellipsis;

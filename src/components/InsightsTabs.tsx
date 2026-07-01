@@ -61,6 +61,26 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
             </button>
           );
         })}
+        {activeTab === "gaining" && (
+          <div className="tab-list-actions">
+            <div className="segmented-toggle" role="group" aria-label="Momentum period">
+              <button
+                type="button"
+                className={momentumPeriod === "dod" ? "active" : ""}
+                onClick={() => setMomentumPeriod("dod")}
+              >
+                Day over day
+              </button>
+              <button
+                type="button"
+                className={momentumPeriod === "wow" ? "active" : ""}
+                onClick={() => setMomentumPeriod("wow")}
+              >
+                Week over week
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {activeTab === "overview" && (
@@ -128,24 +148,6 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
 
       {activeTab === "gaining" && (
         <div className="tab-body">
-          <div className="table-toolbar">
-            <div className="segmented-toggle" role="group" aria-label="Momentum period">
-              <button
-                type="button"
-                className={momentumPeriod === "dod" ? "active" : ""}
-                onClick={() => setMomentumPeriod("dod")}
-              >
-                Day over day
-              </button>
-              <button
-                type="button"
-                className={momentumPeriod === "wow" ? "active" : ""}
-                onClick={() => setMomentumPeriod("wow")}
-              >
-                Week over week
-              </button>
-            </div>
-          </div>
           <table className="momentum-table">
             <thead>
               <tr>
