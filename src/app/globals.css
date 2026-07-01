@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&display=swap");
-
 :root {
   color-scheme: light;
   --background: #fff6ef;
@@ -20,6 +18,7 @@
   --nav: #fffefe;
   --nav-soft: #fff1e6;
   --font-ui: "Poppins", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-company: "Fraunces", serif;
   --font-copy: var(--font-ui);
   --company: #2f80ed;
   --founder: #bb6bd9;
@@ -38,6 +37,8 @@
 }
 
 body {
+  --font-ui: var(--font-poppins), "Poppins", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-company: var(--font-fraunces), "Fraunces", serif;
   margin: 0;
   background: #fff6ef;
   color: var(--foreground);
@@ -169,7 +170,7 @@ a {
 
 .focus-search-results button span {
   color: #111827;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .focus-search-results button:hover {
@@ -180,7 +181,7 @@ a {
   flex: 0 0 auto;
   color: var(--accent);
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 500;
 }
 
 .focus-search-empty {
@@ -996,10 +997,15 @@ button:disabled {
   padding-bottom: 2px;
 }
 
-.node-post-header h2,
 .node-panel-header h2 {
   color: #231f20;
+  font-family: var(--font-company);
   font-size: 1.45rem;
+  font-style: italic;
+  font-weight: 600;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 1;
+  letter-spacing: -0.02em;
   line-height: 1.08;
 }
 
@@ -1873,7 +1879,8 @@ table {
   min-width: 700px;
 }
 
-.overview-table {
+.overview-table,
+.momentum-table {
   table-layout: fixed;
   font-size: 1.08rem;
 }
@@ -1883,8 +1890,18 @@ table {
   width: 62px;
 }
 
+.momentum-table th:nth-child(1),
+.momentum-table td:nth-child(1) {
+  width: 62px;
+}
+
 .overview-table th:nth-child(2),
 .overview-table td:nth-child(2) {
+  width: 19%;
+}
+
+.momentum-table th:nth-child(2),
+.momentum-table td:nth-child(2) {
   width: 19%;
 }
 
@@ -1908,13 +1925,16 @@ td {
 }
 
 .overview-table th,
-.overview-table td {
+.overview-table td,
+.momentum-table th,
+.momentum-table td {
   padding: 9px 12px;
   font-size: 1.08rem;
   vertical-align: middle;
 }
 
-.overview-table th {
+.overview-table th,
+.momentum-table th {
   color: #7a6258;
   font-size: 0.8rem;
   font-weight: 600;
@@ -1956,10 +1976,15 @@ td button {
   font-weight: 500;
 }
 
-.overview-rank-cell,
+.insight-rank-cell,
 .overview-score-cell {
-  font-size: 1.16rem;
-  font-weight: 600;
+  color: #111827;
+  font-size: 1.08rem;
+}
+
+.insight-rank-cell {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .overview-rank-cell {
@@ -1967,19 +1992,25 @@ td button {
 }
 
 .overview-score-cell {
-  color: #111827;
+  font-weight: 500;
 }
 
+.insight-company-cell button,
 .overview-company-cell button {
   color: #111827;
-  font-size: 1.24rem;
-  font-weight: 500;
+  font-family: var(--font-company);
+  font-size: 1.08rem;
+  font-style: italic;
+  font-weight: 400;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 1;
+  letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
 .overview-platform-cell {
   color: #111827;
-  font-size: 1.14rem;
+  font-size: 1.08rem;
   font-weight: 500;
 }
 
@@ -1990,6 +2021,30 @@ td button {
   min-width: 0;
   max-width: none;
   line-height: 1.2;
+}
+
+.overview-contribution-link {
+  display: grid;
+  grid-template-rows: 1.2em 1.2em;
+  gap: 1px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.overview-contribution-link:hover,
+.overview-contribution-link:focus-visible {
+  text-decoration: none;
+}
+
+.overview-contribution-link:focus-visible {
+  border-radius: 6px;
+  outline: 2px solid rgba(255, 102, 0, 0.32);
+  outline-offset: 3px;
+}
+
+.overview-contribution-link:hover span {
+  color: var(--accent-strong);
 }
 
 .overview-contribution-cell span {
@@ -2008,7 +2063,7 @@ td button {
   min-width: 0;
   overflow: hidden;
   color: var(--accent);
-  font-size: 1rem;
+  font-size: 1.08rem;
   font-weight: 500;
   line-height: 1.2;
   text-overflow: ellipsis;

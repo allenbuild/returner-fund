@@ -90,7 +90,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                 const contribution = formatContribution(row.biggestContribution);
                 return (
                   <tr key={row.companyId}>
-                    <td className="overview-rank-cell">{row.rank}</td>
+                    <td className="insight-rank-cell overview-rank-cell">{row.rank}</td>
                     <td className="overview-company-cell">
                       <button type="button" onClick={() => onSelectNode(`company:${row.companyId}`)}>
                         {row.companyName}
@@ -101,8 +101,22 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                       {row.topPlatform ? <PlatformIdentity platform={row.topPlatform} /> : "None"}
                     </td>
                     <td className="overview-contribution-cell">
-                      <span>{contribution.title}</span>
-                      {contribution.metrics && <small>{contribution.metrics}</small>}
+                      {contribution.url ? (
+                        <a
+                          className="overview-contribution-link"
+                          href={contribution.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <span>{contribution.title}</span>
+                          {contribution.metrics && <small>{contribution.metrics}</small>}
+                        </a>
+                      ) : (
+                        <>
+                          <span>{contribution.title}</span>
+                          {contribution.metrics && <small>{contribution.metrics}</small>}
+                        </>
+                      )}
                     </td>
                   </tr>
                 );
@@ -132,7 +146,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
               </button>
             </div>
           </div>
-          <table>
+          <table className="momentum-table">
             <thead>
               <tr>
                 <th>Rank</th>
@@ -148,8 +162,8 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                 const delta = row[momentumPeriod];
                 return (
                   <tr key={row.companyId}>
-                    <td>{index + 1}</td>
-                    <td>
+                    <td className="insight-rank-cell">{index + 1}</td>
+                    <td className="insight-company-cell">
                       <button type="button" onClick={() => onSelectNode(`company:${row.companyId}`)}>
                         {row.companyName}
                       </button>
@@ -241,14 +255,15 @@ function overviewRowSort(sort: { key: OverviewSortKey; direction: SortDirection 
   };
 }
 
-function formatContribution(item: EvidenceItem | null): { title: string; metrics: string } {
+function formatContribution(item: EvidenceItem | null): { title: string; metrics: string; url: string | null } {
   if (!item) {
-    return { title: "No evidence", metrics: "" };
+    return { title: "No evidence", metrics: "", url: null };
   }
 
   return {
     title: firstSentence(item.text || item.title || "No evidence"),
-    metrics: formatMetrics(item.metrics)
+    metrics: formatMetrics(item.metrics),
+    url: item.sourceUrl || null
   };
 }
 
