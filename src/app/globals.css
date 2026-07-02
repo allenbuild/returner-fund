@@ -36,6 +36,8 @@
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 18px;
+  --control-height: 40px;
+  --control-radius: 12px;
   --shadow-soft: 0 22px 60px rgba(16, 24, 40, 0.08);
   --shadow-subtle: 0 12px 32px rgba(16, 24, 40, 0.06);
 }
@@ -338,9 +340,10 @@ h3 {
 
 .topbar select {
   border-color: #f2b180;
+  border-radius: var(--control-radius);
   background: var(--background);
   color: var(--neutral-900);
-  min-height: 40px;
+  min-height: var(--control-height);
   padding: 0 36px 0 14px;
   border-width: 1.5px;
   font-size: 0.9rem;
@@ -396,9 +399,10 @@ button:disabled {
 }
 
 .control-strip button {
-  height: 40px;
-  min-height: 40px;
+  height: var(--control-height);
+  min-height: var(--control-height);
   padding: 0 16px;
+  border-radius: var(--control-radius);
   border-color: var(--neutral-200);
   background: #ffffff;
   color: var(--neutral-900);
@@ -450,10 +454,10 @@ button:disabled {
   justify-content: space-between;
   gap: 10px;
   width: 100%;
-  min-height: 38px;
+  min-height: var(--control-height);
   padding: 0 14px;
   border-color: #f2b180;
-  border-radius: 9px;
+  border-radius: var(--control-radius);
   background: var(--background);
   color: var(--filter-ink);
   font-size: 0.86rem;
@@ -678,10 +682,10 @@ button:disabled {
   gap: 10px;
   width: 100%;
   min-width: 0;
-  min-height: 38px;
+  min-height: var(--control-height);
   padding: 5px 8px;
   border: 1px solid #f2b180;
-  border-radius: 9px;
+  border-radius: var(--control-radius);
   background: var(--background);
   box-sizing: border-box;
   box-shadow: none;
@@ -745,7 +749,7 @@ button:disabled {
   min-height: 26px;
   padding: 0 6px;
   border: 1px solid rgba(242, 177, 128, 0.82);
-  border-radius: 8px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.7);
   color: #231f20;
   font-size: 0.86rem;
@@ -758,7 +762,7 @@ button:disabled {
   min-height: 26px;
   min-width: 58px;
   padding: 0 9px;
-  border-radius: 8px;
+  border-radius: 10px;
   border-color: rgba(242, 177, 128, 0.72);
   background: rgba(255, 255, 255, 0.62);
   color: var(--neutral-600);
@@ -1427,7 +1431,7 @@ progress::-webkit-progress-value {
 
 .top-post-list {
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 
 .top-post-card,
@@ -1467,6 +1471,55 @@ progress::-webkit-progress-value {
   min-height: 178px;
   border-radius: 0;
   background: var(--neutral-100);
+}
+
+.node-panel .evidence-media-card {
+  grid-template-columns: 118px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 14px;
+}
+
+.node-panel .evidence-thumbnail {
+  width: 118px;
+  height: 86px;
+  min-height: 0;
+  aspect-ratio: auto;
+  border-radius: 12px;
+}
+
+.node-panel .evidence-thumbnail img,
+.node-panel .evidence-thumbnail-fallback {
+  height: 100%;
+  min-height: 0;
+}
+
+.node-panel .evidence-card-body {
+  gap: 5px;
+  padding: 0;
+}
+
+.node-panel .evidence-card-body h4 {
+  font-size: 0.92rem;
+  line-height: 1.22;
+}
+
+.node-panel .evidence-card-stats {
+  font-size: 0.78rem;
+}
+
+.node-panel .contribution-pill {
+  top: 6px;
+  right: 6px;
+  min-width: 42px;
+  min-height: 34px;
+  padding: 5px 7px;
+  border-radius: 10px;
+}
+
+.node-panel .contribution-pill strong {
+  font-size: 0.95rem;
 }
 
 .evidence-thumbnail img {
@@ -2615,7 +2668,9 @@ td button {
   }
 
   .dashboard {
-    padding: 8px;
+    --control-height: 34px;
+    --control-radius: 11px;
+    padding: 6px;
   }
 
   .topbar,
@@ -2626,9 +2681,9 @@ td button {
   .topbar {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    gap: 7px;
     min-height: 0;
-    padding: 12px;
+    padding: 8px;
     border-radius: 14px 14px 8px 8px;
   }
 
@@ -2637,19 +2692,21 @@ td button {
   }
 
   .yc-brand-mark {
-    width: 30px;
-    height: 30px;
-    font-size: 1.12rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.96rem;
   }
 
   .brand-block h1 {
-    font-size: 1.1rem;
+    font-size: 0.98rem;
   }
 
   .focus-search {
     justify-self: stretch;
     width: 100%;
-    min-height: 42px;
+    min-height: var(--control-height);
+    padding: 0 12px;
+    font-size: 0.8rem;
   }
 
   .focus-search kbd {
@@ -2668,7 +2725,7 @@ td button {
   .control-strip {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
   }
 
   .filter-band {
@@ -2683,7 +2740,7 @@ td button {
   .control-cluster {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 7px;
     min-height: 0;
   }
 
@@ -2691,6 +2748,7 @@ td button {
   .batch-control,
   .topbar select {
     width: 100%;
+    font-size: 0.82rem;
   }
 
   .control-cluster-actions {
@@ -2699,18 +2757,32 @@ td button {
 
   .control-cluster-actions button {
     width: auto;
-    min-width: 116px;
+    min-width: 96px;
+    font-size: 0.82rem;
   }
 
   .filter-band {
-    gap: 8px;
-    padding: 8px;
+    gap: 6px;
+    padding: 6px;
     border-radius: 0 0 12px 12px;
   }
 
+  .filter-dropdown-label {
+    gap: 4px;
+    margin-bottom: 3px;
+    font-size: 0.66rem;
+  }
+
+  .filter-dropdown-label svg {
+    width: 13px;
+    height: 13px;
+  }
+
   .filter-dropdown-trigger {
-    min-height: 38px;
-    padding: 0 11px;
+    min-height: var(--control-height);
+    padding: 0 9px;
+    border-radius: var(--control-radius);
+    font-size: 0.78rem;
   }
 
   .filter-dropdown-menu {
@@ -2725,11 +2797,12 @@ td button {
 
   .score-filter {
     display: grid;
-    grid-template-columns: auto auto minmax(84px, 1fr) 44px 48px;
+    grid-template-columns: auto auto minmax(64px, 1fr) 38px 44px;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     min-height: 0;
-    padding: 6px 8px;
+    padding: 4px 6px;
+    border-radius: var(--control-radius);
   }
 
   .score-filter-header {
@@ -2737,7 +2810,7 @@ td button {
   }
 
   .score-filter-header span {
-    font-size: 0.72rem;
+    font-size: 0.62rem;
   }
 
   .score-filter input[type="range"] {
@@ -2750,17 +2823,19 @@ td button {
   }
 
   .score-filter input[type="number"] {
-    width: 44px;
+    width: 38px;
     flex-basis: auto;
-    height: 24px;
-    min-height: 24px;
+    height: 23px;
+    min-height: 23px;
+    font-size: 0.72rem;
   }
 
   .score-filter button {
-    min-width: 48px;
-    height: 24px;
-    min-height: 24px;
-    padding: 0 7px;
+    min-width: 44px;
+    height: 23px;
+    min-height: 23px;
+    padding: 0 6px;
+    font-size: 0.62rem;
   }
 
   .dashboard-grid {
@@ -2793,25 +2868,25 @@ td button {
     flex-wrap: wrap;
     justify-content: flex-start;
     min-height: 28px;
-    max-height: 46px;
+    max-height: 32px;
     overflow: hidden;
-    gap: 5px 8px;
-    padding: 1px 2px 3px;
+    gap: 2px 4px;
+    padding: 0;
   }
 
   .legend-item {
     flex: 0 0 auto;
-    font-size: 0.7rem;
-    line-height: 1.1;
+    font-size: 0.55rem;
+    line-height: 1.05;
   }
 
   .legend-item small {
-    font-size: 0.68rem;
+    font-size: 0.53rem;
   }
 
   .legend-dot {
-    width: 10px;
-    height: 10px;
+    width: 7px;
+    height: 7px;
   }
 
   .graph-toolbar-actions {
@@ -2826,6 +2901,7 @@ td button {
     min-width: 0;
     min-height: 34px;
     padding: 0 8px;
+    border-radius: var(--control-radius);
     font-size: 0;
   }
 
@@ -2843,9 +2919,10 @@ td button {
   }
 
   .node-panel {
-    max-height: none;
-    padding: 14px;
+    max-height: min(58vh, 520px);
+    padding: 10px;
     border-radius: 14px;
+    overflow: auto;
   }
 
   .node-panel-header {
@@ -2865,21 +2942,95 @@ td button {
     border-radius: 14px;
   }
 
+  .node-panel .evidence-media-card {
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 7px;
+    padding: 6px;
+  }
+
+  .node-panel .evidence-thumbnail {
+    width: 82px;
+    height: 58px;
+    border-radius: 10px;
+  }
+
+  .node-panel .evidence-card-meta {
+    gap: 4px;
+    font-size: 0.64rem;
+  }
+
+  .node-panel .platform-badge {
+    min-height: 18px;
+    padding: 0 5px;
+    font-size: 0.64rem;
+  }
+
+  .node-panel .platform-badge .platform-logo {
+    width: 12px;
+    height: 12px;
+    flex-basis: 12px;
+  }
+
+  .node-panel .evidence-card-body h4 {
+    font-size: 0.78rem;
+    line-height: 1.14;
+    -webkit-line-clamp: 2;
+  }
+
+  .node-panel .evidence-card-stats {
+    font-size: 0.66rem;
+  }
+
+  .node-panel .contribution-pill {
+    min-width: 34px;
+    min-height: 28px;
+    padding: 3px 5px;
+    border-radius: 9px;
+  }
+
+  .node-panel .contribution-pill strong {
+    font-size: 0.78rem;
+  }
+
   .tab-list {
-    min-height: 46px;
-    overflow-x: auto;
-    padding: 7px;
-    scrollbar-width: thin;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    min-height: 0;
+    overflow: visible;
+    padding: 6px;
+    scrollbar-width: auto;
   }
 
   .tab-list button {
-    flex: 0 0 auto;
-    width: auto;
-    min-width: 108px;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    min-height: 32px;
+    padding: 0 6px;
+    border-radius: var(--control-radius);
+    font-size: 0.72rem;
   }
 
   .tab-list-actions {
+    grid-column: 1 / -1;
     margin-left: 0;
+    width: 100%;
+    min-height: 30px;
+  }
+
+  .segmented-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    border-radius: var(--control-radius);
+  }
+
+  .segmented-toggle button {
+    min-height: 28px;
+    padding: 0 8px;
+    border-radius: calc(var(--control-radius) - 2px);
+    font-size: 0.72rem;
   }
 
   .tab-body {
@@ -2916,16 +3067,16 @@ td button {
   .overview-table tbody,
   .momentum-table tbody {
     display: grid;
-    gap: 8px;
+    gap: 7px;
   }
 
   .overview-table tbody tr,
   .momentum-table tbody tr {
     display: grid;
-    grid-template-columns: 30px minmax(0, 1fr) auto;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
     align-items: center;
-    gap: 6px 7px;
-    padding: 8px 9px;
+    gap: 4px 7px;
+    padding: 7px 8px;
     border: 1px solid rgba(231, 227, 220, 0.78);
     border-radius: 14px;
     background: #fffefe;
@@ -2985,59 +3136,59 @@ td button {
     display: block;
     max-width: 100%;
     overflow: hidden;
-    font-size: 1.18rem;
+    font-size: 1.02rem;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .overview-score-cell span {
-    min-width: 44px;
-    min-height: 30px;
-    padding: 0 12px;
-    font-size: 0.9rem;
+    min-width: 40px;
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 0.82rem;
   }
 
   .ranking-platform-chip .platform-logo {
-    width: 20px;
-    height: 20px;
-    flex-basis: 20px;
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
   }
 
   .ranking-platform-chip .platform-identity span {
-    font-size: 0.92rem;
+    font-size: 0.8rem;
   }
 
   .overview-contribution-link,
   .overview-contribution-empty {
-    grid-template-columns: 54px minmax(0, 1fr);
-    gap: 7px;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 6px;
   }
 
   .overview-post-thumbnail {
-    width: 54px;
-    height: 40px;
-    border-radius: 10px;
+    width: 44px;
+    height: 32px;
+    border-radius: 8px;
   }
 
   .overview-post-meta {
-    gap: 4px;
-    font-size: 0.7rem;
+    gap: 3px;
+    font-size: 0.62rem;
   }
 
   .overview-post-summary {
-    gap: 3px;
+    gap: 2px;
   }
 
   .overview-post-title {
-    font-size: 0.86rem;
-    line-height: 1.2;
+    font-size: 0.78rem;
+    line-height: 1.14;
   }
 
   .overview-metric-pill {
-    min-height: 20px;
-    padding: 0 6px;
-    font-size: 0.64rem;
+    min-height: 17px;
+    padding: 0 5px;
+    font-size: 0.56rem;
   }
 
   .overview-post-platform {
@@ -3047,53 +3198,91 @@ td button {
   }
 
   .overview-post-platform .platform-logo {
-    width: 13px;
-    height: 13px;
-    flex-basis: 13px;
+    width: 11px;
+    height: 11px;
+    flex-basis: 11px;
   }
 
   .momentum-table tbody tr {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4px 8px;
+    padding: 7px 8px;
   }
 
   .momentum-table td:nth-child(1) {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 1 / span 3;
+    align-self: start;
+    width: 28px;
   }
 
   .momentum-table td:nth-child(2) {
-    grid-column: 2;
+    grid-column: 2 / -1;
     grid-row: 1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .momentum-table .insight-company-cell button {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 1rem;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .momentum-table td:nth-child(n + 3) {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 112px minmax(0, 1fr);
-    gap: 8px;
+    display: block;
+    min-width: 0;
     color: var(--neutral-900);
-    font-size: 0.9rem;
+    font-size: 0.72rem;
+    line-height: 1.12;
+  }
+
+  .momentum-table td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .momentum-table td:nth-child(4) {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .momentum-table td:nth-child(5) {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .momentum-table td:nth-child(6) {
+    grid-column: 3;
+    grid-row: 3;
   }
 
   .momentum-table td:nth-child(3)::before {
-    content: "Score delta";
+    content: "Score";
   }
 
   .momentum-table td:nth-child(4)::before {
-    content: "Rank delta";
+    content: "Rank";
   }
 
   .momentum-table td:nth-child(5)::before {
-    content: "Current";
+    content: "Now";
   }
 
   .momentum-table td:nth-child(6)::before {
-    content: "Benchmark";
+    content: "Bench";
   }
 
   .momentum-table td:nth-child(n + 3)::before {
+    display: block;
+    margin-bottom: 1px;
     color: var(--walnut);
-    font-size: 0.72rem;
+    font-size: 0.52rem;
     font-weight: 700;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -3118,7 +3307,7 @@ td button {
   .overview-table tbody tr,
   .momentum-table tbody tr {
     grid-template-columns: 28px minmax(0, 1fr) auto;
-    padding: 7px 8px;
+    padding: 6px 7px;
   }
 
   .rank-medal {
@@ -3154,21 +3343,21 @@ td button {
 
   .overview-company-cell span,
   .insight-company-cell button {
-    font-size: 1.13rem;
+    font-size: 0.98rem;
   }
 
   .overview-contribution-link,
   .overview-contribution-empty {
-    grid-template-columns: 50px minmax(0, 1fr);
+    grid-template-columns: 42px minmax(0, 1fr);
   }
 
   .overview-post-thumbnail {
-    width: 50px;
-    height: 38px;
+    width: 42px;
+    height: 30px;
   }
 
   .overview-post-platform {
-    max-width: 120px;
+    max-width: 108px;
   }
 }
 
