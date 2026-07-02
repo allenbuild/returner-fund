@@ -1963,13 +1963,15 @@ progress::-webkit-progress-value {
 
 .tab-list > button {
   box-sizing: border-box;
-  flex: 0 0 144px;
+  flex: 0 0 154px;
   align-items: center;
   justify-content: center;
-  width: 144px;
+  width: 154px;
+  min-width: 154px;
+  max-width: 154px;
   height: 36px;
   min-height: 36px;
-  padding: 0 11px;
+  padding: 0 12px;
   border: 1px solid transparent;
   border-radius: var(--control-radius);
   background: transparent;
@@ -2042,6 +2044,28 @@ progress::-webkit-progress-value {
 
 .momentum-value-compact {
   display: none;
+}
+
+.momentum-stat-cell {
+  min-width: 0;
+}
+
+.momentum-stat-cell > span {
+  display: inline-block;
+  margin-right: 7px;
+  color: var(--accent);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.momentum-stat-cell strong {
+  display: inline-block;
+  min-width: 0;
+  color: var(--neutral-900);
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 table {
@@ -3050,6 +3074,7 @@ td button {
   .tab-list > button {
     width: 100%;
     min-width: 0;
+    max-width: none;
     height: 34px;
     min-height: 34px;
     gap: 4px;

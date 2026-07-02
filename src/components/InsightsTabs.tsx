@@ -197,6 +197,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                     </td>
                     <td className="momentum-stat-cell">
                       <span>Score</span>
+                      {" "}
                       <strong>
                         <span className="momentum-value-full">{formatScoreDelta(delta)}</span>
                         <span className="momentum-value-compact">{formatScoreDeltaCompact(delta)}</span>
@@ -204,10 +205,12 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                     </td>
                     <td className="momentum-stat-cell">
                       <span>Rank</span>
+                      {" "}
                       <strong>{formatRankDelta(delta.rankDelta)}</strong>
                     </td>
                     <td className="momentum-stat-cell">
                       <span>Now</span>
+                      {" "}
                       <strong>
                         <span className="momentum-value-full">
                           {delta.currentScore} pts / #{delta.currentRank}
@@ -219,6 +222,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                     </td>
                     <td className="momentum-stat-cell">
                       <span>Benchmark</span>
+                      {" "}
                       <strong>
                         <span className="momentum-value-full">{formatBenchmark(delta)}</span>
                         <span className="momentum-value-compact">{formatBenchmarkCompact(delta)}</span>
