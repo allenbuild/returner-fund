@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { buildClusterPositions, buildLabelPlacements, collisionRadius } from "@/lib/graph/layout";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
@@ -70,8 +71,51 @@ describe("graph layout", () => {
 
     expect(average(sameGroupDistances)).toBeLessThan(average(pairDistances) * 0.72);
   }, 20_000);
+
+  it("returns to a non-overlapping full layout after a minimum-score filter cycle", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const filtered = applyClientGraphFilters(graph, {
+      platforms: [],
+      industries: [],
+      groupPartners: [],
+      minScore: 80
+    });
+    const restored = applyClientGraphFilters(graph, {
+      platforms: [],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+
+    expect(filtered.nodes.length).toBeLessThan(restored.nodes.length);
+    expect(restored.nodes).toHaveLength(197);
+
+    assertNoCircleOverlap(restored.nodes);
+  }, 20_000);
 });
 
 function average(values: number[]): number {
   return values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1);
+}
+
+function assertNoCircleOverlap(nodes: ReturnType<typeof buildGraphResponse>["nodes"]): void {
+  const positions = buildClusterPositions(nodes);
+
+  for (let leftIndex = 0; leftIndex < nodes.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < nodes.length; rightIndex += 1) {
+      const left = nodes[leftIndex];
+      const right = nodes[rightIndex];
+      const leftPosition = positions.get(left.id);
+      const rightPosition = positions.get(right.id);
+
+      expect(leftPosition).toBeDefined();
+      expect(rightPosition).toBeDefined();
+
+      const distance = Math.hypot(
+        (rightPosition?.x ?? 0) - (leftPosition?.x ?? 0),
+        (rightPosition?.y ?? 0) - (leftPosition?.y ?? 0)
+      );
+      expect(distance).toBeGreaterThanOrEqual(collisionRadius(left) + collisionRadius(right) - 0.25);
+    }
+  }
 }

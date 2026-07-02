@@ -33,10 +33,10 @@ describe("insights tabs", () => {
     expect(onSelectNode).not.toHaveBeenCalled();
   });
 
-  it("shows fastest gaining as DoD/WoW score and rank momentum without evidence columns", () => {
+  it("shows hottest companies as DoD/WoW score and rank momentum without evidence columns", () => {
     render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Fastest gaining" }));
+    fireEvent.click(screen.getByRole("button", { name: "Hottest" }));
 
     expect(screen.getByRole("button", { name: "Day over day" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Week over week" })).toBeInTheDocument();

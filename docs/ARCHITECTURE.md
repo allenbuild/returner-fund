@@ -19,7 +19,7 @@ Pipeline:
 3. Connectors fetch read-only posts, metrics, and source evidence from safe public or official sources.
 4. Scoring normalizes traction signals within platform and within batch.
 5. Graph builder creates company-only graph nodes and typed weighted company edges.
-6. Dashboard visualizes loaded company count against the expected count, graph structure, evidence, leaderboard, fastest gaining, and review queue.
+6. Dashboard visualizes loaded company count against the expected count, graph structure, evidence, leaderboard, hottest movers, and review queue.
 
 ## Tech Stack
 
@@ -116,7 +116,7 @@ Works with no credentials and no Supabase connection. Uses local seed data to re
 - scores
 - graph edges
 - leaderboard
-- fastest gaining
+- hottest movers
 - review queue examples
 
 Demo mode must label data as fake and should preserve the default `S2026` batch shape.

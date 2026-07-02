@@ -422,8 +422,8 @@ button:disabled {
   grid-template-columns: minmax(132px, 0.74fr) minmax(150px, 0.74fr) minmax(220px, 1.15fr) minmax(420px, 0.82fr);
   align-items: end;
   gap: 8px;
-  margin-top: 0;
-  padding: 12px 14px 14px;
+  margin-top: -1px;
+  padding: 13px 18px 15px;
   border-right: 1px solid rgba(231, 227, 220, 0.92);
   border-bottom: 1px solid rgba(231, 227, 220, 0.92);
   border-left: 1px solid rgba(231, 227, 220, 0.92);
@@ -456,7 +456,7 @@ button:disabled {
   gap: 10px;
   width: 100%;
   min-height: var(--control-height);
-  padding: 0 14px;
+  padding: 0 16px;
   border-color: #f2b180;
   border-radius: var(--control-radius);
   background: var(--background);
@@ -2040,6 +2040,10 @@ progress::-webkit-progress-value {
   box-shadow: 0 1px 5px rgba(16, 24, 40, 0.14);
 }
 
+.momentum-value-compact {
+  display: none;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -2113,6 +2117,10 @@ td {
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+}
+
+.momentum-table th {
+  padding-top: 13px;
 }
 
 .overview-table thead th {
@@ -2309,7 +2317,7 @@ td button {
 
 .insight-company-cell button,
 .overview-company-cell span {
-  color: var(--walnut);
+  color: var(--neutral-900);
   font-family: var(--font-ui);
   font-size: 1.08rem;
   font-style: normal;
@@ -2702,7 +2710,7 @@ td button {
   .dashboard {
     --control-height: 34px;
     --control-radius: 11px;
-    padding: 12px;
+    padding: 14px 16px;
   }
 
   .topbar,
@@ -2715,8 +2723,8 @@ td button {
     grid-template-columns: minmax(0, 1fr);
     gap: 7px;
     min-height: 0;
-    padding: 8px;
-    border-radius: 14px 14px 8px 8px;
+    padding: 12px 18px 9px;
+    border-radius: 16px 16px 0 0;
   }
 
   .brand-block {
@@ -2730,7 +2738,7 @@ td button {
   }
 
   .brand-block h1 {
-    font-size: 1.1rem;
+    font-size: 1.18rem;
   }
 
   .focus-search {
@@ -2796,15 +2804,18 @@ td button {
   }
 
   .filter-band {
-    gap: 6px;
-    padding: 6px;
-    border-radius: 0 0 12px 12px;
+    gap: 7px 10px;
+    margin-top: -1px;
+    padding: 10px 18px 13px;
+    border-top: 0;
+    border-radius: 0 0 16px 16px;
+    background: var(--panel);
   }
 
   .filter-dropdown-label {
     gap: 4px;
-    margin-bottom: 3px;
-    font-size: 0.66rem;
+    margin: 0 0 2px 3px;
+    font-size: 0.7rem;
   }
 
   .filter-dropdown-label svg {
@@ -2814,9 +2825,9 @@ td button {
 
   .filter-dropdown-trigger {
     min-height: var(--control-height);
-    padding: 0 9px;
+    padding: 0 13px;
     border-radius: var(--control-radius);
-    font-size: 0.78rem;
+    font-size: 0.8rem;
   }
 
   .filter-dropdown-menu {
@@ -2833,9 +2844,9 @@ td button {
     display: grid;
     grid-template-columns: auto auto minmax(64px, 1fr) 38px 44px;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     min-height: 0;
-    padding: 4px 6px;
+    padding: 5px 8px;
     border-radius: var(--control-radius);
   }
 
@@ -2844,7 +2855,7 @@ td button {
   }
 
   .score-filter-header span {
-    font-size: 0.62rem;
+    font-size: 0.66rem;
   }
 
   .score-filter input[type="range"] {
@@ -3058,7 +3069,7 @@ td button {
     grid-column: 1 / -1;
     margin-left: 0;
     width: 100%;
-    min-height: 30px;
+    min-height: 28px;
   }
 
   .segmented-toggle {
@@ -3246,12 +3257,12 @@ td button {
   }
 
   .momentum-table tbody tr {
-    grid-template-columns: 28px minmax(90px, 0.76fr) minmax(78px, 0.66fr) minmax(94px, 0.82fr);
+    grid-template-columns: 30px minmax(132px, 1.25fr) minmax(58px, 0.48fr) minmax(78px, 0.62fr);
     grid-template-rows: repeat(2, minmax(24px, auto));
     align-items: center;
-    gap: 4px 8px;
-    min-height: 72px;
-    padding: 8px 10px;
+    gap: 4px 7px;
+    min-height: 68px;
+    padding: 8px 9px;
   }
 
   .momentum-table td:nth-child(1) {
@@ -3274,6 +3285,7 @@ td button {
     width: 100%;
     max-width: 100%;
     overflow: hidden;
+    color: var(--neutral-900);
     font-size: 1.08rem;
     line-height: 1.05;
     text-align: left;
@@ -3291,7 +3303,7 @@ td button {
     gap: 1px;
     min-width: 0;
     color: var(--neutral-900);
-    font-size: 0.74rem;
+    font-size: 0.7rem;
     line-height: 1.08;
     overflow: hidden;
   }
@@ -3316,11 +3328,11 @@ td button {
     grid-row: 2;
   }
 
-  .momentum-stat-cell span {
+  .momentum-stat-cell > span {
     display: block;
     width: 100%;
-    color: var(--walnut);
-    font-size: 0.52rem;
+    color: var(--accent);
+    font-size: 0.5rem;
     font-weight: 700;
     letter-spacing: 0.03em;
     line-height: 1;
@@ -3340,6 +3352,14 @@ td button {
     font-weight: 500;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .momentum-stat-cell .momentum-value-full {
+    display: none;
+  }
+
+  .momentum-stat-cell .momentum-value-compact {
+    display: inline;
   }
 
   .status-line {
@@ -3364,8 +3384,8 @@ td button {
   }
 
   .momentum-table tbody tr {
-    grid-template-columns: 26px minmax(82px, 0.72fr) minmax(78px, 0.68fr) minmax(88px, 0.76fr);
-    min-height: 68px;
+    grid-template-columns: 26px minmax(118px, 1fr) minmax(54px, 0.44fr) minmax(70px, 0.58fr);
+    min-height: 66px;
     padding: 7px;
   }
 

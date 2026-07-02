@@ -136,29 +136,51 @@ export function CytoscapeGraph({
     return [...counts.values()].sort((left, right) => right.count - left.count || left.industry.localeCompare(right.industry));
   }, [nodes]);
 
-  const applyLayout = useCallback(() => {
+  const nodePositionSignature = useMemo(
+    () =>
+      nodes
+        .map((node) => {
+          const position = positions.get(node.id);
+          return `${node.id}:${Math.round((position?.x ?? 0) * 10) / 10},${Math.round((position?.y ?? 0) * 10) / 10}`;
+        })
+        .sort()
+        .join("|"),
+    [nodes, positions]
+  );
+
+  const applyCanonicalPositions = useCallback(() => {
     const cy = cyRef.current;
     if (!cy) {
       return;
     }
-    cy.layout(layout).run();
+    cy.stop(true);
+    cy.batch(() => {
+      cy.nodes().forEach((node) => {
+        const position = positions.get(node.id());
+        if (!position) {
+          return;
+        }
+        node.unlock();
+        node.position(position);
+        node.lock();
+      });
+    });
+    cy.autoungrabify(true);
     cy.fit(undefined, Number(layout.padding));
-  }, [layout]);
+  }, [layout.padding, positions]);
 
   const resetLayout = useCallback(() => {
     window.setTimeout(() => {
-      const cy = cyRef.current;
-      if (!cy) {
-        return;
-      }
-      cy.layout(layout).run();
-      cy.fit(undefined, Number(layout.padding));
+      applyCanonicalPositions();
     }, 0);
-  }, [layout]);
+  }, [applyCanonicalPositions]);
 
   useEffect(() => {
-    applyLayout();
-  }, [applyLayout]);
+    const timeoutId = window.setTimeout(() => {
+      applyCanonicalPositions();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [applyCanonicalPositions, elements, nodePositionSignature]);
 
   useEffect(() => {
     const cy = cyRef.current;
@@ -371,6 +393,9 @@ export function CytoscapeGraph({
           });
           cy.nodes().lock();
           cy.autoungrabify(true);
+          window.setTimeout(() => {
+            applyCanonicalPositions();
+          }, 0);
         }}
       />
     </div>

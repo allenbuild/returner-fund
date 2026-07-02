@@ -196,6 +196,6 @@ The first production-shaped MVP must include:
 - Scoring engine with explanations and tests.
 - Graph API and graph visualization.
 - Node panel with evidence feed.
-- Leaderboard, fastest gaining, needs review tabs.
+- Leaderboard, hottest movers, needs review tabs.
 - Safety/auth status settings section.
 - README and `.env.example`.

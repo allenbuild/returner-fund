@@ -84,6 +84,22 @@ export function ensureBenchmarkMomentum(
   };
 }
 
+export function applyStoredBenchmarkMomentum(
+  graph: GraphResponse,
+  options: EnsureBenchmarkOptions = {}
+): GraphResponse {
+  const now = options.now ?? new Date();
+  const storePath = options.storePath ?? benchmarkStorePath(graph.batch.slug);
+  const store = readBenchmarkStore(storePath, graph.batch.slug);
+  const dailyBaseline = selectCalendarBaseline(store.daily, now, 1);
+  const weeklyBaseline = selectCalendarBaseline([...store.daily, ...store.weekly], now, 7);
+
+  return {
+    ...graph,
+    fastestGaining: buildBenchmarkMomentumRows(graph, dailyBaseline, weeklyBaseline)
+  };
+}
+
 function benchmarkStorePath(batchSlug: string): string {
   return path.join(process.cwd(), "outputs", "benchmarks", `${batchSlug.toLowerCase()}-score-benchmarks.json`);
 }

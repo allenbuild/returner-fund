@@ -1,3 +1,4 @@
+import { applyStoredBenchmarkMomentum } from "./benchmarks";
 import { buildGraphResponse } from "./graph-builder";
 import { sanitizeGraphResponse } from "./response-sanitizer";
 import type { GraphResponse } from "./types";
@@ -8,7 +9,9 @@ let cachedInitialPageGraph: GraphResponse | null = null;
 
 export function buildInitialPageGraph(): GraphResponse {
   cachedInitialPageGraph ??= trimInitialEvidence(
-    sanitizeGraphResponse(buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset))
+    applyStoredBenchmarkMomentum(
+      sanitizeGraphResponse(buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset))
+    )
   );
   return cachedInitialPageGraph;
 }

@@ -16,7 +16,7 @@ Default first screen:
 - Use a compact top bar for app identity, batch selector, snapshot selector, ingest, and refresh.
 - Use a single filter band for search, platform filters, edge filters, industry, business model, score range, and review state.
 - Keep the main grid split between graph canvas and node detail.
-- Keep leaderboard, fastest gaining, review queue, and system status in tabs below the graph.
+- Keep leaderboard, hottest movers, review queue, and system status in tabs below the graph.
 - Avoid nested cards. Use bordered panels for major work areas and simple rows for repeated content.
 
 ## Color Tokens
@@ -121,7 +121,7 @@ The node panel should show:
 ## Tables And Tabs
 
 - Leaderboard: rank, company, score, top platform, biggest contributing evidence.
-- Fastest gaining: rank, company, score delta, percent delta, rank delta, top platform.
+- Hottest: rank, company, score delta, percent delta, rank delta, benchmark comparison.
 - Review queue: entity, platform, candidate URL, review state, reason, evidence link.
 - System status: connector status, safe default, limitations, and last run.
 

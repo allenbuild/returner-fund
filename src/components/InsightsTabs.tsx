@@ -32,7 +32,7 @@ interface InsightsTabsProps {
 
 const tabs: { key: TabKey; label: string; icon: typeof Trophy }[] = [
   { key: "overview", label: "Overview", icon: Trophy },
-  { key: "gaining", label: "Fastest gaining", icon: TrendingUp },
+  { key: "gaining", label: "Hottest", icon: TrendingUp },
   { key: "settings", label: "Settings", icon: Settings }
 ];
 
@@ -197,7 +197,10 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                     </td>
                     <td className="momentum-stat-cell">
                       <span>Score</span>
-                      <strong>{formatScoreDelta(delta)}</strong>
+                      <strong>
+                        <span className="momentum-value-full">{formatScoreDelta(delta)}</span>
+                        <span className="momentum-value-compact">{formatScoreDeltaCompact(delta)}</span>
+                      </strong>
                     </td>
                     <td className="momentum-stat-cell">
                       <span>Rank</span>
@@ -206,12 +209,20 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                     <td className="momentum-stat-cell">
                       <span>Now</span>
                       <strong>
-                        {delta.currentScore} pts / #{delta.currentRank}
+                        <span className="momentum-value-full">
+                          {delta.currentScore} pts / #{delta.currentRank}
+                        </span>
+                        <span className="momentum-value-compact">
+                          {delta.currentScore} / #{delta.currentRank}
+                        </span>
                       </strong>
                     </td>
                     <td className="momentum-stat-cell">
-                      <span>Bench</span>
-                      <strong>{formatBenchmark(delta)}</strong>
+                      <span>Benchmark</span>
+                      <strong>
+                        <span className="momentum-value-full">{formatBenchmark(delta)}</span>
+                        <span className="momentum-value-compact">{formatBenchmarkCompact(delta)}</span>
+                      </strong>
                     </td>
                   </tr>
                 );
@@ -349,6 +360,10 @@ function formatScoreDelta(delta: MomentumDelta): string {
   return `${signed(delta.scoreDelta)} pts (${signed(delta.percentDelta)}%)`;
 }
 
+function formatScoreDeltaCompact(delta: MomentumDelta): string {
+  return `${signed(delta.scoreDelta)} (${signed(delta.percentDelta)}%)`;
+}
+
 function formatRankDelta(rankDelta: number): string {
   if (rankDelta === 0) {
     return "0";
@@ -358,9 +373,20 @@ function formatRankDelta(rankDelta: number): string {
 
 function formatBenchmark(delta: MomentumDelta): string {
   if (delta.baselineScore === null || delta.baselineRank === null || !delta.benchmarkedAt) {
-    return "No benchmark yet";
+    return "Awaiting prior snapshot";
   }
   return `${delta.baselineScore} pts / #${delta.baselineRank} on ${new Date(delta.benchmarkedAt).toLocaleDateString()}`;
+}
+
+function formatBenchmarkCompact(delta: MomentumDelta): string {
+  if (delta.baselineScore === null || delta.baselineRank === null || !delta.benchmarkedAt) {
+    return "Pending";
+  }
+  const benchmarkDate = new Date(delta.benchmarkedAt);
+  return `${delta.baselineScore} / #${delta.baselineRank} · ${benchmarkDate.toLocaleDateString(undefined, {
+    month: "numeric",
+    day: "numeric"
+  })}`;
 }
 
 function signed(value: number): string {

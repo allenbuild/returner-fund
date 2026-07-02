@@ -142,7 +142,9 @@ describe("dashboard filters", () => {
     expect(within(canvas).getByText("Low Score")).toBeInTheDocument();
     expect(within(canvas).getByText("High Score")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Minimum score"), { target: { value: "80" } });
+    const minimumScore = screen.getByLabelText("Minimum score");
+    fireEvent.change(minimumScore, { target: { value: "80" } });
+    fireEvent.pointerUp(minimumScore, { currentTarget: { value: "80" } });
 
     await waitFor(() => {
       expect(within(screen.getByTestId("graph-canvas")).queryByText("Low Score")).not.toBeInTheDocument();

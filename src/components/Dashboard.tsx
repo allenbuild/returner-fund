@@ -511,8 +511,9 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
             min={0}
             max={100}
             value={minScoreDraft}
-            onChange={(event) => commitMinScore(Number(event.target.value))}
+            onChange={(event) => setMinScoreDraft(clampScore(Number(event.target.value)))}
             onPointerUp={(event) => commitMinScore(Number(event.currentTarget.value))}
+            onBlur={(event) => commitMinScore(Number(event.currentTarget.value))}
             onKeyUp={(event) => {
               if (event.key.startsWith("Arrow") || event.key === "Home" || event.key === "End" || event.key === "Enter") {
                 commitMinScore(Number(event.currentTarget.value));
@@ -526,7 +527,7 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
               min={0}
               max={100}
               value={minScoreDraft}
-              onChange={(event) => commitMinScore(Number(event.target.value) || 0)}
+              onChange={(event) => setMinScoreDraft(clampScore(Number(event.target.value) || 0))}
               onBlur={(event) => commitMinScore(Number(event.currentTarget.value) || 0)}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
+import { applyStoredBenchmarkMomentum, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import type { GraphResponse } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
@@ -129,6 +129,30 @@ describe("score benchmarks", () => {
 
     expect(row?.dod.scoreDelta).toBe(0);
     expect(row?.dod.benchmarkedAt).toBeNull();
+  });
+
+  it("can apply stored momentum rows without recording a new benchmark during first paint", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const firstCompany = graph.leaderboard[0]!;
+
+    ensureBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-06-30T12:00:00.000Z")
+    });
+
+    const before = fs.readFileSync(storePath, "utf8");
+    const hydrated = applyStoredBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const after = fs.readFileSync(storePath, "utf8");
+    const row = hydrated.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(row?.dod.scoreDelta).toBe(5);
+    expect(row?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
+    expect(after).toBe(before);
   });
 });
 
