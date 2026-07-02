@@ -1972,15 +1972,21 @@ progress::-webkit-progress-value {
   height: 36px;
   min-height: 36px;
   padding: 0 12px;
-  border: 1px solid transparent;
+  border: 1px solid rgba(231, 227, 220, 0.9);
   border-radius: var(--control-radius);
-  background: transparent;
+  background: rgba(255, 254, 252, 0.9);
   color: var(--neutral-700);
   font-size: 0.8rem;
   font-weight: 600;
   line-height: 1;
   overflow: visible;
   white-space: nowrap;
+}
+
+.tab-list > button:hover {
+  border-color: rgba(255, 102, 0, 0.2);
+  background: #fff8f2;
+  color: var(--accent-strong);
 }
 
 .tab-list > button svg {

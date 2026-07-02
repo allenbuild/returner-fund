@@ -47,7 +47,11 @@ export function applyClientGraphFilters(graph: GraphResponse, filters: ClientGra
       .map((row, index) => ({
         ...row,
         rank: index + 1,
-        biggestContribution: topEvidenceByCompany.get(row.companyId) ?? null
+        biggestContribution:
+          topEvidenceByCompany.get(row.companyId) ??
+          (row.biggestContribution && evidenceMatchesSelectedPlatforms(row.biggestContribution, selectedPlatforms)
+            ? row.biggestContribution
+            : null)
       })),
     fastestGaining: graph.fastestGaining
       .filter((row) => visibleCompanyIds.has(row.companyId))
@@ -57,6 +61,10 @@ export function applyClientGraphFilters(graph: GraphResponse, filters: ClientGra
     ),
     generatedAt: new Date().toISOString()
   };
+}
+
+function evidenceMatchesSelectedPlatforms(item: EvidenceItem, selectedPlatforms: Set<Platform>): boolean {
+  return selectedPlatforms.size === 0 || selectedPlatforms.has(item.platform);
 }
 
 function buildTopEvidenceByCompany(
