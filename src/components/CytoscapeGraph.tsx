@@ -1,11 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Eye, EyeOff, Maximize2, Minimize2, Move, RotateCcw } from "lucide-react";
+import { Eye, EyeOff, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import type { ComponentType } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type cytoscape from "cytoscape";
-import { graphInteractionMode, relatedNodeDragPosition } from "@/lib/graph/interaction";
 import { buildClusterPositions, buildLabelPlacements, labelSizeForNode } from "@/lib/graph/layout";
 import type { BatchSummary, EdgeType, GraphEdge, GraphNode } from "@/lib/graph/types";
 
@@ -42,18 +41,10 @@ export function CytoscapeGraph({
   const cyRef = useRef<cytoscape.Core | null>(null);
   const [decluttered, setDecluttered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [moveNodes, setMoveNodes] = useState(false);
-  const [manualPositions, setManualPositions] = useState<Map<string, { x: number; y: number }>>(() => new Map());
 
   const positions = useMemo(() => {
-    const layoutPositions = buildClusterPositions(nodes);
-    for (const [id, position] of manualPositions.entries()) {
-      if (layoutPositions.has(id)) {
-        layoutPositions.set(id, position);
-      }
-    }
-    return layoutPositions;
-  }, [manualPositions, nodes]);
+    return buildClusterPositions(nodes);
+  }, [nodes]);
   const maxVisibleLabels = isFullscreen ? (decluttered ? 88 : 120) : decluttered ? 52 : 68;
   const labelPlacements = useMemo(
     () => buildLabelPlacements(nodes, positions, selectedNodeId, maxVisibleLabels),
@@ -155,7 +146,6 @@ export function CytoscapeGraph({
   }, [layout]);
 
   const resetLayout = useCallback(() => {
-    setManualPositions(new Map());
     window.setTimeout(() => {
       const cy = cyRef.current;
       if (!cy) {
@@ -173,14 +163,9 @@ export function CytoscapeGraph({
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
-    const mode = graphInteractionMode(moveNodes);
-    if (mode.lockNodes) {
-      cy.nodes().lock();
-    } else {
-      cy.nodes().unlock();
-    }
-    cy.autoungrabify(mode.autoungrabify);
-  }, [moveNodes, elements]);
+    cy.nodes().lock();
+    cy.autoungrabify(true);
+  }, [elements]);
 
   useEffect(() => {
     const cy = cyRef.current;
@@ -245,15 +230,6 @@ export function CytoscapeGraph({
             >
               {decluttered ? <Eye size={15} /> : <EyeOff size={15} />}
               {decluttered ? "Full graph" : "Declutter"}
-            </button>
-            <button
-              type="button"
-              className={moveNodes ? "active" : ""}
-              onClick={() => setMoveNodes((current) => !current)}
-              title={moveNodes ? "Lock nodes" : "Move nodes"}
-            >
-              <Move size={15} />
-              Move nodes
             </button>
             <button type="button" onClick={resetLayout} title="Reset layout">
               <RotateCcw size={15} />
@@ -390,45 +366,11 @@ export function CytoscapeGraph({
         cy={(cy: cytoscape.Core) => {
           cyRef.current = cy;
           cy.removeListener("tap", "node");
-          cy.removeListener("drag", "node");
-          cy.removeListener("dragfree", "node");
           cy.on("tap", "node", (event) => {
             onSelectNode(event.target.id());
           });
-          cy.on("drag", "node", (event) => {
-            if (!moveNodes) return;
-            const dragged = event.target;
-            const scratch = dragged.scratch("_lastPosition") as { x: number; y: number } | undefined;
-            const current = dragged.position();
-            if (!scratch) {
-              dragged.scratch("_lastPosition", { ...current });
-              return;
-            }
-            const dx = current.x - scratch.x;
-            const dy = current.y - scratch.y;
-            dragged.connectedEdges().connectedNodes().difference(dragged).forEach((neighbor: cytoscape.NodeSingular) => {
-              const position = neighbor.position();
-              neighbor.position(relatedNodeDragPosition(position, { dx, dy }));
-            });
-            dragged.scratch("_lastPosition", { ...current });
-          });
-          cy.on("dragfree", "node", (event) => {
-            event.target.removeScratch("_lastPosition");
-            setManualPositions((current) => {
-              const next = new Map(current);
-              cy.nodes().forEach((node) => {
-                next.set(node.id(), { ...node.position() });
-              });
-              return next;
-            });
-          });
-          const mode = graphInteractionMode(moveNodes);
-          if (mode.lockNodes) {
-            cy.nodes().lock();
-          } else {
-            cy.nodes().unlock();
-          }
-          cy.autoungrabify(mode.autoungrabify);
+          cy.nodes().lock();
+          cy.autoungrabify(true);
         }}
       />
     </div>

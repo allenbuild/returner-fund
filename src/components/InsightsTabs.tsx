@@ -195,12 +195,24 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                         {row.companyName}
                       </button>
                     </td>
-                    <td>{formatScoreDelta(delta)}</td>
-                    <td>{formatRankDelta(delta.rankDelta)}</td>
-                    <td>
-                      {delta.currentScore} pts / #{delta.currentRank}
+                    <td className="momentum-stat-cell">
+                      <span>Score</span>
+                      <strong>{formatScoreDelta(delta)}</strong>
                     </td>
-                    <td>{formatBenchmark(delta)}</td>
+                    <td className="momentum-stat-cell">
+                      <span>Rank</span>
+                      <strong>{formatRankDelta(delta.rankDelta)}</strong>
+                    </td>
+                    <td className="momentum-stat-cell">
+                      <span>Now</span>
+                      <strong>
+                        {delta.currentScore} pts / #{delta.currentRank}
+                      </strong>
+                    </td>
+                    <td className="momentum-stat-cell">
+                      <span>Bench</span>
+                      <strong>{formatBenchmark(delta)}</strong>
+                    </td>
                   </tr>
                 );
               })}
