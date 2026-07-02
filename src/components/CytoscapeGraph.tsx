@@ -32,8 +32,8 @@ const edgeColors: Record<EdgeType, string> = {
 };
 
 const GRAPH_INTRO_SESSION_KEY = "yc-network-map-intro-played-v1";
-const GRAPH_INTRO_NODE_BUCKETS = 22;
-const GRAPH_INTRO_NODE_STAGGER_MS = 820;
+const GRAPH_INTRO_NODE_BUCKETS = 16;
+const GRAPH_INTRO_NODE_STAGGER_MS = 650;
 
 function shouldPlayGraphIntro(): boolean {
   if (typeof window === "undefined") {
@@ -294,19 +294,29 @@ export function CytoscapeGraph({
 
     const finalZoom = cy.zoom();
     const finalPan = { ...cy.pan() };
-    const canvasCenter = {
-      x: cy.width() / 2,
-      y: cy.height() / 2
-    };
-    const startZoom = Math.min(finalZoom * 1.34, cy.maxZoom());
-    const zoomRatio = startZoom / finalZoom;
-    const startPan = {
-      x: canvasCenter.x - (canvasCenter.x - finalPan.x) * zoomRatio,
-      y: canvasCenter.y - (canvasCenter.y - finalPan.y) * zoomRatio
-    };
+    const introNodes = cy
+      .nodes()
+      .toArray()
+      .sort((left, right) => Number(right.data("score") ?? 0) - Number(left.data("score") ?? 0));
+    const selectedCandidate = selectedNodeId ? cy.$id(selectedNodeId) : cy.collection();
+    const firstNode = selectedCandidate.length ? selectedCandidate[0] : introNodes[0];
+    const secondNode = introNodes.find((node) => node.id() !== firstNode?.id());
+    const spotlightNodes = [firstNode, secondNode].filter(Boolean) as cytoscape.NodeSingular[];
+    const spotlightCollection = cy.collection();
+    spotlightNodes.forEach((node) => {
+      spotlightCollection.merge(node);
+    });
+    const startZoom = Math.min(Math.max(finalZoom * 4, 1.6), cy.maxZoom());
+    const secondZoom = Math.min(Math.max(finalZoom * 2.35, 1.1), cy.maxZoom());
+    const panForNode = (node: cytoscape.NodeSingular, zoom: number) => ({
+      x: cy.width() / 2 - node.position("x") * zoom,
+      y: cy.height() / 2 - node.position("y") * zoom
+    });
 
-    cy.zoom(startZoom);
-    cy.pan(startPan);
+    if (firstNode) {
+      cy.zoom(startZoom);
+      cy.pan(panForNode(firstNode, startZoom));
+    }
     cy.batch(() => {
       cy.nodes().forEach((node) => {
         node.style("opacity", 0);
@@ -315,14 +325,36 @@ export function CytoscapeGraph({
         edge.style("opacity", 0);
       });
     });
+    if (firstNode) {
+      firstNode.style("opacity", targetNodeOpacity(firstNode));
+    }
 
     const addTimer = (callback: () => void, delay: number) => {
       const timerId = window.setTimeout(callback, delay);
       introTimersRef.current.push(timerId);
     };
 
+    if (secondNode) {
+      addTimer(() => {
+        secondNode.animate(
+          { style: { opacity: targetNodeOpacity(secondNode) } },
+          { duration: 420, easing: "ease-in-out" }
+        );
+        cy.animate(
+          {
+            center: { eles: spotlightCollection },
+            zoom: secondZoom
+          },
+          { duration: 560, easing: "ease-in-out" }
+        );
+      }, 300);
+    }
+
     const nodeBuckets = Array.from({ length: GRAPH_INTRO_NODE_BUCKETS }, () => new Map<number, cytoscape.NodeSingular[]>());
     cy.nodes().forEach((node) => {
+      if (node.id() === firstNode?.id() || node.id() === secondNode?.id()) {
+        return;
+      }
       const delay = deterministicIntroDelay(node.id());
       const bucketIndex = Math.min(
         GRAPH_INTRO_NODE_BUCKETS - 1,
@@ -334,7 +366,7 @@ export function CytoscapeGraph({
     });
 
     nodeBuckets.forEach((bucket, bucketIndex) => {
-      const delay = 260 + bucketIndex * 42;
+      const delay = 760 + bucketIndex * 36;
       addTimer(() => {
         bucket.forEach((bucketNodes, opacity) => {
           const bucketCollection = cy.collection();
@@ -343,7 +375,7 @@ export function CytoscapeGraph({
           });
           bucketCollection.animate(
             { style: { opacity } },
-            { duration: 900, easing: "ease-in-out" }
+            { duration: 620, easing: "ease-in-out" }
           );
         });
       }, delay);
@@ -362,10 +394,10 @@ export function CytoscapeGraph({
         });
         edgeCollection.animate(
           { style: { opacity } },
-          { duration: 1200, easing: "ease-in-out" }
+          { duration: 720, easing: "ease-in-out" }
         );
       });
-    }, 1700);
+    }, 1250);
 
     addTimer(() => {
       cy.animate(
@@ -373,16 +405,16 @@ export function CytoscapeGraph({
           zoom: finalZoom,
           pan: finalPan
         },
-        { duration: 3800, easing: "ease-in-out" }
+        { duration: 2600, easing: "ease-in-out" }
       );
-    }, 320);
+    }, 640);
 
     addTimer(() => {
       cy.stop(false);
       cy.zoom(finalZoom);
       cy.pan(finalPan);
       cy.elements().removeStyle("opacity");
-    }, 4550);
+    }, 3400);
   }, [applyCanonicalPositions, cyReadyRevision, nodes.length]);
 
   useEffect(() => {
