@@ -26,7 +26,6 @@
   --neutral-700: #44403c;
   --neutral-900: #1c1917;
   --font-ui: "Poppins", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-company: "Fraunces", serif;
   --font-copy: var(--font-ui);
   --company: #2f80ed;
   --founder: #bb6bd9;
@@ -48,7 +47,6 @@
 
 body {
   --font-ui: var(--font-poppins), "Poppins", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-company: var(--font-fraunces), "Fraunces", serif;
   margin: 0;
   background: var(--background);
   color: var(--foreground);
@@ -1963,24 +1961,31 @@ progress::-webkit-progress-value {
   background: #ffffff;
 }
 
-.tab-list button {
-  flex: 0 0 120px;
+.tab-list > button {
+  box-sizing: border-box;
+  flex: 0 0 144px;
+  align-items: center;
   justify-content: center;
-  width: 120px;
-  height: 34px;
-  min-height: 34px;
-  padding: 0 10px;
+  width: 144px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 11px;
   border: 1px solid transparent;
   border-radius: var(--control-radius);
   background: transparent;
   color: var(--neutral-700);
   font-size: 0.8rem;
   font-weight: 600;
+  line-height: 1;
+  overflow: visible;
   white-space: nowrap;
 }
 
 .tab-list > button svg {
-  flex: 0 0 auto;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  overflow: visible;
 }
 
 .tab-list > button.active {
@@ -2111,7 +2116,7 @@ td {
 }
 
 .overview-table thead th {
-  padding: 0 12px 3px;
+  padding: 12px 12px 8px;
   border-bottom: 0;
 }
 
@@ -2124,6 +2129,8 @@ td {
 }
 
 .overview-table tbody td {
+  padding-top: 5px;
+  padding-bottom: 5px;
   border-top: 0;
   border-bottom: 1px solid rgba(231, 227, 220, 0.78);
   background: transparent;
@@ -2303,14 +2310,12 @@ td button {
 .insight-company-cell button,
 .overview-company-cell span {
   color: var(--walnut);
-  font-family: var(--font-company);
-  font-size: 1.42rem;
-  font-style: italic;
-  font-weight: 400;
-  font-optical-sizing: auto;
-  font-variation-settings: "SOFT" 0, "WONK" 1;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  font-family: var(--font-ui);
+  font-size: 1.08rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.15;
 }
 
 .overview-company-cell span {
@@ -2419,9 +2424,9 @@ td button {
 .overview-contribution-link,
 .overview-contribution-empty {
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr);
+  grid-template-columns: 86px minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   width: 100%;
   min-width: 0;
   color: inherit;
@@ -2448,8 +2453,8 @@ td button {
 .overview-post-thumbnail {
   position: relative;
   display: block;
-  width: 104px;
-  height: 66px;
+  width: 86px;
+  height: 54px;
   overflow: hidden;
   border: 1px solid rgba(231, 227, 220, 0.75);
   border-radius: 12px;
@@ -2489,13 +2494,15 @@ td button {
 
 .overview-post-summary {
   display: grid;
-  grid-template-rows: auto auto auto;
-  gap: 5px;
+  grid-template-rows: auto auto;
+  gap: 4px;
   min-width: 0;
 }
 
 .overview-post-title {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 7px;
   min-width: 0;
   overflow: hidden;
   color: #111827;
@@ -2506,11 +2513,32 @@ td button {
   white-space: nowrap;
 }
 
+.overview-post-title > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.overview-post-title-platform {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.overview-post-title-platform .platform-logo {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+}
+
 .overview-post-meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 6px 8px;
   min-width: 0;
   color: var(--accent);
   font-size: 0.82rem;
@@ -3008,14 +3036,22 @@ td button {
     scrollbar-width: auto;
   }
 
-  .tab-list button {
+  .tab-list > button {
     width: 100%;
     min-width: 0;
-    height: 32px;
-    min-height: 32px;
-    padding: 0 6px;
+    height: 34px;
+    min-height: 34px;
+    gap: 4px;
+    padding: 0 4px;
     border-radius: var(--control-radius);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
+    line-height: 1;
+  }
+
+  .tab-list > button svg {
+    flex-basis: 14px;
+    width: 14px;
+    height: 14px;
   }
 
   .tab-list-actions {

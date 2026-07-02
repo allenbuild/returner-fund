@@ -47,24 +47,18 @@ export function ensureBenchmarkMomentum(
   const storePath = options.storePath ?? benchmarkStorePath(graph.batch.slug);
   const store = readBenchmarkStore(storePath, graph.batch.slug);
   const currentSnapshot = snapshotFromGraph(graph, now);
-  const dailyBaseline = latestSnapshot(store.daily) ?? currentSnapshot;
-  const weeklyBaseline = latestSnapshot(store.weekly) ?? currentSnapshot;
+  const dailyBaseline = selectCalendarBaseline(store.daily, now, 1);
+  const weeklyBaseline = selectCalendarBaseline([...store.daily, ...store.weekly], now, 7);
   let recordedDaily = false;
   let recordedWeekly = false;
 
-  if (shouldRecordSnapshot(dailyBaseline, now, DAY_MS)) {
+  if (!latestSnapshotOnSameDay(store.daily, now)) {
     store.daily = [...store.daily, currentSnapshot].slice(-MAX_DAILY_SNAPSHOTS);
-    recordedDaily = true;
-  } else if (!store.daily.length) {
-    store.daily = [currentSnapshot];
     recordedDaily = true;
   }
 
-  if (shouldRecordSnapshot(weeklyBaseline, now, WEEK_MS)) {
+  if (shouldRecordWeeklySnapshot(store.weekly, now)) {
     store.weekly = [...store.weekly, currentSnapshot].slice(-MAX_WEEKLY_SNAPSHOTS);
-    recordedWeekly = true;
-  } else if (!store.weekly.length) {
-    store.weekly = [currentSnapshot];
     recordedWeekly = true;
   }
 
@@ -144,26 +138,39 @@ function latestSnapshot(snapshots: BenchmarkSnapshot[]): BenchmarkSnapshot | nul
   return snapshots[snapshots.length - 1] ?? null;
 }
 
-function shouldRecordSnapshot(snapshot: BenchmarkSnapshot, now: Date, intervalMs: number): boolean {
-  const recordedAt = new Date(snapshot.recordedAt).getTime();
-  return Number.isFinite(recordedAt) && now.getTime() - recordedAt >= intervalMs;
+function latestSnapshotOnSameDay(snapshots: BenchmarkSnapshot[], day: Date): BenchmarkSnapshot | null {
+  return latestSnapshot(snapshots.filter((snapshot) => isSameLocalDay(new Date(snapshot.recordedAt), day)));
+}
+
+function selectCalendarBaseline(snapshots: BenchmarkSnapshot[], now: Date, daysBack: number): BenchmarkSnapshot | null {
+  const targetDay = addLocalDays(startOfLocalDay(now), -daysBack);
+  return latestSnapshot(snapshots.filter((snapshot) => isSameLocalDay(new Date(snapshot.recordedAt), targetDay)));
+}
+
+function shouldRecordWeeklySnapshot(snapshots: BenchmarkSnapshot[], now: Date): boolean {
+  const latest = latestSnapshot(snapshots);
+  if (!latest) {
+    return true;
+  }
+  const recordedAt = new Date(latest.recordedAt).getTime();
+  return Number.isFinite(recordedAt) && now.getTime() - recordedAt >= WEEK_MS;
 }
 
 function buildBenchmarkMomentumRows(
   graph: GraphResponse,
-  dailyBaseline: BenchmarkSnapshot,
-  weeklyBaseline: BenchmarkSnapshot
+  dailyBaseline: BenchmarkSnapshot | null,
+  weeklyBaseline: BenchmarkSnapshot | null
 ): FastestGainingRow[] {
-  const dailyByCompany = snapshotIndex(dailyBaseline);
-  const weeklyByCompany = snapshotIndex(weeklyBaseline);
+  const dailyByCompany = dailyBaseline ? snapshotIndex(dailyBaseline) : new Map<string, BenchmarkCompanySnapshot>();
+  const weeklyByCompany = weeklyBaseline ? snapshotIndex(weeklyBaseline) : new Map<string, BenchmarkCompanySnapshot>();
 
   return graph.leaderboard
     .map((row) => ({
       rank: 0,
       companyId: row.companyId,
       companyName: row.companyName,
-      dod: deltaFor(row, dailyByCompany.get(row.companyId) ?? null, dailyBaseline.recordedAt),
-      wow: deltaFor(row, weeklyByCompany.get(row.companyId) ?? null, weeklyBaseline.recordedAt)
+      dod: deltaFor(row, dailyByCompany.get(row.companyId) ?? null, dailyBaseline?.recordedAt ?? null),
+      wow: deltaFor(row, weeklyByCompany.get(row.companyId) ?? null, weeklyBaseline?.recordedAt ?? null)
     }))
     .sort(momentumSort("dod"))
     .map((row, index) => ({ ...row, rank: index + 1 }));
@@ -243,4 +250,22 @@ function isBenchmarkSnapshot(value: unknown): value is BenchmarkSnapshot {
 
 function round(value: number): number {
   return Math.round(value * 10) / 10;
+}
+
+function startOfLocalDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addLocalDays(date: Date, days: number): Date {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function isSameLocalDay(left: Date, right: Date): boolean {
+  return (
+    left.getFullYear() === right.getFullYear() &&
+    left.getMonth() === right.getMonth() &&
+    left.getDate() === right.getDate()
+  );
 }

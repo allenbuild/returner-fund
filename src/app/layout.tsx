@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,20 +22,10 @@ const poppins = Poppins({
   display: "swap"
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: "variable",
-  style: "italic",
-  axes: ["SOFT", "WONK", "opsz"],
-  variable: "--font-fraunces",
-  display: "swap",
-  fallback: ["serif"]
-});
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} ${fraunces.variable}`}>{children}</body>
+      <body className={poppins.variable}>{children}</body>
     </html>
   );
 }

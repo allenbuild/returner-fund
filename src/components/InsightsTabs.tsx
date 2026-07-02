@@ -294,26 +294,27 @@ function ContributionSummary({
 }) {
   return (
     <span className="overview-post-summary">
-      <span className="overview-post-title">{contribution.title}</span>
-      <span className="overview-post-meta">
+      <span className="overview-post-title">
         {item && (
-          <span className={`overview-post-platform ranking-platform-${item.platform}`}>
+          <span className={`overview-post-title-platform ranking-platform-${item.platform}`} aria-label={formatPlatform(item.platform)}>
             <PlatformLogo platform={item.platform} />
-            <span>{formatPlatform(item.platform)}</span>
           </span>
         )}
-        {contribution.author && <span className="overview-post-author">{contribution.author}</span>}
+        <span>{contribution.title}</span>
       </span>
-      {contribution.metricPills.length > 0 && (
-        <span className="overview-metric-pills" aria-hidden="true">
-          {contribution.metricPills.map((metric) => (
-            <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}>
-              <MetricIcon metric={metric.key} />
-              <span>{metric.value}</span>
-            </span>
-          ))}
-        </span>
-      )}
+      <span className="overview-post-meta">
+        {contribution.author && <span className="overview-post-author">{contribution.author}</span>}
+        {contribution.metricPills.length > 0 && (
+          <span className="overview-metric-pills" aria-hidden="true">
+            {contribution.metricPills.map((metric) => (
+              <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}>
+                <MetricIcon metric={metric.key} />
+                <span>{metric.value}</span>
+              </span>
+            ))}
+          </span>
+        )}
+      </span>
       {contribution.metrics && <span className="sr-only">{contribution.metrics}</span>}
     </span>
   );

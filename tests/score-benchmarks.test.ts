@@ -41,7 +41,94 @@ describe("score benchmarks", () => {
     expect(store.daily).toHaveLength(2);
     expect(store.weekly).toHaveLength(1);
     expect(updatedRow?.dod.scoreDelta).toBe(5);
-    expect(updatedRow?.wow.scoreDelta).toBe(5);
+    expect(updatedRow?.dod.benchmarkedAt).toBe("2026-06-28T12:00:00.000Z");
+    expect(updatedRow?.wow.scoreDelta).toBe(0);
+    expect(updatedRow?.wow.benchmarkedAt).toBeNull();
+  });
+
+  it("keeps day-over-day comparisons pinned to the previous calendar day after today's snapshot exists", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const firstCompany = graph.leaderboard[0]!;
+
+    ensureBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-06-30T12:00:00.000Z")
+    });
+
+    const firstJulyRun = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const secondJulyRun = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 8), {
+      storePath,
+      now: new Date("2026-07-01T18:00:00.000Z")
+    });
+    const store = JSON.parse(fs.readFileSync(storePath, "utf8")) as {
+      daily: { recordedAt: string }[];
+    };
+    const firstJulyRow = firstJulyRun.graph.fastestGaining.find((row) => row.companyId === firstCompany.companyId);
+    const secondJulyRow = secondJulyRun.graph.fastestGaining.find((row) => row.companyId === firstCompany.companyId);
+
+    expect(firstJulyRun.recordedDaily).toBe(true);
+    expect(secondJulyRun.recordedDaily).toBe(false);
+    expect(store.daily.map((snapshot) => snapshot.recordedAt)).toEqual([
+      "2026-06-30T12:00:00.000Z",
+      "2026-07-01T12:00:00.000Z"
+    ]);
+    expect(firstJulyRow?.dod.scoreDelta).toBe(5);
+    expect(firstJulyRow?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
+    expect(secondJulyRow?.dod.scoreDelta).toBe(8);
+    expect(secondJulyRow?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
+  });
+
+  it("uses the exact seven-days-prior calendar snapshot for week-over-week comparisons", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const firstCompany = graph.leaderboard[0]!;
+
+    ensureBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-06-24T12:00:00.000Z")
+    });
+    ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 4), {
+      storePath,
+      now: new Date("2026-06-30T12:00:00.000Z")
+    });
+
+    const julyFirst = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10), {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const row = julyFirst.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(row?.dod.scoreDelta).toBe(6);
+    expect(row?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
+    expect(row?.wow.scoreDelta).toBe(10);
+    expect(row?.wow.benchmarkedAt).toBe("2026-06-24T12:00:00.000Z");
+  });
+
+  it("does not fake day-over-day momentum when the previous calendar day is missing", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const firstCompany = graph.leaderboard[0]!;
+
+    ensureBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-06-29T12:00:00.000Z")
+    });
+
+    const julyFirst = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const row = julyFirst.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(row?.dod.scoreDelta).toBe(0);
+    expect(row?.dod.benchmarkedAt).toBeNull();
   });
 });
 
