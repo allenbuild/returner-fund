@@ -31,6 +31,68 @@ const edgeColors: Record<EdgeType, string> = {
   same_group_partner: "#146b58"
 };
 
+const GRAPH_INTRO_SESSION_KEY = "yc-network-map-intro-played-v1";
+const GRAPH_INTRO_NODE_BUCKETS = 22;
+const GRAPH_INTRO_NODE_STAGGER_MS = 440;
+
+type GraphIntroPhase = "idle" | "pending" | "visible" | "exiting" | "done";
+
+function shouldPlayGraphIntro(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    return false;
+  }
+
+  const navigation = performance.getEntriesByType?.("navigation")?.[0] as PerformanceNavigationTiming | undefined;
+  const isHardRefresh = navigation?.type === "reload";
+  const alreadyPlayed = window.sessionStorage.getItem(GRAPH_INTRO_SESSION_KEY);
+
+  return !alreadyPlayed || isHardRefresh;
+}
+
+function rememberGraphIntroPlayed() {
+  try {
+    window.sessionStorage.setItem(GRAPH_INTRO_SESSION_KEY, "1");
+  } catch {
+    // Session storage can be unavailable in strict privacy modes. The intro still plays once for this render.
+  }
+}
+
+function deterministicIntroDelay(id: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < id.length; index += 1) {
+    hash ^= id.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  const normalized = (hash >>> 0) / 4294967295;
+  return 80 + normalized * GRAPH_INTRO_NODE_STAGGER_MS;
+}
+
+function targetNodeOpacity(node: cytoscape.NodeSingular): number {
+  if (node.hasClass("selected")) {
+    return 1;
+  }
+  if (node.hasClass("review-rejected")) {
+    return 0.72;
+  }
+  if (node.hasClass("decluttered")) {
+    return 0.82;
+  }
+  return 1;
+}
+
+function targetEdgeOpacity(edge: cytoscape.EdgeSingular): number {
+  if (edge.hasClass("industry_similarity")) {
+    return 0.25;
+  }
+  if (edge.hasClass("same_group_partner")) {
+    return 0.4;
+  }
+  return 0.38;
+}
+
 export function CytoscapeGraph({
   nodes,
   edges,
@@ -39,8 +101,13 @@ export function CytoscapeGraph({
   onSelectNode
 }: CytoscapeGraphProps) {
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const cyReadyNotifiedRef = useRef(false);
+  const introStartedRef = useRef(false);
+  const introTimersRef = useRef<number[]>([]);
   const [decluttered, setDecluttered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [cyReadyRevision, setCyReadyRevision] = useState(0);
+  const [introPhase, setIntroPhase] = useState<GraphIntroPhase>("idle");
 
   const positions = useMemo(() => {
     return buildClusterPositions(nodes);
@@ -206,6 +273,139 @@ export function CytoscapeGraph({
   }, [focusRevision, selectedNodeId]);
 
   useEffect(() => {
+    return () => {
+      introTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+      introTimersRef.current = [];
+      document.body.classList.remove("graph-intro-active");
+      document.documentElement.classList.remove("graph-intro-preload");
+    };
+  }, []);
+
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy || introStartedRef.current || nodes.length === 0) {
+      return;
+    }
+
+    if (!shouldPlayGraphIntro()) {
+      document.documentElement.classList.remove("graph-intro-preload");
+      setIntroPhase("done");
+      return;
+    }
+
+    introStartedRef.current = true;
+    rememberGraphIntroPlayed();
+    document.body.classList.add("graph-intro-active");
+    setIntroPhase("pending");
+
+    cy.stop(true);
+    applyCanonicalPositions();
+
+    const finalZoom = cy.zoom();
+    const finalPan = { ...cy.pan() };
+    const canvasCenter = {
+      x: cy.width() / 2,
+      y: cy.height() / 2
+    };
+    const startZoom = Math.min(finalZoom * 1.34, cy.maxZoom());
+    const zoomRatio = startZoom / finalZoom;
+    const startPan = {
+      x: canvasCenter.x - (canvasCenter.x - finalPan.x) * zoomRatio,
+      y: canvasCenter.y - (canvasCenter.y - finalPan.y) * zoomRatio
+    };
+
+    cy.zoom(startZoom);
+    cy.pan(startPan);
+    cy.batch(() => {
+      cy.nodes().forEach((node) => {
+        node.style("opacity", 0);
+      });
+      cy.edges().forEach((edge) => {
+        edge.style("opacity", 0);
+      });
+    });
+
+    const addTimer = (callback: () => void, delay: number) => {
+      const timerId = window.setTimeout(callback, delay);
+      introTimersRef.current.push(timerId);
+    };
+
+    addTimer(() => {
+      setIntroPhase("visible");
+      document.documentElement.classList.remove("graph-intro-preload");
+    }, 300);
+
+    const nodeBuckets = Array.from({ length: GRAPH_INTRO_NODE_BUCKETS }, () => new Map<number, cytoscape.NodeSingular[]>());
+    cy.nodes().forEach((node) => {
+      const delay = deterministicIntroDelay(node.id());
+      const bucketIndex = Math.min(
+        GRAPH_INTRO_NODE_BUCKETS - 1,
+        Math.floor((delay / (GRAPH_INTRO_NODE_STAGGER_MS + 80)) * GRAPH_INTRO_NODE_BUCKETS)
+      );
+      const targetOpacity = targetNodeOpacity(node);
+      const bucket = nodeBuckets[bucketIndex];
+      bucket.set(targetOpacity, [...(bucket.get(targetOpacity) ?? []), node]);
+    });
+
+    nodeBuckets.forEach((bucket, bucketIndex) => {
+      const delay = 720 + bucketIndex * 18;
+      addTimer(() => {
+        bucket.forEach((bucketNodes, opacity) => {
+          const bucketCollection = cy.collection();
+          bucketNodes.forEach((node) => {
+            bucketCollection.merge(node);
+          });
+          bucketCollection.animate(
+            { style: { opacity } },
+            { duration: 560, easing: "ease-in-out" }
+          );
+        });
+      }, delay);
+    });
+
+    addTimer(() => {
+      const edgeGroups = new Map<number, cytoscape.EdgeSingular[]>();
+      cy.edges().forEach((edge) => {
+        const targetOpacity = targetEdgeOpacity(edge);
+        edgeGroups.set(targetOpacity, [...(edgeGroups.get(targetOpacity) ?? []), edge]);
+      });
+      edgeGroups.forEach((edgeGroup, opacity) => {
+        const edgeCollection = cy.collection();
+        edgeGroup.forEach((edge) => {
+          edgeCollection.merge(edge);
+        });
+        edgeCollection.animate(
+          { style: { opacity } },
+          { duration: 760, easing: "ease-in-out" }
+        );
+      });
+    }, 1250);
+
+    addTimer(() => {
+      cy.animate(
+        {
+          zoom: finalZoom,
+          pan: finalPan
+        },
+        { duration: 2850, easing: "ease-in-out" }
+      );
+    }, 1850);
+
+    addTimer(() => {
+      cy.stop(false);
+      cy.zoom(finalZoom);
+      cy.pan(finalPan);
+      cy.elements().removeStyle("opacity");
+      document.body.classList.remove("graph-intro-active");
+      setIntroPhase("exiting");
+    }, 4800);
+
+    addTimer(() => {
+      setIntroPhase("done");
+    }, 5480);
+  }, [applyCanonicalPositions, cyReadyRevision, nodes.length]);
+
+  useEffect(() => {
     document.body.classList.toggle("graph-fullscreen-open", isFullscreen);
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -229,8 +429,25 @@ export function CytoscapeGraph({
     return () => window.clearTimeout(timeoutId);
   }, [isFullscreen, layout.padding]);
 
+  const introActive = introPhase !== "idle" && introPhase !== "done";
+  const graphShellClassName = [
+    "graph-shell",
+    isFullscreen ? "graph-shell-fullscreen" : "",
+    introActive ? "graph-shell-intro" : "",
+    introPhase === "visible" || introPhase === "exiting" ? "graph-shell-intro-visible" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className={`graph-shell${isFullscreen ? " graph-shell-fullscreen" : ""}`}>
+    <>
+    {introActive ? (
+      <div
+        className={`graph-intro-backdrop${introPhase === "exiting" ? " graph-intro-backdrop-exiting" : ""}`}
+        aria-hidden="true"
+      />
+    ) : null}
+    <div className={graphShellClassName}>
       <div className="graph-toolbar">
         <div className="graph-toolbar-main">
           <div className="legend">
@@ -387,6 +604,10 @@ export function CytoscapeGraph({
         ]}
         cy={(cy: cytoscape.Core) => {
           cyRef.current = cy;
+          if (!cyReadyNotifiedRef.current) {
+            cyReadyNotifiedRef.current = true;
+            setCyReadyRevision((current) => current + 1);
+          }
           cy.removeListener("tap", "node");
           cy.on("tap", "node", (event) => {
             onSelectNode(event.target.id());
@@ -399,6 +620,7 @@ export function CytoscapeGraph({
         }}
       />
     </div>
+    </>
   );
 }
 
