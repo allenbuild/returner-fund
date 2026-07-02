@@ -33,9 +33,7 @@ const edgeColors: Record<EdgeType, string> = {
 
 const GRAPH_INTRO_SESSION_KEY = "yc-network-map-intro-played-v1";
 const GRAPH_INTRO_NODE_BUCKETS = 22;
-const GRAPH_INTRO_NODE_STAGGER_MS = 440;
-
-type GraphIntroPhase = "idle" | "pending" | "visible" | "exiting" | "done";
+const GRAPH_INTRO_NODE_STAGGER_MS = 820;
 
 function shouldPlayGraphIntro(): boolean {
   if (typeof window === "undefined") {
@@ -107,7 +105,6 @@ export function CytoscapeGraph({
   const [decluttered, setDecluttered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cyReadyRevision, setCyReadyRevision] = useState(0);
-  const [introPhase, setIntroPhase] = useState<GraphIntroPhase>("idle");
 
   const positions = useMemo(() => {
     return buildClusterPositions(nodes);
@@ -276,8 +273,6 @@ export function CytoscapeGraph({
     return () => {
       introTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
       introTimersRef.current = [];
-      document.body.classList.remove("graph-intro-active");
-      document.documentElement.classList.remove("graph-intro-preload");
     };
   }, []);
 
@@ -288,15 +283,11 @@ export function CytoscapeGraph({
     }
 
     if (!shouldPlayGraphIntro()) {
-      document.documentElement.classList.remove("graph-intro-preload");
-      setIntroPhase("done");
       return;
     }
 
     introStartedRef.current = true;
     rememberGraphIntroPlayed();
-    document.body.classList.add("graph-intro-active");
-    setIntroPhase("pending");
 
     cy.stop(true);
     applyCanonicalPositions();
@@ -330,11 +321,6 @@ export function CytoscapeGraph({
       introTimersRef.current.push(timerId);
     };
 
-    addTimer(() => {
-      setIntroPhase("visible");
-      document.documentElement.classList.remove("graph-intro-preload");
-    }, 300);
-
     const nodeBuckets = Array.from({ length: GRAPH_INTRO_NODE_BUCKETS }, () => new Map<number, cytoscape.NodeSingular[]>());
     cy.nodes().forEach((node) => {
       const delay = deterministicIntroDelay(node.id());
@@ -348,7 +334,7 @@ export function CytoscapeGraph({
     });
 
     nodeBuckets.forEach((bucket, bucketIndex) => {
-      const delay = 720 + bucketIndex * 18;
+      const delay = 260 + bucketIndex * 42;
       addTimer(() => {
         bucket.forEach((bucketNodes, opacity) => {
           const bucketCollection = cy.collection();
@@ -357,7 +343,7 @@ export function CytoscapeGraph({
           });
           bucketCollection.animate(
             { style: { opacity } },
-            { duration: 560, easing: "ease-in-out" }
+            { duration: 900, easing: "ease-in-out" }
           );
         });
       }, delay);
@@ -376,10 +362,10 @@ export function CytoscapeGraph({
         });
         edgeCollection.animate(
           { style: { opacity } },
-          { duration: 760, easing: "ease-in-out" }
+          { duration: 1200, easing: "ease-in-out" }
         );
       });
-    }, 1250);
+    }, 1700);
 
     addTimer(() => {
       cy.animate(
@@ -387,22 +373,16 @@ export function CytoscapeGraph({
           zoom: finalZoom,
           pan: finalPan
         },
-        { duration: 2850, easing: "ease-in-out" }
+        { duration: 3800, easing: "ease-in-out" }
       );
-    }, 1850);
+    }, 320);
 
     addTimer(() => {
       cy.stop(false);
       cy.zoom(finalZoom);
       cy.pan(finalPan);
       cy.elements().removeStyle("opacity");
-      document.body.classList.remove("graph-intro-active");
-      setIntroPhase("exiting");
-    }, 4800);
-
-    addTimer(() => {
-      setIntroPhase("done");
-    }, 5480);
+    }, 4550);
   }, [applyCanonicalPositions, cyReadyRevision, nodes.length]);
 
   useEffect(() => {
@@ -429,24 +409,14 @@ export function CytoscapeGraph({
     return () => window.clearTimeout(timeoutId);
   }, [isFullscreen, layout.padding]);
 
-  const introActive = introPhase !== "idle" && introPhase !== "done";
   const graphShellClassName = [
     "graph-shell",
-    isFullscreen ? "graph-shell-fullscreen" : "",
-    introActive ? "graph-shell-intro" : "",
-    introPhase === "visible" || introPhase === "exiting" ? "graph-shell-intro-visible" : ""
+    isFullscreen ? "graph-shell-fullscreen" : ""
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
-    <>
-    {introActive ? (
-      <div
-        className={`graph-intro-backdrop${introPhase === "exiting" ? " graph-intro-backdrop-exiting" : ""}`}
-        aria-hidden="true"
-      />
-    ) : null}
     <div className={graphShellClassName}>
       <div className="graph-toolbar">
         <div className="graph-toolbar-main">
@@ -620,7 +590,6 @@ export function CytoscapeGraph({
         }}
       />
     </div>
-    </>
   );
 }
 

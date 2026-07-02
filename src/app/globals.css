@@ -63,19 +63,6 @@ body.graph-fullscreen-open {
   height: 100%;
 }
 
-html.graph-intro-preload body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 8000;
-  background: #000000;
-  pointer-events: auto;
-}
-
-body.graph-intro-active {
-  overflow: hidden;
-}
-
 button,
 select,
 input {
@@ -872,38 +859,6 @@ button:disabled {
   box-shadow: 0 22px 56px rgba(16, 24, 40, 0.07);
 }
 
-.graph-intro-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 8000;
-  background: #000000;
-  opacity: 1;
-  pointer-events: auto;
-  transition: opacity 640ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.graph-intro-backdrop-exiting {
-  opacity: 0;
-}
-
-.graph-shell-intro {
-  position: relative;
-  z-index: 8001;
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.995);
-  transform-origin: center center;
-  will-change: opacity, transform;
-  transition:
-    opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.graph-shell-intro-visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
 .graph-toolbar {
   display: flex;
   width: 100%;
@@ -1067,24 +1022,6 @@ button:disabled {
 .graph-shell-fullscreen .cytoscape-canvas {
   height: 100%;
   min-height: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html.graph-intro-preload body::before,
-  .graph-intro-backdrop {
-    display: none;
-  }
-
-  body.graph-intro-active {
-    overflow: auto;
-  }
-
-  .graph-shell-intro {
-    opacity: 1;
-    pointer-events: auto;
-    transform: none;
-    transition: none;
-  }
 }
 
 .graph-loading,
