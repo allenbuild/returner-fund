@@ -95,6 +95,7 @@ export function CytoscapeGraph({
   const introTimersRef = useRef<number[]>([]);
   const lastFitSignatureRef = useRef<string | null>(null);
   const suppressSelectedZoomUntilRef = useRef(0);
+  const selectedNodeIdRef = useRef(selectedNodeId);
   const [decluttered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cyReadyRevision, setCyReadyRevision] = useState(0);
@@ -266,15 +267,20 @@ export function CytoscapeGraph({
   }, [elements]);
 
   useEffect(() => {
+    selectedNodeIdRef.current = selectedNodeId;
+  }, [selectedNodeId]);
+
+  useEffect(() => {
     const cy = cyRef.current;
-    if (!cy || !selectedNodeId) return;
+    const nodeId = selectedNodeIdRef.current;
+    if (!cy || !nodeId || focusRevision <= 0) return;
     if (introStartedRef.current && !introHasSettledRef.current) {
       return;
     }
     if (introAnimatingRef.current || performance.now() < suppressSelectedZoomUntilRef.current) {
       return;
     }
-    const selected = cy.$id(selectedNodeId);
+    const selected = cy.$id(nodeId);
     if (!selected.length) return;
     cy.nodes().unselect();
     selected.select();
@@ -285,7 +291,7 @@ export function CytoscapeGraph({
       },
       { duration: 240 }
     );
-  }, [focusRevision, selectedNodeId]);
+  }, [focusRevision]);
 
   useEffect(() => {
     return () => {
@@ -588,15 +594,18 @@ export function CytoscapeGraph({
       animateEdgeCollection(unrevealedEdges, 540);
     }, 2860);
 
+    const cameraPullbackDelay = secondNode ? 1120 : 560;
+    const cameraPullbackDuration = 2700;
+
     addTimer(() => {
       cy.animate(
         {
           zoom: finalZoom,
           pan: finalPan
         },
-        { duration: 2650, easing: "ease-in-out" }
+        { duration: cameraPullbackDuration, easing: "ease-in-out" }
       );
-    }, 500);
+    }, cameraPullbackDelay);
 
     const settleCamera = () => {
       cy.stop(true);
@@ -618,7 +627,7 @@ export function CytoscapeGraph({
       });
     };
 
-    addTimer(settleCamera, 4300);
+    addTimer(settleCamera, cameraPullbackDelay + cameraPullbackDuration + 280);
   }, [applyCanonicalPositions, cyReadyRevision, graphFitSignature, nodes.length]);
 
   useEffect(() => {
