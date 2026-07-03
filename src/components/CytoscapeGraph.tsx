@@ -90,8 +90,10 @@ export function CytoscapeGraph({
   const cyRef = useRef<cytoscape.Core | null>(null);
   const cyReadyNotifiedRef = useRef(false);
   const introStartedRef = useRef(false);
+  const introAnimatingRef = useRef(false);
   const introTimersRef = useRef<number[]>([]);
   const lastFitSignatureRef = useRef<string | null>(null);
+  const suppressSelectedZoomUntilRef = useRef(0);
   const [decluttered, setDecluttered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cyReadyRevision, setCyReadyRevision] = useState(0);
@@ -247,7 +249,7 @@ export function CytoscapeGraph({
   useLayoutEffect(() => {
     const shouldFit = lastFitSignatureRef.current !== graphFitSignature;
     const timeoutId = window.setTimeout(() => {
-      applyCanonicalPositions({ fit: shouldFit });
+      applyCanonicalPositions({ fit: shouldFit && !introAnimatingRef.current });
       if (shouldFit) {
         lastFitSignatureRef.current = graphFitSignature;
       }
@@ -265,6 +267,9 @@ export function CytoscapeGraph({
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy || !selectedNodeId) return;
+    if (introAnimatingRef.current || performance.now() < suppressSelectedZoomUntilRef.current) {
+      return;
+    }
     const selected = cy.$id(selectedNodeId);
     if (!selected.length) return;
     cy.nodes().unselect();
@@ -296,10 +301,16 @@ export function CytoscapeGraph({
     }
 
     introStartedRef.current = true;
+    introAnimatingRef.current = true;
+    suppressSelectedZoomUntilRef.current = performance.now() + 4600;
     rememberGraphIntroPlayed();
 
     cy.stop(true);
+    cy.resize();
+    cy.maxZoom(Math.max(cy.maxZoom(), 8));
+    cy.minZoom(Math.min(cy.minZoom(), 0.02));
     applyCanonicalPositions({ fit: true });
+    lastFitSignatureRef.current = graphFitSignature;
 
     const finalZoom = cy.zoom();
     const finalPan = { ...cy.pan() };
@@ -374,8 +385,13 @@ export function CytoscapeGraph({
       ? Math.hypot(secondNode.position("x") - firstNode.position("x"), secondNode.position("y") - firstNode.position("y"))
       : 0;
     const pairZoom = pairDistance > 0 ? Math.min(cy.width() * 0.28, cy.height() * 0.32) / pairDistance : finalZoom * 3.2;
-    const startZoom = Math.min(Math.max(pairZoom * 1.15, finalZoom * 2.8, 1.55), cy.maxZoom());
-    const secondZoom = Math.min(Math.max(pairZoom * 0.96, finalZoom * 2.05, 1.08), startZoom, cy.maxZoom());
+    const desiredStartZoom = Math.max(pairZoom * 1.2, finalZoom * 3.35, 1.65);
+    if (cy.maxZoom() < desiredStartZoom * 1.08) {
+      cy.maxZoom(desiredStartZoom * 1.12);
+    }
+    const startZoom = Math.min(desiredStartZoom, cy.maxZoom());
+    const desiredSecondZoom = Math.max(pairZoom * 1.02, finalZoom * 2.25, 1.18);
+    const secondZoom = Math.min(desiredSecondZoom, startZoom * 0.92, cy.maxZoom());
     const panForNode = (node: cytoscape.NodeSingular, zoom: number) => ({
       x: cy.width() / 2 - node.position("x") * zoom,
       y: cy.height() / 2 - node.position("y") * zoom
@@ -578,12 +594,15 @@ export function CytoscapeGraph({
     }, 500);
 
     addTimer(() => {
-      cy.stop(false);
+      cy.stop(true);
       cy.zoom(finalZoom);
       cy.pan(finalPan);
       cy.elements().removeStyle("opacity transition-duration width height");
+      introAnimatingRef.current = false;
+      suppressSelectedZoomUntilRef.current = performance.now() + 600;
+      lastFitSignatureRef.current = graphFitSignature;
     }, 3820);
-  }, [applyCanonicalPositions, cyReadyRevision, nodes.length]);
+  }, [applyCanonicalPositions, cyReadyRevision, graphFitSignature, nodes.length]);
 
   useEffect(() => {
     document.body.classList.toggle("graph-fullscreen-open", isFullscreen);
@@ -603,6 +622,9 @@ export function CytoscapeGraph({
     const timeoutId = window.setTimeout(() => {
       const cy = cyRef.current;
       if (!cy) return;
+      if (introAnimatingRef.current || performance.now() < suppressSelectedZoomUntilRef.current) {
+        return;
+      }
       cy.resize();
       cy.fit(undefined, Number(layout.padding));
     }, 80);
@@ -775,6 +797,8 @@ export function CytoscapeGraph({
         cy={(cy: cytoscape.Core) => {
           const isInitialCyReady = !cyReadyNotifiedRef.current;
           cyRef.current = cy;
+          cy.maxZoom(Math.max(cy.maxZoom(), 8));
+          cy.minZoom(Math.min(cy.minZoom(), 0.02));
           const willPlayIntro = !introStartedRef.current && shouldPlayGraphIntro();
           if (willPlayIntro) {
             cy.batch(() => {
