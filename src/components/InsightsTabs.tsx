@@ -375,7 +375,7 @@ function formatRankDelta(rankDelta: number): string {
   if (rankDelta === 0) {
     return "0";
   }
-  return `${rankDelta > 0 ? "+" : ""}${rankDelta} ranks`;
+  return `${rankDelta > 0 ? "+" : ""}${rankDelta}`;
 }
 
 function formatBenchmark(delta: MomentumDelta): string {
