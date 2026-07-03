@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { Eye, EyeOff, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import type { ComponentType } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type cytoscape from "cytoscape";
 import { buildClusterPositions, buildLabelPlacements, labelSizeForNode } from "@/lib/graph/layout";
 import type { BatchSummary, EdgeType, GraphEdge, GraphNode } from "@/lib/graph/types";
@@ -32,8 +32,7 @@ const edgeColors: Record<EdgeType, string> = {
 };
 
 const GRAPH_INTRO_SESSION_KEY = "yc-network-map-intro-played-v1";
-const GRAPH_INTRO_NODE_BUCKETS = 16;
-const GRAPH_INTRO_NODE_STAGGER_MS = 650;
+const GRAPH_INTRO_REVEAL_WINDOW_MS = 1450;
 
 function shouldPlayGraphIntro(): boolean {
   if (typeof window === "undefined") {
@@ -56,16 +55,6 @@ function rememberGraphIntroPlayed() {
   } catch {
     // Session storage can be unavailable in strict privacy modes. The intro still plays once for this render.
   }
-}
-
-function deterministicIntroDelay(id: string): number {
-  let hash = 2166136261;
-  for (let index = 0; index < id.length; index += 1) {
-    hash ^= id.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  const normalized = (hash >>> 0) / 4294967295;
-  return 80 + normalized * GRAPH_INTRO_NODE_STAGGER_MS;
 }
 
 function targetNodeOpacity(node: cytoscape.NodeSingular): number {
@@ -239,7 +228,7 @@ export function CytoscapeGraph({
     }, 0);
   }, [applyCanonicalPositions]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const timeoutId = window.setTimeout(() => {
       applyCanonicalPositions();
     }, 0);
@@ -276,7 +265,7 @@ export function CytoscapeGraph({
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const cy = cyRef.current;
     if (!cy || introStartedRef.current || nodes.length === 0) {
       return;
@@ -298,16 +287,74 @@ export function CytoscapeGraph({
       .nodes()
       .toArray()
       .sort((left, right) => Number(right.data("score") ?? 0) - Number(left.data("score") ?? 0));
-    const selectedCandidate = selectedNodeId ? cy.$id(selectedNodeId) : cy.collection();
-    const firstNode = selectedCandidate.length ? selectedCandidate[0] : introNodes[0];
-    const secondNode = introNodes.find((node) => node.id() !== firstNode?.id());
-    const spotlightNodes = [firstNode, secondNode].filter(Boolean) as cytoscape.NodeSingular[];
-    const spotlightCollection = cy.collection();
-    spotlightNodes.forEach((node) => {
-      spotlightCollection.merge(node);
+    const scoredNodeRank = new Map<string, number>();
+    introNodes.forEach((node, index) => {
+      scoredNodeRank.set(node.id(), index);
     });
-    const startZoom = Math.min(Math.max(finalZoom * 4, 1.6), cy.maxZoom());
-    const secondZoom = Math.min(Math.max(finalZoom * 2.35, 1.1), cy.maxZoom());
+    const priorityNodeIds = new Set(introNodes.slice(0, Math.min(18, introNodes.length)).map((node) => node.id()));
+    const edgeCandidates = cy
+      .edges()
+      .toArray()
+      .map((edge) => {
+        const source = edge.source();
+        const target = edge.target();
+        const dx = target.position("x") - source.position("x");
+        const dy = target.position("y") - source.position("y");
+        const sourceScore = Number(source.data("score") ?? 0);
+        const targetScore = Number(target.data("score") ?? 0);
+        return {
+          edge,
+          source,
+          target,
+          distance: Math.hypot(dx, dy),
+          topScore: Math.max(sourceScore, targetScore),
+          bestRank: Math.min(
+            scoredNodeRank.get(source.id()) ?? Number.POSITIVE_INFINITY,
+            scoredNodeRank.get(target.id()) ?? Number.POSITIVE_INFINITY
+          ),
+          hasPriorityNode: priorityNodeIds.has(source.id()) || priorityNodeIds.has(target.id())
+        };
+      })
+      .filter((candidate) => candidate.source.length > 0 && candidate.target.length > 0);
+    const selectedCandidate = selectedNodeId ? cy.$id(selectedNodeId) : cy.collection();
+    const preferredFirstNode = selectedCandidate.length ? selectedCandidate[0] : introNodes[0];
+    const preferredEdgeCandidates = edgeCandidates.filter(
+      (candidate) => candidate.source.id() === preferredFirstNode?.id() || candidate.target.id() === preferredFirstNode?.id()
+    );
+    const priorityEdgeCandidates = edgeCandidates.filter((candidate) => candidate.hasPriorityNode);
+    const seedCandidates = preferredEdgeCandidates.length
+      ? preferredEdgeCandidates
+      : priorityEdgeCandidates.length
+        ? priorityEdgeCandidates
+        : edgeCandidates;
+    const seedConnection = seedCandidates.sort(
+      (left, right) => left.distance - right.distance || left.bestRank - right.bestRank || right.topScore - left.topScore
+    )[0];
+    const firstNode =
+      seedConnection == null
+        ? preferredFirstNode
+        : preferredEdgeCandidates.length
+          ? preferredFirstNode
+          : Number(seedConnection.source.data("score") ?? 0) >= Number(seedConnection.target.data("score") ?? 0)
+          ? seedConnection.source
+          : seedConnection.target;
+    const secondNode =
+      seedConnection == null ? undefined : seedConnection.source.id() === firstNode?.id() ? seedConnection.target : seedConnection.source;
+    if (!firstNode || (edgeCandidates.length > 0 && !secondNode)) {
+      return;
+    }
+
+    const spotlightNodes = [firstNode, secondNode].filter(Boolean) as cytoscape.NodeSingular[];
+    let spotlightCollection = cy.collection();
+    spotlightNodes.forEach((node) => {
+      spotlightCollection = spotlightCollection.merge(node);
+    });
+    const pairDistance = secondNode
+      ? Math.hypot(secondNode.position("x") - firstNode.position("x"), secondNode.position("y") - firstNode.position("y"))
+      : 0;
+    const pairZoom = pairDistance > 0 ? Math.min(cy.width() * 0.28, cy.height() * 0.32) / pairDistance : finalZoom * 3.2;
+    const startZoom = Math.min(Math.max(pairZoom * 1.15, finalZoom * 2.8, 1.55), cy.maxZoom());
+    const secondZoom = Math.min(Math.max(pairZoom * 0.96, finalZoom * 2.05, 1.08), startZoom, cy.maxZoom());
     const panForNode = (node: cytoscape.NodeSingular, zoom: number) => ({
       x: cy.width() / 2 - node.position("x") * zoom,
       y: cy.height() / 2 - node.position("y") * zoom
@@ -319,6 +366,7 @@ export function CytoscapeGraph({
     }
     cy.batch(() => {
       cy.nodes().forEach((node) => {
+        node.style("transition-duration", "0ms");
         node.style("opacity", 0);
       });
       cy.edges().forEach((edge) => {
@@ -334,12 +382,64 @@ export function CytoscapeGraph({
       introTimersRef.current.push(timerId);
     };
 
+    const revealedNodeIds = new Set<string>([firstNode.id()]);
+    const revealedEdgeIds = new Set<string>();
+    const animateEdgeCollection = (edgeCollection: cytoscape.CollectionReturnValue, duration = 360, boosted = false) => {
+      const edgeGroups = new Map<number, cytoscape.EdgeSingular[]>();
+      edgeCollection.forEach((edge) => {
+        if (!edge.isEdge()) {
+          return;
+        }
+        const targetOpacity = boosted ? Math.max(targetEdgeOpacity(edge), 0.58) : targetEdgeOpacity(edge);
+        edgeGroups.set(targetOpacity, [...(edgeGroups.get(targetOpacity) ?? []), edge]);
+      });
+      edgeGroups.forEach((edgeGroup, opacity) => {
+        let opacityCollection = cy.collection();
+        edgeGroup.forEach((edge) => {
+          opacityCollection = opacityCollection.merge(edge);
+        });
+        opacityCollection.animate(
+          { style: { opacity } },
+          { duration, easing: "ease-in-out" }
+        );
+      });
+    };
+    const revealVisibleEdgesForNode = (node: cytoscape.NodeSingular, duration = 320) => {
+      let edgeCollection = cy.collection();
+      node.connectedEdges().forEach((edge) => {
+        if (revealedEdgeIds.has(edge.id())) {
+          return;
+        }
+        const sourceId = edge.source().id();
+        const targetId = edge.target().id();
+        if (!revealedNodeIds.has(sourceId) || !revealedNodeIds.has(targetId)) {
+          return;
+        }
+        revealedEdgeIds.add(edge.id());
+        edgeCollection = edgeCollection.merge(edge);
+      });
+      if (edgeCollection.length) {
+        animateEdgeCollection(edgeCollection, duration);
+      }
+    };
+
     if (secondNode) {
       addTimer(() => {
+        revealedNodeIds.add(secondNode.id());
         secondNode.animate(
           { style: { opacity: targetNodeOpacity(secondNode) } },
-          { duration: 420, easing: "ease-in-out" }
+          { duration: 300, easing: "ease-in-out" }
         );
+        if (seedConnection) {
+          revealedEdgeIds.add(seedConnection.edge.id());
+          const originalWidth = Number(seedConnection.edge.data("width") ?? 1);
+          let seedEdgeCollection = cy.collection();
+          seedEdgeCollection = seedEdgeCollection.merge(seedConnection.edge);
+          seedConnection.edge.style("width", Math.max(originalWidth * 1.6, 2));
+          animateEdgeCollection(seedEdgeCollection, 360, true);
+        } else {
+          revealVisibleEdgesForNode(secondNode, 320);
+        }
         cy.animate(
           {
             center: { eles: spotlightCollection },
@@ -347,57 +447,85 @@ export function CytoscapeGraph({
           },
           { duration: 560, easing: "ease-in-out" }
         );
-      }, 300);
+      }, 260);
     }
 
-    const nodeBuckets = Array.from({ length: GRAPH_INTRO_NODE_BUCKETS }, () => new Map<number, cytoscape.NodeSingular[]>());
+    const adjacency = new Map<string, cytoscape.NodeSingular[]>();
     cy.nodes().forEach((node) => {
-      if (node.id() === firstNode?.id() || node.id() === secondNode?.id()) {
-        return;
-      }
-      const delay = deterministicIntroDelay(node.id());
-      const bucketIndex = Math.min(
-        GRAPH_INTRO_NODE_BUCKETS - 1,
-        Math.floor((delay / (GRAPH_INTRO_NODE_STAGGER_MS + 80)) * GRAPH_INTRO_NODE_BUCKETS)
-      );
-      const targetOpacity = targetNodeOpacity(node);
-      const bucket = nodeBuckets[bucketIndex];
-      bucket.set(targetOpacity, [...(bucket.get(targetOpacity) ?? []), node]);
+      adjacency.set(node.id(), []);
     });
+    cy.edges().forEach((edge) => {
+      const source = edge.source();
+      const target = edge.target();
+      adjacency.get(source.id())?.push(target);
+      adjacency.get(target.id())?.push(source);
+    });
+    const distanceFromSeed = new Map<string, number>();
+    const queue = [...spotlightNodes];
+    spotlightNodes.forEach((node) => {
+      distanceFromSeed.set(node.id(), 0);
+    });
+    for (let cursor = 0; cursor < queue.length; cursor += 1) {
+      const current = queue[cursor];
+      const currentDistance = distanceFromSeed.get(current.id()) ?? 0;
+      for (const neighbor of adjacency.get(current.id()) ?? []) {
+        if (distanceFromSeed.has(neighbor.id())) {
+          continue;
+        }
+        distanceFromSeed.set(neighbor.id(), currentDistance + 1);
+        queue.push(neighbor);
+      }
+    }
+    const seedCenter = spotlightNodes.length
+      ? spotlightNodes.reduce(
+          (center, node) => ({
+            x: center.x + node.position("x") / spotlightNodes.length,
+            y: center.y + node.position("y") / spotlightNodes.length
+          }),
+          { x: 0, y: 0 }
+        )
+      : { x: firstNode.position("x"), y: firstNode.position("y") };
+    const remainingNodes = cy
+      .nodes()
+      .toArray()
+      .filter((node) => node.id() !== firstNode.id() && node.id() !== secondNode?.id())
+      .sort((left, right) => {
+        const leftDistance = distanceFromSeed.get(left.id()) ?? Number.POSITIVE_INFINITY;
+        const rightDistance = distanceFromSeed.get(right.id()) ?? Number.POSITIVE_INFINITY;
+        if (leftDistance !== rightDistance) {
+          return leftDistance - rightDistance;
+        }
+        const leftDx = left.position("x") - seedCenter.x;
+        const leftDy = left.position("y") - seedCenter.y;
+        const rightDx = right.position("x") - seedCenter.x;
+        const rightDy = right.position("y") - seedCenter.y;
+        return Math.hypot(leftDx, leftDy) - Math.hypot(rightDx, rightDy) || left.id().localeCompare(right.id());
+      });
+    const perNodeDelay = remainingNodes.length
+      ? Math.max(3, Math.min(18, GRAPH_INTRO_REVEAL_WINDOW_MS / remainingNodes.length))
+      : 0;
 
-    nodeBuckets.forEach((bucket, bucketIndex) => {
-      const delay = 760 + bucketIndex * 36;
+    remainingNodes.forEach((node, index) => {
+      const delay = 620 + index * perNodeDelay;
       addTimer(() => {
-        bucket.forEach((bucketNodes, opacity) => {
-          const bucketCollection = cy.collection();
-          bucketNodes.forEach((node) => {
-            bucketCollection.merge(node);
-          });
-          bucketCollection.animate(
-            { style: { opacity } },
-            { duration: 620, easing: "ease-in-out" }
-          );
-        });
+        revealedNodeIds.add(node.id());
+        node.animate(
+          { style: { opacity: targetNodeOpacity(node) } },
+          { duration: 260, easing: "ease-in-out" }
+        );
+        revealVisibleEdgesForNode(node, 300);
       }, delay);
     });
 
     addTimer(() => {
-      const edgeGroups = new Map<number, cytoscape.EdgeSingular[]>();
+      let unrevealedEdges = cy.collection();
       cy.edges().forEach((edge) => {
-        const targetOpacity = targetEdgeOpacity(edge);
-        edgeGroups.set(targetOpacity, [...(edgeGroups.get(targetOpacity) ?? []), edge]);
+        if (!revealedEdgeIds.has(edge.id())) {
+          unrevealedEdges = unrevealedEdges.merge(edge);
+        }
       });
-      edgeGroups.forEach((edgeGroup, opacity) => {
-        const edgeCollection = cy.collection();
-        edgeGroup.forEach((edge) => {
-          edgeCollection.merge(edge);
-        });
-        edgeCollection.animate(
-          { style: { opacity } },
-          { duration: 720, easing: "ease-in-out" }
-        );
-      });
-    }, 1250);
+      animateEdgeCollection(unrevealedEdges, 540);
+    }, 1900);
 
     addTimer(() => {
       cy.animate(
@@ -405,16 +533,16 @@ export function CytoscapeGraph({
           zoom: finalZoom,
           pan: finalPan
         },
-        { duration: 2600, easing: "ease-in-out" }
+        { duration: 2350, easing: "ease-in-out" }
       );
-    }, 640);
+    }, 480);
 
     addTimer(() => {
       cy.stop(false);
       cy.zoom(finalZoom);
       cy.pan(finalPan);
-      cy.elements().removeStyle("opacity");
-    }, 3400);
+      cy.elements().removeStyle("opacity transition-duration width");
+    }, 3150);
   }, [applyCanonicalPositions, cyReadyRevision, nodes.length]);
 
   useEffect(() => {
@@ -606,6 +734,17 @@ export function CytoscapeGraph({
         ]}
         cy={(cy: cytoscape.Core) => {
           cyRef.current = cy;
+          if (!introStartedRef.current && shouldPlayGraphIntro()) {
+            cy.batch(() => {
+              cy.nodes().forEach((node) => {
+                node.style("transition-duration", "0ms");
+                node.style("opacity", 0);
+              });
+              cy.edges().forEach((edge) => {
+                edge.style("opacity", 0);
+              });
+            });
+          }
           if (!cyReadyNotifiedRef.current) {
             cyReadyNotifiedRef.current = true;
             setCyReadyRevision((current) => current + 1);
