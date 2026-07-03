@@ -1020,20 +1020,6 @@ button:disabled {
     width: 9px;
     height: 9px;
   }
-
-  .graph-toolbar-actions button {
-    justify-content: center;
-    width: 34px;
-    min-width: 34px;
-    padding: 0;
-    gap: 0;
-    font-size: 0;
-  }
-
-  .graph-toolbar-actions button svg {
-    width: 15px;
-    height: 15px;
-  }
 }
 
 @container (max-width: 1500px) {
@@ -1058,20 +1044,6 @@ button:disabled {
   .legend-dot {
     width: 9px;
     height: 9px;
-  }
-
-  .graph-toolbar-actions button {
-    justify-content: center;
-    width: 34px;
-    min-width: 34px;
-    padding: 0;
-    gap: 0;
-    font-size: 0;
-  }
-
-  .graph-toolbar-actions button svg {
-    width: 15px;
-    height: 15px;
   }
 }
 

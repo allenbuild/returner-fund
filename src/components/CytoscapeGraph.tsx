@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Eye, EyeOff, Maximize2, Minimize2, RotateCcw } from "lucide-react";
+import { Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import type { ComponentType } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type cytoscape from "cytoscape";
@@ -91,10 +91,11 @@ export function CytoscapeGraph({
   const cyReadyNotifiedRef = useRef(false);
   const introStartedRef = useRef(false);
   const introAnimatingRef = useRef(false);
+  const introHasSettledRef = useRef(false);
   const introTimersRef = useRef<number[]>([]);
   const lastFitSignatureRef = useRef<string | null>(null);
   const suppressSelectedZoomUntilRef = useRef(0);
-  const [decluttered, setDecluttered] = useState(true);
+  const [decluttered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cyReadyRevision, setCyReadyRevision] = useState(0);
 
@@ -267,6 +268,9 @@ export function CytoscapeGraph({
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy || !selectedNodeId) return;
+    if (introStartedRef.current && !introHasSettledRef.current) {
+      return;
+    }
     if (introAnimatingRef.current || performance.now() < suppressSelectedZoomUntilRef.current) {
       return;
     }
@@ -302,7 +306,8 @@ export function CytoscapeGraph({
 
     introStartedRef.current = true;
     introAnimatingRef.current = true;
-    suppressSelectedZoomUntilRef.current = performance.now() + 4600;
+    introHasSettledRef.current = false;
+    suppressSelectedZoomUntilRef.current = performance.now() + 6500;
     rememberGraphIntroPlayed();
 
     cy.stop(true);
@@ -593,15 +598,27 @@ export function CytoscapeGraph({
       );
     }, 500);
 
-    addTimer(() => {
+    const settleCamera = () => {
       cy.stop(true);
       cy.zoom(finalZoom);
       cy.pan(finalPan);
       cy.elements().removeStyle("opacity transition-duration width height");
       introAnimatingRef.current = false;
-      suppressSelectedZoomUntilRef.current = performance.now() + 600;
+      introHasSettledRef.current = true;
+      suppressSelectedZoomUntilRef.current = performance.now() + 3000;
       lastFitSignatureRef.current = graphFitSignature;
-    }, 3820);
+      requestAnimationFrame(() => {
+        cy.stop(true);
+        cy.zoom(finalZoom);
+        cy.pan(finalPan);
+        requestAnimationFrame(() => {
+          cy.zoom(finalZoom);
+          cy.pan(finalPan);
+        });
+      });
+    };
+
+    addTimer(settleCamera, 4300);
   }, [applyCanonicalPositions, cyReadyRevision, graphFitSignature, nodes.length]);
 
   useEffect(() => {
@@ -653,15 +670,6 @@ export function CytoscapeGraph({
             ))}
           </div>
           <div className="graph-toolbar-actions">
-            <button
-              type="button"
-              className={decluttered ? "active" : ""}
-              onClick={() => setDecluttered((current) => !current)}
-              title={decluttered ? "Show full graph" : "Declutter graph"}
-            >
-              {decluttered ? <Eye size={15} /> : <EyeOff size={15} />}
-              {decluttered ? "Full graph" : "Declutter"}
-            </button>
             <button type="button" onClick={resetLayout} title="Reset layout">
               <RotateCcw size={15} />
               Reset
