@@ -37,6 +37,7 @@
   --radius-lg: 18px;
   --control-height: 40px;
   --control-radius: 12px;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23252525' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   --shadow-soft: 0 22px 60px rgba(16, 24, 40, 0.08);
   --shadow-subtle: 0 12px 32px rgba(16, 24, 40, 0.06);
   --chrome-surface: rgba(255, 255, 255, 0.92);
@@ -343,11 +344,15 @@ h3 {
 .topbar select {
   border-color: #f2b180;
   border-radius: var(--control-radius);
-  background: var(--background);
+  background-color: var(--background);
+  background-image: var(--select-chevron);
+  background-position: right 16px center;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
   color: var(--neutral-900);
   height: var(--control-height);
   min-height: var(--control-height);
-  padding: 0 36px 0 14px;
+  padding: 0 48px 0 14px;
   border-width: 1.5px;
   font-size: 0.9rem;
   font-weight: 700;
@@ -370,10 +375,23 @@ button {
   color: var(--foreground);
 }
 
-select,
 input {
   min-height: 36px;
   padding: 0 10px;
+}
+
+select {
+  min-height: 36px;
+  padding: 0 44px 0 10px;
+  appearance: none;
+  background-image: var(--select-chevron);
+  background-position: right 16px center;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+}
+
+select::-ms-expand {
+  display: none;
 }
 
 button {
@@ -458,7 +476,7 @@ button:disabled {
   gap: 10px;
   width: 100%;
   min-height: var(--control-height);
-  padding: 0 16px;
+  padding: 0 20px 0 16px;
   border-color: #f2b180;
   border-radius: var(--control-radius);
   background: var(--background);
@@ -2140,6 +2158,7 @@ progress::-webkit-progress-value {
 
 .momentum-stat-cell {
   min-width: 0;
+  white-space: nowrap;
 }
 
 .momentum-stat-cell > span {
@@ -2158,6 +2177,7 @@ progress::-webkit-progress-value {
   color: var(--neutral-900);
   font-weight: 600;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 table {
@@ -2195,7 +2215,27 @@ table {
 
 .momentum-table th:nth-child(2),
 .momentum-table td:nth-child(2) {
+  width: 17%;
+}
+
+.momentum-table th:nth-child(3),
+.momentum-table td:nth-child(3) {
+  width: 17%;
+}
+
+.momentum-table th:nth-child(4),
+.momentum-table td:nth-child(4) {
+  width: 11%;
+}
+
+.momentum-table th:nth-child(5),
+.momentum-table td:nth-child(5) {
   width: 19%;
+}
+
+.momentum-table th:nth-child(6),
+.momentum-table td:nth-child(6) {
+  width: 28%;
 }
 
 .overview-table th:nth-child(3),
@@ -2944,7 +2984,7 @@ td button {
 
   .filter-dropdown-trigger {
     min-height: var(--control-height);
-    padding: 0 13px;
+    padding: 0 16px 0 13px;
     border-radius: var(--control-radius);
     font-size: 0.8rem;
   }
