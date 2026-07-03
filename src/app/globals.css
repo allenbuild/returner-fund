@@ -883,30 +883,44 @@ button:disabled {
   align-items: center;
   justify-content: flex-start;
   flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
   flex-wrap: nowrap;
   gap: 10px;
   min-width: 0;
-  padding-top: 0;
+  padding: 0 10px 2px 0;
   min-height: 30px;
   overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
+  overflow-y: visible;
+  white-space: nowrap;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 102, 0, 0.28) transparent;
 }
 
 .legend::-webkit-scrollbar {
-  display: none;
+  height: 4px;
+}
+
+.legend::-webkit-scrollbar-thumb {
+  background: rgba(255, 102, 0, 0.24);
+  border-radius: 999px;
 }
 
 .legend-item {
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
+  max-width: none;
   color: var(--neutral-600);
   font-size: 0.77rem;
   font-weight: 600;
+  overflow: visible;
   white-space: nowrap;
 }
 
 .legend-item small {
+  flex: 0 0 auto;
   color: var(--accent-strong);
   font-size: 0.76rem;
   font-weight: 700;
@@ -914,6 +928,7 @@ button:disabled {
 }
 
 .legend-dot {
+  flex: 0 0 auto;
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -1963,11 +1978,12 @@ progress::-webkit-progress-value {
 }
 
 .tab-list {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 154px) minmax(0, 1fr);
   align-items: center;
   flex-wrap: nowrap;
   gap: 8px;
-  min-height: 49px;
+  min-height: 53px;
   padding: 8px 10px;
   border-bottom: 1px solid var(--neutral-200);
   background: #ffffff;
@@ -2019,8 +2035,14 @@ progress::-webkit-progress-value {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-left: auto;
+  grid-column: 4;
+  margin-left: 0;
   min-height: 34px;
+}
+
+.tab-list-actions-hidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .tab-body {
@@ -2958,17 +2980,20 @@ td button {
     flex-wrap: nowrap;
     justify-content: flex-start;
     min-height: 28px;
-    max-height: 32px;
+    max-height: none;
     overflow-x: auto;
-    overflow-y: hidden;
-    gap: 2px 4px;
-    padding: 0;
+    overflow-y: visible;
+    gap: 7px;
+    padding: 0 4px 2px 0;
+    white-space: nowrap;
   }
 
   .legend-item {
     flex: 0 0 auto;
+    max-width: none;
     font-size: 0.55rem;
     line-height: 1.05;
+    overflow: visible;
     white-space: nowrap;
   }
 
