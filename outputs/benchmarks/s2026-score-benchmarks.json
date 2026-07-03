@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S2026",
-  "updatedAt": "2026-07-03T07:10:06.453Z",
+  "updatedAt": "2026-07-03T07:31:18.357Z",
   "daily": [
     {
       "recordedAt": "2026-06-29T16:52:33.375Z",
@@ -3570,122 +3570,122 @@
         {
           "companyId": "company-heyclicky",
           "companyName": "HeyClicky",
-          "score": 71,
-          "rank": 12
+          "score": 52,
+          "rank": 39
         },
         {
           "companyId": "company-ploy",
           "companyName": "Ploy",
-          "score": 48,
-          "rank": 23
+          "score": 43,
+          "rank": 36
         },
         {
           "companyId": "company-insforge",
           "companyName": "InsForge",
-          "score": 66,
-          "rank": 9
+          "score": 46,
+          "rank": 34
         },
         {
           "companyId": "company-hyper-4",
           "companyName": "Hyper",
-          "score": 33,
-          "rank": 41
+          "score": 47,
+          "rank": 32
         },
         {
           "companyId": "company-biostack-platforms",
           "companyName": "BioStack Platforms",
-          "score": 71,
-          "rank": 8
+          "score": 46,
+          "rank": 30
         },
         {
           "companyId": "company-drafted",
           "companyName": "Drafted",
-          "score": 49,
-          "rank": 31
+          "score": 48,
+          "rank": 29
         },
         {
           "companyId": "company-result",
           "companyName": "Result",
-          "score": 42,
-          "rank": 38
+          "score": 49,
+          "rank": 28
         },
         {
           "companyId": "company-foaster",
           "companyName": "Foaster",
-          "score": 63,
-          "rank": 13
+          "score": 50,
+          "rank": 27
         },
         {
           "companyId": "company-anoria",
           "companyName": "ANORIA",
-          "score": 15,
-          "rank": 66
+          "score": 47,
+          "rank": 26
         },
         {
           "companyId": "company-asterlab",
           "companyName": "Aster",
-          "score": 58,
-          "rank": 18
+          "score": 47,
+          "rank": 25
         },
         {
           "companyId": "company-chronicle-labs",
           "companyName": "Chronicle Labs",
-          "score": 24,
-          "rank": 77
+          "score": 46,
+          "rank": 24
         },
         {
           "companyId": "company-expanse",
           "companyName": "Expanse",
-          "score": 55,
-          "rank": 25
+          "score": 48,
+          "rank": 24
         },
         {
           "companyId": "company-general-instinct",
           "companyName": "General Instinct",
-          "score": 57,
-          "rank": 20
+          "score": 48,
+          "rank": 24
         },
         {
           "companyId": "company-openprose",
           "companyName": "OpenProse",
-          "score": 31,
-          "rank": 52
+          "score": 49,
+          "rank": 24
         },
         {
           "companyId": "company-openwork",
           "companyName": "OpenWork",
-          "score": 62,
-          "rank": 17
+          "score": 50,
+          "rank": 24
         },
         {
           "companyId": "company-trybloom",
           "companyName": "Bloom",
-          "score": 44,
-          "rank": 35
+          "score": 50,
+          "rank": 24
         },
         {
           "companyId": "company-pentagon",
           "companyName": "Pentagon",
-          "score": 20,
-          "rank": 91
+          "score": 51,
+          "rank": 24
         },
         {
           "companyId": "company-asendia-ai",
           "companyName": "Asendia AI",
-          "score": 54,
-          "rank": 29
+          "score": 50,
+          "rank": 24
         },
         {
           "companyId": "company-aseon-labs",
           "companyName": "Aseon Labs",
-          "score": 38,
-          "rank": 49
+          "score": 51,
+          "rank": 24
         },
         {
           "companyId": "company-gojiberry-ai",
           "companyName": "Gojiberry AI",
-          "score": 12,
-          "rank": 104
+          "score": 52,
+          "rank": 24
         },
         {
           "companyId": "company-manicule",
