@@ -47,8 +47,8 @@ export function ensureBenchmarkMomentum(
   const storePath = options.storePath ?? benchmarkStorePath(graph.batch.slug);
   const store = readBenchmarkStore(storePath, graph.batch.slug);
   const currentSnapshot = snapshotFromGraph(graph, now);
-  const dailyBaseline = selectCalendarBaseline(store.daily, now, 1);
-  const weeklyBaseline = selectCalendarBaseline([...store.daily, ...store.weekly], now, 7);
+  const dailyBaseline = selectLatestPriorBaseline(store.daily, now);
+  const weeklyBaseline = selectLatestBaselineOnOrBeforeDay([...store.daily, ...store.weekly], now, 7);
   let recordedDaily = false;
   let recordedWeekly = false;
 
@@ -91,8 +91,8 @@ export function applyStoredBenchmarkMomentum(
   const now = options.now ?? new Date();
   const storePath = options.storePath ?? benchmarkStorePath(graph.batch.slug);
   const store = readBenchmarkStore(storePath, graph.batch.slug);
-  const dailyBaseline = selectCalendarBaseline(store.daily, now, 1);
-  const weeklyBaseline = selectCalendarBaseline([...store.daily, ...store.weekly], now, 7);
+  const dailyBaseline = selectLatestPriorBaseline(store.daily, now);
+  const weeklyBaseline = selectLatestBaselineOnOrBeforeDay([...store.daily, ...store.weekly], now, 7);
 
   return {
     ...graph,
@@ -115,8 +115,8 @@ function readBenchmarkStore(storePath: string, batchSlug: string): BenchmarkStor
       version: 1,
       batchSlug,
       updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date(0).toISOString(),
-      daily: Array.isArray(parsed.daily) ? parsed.daily.filter(isBenchmarkSnapshot) : [],
-      weekly: Array.isArray(parsed.weekly) ? parsed.weekly.filter(isBenchmarkSnapshot) : []
+      daily: Array.isArray(parsed.daily) ? parsed.daily.flatMap(normalizeBenchmarkSnapshot) : [],
+      weekly: Array.isArray(parsed.weekly) ? parsed.weekly.flatMap(normalizeBenchmarkSnapshot) : []
     };
   } catch {
     return emptyStore(batchSlug);
@@ -151,16 +151,38 @@ function snapshotFromGraph(graph: GraphResponse, now: Date): BenchmarkSnapshot {
 }
 
 function latestSnapshot(snapshots: BenchmarkSnapshot[]): BenchmarkSnapshot | null {
-  return snapshots[snapshots.length - 1] ?? null;
+  return snapshots.reduce<BenchmarkSnapshot | null>((latest, snapshot) => {
+    if (!latest) {
+      return snapshot;
+    }
+    return new Date(snapshot.recordedAt).getTime() > new Date(latest.recordedAt).getTime() ? snapshot : latest;
+  }, null);
 }
 
 function latestSnapshotOnSameDay(snapshots: BenchmarkSnapshot[], day: Date): BenchmarkSnapshot | null {
   return latestSnapshot(snapshots.filter((snapshot) => isSameLocalDay(new Date(snapshot.recordedAt), day)));
 }
 
-function selectCalendarBaseline(snapshots: BenchmarkSnapshot[], now: Date, daysBack: number): BenchmarkSnapshot | null {
-  const targetDay = addLocalDays(startOfLocalDay(now), -daysBack);
-  return latestSnapshot(snapshots.filter((snapshot) => isSameLocalDay(new Date(snapshot.recordedAt), targetDay)));
+function selectLatestPriorBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
+  return latestSnapshotBefore(snapshots, startOfLocalDay(now));
+}
+
+function selectLatestBaselineOnOrBeforeDay(
+  snapshots: BenchmarkSnapshot[],
+  now: Date,
+  daysBack: number
+): BenchmarkSnapshot | null {
+  const targetDayEnd = addLocalDays(addLocalDays(startOfLocalDay(now), -daysBack), 1);
+  return latestSnapshotBefore(snapshots, targetDayEnd);
+}
+
+function latestSnapshotBefore(snapshots: BenchmarkSnapshot[], cutoff: Date): BenchmarkSnapshot | null {
+  return latestSnapshot(
+    snapshots.filter((snapshot) => {
+      const recordedAt = new Date(snapshot.recordedAt).getTime();
+      return Number.isFinite(recordedAt) && recordedAt < cutoff.getTime();
+    })
+  );
 }
 
 function shouldRecordWeeklySnapshot(snapshots: BenchmarkSnapshot[], now: Date): boolean {
@@ -256,12 +278,52 @@ export function applyBenchmarkMomentumRows(
   };
 }
 
-function isBenchmarkSnapshot(value: unknown): value is BenchmarkSnapshot {
+function normalizeBenchmarkSnapshot(value: unknown): BenchmarkSnapshot[] {
   if (!value || typeof value !== "object") {
-    return false;
+    return [];
   }
   const candidate = value as Partial<BenchmarkSnapshot>;
-  return typeof candidate.recordedAt === "string" && Array.isArray(candidate.companies);
+  if (typeof candidate.recordedAt !== "string" || !Array.isArray(candidate.companies)) {
+    return [];
+  }
+
+  const recordedAt = new Date(candidate.recordedAt).getTime();
+  if (!Number.isFinite(recordedAt)) {
+    return [];
+  }
+
+  const companies = candidate.companies
+    .flatMap((company): BenchmarkCompanySnapshot[] => {
+      if (!company || typeof company !== "object") {
+        return [];
+      }
+      const snapshotCompany = company as Partial<BenchmarkCompanySnapshot>;
+      if (
+        typeof snapshotCompany.companyId !== "string" ||
+        typeof snapshotCompany.companyName !== "string" ||
+        typeof snapshotCompany.score !== "number" ||
+        !Number.isFinite(snapshotCompany.score)
+      ) {
+        return [];
+      }
+      return [
+        {
+          companyId: snapshotCompany.companyId,
+          companyName: snapshotCompany.companyName,
+          score: snapshotCompany.score,
+          rank: 0
+        }
+      ];
+    })
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        left.companyName.localeCompare(right.companyName) ||
+        left.companyId.localeCompare(right.companyId)
+    )
+    .map((company, index) => ({ ...company, rank: index + 1 }));
+
+  return [{ recordedAt: candidate.recordedAt, companies }];
 }
 
 function round(value: number): number {

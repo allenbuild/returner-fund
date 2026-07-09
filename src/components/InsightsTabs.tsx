@@ -177,7 +177,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
           <table className="momentum-table">
             <thead>
               <tr>
-                <th>Rank</th>
+                <th>Hot rank</th>
                 <th>Company</th>
                 <th>Score delta</th>
                 <th>Rank delta</th>
