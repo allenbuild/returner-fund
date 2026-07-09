@@ -14,13 +14,13 @@ describe("public data debug instrumentation", () => {
     expect(tasks.every((task) => task.checkpointKey.includes(task.companyId))).toBe(true);
   });
 
-  it("keeps LinkedIn and X public-only for this run", () => {
+  it("marks LinkedIn working when scored logged-in rows are available", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const linkedin = graph.platformStatus.find((item) => item.platform === "linkedin");
     const x = graph.platformStatus.find((item) => item.platform === "x");
 
-    expect(linkedin?.status).toBe("public_only");
-    expect(linkedin?.authMethod.toLowerCase()).toContain("logged-in linkedin disabled");
+    expect(linkedin?.status).toBe("working");
+    expect(linkedin?.authMethod.toLowerCase()).toContain("authenticated browser session");
     expect(x?.status).toBe("public_only");
     expect(x?.authMethod.toLowerCase()).toContain("official yc profile links");
   });

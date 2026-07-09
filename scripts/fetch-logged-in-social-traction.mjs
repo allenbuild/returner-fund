@@ -1,15 +1,12 @@
-import { execFile } from "node:child_process";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { promisify } from "node:util";
+import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
 
-const execFileAsync = promisify(execFile);
 const root = process.cwd();
 const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
 const outputPath = join(root, "src", "lib", "social", "logged-in-evidence-current.json");
 const checkpointPath = join(root, "work", "logged-in-social-checkpoint.json");
 const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
-const openCliMain = join(process.env.APPDATA ?? "", "npm", "node_modules", "@jackwener", "opencli", "dist", "src", "main.js");
 const now = new Date().toISOString();
 const targetLimit = numberArg("--max-targets") ?? Number.POSITIVE_INFINITY;
 const postLimit = numberArg("--limit") ?? 30;
@@ -688,15 +685,11 @@ function failure(target, message, sourceUrl = target.url) {
 
 async function runOpenCli(args, options = {}) {
   try {
-    const command = process.platform === "win32" ? process.execPath : "opencli";
-    const commandArgs = process.platform === "win32" ? [openCliMain, ...args] : args;
-    const result = await execFileAsync(command, commandArgs, {
+    return await executeOpenCli(args, {
       cwd: root,
       timeout: options.timeoutMs ?? perTargetTimeoutMs,
-      maxBuffer: 20 * 1024 * 1024,
-      windowsHide: true
+      maxBuffer: 20 * 1024 * 1024
     });
-    return result.stdout;
   } catch (error) {
     const stdout = error.stdout ? String(error.stdout) : "";
     const stderr = error.stderr ? String(error.stderr) : "";
@@ -953,8 +946,7 @@ async function writeCheckpoint() {
 }
 
 function sanitizeStoredRows(rows) {
-  if (allowLinkedIn) return rows;
-  return rows.filter((row) => row?.platform !== "linkedin");
+  return rows;
 }
 
 async function readJson(path, fallback) {

@@ -1,0 +1,145 @@
+{
+  "runId": "s26-collection-2026-07-09T08-20-10-536Z",
+  "startedAt": "2026-07-09T08:20:10.536Z",
+  "eventLog": [
+    {
+      "type": "run_started",
+      "at": "2026-07-09T08:20:10.537Z",
+      "elapsedMinutes": 0,
+      "runId": "s26-collection-2026-07-09T08-20-10-536Z",
+      "durationMinutes": 120,
+      "maxCompanies": 83,
+      "workers": 8,
+      "delayMs": 900
+    },
+    {
+      "type": "loop_started",
+      "at": "2026-07-09T08:20:10.537Z",
+      "elapsedMinutes": 0,
+      "loop": 1
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T08:20:10.538Z",
+      "elapsedMinutes": 0,
+      "phase": "refresh-official-yc-snapshot"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T08:20:10.538Z",
+      "elapsedMinutes": 0,
+      "phase": "refresh-official-yc-snapshot",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-yc-spring-2026.mjs"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T08:20:11.534Z",
+      "elapsedMinutes": 0,
+      "phase": "refresh-official-yc-snapshot",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-yc-spring-2026.mjs",
+      "exitCode": 1,
+      "elapsedSeconds": 1,
+      "stdoutTail": "",
+      "stderrTail": "Error: Expected 83 Summer 2026 companies from YC Algolia; got nbHits=84, hits=83.\n    at main (file:///Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/scripts/fetch-yc-spring-2026.mjs:19:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-07-09T08:20:11.534Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-07-09T08:20:11.557Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T08:20:11.557Z",
+      "elapsedMinutes": 0,
+      "phase": "refresh-official-yc-snapshot"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T08:20:11.557Z",
+      "elapsedMinutes": 0,
+      "phase": "github-official-links"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T08:20:11.557Z",
+      "elapsedMinutes": 0,
+      "phase": "github-official-links",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-github-traction.mjs"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T08:20:12.738Z",
+      "elapsedMinutes": 0,
+      "phase": "github-official-links",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-github-traction.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 1,
+      "stdoutTail": "GitHub targets: 15 (15 explicit, 0 discovered, 0 searches).\nFetched GitHub traction for Experiential Labs: experientiallabs\nFetched GitHub traction for Coasty: coasty-ai/open-cowork\nFetched GitHub traction for Glen: Glen-Web-App\nFetched GitHub traction for Care GP: Care-AI-Inc\nFetched GitHub traction for Conifer: ConiferKit\nFetched GitHub traction for Bylaw: UseBylaw\nFetched GitHub traction for Nebula Security: NebuSec\nFetched GitHub traction for RealPact: RealPact\nFetched GitHub traction for Mireye: Mireye-Labs\nFetched GitHub traction for Inkbox: inkbox-ai\nFetched GitHub traction for Robocurve: robocurve\nFetched GitHub traction for Shepherd: askshepherd\nFetched GitHub traction for Speko: spekoai\nFetched GitHub traction for screenpipe: screenpipe\nWrote /Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/src/lib/social/github-traction-summer-2026.json",
+      "stderrTail": "GitHub fetch failed for OpenRelayInc/OpenRelay: 404 Not Found"
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T08:20:12.738Z",
+      "elapsedMinutes": 0,
+      "phase": "github-official-links"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T08:20:12.738Z",
+      "elapsedMinutes": 0,
+      "phase": "instagram-link-discovery"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T08:20:12.738Z",
+      "elapsedMinutes": 0,
+      "phase": "instagram-link-discovery",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/discover-instagram-overrides.mjs --write --append --search --web-search --promote-search --company-only --max-companies=83 --workers=4"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T08:54:26.052Z",
+      "elapsedMinutes": 34,
+      "phase": "instagram-link-discovery",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/discover-instagram-overrides.mjs --write --append --search --web-search --promote-search --company-only --max-companies=83 --workers=4",
+      "exitCode": null,
+      "elapsedSeconds": 2053,
+      "stdoutTail": "",
+      "stderrTail": ""
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-07-09T08:54:26.053Z",
+      "elapsedMinutes": 34
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-07-09T08:54:26.081Z",
+      "elapsedMinutes": 34
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T08:54:26.081Z",
+      "elapsedMinutes": 34,
+      "phase": "instagram-link-discovery"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T08:54:26.082Z",
+      "elapsedMinutes": 34,
+      "phase": "public-web-and-community-evidence"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T08:54:26.082Z",
+      "elapsedMinutes": 34,
+      "phase": "public-web-and-community-evidence",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-public-traction.mjs --social=all --max-companies=83 --workers=8 --delay-ms=900 --discover-missing-social"
+    }
+  ]
+}

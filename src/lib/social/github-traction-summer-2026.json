@@ -1,9 +1,9 @@
 {
   "source": {
     "label": "GitHub public API for official YC Summer 2026 GitHub links",
-    "fetchedAt": "2026-07-09T06:15:08.281Z",
+    "fetchedAt": "2026-07-09T16:58:01.691Z",
     "targetCount": 15,
-    "fetchedCount": 15,
+    "fetchedCount": 14,
     "discovery": {
       "explicitTargetCount": 15,
       "discoveredTargetCount": 0,
@@ -14,11 +14,449 @@
     },
     "notes": [
       "Read-only public GitHub API data.",
-      "Only GitHub URLs explicitly listed on public YC Summer 2026 company profiles are scored.",
-      "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed."
+      "GITHUB_TOKEN is optional and only increases API rate limits; gh auth token can be exported before running.",
+      "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
+      "Only GitHub URLs explicitly listed on public YC Summer 2026 company profiles are scored by default.",
+      "GitHub search discovery is available with --search, but is disabled by default because same-name repositories need review before scoring."
     ]
   },
   "accounts": [
+    {
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companySlug": "coasty",
+      "companyName": "Coasty",
+      "name": "Coasty",
+      "sourceUrl": "https://www.ycombinator.com/companies/coasty",
+      "githubUrl": "https://github.com/coasty-ai/open-cowork",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "coasty-ai",
+      "repo": "open-cowork",
+      "fetched": true,
+      "account": {
+        "login": "coasty-ai",
+        "name": "Coasty",
+        "type": "Organization",
+        "htmlUrl": "https://github.com/coasty-ai",
+        "bio": "Open Source Large Scale LLM Frontier Research seeing \"impossible\" as \"not yet solved.\"",
+        "followers": 22,
+        "following": 0,
+        "publicRepos": 6,
+        "publicGists": 0,
+        "createdAt": "2024-09-19T03:15:24Z",
+        "updatedAt": "2026-07-09T06:09:10Z"
+      },
+      "aggregate": {
+        "repoCount": 1,
+        "totalStars": 108,
+        "totalForks": 21,
+        "totalWatchers": 108,
+        "maxRepoScore": 100,
+        "profileScore": 96
+      },
+      "repos": [
+        {
+          "id": 1266626193,
+          "name": "open-cowork",
+          "fullName": "coasty-ai/open-cowork",
+          "description": "Open-source alternative to Claude Co-Work built by Claude Mythos 5. with BYOK",
+          "htmlUrl": "https://github.com/coasty-ai/open-cowork",
+          "stars": 108,
+          "forks": 21,
+          "watchers": 108,
+          "openIssues": 0,
+          "language": "TypeScript",
+          "pushedAt": "2026-06-14T19:20:35Z",
+          "updatedAt": "2026-07-07T14:33:00Z",
+          "createdAt": "2026-06-11T19:55:21Z",
+          "score": 100
+        }
+      ]
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-screenpipe",
+      "companySlug": "screenpipe",
+      "companyName": "screenpipe",
+      "name": "screenpipe",
+      "sourceUrl": "https://www.ycombinator.com/companies/screenpipe",
+      "githubUrl": "https://github.com/screenpipe",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "screenpipe",
+      "repo": null,
+      "fetched": true,
+      "account": {
+        "login": "screenpipe",
+        "name": "screenpipe",
+        "type": "Organization",
+        "htmlUrl": "https://github.com/screenpipe",
+        "bio": "",
+        "followers": 63,
+        "following": 0,
+        "publicRepos": 17,
+        "publicGists": 0,
+        "createdAt": "2026-02-03T19:20:19Z",
+        "updatedAt": "2026-07-01T20:32:35Z"
+      },
+      "aggregate": {
+        "repoCount": 12,
+        "totalStars": 20018,
+        "totalForks": 1961,
+        "totalWatchers": 20018,
+        "maxRepoScore": 100,
+        "profileScore": 94
+      },
+      "repos": [
+        {
+          "id": 817326197,
+          "name": "screenpipe",
+          "fullName": "screenpipe/screenpipe",
+          "description": "YC (S26) | AI that knows what you've seen, said, or heard. Records everything you do, say, hear 24/7, local, private, secure. Connect to OpenClaw, Hermes agent and 100+ apps",
+          "htmlUrl": "https://github.com/screenpipe/screenpipe",
+          "stars": 19718,
+          "forks": 1915,
+          "watchers": 19718,
+          "openIssues": 98,
+          "language": "Rust",
+          "pushedAt": "2026-07-09T15:26:25Z",
+          "updatedAt": "2026-07-09T16:50:41Z",
+          "createdAt": "2024-06-19T13:23:56Z",
+          "score": 100
+        },
+        {
+          "id": 958053222,
+          "name": "uniOCR",
+          "fullName": "screenpipe/uniOCR",
+          "description": "native OCR for MacOS, Windows, Linux",
+          "htmlUrl": "https://github.com/screenpipe/uniOCR",
+          "stars": 224,
+          "forks": 21,
+          "watchers": 224,
+          "openIssues": 1,
+          "language": "Rust",
+          "pushedAt": "2025-10-18T17:33:22Z",
+          "updatedAt": "2026-07-09T16:55:07Z",
+          "createdAt": "2025-03-31T15:08:34Z",
+          "score": 100
+        },
+        {
+          "id": 1168737067,
+          "name": "audiopipe",
+          "fullName": "screenpipe/audiopipe",
+          "description": "Fast cross-platform speech-to-text inference on consumer device in Rust. MLX, DirectML, Metal, Vulkan.",
+          "htmlUrl": "https://github.com/screenpipe/audiopipe",
+          "stars": 26,
+          "forks": 9,
+          "watchers": 26,
+          "openIssues": 3,
+          "language": "Rust",
+          "pushedAt": "2026-06-17T01:55:18Z",
+          "updatedAt": "2026-06-30T16:56:46Z",
+          "createdAt": "2026-02-27T18:32:39Z",
+          "score": 87
+        },
+        {
+          "id": 1143661691,
+          "name": "sck-rs",
+          "fullName": "screenpipe/sck-rs",
+          "description": "A modern screen capture library for macOS using Apple's ScreenCaptureKit framework via cidre",
+          "htmlUrl": "https://github.com/screenpipe/sck-rs",
+          "stars": 16,
+          "forks": 6,
+          "watchers": 16,
+          "openIssues": 5,
+          "language": "Rust",
+          "pushedAt": "2026-07-04T16:41:42Z",
+          "updatedAt": "2026-07-04T16:41:46Z",
+          "createdAt": "2026-01-27T21:16:20Z",
+          "score": 76
+        },
+        {
+          "id": 1235793033,
+          "name": "screenleak",
+          "fullName": "screenpipe/screenleak",
+          "description": "Multi-modal benchmark for measuring sensitive-information redaction in human recording data",
+          "htmlUrl": "https://github.com/screenpipe/screenleak",
+          "stars": 20,
+          "forks": 0,
+          "watchers": 20,
+          "openIssues": 0,
+          "language": "Python",
+          "pushedAt": "2026-06-06T00:21:58Z",
+          "updatedAt": "2026-07-08T19:03:30Z",
+          "createdAt": "2026-05-11T16:56:33Z",
+          "score": 60
+        },
+        {
+          "id": 1144424634,
+          "name": "cpal",
+          "fullName": "screenpipe/cpal",
+          "description": "Cross-platform audio I/O library - fork with mediar-ai/cidre",
+          "htmlUrl": "https://github.com/screenpipe/cpal",
+          "stars": 4,
+          "forks": 6,
+          "watchers": 4,
+          "openIssues": 1,
+          "language": "Rust",
+          "pushedAt": "2026-07-04T15:00:13Z",
+          "updatedAt": "2026-07-04T15:00:19Z",
+          "createdAt": "2026-01-28T17:14:46Z",
+          "score": 54
+        },
+        {
+          "id": 1179039016,
+          "name": "awesome-screenpipe",
+          "fullName": "screenpipe/awesome-screenpipe",
+          "description": "A curated list of awesome tools, pipes, integrations, and resources built with screenpipe",
+          "htmlUrl": "https://github.com/screenpipe/awesome-screenpipe",
+          "stars": 6,
+          "forks": 1,
+          "watchers": 6,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-03-11T16:25:32Z",
+          "updatedAt": "2026-07-01T10:55:27Z",
+          "createdAt": "2026-03-11T16:15:59Z",
+          "score": 42
+        },
+        {
+          "id": 1190867125,
+          "name": "whisper-rs",
+          "fullName": "screenpipe/whisper-rs",
+          "description": "Fork of whisper-rs with Windows ARM64 support",
+          "htmlUrl": "https://github.com/screenpipe/whisper-rs",
+          "stars": 4,
+          "forks": 2,
+          "watchers": 4,
+          "openIssues": 0,
+          "language": "Rust",
+          "pushedAt": "2026-03-24T18:15:52Z",
+          "updatedAt": "2026-06-02T20:32:46Z",
+          "createdAt": "2026-03-24T17:38:50Z",
+          "score": 40
+        },
+        {
+          "id": 1218498703,
+          "name": "privacy-filter",
+          "fullName": "screenpipe/privacy-filter",
+          "description": "PII token classifier (openai/privacy-filter) for Tinfoil confidential-compute deploys",
+          "htmlUrl": "https://github.com/screenpipe/privacy-filter",
+          "stars": 0,
+          "forks": 1,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "Python",
+          "pushedAt": "2026-06-18T17:32:59Z",
+          "updatedAt": "2026-06-18T17:33:02Z",
+          "createdAt": "2026-04-23T00:03:36Z",
+          "score": 14
+        },
+        {
+          "id": 1173834301,
+          "name": ".github",
+          "fullName": "screenpipe/.github",
+          "description": "",
+          "htmlUrl": "https://github.com/screenpipe/.github",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 1,
+          "language": null,
+          "pushedAt": "2026-06-18T01:21:28Z",
+          "updatedAt": "2026-06-18T01:21:32Z",
+          "createdAt": "2026-03-05T19:56:05Z",
+          "score": 9
+        },
+        {
+          "id": 1242997202,
+          "name": "screenpipe-sdk-swift",
+          "fullName": "screenpipe/screenpipe-sdk-swift",
+          "description": "Swift Package Manager distribution of the Screenpipe SDK (source-available, enterprise-licensed). Mirrors ee/sdk from screenpipe/screenpipe.",
+          "htmlUrl": "https://github.com/screenpipe/screenpipe-sdk-swift",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "Swift",
+          "pushedAt": "2026-06-05T16:51:33Z",
+          "updatedAt": "2026-06-05T16:51:38Z",
+          "createdAt": "2026-05-19T00:44:10Z",
+          "score": 8
+        },
+        {
+          "id": 1233360043,
+          "name": "opf-rs",
+          "fullName": "screenpipe/opf-rs",
+          "description": "Pure-Rust runtime for the screenpipe/pii-redactor (OPF v3) computer use traces PII redaction model. Local, fast, no Python in the loop.",
+          "htmlUrl": "https://github.com/screenpipe/opf-rs",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "Rust",
+          "pushedAt": "2026-05-08T22:53:24Z",
+          "updatedAt": "2026-05-09T01:27:53Z",
+          "createdAt": "2026-05-08T21:54:55Z",
+          "score": 3
+        }
+      ]
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-nebula-security",
+      "companySlug": "nebula-security",
+      "companyName": "Nebula Security",
+      "name": "Nebula Security",
+      "sourceUrl": "https://www.ycombinator.com/companies/nebula-security",
+      "githubUrl": "https://github.com/NebuSec",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "NebuSec",
+      "repo": null,
+      "fetched": true,
+      "account": {
+        "login": "NebuSec",
+        "name": "Nebula Security",
+        "type": "Organization",
+        "htmlUrl": "https://github.com/NebuSec",
+        "bio": "",
+        "followers": 66,
+        "following": 0,
+        "publicRepos": 2,
+        "publicGists": 0,
+        "createdAt": "2026-02-22T09:02:40Z",
+        "updatedAt": "2026-07-01T23:18:26Z"
+      },
+      "aggregate": {
+        "repoCount": 2,
+        "totalStars": 493,
+        "totalForks": 140,
+        "totalWatchers": 493,
+        "maxRepoScore": 100,
+        "profileScore": 80
+      },
+      "repos": [
+        {
+          "id": 1285906429,
+          "name": "CyberMeowfia",
+          "fullName": "NebuSec/CyberMeowfia",
+          "description": "PoCs and exploits for CVEs discovered by VEGA. ",
+          "htmlUrl": "https://github.com/NebuSec/CyberMeowfia",
+          "stars": 490,
+          "forks": 139,
+          "watchers": 490,
+          "openIssues": 11,
+          "language": "C",
+          "pushedAt": "2026-07-09T09:43:53Z",
+          "updatedAt": "2026-07-09T16:57:40Z",
+          "createdAt": "2026-07-01T08:55:52Z",
+          "score": 100
+        },
+        {
+          "id": 1289586912,
+          "name": "vega-skill",
+          "fullName": "NebuSec/vega-skill",
+          "description": "",
+          "htmlUrl": "https://github.com/NebuSec/vega-skill",
+          "stars": 3,
+          "forks": 1,
+          "watchers": 3,
+          "openIssues": 0,
+          "language": "Shell",
+          "pushedAt": "2026-07-05T05:41:53Z",
+          "updatedAt": "2026-07-08T06:43:41Z",
+          "createdAt": "2026-07-05T00:18:25Z",
+          "score": 38
+        }
+      ]
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-experiential-labs",
+      "companySlug": "experiential-labs",
+      "companyName": "Experiential Labs",
+      "name": "Experiential Labs",
+      "sourceUrl": "https://www.ycombinator.com/companies/experiential-labs",
+      "githubUrl": "https://github.com/experientiallabs",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "experientiallabs",
+      "repo": null,
+      "fetched": true,
+      "account": {
+        "login": "experientiallabs",
+        "name": "Experiential Labs",
+        "type": "Organization",
+        "htmlUrl": "https://github.com/experientiallabs",
+        "bio": "",
+        "followers": 12,
+        "following": 0,
+        "publicRepos": 3,
+        "publicGists": 0,
+        "createdAt": "2025-09-21T05:51:39Z",
+        "updatedAt": "2026-07-07T04:27:27Z"
+      },
+      "aggregate": {
+        "repoCount": 3,
+        "totalStars": 140,
+        "totalForks": 9,
+        "totalWatchers": 140,
+        "maxRepoScore": 100,
+        "profileScore": 77
+      },
+      "repos": [
+        {
+          "id": 1279659344,
+          "name": "world-model-harness",
+          "fullName": "experientiallabs/world-model-harness",
+          "description": "World-model-as-a-harness for simulating AI agent environments",
+          "htmlUrl": "https://github.com/experientiallabs/world-model-harness",
+          "stars": 73,
+          "forks": 4,
+          "watchers": 73,
+          "openIssues": 22,
+          "language": "Python",
+          "pushedAt": "2026-07-09T09:00:13Z",
+          "updatedAt": "2026-07-09T13:01:02Z",
+          "createdAt": "2026-06-24T22:40:57Z",
+          "score": 100
+        },
+        {
+          "id": 1153986942,
+          "name": "openclaas",
+          "fullName": "experientiallabs/openclaas",
+          "description": "Continual Learning as a Service",
+          "htmlUrl": "https://github.com/experientiallabs/openclaas",
+          "stars": 58,
+          "forks": 5,
+          "watchers": 58,
+          "openIssues": 6,
+          "language": "Python",
+          "pushedAt": "2026-03-07T04:51:11Z",
+          "updatedAt": "2026-07-07T21:22:21Z",
+          "createdAt": "2026-02-09T22:25:12Z",
+          "score": 91
+        },
+        {
+          "id": 1175659397,
+          "name": "autoresearch-distillation",
+          "fullName": "experientiallabs/autoresearch-distillation",
+          "description": "Open-source repo for applying continual learning to autoresearch with SDPO and other RL algorithms. Current example: Qwen3-14B achieves 1.023 val_bpb (−3.1%), surpassing the original Karpathy agent (−2.8%).",
+          "htmlUrl": "https://github.com/experientiallabs/autoresearch-distillation",
+          "stars": 9,
+          "forks": 0,
+          "watchers": 9,
+          "openIssues": 2,
+          "language": "Python",
+          "pushedAt": "2026-06-13T02:32:23Z",
+          "updatedAt": "2026-07-03T15:56:16Z",
+          "createdAt": "2026-03-08T01:56:23Z",
+          "score": 49
+        }
+      ]
+    },
     {
       "entityType": "company",
       "entityId": "company-conifer",
@@ -28,7 +466,7 @@
       "sourceUrl": "https://www.ycombinator.com/companies/conifer",
       "githubUrl": "https://github.com/ConiferKit",
       "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
       "login": "ConiferKit",
       "repo": null,
       "fetched": true,
@@ -51,7 +489,7 @@
         "totalForks": 12,
         "totalWatchers": 303,
         "maxRepoScore": 100,
-        "profileScore": 100
+        "profileScore": 68
       },
       "repos": [
         {
@@ -84,443 +522,7 @@
           "pushedAt": "2026-06-07T09:41:57Z",
           "updatedAt": "2026-06-07T09:42:17Z",
           "createdAt": "2026-06-07T09:41:56Z",
-          "score": 0
-        }
-      ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-coasty",
-      "companySlug": "coasty",
-      "companyName": "Coasty",
-      "name": "Coasty",
-      "sourceUrl": "https://www.ycombinator.com/companies/coasty",
-      "githubUrl": "https://github.com/coasty-ai/open-cowork",
-      "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
-      "login": "coasty-ai",
-      "repo": "open-cowork",
-      "fetched": true,
-      "account": {
-        "login": "coasty-ai",
-        "name": "Coasty",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/coasty-ai",
-        "bio": "Open Source Large Scale LLM Frontier Research seeing \"impossible\" as \"not yet solved.\"",
-        "followers": 22,
-        "following": 0,
-        "publicRepos": 6,
-        "publicGists": 0,
-        "createdAt": "2024-09-19T03:15:24Z",
-        "updatedAt": "2026-07-09T06:09:10Z"
-      },
-      "aggregate": {
-        "repoCount": 1,
-        "totalStars": 108,
-        "totalForks": 21,
-        "totalWatchers": 108,
-        "maxRepoScore": 100,
-        "profileScore": 100
-      },
-      "repos": [
-        {
-          "id": 1266626193,
-          "name": "open-cowork",
-          "fullName": "coasty-ai/open-cowork",
-          "description": "Open-source alternative to Claude Co-Work built by Claude Mythos 5. with BYOK",
-          "htmlUrl": "https://github.com/coasty-ai/open-cowork",
-          "stars": 108,
-          "forks": 21,
-          "watchers": 108,
-          "openIssues": 0,
-          "language": "TypeScript",
-          "pushedAt": "2026-06-14T19:20:35Z",
-          "updatedAt": "2026-07-07T14:33:00Z",
-          "createdAt": "2026-06-11T19:55:21Z",
-          "score": 100
-        }
-      ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-experiential-labs",
-      "companySlug": "experiential-labs",
-      "companyName": "Experiential Labs",
-      "name": "Experiential Labs",
-      "sourceUrl": "https://www.ycombinator.com/companies/experiential-labs",
-      "githubUrl": "https://github.com/experientiallabs",
-      "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
-      "login": "experientiallabs",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "experientiallabs",
-        "name": "Experiential Labs",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/experientiallabs",
-        "bio": null,
-        "followers": 11,
-        "following": 0,
-        "publicRepos": 3,
-        "publicGists": 0,
-        "createdAt": "2025-09-21T05:51:39Z",
-        "updatedAt": "2026-07-07T04:27:27Z"
-      },
-      "aggregate": {
-        "repoCount": 3,
-        "totalStars": 139,
-        "totalForks": 9,
-        "totalWatchers": 139,
-        "maxRepoScore": 94,
-        "profileScore": 100
-      },
-      "repos": [
-        {
-          "id": 1279659344,
-          "name": "world-model-harness",
-          "fullName": "experientiallabs/world-model-harness",
-          "description": "World-model-as-a-harness for simulating AI agent environments",
-          "htmlUrl": "https://github.com/experientiallabs/world-model-harness",
-          "stars": 72,
-          "forks": 4,
-          "watchers": 72,
-          "openIssues": 23,
-          "language": "Python",
-          "pushedAt": "2026-07-09T04:56:08Z",
-          "updatedAt": "2026-07-09T04:56:09Z",
-          "createdAt": "2026-06-24T22:40:57Z",
-          "score": 94
-        },
-        {
-          "id": 1153986942,
-          "name": "openclaas",
-          "fullName": "experientiallabs/openclaas",
-          "description": "Continual Learning as a Service",
-          "htmlUrl": "https://github.com/experientiallabs/openclaas",
-          "stars": 58,
-          "forks": 5,
-          "watchers": 58,
-          "openIssues": 6,
-          "language": "Python",
-          "pushedAt": "2026-03-07T04:51:11Z",
-          "updatedAt": "2026-07-07T21:22:21Z",
-          "createdAt": "2026-02-09T22:25:12Z",
-          "score": 72
-        },
-        {
-          "id": 1175659397,
-          "name": "autoresearch-distillation",
-          "fullName": "experientiallabs/autoresearch-distillation",
-          "description": "Open-source repo for applying continual learning to autoresearch with SDPO and other RL algorithms. Current example: Qwen3-14B achieves 1.023 val_bpb (−3.1%), surpassing the original Karpathy agent (−2.8%).",
-          "htmlUrl": "https://github.com/experientiallabs/autoresearch-distillation",
-          "stars": 9,
-          "forks": 0,
-          "watchers": 9,
-          "openIssues": 2,
-          "language": "Python",
-          "pushedAt": "2026-06-13T02:32:23Z",
-          "updatedAt": "2026-07-03T15:56:16Z",
-          "createdAt": "2026-03-08T01:56:23Z",
-          "score": 52
-        }
-      ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-nebula-security",
-      "companySlug": "nebula-security",
-      "companyName": "Nebula Security",
-      "name": "Nebula Security",
-      "sourceUrl": "https://www.ycombinator.com/companies/nebula-security",
-      "githubUrl": "https://github.com/NebuSec",
-      "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
-      "login": "NebuSec",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "NebuSec",
-        "name": "Nebula Security",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/NebuSec",
-        "bio": null,
-        "followers": 57,
-        "following": 0,
-        "publicRepos": 2,
-        "publicGists": 0,
-        "createdAt": "2026-02-22T09:02:40Z",
-        "updatedAt": "2026-07-01T23:18:26Z"
-      },
-      "aggregate": {
-        "repoCount": 2,
-        "totalStars": 424,
-        "totalForks": 116,
-        "totalWatchers": 424,
-        "maxRepoScore": 100,
-        "profileScore": 100
-      },
-      "repos": [
-        {
-          "id": 1285906429,
-          "name": "CyberMeowfia",
-          "fullName": "NebuSec/CyberMeowfia",
-          "description": "PoCs and exploits for CVEs discovered by VEGA. ",
-          "htmlUrl": "https://github.com/NebuSec/CyberMeowfia",
-          "stars": 421,
-          "forks": 115,
-          "watchers": 421,
-          "openIssues": 7,
-          "language": "C",
-          "pushedAt": "2026-07-08T07:47:42Z",
-          "updatedAt": "2026-07-09T06:14:31Z",
-          "createdAt": "2026-07-01T08:55:52Z",
-          "score": 100
-        },
-        {
-          "id": 1289586912,
-          "name": "vega-skill",
-          "fullName": "NebuSec/vega-skill",
-          "description": "",
-          "htmlUrl": "https://github.com/NebuSec/vega-skill",
-          "stars": 3,
-          "forks": 1,
-          "watchers": 3,
-          "openIssues": 0,
-          "language": "Shell",
-          "pushedAt": "2026-07-05T05:41:53Z",
-          "updatedAt": "2026-07-08T06:43:41Z",
-          "createdAt": "2026-07-05T00:18:25Z",
-          "score": 42
-        }
-      ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-screenpipe",
-      "companySlug": "screenpipe",
-      "companyName": "screenpipe",
-      "name": "screenpipe",
-      "sourceUrl": "https://www.ycombinator.com/companies/screenpipe",
-      "githubUrl": "https://github.com/screenpipe",
-      "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
-      "login": "screenpipe",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "screenpipe",
-        "name": "screenpipe",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/screenpipe",
-        "bio": null,
-        "followers": 64,
-        "following": 0,
-        "publicRepos": 17,
-        "publicGists": 0,
-        "createdAt": "2026-02-03T19:20:19Z",
-        "updatedAt": "2026-07-01T20:32:35Z"
-      },
-      "aggregate": {
-        "repoCount": 12,
-        "totalStars": 20015,
-        "totalForks": 1957,
-        "totalWatchers": 20015,
-        "maxRepoScore": 100,
-        "profileScore": 100
-      },
-      "repos": [
-        {
-          "id": 817326197,
-          "name": "screenpipe",
-          "fullName": "screenpipe/screenpipe",
-          "description": "YC (S26) | AI that knows what you've seen, said, or heard. Records everything you do, say, hear 24/7, local, private, secure. Connect to OpenClaw, Hermes agent and 100+ apps",
-          "htmlUrl": "https://github.com/screenpipe/screenpipe",
-          "stars": 19716,
-          "forks": 1912,
-          "watchers": 19716,
-          "openIssues": 105,
-          "language": "Rust",
-          "pushedAt": "2026-07-09T03:52:37Z",
-          "updatedAt": "2026-07-09T05:57:31Z",
-          "createdAt": "2024-06-19T13:23:56Z",
-          "score": 100
-        },
-        {
-          "id": 958053222,
-          "name": "uniOCR",
-          "fullName": "screenpipe/uniOCR",
-          "description": "native OCR for MacOS, Windows, Linux",
-          "htmlUrl": "https://github.com/screenpipe/uniOCR",
-          "stars": 223,
-          "forks": 21,
-          "watchers": 223,
-          "openIssues": 1,
-          "language": "Rust",
-          "pushedAt": "2025-10-18T17:33:22Z",
-          "updatedAt": "2026-07-08T12:35:32Z",
-          "createdAt": "2025-03-31T15:08:34Z",
-          "score": 98
-        },
-        {
-          "id": 1168737067,
-          "name": "audiopipe",
-          "fullName": "screenpipe/audiopipe",
-          "description": "Fast cross-platform speech-to-text inference on consumer device in Rust. MLX, DirectML, Metal, Vulkan.",
-          "htmlUrl": "https://github.com/screenpipe/audiopipe",
-          "stars": 26,
-          "forks": 9,
-          "watchers": 26,
-          "openIssues": 3,
-          "language": "Rust",
-          "pushedAt": "2026-06-17T01:55:18Z",
-          "updatedAt": "2026-06-30T16:56:46Z",
-          "createdAt": "2026-02-27T18:32:39Z",
-          "score": 82
-        },
-        {
-          "id": 1143661691,
-          "name": "sck-rs",
-          "fullName": "screenpipe/sck-rs",
-          "description": "A modern screen capture library for macOS using Apple's ScreenCaptureKit framework via cidre",
-          "htmlUrl": "https://github.com/screenpipe/sck-rs",
-          "stars": 16,
-          "forks": 5,
-          "watchers": 16,
-          "openIssues": 5,
-          "language": "Rust",
-          "pushedAt": "2026-07-04T16:41:42Z",
-          "updatedAt": "2026-07-04T16:41:46Z",
-          "createdAt": "2026-01-27T21:16:20Z",
-          "score": 73
-        },
-        {
-          "id": 1144424634,
-          "name": "cpal",
-          "fullName": "screenpipe/cpal",
-          "description": "Cross-platform audio I/O library - fork with mediar-ai/cidre",
-          "htmlUrl": "https://github.com/screenpipe/cpal",
-          "stars": 4,
-          "forks": 6,
-          "watchers": 4,
-          "openIssues": 1,
-          "language": "Rust",
-          "pushedAt": "2026-07-04T15:00:13Z",
-          "updatedAt": "2026-07-04T15:00:19Z",
-          "createdAt": "2026-01-28T17:14:46Z",
-          "score": 55
-        },
-        {
-          "id": 1235793033,
-          "name": "screenleak",
-          "fullName": "screenpipe/screenleak",
-          "description": "Multi-modal benchmark for measuring sensitive-information redaction in human recording data",
-          "htmlUrl": "https://github.com/screenpipe/screenleak",
-          "stars": 20,
-          "forks": 0,
-          "watchers": 20,
-          "openIssues": 0,
-          "language": "Python",
-          "pushedAt": "2026-06-06T00:21:58Z",
-          "updatedAt": "2026-07-08T19:03:30Z",
-          "createdAt": "2026-05-11T16:56:33Z",
-          "score": 42
-        },
-        {
-          "id": 1179039016,
-          "name": "awesome-screenpipe",
-          "fullName": "screenpipe/awesome-screenpipe",
-          "description": "A curated list of awesome tools, pipes, integrations, and resources built with screenpipe",
-          "htmlUrl": "https://github.com/screenpipe/awesome-screenpipe",
-          "stars": 6,
-          "forks": 1,
-          "watchers": 6,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-03-11T16:25:32Z",
-          "updatedAt": "2026-07-01T10:55:27Z",
-          "createdAt": "2026-03-11T16:15:59Z",
-          "score": 32
-        },
-        {
-          "id": 1190867125,
-          "name": "whisper-rs",
-          "fullName": "screenpipe/whisper-rs",
-          "description": "Fork of whisper-rs with Windows ARM64 support",
-          "htmlUrl": "https://github.com/screenpipe/whisper-rs",
-          "stars": 4,
-          "forks": 2,
-          "watchers": 4,
-          "openIssues": 0,
-          "language": "Rust",
-          "pushedAt": "2026-03-24T18:15:52Z",
-          "updatedAt": "2026-06-02T20:32:46Z",
-          "createdAt": "2026-03-24T17:38:50Z",
-          "score": 30
-        },
-        {
-          "id": 1218498703,
-          "name": "privacy-filter",
-          "fullName": "screenpipe/privacy-filter",
-          "description": "PII token classifier (openai/privacy-filter) for Tinfoil confidential-compute deploys",
-          "htmlUrl": "https://github.com/screenpipe/privacy-filter",
-          "stars": 0,
-          "forks": 1,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Python",
-          "pushedAt": "2026-06-18T17:32:59Z",
-          "updatedAt": "2026-06-18T17:33:02Z",
-          "createdAt": "2026-04-23T00:03:36Z",
-          "score": 23
-        },
-        {
-          "id": 1173834301,
-          "name": ".github",
-          "fullName": "screenpipe/.github",
-          "description": "",
-          "htmlUrl": "https://github.com/screenpipe/.github",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 1,
-          "language": null,
-          "pushedAt": "2026-06-18T01:21:28Z",
-          "updatedAt": "2026-06-18T01:21:32Z",
-          "createdAt": "2026-03-05T19:56:05Z",
-          "score": 19
-        },
-        {
-          "id": 1242997202,
-          "name": "screenpipe-sdk-swift",
-          "fullName": "screenpipe/screenpipe-sdk-swift",
-          "description": "Swift Package Manager distribution of the Screenpipe SDK (source-available, enterprise-licensed). Mirrors ee/sdk from screenpipe/screenpipe.",
-          "htmlUrl": "https://github.com/screenpipe/screenpipe-sdk-swift",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Swift",
-          "pushedAt": "2026-06-05T16:51:33Z",
-          "updatedAt": "2026-06-05T16:51:38Z",
-          "createdAt": "2026-05-19T00:44:10Z",
-          "score": 0
-        },
-        {
-          "id": 1233360043,
-          "name": "opf-rs",
-          "fullName": "screenpipe/opf-rs",
-          "description": "Pure-Rust runtime for the screenpipe/pii-redactor (OPF v3) computer use traces PII redaction model. Local, fast, no Python in the loop.",
-          "htmlUrl": "https://github.com/screenpipe/opf-rs",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Rust",
-          "pushedAt": "2026-05-08T22:53:24Z",
-          "updatedAt": "2026-05-09T01:27:53Z",
-          "createdAt": "2026-05-08T21:54:55Z",
-          "score": 0
+          "score": 8
         }
       ]
     },
@@ -533,7 +535,7 @@
       "sourceUrl": "https://www.ycombinator.com/companies/inkbox",
       "githubUrl": "https://github.com/inkbox-ai",
       "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
       "login": "inkbox-ai",
       "repo": null,
       "fetched": true,
@@ -552,11 +554,11 @@
       },
       "aggregate": {
         "repoCount": 9,
-        "totalStars": 80,
+        "totalStars": 82,
         "totalForks": 8,
-        "totalWatchers": 80,
-        "maxRepoScore": 75,
-        "profileScore": 98
+        "totalWatchers": 82,
+        "maxRepoScore": 77,
+        "profileScore": 68
       },
       "repos": [
         {
@@ -568,12 +570,12 @@
           "stars": 23,
           "forks": 3,
           "watchers": 23,
-          "openIssues": 5,
+          "openIssues": 6,
           "language": "TypeScript",
-          "pushedAt": "2026-07-09T05:12:49Z",
+          "pushedAt": "2026-07-09T08:32:30Z",
           "updatedAt": "2026-07-09T05:12:53Z",
           "createdAt": "2026-03-16T18:42:20Z",
-          "score": 75
+          "score": 77
         },
         {
           "id": 1256477021,
@@ -581,63 +583,15 @@
           "fullName": "inkbox-ai/hermes-agent-plugin",
           "description": "Inkbox platform plugin for Hermes Agent",
           "htmlUrl": "https://github.com/inkbox-ai/hermes-agent-plugin",
-          "stars": 22,
+          "stars": 23,
           "forks": 2,
-          "watchers": 22,
+          "watchers": 23,
           "openIssues": 5,
           "language": "Python",
-          "pushedAt": "2026-07-09T01:52:36Z",
-          "updatedAt": "2026-07-09T00:12:49Z",
+          "pushedAt": "2026-07-09T08:36:33Z",
+          "updatedAt": "2026-07-09T16:37:17Z",
           "createdAt": "2026-06-01T20:17:31Z",
-          "score": 72
-        },
-        {
-          "id": 1267848511,
-          "name": "claude-code-plugin",
-          "fullName": "inkbox-ai/claude-code-plugin",
-          "description": "Give your Claude Code agent its own Inkbox identity: a mailbox, iMessage, a phone number for calls and SMS, and an internet address. Talk to it from anywhere.",
-          "htmlUrl": "https://github.com/inkbox-ai/claude-code-plugin",
-          "stars": 5,
-          "forks": 2,
-          "watchers": 5,
-          "openIssues": 4,
-          "language": "Python",
-          "pushedAt": "2026-07-09T02:25:13Z",
-          "updatedAt": "2026-07-09T04:13:52Z",
-          "createdAt": "2026-06-12T23:09:22Z",
-          "score": 53
-        },
-        {
-          "id": 1245030362,
-          "name": "openclaw-plugin",
-          "fullName": "inkbox-ai/openclaw-plugin",
-          "description": "Inkbox plugin for OpenClaw — adds email, SMS, and voice messaging tools and inbound webhook handling",
-          "htmlUrl": "https://github.com/inkbox-ai/openclaw-plugin",
-          "stars": 4,
-          "forks": 1,
-          "watchers": 4,
-          "openIssues": 4,
-          "language": "TypeScript",
-          "pushedAt": "2026-07-04T05:23:27Z",
-          "updatedAt": "2026-07-04T05:23:30Z",
-          "createdAt": "2026-05-20T20:56:01Z",
-          "score": 48
-        },
-        {
-          "id": 1207264437,
-          "name": "inkbox-quickstart-python",
-          "fullName": "inkbox-ai/inkbox-quickstart-python",
-          "description": "Sample Inkbox client/server in python using inkbox.",
-          "htmlUrl": "https://github.com/inkbox-ai/inkbox-quickstart-python",
-          "stars": 5,
-          "forks": 0,
-          "watchers": 5,
-          "openIssues": 0,
-          "language": "Python",
-          "pushedAt": "2026-06-10T21:08:03Z",
-          "updatedAt": "2026-06-20T04:54:32Z",
-          "createdAt": "2026-04-10T18:51:06Z",
-          "score": 43
+          "score": 75
         },
         {
           "id": 1234178837,
@@ -653,7 +607,55 @@
           "pushedAt": "2026-05-12T15:36:08Z",
           "updatedAt": "2026-07-08T22:02:53Z",
           "createdAt": "2026-05-09T21:08:28Z",
-          "score": 42
+          "score": 54
+        },
+        {
+          "id": 1267848511,
+          "name": "claude-code-plugin",
+          "fullName": "inkbox-ai/claude-code-plugin",
+          "description": "Give your Claude Code agent its own Inkbox identity: a mailbox, iMessage, a phone number for calls and SMS, and an internet address. Talk to it from anywhere.",
+          "htmlUrl": "https://github.com/inkbox-ai/claude-code-plugin",
+          "stars": 5,
+          "forks": 2,
+          "watchers": 5,
+          "openIssues": 4,
+          "language": "Python",
+          "pushedAt": "2026-07-09T02:25:13Z",
+          "updatedAt": "2026-07-09T04:13:52Z",
+          "createdAt": "2026-06-12T23:09:22Z",
+          "score": 51
+        },
+        {
+          "id": 1245030362,
+          "name": "openclaw-plugin",
+          "fullName": "inkbox-ai/openclaw-plugin",
+          "description": "Inkbox plugin for OpenClaw — adds email, SMS, and voice messaging tools and inbound webhook handling",
+          "htmlUrl": "https://github.com/inkbox-ai/openclaw-plugin",
+          "stars": 4,
+          "forks": 1,
+          "watchers": 4,
+          "openIssues": 4,
+          "language": "TypeScript",
+          "pushedAt": "2026-07-04T05:23:27Z",
+          "updatedAt": "2026-07-04T05:23:30Z",
+          "createdAt": "2026-05-20T20:56:01Z",
+          "score": 44
+        },
+        {
+          "id": 1207264437,
+          "name": "inkbox-quickstart-python",
+          "fullName": "inkbox-ai/inkbox-quickstart-python",
+          "description": "Sample Inkbox client/server in python using inkbox.",
+          "htmlUrl": "https://github.com/inkbox-ai/inkbox-quickstart-python",
+          "stars": 5,
+          "forks": 0,
+          "watchers": 5,
+          "openIssues": 0,
+          "language": "Python",
+          "pushedAt": "2026-06-10T21:08:03Z",
+          "updatedAt": "2026-06-20T04:54:32Z",
+          "createdAt": "2026-04-10T18:51:06Z",
+          "score": 38
         },
         {
           "id": 1272626097,
@@ -661,15 +663,15 @@
           "fullName": "inkbox-ai/codex-plugin",
           "description": "Give your Codex agent its own Inkbox identity: a mailbox, iMessage, a phone number for calls and SMS, and an internet address. Talk to it from anywhere.",
           "htmlUrl": "https://github.com/inkbox-ai/codex-plugin",
-          "stars": 2,
+          "stars": 3,
           "forks": 0,
-          "watchers": 2,
+          "watchers": 3,
           "openIssues": 1,
           "language": "Python",
           "pushedAt": "2026-07-03T19:49:44Z",
-          "updatedAt": "2026-07-03T19:49:47Z",
+          "updatedAt": "2026-07-09T06:55:30Z",
           "createdAt": "2026-06-17T19:44:01Z",
-          "score": 34
+          "score": 33
         },
         {
           "id": 1211787929,
@@ -685,7 +687,7 @@
           "pushedAt": "2026-06-24T17:49:07Z",
           "updatedAt": "2026-06-24T17:50:32Z",
           "createdAt": "2026-04-15T18:44:29Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1231540593,
@@ -701,156 +703,7 @@
           "pushedAt": "2026-06-10T21:07:54Z",
           "updatedAt": "2026-06-10T21:07:56Z",
           "createdAt": "2026-05-07T03:56:07Z",
-          "score": 18
-        }
-      ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-robocurve",
-      "companySlug": "robocurve",
-      "companyName": "Robocurve",
-      "name": "Robocurve",
-      "sourceUrl": "https://www.ycombinator.com/companies/robocurve",
-      "githubUrl": "https://github.com/robocurve",
-      "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
-      "login": "robocurve",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "robocurve",
-        "name": "robocurve",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/robocurve",
-        "bio": null,
-        "followers": 5,
-        "following": 0,
-        "publicRepos": 7,
-        "publicGists": 0,
-        "createdAt": "2026-06-25T22:39:14Z",
-        "updatedAt": "2026-06-29T16:40:36Z"
-      },
-      "aggregate": {
-        "repoCount": 7,
-        "totalStars": 5,
-        "totalForks": 2,
-        "totalWatchers": 5,
-        "maxRepoScore": 45,
-        "profileScore": 52
-      },
-      "repos": [
-        {
-          "id": 1281030225,
-          "name": "inspect-robots",
-          "fullName": "robocurve/inspect-robots",
-          "description": "Open-source evaluation framework for VLA / physical-AI models — define a benchmark once, run any policy on any robot or sim. (The Inspect AI for robotics.)",
-          "htmlUrl": "https://github.com/robocurve/inspect-robots",
-          "stars": 2,
-          "forks": 2,
-          "watchers": 2,
-          "openIssues": 9,
-          "language": "Python",
-          "pushedAt": "2026-07-08T03:21:08Z",
-          "updatedAt": "2026-07-08T03:21:13Z",
-          "createdAt": "2026-06-26T06:55:29Z",
-          "score": 45
-        },
-        {
-          "id": 1282043605,
-          "name": "worldevals",
-          "fullName": "robocurve/worldevals",
-          "description": "A curated catalog of VLA / physical-AI benchmarks, each runnable on real robots or sims via Inspect Robots. (The Inspect Evals for robotics.)",
-          "htmlUrl": "https://github.com/robocurve/worldevals",
-          "stars": 1,
-          "forks": 0,
-          "watchers": 1,
-          "openIssues": 2,
-          "language": "Python",
-          "pushedAt": "2026-07-08T03:52:44Z",
-          "updatedAt": "2026-07-08T03:52:47Z",
-          "createdAt": "2026-06-27T08:42:38Z",
-          "score": 30
-        },
-        {
-          "id": 1282042008,
-          "name": "kitchenbench",
-          "fullName": "robocurve/kitchenbench",
-          "description": "A bimanual kitchen-manipulation benchmark for VLA models, built on Inspect Robots (part of WorldEvals).",
-          "htmlUrl": "https://github.com/robocurve/kitchenbench",
-          "stars": 1,
-          "forks": 0,
-          "watchers": 1,
-          "openIssues": 2,
-          "language": "Python",
-          "pushedAt": "2026-07-08T03:27:59Z",
-          "updatedAt": "2026-07-08T03:28:04Z",
-          "createdAt": "2026-06-27T08:39:57Z",
-          "score": 30
-        },
-        {
-          "id": 1283761644,
-          "name": "inspect-robots-yam",
-          "fullName": "robocurve/inspect-robots-yam",
-          "description": "Inspect Robots adapters for I2RT YAM bimanual arms driven by MolmoAct2",
-          "htmlUrl": "https://github.com/robocurve/inspect-robots-yam",
-          "stars": 1,
-          "forks": 0,
-          "watchers": 1,
-          "openIssues": 4,
-          "language": "Python",
-          "pushedAt": "2026-07-08T02:43:55Z",
-          "updatedAt": "2026-07-08T02:43:58Z",
-          "createdAt": "2026-06-29T08:03:46Z",
-          "score": 30
-        },
-        {
-          "id": 1285498901,
-          "name": "inspect-robots-so101",
-          "fullName": "robocurve/inspect-robots-so101",
-          "description": "Inspect Robots adapters for LeRobot SO-ARM followers (SO-100/SO-101) driven by LeRobot policies",
-          "htmlUrl": "https://github.com/robocurve/inspect-robots-so101",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 4,
-          "language": "Python",
-          "pushedAt": "2026-07-08T02:44:02Z",
-          "updatedAt": "2026-07-08T02:44:07Z",
-          "createdAt": "2026-06-30T21:41:23Z",
-          "score": 21
-        },
-        {
-          "id": 1293027709,
-          "name": "worldpolicies",
-          "fullName": "robocurve/worldpolicies",
-          "description": "Robocurve's registry of published robot-policy (VLA) checkpoints — WorldEvals benchmarks them; WorldPolicies is where they live",
-          "htmlUrl": "https://github.com/robocurve/worldpolicies",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Python",
-          "pushedAt": "2026-07-08T03:50:38Z",
-          "updatedAt": "2026-07-08T03:50:42Z",
-          "createdAt": "2026-07-08T03:50:35Z",
-          "score": 18
-        },
-        {
-          "id": 1290621250,
-          "name": "gr00t-n1.7-so-101",
-          "fullName": "robocurve/gr00t-n1.7-so-101",
-          "description": "",
-          "htmlUrl": "https://github.com/robocurve/gr00t-n1.7-so-101",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Python",
-          "pushedAt": "2026-07-08T02:58:53Z",
-          "updatedAt": "2026-07-08T02:58:58Z",
-          "createdAt": "2026-07-06T05:16:58Z",
-          "score": 18
+          "score": 8
         }
       ]
     },
@@ -863,7 +716,7 @@
       "sourceUrl": "https://www.ycombinator.com/companies/bylaw",
       "githubUrl": "https://github.com/UseBylaw",
       "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
       "login": "UseBylaw",
       "repo": null,
       "fetched": true,
@@ -885,8 +738,8 @@
         "totalStars": 8,
         "totalForks": 0,
         "totalWatchers": 8,
-        "maxRepoScore": 40,
-        "profileScore": 50
+        "maxRepoScore": 35,
+        "profileScore": 36
       },
       "repos": [
         {
@@ -903,7 +756,7 @@
           "pushedAt": "2026-07-01T08:21:38Z",
           "updatedAt": "2026-07-01T08:19:49Z",
           "createdAt": "2026-03-06T03:33:37Z",
-          "score": 40
+          "score": 35
         },
         {
           "id": 1174047981,
@@ -919,7 +772,156 @@
           "pushedAt": "2026-07-01T08:21:23Z",
           "updatedAt": "2026-07-01T08:19:43Z",
           "createdAt": "2026-03-06T02:36:03Z",
+          "score": 35
+        }
+      ]
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-robocurve",
+      "companySlug": "robocurve",
+      "companyName": "Robocurve",
+      "name": "Robocurve",
+      "sourceUrl": "https://www.ycombinator.com/companies/robocurve",
+      "githubUrl": "https://github.com/robocurve",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "robocurve",
+      "repo": null,
+      "fetched": true,
+      "account": {
+        "login": "robocurve",
+        "name": "robocurve",
+        "type": "Organization",
+        "htmlUrl": "https://github.com/robocurve",
+        "bio": "",
+        "followers": 5,
+        "following": 0,
+        "publicRepos": 7,
+        "publicGists": 0,
+        "createdAt": "2026-06-25T22:39:14Z",
+        "updatedAt": "2026-06-29T16:40:36Z"
+      },
+      "aggregate": {
+        "repoCount": 7,
+        "totalStars": 5,
+        "totalForks": 2,
+        "totalWatchers": 5,
+        "maxRepoScore": 40,
+        "profileScore": 33
+      },
+      "repos": [
+        {
+          "id": 1281030225,
+          "name": "inspect-robots",
+          "fullName": "robocurve/inspect-robots",
+          "description": "Open-source evaluation framework for VLA / physical-AI models — define a benchmark once, run any policy on any robot or sim. (The Inspect AI for robotics.)",
+          "htmlUrl": "https://github.com/robocurve/inspect-robots",
+          "stars": 2,
+          "forks": 2,
+          "watchers": 2,
+          "openIssues": 10,
+          "language": "Python",
+          "pushedAt": "2026-07-09T07:33:30Z",
+          "updatedAt": "2026-07-08T03:21:13Z",
+          "createdAt": "2026-06-26T06:55:29Z",
           "score": 40
+        },
+        {
+          "id": 1283761644,
+          "name": "inspect-robots-yam",
+          "fullName": "robocurve/inspect-robots-yam",
+          "description": "Inspect Robots adapters for I2RT YAM bimanual arms driven by MolmoAct2",
+          "htmlUrl": "https://github.com/robocurve/inspect-robots-yam",
+          "stars": 1,
+          "forks": 0,
+          "watchers": 1,
+          "openIssues": 4,
+          "language": "Python",
+          "pushedAt": "2026-07-08T02:43:55Z",
+          "updatedAt": "2026-07-08T02:43:58Z",
+          "createdAt": "2026-06-29T08:03:46Z",
+          "score": 22
+        },
+        {
+          "id": 1282043605,
+          "name": "worldevals",
+          "fullName": "robocurve/worldevals",
+          "description": "A curated catalog of VLA / physical-AI benchmarks, each runnable on real robots or sims via Inspect Robots. (The Inspect Evals for robotics.)",
+          "htmlUrl": "https://github.com/robocurve/worldevals",
+          "stars": 1,
+          "forks": 0,
+          "watchers": 1,
+          "openIssues": 2,
+          "language": "Python",
+          "pushedAt": "2026-07-08T03:52:44Z",
+          "updatedAt": "2026-07-08T03:52:47Z",
+          "createdAt": "2026-06-27T08:42:38Z",
+          "score": 21
+        },
+        {
+          "id": 1282042008,
+          "name": "kitchenbench",
+          "fullName": "robocurve/kitchenbench",
+          "description": "A bimanual kitchen-manipulation benchmark for VLA models, built on Inspect Robots (part of WorldEvals).",
+          "htmlUrl": "https://github.com/robocurve/kitchenbench",
+          "stars": 1,
+          "forks": 0,
+          "watchers": 1,
+          "openIssues": 2,
+          "language": "Python",
+          "pushedAt": "2026-07-08T03:27:59Z",
+          "updatedAt": "2026-07-08T03:28:04Z",
+          "createdAt": "2026-06-27T08:39:57Z",
+          "score": 21
+        },
+        {
+          "id": 1285498901,
+          "name": "inspect-robots-so101",
+          "fullName": "robocurve/inspect-robots-so101",
+          "description": "Inspect Robots adapters for LeRobot SO-ARM followers (SO-100/SO-101) driven by LeRobot policies",
+          "htmlUrl": "https://github.com/robocurve/inspect-robots-so101",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 4,
+          "language": "Python",
+          "pushedAt": "2026-07-08T02:44:02Z",
+          "updatedAt": "2026-07-08T02:44:07Z",
+          "createdAt": "2026-06-30T21:41:23Z",
+          "score": 10
+        },
+        {
+          "id": 1293027709,
+          "name": "worldpolicies",
+          "fullName": "robocurve/worldpolicies",
+          "description": "Robocurve's registry of published robot-policy (VLA) checkpoints — WorldEvals benchmarks them; WorldPolicies is where they live",
+          "htmlUrl": "https://github.com/robocurve/worldpolicies",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "Python",
+          "pushedAt": "2026-07-08T03:50:38Z",
+          "updatedAt": "2026-07-08T03:50:42Z",
+          "createdAt": "2026-07-08T03:50:35Z",
+          "score": 8
+        },
+        {
+          "id": 1290621250,
+          "name": "gr00t-n1.7-so-101",
+          "fullName": "robocurve/gr00t-n1.7-so-101",
+          "description": "",
+          "htmlUrl": "https://github.com/robocurve/gr00t-n1.7-so-101",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "Python",
+          "pushedAt": "2026-07-08T02:58:53Z",
+          "updatedAt": "2026-07-08T02:58:58Z",
+          "createdAt": "2026-07-06T05:16:58Z",
+          "score": 8
         }
       ]
     },
@@ -932,7 +934,7 @@
       "sourceUrl": "https://www.ycombinator.com/companies/speko",
       "githubUrl": "https://github.com/spekoai",
       "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
       "login": "spekoai",
       "repo": null,
       "fetched": true,
@@ -941,7 +943,7 @@
         "name": null,
         "type": "Organization",
         "htmlUrl": "https://github.com/SpekoAI",
-        "bio": null,
+        "bio": "",
         "followers": 2,
         "following": 0,
         "publicRepos": 12,
@@ -954,8 +956,8 @@
         "totalStars": 4,
         "totalForks": 2,
         "totalWatchers": 4,
-        "maxRepoScore": 39,
-        "profileScore": 44
+        "maxRepoScore": 34,
+        "profileScore": 26
       },
       "repos": [
         {
@@ -972,7 +974,7 @@
           "pushedAt": "2026-06-28T15:19:46Z",
           "updatedAt": "2026-07-06T07:04:11Z",
           "createdAt": "2026-04-10T16:26:14Z",
-          "score": 39
+          "score": 34
         },
         {
           "id": 1207154060,
@@ -988,7 +990,7 @@
           "pushedAt": "2026-07-09T00:52:43Z",
           "updatedAt": "2026-07-09T00:52:47Z",
           "createdAt": "2026-04-10T16:25:40Z",
-          "score": 38
+          "score": 33
         },
         {
           "id": 1209792211,
@@ -1004,7 +1006,7 @@
           "pushedAt": "2026-07-06T07:33:14Z",
           "updatedAt": "2026-07-06T07:33:17Z",
           "createdAt": "2026-04-13T19:35:29Z",
-          "score": 21
+          "score": 11
         },
         {
           "id": 1273208470,
@@ -1020,7 +1022,7 @@
           "pushedAt": "2026-07-08T17:41:18Z",
           "updatedAt": "2026-07-08T17:41:28Z",
           "createdAt": "2026-06-18T09:56:52Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1208175214,
@@ -1036,7 +1038,7 @@
           "pushedAt": "2026-07-06T21:43:21Z",
           "updatedAt": "2026-07-06T21:43:26Z",
           "createdAt": "2026-04-11T23:22:19Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1211744471,
@@ -1052,7 +1054,7 @@
           "pushedAt": "2026-07-06T11:37:33Z",
           "updatedAt": "2026-07-06T11:37:36Z",
           "createdAt": "2026-04-15T17:49:19Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1290558703,
@@ -1068,7 +1070,7 @@
           "pushedAt": "2026-07-06T03:42:08Z",
           "updatedAt": "2026-07-06T03:42:35Z",
           "createdAt": "2026-07-06T03:42:05Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1240210040,
@@ -1084,7 +1086,7 @@
           "pushedAt": "2026-06-28T15:19:44Z",
           "updatedAt": "2026-06-28T15:19:50Z",
           "createdAt": "2026-05-15T22:06:06Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1270155465,
@@ -1100,7 +1102,7 @@
           "pushedAt": "2026-06-19T11:53:16Z",
           "updatedAt": "2026-06-26T18:50:31Z",
           "createdAt": "2026-06-15T12:46:07Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1211737106,
@@ -1116,7 +1118,7 @@
           "pushedAt": "2026-05-12T10:12:56Z",
           "updatedAt": "2026-06-26T18:50:27Z",
           "createdAt": "2026-04-15T17:40:11Z",
-          "score": 0
+          "score": 3
         },
         {
           "id": 1208175228,
@@ -1132,7 +1134,7 @@
           "pushedAt": "2026-05-21T05:44:05Z",
           "updatedAt": "2026-06-06T00:24:30Z",
           "createdAt": "2026-04-11T23:22:22Z",
-          "score": 0
+          "score": 3
         },
         {
           "id": 1208175222,
@@ -1148,92 +1150,7 @@
           "pushedAt": "2026-05-21T05:44:06Z",
           "updatedAt": "2026-06-06T00:24:28Z",
           "createdAt": "2026-04-11T23:22:20Z",
-          "score": 0
-        }
-      ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-glen",
-      "companySlug": "glen",
-      "companyName": "Glen",
-      "name": "Glen",
-      "sourceUrl": "https://www.ycombinator.com/companies/glen",
-      "githubUrl": "https://github.com/Glen-Web-App",
-      "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
-      "login": "Glen-Web-App",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "Glen-Web-App",
-        "name": "Glen",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/Glen-Web-App",
-        "bio": " Organizational Memory for Agent Fleets.",
-        "followers": 1,
-        "following": 0,
-        "publicRepos": 3,
-        "publicGists": 0,
-        "createdAt": "2026-05-31T08:45:02Z",
-        "updatedAt": "2026-07-01T22:59:45Z"
-      },
-      "aggregate": {
-        "repoCount": 3,
-        "totalStars": 2,
-        "totalForks": 0,
-        "totalWatchers": 2,
-        "maxRepoScore": 28,
-        "profileScore": 31
-      },
-      "repos": [
-        {
-          "id": 1266594788,
-          "name": "glen-claude-code-plugin",
-          "fullName": "Glen-Web-App/glen-claude-code-plugin",
-          "description": "",
-          "htmlUrl": "https://github.com/Glen-Web-App/glen-claude-code-plugin",
-          "stars": 1,
-          "forks": 0,
-          "watchers": 1,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-07-08T00:23:22Z",
-          "updatedAt": "2026-07-08T00:23:25Z",
-          "createdAt": "2026-06-11T19:11:43Z",
-          "score": 28
-        },
-        {
-          "id": 1286771754,
-          "name": "glen-cursor-plugin",
-          "fullName": "Glen-Web-App/glen-cursor-plugin",
-          "description": "Glen's Cursor plugin — generated marketplace repo; source of truth is the glen monorepo (packages/cursor-plugin)",
-          "htmlUrl": "https://github.com/Glen-Web-App/glen-cursor-plugin",
-          "stars": 1,
-          "forks": 0,
-          "watchers": 1,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-07-08T00:23:20Z",
-          "updatedAt": "2026-07-08T00:23:24Z",
-          "createdAt": "2026-07-02T04:52:39Z",
-          "score": 28
-        },
-        {
-          "id": 1266595061,
-          "name": "glen-codex-plugin",
-          "fullName": "Glen-Web-App/glen-codex-plugin",
-          "description": "",
-          "htmlUrl": "https://github.com/Glen-Web-App/glen-codex-plugin",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-07-08T00:23:23Z",
-          "updatedAt": "2026-07-08T00:23:26Z",
-          "createdAt": "2026-06-11T19:12:06Z",
-          "score": 18
+          "score": 3
         }
       ]
     },
@@ -1246,7 +1163,7 @@
       "sourceUrl": "https://www.ycombinator.com/companies/realpact",
       "githubUrl": "https://github.com/RealPact",
       "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
       "login": "RealPact",
       "repo": null,
       "fetched": true,
@@ -1268,8 +1185,8 @@
         "totalStars": 2,
         "totalForks": 0,
         "totalWatchers": 2,
-        "maxRepoScore": 15,
-        "profileScore": 25
+        "maxRepoScore": 19,
+        "profileScore": 24
       },
       "repos": [
         {
@@ -1286,7 +1203,7 @@
           "pushedAt": "2025-08-14T22:08:15Z",
           "updatedAt": "2026-06-04T13:03:13Z",
           "createdAt": "2025-04-17T21:13:46Z",
-          "score": 15
+          "score": 19
         }
       ]
     },
@@ -1297,9 +1214,9 @@
       "companyName": "Care GP",
       "name": "Care GP",
       "sourceUrl": "https://www.ycombinator.com/companies/care-gp",
-      "githubUrl": "https://github.com/Care-AI-Inc",
+      "githubUrl": "https://github.com/orgs/Care-AI-Inc",
       "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
       "login": "Care-AI-Inc",
       "repo": null,
       "fetched": true,
@@ -1308,7 +1225,7 @@
         "name": "Care AI Inc",
         "type": "Organization",
         "htmlUrl": "https://github.com/Care-AI-Inc",
-        "bio": null,
+        "bio": "",
         "followers": 5,
         "following": 0,
         "publicRepos": 6,
@@ -1321,8 +1238,8 @@
         "totalStars": 0,
         "totalForks": 0,
         "totalWatchers": 0,
-        "maxRepoScore": 18,
-        "profileScore": 20
+        "maxRepoScore": 8,
+        "profileScore": 19
       },
       "repos": [
         {
@@ -1339,7 +1256,7 @@
           "pushedAt": "2026-07-08T06:16:04Z",
           "updatedAt": "2026-07-08T06:16:08Z",
           "createdAt": "2025-07-04T03:02:32Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1013509545,
@@ -1355,7 +1272,7 @@
           "pushedAt": "2026-07-07T07:26:04Z",
           "updatedAt": "2026-07-07T07:26:07Z",
           "createdAt": "2025-07-04T03:02:02Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 997263229,
@@ -1371,7 +1288,7 @@
           "pushedAt": "2025-07-02T05:27:20Z",
           "updatedAt": "2025-06-09T02:41:48Z",
           "createdAt": "2025-06-06T08:23:32Z",
-          "score": 0
+          "score": 1
         },
         {
           "id": 997253293,
@@ -1387,7 +1304,7 @@
           "pushedAt": "2025-06-30T05:05:43Z",
           "updatedAt": "2025-06-09T02:41:32Z",
           "createdAt": "2025-06-06T08:01:33Z",
-          "score": 0
+          "score": 1
         },
         {
           "id": 857775854,
@@ -1403,7 +1320,7 @@
           "pushedAt": "2024-10-20T11:31:50Z",
           "updatedAt": "2024-10-20T11:31:53Z",
           "createdAt": "2024-09-15T15:27:39Z",
-          "score": 0
+          "score": 1
         },
         {
           "id": 859823992,
@@ -1419,7 +1336,92 @@
           "pushedAt": "2024-09-26T09:41:42Z",
           "updatedAt": "2024-09-26T09:41:46Z",
           "createdAt": "2024-09-19T10:44:23Z",
-          "score": 0
+          "score": 1
+        }
+      ]
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-glen",
+      "companySlug": "glen",
+      "companyName": "Glen",
+      "name": "Glen",
+      "sourceUrl": "https://www.ycombinator.com/companies/glen",
+      "githubUrl": "https://github.com/Glen-Web-App",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "Glen-Web-App",
+      "repo": null,
+      "fetched": true,
+      "account": {
+        "login": "Glen-Web-App",
+        "name": "Glen",
+        "type": "Organization",
+        "htmlUrl": "https://github.com/Glen-Web-App",
+        "bio": " Organizational Memory for Agent Fleets.",
+        "followers": 1,
+        "following": 0,
+        "publicRepos": 3,
+        "publicGists": 0,
+        "createdAt": "2026-05-31T08:45:02Z",
+        "updatedAt": "2026-07-01T22:59:45Z"
+      },
+      "aggregate": {
+        "repoCount": 3,
+        "totalStars": 2,
+        "totalForks": 0,
+        "totalWatchers": 2,
+        "maxRepoScore": 20,
+        "profileScore": 19
+      },
+      "repos": [
+        {
+          "id": 1266594788,
+          "name": "glen-claude-code-plugin",
+          "fullName": "Glen-Web-App/glen-claude-code-plugin",
+          "description": "",
+          "htmlUrl": "https://github.com/Glen-Web-App/glen-claude-code-plugin",
+          "stars": 1,
+          "forks": 0,
+          "watchers": 1,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-08T00:23:22Z",
+          "updatedAt": "2026-07-08T00:23:25Z",
+          "createdAt": "2026-06-11T19:11:43Z",
+          "score": 20
+        },
+        {
+          "id": 1286771754,
+          "name": "glen-cursor-plugin",
+          "fullName": "Glen-Web-App/glen-cursor-plugin",
+          "description": "Glen's Cursor plugin — generated marketplace repo; source of truth is the glen monorepo (packages/cursor-plugin)",
+          "htmlUrl": "https://github.com/Glen-Web-App/glen-cursor-plugin",
+          "stars": 1,
+          "forks": 0,
+          "watchers": 1,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-08T00:23:20Z",
+          "updatedAt": "2026-07-08T00:23:24Z",
+          "createdAt": "2026-07-02T04:52:39Z",
+          "score": 20
+        },
+        {
+          "id": 1266595061,
+          "name": "glen-codex-plugin",
+          "fullName": "Glen-Web-App/glen-codex-plugin",
+          "description": "",
+          "htmlUrl": "https://github.com/Glen-Web-App/glen-codex-plugin",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-08T00:23:23Z",
+          "updatedAt": "2026-07-08T00:23:26Z",
+          "createdAt": "2026-06-11T19:12:06Z",
+          "score": 8
         }
       ]
     },
@@ -1430,9 +1432,9 @@
       "companyName": "Mireye",
       "name": "Mireye",
       "sourceUrl": "https://www.ycombinator.com/companies/mireye",
-      "githubUrl": "https://github.com/Mireye-Labs",
+      "githubUrl": "https://github.com/orgs/Mireye-Labs/",
       "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
       "login": "Mireye-Labs",
       "repo": null,
       "fetched": true,
@@ -1441,7 +1443,7 @@
         "name": "Mireye",
         "type": "Organization",
         "htmlUrl": "https://github.com/Mireye-Labs",
-        "bio": null,
+        "bio": "",
         "followers": 2,
         "following": 0,
         "publicRepos": 2,
@@ -1454,8 +1456,8 @@
         "totalStars": 0,
         "totalForks": 0,
         "totalWatchers": 0,
-        "maxRepoScore": 18,
-        "profileScore": 17
+        "maxRepoScore": 8,
+        "profileScore": 15
       },
       "repos": [
         {
@@ -1472,7 +1474,7 @@
           "pushedAt": "2026-06-13T01:11:20Z",
           "updatedAt": "2026-06-13T01:11:23Z",
           "createdAt": "2026-06-13T00:31:06Z",
-          "score": 18
+          "score": 8
         },
         {
           "id": 1265474766,
@@ -1488,76 +1490,7 @@
           "pushedAt": "2026-06-10T20:07:55Z",
           "updatedAt": "2026-06-10T20:08:48Z",
           "createdAt": "2026-06-10T20:07:24Z",
-          "score": 18
-        }
-      ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-openrelay",
-      "companySlug": "openrelay",
-      "companyName": "OpenRelay",
-      "name": "OpenRelay",
-      "sourceUrl": "https://www.ycombinator.com/companies/openrelay",
-      "githubUrl": "https://github.com/OpenRelayInc/OpenRelay",
-      "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
-      "login": "OpenRelayInc",
-      "repo": "OpenRelay",
-      "fetched": true,
-      "account": {
-        "login": "OpenRelayInc",
-        "name": "OpenRelay",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/OpenRelayInc",
-        "bio": null,
-        "followers": 0,
-        "following": 0,
-        "publicRepos": 2,
-        "publicGists": 0,
-        "createdAt": "2026-04-12T21:01:47Z",
-        "updatedAt": "2026-07-03T19:45:19Z"
-      },
-      "aggregate": {
-        "repoCount": 2,
-        "totalStars": 0,
-        "totalForks": 0,
-        "totalWatchers": 0,
-        "maxRepoScore": 18,
-        "profileScore": 12
-      },
-      "repos": [
-        {
-          "id": 1288526072,
-          "name": "homebrew-tap",
-          "fullName": "OpenRelayInc/homebrew-tap",
-          "description": "Homebrew tap for OpenRelay tools. brew install openrelayinc/tap/orl",
-          "htmlUrl": "https://github.com/OpenRelayInc/homebrew-tap",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Ruby",
-          "pushedAt": "2026-07-04T02:03:42Z",
-          "updatedAt": "2026-07-04T02:03:45Z",
-          "createdAt": "2026-07-03T17:31:10Z",
-          "score": 18
-        },
-        {
-          "id": 1288526040,
-          "name": "orl",
-          "fullName": "OpenRelayInc/orl",
-          "description": "The OpenRelay CLI (orl): GPU VMs, clusters, billing, and provider tools from your terminal. Release binaries; source lives in the OpenRelay monorepo.",
-          "htmlUrl": "https://github.com/OpenRelayInc/orl",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-07-04T02:03:40Z",
-          "updatedAt": "2026-07-03T17:36:22Z",
-          "createdAt": "2026-07-03T17:31:08Z",
-          "score": 18
+          "score": 8
         }
       ]
     },
@@ -1568,9 +1501,9 @@
       "companyName": "Shepherd",
       "name": "Shepherd",
       "sourceUrl": "https://www.ycombinator.com/companies/shepherd-3",
-      "githubUrl": "https://github.com/askshepherd",
+      "githubUrl": "https://github.com/orgs/askshepherd",
       "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on the official public YC Summer 2026 company profile.",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
       "login": "askshepherd",
       "repo": null,
       "fetched": true,
@@ -1579,7 +1512,7 @@
         "name": "Shepherd Healthcare",
         "type": "Organization",
         "htmlUrl": "https://github.com/askshepherd",
-        "bio": null,
+        "bio": "",
         "followers": 3,
         "following": 0,
         "publicRepos": 0,
@@ -1593,9 +1526,24 @@
         "totalForks": 0,
         "totalWatchers": 0,
         "maxRepoScore": 0,
-        "profileScore": 6
+        "profileScore": 10
       },
       "repos": []
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-openrelay",
+      "companySlug": "openrelay",
+      "companyName": "OpenRelay",
+      "name": "OpenRelay",
+      "sourceUrl": "https://www.ycombinator.com/companies/openrelay",
+      "githubUrl": "https://github.com/OpenRelayInc/OpenRelay",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "OpenRelayInc",
+      "repo": "OpenRelay",
+      "fetched": false,
+      "error": "404 Not Found"
     }
   ]
 }

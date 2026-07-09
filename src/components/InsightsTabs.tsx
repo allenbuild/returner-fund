@@ -181,7 +181,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                 <th>Company</th>
                 <th>Score delta</th>
                 <th>Rank delta</th>
-                <th>Current</th>
+                <th>Overall rank now</th>
                 <th>Benchmark</th>
               </tr>
             </thead>

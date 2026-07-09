@@ -1,0 +1,263 @@
+{
+  "runId": "s26-collection-2026-07-09T16-57-54-179Z",
+  "startedAt": "2026-07-09T16:57:54.179Z",
+  "eventLog": [
+    {
+      "type": "run_started",
+      "at": "2026-07-09T16:57:54.180Z",
+      "elapsedMinutes": 0,
+      "runId": "s26-collection-2026-07-09T16-57-54-179Z",
+      "durationMinutes": 120,
+      "maxCompanies": 83,
+      "workers": 8,
+      "delayMs": 900
+    },
+    {
+      "type": "loop_started",
+      "at": "2026-07-09T16:57:54.181Z",
+      "elapsedMinutes": 0,
+      "loop": 1
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T16:57:54.181Z",
+      "elapsedMinutes": 0,
+      "phase": "refresh-official-yc-snapshot"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T16:57:54.181Z",
+      "elapsedMinutes": 0,
+      "phase": "refresh-official-yc-snapshot",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-yc-spring-2026.mjs"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T16:58:00.398Z",
+      "elapsedMinutes": 0,
+      "phase": "refresh-official-yc-snapshot",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-yc-spring-2026.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 6,
+      "stdoutTail": "Fetched 25/83\nFetched 50/83\nFetched 75/83\nFetched 83/83\nWrote 83 YC Summer 2026 companies to /Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/src/lib/yc/summer-2026-companies.json",
+      "stderrTail": "YC Algolia nbHits reported 84, but 83 Summer 2026 companies were returned and will be used."
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-07-09T16:58:00.398Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-07-09T16:58:00.433Z",
+      "elapsedMinutes": 0
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T16:58:00.433Z",
+      "elapsedMinutes": 0,
+      "phase": "refresh-official-yc-snapshot"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T16:58:00.433Z",
+      "elapsedMinutes": 0,
+      "phase": "github-official-links"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T16:58:00.433Z",
+      "elapsedMinutes": 0,
+      "phase": "github-official-links",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-github-traction.mjs"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T16:58:01.697Z",
+      "elapsedMinutes": 0,
+      "phase": "github-official-links",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-github-traction.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 1,
+      "stdoutTail": "GitHub targets: 15 (15 explicit, 0 discovered, 0 searches).\nFetched GitHub traction for Care GP: Care-AI-Inc\nFetched GitHub traction for Conifer: ConiferKit\nFetched GitHub traction for Glen: Glen-Web-App\nFetched GitHub traction for Bylaw: UseBylaw\nFetched GitHub traction for Coasty: coasty-ai/open-cowork\nFetched GitHub traction for Experiential Labs: experientiallabs\nFetched GitHub traction for Mireye: Mireye-Labs\nFetched GitHub traction for Nebula Security: NebuSec\nFetched GitHub traction for Inkbox: inkbox-ai\nFetched GitHub traction for RealPact: RealPact\nFetched GitHub traction for Shepherd: askshepherd\nFetched GitHub traction for Robocurve: robocurve\nFetched GitHub traction for Speko: spekoai\nFetched GitHub traction for screenpipe: screenpipe\nWrote /Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/src/lib/social/github-traction-summer-2026.json",
+      "stderrTail": "GitHub fetch failed for OpenRelayInc/OpenRelay: 404 Not Found"
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T16:58:01.698Z",
+      "elapsedMinutes": 0,
+      "phase": "github-official-links"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T16:58:01.698Z",
+      "elapsedMinutes": 0,
+      "phase": "instagram-link-discovery"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T16:58:01.698Z",
+      "elapsedMinutes": 0,
+      "phase": "instagram-link-discovery",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/discover-instagram-overrides.mjs --write --append --search --web-search --promote-search --company-only --max-companies=83 --workers=4"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T17:12:01.780Z",
+      "elapsedMinutes": 14,
+      "phase": "instagram-link-discovery",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/discover-instagram-overrides.mjs --write --append --search --web-search --promote-search --company-only --max-companies=83 --workers=4",
+      "exitCode": null,
+      "elapsedSeconds": 840,
+      "stdoutTail": "",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T17:12:01.783Z",
+      "elapsedMinutes": 14,
+      "phase": "instagram-link-discovery"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T17:12:01.783Z",
+      "elapsedMinutes": 14,
+      "phase": "public-web-and-community-evidence"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T17:12:01.783Z",
+      "elapsedMinutes": 14,
+      "phase": "public-web-and-community-evidence",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-public-traction.mjs --social=all --max-companies=83 --workers=8 --delay-ms=900 --discover-missing-social --force"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T17:31:59.439Z",
+      "elapsedMinutes": 34,
+      "phase": "public-web-and-community-evidence",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-public-traction.mjs --social=all --max-companies=83 --workers=8 --delay-ms=900 --discover-missing-social --force",
+      "exitCode": null,
+      "elapsedSeconds": 1198,
+      "stdoutTail": "o:founder:1865110\n[instagram/worker-2] instagram:ekpa:company:31234\n[instagram/worker-1] instagram:ekpa:founder:3028173\n[instagram/worker-1] instagram:ekpa:founder:2421466\n[instagram/worker-1] instagram:experiential-labs:company:33806\n[linkedin/worker-1] linkedin:cosmic-robotics:founder:522502\n[linkedin/worker-1] linkedin:cosmic-robotics:founder:403781\n[linkedin/worker-1] linkedin:cova:company:31268\n[linkedin/worker-1] linkedin:cova:founder:1711673\n[instagram/worker-2] instagram:experiential-labs:founder:3149739\n[instagram/worker-2] instagram:experiential-labs:founder:411375\n[instagram/worker-2] instagram:floracene:company:32193\n[instagram/worker-1] instagram:floracene:founder:1225540\n[instagram/worker-1] instagram:floracene:founder:3605405\n[instagram/worker-1] instagram:florin:company:33282\n[linkedin/worker-1] linkedin:cova:founder:1452184\n[linkedin/worker-1] linkedin:denta:company:32782\n[linkedin/worker-1] linkedin:denta:founder:1959995\n[linkedin/worker-1] linkedin:dialogus:company:32202\n[linkedin/worker-1] linkedin:dialogus:founder:1603180\n[linkedin/worker-1] linkedin:dialogus:founder:3398179\n[linkedin/worker-1] linkedin:dialogus:founder:3047141\n[instagram/worker-2] instagram:florin:founder:3779733\n[instagram/worker-2] instagram:florin:founder:3776296\n[instagram/worker-2] instagram:florin:founder:3834278\n[instagram/worker-2] instagram:flowmanual:company:32525\n[instagram/worker-1] instagram:flowmanual:founder:3655483\n[instagram/worker-1] instagram:flowmanual:founder:3054292\n[instagram/worker-1] instagram:glen:company:32226\n[linkedin/worker-1] linkedin:edviro:company:33805",
+      "stderrTail": ""
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-07-09T17:31:59.440Z",
+      "elapsedMinutes": 34
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-07-09T17:31:59.471Z",
+      "elapsedMinutes": 34
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T17:31:59.471Z",
+      "elapsedMinutes": 34,
+      "phase": "public-web-and-community-evidence",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-public-traction.mjs --social=none --platform=product_hunt,youtube,hacker_news,reddit,web,rss --max-companies=83 --workers=8 --delay-ms=900 --force"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T17:40:14.982Z",
+      "elapsedMinutes": 42,
+      "phase": "public-web-and-community-evidence",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-public-traction.mjs --social=none --platform=product_hunt,youtube,hacker_news,reddit,web,rss --max-companies=83 --workers=8 --delay-ms=900 --force",
+      "exitCode": 0,
+      "elapsedSeconds": 496,
+      "stdoutTail": "er-1] product_hunt:opentrade\n[product_hunt/worker-2] product_hunt:operon\n[product_hunt/worker-1] product_hunt:os3\n[product_hunt/worker-2] product_hunt:osmaura\n[product_hunt/worker-1] product_hunt:pango\n[product_hunt/worker-2] product_hunt:parasma\n[product_hunt/worker-1] product_hunt:perceptron-ml\n[product_hunt/worker-2] product_hunt:petrarch\n[product_hunt/worker-1] product_hunt:poth-labs\n[product_hunt/worker-2] product_hunt:praxis-ai-2\n[product_hunt/worker-1] product_hunt:prescience-inc\n[product_hunt/worker-2] product_hunt:prized\n[product_hunt/worker-1] product_hunt:realpact\n[product_hunt/worker-2] product_hunt:rex-inc\n[product_hunt/worker-1] product_hunt:rindler\n[product_hunt/worker-2] product_hunt:rise-reforming\n[product_hunt/worker-1] product_hunt:risklytics\n[product_hunt/worker-2] product_hunt:robocurve\n[product_hunt/worker-1] product_hunt:salem-robotics-inc\n[product_hunt/worker-2] product_hunt:screenpipe\n[product_hunt/worker-1] product_hunt:shepherd-3\n[product_hunt/worker-2] product_hunt:speko\n[product_hunt/worker-1] product_hunt:talentpluto\n[product_hunt/worker-2] product_hunt:torus\n[product_hunt/worker-1] product_hunt:touchmark\n[product_hunt/worker-2] product_hunt:trope\n[product_hunt/worker-1] product_hunt:truffle\n[product_hunt/worker-2] product_hunt:trustai\n[product_hunt/worker-1] product_hunt:tsenta\n[product_hunt/worker-2] product_hunt:verdant\n[product_hunt/worker-1] product_hunt:vestris\n[product_hunt/worker-2] product_hunt:whitespace\n[product_hunt/worker-1] product_hunt:zomma\nWrote 1021 evidence items, 994 review candidates, 2549 failures, 1243 discovery attempts.",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T17:40:14.983Z",
+      "elapsedMinutes": 42,
+      "phase": "public-web-and-community-evidence"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T17:40:14.983Z",
+      "elapsedMinutes": 42,
+      "phase": "logged-in-x"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T17:40:14.983Z",
+      "elapsedMinutes": 42,
+      "phase": "logged-in-x",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-logged-in-social-traction.mjs --platforms=x --entities=all --max-targets=220 --workers=3 --limit=30 --scrolls=8 --timeout-ms=90000 --delay-ms=1800 --retry-empty --force"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T17:52:09.131Z",
+      "elapsedMinutes": 54,
+      "phase": "logged-in-x",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-logged-in-social-traction.mjs --platforms=x --entities=all --max-targets=220 --workers=3 --limit=30 --scrolls=8 --timeout-ms=90000 --delay-ms=1800 --retry-empty --force",
+      "exitCode": 0,
+      "elapsedSeconds": 714,
+      "stdoutTail": ". / Rishab Jain: 0 posts\nx Prized / Prized: 0 posts\nx Prized / Hudson Griffith: 0 posts\nx Prized / Marinos Eliades: 0 posts\nx RealPact / Ranvir Deshmukh: 0 posts\nx RealPact / RealPact: 0 posts\nx Rex / Rex: 0 posts\nx Rex / Merlin Kafka: 0 posts\nx Rindler / Arthur De Los Santos: 0 posts\nx Rindler / Michael Serrano: 0 posts\nx Risklytics / Risklytics: 0 posts\nx Robocurve / Robocurve: 0 posts\nx Risklytics / Samuel Gold: 0 posts\nx Risklytics / Alexander Risio: 0 posts\nx Robocurve / Jay Chooi: 0 posts\nx Salem Robotics Inc / Salem Robotics Inc: 0 posts\nx screenpipe / Louis Beaumont: 0 posts\nx screenpipe / screenpipe: 0 posts\nx Shepherd / Ishan Ramrakhiani: 0 posts\nx Shepherd / Philip Meng: 0 posts\nx Shepherd / Elijah Renner: 0 posts\nx Speko / Beknazar Abdikamalov: 0 posts\nx Talentpluto / Sahil Seth: 0 posts\nx Talentpluto / Talentpluto: 0 posts\nx Talentpluto / Maki Potamianos: 0 posts\nx Talentpluto / Tony Xavier: 0 posts\nx Torus / Marcus Lima: 0 posts\nx Touchmark / Ilia Bolgov: 0 posts\nx Touchmark / Touchmark: 0 posts\nx Trope / Trope: 0 posts\nx Touchmark / Roman Yanushevskyi: 0 posts\nx Trope / Matthew Chow: 0 posts\nx Trope / Victor Vannara: 0 posts\nx Truffle / Truffle: 0 posts\nx Truffle / Aakar Khanna: 0 posts\nx Truffle / Arjun Chaliha: 0 posts\nx TrustAI / Hannah Chung: 0 posts\nx TrustAI / TrustAI: 0 posts\nx TrustAI / Medha Venkatapathy: 0 posts\nx Tsenta / Tsenta: 0 posts\nx Tsenta / Agnay Srivastava: 0 posts\nx Whitespace / Alex Tung: 0 posts\nx Tsenta / Pulkit Gupta: 0 posts\nx Zomma / Jihyun Kim: 0 posts\nx Zomma / Zomma: 0 posts\nWrote 2706 logged-in post evidence items, 307 failures.",
+      "stderrTail": ""
+    },
+    {
+      "type": "checkpoint_started",
+      "at": "2026-07-09T17:52:09.131Z",
+      "elapsedMinutes": 54
+    },
+    {
+      "type": "checkpoint_finished",
+      "at": "2026-07-09T17:52:09.160Z",
+      "elapsedMinutes": 54
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T17:52:09.160Z",
+      "elapsedMinutes": 54,
+      "phase": "logged-in-x"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T17:52:09.160Z",
+      "elapsedMinutes": 54,
+      "phase": "logged-in-instagram"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T17:52:09.160Z",
+      "elapsedMinutes": 54,
+      "phase": "logged-in-instagram",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-logged-in-social-traction.mjs --platforms=instagram --entities=all --max-targets=120 --workers=1 --limit=30 --scrolls=16 --timeout-ms=90000 --delay-ms=2200 --retry-empty --force"
+    },
+    {
+      "type": "command_finished",
+      "at": "2026-07-09T17:52:09.447Z",
+      "elapsedMinutes": 54,
+      "phase": "logged-in-instagram",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-logged-in-social-traction.mjs --platforms=instagram --entities=all --max-targets=120 --workers=1 --limit=30 --scrolls=16 --timeout-ms=90000 --delay-ms=2200 --retry-empty --force",
+      "exitCode": 0,
+      "elapsedSeconds": 0,
+      "stdoutTail": "Logged-in social targets: 0 (1 workers, up to 30 posts each, 16 scroll passes).\nWrote 2706 logged-in post evidence items, 307 failures.",
+      "stderrTail": ""
+    },
+    {
+      "type": "phase_finished",
+      "at": "2026-07-09T17:52:09.447Z",
+      "elapsedMinutes": 54,
+      "phase": "logged-in-instagram"
+    },
+    {
+      "type": "phase_started",
+      "at": "2026-07-09T17:52:09.447Z",
+      "elapsedMinutes": 54,
+      "phase": "logged-in-linkedin"
+    },
+    {
+      "type": "command_started",
+      "at": "2026-07-09T17:52:09.447Z",
+      "elapsedMinutes": 54,
+      "phase": "logged-in-linkedin",
+      "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/fetch-logged-in-social-traction.mjs --platforms=linkedin --allow-linkedin --entities=all --max-targets=120 --workers=1 --limit=15 --scrolls=3 --timeout-ms=90000 --delay-ms=2600 --retry-empty --force"
+    }
+  ]
+}

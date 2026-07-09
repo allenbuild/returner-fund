@@ -42,8 +42,8 @@ describe("score benchmarks", () => {
     expect(store.weekly).toHaveLength(1);
     expect(updatedRow?.dod.scoreDelta).toBe(5);
     expect(updatedRow?.dod.benchmarkedAt).toBe("2026-06-28T12:00:00.000Z");
-    expect(updatedRow?.wow.scoreDelta).toBe(0);
-    expect(updatedRow?.wow.benchmarkedAt).toBeNull();
+    expect(updatedRow?.wow.scoreDelta).toBe(5);
+    expect(updatedRow?.wow.benchmarkedAt).toBe("2026-06-28T12:00:00.000Z");
   });
 
   it("keeps day-over-day comparisons pinned to the previous calendar day after today's snapshot exists", () => {
@@ -235,6 +235,61 @@ describe("score benchmarks", () => {
 
     expect(firstRow?.dod.baselineRank).toBe(3);
     expect(secondRow?.dod.baselineRank).toBe(1);
+  });
+
+  it("normalizes benchmark ranks before writing current snapshots", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const corruptGraph = {
+      ...graph,
+      leaderboard: graph.leaderboard.map((row) => ({ ...row, rank: 24 }))
+    };
+
+    ensureBenchmarkMomentum(corruptGraph, {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const store = JSON.parse(fs.readFileSync(storePath, "utf8")) as {
+      daily: { companies: { rank: number }[] }[];
+    };
+
+    expect(store.daily[0]?.companies.slice(0, 3).map((company) => company.rank)).toEqual([1, 2, 3]);
+  });
+
+  it("ignores empty stored snapshots and falls back to the next usable baseline", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const firstCompany = graph.leaderboard[0]!;
+
+    fs.writeFileSync(
+      storePath,
+      JSON.stringify(
+        {
+          version: 1,
+          batchSlug: "S26",
+          updatedAt: "2026-06-30T12:00:00.000Z",
+          daily: [
+            { recordedAt: "2026-06-29T12:00:00.000Z", companies: [{ companyId: firstCompany.companyId, companyName: firstCompany.companyName, score: firstCompany.score, rank: 1 }] },
+            { recordedAt: "2026-06-30T12:00:00.000Z", companies: [] }
+          ],
+          weekly: []
+        },
+        null,
+        2
+      ),
+      "utf8"
+    );
+
+    const hydrated = applyStoredBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const row = hydrated.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(row?.dod.scoreDelta).toBe(5);
+    expect(row?.dod.benchmarkedAt).toBe("2026-06-29T12:00:00.000Z");
   });
 });
 

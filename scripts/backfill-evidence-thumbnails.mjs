@@ -1,14 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
 import { extractLinkPreview } from "./link-preview-utils.mjs";
+import {
+  openCliAvailable,
+  runOpenCli as executeOpenCli
+} from "./lib/opencli-runtime.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
-const execFileAsync = promisify(execFile);
-const openCliMain = path.join(process.env.APPDATA ?? "", "npm", "node_modules", "@jackwener", "opencli", "dist", "src", "main.js");
 const evidenceFiles = [
   "src/lib/social/public-evidence-current.json",
   "src/lib/social/logged-in-evidence-current.json",
@@ -803,7 +803,7 @@ function localCachedThumbnail(item) {
 }
 
 async function cacheInstagramScreenshot(item, args) {
-  if (!fs.existsSync(openCliMain)) {
+  if (!openCliAvailable()) {
     cacheFailures.push({ id: item.id, reason: "OpenCLI is not installed at the expected path." });
     return null;
   }
@@ -850,7 +850,7 @@ async function cacheInstagramScreenshot(item, args) {
 }
 
 async function cacheInstagramProfileScreenshot(item, args) {
-  if (!fs.existsSync(openCliMain)) {
+  if (!openCliAvailable()) {
     cacheFailures.push({ id: item.id, reason: "OpenCLI is not installed at the expected path." });
     return null;
   }
@@ -893,7 +893,7 @@ async function cacheInstagramProfileScreenshot(item, args) {
 }
 
 async function cacheXPostScreenshot(item, args) {
-  if (!fs.existsSync(openCliMain)) {
+  if (!openCliAvailable()) {
     cacheFailures.push({ id: item.id, reason: "OpenCLI is not installed at the expected path." });
     return null;
   }
@@ -941,7 +941,7 @@ async function cacheXPostScreenshot(item, args) {
 }
 
 async function cacheXProfileScreenshot(item, args) {
-  if (!fs.existsSync(openCliMain)) {
+  if (!openCliAvailable()) {
     cacheFailures.push({ id: item.id, reason: "OpenCLI is not installed at the expected path." });
     return null;
   }
@@ -1014,13 +1014,11 @@ async function stageInstagramPostCover(session, sourceUrl, args) {
 }
 
 async function runOpenCli(args, timeoutMs) {
-  const result = await execFileAsync(process.execPath, [openCliMain, ...args], {
+  return executeOpenCli(args, {
     cwd: repoRoot,
     timeout: timeoutMs,
-    maxBuffer: 20 * 1024 * 1024,
-    windowsHide: true
+    maxBuffer: 20 * 1024 * 1024
   });
-  return result.stdout;
 }
 
 function localThumbnailPaths(item, extension = "png") {

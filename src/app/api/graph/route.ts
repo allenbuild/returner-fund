@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { applyBenchmarkMomentumRows, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
+import { applyBenchmarkMomentumRows, benchmarkStoreVersion, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
+import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
 import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { BusinessModel, EdgeType, Platform } from "@/lib/graph/types";
 
@@ -62,7 +63,8 @@ export function GET(request: Request) {
     includeRaw,
     includeNonScoring,
     includeWhy,
-    dataset: "yc-2026-official"
+    dataset: "yc-2026-official",
+    benchmarkStore: benchmarkStoreVersion(batchSlug)
   });
   const cached = graphResponseCache.get(cacheKey);
 
@@ -77,11 +79,13 @@ export function GET(request: Request) {
   } catch (error) {
     console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
   }
-  const graph = sanitizeGraphResponse(applyBenchmarkMomentumRows(filteredGraph, benchmarkRows), {
-    includeRaw,
-    includeNonScoring,
-    includeWhy
-  });
+  const graph = enrichSummerPlatformStatus(
+    sanitizeGraphResponse(applyBenchmarkMomentumRows(filteredGraph, benchmarkRows), {
+      includeRaw,
+      includeNonScoring,
+      includeWhy
+    })
+  );
   graphResponseCache.set(cacheKey, { createdAt: Date.now(), graph });
   if (graphResponseCache.size > GRAPH_RESPONSE_CACHE_LIMIT) {
     const oldestKey = graphResponseCache.keys().next().value;

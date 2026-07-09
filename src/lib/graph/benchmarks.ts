@@ -47,17 +47,17 @@ export function ensureBenchmarkMomentum(
   const storePath = options.storePath ?? benchmarkStorePath(graph.batch.slug);
   const store = readBenchmarkStore(storePath, graph.batch.slug);
   const currentSnapshot = snapshotFromGraph(graph, now);
-  const dailyBaseline = selectLatestPriorBaseline(store.daily, now);
-  const weeklyBaseline = selectLatestBaselineOnOrBeforeDay([...store.daily, ...store.weekly], now, 7);
+  const dailyBaseline = selectDailyBaseline(store.daily, now);
+  const weeklyBaseline = selectWeeklyBaseline([...store.daily, ...store.weekly], now);
   let recordedDaily = false;
   let recordedWeekly = false;
 
-  if (!latestSnapshotOnSameDay(store.daily, now)) {
+  if (currentSnapshot.companies.length && !latestSnapshotOnSameDay(store.daily, now)) {
     store.daily = [...store.daily, currentSnapshot].slice(-MAX_DAILY_SNAPSHOTS);
     recordedDaily = true;
   }
 
-  if (shouldRecordWeeklySnapshot(store.weekly, now)) {
+  if (currentSnapshot.companies.length && shouldRecordWeeklySnapshot(store.weekly, now)) {
     store.weekly = [...store.weekly, currentSnapshot].slice(-MAX_WEEKLY_SNAPSHOTS);
     recordedWeekly = true;
   }
@@ -91,13 +91,23 @@ export function applyStoredBenchmarkMomentum(
   const now = options.now ?? new Date();
   const storePath = options.storePath ?? benchmarkStorePath(graph.batch.slug);
   const store = readBenchmarkStore(storePath, graph.batch.slug);
-  const dailyBaseline = selectLatestPriorBaseline(store.daily, now);
-  const weeklyBaseline = selectLatestBaselineOnOrBeforeDay([...store.daily, ...store.weekly], now, 7);
+  const dailyBaseline = selectDailyBaseline(store.daily, now);
+  const weeklyBaseline = selectWeeklyBaseline([...store.daily, ...store.weekly], now);
 
   return {
     ...graph,
     fastestGaining: buildBenchmarkMomentumRows(graph, dailyBaseline, weeklyBaseline)
   };
+}
+
+export function benchmarkStoreVersion(batchSlug: string): string {
+  const storePath = benchmarkStorePath(batchSlug);
+  try {
+    const stat = fs.statSync(storePath);
+    return `${Math.round(stat.mtimeMs)}:${stat.size}`;
+  } catch {
+    return "missing";
+  }
 }
 
 function benchmarkStorePath(batchSlug: string): string {
@@ -141,12 +151,12 @@ function emptyStore(batchSlug: string): BenchmarkStore {
 function snapshotFromGraph(graph: GraphResponse, now: Date): BenchmarkSnapshot {
   return {
     recordedAt: now.toISOString(),
-    companies: graph.leaderboard.map((row) => ({
+    companies: normalizeBenchmarkCompanies(graph.leaderboard.map((row) => ({
       companyId: row.companyId,
       companyName: row.companyName,
       score: row.score,
       rank: row.rank
-    }))
+    })))
   };
 }
 
@@ -165,6 +175,14 @@ function latestSnapshotOnSameDay(snapshots: BenchmarkSnapshot[], day: Date): Ben
 
 function selectLatestPriorBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
   return latestSnapshotBefore(snapshots, startOfLocalDay(now));
+}
+
+function selectDailyBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
+  return selectLatestPriorBaseline(snapshots, now) ?? latestSnapshotBefore(snapshots, now);
+}
+
+function selectWeeklyBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
+  return selectLatestBaselineOnOrBeforeDay(snapshots, now, 7) ?? latestSnapshotBefore(snapshots, now);
 }
 
 function selectLatestBaselineOnOrBeforeDay(
@@ -261,20 +279,27 @@ export function applyBenchmarkMomentumRows(
   return {
     ...graph,
     fastestGaining: graph.leaderboard
-      .flatMap((row) => {
+      .map((row) => {
         const benchmark = benchmarkByCompany.get(row.companyId);
-        if (!benchmark) {
-          return [];
-        }
-        return [
-          {
-            ...benchmark,
-            companyName: row.companyName
-          }
-        ];
+        return benchmark
+          ? {
+              ...benchmark,
+              companyName: row.companyName
+            }
+          : neutralBenchmarkRow(row);
       })
       .sort(momentumSort("dod"))
       .map((row, index) => ({ ...row, rank: index + 1 }))
+  };
+}
+
+function neutralBenchmarkRow(row: GraphResponse["leaderboard"][number]): FastestGainingRow {
+  return {
+    rank: 0,
+    companyId: row.companyId,
+    companyName: row.companyName,
+    dod: deltaFor(row, null, null),
+    wow: deltaFor(row, null, null)
   };
 }
 
@@ -292,7 +317,16 @@ function normalizeBenchmarkSnapshot(value: unknown): BenchmarkSnapshot[] {
     return [];
   }
 
-  const companies = candidate.companies
+  const companies = normalizeBenchmarkCompanies(candidate.companies);
+  if (!companies.length) {
+    return [];
+  }
+
+  return [{ recordedAt: candidate.recordedAt, companies }];
+}
+
+function normalizeBenchmarkCompanies(companies: unknown[]): BenchmarkCompanySnapshot[] {
+  return companies
     .flatMap((company): BenchmarkCompanySnapshot[] => {
       if (!company || typeof company !== "object") {
         return [];
@@ -322,8 +356,6 @@ function normalizeBenchmarkSnapshot(value: unknown): BenchmarkSnapshot[] {
         left.companyId.localeCompare(right.companyId)
     )
     .map((company, index) => ({ ...company, rank: index + 1 }));
-
-  return [{ recordedAt: candidate.recordedAt, companies }];
 }
 
 function round(value: number): number {

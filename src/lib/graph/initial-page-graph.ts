@@ -1,4 +1,4 @@
-import { ensureBenchmarkMomentum } from "./benchmarks";
+import { benchmarkStoreVersion, ensureBenchmarkMomentum } from "./benchmarks";
 import { buildGraphResponse } from "./graph-builder";
 import { sanitizeGraphResponse } from "./response-sanitizer";
 import type { GraphResponse } from "./types";
@@ -10,7 +10,7 @@ let cachedInitialPageGraph: { cacheKey: string; graph: GraphResponse } | null = 
 
 export function buildInitialPageGraph(): GraphResponse {
   const now = new Date();
-  const cacheKey = `${DEFAULT_BATCH_SLUG}:${localDayKey(now)}`;
+  const cacheKey = `${DEFAULT_BATCH_SLUG}:${localDayKey(now)}:${benchmarkStoreVersion(DEFAULT_BATCH_SLUG)}`;
   if (cachedInitialPageGraph?.cacheKey !== cacheKey) {
     const graph = sanitizeGraphResponse(buildGraphResponse({ batchSlug: DEFAULT_BATCH_SLUG }, yc2026GraphDataset));
     cachedInitialPageGraph = {

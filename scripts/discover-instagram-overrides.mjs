@@ -1,14 +1,11 @@
-import { execFile } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { promisify } from "node:util";
+import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
 
-const execFileAsync = promisify(execFile);
 const root = process.cwd();
 const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
 const overridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
 const candidatesPath = join(root, "outputs", "instagram-discovery-candidates.json");
-const openCliMain = join(process.env.APPDATA ?? "", "npm", "node_modules", "@jackwener", "opencli", "dist", "src", "main.js");
 
 const write = booleanArg("--write");
 const appendReport = booleanArg("--append");
@@ -1503,13 +1500,11 @@ async function fetchText(url, options = {}) {
 }
 
 async function runOpenCli(args, options = {}) {
-  const result = await execFileAsync(process.execPath, [openCliMain, ...args], {
+  return executeOpenCli(args, {
     cwd: root,
     timeout: options.timeoutMs ?? 45_000,
-    maxBuffer: 10 * 1024 * 1024,
-    windowsHide: true
+    maxBuffer: 10 * 1024 * 1024
   });
-  return result.stdout;
 }
 
 function parseJsonOutput(raw) {

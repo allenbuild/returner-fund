@@ -15,9 +15,14 @@ async function main() {
   const algolia = extractAlgoliaOptions(directoryHtml);
   const listing = await fetchCompanyListing(algolia, config);
 
-  if (listing.nbHits !== config.expectedCount || listing.hits.length !== config.expectedCount) {
+  if (listing.hits.length !== config.expectedCount) {
     throw new Error(
       `Expected ${config.expectedCount} ${config.batchName} companies from YC Algolia; got nbHits=${listing.nbHits}, hits=${listing.hits.length}.`
+    );
+  }
+  if (listing.nbHits !== config.expectedCount) {
+    console.warn(
+      `YC Algolia nbHits reported ${listing.nbHits}, but ${listing.hits.length} ${config.batchName} companies were returned and will be used.`
     );
   }
 

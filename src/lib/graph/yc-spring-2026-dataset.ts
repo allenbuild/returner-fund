@@ -211,11 +211,12 @@ const officialGithubUrlsByEntityId = new Map(
     )
   ].filter((entry): entry is [string, string] => Boolean(entry)))
 );
+const allowedLoggedInPlatforms = new Set(["instagram", "x", "linkedin"]);
 const allowedLoggedInEvidence = loggedInSnapshot.evidence.filter((item) =>
-  ["instagram", "x"].includes(item.platform)
+  allowedLoggedInPlatforms.has(item.platform)
 );
 const allowedLoggedInNeedsReview = loggedInSnapshot.needsReview.filter((item) =>
-  ["instagram", "x"].includes(item.platform)
+  allowedLoggedInPlatforms.has(item.platform)
 );
 const rawPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEvidence, ...targetedSnapshot.evidence]
   .filter((item) => item.review_state === "verified")
@@ -274,9 +275,9 @@ export const ycSummer2026GraphDataset: DemoGraphDataset = {
     },
     {
       platform: "linkedin",
-      status: "public_only",
-      authMethod: "Public pages/search/Jina only; logged-in LinkedIn disabled for this run",
-      notes: `Found ${officialSocialLinkCounts.linkedin.company} company and ${officialSocialLinkCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles, but ${summerEvidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available. Public LinkedIn reads were blocked; prior Spring rows remain excluded.`
+      status: summerEvidenceCounts.linkedin ? "working" : "public_only",
+      authMethod: "Opt-in authenticated browser session plus public profile discovery",
+      notes: `Found ${officialSocialLinkCounts.linkedin.company} company and ${officialSocialLinkCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles. ${summerEvidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available; prior Spring rows remain excluded.`
     },
     {
       platform: "instagram",
@@ -917,7 +918,7 @@ function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
   }
 
   if (item.platform === "linkedin") {
-    return linkedInPostAuthorMatchesKnownEntity(item);
+    return isLoggedInLinkedInActivityEvidence(item) || linkedInPostAuthorMatchesKnownEntity(item);
   }
 
   if (item.platform !== "hacker_news") {
@@ -925,6 +926,23 @@ function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
   }
 
   return hasSummerBatchContext(evidenceBatchText(item));
+}
+
+function isLoggedInLinkedInActivityEvidence(item: PublicEvidenceRecord): boolean {
+  if (!knownEntityIds.has(item.entityId)) {
+    return false;
+  }
+
+  if (!item.matchReason?.includes("Opt-in logged-in LinkedIn activity-page original post scrape")) {
+    return false;
+  }
+
+  try {
+    const url = new URL(item.sourceUrl);
+    return url.hostname.endsWith("linkedin.com") && url.pathname.includes("/recent-activity/all/");
+  } catch {
+    return false;
+  }
 }
 
 function linkedInPostAuthorMatchesKnownEntity(item: PublicEvidenceRecord): boolean {

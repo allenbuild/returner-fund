@@ -4,7 +4,7 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-07-09T06:10:06.748Z",
+    "fetchedAt": "2026-07-09T16:58:00.374Z",
     "expectedCompanyCount": 83,
     "observedCompanyCount": 83,
     "notes": [
@@ -279,6 +279,65 @@
       "sourceOrdinal": 18
     },
     {
+      "id": "32204",
+      "objectID": "32204",
+      "slug": "alloovium",
+      "name": "Alloovium",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/alloovium",
+      "websiteUrl": "https://www.alloovium.com/en",
+      "tagline": "Construction paperwork that finally works for your team",
+      "description": "Alloovium is the document intelligence layer for construction 🏗️ It reads every document and piece of data on a project (contracts, specs, drawings, compliance records, conversations), turning them into answers you can trust and actions with real value: every answer cites its exact source sentence, paperwork is checked clause by clause against the builder's own Integrated Management System, and nothing AI-drafted moves without a human sign-off, with it all compliant by default.",
+      "industry": "Real Estate and Construction",
+      "subindustry": "Real Estate and Construction -> Construction",
+      "industries": [
+        "Real Estate and Construction",
+        "Construction"
+      ],
+      "tags": [
+        "Artificial Intelligence",
+        "Construction"
+      ],
+      "location": "Brisbane, Australia",
+      "teamSize": 5,
+      "status": "Active",
+      "groupPartner": "Gustaf Alstromer",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/gustaf-alstromer",
+      "socialLinks": {
+        "linkedin": "http://linkedin.com/company/alloovium",
+        "x": "https://x.com/alloovium"
+      },
+      "founders": [
+        {
+          "id": "3650351",
+          "name": "Cielo Nicolosi",
+          "title": "Founder",
+          "bio": "CTO @ Alloovium. Coding since 8 years old, founding engineer at 4 previous startups. Professional Futsal Player.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/cielo-nicolosi",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/cielo-nicolosi/"
+          }
+        },
+        {
+          "id": "3047254",
+          "name": "Zander Schweitzer",
+          "title": "Founder",
+          "bio": "CEO @ Alloovium (YC S26) | I'm a Civil Engineer who has spent my whole life around construction, having my first experience in a bulldozer at 5 yrs old. Since then, I've driven dozers, dump trucks and loaders, done some site surveying and cut my teeth in construction as a site engineer on some of Australia's coolest civil marine projects.\n\nNow, I'm building the software I always wanted @ Alloovium.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/zander-schweitzer",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/zander-schweitzer-1a0651205?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+            "x": "https://x.com/zandergs15"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/alloovium",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ],
+      "sourceOrdinal": 46
+    },
+    {
       "id": "33315",
       "objectID": "33315",
       "slug": "amulet",
@@ -400,7 +459,7 @@
         "https://www.ycombinator.com/companies/archal",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 77
+      "sourceOrdinal": 78
     },
     {
       "id": "30653",
@@ -457,7 +516,7 @@
         "https://www.ycombinator.com/companies/withasync",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 81
+      "sourceOrdinal": 82
     },
     {
       "id": "31532",
@@ -518,65 +577,7 @@
         "https://www.ycombinator.com/companies/atlas-discovery",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 67
-    },
-    {
-      "id": "28841",
-      "objectID": "28841",
-      "slug": "baud",
-      "name": "Baud",
-      "batch": "Summer 2026",
-      "ycProfileUrl": "https://www.ycombinator.com/companies/baud",
-      "websiteUrl": "https://baudlabs.ai",
-      "tagline": "AI training chips and developer platform",
-      "description": "Novel AI hardware and developer platform, built from first principles to let companies train, fine-tune, and deploy frontier models with orders of magnitude better performance than incumbents",
-      "industry": "Industrials",
-      "subindustry": "Industrials",
-      "industries": [
-        "Industrials"
-      ],
-      "tags": [
-        "Hard Tech",
-        "Hardware",
-        "AI"
-      ],
-      "location": "San Francisco",
-      "teamSize": 3,
-      "status": "Active",
-      "groupPartner": "Diana Hu",
-      "groupPartnerUrl": "https://www.ycombinator.com/people/diana-hu",
-      "socialLinks": {
-        "linkedin": "https://www.linkedin.com/company/baud-labs-ai/"
-      },
-      "founders": [
-        {
-          "id": "1348413",
-          "name": "Sarang Zambare",
-          "title": "Founder & CEO",
-          "bio": "Multi-time founder with 4 patents and 7+ years in deep learning and AI hardware. ML lead for Peloton Guide from concept to 100,000+ devices shipped. Previously founding ML engineer at Peloton and Caper (acquired by Instacart). Also a certified pilot.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/sarang-zambare",
-          "socialLinks": {
-            "linkedin": "https://linkedin.com/in/sarang-zambare",
-            "x": "https://twitter.com/sarangz11"
-          }
-        },
-        {
-          "id": "3805085",
-          "name": "Eric Taylor",
-          "title": "Founder & Chief Hardware Architect",
-          "bio": "Experienced ASIC Architect with over a decade of industry experience, including four tape-outs, two major IP releases, two patents, and a publication. Prior roles at NVIDIA, Freescale/NXP, Arteris IP, and Enfabrica.",
-          "ycProfileUrl": "https://www.ycombinator.com/people/eric-taylor",
-          "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/eric-taylor-995b923b/"
-          }
-        }
-      ],
-      "launch": null,
-      "sourceUrls": [
-        "https://www.ycombinator.com/companies/baud",
-        "https://www.ycombinator.com/companies?batch=Summer%202026"
-      ],
-      "sourceOrdinal": 82
+      "sourceOrdinal": 68
     },
     {
       "id": "32551",
@@ -685,7 +686,7 @@
         "https://www.ycombinator.com/companies/blueprints",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 63
+      "sourceOrdinal": 64
     },
     {
       "id": "32286",
@@ -1107,7 +1108,7 @@
         "https://www.ycombinator.com/companies/control-seat",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 74
+      "sourceOrdinal": 75
     },
     {
       "id": "33012",
@@ -1226,7 +1227,7 @@
         "https://www.ycombinator.com/companies/cova",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 73
+      "sourceOrdinal": 74
     },
     {
       "id": "32782",
@@ -1342,7 +1343,7 @@
         "https://www.ycombinator.com/companies/dialogus",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 46
+      "sourceOrdinal": 47
     },
     {
       "id": "33805",
@@ -1458,7 +1459,7 @@
         "https://www.ycombinator.com/companies/ekpa",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 76
+      "sourceOrdinal": 77
     },
     {
       "id": "33806",
@@ -1575,7 +1576,7 @@
         "https://www.ycombinator.com/companies/floracene",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 49
+      "sourceOrdinal": 50
     },
     {
       "id": "33282",
@@ -1897,7 +1898,7 @@
         "https://www.ycombinator.com/companies/guild",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 48
+      "sourceOrdinal": 49
     },
     {
       "id": "33277",
@@ -2141,7 +2142,7 @@
         "https://www.ycombinator.com/companies/instance",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 70
+      "sourceOrdinal": 71
     },
     {
       "id": "32187",
@@ -2198,7 +2199,7 @@
         "https://www.ycombinator.com/companies/insurf",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 52
+      "sourceOrdinal": 53
     },
     {
       "id": "32781",
@@ -2423,7 +2424,7 @@
         "https://www.ycombinator.com/companies/lemonlime",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 53
+      "sourceOrdinal": 54
     },
     {
       "id": "33023",
@@ -2539,7 +2540,7 @@
         "https://www.ycombinator.com/companies/litmus-build",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 71
+      "sourceOrdinal": 72
     },
     {
       "id": "32527",
@@ -2625,7 +2626,7 @@
           "id": "2921049",
           "name": "Harish Ashok",
           "title": "Founder",
-          "bio": "Co-Founder at Markov. Previously founded Zenith, a robotics company building AI-assisted hardware workflow tools. Earlier founded Boldmoon Cloud at age 13, a web hosting service he operated for two years serving businesses during COVID.",
+          "bio": "Co-Founder at Markov. Previously founded Zenith, a robotics company building AI-assisted hardware workflow tools. ",
           "ycProfileUrl": "https://www.ycombinator.com/people/harish-ashok",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/harish-ashok",
@@ -2851,7 +2852,7 @@
         "https://www.ycombinator.com/companies/nebula-security",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 58
+      "sourceOrdinal": 59
     },
     {
       "id": "32553",
@@ -2947,7 +2948,7 @@
           "id": "1876109",
           "name": "Jaden Wang",
           "title": "Founder",
-          "bio": "Ex Voltage Park Engineering HPC, Founder@Heaviside Compute, UW Dropout",
+          "bio": "ex Voltage Park Engineering HPC, ex TensorDock, Founder@Heaviside Compute, UW Dropout",
           "ycProfileUrl": "https://www.ycombinator.com/people/jaden-wang",
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/jaden-wang-b99327177/"
@@ -3006,7 +3007,7 @@
         "https://www.ycombinator.com/companies/opentrade",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 62
+      "sourceOrdinal": 63
     },
     {
       "id": "33013",
@@ -3115,7 +3116,7 @@
         "https://www.ycombinator.com/companies/os3",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 80
+      "sourceOrdinal": 81
     },
     {
       "id": "31342",
@@ -3174,7 +3175,7 @@
         "https://www.ycombinator.com/companies/osmaura",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 69
+      "sourceOrdinal": 70
     },
     {
       "id": "31989",
@@ -3236,7 +3237,7 @@
         "https://www.ycombinator.com/companies/pango",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 64
+      "sourceOrdinal": 65
     },
     {
       "id": "32134",
@@ -3286,7 +3287,7 @@
         "https://www.ycombinator.com/companies/parasma",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 60
+      "sourceOrdinal": 61
     },
     {
       "id": "32127",
@@ -3344,7 +3345,7 @@
         "https://www.ycombinator.com/companies/perceptron-ml",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 61
+      "sourceOrdinal": 62
     },
     {
       "id": "33310",
@@ -3470,7 +3471,7 @@
         "https://www.ycombinator.com/companies/poth-labs",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 72
+      "sourceOrdinal": 73
     },
     {
       "id": "33022",
@@ -3597,7 +3598,7 @@
         "https://www.ycombinator.com/companies/prescience-inc",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 78
+      "sourceOrdinal": 79
     },
     {
       "id": "32164",
@@ -3658,7 +3659,7 @@
         "https://www.ycombinator.com/companies/prized",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 55
+      "sourceOrdinal": 56
     },
     {
       "id": "32195",
@@ -3719,7 +3720,7 @@
         "https://www.ycombinator.com/companies/realpact",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 47
+      "sourceOrdinal": 48
     },
     {
       "id": "32155",
@@ -3779,7 +3780,7 @@
         "https://www.ycombinator.com/companies/rex-inc",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 56
+      "sourceOrdinal": 57
     },
     {
       "id": "31570",
@@ -3840,7 +3841,7 @@
         "https://www.ycombinator.com/companies/rindler",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 66
+      "sourceOrdinal": 67
     },
     {
       "id": "32192",
@@ -3875,6 +3876,16 @@
       },
       "founders": [
         {
+          "id": "3646927",
+          "name": "George Rose",
+          "title": "Co-Founder and CEO",
+          "bio": "Co-founder and CEO at Rise Reforming (S26). Previously @ Nexamp, Highland Electric Fleets, Mantel Capture, GenH. Background in Molecular Engineering @ UChicago.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/george-rose",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/george-rose25/"
+          }
+        },
+        {
           "id": "3620299",
           "name": "Lucas Zubillaga",
           "title": "Co-Founder & CTO",
@@ -3900,7 +3911,7 @@
         "https://www.ycombinator.com/companies/rise-reforming",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 50
+      "sourceOrdinal": 51
     },
     {
       "id": "32650",
@@ -4209,7 +4220,7 @@
         "https://www.ycombinator.com/companies/shepherd-3",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 68
+      "sourceOrdinal": 69
     },
     {
       "id": "32169",
@@ -4259,7 +4270,7 @@
         "https://www.ycombinator.com/companies/speko",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 54
+      "sourceOrdinal": 55
     },
     {
       "id": "32526",
@@ -4391,7 +4402,7 @@
         "https://www.ycombinator.com/companies/torus",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 65
+      "sourceOrdinal": 66
     },
     {
       "id": "32253",
@@ -4511,7 +4522,7 @@
         "https://www.ycombinator.com/companies/trope",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 59
+      "sourceOrdinal": 60
     },
     {
       "id": "32223",
@@ -4633,7 +4644,7 @@
         "https://www.ycombinator.com/companies/trustai",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 79
+      "sourceOrdinal": 80
     },
     {
       "id": "31259",
@@ -4690,7 +4701,7 @@
         "https://www.ycombinator.com/companies/tsenta",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 75
+      "sourceOrdinal": 76
     },
     {
       "id": "32189",
@@ -4745,7 +4756,7 @@
         "https://www.ycombinator.com/companies/verdant",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 51
+      "sourceOrdinal": 52
     },
     {
       "id": "32751",
@@ -4912,7 +4923,7 @@
         "https://www.ycombinator.com/companies/zomma",
         "https://www.ycombinator.com/companies?batch=Summer%202026"
       ],
-      "sourceOrdinal": 57
+      "sourceOrdinal": 58
     }
   ]
 }

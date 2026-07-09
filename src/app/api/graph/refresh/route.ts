@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { applyBenchmarkMomentumRows, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
+import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
 import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { EdgeType, Platform } from "@/lib/graph/types";
 
@@ -36,8 +37,10 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Graph refresh benchmark momentum failed; returning graph without persisted benchmark deltas", error);
   }
-  const graph = sanitizeGraphResponse(
-    applyBenchmarkMomentumRows(filteredGraph, benchmarkRows)
+  const graph = enrichSummerPlatformStatus(
+    sanitizeGraphResponse(
+      applyBenchmarkMomentumRows(filteredGraph, benchmarkRows)
+    )
   );
 
   return NextResponse.json({

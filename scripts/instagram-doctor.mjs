@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { describeOpenCliCommand, openCliAvailable } from "./lib/opencli-runtime.mjs";
 
 const startedAt = new Date().toISOString();
 const appData = process.env.APPDATA ?? "";
-const openCliMain = path.join(appData, "npm", "node_modules", "@jackwener", "opencli", "dist", "src", "main.js");
 const browserProfileHints = [
   process.env.INSTAGRAM_BROWSER_PROFILE,
   process.env.CHROME_USER_DATA_DIR,
@@ -65,11 +65,11 @@ async function checkPlaywright() {
 }
 
 function checkOpenCli() {
-  if (existsSync(openCliMain)) {
-    return pass("opencli_installed", `OpenCLI main script found at ${openCliMain}.`);
+  if (openCliAvailable()) {
+    return pass("opencli_installed", `OpenCLI resolved through ${describeOpenCliCommand()}.`);
   }
-  findings.push("OpenCLI was not found at the expected global npm path.");
-  return fail("opencli_installed", "OpenCLI main script not found.");
+  findings.push("OpenCLI was not found. Set OPENCLI_BIN or OPENCLI_MAIN, or install @jackwener/opencli.");
+  return fail("opencli_installed", "OpenCLI command not found.");
 }
 
 function checkBrowserProfiles() {
