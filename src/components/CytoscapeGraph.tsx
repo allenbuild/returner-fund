@@ -28,7 +28,8 @@ interface CytoscapeGraphProps {
 const edgeColors: Record<EdgeType, string> = {
   founder_of: "#334155",
   industry_similarity: "#835a08",
-  same_group_partner: "#146b58"
+  same_group_partner: "#146b58",
+  top_voice_attention: "#0369a1"
 };
 
 const GRAPH_INTRO_SESSION_KEY = "yc-network-map-intro-played-v1";
@@ -76,6 +77,9 @@ function targetEdgeOpacity(edge: cytoscape.EdgeSingular): number {
   }
   if (edge.hasClass("same_group_partner")) {
     return 0.4;
+  }
+  if (edge.hasClass("top_voice_attention")) {
+    return 0.56;
   }
   return 0.38;
 }
@@ -169,7 +173,12 @@ export function CytoscapeGraph({
           weight: edge.weight,
           edgeType: edge.edgeType,
           color: edgeColors[edge.edgeType],
-          width: edge.edgeType === "same_group_partner" ? 1.22 : Math.max(0.66, edge.weight * 0.86)
+          width:
+            edge.edgeType === "same_group_partner"
+              ? 1.22
+              : edge.edgeType === "top_voice_attention"
+                ? Math.max(1.2, edge.weight * 2.4)
+                : Math.max(0.66, edge.weight * 0.86)
         },
         classes: edge.edgeType
       }))
@@ -808,6 +817,13 @@ export function CytoscapeGraph({
             style: {
               "line-style": "dashed",
               opacity: 0.4
+            }
+          },
+          {
+            selector: "edge.top_voice_attention",
+            style: {
+              "line-style": "dotted",
+              opacity: 0.56
             }
           }
         ]}

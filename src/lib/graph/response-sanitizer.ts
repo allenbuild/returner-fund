@@ -37,6 +37,7 @@ export function sanitizeGraphResponse(
     nodes: graph.nodes.map((node) => ({
       ...node,
       evidenceIds: compactEvidenceIds(node.evidenceIds, evidenceIdByOriginalId),
+      topVoiceConnections: compactTopVoiceConnectionEvidenceIds(node.topVoiceConnections, evidenceIdByOriginalId),
       founders: node.founders.map((founder) => ({
         ...founder,
         evidenceIds: compactEvidenceIds(founder.evidenceIds, evidenceIdByOriginalId)
@@ -45,6 +46,7 @@ export function sanitizeGraphResponse(
     evidence,
     leaderboard: graph.leaderboard.map((row) => ({
       ...row,
+      topVoiceConnections: compactTopVoiceConnectionEvidenceIds(row.topVoiceConnections, evidenceIdByOriginalId),
       biggestContribution: row.biggestContribution
         ? evidenceByOriginalId.get(row.biggestContribution.id) ??
           sanitizeEvidenceItem(row.biggestContribution, evidenceIdByOriginalId.get(row.biggestContribution.id), {
@@ -53,6 +55,18 @@ export function sanitizeGraphResponse(
         : null
     }))
   };
+}
+
+function compactTopVoiceConnectionEvidenceIds<
+  T extends { topEvidenceId: string | null }[] | undefined
+>(connections: T, evidenceIdByOriginalId: Map<string, string>): T {
+  if (!connections) {
+    return connections;
+  }
+  return connections.map((connection) => ({
+    ...connection,
+    topEvidenceId: connection.topEvidenceId ? evidenceIdByOriginalId.get(connection.topEvidenceId) ?? null : null
+  })) as T;
 }
 
 function compactEvidenceIds(ids: string[], evidenceIdByOriginalId: Map<string, string>): string[] {

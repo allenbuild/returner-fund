@@ -7,7 +7,7 @@ import {
 } from "@/lib/graph/graph-builder";
 import { demoGraphDataset } from "@/lib/graph/demo-data";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
-import type { CompanyRecord } from "@/lib/graph/types";
+import type { CompanyRecord, DemoGraphDataset, EvidenceItem, FounderRecord } from "@/lib/graph/types";
 
 describe("graph builder", () => {
   it("sizes company and founder nodes relative to peers with caps", () => {
@@ -177,6 +177,63 @@ describe("graph builder", () => {
     expect(partnerAGraph.nodes.map((node) => node.label).sort()).toEqual(["Fintech A", "Healthcare A"]);
     expect(partnerAGraph.nodes.every((node) => node.groupPartner === "Partner A")).toBe(true);
   });
+
+  it("preserves default scoring when Top Voices is off", () => {
+    const dataset = topVoiceDataset();
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, dataset);
+
+    expect(graph.selectedTopVoiceAudience.id).toBe("off");
+    expect(graph.leaderboard.map((row) => [row.companyId, row.score])).toEqual([
+      ["company-partner-backed", 50],
+      ["company-founder-backed", 50],
+      ["company-insider-backed", 50],
+      ["company-outsider-backed", 50]
+    ]);
+    expect(graph.edges.some((edge) => edge.edgeType === "top_voice_attention")).toBe(false);
+  });
+
+  it("filters YC Partners mode to partner-authored traction only", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, topVoiceDataset());
+
+    expect(graph.selectedTopVoiceAudience.displayName).toBe("YC Partners");
+    expect(graph.leaderboard.map((row) => row.companyId)).toEqual(["company-partner-backed"]);
+    expect(graph.leaderboard[0]?.topVoiceConnectionCount).toBe(1);
+    expect(graph.leaderboard[0]?.topVoiceConnections?.[0]?.displayName).toBe("Garry Tan");
+    expect(graph.evidence).toHaveLength(1);
+    expect(graph.evidence[0]?.authorName).toBe("Garry Tan");
+    expect(graph.nodes.some((node) => node.isTopVoiceNode && node.label === "Garry Tan")).toBe(true);
+    expect(graph.edges).toEqual([
+      expect.objectContaining({
+        edgeType: "top_voice_attention",
+        label: "Garry Tan",
+        target: "company:company-partner-backed"
+      })
+    ]);
+  });
+
+  it("weights YC Batch Circle partners above current-batch founders", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_batch_circle" }, topVoiceDataset());
+
+    const partnerBacked = graph.leaderboard.find((row) => row.companyId === "company-partner-backed");
+    const founderBacked = graph.leaderboard.find((row) => row.companyId === "company-founder-backed");
+
+    expect(partnerBacked?.topVoiceConnections?.[0]).toEqual(expect.objectContaining({ displayName: "Garry Tan", weight: 2 }));
+    expect(founderBacked?.topVoiceConnections?.[0]).toEqual(expect.objectContaining({ displayName: "Maya Chen", weight: 1 }));
+    expect(partnerBacked?.score ?? 0).toBeGreaterThan(founderBacked?.score ?? 0);
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-outsider-backed");
+  });
+
+  it("uses the curated Insiders seed without admitting non-members", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, topVoiceDataset());
+
+    expect(graph.leaderboard.map((row) => row.companyId).sort()).toEqual([
+      "company-insider-backed",
+      "company-partner-backed"
+    ]);
+    expect(graph.leaderboard.find((row) => row.companyId === "company-insider-backed")?.topVoiceConnections?.[0])
+      .toEqual(expect.objectContaining({ displayName: "Sam Altman" }));
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-outsider-backed");
+  });
 });
 
 function makeCompany(overrides: Partial<CompanyRecord>): CompanyRecord {
@@ -199,6 +256,135 @@ function makeCompany(overrides: Partial<CompanyRecord>): CompanyRecord {
     totalScore: 50,
     previousScore: 45,
     platformScores: { web: 50 },
+    ...overrides
+  };
+}
+
+function topVoiceDataset(): DemoGraphDataset {
+  const companies = [
+    makeCompany({
+      id: "company-partner-backed",
+      name: "Partner Backed",
+      founderIds: ["founder-partner-backed"]
+    }),
+    makeCompany({
+      id: "company-founder-backed",
+      name: "Founder Backed",
+      founderIds: ["founder-maya-chen"]
+    }),
+    makeCompany({
+      id: "company-insider-backed",
+      name: "Insider Backed",
+      founderIds: ["founder-insider-backed"]
+    }),
+    makeCompany({
+      id: "company-outsider-backed",
+      name: "Outsider Backed",
+      founderIds: ["founder-outsider-backed"]
+    })
+  ];
+
+  return {
+    mode: "official_snapshot",
+    batches: [{ slug: "S2026", label: "YC Spring 2026", companyCountExpected: 4, companyCountObserved: 4 }],
+    companies,
+    founders: [
+      makeFounder({
+        id: "founder-maya-chen",
+        name: "Maya Chen",
+        companyIds: ["company-founder-backed"],
+        socialAccounts: [
+          {
+            id: "acct-maya-x",
+            platform: "x",
+            handle: "maya_demo",
+            url: "https://x.com/maya_demo",
+            review_state: "verified",
+            discoveredFromUrl: "https://example.com",
+            matchReason: "Test founder account."
+          }
+        ]
+      }),
+      makeFounder({ id: "founder-partner-backed", name: "Pat Partner", companyIds: ["company-partner-backed"] }),
+      makeFounder({ id: "founder-insider-backed", name: "Ivy Insider", companyIds: ["company-insider-backed"] }),
+      makeFounder({ id: "founder-outsider-backed", name: "Otto Outsider", companyIds: ["company-outsider-backed"] })
+    ],
+    evidence: [
+      makeEvidence({
+        id: "evidence-garry",
+        entityId: "company-partner-backed",
+        authorName: "Garry Tan",
+        authorHandle: "garrytan",
+        contributionScore: 40,
+        sourceUrl: "https://x.com/garrytan/status/1"
+      }),
+      makeEvidence({
+        id: "evidence-maya",
+        entityType: "founder",
+        entityId: "founder-maya-chen",
+        authorName: "Maya Chen",
+        authorHandle: "maya_demo",
+        contributionScore: 40,
+        sourceUrl: "https://x.com/maya_demo/status/2"
+      }),
+      makeEvidence({
+        id: "evidence-sam",
+        entityId: "company-insider-backed",
+        authorName: "Sam Altman",
+        authorHandle: "sama",
+        contributionScore: 40,
+        sourceUrl: "https://x.com/sama/status/3"
+      }),
+      makeEvidence({
+        id: "evidence-outsider",
+        entityId: "company-outsider-backed",
+        authorName: "Helpful Outsider",
+        authorHandle: "helpful_outsider",
+        contributionScore: 95,
+        sourceUrl: "https://x.com/helpful_outsider/status/4"
+      })
+    ],
+    needsReview: [],
+    platformStatus: []
+  };
+}
+
+function makeFounder(overrides: Partial<FounderRecord>): FounderRecord {
+  return {
+    id: "founder",
+    batchSlug: "S2026",
+    name: "Demo Founder",
+    ycProfileUrl: "https://example.com/yc/founder",
+    personalWebsiteUrl: null,
+    primaryIndustry: "fintech",
+    businessModel: "b2b",
+    review_state: "verified",
+    sourceUrl: "https://www.ycombinator.com/companies?batch=S2026",
+    companyIds: [],
+    socialAccounts: [],
+    totalScore: 0,
+    previousScore: 0,
+    platformScores: {},
+    ...overrides
+  };
+}
+
+function makeEvidence(overrides: Partial<EvidenceItem>): EvidenceItem {
+  return {
+    id: "evidence",
+    entityType: "company",
+    entityId: "company",
+    platform: "x",
+    authorName: "Demo Author",
+    authorHandle: "demo",
+    postedAt: "2026-06-29T00:00:00.000Z",
+    title: "Demo X post",
+    text: "Demo X post.",
+    mediaType: "text",
+    metrics: { likes: 40 },
+    contributionScore: 40,
+    sourceUrl: "https://x.com/demo/status/1",
+    why: "Test evidence.",
     ...overrides
   };
 }

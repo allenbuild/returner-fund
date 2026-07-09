@@ -439,7 +439,7 @@ button:disabled {
 
 .filter-band {
   display: grid;
-  grid-template-columns: minmax(132px, 0.74fr) minmax(150px, 0.74fr) minmax(220px, 1.15fr) minmax(420px, 0.82fr);
+  grid-template-columns: minmax(128px, 0.62fr) minmax(146px, 0.68fr) minmax(200px, 0.92fr) minmax(235px, 0.94fr) minmax(360px, 1.18fr);
   align-items: end;
   gap: 8px;
   margin-top: -1px;
@@ -608,6 +608,60 @@ button:disabled {
   align-self: end;
 }
 
+.top-voices-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.top-voices-control label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.top-voices-label,
+.top-voices-copy {
+  color: var(--neutral-700);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.top-voices-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.top-voices-copy {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-voices-control select {
+  width: 100%;
+  min-height: var(--control-height);
+  padding: 0 34px 0 14px;
+  border: 1px solid #f2b180;
+  border-radius: var(--control-radius);
+  background: var(--background);
+  color: var(--filter-ink);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.top-voices-control p {
+  min-height: 1.7em;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
 .filter-title {
   display: grid;
   gap: 5px;
@@ -695,6 +749,39 @@ button:disabled {
   font-size: 0.76rem;
   font-style: normal;
   font-weight: 900;
+}
+
+.top-voices-panel-summary {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(3, 105, 161, 0.2);
+  border-radius: 8px;
+  background: #f0f9ff;
+}
+
+.top-voices-panel-summary div {
+  display: grid;
+  gap: 3px;
+}
+
+.top-voices-panel-summary strong {
+  color: var(--neutral-900);
+  font-size: 1rem;
+}
+
+.top-voices-panel-summary span,
+.top-voices-panel-summary small {
+  color: var(--neutral-700);
+  font-weight: 800;
+}
+
+.top-voices-panel-summary small {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .score-filter {
@@ -2302,6 +2389,13 @@ td {
   transition: background-color 160ms ease;
 }
 
+.overview-empty-state {
+  padding: 22px;
+  color: var(--muted);
+  font-weight: 800;
+  text-align: center;
+}
+
 .overview-table tbody tr:hover td {
   border-color: rgba(231, 227, 220, 0.9);
   background: rgba(255, 250, 246, 0.74);
@@ -2846,6 +2940,10 @@ td button {
     grid-column: 1 / -1;
   }
 
+  .top-voices-control {
+    grid-column: 1 / -1;
+  }
+
   .dashboard-grid {
     --map-panel-height: clamp(640px, 74vh, 860px);
     grid-template-columns: 1fr;
@@ -2931,6 +3029,7 @@ td button {
   }
 
   .filter-dropdown:nth-child(3),
+  .top-voices-control,
   .filter-band .score-filter {
     grid-column: 1 / -1;
   }
@@ -2980,6 +3079,21 @@ td button {
   .filter-dropdown-label svg {
     width: 13px;
     height: 13px;
+  }
+
+  .top-voices-label,
+  .top-voices-copy {
+    font-size: 0.7rem;
+  }
+
+  .top-voices-control select {
+    min-height: var(--control-height);
+    font-size: 0.8rem;
+  }
+
+  .top-voices-control p {
+    min-height: 0;
+    font-size: 0.68rem;
   }
 
   .filter-dropdown-trigger {

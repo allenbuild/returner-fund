@@ -54,6 +54,30 @@ describe("insights tabs", () => {
     expect(within(table).getByText("+9 pts (+18%)")).toBeInTheDocument();
     expect(within(table).getByText("+7")).toBeInTheDocument();
   });
+
+  it("shows an empty state when a Top Voices audience has no qualifying companies", () => {
+    render(
+      <InsightsTabs
+        graph={{
+          ...graphResponse(),
+          leaderboard: [],
+          selectedTopVoiceAudience: {
+            id: "yc_partners",
+            displayName: "YC Partners",
+            description: "Current YC partners and YC leadership.",
+            helperText: "Showing attention from current YC partners only.",
+            scoreLabel: "Top Voices score",
+            scoreDescription: "Current YC partners and YC leadership.",
+            active: true,
+            memberCount: 18
+          }
+        }}
+        onSelectNode={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("No companies have traction from this Top Voices audience yet.")).toBeInTheDocument();
+  });
 });
 
 function graphResponse(): GraphResponse {
@@ -140,6 +164,28 @@ function graphResponse(): GraphResponse {
     needsReview: [],
     evidence: [],
     platformStatus: [],
+    selectedTopVoiceAudience: {
+      id: "off",
+      displayName: "Off / Everyone",
+      description: "All available network traction signals.",
+      helperText: "Showing all available network traction signals.",
+      scoreLabel: "Traction score",
+      scoreDescription: "Scored from all available GitHub and social evidence.",
+      active: true,
+      memberCount: 0
+    },
+    topVoiceAudiences: [
+      {
+        id: "off",
+        displayName: "Off / Everyone",
+        description: "All available network traction signals.",
+        helperText: "Showing all available network traction signals.",
+        scoreLabel: "Traction score",
+        scoreDescription: "Scored from all available GitHub and social evidence.",
+        active: true,
+        memberCount: 0
+      }
+    ],
     generatedAt: "2026-06-29T00:00:00.000Z",
     mode: "official_snapshot"
   };

@@ -52,13 +52,18 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(founderNodes).toHaveLength(0);
     expect(graph.leaderboard).toHaveLength(83);
     expect(graph.evidence.length).toBeGreaterThan(39);
-    expect([...new Set(graph.evidence.map((item) => item.platform))]).toEqual(["github", "youtube"]);
+    expect(new Set(graph.evidence.map((item) => item.platform))).toEqual(
+      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "web", "rss"])
+    );
     expect(graph.evidence.some((item) => item.platform === "github" && item.thumbnailUrl)).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "youtube" && item.attachedCompanyName === "Archal")).toBe(true);
+    expect(graph.evidence.some((item) => item.platform === "x" && item.contributionScore > 0)).toBe(true);
+    expect(graph.evidence.some((item) => item.platform === "linkedin" && item.contributionScore > 0)).toBe(true);
+    expect(graph.evidence.some((item) => item.platform === "instagram")).toBe(false);
     expect(graph.leaderboard[0]?.topPlatform).toBeTruthy();
     expect(companyNodes.filter((node) => node.score > 0).length).toBeGreaterThan(6);
     expect(companyNodes.some((node) => node.founders.length > 0)).toBe(true);
-    expect(graph.evidence.every((item) => item.entityType === "company")).toBe(true);
+    expect(graph.evidence.some((item) => item.entityType === "founder")).toBe(true);
     expect(graph.needsReview.some((item) => item.candidateUrl === "https://www.producthunt.com/products/screen-studio")).toBe(false);
     expect(JSON.stringify(graph.evidence)).not.toContain("yc-public-directory");
   }, 30_000);

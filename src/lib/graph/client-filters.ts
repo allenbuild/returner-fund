@@ -12,7 +12,7 @@ export function applyClientGraphFilters(graph: GraphResponse, filters: ClientGra
   const selectedIndustries = new Set(filters.industries);
   const selectedGroupPartners = new Set(filters.groupPartners);
 
-  const nodes = graph.nodes.filter((node) => {
+  const companyNodes = graph.nodes.filter((node) => node.entityType === "company").filter((node) => {
     if (node.score < filters.minScore) {
       return false;
     }
@@ -28,9 +28,25 @@ export function applyClientGraphFilters(graph: GraphResponse, filters: ClientGra
     return true;
   });
 
+  const visibleCompanyNodeIds = new Set(companyNodes.map((node) => node.id));
+  const visibleVoiceNodeIds = new Set<string>();
+  const prelimEdges = graph.edges.filter((edge) => {
+    if (edge.edgeType === "top_voice_attention") {
+      if (!visibleCompanyNodeIds.has(edge.target)) {
+        return false;
+      }
+      visibleVoiceNodeIds.add(edge.source);
+      return true;
+    }
+    return visibleCompanyNodeIds.has(edge.source) && visibleCompanyNodeIds.has(edge.target);
+  });
+  const nodes = [
+    ...companyNodes,
+    ...graph.nodes.filter((node) => node.entityType !== "company" && visibleVoiceNodeIds.has(node.id))
+  ];
   const visibleNodeIds = new Set(nodes.map((node) => node.id));
-  const visibleCompanyIds = new Set(nodes.map((node) => node.entityId));
-  const visibleFounderIds = new Set(nodes.flatMap((node) => node.founders.map((founder) => founder.id)));
+  const visibleCompanyIds = new Set(companyNodes.map((node) => node.entityId));
+  const visibleFounderIds = new Set(companyNodes.flatMap((node) => node.founders.map((founder) => founder.id)));
   const visibleEvidence = graph.evidence
     .filter((item) => evidenceMatchesVisibleEntities(item, visibleCompanyIds, visibleFounderIds))
     .filter((item) => selectedPlatforms.size === 0 || selectedPlatforms.has(item.platform))
@@ -40,7 +56,7 @@ export function applyClientGraphFilters(graph: GraphResponse, filters: ClientGra
   return {
     ...graph,
     nodes,
-    edges: graph.edges.filter((edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target)),
+    edges: prelimEdges.filter((edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target)),
     evidence: visibleEvidence,
     leaderboard: graph.leaderboard
       .filter((row) => visibleCompanyIds.has(row.companyId))

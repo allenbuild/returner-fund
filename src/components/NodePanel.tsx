@@ -27,6 +27,8 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
   const founderAccounts = node.founders.flatMap((founder) =>
     founder.socialAccounts.map((account) => ({ founderName: founder.name, account }))
   );
+  const topVoicesActive = node.selectedTopVoiceAudience && node.selectedTopVoiceAudience.id !== "off";
+  const topVoiceConnections = node.topVoiceConnections ?? [];
 
   return (
     <aside className="node-panel">
@@ -38,6 +40,19 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
           </div>
         </div>
       </header>
+
+      {topVoicesActive && (
+        <section className="top-voices-panel-summary">
+          <div>
+            <span className="context-label">{node.selectedTopVoiceAudience?.displayName}</span>
+            <strong>{node.topVoiceScore ?? node.score} Top Voices score</strong>
+          </div>
+          <div>
+            <span>{node.topVoiceConnectionCount ?? topVoiceConnections.length} connected</span>
+            <small>{topVoiceConnections.slice(0, 4).map((connection) => connection.displayName).join(", ") || "No qualifying voices"}</small>
+          </div>
+        </section>
+      )}
 
       {(node.founders.length > 0 || node.socialAccounts.length > 0) && (
         <section className="profile-context">

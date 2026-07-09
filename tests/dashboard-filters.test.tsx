@@ -25,6 +25,7 @@ describe("dashboard filters", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    window.history.replaceState(null, "", "/");
   });
 
   it("shows platform, industry, and group partner filters without model or edge controls", async () => {
@@ -127,6 +128,32 @@ describe("dashboard filters", () => {
     expect(options[1]).toHaveValue("S2026");
   });
 
+  it("fetches a URL-addressable graph when Top Voices changes", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const partnerGraph = {
+      ...fullGraph,
+      selectedTopVoiceAudience: fullGraph.topVoiceAudiences[1]!
+    };
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => partnerGraph
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    fireEvent.change(screen.getByRole("combobox", { name: /top voices/i }), {
+      target: { value: "yc_partners" }
+    });
+
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("topVoices=yc_partners"))).toBe(true);
+    });
+    expect(window.location.search).toContain("topVoices=yc_partners");
+  });
+
   it("switches to a prefetched Spring graph without waiting for another graph request", async () => {
     const summerGraph = graphResponse([
       makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100)
@@ -218,6 +245,38 @@ function graphResponse(
     needsReview: [],
     evidence: [],
     platformStatus: [],
+    selectedTopVoiceAudience: {
+      id: "off",
+      displayName: "Off / Everyone",
+      description: "All available network traction signals.",
+      helperText: "Showing all available network traction signals.",
+      scoreLabel: "Traction score",
+      scoreDescription: "Scored from all available GitHub and social evidence.",
+      active: true,
+      memberCount: 0
+    },
+    topVoiceAudiences: [
+      {
+        id: "off",
+        displayName: "Off / Everyone",
+        description: "All available network traction signals.",
+        helperText: "Showing all available network traction signals.",
+        scoreLabel: "Traction score",
+        scoreDescription: "Scored from all available GitHub and social evidence.",
+        active: true,
+        memberCount: 0
+      },
+      {
+        id: "yc_partners",
+        displayName: "YC Partners",
+        description: "Current YC partners and YC leadership.",
+        helperText: "Showing attention from current YC partners only.",
+        scoreLabel: "Top Voices score",
+        scoreDescription: "Current YC partners and YC leadership.",
+        active: true,
+        memberCount: 18
+      }
+    ],
     generatedAt: "2026-06-29T00:00:00.000Z",
     mode: "official_snapshot"
   };

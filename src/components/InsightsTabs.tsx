@@ -124,6 +124,13 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
               </tr>
             </thead>
             <tbody>
+              {!overviewRows.length && (
+                <tr>
+                  <td colSpan={5}>
+                    <div className="overview-empty-state">No companies have traction from this Top Voices audience yet.</div>
+                  </td>
+                </tr>
+              )}
               {overviewRows.map((row) => {
                 const contribution = formatContribution(row.biggestContribution);
                 return (

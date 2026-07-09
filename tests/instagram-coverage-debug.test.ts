@@ -52,21 +52,23 @@ describe("instagram coverage debug report", () => {
     expect(graph.evidence.some((item) => item.attachedCompanyName === "HeyClicky")).toBe(false);
   });
 
-  it("keeps blocked X/LinkedIn/Instagram out of Summer scoring while allowing verified public rows", () => {
+  it("keeps Instagram out of Summer scoring while allowing verified public social rows", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const platforms = new Set(graph.evidence.map((item) => item.platform));
     const githubRows = graph.evidence.filter((item) => item.platform === "github");
     const youtubeRows = graph.evidence.filter((item) => item.platform === "youtube");
+    const contextOnlyRows = graph.evidence.filter((item) => item.platform === "web" || item.platform === "rss");
     const githubCompanySlugs = new Set(githubRows.map((item) => item.attachedCompanyId?.replace(/^company-/, "")));
     const officialGithubSlugs = new Set(
       companiesSnapshot.companies.filter((company) => company.socialLinks.github).map((company) => company.slug)
     );
 
-    expect(platforms).toEqual(new Set(["github", "youtube"]));
-    expect(platforms.has("x")).toBe(false);
-    expect(platforms.has("linkedin")).toBe(false);
+    expect(platforms).toEqual(new Set(["github", "youtube", "x", "linkedin", "hacker_news", "web", "rss"]));
+    expect(platforms.has("x")).toBe(true);
+    expect(platforms.has("linkedin")).toBe(true);
     expect(platforms.has("instagram")).toBe(false);
-    expect(youtubeRows).toHaveLength(1);
+    expect(youtubeRows.length).toBeGreaterThan(0);
+    expect(contextOnlyRows.every((item) => item.contributionScore === 0)).toBe(true);
     expect(officialGithubSlugs.size).toBe(15);
     expect(githubRows.length).toBeGreaterThan(15);
     expect([...githubCompanySlugs].every((slug) => slug && officialGithubSlugs.has(slug))).toBe(true);

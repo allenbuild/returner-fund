@@ -3,8 +3,9 @@ import { applyBenchmarkMomentumRows, ensureBenchmarkMomentum } from "@/lib/graph
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
+import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
 import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
-import type { EdgeType, Platform } from "@/lib/graph/types";
+import type { EdgeType, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 
 interface RefreshRequest {
   action?: "ingest" | "refresh";
@@ -14,6 +15,7 @@ interface RefreshRequest {
   industries?: string[];
   groupPartners?: string[];
   minScore?: number;
+  topVoices?: TopVoiceAudienceId;
 }
 
 const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
@@ -29,13 +31,16 @@ export async function POST(request: Request) {
     edgeTypes: body.edgeTypes,
     industries: body.industries,
     groupPartners: body.groupPartners,
-    minScore: body.minScore
+    minScore: body.minScore,
+    topVoices: normalizeTopVoiceAudienceId(body.topVoices)
   }, dataset);
   let benchmarkRows = filteredGraph.fastestGaining;
-  try {
-    benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph.fastestGaining;
-  } catch (error) {
-    console.error("Graph refresh benchmark momentum failed; returning graph without persisted benchmark deltas", error);
+  if (filteredGraph.selectedTopVoiceAudience.id === "off") {
+    try {
+      benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph.fastestGaining;
+    } catch (error) {
+      console.error("Graph refresh benchmark momentum failed; returning graph without persisted benchmark deltas", error);
+    }
   }
   const graph = enrichSummerPlatformStatus(
     sanitizeGraphResponse(

@@ -3,6 +3,7 @@ import { applyBenchmarkMomentumRows, benchmarkStoreVersion, ensureBenchmarkMomen
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
+import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
 import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { BusinessModel, EdgeType, Platform } from "@/lib/graph/types";
 
@@ -20,7 +21,7 @@ const platforms: Platform[] = [
   "bilibili"
 ];
 
-const edgeTypes: EdgeType[] = ["founder_of", "industry_similarity", "same_group_partner"];
+const edgeTypes: EdgeType[] = ["founder_of", "industry_similarity", "same_group_partner", "top_voice_attention"];
 const businessModels: BusinessModel[] = [
   "b2b",
   "consumer",
@@ -56,7 +57,8 @@ export function GET(request: Request) {
     industries: parseLooseList(params.get("industries")),
     groupPartners: parseLooseList(params.get("groupPartners")),
     businessModels: parseList(params.get("businessModels"), businessModels),
-    query: params.get("q") ?? undefined
+    query: params.get("q") ?? undefined,
+    topVoices: normalizeTopVoiceAudienceId(params.get("topVoices"))
   };
   const cacheKey = JSON.stringify({
     filters,
@@ -74,10 +76,12 @@ export function GET(request: Request) {
 
   const filteredGraph = buildGraphResponse(filters, dataset);
   let benchmarkRows = filteredGraph.fastestGaining;
-  try {
-    benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph.fastestGaining;
-  } catch (error) {
-    console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
+  if (filters.topVoices === "off") {
+    try {
+      benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph.fastestGaining;
+    } catch (error) {
+      console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
+    }
   }
   const graph = enrichSummerPlatformStatus(
     sanitizeGraphResponse(applyBenchmarkMomentumRows(filteredGraph, benchmarkRows), {

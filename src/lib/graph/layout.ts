@@ -66,6 +66,7 @@ export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayo
     });
   });
 
+  placeNonCompanyNodes(nodes, positions);
   resolveCircleCollisions(nodes, positions);
   pullClustersTogether(nodes, positions);
   resolveCircleCollisions(nodes, positions, 150);
@@ -194,6 +195,39 @@ function pullClustersTogether(nodes: GraphNode[], positions: Map<string, GraphLa
       y: position.y + (cy - position.y) * 0.05
     });
   }
+}
+
+function placeNonCompanyNodes(nodes: GraphNode[], positions: Map<string, GraphLayoutPosition>): void {
+  const nonCompanies = nodes.filter((node) => node.entityType !== "company");
+  if (!nonCompanies.length) {
+    return;
+  }
+
+  const fallbackRadius = Math.max(260, 130 + Math.sqrt(nodes.length) * 36);
+  nonCompanies.forEach((node, index) => {
+    const anchors = node.relatedEntityIds
+      .map((entityId) => positions.get(`company:${entityId}`))
+      .filter((position): position is GraphLayoutPosition => Boolean(position));
+    const center = anchors.length
+      ? anchors.reduce(
+          (sum, position) => ({
+            x: sum.x + position.x / anchors.length,
+            y: sum.y + position.y / anchors.length
+          }),
+          { x: 0, y: 0 }
+        )
+      : {
+          x: Math.cos(index * 2.399963) * fallbackRadius,
+          y: Math.sin(index * 2.399963) * fallbackRadius * 0.78
+        };
+    const localAngle = index * 2.399963 + seededJitter(`${node.id}:voice-angle`, 0.7);
+    const localRadius = anchors.length ? 76 + seededJitter(`${node.id}:voice-radius`, 18) : 0;
+
+    positions.set(node.id, {
+      x: center.x + Math.cos(localAngle) * localRadius,
+      y: center.y + Math.sin(localAngle) * localRadius * 0.82
+    });
+  });
 }
 
 function addLabelIfPossible(

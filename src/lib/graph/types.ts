@@ -13,8 +13,9 @@ export type Platform =
   | "hacker_news"
   | "bilibili";
 
-export type EdgeType = "founder_of" | "industry_similarity" | "same_group_partner";
+export type EdgeType = "founder_of" | "industry_similarity" | "same_group_partner" | "top_voice_attention";
 export type ReviewState = "verified" | "needs_review" | "rejected";
+export type TopVoiceAudienceId = "off" | "yc_partners" | "yc_batch_circle" | "insiders";
 export type BusinessModel =
   | "b2b"
   | "consumer"
@@ -110,6 +111,17 @@ export interface EvidenceItem {
   accountUrl?: string | null;
   matchReason?: string;
   review_state?: ReviewState;
+  topVoice?: EvidenceTopVoiceMatch;
+}
+
+export interface EvidenceTopVoiceMatch {
+  audienceId: TopVoiceAudienceId;
+  memberId: string;
+  displayName: string;
+  category: string;
+  weight: number;
+  matchedBy: string;
+  originalContributionScore: number;
 }
 
 export interface WeightedPlatformScore {
@@ -152,6 +164,10 @@ export interface CompanyRecord {
   previousScore: number;
   platformScores: Partial<Record<Platform, number>>;
   scoreBreakdown?: ScoreBreakdown;
+  topVoiceScore?: number;
+  topVoiceConnectionCount?: number;
+  topVoiceConnections?: TopVoiceConnectionPreview[];
+  selectedTopVoiceAudience?: TopVoiceAudienceSummary;
 }
 
 export interface FounderRecord {
@@ -210,6 +226,11 @@ export interface GraphNode {
   relatedEntityIds: string[];
   founders: FounderSummary[];
   review_state_counts: Record<ReviewState, number>;
+  isTopVoiceNode?: boolean;
+  topVoiceScore?: number;
+  topVoiceConnectionCount?: number;
+  topVoiceConnections?: TopVoiceConnectionPreview[];
+  selectedTopVoiceAudience?: TopVoiceAudienceSummary;
 }
 
 export interface GraphEdge {
@@ -229,6 +250,9 @@ export interface LeaderboardRow {
   score: number;
   topPlatform: Platform | null;
   biggestContribution: EvidenceItem | null;
+  topVoiceScore?: number;
+  topVoiceConnectionCount?: number;
+  topVoiceConnections?: TopVoiceConnectionPreview[];
 }
 
 export interface FastestGainingRow {
@@ -268,6 +292,51 @@ export interface PlatformStatus {
   notes: string;
 }
 
+export interface TopVoiceMember {
+  personId: string;
+  displayName: string;
+  aliases: string[];
+  handles: Partial<Record<Platform, string[]>>;
+  category: string;
+  weight: number;
+  active: boolean;
+  source: string;
+  notes?: string;
+}
+
+export interface TopVoiceSet {
+  id: Exclude<TopVoiceAudienceId, "off">;
+  displayName: string;
+  description: string;
+  members: TopVoiceMember[];
+  defaultWeight: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TopVoiceAudienceSummary {
+  id: TopVoiceAudienceId;
+  displayName: string;
+  description: string;
+  helperText: string;
+  scoreLabel: string;
+  scoreDescription: string;
+  active: boolean;
+  memberCount: number;
+}
+
+export interface TopVoiceConnectionPreview {
+  memberId: string;
+  displayName: string;
+  category: string;
+  weight: number;
+  contributionScore: number;
+  evidenceCount: number;
+  topEvidenceId: string | null;
+  platforms: Platform[];
+}
+
 export interface DemoGraphDataset {
   mode?: GraphResponse["mode"];
   batches: BatchSummary[];
@@ -289,6 +358,7 @@ export interface GraphFilters {
   declutter?: boolean;
   query?: string;
   similarityThreshold?: number;
+  topVoices?: TopVoiceAudienceId;
 }
 
 export interface GraphResponse {
@@ -301,6 +371,8 @@ export interface GraphResponse {
   needsReview: NeedsReviewItem[];
   evidence: EvidenceItem[];
   platformStatus: PlatformStatus[];
+  selectedTopVoiceAudience: TopVoiceAudienceSummary;
+  topVoiceAudiences: TopVoiceAudienceSummary[];
   generatedAt: string;
   mode: "demo" | "database" | "official_snapshot";
 }

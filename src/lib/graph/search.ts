@@ -25,6 +25,10 @@ export function searchGraphNodes(nodes: GraphNode[], rawQuery: string, limit = 1
   const rankByCompanyNodeId = rankCompanyNodes(nodes);
 
   for (const node of nodes) {
+    if (node.entityType !== "company") {
+      continue;
+    }
+
     const rank = rankByCompanyNodeId.get(node.id) ?? 0;
     const companyScore = matchScore(query, [node.label]);
     if (companyScore > 0) {

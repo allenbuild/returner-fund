@@ -6,7 +6,8 @@ import {
   Filter,
   Palette,
   RefreshCw,
-  Search
+  Search,
+  Users
 } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CytoscapeGraph } from "./CytoscapeGraph";
@@ -16,7 +17,8 @@ import { formatPlatform, PlatformLogo } from "./PlatformLogo";
 import { applyClientGraphFilters, type ClientGraphFilters } from "@/lib/graph/client-filters";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
-import type { GraphResponse, Platform } from "@/lib/graph/types";
+import { normalizeTopVoiceAudienceId, topVoiceAudienceSummaries } from "@/lib/social/top-voices";
+import type { GraphResponse, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 
 type FilterMenuId = "platform" | "industry" | "groupPartner";
 
@@ -47,6 +49,8 @@ const defaultBatches = [
   { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
 ];
 const DEFAULT_BATCH_SLUG = "S26";
+const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
+const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
 
 async function fetchGraphPayload(url: string, attempts = 3): Promise<GraphResponse> {
   let lastError: Error | null = null;
@@ -78,12 +82,36 @@ function initialSelectedNodeId(graph: GraphResponse | undefined): string | null 
   return topCompanyId ? `company:${topCompanyId}` : graph?.nodes[0]?.id ?? null;
 }
 
+function initialTopVoiceAudience(graph: GraphResponse | undefined): TopVoiceAudienceId {
+  if (typeof window !== "undefined") {
+    return normalizeTopVoiceAudienceId(new URLSearchParams(window.location.search).get("topVoices"));
+  }
+  return graph?.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE;
+}
+
+function graphCacheKey(batchSlug: string, topVoiceAudience: TopVoiceAudienceId): string {
+  return `${batchSlug}::${topVoiceAudience}`;
+}
+
+function graphMatchesSelection(
+  graph: GraphResponse | null | undefined,
+  batchSlug: string,
+  topVoiceAudience: TopVoiceAudienceId
+): graph is GraphResponse {
+  return graph?.batch.slug === batchSlug && (graph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) === topVoiceAudience;
+}
+
 export function Dashboard({ initialGraph }: DashboardProps = {}) {
   const [batchSlug, setBatchSlug] = useState(initialGraph?.batch.slug ?? DEFAULT_BATCH_SLUG);
+  const [topVoiceAudience, setTopVoiceAudience] = useState<TopVoiceAudienceId>(() => initialTopVoiceAudience(initialGraph));
   const [graph, setGraph] = useState<GraphResponse | null>(initialGraph ?? null);
   const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(initialGraph ?? null);
   const graphCacheRef = useRef<Map<string, GraphResponse>>(
-    new Map(initialGraph ? [[initialGraph.batch.slug, initialGraph]] : [])
+    new Map(
+      initialGraph
+        ? [[graphCacheKey(initialGraph.batch.slug, initialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE), initialGraph]]
+        : []
+    )
   );
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(initialGraph));
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
@@ -121,7 +149,10 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   }, [currentFilters]);
 
   const rememberGraph = useCallback((payload: GraphResponse) => {
-    graphCacheRef.current.set(payload.batch.slug, payload);
+    graphCacheRef.current.set(
+      graphCacheKey(payload.batch.slug, payload.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE),
+      payload
+    );
   }, []);
 
   const fetchGraph = useCallback(async (options: { background?: boolean; unfiltered?: boolean } = {}) => {
@@ -137,6 +168,9 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
     setError(null);
 
     const params = new URLSearchParams({ batch: batchSlug });
+    if (topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
+      params.set("topVoices", topVoiceAudience);
+    }
     if (requestFilters.platforms.length) {
       params.set("platforms", requestFilters.platforms.join(","));
     }
@@ -173,14 +207,16 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
         setLoading(false);
       }
     }
-  }, [batchSlug, rememberGraph]);
+  }, [batchSlug, rememberGraph, topVoiceAudience]);
 
   useEffect(() => {
     const cachedGraph =
-      filterMetadataGraph?.batch.slug === batchSlug ? filterMetadataGraph : graphCacheRef.current.get(batchSlug);
+      graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
+        ? filterMetadataGraph
+        : graphCacheRef.current.get(graphCacheKey(batchSlug, topVoiceAudience));
 
     if (cachedGraph) {
-      if (filterMetadataGraph?.batch.slug !== cachedGraph.batch.slug) {
+      if (!graphMatchesSelection(filterMetadataGraph, cachedGraph.batch.slug, cachedGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE)) {
         graphRequestIdRef.current += 1;
         setFilterMetadataGraph(cachedGraph);
       }
@@ -189,7 +225,12 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
       setError(null);
       setLoading(false);
 
-      if (initialGraphHydratedRef.current && initialGraph && batchSlug === initialGraph.batch.slug) {
+      if (
+        initialGraphHydratedRef.current &&
+        initialGraph &&
+        batchSlug === initialGraph.batch.slug &&
+        topVoiceAudience === (initialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE)
+      ) {
         initialGraphHydratedRef.current = false;
         void fetchGraph({ background: true, unfiltered: true });
       }
@@ -198,12 +239,25 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
 
     initialGraphHydratedRef.current = false;
     void fetchGraph({ unfiltered: true });
-  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, initialGraph]);
+  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, initialGraph, topVoiceAudience]);
 
   useEffect(() => {
     actionRequestIdRef.current += 1;
     setActionLoading(null);
-  }, [batchSlug]);
+  }, [batchSlug, topVoiceAudience]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const url = new URL(window.location.href);
+    if (topVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE) {
+      url.searchParams.delete("topVoices");
+    } else {
+      url.searchParams.set("topVoices", topVoiceAudience);
+    }
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [topVoiceAudience]);
 
   useEffect(() => {
     setMinScoreDraft(minScore);
@@ -296,16 +350,22 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   }, []);
 
   const batches = filterMetadataGraph?.batches ?? graph?.batches ?? defaultBatches;
+  const topVoiceAudiences = filterMetadataGraph?.topVoiceAudiences ?? graph?.topVoiceAudiences ?? defaultTopVoiceAudiences;
+  const selectedTopVoiceSummary =
+    topVoiceAudiences.find((audience) => audience.id === topVoiceAudience) ?? topVoiceAudiences[0] ?? defaultTopVoiceAudiences[0];
 
   useEffect(() => {
     let cancelled = false;
 
     for (const batch of batches) {
-      if (batch.slug === batchSlug || graphCacheRef.current.has(batch.slug)) {
+      if (batch.slug === batchSlug || graphCacheRef.current.has(graphCacheKey(batch.slug, topVoiceAudience))) {
         continue;
       }
 
       const params = new URLSearchParams({ batch: batch.slug });
+      if (topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
+        params.set("topVoices", topVoiceAudience);
+      }
       void fetchGraphPayload(`/api/graph?${params.toString()}`)
         .then((payload) => {
           if (!cancelled) {
@@ -318,7 +378,7 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
     return () => {
       cancelled = true;
     };
-  }, [batchSlug, batches, rememberGraph]);
+  }, [batchSlug, batches, rememberGraph, topVoiceAudience]);
 
   const industryOptions = useMemo(() => {
     const byIndustry = new Map<string, { name: string; count: number; color: string }>();
@@ -399,7 +459,8 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
           platforms: selectedPlatforms,
           industries: selectedIndustries,
           groupPartners: selectedGroupPartners,
-          minScore
+          minScore,
+          topVoices: topVoiceAudience
         })
       });
 
@@ -454,6 +515,12 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
     setMinScoreDraft(nextScore);
     setMinScore((current) => (current === nextScore ? current : nextScore));
   }
+
+  const topVoiceCompanyCount = graph?.nodes.filter((node) => node.entityType === "company").length ?? 0;
+  const topVoicesEmpty =
+    Boolean(graph) &&
+    (graph?.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) !== DEFAULT_TOP_VOICE_AUDIENCE &&
+    topVoiceCompanyCount === 0;
 
   return (
     <main className="dashboard">
@@ -559,6 +626,28 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
           onClear={() => setSelectedGroupPartners([])}
         />
 
+        <div className="top-voices-control">
+          <label>
+            <span className="top-voices-label">
+              <Users size={15} />
+              Top Voices
+            </span>
+            <span className="top-voices-copy">Score traction using attention from:</span>
+            <select
+              value={topVoiceAudience}
+              onChange={(event) => setTopVoiceAudience(normalizeTopVoiceAudienceId(event.target.value))}
+              aria-label="Top Voices"
+            >
+              {topVoiceAudiences.map((audience) => (
+                <option key={audience.id} value={audience.id}>
+                  {audience.displayName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p>{selectedTopVoiceSummary?.helperText ?? "Showing all available network traction signals."}</p>
+        </div>
+
         <div className="score-filter">
           <div className="score-filter-header">
             <span>Min score</span>
@@ -616,7 +705,12 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
 
       <section className="dashboard-grid" ref={dashboardGridRef}>
         <div className="graph-column">
-          {graph ? (
+          {topVoicesEmpty ? (
+            <div className="graph-empty-state">
+              <strong>No companies have traction from this Top Voices audience yet.</strong>
+              <span>{graph?.selectedTopVoiceAudience?.displayName ?? "Top Voices"}</span>
+            </div>
+          ) : graph ? (
             <CytoscapeGraph
               nodes={graph.nodes}
               edges={graph.edges}
