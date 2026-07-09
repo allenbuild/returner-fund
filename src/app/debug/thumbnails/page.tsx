@@ -3,7 +3,7 @@ import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import { buildThumbnailCoverageReport } from "@/lib/ingestion/thumbnail-debug";
 
 export default function ThumbnailDebugPage() {
-  const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
   const report = buildThumbnailCoverageReport(graph);
 
   return (

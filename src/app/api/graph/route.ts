@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { applyBenchmarkMomentumRows, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
-import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { YC_SUMMER_2026_BATCH_SLUG, ycSummer2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { BusinessModel, EdgeType, Platform } from "@/lib/graph/types";
 
 const platforms: Platform[] = [
@@ -37,11 +37,12 @@ const businessModels: BusinessModel[] = [
 const graphResponseCache = new Map<string, { createdAt: number; graph: ReturnType<typeof buildGraphResponse> }>();
 const GRAPH_RESPONSE_CACHE_LIMIT = 64;
 const GRAPH_RESPONSE_CACHE_TTL_MS = 60_000;
+const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
 
 export function GET(request: Request) {
   const params = new URL(request.url).searchParams;
-  const batchSlug = params.get("batch") ?? undefined;
-  const dataset = batchSlug === undefined || batchSlug === "S2026" ? ycSpring2026GraphDataset : undefined;
+  const batchSlug = params.get("batch") ?? DEFAULT_BATCH_SLUG;
+  const dataset = ycSummer2026GraphDataset;
   const includeRaw = params.get("includeRaw") === "1" || params.get("includeRaw") === "true";
   const includeNonScoring =
     params.get("includeNonScoring") === "1" || params.get("includeNonScoring") === "true";
@@ -61,7 +62,7 @@ export function GET(request: Request) {
     includeRaw,
     includeNonScoring,
     includeWhy,
-    dataset: dataset ? "yc-s2026" : "demo"
+    dataset: "yc-s26-summer"
   });
   const cached = graphResponseCache.get(cacheKey);
 

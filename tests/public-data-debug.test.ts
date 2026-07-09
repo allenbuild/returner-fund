@@ -5,28 +5,28 @@ import { buildDuplicateReport, buildWorkerTasks, PUBLIC_CONNECTOR_PLATFORMS } fr
 
 describe("public data debug instrumentation", () => {
   it("creates one checkpointed public connector task per company and platform", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const tasks = buildWorkerTasks(graph);
 
-    expect(graph.nodes).toHaveLength(197);
+    expect(graph.nodes).toHaveLength(83);
     expect(graph.nodes.every((node) => node.entityType === "company")).toBe(true);
     expect(tasks).toHaveLength(graph.nodes.length * PUBLIC_CONNECTOR_PLATFORMS.length);
     expect(tasks.every((task) => task.checkpointKey.includes(task.companyId))).toBe(true);
   });
 
-  it("keeps LinkedIn public-only and X read-only for this run", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  it("keeps LinkedIn and X public-only for this run", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const linkedin = graph.platformStatus.find((item) => item.platform === "linkedin");
     const x = graph.platformStatus.find((item) => item.platform === "x");
 
     expect(linkedin?.status).toBe("public_only");
     expect(linkedin?.authMethod.toLowerCase()).toContain("logged-in linkedin disabled");
-    expect(x?.status).toBe("working");
-    expect(x?.authMethod.toLowerCase()).toContain("read-only opencli browser session");
+    expect(x?.status).toBe("public_only");
+    expect(x?.authMethod.toLowerCase()).toContain("official yc profile links");
   });
 
   it("dedupes company-level social accounts that duplicate founder accounts in the graph", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const report = buildDuplicateReport(graph);
 
     expect(report.duplicateAccountGroupCount).toBe(0);
@@ -34,7 +34,7 @@ describe("public data debug instrumentation", () => {
   });
 
   it("reports duplicate evidence by canonical platform post ID and latest snapshot timestamp", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const base = {
       ...graph.evidence[0],
       id: "duplicate-base",
@@ -64,7 +64,7 @@ describe("public data debug instrumentation", () => {
   });
 
   it("reports duplicate social account attachments under a company", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const node = graph.nodes.find((candidate) => candidate.founders.length > 0);
 
     expect(node).toBeDefined();

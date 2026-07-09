@@ -5,7 +5,7 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const root = process.cwd();
-const ycSnapshotPath = join(root, "src", "lib", "yc", "spring-2026-companies.json");
+const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
 const overridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
 const candidatesPath = join(root, "outputs", "instagram-discovery-candidates.json");
 const openCliMain = join(process.env.APPDATA ?? "", "npm", "node_modules", "@jackwener", "opencli", "dist", "src", "main.js");

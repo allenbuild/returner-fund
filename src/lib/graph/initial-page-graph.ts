@@ -1,19 +1,32 @@
-import { applyStoredBenchmarkMomentum } from "./benchmarks";
+import { ensureBenchmarkMomentum } from "./benchmarks";
 import { buildGraphResponse } from "./graph-builder";
 import { sanitizeGraphResponse } from "./response-sanitizer";
 import type { GraphResponse } from "./types";
-import { ycSpring2026GraphDataset } from "./yc-spring-2026-dataset";
+import { YC_SUMMER_2026_BATCH_SLUG, ycSummer2026GraphDataset } from "./yc-spring-2026-dataset";
 
 const INITIAL_EVIDENCE_LIMIT = 20;
-let cachedInitialPageGraph: GraphResponse | null = null;
+const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
+let cachedInitialPageGraph: { cacheKey: string; graph: GraphResponse } | null = null;
 
 export function buildInitialPageGraph(): GraphResponse {
-  cachedInitialPageGraph ??= trimInitialEvidence(
-    applyStoredBenchmarkMomentum(
-      sanitizeGraphResponse(buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset))
-    )
-  );
-  return cachedInitialPageGraph;
+  const now = new Date();
+  const cacheKey = `${DEFAULT_BATCH_SLUG}:${localDayKey(now)}`;
+  if (cachedInitialPageGraph?.cacheKey !== cacheKey) {
+    const graph = sanitizeGraphResponse(buildGraphResponse({ batchSlug: DEFAULT_BATCH_SLUG }, ycSummer2026GraphDataset));
+    cachedInitialPageGraph = {
+      cacheKey,
+      graph: trimInitialEvidence(ensureBenchmarkMomentum(graph, { now }).graph)
+    };
+  }
+  return cachedInitialPageGraph.graph;
+}
+
+function localDayKey(date: Date): string {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
 }
 
 function trimInitialEvidence(graph: GraphResponse): GraphResponse {

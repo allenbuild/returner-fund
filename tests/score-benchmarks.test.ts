@@ -11,7 +11,7 @@ describe("score benchmarks", () => {
   it("records daily and weekly score/rank baselines only when each interval is due", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const firstCompany = graph.leaderboard[0]!;
 
     const initial = ensureBenchmarkMomentum(graph, {
@@ -49,7 +49,7 @@ describe("score benchmarks", () => {
   it("keeps day-over-day comparisons pinned to the previous calendar day after today's snapshot exists", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const firstCompany = graph.leaderboard[0]!;
 
     ensureBenchmarkMomentum(graph, {
@@ -86,7 +86,7 @@ describe("score benchmarks", () => {
   it("uses the exact seven-days-prior calendar snapshot for week-over-week comparisons", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const firstCompany = graph.leaderboard[0]!;
 
     ensureBenchmarkMomentum(graph, {
@@ -113,7 +113,7 @@ describe("score benchmarks", () => {
   it("does not fake day-over-day momentum when the previous calendar day is missing", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const firstCompany = graph.leaderboard[0]!;
 
     ensureBenchmarkMomentum(graph, {
@@ -134,7 +134,7 @@ describe("score benchmarks", () => {
   it("can apply stored momentum rows without recording a new benchmark during first paint", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const firstCompany = graph.leaderboard[0]!;
 
     ensureBenchmarkMomentum(graph, {

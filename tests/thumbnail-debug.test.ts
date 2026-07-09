@@ -12,7 +12,7 @@ describe("thumbnail debug coverage", () => {
   });
 
   it("summarizes thumbnail coverage without counting local screenshots as fallback", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const report = buildThumbnailCoverageReport({
       ...graph,
       evidence: [

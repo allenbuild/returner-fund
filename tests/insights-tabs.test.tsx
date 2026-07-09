@@ -45,20 +45,20 @@ describe("insights tabs", () => {
     expect(screen.queryByText("Platform")).not.toBeInTheDocument();
     expect(screen.queryByText("New high-performing evidence")).not.toBeInTheDocument();
     expect(screen.getByText("+5 pts (+10%)")).toBeInTheDocument();
-    expect(screen.getByText("+3 ranks")).toBeInTheDocument();
+    expect(screen.getByText("+3")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Week over week" }));
 
     const table = screen.getByRole("table");
     expect(within(table).getByText("+9 pts (+18%)")).toBeInTheDocument();
-    expect(within(table).getByText("+7 ranks")).toBeInTheDocument();
+    expect(within(table).getByText("+7")).toBeInTheDocument();
   });
 });
 
 function graphResponse(): GraphResponse {
   return {
-    batch: { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 },
-    batches: [{ slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }],
+    batch: { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 },
+    batches: [{ slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 }],
     nodes: [],
     edges: [],
     leaderboard: [

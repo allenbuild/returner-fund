@@ -9,20 +9,30 @@ import type {
 
 export function normalizeBatchSlug(input: string): string {
   const cleaned = input.trim().toUpperCase().replace(/^YC\s+/, "").replace(/\s+/g, " ");
-  const compactMatch = cleaned.match(/\b([SW])\s*(20\d{2})\b/);
-  if (compactMatch) return `${compactMatch[1]}${compactMatch[2]}`;
+  const compactShortMatch = cleaned.match(/\b([PSW])\s*(\d{2})\b/);
+  if (compactShortMatch) return `${compactShortMatch[1]}${compactShortMatch[2]}`;
+
+  const compactMatch = cleaned.match(/\b([PSW])\s*(20\d{2})\b/);
+  if (compactMatch) {
+    return compactMatch[1] === "S" ? `S${compactMatch[2].slice(2)}` : `${compactMatch[1]}${compactMatch[2]}`;
+  }
 
   const seasonMatch = cleaned.match(/\b(SPRING|SUMMER|WINTER)\s+(20\d{2})\b/);
-  if (seasonMatch) return `${seasonMatch[1] === "WINTER" ? "W" : "S"}${seasonMatch[2]}`;
+  if (seasonMatch) {
+    if (seasonMatch[1] === "SUMMER") return `S${seasonMatch[2].slice(2)}`;
+    return `${seasonMatch[1] === "SPRING" ? "P" : "W"}${seasonMatch[2]}`;
+  }
 
   return cleaned.replace(/\s+/g, "");
 }
 
 export function batchSlugToLabel(batchSlug: string): string {
   const normalized = normalizeBatchSlug(batchSlug);
-  const match = normalized.match(/^([SW])(20\d{2})$/);
+  const shortMatch = normalized.match(/^S(\d{2})$/);
+  if (shortMatch) return `Summer 20${shortMatch[1]}`;
+  const match = normalized.match(/^([PW])(20\d{2})$/);
   if (!match) return normalized;
-  return `${match[1] === "S" ? "Spring" : "Winter"} ${match[2]}`;
+  return `${match[1] === "P" ? "Spring" : "Winter"} ${match[2]}`;
 }
 
 export function reviewStateForSourceReliability(sourceReliability: SourceReliability) {
@@ -357,7 +367,7 @@ function arrayOfStrings(raw: unknown): string[] {
 
 function textMatchesBatch(text: string, batchSlug: string): boolean {
   const label = batchSlugToLabel(batchSlug);
-  const legacySummerLabel = batchSlug.startsWith("S") ? `Summer ${batchSlug.slice(1)}` : null;
+  const legacySummerLabel = batchSlug.match(/^S\d{2}$/) ? `Summer 20${batchSlug.slice(1)}` : null;
   const labels = [label, legacySummerLabel].filter(Boolean).map((value) => escapeRegex(value as string));
   return new RegExp(
     `\\b${escapeRegex(batchSlug)}\\b|\\bYC\\s+${escapeRegex(batchSlug)}\\b|${labels

@@ -4,10 +4,10 @@ import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("quality gates", () => {
-  const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
-  it("keeps Spring 2026 graph publication-safe", () => {
-    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(197);
+  it("keeps Summer 2026 graph publication-safe", () => {
+    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(83);
     expect(graph.nodes.some((node) => node.entityType === "founder")).toBe(false);
   });
 

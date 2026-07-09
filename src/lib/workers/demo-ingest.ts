@@ -44,7 +44,7 @@ export function buildDemoGraph(request: IngestBatchRequest, generatedAt = new Da
     batch: {
       slug: batchSlug,
       label: batchLabel(batchSlug),
-      expectedCompanyCount: batchSlug === "S2026" ? 197 : undefined,
+      expectedCompanyCount: batchSlug === "S26" ? 83 : undefined,
       observedCompanyCount: companies.length
     },
     nodes: companyNodes,
@@ -57,27 +57,38 @@ export function buildDemoGraph(request: IngestBatchRequest, generatedAt = new Da
   };
 }
 
-export function normalizeBatchSlug(raw = "S2026"): string {
+export function normalizeBatchSlug(raw = "S26"): string {
   const value = raw.trim().toUpperCase();
   const compact = value.replace(/[^A-Z0-9]/g, "");
 
-  const direct = compact.match(/^(S|W)(20\d{2})$/);
+  const directShort = compact.match(/^(S)(\d{2})$/);
+  if (directShort) {
+    return `${directShort[1]}${directShort[2]}`;
+  }
+
+  const direct = compact.match(/^(P|W)(20\d{2})$/);
   if (direct) {
     return `${direct[1]}${direct[2]}`;
   }
 
   const year = compact.match(/20\d{2}/)?.[0] ?? "2026";
-  if (compact.includes("SPRING") || compact.includes("SUMMER")) {
-    return `S${year}`;
+  if (compact.includes("SUMMER")) {
+    return `S${year.slice(2)}`;
+  }
+  if (compact.includes("SPRING")) {
+    return `P${year}`;
   }
   if (compact.includes("WINTER")) {
     return `W${year}`;
   }
 
-  return compact || "S2026";
+  return compact || "S26";
 }
 
 export function batchLabel(slug: string): string {
+  if (/^S\d{2}$/.test(slug)) {
+    return `YC Summer 20${slug.slice(1)}`;
+  }
   const season = slug.startsWith("W") ? "Winter" : "Spring";
   return `YC ${season} ${slug.slice(1)}`;
 }

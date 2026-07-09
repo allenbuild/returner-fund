@@ -1,4 +1,4 @@
-import { demoGraphDataset } from "./demo-data";
+import { YC_SUMMER_2026_BATCH_SLUG, ycSummer2026GraphDataset } from "./yc-spring-2026-dataset";
 import { graphNodeMatchesSearchQuery } from "./search";
 import type {
   CompanyRecord,
@@ -46,7 +46,7 @@ const INDUSTRY_BORDER_COLORS: Record<string, string> = {
 
 export function buildGraphResponse(
   filters: GraphFilters = {},
-  dataset: DemoGraphDataset = demoGraphDataset
+  dataset: DemoGraphDataset = ycSummer2026GraphDataset
 ): GraphResponse {
   const batch = resolveBatch(filters.batchSlug, dataset);
   const selectedPlatforms = normalizePlatforms(filters.platforms);
@@ -178,7 +178,7 @@ export function nodeId(entityType: "company" | "founder", id: string): string {
 function resolveBatch(batchSlug: string | undefined, dataset: DemoGraphDataset) {
   return (
     dataset.batches.find((batch) => batch.slug === batchSlug) ??
-    dataset.batches.find((batch) => batch.slug === "S2026") ??
+    dataset.batches.find((batch) => batch.slug === YC_SUMMER_2026_BATCH_SLUG) ??
     dataset.batches[0]
   );
 }

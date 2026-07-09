@@ -82,11 +82,14 @@ describe("graph builder", () => {
   });
 
   it("applies platform and founder-name query filters in the graph response", () => {
-    const graph = buildGraphResponse({
-      batchSlug: "S2026",
-      platforms: ["github"],
-      query: "Luca"
-    });
+    const graph = buildGraphResponse(
+      {
+        batchSlug: "S2026",
+        platforms: ["github"],
+        query: "Luca"
+      },
+      demoGraphDataset
+    );
 
     expect(graph.nodes).toHaveLength(1);
     expect(graph.nodes[0]?.label).toBe("PromptForge");
@@ -96,19 +99,19 @@ describe("graph builder", () => {
   });
 
   it("uses fuzzy company/founder matching for graph query filters", () => {
-    const companyGraph = buildGraphResponse({ batchSlug: "S2026", query: "HeyCliky" }, ycSpring2026GraphDataset);
+    const companyGraph = buildGraphResponse({ batchSlug: "S26", query: "Conifr" }, ycSpring2026GraphDataset);
     const founderGraph = buildGraphResponse({ batchSlug: "S2026", query: "Lukka Martn" }, demoGraphDataset);
 
-    expect(companyGraph.nodes.map((node) => node.label)).toContain("HeyClicky");
+    expect(companyGraph.nodes.map((node) => node.label)).toContain("Conifer");
     expect(founderGraph.nodes.map((node) => node.label)).toContain("PromptForge");
   });
 
-  it("uses the Spring 2026 batch contract without numeric identity-quality fields", () => {
+  it("uses the Summer 2026 batch contract without numeric identity-quality fields", () => {
     const graph = buildGraphResponse();
     const bannedIdentityQualityField = ["con", "fidence"].join("");
 
-    expect(graph.batch.label).toBe("YC Spring 2026");
-    expect(graph.batch.companyCountExpected).toBe(197);
+    expect(graph.batch.label).toBe("YC Summer 2026");
+    expect(graph.batch.companyCountExpected).toBe(83);
     expect(JSON.stringify(graph)).not.toContain(bannedIdentityQualityField);
     expect(graph.nodes[0]).toEqual(
       expect.objectContaining({

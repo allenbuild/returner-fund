@@ -1,5 +1,5 @@
-import ycSpring2026Snapshot from "@/lib/yc/spring-2026-companies.json";
-import githubTractionSnapshot from "@/lib/social/github-traction.json";
+import ycSummer2026Snapshot from "@/lib/yc/summer-2026-companies.json";
+import githubTractionSnapshot from "@/lib/social/github-traction-summer-2026.json";
 import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
 import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.json";
 import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
@@ -181,13 +181,30 @@ interface PublicNeedsReviewRecord {
   matchReason: string;
 }
 
-const snapshot = ycSpring2026Snapshot as RawSnapshot;
+export const YC_SUMMER_2026_BATCH_SLUG = "S26";
+export const YC_SUMMER_2026_BATCH_LABEL = "YC Summer 2026";
+
+const snapshot = ycSummer2026Snapshot as RawSnapshot;
 const githubSnapshot = githubTractionSnapshot as GithubSnapshot;
 const publicSnapshot = publicEvidenceSnapshot as PublicEvidenceSnapshot;
 const loggedInSnapshot = loggedInEvidenceSnapshot as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as PublicEvidenceSnapshot;
 const verifiedSocialOverrides = verifiedSocialOverridesJson as Record<string, VerifiedSocialOverride>;
 const attributionContext = buildAttributionContext(snapshot.companies.map(attributionCompanyProfile));
+const knownCompanyIds = new Set(snapshot.companies.map(companyId));
+const knownFounderIds = new Set(snapshot.companies.flatMap((company) => [
+  ...company.founders.map((founder) => founderId(company, founder)),
+  ...manualFounderOverrides(company).map((founder) => manualFounderId(company, founder))
+]));
+const knownEntityIds = new Set([...knownCompanyIds, ...knownFounderIds]);
+const officialGithubUrlsByEntityId = new Map(
+  snapshot.companies.flatMap((company) => [
+    company.socialLinks.github ? [companyId(company), canonicalAccountUrl(company.socialLinks.github)] : null,
+    ...company.founders.map((founder) =>
+      founder.socialLinks.github ? [founderId(company, founder), canonicalAccountUrl(founder.socialLinks.github)] : null
+    )
+  ].filter((entry): entry is [string, string] => Boolean(entry)))
+);
 const allowedLoggedInEvidence = loggedInSnapshot.evidence.filter((item) =>
   ["instagram", "x"].includes(item.platform)
 );
@@ -196,10 +213,12 @@ const allowedLoggedInNeedsReview = loggedInSnapshot.needsReview.filter((item) =>
 );
 const rawPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEvidence, ...targetedSnapshot.evidence]
   .filter((item) => item.review_state === "verified")
+  .filter(isKnownSummerEvidenceRecord)
   .filter(isAcceptedPublicEvidence)
   .map(publicEvidenceItem)
   .map((item) => applyAttributionGuard(item, attributionContext));
 const rawGithubEvidenceItems = githubSnapshot.accounts
+  .filter(isKnownSummerGithubAccount)
   .flatMap(githubEvidence)
   .map((item) => applyAttributionGuard(item, attributionContext));
 const allEvidenceItems = normalizeEvidenceScores(dedupeEvidenceItems([...rawGithubEvidenceItems, ...rawPublicEvidenceItems]));
@@ -208,16 +227,16 @@ const publicNeedsReviewItems = [
   ...publicSnapshot.needsReview,
   ...allowedLoggedInNeedsReview,
   ...targetedSnapshot.needsReview
-].map(publicNeedsReviewItem);
+].filter(isKnownSummerNeedsReviewRecord).map(publicNeedsReviewItem);
 const companyRecords = calibrateCompanyScores(snapshot.companies.map(companyRecord));
 const founderRecordList = snapshot.companies.flatMap(founderRecords);
 
-export const ycSpring2026GraphDataset: DemoGraphDataset = {
+export const ycSummer2026GraphDataset: DemoGraphDataset = {
   mode: "official_snapshot",
   batches: [
     {
-      slug: "S2026",
-      label: "YC Spring 2026",
+      slug: YC_SUMMER_2026_BATCH_SLUG,
+      label: YC_SUMMER_2026_BATCH_LABEL,
       companyCountExpected: snapshot.source.expectedCompanyCount,
       companyCountObserved: snapshot.source.observedCompanyCount
     }
@@ -235,15 +254,15 @@ export const ycSpring2026GraphDataset: DemoGraphDataset = {
     },
     {
       platform: "github",
-      status: "working",
+      status: rawGithubEvidenceItems.length > 0 ? "working" : "needs_config",
       authMethod: "Read-only public GitHub API",
-      notes: `Measured ${githubSnapshot.source.fetchedCount}/${githubSnapshot.source.targetCount} YC-linked GitHub accounts from public API data.`
+      notes: `Measured ${rawGithubEvidenceItems.length} Summer 2026 GitHub evidence rows from public API data. Old Spring 2026 account snapshots are ignored unless the account matches a Summer company or founder official YC link.`
     },
     {
       platform: "x",
-      status: "working",
-      authMethod: "Read-only OpenCLI browser session for verified YC-linked public X profiles",
-      notes: "Visible X timeline posts are parsed read-only from verified YC-linked public profile URLs. No likes, follows, posts, DMs, or other account mutations are performed."
+      status: "public_only",
+      authMethod: "Official YC profile links and verified public evidence only",
+      notes: "Only Summer 2026-matched public X evidence is counted. Spring/P26 evidence is filtered out."
     },
     {
       platform: "linkedin",
@@ -253,10 +272,10 @@ export const ycSpring2026GraphDataset: DemoGraphDataset = {
     },
     {
       platform: "instagram",
-      status: "working",
-      authMethod: "Explicit read-only OpenCLI browser session for verified Instagram profiles",
+      status: "public_only",
+      authMethod: "Official YC profile links and verified public evidence only",
       notes:
-        "Direct public Instagram profile fetches are login-walled in this environment. Verified HeyClicky company/founder profiles are parsed read-only; broad coverage depends on discovering more verified Instagram handles."
+        "Only Summer 2026-matched public Instagram evidence is counted. Spring demo/profile snapshots are filtered out."
     },
     {
       platform: "rss",
@@ -297,6 +316,8 @@ export const ycSpring2026GraphDataset: DemoGraphDataset = {
   ]
 };
 
+export const ycSpring2026GraphDataset = ycSummer2026GraphDataset;
+
 function companyRecord(raw: RawCompany): CompanyRecord {
   const manualFounders = manualFounderOverrides(raw);
   const entityIds = [
@@ -321,7 +342,7 @@ function companyRecord(raw: RawCompany): CompanyRecord {
 
   return {
     id: companyId(raw),
-    batchSlug: "S2026",
+    batchSlug: YC_SUMMER_2026_BATCH_SLUG,
     name: raw.name,
     ycProfileUrl: raw.ycProfileUrl,
     websiteUrl: raw.websiteUrl ?? raw.ycProfileUrl,
@@ -383,7 +404,7 @@ function calibrateCompanyScores(companies: CompanyRecord[]): CompanyRecord[] {
             explanation: `${company.scoreBreakdown.explanation} Evidence-depth factor ${round(
               confidenceFactor,
               3
-            )} from ${scoredEvidenceCount} scored rows. Batch calibration expands peer-relative traction across the full range, then applies evidence-depth confidence to ${calibratedScore}/100.`
+            )} from ${scoredEvidenceCount} scored rows. Batch calibration expands peer-relative traction across the full range, then applies the evidence-depth adjustment to ${calibratedScore}/100.`
           }
         : company.scoreBreakdown
     };
@@ -419,7 +440,7 @@ function founderRecords(raw: RawCompany): FounderRecord[] {
 
     return {
       id: founderId(raw, founder),
-      batchSlug: "S2026",
+      batchSlug: YC_SUMMER_2026_BATCH_SLUG,
       name: founder.name,
       ycProfileUrl: founder.ycProfileUrl,
       personalWebsiteUrl: null,
@@ -447,7 +468,7 @@ function founderRecords(raw: RawCompany): FounderRecord[] {
 
     return {
       id: manualFounderId(raw, founder),
-      batchSlug: "S2026",
+      batchSlug: YC_SUMMER_2026_BATCH_SLUG,
       name: founder.name,
       ycProfileUrl: founder.ycProfileUrl ?? raw.ycProfileUrl,
       personalWebsiteUrl: null,
@@ -686,6 +707,31 @@ function isProfileOnlySocialEvidence(item: PublicEvidenceRecord): boolean {
   return false;
 }
 
+function isKnownSummerEvidenceRecord(item: PublicEvidenceRecord): boolean {
+  return knownEntityIds.has(item.entityId) && !hasStaleSpringBatchContext(evidenceBatchText(item));
+}
+
+function isKnownSummerNeedsReviewRecord(item: PublicNeedsReviewRecord): boolean {
+  return knownEntityIds.has(item.entityId) && !hasStaleSpringBatchContext(`${item.entityName} ${item.matchReason}`);
+}
+
+function isKnownSummerGithubAccount(account: GithubAccount): boolean {
+  const officialGithubUrl = officialGithubUrlsByEntityId.get(account.entityId);
+  return Boolean(officialGithubUrl && canonicalAccountUrl(account.githubUrl) === officialGithubUrl);
+}
+
+function evidenceBatchText(item: PublicEvidenceRecord): string {
+  return `${item.title} ${item.text} ${item.rawVisibleText} ${item.matchReason}`;
+}
+
+function hasStaleSpringBatchContext(value: string): boolean {
+  return /\b(?:Spring\s+2026|YC\s*P26|YCP26|P26)\b/i.test(value);
+}
+
+function hasSummerBatchContext(value: string): boolean {
+  return /\b(?:Summer\s+2026|YC\s*S26|YCS26|S26)\b/i.test(value);
+}
+
 function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
   if (item.linkStatus === "invalid") {
     return false;
@@ -699,7 +745,7 @@ function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
     return true;
   }
 
-  return /\bYC\s*(P26|S26|Spring\s+2026)\b/i.test(`${item.title} ${item.text} ${item.rawVisibleText}`);
+  return hasSummerBatchContext(evidenceBatchText(item));
 }
 
 function linkedInPostAuthorMatchesKnownEntity(item: PublicEvidenceRecord): boolean {
@@ -869,7 +915,12 @@ function canonicalAccountUrl(rawUrl: string): string {
     url.hash = "";
     url.search = "";
     url.hostname = url.hostname.replace(/^www\./, "").toLowerCase();
-    url.pathname = url.pathname.replace(/\/$/, "");
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (url.hostname === "github.com" && parts[0]?.toLowerCase() === "orgs" && parts[1]) {
+      url.pathname = `/${parts.slice(1).join("/")}`;
+    } else {
+      url.pathname = url.pathname.replace(/\/$/, "");
+    }
     return url.toString().toLowerCase();
   } catch {
     return rawUrl.toLowerCase();

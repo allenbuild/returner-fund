@@ -10,7 +10,7 @@ interface PageProps {
 export default async function DebugEvidencePage({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
   const companyName = value(params.company) ?? "Runtime";
-  const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
   const company = findCompany(graph.nodes, companyName);
   const evidence = company
     ? selectedNodeEvidence(graph, company)

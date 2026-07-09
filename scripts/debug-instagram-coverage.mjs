@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const apiUrl = process.env.GRAPH_API_URL ?? "http://127.0.0.1:3001/api/graph?batch=S2026&includeNonScoring=1";
+const apiUrl = process.env.GRAPH_API_URL ?? "http://127.0.0.1:3001/api/graph?batch=S26&includeNonScoring=1";
 
 const [graph, companies, overrides, discovery, publicEvidence, loggedInEvidence, targetedEvidence] = await Promise.all([
   fetchJson(apiUrl),
-  readJson(path.join("src", "lib", "yc", "spring-2026-companies.json"), { companies: [] }),
+  readJson(path.join("src", "lib", "yc", "summer-2026-companies.json"), { companies: [] }),
   readJson(path.join("src", "lib", "social", "verified-social-overrides.json"), {}),
   readJson(path.join("outputs", "instagram-discovery-candidates.json"), null),
   readJson(path.join("src", "lib", "social", "public-evidence-current.json"), {}),
@@ -22,13 +22,13 @@ const report = buildInstagramCoverageReport({
 });
 
 await fs.mkdir("outputs", { recursive: true });
-await fs.writeFile(path.join("outputs", "instagram-coverage-debug-s2026.json"), JSON.stringify(report, null, 2));
+await fs.writeFile(path.join("outputs", "instagram-coverage-debug-s26.json"), JSON.stringify(report, null, 2));
 await updateDocs(report);
 
 console.log(
   JSON.stringify(
     {
-      outputPath: "outputs/instagram-coverage-debug-s2026.json",
+      outputPath: "outputs/instagram-coverage-debug-s26.json",
       companies: report.companyCount,
       verifiedCompanyOverrides: report.profiles.verifiedCompanyOverrides,
       verifiedFounderOverrides: report.profiles.verifiedFounderOverrides,
@@ -63,6 +63,7 @@ function buildInstagramCoverageReport(input) {
   const companyIdsWithScored = new Set(scored.map((item) => ownerByEvidenceId.get(item.id)).filter(Boolean));
   const candidates = input.discovery?.candidates ?? [];
   const attempts = input.discovery?.attempts ?? [];
+  const overrides = currentSnapshotOverrides(input.companies, input.overrides);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -71,8 +72,8 @@ function buildInstagramCoverageReport(input) {
     profiles: {
       snapshotCompanyProfiles: input.companies.filter((company) => company.socialLinks?.instagram).length,
       snapshotFounderProfiles: input.companies.flatMap((company) => company.founders ?? []).filter((founder) => founder.socialLinks?.instagram).length,
-      verifiedCompanyOverrides: Object.values(input.overrides).filter((item) => item?.companySocialLinks?.instagram).length,
-      verifiedFounderOverrides: Object.values(input.overrides).flatMap((item) => item?.founders ?? []).filter((founder) => founder?.socialLinks?.instagram).length,
+      verifiedCompanyOverrides: overrides.filter((item) => item?.companySocialLinks?.instagram).length,
+      verifiedFounderOverrides: overrides.flatMap((item) => item?.founders ?? []).filter((founder) => founder?.socialLinks?.instagram).length,
       discoveredCandidates: candidates.length,
       needsReviewCandidates: candidates.filter((item) => item.review_state === "needs_review").length,
       rejectedCandidates: candidates.filter((item) => item.review_state === "rejected").length,
@@ -119,13 +120,17 @@ function buildInstagramCoverageReport(input) {
 function rootCauseFindings(input, evidence) {
   const findings = [];
   if (!input.companies.some((company) => company.socialLinks?.instagram)) {
-    findings.push("The YC Spring 2026 snapshot has zero company-level Instagram profile URLs.");
+    findings.push("The current YC snapshot has zero company-level Instagram profile URLs.");
   }
   if (!input.companies.some((company) => (company.founders ?? []).some((founder) => founder.socialLinks?.instagram))) {
-    findings.push("The YC Spring 2026 snapshot has zero founder-level Instagram profile URLs.");
+    findings.push("The current YC snapshot has zero founder-level Instagram profile URLs.");
   }
-  const verifiedOverrideCount = Object.values(input.overrides).filter((item) => item?.companySocialLinks?.instagram).length;
-  if (verifiedOverrideCount <= 1) {
+  const verifiedOverrideCount = currentSnapshotOverrides(input.companies, input.overrides).filter(
+    (item) => item?.companySocialLinks?.instagram
+  ).length;
+  if (verifiedOverrideCount === 0) {
+    findings.push("No verified company Instagram overrides exist for the current YC snapshot.");
+  } else if (verifiedOverrideCount === 1) {
     findings.push("Only one verified company Instagram override exists, so logged-in ingestion only has one company target.");
   }
   const hasBroadDiscovery =
@@ -135,10 +140,19 @@ function rootCauseFindings(input, evidence) {
   if (input.discovery && !hasBroadDiscovery) {
     findings.push("The last Instagram discovery report did not run broad Instagram search; it only crawled official websites.");
   }
-  if (new Set(evidence.map((item) => item.attachedCompanyName ?? item.entityId)).size <= 1) {
+  if (evidence.length === 0) {
+    findings.push("No current Instagram evidence rows are attached to the graph.");
+  } else if (new Set(evidence.map((item) => item.attachedCompanyName ?? item.entityId)).size <= 1) {
     findings.push("Current Instagram evidence is effectively attached to a single company feed.");
   }
   return findings;
+}
+
+function currentSnapshotOverrides(companies, overrides) {
+  const currentSlugs = new Set(companies.map((company) => company.slug));
+  return Object.entries(overrides)
+    .filter(([slug]) => currentSlugs.has(slug))
+    .map(([, override]) => override);
 }
 
 function missingReason(companyId, overrides, candidates, attempts) {
@@ -220,7 +234,7 @@ async function updateDocs(report) {
     "## Resume Commands",
     "",
     "- `npm run instagram:discover -- --search --write --promote-search --promote-founder-search --workers=2`",
-    "- `npm run ingest:instagram:all -- --batch=S2026 --workers=2 --delay-ms=2500`",
+    "- `npm run ingest:instagram:all -- --batch=S26 --workers=2 --delay-ms=2500`",
     "- `npm run thumbnails:backfill -- --platform=instagram --cache-instagram --force --limit=200 --delay-ms=1200`",
     "- `npm run debug:instagram-coverage`",
     ""

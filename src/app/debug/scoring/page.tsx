@@ -10,7 +10,7 @@ export default async function DebugScoringPage({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
   const leftName = value(params.left) ?? "InsForge";
   const rightName = value(params.right) ?? "Interfaze";
-  const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
   const left = findCompany(graph.nodes, leftName);
   const right = findCompany(graph.nodes, rightName);
 

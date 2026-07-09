@@ -3,8 +3,8 @@ import { YcBatchAdapter, getDemoYcBatch, normalizeBatchSlug, parseYcCompaniesFro
 
 describe("YC batch parser", () => {
   it("normalizes common batch names", () => {
-    expect(normalizeBatchSlug("YC Spring 2026")).toBe("S2026");
-    expect(normalizeBatchSlug("spring 2026")).toBe("S2026");
+    expect(normalizeBatchSlug("YC Summer 2026")).toBe("S26");
+    expect(normalizeBatchSlug("summer 2026")).toBe("S26");
     expect(normalizeBatchSlug("W 2026")).toBe("W2026");
   });
 
@@ -17,7 +17,7 @@ describe("YC batch parser", () => {
               "companies": [
                 {
                   "name": "Acme AI",
-                  "batch": "Spring 2026",
+                  "batch": "Summer 2026",
                   "slug": "acme-ai",
                   "websiteUrl": "https://acme.example",
                   "oneLiner": "AI tools for test fixtures.",
@@ -35,12 +35,12 @@ describe("YC batch parser", () => {
       </html>
     `;
 
-    const records = parseYcCompaniesFromHtml(html, "S2026", "https://www.ycombinator.com/companies?batch=S2026");
+    const records = parseYcCompaniesFromHtml(html, "S26", "https://www.ycombinator.com/companies?batch=Summer%202026");
 
     expect(records).toHaveLength(1);
     expect(records[0]).toMatchObject({
       name: "Acme AI",
-      batchSlug: "S2026",
+      batchSlug: "S26",
       ycProfileUrl: "https://www.ycombinator.com/companies/acme-ai",
       websiteUrl: "https://acme.example/",
       sourceReliability: "high",
@@ -58,11 +58,11 @@ describe("YC batch parser", () => {
     const html = `
       <article>
         <a href="/companies/card-co">Card Co</a>
-        <span>Spring 2026</span>
+        <span>Summer 2026</span>
       </article>
     `;
 
-    const records = parseYcCompaniesFromHtml(html, "Spring 2026", "https://www.ycombinator.com/companies?batch=S2026");
+    const records = parseYcCompaniesFromHtml(html, "Summer 2026", "https://www.ycombinator.com/companies?batch=Summer%202026");
 
     expect(records).toHaveLength(1);
     expect(records[0]).toMatchObject({
@@ -80,7 +80,7 @@ describe("YC batch parser", () => {
         {
           title: "Searchable AI | Y Combinator",
           url: "https://www.ycombinator.com/companies/searchable-ai",
-          snippet: "Searchable AI is a YC Spring 2026 company.",
+          snippet: "Searchable AI is a YC Summer 2026 company.",
           source: "test"
         },
         {
@@ -90,7 +90,7 @@ describe("YC batch parser", () => {
           source: "test"
         }
       ],
-      "S2026"
+      "S26"
     );
 
     expect(records).toHaveLength(1);
@@ -104,10 +104,10 @@ describe("YC batch parser", () => {
   });
 
   it("returns deterministic fake YC-like demo data", () => {
-    const demo = getDemoYcBatch("YC Spring 2026", 2);
+    const demo = getDemoYcBatch("YC Summer 2026", 2);
 
     expect(demo.mode).toBe("demo");
-    expect(demo.batchSlug).toBe("S2026");
+    expect(demo.batchSlug).toBe("S26");
     expect(demo.companies).toHaveLength(2);
     expect(demo.warnings.join(" ")).toContain("fake");
   });
@@ -121,7 +121,7 @@ describe("YC batch parser", () => {
             {
               title: "Fallback Co | Y Combinator",
               url: "https://www.ycombinator.com/companies/fallback-co",
-              snippet: "Fallback Co is in YC Spring 2026.",
+              snippet: "Fallback Co is in YC Summer 2026.",
               source: "test"
             }
           ];
@@ -129,14 +129,14 @@ describe("YC batch parser", () => {
       }
     });
 
-    const result = await adapter.fetchBatch("S2026");
+    const result = await adapter.fetchBatch("S26");
 
     expect(result.mode).toBe("fallback");
     expect(result.companies).toHaveLength(1);
     expect(result.companies[0].review_state).toBe("needs_review");
-    expect(result.expectedCompanyCount).toBe(197);
+    expect(result.expectedCompanyCount).toBe(83);
     expect(result.observedCompanyCount).toBe(1);
     expect(result.warnings.join(" ")).toContain("Fallback search results require review");
-    expect(result.warnings.join(" ")).toContain("Expected 197 companies for YC Spring 2026");
+    expect(result.warnings.join(" ")).toContain("Expected 83 companies for YC Summer 2026");
   });
 });

@@ -5,10 +5,16 @@ import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("graph response sanitizer", () => {
   it("removes raw scrape text from dashboard graph payloads", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
-    const sanitized = sanitizeGraphResponse(graph);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const graphWithRaw = {
+      ...graph,
+      evidence: graph.evidence.map((item, index) =>
+        index === 0 ? { ...item, rawVisibleText: "raw scrape text that should not ship" } : item
+      )
+    };
+    const sanitized = sanitizeGraphResponse(graphWithRaw);
 
-    expect(graph.evidence.some((item) => item.rawVisibleText)).toBe(true);
+    expect(graphWithRaw.evidence.some((item) => item.rawVisibleText)).toBe(true);
     expect(sanitized.evidence.some((item) => "rawVisibleText" in item)).toBe(false);
     expect(sanitized.evidence.length).toBeLessThan(graph.evidence.length);
     expect(sanitized.evidence.every((item) => item.contributionScore > 0)).toBe(true);
@@ -23,13 +29,13 @@ describe("graph response sanitizer", () => {
   });
 
   it("keeps raw scrape text when explicitly requested for debug audits", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
     expect(sanitizeGraphResponse(graph, { includeRaw: true })).toBe(graph);
   });
 
   it("can keep explanations for debug views without keeping raw scrape text", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const sanitized = sanitizeGraphResponse(graph, { includeWhy: true });
 
     expect(sanitized.evidence.some((item) => item.why)).toBe(true);

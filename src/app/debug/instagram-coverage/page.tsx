@@ -3,7 +3,7 @@ import path from "node:path";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import { buildInstagramCoverageReport } from "@/lib/ingestion/instagram-debug";
-import companiesSnapshot from "@/lib/yc/spring-2026-companies.json";
+import companiesSnapshot from "@/lib/yc/summer-2026-companies.json";
 import overridesSnapshot from "@/lib/social/verified-social-overrides.json";
 import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
 import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.json";
@@ -11,7 +11,7 @@ import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.jso
 import type { RawInstagramDiscoveryReport } from "@/lib/ingestion/instagram-debug";
 
 export default async function InstagramCoverageDebugPage() {
-  const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
   const discovery = await readInstagramDiscoveryReport();
   const report = buildInstagramCoverageReport({
     graph,
@@ -35,7 +35,7 @@ export default async function InstagramCoverageDebugPage() {
         <nav className="debug-nav">
           <a href="/debug/thumbnails">Thumbnails</a>
           <a href="/debug/coverage">Coverage</a>
-          <a href="/debug/evidence?company=HeyClicky">HeyClicky evidence</a>
+          <a href="/debug/evidence?company=Conifer">Conifer evidence</a>
         </nav>
       </header>
 

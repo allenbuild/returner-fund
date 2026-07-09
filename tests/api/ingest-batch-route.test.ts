@@ -13,7 +13,7 @@ describe("POST /api/ingest/batch", () => {
   it("runs the demo ingest pipeline and returns graph data", async () => {
     const response = await POST(
       jsonRequest({
-        batchSlug: "YC Spring 2026",
+        batchSlug: "YC Summer 2026",
         options: { demo: true, refreshProfiles: true, refreshPosts: true, maxCompanies: 2 }
       })
     );
@@ -24,9 +24,9 @@ describe("POST /api/ingest/batch", () => {
     expect(body.status).toBe("completed");
     expect(body.runId).toMatch(/^run_/);
     expect(body.errors).toEqual([]);
-    expect(body.graph.batch.slug).toBe("S2026");
-    expect(body.graph.batch.label).toBe("YC Spring 2026");
-    expect(body.graph.batch.expectedCompanyCount).toBe(197);
+    expect(body.graph.batch.slug).toBe("S26");
+    expect(body.graph.batch.label).toBe("YC Summer 2026");
+    expect(body.graph.batch.expectedCompanyCount).toBe(83);
     expect(body.graph.mode).toBe("demo");
     expect(body.graph.nodes.length).toBeGreaterThan(0);
     expect(body.graph.nodes.every((node: { type: string }) => node.type === "company")).toBe(true);
@@ -36,7 +36,7 @@ describe("POST /api/ingest/batch", () => {
     expect(body.logs.join("\n")).toContain("Read-only policy active");
   });
 
-  it("defaults to YC Spring 2026 when batchSlug is omitted", async () => {
+  it("defaults to YC Summer 2026 when batchSlug is omitted", async () => {
     const response = await POST(
       jsonRequest({
         options: { demo: true, maxCompanies: 1 }
@@ -46,9 +46,9 @@ describe("POST /api/ingest/batch", () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.graph.batch).toMatchObject({
-      slug: "S2026",
-      label: "YC Spring 2026",
-      expectedCompanyCount: 197
+      slug: "S26",
+      label: "YC Summer 2026",
+      expectedCompanyCount: 83
     });
   });
 
@@ -69,7 +69,7 @@ describe("POST /api/ingest/batch", () => {
   it("rejects unsupported request fields", async () => {
     const response = await POST(
       jsonRequest({
-        batchSlug: "S2026",
+        batchSlug: "S26",
         options: { demo: true, browserProfilePath: "C:/Users/example/Profile" }
       })
     );
@@ -82,7 +82,7 @@ describe("POST /api/ingest/batch", () => {
   it("rejects cookies and tokens at the API boundary", async () => {
     const response = await POST(
       jsonRequest({
-        batchSlug: "S2026",
+        batchSlug: "S26",
         options: { demo: true },
         githubToken: "placeholder-value"
       })
@@ -97,7 +97,7 @@ describe("POST /api/ingest/batch", () => {
   it("fails closed when real database ingest is requested before adapters are wired", async () => {
     const response = await POST(
       jsonRequest({
-        batchSlug: "S2026",
+        batchSlug: "S26",
         options: { demo: false }
       })
     );

@@ -13,7 +13,7 @@ import type {
   YcSearchResult
 } from "./types";
 
-export const YC_SPRING_2026_EXPECTED_COMPANY_COUNT = 197;
+export const YC_SUMMER_2026_EXPECTED_COMPANY_COUNT = 83;
 
 interface YcBatchAdapterOptions {
   fetchImpl?: typeof fetch;
@@ -133,7 +133,7 @@ export class YcBatchAdapter {
 
 export function buildOfficialYcDirectoryUrl(batchSlugInput: string): string {
   const batchSlug = normalizeBatchSlug(batchSlugInput);
-  return `https://www.ycombinator.com/companies?batch=${encodeURIComponent(batchSlug)}`;
+  return `https://www.ycombinator.com/companies?batch=${encodeURIComponent(batchSlugToLabel(batchSlug))}`;
 }
 
 function applyMaxCompanies<T>(companies: T[], maxCompanies?: number): T[] {
@@ -141,7 +141,7 @@ function applyMaxCompanies<T>(companies: T[], maxCompanies?: number): T[] {
 }
 
 export function expectedCompanyCountForBatch(batchSlugInput: string): number | null {
-  return normalizeBatchSlug(batchSlugInput) === "S2026" ? YC_SPRING_2026_EXPECTED_COMPANY_COUNT : null;
+  return normalizeBatchSlug(batchSlugInput) === "S26" ? YC_SUMMER_2026_EXPECTED_COMPANY_COUNT : null;
 }
 
 function validateExpectedCompanyCount(
@@ -163,7 +163,7 @@ function validateExpectedCompanyCount(
   return {
     expectedCompanyCount,
     warnings: [
-      `Expected ${expectedCompanyCount} companies for YC Spring 2026 (${batchSlug}); parsed ${observedCompanyCount}.`
+      `Expected ${expectedCompanyCount} companies for YC Summer 2026 (${batchSlug}); parsed ${observedCompanyCount}.`
     ]
   };
 }

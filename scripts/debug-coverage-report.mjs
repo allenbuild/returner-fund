@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const apiUrl = process.env.GRAPH_API_URL ?? "http://127.0.0.1:3001/api/graph?batch=S2026&includeNonScoring=1";
+const apiUrl = process.env.GRAPH_API_URL ?? "http://127.0.0.1:3001/api/graph?batch=S26&includeNonScoring=1";
 const graph = await fetchJson(apiUrl);
 const liveCheckpoint = summarizeLiveCheckpoint(await readJson(path.join("work", "public-traction-checkpoint.json"), null));
 const loggedInSocial = summarizeLoggedInSocial(await readJson(path.join("src", "lib", "social", "logged-in-evidence-current.json"), null));
 const loggedInCheckpoint = await readJson(path.join("work", "logged-in-social-checkpoint.json"), null);
-const ycSnapshot = await readJson(path.join("src", "lib", "yc", "spring-2026-companies.json"), null);
+const ycSnapshot = await readJson(path.join("src", "lib", "yc", "summer-2026-companies.json"), null);
 const verifiedSocialOverrides = await readJson(path.join("src", "lib", "social", "verified-social-overrides.json"), {});
 const xTargetCoverage = summarizeXTargetCoverage(ycSnapshot, verifiedSocialOverrides, loggedInCheckpoint);
 const instagramDiscovery = await readJson(path.join("outputs", "instagram-discovery-candidates.json"), null);

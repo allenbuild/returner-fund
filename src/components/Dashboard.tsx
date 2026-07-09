@@ -43,8 +43,9 @@ const platformOptions: Platform[] = [
 ];
 
 const defaultBatches = [
-  { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
+  { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 }
 ];
+const DEFAULT_BATCH_SLUG = "S26";
 
 async function fetchGraphPayload(url: string, attempts = 3): Promise<GraphResponse> {
   let lastError: Error | null = null;
@@ -77,7 +78,7 @@ function initialSelectedNodeId(graph: GraphResponse | undefined): string | null 
 }
 
 export function Dashboard({ initialGraph }: DashboardProps = {}) {
-  const [batchSlug, setBatchSlug] = useState(initialGraph?.batch.slug ?? "S2026");
+  const [batchSlug, setBatchSlug] = useState(initialGraph?.batch.slug ?? DEFAULT_BATCH_SLUG);
   const [graph, setGraph] = useState<GraphResponse | null>(initialGraph ?? null);
   const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(initialGraph ?? null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(initialGraph));

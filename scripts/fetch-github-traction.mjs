@@ -2,13 +2,13 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 const root = process.cwd();
-const ycSnapshotPath = join(root, "src", "lib", "yc", "spring-2026-companies.json");
-const outputPath = join(root, "src", "lib", "social", "github-traction.json");
+const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
+const outputPath = join(root, "src", "lib", "social", "github-traction-summer-2026.json");
 const apiBase = "https://api.github.com";
 const workers = Math.max(1, Math.min(numberArg("--workers") ?? 6, 16));
 const companyLimit = numberArg("--max-companies") ?? Number.POSITIVE_INFINITY;
 const maxSearches = numberArg("--max-searches") ?? 80;
-const enableWebsiteDiscovery = !process.argv.includes("--no-website");
+const enableWebsiteDiscovery = process.argv.includes("--website");
 const enableSearchDiscovery = process.argv.includes("--search");
 
 const ycSnapshot = JSON.parse(await readFile(ycSnapshotPath, "utf8"));
@@ -41,7 +41,7 @@ await runWorkerPool(githubTargets, workers, async (target) => {
 
 const payload = {
   source: {
-    label: "GitHub public API with website/search discovery",
+    label: "GitHub public API for official YC Summer 2026 GitHub links",
     fetchedAt: new Date().toISOString(),
     targetCount: githubTargets.length,
     fetchedCount: results.filter((result) => result.fetched).length,
@@ -57,7 +57,7 @@ const payload = {
       "Read-only public GitHub API data.",
       "GITHUB_TOKEN is optional and only increases API rate limits; gh auth token can be exported before running.",
       "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
-      "Discovery trusts YC-linked GitHub URLs and GitHub links from official company websites.",
+      "Only GitHub URLs explicitly listed on public YC Summer 2026 company profiles are scored by default.",
       "GitHub search discovery is available with --search, but is disabled by default because same-name repositories need review before scoring."
     ]
   },
@@ -227,7 +227,8 @@ function candidateRepoMatchesCompany(company, repo) {
 function parseGithubUrl(url) {
   try {
     const parsed = new URL(normalizeGithubUrl(url));
-    const [login, repo] = parsed.pathname.split("/").filter(Boolean);
+    const parts = parsed.pathname.split("/").filter(Boolean);
+    const [login, repo] = parts[0] === "orgs" ? [parts[1], parts[2]] : parts;
     return {
       login: login?.trim() ?? "",
       repo: repo?.trim() || null

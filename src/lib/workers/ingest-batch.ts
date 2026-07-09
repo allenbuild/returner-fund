@@ -24,7 +24,9 @@ export async function runIngestBatch(request: IngestBatchRequest): Promise<Inges
       await log("Database mode requested.");
       if (!isSupabaseConfigured()) {
         await log("Supabase environment variables are missing, so durable database persistence is unavailable.");
-        errors.push("Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, or run with options.demo=true.");
+        errors.push(
+          "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Demo data is only available with options.demo=true."
+        );
       } else {
         await log("Supabase run hooks are configured.");
         errors.push("Real database ingestion is intentionally blocked until YC and connector agents provide adapters.");
@@ -74,9 +76,5 @@ function shouldUseDemoMode(request: IngestBatchRequest): boolean {
     return true;
   }
 
-  if (request.options?.demo === false) {
-    return false;
-  }
-
-  return process.env.NEXT_PUBLIC_APP_MODE !== "database" || !isSupabaseConfigured();
+  return false;
 }

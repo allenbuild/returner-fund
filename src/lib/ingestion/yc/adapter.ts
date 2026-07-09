@@ -14,11 +14,13 @@ export interface YcBatchResult {
 
 export function normalizeBatchSlug(input: string): string {
   const normalized = input.trim().toUpperCase().replace(/\s+/g, "");
-  if (/^S\d{4}$/.test(normalized) || /^W\d{4}$/.test(normalized)) {
+  if (/^S\d{2}$/.test(normalized) || /^P\d{4}$/.test(normalized) || /^W\d{4}$/.test(normalized)) {
     return normalized;
   }
-  const springOrSummer = input.match(/(?:spring|summer)\s*(\d{4})/i);
-  if (springOrSummer) return `S${springOrSummer[1]}`;
+  const summer = input.match(/summer\s*(\d{4})/i);
+  if (summer) return `S${summer[1].slice(2)}`;
+  const spring = input.match(/spring\s*(\d{4})/i);
+  if (spring) return `P${spring[1]}`;
   const winter = input.match(/winter\s*(\d{4})/i);
   if (winter) return `W${winter[1]}`;
   return normalized;
@@ -26,7 +28,7 @@ export function normalizeBatchSlug(input: string): string {
 
 export async function fetchYcBatch(batchSlug: string, options?: { demo?: boolean }): Promise<YcBatchResult> {
   const slug = normalizeBatchSlug(batchSlug);
-  if (options?.demo !== false) {
+  if (options?.demo === true) {
     return createDemoBatchResult(slug);
   }
   return {
@@ -40,7 +42,7 @@ export async function fetchYcBatch(batchSlug: string, options?: { demo?: boolean
   };
 }
 
-export function createDemoBatchResult(batchSlug = "S2026"): YcBatchResult {
+export function createDemoBatchResult(batchSlug = "S26"): YcBatchResult {
   return {
     batch:
       batchSlug === demoBatch.slug
@@ -49,7 +51,7 @@ export function createDemoBatchResult(batchSlug = "S2026"): YcBatchResult {
             ...demoBatch,
             id: `batch-${batchSlug.toLowerCase()}`,
             slug: batchSlug,
-            label: batchSlug === "S2026" ? "YC Spring 2026" : `YC ${batchSlug}`
+            label: batchSlug === "S26" ? "YC Summer 2026" : `YC ${batchSlug}`
           },
     companies: demoCompanies,
     founders: demoFounders,

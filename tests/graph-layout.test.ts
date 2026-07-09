@@ -5,12 +5,12 @@ import { buildClusterPositions, buildLabelPlacements, collisionRadius } from "@/
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("graph layout", () => {
-  it("places the Spring 2026 company circles without visual overlap", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  it("places the Summer 2026 company circles without visual overlap", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const positions = buildClusterPositions(graph.nodes);
 
-    expect(graph.nodes).toHaveLength(197);
-    expect(positions.size).toBe(197);
+    expect(graph.nodes).toHaveLength(83);
+    expect(positions.size).toBe(83);
 
     for (let leftIndex = 0; leftIndex < graph.nodes.length; leftIndex += 1) {
       for (let rightIndex = leftIndex + 1; rightIndex < graph.nodes.length; rightIndex += 1) {
@@ -34,7 +34,7 @@ describe("graph layout", () => {
   }, 20_000);
 
   it("always labels the selected company even when most labels are decluttered", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const selected = graph.nodes.find((node) => node.label === "HeyClicky") ?? graph.nodes[0];
     const positions = buildClusterPositions(graph.nodes);
     const labels = buildLabelPlacements(graph.nodes, positions, selected.id, 12);
@@ -45,7 +45,7 @@ describe("graph layout", () => {
   });
 
   it("keeps same group-partner companies visibly clustered", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const positions = buildClusterPositions(graph.nodes);
     const pairDistances: number[] = [];
     const sameGroupDistances: number[] = [];
@@ -73,7 +73,7 @@ describe("graph layout", () => {
   }, 20_000);
 
   it("returns to a non-overlapping full layout after a minimum-score filter cycle", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const filtered = applyClientGraphFilters(graph, {
       platforms: [],
       industries: [],
@@ -88,7 +88,7 @@ describe("graph layout", () => {
     });
 
     expect(filtered.nodes.length).toBeLessThan(restored.nodes.length);
-    expect(restored.nodes).toHaveLength(197);
+    expect(restored.nodes).toHaveLength(83);
 
     assertNoCircleOverlap(restored.nodes);
   }, 20_000);

@@ -21,7 +21,7 @@ const platformSchema = z.enum([
 
 const ingestBatchSchema = z
   .object({
-    batchSlug: z.string().trim().min(1).max(64).default("YC Spring 2026"),
+    batchSlug: z.string().trim().min(1).max(64).default("YC Summer 2026"),
     options: z
       .object({
         demo: z.boolean().optional(),

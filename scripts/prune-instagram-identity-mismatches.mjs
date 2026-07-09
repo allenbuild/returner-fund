@@ -5,7 +5,7 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const DEFAULT_OVERRIDES = path.join(ROOT, 'src', 'lib', 'social', 'verified-social-overrides.json');
 const DEFAULT_CHECKPOINT = path.join(ROOT, 'work', 'logged-in-social-checkpoint.json');
-const DEFAULT_COMPANIES = path.join(ROOT, 'src', 'lib', 'yc', 'spring-2026-companies.json');
+const DEFAULT_COMPANIES = path.join(ROOT, 'src', 'lib', 'yc', 'summer-2026-companies.json');
 const DEFAULT_LOGGED_IN_EVIDENCE = path.join(ROOT, 'src', 'lib', 'social', 'logged-in-evidence-current.json');
 
 function argValue(name, fallback) {

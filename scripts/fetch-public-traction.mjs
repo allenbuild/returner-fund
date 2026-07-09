@@ -3,7 +3,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 const root = process.cwd();
-const ycSnapshotPath = join(root, "src", "lib", "yc", "spring-2026-companies.json");
+const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
 const outputPath = join(root, "src", "lib", "social", "public-evidence-current.json");
 const checkpointPath = join(root, "work", "public-traction-checkpoint.json");
 const now = new Date().toISOString();

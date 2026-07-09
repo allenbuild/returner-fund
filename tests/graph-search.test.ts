@@ -6,23 +6,23 @@ import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("graph search", () => {
   it("handles typo-tolerant company search", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
-    const results = searchGraphNodes(graph.nodes, "HeyCliky");
-    const heyclicky = results.find((result) => result.kind === "company" && result.label === "HeyClicky");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const results = searchGraphNodes(graph.nodes, "Conifr");
+    const conifer = results.find((result) => result.kind === "company" && result.label === "Conifer");
 
-    expect(heyclicky).toBeDefined();
-    expect(heyclicky?.companyNodeId).toBe("company:company-heyclicky");
+    expect(conifer).toBeDefined();
+    expect(conifer?.companyNodeId).toBe("company:company-conifer");
   });
 
   it("shows company search results with rank and score context", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
-    const results = searchGraphNodes(graph.nodes, "rent a human");
-    const rentAHuman = results.find((result) => result.kind === "company" && result.label === "RentAHuman");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const results = searchGraphNodes(graph.nodes, "Conifer");
+    const conifer = results.find((result) => result.kind === "company" && result.label === "Conifer");
 
-    expect(rentAHuman).toBeDefined();
-    expect(rentAHuman?.subtitle).toMatch(/^#\d+, Score: \d+$/);
-    expect(rentAHuman?.rank).toBeGreaterThan(0);
-    expect(rentAHuman?.companyScore).toBeGreaterThanOrEqual(0);
+    expect(conifer).toBeDefined();
+    expect(conifer?.subtitle).toMatch(/^#\d+, Score: \d+$/);
+    expect(conifer?.rank).toBeGreaterThan(0);
+    expect(conifer?.companyScore).toBeGreaterThanOrEqual(0);
   });
 
   it("returns founder matches that focus the founder's company node", () => {

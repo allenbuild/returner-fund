@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { applyBenchmarkMomentumRows, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
-import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { YC_SUMMER_2026_BATCH_SLUG, ycSummer2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { EdgeType, Platform } from "@/lib/graph/types";
 
 interface RefreshRequest {
@@ -15,12 +15,15 @@ interface RefreshRequest {
   minScore?: number;
 }
 
+const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
+
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as RefreshRequest;
   const action = body.action === "refresh" ? "refresh" : "ingest";
-  const dataset = !body.batchSlug || body.batchSlug === "S2026" ? ycSpring2026GraphDataset : undefined;
+  const batchSlug = body.batchSlug ?? DEFAULT_BATCH_SLUG;
+  const dataset = ycSummer2026GraphDataset;
   const filteredGraph = buildGraphResponse({
-    batchSlug: body.batchSlug,
+    batchSlug,
     platforms: body.platforms,
     edgeTypes: body.edgeTypes,
     industries: body.industries,
@@ -29,7 +32,7 @@ export async function POST(request: Request) {
   }, dataset);
   let benchmarkRows = filteredGraph.fastestGaining;
   try {
-    benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug: body.batchSlug }, dataset)).graph.fastestGaining;
+    benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph.fastestGaining;
   } catch (error) {
     console.error("Graph refresh benchmark momentum failed; returning graph without persisted benchmark deltas", error);
   }

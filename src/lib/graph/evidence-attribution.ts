@@ -111,7 +111,7 @@ export function auditEvidenceAttribution(
       reviewState: "needs_review",
       scoreMultiplier: 0,
       risk: "high",
-      reasons: ["Attached company could not be resolved from the YC Spring 2026 company registry."],
+      reasons: ["Attached company could not be resolved from the current YC company registry."],
       conflictingCompanyNames: []
     };
   }

@@ -143,6 +143,7 @@ export function buildInstagramCoverageReport(input: {
   const attempts = input.discovery?.attempts ?? [];
   const companyIdsWithEvidence = new Set(evidence.map((item) => ownerByEvidenceId.get(item.id)).filter(Boolean));
   const companyIdsWithScored = new Set(scored.map((item) => ownerByEvidenceId.get(item.id)).filter(Boolean));
+  const overrides = currentSnapshotOverrides(input.companies, input.overrides);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -153,8 +154,8 @@ export function buildInstagramCoverageReport(input: {
       snapshotFounderProfiles: input.companies.flatMap((company) => company.founders ?? []).filter((founder) =>
         Boolean(founder.socialLinks?.instagram)
       ).length,
-      verifiedCompanyOverrides: Object.values(input.overrides).filter((item) => Boolean(item.companySocialLinks?.instagram)).length,
-      verifiedFounderOverrides: Object.values(input.overrides).flatMap((item) => item.founders ?? []).filter((founder) =>
+      verifiedCompanyOverrides: overrides.filter((item) => Boolean(item.companySocialLinks?.instagram)).length,
+      verifiedFounderOverrides: overrides.flatMap((item) => item.founders ?? []).filter((founder) =>
         Boolean(founder.socialLinks?.instagram)
       ).length,
       discoveredCandidates: discoveryCandidates.length,
@@ -206,13 +207,17 @@ function rootCauseFindings(
 ): string[] {
   const findings = [];
   if (!input.companies.some((company) => company.socialLinks?.instagram)) {
-    findings.push("The YC Spring 2026 snapshot has zero company-level Instagram profile URLs.");
+    findings.push("The current YC snapshot has zero company-level Instagram profile URLs.");
   }
   if (!input.companies.some((company) => (company.founders ?? []).some((founder) => founder.socialLinks?.instagram))) {
-    findings.push("The YC Spring 2026 snapshot has zero founder-level Instagram profile URLs.");
+    findings.push("The current YC snapshot has zero founder-level Instagram profile URLs.");
   }
-  const verifiedOverrideCount = Object.values(input.overrides).filter((item) => item.companySocialLinks?.instagram).length;
-  if (verifiedOverrideCount <= 1) {
+  const verifiedOverrideCount = currentSnapshotOverrides(input.companies, input.overrides).filter(
+    (item) => item.companySocialLinks?.instagram
+  ).length;
+  if (verifiedOverrideCount === 0) {
+    findings.push("No verified company Instagram overrides exist for the current YC snapshot.");
+  } else if (verifiedOverrideCount === 1) {
     findings.push("Only one verified company Instagram override exists, so logged-in ingestion only has one company target.");
   }
   const hasBroadDiscovery =
@@ -222,10 +227,19 @@ function rootCauseFindings(
   if (input.discovery && !hasBroadDiscovery) {
     findings.push("The last Instagram discovery report did not run a broad Instagram search; it only crawled official websites.");
   }
-  if (new Set(evidence.map((item) => item.attachedCompanyName ?? item.entityId)).size <= 1) {
+  if (evidence.length === 0) {
+    findings.push("No current Instagram evidence rows are attached to the graph.");
+  } else if (new Set(evidence.map((item) => item.attachedCompanyName ?? item.entityId)).size <= 1) {
     findings.push("Current Instagram evidence is effectively attached to a single company feed.");
   }
   return findings;
+}
+
+function currentSnapshotOverrides(companies: RawInstagramSnapshotCompany[], overrides: RawInstagramOverrides) {
+  const currentSlugs = new Set(companies.map((company) => company.slug));
+  return Object.entries(overrides)
+    .filter(([slug]) => currentSlugs.has(slug))
+    .map(([, override]) => override);
 }
 
 function ownerIndex(graph: GraphResponse): Map<string, string> {

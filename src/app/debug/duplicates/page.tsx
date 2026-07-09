@@ -3,7 +3,7 @@ import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 export default function DebugDuplicatesPage() {
-  const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
   const report = buildDuplicateReport(graph);
 
   return (

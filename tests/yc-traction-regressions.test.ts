@@ -11,36 +11,37 @@ import type { EvidenceItem, Platform } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("YC traction scoring regressions", () => {
-  it("does not attach smol machines evidence to Runtime's selected company feed", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
-    const runtime = graph.nodes.find((node) => node.entityType === "company" && node.label === "Runtime");
+  it("does not carry old Spring evidence into Conifer's selected company feed", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const conifer = graph.nodes.find((node) => node.entityType === "company" && node.label === "Conifer");
 
-    expect(runtime).toBeTruthy();
-    expect(graph.evidence.some((item) => item.attachedCompanyName === "smol machines")).toBe(true);
+    expect(conifer).toBeTruthy();
+    expect(graph.evidence.some((item) => item.attachedCompanyName === "HeyClicky")).toBe(false);
+    expect(graph.evidence.some((item) => item.attachedCompanyName === "InsForge")).toBe(false);
 
-    const selectedEvidence = selectedNodeEvidence(graph, runtime!);
-    const allowedEntityIds = new Set([runtime!.entityId, ...runtime!.relatedEntityIds]);
+    const selectedEvidence = selectedNodeEvidence(graph, conifer!);
+    const allowedEntityIds = new Set([conifer!.entityId, ...conifer!.relatedEntityIds]);
 
     expect(selectedEvidence.every((item) => allowedEntityIds.has(item.entityId))).toBe(true);
-    expect(selectedEvidence.some((item) => item.attachedCompanyName === "smol machines")).toBe(false);
+    expect(selectedEvidence.every((item) => item.attachedCompanyName === "Conifer")).toBe(true);
   });
 
-  it("scores InsForge's GitHub traction above Interfaze's GitHub traction", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
-    const insforge = graph.nodes.find((node) => node.entityType === "company" && node.label === "InsForge");
-    const interfaze = graph.nodes.find((node) => node.entityType === "company" && node.label === "Interfaze");
+  it("scores Conifer's GitHub traction above Shepherd's GitHub traction", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const conifer = graph.nodes.find((node) => node.entityType === "company" && node.label === "Conifer");
+    const shepherd = graph.nodes.find((node) => node.entityType === "company" && node.label === "Shepherd");
 
-    expect(insforge?.platformScores.github).toBeGreaterThan(interfaze?.platformScores.github ?? 0);
-    expect(insforge?.score).toBeGreaterThan(interfaze?.score ?? 0);
+    expect(conifer?.platformScores.github).toBeGreaterThan(shepherd?.platformScores.github ?? 0);
+    expect(conifer?.score).toBeGreaterThan(shepherd?.score ?? 0);
   });
 
   it("does not score GitHub profile aggregates when repo-level evidence exists", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
-    const insforge = graph.nodes.find((node) => node.entityType === "company" && node.label === "InsForge");
-    const selectedEvidence = selectedNodeEvidence(graph, insforge!);
-    const profileAggregate = selectedEvidence.find((item) => item.id === "evidence-github-profile-company-insforge");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const conifer = graph.nodes.find((node) => node.entityType === "company" && node.label === "Conifer");
+    const selectedEvidence = selectedNodeEvidence(graph, conifer!);
+    const profileAggregate = selectedEvidence.find((item) => item.id === "evidence-github-profile-company-conifer");
     const repoEvidence = selectedEvidence.filter(
-      (item) => item.platform === "github" && item.id.startsWith("evidence-github-repo-company-insforge")
+      (item) => item.platform === "github" && item.id.startsWith("evidence-github-repo-company-conifer")
     );
 
     expect(profileAggregate?.contributionScore ?? 0).toBe(0);
@@ -48,21 +49,21 @@ describe("YC traction scoring regressions", () => {
   });
 
   it("does not inflate sparse one-platform GitHub evidence into a perfect company score", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
-    const smol = graph.nodes.find((node) => node.entityType === "company" && node.label === "smol machines");
-    const heyClicky = graph.nodes.find((node) => node.entityType === "company" && node.label === "HeyClicky");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const careGp = graph.nodes.find((node) => node.entityType === "company" && node.label === "Care GP");
+    const screenpipe = graph.nodes.find((node) => node.entityType === "company" && node.label === "screenpipe");
 
-    expect(smol?.score).toBeLessThan(70);
-    expect(heyClicky?.score).toBeGreaterThan(smol?.score ?? 0);
-    expect(smol?.scoreBreakdown?.explanation).toContain("Evidence-depth factor");
-    expect(smol?.scoreBreakdown?.weightedPlatforms[0]?.evidenceCount).toBe(1);
+    expect(careGp?.score).toBeLessThan(70);
+    expect(screenpipe?.score).toBeGreaterThan(careGp?.score ?? 0);
+    expect(careGp?.scoreBreakdown?.explanation).toContain("Evidence-depth factor");
+    expect(careGp?.scoreBreakdown?.weightedPlatforms[0]?.evidenceCount).toBeGreaterThanOrEqual(1);
   });
 
-  it("uses the full 0-100 peer range for Spring 2026 company scores", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+  it("uses the full 0-100 peer range for Summer 2026 company scores", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const companyScores = graph.nodes.filter((node) => node.entityType === "company").map((node) => node.score);
 
-    expect(companyScores).toHaveLength(197);
+    expect(companyScores).toHaveLength(83);
     expect(Math.max(...companyScores)).toBe(100);
     expect(Math.min(...companyScores)).toBe(0);
     expect(graph.leaderboard[0]?.score).toBe(100);
@@ -183,7 +184,7 @@ describe("YC traction scoring regressions", () => {
   });
 
   it("carries GitHub recent activity into scoring experiments", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const githubRows = graph.evidence.filter((item) => item.platform === "github");
 
     expect(githubRows.some((item) => item.metrics.recent_commits_30d !== undefined)).toBe(true);

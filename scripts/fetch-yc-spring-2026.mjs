@@ -2,26 +2,28 @@ import * as cheerio from "cheerio";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
-const DIRECTORY_URL = "https://www.ycombinator.com/companies?batch=S2026";
+const DEFAULT_BATCH_NAME = "Summer 2026";
+const DIRECTORY_URL_BASE = "https://www.ycombinator.com/companies";
 const ALGOLIA_QUERIES_URL = "https://45BWZJ1SGC-dsn.algolia.net/1/indexes/*/queries";
-const OUT_PATH = resolve("src/lib/yc/spring-2026-companies.json");
-const EXPECTED_COUNT = 197;
+const EXPECTED_COUNT = 83;
+const DEFAULT_OUT_PATH = "src/lib/yc/summer-2026-companies.json";
 const CONCURRENCY = 6;
 
 async function main() {
-  const directoryHtml = await fetchText(DIRECTORY_URL);
+  const config = parseArgs(process.argv.slice(2));
+  const directoryHtml = await fetchText(config.directoryUrl);
   const algolia = extractAlgoliaOptions(directoryHtml);
-  const listing = await fetchCompanyListing(algolia);
+  const listing = await fetchCompanyListing(algolia, config);
 
-  if (listing.nbHits !== EXPECTED_COUNT || listing.hits.length !== EXPECTED_COUNT) {
+  if (listing.nbHits !== config.expectedCount || listing.hits.length !== config.expectedCount) {
     throw new Error(
-      `Expected ${EXPECTED_COUNT} Spring 2026 companies from YC Algolia; got nbHits=${listing.nbHits}, hits=${listing.hits.length}.`
+      `Expected ${config.expectedCount} ${config.batchName} companies from YC Algolia; got nbHits=${listing.nbHits}, hits=${listing.hits.length}.`
     );
   }
 
   const companies = await mapLimit(listing.hits, CONCURRENCY, async (hit, index) => {
     const detail = await fetchCompanyDetail(hit.slug);
-    return sanitizeCompany(hit, detail, index);
+    return sanitizeCompany(hit, detail, index, config);
   });
 
   companies.sort((left, right) => left.name.localeCompare(right.name));
@@ -29,10 +31,11 @@ async function main() {
   const payload = {
     source: {
       label: "YC public directory + public company detail pages",
-      directoryUrl: DIRECTORY_URL,
+      directoryUrl: config.directoryUrl,
       algoliaIndex: "YCCompany_production",
+      algoliaFilter: `batch:"${config.batchName}"`,
       fetchedAt: new Date().toISOString(),
-      expectedCompanyCount: EXPECTED_COUNT,
+      expectedCompanyCount: config.expectedCount,
       observedCompanyCount: companies.length,
       notes: [
         "Generated from public, unauthenticated YC pages.",
@@ -42,10 +45,63 @@ async function main() {
     companies
   };
 
-  await mkdir(dirname(OUT_PATH), { recursive: true });
-  await writeFile(OUT_PATH, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  await mkdir(dirname(config.outPath), { recursive: true });
+  await writeFile(config.outPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
 
-  console.log(`Wrote ${companies.length} YC Spring 2026 companies to ${OUT_PATH}`);
+  console.log(`Wrote ${companies.length} YC ${config.batchName} companies to ${config.outPath}`);
+}
+
+function parseArgs(args) {
+  const options = {
+    batchName: DEFAULT_BATCH_NAME,
+    expectedCount: EXPECTED_COUNT,
+    outPath: DEFAULT_OUT_PATH,
+    directoryUrl: null
+  };
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    const [flag, inlineValue] = arg.split("=", 2);
+    if (!flag.startsWith("--")) {
+      throw new Error(`Unknown positional argument: ${arg}`);
+    }
+    const value = inlineValue ?? args[index + 1];
+    if (inlineValue === undefined) {
+      index += 1;
+    }
+    if (!value) {
+      throw new Error(`Missing value for ${flag}`);
+    }
+
+    switch (flag) {
+      case "--batch":
+      case "--batch-name":
+        options.batchName = value;
+        break;
+      case "--expected-count":
+        options.expectedCount = Number.parseInt(value, 10);
+        if (!Number.isInteger(options.expectedCount) || options.expectedCount < 1) {
+          throw new Error(`Invalid --expected-count value: ${value}`);
+        }
+        break;
+      case "--out":
+        options.outPath = value;
+        break;
+      case "--directory-url":
+        options.directoryUrl = value;
+        break;
+      default:
+        throw new Error(`Unknown option: ${flag}`);
+    }
+  }
+
+  return {
+    ...options,
+    outPath: resolve(options.outPath),
+    directoryUrl:
+      options.directoryUrl ??
+      `${DIRECTORY_URL_BASE}?batch=${encodeURIComponent(options.batchName)}`
+  };
 }
 
 async function fetchText(url) {
@@ -68,12 +124,12 @@ function extractAlgoliaOptions(html) {
   return JSON.parse(match[1]);
 }
 
-async function fetchCompanyListing(algolia) {
+async function fetchCompanyListing(algolia, config) {
   const params = new URLSearchParams({
     query: "",
-    hitsPerPage: String(EXPECTED_COUNT),
+    hitsPerPage: String(config.expectedCount),
     page: "0",
-    filters: 'batch:"Spring 2026"'
+    filters: `batch:"${config.batchName}"`
   });
   const body = {
     requests: [
@@ -110,7 +166,7 @@ async function fetchCompanyDetail(slug) {
   return page.props.company;
 }
 
-function sanitizeCompany(hit, detail, index) {
+function sanitizeCompany(hit, detail, index, config) {
   const ycUrl = `https://www.ycombinator.com/companies/${hit.slug}`;
   const groupPartner = detail.primary_group_partner?.full_name ?? null;
   const launch = Array.isArray(detail.launches) ? detail.launches[0] : null;
@@ -152,7 +208,7 @@ function sanitizeCompany(hit, detail, index) {
           approvedAt: launch.approved_at ?? null
         }
       : null,
-    sourceUrls: [ycUrl, DIRECTORY_URL],
+    sourceUrls: [ycUrl, config.directoryUrl],
     sourceOrdinal: index
   };
 }
