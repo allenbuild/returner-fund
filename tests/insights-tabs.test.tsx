@@ -40,6 +40,7 @@ describe("insights tabs", () => {
 
     expect(screen.getByRole("button", { name: "Day over day" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Week over week" })).toBeInTheDocument();
+    expect(screen.getByText("Hot rank")).toBeInTheDocument();
     expect(screen.getByText("Score delta")).toBeInTheDocument();
     expect(screen.getByText("Rank delta")).toBeInTheDocument();
     expect(screen.queryByText("Platform")).not.toBeInTheDocument();

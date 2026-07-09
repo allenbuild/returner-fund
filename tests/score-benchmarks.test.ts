@@ -110,7 +110,32 @@ describe("score benchmarks", () => {
     expect(row?.wow.benchmarkedAt).toBe("2026-06-24T12:00:00.000Z");
   });
 
-  it("does not fake day-over-day momentum when the previous calendar day is missing", () => {
+  it("chooses the latest timestamped weekly baseline when daily and weekly snapshots are merged", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const firstCompany = graph.leaderboard[0]!;
+
+    ensureBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-06-29T12:00:00.000Z")
+    });
+    ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 4), {
+      storePath,
+      now: new Date("2026-07-02T12:00:00.000Z")
+    });
+
+    const julyNinth = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10), {
+      storePath,
+      now: new Date("2026-07-09T12:00:00.000Z")
+    });
+    const row = julyNinth.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(row?.wow.scoreDelta).toBe(6);
+    expect(row?.wow.benchmarkedAt).toBe("2026-07-02T12:00:00.000Z");
+  });
+
+  it("uses the latest real prior daily snapshot when the previous calendar day is missing", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
@@ -127,8 +152,8 @@ describe("score benchmarks", () => {
     });
     const row = julyFirst.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
 
-    expect(row?.dod.scoreDelta).toBe(0);
-    expect(row?.dod.benchmarkedAt).toBeNull();
+    expect(row?.dod.scoreDelta).toBe(5);
+    expect(row?.dod.benchmarkedAt).toBe("2026-06-29T12:00:00.000Z");
   });
 
   it("can apply stored momentum rows without recording a new benchmark during first paint", () => {
@@ -153,6 +178,63 @@ describe("score benchmarks", () => {
     expect(row?.dod.scoreDelta).toBe(5);
     expect(row?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
     expect(after).toBe(before);
+  });
+
+  it("normalizes corrupt stored benchmark ranks from score order", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const [firstCompany, secondCompany, thirdCompany] = graph.leaderboard;
+
+    fs.writeFileSync(
+      storePath,
+      JSON.stringify(
+        {
+          version: 1,
+          batchSlug: "S26",
+          updatedAt: "2026-06-30T12:00:00.000Z",
+          daily: [
+            {
+              recordedAt: "2026-06-30T12:00:00.000Z",
+              companies: [
+                {
+                  companyId: firstCompany.companyId,
+                  companyName: firstCompany.companyName,
+                  score: 10,
+                  rank: 24
+                },
+                {
+                  companyId: secondCompany.companyId,
+                  companyName: secondCompany.companyName,
+                  score: 90,
+                  rank: 24
+                },
+                {
+                  companyId: thirdCompany.companyId,
+                  companyName: thirdCompany.companyName,
+                  score: 50,
+                  rank: 24
+                }
+              ]
+            }
+          ],
+          weekly: []
+        },
+        null,
+        2
+      ),
+      "utf8"
+    );
+
+    const hydrated = applyStoredBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const firstRow = hydrated.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+    const secondRow = hydrated.fastestGaining.find((candidate) => candidate.companyId === secondCompany.companyId);
+
+    expect(firstRow?.dod.baselineRank).toBe(3);
+    expect(secondRow?.dod.baselineRank).toBe(1);
   });
 });
 
