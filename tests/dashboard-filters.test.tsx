@@ -127,6 +127,42 @@ describe("dashboard filters", () => {
     expect(options[1]).toHaveValue("S2026");
   });
 
+  it("switches to a prefetched Spring graph without waiting for another graph request", async () => {
+    const summerGraph = graphResponse([
+      makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100)
+    ]);
+    const springGraph = graphResponse(
+      [makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A", 100)],
+      { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
+    );
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      return {
+        ok: true,
+        json: async () => (url.includes("batch=S2026") ? springGraph : summerGraph)
+      };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={summerGraph} />);
+
+    expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("batch=S2026"))).toBe(true);
+    });
+    await Promise.resolve();
+
+    const callsBeforeSwitch = fetchMock.mock.calls.length;
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "S2026" } });
+
+    await waitFor(() => {
+      expect(within(screen.getByTestId("graph-canvas")).getByText("HeyClicky")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe")).not.toBeInTheDocument();
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(callsBeforeSwitch);
+  });
+
   it("filters minimum score locally without waiting for a graph request", async () => {
     const fullGraph = graphResponse([
       makeNode("company:low", "Low Score", "b2b", "#7dd3fc", "Partner A", 20),
@@ -156,16 +192,21 @@ describe("dashboard filters", () => {
   });
 });
 
-function graphResponse(nodes: GraphNode[]): GraphResponse {
+function graphResponse(
+  nodes: GraphNode[],
+  batch = { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 }
+): GraphResponse {
+  const batchNodes = nodes.map((node) => ({ ...node, batchSlug: batch.slug }));
+
   return {
-    batch: { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 },
+    batch,
     batches: [
       { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 },
       { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
     ],
-    nodes,
+    nodes: batchNodes,
     edges: [],
-    leaderboard: nodes.map((node, index) => ({
+    leaderboard: batchNodes.map((node, index) => ({
       rank: index + 1,
       companyId: node.entityId,
       companyName: node.label,

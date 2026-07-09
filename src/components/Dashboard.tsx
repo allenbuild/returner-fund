@@ -82,6 +82,9 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   const [batchSlug, setBatchSlug] = useState(initialGraph?.batch.slug ?? DEFAULT_BATCH_SLUG);
   const [graph, setGraph] = useState<GraphResponse | null>(initialGraph ?? null);
   const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(initialGraph ?? null);
+  const graphCacheRef = useRef<Map<string, GraphResponse>>(
+    new Map(initialGraph ? [[initialGraph.batch.slug, initialGraph]] : [])
+  );
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(initialGraph));
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
@@ -95,12 +98,12 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   const [highlightedFounderId, setHighlightedFounderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(!initialGraph);
   const [actionLoading, setActionLoading] = useState<"ingest" | "refresh" | null>(null);
-  const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterBandRef = useRef<HTMLElement | null>(null);
   const dashboardGridRef = useRef<HTMLElement | null>(null);
   const graphRequestIdRef = useRef(0);
+  const actionRequestIdRef = useRef(0);
   const initialGraphHydratedRef = useRef(Boolean(initialGraph));
   const currentFilters = useMemo<ClientGraphFilters>(
     () => ({
@@ -116,6 +119,10 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   useEffect(() => {
     currentFiltersRef.current = currentFilters;
   }, [currentFilters]);
+
+  const rememberGraph = useCallback((payload: GraphResponse) => {
+    graphCacheRef.current.set(payload.batch.slug, payload);
+  }, []);
 
   const fetchGraph = useCallback(async (options: { background?: boolean; unfiltered?: boolean } = {}) => {
     const background = options.background === true;
@@ -144,6 +151,9 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
     }
     try {
       const payload = await fetchGraphPayload(`/api/graph?${params.toString()}`);
+      if (options.unfiltered) {
+        rememberGraph(payload);
+      }
       if (requestId !== graphRequestIdRef.current) {
         return;
       }
@@ -163,11 +173,19 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
         setLoading(false);
       }
     }
-  }, [batchSlug]);
+  }, [batchSlug, rememberGraph]);
 
   useEffect(() => {
-    if (filterMetadataGraph?.batch.slug === batchSlug) {
-      setGraph(applyClientGraphFilters(filterMetadataGraph, currentFilters));
+    const cachedGraph =
+      filterMetadataGraph?.batch.slug === batchSlug ? filterMetadataGraph : graphCacheRef.current.get(batchSlug);
+
+    if (cachedGraph) {
+      if (filterMetadataGraph?.batch.slug !== cachedGraph.batch.slug) {
+        graphRequestIdRef.current += 1;
+        setFilterMetadataGraph(cachedGraph);
+      }
+
+      setGraph(applyClientGraphFilters(cachedGraph, currentFilters));
       setError(null);
       setLoading(false);
 
@@ -181,6 +199,11 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
     initialGraphHydratedRef.current = false;
     void fetchGraph({ unfiltered: true });
   }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, initialGraph]);
+
+  useEffect(() => {
+    actionRequestIdRef.current += 1;
+    setActionLoading(null);
+  }, [batchSlug]);
 
   useEffect(() => {
     setMinScoreDraft(minScore);
@@ -273,6 +296,30 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   }, []);
 
   const batches = filterMetadataGraph?.batches ?? graph?.batches ?? defaultBatches;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    for (const batch of batches) {
+      if (batch.slug === batchSlug || graphCacheRef.current.has(batch.slug)) {
+        continue;
+      }
+
+      const params = new URLSearchParams({ batch: batch.slug });
+      void fetchGraphPayload(`/api/graph?${params.toString()}`)
+        .then((payload) => {
+          if (!cancelled) {
+            rememberGraph(payload);
+          }
+        })
+        .catch(() => undefined);
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [batchSlug, batches, rememberGraph]);
+
   const industryOptions = useMemo(() => {
     const byIndustry = new Map<string, { name: string; count: number; color: string }>();
 
@@ -337,9 +384,10 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   );
 
   async function runDemoAction(action: "ingest" | "refresh") {
+    const actionRequestId = actionRequestIdRef.current + 1;
+    actionRequestIdRef.current = actionRequestId;
     setActionLoading(action);
     setError(null);
-    setActionNotice(`${formatAction(action)} running...`);
 
     try {
       const response = await fetch("/api/graph/refresh", {
@@ -360,16 +408,24 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
       }
 
       const payload = (await response.json()) as { graph: GraphResponse };
+      if (actionRequestId !== actionRequestIdRef.current) {
+        return;
+      }
+
       setGraph(payload.graph);
       if (!selectedPlatforms.length && !selectedIndustries.length && !selectedGroupPartners.length && minScore === 0) {
+        rememberGraph(payload.graph);
         setFilterMetadataGraph(payload.graph);
       }
-      setActionNotice(formatActionNotice(action, payload.graph));
     } catch (caught) {
+      if (actionRequestId !== actionRequestIdRef.current) {
+        return;
+      }
       setError(caught instanceof Error ? caught.message : `${action} request failed`);
-      setActionNotice(null);
     } finally {
-      setActionLoading(null);
+      if (actionRequestId === actionRequestIdRef.current) {
+        setActionLoading(null);
+      }
     }
   }
 
@@ -552,10 +608,9 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
         </div>
       </section>
 
-      {(actionNotice || error) && (
+      {error && (
         <section className="status-line" aria-live="polite">
-          {actionNotice && <span>{actionNotice}</span>}
-          {error && <span className="error-text">{error}</span>}
+          <span className="error-text">{error}</span>
         </section>
       )}
 
@@ -700,16 +755,6 @@ function formatIndustry(industry: string): string {
     government: "Government"
   };
   return labels[industry.toLowerCase()] ?? industry.replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function formatAction(action: "ingest" | "refresh"): string {
-  return action === "ingest" ? "Ingest" : "Refresh";
-}
-
-function formatActionNotice(action: "ingest" | "refresh", graph: GraphResponse): string {
-  const companyCount = graph.nodes.filter((node) => node.entityType === "company").length;
-  const expectedCount = graph.batch.companyCountExpected ?? companyCount;
-  return `${formatAction(action)} complete: ${companyCount}/${expectedCount} companies, ${graph.edges.length} links.`;
 }
 
 function clampScore(value: number): number {
