@@ -1,7 +1,5 @@
 import type {
-  DemoGraphDataset,
   EvidenceItem,
-  FounderRecord,
   Platform,
   TopVoiceAudienceId,
   TopVoiceAudienceSummary,
@@ -10,11 +8,10 @@ import type {
 } from "@/lib/graph/types";
 
 const SEED_TIMESTAMP = "2026-07-09T00:00:00.000Z";
-const DEFAULT_BATCH_CIRCLE_BATCH_SLUG = "P26";
 
 export const TOP_VOICE_OFF_SUMMARY: TopVoiceAudienceSummary = {
   id: "off",
-  displayName: "Off / Everyone",
+  displayName: "All voices",
   description: "All available network traction signals.",
   helperText: "Showing all available network traction signals.",
   scoreLabel: "Traction score",
@@ -22,6 +19,15 @@ export const TOP_VOICE_OFF_SUMMARY: TopVoiceAudienceSummary = {
   active: true,
   memberCount: 0
 };
+
+interface MemberOptions {
+  aliases?: string[];
+  handles?: Partial<Record<Platform, string[]>>;
+  category?: string;
+  weight?: number;
+  source?: string;
+  notes?: string;
+}
 
 const ycPartnerSeeds = [
   member("garry-tan", "Garry Tan", {
@@ -41,8 +47,8 @@ const ycPartnerSeeds = [
   member("diana-hu", "Diana Hu", {
     handles: { linkedin: ["dianajhu"] }
   }),
-  member("gustaf-alstromer", "Gustaf Alstromer", {
-    aliases: ["Gustaf Alstromer", "Gustaf Alströmer"],
+  member("gustaf-alstromer", "Gustaf Alströmer", {
+    aliases: ["Gustaf Alstromer"],
     handles: { x: ["gustaf"], linkedin: ["gustafalstromer"] }
   }),
   member("nicolas-dessaigne", "Nicolas Dessaigne", {
@@ -85,127 +91,156 @@ const ycPartnerSeeds = [
 ];
 
 const insiderOnlySeeds = [
-  member("paul-graham", "Paul Graham", {
+  insider("paul-graham", "Paul Graham", {
     aliases: ["pg"],
-    handles: { x: ["paulg", "pg"] },
-    category: "yc_alum"
+    handles: { x: ["paulg", "pg"] }
   }),
-  member("jessica-livingston", "Jessica Livingston", { category: "yc_alum" }),
-  member("michael-seibel", "Michael Seibel", {
-    handles: { x: ["mwseibel"], linkedin: ["michaelseibel"] },
-    category: "yc_alum"
+  insider("jessica-livingston", "Jessica Livingston"),
+  insider("michael-seibel", "Michael Seibel", {
+    handles: { x: ["mwseibel"], linkedin: ["michaelseibel"] }
   }),
-  member("sam-altman", "Sam Altman", {
+  insider("sam-altman", "Sam Altman", {
     aliases: ["sama"],
-    handles: { x: ["sama"], linkedin: ["samaltman"] },
-    category: "yc_alum"
+    handles: { x: ["sama"], linkedin: ["samaltman"] }
   }),
-  member("brian-chesky", "Brian Chesky", {
-    handles: { x: ["bchesky"], linkedin: ["brianchesky"] },
-    category: "yc_adjacent_founder"
+  insider("brian-chesky", "Brian Chesky", {
+    handles: { x: ["bchesky"], linkedin: ["brianchesky"] }
   }),
-  member("taro-fukuyama", "Taro Fukuyama", { category: "yc_adjacent_founder" }),
-  member("patrick-collison", "Patrick Collison", {
-    handles: { x: ["patrickc"], linkedin: ["patrickcollison"] },
-    category: "yc_adjacent_founder"
+  insider("patrick-collison", "Patrick Collison", {
+    handles: { x: ["patrickc"], linkedin: ["patrickcollison"] }
   }),
-  member("john-collison", "John Collison", {
-    handles: { x: ["collision"], linkedin: ["johncollison"] },
-    category: "yc_adjacent_founder"
+  insider("john-collison", "John Collison", {
+    handles: { x: ["collision"], linkedin: ["johncollison"] }
   }),
-  member("guillermo-rauch", "Guillermo Rauch", {
-    handles: { x: ["rauchg"], github: ["rauchg"], linkedin: ["rauchg"] },
-    category: "operator"
+  insider("brian-armstrong", "Brian Armstrong", {
+    handles: { x: ["brian_armstrong"], linkedin: ["barmstrong"] }
   }),
-  member("dylan-field", "Dylan Field", {
-    handles: { x: ["zoink"], linkedin: ["dylanfield"] },
-    category: "yc_adjacent_founder"
+  insider("drew-houston", "Drew Houston", {
+    handles: { x: ["drewhouston"], linkedin: ["drewhouston"] }
   }),
-  member("aravind-srinivas", "Aravind Srinivas", {
-    handles: { x: ["aravsrinivas"], linkedin: ["aravind-srinivas"] },
-    category: "yc_adjacent_founder"
+  insider("steve-huffman", "Steve Huffman", {
+    aliases: ["spez"],
+    handles: { x: ["spez"], linkedin: ["stevehuffman"] }
   }),
-  member("alex-wang", "Alex Wang", {
-    handles: { x: ["alexandr_wang"], linkedin: ["alexwang"] },
-    category: "yc_adjacent_founder"
+  insider("justin-kan", "Justin Kan", {
+    handles: { x: ["justinkan"], linkedin: ["justinkan"] }
   }),
-  member("palmer-luckey", "Palmer Luckey", {
-    handles: { x: ["palmerluckey"], linkedin: ["palmerluckey"] },
-    category: "operator"
+  insider("emmett-shear", "Emmett Shear", {
+    handles: { x: ["eshear"], linkedin: ["emmettshear"] }
   }),
-  member("elad-gil", "Elad Gil", {
-    handles: { x: ["eladgil"], linkedin: ["eladgil"] },
-    category: "investor"
+  insider("alexis-ohanian", "Alexis Ohanian", {
+    handles: { x: ["alexisohanian"], linkedin: ["alexisohanian"] }
   }),
-  member("nat-friedman", "Nat Friedman", {
-    handles: { x: ["natfriedman"], github: ["nat"], linkedin: ["natfriedman"] },
-    category: "operator"
+  insider("guillermo-rauch", "Guillermo Rauch", {
+    handles: { x: ["rauchg"], github: ["rauchg"], linkedin: ["rauchg"] }
   }),
-  member("daniel-gross", "Daniel Gross", {
-    handles: { x: ["danielgross"], linkedin: ["danielgross"] },
-    category: "investor"
+  insider("dylan-field", "Dylan Field", {
+    handles: { x: ["zoink"], linkedin: ["dylanfield"] }
   }),
-  member("david-sacks", "David Sacks", {
-    handles: { x: ["davidsacks"], linkedin: ["davidsacks"] },
-    category: "investor"
+  insider("aravind-srinivas", "Aravind Srinivas", {
+    handles: { x: ["aravsrinivas"], linkedin: ["aravind-srinivas"] }
   }),
-  member("marc-andreessen", "Marc Andreessen", {
+  insider("alex-wang", "Alex Wang", {
+    handles: { x: ["alexandr_wang"], linkedin: ["alexwang"] }
+  }),
+  insider("palmer-luckey", "Palmer Luckey", {
+    handles: { x: ["palmerluckey"], linkedin: ["palmerluckey"] }
+  }),
+  insider("parker-conrad", "Parker Conrad", {
+    handles: { x: ["parkerconrad"], linkedin: ["parkerconrad"] }
+  }),
+  insider("aaron-levie", "Aaron Levie", {
+    handles: { x: ["levie"], linkedin: ["aaronlevie"] }
+  }),
+  insider("eric-migicovsky", "Eric Migicovsky", {
+    handles: { x: ["ericmigi"], linkedin: ["ericmigicovsky"] }
+  }),
+  insider("tony-xu", "Tony Xu", {
+    handles: { x: ["t_xu"], linkedin: ["tonyxu"] }
+  }),
+  insider("apoorva-mehta", "Apoorva Mehta", {
+    handles: { x: ["apoorva_mehta"], linkedin: ["apoorvamehta"] }
+  }),
+  insider("max-mullen", "Max Mullen", {
+    handles: { x: ["maxmullen"], linkedin: ["maxmullen"] }
+  }),
+  insider("henrique-dubugras", "Henrique Dubugras", {
+    handles: { x: ["hdubugras"], linkedin: ["henriquedubugras"] }
+  }),
+  insider("pedro-franceschi", "Pedro Franceschi", {
+    handles: { x: ["pedroh96"], linkedin: ["pedrofranceschi"] }
+  }),
+  insider("mathilde-collin", "Mathilde Collin", {
+    handles: { x: ["collinmathilde"], linkedin: ["mathildecollin"] }
+  }),
+  insider("rahul-vohra", "Rahul Vohra", {
+    handles: { x: ["rahulvohra"], linkedin: ["rahulvohra"] }
+  }),
+  insider("spenser-skates", "Spenser Skates", {
+    handles: { x: ["spenserskates"], linkedin: ["spenserskates"] }
+  }),
+  insider("suhail-doshi", "Suhail Doshi", {
+    handles: { x: ["suhail"], linkedin: ["suhaildoshi"] }
+  }),
+  insider("taro-fukuyama", "Taro Fukuyama"),
+  insider("dalton-caldwell", "Dalton Caldwell", {
+    handles: { x: ["daltonc"], linkedin: ["daltoncaldwell"] }
+  }),
+  insider("qasar-younis", "Qasar Younis", {
+    handles: { x: ["qasar"], linkedin: ["qasaryounis"] }
+  }),
+  insider("ali-rowghani", "Ali Rowghani", {
+    handles: { x: ["rowghani"], linkedin: ["alirowghani"] }
+  }),
+  insider("anu-hariharan", "Anu Hariharan", {
+    handles: { x: ["anuhariharan"], linkedin: ["anuhariharan"] }
+  }),
+  insider("elad-gil", "Elad Gil", {
+    handles: { x: ["eladgil"], linkedin: ["eladgil"] }
+  }),
+  insider("nat-friedman", "Nat Friedman", {
+    handles: { x: ["natfriedman"], github: ["nat"], linkedin: ["natfriedman"] }
+  }),
+  insider("daniel-gross", "Daniel Gross", {
+    handles: { x: ["danielgross"], linkedin: ["danielgross"] }
+  }),
+  insider("david-sacks", "David Sacks", {
+    handles: { x: ["davidsacks"], linkedin: ["davidsacks"] }
+  }),
+  insider("marc-andreessen", "Marc Andreessen", {
     aliases: ["pmarca"],
-    handles: { x: ["pmarca"], linkedin: ["marcandreessen"] },
-    category: "investor"
+    handles: { x: ["pmarca"], linkedin: ["marcandreessen"] }
   }),
-  member("ben-horowitz", "Ben Horowitz", {
-    handles: { x: ["bhorowitz"], linkedin: ["benhorowitz"] },
-    category: "investor"
+  insider("ben-horowitz", "Ben Horowitz", {
+    handles: { x: ["bhorowitz"], linkedin: ["benhorowitz"] }
   }),
-  member("ali-rowghani", "Ali Rowghani", {
-    handles: { x: ["rowghani"], linkedin: ["alirowghani"] },
-    category: "operator"
-  }),
-  member("andrew-chen", "Andrew Chen", {
-    handles: { x: ["andrewchen"], linkedin: ["andrewchen"] },
-    category: "investor"
-  }),
-  member("sarah-guo", "Sarah Guo", {
-    handles: { x: ["saranormous"], linkedin: ["sarahguo"] },
-    category: "investor"
-  }),
-  member("naval-ravikant", "Naval Ravikant", {
+  insider("naval-ravikant", "Naval Ravikant", {
     aliases: ["naval"],
-    handles: { x: ["naval"], linkedin: ["naval"] },
-    category: "investor"
+    handles: { x: ["naval"], linkedin: ["naval"] }
   }),
-  member("keith-rabois", "Keith Rabois", {
-    handles: { x: ["rabois"], linkedin: ["keithrabois"] },
-    category: "investor"
+  insider("keith-rabois", "Keith Rabois", {
+    handles: { x: ["rabois"], linkedin: ["keithrabois"] }
   }),
-  member("aaron-levie", "Aaron Levie", {
-    handles: { x: ["levie"], linkedin: ["aaronlevie"] },
-    category: "operator"
+  insider("sarah-guo", "Sarah Guo", {
+    handles: { x: ["saranormous"], linkedin: ["sarahguo"] }
   }),
-  member("eric-migicovsky", "Eric Migicovsky", {
-    handles: { x: ["ericmigi"], linkedin: ["ericmigicovsky"] },
-    category: "yc_adjacent_founder"
+  insider("andrew-chen", "Andrew Chen", {
+    handles: { x: ["andrewchen"], linkedin: ["andrewchen"] }
   }),
-  member("parker-conrad", "Parker Conrad", {
-    handles: { x: ["parkerconrad"], linkedin: ["parkerconrad"] },
-    category: "yc_adjacent_founder"
+  insider("lachy-groom", "Lachy Groom", {
+    handles: { x: ["lachygroom"], linkedin: ["lachygroom"] }
   }),
-  member("henrique-dubugras", "Henrique Dubugras", {
-    handles: { x: ["hdubugras"], linkedin: ["henriquedubugras"] },
-    category: "yc_adjacent_founder"
+  insider("semil-shah", "Semil Shah", {
+    handles: { x: ["semil"], linkedin: ["semilshah"] }
   }),
-  member("pedro-franceschi", "Pedro Franceschi", {
-    handles: { x: ["pedroh96"], linkedin: ["pedrofranceschi"] },
-    category: "yc_adjacent_founder"
+  insider("delian-asparouhov", "Delian Asparouhov", {
+    handles: { x: ["zebulgar"], linkedin: ["delianasparouhov"] }
   }),
-  member("tony-xu", "Tony Xu", {
-    handles: { x: ["t_xu"], linkedin: ["tonyxu"] },
-    category: "yc_adjacent_founder"
+  insider("trae-stephens", "Trae Stephens", {
+    handles: { x: ["traestephens"], linkedin: ["trae-stephens"] }
   }),
-  member("emmett-shear", "Emmett Shear", {
-    handles: { x: ["eshear"], linkedin: ["emmettshear"] },
-    category: "yc_adjacent_founder"
+  insider("lenny-rachitsky", "Lenny Rachitsky", {
+    handles: { x: ["lennyrachitsky"], linkedin: ["lennyrachitsky"] }
   })
 ];
 
@@ -221,20 +256,10 @@ export const builtInTopVoiceSets: TopVoiceSet[] = [
     updatedAt: SEED_TIMESTAMP
   },
   {
-    id: "yc_batch_circle",
-    displayName: "YC Batch Circle",
-    description: "YC partners plus current batch founders.",
-    members: ycPartnerSeeds.map((seed) => ({ ...seed, weight: 2 })),
-    defaultWeight: 1,
-    active: true,
-    createdAt: SEED_TIMESTAMP,
-    updatedAt: SEED_TIMESTAMP
-  },
-  {
     id: "insiders",
     displayName: "Insiders",
     description: "Curated high-signal insiders.",
-    members: dedupeMembers([...ycPartnerSeeds, ...insiderOnlySeeds]),
+    members: insiderOnlySeeds,
     defaultWeight: 1,
     active: true,
     createdAt: SEED_TIMESTAMP,
@@ -243,16 +268,13 @@ export const builtInTopVoiceSets: TopVoiceSet[] = [
 ];
 
 export function normalizeTopVoiceAudienceId(value: string | null | undefined): TopVoiceAudienceId {
-  if (value === "yc_partners" || value === "yc_batch_circle" || value === "insiders") {
+  if (value === "yc_partners" || value === "insiders") {
     return value;
   }
   return "off";
 }
 
-export function resolveTopVoiceAudience(
-  value: string | null | undefined,
-  options: { dataset?: DemoGraphDataset; batchSlug?: string } = {}
-): { summary: TopVoiceAudienceSummary; members: TopVoiceMember[] } {
+export function resolveTopVoiceAudience(value: string | null | undefined): { summary: TopVoiceAudienceSummary; members: TopVoiceMember[] } {
   const id = normalizeTopVoiceAudienceId(value);
   if (id === "off") {
     return { summary: TOP_VOICE_OFF_SUMMARY, members: [] };
@@ -263,10 +285,7 @@ export function resolveTopVoiceAudience(
     return { summary: TOP_VOICE_OFF_SUMMARY, members: [] };
   }
 
-  const dynamicMembers = id === "yc_batch_circle"
-    ? batchFounderMembers(options.dataset, options.batchSlug)
-    : [];
-  const members = dedupeMembers([...set.members, ...dynamicMembers]).filter((candidate) => candidate.active);
+  const members = dedupeMembers(set.members).filter((candidate) => candidate.active);
 
   return {
     summary: summaryFor(set, members.length),
@@ -274,18 +293,12 @@ export function resolveTopVoiceAudience(
   };
 }
 
-export function topVoiceAudienceSummaries(
-  options: { dataset?: DemoGraphDataset; batchSlug?: string } = {}
-): TopVoiceAudienceSummary[] {
+export function topVoiceAudienceSummaries(): TopVoiceAudienceSummary[] {
   return [
     TOP_VOICE_OFF_SUMMARY,
     ...builtInTopVoiceSets
       .filter((set) => set.active)
-      .map((set) => {
-        const dynamicMembers =
-          set.id === "yc_batch_circle" ? batchFounderMembers(options.dataset, options.batchSlug) : [];
-        return summaryFor(set, dedupeMembers([...set.members, ...dynamicMembers]).length);
-      })
+      .map((set) => summaryFor(set, dedupeMembers(set.members).length))
   ];
 }
 
@@ -316,10 +329,21 @@ export function topVoiceNodeId(memberId: string): string {
   return `top-voice:${memberId}`;
 }
 
+export function isKnownTopVoiceAccountUrl(platform: Platform, rawUrl: string | null | undefined): boolean {
+  const candidateHandle = normalizeHandle(handleFromUrl(platform, rawUrl));
+  if (!candidateHandle) {
+    return false;
+  }
+
+  return builtInTopVoiceSets
+    .filter((set) => set.active)
+    .flatMap((set) => set.members)
+    .some((voice) => (voice.handles[platform] ?? []).some((handle) => normalizeHandle(handle) === candidateHandle));
+}
+
 function summaryFor(set: TopVoiceSet, memberCount: number): TopVoiceAudienceSummary {
   const helperText: Record<TopVoiceSet["id"], string> = {
     yc_partners: "Showing attention from current YC partners only.",
-    yc_batch_circle: "Showing YC partners at 2x weight plus P26 founders at 1x weight.",
     insiders: "Showing curated high-signal insiders only."
   };
 
@@ -338,14 +362,7 @@ function summaryFor(set: TopVoiceSet, memberCount: number): TopVoiceAudienceSumm
 function member(
   personId: string,
   displayName: string,
-  options: {
-    aliases?: string[];
-    handles?: Partial<Record<Platform, string[]>>;
-    category?: string;
-    weight?: number;
-    source?: string;
-    notes?: string;
-  } = {}
+  options: MemberOptions = {}
 ): TopVoiceMember {
   return {
     personId,
@@ -360,45 +377,10 @@ function member(
   };
 }
 
-function batchFounderMembers(dataset: DemoGraphDataset | undefined, batchSlug: string | undefined): TopVoiceMember[] {
-  if (!dataset) {
-    return [];
-  }
-
-  const selectedBatchSlug =
-    batchSlug && dataset.batches.some((batch) => batch.slug === batchSlug)
-      ? batchSlug
-      : dataset.batches.some((batch) => batch.slug === DEFAULT_BATCH_CIRCLE_BATCH_SLUG)
-        ? DEFAULT_BATCH_CIRCLE_BATCH_SLUG
-        : batchSlug;
-
-  if (!selectedBatchSlug) {
-    return [];
-  }
-
-  return dataset.founders
-    .filter((founder) => founder.batchSlug === selectedBatchSlug)
-    .map(founderMember);
-}
-
-function founderMember(founder: FounderRecord): TopVoiceMember {
-  const handles: Partial<Record<Platform, string[]>> = {};
-  for (const account of founder.socialAccounts) {
-    const values = [
-      account.handle ?? null,
-      handleFromUrl(account.platform, account.url)
-    ].filter((value): value is string => Boolean(value));
-    if (values.length) {
-      handles[account.platform] = dedupeStrings([...(handles[account.platform] ?? []), ...values]);
-    }
-  }
-
-  return member(founder.id, founder.name, {
-    handles,
-    category: "batch_founder",
-    weight: 1,
-    source: founder.ycProfileUrl,
-    notes: `Resolved from ${founder.batchSlug} founder records.`
+function insider(personId: string, displayName: string, options: MemberOptions = {}): TopVoiceMember {
+  return member(personId, displayName, {
+    category: "insider",
+    ...options
   });
 }
 
@@ -458,16 +440,26 @@ function evidenceIdentityCandidates(item: EvidenceItem): EvidenceIdentityCandida
 }
 
 function rawIdentityCandidates(rawVisibleText: string | undefined): { handles: string[]; names: string[] } {
-  if (!rawVisibleText || !rawVisibleText.trim().startsWith("{")) {
+  if (!rawVisibleText) {
     return { handles: [], names: [] };
   }
 
+  const rawText = rawVisibleText.trim();
+  if (!rawText.startsWith("{")) {
+    return visibleTextIdentityCandidates(rawVisibleText);
+  }
+
   try {
-    const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    const parsed = JSON.parse(rawText) as Record<string, unknown>;
     const profile = objectValue(parsed.profile);
     const post = objectValue(parsed.post);
     const detail = objectValue(parsed.detail);
     const profileUrl = stringValue(profile?.url);
+    const textSignals = visibleTextIdentityCandidates([
+      stringValue(parsed.rawText),
+      stringValue(post?.rawText),
+      stringValue(detail?.rawText)
+    ].filter((value): value is string => Boolean(value)).join("\n"));
     return {
       handles: dedupeStrings([
         stringValue(profile?.username),
@@ -476,18 +468,48 @@ function rawIdentityCandidates(rawVisibleText: string | undefined): { handles: s
         stringValue(post?.author),
         stringValue(post?.authorHandle),
         stringValue(detail?.author),
-        stringValue(detail?.authorHandle)
+        stringValue(detail?.authorHandle),
+        ...textSignals.handles
       ].filter((value): value is string => Boolean(value))),
       names: dedupeStrings([
         stringValue(profile?.name),
         stringValue(profile?.displayName),
         stringValue(post?.authorName),
-        stringValue(detail?.authorName)
+        stringValue(detail?.authorName),
+        ...textSignals.names
       ].filter((value): value is string => Boolean(value)))
     };
   } catch {
     return { handles: [], names: [] };
   }
+}
+
+function visibleTextIdentityCandidates(rawText: string): { handles: string[]; names: string[] } {
+  const handles: string[] = [];
+  const names: string[] = [];
+  const patterns = [
+    /(?:^|\n)\s*Quote\s*\n\s*([^\n@]{1,80})\s*\n\s*@([A-Za-z0-9_]{1,32})\b/g,
+    /\bQuote\s+([A-Za-z][A-Za-z0-9 .'\u2019-]{1,80})\s+@([A-Za-z0-9_]{1,32})\b/g,
+    /(?:^|\n)\s*([^\n@]{1,80})\s+reposted(?:\s+this)?(?:\n|$)/g
+  ];
+
+  for (const pattern of patterns) {
+    for (const match of rawText.matchAll(pattern)) {
+      const name = match[1]?.trim();
+      const handle = match[2]?.trim();
+      if (name) {
+        names.push(name);
+      }
+      if (handle) {
+        handles.push(handle);
+      }
+    }
+  }
+
+  return {
+    handles: dedupeStrings(handles),
+    names: dedupeStrings(names)
+  };
 }
 
 function handleFromAnyUrl(rawUrl: string): string | null {

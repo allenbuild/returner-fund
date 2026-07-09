@@ -211,27 +211,111 @@ describe("graph builder", () => {
     ]);
   });
 
-  it("weights YC Batch Circle partners above current-batch founders", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_batch_circle" }, topVoiceDataset());
+  it("treats removed batch-circle audience URLs as the default all-voices graph", () => {
+    const staleAudience = ["yc", "batch", "circle"].join("_") as never;
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: staleAudience }, topVoiceDataset());
 
-    const partnerBacked = graph.leaderboard.find((row) => row.companyId === "company-partner-backed");
-    const founderBacked = graph.leaderboard.find((row) => row.companyId === "company-founder-backed");
+    expect(graph.selectedTopVoiceAudience.id).toBe("off");
+    expect(graph.leaderboard.map((row) => row.companyId)).toEqual([
+      "company-partner-backed",
+      "company-founder-backed",
+      "company-insider-backed",
+      "company-outsider-backed"
+    ]);
+  });
 
-    expect(partnerBacked?.topVoiceConnections?.[0]).toEqual(expect.objectContaining({ displayName: "Garry Tan", weight: 2 }));
-    expect(founderBacked?.topVoiceConnections?.[0]).toEqual(expect.objectContaining({ displayName: "Maya Chen", weight: 1 }));
-    expect(partnerBacked?.score ?? 0).toBeGreaterThan(founderBacked?.score ?? 0);
-    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-outsider-backed");
+  it("does not count organization accounts as YC Partner attention", () => {
+    const dataset = topVoiceDataset();
+    dataset.companies = [
+      ...dataset.companies,
+      makeCompany({
+        id: "company-yc-quoted",
+        name: "YC Quoted",
+        founderIds: ["founder-yc-quoted"]
+      })
+    ];
+    dataset.founders = [
+      ...dataset.founders,
+      makeFounder({ id: "founder-yc-quoted", name: "Quinn Quote", companyIds: ["company-yc-quoted"] })
+    ];
+    dataset.evidence = [
+      ...dataset.evidence,
+      makeEvidence({
+        id: "evidence-yc-quote",
+        entityId: "company-yc-quoted",
+        authorName: "Quinn Quote",
+        authorHandle: "quinnquote",
+        contributionScore: 35,
+        sourceUrl: "https://x.com/quinnquote/status/5",
+        rawVisibleText: JSON.stringify({
+          author: "quinnquote",
+          rawText: "Quinn Quote\n@quinnquote\n·\nJun 12\nWe launched today.\nQuote\nY Combinator\n@ycombinator\n·\nJun 12\nYC post about YC Quoted"
+        })
+      })
+    ];
+
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, dataset);
+
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-yc-quoted");
+    expect(graph.evidence.find((item) => item.id === "evidence-yc-quote")).toBeUndefined();
+  });
+
+  it("counts top voice repost markers without counting founder reposts of top voices", () => {
+    const dataset = topVoiceDataset();
+    dataset.companies = [
+      ...dataset.companies,
+      makeCompany({
+        id: "company-garry-reposted",
+        name: "Garry Reposted",
+        founderIds: ["founder-garry-reposted"]
+      }),
+      makeCompany({
+        id: "company-founder-reposted-yc",
+        name: "Founder Reposted YC",
+        founderIds: ["founder-founder-reposted-yc"]
+      })
+    ];
+    dataset.founders = [
+      ...dataset.founders,
+      makeFounder({ id: "founder-garry-reposted", name: "Pierre Founder", companyIds: ["company-garry-reposted"] }),
+      makeFounder({ id: "founder-founder-reposted-yc", name: "Riley Founder", companyIds: ["company-founder-reposted-yc"] })
+    ];
+    dataset.evidence = [
+      ...dataset.evidence,
+      makeEvidence({
+        id: "evidence-garry-reposted",
+        entityId: "company-garry-reposted",
+        authorName: "Pierre Founder",
+        authorHandle: "pierrefounder",
+        contributionScore: 35,
+        sourceUrl: "https://x.com/pierrefounder/status/6",
+        rawVisibleText: "Garry Tan reposted\nPierre Founder\n@pierrefounder\nWe hit 2,200 paying customers."
+      }),
+      makeEvidence({
+        id: "evidence-founder-reposted-yc",
+        entityId: "company-founder-reposted-yc",
+        authorName: "Riley Founder",
+        authorHandle: "rileyfounder",
+        contributionScore: 35,
+        sourceUrl: "https://x.com/rileyfounder/status/7",
+        rawVisibleText: "Riley Founder reposted this Y Combinator\nY Combinator\n@ycombinator\nGeneral YC advice."
+      })
+    ];
+
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, dataset);
+
+    expect(graph.leaderboard.find((row) => row.companyId === "company-garry-reposted")?.topVoiceConnections?.[0])
+      .toEqual(expect.objectContaining({ displayName: "Garry Tan" }));
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-founder-reposted-yc");
   });
 
   it("uses the curated Insiders seed without admitting non-members", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, topVoiceDataset());
 
-    expect(graph.leaderboard.map((row) => row.companyId).sort()).toEqual([
-      "company-insider-backed",
-      "company-partner-backed"
-    ]);
+    expect(graph.leaderboard.map((row) => row.companyId)).toEqual(["company-insider-backed"]);
     expect(graph.leaderboard.find((row) => row.companyId === "company-insider-backed")?.topVoiceConnections?.[0])
       .toEqual(expect.objectContaining({ displayName: "Sam Altman" }));
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-partner-backed");
     expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-outsider-backed");
   });
 });

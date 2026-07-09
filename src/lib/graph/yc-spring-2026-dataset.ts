@@ -29,6 +29,7 @@ import {
   type AttributionCompanyProfile,
   type AttributionSocialLink
 } from "./evidence-attribution";
+import { isKnownTopVoiceAccountUrl } from "@/lib/social/top-voices";
 
 interface RawSnapshot {
   source: {
@@ -918,7 +919,11 @@ function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
   }
 
   if (item.platform === "linkedin") {
-    return isLoggedInLinkedInActivityEvidence(item) || linkedInPostAuthorMatchesKnownEntity(item);
+    return (
+      isLoggedInLinkedInActivityEvidence(item) ||
+      linkedInPostAuthorMatchesKnownEntity(item) ||
+      isKnownTopVoiceAccountUrl(item.platform, item.sourceUrl)
+    );
   }
 
   if (item.platform !== "hacker_news") {

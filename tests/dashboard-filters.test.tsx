@@ -144,9 +144,9 @@ describe("dashboard filters", () => {
 
     render(<Dashboard initialGraph={fullGraph} />);
 
-    fireEvent.change(screen.getByRole("combobox", { name: /top voices/i }), {
-      target: { value: "yc_partners" }
-    });
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
 
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([input]) => String(input).includes("topVoices=yc_partners"))).toBe(true);
@@ -247,7 +247,7 @@ function graphResponse(
     platformStatus: [],
     selectedTopVoiceAudience: {
       id: "off",
-      displayName: "Off / Everyone",
+      displayName: "All voices",
       description: "All available network traction signals.",
       helperText: "Showing all available network traction signals.",
       scoreLabel: "Traction score",
@@ -258,7 +258,7 @@ function graphResponse(
     topVoiceAudiences: [
       {
         id: "off",
-        displayName: "Off / Everyone",
+        displayName: "All voices",
         description: "All available network traction signals.",
         helperText: "Showing all available network traction signals.",
         scoreLabel: "Traction score",
@@ -275,6 +275,16 @@ function graphResponse(
         scoreDescription: "Current YC partners and YC leadership.",
         active: true,
         memberCount: 18
+      },
+      {
+        id: "insiders",
+        displayName: "Insiders",
+        description: "Curated high-signal insiders.",
+        helperText: "Showing curated high-signal insiders only.",
+        scoreLabel: "Top Voices score",
+        scoreDescription: "Curated high-signal insiders.",
+        active: true,
+        memberCount: 50
       }
     ],
     generatedAt: "2026-06-29T00:00:00.000Z",

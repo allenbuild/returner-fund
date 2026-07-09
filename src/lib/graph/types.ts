@@ -15,7 +15,7 @@ export type Platform =
 
 export type EdgeType = "founder_of" | "industry_similarity" | "same_group_partner" | "top_voice_attention";
 export type ReviewState = "verified" | "needs_review" | "rejected";
-export type TopVoiceAudienceId = "off" | "yc_partners" | "yc_batch_circle" | "insiders";
+export type TopVoiceAudienceId = "off" | "yc_partners" | "insiders";
 export type BusinessModel =
   | "b2b"
   | "consumer"

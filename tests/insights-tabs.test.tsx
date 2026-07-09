@@ -166,7 +166,7 @@ function graphResponse(): GraphResponse {
     platformStatus: [],
     selectedTopVoiceAudience: {
       id: "off",
-      displayName: "Off / Everyone",
+      displayName: "All voices",
       description: "All available network traction signals.",
       helperText: "Showing all available network traction signals.",
       scoreLabel: "Traction score",
@@ -177,7 +177,7 @@ function graphResponse(): GraphResponse {
     topVoiceAudiences: [
       {
         id: "off",
-        displayName: "Off / Everyone",
+        displayName: "All voices",
         description: "All available network traction signals.",
         helperText: "Showing all available network traction signals.",
         scoreLabel: "Traction score",

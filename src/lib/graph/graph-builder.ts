@@ -68,7 +68,7 @@ export function buildGraphResponse(
   const selectedGroupPartners = normalizeStrings(filters.groupPartners);
   const selectedBusinessModels = normalizeStrings(filters.businessModels);
   const query = filters.query?.trim().toLowerCase() ?? "";
-  const topVoiceAudience = resolveTopVoiceAudience(filters.topVoices, { dataset, batchSlug: batch.slug });
+  const topVoiceAudience = resolveTopVoiceAudience(filters.topVoices);
   const topVoiceMode = topVoiceAudience.summary.id !== "off";
 
   const baseBatchCompanies = dataset.companies.filter((company) => company.batchSlug === batch.slug);
@@ -159,7 +159,7 @@ export function buildGraphResponse(
     evidence: visibleEvidence,
     platformStatus: dataset.platformStatus,
     selectedTopVoiceAudience: topVoiceAudience.summary,
-    topVoiceAudiences: topVoiceAudienceSummaries({ dataset, batchSlug: batch.slug }),
+    topVoiceAudiences: topVoiceAudienceSummaries(),
     generatedAt: new Date().toISOString(),
     mode: dataset.mode ?? "demo"
   };

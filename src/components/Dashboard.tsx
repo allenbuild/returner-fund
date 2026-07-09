@@ -20,7 +20,7 @@ import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
 import { normalizeTopVoiceAudienceId, topVoiceAudienceSummaries } from "@/lib/social/top-voices";
 import type { GraphResponse, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 
-type FilterMenuId = "platform" | "industry" | "groupPartner";
+type FilterMenuId = "platform" | "industry" | "groupPartner" | "topVoices";
 
 interface DropdownOption<T extends string> {
   value: T;
@@ -351,8 +351,6 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
 
   const batches = filterMetadataGraph?.batches ?? graph?.batches ?? defaultBatches;
   const topVoiceAudiences = filterMetadataGraph?.topVoiceAudiences ?? graph?.topVoiceAudiences ?? defaultTopVoiceAudiences;
-  const selectedTopVoiceSummary =
-    topVoiceAudiences.find((audience) => audience.id === topVoiceAudience) ?? topVoiceAudiences[0] ?? defaultTopVoiceAudiences[0];
 
   useEffect(() => {
     let cancelled = false;
@@ -441,6 +439,16 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
         count: groupPartner.count
       })),
     [groupPartnerOptions]
+  );
+  const topVoiceDropdownOptions = useMemo<DropdownOption<TopVoiceAudienceId>[]>(
+    () =>
+      topVoiceAudiences
+        .filter((audience) => audience.id !== DEFAULT_TOP_VOICE_AUDIENCE)
+        .map((audience) => ({
+          value: audience.id,
+          label: audience.displayName
+        })),
+    [topVoiceAudiences]
   );
 
   async function runDemoAction(action: "ingest" | "refresh") {
@@ -626,27 +634,21 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
           onClear={() => setSelectedGroupPartners([])}
         />
 
-        <div className="top-voices-control">
-          <label>
-            <span className="top-voices-label">
-              <Users size={15} />
-              Top Voices
-            </span>
-            <span className="top-voices-copy">Score traction using attention from:</span>
-            <select
-              value={topVoiceAudience}
-              onChange={(event) => setTopVoiceAudience(normalizeTopVoiceAudienceId(event.target.value))}
-              aria-label="Top Voices"
-            >
-              {topVoiceAudiences.map((audience) => (
-                <option key={audience.id} value={audience.id}>
-                  {audience.displayName}
-                </option>
-              ))}
-            </select>
-          </label>
-          <p>{selectedTopVoiceSummary?.helperText ?? "Showing all available network traction signals."}</p>
-        </div>
+        <SingleSelectFilterDropdown
+          id="topVoices"
+          icon={<Users size={15} />}
+          title="Top Voices"
+          allLabel="All voices"
+          allValue={DEFAULT_TOP_VOICE_AUDIENCE}
+          selectedValue={topVoiceAudience}
+          options={topVoiceDropdownOptions}
+          isOpen={openFilterMenu === "topVoices"}
+          onOpenChange={(open) => setOpenFilterMenu(open ? "topVoices" : null)}
+          onSelect={(value) => {
+            setTopVoiceAudience(normalizeTopVoiceAudienceId(value));
+            setOpenFilterMenu(null);
+          }}
+        />
 
         <div className="score-filter">
           <div className="score-filter-header">
@@ -829,6 +831,81 @@ function FilterDropdown<T extends string>({
                 {option.color && <span className="filter-swatch" style={{ backgroundColor: option.color }} />}
                 <span className="filter-option-label">{option.label}</span>
                 {typeof option.count === "number" && <em>({option.count})</em>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface SingleSelectFilterDropdownProps<T extends string> {
+  id: FilterMenuId;
+  icon: ReactNode;
+  title: string;
+  allLabel: string;
+  allValue: T;
+  selectedValue: T;
+  options: DropdownOption<T>[];
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSelect: (value: T) => void;
+}
+
+function SingleSelectFilterDropdown<T extends string>({
+  id,
+  icon,
+  title,
+  allLabel,
+  allValue,
+  selectedValue,
+  options,
+  isOpen,
+  onOpenChange,
+  onSelect
+}: SingleSelectFilterDropdownProps<T>) {
+  const selectedOption = options.find((option) => option.value === selectedValue);
+  const menuId = `${id}-filter-menu`;
+  const entries = [
+    { value: allValue, label: allLabel },
+    ...options
+  ];
+
+  return (
+    <div className={`filter-dropdown ${isOpen ? "open" : ""}`}>
+      <span className="filter-dropdown-label">
+        {icon}
+        {title}
+      </span>
+      <button
+        type="button"
+        className={`filter-dropdown-trigger ${selectedValue !== allValue ? "active" : ""}`}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-controls={menuId}
+        onClick={() => onOpenChange(!isOpen)}
+      >
+        <span>{selectedOption?.label ?? allLabel}</span>
+        <ChevronDown size={15} aria-hidden="true" />
+      </button>
+      {isOpen && (
+        <div className="filter-dropdown-menu" id={menuId} role="menu">
+          {entries.map((option) => {
+            const selected = selectedValue === option.value;
+            return (
+              <button
+                type="button"
+                role="menuitemradio"
+                aria-checked={selected}
+                className={`filter-menu-option ${selected ? "selected" : ""}`}
+                key={option.value}
+                onClick={() => onSelect(option.value)}
+              >
+                <span className="filter-check" aria-hidden="true">
+                  {selected && <Check size={15} />}
+                </span>
+                <span className="filter-option-label">{option.label}</span>
               </button>
             );
           })}
