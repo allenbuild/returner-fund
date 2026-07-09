@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { applyBenchmarkMomentumRows, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
-import { YC_SUMMER_2026_BATCH_SLUG, ycSummer2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { EdgeType, Platform } from "@/lib/graph/types";
 
 interface RefreshRequest {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as RefreshRequest;
   const action = body.action === "refresh" ? "refresh" : "ingest";
   const batchSlug = body.batchSlug ?? DEFAULT_BATCH_SLUG;
-  const dataset = ycSummer2026GraphDataset;
+  const dataset = yc2026GraphDataset;
   const filteredGraph = buildGraphResponse({
     batchSlug,
     platforms: body.platforms,

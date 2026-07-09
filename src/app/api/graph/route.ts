@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { applyBenchmarkMomentumRows, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
-import { YC_SUMMER_2026_BATCH_SLUG, ycSummer2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { BusinessModel, EdgeType, Platform } from "@/lib/graph/types";
 
 const platforms: Platform[] = [
@@ -42,7 +42,7 @@ const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
 export function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const batchSlug = params.get("batch") ?? DEFAULT_BATCH_SLUG;
-  const dataset = ycSummer2026GraphDataset;
+  const dataset = yc2026GraphDataset;
   const includeRaw = params.get("includeRaw") === "1" || params.get("includeRaw") === "true";
   const includeNonScoring =
     params.get("includeNonScoring") === "1" || params.get("includeNonScoring") === "true";
@@ -62,7 +62,7 @@ export function GET(request: Request) {
     includeRaw,
     includeNonScoring,
     includeWhy,
-    dataset: "yc-s26-summer"
+    dataset: "yc-2026-official"
   });
   const cached = graphResponseCache.get(cacheKey);
 

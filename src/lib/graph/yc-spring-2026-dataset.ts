@@ -1,5 +1,7 @@
 import ycSummer2026Snapshot from "@/lib/yc/summer-2026-companies.json";
+import ycSpring2026Snapshot from "@/lib/yc/spring-2026-companies.json";
 import githubTractionSnapshot from "@/lib/social/github-traction-summer-2026.json";
+import springGithubTractionSnapshot from "@/lib/social/github-traction.json";
 import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
 import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.json";
 import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
@@ -183,9 +185,13 @@ interface PublicNeedsReviewRecord {
 
 export const YC_SUMMER_2026_BATCH_SLUG = "S26";
 export const YC_SUMMER_2026_BATCH_LABEL = "YC Summer 2026";
+export const YC_SPRING_2026_BATCH_SLUG = "S2026";
+export const YC_SPRING_2026_BATCH_LABEL = "YC Spring 2026";
 
 const snapshot = ycSummer2026Snapshot as RawSnapshot;
+const springSnapshot = ycSpring2026Snapshot as RawSnapshot;
 const githubSnapshot = githubTractionSnapshot as GithubSnapshot;
+const springGithubSnapshot = springGithubTractionSnapshot as GithubSnapshot;
 const publicSnapshot = publicEvidenceSnapshot as PublicEvidenceSnapshot;
 const loggedInSnapshot = loggedInEvidenceSnapshot as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as PublicEvidenceSnapshot;
@@ -316,16 +322,129 @@ export const ycSummer2026GraphDataset: DemoGraphDataset = {
   ]
 };
 
-export const ycSpring2026GraphDataset = ycSummer2026GraphDataset;
+const springDataset = buildSpring2026GraphDataset();
+
+export const yc2026GraphDataset: DemoGraphDataset = {
+  mode: "official_snapshot",
+  batches: [
+    ...ycSummer2026GraphDataset.batches,
+    ...springDataset.batches
+  ],
+  companies: [
+    ...ycSummer2026GraphDataset.companies,
+    ...springDataset.companies
+  ],
+  founders: [
+    ...ycSummer2026GraphDataset.founders,
+    ...springDataset.founders
+  ],
+  evidence: [
+    ...ycSummer2026GraphDataset.evidence,
+    ...springDataset.evidence
+  ],
+  needsReview: [
+    ...(ycSummer2026GraphDataset.needsReview ?? []),
+    ...(springDataset.needsReview ?? [])
+  ],
+  platformStatus: ycSummer2026GraphDataset.platformStatus
+};
+
+export const ycSpring2026GraphDataset = yc2026GraphDataset;
+
+function buildSpring2026GraphDataset(): DemoGraphDataset {
+  const springAttributionContext = buildAttributionContext(springSnapshot.companies.map(attributionCompanyProfile));
+  const springKnownCompanyIds = new Set(springSnapshot.companies.map(companyId));
+  const springKnownFounderIds = new Set(springSnapshot.companies.flatMap((company) => [
+    ...company.founders.map((founder) => founderId(company, founder)),
+    ...manualFounderOverrides(company).map((founder) => manualFounderId(company, founder))
+  ]));
+  const springKnownEntityIds = new Set([...springKnownCompanyIds, ...springKnownFounderIds]);
+  const springPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEvidence, ...targetedSnapshot.evidence]
+    .filter((item) => item.review_state === "verified")
+    .filter((item) => springKnownEntityIds.has(item.entityId))
+    .filter((item) => !hasSummerBatchContext(evidenceBatchText(item)))
+    .filter((item) => springPublicEvidenceAccepted(item))
+    .map(publicEvidenceItem)
+    .map((item) => applyAttributionGuard(item, springAttributionContext));
+  const springGithubEvidenceItems = springGithubSnapshot.accounts
+    .filter((account) => springKnownEntityIds.has(account.entityId))
+    .flatMap((account) => githubEvidenceForSnapshot(account, springGithubSnapshot))
+    .map((item) => applyAttributionGuard(item, springAttributionContext));
+  const springEvidenceItems = normalizeEvidenceScores(
+    dedupeEvidenceItems([...springGithubEvidenceItems, ...springPublicEvidenceItems])
+  );
+  const springEvidenceByEntityId = groupEvidenceByEntity(springEvidenceItems);
+  const springCompanies = calibrateCompanyScores(
+    springSnapshot.companies.map((raw) =>
+      companyRecordForBatch(raw, {
+        batchSlug: YC_SPRING_2026_BATCH_SLUG,
+        evidenceByEntityId: springEvidenceByEntityId
+      })
+    )
+  );
+  const springFounders = springSnapshot.companies.flatMap((raw) =>
+    founderRecordsForBatch(raw, {
+      batchSlug: YC_SPRING_2026_BATCH_SLUG,
+      evidenceByEntityId: springEvidenceByEntityId
+    })
+  );
+  const springNeedsReviewItems = [
+    ...publicSnapshot.needsReview,
+    ...allowedLoggedInNeedsReview,
+    ...targetedSnapshot.needsReview
+  ]
+    .filter((item) => springKnownEntityIds.has(item.entityId))
+    .filter((item) => !hasSummerBatchContext(`${item.entityName} ${item.matchReason}`))
+    .map(publicNeedsReviewItem);
+
+  return {
+    mode: "official_snapshot",
+    batches: [
+      {
+        slug: YC_SPRING_2026_BATCH_SLUG,
+        label: YC_SPRING_2026_BATCH_LABEL,
+        companyCountExpected: springSnapshot.source.expectedCompanyCount,
+        companyCountObserved: springSnapshot.source.observedCompanyCount
+      }
+    ],
+    companies: springCompanies,
+    founders: springFounders,
+    evidence: springEvidenceItems,
+    needsReview: springNeedsReviewItems,
+    platformStatus: ycSummer2026GraphDataset.platformStatus
+  };
+}
+
+function springPublicEvidenceAccepted(item: PublicEvidenceRecord): boolean {
+  if (item.linkStatus === "invalid") {
+    return false;
+  }
+
+  if (item.platform !== "hacker_news") {
+    return true;
+  }
+
+  return hasSpringBatchContext(evidenceBatchText(item));
+}
 
 function companyRecord(raw: RawCompany): CompanyRecord {
+  return companyRecordForBatch(raw, {
+    batchSlug: YC_SUMMER_2026_BATCH_SLUG,
+    evidenceByEntityId
+  });
+}
+
+function companyRecordForBatch(
+  raw: RawCompany,
+  options: { batchSlug: string; evidenceByEntityId: Map<string, EvidenceItem[]> }
+): CompanyRecord {
   const manualFounders = manualFounderOverrides(raw);
   const entityIds = [
     companyId(raw),
     ...raw.founders.map((founder) => founderId(raw, founder)),
     ...manualFounders.map((founder) => manualFounderId(raw, founder))
   ];
-  const entityEvidence = entityIds.flatMap((entityId) => evidenceByEntityId.get(entityId) ?? []);
+  const entityEvidence = entityIds.flatMap((entityId) => options.evidenceByEntityId.get(entityId) ?? []);
   const scoreBreakdown = aggregateBalancedTractionScore(entityEvidence);
   const socialAccounts = dedupeSocialAccounts([
     ...socialAccountsFor(raw.socialLinks, {
@@ -342,7 +461,7 @@ function companyRecord(raw: RawCompany): CompanyRecord {
 
   return {
     id: companyId(raw),
-    batchSlug: YC_SUMMER_2026_BATCH_SLUG,
+    batchSlug: options.batchSlug,
     name: raw.name,
     ycProfileUrl: raw.ycProfileUrl,
     websiteUrl: raw.websiteUrl ?? raw.ycProfileUrl,
@@ -426,11 +545,21 @@ function scoredEvidenceCountFor(company: CompanyRecord): number {
 }
 
 function founderRecords(raw: RawCompany): FounderRecord[] {
+  return founderRecordsForBatch(raw, {
+    batchSlug: YC_SUMMER_2026_BATCH_SLUG,
+    evidenceByEntityId
+  });
+}
+
+function founderRecordsForBatch(
+  raw: RawCompany,
+  options: { batchSlug: string; evidenceByEntityId: Map<string, EvidenceItem[]> }
+): FounderRecord[] {
   const parentIndustry = primaryIndustry(raw);
   const parentBusinessModel = businessModel(raw);
 
   const ycFounderRecords = raw.founders.map((founder) => {
-    const entityEvidence = evidenceByEntityId.get(founderId(raw, founder)) ?? [];
+    const entityEvidence = options.evidenceByEntityId.get(founderId(raw, founder)) ?? [];
     const scoreBreakdown = aggregateBalancedTractionScore(entityEvidence);
     const socialAccounts = socialAccountsFor(founder.socialLinks, {
       entityPrefix: `founder-${raw.slug}-${founder.id}`,
@@ -440,7 +569,7 @@ function founderRecords(raw: RawCompany): FounderRecord[] {
 
     return {
       id: founderId(raw, founder),
-      batchSlug: YC_SUMMER_2026_BATCH_SLUG,
+      batchSlug: options.batchSlug,
       name: founder.name,
       ycProfileUrl: founder.ycProfileUrl,
       personalWebsiteUrl: null,
@@ -458,7 +587,7 @@ function founderRecords(raw: RawCompany): FounderRecord[] {
   });
 
   const manualRecords = manualFounderOverrides(raw).map((founder) => {
-    const entityEvidence = evidenceByEntityId.get(manualFounderId(raw, founder)) ?? [];
+    const entityEvidence = options.evidenceByEntityId.get(manualFounderId(raw, founder)) ?? [];
     const scoreBreakdown = aggregateBalancedTractionScore(entityEvidence);
     const socialAccounts = socialAccountsFor(founder.socialLinks, {
       entityPrefix: `founder-${raw.slug}-${founder.id}`,
@@ -468,7 +597,7 @@ function founderRecords(raw: RawCompany): FounderRecord[] {
 
     return {
       id: manualFounderId(raw, founder),
-      batchSlug: YC_SUMMER_2026_BATCH_SLUG,
+      batchSlug: options.batchSlug,
       name: founder.name,
       ycProfileUrl: founder.ycProfileUrl ?? raw.ycProfileUrl,
       personalWebsiteUrl: null,
@@ -489,6 +618,10 @@ function founderRecords(raw: RawCompany): FounderRecord[] {
 }
 
 function githubEvidence(account: GithubAccount): EvidenceItem[] {
+  return githubEvidenceForSnapshot(account, githubSnapshot);
+}
+
+function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: GithubSnapshot): EvidenceItem[] {
   if (!account.fetched || !account.aggregate) {
     return [];
   }
@@ -502,7 +635,7 @@ function githubEvidence(account: GithubAccount): EvidenceItem[] {
     platform: "github" as const,
     authorName: repo.fullName,
     authorHandle: account.login,
-    postedAt: repo.pushedAt ?? githubSnapshot.source.fetchedAt,
+    postedAt: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
     text: `${repo.fullName}: ${repo.description || "GitHub repository"}${repo.language ? ` (${repo.language})` : ""}.`,
     mediaType: "repo" as const,
     metrics: {
@@ -510,13 +643,13 @@ function githubEvidence(account: GithubAccount): EvidenceItem[] {
       forks: repo.forks,
       watchers: repo.watchers,
       issues: repo.openIssues,
-      recent_commits_30d: isRecentGithubPush(repo.pushedAt) ? 1 : 0
+      recent_commits_30d: isRecentGithubPushForSnapshot(repo.pushedAt, sourceSnapshot.source.fetchedAt) ? 1 : 0
     },
     contributionScore: repo.score,
     sourceUrl: repo.htmlUrl,
-    first_seen_at: githubSnapshot.source.fetchedAt,
-    last_checked_at: githubSnapshot.source.fetchedAt,
-    last_updated_at: repo.pushedAt ?? githubSnapshot.source.fetchedAt,
+    first_seen_at: sourceSnapshot.source.fetchedAt,
+    last_checked_at: sourceSnapshot.source.fetchedAt,
+    last_updated_at: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
     why: "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity.",
     attachedCompanyId: attachedCompanyIdForGithub(account),
     attachedCompanyName: account.companyName,
@@ -534,20 +667,20 @@ function githubEvidence(account: GithubAccount): EvidenceItem[] {
     platform: "github",
     authorName: account.name,
     authorHandle: account.login,
-    postedAt: githubSnapshot.source.fetchedAt,
+    postedAt: sourceSnapshot.source.fetchedAt,
     text: `${account.name} GitHub profile: ${account.aggregate.totalStars} stars, ${account.aggregate.totalForks} forks, ${account.aggregate.repoCount} public repositories tracked from the YC-linked GitHub account.`,
     mediaType: "repo",
     metrics: {
       stars: account.aggregate.totalStars,
       forks: account.aggregate.totalForks,
       watchers: account.aggregate.totalWatchers,
-      recent_commits_30d: recentGithubRepoCount(account.repos ?? [])
+      recent_commits_30d: recentGithubRepoCountForSnapshot(account.repos ?? [], sourceSnapshot.source.fetchedAt)
     },
     contributionScore: hasRepoLevelEvidence ? 0 : account.aggregate.profileScore,
     sourceUrl: accountUrl,
-    first_seen_at: githubSnapshot.source.fetchedAt,
-    last_checked_at: githubSnapshot.source.fetchedAt,
-    last_updated_at: githubSnapshot.source.fetchedAt,
+    first_seen_at: sourceSnapshot.source.fetchedAt,
+    last_checked_at: sourceSnapshot.source.fetchedAt,
+    last_updated_at: sourceSnapshot.source.fetchedAt,
     why: hasRepoLevelEvidence
       ? "Stored as account context only. Repo-level GitHub evidence exists, so the profile aggregate is not scored to avoid double-counting stars and forks."
       : "Measured from the read-only public GitHub API. No YC/web metadata is counted in this score.",
@@ -566,12 +699,20 @@ function githubEvidence(account: GithubAccount): EvidenceItem[] {
 }
 
 function recentGithubRepoCount(repos: GithubRepo[]): number {
-  return repos.filter((repo) => isRecentGithubPush(repo.pushedAt)).length;
+  return recentGithubRepoCountForSnapshot(repos, githubSnapshot.source.fetchedAt);
 }
 
 function isRecentGithubPush(pushedAt: string | null | undefined): boolean {
+  return isRecentGithubPushForSnapshot(pushedAt, githubSnapshot.source.fetchedAt);
+}
+
+function recentGithubRepoCountForSnapshot(repos: GithubRepo[], checkedAt: string): number {
+  return repos.filter((repo) => isRecentGithubPushForSnapshot(repo.pushedAt, checkedAt)).length;
+}
+
+function isRecentGithubPushForSnapshot(pushedAt: string | null | undefined, checkedAt: string): boolean {
   const pushed = parseDate(pushedAt);
-  const checked = parseDate(githubSnapshot.source.fetchedAt) ?? new Date();
+  const checked = parseDate(checkedAt) ?? new Date();
 
   if (!pushed) {
     return false;
@@ -730,6 +871,10 @@ function hasStaleSpringBatchContext(value: string): boolean {
 
 function hasSummerBatchContext(value: string): boolean {
   return /\b(?:Summer\s+2026|YC\s*S26|YCS26|S26)\b/i.test(value);
+}
+
+function hasSpringBatchContext(value: string): boolean {
+  return /\b(?:Spring\s+2026|YC\s*S2026|YCS2026|S2026)\b/i.test(value);
 }
 
 function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {

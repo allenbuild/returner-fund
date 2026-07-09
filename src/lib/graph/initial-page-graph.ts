@@ -2,7 +2,7 @@ import { ensureBenchmarkMomentum } from "./benchmarks";
 import { buildGraphResponse } from "./graph-builder";
 import { sanitizeGraphResponse } from "./response-sanitizer";
 import type { GraphResponse } from "./types";
-import { YC_SUMMER_2026_BATCH_SLUG, ycSummer2026GraphDataset } from "./yc-spring-2026-dataset";
+import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
 
 const INITIAL_EVIDENCE_LIMIT = 20;
 const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
@@ -12,7 +12,7 @@ export function buildInitialPageGraph(): GraphResponse {
   const now = new Date();
   const cacheKey = `${DEFAULT_BATCH_SLUG}:${localDayKey(now)}`;
   if (cachedInitialPageGraph?.cacheKey !== cacheKey) {
-    const graph = sanitizeGraphResponse(buildGraphResponse({ batchSlug: DEFAULT_BATCH_SLUG }, ycSummer2026GraphDataset));
+    const graph = sanitizeGraphResponse(buildGraphResponse({ batchSlug: DEFAULT_BATCH_SLUG }, yc2026GraphDataset));
     cachedInitialPageGraph = {
       cacheKey,
       graph: trimInitialEvidence(ensureBenchmarkMomentum(graph, { now }).graph)

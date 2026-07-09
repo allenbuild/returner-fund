@@ -1,4 +1,4 @@
-import { YC_SUMMER_2026_BATCH_SLUG, ycSummer2026GraphDataset } from "./yc-spring-2026-dataset";
+import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
 import { graphNodeMatchesSearchQuery } from "./search";
 import type {
   CompanyRecord,
@@ -46,7 +46,7 @@ const INDUSTRY_BORDER_COLORS: Record<string, string> = {
 
 export function buildGraphResponse(
   filters: GraphFilters = {},
-  dataset: DemoGraphDataset = ycSummer2026GraphDataset
+  dataset: DemoGraphDataset = yc2026GraphDataset
 ): GraphResponse {
   const batch = resolveBatch(filters.batchSlug, dataset);
   const selectedPlatforms = normalizePlatforms(filters.platforms);

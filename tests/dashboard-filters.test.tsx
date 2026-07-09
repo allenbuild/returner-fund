@@ -104,7 +104,7 @@ describe("dashboard filters", () => {
     expect(screen.queryByText("Graph unavailable")).not.toBeInTheDocument();
   });
 
-  it("keeps the batch selector visible with only YC Summer 2026 available", () => {
+  it("keeps the batch selector visible with Summer and Spring available", () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
     ]);
@@ -120,9 +120,11 @@ describe("dashboard filters", () => {
     const options = within(batchSelector).getAllByRole("option");
 
     expect(batchSelector).toHaveValue("S26");
-    expect(options).toHaveLength(1);
+    expect(options).toHaveLength(2);
     expect(options[0]).toHaveTextContent("YC Summer 2026");
     expect(options[0]).toHaveValue("S26");
+    expect(options[1]).toHaveTextContent("YC Spring 2026");
+    expect(options[1]).toHaveValue("S2026");
   });
 
   it("filters minimum score locally without waiting for a graph request", async () => {
@@ -157,7 +159,10 @@ describe("dashboard filters", () => {
 function graphResponse(nodes: GraphNode[]): GraphResponse {
   return {
     batch: { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 },
-    batches: [{ slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 }],
+    batches: [
+      { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 },
+      { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
+    ],
     nodes,
     edges: [],
     leaderboard: nodes.map((node, index) => ({
