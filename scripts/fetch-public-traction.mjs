@@ -25,6 +25,10 @@ const discoveryAttemptsPath = join(root, "outputs", "discovery-attempts-current.
 const sourceDiscoveryPathsPath = join(root, "outputs", "source-discovery-paths-current.json");
 
 const ycSnapshot = JSON.parse(await readFile(ycSnapshotPath, "utf8"));
+const currentBatchContext = batchContextFromSnapshot(ycSnapshot);
+const currentOutput = await readJson(outputPath, { evidence: [], needsReview: [], failures: [] });
+const currentDiscoveryAttempts = await readJson(discoveryAttemptsPath, []);
+const currentSourceDiscoveryPaths = await readJson(sourceDiscoveryPathsPath, []);
 const checkpoint = await readJson(checkpointPath, {
   attempts: {},
   evidence: [],
@@ -36,11 +40,11 @@ const checkpoint = await readJson(checkpointPath, {
 const attemptMap = new Map(
   Object.entries(checkpoint.attempts ?? {}).filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
 );
-const evidence = checkpoint.evidence ?? [];
-const needsReview = checkpoint.needsReview ?? [];
-const failures = checkpoint.failures ?? [];
-const discoveryAttempts = (checkpoint.discoveryAttempts ?? []).filter((item) => !isObsoleteInternalFailure(item));
-const sourceDiscoveryPaths = checkpoint.sourceDiscoveryPaths ?? [];
+const evidence = dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.evidence ?? [])]);
+const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])]);
+const failures = dedupeFailures([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
+const discoveryAttempts = dedupeDiscoveryAttempts([...(currentDiscoveryAttempts ?? []), ...(checkpoint.discoveryAttempts ?? [])]);
+const sourceDiscoveryPaths = dedupeById([...(currentSourceDiscoveryPaths ?? []), ...(checkpoint.sourceDiscoveryPaths ?? [])]);
 const companyBySlug = new Map(ycSnapshot.companies.map((company) => [company.slug, company]));
 let checkpointWriteChain = Promise.resolve();
 const platformCooldowns = new Map();
@@ -246,6 +250,7 @@ async function attempt(platform, key, company, fn) {
   const normalizedPlatform = normalizePlatformArg(platform);
   const attemptKey = `${platform}:${key}`;
   if (!forceRefresh && attemptMap.get(attemptKey)?.status === "done") return;
+  if (forceRefresh) removeCompanyPlatformRows(company, normalizedPlatform);
 
   try {
     const result = await fn();
@@ -449,6 +454,7 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
 
   const key = `${platform}:${entityType}:${entity.id ?? entity.slug}:${url}`;
   if (!forceRefresh && attemptMap.get(key)?.status === "done") return;
+  if (forceRefresh) removeCompanyPlatformRows(company, platform);
 
   try {
     const result = await ingestSocialProfile(company, entity, entityType, platform, url);
@@ -820,9 +826,12 @@ function socialDiscoveryQueries(company, platform, entity = null) {
       : platform === "instagram"
         ? "site:instagram.com"
         : "site:linkedin.com/company OR site:linkedin.com/in";
+  const batchQueries = currentBatchContext.searchAliases.map(
+    (alias) => `"${company.name}" "${alias}" ${platformLabel}`
+  );
   const baseQueries = [
     `"${company.name}" "Y Combinator" ${platformLabel}`,
-    `"${company.name}" "YC Spring 2026" ${platformLabel}`,
+    ...batchQueries,
     `"${company.name}" ${site}`,
     `"${company.name}" "startup" ${platformLabel}`
   ];
@@ -1486,7 +1495,7 @@ function selectedResultUrl(result) {
 function defaultQueryFor(company, platform) {
   if (platform === "product_hunt") return `${company.name} Product Hunt`;
   if (platform === "youtube") return `${company.name} YC startup YouTube`;
-  if (platform === "hacker_news") return `"${company.name}" YC Spring 2026`;
+  if (platform === "hacker_news") return `"${company.name}" ${currentBatchContext.label}`;
   if (platform === "reddit") return `${company.name} YC reddit`;
   if (platform === "rss") return `${company.name} blog RSS`;
   if (platform === "web") return `${company.name} YC startup`;
@@ -1717,7 +1726,7 @@ function parseYouTubeResults(html) {
       title: decodeJsonText(match[2]),
       description: decodeJsonText(description),
       views: parseCompactNumber(viewsText),
-      raw: cleanText(windowText)
+      raw: cleanText(`${decodeJsonText(match[2])} ${decodeJsonText(description)} ${viewsText}`)
     });
   }
   return results;
@@ -1898,8 +1907,13 @@ function isCompanyMatch(company, text) {
     return lower.includes(`${name} `) || lower.includes(` ${name}`) || lower.includes(`${name}.`);
   }
   if (lower.includes(name)) return true;
-  const host = company.websiteUrl ? new URL(company.websiteUrl).hostname.replace(/^www\./, "").split(".")[0] : "";
-  return host.length > 4 && lower.includes(host.toLowerCase());
+  const normalizedText = normalizeIdentifier(lower);
+  const companyNameToken = normalizeIdentifier(company.name);
+  const companySlugToken = normalizeIdentifier(company.slug ?? "");
+  if (companyNameToken.length >= 6 && normalizedText.includes(companyNameToken)) return true;
+  if (companySlugToken.length >= 6 && normalizedText.includes(companySlugToken)) return true;
+  const host = hostFromUrl(company.websiteUrl);
+  return Boolean(host && lower.includes(host));
 }
 
 function isStrongPublicMatch(company, text, sourceUrl) {
@@ -1913,7 +1927,7 @@ function isStrongPublicMatch(company, text, sourceUrl) {
 }
 
 function isCurrentBatchHackerNewsHit(text) {
-  return /\bYC\s*(P26|S26|Spring\s+2026)\b/i.test(text);
+  return currentBatchContext.contextPattern.test(text);
 }
 
 function isCompanyDomain(company, sourceUrl) {
@@ -1931,9 +1945,8 @@ function companyDomainMentioned(company, text) {
   try {
     if (!company.websiteUrl) return false;
     const host = new URL(company.websiteUrl).hostname.replace(/^www\./, "").toLowerCase();
-    const root = host.split(".")[0];
     const lower = cleanText(text).toLowerCase();
-    return lower.includes(host) || (root.length > 4 && lower.includes(root));
+    return lower.includes(host);
   } catch {
     return false;
   }
@@ -2102,6 +2115,74 @@ function slugify(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+function normalizeIdentifier(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function hostFromUrl(rawUrl) {
+  try {
+    return new URL(rawUrl).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function removeCompanyPlatformRows(company, platform) {
+  removeMatching(evidence, (item) => item.companySlug === company.slug && normalizePlatformArg(item.platform) === platform);
+  removeMatching(needsReview, (item) => item.companySlug === company.slug && normalizePlatformArg(item.platform) === platform);
+  removeMatching(failures, (item) => item.companySlug === company.slug && normalizePlatformArg(item.platform) === platform);
+  removeMatching(
+    discoveryAttempts,
+    (item) => item.company_slug === company.slug && normalizePlatformArg(item.platform) === platform
+  );
+  removeMatching(
+    sourceDiscoveryPaths,
+    (item) => item.company_slug === company.slug && normalizePlatformArg(item.discovered_platform) === platform
+  );
+}
+
+function removeMatching(items, predicate) {
+  for (let index = items.length - 1; index >= 0; index -= 1) {
+    if (predicate(items[index])) {
+      items.splice(index, 1);
+    }
+  }
+}
+
+function batchContextFromSnapshot(snapshot) {
+  const sourceText = cleanText(
+    `${snapshot?.source?.label ?? ""} ${snapshot?.source?.directoryUrl ?? ""} ${snapshot?.source?.algoliaFilter ?? ""}`
+  );
+  const decodedSourceText = decodeURIComponent(sourceText);
+  const isSummer2026 = /\bSummer\s+2026\b/i.test(decodedSourceText) || /\bS26\b/i.test(decodedSourceText);
+  const isSpring2026 = /\bSpring\s+2026\b/i.test(decodedSourceText) || /\bS2026\b|\bP26\b/i.test(decodedSourceText);
+  const searchAliases = isSummer2026
+    ? ["YC Summer 2026", "Summer 2026", "YC S26"]
+    : isSpring2026
+      ? ["YC Spring 2026", "Spring 2026", "YC S2026", "YC P26"]
+      : ["Y Combinator"];
+  const contextAliases = isSummer2026
+    ? ["YC Summer 2026", "Summer 2026", "YC S26", "S26"]
+    : isSpring2026
+      ? ["YC Spring 2026", "Spring 2026", "YC S2026", "S2026", "YC P26", "P26"]
+      : ["Y Combinator"];
+
+  return {
+    label: searchAliases[0],
+    searchAliases,
+    contextPattern: aliasPattern(contextAliases)
+  };
+}
+
+function aliasPattern(aliases) {
+  const pattern = aliases
+    .map((alias) => escapeRegExp(alias).replace(/\s+/g, "\\s+"))
+    .join("|");
+  return new RegExp(`\\b(?:${pattern})\\b`, "i");
 }
 
 function addItems(items, target) {

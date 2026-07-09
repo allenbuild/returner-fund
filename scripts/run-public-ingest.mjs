@@ -11,7 +11,7 @@ const response = await fetch(apiUrl, {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({
-    batchSlug: "S2026",
+    batchSlug: process.env.PUBLIC_INGEST_BATCH ?? "S26",
     options: {
       demo: process.env.PUBLIC_INGEST_DATABASE === "true" ? false : true,
       refreshProfiles: true,
@@ -23,7 +23,7 @@ const response = await fetch(apiUrl, {
 });
 
 const payload = await response.json();
-const outputPath = path.join("outputs", "ingest-public-s2026.json");
+const outputPath = path.join("outputs", `ingest-public-${(process.env.PUBLIC_INGEST_BATCH ?? "s26").toLowerCase()}.json`);
 await fs.mkdir("outputs", { recursive: true });
 await fs.writeFile(outputPath, JSON.stringify(payload, null, 2));
 

@@ -48,4 +48,13 @@ describe("public traction snapshot", () => {
     expect(socialProfiles.length).toBeGreaterThan(0);
     expect(socialProfiles.every((item) => item.contributionScore === 0)).toBe(true);
   });
+
+  it("does not keep generic Context.dev YouTube false positives", () => {
+    const sourceUrls = publicEvidence.evidence
+      .filter((item) => item.companySlug === "contextdev" && item.platform === "youtube")
+      .map((item) => item.sourceUrl);
+
+    expect(sourceUrls).not.toContain("https://www.youtube.com/watch?v=bSG9wUYaHWU");
+    expect(sourceUrls).not.toContain("https://www.youtube.com/watch?v=UUrd9WCQKtc");
+  });
 });

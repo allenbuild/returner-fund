@@ -228,6 +228,8 @@ const rawGithubEvidenceItems = githubSnapshot.accounts
   .flatMap(githubEvidence)
   .map((item) => applyAttributionGuard(item, attributionContext));
 const allEvidenceItems = normalizeEvidenceScores(dedupeEvidenceItems([...rawGithubEvidenceItems, ...rawPublicEvidenceItems]));
+const officialSocialLinkCounts = countOfficialSocialLinks(snapshot.companies);
+const summerEvidenceCounts = countEvidenceByPlatform(allEvidenceItems);
 const evidenceByEntityId = groupEvidenceByEntity(allEvidenceItems);
 const publicNeedsReviewItems = [
   ...publicSnapshot.needsReview,
@@ -268,20 +270,20 @@ export const ycSummer2026GraphDataset: DemoGraphDataset = {
       platform: "x",
       status: "public_only",
       authMethod: "Official YC profile links and verified public evidence only",
-      notes: "Only Summer 2026-matched public X evidence is counted. Spring/P26 evidence is filtered out."
+      notes: `Found ${officialSocialLinkCounts.x.company} company and ${officialSocialLinkCounts.x.founder} founder X URLs on official Summer 2026 YC profiles, but ${summerEvidenceCounts.x ?? 0} scored Summer X post rows are currently available. Anonymous public reads were blocked, and Spring/P26 evidence is filtered out.`
     },
     {
       platform: "linkedin",
       status: "public_only",
       authMethod: "Public pages/search/Jina only; logged-in LinkedIn disabled for this run",
-      notes: "Authenticated LinkedIn rows from prior snapshots are excluded from scoring under the current no logged-in LinkedIn constraint."
+      notes: `Found ${officialSocialLinkCounts.linkedin.company} company and ${officialSocialLinkCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles, but ${summerEvidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available. Public LinkedIn reads were blocked; prior Spring rows remain excluded.`
     },
     {
       platform: "instagram",
       status: "public_only",
       authMethod: "Official YC profile links and verified public evidence only",
       notes:
-        "Only Summer 2026-matched public Instagram evidence is counted. Spring demo/profile snapshots are filtered out."
+        `Found ${officialSocialLinkCounts.instagram.company} company and ${officialSocialLinkCounts.instagram.founder} founder Instagram URLs on official Summer 2026 YC profiles, so Instagram needs discovery/verified overrides before posts can be fetched. Spring demo/profile snapshots are filtered out.`
     },
     {
       platform: "rss",
@@ -293,7 +295,7 @@ export const ycSummer2026GraphDataset: DemoGraphDataset = {
       platform: "youtube",
       status: "working",
       authMethod: "Public YouTube search/metadata pages",
-      notes: "Public YouTube results are attempted without login. Verified matches with visible metrics can score."
+      notes: `Public YouTube results are attempted without login. ${summerEvidenceCounts.youtube ?? 0} verified Summer 2026 YouTube row currently scores.`
     },
     {
       platform: "product_hunt",
@@ -413,6 +415,38 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
     needsReview: springNeedsReviewItems,
     platformStatus: ycSummer2026GraphDataset.platformStatus
   };
+}
+
+function countOfficialSocialLinks(companies: RawCompany[]) {
+  const result: Record<keyof RawSocialLinks, { company: number; founder: number }> = {
+    github: { company: 0, founder: 0 },
+    linkedin: { company: 0, founder: 0 },
+    x: { company: 0, founder: 0 },
+    instagram: { company: 0, founder: 0 }
+  };
+
+  for (const company of companies) {
+    for (const platform of Object.keys(result) as Array<keyof RawSocialLinks>) {
+      if (company.socialLinks?.[platform]) {
+        result[platform].company += 1;
+      }
+      for (const founder of company.founders ?? []) {
+        if (founder.socialLinks?.[platform]) {
+          result[platform].founder += 1;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+function countEvidenceByPlatform(items: EvidenceItem[]): Partial<Record<Platform, number>> {
+  const result: Partial<Record<Platform, number>> = {};
+  for (const item of items) {
+    result[item.platform] = (result[item.platform] ?? 0) + 1;
+  }
+  return result;
 }
 
 function springPublicEvidenceAccepted(item: PublicEvidenceRecord): boolean {

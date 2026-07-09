@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const apiUrl = process.env.GRAPH_API_URL ?? "http://127.0.0.1:3001/api/graph?batch=S2026&includeNonScoring=1";
+const apiUrl = process.env.GRAPH_API_URL ?? "http://127.0.0.1:3001/api/graph?batch=S26&includeNonScoring=1";
 const graph = await fetchJson(apiUrl);
 const priorAttempts = await readJson(path.join("outputs", "discovery-attempts-current.json"), []);
 const priorPaths = await readJson(path.join("outputs", "source-discovery-paths-current.json"), []);
@@ -58,10 +58,10 @@ const report = {
 };
 
 await fs.mkdir("outputs", { recursive: true });
-await fs.writeFile(path.join("outputs", "discovery-plan-s2026.json"), JSON.stringify(report, null, 2));
+await fs.writeFile(path.join("outputs", "discovery-plan-s26.json"), JSON.stringify(report, null, 2));
 await updateDiscoveryDocs(report);
 
-console.log(JSON.stringify({ outputPath: "outputs/discovery-plan-s2026.json", tasks: report.task_count, queries: report.query_count, highPriority: report.high_priority }, null, 2));
+console.log(JSON.stringify({ outputPath: "outputs/discovery-plan-s26.json", tasks: report.task_count, queries: report.query_count, highPriority: report.high_priority }, null, 2));
 
 function queriesFor(platform, node, domain) {
   const company = quote(node.label);
@@ -69,7 +69,8 @@ function queriesFor(platform, node, domain) {
   const base = {
     instagram: [
       `${company} "Y Combinator" Instagram`,
-      `${company} "YC Spring 2026" Instagram`,
+      `${company} "YC Summer 2026" Instagram`,
+      `${company} "YC S26" Instagram`,
       `${company} site:instagram.com`,
       `${company} "startup" Instagram`,
       `${company} site:instagram.com/reel`,
@@ -101,7 +102,7 @@ function queriesFor(platform, node, domain) {
     ],
     linkedin: [`${company} site:linkedin.com/company`, `${company} "YC" LinkedIn`],
     rss: [`${company} blog RSS`, `${company} engineering blog`, `${company} changelog`],
-    web: [`${company} ${domain}`, `${company} "YC S2026"`, `${company} "Spring 2026"`],
+    web: [`${company} ${domain}`, `${company} "YC S26"`, `${company} "Summer 2026"`],
     hacker_news: [`${company} site:news.ycombinator.com`, `${company} Hacker News`],
     reddit: [`${company} site:reddit.com`, `${company} reddit YC`]
   }[platform] ?? [`${company} ${platform}`];
