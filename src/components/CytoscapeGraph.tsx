@@ -5,7 +5,7 @@ import { Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import type { ComponentType } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type cytoscape from "cytoscape";
-import { buildClusterPositions, buildLabelPlacements, labelSizeForNode } from "@/lib/graph/layout";
+import { buildClusterPositions, buildLabelPlacements, LABEL_TEXT_MAX_WIDTH, labelSizeForNode } from "@/lib/graph/layout";
 import type { BatchSummary, EdgeType, GraphEdge, GraphNode } from "@/lib/graph/types";
 
 const CytoscapeComponent = dynamic(
@@ -681,7 +681,7 @@ export function CytoscapeGraph({
             {industryLegend.map((item) => (
               <span className="legend-item" key={item.industry}>
                 <span className="legend-dot" style={{ backgroundColor: item.color }} />
-                {formatIndustry(item.industry)}
+                <span className="legend-label">{formatIndustry(item.industry)}</span>
                 {" "}
                 <small>({item.count})</small>
               </span>
@@ -720,7 +720,7 @@ export function CytoscapeGraph({
               "font-family": "Poppins, Inter, Arial, sans-serif",
               "font-weight": 800,
               "text-wrap": "wrap",
-              "text-max-width": 104,
+              "text-max-width": LABEL_TEXT_MAX_WIDTH,
               "text-valign": "data(labelValign)",
               "text-halign": "data(labelHalign)",
               "text-margin-x": "data(labelMarginX)",
@@ -759,7 +759,10 @@ export function CytoscapeGraph({
             selector: "node:hover",
             style: {
               label: "data(fullLabel)",
-              "z-index": 24
+              "text-background-opacity": 1,
+              "text-background-padding": 4,
+              "text-outline-width": 5,
+              "z-index": 900
             }
           },
           {
@@ -789,7 +792,11 @@ export function CytoscapeGraph({
               label: "data(fullLabel)",
               "border-color": "#101828",
               "border-width": 4,
-              "z-index": 20,
+              "text-background-opacity": 1,
+              "text-background-padding": 4,
+              "text-border-opacity": 0.72,
+              "text-outline-width": 5,
+              "z-index": 1000,
               opacity: 1
             }
           },

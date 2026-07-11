@@ -12,7 +12,12 @@ const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
   "github",
   "linkedin",
   "instagram",
-  "x"
+  "x",
+  "youtube",
+  "reddit",
+  "product_hunt",
+  "hacker_news",
+  "bilibili"
 ];
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS = new Set<Platform>(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST);
 const A16Z_SPEEDRUN_SOURCE_PREFIX = "https://speedrun.a16z.com/";
@@ -65,12 +70,20 @@ describe("a16z Speedrun 006 dataset", () => {
       "github",
       "linkedin",
       "instagram",
-      "x"
+      "x",
+      "youtube",
+      "reddit",
+      "product_hunt",
+      "hacker_news",
+      "bilibili"
     ]);
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("web")).toBe(false);
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("rss")).toBe(false);
-    expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("youtube")).toBe(false);
-    expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("product_hunt")).toBe(false);
+    expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("youtube")).toBe(true);
+    expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("reddit")).toBe(true);
+    expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("product_hunt")).toBe(true);
+    expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("hacker_news")).toBe(true);
+    expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("bilibili")).toBe(true);
   });
 
   it("links founders to Speedrun company profiles without using Speedrun URLs as social accounts", () => {
@@ -242,7 +255,10 @@ describe("a16z Speedrun 006 dataset", () => {
       founder.socialAccounts.map((account) => account.url)
     ) ?? [];
 
-    expect(hammock?.socialAccounts).toEqual([]);
+    expect(hammock?.socialAccounts.map((account) => account.url)).toEqual([
+      "https://www.linkedin.com/company/usehammockco",
+      "https://www.instagram.com/usehammock.co"
+    ]);
     expect(founderUrls).toEqual(
       expect.arrayContaining([
         "https://www.linkedin.com/in/jesserose",
@@ -279,9 +295,130 @@ describe("a16z Speedrun 006 dataset", () => {
 
     expect(crebit?.score).toBeGreaterThan(0);
     expect(crebit?.topPlatform).toBe("linkedin");
-    expect(crebit?.biggestContribution?.sourceUrl).toMatch(/^https:\/\/www\.linkedin\.com\/posts\//);
+    expect(crebit?.biggestContribution?.sourceUrl).toMatch(/^https:\/\/(www\.linkedin\.com\/posts\/|www\.youtube\.com\/watch\?v=)/);
     expect(crebit?.biggestContribution?.sourceUrl).not.toContain("speedrun.a16z.com");
     expect(crebit?.biggestContribution?.sourceUrl).not.toContain("a16z.com");
+  });
+
+  it("scores seeded A16Z YouTube videos from native watch URLs", () => {
+    const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
+    const sun = graph.leaderboard.find((row) => row.companyName === "SUN");
+    const sunNode = graph.nodes.find((node) => node.entityType === "company" && node.label === "SUN");
+    const sunYouTubeEvidence = graph.evidence.filter((item) => item.attachedCompanyName === "SUN" && item.platform === "youtube");
+    const crebitYouTubeEvidence = graph.evidence.find(
+      (item) => item.sourceUrl === "https://www.youtube.com/watch?v=RqS_WpgsPdY"
+    );
+
+    expect(sunYouTubeEvidence).toHaveLength(11);
+    expect(sunYouTubeEvidence.map((item) => item.sourceUrl)).toEqual(
+      expect.arrayContaining([
+        "https://www.youtube.com/watch?v=FTVKNZtv7-o",
+        "https://www.youtube.com/watch?v=Qj6VFxD0Hbo",
+        "https://www.youtube.com/watch?v=qHlEhqdAZxc",
+        "https://www.youtube.com/watch?v=tJS3OsGtGQw",
+        "https://www.youtube.com/watch?v=HbJiEHaSz-s"
+      ])
+    );
+    expect(sunYouTubeEvidence.every((item) => item.contributionScore > 0)).toBe(true);
+    expect(sunYouTubeEvidence.every((item) => item.metrics.views && item.metrics.views > 0)).toBe(true);
+    expect(sun?.score).toBeGreaterThan(0);
+    expect(sunNode?.platformScores.youtube).toBeGreaterThan(0);
+    expect(nodeSocialAccounts(sunNode).map((account) => account.url)).toContain("https://www.youtube.com/@getsunapp");
+    expect(crebitYouTubeEvidence).toEqual(
+      expect.objectContaining({
+        platform: "youtube",
+        attachedCompanyName: "Crebit",
+        metrics: expect.objectContaining({ views: 120 })
+      })
+    );
+  });
+
+  it("scores seeded A16Z Instagram traction posts from native post URLs", () => {
+    const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
+    const clair = graph.leaderboard.find((row) => row.companyName === "Clair Health");
+    const mirrorMirror = graph.leaderboard.find((row) => row.companyName === "Mirror Mirror AI");
+    const clairInstagramEvidence = graph.evidence.find(
+      (item) => item.sourceUrl === "https://www.instagram.com/reel/DWt6B3bieXE/"
+    );
+    const yusanInstagramEvidence = graph.evidence.find(
+      (item) => item.sourceUrl === "https://www.instagram.com/p/DV9vi8vgUkp/"
+    );
+
+    expect(clairInstagramEvidence).toEqual(
+      expect.objectContaining({
+        entityType: "company",
+        platform: "instagram",
+        attachedCompanyName: "Clair Health",
+        accountUrl: "https://www.instagram.com/clair_health",
+        metrics: expect.objectContaining({
+          likes: 5364,
+          comments: 104
+        })
+      })
+    );
+    expect(yusanInstagramEvidence).toEqual(
+      expect.objectContaining({
+        entityType: "founder",
+        platform: "instagram",
+        attachedCompanyName: "Mirror Mirror AI",
+        accountUrl: "https://www.instagram.com/yusan.lin",
+        metrics: expect.objectContaining({
+          likes: 1961,
+          comments: 29
+        })
+      })
+    );
+    expect(clairInstagramEvidence?.contributionScore).toBeGreaterThan(0);
+    expect(yusanInstagramEvidence?.contributionScore).toBeGreaterThan(0);
+    expect(clair?.score).toBeGreaterThan(0);
+    expect(mirrorMirror?.score).toBeGreaterThan(0);
+    expect(clair?.socialAccounts.map((account) => account.platform)).toContain("instagram");
+    expect(mirrorMirror?.founderAccounts?.flatMap((founder) => founder.socialAccounts.map((account) => account.url))).toContain(
+      "https://www.instagram.com/yusan.lin"
+    );
+  });
+
+  it("scores seeded A16Z Product Hunt launches from native Product Hunt URLs", () => {
+    const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
+    const sun = graph.leaderboard.find((row) => row.companyName === "SUN");
+    const taxnova = graph.leaderboard.find((row) => row.companyName === "Taxnova");
+    const sunNode = graph.nodes.find((node) => node.entityType === "company" && node.label === "SUN");
+    const taxnovaNode = graph.nodes.find((node) => node.entityType === "company" && node.label === "Taxnova");
+    const sunLaunchEvidence = graph.evidence.find(
+      (item) => item.sourceUrl === "https://www.producthunt.com/products/sun-ai/launches/sun-to-spotify"
+    );
+    const taxnovaLaunchEvidence = graph.evidence.find(
+      (item) => item.sourceUrl === "https://www.producthunt.com/products/taxnova"
+    );
+
+    expect(sunLaunchEvidence).toEqual(
+      expect.objectContaining({
+        entityType: "company",
+        platform: "product_hunt",
+        attachedCompanyName: "SUN",
+        accountUrl: "https://www.producthunt.com/products/sun-ai",
+        metrics: expect.objectContaining({
+          upvotes: 361,
+          comments: 32
+        })
+      })
+    );
+    expect(taxnovaLaunchEvidence).toEqual(
+      expect.objectContaining({
+        platform: "product_hunt",
+        attachedCompanyName: "Taxnova",
+        accountUrl: "https://www.producthunt.com/products/taxnova",
+        metrics: expect.objectContaining({
+          upvotes: 66
+        })
+      })
+    );
+    expect(sunLaunchEvidence?.contributionScore).toBeGreaterThan(0);
+    expect(taxnovaLaunchEvidence?.contributionScore).toBeGreaterThan(0);
+    expect(sun?.socialAccounts.map((account) => account.url)).toContain("https://www.producthunt.com/products/sun-ai");
+    expect(taxnova?.socialAccounts.map((account) => account.url)).toContain("https://www.producthunt.com/products/taxnova");
+    expect(sunNode?.platformScores.product_hunt).toBeGreaterThan(0);
+    expect(taxnovaNode?.platformScores.product_hunt).toBeGreaterThan(0);
   });
 
   it("does not count unseeded previous founder history as company traction", () => {
@@ -296,7 +433,7 @@ describe("a16z Speedrun 006 dataset", () => {
         .map((item) => item.sourceUrl)
     ).toEqual(expect.arrayContaining([
       "https://www.linkedin.com/posts/jesserose_ai-a16z-speedrun-activity-7442990067469553664-UgHd",
-      "https://www.linkedin.com/posts/williamldennis_ai-a16z-speedrun-activity-7442990082891894784-lpl4"
+      "https://www.linkedin.com/posts/williamldennis_im-excited-to-share-that-my-long-time-friend-activity-7442990082891894784-H7Iw"
     ]));
     expect(heavi?.score).toBe(0);
   });
@@ -352,6 +489,16 @@ function accountUrlMatchesPlatform(account: SocialAccountSummary): boolean {
       return /^https:\/\/(www\.)?linkedin\.com\//.test(account.url);
     case "instagram":
       return /^https:\/\/(www\.)?instagram\.com\//.test(account.url);
+    case "youtube":
+      return /^https:\/\/(www\.)?youtube\.com\//.test(account.url);
+    case "reddit":
+      return /^https:\/\/(www\.)?reddit\.com\//.test(account.url);
+    case "product_hunt":
+      return /^https:\/\/(www\.)?producthunt\.com\//.test(account.url);
+    case "hacker_news":
+      return /^https:\/\/news\.ycombinator\.com\//.test(account.url);
+    case "bilibili":
+      return /^https:\/\/(www\.)?(space\.)?bilibili\.com\//.test(account.url);
     case "web":
       return false;
     default:

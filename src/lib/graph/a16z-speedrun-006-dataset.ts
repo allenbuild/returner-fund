@@ -21,7 +21,17 @@ export const A16Z_SPEEDRUN_006_BATCH_SLUG = "A16ZSR006";
 export const A16Z_SPEEDRUN_006_BATCH_LABEL = "a16z Speedrun 006";
 
 const SPEEDRUN_SOURCE_URL = "https://speedrun.a16z.com/";
-const SPEEDRUN_TRACTION_PLATFORMS = new Set<Platform>(["github", "linkedin", "instagram", "x"]);
+const SPEEDRUN_TRACTION_PLATFORMS = new Set<Platform>([
+  "github",
+  "linkedin",
+  "instagram",
+  "x",
+  "youtube",
+  "reddit",
+  "product_hunt",
+  "hacker_news",
+  "bilibili"
+]);
 const ACCEPTED_GITHUB_LOGINS = new Set([
   "amdahl-ai",
   "amdahlco",
@@ -1135,6 +1145,11 @@ function isAllowedNativeEvidenceUrl(platform: Platform, rawUrl: string | null | 
   if (platform === "linkedin") return host === "linkedin.com" || host.endsWith(".linkedin.com");
   if (platform === "x") return host === "x.com" || host === "twitter.com";
   if (platform === "instagram") return host === "instagram.com" || host.endsWith(".instagram.com");
+  if (platform === "youtube") return host === "youtube.com" || host === "youtu.be";
+  if (platform === "reddit") return host === "reddit.com" || host.endsWith(".reddit.com");
+  if (platform === "product_hunt") return host === "producthunt.com";
+  if (platform === "hacker_news") return host === "news.ycombinator.com";
+  if (platform === "bilibili") return host === "bilibili.com" || host.endsWith(".bilibili.com") || host === "b23.tv";
   return false;
 }
 
@@ -1169,6 +1184,50 @@ function normalizeNativeAccountRoot(
     if (platform === "instagram" && (host === "instagram.com" || host.endsWith(".instagram.com"))) {
       const handle = parts[0]?.replace(/^@/, "");
       return handle ? { url: `https://www.instagram.com/${handle}`, handle } : null;
+    }
+
+    if (platform === "youtube" && (host === "youtube.com" || host === "youtu.be")) {
+      if (host === "youtu.be") return null;
+      if (parts[0]?.startsWith("@")) {
+        const handle = parts[0].slice(1);
+        return handle ? { url: `https://www.youtube.com/@${handle}`, handle } : null;
+      }
+      const namespace = parts[0]?.toLowerCase();
+      const handle = parts[1];
+      if (!["channel", "c", "user"].includes(namespace ?? "") || !handle) return null;
+      return { url: `https://www.youtube.com/${namespace}/${handle}`, handle };
+    }
+
+    if (platform === "reddit" && (host === "reddit.com" || host.endsWith(".reddit.com"))) {
+      const namespace = parts[0]?.toLowerCase();
+      const handle = namespace === "r" || namespace === "user" || namespace === "u" ? parts[1] : parts[0];
+      if (!handle) return null;
+      const pathNamespace = namespace === "r" || namespace === "user" || namespace === "u" ? namespace : "user";
+      return { url: `https://www.reddit.com/${pathNamespace}/${handle}`, handle };
+    }
+
+    if (platform === "product_hunt" && host === "producthunt.com") {
+      if (parts[0]?.startsWith("@")) {
+        const handle = parts[0].slice(1);
+        return handle ? { url: `https://www.producthunt.com/@${handle}`, handle } : null;
+      }
+      const namespace = parts[0]?.toLowerCase();
+      const handle = parts[1];
+      if (!["products", "posts"].includes(namespace ?? "") || !handle) return null;
+      return { url: `https://www.producthunt.com/${namespace}/${handle}`, handle };
+    }
+
+    if (platform === "hacker_news" && host === "news.ycombinator.com") {
+      const handle = url.searchParams.get("id");
+      return handle ? { url: `https://news.ycombinator.com/user?id=${handle}`, handle } : null;
+    }
+
+    if (platform === "bilibili") {
+      if (host === "space.bilibili.com") {
+        const handle = parts[0];
+        return handle ? { url: `https://space.bilibili.com/${handle}`, handle } : null;
+      }
+      return null;
     }
 
     return null;
@@ -1223,6 +1282,17 @@ function handleFromUrl(rawUrl: string | null | undefined): string | null {
     if (url.hostname.includes("x.com") || url.hostname.includes("twitter.com") || url.hostname.includes("instagram.com")) {
       return parts[0];
     }
+    if (url.hostname.includes("youtube.com")) {
+      return parts[0]?.startsWith("@") ? parts[0].slice(1) : parts[1] ?? parts[0];
+    }
+    if (url.hostname.includes("reddit.com")) {
+      return parts[0] === "r" || parts[0] === "user" || parts[0] === "u" ? parts[1] ?? null : parts[0];
+    }
+    if (url.hostname.includes("producthunt.com")) {
+      return parts[0]?.startsWith("@") ? parts[0].slice(1) : parts[1] ?? parts[0];
+    }
+    if (url.hostname.includes("news.ycombinator.com")) return url.searchParams.get("id") ?? parts[0];
+    if (url.hostname.includes("bilibili.com")) return parts[0] === "video" || parts[0] === "space" ? parts[1] ?? null : parts[0];
     return parts[0];
   } catch {
     return null;
@@ -1233,7 +1303,24 @@ function platformPostIdFromUrl(rawUrl: string): string | null {
   try {
     const url = new URL(rawUrl);
     const activityMatch = url.pathname.match(/activity-(\d+)/);
-    return activityMatch?.[1] ?? url.pathname.split("/").filter(Boolean).pop() ?? rawUrl;
+    if (activityMatch) return activityMatch[1];
+    const instagramMatch = url.pathname.match(/\/(?:p|reel|tv)\/([^/]+)/);
+    if (instagramMatch) return instagramMatch[1];
+    if (url.hostname.includes("youtube.com") && url.searchParams.get("v")) return url.searchParams.get("v");
+    const redditCommentMatch = url.pathname.match(/\/comments\/([^/]+)\/[^/]+\/([^/]+)/);
+    if (redditCommentMatch) return `${redditCommentMatch[1]}-${redditCommentMatch[2]}`;
+    const redditMatch = url.pathname.match(/\/comments\/([^/]+)/);
+    if (redditMatch) return redditMatch[1];
+    if (url.hostname.includes("producthunt.com")) {
+      const parts = url.pathname.split("/").filter(Boolean);
+      if (parts[0] === "products" && parts[2] === "launches") return `${parts[1]}-${parts[3]}`;
+      if (parts[0] === "p" && parts[1] && parts[2]) return `${parts[1]}-${parts[2]}`;
+      return parts.at(-1) ?? null;
+    }
+    if (url.hostname.includes("news.ycombinator.com") && url.searchParams.get("id")) return url.searchParams.get("id");
+    const bilibiliMatch = url.pathname.match(/\/video\/([^/?]+)/);
+    if (bilibiliMatch) return bilibiliMatch[1];
+    return url.pathname.split("/").filter(Boolean).pop() ?? rawUrl;
   } catch {
     return rawUrl || null;
   }

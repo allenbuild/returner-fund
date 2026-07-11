@@ -1,4 +1,4 @@
-import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
+import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
 import { graphNodeMatchesSearchQuery } from "./search";
 import { aggregateBalancedTractionScore } from "./traction-scoring";
 import {
@@ -55,6 +55,8 @@ const INDUSTRY_BORDER_COLORS: Record<string, string> = {
   "real estate and construction": "#7447A8",
   government: "#3E8A42"
 };
+const TOP_VOICE_ROLLUP_CACHE_LIMIT = 24;
+const topVoiceRollupCache = new Map<string, Map<string, TopVoiceCompanyRollup>>();
 
 export function buildGraphResponse(
   filters: GraphFilters = {},
@@ -218,7 +220,7 @@ export function nodeId(entityType: "company" | "founder", id: string): string {
 function resolveBatch(batchSlug: string | undefined, dataset: DemoGraphDataset) {
   return (
     dataset.batches.find((batch) => batch.slug === batchSlug) ??
-    dataset.batches.find((batch) => batch.slug === YC_SUMMER_2026_BATCH_SLUG) ??
+    dataset.batches.find((batch) => batch.slug === YC_SPRING_2026_BATCH_SLUG) ??
     dataset.batches[0]
   );
 }
@@ -420,6 +422,12 @@ function buildTopVoiceRollups(
   audienceId: TopVoiceAudienceId,
   members: TopVoiceMember[]
 ): Map<string, TopVoiceCompanyRollup> {
+  const cacheKey = topVoiceRollupCacheKey(companies, evidence, platforms, audienceId, members);
+  const cached = topVoiceRollupCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const companyIdByEntityId = new Map<string, string>();
   for (const company of companies) {
     companyIdByEntityId.set(company.id, company.id);
@@ -496,7 +504,32 @@ function buildTopVoiceRollups(
     rollups.set(companyId, rollup);
   }
 
+  topVoiceRollupCache.set(cacheKey, rollups);
+  if (topVoiceRollupCache.size > TOP_VOICE_ROLLUP_CACHE_LIMIT) {
+    const oldestKey = topVoiceRollupCache.keys().next().value;
+    if (oldestKey) {
+      topVoiceRollupCache.delete(oldestKey);
+    }
+  }
+
   return rollups;
+}
+
+function topVoiceRollupCacheKey(
+  companies: CompanyRecord[],
+  evidence: EvidenceItem[],
+  platforms: Platform[],
+  audienceId: TopVoiceAudienceId,
+  members: TopVoiceMember[]
+): string {
+  return [
+    companies[0]?.batchSlug ?? "unknown-batch",
+    audienceId,
+    platforms.length ? [...platforms].sort().join(",") : "all-platforms",
+    companies.length,
+    evidence.length,
+    members.map((member) => member.personId).join(",")
+  ].join("::");
 }
 
 function applyTopVoiceWeight(

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { generatedEvidenceThumbnailUrl } from "@/lib/graph/generated-evidence-thumbnail";
 import type { EvidenceItem } from "@/lib/graph/types";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
 
@@ -10,10 +11,19 @@ interface EvidenceMediaCardProps {
 }
 
 export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardProps) {
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failedThumbnailUrls, setFailedThumbnailUrls] = useState<string[]>([]);
   const snippet = evidenceSnippet(item);
   const metrics = compactMetrics(item.metrics).join(" / ");
-  const thumbnailUrl = shouldAttemptThumbnail(item) && !imageFailed ? item.thumbnailUrl : null;
+  const thumbnailCandidates = thumbnailUrlCandidates(item);
+  const thumbnailUrl = thumbnailCandidates.find((candidate) => !failedThumbnailUrls.includes(candidate)) ?? null;
+
+  useEffect(() => {
+    setFailedThumbnailUrls([]);
+  }, [item.id, item.thumbnailUrl]);
+
+  function handleThumbnailError(url: string) {
+    setFailedThumbnailUrls((current) => (current.includes(url) ? current : [...current, url]));
+  }
 
   return (
     <a
@@ -29,7 +39,7 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
             alt=""
             loading="lazy"
             decoding="async"
-            onError={() => setImageFailed(true)}
+            onError={() => handleThumbnailError(thumbnailUrl)}
           />
         ) : (
           <div className={`evidence-thumbnail-fallback evidence-thumbnail-${item.platform}`}>
@@ -60,12 +70,12 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
   );
 }
 
-function shouldAttemptThumbnail(item: EvidenceItem): item is EvidenceItem & { thumbnailUrl: string } {
-  if (!item.thumbnailUrl) {
-    return false;
-  }
+function thumbnailUrlCandidates(item: EvidenceItem): string[] {
+  return uniqueStrings([item.thumbnailUrl, generatedEvidenceThumbnailUrl(item)]);
+}
 
-  return true;
+function uniqueStrings(values: Array<string | null | undefined>): string[] {
+  return values.filter((value, index): value is string => Boolean(value) && values.indexOf(value) === index);
 }
 
 function evidenceSnippet(item: EvidenceItem): string {

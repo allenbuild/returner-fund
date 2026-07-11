@@ -8,7 +8,17 @@ const SNAPSHOT_GENERATED_AT = "2026-07-11T00:00:00.000Z";
 const BATCH_SLUG = "A16ZSR006";
 const BATCH_LABEL = "a16z Speedrun 006";
 const SOURCE_PATH = "scripts/ingest-a16z-speedrun-social-accounts.mjs";
-const PLATFORM_ORDER = ["github", "linkedin", "x", "instagram"];
+const PLATFORM_ORDER = [
+  "github",
+  "linkedin",
+  "x",
+  "instagram",
+  "youtube",
+  "reddit",
+  "product_hunt",
+  "hacker_news",
+  "bilibili"
+];
 const RESERVED_GITHUB_PATHS = new Set([
   "about",
   "apps",
@@ -55,6 +65,7 @@ const RESERVED_INSTAGRAM_PATHS = new Set([
   "reels",
   "stories"
 ]);
+const RESERVED_REDDIT_PATHS = new Set(["account", "advertising", "coins", "login", "message", "notifications", "poll", "search", "settings", "submit"]);
 const FOUNDER_SLUG_OVERRIDES = new Map([
   ["Oasis/Stefano Fantini Delmanto", "stefano-delmanto"],
   ["Prior Foundry/Johne Kamphorst", "jonne-kamphorst"],
@@ -133,6 +144,7 @@ const SOCIAL_ACCOUNTS = [
   { companyName: "Antihero Studios", url: "https://www.linkedin.com/company/antiherostudios-games" },
   { companyName: "Antihero Studios", url: "https://x.com/antihero_games" },
   { companyName: "Antihero Studios", url: "https://www.instagram.com/antihero.studios" },
+  { companyName: "Antihero Studios", url: "https://www.youtube.com/@Antihero_Studios" },
   { companyName: "Auto", url: "https://www.linkedin.com/company/automatic-platforms" },
   { companyName: "Auto", url: "https://x.com/autoaicam" },
   { companyName: "Belong", url: "https://github.com/Belong-dev" },
@@ -147,20 +159,27 @@ const SOCIAL_ACCOUNTS = [
   { companyName: "Cedar", url: "https://www.linkedin.com/company/cedar-ai" },
   { companyName: "Clair Health", url: "https://www.instagram.com/clair_health" },
   { companyName: "Clair Health", url: "https://www.linkedin.com/company/clairhealth" },
+  { companyName: "Clair Health", founderName: "Jenny Duan", url: "https://www.linkedin.com/in/jennysduan" },
   { companyName: "Coalition Systems", url: "https://www.linkedin.com/company/coalition-systems" },
   { companyName: "Coalition Systems", founderName: "Vijay Pathak", url: "https://www.linkedin.com/in/vijayppathak" },
   { companyName: "Coalition Systems", founderName: "Freddie Wollen", url: "https://www.linkedin.com/in/frederick-wollen" },
   { companyName: "Concorda", url: "https://www.linkedin.com/company/concordahq" },
   { companyName: "Crebit", url: "https://www.linkedin.com/company/crebit-pay" },
+  { companyName: "Crebit", founderName: "Jensen Coonradt", url: "https://www.linkedin.com/in/jcoonradt" },
+  { companyName: "Crebit", founderName: "Jensen Coonradt", url: "https://www.youtube.com/@roborebel6031" },
   { companyName: "Emanate", url: "https://www.linkedin.com/company/emanateai" },
   { companyName: "Emanate", url: "https://x.com/emanateai" },
   { companyName: "Grove Tax", url: "https://github.com/grove-tax" },
   { companyName: "Grove Tax", url: "https://www.linkedin.com/company/grovetax-ai" },
+  { companyName: "Hammock", url: "https://www.instagram.com/usehammock.co" },
+  { companyName: "Hammock", url: "https://www.linkedin.com/company/usehammockco" },
   { companyName: "Heavi", url: "https://www.linkedin.com/company/heavi-ai" },
+  { companyName: "Hotbox", url: "https://www.linkedin.com/company/hotboxapp" },
   { companyName: "Hotbox", founderName: "Harpriya Bagri", url: "https://www.linkedin.com/in/harpriya" },
   { companyName: "Hotbox", founderName: "Harpriya Bagri", url: "https://x.com/harpriiya" },
   { companyName: "Idilio", url: "https://www.instagram.com/idiliotv" },
   { companyName: "Idilio", url: "https://www.linkedin.com/company/idiliotv" },
+  { companyName: "Idilio", founderName: "Gabriela Tafur", url: "https://www.instagram.com/gabrielatafur" },
   { companyName: "Kaaro", url: "https://www.linkedin.com/company/kaaro-ai" },
   { companyName: "Kaaro", url: "https://x.com/kaaroai" },
   { companyName: "Loops AI", url: "https://www.instagram.com/loopsai_co" },
@@ -171,6 +190,8 @@ const SOCIAL_ACCOUNTS = [
   { companyName: "Mirror Mirror AI", url: "https://www.instagram.com/mirrormirror.ai" },
   { companyName: "Mirror Mirror AI", url: "https://www.linkedin.com/company/mirror-mirror-ai" },
   { companyName: "Mirror Mirror AI", url: "https://x.com/mirrormirror_ai" },
+  { companyName: "Mirror Mirror AI", url: "https://www.youtube.com/@MirrorMirrorAI" },
+  { companyName: "Mirror Mirror AI", founderName: "Yusan Lin", url: "https://www.instagram.com/yusan.lin" },
   { companyName: "Modaic", url: "https://github.com/modaic-ai" },
   { companyName: "Modaic", url: "https://www.linkedin.com/company/modaicdev" },
   { companyName: "Modaic", url: "https://x.com/modaicdev" },
@@ -182,6 +203,7 @@ const SOCIAL_ACCOUNTS = [
   { companyName: "Omi Health", url: "https://www.linkedin.com/company/108841079" },
   { companyName: "Omi Health", url: "https://x.com/omipethealth" },
   { companyName: "Omi Health", url: "https://www.instagram.com/omipethealth" },
+  { companyName: "Omi Health", url: "https://www.youtube.com/@omi-health" },
   { companyName: "Panorama", url: "https://github.com/panorama-dev" },
   { companyName: "Panorama", url: "https://www.linkedin.com/company/withpanorama" },
   { companyName: "Panorama", url: "https://x.com/withpanorama" },
@@ -192,34 +214,49 @@ const SOCIAL_ACCOUNTS = [
   { companyName: "Pluvo", url: "https://www.linkedin.com/company/pluvoapp" },
   { companyName: "Pluvo", url: "https://x.com/Pluvoapp" },
   { companyName: "Pluvo", url: "https://www.instagram.com/pluvoapp" },
+  { companyName: "Piper-ai", url: "https://www.linkedin.com/company/piper-ai-team" },
+  { companyName: "Prior Foundry", url: "https://www.linkedin.com/company/prior-foundry" },
   { companyName: "Quanto", url: "https://www.linkedin.com/company/quantohq" },
+  { companyName: "Quanto", url: "https://www.producthunt.com/products/quanto" },
   { companyName: "Quinn", url: "https://www.linkedin.com/company/meetquinn" },
   { companyName: "Quinn", url: "https://www.linkedin.com/company/meetquinnai" },
   { companyName: "Quinn", url: "https://x.com/meetquinn" },
   { companyName: "Quo Labs", url: "https://www.linkedin.com/company/quo-labs" },
   { companyName: "Quo Labs", url: "https://x.com/quolabsai" },
+  { companyName: "SafeWorld", founderName: "Kyle Wong", url: "https://www.linkedin.com/in/kylewong" },
+  { companyName: "SafeWorld", founderName: "Kyle Wong", url: "https://x.com/kwong47" },
   { companyName: "Sellara", url: "https://www.linkedin.com/company/sellara" },
   { companyName: "Sellara", url: "https://x.com/SellaraHQ" },
   { companyName: "Sentra", url: "https://www.linkedin.com/company/sentra-app" },
   { companyName: "Sentra", url: "https://x.com/sentra_app" },
   { companyName: "Sirius Technology", url: "https://www.linkedin.com/company/thesiriusai" },
   { companyName: "Sirius Technology", url: "https://x.com/siriusai" },
+  { companyName: "Simula", url: "https://www.linkedin.com/company/simula-ad" },
+  { companyName: "Simula", url: "https://x.com/simula_ad" },
   { companyName: "Smart Bricks", url: "https://www.linkedin.com/company/smart-bricks" },
   { companyName: "Smart Bricks", url: "https://www.instagram.com/smartbricks_invest" },
   { companyName: "Smart Bricks", url: "https://www.instagram.com/smartbricks.invest" },
   { companyName: "Smart Bricks", url: "https://x.com/Smart_Bricks_" },
+  { companyName: "Smart Bricks", url: "https://www.youtube.com/@investwithsmartbricks" },
   { companyName: "snag", url: "https://www.instagram.com/snagsubletsnyc" },
+  { companyName: "snag", url: "https://www.youtube.com/@snagsublets" },
+  { companyName: "snag", founderName: "Selin Sonmez", url: "https://www.instagram.com/subletgirl" },
   { companyName: "Snapp Stats", url: "https://www.linkedin.com/company/snappstats" },
   { companyName: "Snapp Stats", url: "https://www.instagram.com/snappstats" },
   { companyName: "Snapp Stats", url: "https://x.com/SnappStats" },
   { companyName: "Sparta", url: "https://www.linkedin.com/company/usesparta" },
   { companyName: "Straia", url: "https://www.linkedin.com/company/straia-ai" },
+  { companyName: "Straia", founderName: "Gautam Narasimhan", url: "https://www.linkedin.com/in/gautamna" },
   { companyName: "SUN", url: "https://www.linkedin.com/company/sunisrising" },
+  { companyName: "SUN", url: "https://www.youtube.com/@getsunapp" },
+  { companyName: "SUN", url: "https://www.producthunt.com/products/sun-ai" },
+  { companyName: "SUN", founderName: "Artin Bogdanov", url: "https://www.instagram.com/artinbogdanov" },
   { companyName: "Syncere", url: "https://www.linkedin.com/company/bysyncere" },
   { companyName: "Syncere", url: "https://www.instagram.com/bysyncere" },
   { companyName: "Syncere", url: "https://x.com/bysyncere" },
   { companyName: "Taxnova", url: "https://github.com/TaxNova-AI" },
   { companyName: "Taxnova", url: "https://www.linkedin.com/company/taxnova-ai" },
+  { companyName: "Taxnova", url: "https://www.producthunt.com/products/taxnova" },
   { companyName: "Taxnova", url: "https://x.com/taxnovaai" },
   { companyName: "Thirdbrain Labs", url: "https://www.linkedin.com/company/thirdbrain-labs" },
   { companyName: "Thirdbrain Labs", url: "https://x.com/ThirdbrainLabs" },
@@ -228,7 +265,8 @@ const SOCIAL_ACCOUNTS = [
   { companyName: "Vereda", url: "https://www.linkedin.com/company/vereda-ia" },
   { companyName: "Vereda", url: "https://www.instagram.com/vereda.ia" },
   { companyName: "ZeroDrift", url: "https://www.linkedin.com/company/zerodrift" },
-  { companyName: "ZeroDrift", url: "https://x.com/ZeroDrift_AI" }
+  { companyName: "ZeroDrift", url: "https://x.com/ZeroDrift_AI" },
+  { companyName: "ZeroDrift", url: "https://www.youtube.com/@ZeroDrift-AI" }
 ].map((account) => ({
   verifiedFrom: "agent_verified_native_account",
   evidenceUrl: account.url,
@@ -391,7 +429,9 @@ function founderSocialUrls(founder) {
     founder.github_url,
     founder.linkedin_url,
     founder.x_url,
-    founder.instagram_url
+    founder.instagram_url,
+    founder.youtube_url,
+    founder.reddit_url
   ].filter(isSupportedSocialAccountUrl);
 }
 
@@ -464,6 +504,9 @@ function classifySocialAccountUrl(rawUrl) {
   if (host === "linkedin.com" || host.endsWith(".linkedin.com")) return classifyLinkedinUrl(segments);
   if (host === "x.com" || host === "twitter.com") return classifyXUrl(segments);
   if (host === "instagram.com") return classifyInstagramUrl(segments);
+  if (host === "youtube.com" || host === "youtu.be") return classifyYoutubeUrl(host, segments);
+  if (host === "reddit.com") return classifyRedditUrl(segments);
+  if (host === "producthunt.com") return classifyProductHuntUrl(segments);
 
   throw new Error(`Unsupported A16Z social account platform: ${rawUrl}`);
 }
@@ -542,6 +585,21 @@ function classifyYoutubeUrl(host, segments) {
   return {
     platform: "youtube",
     url: `https://www.youtube.com/${namespace}/${handle}`,
+    handle
+  };
+}
+
+function classifyRedditUrl(segments) {
+  const namespace = segments[0]?.toLowerCase();
+  const handle = namespace === "r" || namespace === "user" || namespace === "u" ? segments[1] : segments[0];
+  if (!handle || RESERVED_REDDIT_PATHS.has(handle.toLowerCase())) {
+    throw new Error(`Reddit URL must point to a subreddit or user account: ${segments.join("/")}`);
+  }
+
+  const pathNamespace = namespace === "r" || namespace === "user" || namespace === "u" ? namespace : "user";
+  return {
+    platform: "reddit",
+    url: `https://www.reddit.com/${pathNamespace}/${handle}`,
     handle
   };
 }

@@ -6,20 +6,27 @@
     "sourcePath": "scripts/ingest-a16z-speedrun-social-accounts.mjs",
     "generatedAt": "2026-07-11T00:00:00.000Z",
     "companyCount": 59,
-    "companyAccountCount": 99,
-    "founderAccountCount": 202,
-    "accountCount": 301,
+    "companyAccountCount": 116,
+    "founderAccountCount": 212,
+    "accountCount": 328,
     "supportedPlatforms": [
       "github",
       "linkedin",
       "x",
-      "instagram"
+      "instagram",
+      "youtube",
+      "reddit",
+      "product_hunt",
+      "hacker_news",
+      "bilibili"
     ],
     "platformsPresent": [
       "github",
       "linkedin",
       "x",
-      "instagram"
+      "instagram",
+      "youtube",
+      "product_hunt"
     ],
     "verificationSources": [
       "agent_verified_native_account",
@@ -352,6 +359,15 @@
           "handle": "antihero.studios",
           "verifiedFrom": "agent_verified_native_account",
           "evidenceUrl": "https://www.instagram.com/antihero.studios",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        },
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/@Antihero_Studios",
+          "handle": "Antihero_Studios",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.youtube.com/@Antihero_Studios",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
         }
@@ -903,7 +919,17 @@
         {
           "name": "Jenny Duan",
           "founderSlug": "jenny-duan",
-          "accounts": []
+          "accounts": [
+            {
+              "platform": "linkedin",
+              "url": "https://www.linkedin.com/in/jennysduan",
+              "handle": "jennysduan",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.linkedin.com/in/jennysduan",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+              "review_state": "verified"
+            }
+          ]
         }
       ]
     },
@@ -1019,7 +1045,26 @@
         {
           "name": "Jensen Coonradt",
           "founderSlug": "jensen-coonradt",
-          "accounts": []
+          "accounts": [
+            {
+              "platform": "linkedin",
+              "url": "https://www.linkedin.com/in/jcoonradt",
+              "handle": "jcoonradt",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.linkedin.com/in/jcoonradt",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+              "review_state": "verified"
+            },
+            {
+              "platform": "youtube",
+              "url": "https://www.youtube.com/@roborebel6031",
+              "handle": "roborebel6031",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.youtube.com/@roborebel6031",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+              "review_state": "verified"
+            }
+          ]
         },
         {
           "name": "Simmi Sen",
@@ -1165,7 +1210,26 @@
     {
       "companyName": "Hammock",
       "companySlug": "hammock",
-      "accounts": [],
+      "accounts": [
+        {
+          "platform": "linkedin",
+          "url": "https://www.linkedin.com/company/usehammockco",
+          "handle": "usehammockco",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.linkedin.com/company/usehammockco",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        },
+        {
+          "platform": "instagram",
+          "url": "https://www.instagram.com/usehammock.co",
+          "handle": "usehammock.co",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.instagram.com/usehammock.co",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        }
+      ],
       "founders": [
         {
           "name": "Jesse Rose",
@@ -1294,7 +1358,17 @@
     {
       "companyName": "Hotbox",
       "companySlug": "hotbox",
-      "accounts": [],
+      "accounts": [
+        {
+          "platform": "linkedin",
+          "url": "https://www.linkedin.com/company/hotboxapp",
+          "handle": "hotboxapp",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.linkedin.com/company/hotboxapp",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        }
+      ],
       "founders": [
         {
           "name": "Harpriya Bagri",
@@ -1357,6 +1431,15 @@
               "verifiedFrom": "speedrun_founder_profile_page",
               "evidenceUrl": "https://speedrun.a16z.com/companies/idilio/gabriela-tafur",
               "matchReason": "Native social account exposed on the founder's A16Z Speedrun profile.",
+              "review_state": "verified"
+            },
+            {
+              "platform": "instagram",
+              "url": "https://www.instagram.com/gabrielatafur",
+              "handle": "gabrielatafur",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.instagram.com/gabrielatafur",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
               "review_state": "verified"
             }
           ]
@@ -1713,6 +1796,15 @@
           "evidenceUrl": "https://www.instagram.com/mirrormirror.ai",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
+        },
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/@MirrorMirrorAI",
+          "handle": "MirrorMirrorAI",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.youtube.com/@MirrorMirrorAI",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
         }
       ],
       "founders": [
@@ -1745,6 +1837,15 @@
               "verifiedFrom": "speedrun_founder_profile_page",
               "evidenceUrl": "https://speedrun.a16z.com/companies/mirror-mirror-ai/yusan-lin",
               "matchReason": "Native social account exposed on the founder's A16Z Speedrun profile.",
+              "review_state": "verified"
+            },
+            {
+              "platform": "instagram",
+              "url": "https://www.instagram.com/yusan.lin",
+              "handle": "yusan.lin",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.instagram.com/yusan.lin",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
               "review_state": "verified"
             }
           ]
@@ -2083,6 +2184,15 @@
           "evidenceUrl": "https://www.instagram.com/omipethealth",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
+        },
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/@omi-health",
+          "handle": "omi-health",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.youtube.com/@omi-health",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
         }
       ],
       "founders": [
@@ -2381,7 +2491,17 @@
     {
       "companyName": "Piper-ai",
       "companySlug": "piper-ai",
-      "accounts": [],
+      "accounts": [
+        {
+          "platform": "linkedin",
+          "url": "https://www.linkedin.com/company/piper-ai-team",
+          "handle": "piper-ai-team",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.linkedin.com/company/piper-ai-team",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        }
+      ],
       "founders": [
         {
           "name": "Ido Gedanken",
@@ -2564,7 +2684,17 @@
     {
       "companyName": "Prior Foundry",
       "companySlug": "prior-foundry",
-      "accounts": [],
+      "accounts": [
+        {
+          "platform": "linkedin",
+          "url": "https://www.linkedin.com/company/prior-foundry",
+          "handle": "prior-foundry",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.linkedin.com/company/prior-foundry",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        }
+      ],
       "founders": [
         {
           "name": "Shirin Abrishami Kashani",
@@ -2632,6 +2762,15 @@
           "handle": "quantohq",
           "verifiedFrom": "agent_verified_native_account",
           "evidenceUrl": "https://www.linkedin.com/company/quantohq",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        },
+        {
+          "platform": "product_hunt",
+          "url": "https://www.producthunt.com/products/quanto",
+          "handle": "quanto",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.producthunt.com/products/quanto",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
         }
@@ -2843,7 +2982,26 @@
         {
           "name": "Kyle Wong",
           "founderSlug": "kyle-wong",
-          "accounts": []
+          "accounts": [
+            {
+              "platform": "linkedin",
+              "url": "https://www.linkedin.com/in/kylewong",
+              "handle": "kylewong",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.linkedin.com/in/kylewong",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+              "review_state": "verified"
+            },
+            {
+              "platform": "x",
+              "url": "https://x.com/kwong47",
+              "handle": "kwong47",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://x.com/kwong47",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+              "review_state": "verified"
+            }
+          ]
         },
         {
           "name": "Simo Rachidi",
@@ -3043,7 +3201,26 @@
     {
       "companyName": "Simula",
       "companySlug": "simula",
-      "accounts": [],
+      "accounts": [
+        {
+          "platform": "linkedin",
+          "url": "https://www.linkedin.com/company/simula-ad",
+          "handle": "simula-ad",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.linkedin.com/company/simula-ad",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        },
+        {
+          "platform": "x",
+          "url": "https://x.com/simula_ad",
+          "handle": "simula_ad",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://x.com/simula_ad",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        }
+      ],
       "founders": [
         {
           "name": "Yizhen Zhen",
@@ -3166,6 +3343,15 @@
           "evidenceUrl": "https://www.instagram.com/smartbricks.invest",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
+        },
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/@investwithsmartbricks",
+          "handle": "investwithsmartbricks",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.youtube.com/@investwithsmartbricks",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
         }
       ],
       "founders": [
@@ -3198,6 +3384,15 @@
           "evidenceUrl": "https://www.instagram.com/snagsubletsnyc",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
+        },
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/@snagsublets",
+          "handle": "snagsublets",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.youtube.com/@snagsublets",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
         }
       ],
       "founders": [
@@ -3212,6 +3407,15 @@
               "verifiedFrom": "speedrun_founder_profile_page",
               "evidenceUrl": "https://speedrun.a16z.com/companies/snag/selin-sonmez",
               "matchReason": "Native social account exposed on the founder's A16Z Speedrun profile.",
+              "review_state": "verified"
+            },
+            {
+              "platform": "instagram",
+              "url": "https://www.instagram.com/subletgirl",
+              "handle": "subletgirl",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.instagram.com/subletgirl",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
               "review_state": "verified"
             }
           ]
@@ -3456,7 +3660,17 @@
         {
           "name": "Gautam Narasimhan",
           "founderSlug": "gautam-narasimhan",
-          "accounts": []
+          "accounts": [
+            {
+              "platform": "linkedin",
+              "url": "https://www.linkedin.com/in/gautamna",
+              "handle": "gautamna",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.linkedin.com/in/gautamna",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+              "review_state": "verified"
+            }
+          ]
         },
         {
           "name": "Nikki Dansey",
@@ -3485,6 +3699,24 @@
           "handle": "sunisrising",
           "verifiedFrom": "agent_verified_native_account",
           "evidenceUrl": "https://www.linkedin.com/company/sunisrising",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        },
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/@getsunapp",
+          "handle": "getsunapp",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.youtube.com/@getsunapp",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        },
+        {
+          "platform": "product_hunt",
+          "url": "https://www.producthunt.com/products/sun-ai",
+          "handle": "sun-ai",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.producthunt.com/products/sun-ai",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
         }
@@ -3519,6 +3751,15 @@
               "verifiedFrom": "speedrun_founder_profile_page",
               "evidenceUrl": "https://speedrun.a16z.com/companies/sun/artin-bogdanov",
               "matchReason": "Native social account exposed on the founder's A16Z Speedrun profile.",
+              "review_state": "verified"
+            },
+            {
+              "platform": "instagram",
+              "url": "https://www.instagram.com/artinbogdanov",
+              "handle": "artinbogdanov",
+              "verifiedFrom": "agent_verified_native_account",
+              "evidenceUrl": "https://www.instagram.com/artinbogdanov",
+              "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
               "review_state": "verified"
             }
           ]
@@ -3651,6 +3892,15 @@
           "handle": "taxnovaai",
           "verifiedFrom": "agent_verified_native_account",
           "evidenceUrl": "https://x.com/taxnovaai",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        },
+        {
+          "platform": "product_hunt",
+          "url": "https://www.producthunt.com/products/taxnova",
+          "handle": "taxnova",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.producthunt.com/products/taxnova",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
         }
@@ -3938,6 +4188,15 @@
           "handle": "ZeroDrift_AI",
           "verifiedFrom": "agent_verified_native_account",
           "evidenceUrl": "https://x.com/ZeroDrift_AI",
+          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "review_state": "verified"
+        },
+        {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/@ZeroDrift-AI",
+          "handle": "ZeroDrift-AI",
+          "verifiedFrom": "agent_verified_native_account",
+          "evidenceUrl": "https://www.youtube.com/@ZeroDrift-AI",
           "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
           "review_state": "verified"
         }

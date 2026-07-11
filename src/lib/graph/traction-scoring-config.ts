@@ -37,7 +37,9 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
     linkedin: 0.14,
     product_hunt: 0.07,
     youtube: 0.05,
-    hacker_news: 0.04
+    hacker_news: 0.04,
+    reddit: 0.03,
+    bilibili: 0.02
   },
   metricWeights: {
     github: { stars: 1.5, forks: 4, watchers: 2, issues: 0.5, open_issues: 0.5, recent_commits_30d: 1 },
@@ -60,7 +62,8 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
     instagram: 45,
     x: 45,
     hacker_news: 45,
-    reddit: 45
+    reddit: 45,
+    bilibili: 120
   },
   defaultHalfLifeDays: 60,
   topKPosts: 5

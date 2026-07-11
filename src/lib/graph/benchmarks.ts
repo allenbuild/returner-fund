@@ -182,16 +182,26 @@ function selectDailyBaseline(snapshots: BenchmarkSnapshot[], now: Date): Benchma
 }
 
 function selectWeeklyBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
-  return selectLatestBaselineOnOrBeforeDay(snapshots, now, 7) ?? latestSnapshotBefore(snapshots, now);
+  return selectLatestBaselineOnLocalDay(snapshots, now, 7);
 }
 
-function selectLatestBaselineOnOrBeforeDay(
+function selectLatestBaselineOnLocalDay(
   snapshots: BenchmarkSnapshot[],
   now: Date,
   daysBack: number
 ): BenchmarkSnapshot | null {
-  const targetDayEnd = addLocalDays(addLocalDays(startOfLocalDay(now), -daysBack), 1);
-  return latestSnapshotBefore(snapshots, targetDayEnd);
+  const targetDayStart = addLocalDays(startOfLocalDay(now), -daysBack);
+  const targetDayEnd = addLocalDays(targetDayStart, 1);
+  return latestSnapshot(
+    snapshots.filter((snapshot) => {
+      const recordedAt = new Date(snapshot.recordedAt).getTime();
+      return (
+        Number.isFinite(recordedAt) &&
+        recordedAt >= targetDayStart.getTime() &&
+        recordedAt < targetDayEnd.getTime()
+      );
+    })
+  );
 }
 
 function latestSnapshotBefore(snapshots: BenchmarkSnapshot[], cutoff: Date): BenchmarkSnapshot | null {

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { EvidenceMediaCard } from "@/components/EvidenceMediaCard";
 import type { EvidenceItem } from "@/lib/graph/types";
@@ -47,7 +47,7 @@ describe("EvidenceMediaCard", () => {
     expect(screen.queryByText(/^open$/i)).not.toBeInTheDocument();
   });
 
-  it("falls back to a clean platform tile when no thumbnail exists", () => {
+  it("generates a post thumbnail when no native thumbnail exists", () => {
     const item: EvidenceItem = {
       id: "ev-fallback",
       entityType: "company",
@@ -64,12 +64,46 @@ describe("EvidenceMediaCard", () => {
       why: "Repository traction."
     };
 
-    render(<EvidenceMediaCard item={item} />);
+    const { container } = render(<EvidenceMediaCard item={item} />);
 
-    expect(screen.getByRole("img", { name: "GitHub logo" })).toBeInTheDocument();
+    const img = container.querySelector("img");
+    expect(img?.getAttribute("src")).toContain("/api/evidence-thumbnail?");
+    expect(img?.getAttribute("src")).toContain("platform=github");
+    expect(screen.queryByRole("img", { name: "GitHub logo" })).not.toBeInTheDocument();
     expect(screen.getAllByText(/1,200 stars/).length).toBeGreaterThan(0);
     expect(screen.getAllByText("acme/widgets: GitHub repository.").length).toBeGreaterThan(0);
     expect(screen.queryByText(/preview pending/i)).not.toBeInTheDocument();
+  });
+
+  it("falls through to a generated thumbnail when a native image fails", () => {
+    const item: EvidenceItem = {
+      id: "ev-broken-native",
+      entityType: "company",
+      entityId: "company-1",
+      platform: "instagram",
+      authorName: "Acme",
+      authorHandle: "acme",
+      postedAt: "2026-06-20T00:00:00.000Z",
+      text: "We shipped a new demo.",
+      mediaType: "video",
+      thumbnailUrl: "https://scontent.cdninstagram.com/v/t51.71878-15/expired-cover.jpg",
+      thumbnailSource: "instagram-media",
+      metrics: { likes: 1200, comments: 88 },
+      contributionScore: 82,
+      sourceUrl: "https://www.instagram.com/reel/ABC123/",
+      why: "Visible Instagram traction."
+    };
+
+    const { container } = render(<EvidenceMediaCard item={item} />);
+    const nativeImg = container.querySelector("img");
+
+    expect(nativeImg).toHaveAttribute("src", item.thumbnailUrl);
+    fireEvent.error(nativeImg!);
+
+    const generatedImg = container.querySelector("img");
+    expect(generatedImg?.getAttribute("src")).toContain("/api/evidence-thumbnail?");
+    expect(generatedImg?.getAttribute("src")).toContain("platform=instagram");
+    expect(container.querySelector(".evidence-thumbnail-fallback")).not.toBeInTheDocument();
   });
 
   it("renders Instagram CDN covers instead of blocking them as placeholders", () => {

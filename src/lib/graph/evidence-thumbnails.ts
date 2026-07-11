@@ -1,7 +1,22 @@
 import type { EvidenceItem, Platform } from "./types";
+import { generatedEvidenceThumbnailUrl } from "./generated-evidence-thumbnail";
 
 type ThumbnailInput = Pick<EvidenceItem, "id" | "platform" | "sourceUrl"> &
-  Partial<Pick<EvidenceItem, "rawVisibleText" | "mediaUrl" | "mediaUrls" | "thumbnailUrl" | "thumbnailSource" | "authorHandle">>;
+  Partial<
+    Pick<
+      EvidenceItem,
+      | "rawVisibleText"
+      | "mediaUrl"
+      | "mediaUrls"
+      | "thumbnailUrl"
+      | "thumbnailSource"
+      | "authorHandle"
+      | "authorName"
+      | "contributionScore"
+      | "text"
+      | "title"
+    >
+  >;
 
 export interface EvidenceThumbnailResolution {
   thumbnailUrl: string | null;
@@ -52,11 +67,13 @@ const PLATFORM_REJECTS: Partial<Record<Platform, RegExp[]>> = {
 
 export function enrichEvidenceThumbnail<T extends ThumbnailInput>(item: T): T & EvidenceThumbnailResolution {
   const resolved = resolveEvidenceThumbnail(item);
+  const generatedThumbnailUrl = generatedEvidenceThumbnailUrl(item);
+  const thumbnailUrl = item.thumbnailUrl ?? resolved.thumbnailUrl ?? generatedThumbnailUrl;
 
   return {
     ...item,
-    thumbnailUrl: item.thumbnailUrl ?? resolved.thumbnailUrl,
-    thumbnailSource: item.thumbnailSource ?? resolved.thumbnailSource,
+    thumbnailUrl,
+    thumbnailSource: item.thumbnailSource ?? resolved.thumbnailSource ?? (generatedThumbnailUrl ? "generated-post-thumbnail" : null),
     mediaUrl: item.mediaUrl ?? resolved.mediaUrl
   };
 }

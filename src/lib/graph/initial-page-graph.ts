@@ -1,18 +1,25 @@
 import { benchmarkStoreVersion, ensureBenchmarkMomentum } from "./benchmarks";
 import { buildGraphResponse } from "./graph-builder";
 import { sanitizeGraphResponse } from "./response-sanitizer";
-import type { GraphResponse } from "./types";
-import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
+import type { GraphFilters, GraphResponse } from "./types";
+import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
 
 const INITIAL_EVIDENCE_LIMIT = 20;
-const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
+const DEFAULT_BATCH_SLUG = YC_SPRING_2026_BATCH_SLUG;
 let cachedInitialPageGraph: { cacheKey: string; graph: GraphResponse } | null = null;
 
-export function buildInitialPageGraph(): GraphResponse {
+export function buildInitialPageGraph(filters: GraphFilters = {}): GraphResponse {
   const now = new Date();
-  const cacheKey = `${DEFAULT_BATCH_SLUG}:${localDayKey(now)}:${benchmarkStoreVersion(DEFAULT_BATCH_SLUG)}`;
+  const batchSlug = filters.batchSlug ?? DEFAULT_BATCH_SLUG;
+  const cacheKey = JSON.stringify({
+    batchSlug,
+    platforms: filters.platforms ?? [],
+    topVoices: filters.topVoices,
+    day: localDayKey(now),
+    benchmarkStore: benchmarkStoreVersion(batchSlug)
+  });
   if (cachedInitialPageGraph?.cacheKey !== cacheKey) {
-    const graph = sanitizeGraphResponse(buildGraphResponse({ batchSlug: DEFAULT_BATCH_SLUG }, yc2026GraphDataset));
+    const graph = sanitizeGraphResponse(buildGraphResponse({ ...filters, batchSlug }, yc2026GraphDataset));
     cachedInitialPageGraph = {
       cacheKey,
       graph: trimInitialEvidence(ensureBenchmarkMomentum(graph, { now }).graph)

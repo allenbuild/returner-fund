@@ -4,7 +4,7 @@ import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
 import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
-import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { EdgeType, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 
 interface RefreshRequest {
@@ -18,7 +18,7 @@ interface RefreshRequest {
   topVoices?: TopVoiceAudienceId;
 }
 
-const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
+const DEFAULT_BATCH_SLUG = YC_SPRING_2026_BATCH_SLUG;
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as RefreshRequest;

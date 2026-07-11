@@ -16,7 +16,8 @@ import {
   Trophy,
   Users
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { generatedEvidenceThumbnailUrl } from "@/lib/graph/generated-evidence-thumbnail";
 import type {
   EvidenceItem,
   FastestGainingRow,
@@ -300,14 +301,23 @@ function RankDisplay({ rank }: { rank: number }) {
 }
 
 function ContributionThumbnail({ item }: { item: EvidenceItem | null }) {
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failedThumbnailUrls, setFailedThumbnailUrls] = useState<string[]>([]);
   const platform = item?.platform ?? null;
-  const thumbnailUrl = item?.thumbnailUrl && !imageFailed ? item.thumbnailUrl : null;
+  const thumbnailCandidates = item ? thumbnailUrlCandidates(item) : [];
+  const thumbnailUrl = thumbnailCandidates.find((candidate) => !failedThumbnailUrls.includes(candidate)) ?? null;
+
+  useEffect(() => {
+    setFailedThumbnailUrls([]);
+  }, [item?.id, item?.thumbnailUrl]);
+
+  function handleThumbnailError(url: string) {
+    setFailedThumbnailUrls((current) => (current.includes(url) ? current : [...current, url]));
+  }
 
   return (
     <span className={`overview-post-thumbnail${platform ? ` overview-post-thumbnail-${platform}` : ""}`}>
       {thumbnailUrl ? (
-        <img src={thumbnailUrl} alt="" loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
+        <img src={thumbnailUrl} alt="" loading="lazy" decoding="async" onError={() => handleThumbnailError(thumbnailUrl)} />
       ) : platform ? (
         <span className="overview-post-thumbnail-fallback" aria-hidden="true">
           <PlatformLogo platform={platform} />
@@ -320,6 +330,14 @@ function ContributionThumbnail({ item }: { item: EvidenceItem | null }) {
       )}
     </span>
   );
+}
+
+function thumbnailUrlCandidates(item: EvidenceItem): string[] {
+  return uniqueStrings([item.thumbnailUrl, generatedEvidenceThumbnailUrl(item)]);
+}
+
+function uniqueStrings(values: Array<string | null | undefined>): string[] {
+  return values.filter((value, index): value is string => Boolean(value) && values.indexOf(value) === index);
 }
 
 function ContributionSummary({

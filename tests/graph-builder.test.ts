@@ -107,10 +107,10 @@ describe("graph builder", () => {
   });
 
   it("uses the Summer 2026 batch contract without numeric identity-quality fields", () => {
-    const graph = buildGraphResponse();
+    const graph = buildGraphResponse({ batchSlug: "S26" });
     const bannedIdentityQualityField = ["con", "fidence"].join("");
 
-    expect(graph.batch.label).toBe("YC Summer 2026");
+    expect(graph.batch.label).toBe("YC Summer 2026 (S26)");
     expect(graph.batch.companyCountExpected).toBe(83);
     expect(JSON.stringify(graph)).not.toContain(bannedIdentityQualityField);
     expect(graph.nodes[0]).toEqual(
@@ -370,7 +370,7 @@ function topVoiceDataset(): DemoGraphDataset {
 
   return {
     mode: "official_snapshot",
-    batches: [{ slug: "S2026", label: "YC Spring 2026", companyCountExpected: 4, companyCountObserved: 4 }],
+    batches: [{ slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 4, companyCountObserved: 4 }],
     companies,
     founders: [
       makeFounder({

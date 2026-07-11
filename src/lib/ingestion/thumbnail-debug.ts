@@ -92,6 +92,7 @@ export function isFallbackThumbnail(url: string | null | undefined): boolean {
   if (!url) return false;
   const normalized = url.toLowerCase();
   return (
+    normalized.startsWith("/api/evidence-thumbnail?") ||
     /^\/evidence-thumbnails\/.+\.svg(?:$|[?#])/.test(normalized) ||
     normalized.includes("generated-preview") ||
     normalized.includes("fallback") ||

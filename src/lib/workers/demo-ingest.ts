@@ -87,10 +87,12 @@ export function normalizeBatchSlug(raw = "S26"): string {
 
 export function batchLabel(slug: string): string {
   if (/^S\d{2}$/.test(slug)) {
-    return `YC Summer 20${slug.slice(1)}`;
+    return `YC Summer 20${slug.slice(1)} (${slug})`;
   }
   const season = slug.startsWith("W") ? "Winter" : "Spring";
-  return `YC ${season} ${slug.slice(1)}`;
+  const year = slug.match(/20\d{2}/)?.[0] ?? `20${slug.replace(/^[A-Z]/, "").slice(-2)}`;
+  const suffix = season === "Spring" ? `P${year.slice(2)}` : slug.replace(/^W20/, "W");
+  return `YC ${season} ${year} (${suffix})`;
 }
 
 function companyToNode(batchSlug: string, company: DemoCompany): GraphNode {

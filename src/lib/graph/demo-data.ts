@@ -9,7 +9,7 @@ export const demoGraphDataset: DemoGraphDataset = {
   batches: [
     {
       slug: "S2026",
-      label: "YC Spring 2026",
+      label: "YC Spring 2026 (P26)",
       companyCountExpected: spring2026ExpectedCount,
       companyCountObserved: 5
     }

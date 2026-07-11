@@ -42,8 +42,8 @@ describe("score benchmarks", () => {
     expect(store.weekly).toHaveLength(1);
     expect(updatedRow?.dod.scoreDelta).toBe(5);
     expect(updatedRow?.dod.benchmarkedAt).toBe("2026-06-28T12:00:00.000Z");
-    expect(updatedRow?.wow.scoreDelta).toBe(5);
-    expect(updatedRow?.wow.benchmarkedAt).toBe("2026-06-28T12:00:00.000Z");
+    expect(updatedRow?.wow.scoreDelta).toBe(0);
+    expect(updatedRow?.wow.benchmarkedAt).toBeNull();
   });
 
   it("keeps day-over-day comparisons pinned to the previous calendar day after today's snapshot exists", () => {
@@ -133,6 +133,29 @@ describe("score benchmarks", () => {
 
     expect(row?.wow.scoreDelta).toBe(6);
     expect(row?.wow.benchmarkedAt).toBe("2026-07-02T12:00:00.000Z");
+  });
+
+  it("does not fall back to yesterday when week-over-week has no exact seven-days-prior snapshot", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const firstCompany = graph.leaderboard[0]!;
+
+    ensureBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-07-08T12:00:00.000Z")
+    });
+
+    const julyNinth = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10), {
+      storePath,
+      now: new Date("2026-07-09T12:00:00.000Z")
+    });
+    const row = julyNinth.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(row?.dod.scoreDelta).toBe(10);
+    expect(row?.dod.benchmarkedAt).toBe("2026-07-08T12:00:00.000Z");
+    expect(row?.wow.scoreDelta).toBe(0);
+    expect(row?.wow.benchmarkedAt).toBeNull();
   });
 
   it("uses the latest real prior daily snapshot when the previous calendar day is missing", () => {

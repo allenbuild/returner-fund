@@ -7,6 +7,7 @@ describe("thumbnail debug coverage", () => {
   it("treats cached PNG screenshots as real thumbnails and generated SVGs as fallback", () => {
     expect(isFallbackThumbnail("/evidence-thumbnails/instagram/heyclicky-cover.png")).toBe(false);
     expect(isFallbackThumbnail("/evidence-thumbnails/x/generated-preview.svg")).toBe(true);
+    expect(isFallbackThumbnail("/api/evidence-thumbnail?platform=x&id=example")).toBe(true);
     expect(isFallbackThumbnail("https://pbs.twimg.com/media/example.jpg")).toBe(false);
     expect(isFallbackThumbnail("https://example.com/favicon.svg")).toBe(false);
   });

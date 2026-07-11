@@ -3,25 +3,31 @@ import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("YC Summer 2026 official snapshot", () => {
-  it("defaults to YC Summer 2026 while exposing Spring 2026 in graph batch metadata", () => {
+  it("defaults to YC Spring 2026 while exposing every supported batch in graph metadata", () => {
     const graph = buildGraphResponse({}, ycSpring2026GraphDataset);
 
     expect(graph.batch).toEqual({
-      slug: "S26",
-      label: "YC Summer 2026",
-      companyCountExpected: 83,
-      companyCountObserved: 83
+      slug: "S2026",
+      label: "YC Spring 2026 (P26)",
+      companyCountExpected: 197,
+      companyCountObserved: 197
     });
     expect(graph.batches).toEqual([
       graph.batch,
       {
-        slug: "S2026",
-        label: "YC Spring 2026",
-        companyCountExpected: 197,
-        companyCountObserved: 197
+        slug: "S26",
+        label: "YC Summer 2026 (S26)",
+        companyCountExpected: 83,
+        companyCountObserved: 83
+      },
+      {
+        slug: "A16ZSR006",
+        label: "a16z Speedrun 006",
+        companyCountExpected: 59,
+        companyCountObserved: 59
       }
     ]);
-    expect(new Set(graph.nodes.map((node) => node.batchSlug))).toEqual(new Set(["S26"]));
+    expect(new Set(graph.nodes.map((node) => node.batchSlug))).toEqual(new Set(["S2026"]));
   });
 
   it("can switch back to the Spring 2026 official snapshot", () => {
@@ -30,7 +36,7 @@ describe("YC Summer 2026 official snapshot", () => {
 
     expect(graph.batch).toEqual({
       slug: "S2026",
-      label: "YC Spring 2026",
+      label: "YC Spring 2026 (P26)",
       companyCountExpected: 197,
       companyCountObserved: 197
     });
@@ -66,5 +72,17 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(graph.evidence.some((item) => item.entityType === "founder")).toBe(true);
     expect(graph.needsReview.some((item) => item.candidateUrl === "https://www.producthunt.com/products/screen-studio")).toBe(false);
     expect(JSON.stringify(graph.evidence)).not.toContain("yc-public-directory");
+  }, 30_000);
+
+  it("provides a thumbnail URL for every evidence item in YC and a16z batches", () => {
+    for (const batchSlug of ["S2026", "S26", "A16ZSR006"]) {
+      const graph = buildGraphResponse({ batchSlug }, ycSpring2026GraphDataset);
+      const missing = graph.evidence.filter((item) => !item.thumbnailUrl);
+
+      expect(
+        missing.map((item) => `${item.platform}:${item.id}`).slice(0, 20),
+        `${batchSlug} is missing thumbnails for ${missing.length} evidence items`
+      ).toEqual([]);
+    }
   }, 30_000);
 });

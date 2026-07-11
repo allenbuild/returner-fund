@@ -45,10 +45,12 @@ const platformOptions: Platform[] = [
 ];
 
 const defaultBatches = [
-  { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 },
-  { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
+  { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 },
+  { slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 83, companyCountObserved: 83 },
+  { slug: "A16ZSR006", label: "a16z Speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
 ];
-const DEFAULT_BATCH_SLUG = "S26";
+const DEFAULT_BATCH_SLUG = "S2026";
+const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
 
@@ -75,6 +77,7 @@ async function fetchGraphPayload(url: string, attempts = 3): Promise<GraphRespon
 
 interface DashboardProps {
   initialGraph?: GraphResponse;
+  initialFilters?: Partial<ClientGraphFilters>;
 }
 
 function initialSelectedNodeId(graph: GraphResponse | undefined): string | null {
@@ -101,7 +104,16 @@ function graphMatchesSelection(
   return graph?.batch.slug === batchSlug && (graph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) === topVoiceAudience;
 }
 
-export function Dashboard({ initialGraph }: DashboardProps = {}) {
+function normalizeInitialPlatforms(platforms: Platform[] | undefined): Platform[] {
+  if (!platforms?.length) {
+    return [];
+  }
+
+  const allowed = new Set(platformOptions);
+  return [...new Set(platforms.filter((platform) => allowed.has(platform)))];
+}
+
+export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {}) {
   const [batchSlug, setBatchSlug] = useState(initialGraph?.batch.slug ?? DEFAULT_BATCH_SLUG);
   const [topVoiceAudience, setTopVoiceAudience] = useState<TopVoiceAudienceId>(() => initialTopVoiceAudience(initialGraph));
   const [graph, setGraph] = useState<GraphResponse | null>(initialGraph ?? null);
@@ -113,12 +125,15 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
         : []
     )
   );
+  const prefetchInFlightRef = useRef<Set<string>>(new Set());
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(initialGraph));
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(() =>
+    normalizeInitialPlatforms(initialFilters?.platforms)
+  );
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedGroupPartners, setSelectedGroupPartners] = useState<string[]>([]);
-  const [minScore, setMinScore] = useState(0);
-  const [minScoreDraft, setMinScoreDraft] = useState(0);
+  const [minScore, setMinScore] = useState(initialFilters?.minScore ?? 0);
+  const [minScoreDraft, setMinScoreDraft] = useState(initialFilters?.minScore ?? 0);
   const [graphFocusRevision, setGraphFocusRevision] = useState(0);
   const [focusQuery, setFocusQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -208,6 +223,27 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
       }
     }
   }, [batchSlug, rememberGraph, topVoiceAudience]);
+
+  const prefetchGraph = useCallback(async (prefetchBatchSlug: string, prefetchTopVoiceAudience: TopVoiceAudienceId) => {
+    const key = graphCacheKey(prefetchBatchSlug, prefetchTopVoiceAudience);
+    if (graphCacheRef.current.has(key) || prefetchInFlightRef.current.has(key)) {
+      return;
+    }
+    prefetchInFlightRef.current.add(key);
+
+    const params = new URLSearchParams({ batch: prefetchBatchSlug });
+    if (prefetchTopVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
+      params.set("topVoices", prefetchTopVoiceAudience);
+    }
+
+    try {
+      rememberGraph(await fetchGraphPayload(`/api/graph?${params.toString()}`, 2));
+    } catch {
+      // Background warming should never interrupt the active dashboard.
+    } finally {
+      prefetchInFlightRef.current.delete(key);
+    }
+  }, [rememberGraph]);
 
   useEffect(() => {
     const cachedGraph =
@@ -352,31 +388,36 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
   const batches = filterMetadataGraph?.batches ?? graph?.batches ?? defaultBatches;
   const topVoiceAudiences = filterMetadataGraph?.topVoiceAudiences ?? graph?.topVoiceAudiences ?? defaultTopVoiceAudiences;
 
-  useEffect(() => {
-    let cancelled = false;
-
-    for (const batch of batches) {
-      if (batch.slug === batchSlug || graphCacheRef.current.has(graphCacheKey(batch.slug, topVoiceAudience))) {
+  const prefetchTopVoiceGraphs = useCallback((targetBatchSlug: string, skipAudience?: TopVoiceAudienceId) => {
+    for (const audience of topVoiceAudiences) {
+      if (audience.id === DEFAULT_TOP_VOICE_AUDIENCE || audience.id === skipAudience) {
         continue;
       }
+      void prefetchGraph(targetBatchSlug, audience.id);
+    }
+  }, [prefetchGraph, topVoiceAudiences]);
 
-      const params = new URLSearchParams({ batch: batch.slug });
-      if (topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
-        params.set("topVoices", topVoiceAudience);
+  useEffect(() => {
+    for (const batch of batches) {
+      if (batch.slug === batchSlug) {
+        continue;
       }
-      void fetchGraphPayload(`/api/graph?${params.toString()}`)
-        .then((payload) => {
-          if (!cancelled) {
-            rememberGraph(payload);
-          }
-        })
-        .catch(() => undefined);
+      void prefetchGraph(batch.slug, topVoiceAudience);
+    }
+  }, [batchSlug, batches, prefetchGraph, topVoiceAudience]);
+
+  useEffect(() => {
+    const warmTopVoices = () => prefetchTopVoiceGraphs(batchSlug, topVoiceAudience);
+    const requestIdleCallback = window.requestIdleCallback;
+    const cancelIdleCallback = window.cancelIdleCallback;
+    if (requestIdleCallback && cancelIdleCallback) {
+      const idleId = requestIdleCallback(warmTopVoices, { timeout: 1200 });
+      return () => cancelIdleCallback(idleId);
     }
 
-    return () => {
-      cancelled = true;
-    };
-  }, [batchSlug, batches, rememberGraph, topVoiceAudience]);
+    const timeoutId = window.setTimeout(warmTopVoices, 1800);
+    return () => window.clearTimeout(timeoutId);
+  }, [batchSlug, prefetchTopVoiceGraphs, topVoiceAudience]);
 
   const industryOptions = useMemo(() => {
     const byIndustry = new Map<string, { name: string; count: number; color: string }>();
@@ -529,14 +570,27 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
     Boolean(graph) &&
     (graph?.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) !== DEFAULT_TOP_VOICE_AUDIENCE &&
     topVoiceCompanyCount === 0;
+  const isA16zSpeedrunBatch = batchSlug === A16Z_SPEEDRUN_BATCH_SLUG;
+  const brandTitle = isA16zSpeedrunBatch ? "a16z Network Map" : "YC Network Map";
+  const loadingMapLabel = isA16zSpeedrunBatch ? "a16z" : "YC";
+
+  useEffect(() => {
+    document.title = brandTitle;
+  }, [brandTitle]);
 
   return (
-    <main className="dashboard">
+    <main className={`dashboard${isA16zSpeedrunBatch ? " dashboard-a16z" : ""}`}>
       <header className="topbar">
         <div className="brand-block">
-          <span className="yc-brand-mark" aria-hidden="true">Y</span>
+          {isA16zSpeedrunBatch ? (
+            <span className="a16z-brand-mark">
+              <img src="/brand/a16z-speedrun-logo.png" alt="a16z Speedrun" />
+            </span>
+          ) : (
+            <span className="yc-brand-mark" aria-hidden="true">Y</span>
+          )}
           <div>
-            <h1>YC Network Map</h1>
+            <h1>{brandTitle}</h1>
           </div>
         </div>
 
@@ -643,7 +697,12 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
           selectedValue={topVoiceAudience}
           options={topVoiceDropdownOptions}
           isOpen={openFilterMenu === "topVoices"}
-          onOpenChange={(open) => setOpenFilterMenu(open ? "topVoices" : null)}
+          onOpenChange={(open) => {
+            if (open) {
+              prefetchTopVoiceGraphs(batchSlug, topVoiceAudience);
+            }
+            setOpenFilterMenu(open ? "topVoices" : null);
+          }}
           onSelect={(value) => {
             setTopVoiceAudience(normalizeTopVoiceAudienceId(value));
             setOpenFilterMenu(null);
@@ -723,7 +782,7 @@ export function Dashboard({ initialGraph }: DashboardProps = {}) {
             />
           ) : (
             <div className="graph-empty-state">
-              <strong>{loading ? "Loading YC map..." : "Graph unavailable"}</strong>
+              <strong>{loading ? `Loading ${loadingMapLabel} map...` : "Graph unavailable"}</strong>
               <span>
                 {loading
                   ? "Fetching companies, traction evidence, filters, and graph links."

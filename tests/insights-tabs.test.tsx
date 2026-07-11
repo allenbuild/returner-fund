@@ -190,6 +190,42 @@ describe("insights tabs", () => {
     );
   });
 
+  it("uses generated thumbnails in overview rows when native media is missing or broken", () => {
+    const graph = graphResponse();
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+
+    const row = screen.getAllByRole("row")[1];
+    const img = row!.querySelector<HTMLImageElement>(".overview-post-thumbnail img");
+
+    expect(img?.getAttribute("src")).toContain("/api/evidence-thumbnail?");
+    expect(img?.getAttribute("src")).toContain("platform=x");
+    expect(row!.querySelector(".overview-post-thumbnail-fallback")).toBeNull();
+  });
+
+  it("falls through to generated overview thumbnails when a native thumbnail fails", () => {
+    const graph = graphResponse();
+    graph.leaderboard[0] = {
+      ...graph.leaderboard[0],
+      biggestContribution: {
+        ...graph.leaderboard[0].biggestContribution!,
+        thumbnailUrl: "https://pbs.twimg.com/media/expired.jpg",
+        thumbnailSource: "x-media"
+      }
+    };
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+
+    const row = screen.getAllByRole("row")[1];
+    const nativeImg = row!.querySelector<HTMLImageElement>(".overview-post-thumbnail img");
+
+    expect(nativeImg).toHaveAttribute("src", "https://pbs.twimg.com/media/expired.jpg");
+    fireEvent.error(nativeImg!);
+
+    const generatedImg = row!.querySelector<HTMLImageElement>(".overview-post-thumbnail img");
+    expect(generatedImg?.getAttribute("src")).toContain("/api/evidence-thumbnail?");
+    expect(generatedImg?.getAttribute("src")).toContain("platform=x");
+    expect(row!.querySelector(".overview-post-thumbnail-fallback")).toBeNull();
+  });
+
   it("renders only the evidence link in A16Z top-post cells", () => {
     const graph = buildGraphResponse({ batchSlug: "A16ZSR006" }, ycSpring2026GraphDataset);
     render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);

@@ -4,7 +4,7 @@ import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
 import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
-import { YC_SUMMER_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { BusinessModel, EdgeType, Platform } from "@/lib/graph/types";
 
 const platforms: Platform[] = [
@@ -39,7 +39,7 @@ const businessModels: BusinessModel[] = [
 const graphResponseCache = new Map<string, { createdAt: number; graph: ReturnType<typeof buildGraphResponse> }>();
 const GRAPH_RESPONSE_CACHE_LIMIT = 64;
 const GRAPH_RESPONSE_CACHE_TTL_MS = 60_000;
-const DEFAULT_BATCH_SLUG = YC_SUMMER_2026_BATCH_SLUG;
+const DEFAULT_BATCH_SLUG = YC_SPRING_2026_BATCH_SLUG;
 
 export function GET(request: Request) {
   const params = new URL(request.url).searchParams;

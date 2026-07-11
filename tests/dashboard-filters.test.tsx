@@ -26,6 +26,7 @@ describe("dashboard filters", () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     window.history.replaceState(null, "", "/");
+    document.title = "YC Network Map";
   });
 
   it("shows platform, industry, and group partner filters without model or edge controls", async () => {
@@ -105,7 +106,7 @@ describe("dashboard filters", () => {
     expect(screen.queryByText("Graph unavailable")).not.toBeInTheDocument();
   });
 
-  it("keeps the batch selector visible with Summer and Spring available", () => {
+  it("keeps the batch selector visible with Spring, Summer, and Speedrun available", () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
     ]);
@@ -120,12 +121,34 @@ describe("dashboard filters", () => {
     const batchSelector = screen.getByRole("combobox", { name: /batch/i }) as HTMLSelectElement;
     const options = within(batchSelector).getAllByRole("option");
 
-    expect(batchSelector).toHaveValue("S26");
-    expect(options).toHaveLength(2);
-    expect(options[0]).toHaveTextContent("YC Summer 2026");
-    expect(options[0]).toHaveValue("S26");
-    expect(options[1]).toHaveTextContent("YC Spring 2026");
-    expect(options[1]).toHaveValue("S2026");
+    expect(batchSelector).toHaveValue("S2026");
+    expect(options).toHaveLength(3);
+    expect(options[0]).toHaveTextContent("YC Spring 2026 (P26)");
+    expect(options[0]).toHaveValue("S2026");
+    expect(options[1]).toHaveTextContent("YC Summer 2026 (S26)");
+    expect(options[1]).toHaveValue("S26");
+    expect(options[2]).toHaveTextContent("a16z Speedrun 006");
+    expect(options[2]).toHaveValue("A16ZSR006");
+  });
+
+  it("uses a16z Speedrun branding when the Speedrun batch is active", async () => {
+    const speedrunGraph = graphResponse(
+      [makeNode("company:sun", "SUN", "consumer", "#76F7EF", "Partner A")],
+      { slug: "A16ZSR006", label: "a16z Speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+    );
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise(() => undefined))
+    );
+
+    const { container } = render(<Dashboard initialGraph={speedrunGraph} />);
+
+    expect(screen.getByRole("heading", { name: "a16z Network Map" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "YC Network Map" })).not.toBeInTheDocument();
+    expect(screen.getByAltText("a16z Speedrun")).toHaveAttribute("src", "/brand/a16z-speedrun-logo.png");
+    expect(container.querySelector(".dashboard-a16z")).toBeInTheDocument();
+    await waitFor(() => expect(document.title).toBe("a16z Network Map"));
   });
 
   it("fetches a URL-addressable graph when Top Voices changes", async () => {
@@ -160,7 +183,7 @@ describe("dashboard filters", () => {
     ]);
     const springGraph = graphResponse(
       [makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A", 100)],
-      { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
+      { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 }
     );
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
@@ -180,14 +203,14 @@ describe("dashboard filters", () => {
     });
     await Promise.resolve();
 
-    const callsBeforeSwitch = fetchMock.mock.calls.length;
+    const callsBeforeSwitch = fetchMock.mock.calls.map(([input]) => String(input));
     fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "S2026" } });
 
     await waitFor(() => {
       expect(within(screen.getByTestId("graph-canvas")).getByText("HeyClicky")).toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe")).not.toBeInTheDocument();
     });
-    expect(fetchMock).toHaveBeenCalledTimes(callsBeforeSwitch);
+    expect(fetchMock.mock.calls.slice(callsBeforeSwitch.length).some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
   });
 
   it("filters minimum score locally without waiting for a graph request", async () => {
@@ -221,15 +244,16 @@ describe("dashboard filters", () => {
 
 function graphResponse(
   nodes: GraphNode[],
-  batch = { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 }
+  batch = { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 }
 ): GraphResponse {
   const batchNodes = nodes.map((node) => ({ ...node, batchSlug: batch.slug }));
 
   return {
     batch,
     batches: [
-      { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 },
-      { slug: "S2026", label: "YC Spring 2026", companyCountExpected: 197, companyCountObserved: 197 }
+      { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 },
+      { slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 83, companyCountObserved: 83 },
+      { slug: "A16ZSR006", label: "a16z Speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
     ],
     nodes: batchNodes,
     edges: [],
@@ -239,6 +263,7 @@ function graphResponse(
       companyName: node.label,
       score: node.score,
       topPlatform: node.topPlatform,
+      socialAccounts: [],
       biggestContribution: null
     })),
     fastestGaining: [],

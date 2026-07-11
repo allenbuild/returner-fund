@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
-import { buildClusterPositions, buildLabelPlacements, collisionRadius } from "@/lib/graph/layout";
+import {
+  buildClusterPositions,
+  buildLabelPlacements,
+  collisionRadius,
+  estimateLabelBoxForNode,
+  labelBoxOverlapsCircle
+} from "@/lib/graph/layout";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("graph layout", () => {
@@ -43,6 +49,18 @@ describe("graph layout", () => {
     expect(labels.size).toBeGreaterThan(1);
     expect(labels.size).toBeLessThanOrEqual(12);
   });
+
+  it("keeps a16z Instagram labels off neighboring company circles", () => {
+    const graph = buildGraphResponse({ batchSlug: "A16ZSR006", platforms: ["instagram"] }, ycSpring2026GraphDataset);
+    const selected = graph.nodes.find((node) => node.label === "Clair Health") ?? graph.nodes[0];
+    const labels = assertNoLabelCircleOverlap(graph.nodes, selected.id, 52);
+    const hammock = graph.nodes.find((node) => node.label === "Hammock");
+    const sun = graph.nodes.find((node) => node.label === "SUN");
+
+    expect(hammock).toBeDefined();
+    expect(sun).toBeDefined();
+    expect(labels.size).toBeGreaterThan(0);
+  }, 20_000);
 
   it("keeps same group-partner companies visibly clustered", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
@@ -118,4 +136,54 @@ function assertNoCircleOverlap(nodes: ReturnType<typeof buildGraphResponse>["nod
       expect(distance).toBeGreaterThanOrEqual(collisionRadius(left) + collisionRadius(right) - 0.25);
     }
   }
+}
+
+function assertNoLabelCircleOverlap(
+  nodes: ReturnType<typeof buildGraphResponse>["nodes"],
+  selectedNodeId: string | null,
+  maxLabels: number
+) {
+  const positions = buildClusterPositions(nodes);
+  const labels = buildLabelPlacements(nodes, positions, selectedNodeId, maxLabels);
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const circles = nodes
+    .map((node) => {
+      const position = positions.get(node.id);
+      return position
+        ? {
+            id: node.id,
+            label: node.label,
+            x: position.x,
+            y: position.y,
+            radius: collisionRadius(node) + 4
+          }
+        : null;
+    })
+    .filter((circle): circle is { id: string; label: string; x: number; y: number; radius: number } => Boolean(circle));
+
+  for (const [nodeId, placement] of labels) {
+    const node = nodeById.get(nodeId);
+    const position = positions.get(nodeId);
+    expect(node).toBeDefined();
+    expect(position).toBeDefined();
+    if (!node || !position) {
+      continue;
+    }
+    if (node.id === selectedNodeId) {
+      continue;
+    }
+
+    const box = estimateLabelBoxForNode(node, position, placement);
+    for (const circle of circles) {
+      if (circle.id === node.id) {
+        continue;
+      }
+      expect(
+        labelBoxOverlapsCircle(box, circle),
+        `${node.label} label should not overlap ${circle.label} circle`
+      ).toBe(false);
+    }
+  }
+
+  return labels;
 }

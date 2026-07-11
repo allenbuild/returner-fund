@@ -15,7 +15,7 @@ const now = new Date("2026-06-27T18:00:00.000Z").toISOString();
 export const demoBatch: Batch = {
   id: "batch-s2026",
   slug: "S2026",
-  label: "YC Spring 2026"
+  label: "YC Spring 2026 (P26)"
 };
 
 export const demoCompanies: Company[] = [

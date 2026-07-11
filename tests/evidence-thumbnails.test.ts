@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  enrichEvidenceThumbnail,
   githubThumbnailFromUrl,
   resolveEvidenceThumbnail,
   thumbnailCandidatesFromRaw,
@@ -75,5 +76,21 @@ describe("evidence thumbnail resolution", () => {
     expect(thumbnailCandidatesFromRaw("![preview](https://example.com/preview.webp)")).toContain(
       "https://example.com/preview.webp"
     );
+  });
+
+  it("adds a generated thumbnail for scored posts without native media", () => {
+    const enriched = enrichEvidenceThumbnail({
+      id: "li-missing",
+      platform: "linkedin",
+      sourceUrl: "https://www.linkedin.com/posts/example",
+      authorName: "Acme Founder",
+      text: "Launch update from the team.",
+      contributionScore: 64
+    });
+
+    expect(enriched.thumbnailUrl).toContain("/api/evidence-thumbnail?");
+    expect(enriched.thumbnailUrl).toContain("platform=linkedin");
+    expect(enriched.thumbnailSource).toBe("generated-post-thumbnail");
+    expect(enriched.mediaUrl).toBeNull();
   });
 });

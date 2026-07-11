@@ -12,14 +12,14 @@ export interface LabelPlacement {
   marginY: number;
 }
 
-interface LayoutCircle {
+export interface LayoutCircle {
   id: string;
   x: number;
   y: number;
   radius: number;
 }
 
-interface LabelBox {
+export interface LabelBox {
   left: number;
   right: number;
   top: number;
@@ -30,6 +30,13 @@ interface LabelOption {
   placement: LabelPlacement;
   box: LabelBox;
 }
+
+export const LABEL_TEXT_MAX_WIDTH = 104;
+const LABEL_MARGIN = 12;
+const LABEL_BOX_PADDING_X = 18;
+const LABEL_BOX_PADDING_Y = 14;
+const LABEL_WIDTH_FACTOR = 0.74;
+const LABEL_LINE_HEIGHT = 1.22;
 
 export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayoutPosition> {
   const positions = new Map<string, GraphLayoutPosition>();
@@ -242,49 +249,7 @@ function addLabelIfPossible(
   const position = positions.get(node.id);
   if (!position) return;
 
-  const fontSize = labelSizeForNode(node);
-  const labelWidth = Math.min(118, Math.max(44, node.label.length * fontSize * 0.48));
-  const lineCount = Math.max(1, Math.ceil(labelWidth >= 82 ? node.label.length / 15 : node.label.length / 10));
-  const labelHeight = fontSize * (lineCount * 1.16 + 0.3);
-  const gap = collisionRadius(node) + 8;
-  const options: LabelOption[] = [
-    {
-      placement: { halign: "left", valign: "center", marginX: 8, marginY: 0 },
-      box: {
-        left: position.x + gap,
-        right: position.x + gap + labelWidth,
-        top: position.y - labelHeight / 2,
-        bottom: position.y + labelHeight / 2
-      }
-    },
-    {
-      placement: { halign: "right", valign: "center", marginX: -8, marginY: 0 },
-      box: {
-        left: position.x - gap - labelWidth,
-        right: position.x - gap,
-        top: position.y - labelHeight / 2,
-        bottom: position.y + labelHeight / 2
-      }
-    },
-    {
-      placement: { halign: "center", valign: "top", marginX: 0, marginY: 8 },
-      box: {
-        left: position.x - labelWidth / 2,
-        right: position.x + labelWidth / 2,
-        top: position.y + gap,
-        bottom: position.y + gap + labelHeight
-      }
-    },
-    {
-      placement: { halign: "center", valign: "bottom", marginX: 0, marginY: -8 },
-      box: {
-        left: position.x - labelWidth / 2,
-        right: position.x + labelWidth / 2,
-        top: position.y - gap - labelHeight,
-        bottom: position.y - gap
-      }
-    }
-  ];
+  const options = labelOptionsForNode(node, position);
 
   const match =
     options.find((option) => labelBoxFits(option.box, placedBoxes, circles, node.id)) ??
@@ -294,7 +259,64 @@ function addLabelIfPossible(
   }
 
   placements.set(node.id, match.placement);
-  placedBoxes.push(expandBox(match.box, 9));
+  placedBoxes.push(expandBox(match.box, 12));
+}
+
+function labelOptionsForNode(node: GraphNode, position: GraphLayoutPosition): LabelOption[] {
+  const placements: LabelPlacement[] = [
+    { halign: "left", valign: "center", marginX: LABEL_MARGIN, marginY: 0 },
+    { halign: "right", valign: "center", marginX: -LABEL_MARGIN, marginY: 0 },
+    { halign: "center", valign: "top", marginX: 0, marginY: LABEL_MARGIN },
+    { halign: "center", valign: "bottom", marginX: 0, marginY: -LABEL_MARGIN },
+    { halign: "left", valign: "top", marginX: LABEL_MARGIN, marginY: LABEL_MARGIN },
+    { halign: "left", valign: "bottom", marginX: LABEL_MARGIN, marginY: -LABEL_MARGIN },
+    { halign: "right", valign: "top", marginX: -LABEL_MARGIN, marginY: LABEL_MARGIN },
+    { halign: "right", valign: "bottom", marginX: -LABEL_MARGIN, marginY: -LABEL_MARGIN }
+  ];
+
+  return placements.map((placement) => ({
+    placement,
+    box: estimateLabelBoxForNode(node, position, placement)
+  }));
+}
+
+export function estimateLabelBoxForNode(
+  node: GraphNode,
+  position: GraphLayoutPosition,
+  placement: LabelPlacement
+): LabelBox {
+  const { width, height } = estimateLabelDimensions(node);
+  const horizontalGap = node.radius + Math.abs(placement.marginX);
+  const verticalGap = node.radius + Math.abs(placement.marginY);
+  const centerX =
+    placement.halign === "left"
+      ? position.x + horizontalGap + width / 2
+      : placement.halign === "right"
+        ? position.x - horizontalGap - width / 2
+        : position.x + placement.marginX;
+  const centerY =
+    placement.valign === "top"
+      ? position.y + verticalGap + height / 2
+      : placement.valign === "bottom"
+        ? position.y - verticalGap - height / 2
+        : position.y + placement.marginY;
+
+  return {
+    left: centerX - width / 2,
+    right: centerX + width / 2,
+    top: centerY - height / 2,
+    bottom: centerY + height / 2
+  };
+}
+
+function estimateLabelDimensions(node: GraphNode): { width: number; height: number } {
+  const fontSize = labelSizeForNode(node);
+  const estimatedTextWidth = Math.max(42, node.label.length * fontSize * LABEL_WIDTH_FACTOR);
+  const lineCount = Math.max(1, Math.ceil(estimatedTextWidth / LABEL_TEXT_MAX_WIDTH));
+  const width = Math.min(LABEL_TEXT_MAX_WIDTH, estimatedTextWidth) + LABEL_BOX_PADDING_X;
+  const height = fontSize * lineCount * LABEL_LINE_HEIGHT + LABEL_BOX_PADDING_Y;
+
+  return { width, height };
 }
 
 function bestFallbackLabelOption(
@@ -330,11 +352,11 @@ function labelCollisionPenalty(
 }
 
 function labelBoxFits(box: LabelBox, placedBoxes: LabelBox[], circles: LayoutCircle[], ownerId: string): boolean {
-  if (placedBoxes.some((placedBox) => boxesOverlap(expandBox(box, 9), placedBox))) {
+  if (placedBoxes.some((placedBox) => boxesOverlap(expandBox(box, 12), placedBox))) {
     return false;
   }
 
-  return !circles.some((circle) => circle.id !== ownerId && boxOverlapsCircle(expandBox(box, 6), circle));
+  return !circles.some((circle) => circle.id !== ownerId && labelBoxOverlapsCircle(expandBox(box, 8), circle));
 }
 
 function expandBox(box: LabelBox, amount: number): LabelBox {
@@ -356,7 +378,7 @@ function boxOverlapArea(left: LabelBox, right: LabelBox): number {
   return width * height;
 }
 
-function boxOverlapsCircle(box: LabelBox, circle: LayoutCircle): boolean {
+export function labelBoxOverlapsCircle(box: LabelBox, circle: LayoutCircle): boolean {
   const closestX = Math.max(box.left, Math.min(circle.x, box.right));
   const closestY = Math.max(box.top, Math.min(circle.y, box.bottom));
   return Math.hypot(circle.x - closestX, circle.y - closestY) < circle.radius;

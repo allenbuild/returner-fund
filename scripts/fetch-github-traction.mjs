@@ -1,23 +1,23 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 const root = process.cwd();
-const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
-const outputPath = join(root, "src", "lib", "social", "github-traction-summer-2026.json");
+const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
+const outputPath = resolveOutputPath(stringArg("--output") ?? stringArg("--out") ?? batchConfig.outputPath);
 const apiBase = "https://api.github.com";
 const workers = Math.max(1, Math.min(numberArg("--workers") ?? 6, 16));
 const companyLimit = numberArg("--max-companies") ?? Number.POSITIVE_INFINITY;
 const maxSearches = numberArg("--max-searches") ?? 80;
-const enableWebsiteDiscovery = process.argv.includes("--website");
-const enableSearchDiscovery = process.argv.includes("--search");
+const enableWebsiteDiscovery = hasArg("--no-website") ? false : hasArg("--website") || batchConfig.defaultWebsiteDiscovery;
+const enableSearchDiscovery = hasArg("--no-search") ? false : hasArg("--search") || batchConfig.defaultSearchDiscovery;
 
-const ycSnapshot = JSON.parse(await readFile(ycSnapshotPath, "utf8"));
-const companies = ycSnapshot.companies.slice(0, companyLimit);
+const snapshot = await batchConfig.loadSnapshot();
+const companies = snapshot.companies.slice(0, companyLimit);
 const explicitTargets = collectExplicitGithubTargets(companies);
 const discovery = await discoverGithubTargets(companies, explicitTargets);
 const githubTargets = dedupeTargets([...explicitTargets, ...discovery.targets]);
 console.log(
-  `GitHub targets: ${githubTargets.length} (${explicitTargets.length} explicit, ${discovery.targets.length} discovered, ${discovery.searchesUsed} searches).`
+  `GitHub targets for ${batchConfig.slug}: ${githubTargets.length} (${explicitTargets.length} explicit, ${discovery.targets.length} discovered, ${discovery.searchesUsed} searches).`
 );
 
 const results = [];
@@ -41,7 +41,10 @@ await runWorkerPool(githubTargets, workers, async (target) => {
 
 const payload = {
   source: {
-    label: "GitHub public API for official YC Summer 2026 GitHub links",
+    label: batchConfig.sourceLabel,
+    batchSlug: batchConfig.slug,
+    batchLabel: batchConfig.label,
+    sourcePath: batchConfig.sourcePath,
     fetchedAt: new Date().toISOString(),
     targetCount: githubTargets.length,
     fetchedCount: results.filter((result) => result.fetched).length,
@@ -53,13 +56,7 @@ const payload = {
       searchesUsed: discovery.searchesUsed,
       searchFailures: discovery.searchFailures
     },
-    notes: [
-      "Read-only public GitHub API data.",
-      "GITHUB_TOKEN is optional and only increases API rate limits; gh auth token can be exported before running.",
-      "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
-      "Only GitHub URLs explicitly listed on public YC Summer 2026 company profiles are scored by default.",
-      "GitHub search discovery is available with --search, but is disabled by default because same-name repositories need review before scoring."
-    ]
+    notes: batchConfig.notes
   },
   accounts: results.sort((a, b) => (b.aggregate?.profileScore ?? 0) - (a.aggregate?.profileScore ?? 0))
 };
@@ -76,14 +73,14 @@ function collectExplicitGithubTargets(companies) {
     if (companyGithubUrl) {
       targets.push({
         entityType: "company",
-        entityId: companyId(company),
+        entityId: batchConfig.companyId(company),
         companySlug: company.slug,
         companyName: company.name,
         name: company.name,
-        sourceUrl: company.ycProfileUrl,
+        sourceUrl: batchConfig.companyProfileUrl(company),
         githubUrl: companyGithubUrl,
-        discoverySource: "yc_profile",
-        matchReason: "GitHub URL explicitly listed on YC public company profile.",
+        discoverySource: batchConfig.explicitDiscoverySource,
+        matchReason: batchConfig.explicitCompanyMatchReason,
         ...parseGithubUrl(companyGithubUrl)
       });
     }
@@ -93,14 +90,14 @@ function collectExplicitGithubTargets(companies) {
       if (!founderGithubUrl) continue;
       targets.push({
         entityType: "founder",
-        entityId: founderId(company, founder),
+        entityId: batchConfig.founderId(company, founder),
         companySlug: company.slug,
         companyName: company.name,
         name: founder.name,
-        sourceUrl: founder.ycProfileUrl,
+        sourceUrl: batchConfig.founderProfileUrl(company, founder),
         githubUrl: founderGithubUrl,
-        discoverySource: "yc_profile",
-        matchReason: "GitHub URL explicitly listed on YC public founder profile.",
+        discoverySource: batchConfig.explicitDiscoverySource,
+        matchReason: batchConfig.explicitFounderMatchReason,
         ...parseGithubUrl(founderGithubUrl)
       });
     }
@@ -128,14 +125,14 @@ async function discoverGithubTargets(companies, explicitTargets) {
         if (!parsed.login) continue;
         targets.push({
           entityType: "company",
-          entityId: companyId(company),
+          entityId: batchConfig.companyId(company),
           companySlug: company.slug,
           companyName: company.name,
           name: company.name,
           sourceUrl: company.websiteUrl,
           githubUrl: githubUrlFromParsed(parsed),
           discoverySource: "official_website",
-          matchReason: "GitHub URL linked from the official company website.",
+          matchReason: batchConfig.websiteMatchReason,
           ...parsed
         });
         stats.websiteTargets += 1;
@@ -195,14 +192,14 @@ async function searchGithubForCompany(company, stats) {
         if (!candidateRepoMatchesCompany(company, repo)) continue;
         found.push({
           entityType: "company",
-          entityId: companyId(company),
+          entityId: batchConfig.companyId(company),
           companySlug: company.slug,
           companyName: company.name,
           name: company.name,
-          sourceUrl: company.ycProfileUrl,
+          sourceUrl: batchConfig.companyProfileUrl(company),
           githubUrl: repo.html_url,
           discoverySource: "github_search",
-          matchReason: "Conservative GitHub repository search match on company name, domain root, or homepage.",
+          matchReason: batchConfig.searchMatchReason,
           login: repo.owner?.login ?? "",
           repo: repo.name
         });
@@ -375,7 +372,7 @@ function dedupeTargets(targets) {
 }
 
 function sourceRank(source) {
-  return source === "yc_profile" ? 0 : source === "official_website" ? 1 : 2;
+  return source === batchConfig.explicitDiscoverySource ? 0 : source === "official_website" ? 1 : 2;
 }
 
 function significantTokens(value) {
@@ -409,14 +406,6 @@ function sameHost(a, b) {
   }
 }
 
-function companyId(company) {
-  return `company-${company.slug}`;
-}
-
-function founderId(company, founder) {
-  return `founder-${company.slug}-${slugify(founder.name)}-${founder.id}`;
-}
-
 function daysSince(value) {
   if (!value) return Number.POSITIVE_INFINITY;
   return (Date.now() - new Date(value).getTime()) / 86_400_000;
@@ -443,10 +432,233 @@ function numberArg(name) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function stringArg(name) {
+  return process.argv.find((arg) => arg.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
+}
+
+function hasArg(name) {
+  return process.argv.includes(name);
+}
+
+function resolveOutputPath(value) {
+  return resolve(root, value);
+}
+
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function resolveBatchConfig(value) {
+  const key = normalizeBatchKey(value);
+  const config = batchConfigs().find((candidate) =>
+    candidate.aliases.some((alias) => normalizeBatchKey(alias) === key)
+  );
+  if (!config) {
+    const supported = batchConfigs().map((candidate) => candidate.slug).join(", ");
+    throw new Error(`Unsupported --batch=${value}. Supported batches: ${supported}.`);
+  }
+  return config;
+}
+
+function batchConfigs() {
+  const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
+  const a16zDatasetPath = join(root, "src", "lib", "graph", "a16z-speedrun-006-dataset.ts");
+
+  return [
+    {
+      slug: "S26",
+      aliases: ["S26", "YC_S26", "YC_SUMMER_2026", "YC_SUMMER_2026_S26", "SUMMER_2026"],
+      label: "YC Summer 2026 (S26)",
+      sourceLabel: "GitHub public API for official YC Summer 2026 GitHub links",
+      sourcePath: relativePath(ycSnapshotPath),
+      outputPath: join(root, "src", "lib", "social", "github-traction-summer-2026.json"),
+      explicitDiscoverySource: "yc_profile",
+      explicitCompanyMatchReason: "GitHub URL explicitly listed on YC public company profile.",
+      explicitFounderMatchReason: "GitHub URL explicitly listed on YC public founder profile.",
+      websiteMatchReason: "GitHub URL linked from the official company website.",
+      searchMatchReason: "Conservative GitHub repository search match on company name, domain root, or homepage.",
+      defaultWebsiteDiscovery: false,
+      defaultSearchDiscovery: false,
+      loadSnapshot: async () => JSON.parse(await readFile(ycSnapshotPath, "utf8")),
+      companyId: (company) => `company-${company.slug}`,
+      founderId: (company, founder) => `founder-${company.slug}-${slugify(founder.name)}-${founder.id}`,
+      companyProfileUrl: (company) => company.ycProfileUrl,
+      founderProfileUrl: (_company, founder) => founder.ycProfileUrl,
+      notes: [
+        "Read-only public GitHub API data.",
+        "GITHUB_TOKEN is optional and only increases API rate limits; gh auth token can be exported before running.",
+        "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
+        "Only GitHub URLs explicitly listed on public YC Summer 2026 company profiles are scored by default.",
+        "GitHub search discovery is available with --search, but is disabled by default because same-name repositories need review before scoring."
+      ]
+    },
+    {
+      slug: "A16ZSR006",
+      aliases: ["A16ZSR006", "A16Z_SPEEDRUN_006", "A16Z_SPEEDRUN006", "A16Z_SPEEDRUN", "SPEEDRUN_006"],
+      label: "a16z Speedrun 006",
+      sourceLabel: "GitHub public API for a16z Speedrun 006 company GitHub links",
+      sourcePath: relativePath(a16zDatasetPath),
+      outputPath: join(root, "src", "lib", "social", "github-traction-a16z-speedrun-006.json"),
+      explicitDiscoverySource: "a16z_speedrun_profile",
+      explicitCompanyMatchReason: "GitHub URL explicitly listed on the a16z Speedrun 006 company profile.",
+      explicitFounderMatchReason: "GitHub URL explicitly listed on the a16z Speedrun 006 founder profile.",
+      websiteMatchReason: "GitHub URL linked from the official company website for an a16z Speedrun 006 company.",
+      searchMatchReason: "Conservative GitHub repository search match on company name, domain root, or homepage for an a16z Speedrun 006 company.",
+      defaultWebsiteDiscovery: true,
+      defaultSearchDiscovery: false,
+      loadSnapshot: () => loadA16zSpeedrun006Snapshot(a16zDatasetPath),
+      companyId: (company) => `a16z-speedrun-006-${company.slug}`,
+      founderId: (company, founder) => `a16z-speedrun-006-${company.slug}-founder-${slugifyA16z(founder.name)}`,
+      companyProfileUrl: (company) => company.ycProfileUrl,
+      founderProfileUrl: (_company, founder) => founder.ycProfileUrl,
+      notes: [
+        "Read-only public GitHub API data.",
+        "GITHUB_TOKEN is optional and only increases API rate limits; gh auth token can be exported before running.",
+        "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
+        "a16z Speedrun 006 profiles in the local graph dataset do not include explicit GitHub social links, so official company websites are scanned by default.",
+        "GitHub search discovery is available with --search for conservative same-domain or same-owner matches; use --no-website to disable official website discovery."
+      ]
+    }
+  ];
+}
+
+function normalizeBatchKey(value) {
+  return String(value ?? "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "");
+}
+
+function relativePath(path) {
+  return path.startsWith(`${root}/`) ? path.slice(root.length + 1) : path;
+}
+
+async function loadA16zSpeedrun006Snapshot(datasetPath) {
+  const source = await readFile(datasetPath, "utf8");
+  const profiles = await extractTypescriptConstArray(source, datasetPath, "speedrun006Profiles");
+  const sourceUrl = "https://speedrun.a16z.com/";
+
+  return {
+    source: {
+      directoryUrl: sourceUrl,
+      expectedCompanyCount: 59,
+      observedCompanyCount: profiles.length
+    },
+    companies: profiles.map((profile) => {
+      const companySlug = slugifyA16z(profile.name);
+      const companyUrl = `${sourceUrl}companies/${companySlug}`;
+      return {
+        id: companySlug,
+        slug: companySlug,
+        name: profile.name,
+        ycProfileUrl: companyUrl,
+        websiteUrl: profile.websiteUrl,
+        tagline: profile.tagline,
+        description: profile.tagline,
+        industry: profile.tags?.[0] ?? "",
+        subindustry: "",
+        industries: profile.tags ?? [],
+        tags: profile.tags ?? [],
+        teamSize: profile.employeeCount ?? null,
+        groupPartner: "a16z Speedrun",
+        socialLinks: {},
+        founders: (profile.founders ?? []).map((name) => ({
+          id: slugifyA16z(name),
+          name,
+          title: null,
+          bio: null,
+          ycProfileUrl: `${companyUrl}/${slugifyA16z(name)}`,
+          socialLinks: {}
+        })),
+        sourceUrls: [companyUrl, sourceUrl]
+      };
+    })
+  };
+}
+
+async function extractTypescriptConstArray(source, fileName, variableName) {
+  const tsModule = await import("typescript");
+  const ts = tsModule.default ?? tsModule;
+  const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  let initializer = null;
+
+  function visit(node) {
+    if (ts.isVariableDeclaration(node) && node.name.getText(sourceFile) === variableName) {
+      initializer = node.initializer;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+
+  if (!initializer) {
+    throw new Error(`Could not find ${variableName} in ${fileName}.`);
+  }
+  if (!ts.isArrayLiteralExpression(initializer)) {
+    throw new Error(`${variableName} in ${fileName} must be an array literal.`);
+  }
+
+  return evaluateTypescriptLiteral(initializer, ts, sourceFile);
+}
+
+function evaluateTypescriptLiteral(node, ts, sourceFile) {
+  if (ts.isArrayLiteralExpression(node)) {
+    return node.elements.map((element) => evaluateTypescriptLiteral(element, ts, sourceFile));
+  }
+
+  if (ts.isObjectLiteralExpression(node)) {
+    const object = {};
+    for (const property of node.properties) {
+      if (!ts.isPropertyAssignment(property)) {
+        throw new Error(`Unsupported object literal property in ${sourceFile.fileName}: ${property.getText(sourceFile)}`);
+      }
+      object[propertyName(property.name, ts, sourceFile)] = evaluateTypescriptLiteral(property.initializer, ts, sourceFile);
+    }
+    return object;
+  }
+
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+    return node.text;
+  }
+
+  if (ts.isNumericLiteral(node)) {
+    return Number(node.text);
+  }
+
+  if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
+  if (node.kind === ts.SyntaxKind.NullKeyword) return null;
+
+  if (ts.isPrefixUnaryExpression(node)) {
+    const value = evaluateTypescriptLiteral(node.operand, ts, sourceFile);
+    if (node.operator === ts.SyntaxKind.MinusToken) return -value;
+    if (node.operator === ts.SyntaxKind.PlusToken) return value;
+  }
+
+  if (ts.isAsExpression(node) || ts.isTypeAssertionExpression(node) || ts.isParenthesizedExpression(node)) {
+    return evaluateTypescriptLiteral(node.expression, ts, sourceFile);
+  }
+
+  throw new Error(`Unsupported TypeScript literal in ${sourceFile.fileName}: ${node.getText(sourceFile)}`);
+}
+
+function propertyName(name, ts, sourceFile) {
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) {
+    return name.text;
+  }
+  throw new Error(`Unsupported object literal key in ${sourceFile.fileName}: ${name.getText(sourceFile)}`);
+}
+
+function slugifyA16z(value) {
+  return String(value)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

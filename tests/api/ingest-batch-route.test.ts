@@ -25,7 +25,7 @@ describe("POST /api/ingest/batch", () => {
     expect(body.runId).toMatch(/^run_/);
     expect(body.errors).toEqual([]);
     expect(body.graph.batch.slug).toBe("S26");
-    expect(body.graph.batch.label).toBe("YC Summer 2026");
+    expect(body.graph.batch.label).toBe("YC Summer 2026 (S26)");
     expect(body.graph.batch.expectedCompanyCount).toBe(83);
     expect(body.graph.mode).toBe("demo");
     expect(body.graph.nodes.length).toBeGreaterThan(0);
@@ -47,7 +47,7 @@ describe("POST /api/ingest/batch", () => {
     const body = await response.json();
     expect(body.graph.batch).toMatchObject({
       slug: "S26",
-      label: "YC Summer 2026",
+      label: "YC Summer 2026 (S26)",
       expectedCompanyCount: 83
     });
   });

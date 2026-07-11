@@ -51,7 +51,7 @@ export function createDemoBatchResult(batchSlug = "S26"): YcBatchResult {
             ...demoBatch,
             id: `batch-${batchSlug.toLowerCase()}`,
             slug: batchSlug,
-            label: batchSlug === "S26" ? "YC Summer 2026" : `YC ${batchSlug}`
+            label: formatBatchLabel(batchSlug)
           },
     companies: demoCompanies,
     founders: demoFounders,
@@ -64,4 +64,15 @@ export function createDemoBatchResult(batchSlug = "S26"): YcBatchResult {
       "Demo data includes uncertain profile candidates for needs_review."
     ]
   };
+}
+
+function formatBatchLabel(batchSlug: string): string {
+  if (/^S\d{2}$/.test(batchSlug)) {
+    return `YC Summer 20${batchSlug.slice(1)} (${batchSlug})`;
+  }
+  const year = batchSlug.match(/20\d{2}/)?.[0] ?? `20${batchSlug.replace(/^[A-Z]/, "").slice(-2)}`;
+  if (batchSlug.startsWith("W")) {
+    return `YC Winter ${year} (W${year.slice(2)})`;
+  }
+  return `YC Spring ${year} (P${year.slice(2)})`;
 }

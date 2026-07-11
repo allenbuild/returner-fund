@@ -136,7 +136,9 @@ describe("YC traction scoring regressions", () => {
       evidence("product-hunt", "product_hunt", {}, 100),
       evidence("github", "github", {}, 100),
       evidence("youtube", "youtube", {}, 100),
-      evidence("hacker-news", "hacker_news", {}, 100)
+      evidence("hacker-news", "hacker_news", {}, 100),
+      evidence("reddit", "reddit", {}, 100),
+      evidence("bilibili", "bilibili", {}, 100)
     ]);
 
     expect(onePlatform.coverageFactor).toBeLessThan(allConfiguredPlatforms.coverageFactor);

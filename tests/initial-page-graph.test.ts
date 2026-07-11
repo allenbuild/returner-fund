@@ -16,7 +16,7 @@ describe("initial page graph", () => {
       const { ensureBenchmarkMomentum } = await import("@/lib/graph/benchmarks");
       const { buildGraphResponse } = await import("@/lib/graph/graph-builder");
       const { ycSpring2026GraphDataset } = await import("@/lib/graph/yc-spring-2026-dataset");
-      const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+      const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
       const firstCompany = graph.leaderboard[0]!;
 
       const persisted = ensureBenchmarkMomentum(graph, {
@@ -52,11 +52,23 @@ describe("initial page graph", () => {
     const { buildInitialPageGraph } = await import("@/lib/graph/initial-page-graph");
     const graph = buildInitialPageGraph();
 
-    expect(graph.nodes).toHaveLength(83);
-    expect(graph.leaderboard).toHaveLength(83);
-    expect(graph.fastestGaining).toHaveLength(83);
+    expect(graph.batch.slug).toBe("S2026");
+    expect(graph.nodes).toHaveLength(197);
+    expect(graph.leaderboard).toHaveLength(197);
+    expect(graph.fastestGaining).toHaveLength(197);
     expect(graph.evidence.length).toBeGreaterThan(0);
     expect(graph.evidence.length).toBeLessThanOrEqual(20);
+  });
+
+  it("honors requested batch and platform filters for direct initial page loads", async () => {
+    const { buildInitialPageGraph } = await import("@/lib/graph/initial-page-graph");
+    const graph = buildInitialPageGraph({ batchSlug: "A16ZSR006", platforms: ["youtube"] });
+
+    expect(graph.batch.slug).toBe("A16ZSR006");
+    expect(graph.nodes.some((node) => node.entityType === "company" && node.label === "SUN")).toBe(true);
+    expect(graph.nodes.some((node) => node.entityType === "company" && node.label === "HeyClicky")).toBe(false);
+    expect(graph.evidence.length).toBeGreaterThan(0);
+    expect(graph.evidence.every((item) => item.platform === "youtube")).toBe(true);
   });
 
   it("keeps leaderboard top posts available after the first client filter pass", async () => {
