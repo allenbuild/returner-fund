@@ -17,7 +17,14 @@ import {
   Users
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import type { EvidenceItem, FastestGainingRow, GraphResponse, LeaderboardRow, MomentumDelta } from "@/lib/graph/types";
+import type {
+  EvidenceItem,
+  FastestGainingRow,
+  GraphResponse,
+  LeaderboardRow,
+  MomentumDelta,
+  SocialAccountSummary
+} from "@/lib/graph/types";
 import { formatPlatform, PlatformIdentity, PlatformLogo } from "./PlatformLogo";
 
 type TabKey = "overview" | "gaining" | "settings";
@@ -154,22 +161,30 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                       )}
                     </td>
                     <td className="overview-contribution-cell">
-                      {contribution.url ? (
-                        <a
-                          className="overview-contribution-link"
-                          href={contribution.url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <ContributionThumbnail item={row.biggestContribution} />
-                          <ContributionSummary contribution={contribution} item={row.biggestContribution} />
-                        </a>
-                      ) : (
-                        <div className="overview-contribution-empty">
-                          <ContributionThumbnail item={row.biggestContribution} />
-                          <ContributionSummary contribution={contribution} item={row.biggestContribution} />
-                        </div>
-                      )}
+                      <AccountLinkList accounts={row.socialAccounts} companyName={row.companyName} />
+                      <FounderAccountLinkList founderAccounts={row.founderAccounts ?? []} companyName={row.companyName} />
+                      <div className="overview-traction-evidence">
+                        {row.biggestContribution && contribution.url ? (
+                          <a
+                            className="overview-contribution-link"
+                            href={contribution.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <ContributionThumbnail item={row.biggestContribution} />
+                            <ContributionSummary contribution={contribution} item={row.biggestContribution} />
+                          </a>
+                        ) : row.biggestContribution ? (
+                          <div className="overview-contribution-empty">
+                            <ContributionThumbnail item={row.biggestContribution} />
+                            <ContributionSummary contribution={contribution} item={row.biggestContribution} />
+                          </div>
+                        ) : (
+                          <div className="overview-contribution-empty overview-contribution-empty-inline">
+                            No traction posts yet
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -264,6 +279,68 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
         </div>
       )}
     </section>
+  );
+}
+
+function AccountLinkList({ accounts, companyName }: { accounts: SocialAccountSummary[]; companyName: string }) {
+  if (!accounts.length) {
+    return null;
+  }
+
+  return (
+    <div className="overview-account-link-list" aria-label={`${companyName} accounts`}>
+      {accounts.map((account) => (
+        <a
+          className="overview-account-link"
+          href={account.url}
+          target="_blank"
+          rel="noreferrer"
+          key={account.id}
+        >
+          <PlatformIdentity platform={account.platform} />
+          {account.handle && <span className="account-handle">/ {account.handle}</span>}
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function FounderAccountLinkList({
+  founderAccounts,
+  companyName
+}: {
+  founderAccounts: NonNullable<LeaderboardRow["founderAccounts"]>;
+  companyName: string;
+}) {
+  const accounts = founderAccounts.flatMap((founder) =>
+    founder.socialAccounts.map((account) => ({
+      founderId: founder.founderId,
+      founderName: founder.founderName,
+      account
+    }))
+  );
+
+  if (!accounts.length) {
+    return null;
+  }
+
+  return (
+    <div className="overview-account-link-list overview-founder-account-link-list" aria-label={`${companyName} founder accounts`}>
+      {accounts.map(({ founderId, founderName, account }) => (
+        <a
+          className="overview-account-link overview-founder-account-link"
+          href={account.url}
+          target="_blank"
+          rel="noreferrer"
+          key={`${founderId}-${account.id}`}
+          aria-label={`${founderName} ${formatPlatform(account.platform)} account`}
+          title={`${founderName} ${formatPlatform(account.platform)}`}
+        >
+          <PlatformIdentity platform={account.platform} />
+          {account.handle && <span className="account-handle">/ {account.handle}</span>}
+        </a>
+      ))}
+    </div>
   );
 }
 
@@ -444,7 +521,7 @@ function formatContribution(item: EvidenceItem | null): {
   author: string;
 } {
   if (!item) {
-    return { title: "No evidence", metrics: "", metricPills: [], url: null, author: "" };
+    return { title: "No traction posts yet", metrics: "", metricPills: [], url: null, author: "" };
   }
 
   return {

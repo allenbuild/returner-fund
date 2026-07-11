@@ -6,6 +6,7 @@ import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
 import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.json";
 import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 import verifiedSocialOverridesJson from "@/lib/social/verified-social-overrides.json";
+import { a16zSpeedrun006GraphDataset } from "./a16z-speedrun-006-dataset";
 import type {
   BusinessModel,
   CompanyRecord,
@@ -185,9 +186,9 @@ interface PublicNeedsReviewRecord {
 }
 
 export const YC_SUMMER_2026_BATCH_SLUG = "S26";
-export const YC_SUMMER_2026_BATCH_LABEL = "YC Summer 2026";
+export const YC_SUMMER_2026_BATCH_LABEL = "YC Summer 2026 (S26)";
 export const YC_SPRING_2026_BATCH_SLUG = "S2026";
-export const YC_SPRING_2026_BATCH_LABEL = "YC Spring 2026";
+export const YC_SPRING_2026_BATCH_LABEL = "YC Spring 2026 (P26)";
 
 const snapshot = ycSummer2026Snapshot as RawSnapshot;
 const springSnapshot = ycSpring2026Snapshot as RawSnapshot;
@@ -331,26 +332,34 @@ const springDataset = buildSpring2026GraphDataset();
 export const yc2026GraphDataset: DemoGraphDataset = {
   mode: "official_snapshot",
   batches: [
+    ...springDataset.batches,
     ...ycSummer2026GraphDataset.batches,
-    ...springDataset.batches
+    ...a16zSpeedrun006GraphDataset.batches
   ],
   companies: [
     ...ycSummer2026GraphDataset.companies,
-    ...springDataset.companies
+    ...springDataset.companies,
+    ...a16zSpeedrun006GraphDataset.companies
   ],
   founders: [
     ...ycSummer2026GraphDataset.founders,
-    ...springDataset.founders
+    ...springDataset.founders,
+    ...a16zSpeedrun006GraphDataset.founders
   ],
   evidence: [
     ...ycSummer2026GraphDataset.evidence,
-    ...springDataset.evidence
+    ...springDataset.evidence,
+    ...a16zSpeedrun006GraphDataset.evidence
   ],
   needsReview: [
     ...(ycSummer2026GraphDataset.needsReview ?? []),
-    ...(springDataset.needsReview ?? [])
+    ...(springDataset.needsReview ?? []),
+    ...(a16zSpeedrun006GraphDataset.needsReview ?? [])
   ],
-  platformStatus: ycSummer2026GraphDataset.platformStatus
+  platformStatus: [
+    ...ycSummer2026GraphDataset.platformStatus,
+    ...a16zSpeedrun006GraphDataset.platformStatus
+  ]
 };
 
 export const ycSpring2026GraphDataset = yc2026GraphDataset;

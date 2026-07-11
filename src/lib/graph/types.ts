@@ -249,6 +249,12 @@ export interface LeaderboardRow {
   companyName: string;
   score: number;
   topPlatform: Platform | null;
+  socialAccounts: SocialAccountSummary[];
+  founderAccounts?: {
+    founderId: string;
+    founderName: string;
+    socialAccounts: SocialAccountSummary[];
+  }[];
   biggestContribution: EvidenceItem | null;
   topVoiceScore?: number;
   topVoiceConnectionCount?: number;

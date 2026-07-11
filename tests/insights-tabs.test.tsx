@@ -1,7 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { InsightsTabs } from "@/components/InsightsTabs";
+import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import type { GraphResponse } from "@/lib/graph/types";
+import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("insights tabs", () => {
   it("sorts overview by rank or company and keeps contribution text compact", () => {
@@ -78,12 +80,129 @@ describe("insights tabs", () => {
 
     expect(screen.getByText("No companies have traction from this Top Voices audience yet.")).toBeInTheDocument();
   });
+
+  it("carries company social accounts onto leaderboard rows", () => {
+    const companyWithAccount = ycSpring2026GraphDataset.companies.find((company) => company.socialAccounts.length > 0);
+
+    expect(companyWithAccount).toBeDefined();
+
+    const graph = buildGraphResponse({ batchSlug: companyWithAccount!.batchSlug }, ycSpring2026GraphDataset);
+    const row = graph.leaderboard.find((item) => item.companyId === companyWithAccount!.id);
+
+    expect(row?.socialAccounts).toEqual(companyWithAccount!.socialAccounts);
+  });
+
+  it("renders canonical account links for a zero-evidence leaderboard row", () => {
+    render(
+      <InsightsTabs
+        graph={{
+          ...graphResponse(),
+          leaderboard: [
+            {
+              rank: 1,
+              companyId: "zerodrift",
+              companyName: "ZeroDrift",
+              score: 0,
+              topPlatform: null,
+              socialAccounts: [
+                {
+                  id: "account-zerodrift-x",
+                  platform: "x",
+                  handle: "zerodrift",
+                  url: "https://x.com/zerodrift",
+                  review_state: "verified",
+                  discoveredFromUrl: "https://www.ycombinator.com/companies/zerodrift",
+                  matchReason: "Seeded canonical account"
+                }
+              ],
+              biggestContribution: null
+            }
+          ]
+        }}
+        onSelectNode={vi.fn()}
+      />
+    );
+
+    const row = screen.getAllByRole("row")[1];
+    expect(within(row).getByText("No traction posts yet")).toBeInTheDocument();
+    expect(within(row).queryByText("No evidence")).not.toBeInTheDocument();
+
+    const accountLink = row.querySelector<HTMLAnchorElement>(".overview-account-link");
+    expect(accountLink).toBeTruthy();
+    expect(accountLink).toHaveAttribute("href", "https://x.com/zerodrift");
+    expect(accountLink!.href).not.toContain("ycombinator.com");
+    expect(accountLink!.href).not.toContain("speedrun");
+  });
+
+  it("renders founder account links on zero-evidence rows without mixing them into evidence", () => {
+    render(
+      <InsightsTabs
+        graph={{
+          ...graphResponse(),
+          leaderboard: [
+            {
+              rank: 1,
+              companyId: "hammock",
+              companyName: "Hammock",
+              score: 0,
+              topPlatform: null,
+              socialAccounts: [],
+              founderAccounts: [
+                {
+                  founderId: "founder-jesse-rose",
+                  founderName: "Jesse Rose",
+                  socialAccounts: [
+                    {
+                      id: "account-jesse-linkedin",
+                      platform: "linkedin",
+                      handle: "jesserose",
+                      url: "https://www.linkedin.com/in/jesserose",
+                      review_state: "verified",
+                      discoveredFromUrl: "https://speedrun.a16z.com/companies/hammock/jesse-rose",
+                      matchReason: "Native social account exposed on the founder profile"
+                    }
+                  ]
+                }
+              ],
+              biggestContribution: null
+            }
+          ]
+        }}
+        onSelectNode={vi.fn()}
+      />
+    );
+
+    const row = screen.getAllByRole("row")[1];
+    expect(within(row).getByText("No traction posts yet")).toBeInTheDocument();
+
+    const founderLink = row.querySelector<HTMLAnchorElement>(".overview-founder-account-link");
+    expect(founderLink).toBeTruthy();
+    expect(founderLink).toHaveAttribute("href", "https://www.linkedin.com/in/jesserose");
+    expect(founderLink!.href).not.toContain("speedrun.a16z.com");
+    expect(row.querySelector(".overview-contribution-link")).toBeNull();
+  });
+
+  it("keeps account buttons separate from evidence source urls", () => {
+    render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
+
+    const row = screen.getAllByRole("row")[1];
+    const accountLinks = [...row.querySelectorAll<HTMLAnchorElement>(".overview-account-link")];
+
+    expect(accountLinks.map((link) => link.href)).toEqual(["https://x.com/zetalabs"]);
+    expect(accountLinks.some((link) => link.href === "https://x.com/zetalabs/status/1")).toBe(false);
+    expect(accountLinks.some((link) => link.href.includes("ycombinator.com"))).toBe(false);
+    expect(accountLinks.some((link) => link.href.includes("speedrun"))).toBe(false);
+    expect(within(row).getByRole("link", { name: /First sentence/i })).toHaveAttribute(
+      "href",
+      "https://x.com/zetalabs/status/1"
+    );
+  });
 });
 
 function graphResponse(): GraphResponse {
   return {
-    batch: { slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 },
-    batches: [{ slug: "S26", label: "YC Summer 2026", companyCountExpected: 83, companyCountObserved: 83 }],
+    batch: { slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 83, companyCountObserved: 83 },
+    batches: [{ slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 83, companyCountObserved: 83 }],
     nodes: [],
     edges: [],
     leaderboard: [
@@ -93,6 +212,17 @@ function graphResponse(): GraphResponse {
         companyName: "Zeta Labs",
         score: 91,
         topPlatform: "x",
+        socialAccounts: [
+          {
+            id: "account-zeta-x",
+            platform: "x",
+            handle: "zetalabs",
+            url: "https://x.com/zetalabs",
+            review_state: "verified",
+            discoveredFromUrl: "https://www.ycombinator.com/companies/zeta-labs",
+            matchReason: "Seeded canonical account"
+          }
+        ],
         biggestContribution: {
           id: "evidence-a",
           entityType: "company",
@@ -116,6 +246,17 @@ function graphResponse(): GraphResponse {
         companyName: "Alpha AI",
         score: 52,
         topPlatform: "github",
+        socialAccounts: [
+          {
+            id: "account-alpha-github",
+            platform: "github",
+            handle: "alpha-ai",
+            url: "https://github.com/alpha-ai",
+            review_state: "verified",
+            discoveredFromUrl: "https://www.speedrun.com/alpha-ai",
+            matchReason: "Seeded canonical account"
+          }
+        ],
         biggestContribution: {
           id: "evidence-b",
           entityType: "company",

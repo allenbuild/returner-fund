@@ -1,0 +1,309 @@
+{
+  "source": {
+    "generatedAt": "2026-07-11T00:00:00.000Z",
+    "notes": [
+      "Seeded native social post evidence for A16Z Speedrun 006 companies when the public traction snapshot does not yet include the post."
+    ]
+  },
+  "evidence": [
+    {
+      "companySlug": "crebit",
+      "companyName": "Crebit",
+      "entityType": "founder",
+      "founderName": "Simmi Sen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/simmi-sen_crebit-founding-engineer-application-activity-7475266867537039360-QwfJ",
+      "accountUrl": "https://www.linkedin.com/in/simmi-sen",
+      "authorName": "Simmi Sen",
+      "authorHandle": "simmi-sen",
+      "postedAt": "2026-06-23T19:21:44.963Z",
+      "title": "Crebit founding engineer hiring update",
+      "text": "Simmi Sen shared a Crebit hiring update that cites a16z Speedrun, an oversubscribed seed round, payments partnerships, and growing integration demand.",
+      "mediaType": "link",
+      "metrics": {
+        "likes": 142,
+        "reactions": 142,
+        "comments": 18,
+        "reposts": 8
+      },
+      "matchReason": "Native LinkedIn post by a Crebit founder explicitly names Crebit and a16z Speedrun.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "crebit",
+      "companyName": "Crebit",
+      "entityType": "founder",
+      "founderName": "Simmi Sen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/simmi-sen_crebit-is-backed-by-a16z-speedrun-since-activity-7424504480077062144-_L5q",
+      "accountUrl": "https://www.linkedin.com/in/simmi-sen",
+      "authorName": "Simmi Sen",
+      "authorHandle": "simmi-sen",
+      "postedAt": "2026-02-03T17:30:08.673Z",
+      "title": "Crebit is backed by a16z Speedrun",
+      "text": "Simmi Sen announced that Crebit is backed by a16z Speedrun and described the company building stablecoin-native payments.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 481,
+        "reactions": 481,
+        "comments": 66
+      },
+      "matchReason": "Native LinkedIn post by a Crebit founder explicitly names Crebit and a16z Speedrun.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "crebit",
+      "companyName": "Crebit",
+      "entityType": "founder",
+      "founderName": "Simmi Sen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/simmi-sen_we-are-hiring-ten-paid-growth-interns-for-activity-7403840813530570752-U_Nm",
+      "accountUrl": "https://www.linkedin.com/in/simmi-sen",
+      "authorName": "Simmi Sen",
+      "authorHandle": "simmi-sen",
+      "postedAt": "2025-12-08T17:00:06.656Z",
+      "title": "Crebit growth intern hiring post",
+      "text": "Simmi Sen described Crebit growth, cross-border payment traction, and backing from a16z Speedrun while hiring growth interns.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 228,
+        "reactions": 228,
+        "comments": 213
+      },
+      "matchReason": "Native LinkedIn post by a Crebit founder explicitly names Crebit and a16z Speedrun.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "crebit",
+      "companyName": "Crebit",
+      "entityType": "founder",
+      "founderName": "Simmi Sen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/simmi-sen_introducing-crebit-a-faster-cheaper-way-activity-7427441319234584577-RW83",
+      "accountUrl": "https://www.linkedin.com/in/simmi-sen",
+      "authorName": "Simmi Sen",
+      "authorHandle": "simmi-sen",
+      "postedAt": "2026-02-11T20:00:05.692Z",
+      "title": "Crebit iOS launch post",
+      "text": "Simmi Sen announced Crebit's iOS launch and described public foreign exchange payment volume and customer savings.",
+      "mediaType": "video",
+      "metrics": {
+        "likes": 144,
+        "reactions": 144,
+        "comments": 17
+      },
+      "matchReason": "Native LinkedIn post by a Crebit founder names Crebit and describes company traction.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "crebit",
+      "companyName": "Crebit",
+      "entityType": "founder",
+      "founderName": "Simmi Sen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/simmi-sen_hear-from-best-of-show-winners-crebit-activity-7463657535015915520-a-JG",
+      "accountUrl": "https://www.linkedin.com/in/simmi-sen",
+      "authorName": "Simmi Sen",
+      "authorHandle": "simmi-sen",
+      "postedAt": "2026-05-22T18:30:24.399Z",
+      "title": "Crebit Finovate Best of Show post",
+      "text": "Simmi Sen shared Crebit's Finovate Best of Show recognition and linked to public discussion of the Crebit story.",
+      "mediaType": "link",
+      "metrics": {
+        "likes": 40,
+        "reactions": 40,
+        "comments": 3
+      },
+      "matchReason": "Native LinkedIn post by a Crebit founder names Crebit and public company recognition.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "acceler8",
+      "companyName": "Acceler8",
+      "entityType": "founder",
+      "founderName": "Chinmay Chauhan",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/chinmaychauhan_just-wrapped-a16z-speedrun-demo-day-last-activity-7453305802741915648-gaSm",
+      "accountUrl": "https://www.linkedin.com/in/chinmaychauhan",
+      "authorName": "Chinmay Chauhan",
+      "authorHandle": "chinmaychauhan",
+      "postedAt": "2026-04-24T04:56:19.099Z",
+      "title": "Acceler8 a16z Speedrun demo day post",
+      "text": "Chinmay Chauhan shared an Acceler8 update after a16z Speedrun demo day and described the company bringing AI into workforce planning.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 386,
+        "reactions": 386,
+        "comments": 51
+      },
+      "matchReason": "Native LinkedIn post by an Acceler8 founder explicitly names a16z Speedrun and describes Acceler8.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "hammock",
+      "companyName": "Hammock",
+      "entityType": "founder",
+      "founderName": "Jesse Rose",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/jesserose_ai-a16z-speedrun-activity-7442990067469553664-UgHd",
+      "accountUrl": "https://www.linkedin.com/in/jesserose",
+      "authorName": "Jesse Rose",
+      "authorHandle": "jesserose",
+      "postedAt": "2026-03-26T17:45:16.153Z",
+      "title": "Hammock joins a16z Speedrun",
+      "text": "Jesse Rose announced Hammock joining a16z Speedrun and described the company building AI technology for healthcare accounting workflows.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 121,
+        "reactions": 121,
+        "comments": 31
+      },
+      "matchReason": "Native LinkedIn post by a Hammock founder explicitly names Hammock and a16z Speedrun.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "hammock",
+      "companyName": "Hammock",
+      "entityType": "founder",
+      "founderName": "Will Dennis",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/williamldennis_ai-a16z-speedrun-activity-7442990082891894784-lpl4",
+      "accountUrl": "https://www.linkedin.com/in/williamldennis",
+      "authorName": "Will Dennis",
+      "authorHandle": "williamldennis",
+      "postedAt": "2026-03-26T17:45:19.830Z",
+      "title": "Hammock founder a16z Speedrun post",
+      "text": "Will Dennis announced Hammock's a16z Speedrun participation and described work on AI for healthcare accounting.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 92,
+        "reactions": 92,
+        "comments": 24
+      },
+      "matchReason": "Native LinkedIn post by a Hammock founder explicitly names Hammock and a16z Speedrun.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "alike",
+      "companyName": "Alike",
+      "entityType": "founder",
+      "founderName": "Max Van Kleek",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/max-van-kleek_tldr-were-in-a16z-speedrun-come-see-activity-7444827652613386240-H4KP",
+      "accountUrl": "https://www.linkedin.com/in/max-van-kleek",
+      "authorName": "Max Van Kleek",
+      "authorHandle": "max-van-kleek",
+      "postedAt": "2026-03-31T19:27:10.592Z",
+      "title": "Alike a16z Speedrun update",
+      "text": "Max Van Kleek shared Alike's a16z Speedrun participation and a founder update about the company.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 115,
+        "reactions": 115,
+        "comments": 18
+      },
+      "matchReason": "Native LinkedIn post by an Alike founder explicitly names a16z Speedrun and references Alike founder activity.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "bota",
+      "companyName": "Bota",
+      "entityType": "founder",
+      "founderName": "Ruming Zhen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/zhenruming_today-were-officially-launching-bota-backed-activity-7441876103092330498-dv4O",
+      "accountUrl": "https://www.linkedin.com/in/zhenruming",
+      "authorName": "Ruming Zhen",
+      "authorHandle": "zhenruming",
+      "postedAt": "2026-03-23T15:58:46.349Z",
+      "title": "Bota launch and a16z Speedrun backing post",
+      "text": "Ruming Zhen announced Bota's launch and described backing from a16z Speedrun and the company's developer platform for accounting.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 100,
+        "reactions": 100,
+        "comments": 29
+      },
+      "matchReason": "Native LinkedIn post by a Bota founder explicitly names Bota and a16z Speedrun.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "amdahl",
+      "companyName": "Amdahl",
+      "entityType": "founder",
+      "founderName": "Annette Sung",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/annette-sung-baa36042_were-thrilled-to-announce-that-amdahl-has-activity-7437165172181417984-3rPg",
+      "accountUrl": "https://www.linkedin.com/in/annette-sung-baa36042",
+      "authorName": "Annette Sung",
+      "authorHandle": "annette-sung-baa36042",
+      "postedAt": "2026-03-10T15:59:12.895Z",
+      "title": "Amdahl a16z Speedrun announcement",
+      "text": "Annette Sung announced Amdahl's a16z Speedrun participation and described the company's work on context for GTM systems.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 96,
+        "reactions": 96,
+        "comments": 13
+      },
+      "matchReason": "Native LinkedIn post by an Amdahl founder explicitly names Amdahl and a16z Speedrun.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "loops-ai",
+      "companyName": "Loops AI",
+      "entityType": "company",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/loopsai_ai-a16z-speedrun-activity-7450359805304782848-HYmI",
+      "accountUrl": "https://www.linkedin.com/company/loopsai",
+      "authorName": "Loops AI",
+      "authorHandle": "loopsai",
+      "postedAt": "2026-04-16T01:49:58.576Z",
+      "title": "Loops AI a16z Speedrun post",
+      "text": "Loops AI shared an a16z Speedrun update from its company LinkedIn account.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 28,
+        "reactions": 28,
+        "comments": 2
+      },
+      "matchReason": "Native LinkedIn company post explicitly names a16z Speedrun.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "hotbox",
+      "companyName": "Hotbox",
+      "entityType": "founder",
+      "founderName": "Harpriya Bagri",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/harpriya_what-a-week-at-a16z-speedrun-in-san-francisco-activity-7448045636349775872-R-MR",
+      "accountUrl": "https://www.linkedin.com/in/harpriya",
+      "authorName": "Harpriya Bagri",
+      "authorHandle": "harpriya",
+      "postedAt": "2026-04-09T16:34:17.702Z",
+      "title": "Hotbox founder a16z Speedrun post",
+      "text": "Harpriya Bagri shared a Hotbox founder update from a16z Speedrun in San Francisco.",
+      "mediaType": "image",
+      "metrics": {
+        "likes": 54,
+        "reactions": 54,
+        "comments": 7
+      },
+      "matchReason": "Native LinkedIn post by a Hotbox founder references a16z Speedrun and founder activity.",
+      "why": "Seeded from public LinkedIn post evidence visible outside the app.",
+      "review_state": "verified"
+    }
+  ]
+}

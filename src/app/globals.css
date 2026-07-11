@@ -2625,6 +2625,65 @@ td button {
   line-height: 1.2;
 }
 
+.overview-account-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 7px;
+  min-width: 0;
+}
+
+.overview-founder-account-link-list {
+  margin-top: -2px;
+}
+
+.overview-account-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 160px;
+  min-height: 24px;
+  padding: 2px 7px;
+  border: 1px solid rgba(231, 227, 220, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--neutral-700);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.overview-founder-account-link {
+  border-color: rgba(255, 102, 0, 0.2);
+  background: rgba(255, 247, 240, 0.72);
+}
+
+.overview-account-link .platform-logo {
+  width: 14px;
+  height: 14px;
+}
+
+.overview-account-link .platform-identity {
+  min-width: 0;
+}
+
+.overview-account-link .platform-identity span,
+.overview-account-link .account-handle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-account-link:hover,
+.overview-account-link:focus-visible {
+  border-color: rgba(255, 102, 0, 0.28);
+  background: #fff7f0;
+}
+
+.overview-traction-evidence {
+  min-width: 0;
+}
+
 .overview-contribution-link,
 .overview-contribution-empty {
   display: grid;
@@ -2635,6 +2694,17 @@ td button {
   min-width: 0;
   color: inherit;
   text-decoration: none;
+}
+
+.overview-contribution-empty-inline {
+  display: inline-flex;
+  width: auto;
+  min-height: 28px;
+  align-items: center;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
 }
 
 .overview-contribution-link:hover,

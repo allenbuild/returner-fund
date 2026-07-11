@@ -44,11 +44,11 @@ function trimInitialEvidence(graph: GraphResponse): GraphResponse {
     nodes: graph.nodes.map((node) => ({
       ...node,
       scoreBreakdown: node.id === selectedNodeId ? node.scoreBreakdown : undefined,
-      socialAccounts: node.id === selectedNodeId ? node.socialAccounts : [],
+      socialAccounts: node.entityType === "company" || node.entityType === "founder" ? node.socialAccounts : [],
       evidenceIds: node.id === selectedNodeId ? node.evidenceIds.filter((id) => availableEvidenceIds.has(id)) : [],
       founders: node.founders.map((founder) => ({
         ...founder,
-        socialAccounts: node.id === selectedNodeId ? founder.socialAccounts : [],
+        socialAccounts: founder.socialAccounts,
         evidenceIds: node.id === selectedNodeId
           ? founder.evidenceIds.filter((id) => availableEvidenceIds.has(id))
           : [],

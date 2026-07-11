@@ -144,7 +144,7 @@ export function buildGraphResponse(
     batches: dataset.batches,
     nodes,
     edges,
-    leaderboard: buildLeaderboard(visibleCompanies, visibleEvidence),
+    leaderboard: buildLeaderboard(visibleCompanies, visibleEvidence, foundersByCompany),
     fastestGaining: buildFastestGaining(visibleCompanies),
     needsReview: [
       ...buildReviewItems(visibleCompanies, batchFounders, {
@@ -276,7 +276,7 @@ function companyToNode(
 ): GraphNode {
   const companyEvidence = evidenceByEntity.get(entityKey("company", company.id)) ?? [];
   const founderSummaries = founders.map((founder) => founderSummary(founder, evidenceByEntity));
-  const companySocialAccounts = dedupeCompanyAccountsAgainstFounders(company.socialAccounts, founderSummaries);
+  const companySocialAccounts = company.socialAccounts;
   const reviewStateCounts = countReviewStates(companySocialAccounts);
   const evidenceIds = [
     ...companyEvidence.map((item) => item.id),
@@ -317,51 +317,6 @@ function companyToNode(
     topVoiceConnections: company.topVoiceConnections,
     selectedTopVoiceAudience: company.selectedTopVoiceAudience
   };
-}
-
-function dedupeCompanyAccountsAgainstFounders(
-  companyAccounts: CompanyRecord["socialAccounts"],
-  founders: FounderSummary[]
-): CompanyRecord["socialAccounts"] {
-  const founderAccountKeys = new Set(
-    founders.flatMap((founder) => founder.socialAccounts.map(canonicalSocialAccountKey))
-  );
-  const seen = new Set<string>();
-  const deduped: CompanyRecord["socialAccounts"] = [];
-
-  for (const account of companyAccounts) {
-    const key = canonicalSocialAccountKey(account);
-    if (founderAccountKeys.has(key) || seen.has(key)) {
-      continue;
-    }
-    seen.add(key);
-    deduped.push(account);
-  }
-
-  return deduped;
-}
-
-function canonicalSocialAccountKey(account: CompanyRecord["socialAccounts"][number]): string {
-  return `${account.platform}:${canonicalSocialAccountPart(account.url, account.handle)}`;
-}
-
-function canonicalSocialAccountPart(rawUrl: string, handle: string | null): string {
-  try {
-    const url = new URL(rawUrl);
-    url.hash = "";
-    url.search = "";
-    url.hostname = url.hostname.replace(/^www\./, "").toLowerCase();
-    if (url.hostname === "twitter.com" || url.hostname === "mobile.twitter.com") {
-      url.hostname = "x.com";
-    }
-    url.pathname = url.pathname.replace(/\/$/, "");
-    return url.toString();
-  } catch {
-    return String(handle ?? "")
-      .toLowerCase()
-      .replace(/^@/, "")
-      .trim();
-  }
 }
 
 function founderSummary(founder: FounderRecord, evidenceByEntity: Map<string, EvidenceItem[]>): FounderSummary {
@@ -421,7 +376,11 @@ function nodeMatchesFilters(
   return true;
 }
 
-function buildLeaderboard(companies: CompanyRecord[], evidence: EvidenceItem[]): LeaderboardRow[] {
+function buildLeaderboard(
+  companies: CompanyRecord[],
+  evidence: EvidenceItem[],
+  foundersByCompany: Map<string, FounderRecord[]>
+): LeaderboardRow[] {
   const evidenceByCompany = groupCompanyRollupEvidence(
     companies,
     evidence.filter((item) => item.contributionScore > 0)
@@ -435,6 +394,12 @@ function buildLeaderboard(companies: CompanyRecord[], evidence: EvidenceItem[]):
       companyName: company.name,
       score: company.totalScore,
       topPlatform: getWeightedTopPlatform(company),
+      socialAccounts: company.socialAccounts,
+      founderAccounts: (foundersByCompany.get(company.id) ?? []).map((founder) => ({
+        founderId: founder.id,
+        founderName: founder.name,
+        socialAccounts: founder.socialAccounts
+      })),
       biggestContribution: evidenceByCompany.get(company.id)?.[0] ?? null,
       topVoiceScore: company.topVoiceScore,
       topVoiceConnectionCount: company.topVoiceConnectionCount,
