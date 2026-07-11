@@ -61,13 +61,13 @@ function isAbortError(error: unknown): boolean {
 async function fetchGraphPayload(
   url: string,
   attempts = 3,
-  options: { signal?: AbortSignal } = {}
+  options: { cache?: RequestCache; signal?: AbortSignal } = {}
 ): Promise<GraphResponse> {
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const response = await fetch(url, { cache: "no-store", signal: options.signal });
+      const response = await fetch(url, { cache: options.cache ?? "no-store", signal: options.signal });
       if (!response.ok) {
         throw new Error(`Graph request failed with ${response.status}`);
       }
@@ -88,12 +88,27 @@ async function fetchGraphPayload(
 
 interface DashboardProps {
   initialGraph?: GraphResponse;
+  initialBatchSlug?: string;
   initialFilters?: Partial<ClientGraphFilters>;
 }
 
 function initialSelectedNodeId(graph: GraphResponse | undefined): string | null {
   const topCompanyId = graph?.leaderboard[0]?.companyId;
   return topCompanyId ? `company:${topCompanyId}` : graph?.nodes[0]?.id ?? null;
+}
+
+function initialBatchSlug(graph: GraphResponse | undefined, batchSlug: string | undefined): string {
+  const propBatchSlug = normalizeBatchSlug(batchSlug);
+  if (propBatchSlug) {
+    return propBatchSlug;
+  }
+  if (typeof window !== "undefined") {
+    const urlBatchSlug = normalizeBatchSlug(new URLSearchParams(window.location.search).get("batch"));
+    if (urlBatchSlug) {
+      return urlBatchSlug;
+    }
+  }
+  return graph?.batch.slug ?? DEFAULT_BATCH_SLUG;
 }
 
 function initialTopVoiceAudience(graph: GraphResponse | undefined): TopVoiceAudienceId {
@@ -124,8 +139,40 @@ function normalizeInitialPlatforms(platforms: Platform[] | undefined): Platform[
   return [...new Set(platforms.filter((platform) => allowed.has(platform)))];
 }
 
-export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {}) {
-  const [batchSlug, setBatchSlug] = useState(initialGraph?.batch.slug ?? DEFAULT_BATCH_SLUG);
+function initialSelectedPlatforms(initialFilters: Partial<ClientGraphFilters> | undefined): Platform[] {
+  const propPlatforms = normalizeInitialPlatforms(initialFilters?.platforms);
+  if (propPlatforms.length || typeof window === "undefined") {
+    return propPlatforms;
+  }
+
+  return normalizeInitialPlatforms(
+    new URLSearchParams(window.location.search)
+      .get("platforms")
+      ?.split(",")
+      .map((item) => item.trim() as Platform)
+  );
+}
+
+function normalizeBatchSlug(value: string | null | undefined): string | null {
+  const slug = String(value ?? "").trim();
+  return defaultBatches.some((batch) => batch.slug === slug) ? slug : null;
+}
+
+function staticGraphSnapshotUrl(batchSlug: string, topVoiceAudience: TopVoiceAudienceId): string | null {
+  if (topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
+    return null;
+  }
+  const filenames: Record<string, string> = {
+    A16ZSR006: "a16zsr006.json",
+    S2026: "s2026.json",
+    S26: "s26.json"
+  };
+  const filename = filenames[batchSlug];
+  return filename ? `/graph/${filename}` : null;
+}
+
+export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp, initialFilters }: DashboardProps = {}) {
+  const [batchSlug, setBatchSlug] = useState(() => initialBatchSlug(initialGraph, initialBatchSlugProp));
   const [topVoiceAudience, setTopVoiceAudience] = useState<TopVoiceAudienceId>(() => initialTopVoiceAudience(initialGraph));
   const [graph, setGraph] = useState<GraphResponse | null>(initialGraph ?? null);
   const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(initialGraph ?? null);
@@ -138,9 +185,7 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
   );
   const prefetchInFlightRef = useRef<Set<string>>(new Set());
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(initialGraph));
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(() =>
-    normalizeInitialPlatforms(initialFilters?.platforms)
-  );
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(() => initialSelectedPlatforms(initialFilters));
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedGroupPartners, setSelectedGroupPartners] = useState<string[]>([]);
   const [minScore, setMinScore] = useState(initialFilters?.minScore ?? 0);
@@ -214,7 +259,11 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
       params.set("groupPartners", requestFilters.groupPartners.join(","));
     }
     try {
-      const payload = await fetchGraphPayload(`/api/graph?${params.toString()}`, 3, { signal: controller.signal });
+      const staticSnapshotUrl = options.unfiltered ? staticGraphSnapshotUrl(batchSlug, topVoiceAudience) : null;
+      const payload = await fetchGraphPayload(staticSnapshotUrl ?? `/api/graph?${params.toString()}`, 3, {
+        cache: staticSnapshotUrl ? "force-cache" : "no-store",
+        signal: controller.signal
+      });
       if (options.unfiltered) {
         rememberGraph(payload);
       }
@@ -258,7 +307,12 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
     }
 
     try {
-      rememberGraph(await fetchGraphPayload(`/api/graph?${params.toString()}`, 2));
+      const staticSnapshotUrl = staticGraphSnapshotUrl(prefetchBatchSlug, prefetchTopVoiceAudience);
+      rememberGraph(
+        await fetchGraphPayload(staticSnapshotUrl ?? `/api/graph?${params.toString()}`, 2, {
+          cache: staticSnapshotUrl ? "force-cache" : "no-store"
+        })
+      );
     } catch {
       // Background warming should never interrupt the active dashboard.
     } finally {
@@ -454,19 +508,6 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
     const timeoutId = window.setTimeout(warmBatch, 2400);
     return () => window.clearTimeout(timeoutId);
   }, [batchSlug, batches, graph, prefetchGraph, topVoiceAudience]);
-
-  useEffect(() => {
-    const warmTopVoices = () => prefetchTopVoiceGraphs(batchSlug, topVoiceAudience);
-    const requestIdleCallback = window.requestIdleCallback;
-    const cancelIdleCallback = window.cancelIdleCallback;
-    if (requestIdleCallback && cancelIdleCallback) {
-      const idleId = requestIdleCallback(warmTopVoices, { timeout: 1200 });
-      return () => cancelIdleCallback(idleId);
-    }
-
-    const timeoutId = window.setTimeout(warmTopVoices, 1800);
-    return () => window.clearTimeout(timeoutId);
-  }, [batchSlug, prefetchTopVoiceGraphs, topVoiceAudience]);
 
   const industryOptions = useMemo(() => {
     const byIndustry = new Map<string, { name: string; count: number; color: string }>();

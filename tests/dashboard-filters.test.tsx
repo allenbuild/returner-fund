@@ -196,7 +196,7 @@ describe("dashboard filters", () => {
       const url = String(input);
       return {
         ok: true,
-        json: async () => (url.includes("batch=A16ZSR006") ? speedrunGraph : springGraph)
+        json: async () => (url.includes("a16zsr006") || url.includes("batch=A16ZSR006") ? speedrunGraph : springGraph)
       };
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -205,7 +205,7 @@ describe("dashboard filters", () => {
 
     expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
     await waitFor(() => {
-      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("batch=A16ZSR006"))).toBe(true);
+      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/graph/a16zsr006.json"))).toBe(true);
     });
     await Promise.resolve();
 
@@ -216,7 +216,11 @@ describe("dashboard filters", () => {
       expect(within(screen.getByTestId("graph-canvas")).getByText("SUN")).toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe")).not.toBeInTheDocument();
     });
-    expect(fetchMock.mock.calls.slice(callsBeforeSwitch.length).some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")).toBe(false);
+    expect(
+      fetchMock.mock.calls
+        .slice(callsBeforeSwitch.length)
+        .some(([input]) => String(input) === "/graph/a16zsr006.json" || String(input) === "/api/graph?batch=A16ZSR006")
+    ).toBe(false);
   });
 
   it("filters minimum score locally without waiting for a graph request", async () => {

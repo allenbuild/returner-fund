@@ -38,7 +38,9 @@ describe("EvidenceMediaCard", () => {
       "3.7M views / 14K likes / 935 comments / 1,500 reposts"
     );
     expect(container.querySelector(".evidence-media-card")).toHaveAttribute("href", item.sourceUrl);
-    expect(container.querySelector("img")).toHaveAttribute("src", item.thumbnailUrl);
+    const imageSrc = container.querySelector("img")?.getAttribute("src");
+    expect(imageSrc).toMatch(/^data:image\/svg\+xml/);
+    expect(decodeDataImage(imageSrc)).toContain(">X<");
     expect(screen.queryByText(/raw/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/normalized/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/first seen/i)).not.toBeInTheDocument();
@@ -67,15 +69,15 @@ describe("EvidenceMediaCard", () => {
     const { container } = render(<EvidenceMediaCard item={item} />);
 
     const img = container.querySelector("img");
-    expect(img?.getAttribute("src")).toContain("/api/evidence-thumbnail?");
-    expect(img?.getAttribute("src")).toContain("platform=github");
+    expect(img?.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
+    expect(decodeDataImage(img?.getAttribute("src"))).toContain("GitHub");
     expect(screen.queryByRole("img", { name: "GitHub logo" })).not.toBeInTheDocument();
     expect(screen.getAllByText(/1,200 stars/).length).toBeGreaterThan(0);
     expect(screen.getAllByText("acme/widgets: GitHub repository.").length).toBeGreaterThan(0);
     expect(screen.queryByText(/preview pending/i)).not.toBeInTheDocument();
   });
 
-  it("falls through to a generated thumbnail when a native image fails", () => {
+  it("falls through to native media if a generated thumbnail fails", () => {
     const item: EvidenceItem = {
       id: "ev-broken-native",
       entityType: "company",
@@ -95,18 +97,17 @@ describe("EvidenceMediaCard", () => {
     };
 
     const { container } = render(<EvidenceMediaCard item={item} />);
-    const nativeImg = container.querySelector("img");
-
-    expect(nativeImg).toHaveAttribute("src", item.thumbnailUrl);
-    fireEvent.error(nativeImg!);
-
     const generatedImg = container.querySelector("img");
-    expect(generatedImg?.getAttribute("src")).toContain("/api/evidence-thumbnail?");
-    expect(generatedImg?.getAttribute("src")).toContain("platform=instagram");
+
+    expect(generatedImg?.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
+    fireEvent.error(generatedImg!);
+
+    const nativeImg = container.querySelector("img");
+    expect(nativeImg).toHaveAttribute("src", item.thumbnailUrl);
     expect(container.querySelector(".evidence-thumbnail-fallback")).not.toBeInTheDocument();
   });
 
-  it("renders Instagram CDN covers instead of blocking them as placeholders", () => {
+  it("uses generated thumbnails before Instagram CDN covers", () => {
     const item: EvidenceItem = {
       id: "ev-instagram-cover",
       entityType: "founder",
@@ -128,7 +129,14 @@ describe("EvidenceMediaCard", () => {
 
     const { container } = render(<EvidenceMediaCard item={item} />);
 
-    expect(container.querySelector("img")).toHaveAttribute("src", item.thumbnailUrl);
+    const imageSrc = container.querySelector("img")?.getAttribute("src");
+    expect(imageSrc).toMatch(/^data:image\/svg\+xml/);
+    expect(decodeDataImage(imageSrc)).toContain("Instagram");
     expect(screen.queryByText(/cover blocked/i)).not.toBeInTheDocument();
   });
 });
+
+function decodeDataImage(value: string | null | undefined): string {
+  const payload = value?.split(",")[1] ?? "";
+  return decodeURIComponent(payload);
+}

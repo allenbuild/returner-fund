@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { generatedEvidenceThumbnailUrl } from "@/lib/graph/generated-evidence-thumbnail";
+import {
+  generatedEvidenceThumbnailDataUri,
+  generatedEvidenceThumbnailUrl
+} from "@/lib/graph/generated-evidence-thumbnail";
 import type { EvidenceItem } from "@/lib/graph/types";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
 
@@ -71,11 +74,21 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
 }
 
 function thumbnailUrlCandidates(item: EvidenceItem): string[] {
-  return uniqueStrings([item.thumbnailUrl, generatedEvidenceThumbnailUrl(item)]);
+  const generatedDataUri = generatedEvidenceThumbnailDataUri(item);
+  const generatedUrl = generatedEvidenceThumbnailUrl(item);
+  return uniqueStrings(
+    isLocalStaticThumbnail(item.thumbnailUrl)
+      ? [item.thumbnailUrl, generatedDataUri, generatedUrl]
+      : [generatedDataUri, item.thumbnailUrl, generatedUrl]
+  );
 }
 
 function uniqueStrings(values: Array<string | null | undefined>): string[] {
   return values.filter((value, index): value is string => Boolean(value) && values.indexOf(value) === index);
+}
+
+function isLocalStaticThumbnail(value: string | null | undefined): boolean {
+  return Boolean(value?.startsWith("/evidence-thumbnails/"));
 }
 
 function evidenceSnippet(item: EvidenceItem): string {
