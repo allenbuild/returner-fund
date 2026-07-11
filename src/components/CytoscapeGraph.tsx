@@ -743,11 +743,6 @@ export function CytoscapeGraph({
               "border-style": "solid",
               "border-width": 3,
               "overlay-opacity": 0,
-              "shadow-blur": 10,
-              "shadow-color": "#0f172a",
-              "shadow-opacity": 0.14,
-              "shadow-offset-x": 0,
-              "shadow-offset-y": 2,
               "transition-property": "border-width, opacity, width, height",
               "transition-duration": "120ms"
             }
@@ -760,7 +755,7 @@ export function CytoscapeGraph({
             }
           },
           {
-            selector: "node:hover",
+            selector: "node.hovered",
             style: {
               label: "data(fullLabel)",
               "text-background-opacity": 1,
@@ -863,8 +858,16 @@ export function CytoscapeGraph({
             setCyReadyRevision((current) => current + 1);
           }
           cy.removeListener("tap", "node");
+          cy.removeListener("mouseover", "node");
+          cy.removeListener("mouseout", "node");
           cy.on("tap", "node", (event) => {
             onSelectNode(event.target.id());
+          });
+          cy.on("mouseover", "node", (event) => {
+            event.target.addClass("hovered");
+          });
+          cy.on("mouseout", "node", (event) => {
+            event.target.removeClass("hovered");
           });
           cy.nodes().lock();
           cy.autoungrabify(true);
