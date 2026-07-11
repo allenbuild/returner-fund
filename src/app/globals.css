@@ -1923,6 +1923,10 @@ progress::-webkit-progress-value {
   white-space: nowrap;
 }
 
+.dashboard-a16z .evidence-card-stats {
+  color: var(--overview-hover-text);
+}
+
 .contribution-pill {
   position: absolute;
   top: 12px;
