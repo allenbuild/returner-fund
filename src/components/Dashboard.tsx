@@ -54,17 +54,28 @@ const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
 
-async function fetchGraphPayload(url: string, attempts = 3): Promise<GraphResponse> {
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
+async function fetchGraphPayload(
+  url: string,
+  attempts = 3,
+  options: { signal?: AbortSignal } = {}
+): Promise<GraphResponse> {
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const response = await fetch(url, { cache: "no-store" });
+      const response = await fetch(url, { cache: "no-store", signal: options.signal });
       if (!response.ok) {
         throw new Error(`Graph request failed with ${response.status}`);
       }
       return (await response.json()) as GraphResponse;
     } catch (caught) {
+      if (isAbortError(caught) || options.signal?.aborted) {
+        throw caught;
+      }
       lastError = caught instanceof Error ? caught : new Error("Graph request failed");
       if (attempt < attempts) {
         await new Promise((resolve) => window.setTimeout(resolve, 220 * attempt));
@@ -146,6 +157,7 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
   const filterBandRef = useRef<HTMLElement | null>(null);
   const dashboardGridRef = useRef<HTMLElement | null>(null);
   const graphRequestIdRef = useRef(0);
+  const activeGraphAbortRef = useRef<AbortController | null>(null);
   const actionRequestIdRef = useRef(0);
   const initialGraphHydratedRef = useRef(Boolean(initialGraph));
   const currentFilters = useMemo<ClientGraphFilters>(
@@ -181,6 +193,9 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
       setLoading(true);
     }
     setError(null);
+    activeGraphAbortRef.current?.abort();
+    const controller = new AbortController();
+    activeGraphAbortRef.current = controller;
 
     const params = new URLSearchParams({ batch: batchSlug });
     if (topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
@@ -199,7 +214,7 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
       params.set("groupPartners", requestFilters.groupPartners.join(","));
     }
     try {
-      const payload = await fetchGraphPayload(`/api/graph?${params.toString()}`);
+      const payload = await fetchGraphPayload(`/api/graph?${params.toString()}`, 3, { signal: controller.signal });
       if (options.unfiltered) {
         rememberGraph(payload);
       }
@@ -214,10 +229,16 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
       if (requestId !== graphRequestIdRef.current) {
         return;
       }
+      if (isAbortError(caught) || controller.signal.aborted) {
+        return;
+      }
       if (!background) {
         setError(caught instanceof Error ? caught.message : "Graph request failed");
       }
     } finally {
+      if (activeGraphAbortRef.current === controller) {
+        activeGraphAbortRef.current = null;
+      }
       if (!background && requestId === graphRequestIdRef.current) {
         setLoading(false);
       }
@@ -246,6 +267,13 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
   }, [rememberGraph]);
 
   useEffect(() => {
+    return () => {
+      activeGraphAbortRef.current?.abort();
+      activeGraphAbortRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     const cachedGraph =
       graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
         ? filterMetadataGraph
@@ -268,7 +296,10 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
         topVoiceAudience === (initialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE)
       ) {
         initialGraphHydratedRef.current = false;
-        void fetchGraph({ background: true, unfiltered: true });
+        const timeoutId = window.setTimeout(() => {
+          void fetchGraph({ background: true, unfiltered: true });
+        }, 1400);
+        return () => window.clearTimeout(timeoutId);
       }
       return;
     }
@@ -398,13 +429,31 @@ export function Dashboard({ initialGraph, initialFilters }: DashboardProps = {})
   }, [prefetchGraph, topVoiceAudiences]);
 
   useEffect(() => {
-    for (const batch of batches) {
-      if (batch.slug === batchSlug) {
-        continue;
-      }
-      void prefetchGraph(batch.slug, topVoiceAudience);
+    if (!graph) {
+      return;
     }
-  }, [batchSlug, batches, prefetchGraph, topVoiceAudience]);
+    if (batchSlug === A16Z_SPEEDRUN_BATCH_SLUG) {
+      return;
+    }
+    const batchSlugs = new Set(batches.map((batch) => batch.slug));
+    const prefetchBatchSlug = A16Z_SPEEDRUN_BATCH_SLUG;
+    if (!batchSlugs.has(prefetchBatchSlug)) {
+      return;
+    }
+
+    const warmBatch = () => {
+      void prefetchGraph(prefetchBatchSlug, topVoiceAudience);
+    };
+    const requestIdleCallback = window.requestIdleCallback;
+    const cancelIdleCallback = window.cancelIdleCallback;
+    if (requestIdleCallback && cancelIdleCallback) {
+      const idleId = requestIdleCallback(warmBatch, { timeout: 2800 });
+      return () => cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = window.setTimeout(warmBatch, 2400);
+    return () => window.clearTimeout(timeoutId);
+  }, [batchSlug, batches, graph, prefetchGraph, topVoiceAudience]);
 
   useEffect(() => {
     const warmTopVoices = () => prefetchTopVoiceGraphs(batchSlug, topVoiceAudience);

@@ -177,40 +177,46 @@ describe("dashboard filters", () => {
     expect(window.location.search).toContain("topVoices=yc_partners");
   });
 
-  it("switches to a prefetched Spring graph without waiting for another graph request", async () => {
-    const summerGraph = graphResponse([
+  it("switches to a prefetched Speedrun graph without waiting for another graph request", async () => {
+    vi.stubGlobal("requestIdleCallback", (callback: IdleRequestCallback) => {
+      callback({ didTimeout: false, timeRemaining: () => 12 });
+      return 1;
+    });
+    vi.stubGlobal("cancelIdleCallback", vi.fn());
+
+    const springGraph = graphResponse([
       makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100)
     ]);
-    const springGraph = graphResponse(
-      [makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A", 100)],
-      { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 }
+    const speedrunGraph = graphResponse(
+      [makeNode("company:sun", "SUN", "consumer", "#88CCF6", "Partner A", 100)],
+      { slug: "A16ZSR006", label: "a16z Speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
     );
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
       return {
         ok: true,
-        json: async () => (url.includes("batch=S2026") ? springGraph : summerGraph)
+        json: async () => (url.includes("batch=A16ZSR006") ? speedrunGraph : springGraph)
       };
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<Dashboard initialGraph={summerGraph} />);
+    render(<Dashboard initialGraph={springGraph} />);
 
     expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
     await waitFor(() => {
-      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("batch=S2026"))).toBe(true);
+      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("batch=A16ZSR006"))).toBe(true);
     });
     await Promise.resolve();
 
     const callsBeforeSwitch = fetchMock.mock.calls.map(([input]) => String(input));
-    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "S2026" } });
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
 
     await waitFor(() => {
-      expect(within(screen.getByTestId("graph-canvas")).getByText("HeyClicky")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("SUN")).toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe")).not.toBeInTheDocument();
     });
-    expect(fetchMock.mock.calls.slice(callsBeforeSwitch.length).some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
+    expect(fetchMock.mock.calls.slice(callsBeforeSwitch.length).some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")).toBe(false);
   });
 
   it("filters minimum score locally without waiting for a graph request", async () => {

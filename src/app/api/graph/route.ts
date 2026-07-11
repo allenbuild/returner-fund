@@ -78,7 +78,8 @@ export function GET(request: Request) {
   let benchmarkRows = filteredGraph.fastestGaining;
   if (filters.topVoices === "off") {
     try {
-      benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph.fastestGaining;
+      const benchmarkGraph = hasActiveFilters(filters) ? buildGraphResponse({ batchSlug }, dataset) : filteredGraph;
+      benchmarkRows = ensureBenchmarkMomentum(benchmarkGraph).graph.fastestGaining;
     } catch (error) {
       console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
     }
@@ -130,4 +131,24 @@ function parseLooseList(value: string | null): string[] | undefined {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function hasActiveFilters(filters: {
+  platforms?: unknown[];
+  edgeTypes?: unknown[];
+  minScore?: number;
+  industries?: unknown[];
+  groupPartners?: unknown[];
+  businessModels?: unknown[];
+  query?: string;
+}): boolean {
+  return Boolean(
+    filters.platforms?.length ||
+      filters.edgeTypes?.length ||
+      filters.minScore ||
+      filters.industries?.length ||
+      filters.groupPartners?.length ||
+      filters.businessModels?.length ||
+      filters.query?.trim()
+  );
 }

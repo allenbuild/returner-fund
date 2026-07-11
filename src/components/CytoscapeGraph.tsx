@@ -34,8 +34,12 @@ const edgeColors: Record<EdgeType, string> = {
 
 const GRAPH_INTRO_SESSION_KEY = "yc-network-map-intro-played-v1";
 const GRAPH_INTRO_REVEAL_WINDOW_MS = 1750;
+const GRAPH_INTRO_AUTOPLAY = false;
 
 function shouldPlayGraphIntro(): boolean {
+  if (!GRAPH_INTRO_AUTOPLAY) {
+    return false;
+  }
   if (typeof window === "undefined") {
     return false;
   }

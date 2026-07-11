@@ -37,7 +37,8 @@ export async function POST(request: Request) {
   let benchmarkRows = filteredGraph.fastestGaining;
   if (filteredGraph.selectedTopVoiceAudience.id === "off") {
     try {
-      benchmarkRows = ensureBenchmarkMomentum(buildGraphResponse({ batchSlug }, dataset)).graph.fastestGaining;
+      const benchmarkGraph = hasActiveFilters(body) ? buildGraphResponse({ batchSlug }, dataset) : filteredGraph;
+      benchmarkRows = ensureBenchmarkMomentum(benchmarkGraph).graph.fastestGaining;
     } catch (error) {
       console.error("Graph refresh benchmark momentum failed; returning graph without persisted benchmark deltas", error);
     }
@@ -69,4 +70,15 @@ function formatMode(mode: string): string {
     return "Database";
   }
   return "Demo";
+}
+
+function hasActiveFilters(filters: RefreshRequest): boolean {
+  return Boolean(
+    filters.platforms?.length ||
+      filters.edgeTypes?.length ||
+      filters.minScore ||
+      filters.industries?.length ||
+      filters.groupPartners?.length ||
+      (filters.topVoices && filters.topVoices !== "off")
+  );
 }
