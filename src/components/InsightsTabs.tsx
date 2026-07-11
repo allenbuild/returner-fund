@@ -22,8 +22,7 @@ import type {
   FastestGainingRow,
   GraphResponse,
   LeaderboardRow,
-  MomentumDelta,
-  SocialAccountSummary
+  MomentumDelta
 } from "@/lib/graph/types";
 import { formatPlatform, PlatformIdentity, PlatformLogo } from "./PlatformLogo";
 
@@ -161,8 +160,6 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                       )}
                     </td>
                     <td className="overview-contribution-cell">
-                      <AccountLinkList accounts={row.socialAccounts} companyName={row.companyName} />
-                      <FounderAccountLinkList founderAccounts={row.founderAccounts ?? []} companyName={row.companyName} />
                       <div className="overview-traction-evidence">
                         {row.biggestContribution && contribution.url ? (
                           <a
@@ -279,68 +276,6 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
         </div>
       )}
     </section>
-  );
-}
-
-function AccountLinkList({ accounts, companyName }: { accounts: SocialAccountSummary[]; companyName: string }) {
-  if (!accounts.length) {
-    return null;
-  }
-
-  return (
-    <div className="overview-account-link-list" aria-label={`${companyName} accounts`}>
-      {accounts.map((account) => (
-        <a
-          className="overview-account-link"
-          href={account.url}
-          target="_blank"
-          rel="noreferrer"
-          key={account.id}
-        >
-          <PlatformIdentity platform={account.platform} />
-          {account.handle && <span className="account-handle">/ {account.handle}</span>}
-        </a>
-      ))}
-    </div>
-  );
-}
-
-function FounderAccountLinkList({
-  founderAccounts,
-  companyName
-}: {
-  founderAccounts: NonNullable<LeaderboardRow["founderAccounts"]>;
-  companyName: string;
-}) {
-  const accounts = founderAccounts.flatMap((founder) =>
-    founder.socialAccounts.map((account) => ({
-      founderId: founder.founderId,
-      founderName: founder.founderName,
-      account
-    }))
-  );
-
-  if (!accounts.length) {
-    return null;
-  }
-
-  return (
-    <div className="overview-account-link-list overview-founder-account-link-list" aria-label={`${companyName} founder accounts`}>
-      {accounts.map(({ founderId, founderName, account }) => (
-        <a
-          className="overview-account-link overview-founder-account-link"
-          href={account.url}
-          target="_blank"
-          rel="noreferrer"
-          key={`${founderId}-${account.id}`}
-          aria-label={`${founderName} ${formatPlatform(account.platform)} account`}
-          title={`${founderName} ${formatPlatform(account.platform)}`}
-        >
-          <PlatformIdentity platform={account.platform} />
-          {account.handle && <span className="account-handle">/ {account.handle}</span>}
-        </a>
-      ))}
-    </div>
   );
 }
 

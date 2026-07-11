@@ -92,7 +92,7 @@ describe("insights tabs", () => {
     expect(row?.socialAccounts).toEqual(companyWithAccount!.socialAccounts);
   });
 
-  it("renders canonical account links for a zero-evidence leaderboard row", () => {
+  it("keeps account handles out of a zero-evidence top-post cell", () => {
     render(
       <InsightsTabs
         graph={{
@@ -127,14 +127,11 @@ describe("insights tabs", () => {
     expect(within(row).getByText("No traction posts yet")).toBeInTheDocument();
     expect(within(row).queryByText("No evidence")).not.toBeInTheDocument();
 
-    const accountLink = row.querySelector<HTMLAnchorElement>(".overview-account-link");
-    expect(accountLink).toBeTruthy();
-    expect(accountLink).toHaveAttribute("href", "https://x.com/zerodrift");
-    expect(accountLink!.href).not.toContain("ycombinator.com");
-    expect(accountLink!.href).not.toContain("speedrun");
+    expect(row.querySelector(".overview-account-link")).toBeNull();
+    expect(row.querySelector(".overview-founder-account-link")).toBeNull();
   });
 
-  it("renders founder account links on zero-evidence rows without mixing them into evidence", () => {
+  it("keeps founder account handles out of a zero-evidence top-post cell", () => {
     render(
       <InsightsTabs
         graph={{
@@ -175,26 +172,36 @@ describe("insights tabs", () => {
     const row = screen.getAllByRole("row")[1];
     expect(within(row).getByText("No traction posts yet")).toBeInTheDocument();
 
-    const founderLink = row.querySelector<HTMLAnchorElement>(".overview-founder-account-link");
-    expect(founderLink).toBeTruthy();
-    expect(founderLink).toHaveAttribute("href", "https://www.linkedin.com/in/jesserose");
-    expect(founderLink!.href).not.toContain("speedrun.a16z.com");
+    expect(row.querySelector(".overview-account-link")).toBeNull();
+    expect(row.querySelector(".overview-founder-account-link")).toBeNull();
     expect(row.querySelector(".overview-contribution-link")).toBeNull();
   });
 
-  it("keeps account buttons separate from evidence source urls", () => {
+  it("renders only the evidence link in YC-style top-post cells", () => {
     render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
 
     const row = screen.getAllByRole("row")[1];
     const accountLinks = [...row.querySelectorAll<HTMLAnchorElement>(".overview-account-link")];
 
-    expect(accountLinks.map((link) => link.href)).toEqual(["https://x.com/zetalabs"]);
-    expect(accountLinks.some((link) => link.href === "https://x.com/zetalabs/status/1")).toBe(false);
-    expect(accountLinks.some((link) => link.href.includes("ycombinator.com"))).toBe(false);
-    expect(accountLinks.some((link) => link.href.includes("speedrun"))).toBe(false);
+    expect(accountLinks).toEqual([]);
     expect(within(row).getByRole("link", { name: /First sentence/i })).toHaveAttribute(
       "href",
       "https://x.com/zetalabs/status/1"
+    );
+  });
+
+  it("renders only the evidence link in A16Z top-post cells", () => {
+    const graph = buildGraphResponse({ batchSlug: "A16ZSR006" }, ycSpring2026GraphDataset);
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+
+    const row = screen.getByText("Crebit").closest("tr");
+
+    expect(row).toBeTruthy();
+    expect(row!.querySelector(".overview-account-link")).toBeNull();
+    expect(row!.querySelector(".overview-founder-account-link")).toBeNull();
+    expect(row!.querySelector<HTMLAnchorElement>(".overview-contribution-link")).toHaveAttribute(
+      "href",
+      "https://www.linkedin.com/posts/simmi-sen_crebit-founding-engineer-application-activity-7475266867537039360-QwfJ"
     );
   });
 });
