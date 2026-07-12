@@ -707,8 +707,7 @@ function buildFastestGaining(companies: CompanyRecord[]): FastestGainingRow[] {
   const currentRank = rankCompanies(companies, "totalScore");
   const previousRank = rankCompanies(companies, "previousScore");
 
-  return [...companies]
-    .sort((a, b) => b.totalScore - b.previousScore - (a.totalScore - a.previousScore))
+  return companies
     .map((company, index) => {
       const currentRankValue = currentRank.get(company.id) ?? index + 1;
       const baselineRank = previousRank.get(company.id) ?? index + 1;
@@ -720,13 +719,25 @@ function buildFastestGaining(companies: CompanyRecord[]): FastestGainingRow[] {
         benchmarkedAt: null
       });
       return {
-        rank: index + 1,
+        rank: 0,
         companyId: company.id,
         companyName: company.name,
         dod: delta,
         wow: delta
       };
-    });
+    })
+    .sort((left, right) => {
+      const leftDelta = left.dod;
+      const rightDelta = right.dod;
+      return (
+        rightDelta.scoreDelta - leftDelta.scoreDelta ||
+        rightDelta.percentDelta - leftDelta.percentDelta ||
+        rightDelta.rankDelta - leftDelta.rankDelta ||
+        rightDelta.currentScore - leftDelta.currentScore ||
+        left.companyName.localeCompare(right.companyName)
+      );
+    })
+    .map((row, index) => ({ ...row, rank: index + 1 }));
 }
 
 function momentumDelta(input: {

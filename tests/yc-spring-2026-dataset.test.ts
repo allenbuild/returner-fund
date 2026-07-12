@@ -22,7 +22,7 @@ describe("YC Summer 2026 official snapshot", () => {
       },
       {
         slug: "A16ZSR006",
-        label: "a16z Speedrun 006",
+        label: "a16z speedrun 006",
         companyCountExpected: 59,
         companyCountObserved: 59
       }

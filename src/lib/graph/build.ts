@@ -310,7 +310,7 @@ function buildFastestGaining(companies: Company[], entityScores: EntityScore[]):
         topPlatform
       };
     })
-    .sort((a, b) => b.scoreDelta - a.scoreDelta)
+    .sort((a, b) => b.scoreDelta - a.scoreDelta || b.percentDelta - a.percentDelta)
     .map((row, index) => ({ ...row, rank: index + 1 }));
 }
 

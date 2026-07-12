@@ -18,7 +18,7 @@ import type {
 } from "./types";
 
 export const A16Z_SPEEDRUN_006_BATCH_SLUG = "A16ZSR006";
-export const A16Z_SPEEDRUN_006_BATCH_LABEL = "a16z Speedrun 006";
+export const A16Z_SPEEDRUN_006_BATCH_LABEL = "a16z speedrun 006";
 
 const SPEEDRUN_SOURCE_URL = "https://speedrun.a16z.com/";
 const SPEEDRUN_TRACTION_PLATFORMS = new Set<Platform>([
@@ -58,7 +58,7 @@ const PUBLIC_SOCIAL_EVIDENCE_ATTACHMENTS: PublicSocialEvidenceAttachment[] = [
     sourceUrl: "https://linkedin.com/posts/shankarl_organizationalmemory-ai-sentra-activity-7422333778263560194-AO0q",
     companySlug: "sentra",
     companyName: "Sentra",
-    matchReason: "Public LinkedIn post explicitly names Sentra and a16z Speedrun."
+    matchReason: "Public LinkedIn post explicitly names Sentra and a16z speedrun."
   }
 ];
 const FOUNDER_SLUG_OVERRIDES = new Map<string, string>([
@@ -795,7 +795,7 @@ function toCompanyRecord(profile: SpeedrunCompanyProfile): CompanyRecord {
     websiteUrl: profile.websiteUrl,
     tagline: profile.tagline,
     description,
-    groupPartner: "a16z Speedrun",
+    groupPartner: "a16z speedrun",
     primaryIndustry: primaryIndustry(profile.tags),
     businessModel: businessModel(profile.tags),
     review_state: "verified",
@@ -1007,7 +1007,7 @@ function publicEvidenceItemFromAttachment(attachment: PublicSocialEvidenceAttach
       first_seen_at: source.first_seen_at ?? publicSnapshot.source.fetchedAt,
       last_checked_at: source.last_checked_at ?? publicSnapshot.source.fetchedAt,
       last_updated_at: source.last_updated_at ?? publicSnapshot.source.fetchedAt,
-      why: `${source.why} Reattached to ${attachment.companyName} because the public post explicitly names the company and a16z Speedrun.`,
+      why: `${source.why} Reattached to ${attachment.companyName} because the public post explicitly names the company and a16z speedrun.`,
       attachedCompanyId: companyId,
       attachedCompanyName: attachment.companyName,
       socialAccountId: accountUrl ? socialAccountId(source.platform, accountUrl) : null,
@@ -1122,7 +1122,7 @@ function socialAccountFromSnapshot(record: SpeedrunSocialAccountRecord): SocialA
     url: normalizedAccount.url,
     review_state: record.review_state ?? "verified",
     discoveredFromUrl: record.evidenceUrl ?? record.verifiedFrom ?? null,
-    matchReason: record.matchReason ?? `Verified ${record.platform} account for a16z Speedrun 006.`
+    matchReason: record.matchReason ?? `Verified ${record.platform} account for a16z speedrun 006.`
   };
 }
 

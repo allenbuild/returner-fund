@@ -9,7 +9,6 @@ import {
   Heart,
   MessageCircle,
   Repeat2,
-  Settings,
   Star,
   ThumbsUp,
   TrendingUp,
@@ -30,7 +29,7 @@ import type {
 } from "@/lib/graph/types";
 import { formatPlatform, PlatformIdentity, PlatformLogo } from "./PlatformLogo";
 
-type TabKey = "overview" | "gaining" | "settings";
+type TabKey = "overview" | "gaining";
 type MomentumPeriod = "dod" | "wow";
 type OverviewSortKey = "rank" | "company";
 type SortDirection = "asc" | "desc";
@@ -42,8 +41,7 @@ interface InsightsTabsProps {
 
 const tabs: { key: TabKey; label: string; icon: typeof Trophy }[] = [
   { key: "overview", label: "Overview", icon: Trophy },
-  { key: "gaining", label: "Hottest", icon: TrendingUp },
-  { key: "settings", label: "Settings", icon: Settings }
+  { key: "gaining", label: "Hottest", icon: TrendingUp }
 ];
 
 export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
@@ -261,24 +259,6 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
           </table>
         </div>
       )}
-
-      {activeTab === "settings" && (
-        <div className="tab-body status-grid">
-          {graph.platformStatus.map((item) => (
-            <article className="status-item" key={item.platform}>
-              <div>
-                <span className={`status-dot status-${item.status}`} />
-                <strong>
-                  <PlatformIdentity platform={item.platform} />
-                </strong>
-              </div>
-              <span>{formatStatus(item.status)}</span>
-              <p>{item.authMethod}</p>
-              <small>{item.notes}</small>
-            </article>
-          ))}
-        </div>
-      )}
     </section>
   );
 }
@@ -456,6 +436,7 @@ function momentumRowSort(period: MomentumPeriod) {
     const rightDelta = right[period];
     return (
       rightDelta.scoreDelta - leftDelta.scoreDelta ||
+      rightDelta.percentDelta - leftDelta.percentDelta ||
       rightDelta.rankDelta - leftDelta.rankDelta ||
       rightDelta.currentScore - leftDelta.currentScore ||
       left.companyName.localeCompare(right.companyName)
@@ -547,15 +528,4 @@ function compactNumber(value: number): string {
 
 function formatMetricLabel(key: string): string {
   return key.replace(/_/g, " ");
-}
-
-function formatStatus(status: GraphResponse["platformStatus"][number]["status"]): string {
-  const labels = {
-    working: "Working",
-    public_only: "Public only",
-    needs_config: "Needs config",
-    disabled: "Disabled",
-    risky: "Explicit only"
-  };
-  return labels[status];
 }

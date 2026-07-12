@@ -10,6 +10,7 @@ describe("insights tabs", () => {
     const onSelectNode = vi.fn();
     render(<InsightsTabs graph={graphResponse()} onSelectNode={onSelectNode} />);
 
+    expect(screen.queryByRole("button", { name: "Settings" })).not.toBeInTheDocument();
     expect(screen.queryByText("Evidence links")).not.toBeInTheDocument();
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Zeta Labs");
     expect(screen.getByRole("table")).toHaveClass("overview-table");
@@ -55,6 +56,71 @@ describe("insights tabs", () => {
     const table = screen.getByRole("table");
     expect(within(table).getByText("+9 pts (+18%)")).toBeInTheDocument();
     expect(within(table).getByText("+7")).toBeInTheDocument();
+  });
+
+  it("breaks equal hottest score deltas by percentage growth", () => {
+    const graph = graphResponse();
+    graph.fastestGaining = [
+      {
+        rank: 1,
+        companyId: "company-greypoint",
+        companyName: "Greypoint Industries",
+        dod: {
+          scoreDelta: 1,
+          percentDelta: 1.3,
+          rankDelta: 8,
+          currentScore: 78,
+          currentRank: 4,
+          baselineScore: 77,
+          baselineRank: 12,
+          benchmarkedAt: "2026-07-11T12:00:00.000Z"
+        },
+        wow: {
+          scoreDelta: 1,
+          percentDelta: 1.3,
+          rankDelta: 8,
+          currentScore: 78,
+          currentRank: 4,
+          baselineScore: 77,
+          baselineRank: 12,
+          benchmarkedAt: "2026-07-05T12:00:00.000Z"
+        }
+      },
+      {
+        rank: 2,
+        companyId: "company-cova",
+        companyName: "Cova",
+        dod: {
+          scoreDelta: 1,
+          percentDelta: 1.9,
+          rankDelta: 1,
+          currentScore: 53,
+          currentRank: 7,
+          baselineScore: 52,
+          baselineRank: 8,
+          benchmarkedAt: "2026-07-11T12:00:00.000Z"
+        },
+        wow: {
+          scoreDelta: 1,
+          percentDelta: 1.9,
+          rankDelta: 1,
+          currentScore: 53,
+          currentRank: 7,
+          baselineScore: 52,
+          baselineRank: 8,
+          benchmarkedAt: "2026-07-05T12:00:00.000Z"
+        }
+      }
+    ];
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Hottest" }));
+
+    const rows = screen.getAllByRole("row");
+    expect(rows[1]).toHaveTextContent("Cova");
+    expect(rows[1]).toHaveTextContent("+1 pts (+1.9%)");
+    expect(rows[2]).toHaveTextContent("Greypoint Industries");
+    expect(rows[2]).toHaveTextContent("+1 pts (+1.3%)");
   });
 
   it("shows an empty state when a Top Voices audience has no qualifying companies", () => {

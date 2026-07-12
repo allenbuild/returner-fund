@@ -84,6 +84,18 @@ describe("graph layout", () => {
     expect(labels.has(selected.id)).toBe(true);
   }, 20_000);
 
+  it("can place every Summer 2026 company name for the rendered map", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const selected = graph.nodes.find((node) => node.label === "HeyClicky") ?? graph.nodes[0];
+    const positions = buildClusterPositions(graph.nodes);
+    const labels = buildLabelPlacements(graph.nodes, positions, selected.id, graph.nodes.length, true);
+
+    expect(labels.size).toBe(graph.nodes.length);
+    for (const node of graph.nodes) {
+      expect(labels.has(node.id), `${node.label} should have a graph label placement`).toBe(true);
+    }
+  }, 20_000);
+
   it("keeps same group-partner companies visibly clustered", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const positions = buildClusterPositions(graph.nodes);

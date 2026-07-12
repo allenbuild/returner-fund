@@ -47,10 +47,11 @@ const platformOptions: Platform[] = [
 const defaultBatches = [
   { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 },
   { slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 83, companyCountObserved: 83 },
-  { slug: "A16ZSR006", label: "a16z Speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+  { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
 ];
 const DEFAULT_BATCH_SLUG = "S2026";
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
+const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-12-a16z-labels";
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
 
@@ -168,7 +169,7 @@ function staticGraphSnapshotUrl(batchSlug: string, topVoiceAudience: TopVoiceAud
     S26: "s26.json"
   };
   const filename = filenames[batchSlug];
-  return filename ? `/graph/${filename}` : null;
+  return filename ? `/graph/${filename}?v=${STATIC_GRAPH_SNAPSHOT_VERSION}` : null;
 }
 
 export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp, initialFilters }: DashboardProps = {}) {
@@ -535,6 +536,9 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
       if (node.entityType !== "company" || !node.groupPartner) {
         continue;
       }
+      if (batchSlug === A16Z_SPEEDRUN_BATCH_SLUG && node.groupPartner.toLowerCase() === "a16z speedrun") {
+        continue;
+      }
       const current = byPartner.get(node.groupPartner) ?? {
         name: node.groupPartner,
         count: 0
@@ -544,7 +548,7 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
     }
 
     return [...byPartner.values()].sort((left, right) => right.count - left.count || left.name.localeCompare(right.name));
-  }, [filterMetadataGraph, graph]);
+  }, [batchSlug, filterMetadataGraph, graph]);
 
   const platformDropdownOptions = useMemo<DropdownOption<Platform>[]>(
     () => platformOptions.map((platform) => ({ value: platform, label: formatPlatform(platform), platform })),
@@ -674,7 +678,7 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
         <div className="brand-block">
           {isA16zSpeedrunBatch ? (
             <span className="a16z-brand-mark">
-              <img src="/brand/a16z-speedrun-logo.png" alt="a16z Speedrun" />
+              <img src="/brand/a16z-speedrun-logo.png" alt="a16z speedrun" />
             </span>
           ) : (
             <span className="yc-brand-mark" aria-hidden="true">Y</span>

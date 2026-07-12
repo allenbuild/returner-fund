@@ -276,6 +276,7 @@ export function momentumSort(period: "dod" | "wow") {
     const rightDelta = right[period];
     return (
       rightDelta.scoreDelta - leftDelta.scoreDelta ||
+      rightDelta.percentDelta - leftDelta.percentDelta ||
       rightDelta.rankDelta - leftDelta.rankDelta ||
       rightDelta.currentScore - leftDelta.currentScore ||
       left.companyName.localeCompare(right.companyName)

@@ -47,7 +47,7 @@ interface A16zSocialSeedAccount {
 
 const a16zSocialSeedSnapshot = socialAccountSeedSnapshot as A16zSocialSeedSnapshot;
 
-describe("a16z Speedrun 006 dataset", () => {
+describe("a16z speedrun 006 dataset", () => {
   it("exposes all 59 company profiles as a selectable batch", () => {
     const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
     const companyNodes = graph.nodes.filter((node) => node.entityType === "company");

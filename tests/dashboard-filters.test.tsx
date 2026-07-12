@@ -127,14 +127,14 @@ describe("dashboard filters", () => {
     expect(options[0]).toHaveValue("S2026");
     expect(options[1]).toHaveTextContent("YC Summer 2026 (S26)");
     expect(options[1]).toHaveValue("S26");
-    expect(options[2]).toHaveTextContent("a16z Speedrun 006");
+    expect(options[2]).toHaveTextContent("a16z speedrun 006");
     expect(options[2]).toHaveValue("A16ZSR006");
   });
 
-  it("uses a16z Speedrun branding when the Speedrun batch is active", async () => {
+  it("uses a16z speedrun branding when the speedrun batch is active", async () => {
     const speedrunGraph = graphResponse(
-      [makeNode("company:sun", "SUN", "consumer", "#76F7EF", "Partner A")],
-      { slug: "A16ZSR006", label: "a16z Speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+      [makeNode("company:sun", "SUN", "consumer", "#76F7EF", "a16z speedrun")],
+      { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
     );
 
     vi.stubGlobal(
@@ -146,7 +146,12 @@ describe("dashboard filters", () => {
 
     expect(screen.getByRole("heading", { name: "a16z Network Map" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "YC Network Map" })).not.toBeInTheDocument();
-    expect(screen.getByAltText("a16z Speedrun")).toHaveAttribute("src", "/brand/a16z-speedrun-logo.png");
+    expect(screen.getByAltText("a16z speedrun")).toHaveAttribute("src", "/brand/a16z-speedrun-logo.png");
+    const groupPartnerGroup = screen.getByText("Group partner").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i }));
+    expect(
+      within(groupPartnerGroup).queryByRole("menuitemcheckbox", { name: /a16z speedrun\s*\(1\)/i })
+    ).not.toBeInTheDocument();
     expect(container.querySelector(".dashboard-a16z")).toBeInTheDocument();
     await waitFor(() => expect(document.title).toBe("a16z Network Map"));
   });
@@ -189,7 +194,7 @@ describe("dashboard filters", () => {
     ]);
     const speedrunGraph = graphResponse(
       [makeNode("company:sun", "SUN", "consumer", "#88CCF6", "Partner A", 100)],
-      { slug: "A16ZSR006", label: "a16z Speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+      { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
     );
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
@@ -219,7 +224,10 @@ describe("dashboard filters", () => {
     expect(
       fetchMock.mock.calls
         .slice(callsBeforeSwitch.length)
-        .some(([input]) => String(input) === "/graph/a16zsr006.json" || String(input) === "/api/graph?batch=A16ZSR006")
+        .some(
+          ([input]) =>
+            String(input).startsWith("/graph/a16zsr006.json") || String(input) === "/api/graph?batch=A16ZSR006"
+        )
     ).toBe(false);
   });
 
@@ -263,7 +271,7 @@ function graphResponse(
     batches: [
       { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 },
       { slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 83, companyCountObserved: 83 },
-      { slug: "A16ZSR006", label: "a16z Speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+      { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
     ],
     nodes: batchNodes,
     edges: [],

@@ -85,7 +85,8 @@ export function buildLabelPlacements(
   nodes: GraphNode[],
   positions: Map<string, GraphLayoutPosition>,
   selectedNodeId: string | null,
-  maxLabels = 52
+  maxLabels = 52,
+  allowFallbackCompanyLabels = false
 ): Map<string, LabelPlacement> {
   const placements = new Map<string, LabelPlacement>();
   const placedBoxes: LabelBox[] = [];
@@ -122,6 +123,14 @@ export function buildLabelPlacements(
   for (const node of candidates) {
     if (placements.size >= maxLabels) break;
     addLabelIfPossible(node, positions, placements, placedBoxes, circles, false);
+  }
+
+  if (allowFallbackCompanyLabels) {
+    for (const node of candidates) {
+      if (placements.size >= maxLabels) break;
+      if (node.entityType !== "company") continue;
+      addLabelIfPossible(node, positions, placements, placedBoxes, circles, true);
+    }
   }
 
   return placements;
