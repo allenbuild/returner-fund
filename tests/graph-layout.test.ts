@@ -62,6 +62,28 @@ describe("graph layout", () => {
     expect(labels.size).toBeGreaterThan(0);
   }, 20_000);
 
+  it("shows most A16Z company names on the graph", () => {
+    const graph = buildGraphResponse({ batchSlug: "A16ZSR006" }, ycSpring2026GraphDataset);
+    const selected = graph.nodes.find((node) => node.label === "Acceler8") ?? graph.nodes[0];
+    const positions = buildClusterPositions(graph.nodes);
+    const labels = buildLabelPlacements(graph.nodes, positions, selected.id, graph.nodes.length);
+
+    expect(graph.nodes).toHaveLength(59);
+    expect(labels.size).toBeGreaterThanOrEqual(44);
+    expect(labels.has(selected.id)).toBe(true);
+  }, 20_000);
+
+  it("shows substantially more YC Spring company names on the dense graph", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const selected = graph.nodes.find((node) => node.label === "HeyClicky") ?? graph.nodes[0];
+    const positions = buildClusterPositions(graph.nodes);
+    const labels = buildLabelPlacements(graph.nodes, positions, selected.id, 128);
+
+    expect(graph.nodes).toHaveLength(197);
+    expect(labels.size).toBeGreaterThanOrEqual(90);
+    expect(labels.has(selected.id)).toBe(true);
+  }, 20_000);
+
   it("keeps same group-partner companies visibly clustered", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const positions = buildClusterPositions(graph.nodes);
@@ -155,7 +177,7 @@ function assertNoLabelCircleOverlap(
             label: node.label,
             x: position.x,
             y: position.y,
-            radius: collisionRadius(node) + 4
+            radius: node.radius + 4
           }
         : null;
     })

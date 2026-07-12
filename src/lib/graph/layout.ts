@@ -37,6 +37,7 @@ const LABEL_BOX_PADDING_X = 18;
 const LABEL_BOX_PADDING_Y = 14;
 const LABEL_WIDTH_FACTOR = 0.74;
 const LABEL_LINE_HEIGHT = 1.22;
+const LABEL_CIRCLE_CLEARANCE = 4;
 
 export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayoutPosition> {
   const positions = new Map<string, GraphLayoutPosition>();
@@ -91,23 +92,31 @@ export function buildLabelPlacements(
   const circles = nodes
     .map((node) => {
       const position = positions.get(node.id);
-      return position ? { id: node.id, x: position.x, y: position.y, radius: collisionRadius(node) + 4 } : null;
+      return position ? { id: node.id, x: position.x, y: position.y, radius: node.radius + LABEL_CIRCLE_CLEARANCE } : null;
     })
     .filter((circle): circle is LayoutCircle => Boolean(circle));
   const scoreCutoff = Math.max(30, percentile(nodes.map((node) => node.score), 0.68));
   const candidates = [...nodes]
-    .filter((node) => node.score >= scoreCutoff)
     .sort((left, right) => {
       if (left.id === selectedNodeId) return -1;
       if (right.id === selectedNodeId) return 1;
+      if (left.entityType !== right.entityType) {
+        return left.entityType === "company" ? -1 : 1;
+      }
       return right.score - left.score || right.radius - left.radius || left.label.localeCompare(right.label);
     });
+  const strictCandidates = candidates.filter((node) => node.score >= scoreCutoff || node.id === selectedNodeId);
 
   if (selectedNodeId) {
     const selectedNode = nodes.find((node) => node.id === selectedNodeId);
     if (selectedNode) {
       addLabelIfPossible(selectedNode, positions, placements, placedBoxes, circles, true);
     }
+  }
+
+  for (const node of strictCandidates) {
+    if (placements.size >= maxLabels) break;
+    addLabelIfPossible(node, positions, placements, placedBoxes, circles, false);
   }
 
   for (const node of candidates) {

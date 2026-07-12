@@ -111,7 +111,11 @@ export function CytoscapeGraph({
   const positions = useMemo(() => {
     return buildClusterPositions(nodes);
   }, [nodes]);
-  const maxVisibleLabels = isFullscreen ? (decluttered ? 88 : 120) : decluttered ? 52 : 68;
+  const companyNodeCount = useMemo(() => nodes.filter((node) => node.entityType === "company").length, [nodes]);
+  const maxVisibleLabels = Math.min(
+    nodes.length,
+    companyNodeCount <= 90 ? companyNodeCount : isFullscreen ? Math.min(companyNodeCount, 170) : Math.min(companyNodeCount, 128)
+  );
   const labelPlacements = useMemo(
     () => buildLabelPlacements(nodes, positions, selectedNodeId, maxVisibleLabels),
     [nodes, positions, selectedNodeId, maxVisibleLabels]
