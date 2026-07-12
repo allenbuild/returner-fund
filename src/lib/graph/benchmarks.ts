@@ -182,7 +182,10 @@ function selectDailyBaseline(snapshots: BenchmarkSnapshot[], now: Date): Benchma
 }
 
 function selectWeeklyBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
-  return selectLatestBaselineOnLocalDay(snapshots, now, 7);
+  return (
+    selectLatestBaselineOnLocalDay(snapshots, now, 7) ??
+    latestSnapshotBefore(snapshots, addLocalDays(startOfLocalDay(now), -7))
+  );
 }
 
 function selectLatestBaselineOnLocalDay(

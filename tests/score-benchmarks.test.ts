@@ -158,6 +158,33 @@ describe("score benchmarks", () => {
     expect(row?.wow.benchmarkedAt).toBeNull();
   });
 
+  it("falls back to the latest snapshot older than a week when the exact weekly day is missing", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const firstCompany = graph.leaderboard[0]!;
+
+    ensureBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-07-03T12:00:00.000Z")
+    });
+    ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 4), {
+      storePath,
+      now: new Date("2026-07-09T12:00:00.000Z")
+    });
+
+    const julyTwelfth = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10), {
+      storePath,
+      now: new Date("2026-07-12T12:00:00.000Z")
+    });
+    const row = julyTwelfth.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(row?.dod.scoreDelta).toBe(6);
+    expect(row?.dod.benchmarkedAt).toBe("2026-07-09T12:00:00.000Z");
+    expect(row?.wow.scoreDelta).toBe(10);
+    expect(row?.wow.benchmarkedAt).toBe("2026-07-03T12:00:00.000Z");
+  });
+
   it("uses the latest real prior daily snapshot when the previous calendar day is missing", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
