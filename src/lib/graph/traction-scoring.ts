@@ -10,7 +10,7 @@ export function normalizeEvidenceScores<T extends EvidenceItem>(items: T[]): T[]
   const rows = items.map((item) => ({
     item,
     rawEngagement: computeEvidenceRawEngagement(item.platform, item.metrics),
-    recencyWeight: computeEvidenceRecencyWeight(item),
+    recencyWeight: computeEvidenceRecencyModifier(item),
     eligible: item.contributionScore > 0 && isScoredPlatform(item.platform)
   }));
   const samplesByPlatform = new Map<Platform, number[]>();
@@ -215,6 +215,13 @@ function computeEvidenceRecencyWeight(item: EvidenceItem): number {
     TRACTION_SCORING_CONFIG.platformHalfLifeDays[item.platform] ?? TRACTION_SCORING_CONFIG.defaultHalfLifeDays;
 
   return Math.pow(0.5, ageDays / Math.max(halfLifeDays, 1));
+}
+
+function computeEvidenceRecencyModifier(item: EvidenceItem): number {
+  const rawWeight = computeEvidenceRecencyWeight(item);
+  const floor = Math.max(0, Math.min(1, TRACTION_SCORING_CONFIG.recencyWeightFloor));
+
+  return floor + (1 - floor) * rawWeight;
 }
 
 function parseDate(value: string | undefined): Date | null {

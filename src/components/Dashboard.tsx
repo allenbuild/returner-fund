@@ -51,7 +51,8 @@ const defaultBatches = [
 ];
 const DEFAULT_BATCH_SLUG = "S2026";
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
-const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-12-a16z-labels";
+const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-13-daily-benchmarks";
+const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
 
@@ -169,7 +170,21 @@ function staticGraphSnapshotUrl(batchSlug: string, topVoiceAudience: TopVoiceAud
     S26: "s26.json"
   };
   const filename = filenames[batchSlug];
-  return filename ? `/graph/${filename}?v=${STATIC_GRAPH_SNAPSHOT_VERSION}` : null;
+  return filename ? `/graph/${filename}?v=${STATIC_GRAPH_SNAPSHOT_VERSION}-${localDayKey(new Date())}` : null;
+}
+
+function localDayKey(date: Date): string {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function millisecondsUntilNextLocalMidnight(now = new Date()): number {
+  const nextMidnight = new Date(now);
+  nextMidnight.setHours(24, 0, 0, MIDNIGHT_REFRESH_DELAY_MS);
+  return Math.max(1_000, nextMidnight.getTime() - now.getTime());
 }
 
 export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp, initialFilters }: DashboardProps = {}) {
@@ -327,6 +342,30 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
       activeGraphAbortRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    let timeoutId: number | null = null;
+    const scheduleDailyRefresh = () => {
+      timeoutId = window.setTimeout(() => {
+        graphCacheRef.current.clear();
+        prefetchInFlightRef.current.clear();
+        void fetchGraph({ background: true, unfiltered: true });
+        scheduleDailyRefresh();
+      }, millisecondsUntilNextLocalMidnight());
+    };
+
+    scheduleDailyRefresh();
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [fetchGraph]);
 
   useEffect(() => {
     const cachedGraph =

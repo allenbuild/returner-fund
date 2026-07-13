@@ -166,6 +166,7 @@ a {
 
 .topbar {
   position: relative;
+  z-index: 40;
   display: grid;
   grid-template-columns: minmax(190px, 1fr) minmax(360px, 560px) minmax(360px, 1fr);
   align-items: center;
@@ -177,7 +178,7 @@ a {
   border-radius: 16px 16px 0 0;
   background: var(--chrome-surface);
   box-shadow: none;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .topbar::before {
@@ -185,6 +186,7 @@ a {
   position: absolute;
   inset: 0 0 auto;
   height: 5px;
+  border-radius: 16px 16px 0 0;
   background: var(--brand-stripe);
   pointer-events: none;
 }
@@ -199,6 +201,7 @@ a {
 
 .focus-search {
   position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -243,7 +246,7 @@ a {
   top: calc(100% + 8px);
   right: 0;
   left: 0;
-  z-index: 50;
+  z-index: 100;
   display: grid;
   max-height: 360px;
   overflow-y: auto;
@@ -558,6 +561,8 @@ button:disabled {
 }
 
 .filter-band {
+  position: relative;
+  z-index: 10;
   display: grid;
   grid-template-columns: minmax(128px, 0.72fr) minmax(146px, 0.72fr) minmax(200px, 0.95fr) minmax(148px, 0.72fr) minmax(360px, 1.18fr);
   align-items: end;

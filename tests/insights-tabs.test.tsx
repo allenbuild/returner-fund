@@ -298,7 +298,7 @@ describe("insights tabs", () => {
     expect(row!.querySelector(".overview-founder-account-link")).toBeNull();
     expect(row!.querySelector<HTMLAnchorElement>(".overview-contribution-link")).toHaveAttribute(
       "href",
-      "https://www.linkedin.com/posts/simmi-sen_crebit-founding-engineer-application-activity-7475266867537039360-QwfJ"
+      "https://www.linkedin.com/posts/simmi-sen_we-are-hiring-ten-paid-growth-interns-for-activity-7403840813530570752-U_Nm"
     );
   });
 });

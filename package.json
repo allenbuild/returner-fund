@@ -22,6 +22,7 @@
     "debug:anomalies": "node scripts/run-anomaly-report.mjs",
     "debug:instagram-coverage": "node scripts/debug-instagram-coverage.mjs",
     "debug:thumbnails": "node scripts/debug-thumbnails.mjs",
+    "benchmarks:daily": "node scripts/update-daily-benchmarks.mjs",
     "thumbnails:backfill": "node scripts/backfill-evidence-thumbnails.mjs",
     "thumbnails:instagram": "node scripts/backfill-evidence-thumbnails.mjs --platform=instagram --cache-instagram --force",
     "thumbnails:x": "node scripts/backfill-evidence-thumbnails.mjs --platform=x --cache-x --validate-x --force",

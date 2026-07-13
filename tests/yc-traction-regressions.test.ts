@@ -101,6 +101,30 @@ describe("YC traction scoring regressions", () => {
     expect(scored.find((item) => item.id === "fresh-instagram")?.why).toContain("Recency-adjusted");
   });
 
+  it("keeps visible LinkedIn engagement ahead of freshness-only signals", () => {
+    const freshLowerEngagement = {
+      ...evidence("fresh-linkedin", "linkedin", { likes: 142, reactions: 142, comments: 18, reposts: 8 }),
+      postedAt: "2026-06-23T19:21:44.963Z",
+      last_checked_at: "2026-07-11T00:00:00.000Z"
+    };
+    const olderHighLikes = {
+      ...evidence("older-high-likes", "linkedin", { likes: 481, reactions: 481, comments: 66 }),
+      postedAt: "2026-02-03T17:30:08.673Z",
+      last_checked_at: "2026-07-11T00:00:00.000Z"
+    };
+    const olderHighComments = {
+      ...evidence("older-high-comments", "linkedin", { likes: 228, reactions: 228, comments: 213 }),
+      postedAt: "2025-12-08T17:00:06.656Z",
+      last_checked_at: "2026-07-11T00:00:00.000Z"
+    };
+    const scored = normalizeEvidenceScores([freshLowerEngagement, olderHighLikes, olderHighComments]).sort(
+      (left, right) => right.contributionScore - left.contributionScore
+    );
+
+    expect(scored.map((item) => item.id)).toEqual(["older-high-comments", "older-high-likes", "fresh-linkedin"]);
+    expect(scored[0]?.contributionScore).toBeGreaterThan(scored[2]?.contributionScore ?? 0);
+  });
+
   it("lets strong cross-platform traction beat one perfect GitHub-only signal", () => {
     const githubOnly = aggregateBalancedTractionScore([evidence("github-only", "github", {}, 100)]);
     const crossPlatform = aggregateBalancedTractionScore([
@@ -169,7 +193,7 @@ describe("YC traction scoring regressions", () => {
   });
 
   it("uses the recommended long-run scoring config for live graph scoring", () => {
-    expect(TRACTION_SCORING_CONFIG.name).toBe("social-traction-v2-with-browser-metrics");
+    expect(TRACTION_SCORING_CONFIG.name).toBe("social-traction-v3-balanced-recency");
     expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.14);
     expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.34);
     expect(TRACTION_SCORING_CONFIG.platformWeights.linkedin).toBe(0.14);
@@ -180,9 +204,12 @@ describe("YC traction scoring regressions", () => {
     expect(TRACTION_SCORING_CONFIG.metricWeights.x?.reposts).toBe(8);
     expect(TRACTION_SCORING_CONFIG.metricWeights.linkedin?.comments).toBe(5.5);
     expect(TRACTION_SCORING_CONFIG.metricWeights.github?.recent_commits_30d).toBe(1);
+    expect(TRACTION_SCORING_CONFIG.recencyWeightFloor).toBe(0.6);
     expect(computeEvidenceRawEngagement("instagram", { views: 100_000, likes: 100, comments: 10 })).toBe(7660);
     expect(computeEvidenceRawEngagement("x", { views: 1_000_000, likes: 1_000, comments: 100, reposts: 100 })).toBe(82850);
     expect(computeEvidenceRawEngagement("linkedin", { views: 100_000, reactions: 100, comments: 20, reposts: 10 })).toBe(8340);
+    expect(computeEvidenceRawEngagement("linkedin", { likes: 100, reactions: 100, comments: 10 })).toBe(205);
+    expect(computeEvidenceRawEngagement("linkedin", { likes: 100, reactions: 140, comments: 10 })).toBe(265);
   });
 
   it("carries GitHub recent activity into scoring experiments", () => {

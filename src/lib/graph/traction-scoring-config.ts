@@ -24,12 +24,13 @@ export interface TractionScoringConfig {
   platformWeights: Partial<Record<Platform, number>>;
   metricWeights: Partial<Record<Platform, PlatformMetricWeights>>;
   platformHalfLifeDays: Partial<Record<Platform, number>>;
+  recencyWeightFloor: number;
   defaultHalfLifeDays: number;
   topKPosts: number;
 }
 
 export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
-  name: "social-traction-v2-with-browser-metrics",
+  name: "social-traction-v3-balanced-recency",
   platformWeights: {
     x: 0.34,
     instagram: 0.22,
@@ -65,16 +66,42 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
     reddit: 45,
     bilibili: 120
   },
+  recencyWeightFloor: 0.6,
   defaultHalfLifeDays: 60,
   topKPosts: 5
 };
 
 export function weightedMetricSum(platform: Platform, metrics: EvidenceMetrics): number {
   const weights = TRACTION_SCORING_CONFIG.metricWeights[platform] ?? {};
+  const normalizedMetrics = normalizeMetricsForScoring(platform, metrics);
 
-  return Object.entries(metrics).reduce((sum, [key, rawValue]) => {
+  return Object.entries(normalizedMetrics).reduce((sum, [key, rawValue]) => {
     const value = Number(rawValue);
     const weight = weights[key as keyof PlatformMetricWeights] ?? 0;
     return Number.isFinite(value) ? sum + value * weight : sum;
   }, 0);
+}
+
+function normalizeMetricsForScoring(platform: Platform, metrics: EvidenceMetrics): EvidenceMetrics {
+  if (platform !== "linkedin") {
+    return metrics;
+  }
+
+  const likes = finiteMetric(metrics.likes);
+  const reactions = finiteMetric(metrics.reactions);
+
+  if (likes === null || reactions === null) {
+    return metrics;
+  }
+
+  return {
+    ...metrics,
+    likes: Math.max(likes, reactions),
+    reactions: undefined
+  };
+}
+
+function finiteMetric(value: number | null | undefined): number | null {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
 }

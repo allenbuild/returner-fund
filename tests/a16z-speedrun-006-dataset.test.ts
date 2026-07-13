@@ -24,6 +24,10 @@ const A16Z_SPEEDRUN_SOURCE_PREFIX = "https://speedrun.a16z.com/";
 const A16Z_REPRESENTATIVE_SOCIAL_SEED_COMPANIES = ["SUN", "ZeroDrift", "Acceler8", "Modaic", "Sentra"];
 const CREBIT_SCREENSHOT_POST_URL =
   "https://www.linkedin.com/posts/simmi-sen_crebit-founding-engineer-application-activity-7475266867537039360-QwfJ";
+const CREBIT_BACKED_BY_A16Z_POST_URL =
+  "https://www.linkedin.com/posts/simmi-sen_crebit-is-backed-by-a16z-speedrun-since-activity-7424504480077062144-_L5q";
+const CREBIT_GROWTH_INTERN_POST_URL =
+  "https://www.linkedin.com/posts/simmi-sen_we-are-hiring-ten-paid-growth-interns-for-activity-7403840813530570752-U_Nm";
 
 interface A16zSocialSeedSnapshot {
   companies: A16zSocialSeedCompany[];
@@ -295,6 +299,17 @@ describe("a16z speedrun 006 dataset", () => {
 
     expect(crebit?.score).toBeGreaterThan(0);
     expect(crebit?.topPlatform).toBe("linkedin");
+    expect(crebit?.biggestContribution?.sourceUrl).toBe(CREBIT_GROWTH_INTERN_POST_URL);
+    expect(
+      graph.evidence
+        .filter((item) =>
+          [CREBIT_GROWTH_INTERN_POST_URL, CREBIT_BACKED_BY_A16Z_POST_URL, CREBIT_SCREENSHOT_POST_URL].includes(
+            item.sourceUrl
+          )
+        )
+        .sort((left, right) => right.contributionScore - left.contributionScore)
+        .map((item) => item.sourceUrl)
+    ).toEqual([CREBIT_GROWTH_INTERN_POST_URL, CREBIT_BACKED_BY_A16Z_POST_URL, CREBIT_SCREENSHOT_POST_URL]);
     expect(crebit?.biggestContribution?.sourceUrl).toMatch(/^https:\/\/(www\.linkedin\.com\/posts\/|www\.youtube\.com\/watch\?v=)/);
     expect(crebit?.biggestContribution?.sourceUrl).not.toContain("speedrun.a16z.com");
     expect(crebit?.biggestContribution?.sourceUrl).not.toContain("a16z.com");
