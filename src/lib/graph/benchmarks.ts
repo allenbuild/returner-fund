@@ -52,9 +52,10 @@ export function ensureBenchmarkMomentum(
   const weeklyBaseline = selectWeeklyBaseline([...store.daily, ...store.weekly], now);
   let recordedDaily = false;
   let recordedWeekly = false;
+  const sameDayDailySnapshot = latestSnapshotOnSameDay(store.daily, now);
 
-  if (currentSnapshot.companies.length && !latestSnapshotOnSameDay(store.daily, now)) {
-    store.daily = [...store.daily, currentSnapshot].slice(-MAX_DAILY_SNAPSHOTS);
+  if (currentSnapshot.companies.length && shouldRecordDailySnapshot(sameDayDailySnapshot, currentSnapshot)) {
+    store.daily = upsertSnapshotForLocalDay(store.daily, currentSnapshot, now).slice(-MAX_DAILY_SNAPSHOTS);
     recordedDaily = true;
   }
 
@@ -173,6 +174,24 @@ function latestSnapshot(snapshots: BenchmarkSnapshot[]): BenchmarkSnapshot | nul
 
 function latestSnapshotOnSameDay(snapshots: BenchmarkSnapshot[], day: Date): BenchmarkSnapshot | null {
   return latestSnapshot(snapshots.filter((snapshot) => isSameLocalDay(new Date(snapshot.recordedAt), day)));
+}
+
+function shouldRecordDailySnapshot(
+  existingSnapshot: BenchmarkSnapshot | null,
+  currentSnapshot: BenchmarkSnapshot
+): boolean {
+  return !existingSnapshot || currentSnapshot.companies.length > existingSnapshot.companies.length;
+}
+
+function upsertSnapshotForLocalDay(
+  snapshots: BenchmarkSnapshot[],
+  snapshot: BenchmarkSnapshot,
+  day: Date
+): BenchmarkSnapshot[] {
+  return sortSnapshots([
+    ...snapshots.filter((candidate) => !isSameLocalDay(new Date(candidate.recordedAt), day)),
+    snapshot
+  ]);
 }
 
 function selectDailyBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {

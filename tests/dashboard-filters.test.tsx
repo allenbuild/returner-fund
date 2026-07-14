@@ -231,6 +231,37 @@ describe("dashboard filters", () => {
     ).toBe(false);
   });
 
+  it("falls back to the live graph API when a static graph snapshot has stale benchmark dates", async () => {
+    const staleGraph = withBenchmarkDates(
+      graphResponse([makeNode("company:stale", "Stale Snapshot", "b2b", "#7dd3fc", "Partner A")]),
+      localDateIso(-2),
+      localDateIso(-8)
+    );
+    const liveGraph = withBenchmarkDates(
+      graphResponse([makeNode("company:fresh", "Fresh API", "b2b", "#7dd3fc", "Partner A")]),
+      localDateIso(-1),
+      localDateIso(-7)
+    );
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      return {
+        ok: true,
+        json: async () => (url.startsWith("/graph/s2026.json") ? staleGraph : liveGraph)
+      };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard />);
+
+    await waitFor(() => {
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Fresh API")).toBeInTheDocument();
+    });
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Stale Snapshot")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+  });
+
   it("filters minimum score locally without waiting for a graph request", async () => {
     const fullGraph = graphResponse([
       makeNode("company:low", "Low Score", "b2b", "#7dd3fc", "Partner A", 20),
@@ -333,6 +364,44 @@ function graphResponse(
     generatedAt: "2026-06-29T00:00:00.000Z",
     mode: "official_snapshot"
   };
+}
+
+function withBenchmarkDates(graph: GraphResponse, dodBenchmarkedAt: string, wowBenchmarkedAt: string): GraphResponse {
+  return {
+    ...graph,
+    fastestGaining: graph.leaderboard.map((row) => ({
+      rank: row.rank,
+      companyId: row.companyId,
+      companyName: row.companyName,
+      dod: {
+        scoreDelta: 0,
+        percentDelta: 0,
+        rankDelta: 0,
+        currentScore: row.score,
+        currentRank: row.rank,
+        baselineScore: row.score,
+        baselineRank: row.rank,
+        benchmarkedAt: dodBenchmarkedAt
+      },
+      wow: {
+        scoreDelta: 0,
+        percentDelta: 0,
+        rankDelta: 0,
+        currentScore: row.score,
+        currentRank: row.rank,
+        baselineScore: row.score,
+        baselineRank: row.rank,
+        benchmarkedAt: wowBenchmarkedAt
+      }
+    }))
+  };
+}
+
+function localDateIso(dayOffset: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() + dayOffset);
+  date.setHours(0, 0, 0, 0);
+  return date.toISOString();
 }
 
 function makeNode(

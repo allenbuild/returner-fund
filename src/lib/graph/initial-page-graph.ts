@@ -1,4 +1,4 @@
-import { benchmarkStoreVersion, ensureBenchmarkMomentum } from "./benchmarks";
+import { applyBenchmarkMomentumRows, benchmarkStoreVersion, ensureBenchmarkMomentum } from "./benchmarks";
 import { buildGraphResponse } from "./graph-builder";
 import { sanitizeGraphResponse } from "./response-sanitizer";
 import type { GraphFilters, GraphResponse } from "./types";
@@ -20,9 +20,14 @@ export function buildInitialPageGraph(filters: GraphFilters = {}): GraphResponse
   });
   if (cachedInitialPageGraph?.cacheKey !== cacheKey) {
     const graph = sanitizeGraphResponse(buildGraphResponse({ ...filters, batchSlug }, yc2026GraphDataset));
+    const benchmarkGraph = sanitizeGraphResponse(buildGraphResponse({ batchSlug }, yc2026GraphDataset));
+    const benchmarkRows =
+      (filters.topVoices ?? "off") === "off"
+        ? ensureBenchmarkMomentum(benchmarkGraph, { now }).graph.fastestGaining
+        : graph.fastestGaining;
     cachedInitialPageGraph = {
       cacheKey,
-      graph: trimInitialEvidence(ensureBenchmarkMomentum(graph, { now }).graph)
+      graph: trimInitialEvidence(applyBenchmarkMomentumRows(graph, benchmarkRows))
     };
   }
   return cachedInitialPageGraph.graph;

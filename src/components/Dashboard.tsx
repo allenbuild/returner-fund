@@ -14,6 +14,7 @@ import { CytoscapeGraph } from "./CytoscapeGraph";
 import { InsightsTabs } from "./InsightsTabs";
 import { NodePanel } from "./NodePanel";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
+import { graphBenchmarkDatesAreFresh } from "@/lib/graph/benchmark-freshness";
 import { applyClientGraphFilters, type ClientGraphFilters } from "@/lib/graph/client-filters";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
@@ -51,7 +52,7 @@ const defaultBatches = [
 ];
 const DEFAULT_BATCH_SLUG = "S2026";
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
-const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-13-repaired-benchmarks";
+const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-14-benchmark-freshness";
 const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
@@ -86,6 +87,31 @@ async function fetchGraphPayload(
   }
 
   throw lastError ?? new Error("Graph request failed");
+}
+
+async function fetchGraphPayloadWithFreshStaticSnapshot(
+  staticSnapshotUrl: string | null,
+  apiUrl: string,
+  attempts = 3,
+  options: { signal?: AbortSignal } = {}
+): Promise<GraphResponse> {
+  if (staticSnapshotUrl) {
+    try {
+      const staticPayload = await fetchGraphPayload(staticSnapshotUrl, 2, {
+        cache: "force-cache",
+        signal: options.signal
+      });
+      if (graphBenchmarkDatesAreFresh(staticPayload)) {
+        return staticPayload;
+      }
+    } catch (caught) {
+      if (isAbortError(caught) || options.signal?.aborted) {
+        throw caught;
+      }
+    }
+  }
+
+  return fetchGraphPayload(apiUrl, attempts, { cache: "no-store", signal: options.signal });
 }
 
 interface DashboardProps {
@@ -276,10 +302,12 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
     }
     try {
       const staticSnapshotUrl = options.unfiltered ? staticGraphSnapshotUrl(batchSlug, topVoiceAudience) : null;
-      const payload = await fetchGraphPayload(staticSnapshotUrl ?? `/api/graph?${params.toString()}`, 3, {
-        cache: staticSnapshotUrl ? "force-cache" : "no-store",
-        signal: controller.signal
-      });
+      const payload = await fetchGraphPayloadWithFreshStaticSnapshot(
+        staticSnapshotUrl,
+        `/api/graph?${params.toString()}`,
+        3,
+        { signal: controller.signal }
+      );
       if (options.unfiltered) {
         rememberGraph(payload);
       }
@@ -324,11 +352,11 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
 
     try {
       const staticSnapshotUrl = staticGraphSnapshotUrl(prefetchBatchSlug, prefetchTopVoiceAudience);
-      rememberGraph(
-        await fetchGraphPayload(staticSnapshotUrl ?? `/api/graph?${params.toString()}`, 2, {
-          cache: staticSnapshotUrl ? "force-cache" : "no-store"
-        })
-      );
+      rememberGraph(await fetchGraphPayloadWithFreshStaticSnapshot(
+        staticSnapshotUrl,
+        `/api/graph?${params.toString()}`,
+        2
+      ));
     } catch {
       // Background warming should never interrupt the active dashboard.
     } finally {
