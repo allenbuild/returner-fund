@@ -409,21 +409,37 @@ function formatRankDelta(rankDelta: number): string {
 }
 
 function formatBenchmark(delta: MomentumDelta): string {
-  if (delta.baselineScore === null || delta.baselineRank === null || !delta.benchmarkedAt) {
-    return "Awaiting prior snapshot";
+  const benchmarkDate = formatBenchmarkDate(delta.benchmarkedAt);
+  if (delta.baselineScore === null || delta.baselineRank === null) {
+    return benchmarkDate ? `Awaiting ${benchmarkDate} snapshot` : "Awaiting prior snapshot";
   }
-  return `${delta.baselineScore} pts / #${delta.baselineRank} on ${new Date(delta.benchmarkedAt).toLocaleDateString()}`;
+  return `${delta.baselineScore} pts / #${delta.baselineRank} on ${benchmarkDate ?? "prior snapshot"}`;
 }
 
 function formatBenchmarkCompact(delta: MomentumDelta): string {
-  if (delta.baselineScore === null || delta.baselineRank === null || !delta.benchmarkedAt) {
-    return "Pending";
+  const benchmarkDate = formatBenchmarkDate(delta.benchmarkedAt, { month: "numeric", day: "numeric" });
+  if (delta.baselineScore === null || delta.baselineRank === null) {
+    return benchmarkDate ? `Pending · ${benchmarkDate}` : "Pending";
   }
-  const benchmarkDate = new Date(delta.benchmarkedAt);
-  return `${delta.baselineScore} / #${delta.baselineRank} · ${benchmarkDate.toLocaleDateString(undefined, {
+  return `${delta.baselineScore} / #${delta.baselineRank} · ${benchmarkDate ?? "prior"}`;
+}
+
+function formatBenchmarkDate(
+  value: string | null,
+  options: Intl.DateTimeFormatOptions = { month: "numeric", day: "numeric", year: "numeric" }
+): string | null {
+  if (!value) {
+    return null;
+  }
+  const benchmarkDate = new Date(value);
+  if (!Number.isFinite(benchmarkDate.getTime())) {
+    return null;
+  }
+  return benchmarkDate.toLocaleDateString(undefined, {
     month: "numeric",
-    day: "numeric"
-  })}`;
+    day: "numeric",
+    ...options
+  });
 }
 
 function signed(value: number): string {

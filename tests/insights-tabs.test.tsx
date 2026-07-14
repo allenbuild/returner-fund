@@ -58,6 +58,42 @@ describe("insights tabs", () => {
     expect(within(table).getByText("+7")).toBeInTheDocument();
   });
 
+  it("shows the intended benchmark date when the exact snapshot is still pending", () => {
+    const graph = graphResponse();
+    const dodBenchmarkAt = new Date(2026, 6, 12).toISOString();
+    const wowBenchmarkAt = new Date(2026, 6, 6).toISOString();
+    graph.fastestGaining[0] = {
+      ...graph.fastestGaining[0]!,
+      dod: {
+        ...graph.fastestGaining[0]!.dod,
+        scoreDelta: 0,
+        percentDelta: 0,
+        rankDelta: 0,
+        baselineScore: null,
+        baselineRank: null,
+        benchmarkedAt: dodBenchmarkAt
+      },
+      wow: {
+        ...graph.fastestGaining[0]!.wow,
+        scoreDelta: 0,
+        percentDelta: 0,
+        rankDelta: 0,
+        baselineScore: null,
+        baselineRank: null,
+        benchmarkedAt: wowBenchmarkAt
+      }
+    };
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Hottest" }));
+
+    expect(screen.getByText(`Awaiting ${new Date(dodBenchmarkAt).toLocaleDateString()} snapshot`)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Week over week" }));
+
+    expect(screen.getByText(`Awaiting ${new Date(wowBenchmarkAt).toLocaleDateString()} snapshot`)).toBeInTheDocument();
+  });
+
   it("breaks equal hottest score deltas by percentage growth", () => {
     const graph = graphResponse();
     graph.fastestGaining = [

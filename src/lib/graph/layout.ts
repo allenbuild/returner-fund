@@ -35,9 +35,11 @@ export const LABEL_TEXT_MAX_WIDTH = 104;
 const LABEL_MARGIN = 12;
 const LABEL_BOX_PADDING_X = 18;
 const LABEL_BOX_PADDING_Y = 14;
-const LABEL_WIDTH_FACTOR = 0.74;
+const LABEL_WIDTH_FACTOR = 0.82;
 const LABEL_LINE_HEIGHT = 1.22;
 const LABEL_CIRCLE_CLEARANCE = 4;
+const FALLBACK_CIRCLE_COLLISION_WEIGHT = 18;
+const FALLBACK_LABEL_COLLISION_WEIGHT = 2.4;
 
 export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayoutPosition> {
   const positions = new Map<string, GraphLayoutPosition>();
@@ -137,7 +139,7 @@ export function buildLabelPlacements(
 }
 
 export function labelSizeForNode(node: GraphNode): number {
-  return Math.max(11, Math.min(21, node.radius * 0.34));
+  return Math.max(10, Math.min(16, node.radius * 0.28));
 }
 
 export function collisionRadius(node: GraphNode): number {
@@ -291,6 +293,9 @@ function labelOptionsForNode(node: GraphNode, position: GraphLayoutPosition): La
     { halign: "right", valign: "top", marginX: -LABEL_MARGIN, marginY: LABEL_MARGIN },
     { halign: "right", valign: "bottom", marginX: -LABEL_MARGIN, marginY: -LABEL_MARGIN }
   ];
+  if (labelFitsInsideNode(node)) {
+    placements.unshift({ halign: "center", valign: "center", marginX: 0, marginY: 0 });
+  }
 
   return placements.map((placement) => ({
     placement,
@@ -308,15 +313,15 @@ export function estimateLabelBoxForNode(
   const verticalGap = node.radius + Math.abs(placement.marginY);
   const centerX =
     placement.halign === "left"
-      ? position.x + horizontalGap + width / 2
+      ? position.x - horizontalGap - width / 2
       : placement.halign === "right"
-        ? position.x - horizontalGap - width / 2
+        ? position.x + horizontalGap + width / 2
         : position.x + placement.marginX;
   const centerY =
     placement.valign === "top"
-      ? position.y + verticalGap + height / 2
+      ? position.y - verticalGap - height / 2
       : placement.valign === "bottom"
-        ? position.y - verticalGap - height / 2
+        ? position.y + verticalGap + height / 2
         : position.y + placement.marginY;
 
   return {
@@ -335,6 +340,11 @@ function estimateLabelDimensions(node: GraphNode): { width: number; height: numb
   const height = fontSize * lineCount * LABEL_LINE_HEIGHT + LABEL_BOX_PADDING_Y;
 
   return { width, height };
+}
+
+function labelFitsInsideNode(node: GraphNode): boolean {
+  const { width, height } = estimateLabelDimensions(node);
+  return Math.hypot(width / 2, height / 2) <= node.radius * 1.06;
 }
 
 function bestFallbackLabelOption(
@@ -366,7 +376,7 @@ function labelCollisionPenalty(
     return sum + circleBoxOverlapPenalty(expandedBox, circle);
   }, 0);
 
-  return labelPenalty + circlePenalty * 1.5;
+  return labelPenalty * FALLBACK_LABEL_COLLISION_WEIGHT + circlePenalty * FALLBACK_CIRCLE_COLLISION_WEIGHT;
 }
 
 function labelBoxFits(box: LabelBox, placedBoxes: LabelBox[], circles: LayoutCircle[], ownerId: string): boolean {

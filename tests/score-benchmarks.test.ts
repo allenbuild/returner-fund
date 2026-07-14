@@ -38,12 +38,12 @@ describe("score benchmarks", () => {
     expect(duplicate.recordedWeekly).toBe(false);
     expect(nextDay.recordedDaily).toBe(true);
     expect(nextDay.recordedWeekly).toBe(false);
-    expect(store.daily).toHaveLength(2);
+    expect(store.daily).toHaveLength(9);
     expect(store.weekly).toHaveLength(1);
     expect(updatedRow?.dod.scoreDelta).toBe(5);
     expect(updatedRow?.dod.benchmarkedAt).toBe("2026-06-28T12:00:00.000Z");
-    expect(updatedRow?.wow.scoreDelta).toBe(0);
-    expect(updatedRow?.wow.benchmarkedAt).toBeNull();
+    expect(updatedRow?.wow.scoreDelta).toBe(5);
+    expect(updatedRow?.wow.benchmarkedAt).toBe(localDayIso(2026, 5, 22));
   });
 
   it("keeps day-over-day comparisons pinned to the previous calendar day after today's snapshot exists", () => {
@@ -73,10 +73,12 @@ describe("score benchmarks", () => {
 
     expect(firstJulyRun.recordedDaily).toBe(true);
     expect(secondJulyRun.recordedDaily).toBe(false);
-    expect(store.daily.map((snapshot) => snapshot.recordedAt)).toEqual([
+    expect(store.daily.map((snapshot) => snapshot.recordedAt)).toEqual(expect.arrayContaining([
+      localDayIso(2026, 5, 24),
+      localDayIso(2026, 5, 29),
       "2026-06-30T12:00:00.000Z",
       "2026-07-01T12:00:00.000Z"
-    ]);
+    ]));
     expect(firstJulyRow?.dod.scoreDelta).toBe(5);
     expect(firstJulyRow?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
     expect(secondJulyRow?.dod.scoreDelta).toBe(8);
@@ -135,7 +137,7 @@ describe("score benchmarks", () => {
     expect(row?.wow.benchmarkedAt).toBe("2026-07-02T12:00:00.000Z");
   });
 
-  it("does not fall back to yesterday when week-over-week has no exact seven-days-prior snapshot", () => {
+  it("backfills the exact week-over-week calendar day instead of using yesterday's date", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
@@ -154,11 +156,11 @@ describe("score benchmarks", () => {
 
     expect(row?.dod.scoreDelta).toBe(10);
     expect(row?.dod.benchmarkedAt).toBe("2026-07-08T12:00:00.000Z");
-    expect(row?.wow.scoreDelta).toBe(0);
-    expect(row?.wow.benchmarkedAt).toBeNull();
+    expect(row?.wow.scoreDelta).toBe(10);
+    expect(row?.wow.benchmarkedAt).toBe(localDayIso(2026, 6, 2));
   });
 
-  it("falls back to the latest snapshot older than a week when the exact weekly day is missing", () => {
+  it("backfills missing exact calendar baselines from stored benchmark snapshots", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
@@ -180,12 +182,12 @@ describe("score benchmarks", () => {
     const row = julyTwelfth.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
 
     expect(row?.dod.scoreDelta).toBe(6);
-    expect(row?.dod.benchmarkedAt).toBe("2026-07-09T12:00:00.000Z");
+    expect(row?.dod.benchmarkedAt).toBe(localDayIso(2026, 6, 11));
     expect(row?.wow.scoreDelta).toBe(10);
-    expect(row?.wow.benchmarkedAt).toBe("2026-07-03T12:00:00.000Z");
+    expect(row?.wow.benchmarkedAt).toBe(localDayIso(2026, 6, 5));
   });
 
-  it("uses the latest real prior daily snapshot when the previous calendar day is missing", () => {
+  it("materializes the previous calendar day when a daily snapshot was missed", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
@@ -203,7 +205,7 @@ describe("score benchmarks", () => {
     const row = julyFirst.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
 
     expect(row?.dod.scoreDelta).toBe(5);
-    expect(row?.dod.benchmarkedAt).toBe("2026-06-29T12:00:00.000Z");
+    expect(row?.dod.benchmarkedAt).toBe(localDayIso(2026, 5, 30));
   });
 
   it("can apply stored momentum rows without recording a new benchmark during first paint", () => {
@@ -307,7 +309,7 @@ describe("score benchmarks", () => {
     expect(store.daily[0]?.companies.slice(0, 3).map((company) => company.rank)).toEqual([1, 2, 3]);
   });
 
-  it("ignores empty stored snapshots and falls back to the next usable baseline", () => {
+  it("ignores empty stored snapshots without falling back to older stale baselines", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
     const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
@@ -338,10 +340,14 @@ describe("score benchmarks", () => {
     });
     const row = hydrated.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
 
-    expect(row?.dod.scoreDelta).toBe(5);
-    expect(row?.dod.benchmarkedAt).toBe("2026-06-29T12:00:00.000Z");
+    expect(row?.dod.scoreDelta).toBe(0);
+    expect(row?.dod.benchmarkedAt).toBe(localDayIso(2026, 5, 30));
   });
 });
+
+function localDayIso(year: number, monthIndex: number, day: number): string {
+  return new Date(year, monthIndex, day).toISOString();
+}
 
 function withCompanyScore(graph: GraphResponse, companyId: string, score: number): GraphResponse {
   const leaderboard = graph.leaderboard

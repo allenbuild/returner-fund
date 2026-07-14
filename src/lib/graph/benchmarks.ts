@@ -47,6 +47,7 @@ export function ensureBenchmarkMomentum(
   const storePath = options.storePath ?? benchmarkStorePath(graph.batch.slug);
   const store = readBenchmarkStore(storePath, graph.batch.slug);
   const currentSnapshot = snapshotFromGraph(graph, now);
+  let repairedCalendarSnapshots = ensureCalendarBenchmarkSnapshots(store, now);
   const dailyBaseline = selectDailyBaseline(store.daily, now);
   const weeklyBaseline = selectWeeklyBaseline([...store.daily, ...store.weekly], now);
   let recordedDaily = false;
@@ -62,12 +63,13 @@ export function ensureBenchmarkMomentum(
     recordedWeekly = true;
   }
 
-  if (recordedDaily || recordedWeekly) {
+  if (repairedCalendarSnapshots || recordedDaily || recordedWeekly) {
     store.updatedAt = now.toISOString();
     try {
       writeBenchmarkStore(storePath, store);
     } catch (error) {
       console.error("Failed to persist score benchmark snapshot", error);
+      repairedCalendarSnapshots = false;
       recordedDaily = false;
       recordedWeekly = false;
     }
@@ -76,7 +78,7 @@ export function ensureBenchmarkMomentum(
   return {
     graph: {
       ...graph,
-      fastestGaining: buildBenchmarkMomentumRows(graph, dailyBaseline, weeklyBaseline)
+      fastestGaining: buildBenchmarkMomentumRows(graph, dailyBaseline, weeklyBaseline, now)
     },
     storePath,
     recordedDaily,
@@ -96,7 +98,7 @@ export function applyStoredBenchmarkMomentum(
 
   return {
     ...graph,
-    fastestGaining: buildBenchmarkMomentumRows(graph, dailyBaseline, weeklyBaseline)
+    fastestGaining: buildBenchmarkMomentumRows(graph, dailyBaseline, weeklyBaseline, now)
   };
 }
 
@@ -173,19 +175,12 @@ function latestSnapshotOnSameDay(snapshots: BenchmarkSnapshot[], day: Date): Ben
   return latestSnapshot(snapshots.filter((snapshot) => isSameLocalDay(new Date(snapshot.recordedAt), day)));
 }
 
-function selectLatestPriorBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
-  return latestSnapshotBefore(snapshots, startOfLocalDay(now));
-}
-
 function selectDailyBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
-  return selectLatestPriorBaseline(snapshots, now) ?? latestSnapshotBefore(snapshots, now);
+  return selectLatestBaselineOnLocalDay(snapshots, now, 1);
 }
 
 function selectWeeklyBaseline(snapshots: BenchmarkSnapshot[], now: Date): BenchmarkSnapshot | null {
-  return (
-    selectLatestBaselineOnLocalDay(snapshots, now, 7) ??
-    latestSnapshotBefore(snapshots, addLocalDays(startOfLocalDay(now), -7))
-  );
+  return selectLatestBaselineOnLocalDay(snapshots, now, 7);
 }
 
 function selectLatestBaselineOnLocalDay(
@@ -207,13 +202,73 @@ function selectLatestBaselineOnLocalDay(
   );
 }
 
-function latestSnapshotBefore(snapshots: BenchmarkSnapshot[], cutoff: Date): BenchmarkSnapshot | null {
-  return latestSnapshot(
+function ensureCalendarBenchmarkSnapshots(store: BenchmarkStore, now: Date): boolean {
+  const currentDayStart = startOfLocalDay(now);
+  let changed = false;
+
+  for (let daysBack = 7; daysBack >= 1; daysBack -= 1) {
+    const targetDayStart = addLocalDays(currentDayStart, -daysBack);
+    if (latestSnapshotOnSameDay(store.daily, targetDayStart)) {
+      continue;
+    }
+
+    const source = nearestSnapshotForCalendarDay([...store.daily, ...store.weekly], targetDayStart);
+    if (!source) {
+      continue;
+    }
+
+    store.daily.push(snapshotForCalendarDay(source, targetDayStart));
+    changed = true;
+  }
+
+  if (changed) {
+    store.daily = sortSnapshots(store.daily).slice(-MAX_DAILY_SNAPSHOTS);
+  }
+
+  return changed;
+}
+
+function nearestSnapshotForCalendarDay(
+  snapshots: BenchmarkSnapshot[],
+  targetDayStart: Date
+): BenchmarkSnapshot | null {
+  const targetDayEnd = addLocalDays(targetDayStart, 1);
+  const prior = latestSnapshot(
     snapshots.filter((snapshot) => {
       const recordedAt = new Date(snapshot.recordedAt).getTime();
-      return Number.isFinite(recordedAt) && recordedAt < cutoff.getTime();
+      return Number.isFinite(recordedAt) && recordedAt < targetDayStart.getTime();
     })
   );
+  if (prior) {
+    return prior;
+  }
+
+  return earliestSnapshot(
+    snapshots.filter((snapshot) => {
+      const recordedAt = new Date(snapshot.recordedAt).getTime();
+      return Number.isFinite(recordedAt) && recordedAt >= targetDayEnd.getTime();
+    })
+  );
+}
+
+function snapshotForCalendarDay(source: BenchmarkSnapshot, targetDayStart: Date): BenchmarkSnapshot {
+  return {
+    recordedAt: targetDayStart.toISOString(),
+    companies: source.companies.map((company) => ({ ...company }))
+  };
+}
+
+function earliestSnapshot(snapshots: BenchmarkSnapshot[]): BenchmarkSnapshot | null {
+  return snapshots.reduce<BenchmarkSnapshot | null>((earliest, snapshot) => {
+    if (!earliest) {
+      return snapshot;
+    }
+    return new Date(snapshot.recordedAt).getTime() < new Date(earliest.recordedAt).getTime() ? snapshot : earliest;
+  }, null);
+}
+
+function sortSnapshots(snapshots: BenchmarkSnapshot[]): BenchmarkSnapshot[] {
+  return [...snapshots].sort((left, right) => new Date(left.recordedAt).getTime() - new Date(right.recordedAt).getTime());
 }
 
 function shouldRecordWeeklySnapshot(snapshots: BenchmarkSnapshot[], now: Date): boolean {
@@ -228,21 +283,28 @@ function shouldRecordWeeklySnapshot(snapshots: BenchmarkSnapshot[], now: Date): 
 function buildBenchmarkMomentumRows(
   graph: GraphResponse,
   dailyBaseline: BenchmarkSnapshot | null,
-  weeklyBaseline: BenchmarkSnapshot | null
+  weeklyBaseline: BenchmarkSnapshot | null,
+  now: Date
 ): FastestGainingRow[] {
   const dailyByCompany = dailyBaseline ? snapshotIndex(dailyBaseline) : new Map<string, BenchmarkCompanySnapshot>();
   const weeklyByCompany = weeklyBaseline ? snapshotIndex(weeklyBaseline) : new Map<string, BenchmarkCompanySnapshot>();
+  const dailyTargetAt = baselineTargetRecordedAt(now, 1);
+  const weeklyTargetAt = baselineTargetRecordedAt(now, 7);
 
   return graph.leaderboard
     .map((row) => ({
       rank: 0,
       companyId: row.companyId,
       companyName: row.companyName,
-      dod: deltaFor(row, dailyByCompany.get(row.companyId) ?? null, dailyBaseline?.recordedAt ?? null),
-      wow: deltaFor(row, weeklyByCompany.get(row.companyId) ?? null, weeklyBaseline?.recordedAt ?? null)
+      dod: deltaFor(row, dailyByCompany.get(row.companyId) ?? null, dailyBaseline?.recordedAt ?? dailyTargetAt),
+      wow: deltaFor(row, weeklyByCompany.get(row.companyId) ?? null, weeklyBaseline?.recordedAt ?? weeklyTargetAt)
     }))
     .sort(momentumSort("dod"))
     .map((row, index) => ({ ...row, rank: index + 1 }));
+}
+
+function baselineTargetRecordedAt(now: Date, daysBack: number): string {
+  return addLocalDays(startOfLocalDay(now), -daysBack).toISOString();
 }
 
 function snapshotIndex(snapshot: BenchmarkSnapshot): Map<string, BenchmarkCompanySnapshot> {

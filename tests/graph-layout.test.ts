@@ -53,13 +53,32 @@ describe("graph layout", () => {
   it("keeps a16z Instagram labels off neighboring company circles", () => {
     const graph = buildGraphResponse({ batchSlug: "A16ZSR006", platforms: ["instagram"] }, ycSpring2026GraphDataset);
     const selected = graph.nodes.find((node) => node.label === "Clair Health") ?? graph.nodes[0];
+    const positions = buildClusterPositions(graph.nodes);
     const labels = assertNoLabelCircleOverlap(graph.nodes, selected.id, 52);
     const hammock = graph.nodes.find((node) => node.label === "Hammock");
     const sun = graph.nodes.find((node) => node.label === "SUN");
 
     expect(hammock).toBeDefined();
     expect(sun).toBeDefined();
+    expect(labels.get(selected.id)?.halign).not.toBe("left");
     expect(labels.size).toBeGreaterThan(0);
+
+    const selectedPlacement = labels.get(selected.id);
+    const hammockPlacement = hammock ? labels.get(hammock.id) : undefined;
+    const selectedPosition = positions.get(selected.id);
+    const hammockPosition = hammock ? positions.get(hammock.id) : undefined;
+    expect(selectedPlacement).toBeDefined();
+    expect(hammockPlacement).toBeDefined();
+    expect(selectedPosition).toBeDefined();
+    expect(hammockPosition).toBeDefined();
+    if (hammock && selectedPlacement && hammockPlacement && selectedPosition && hammockPosition) {
+      expect(
+        boxesOverlap(
+          estimateLabelBoxForNode(selected, selectedPosition, selectedPlacement),
+          estimateLabelBoxForNode(hammock, hammockPosition, hammockPlacement)
+        )
+      ).toBe(false);
+    }
   }, 20_000);
 
   it("shows most A16Z company names on the graph", () => {
@@ -73,6 +92,34 @@ describe("graph layout", () => {
     expect(labels.has(selected.id)).toBe(true);
   }, 20_000);
 
+  it("keeps forced a16z company labels from hiding under neighboring circles", () => {
+    const graph = buildGraphResponse({ batchSlug: "A16ZSR006" }, ycSpring2026GraphDataset);
+    const selected = graph.nodes.find((node) => node.label === "Clair Health") ?? graph.nodes[0];
+    const positions = buildClusterPositions(graph.nodes);
+    const labels = buildLabelPlacements(graph.nodes, positions, selected.id, graph.nodes.length, true);
+    const crebit = graph.nodes.find((node) => node.label === "Crebit");
+    const hotbox = graph.nodes.find((node) => node.label === "Hotbox");
+    const crebitPlacement = crebit ? labels.get(crebit.id) : undefined;
+    const crebitPosition = crebit ? positions.get(crebit.id) : undefined;
+    const hotboxPosition = hotbox ? positions.get(hotbox.id) : undefined;
+
+    expect(crebit).toBeDefined();
+    expect(hotbox).toBeDefined();
+    expect(crebitPlacement).toBeDefined();
+    expect(crebitPosition).toBeDefined();
+    expect(hotboxPosition).toBeDefined();
+    if (crebit && hotbox && crebitPlacement && crebitPosition && hotboxPosition) {
+      expect(
+        labelBoxOverlapsCircle(estimateLabelBoxForNode(crebit, crebitPosition, crebitPlacement), {
+          id: hotbox.id,
+          x: hotboxPosition.x,
+          y: hotboxPosition.y,
+          radius: hotbox.radius + 4
+        })
+      ).toBe(false);
+    }
+  }, 20_000);
+
   it("shows substantially more YC Spring company names on the dense graph", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
     const selected = graph.nodes.find((node) => node.label === "HeyClicky") ?? graph.nodes[0];
@@ -82,6 +129,17 @@ describe("graph layout", () => {
     expect(graph.nodes).toHaveLength(197);
     expect(labels.size).toBeGreaterThanOrEqual(90);
     expect(labels.has(selected.id)).toBe(true);
+  }, 20_000);
+
+  it("keeps dense Spring labels separated around high-traffic clusters", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const selected = graph.nodes.find((node) => node.label === "HeyClicky") ?? graph.nodes[0];
+    const positions = buildClusterPositions(graph.nodes);
+    const labels = buildLabelPlacements(graph.nodes, positions, selected.id, graph.nodes.length, true);
+
+    assertLabelBoxesDoNotOverlap(graph.nodes, positions, labels, "BioStack Platforms", "Foaster");
+    assertLabelBoxesDoNotOverlap(graph.nodes, positions, labels, "Totalis", "Arlo Industries");
+    assertLabelBoxesDoNotOverlap(graph.nodes, positions, labels, "InsForge", "Voquill");
   }, 20_000);
 
   it("can place every Summer 2026 company name for the rendered map", () => {
@@ -148,6 +206,46 @@ describe("graph layout", () => {
 
 function average(values: number[]): number {
   return values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1);
+}
+
+function boxesOverlap(
+  left: { left: number; right: number; top: number; bottom: number },
+  right: { left: number; right: number; top: number; bottom: number }
+): boolean {
+  return left.left < right.right && left.right > right.left && left.top < right.bottom && left.bottom > right.top;
+}
+
+function assertLabelBoxesDoNotOverlap(
+  nodes: ReturnType<typeof buildGraphResponse>["nodes"],
+  positions: ReturnType<typeof buildClusterPositions>,
+  labels: ReturnType<typeof buildLabelPlacements>,
+  leftLabel: string,
+  rightLabel: string
+): void {
+  const leftNode = nodes.find((node) => node.label === leftLabel);
+  const rightNode = nodes.find((node) => node.label === rightLabel);
+  const leftPosition = leftNode ? positions.get(leftNode.id) : undefined;
+  const rightPosition = rightNode ? positions.get(rightNode.id) : undefined;
+  const leftPlacement = leftNode ? labels.get(leftNode.id) : undefined;
+  const rightPlacement = rightNode ? labels.get(rightNode.id) : undefined;
+
+  expect(leftNode).toBeDefined();
+  expect(rightNode).toBeDefined();
+  expect(leftPosition).toBeDefined();
+  expect(rightPosition).toBeDefined();
+  expect(leftPlacement).toBeDefined();
+  expect(rightPlacement).toBeDefined();
+  if (!leftNode || !rightNode || !leftPosition || !rightPosition || !leftPlacement || !rightPlacement) {
+    return;
+  }
+
+  expect(
+    boxesOverlap(
+      estimateLabelBoxForNode(leftNode, leftPosition, leftPlacement),
+      estimateLabelBoxForNode(rightNode, rightPosition, rightPlacement)
+    ),
+    `${leftLabel} label should not overlap ${rightLabel} label`
+  ).toBe(false);
 }
 
 function assertNoCircleOverlap(nodes: ReturnType<typeof buildGraphResponse>["nodes"]): void {

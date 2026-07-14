@@ -51,7 +51,7 @@ const defaultBatches = [
 ];
 const DEFAULT_BATCH_SLUG = "S2026";
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
-const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-13-daily-benchmarks";
+const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-13-repaired-benchmarks";
 const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();

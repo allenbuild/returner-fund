@@ -37,6 +37,12 @@ describe("initial page graph", () => {
 
       expect(row?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
       expect(store.daily.map((snapshot) => snapshot.recordedAt)).toEqual([
+        "2026-06-24T05:00:00.000Z",
+        "2026-06-25T05:00:00.000Z",
+        "2026-06-26T05:00:00.000Z",
+        "2026-06-27T05:00:00.000Z",
+        "2026-06-28T05:00:00.000Z",
+        "2026-06-29T05:00:00.000Z",
         "2026-06-30T12:00:00.000Z",
         "2026-07-01T12:00:00.000Z"
       ]);
