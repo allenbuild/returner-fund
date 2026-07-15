@@ -68,12 +68,23 @@ const PLATFORM_REJECTS: Partial<Record<Platform, RegExp[]>> = {
 export function enrichEvidenceThumbnail<T extends ThumbnailInput>(item: T): T & EvidenceThumbnailResolution {
   const resolved = resolveEvidenceThumbnail(item);
   const generatedThumbnailUrl = generatedEvidenceThumbnailUrl(item);
-  const thumbnailUrl = item.thumbnailUrl ?? resolved.thumbnailUrl ?? generatedThumbnailUrl;
+  const existingThumbnailUrl = item.thumbnailUrl ?? null;
+  const shouldUseResolvedThumbnail = Boolean(
+    resolved.thumbnailUrl &&
+      (!existingThumbnailUrl ||
+        (isGeneratedFallbackThumbnail(existingThumbnailUrl) && !isGeneratedFallbackThumbnail(resolved.thumbnailUrl)))
+  );
+  const thumbnailUrl = shouldUseResolvedThumbnail
+    ? resolved.thumbnailUrl
+    : existingThumbnailUrl ?? resolved.thumbnailUrl ?? generatedThumbnailUrl;
+  const thumbnailSource = shouldUseResolvedThumbnail
+    ? resolved.thumbnailSource
+    : item.thumbnailSource ?? resolved.thumbnailSource ?? (generatedThumbnailUrl ? "generated-post-thumbnail" : null);
 
   return {
     ...item,
     thumbnailUrl,
-    thumbnailSource: item.thumbnailSource ?? resolved.thumbnailSource ?? (generatedThumbnailUrl ? "generated-post-thumbnail" : null),
+    thumbnailSource,
     mediaUrl: item.mediaUrl ?? resolved.mediaUrl
   };
 }
@@ -103,6 +114,7 @@ export function resolveEvidenceThumbnail(item: ThumbnailInput): EvidenceThumbnai
   }
 
   const candidates = [
+    ...cleanUrls(item.mediaUrl ? [item.mediaUrl] : []),
     ...cleanUrls(item.mediaUrls ?? []),
     ...thumbnailCandidatesFromRaw(item.rawVisibleText)
   ];
@@ -274,6 +286,18 @@ function keySuggestsImage(key: string): boolean {
 
 function firstCleanUrl(urls: string[] | undefined): string | null {
   return cleanUrls(urls ?? [])[0] ?? null;
+}
+
+function isGeneratedFallbackThumbnail(value: string | null | undefined): boolean {
+  if (!value) {
+    return false;
+  }
+
+  return (
+    value.startsWith("/api/evidence-thumbnail") ||
+    /^\/evidence-thumbnails\/.+\.svg(?:$|[?#])/.test(value) ||
+    /generated-(?:post-thumbnail|preview|fallback)|\/api\/evidence-thumbnail/i.test(value)
+  );
 }
 
 function cleanUrls(urls: string[]): string[] {

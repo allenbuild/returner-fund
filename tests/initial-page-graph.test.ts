@@ -94,4 +94,91 @@ describe("initial page graph", () => {
         .every((row) => row.biggestContribution)
     ).toBe(true);
   });
+
+  it("does not keep Top Voices company circles when a platform filter removes every traction post", async () => {
+    const { buildGraphResponse } = await import("@/lib/graph/graph-builder");
+    const { ycSpring2026GraphDataset } = await import("@/lib/graph/yc-spring-2026-dataset");
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, ycSpring2026GraphDataset);
+
+    expect(graph.evidence.length).toBeGreaterThan(0);
+    expect(graph.evidence.every((item) => item.platform !== "youtube")).toBe(true);
+
+    const youtubeFiltered = applyClientGraphFilters(graph, {
+      platforms: ["youtube"],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+    const xFiltered = applyClientGraphFilters(graph, {
+      platforms: ["x"],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+    const linkedinFiltered = applyClientGraphFilters(graph, {
+      platforms: ["linkedin"],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+
+    expect(youtubeFiltered.nodes).toHaveLength(0);
+    expect(youtubeFiltered.evidence).toHaveLength(0);
+    expect(youtubeFiltered.leaderboard).toHaveLength(0);
+    expect(xFiltered.nodes.length).toBeGreaterThan(0);
+    expect(xFiltered.evidence.length).toBeGreaterThan(0);
+    expect(linkedinFiltered.nodes.length).toBeGreaterThan(0);
+    expect(linkedinFiltered.evidence.length).toBeGreaterThan(0);
+  });
+
+  it("sizes Top Voices platform-filtered company circles from visible evidence only", async () => {
+    const { buildGraphResponse } = await import("@/lib/graph/graph-builder");
+    const { ycSpring2026GraphDataset } = await import("@/lib/graph/yc-spring-2026-dataset");
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, ycSpring2026GraphDataset);
+    const companyNode = graph.nodes.find((node) => node.entityType === "company" && node.evidenceIds.length > 0);
+    const linkedinEvidence = graph.evidence.find((item) => item.id === companyNode?.evidenceIds[0]);
+
+    expect(companyNode).toBeDefined();
+    expect(linkedinEvidence).toBeDefined();
+
+    const xEvidence = {
+      ...linkedinEvidence!,
+      id: "synthetic-insider-x-evidence",
+      platform: "x" as const,
+      sourceUrl: "https://x.com/sama/status/1234567890",
+      platformPostId: "1234567890",
+      title: "Synthetic insider X mention",
+      text: `${companyNode!.label} is worth watching.`,
+      metrics: { likes: 10 },
+      contributionScore: 10
+    };
+    const mixedGraph = {
+      ...graph,
+      evidence: [...graph.evidence, xEvidence]
+    };
+    const originalNode = graph.nodes.find((node) => node.entityId === companyNode!.entityId)!;
+    const originalRow = graph.leaderboard.find((row) => row.companyId === companyNode!.entityId)!;
+
+    const xFiltered = applyClientGraphFilters(mixedGraph, {
+      platforms: ["x"],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+    const filteredNode = xFiltered.nodes.find((node) => node.entityId === companyNode!.entityId)!;
+    const filteredRow = xFiltered.leaderboard.find((row) => row.companyId === companyNode!.entityId)!;
+
+    expect(filteredNode).toBeDefined();
+    expect(filteredRow).toBeDefined();
+    expect(xFiltered.evidence.every((item) => item.platform === "x")).toBe(true);
+    expect(xFiltered.evidence.map((item) => item.id)).toContain("synthetic-insider-x-evidence");
+    expect(filteredNode.evidenceIds).toEqual(["synthetic-insider-x-evidence"]);
+    expect(filteredRow.biggestContribution?.id).toBe("synthetic-insider-x-evidence");
+    expect(filteredNode.topPlatform).toBe("x");
+    expect(filteredRow.topPlatform).toBe("x");
+    expect(filteredNode.score).toBeLessThan(originalNode.score);
+    expect(filteredRow.score).toBe(filteredNode.score);
+    expect(filteredNode.radius).not.toBe(originalNode.radius);
+    expect(originalRow.biggestContribution?.platform).toBe("linkedin");
+  });
 });

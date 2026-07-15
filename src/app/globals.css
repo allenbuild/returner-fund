@@ -952,6 +952,10 @@ button:disabled {
   color: var(--danger);
 }
 
+.refresh-notice-text {
+  color: var(--neutral-600);
+}
+
 .dashboard-grid {
   --map-panel-height: clamp(820px, 84vh, 1080px);
   display: grid;

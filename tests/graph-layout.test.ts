@@ -92,6 +92,23 @@ describe("graph layout", () => {
     expect(labels.has(selected.id)).toBe(true);
   }, 20_000);
 
+  it("keeps larger A16Z labels visually attached inside their circles", () => {
+    const graph = buildGraphResponse({ batchSlug: "A16ZSR006" }, ycSpring2026GraphDataset);
+    const selected = graph.nodes.find((node) => node.label === "Clair Health") ?? graph.nodes[0];
+    const positions = buildClusterPositions(graph.nodes);
+    const labels = buildLabelPlacements(graph.nodes, positions, selected.id, graph.nodes.length, true);
+
+    for (const companyName of ["Acceler8", "Antihero Studios"]) {
+      const node = graph.nodes.find((item) => item.label === companyName);
+      const placement = node ? labels.get(node.id) : undefined;
+
+      expect(node).toBeDefined();
+      expect(placement, `${companyName} should have a graph label placement`).toBeDefined();
+      expect(placement?.halign, `${companyName} label should stay horizontally attached`).toBe("center");
+      expect(placement?.valign, `${companyName} label should stay vertically attached`).toBe("center");
+    }
+  }, 20_000);
+
   it("keeps forced a16z company labels from hiding under neighboring circles", () => {
     const graph = buildGraphResponse({ batchSlug: "A16ZSR006" }, ycSpring2026GraphDataset);
     const selected = graph.nodes.find((node) => node.label === "Clair Health") ?? graph.nodes[0];

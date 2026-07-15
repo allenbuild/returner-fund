@@ -201,14 +201,10 @@ describe("graph builder", () => {
     expect(graph.leaderboard[0]?.topVoiceConnections?.[0]?.displayName).toBe("Garry Tan");
     expect(graph.evidence).toHaveLength(1);
     expect(graph.evidence[0]?.authorName).toBe("Garry Tan");
-    expect(graph.nodes.some((node) => node.isTopVoiceNode && node.label === "Garry Tan")).toBe(true);
-    expect(graph.edges).toEqual([
-      expect.objectContaining({
-        edgeType: "top_voice_attention",
-        label: "Garry Tan",
-        target: "company:company-partner-backed"
-      })
-    ]);
+    expect(graph.evidence[0]?.topVoice?.displayName).toBe("Garry Tan");
+    expect(graph.nodes.some((node) => node.isTopVoiceNode)).toBe(false);
+    expect(graph.edges.some((edge) => edge.edgeType === "top_voice_attention")).toBe(false);
+    expect(graph.nodes.map((node) => node.id)).toEqual(["company:company-partner-backed"]);
   });
 
   it("treats removed batch-circle audience URLs as the default all-voices graph", () => {
@@ -260,7 +256,7 @@ describe("graph builder", () => {
     expect(graph.evidence.find((item) => item.id === "evidence-yc-quote")).toBeUndefined();
   });
 
-  it("counts top voice repost markers without counting founder reposts of top voices", () => {
+  it("does not count repost markers as native Top Voice posts", () => {
     const dataset = topVoiceDataset();
     dataset.companies = [
       ...dataset.companies,
@@ -304,9 +300,178 @@ describe("graph builder", () => {
 
     const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, dataset);
 
-    expect(graph.leaderboard.find((row) => row.companyId === "company-garry-reposted")?.topVoiceConnections?.[0])
-      .toEqual(expect.objectContaining({ displayName: "Garry Tan" }));
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-garry-reposted");
     expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-founder-reposted-yc");
+  });
+
+  it("does not count X retweet JSON as native Top Voice posts", () => {
+    const dataset = topVoiceDataset();
+    dataset.companies = [
+      ...dataset.companies,
+      makeCompany({
+        id: "company-garry-retweet-json",
+        name: "Garry Retweet JSON",
+        founderIds: ["founder-garry-retweet-json"]
+      })
+    ];
+    dataset.founders = [
+      ...dataset.founders,
+      makeFounder({ id: "founder-garry-retweet-json", name: "Rory Founder", companyIds: ["company-garry-retweet-json"] })
+    ];
+    dataset.evidence = [
+      ...dataset.evidence,
+      makeEvidence({
+        id: "evidence-garry-retweet-json",
+        entityId: "company-garry-retweet-json",
+        authorName: "Garry Tan",
+        authorHandle: "garrytan",
+        contributionScore: 60,
+        sourceUrl: "https://x.com/garrytan/status/8",
+        text: "RT @roryfounder: Garry Retweet JSON is live",
+        rawVisibleText: JSON.stringify({
+          post: {
+            is_retweet: true,
+            retweeted_status: {
+              author: { screen_name: "roryfounder" },
+              text: "Garry Retweet JSON is live"
+            }
+          }
+        })
+      })
+    ];
+
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, dataset);
+
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-garry-retweet-json");
+    expect(graph.evidence.find((item) => item.id === "evidence-garry-retweet-json")).toBeUndefined();
+  });
+
+  it("does not match Top Voice identity from spoofed social hosts", () => {
+    const dataset = topVoiceDataset();
+    dataset.companies = [
+      ...dataset.companies,
+      makeCompany({
+        id: "company-spoof-host",
+        name: "Spoof Host",
+        founderIds: ["founder-spoof-host"]
+      })
+    ];
+    dataset.founders = [
+      ...dataset.founders,
+      makeFounder({ id: "founder-spoof-host", name: "Hana Founder", companyIds: ["company-spoof-host"] })
+    ];
+    dataset.evidence = [
+      ...dataset.evidence,
+      makeEvidence({
+        id: "evidence-spoof-host",
+        entityId: "company-spoof-host",
+        authorName: "Not Garry",
+        authorHandle: null,
+        contributionScore: 60,
+        sourceUrl: "https://x.com.evil.test/garrytan/status/9",
+        text: "Spoof Host is live."
+      })
+    ];
+
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, dataset);
+
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-spoof-host");
+    expect(graph.evidence.find((item) => item.id === "evidence-spoof-host")).toBeUndefined();
+  });
+
+  it("does not let generated author fields override a different native post author", () => {
+    const dataset = topVoiceDataset();
+    dataset.companies = [
+      ...dataset.companies,
+      makeCompany({
+        id: "company-generated-author-spoof",
+        name: "Generated Author Spoof",
+        founderIds: ["founder-generated-author-spoof"]
+      })
+    ];
+    dataset.founders = [
+      ...dataset.founders,
+      makeFounder({
+        id: "founder-generated-author-spoof",
+        name: "Gina Founder",
+        companyIds: ["company-generated-author-spoof"]
+      })
+    ];
+    dataset.evidence = [
+      ...dataset.evidence,
+      makeEvidence({
+        id: "evidence-generated-author-spoof",
+        entityId: "company-generated-author-spoof",
+        authorName: "Sam Altman",
+        authorHandle: "sama",
+        contributionScore: 60,
+        sourceUrl: "https://x.com/not_sama/status/10",
+        text: "Generated Author Spoof is live.",
+        rawVisibleText: JSON.stringify({
+          post: {
+            authorName: "Not Sam",
+            authorHandle: "not_sama",
+            text: "Generated Author Spoof is live."
+          }
+        })
+      })
+    ];
+
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, dataset);
+
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-generated-author-spoof");
+    expect(graph.evidence.find((item) => item.id === "evidence-generated-author-spoof")).toBeUndefined();
+  });
+
+  it("does not match Top Voice identity from nested repost or detail author fields", () => {
+    const dataset = topVoiceDataset();
+    dataset.companies = [
+      ...dataset.companies,
+      makeCompany({
+        id: "company-nested-detail-spoof",
+        name: "Nested Detail Spoof",
+        founderIds: ["founder-nested-detail-spoof"]
+      })
+    ];
+    dataset.founders = [
+      ...dataset.founders,
+      makeFounder({
+        id: "founder-nested-detail-spoof",
+        name: "Nia Founder",
+        companyIds: ["company-nested-detail-spoof"]
+      })
+    ];
+    dataset.evidence = [
+      ...dataset.evidence,
+      makeEvidence({
+        id: "evidence-nested-detail-spoof",
+        entityId: "company-nested-detail-spoof",
+        platform: "linkedin",
+        authorName: "Company Page",
+        authorHandle: "company-page",
+        contributionScore: 60,
+        sourceUrl: "https://www.linkedin.com/posts/company-page_nested-detail-spoof-activity-7470000000000000000-test",
+        title: "Company Page reshared Taro Fukuyama",
+        text: "Nested Detail Spoof is live.",
+        rawVisibleText: JSON.stringify({
+          post: {
+            authorName: "Company Page",
+            authorHandle: "company-page",
+            rawText: "Nested Detail Spoof is live."
+          },
+          detail: {
+            authorName: "Taro Fukuyama",
+            authorHandle: "tarof",
+            rawText: "Taro Fukuyama mentioned Nested Detail Spoof."
+          }
+        })
+      })
+    ];
+
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, dataset);
+
+    expect(graph.leaderboard.map((row) => row.companyId)).not.toContain("company-nested-detail-spoof");
+    expect(graph.evidence.find((item) => item.id === "evidence-nested-detail-spoof")).toBeUndefined();
   });
 
   it("uses the curated Insiders seed without admitting non-members", () => {
@@ -400,7 +565,9 @@ function topVoiceDataset(): DemoGraphDataset {
         authorName: "Garry Tan",
         authorHandle: "garrytan",
         contributionScore: 40,
-        sourceUrl: "https://x.com/garrytan/status/1"
+        sourceUrl: "https://x.com/garrytan/status/1",
+        title: "Garry Tan says Partner Backed is worth watching",
+        text: "Partner Backed has strong founder-market fit."
       }),
       makeEvidence({
         id: "evidence-maya",
@@ -409,7 +576,9 @@ function topVoiceDataset(): DemoGraphDataset {
         authorName: "Maya Chen",
         authorHandle: "maya_demo",
         contributionScore: 40,
-        sourceUrl: "https://x.com/maya_demo/status/2"
+        sourceUrl: "https://x.com/maya_demo/status/2",
+        title: "Maya Chen posted about Founder Backed",
+        text: "Founder Backed is live."
       }),
       makeEvidence({
         id: "evidence-sam",
@@ -417,7 +586,9 @@ function topVoiceDataset(): DemoGraphDataset {
         authorName: "Sam Altman",
         authorHandle: "sama",
         contributionScore: 40,
-        sourceUrl: "https://x.com/sama/status/3"
+        sourceUrl: "https://x.com/sama/status/3",
+        title: "Sam Altman mentioned Insider Backed",
+        text: "Insider Backed is doing interesting work."
       }),
       makeEvidence({
         id: "evidence-outsider",

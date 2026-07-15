@@ -1,6 +1,7 @@
 import { Dashboard } from "@/components/Dashboard";
 import type { Metadata } from "next";
 import type { Platform } from "@/lib/graph/types";
+import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
 
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
 const queryPlatforms: Platform[] = [
@@ -34,8 +35,9 @@ export default async function Home({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
   const batchSlug = singleQueryValue(params.batch);
   const platforms = parsePlatformList(singleQueryValue(params.platforms));
+  const topVoices = normalizeTopVoiceAudienceId(singleQueryValue(params.topVoices));
 
-  return <Dashboard initialBatchSlug={batchSlug} initialFilters={{ platforms }} />;
+  return <Dashboard initialBatchSlug={batchSlug} initialTopVoiceAudience={topVoices} initialFilters={{ platforms }} />;
 }
 
 function singleQueryValue(value: string | string[] | undefined): string | undefined {

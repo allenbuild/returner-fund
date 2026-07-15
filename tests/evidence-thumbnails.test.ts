@@ -34,6 +34,18 @@ describe("evidence thumbnail resolution", () => {
     expect(resolved.thumbnailSource).toBe("x-media");
   });
 
+  it("uses standalone X media URLs as native thumbnails", () => {
+    const resolved = resolveEvidenceThumbnail({
+      id: "x-media-url-evidence",
+      platform: "x",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778664",
+      mediaUrl: "https://pbs.twimg.com/media/ScreenpipeLive.jpg"
+    });
+
+    expect(resolved.thumbnailUrl).toBe("https://pbs.twimg.com/media/ScreenpipeLive.jpg");
+    expect(resolved.thumbnailSource).toBe("x-media");
+  });
+
   it("extracts Instagram post media but rejects profile pictures", () => {
     const resolved = resolveEvidenceThumbnail({
       id: "ig-evidence",
@@ -92,5 +104,22 @@ describe("evidence thumbnail resolution", () => {
     expect(enriched.thumbnailUrl).toContain("platform=linkedin");
     expect(enriched.thumbnailSource).toBe("generated-post-thumbnail");
     expect(enriched.mediaUrl).toBeNull();
+  });
+
+  it("replaces stored generated thumbnails when native media is later discovered", () => {
+    const enriched = enrichEvidenceThumbnail({
+      id: "x-generated-stale",
+      platform: "x",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778664",
+      thumbnailUrl: "/api/evidence-thumbnail?platform=x&id=x-generated-stale",
+      thumbnailSource: "generated-post-thumbnail",
+      mediaUrl: "https://pbs.twimg.com/media/ScreenpipeLive.jpg",
+      authorName: "screenpipe",
+      text: "Introducing screenpipe",
+      contributionScore: 92
+    });
+
+    expect(enriched.thumbnailUrl).toBe("https://pbs.twimg.com/media/ScreenpipeLive.jpg");
+    expect(enriched.thumbnailSource).toBe("x-media");
   });
 });

@@ -3,9 +3,7 @@ import type { GraphResponse } from "./types";
 type BenchmarkGraph = Pick<GraphResponse, "fastestGaining">;
 
 export function graphBenchmarkDatesAreFresh(graph: BenchmarkGraph, now = new Date()): boolean {
-  const benchmarkRow = graph.fastestGaining.find(
-    (row) => row.dod.benchmarkedAt || row.wow.benchmarkedAt
-  );
+  const benchmarkRow = graph.fastestGaining[0];
 
   if (!benchmarkRow) {
     return true;
@@ -19,7 +17,7 @@ export function graphBenchmarkDatesAreFresh(graph: BenchmarkGraph, now = new Dat
 
 function benchmarkDateMatchesTarget(value: string | null, now: Date, daysBack: number): boolean {
   if (!value) {
-    return true;
+    return false;
   }
 
   const benchmarkDate = new Date(value);

@@ -304,7 +304,7 @@ describe("insights tabs", () => {
     expect(row!.querySelector(".overview-post-thumbnail-fallback")).toBeNull();
   });
 
-  it("uses generated overview thumbnails before externally hosted native thumbnails", () => {
+  it("uses externally hosted native overview thumbnails before generated fallbacks", () => {
     const graph = graphResponse();
     graph.leaderboard[0] = {
       ...graph.leaderboard[0],
@@ -317,6 +317,10 @@ describe("insights tabs", () => {
     render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
 
     const row = screen.getAllByRole("row")[1];
+    const nativeImg = row!.querySelector<HTMLImageElement>(".overview-post-thumbnail img");
+    expect(nativeImg).toHaveAttribute("src", "https://pbs.twimg.com/media/expired.jpg");
+    fireEvent.error(nativeImg!);
+
     const generatedImg = row!.querySelector<HTMLImageElement>(".overview-post-thumbnail img");
     expect(generatedImg?.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
     expect(decodeDataImage(generatedImg?.getAttribute("src"))).toContain(">X<");

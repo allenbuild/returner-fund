@@ -5,7 +5,7 @@ import { Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import type { ComponentType } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type cytoscape from "cytoscape";
-import { buildClusterPositions, buildLabelPlacements, LABEL_TEXT_MAX_WIDTH, labelSizeForNode } from "@/lib/graph/layout";
+import { buildClusterPositions, buildLabelPlacements, labelMaxWidthForNode, labelSizeForNode } from "@/lib/graph/layout";
 import type { BatchSummary, EdgeType, GraphEdge, GraphNode } from "@/lib/graph/types";
 
 const CytoscapeComponent = dynamic(
@@ -33,8 +33,8 @@ const edgeColors: Record<EdgeType, string> = {
 };
 
 const GRAPH_INTRO_SESSION_KEY = "yc-network-map-intro-played-v1";
-const GRAPH_INTRO_REVEAL_WINDOW_MS = 1750;
-const GRAPH_INTRO_AUTOPLAY = false;
+const GRAPH_INTRO_REVEAL_WINDOW_MS = 1150;
+const GRAPH_INTRO_AUTOPLAY = true;
 
 function shouldPlayGraphIntro(): boolean {
   if (!GRAPH_INTRO_AUTOPLAY) {
@@ -88,6 +88,17 @@ function targetEdgeOpacity(edge: cytoscape.EdgeSingular): number {
   return 0.38;
 }
 
+function isUsableCy(cy: cytoscape.Core | null): cy is cytoscape.Core {
+  if (!cy) {
+    return false;
+  }
+  try {
+    return typeof cy.destroyed !== "function" || !cy.destroyed();
+  } catch {
+    return false;
+  }
+}
+
 export function CytoscapeGraph({
   nodes,
   edges,
@@ -96,6 +107,7 @@ export function CytoscapeGraph({
   onSelectNode
 }: CytoscapeGraphProps) {
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const graphShellRef = useRef<HTMLDivElement | null>(null);
   const cyReadyNotifiedRef = useRef(false);
   const introStartedRef = useRef(false);
   const introAnimatingRef = useRef(false);
@@ -140,11 +152,13 @@ export function CytoscapeGraph({
     () => [
       ...nodes.map((node) => {
         const labelPlacement = labelPlacements.get(node.id);
+        const labelInside = labelPlacement?.halign === "center" && labelPlacement.valign === "center";
         return {
           data: {
             id: node.id,
             label: labelPlacement ? node.label : "",
             fullLabel: node.label,
+            labelInside,
             labelHalign: labelPlacement?.halign ?? "center",
             labelValign: labelPlacement?.valign ?? "bottom",
             labelMarginX: labelPlacement?.marginX ?? 0,
@@ -153,6 +167,7 @@ export function CytoscapeGraph({
             score: node.score,
             size: node.radius * 2,
             labelSize: labelSizeForNode(node),
+            labelMaxWidth: labelMaxWidthForNode(node, labelPlacement),
             topPlatform: node.topPlatform ?? "none",
             color: node.visual.industryColor,
             borderColor: node.visual.borderColor
@@ -161,6 +176,7 @@ export function CytoscapeGraph({
           classes: [
             node.entityType,
             labelPlacement ? "labeled" : "",
+            labelInside ? "label-inside" : "",
             `review-${node.review_state}`,
             decluttered && selectedNodeId !== node.id ? "decluttered" : "",
             selectedNodeId === node.id ? "selected" : ""
@@ -231,7 +247,7 @@ export function CytoscapeGraph({
 
   const applyCanonicalPositions = useCallback((options: { fit?: boolean; stop?: boolean } = {}) => {
     const cy = cyRef.current;
-    if (!cy) {
+    if (!isUsableCy(cy)) {
       return;
     }
     const shouldFit = options.fit ?? true;
@@ -239,17 +255,24 @@ export function CytoscapeGraph({
     if (shouldStop) {
       cy.stop(true);
     }
-    cy.batch(() => {
-      cy.nodes().forEach((node) => {
-        const position = positions.get(node.id());
-        if (!position) {
-          return;
-        }
-        node.unlock();
-        node.position(position);
-        node.lock();
+    try {
+      cy.batch(() => {
+        cy.nodes().forEach((node) => {
+          const position = positions.get(node.id());
+          if (!position) {
+            return;
+          }
+          node.unlock();
+          node.position(position);
+          node.lock();
+        });
       });
-    });
+    } catch (error) {
+      if (cy.destroyed?.()) {
+        return;
+      }
+      throw error;
+    }
     cy.autoungrabify(true);
     if (shouldFit) {
       cy.fit(undefined, Number(layout.padding));
@@ -275,7 +298,7 @@ export function CytoscapeGraph({
 
   useEffect(() => {
     const cy = cyRef.current;
-    if (!cy) return;
+    if (!isUsableCy(cy)) return;
     cy.nodes().lock();
     cy.autoungrabify(true);
   }, [elements]);
@@ -287,7 +310,7 @@ export function CytoscapeGraph({
   useEffect(() => {
     const cy = cyRef.current;
     const nodeId = selectedNodeIdRef.current;
-    if (!cy || !nodeId || focusRevision <= 0) return;
+    if (!isUsableCy(cy) || !nodeId || focusRevision <= 0) return;
     if (introStartedRef.current && !introHasSettledRef.current) {
       return;
     }
@@ -311,12 +334,13 @@ export function CytoscapeGraph({
     return () => {
       introTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
       introTimersRef.current = [];
+      cyRef.current = null;
     };
   }, []);
 
   useLayoutEffect(() => {
     const cy = cyRef.current;
-    if (!cy || introStartedRef.current || nodes.length === 0) {
+    if (!isUsableCy(cy) || introStartedRef.current || nodes.length === 0) {
       return;
     }
 
@@ -327,7 +351,8 @@ export function CytoscapeGraph({
     introStartedRef.current = true;
     introAnimatingRef.current = true;
     introHasSettledRef.current = false;
-    suppressSelectedZoomUntilRef.current = performance.now() + 6500;
+    graphShellRef.current?.setAttribute("data-graph-intro-state", "running");
+    suppressSelectedZoomUntilRef.current = performance.now() + 4300;
     rememberGraphIntroPlayed();
 
     cy.stop(true);
@@ -609,7 +634,7 @@ export function CytoscapeGraph({
     }, 2860);
 
     const cameraPullbackDelay = secondNode ? 1120 : 560;
-    const cameraPullbackDuration = 2700;
+    const cameraPullbackDuration = 1750;
 
     addTimer(() => {
       cy.animate(
@@ -628,6 +653,7 @@ export function CytoscapeGraph({
       cy.elements().removeStyle("opacity transition-duration width height");
       introAnimatingRef.current = false;
       introHasSettledRef.current = true;
+      graphShellRef.current?.setAttribute("data-graph-intro-state", "settled");
       suppressSelectedZoomUntilRef.current = performance.now() + 3000;
       lastFitSignatureRef.current = graphFitSignature;
       requestAnimationFrame(() => {
@@ -661,7 +687,7 @@ export function CytoscapeGraph({
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       const cy = cyRef.current;
-      if (!cy) return;
+      if (!isUsableCy(cy)) return;
       if (introAnimatingRef.current || performance.now() < suppressSelectedZoomUntilRef.current) {
         return;
       }
@@ -679,7 +705,7 @@ export function CytoscapeGraph({
     .join(" ");
 
   return (
-    <div className={graphShellClassName}>
+    <div className={graphShellClassName} data-graph-intro-autoplay={GRAPH_INTRO_AUTOPLAY ? "true" : "false"} ref={graphShellRef}>
       <div className="graph-toolbar">
         <div className="graph-toolbar-main">
           <div className="legend">
@@ -725,18 +751,19 @@ export function CytoscapeGraph({
               "font-family": "Poppins, Inter, Arial, sans-serif",
               "font-weight": 800,
               "text-wrap": "wrap",
-              "text-max-width": LABEL_TEXT_MAX_WIDTH,
+              "text-max-width": "data(labelMaxWidth)",
               "text-valign": "data(labelValign)",
               "text-halign": "data(labelHalign)",
               "text-margin-x": "data(labelMarginX)",
               "text-margin-y": "data(labelMarginY)",
               "text-background-color": "#ffffff",
-              "text-background-opacity": 0.9,
-              "text-background-padding": 2,
+              "text-background-opacity": 0,
+              "text-background-padding": 0,
               "text-border-color": "#d7dee8",
-              "text-border-opacity": 0.45,
-              "text-border-width": 1,
-              "text-outline-color": "#ffffff",
+              "text-border-opacity": 0,
+              "text-border-width": 0,
+              "text-outline-color": "#f8fafc",
+              "text-outline-opacity": 0.92,
               "text-outline-width": 3,
               color: "#172033",
               "background-color": "data(color)",
@@ -756,12 +783,20 @@ export function CytoscapeGraph({
             }
           },
           {
+            selector: "node.label-inside",
+            style: {
+              "text-outline-width": 0,
+              "text-outline-opacity": 0
+            }
+          },
+          {
             selector: "node.hovered",
             style: {
               label: "data(fullLabel)",
-              "text-background-opacity": 1,
-              "text-background-padding": 4,
-              "text-outline-width": 5,
+              "text-background-opacity": 0,
+              "text-background-padding": 0,
+              "text-border-opacity": 0,
+              "text-outline-width": 4,
               "z-index": 900
             }
           },
@@ -792,12 +827,19 @@ export function CytoscapeGraph({
               label: "data(fullLabel)",
               "border-color": "#101828",
               "border-width": 4,
-              "text-background-opacity": 1,
-              "text-background-padding": 4,
-              "text-border-opacity": 0.72,
-              "text-outline-width": 5,
+              "text-background-opacity": 0,
+              "text-background-padding": 0,
+              "text-border-opacity": 0,
+              "text-outline-width": 4,
               "z-index": 1000,
               opacity: 1
+            }
+          },
+          {
+            selector: "node.label-inside.hovered, node.label-inside.selected",
+            style: {
+              "text-outline-width": 0,
+              "text-outline-opacity": 0
             }
           },
           {

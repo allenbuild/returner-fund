@@ -24,9 +24,17 @@ describe("graph benchmark freshness", () => {
       )
     ).toBe(false);
   });
+
+  it("rejects benchmark rows with missing dates instead of treating them as fresh", () => {
+    const now = new Date(2026, 6, 14, 12);
+
+    expect(graphBenchmarkDatesAreFresh(benchmarkGraph(null, null), now)).toBe(false);
+    expect(graphBenchmarkDatesAreFresh(benchmarkGraph(localDateIso(now, -1), null), now)).toBe(false);
+    expect(graphBenchmarkDatesAreFresh(benchmarkGraph(null, localDateIso(now, -7)), now)).toBe(false);
+  });
 });
 
-function benchmarkGraph(dodBenchmarkedAt: string, wowBenchmarkedAt: string): Pick<GraphResponse, "fastestGaining"> {
+function benchmarkGraph(dodBenchmarkedAt: string | null, wowBenchmarkedAt: string | null): Pick<GraphResponse, "fastestGaining"> {
   return {
     fastestGaining: [
       {

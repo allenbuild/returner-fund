@@ -182,7 +182,9 @@ const insiderOnlySeeds = [
   insider("suhail-doshi", "Suhail Doshi", {
     handles: { x: ["suhail"], linkedin: ["suhaildoshi"] }
   }),
-  insider("taro-fukuyama", "Taro Fukuyama"),
+  insider("taro-fukuyama", "Taro Fukuyama", {
+    handles: { linkedin: ["tarof"] }
+  }),
   insider("dalton-caldwell", "Dalton Caldwell", {
     handles: { x: ["daltonc"], linkedin: ["daltoncaldwell"] }
   }),
@@ -311,7 +313,7 @@ export function matchEvidenceToTopVoice(
     return null;
   }
 
-  const identity = evidenceIdentityCandidates(item);
+  const identity = evidenceNativeIdentityCandidates(item);
   for (const voice of members) {
     if (!voice.active) {
       continue;
@@ -325,10 +327,6 @@ export function matchEvidenceToTopVoice(
   return null;
 }
 
-export function topVoiceNodeId(memberId: string): string {
-  return `top-voice:${memberId}`;
-}
-
 export function isKnownTopVoiceAccountUrl(platform: Platform, rawUrl: string | null | undefined): boolean {
   const candidateHandle = normalizeHandle(handleFromUrl(platform, rawUrl));
   if (!candidateHandle) {
@@ -339,6 +337,23 @@ export function isKnownTopVoiceAccountUrl(platform: Platform, rawUrl: string | n
     .filter((set) => set.active)
     .flatMap((set) => set.members)
     .some((voice) => (voice.handles[platform] ?? []).some((handle) => normalizeHandle(handle) === candidateHandle));
+}
+
+export function isKnownTopVoiceNativeIdentity(platform: Platform, rawVisibleText: string | undefined): boolean {
+  const raw = rawNativeIdentityCandidates(rawVisibleText);
+  if (!raw.hasNativeIdentity) {
+    return false;
+  }
+
+  const identity: EvidenceIdentityCandidates = {
+    handles: raw.handles.map(normalizeHandle).filter(Boolean),
+    names: raw.names.map(normalizeName).filter(Boolean)
+  };
+
+  return builtInTopVoiceSets
+    .filter((set) => set.active)
+    .flatMap((set) => set.members)
+    .some((voice) => Boolean(topVoiceMatchReason(voice, identity, platform)));
 }
 
 function summaryFor(set: TopVoiceSet, memberCount: number): TopVoiceAudienceSummary {
@@ -422,94 +437,106 @@ interface EvidenceIdentityCandidates {
   names: string[];
 }
 
-function evidenceIdentityCandidates(item: EvidenceItem): EvidenceIdentityCandidates {
-  const raw = rawIdentityCandidates(item.rawVisibleText);
+function evidenceNativeIdentityCandidates(item: EvidenceItem): EvidenceIdentityCandidates {
+  const raw = rawNativeIdentityCandidates(item.rawVisibleText);
+  if (raw.hasNativeIdentity) {
+    return {
+      handles: raw.handles.map(normalizeHandle).filter(Boolean),
+      names: raw.names.map(normalizeName).filter(Boolean)
+    };
+  }
+
   return {
     handles: dedupeStrings([
       item.authorHandle,
-      handleFromUrl(item.platform, item.sourceUrl),
-      item.accountUrl ? handleFromUrl(item.platform, item.accountUrl) : null,
       ...raw.handles
     ].filter((value): value is string => Boolean(value))).map(normalizeHandle).filter(Boolean),
     names: dedupeStrings([
       item.authorName,
-      item.title,
       ...raw.names
     ].filter((value): value is string => Boolean(value))).map(normalizeName).filter(Boolean)
   };
 }
 
-function rawIdentityCandidates(rawVisibleText: string | undefined): { handles: string[]; names: string[] } {
+function rawNativeIdentityCandidates(rawVisibleText: string | undefined): { handles: string[]; names: string[]; hasNativeIdentity: boolean } {
   if (!rawVisibleText) {
-    return { handles: [], names: [] };
+    return { handles: [], names: [], hasNativeIdentity: false };
   }
 
   const rawText = rawVisibleText.trim();
   if (!rawText.startsWith("{")) {
-    return visibleTextIdentityCandidates(rawVisibleText);
+    return { handles: [], names: [], hasNativeIdentity: false };
   }
 
   try {
     const parsed = JSON.parse(rawText) as Record<string, unknown>;
     const profile = objectValue(parsed.profile);
     const post = objectValue(parsed.post);
-    const detail = objectValue(parsed.detail);
+    const nativeAuthorRecord = post ?? parsed;
     const profileUrl = stringValue(profile?.url);
-    const textSignals = visibleTextIdentityCandidates([
-      stringValue(parsed.rawText),
-      stringValue(post?.rawText),
-      stringValue(detail?.rawText)
-    ].filter((value): value is string => Boolean(value)).join("\n"));
+    const nativeHandles = authorHandlesFrom(nativeAuthorRecord);
+    const nativeNames = authorNamesFrom(nativeAuthorRecord);
+    const fallbackProfileHandles = post ? [] : [
+      stringValue(profile?.username),
+      stringValue(profile?.handle),
+      profileUrl ? handleFromAnyUrl(profileUrl) : null
+    ];
+    const fallbackProfileNames = post ? [] : [
+      stringValue(profile?.name),
+      stringValue(profile?.displayName)
+    ];
+    const handles = dedupeStrings([
+      ...nativeHandles,
+      ...fallbackProfileHandles
+    ].filter((value): value is string => Boolean(value)));
+    const names = dedupeStrings([
+      ...nativeNames,
+      ...fallbackProfileNames
+    ].filter((value): value is string => Boolean(value)));
+
     return {
-      handles: dedupeStrings([
-        stringValue(profile?.username),
-        stringValue(profile?.handle),
-        profileUrl ? handleFromAnyUrl(profileUrl) : null,
-        stringValue(post?.author),
-        stringValue(post?.authorHandle),
-        stringValue(detail?.author),
-        stringValue(detail?.authorHandle),
-        ...textSignals.handles
-      ].filter((value): value is string => Boolean(value))),
-      names: dedupeStrings([
-        stringValue(profile?.name),
-        stringValue(profile?.displayName),
-        stringValue(post?.authorName),
-        stringValue(detail?.authorName),
-        ...textSignals.names
-      ].filter((value): value is string => Boolean(value)))
+      handles,
+      names,
+      hasNativeIdentity: Boolean(handles.length || names.length)
     };
   } catch {
-    return { handles: [], names: [] };
+    return { handles: [], names: [], hasNativeIdentity: false };
   }
 }
 
-function visibleTextIdentityCandidates(rawText: string): { handles: string[]; names: string[] } {
-  const handles: string[] = [];
-  const names: string[] = [];
-  const patterns = [
-    /(?:^|\n)\s*Quote\s*\n\s*([^\n@]{1,80})\s*\n\s*@([A-Za-z0-9_]{1,32})\b/g,
-    /\bQuote\s+([A-Za-z][A-Za-z0-9 .'\u2019-]{1,80})\s+@([A-Za-z0-9_]{1,32})\b/g,
-    /(?:^|\n)\s*([^\n@]{1,80})\s+reposted(?:\s+this)?(?:\n|$)/g
-  ];
-
-  for (const pattern of patterns) {
-    for (const match of rawText.matchAll(pattern)) {
-      const name = match[1]?.trim();
-      const handle = match[2]?.trim();
-      if (name) {
-        names.push(name);
-      }
-      if (handle) {
-        handles.push(handle);
-      }
-    }
+function authorHandlesFrom(record: Record<string, unknown> | null): string[] {
+  if (!record) {
+    return [];
   }
+  return [
+    stringValue(record.authorHandle),
+    stringValue(record.handle),
+    stringValue(record.username),
+    stringValue(record.screenName),
+    handleLikeValue(record.author)
+  ].filter((value): value is string => Boolean(value));
+}
 
-  return {
-    handles: dedupeStrings(handles),
-    names: dedupeStrings(names)
-  };
+function authorNamesFrom(record: Record<string, unknown> | null): string[] {
+  if (!record) {
+    return [];
+  }
+  return [
+    stringValue(record.authorName),
+    stringValue(record.name),
+    stringValue(record.displayName),
+    nameLikeValue(record.author)
+  ].filter((value): value is string => Boolean(value));
+}
+
+function handleLikeValue(value: unknown): string | null {
+  const raw = stringValue(value);
+  return raw?.startsWith("@") ? raw : null;
+}
+
+function nameLikeValue(value: unknown): string | null {
+  const raw = stringValue(value);
+  return raw && !raw.startsWith("@") ? raw : null;
 }
 
 function handleFromAnyUrl(rawUrl: string): string | null {
@@ -532,13 +559,13 @@ function handleFromUrl(platform: Platform, rawUrl: string | null | undefined): s
     const hostname = url.hostname.replace(/^www\./, "").toLowerCase();
     const parts = url.pathname.split("/").filter(Boolean);
 
-    if ((platform === "x" || hostname === "x.com" || hostname === "twitter.com") && parts[0] && !["i", "home", "search"].includes(parts[0])) {
+    if (platform === "x" && isPlatformHost(hostname, ["x.com", "twitter.com"]) && parts[0] && !["i", "home", "search"].includes(parts[0])) {
       return parts[0];
     }
-    if ((platform === "instagram" || hostname === "instagram.com") && parts[0] && !["p", "reel", "tv", "explore"].includes(parts[0])) {
+    if (platform === "instagram" && isPlatformHost(hostname, ["instagram.com"]) && parts[0] && !["p", "reel", "tv", "explore"].includes(parts[0])) {
       return parts[0];
     }
-    if (platform === "linkedin" || hostname.endsWith("linkedin.com")) {
+    if (platform === "linkedin" && isPlatformHost(hostname, ["linkedin.com"])) {
       const markerIndex = parts.findIndex((part) => ["in", "company"].includes(part.toLowerCase()));
       if (markerIndex >= 0 && parts[markerIndex + 1]) {
         return parts[markerIndex + 1];
@@ -548,10 +575,10 @@ function handleFromUrl(platform: Platform, rawUrl: string | null | undefined): s
         return parts[postIndex + 1].split("_")[0] ?? null;
       }
     }
-    if ((platform === "github" || hostname === "github.com") && parts[0]) {
+    if (platform === "github" && isPlatformHost(hostname, ["github.com"]) && parts[0]) {
       return parts[0];
     }
-    if (platform === "youtube" || hostname.endsWith("youtube.com")) {
+    if (platform === "youtube" && isPlatformHost(hostname, ["youtube.com"])) {
       const handle = parts.find((part) => part.startsWith("@"));
       return handle ? handle.slice(1) : null;
     }
@@ -560,6 +587,10 @@ function handleFromUrl(platform: Platform, rawUrl: string | null | undefined): s
   }
 
   return null;
+}
+
+function isPlatformHost(hostname: string, roots: string[]): boolean {
+  return roots.some((root) => hostname === root || hostname.endsWith(`.${root}`));
 }
 
 function normalizeHandles(handles: Partial<Record<Platform, string[]>>): Partial<Record<Platform, string[]>> {

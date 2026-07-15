@@ -3,17 +3,18 @@ import type { EvidenceItem } from "./types";
 const TRACKING_PARAMS = /^(utm_|fbclid$|gclid$|igshid$|mc_|ref$|ref_src$|s$|t$)/i;
 
 export function canonicalEvidenceKey(item: EvidenceItem): string {
+  const entityPart = normalizeKeyPart(item.entityId);
   if (item.platformPostId) {
-    return `${item.platform}:post:${normalizeKeyPart(item.platformPostId)}`;
+    return `${entityPart}:${item.platform}:post:${normalizeKeyPart(item.platformPostId)}`;
   }
 
   const canonicalUrl = canonicalEvidenceUrl(item.sourceUrl);
   if (canonicalUrl) {
-    return `${item.platform}:url:${canonicalUrl}`;
+    return `${entityPart}:${item.platform}:url:${canonicalUrl}`;
   }
 
   const accountPart = item.canonicalAccountId ?? item.socialAccountId ?? item.authorHandle ?? item.authorName;
-  return `${item.platform}:fallback:${normalizeKeyPart(accountPart)}:${fallbackEvidenceKey(item)}`;
+  return `${entityPart}:${item.platform}:fallback:${normalizeKeyPart(accountPart)}:${fallbackEvidenceKey(item)}`;
 }
 
 export function canonicalEvidenceUrl(rawUrl: string): string {

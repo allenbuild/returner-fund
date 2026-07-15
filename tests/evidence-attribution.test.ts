@@ -98,6 +98,53 @@ describe("evidence attribution guard", () => {
     expect(audit.scoreMultiplier).toBe(1);
   });
 
+  it("does not trust a source URL path when raw post author belongs to another X account", () => {
+    const item = evidence({
+      platform: "x",
+      authorName: "Outside Founder",
+      authorHandle: null,
+      text: "new demo is live",
+      rawVisibleText: JSON.stringify({
+        post: {
+          author: {
+            screen_name: "outsidefounder",
+            name: "Outside Founder"
+          },
+          text: "new demo is live"
+        }
+      }),
+      sourceUrl: "https://x.com/alphaai/status/123",
+      accountUrl: null,
+      attachedCompanyId: "company-alpha-ai",
+      attachedCompanyName: "Alpha AI"
+    });
+
+    const audit = auditEvidenceAttribution(item, context);
+    const guarded = applyAttributionGuard(item, context);
+
+    expect(audit.reviewState).toBe("needs_review");
+    expect(audit.scoreMultiplier).toBe(0);
+    expect(guarded.contributionScore).toBe(0);
+  });
+
+  it("does not extract verified handles from spoofed social hosts", () => {
+    const item = evidence({
+      platform: "x",
+      authorName: "Outside Founder",
+      authorHandle: null,
+      text: "new demo is live",
+      sourceUrl: "https://x.com.evil.test/alphaai/status/123",
+      accountUrl: "https://x.com.evil.test/alphaai",
+      attachedCompanyId: "company-alpha-ai",
+      attachedCompanyName: "Alpha AI"
+    });
+
+    const audit = auditEvidenceAttribution(item, context);
+
+    expect(audit.reviewState).toBe("needs_review");
+    expect(audit.scoreMultiplier).toBe(0);
+  });
+
   it("holds clear off-topic first-party founder posts for review instead of scoring", () => {
     const item = evidence({
       platform: "x",
@@ -204,6 +251,21 @@ describe("evidence attribution guard", () => {
     expect(audit.reviewState).toBe("verified");
     expect(audit.scoreMultiplier).toBe(1);
     expect(audit.conflictingCompanyNames).not.toContain("Standout");
+  });
+
+  it("allows exact generic company names in explicit YC batch list context", () => {
+    const item = evidence({
+      platform: "linkedin",
+      text: "The top startups in Y Combinator P26 include Standout - a hiring marketplace for agents.",
+      sourceUrl: "https://www.linkedin.com/posts/tarof_top-startups-activity-123",
+      attachedCompanyId: "company-standout",
+      attachedCompanyName: "Standout"
+    });
+
+    const audit = auditEvidenceAttribution(item, context);
+
+    expect(audit.reviewState).toBe("verified");
+    expect(audit.scoreMultiplier).toBe(1);
   });
 
   it("moves weak third-party social evidence to needs review before scoring", () => {

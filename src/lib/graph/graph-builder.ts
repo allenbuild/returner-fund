@@ -4,14 +4,12 @@ import { aggregateBalancedTractionScore } from "./traction-scoring";
 import {
   matchEvidenceToTopVoice,
   resolveTopVoiceAudience,
-  topVoiceAudienceSummaries,
-  topVoiceNodeId
+  topVoiceAudienceSummaries
 } from "../social/top-voices";
 import type {
   CompanyRecord,
   DemoGraphDataset,
   EdgeType,
-  EvidenceTopVoiceMatch,
   EvidenceItem,
   FastestGainingRow,
   FounderRecord,
@@ -58,6 +56,10 @@ const INDUSTRY_BORDER_COLORS: Record<string, string> = {
 const TOP_VOICE_ROLLUP_CACHE_LIMIT = 24;
 const topVoiceRollupCache = new Map<string, Map<string, TopVoiceCompanyRollup>>();
 
+export function clearTopVoiceRollupCache(): void {
+  topVoiceRollupCache.clear();
+}
+
 export function buildGraphResponse(
   filters: GraphFilters = {},
   dataset: DemoGraphDataset = yc2026GraphDataset
@@ -78,6 +80,7 @@ export function buildGraphResponse(
   const topVoiceRollups = topVoiceMode
     ? buildTopVoiceRollups(
         baseBatchCompanies,
+        batchFounders,
         dataset.evidence,
         selectedPlatforms,
         topVoiceAudience.summary.id,
@@ -112,18 +115,13 @@ export function buildGraphResponse(
   const visibleCompanyIds = new Set(
     companyNodes.filter((node) => node.entityType === "company").map((node) => node.entityId)
   );
-  const topVoiceEdges = topVoiceMode ? buildTopVoiceEdges(topVoiceRollups, visibleCompanyIds) : [];
-  const topVoiceNodes = topVoiceMode
-    ? buildTopVoiceNodes(topVoiceAudience.summary, topVoiceAudience.members, topVoiceRollups, visibleCompanyIds)
-    : [];
-  const nodes = [...companyNodes, ...topVoiceNodes];
+  const nodes = companyNodes;
   const visibleNodeIds = new Set(nodes.map((node) => node.id));
-  const edges = (topVoiceMode
-    ? topVoiceEdges
-    : buildGraphEdges(batchCompanies, batchFounders, {
-        similarityThreshold: filters.similarityThreshold ?? DEFAULT_SIMILARITY_THRESHOLD
-      })
-  ).filter(
+  const visibleCompanies = batchCompanies.filter((company) => visibleCompanyIds.has(company.id));
+  const edges = buildGraphEdges(visibleCompanies, batchFounders, {
+    selectedEdgeTypes,
+    similarityThreshold: filters.similarityThreshold ?? DEFAULT_SIMILARITY_THRESHOLD
+  }).filter(
     (edge) =>
       visibleNodeIds.has(edge.source) &&
       visibleNodeIds.has(edge.target) &&
@@ -138,8 +136,6 @@ export function buildGraphResponse(
     .filter((item) => evidenceMatchesPlatforms(item, selectedPlatforms))
     .filter((item) => visibleEvidenceEntityIds.has(item.entityId))
     .sort((a, b) => b.contributionScore - a.contributionScore);
-
-  const visibleCompanies = batchCompanies.filter((company) => visibleCompanyIds.has(company.id));
 
   return {
     batch,
@@ -170,35 +166,40 @@ export function buildGraphResponse(
 export function buildGraphEdges(
   companies: CompanyRecord[],
   _founders: FounderRecord[],
-  options: { similarityThreshold?: number } = {}
+  options: { selectedEdgeTypes?: EdgeType[]; similarityThreshold?: number } = {}
 ): GraphEdge[] {
   const threshold = options.similarityThreshold ?? DEFAULT_SIMILARITY_THRESHOLD;
+  const selectedEdgeTypes = options.selectedEdgeTypes ?? [];
+  const includeSimilarity = !selectedEdgeTypes.length || selectedEdgeTypes.includes("industry_similarity");
+  const includeGroupPartner = !selectedEdgeTypes.length || selectedEdgeTypes.includes("same_group_partner");
 
   const similarityCandidates: GraphEdge[] = [];
-  for (let i = 0; i < companies.length; i += 1) {
-    for (let j = i + 1; j < companies.length; j += 1) {
-      const source = companies[i];
-      const target = companies[j];
-      const similarity = scoreCompanySimilarity(source, target);
+  if (includeSimilarity) {
+    for (let i = 0; i < companies.length; i += 1) {
+      for (let j = i + 1; j < companies.length; j += 1) {
+        const source = companies[i];
+        const target = companies[j];
+        const similarity = scoreCompanySimilarity(source, target);
 
-      if (similarity >= threshold) {
-        similarityCandidates.push({
-          id: `edge-industry-${source.id}-${target.id}`,
-          source: nodeId("company", source.id),
-          target: nodeId("company", target.id),
-          edgeType: "industry_similarity",
-          weight: round(similarity),
-          label: "Industry similarity",
-          explanation: `Shared tags or description terms produced a ${Math.round(
-            similarity * 100
-          )}% similarity score.`
-        });
+        if (similarity >= threshold) {
+          similarityCandidates.push({
+            id: `edge-industry-${source.id}-${target.id}`,
+            source: nodeId("company", source.id),
+            target: nodeId("company", target.id),
+            edgeType: "industry_similarity",
+            weight: round(similarity),
+            label: "Industry similarity",
+            explanation: `Shared tags or description terms produced a ${Math.round(
+              similarity * 100
+            )}% similarity score.`
+          });
+        }
       }
     }
   }
 
   return [
-    ...buildGroupPartnerEdges(companies),
+    ...(includeGroupPartner ? buildGroupPartnerEdges(companies) : []),
     ...limitSimilarityEdges(similarityCandidates)
   ];
 }
@@ -417,6 +418,7 @@ interface TopVoiceCompanyRollup {
 
 function buildTopVoiceRollups(
   companies: CompanyRecord[],
+  founders: FounderRecord[],
   evidence: EvidenceItem[],
   platforms: Platform[],
   audienceId: TopVoiceAudienceId,
@@ -429,6 +431,8 @@ function buildTopVoiceRollups(
   }
 
   const companyIdByEntityId = new Map<string, string>();
+  const companyById = new Map(companies.map((company) => [company.id, company]));
+  const foundersByCompany = groupFoundersByCompany(founders);
   for (const company of companies) {
     companyIdByEntityId.set(company.id, company.id);
     for (const founderId of company.founderIds) {
@@ -446,6 +450,10 @@ function buildTopVoiceRollups(
 
     const companyId = companyIdByEntityId.get(item.entityId);
     if (!companyId) {
+      continue;
+    }
+    const company = companyById.get(companyId);
+    if (!company || !isEligibleTopVoiceEvidence(item, company, foundersByCompany.get(companyId) ?? [])) {
       continue;
     }
 
@@ -528,15 +536,43 @@ function topVoiceRollupCacheKey(
     platforms.length ? [...platforms].sort().join(",") : "all-platforms",
     companies.length,
     evidence.length,
+    evidenceSignature(evidence),
     members.map((member) => member.personId).join(",")
   ].join("::");
+}
+
+function evidenceSignature(evidence: EvidenceItem[]): string {
+  return hashString(
+    evidence
+      .map((item) => [
+        item.id,
+        item.entityId,
+        item.platform,
+        item.sourceUrl,
+        item.platformPostId ?? "",
+        item.contributionScore,
+        item.last_checked_at ?? "",
+        item.last_updated_at ?? "",
+        item.rawVisibleText ? item.rawVisibleText.length : 0
+      ].join("|"))
+      .sort()
+      .join("::")
+  );
+}
+
+function hashString(value: string): string {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = Math.imul(31, hash) + value.charCodeAt(index) | 0;
+  }
+  return Math.abs(hash).toString(36);
 }
 
 function applyTopVoiceWeight(
   item: EvidenceItem,
   input: { audienceId: TopVoiceAudienceId; member: TopVoiceMember; matchedBy: string }
 ): EvidenceItem {
-  const topVoice: EvidenceTopVoiceMatch = {
+  const topVoice: EvidenceItem["topVoice"] = {
     audienceId: input.audienceId,
     memberId: input.member.personId,
     displayName: input.member.displayName,
@@ -548,7 +584,6 @@ function applyTopVoiceWeight(
 
   return {
     ...item,
-    authorName: input.member.displayName,
     contributionScore: round(Math.min(100, item.contributionScore * input.member.weight)),
     why: `${item.why} Top Voices matched ${input.member.displayName} by ${input.matchedBy} at ${input.member.weight}x weight.`,
     topVoice
@@ -587,120 +622,148 @@ function applyTopVoiceCompanyScores(
   });
 }
 
-function buildTopVoiceEdges(
-  rollups: Map<string, TopVoiceCompanyRollup>,
-  visibleCompanyIds: Set<string>
-): GraphEdge[] {
-  const edges: GraphEdge[] = [];
-
-  for (const [companyId, rollup] of rollups) {
-    if (!visibleCompanyIds.has(companyId)) {
-      continue;
-    }
-    for (const connection of rollup.connections) {
-      edges.push({
-        id: `edge-top-voice-${connection.memberId}-${companyId}`,
-        source: topVoiceNodeId(connection.memberId),
-        target: nodeId("company", companyId),
-        edgeType: "top_voice_attention",
-        weight: round(Math.max(0.16, Math.min(1, connection.contributionScore / 100))),
-        label: connection.displayName,
-        explanation: `${connection.displayName} generated ${connection.evidenceCount} qualifying Top Voices signal${
-          connection.evidenceCount === 1 ? "" : "s"
-        }.`
-      });
-    }
-  }
-
-  return edges;
+function isEligibleTopVoiceEvidence(item: EvidenceItem, company: CompanyRecord, founders: FounderRecord[]): boolean {
+  return (
+    hasPostLevelUrl(item) &&
+    hasVisibleMetrics(item) &&
+    !isRepostLikeTopVoiceEvidence(item) &&
+    topVoiceEvidenceMentionsTarget(item, company, founders)
+  );
 }
 
-function buildTopVoiceNodes(
-  audience: TopVoiceAudienceSummary,
-  members: TopVoiceMember[],
-  rollups: Map<string, TopVoiceCompanyRollup>,
-  visibleCompanyIds: Set<string>
-): GraphNode[] {
-  const memberById = new Map(members.map((member) => [member.personId, member]));
-  const rollupByMember = new Map<
-    string,
-    {
-      member: TopVoiceMember;
-      evidenceIds: string[];
-      relatedCompanyIds: string[];
-      contributionScore: number;
-      platforms: Set<Platform>;
-    }
-  >();
+function isRepostLikeTopVoiceEvidence(item: EvidenceItem): boolean {
+  if (item.platform !== "x") {
+    return false;
+  }
 
-  for (const [companyId, rollup] of rollups) {
-    if (!visibleCompanyIds.has(companyId)) {
-      continue;
-    }
-    for (const item of rollup.evidence) {
-      const memberId = item.topVoice?.memberId;
-      if (!memberId) {
-        continue;
-      }
-      const member = memberById.get(memberId);
-      if (!member) {
-        continue;
-      }
-      const current = rollupByMember.get(memberId) ?? {
-        member,
-        evidenceIds: [],
-        relatedCompanyIds: [],
-        contributionScore: 0,
-        platforms: new Set<Platform>()
-      };
-      current.evidenceIds.push(item.id);
-      current.relatedCompanyIds = [...new Set([...current.relatedCompanyIds, companyId])];
-      current.contributionScore += item.contributionScore;
-      current.platforms.add(item.platform);
-      rollupByMember.set(memberId, current);
+  const raw = String(item.rawVisibleText ?? "");
+  const visibleText = [item.title, item.text, raw].filter(Boolean).join("\n").trim();
+  if (/^RT\s+@/i.test(visibleText) || /\b(?:retweeted|reposted)\b/i.test(raw)) {
+    return true;
+  }
+
+  if (raw.trim().startsWith("{")) {
+    try {
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const post = parsed.post && typeof parsed.post === "object" ? parsed.post as Record<string, unknown> : parsed;
+      return Boolean(
+        post.is_retweet === true ||
+          post.retweeted_status ||
+          post.retweeted_tweet ||
+          post.retweet ||
+          post.reposted_tweet
+      );
+    } catch {
+      return false;
     }
   }
 
-  const peerScores = [...rollupByMember.values()].map((rollup) => rollup.contributionScore);
+  return false;
+}
 
-  return [...rollupByMember.values()]
-    .sort((a, b) => b.contributionScore - a.contributionScore || a.member.displayName.localeCompare(b.member.displayName))
-    .map((rollup) => {
-      const score = Math.min(100, Math.round(rollup.contributionScore));
-      const topPlatform = [...rollup.platforms][0] ?? null;
+function hasPostLevelUrl(item: EvidenceItem): boolean {
+  if (!item.sourceUrl) {
+    return false;
+  }
 
-      return {
-        id: topVoiceNodeId(rollup.member.personId),
-        entityType: "founder" as const,
-        entityId: rollup.member.personId,
-        label: rollup.member.displayName,
-        batchSlug: audience.id,
-        score,
-        previousScore: score,
-        scoreDelta: 0,
-        radius: getNodeRadius(score, peerScores, "founder"),
-        topPlatform,
-        platformScores: {},
-        socialAccounts: [],
-        evidenceIds: rollup.evidenceIds,
-        ycProfileUrl: rollup.member.source,
-        websiteUrl: null,
-        tagline: audience.displayName,
-        description: audience.description,
-        groupPartner: "Top Voices",
-        primaryIndustry: "top voices",
-        businessModel: "b2b" as const,
-        review_state: "verified" as const,
-        sourceUrl: rollup.member.source,
-        visual: topVoiceVisual(),
-        industries: ["top voices"],
-        relatedEntityIds: rollup.relatedCompanyIds,
-        founders: [],
-        review_state_counts: { verified: 0, needs_review: 0, rejected: 0 },
-        isTopVoiceNode: true,
-        selectedTopVoiceAudience: audience
-      };
-    });
+  try {
+    const url = new URL(item.sourceUrl);
+    const hostname = url.hostname.replace(/^www\./, "").toLowerCase();
+    const parts = url.pathname.split("/").filter(Boolean).map((part) => part.toLowerCase());
+
+    if (hostname === "x.com" || hostname === "twitter.com") {
+      return parts.includes("status") && Boolean(item.platformPostId ?? parts.at(-1));
+    }
+    if (hostname.endsWith("linkedin.com")) {
+      return parts.includes("posts") || parts.includes("feed") || parts.includes("pulse") || item.sourceUrl.includes("urn:li:activity");
+    }
+    if (hostname.endsWith("reddit.com")) {
+      return parts.includes("comments");
+    }
+    if (hostname.endsWith("youtube.com") || hostname === "youtu.be") {
+      return hostname === "youtu.be" || url.searchParams.has("v") || parts.includes("shorts");
+    }
+  } catch {
+    return false;
+  }
+
+  return Boolean(item.platformPostId);
+}
+
+function hasVisibleMetrics(item: EvidenceItem): boolean {
+  return Object.values(item.metrics).some((value) => Number.isFinite(value) && Number(value) > 0);
+}
+
+function topVoiceEvidenceMentionsTarget(item: EvidenceItem, company: CompanyRecord, founders: FounderRecord[]): boolean {
+  const haystack = normalizeSearchText([
+    item.title,
+    item.text,
+    visibleRawText(item.rawVisibleText)
+  ].filter(Boolean).join(" "));
+  if (!haystack) {
+    return false;
+  }
+
+  return topVoiceTargetTerms(company, founders).some((term) => containsSearchTerm(haystack, term));
+}
+
+function topVoiceTargetTerms(company: CompanyRecord, founders: FounderRecord[]): string[] {
+  return uniqueStrings([
+    company.name,
+    company.websiteUrl ? domainToken(company.websiteUrl) : null,
+    ...company.socialAccounts.map((account) => account.handle),
+    ...founders.map((founder) => founder.name),
+    ...founders.flatMap((founder) => founder.socialAccounts.map((account) => account.handle))
+  ].filter((value): value is string => Boolean(value)))
+    .map(normalizeSearchText)
+    .filter((term) => term.length >= 4);
+}
+
+function visibleRawText(rawVisibleText: string | undefined): string {
+  if (!rawVisibleText) {
+    return "";
+  }
+  if (!rawVisibleText.trim().startsWith("{")) {
+    return rawVisibleText;
+  }
+  try {
+    const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    return [
+      typeof parsed.rawText === "string" ? parsed.rawText : null,
+      typeof parsed.text === "string" ? parsed.text : null
+    ].filter(Boolean).join(" ");
+  } catch {
+    return rawVisibleText;
+  }
+}
+
+function domainToken(rawUrl: string): string | null {
+  try {
+    const hostname = new URL(rawUrl).hostname.replace(/^www\./, "");
+    return hostname.split(".")[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function containsSearchTerm(haystack: string, term: string): boolean {
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^| )${escaped}($| )`).test(haystack);
+}
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/^@/, "")
+    .replace(/https?:\/\/(www\.)?/, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
 function buildFastestGaining(companies: CompanyRecord[]): FastestGainingRow[] {
@@ -1020,16 +1083,6 @@ function visualFor(primaryIndustry: string, _businessModel: BusinessModel, group
     borderStyle: "solid" as const,
     borderColor: clusterBorderColor(primaryIndustry),
     groupRegion: groupPartner
-  };
-}
-
-function topVoiceVisual() {
-  return {
-    industryColor: "#E0F2FE",
-    shape: "hexagon" as const,
-    borderStyle: "double" as const,
-    borderColor: "#0369A1",
-    groupRegion: "Top Voices"
   };
 }
 

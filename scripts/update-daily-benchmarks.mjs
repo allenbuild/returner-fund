@@ -4,8 +4,14 @@ import path from "node:path";
 
 const BATCH_SNAPSHOTS = [
   { slug: "S2026", filename: "s2026.json" },
+  { slug: "S2026", filename: "s2026-yc-partners.json", topVoices: "yc_partners" },
+  { slug: "S2026", filename: "s2026-insiders.json", topVoices: "insiders" },
   { slug: "S26", filename: "s26.json" },
-  { slug: "A16ZSR006", filename: "a16zsr006.json" }
+  { slug: "S26", filename: "s26-yc-partners.json", topVoices: "yc_partners" },
+  { slug: "S26", filename: "s26-insiders.json", topVoices: "insiders" },
+  { slug: "A16ZSR006", filename: "a16zsr006.json" },
+  { slug: "A16ZSR006", filename: "a16zsr006-yc-partners.json", topVoices: "yc_partners" },
+  { slug: "A16ZSR006", filename: "a16zsr006-insiders.json", topVoices: "insiders" }
 ];
 const DEFAULT_PORT = 3100;
 const SERVER_READY_TIMEOUT_MS = 120_000;
@@ -29,11 +35,11 @@ try {
   const writtenFiles = [];
 
   for (const batch of BATCH_SNAPSHOTS) {
-    const graph = await fetchGraph(server.baseUrl, batch.slug);
+    const graph = await fetchGraph(server.baseUrl, batch.slug, batch.topVoices);
     const outputPath = path.join(process.cwd(), "public", "graph", batch.filename);
     await mkdir(path.dirname(outputPath), { recursive: true });
     await writeFile(outputPath, `${JSON.stringify(graph)}\n`, "utf8");
-    writtenFiles.push({ batch: batch.slug, outputPath, generatedAt: graph.generatedAt });
+    writtenFiles.push({ batch: batch.slug, topVoices: batch.topVoices ?? "off", outputPath, generatedAt: graph.generatedAt });
   }
 
   console.log(JSON.stringify({ status: "updated", baseUrl: server.baseUrl, writtenFiles }, null, 2));
@@ -97,9 +103,12 @@ async function waitForGraphApi(baseUrl) {
   throw new Error(`Graph API was not ready after ${SERVER_READY_TIMEOUT_MS}ms: ${lastError}`);
 }
 
-async function fetchGraph(baseUrl, batchSlug) {
+async function fetchGraph(baseUrl, batchSlug, topVoices) {
   const url = new URL("/api/graph", `${trimTrailingSlash(baseUrl)}/`);
   url.searchParams.set("batch", batchSlug);
+  if (topVoices) {
+    url.searchParams.set("topVoices", topVoices);
+  }
   const response = await fetch(url, {
     headers: {
       accept: "application/json"

@@ -39,8 +39,7 @@ describe("EvidenceMediaCard", () => {
     );
     expect(container.querySelector(".evidence-media-card")).toHaveAttribute("href", item.sourceUrl);
     const imageSrc = container.querySelector("img")?.getAttribute("src");
-    expect(imageSrc).toMatch(/^data:image\/svg\+xml/);
-    expect(decodeDataImage(imageSrc)).toContain(">X<");
+    expect(imageSrc).toBe(item.thumbnailUrl);
     expect(screen.queryByText(/raw/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/normalized/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/first seen/i)).not.toBeInTheDocument();
@@ -77,7 +76,7 @@ describe("EvidenceMediaCard", () => {
     expect(screen.queryByText(/preview pending/i)).not.toBeInTheDocument();
   });
 
-  it("falls through to native media if a generated thumbnail fails", () => {
+  it("falls through to a generated thumbnail if native media fails", () => {
     const item: EvidenceItem = {
       id: "ev-broken-native",
       entityType: "company",
@@ -97,17 +96,18 @@ describe("EvidenceMediaCard", () => {
     };
 
     const { container } = render(<EvidenceMediaCard item={item} />);
-    const generatedImg = container.querySelector("img");
-
-    expect(generatedImg?.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
-    fireEvent.error(generatedImg!);
-
     const nativeImg = container.querySelector("img");
+
     expect(nativeImg).toHaveAttribute("src", item.thumbnailUrl);
+    fireEvent.error(nativeImg!);
+
+    const generatedImg = container.querySelector("img");
+    expect(generatedImg?.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
+    expect(decodeDataImage(generatedImg?.getAttribute("src"))).toContain("Instagram");
     expect(container.querySelector(".evidence-thumbnail-fallback")).not.toBeInTheDocument();
   });
 
-  it("uses generated thumbnails before Instagram CDN covers", () => {
+  it("uses native Instagram CDN covers before generated fallback", () => {
     const item: EvidenceItem = {
       id: "ev-instagram-cover",
       entityType: "founder",
@@ -130,8 +130,7 @@ describe("EvidenceMediaCard", () => {
     const { container } = render(<EvidenceMediaCard item={item} />);
 
     const imageSrc = container.querySelector("img")?.getAttribute("src");
-    expect(imageSrc).toMatch(/^data:image\/svg\+xml/);
-    expect(decodeDataImage(imageSrc)).toContain("Instagram");
+    expect(imageSrc).toBe(item.thumbnailUrl);
     expect(screen.queryByText(/cover blocked/i)).not.toBeInTheDocument();
   });
 });

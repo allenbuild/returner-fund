@@ -133,7 +133,10 @@ export function auditEvidenceAttribution(
   const visibleText = visibleEvidenceText(item);
   const identityText = identityEvidenceText(item);
   const signals = entitySignals(company);
-  const hasVisibleOwnSignal = hasEntitySignal(visibleText, signals, item.platform) || sourceUrlMatchesOwnDomain(item, signals);
+  const hasVisibleOwnSignal =
+    hasEntitySignal(visibleText, signals, item.platform) ||
+    hasBatchListCompanySignal(visibleText, company) ||
+    sourceUrlMatchesOwnDomain(item, signals);
   const hasOwnSignal = hasVisibleOwnSignal || hasEntitySignal(identityText, signals, item.platform);
   const hasVerifiedAccountSignal = hasVerifiedAccountSignalForCompany(item, signals);
   const conflictingCompanies = conflictingCompanyMatches(visibleText, context, company);
@@ -312,15 +315,41 @@ function appendAttributionReason(existing: string | undefined, audit: Attributio
 
 function hasVerifiedAccountSignalForCompany(item: EvidenceItem, signals: EntitySignals): boolean {
   const handle = normalizeHandle(item.authorHandle ?? item.authorName);
-  const accountHandle = handleFromUrl(item.accountUrl ?? item.sourceUrl);
+  const accountHandle = handleFromUrl(item.accountUrl);
   const sourceHandle = handleFromUrl(item.sourceUrl);
+  const rawAuthorHandle = nativeAuthorHandleFromRawVisibleText(item.rawVisibleText);
   const rawInstagramHandle =
     item.platform === "instagram" ? instagramProfileHandleFromRawVisibleText(item.rawVisibleText) : "";
   const platformHandles = signals.handlesByPlatform[item.platform] ?? new Set<string>();
+  const authorBackedHandles = [handle, accountHandle, rawAuthorHandle, rawInstagramHandle].filter(Boolean);
+  const candidateHandles = authorBackedHandles.length ? authorBackedHandles : [sourceHandle];
 
-  return [handle, accountHandle, sourceHandle, rawInstagramHandle]
-    .filter(Boolean)
+  return candidateHandles
     .some((candidate) => platformHandles.has(candidate));
+}
+
+function nativeAuthorHandleFromRawVisibleText(rawVisibleText: string | undefined): string {
+  const raw = String(rawVisibleText ?? "");
+  if (!raw.trim().startsWith("{")) {
+    return "";
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return normalizeHandle(
+      parsed?.post?.author?.screen_name ??
+        parsed?.post?.author?.username ??
+        parsed?.post?.authorHandle ??
+        parsed?.post?.handle ??
+        parsed?.author?.screen_name ??
+        parsed?.author?.username ??
+        parsed?.authorHandle ??
+        parsed?.handle ??
+        parsed?.username
+    );
+  } catch {
+    return "";
+  }
 }
 
 function instagramProfileHandleFromRawVisibleText(rawVisibleText: string | undefined): string {
@@ -350,8 +379,18 @@ function hasEntitySignal(text: string, signals: EntitySignals, platform: Platfor
   return (
     signals.names.some((name) => hasPhrase(normalized, name)) ||
     signals.domains.some((domain) => domain && normalized.includes(domain)) ||
-    [...platformHandles].some((handle) => handle && normalized.includes(handle))
+    [...platformHandles].some((handle) => handle && hasHandleSignal(normalized, handle))
   );
+}
+
+function hasBatchListCompanySignal(text: string, company: AttributionCompanyProfile): boolean {
+  const normalized = normalizeText(text);
+  const companyName = normalizeText(company.name);
+  if (!companyName || !hasPhrase(normalized, companyName)) {
+    return false;
+  }
+
+  return /\b(?:yc|y combinator|spring batch|demo day|p26)\b/.test(normalized);
 }
 
 function conflictingCompanyMatches(
@@ -429,8 +468,6 @@ function identityEvidenceText(item: EvidenceItem): string {
   return [
     item.authorName,
     item.authorHandle,
-    item.sourceUrl,
-    item.accountUrl,
     item.matchReason,
     item.why
   ]
@@ -496,6 +533,14 @@ function hasPhrase(normalizedText: string, normalizedPhrase: string): boolean {
   return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i").test(normalizedText);
 }
 
+function hasHandleSignal(normalizedText: string, normalizedHandle: string): boolean {
+  const handle = normalizeText(normalizedHandle);
+  if (!handle || handle.length < 4) {
+    return false;
+  }
+  return hasPhrase(normalizedText, handle);
+}
+
 function domainFromUrl(rawUrl: string | null | undefined): string {
   if (!rawUrl) return "";
   try {
@@ -510,16 +555,21 @@ function handleFromUrl(rawUrl: string | null | undefined): string {
   if (!rawUrl) return "";
   try {
     const url = new URL(rawUrl);
+    const hostname = url.hostname.replace(/^www\./, "").toLowerCase();
     const parts = url.pathname.split("/").filter(Boolean);
-    if (url.hostname.includes("github.com")) return normalizeHandle(parts[0]);
-    if (url.hostname.includes("instagram.com")) return normalizeHandle(parts[0]);
-    if (url.hostname.includes("x.com") || url.hostname.includes("twitter.com")) return normalizeHandle(parts[0]);
-    if (url.hostname.includes("linkedin.com")) return normalizeHandle(parts.at(-1));
+    if (isPlatformHost(hostname, ["github.com"])) return normalizeHandle(parts[0]);
+    if (isPlatformHost(hostname, ["instagram.com"])) return normalizeHandle(parts[0]);
+    if (isPlatformHost(hostname, ["x.com", "twitter.com"])) return normalizeHandle(parts[0]);
+    if (isPlatformHost(hostname, ["linkedin.com"])) return normalizeHandle(parts.at(-1));
   } catch {
     return "";
   }
 
-  return normalizeHandle(rawUrl);
+  return "";
+}
+
+function isPlatformHost(hostname: string, roots: string[]): boolean {
+  return roots.some((root) => hostname === root || hostname.endsWith(`.${root}`));
 }
 
 function normalizeHandle(value: string | null | undefined): string {

@@ -19,6 +19,11 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
   const metrics = compactMetrics(item.metrics).join(" / ");
   const thumbnailCandidates = thumbnailUrlCandidates(item);
   const thumbnailUrl = thumbnailCandidates.find((candidate) => !failedThumbnailUrls.includes(candidate)) ?? null;
+  const accountLabel = item.topVoice
+    ? `Top Voice: ${item.topVoice.displayName}`
+    : item.entityType === "founder"
+      ? "Founder account"
+      : "Company account";
 
   useEffect(() => {
     setFailedThumbnailUrls([]);
@@ -64,7 +69,7 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
             <PlatformLogo platform={item.platform} />
             <span>{formatPlatform(item.platform)}</span>
           </span>
-          <span>{item.entityType === "founder" ? "Founder account" : "Company account"}</span>
+          <span>{accountLabel}</span>
         </div>
         <h4>{snippet}</h4>
         {metrics && <p className="evidence-card-stats">{metrics}</p>}
@@ -76,19 +81,11 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
 function thumbnailUrlCandidates(item: EvidenceItem): string[] {
   const generatedDataUri = generatedEvidenceThumbnailDataUri(item);
   const generatedUrl = generatedEvidenceThumbnailUrl(item);
-  return uniqueStrings(
-    isLocalStaticThumbnail(item.thumbnailUrl)
-      ? [item.thumbnailUrl, generatedDataUri, generatedUrl]
-      : [generatedDataUri, item.thumbnailUrl, generatedUrl]
-  );
+  return uniqueStrings([item.thumbnailUrl, generatedDataUri, generatedUrl]);
 }
 
 function uniqueStrings(values: Array<string | null | undefined>): string[] {
   return values.filter((value, index): value is string => Boolean(value) && values.indexOf(value) === index);
-}
-
-function isLocalStaticThumbnail(value: string | null | undefined): boolean {
-  return Boolean(value?.startsWith("/evidence-thumbnails/"));
 }
 
 function evidenceSnippet(item: EvidenceItem): string {

@@ -1,7 +1,7 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Dashboard } from "@/components/Dashboard";
-import type { GraphNode, GraphResponse } from "@/lib/graph/types";
+import type { GraphNode, GraphResponse, Platform } from "@/lib/graph/types";
 
 vi.mock("@/components/CytoscapeGraph", () => ({
   CytoscapeGraph: ({ nodes }: { nodes: GraphNode[] }) => (
@@ -25,6 +25,7 @@ describe("dashboard filters", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    vi.useRealTimers();
     window.history.replaceState(null, "", "/");
     document.title = "YC Network Map";
   });
@@ -156,7 +157,7 @@ describe("dashboard filters", () => {
     await waitFor(() => expect(document.title).toBe("a16z Network Map"));
   });
 
-  it("fetches a URL-addressable graph when Top Voices changes", async () => {
+  it("fetches the static Top Voices graph when Top Voices changes", async () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
     ]);
@@ -177,12 +178,12 @@ describe("dashboard filters", () => {
     fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
 
     await waitFor(() => {
-      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("topVoices=yc_partners"))).toBe(true);
+      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/graph/s2026-yc-partners.json"))).toBe(true);
     });
     expect(window.location.search).toContain("topVoices=yc_partners");
   });
 
-  it("switches to a prefetched Speedrun graph without waiting for another graph request", async () => {
+  it("switches to a prefetched Speedrun graph immediately, then promotes the cached static graph through the API", async () => {
     vi.stubGlobal("requestIdleCallback", (callback: IdleRequestCallback) => {
       callback({ didTimeout: false, timeRemaining: () => 12 });
       return 1;
@@ -221,14 +222,15 @@ describe("dashboard filters", () => {
       expect(within(screen.getByTestId("graph-canvas")).getByText("SUN")).toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe")).not.toBeInTheDocument();
     });
-    expect(
-      fetchMock.mock.calls
-        .slice(callsBeforeSwitch.length)
-        .some(
-          ([input]) =>
-            String(input).startsWith("/graph/a16zsr006.json") || String(input) === "/api/graph?batch=A16ZSR006"
-        )
-    ).toBe(false);
+    const callsImmediatelyAfterSwitch = fetchMock.mock.calls.slice(callsBeforeSwitch.length).map(([input]) => String(input));
+    expect(callsImmediatelyAfterSwitch.some((input) => input.startsWith("/graph/a16zsr006.json"))).toBe(false);
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls
+          .slice(callsBeforeSwitch.length)
+          .some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
+      ).toBe(true);
+    });
   });
 
   it("falls back to the live graph API when a static graph snapshot has stale benchmark dates", async () => {
@@ -262,6 +264,55 @@ describe("dashboard filters", () => {
     expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
   });
 
+  it("uses the fresh static graph snapshot for filtered initial loads, then refreshes from the API in the background", async () => {
+    const staticGraph = withBenchmarkDates(
+      graphResponse([
+        makeNode("company:x-only", "Static X Only", "b2b", "#7dd3fc", "Partner A", 80, "x"),
+        makeNode("company:github-only", "GitHub Only", "fintech", "#2563eb", "Partner B", 70, "github")
+      ]),
+      localDateIso(-1),
+      localDateIso(-7)
+    );
+    const apiGraph = withBenchmarkDates(
+      graphResponse([
+        makeNode("company:x-live", "Live API X", "b2b", "#7dd3fc", "Partner A", 90, "x"),
+        makeNode("company:github-only", "GitHub Only", "fintech", "#2563eb", "Partner B", 70, "github")
+      ]),
+      localDateIso(-1),
+      localDateIso(-7)
+    );
+    let resolveApiGraph!: (response: { ok: boolean; json: () => Promise<GraphResponse> }) => void;
+    const apiGraphResponse = new Promise<{ ok: boolean; json: () => Promise<GraphResponse> }>((resolve) => {
+      resolveApiGraph = resolve;
+    });
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.startsWith("/api/graph")) {
+        return apiGraphResponse;
+      }
+      return { ok: true, json: async () => staticGraph };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialFilters={{ platforms: ["x"] }} />);
+
+    await waitFor(() => {
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Static X Only")).toBeInTheDocument();
+    });
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("GitHub Only")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+    });
+
+    resolveApiGraph({ ok: true, json: async () => apiGraph });
+    await waitFor(() => {
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Live API X")).toBeInTheDocument();
+    });
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Static X Only")).not.toBeInTheDocument();
+  });
+
   it("filters minimum score locally without waiting for a graph request", async () => {
     const fullGraph = graphResponse([
       makeNode("company:low", "Low Score", "b2b", "#7dd3fc", "Partner A", 20),
@@ -288,6 +339,100 @@ describe("dashboard filters", () => {
       expect(within(screen.getByTestId("graph-canvas")).getByText("High Score")).toBeInTheDocument();
     });
     expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("minScore=80"), expect.any(Object));
+  });
+
+  it("shows API-level refresh failures instead of treating every HTTP 200 as success", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100, "x")
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input) === "/api/graph/refresh") {
+        return {
+          ok: true,
+          json: async () => ({
+            graph: fullGraph,
+            status: "failed",
+            errors: ["Live refresh finished without accepted evidence. Top reasons: no_status_ids:1."],
+            refreshSummary: {
+              status: "failed",
+              acceptedRows: 0,
+              visibleRows: 0,
+              failureReasonCounts: { no_status_ids: 1 }
+            }
+          })
+        };
+      }
+      return {
+        ok: true,
+        json: async () => fullGraph
+      };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={fullGraph} initialFilters={{ platforms: ["x"] }} />);
+    fireEvent.click(screen.getByRole("button", { name: /refresh/i }));
+
+    expect(await screen.findByText(/Live refresh finished without accepted evidence/i)).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
+  });
+
+  it("keeps polling the graph API after a manual refresh times out until fresh rows surface", async () => {
+    vi.useFakeTimers();
+    const staleGraph = graphResponse([
+      makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 80, "x")
+    ]);
+    const liveGraph = graphResponse([
+      makeNode("company:screenpipe", "screenpipe live", "b2b", "#7dd3fc", "Partner A", 100, "x")
+    ]);
+    let graphApiCalls = 0;
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/graph/refresh") {
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), { once: true });
+        });
+      }
+      if (url.startsWith("/api/graph")) {
+        graphApiCalls += 1;
+        return Promise.resolve({
+          ok: true,
+          json: async () => (graphApiCalls >= 3 ? liveGraph : staleGraph)
+        } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => staleGraph
+      } as Response);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={staleGraph} initialFilters={{ platforms: ["x"] }} />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_400);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /refresh/i }));
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(45_000);
+    });
+
+    expect(screen.getByText(/Refresh is still running/i)).toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_500);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe live")).not.toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe live")).toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.filter(([input]) => String(input) === "/api/graph?batch=S2026").length
+    ).toBeGreaterThanOrEqual(2);
   });
 });
 
@@ -410,7 +555,8 @@ function makeNode(
   industry: string,
   color: string,
   groupPartner = "Partner",
-  score = 50
+  score = 50,
+  topPlatform: Platform = "github"
 ): GraphNode {
   const entityId = id.replace("company:", "");
   return {
@@ -423,8 +569,8 @@ function makeNode(
     previousScore: 45,
     scoreDelta: 5,
     radius: 20,
-    topPlatform: "github",
-    platformScores: { github: 50 },
+    topPlatform,
+    platformScores: { [topPlatform]: 50 },
     socialAccounts: [],
     evidenceIds: [],
     ycProfileUrl: `https://www.ycombinator.com/companies/${entityId}`,

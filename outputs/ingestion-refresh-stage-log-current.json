@@ -1,0 +1,1299 @@
+{
+  "generatedAt": "2026-07-15T06:51:51.115Z",
+  "stages": [
+    {
+      "stage": "task_created",
+      "platform": "all",
+      "message": "Live source refresh live-refresh-1784098306179 started for x.",
+      "at": "2026-07-15T06:51:46.179Z"
+    },
+    {
+      "stage": "parsed",
+      "platform": "x",
+      "count": 49,
+      "message": "Loaded 49 insiders X top-voice target(s) and 197 company match target(s).",
+      "at": "2026-07-15T06:51:46.184Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "paulg",
+      "sourceUrl": "https://x.com/paulg",
+      "message": "Fetching public X top-voice profile HTML for Paul Graham (@paulg).",
+      "at": "2026-07-15T06:51:46.184Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "pg",
+      "sourceUrl": "https://x.com/pg",
+      "message": "Fetching public X top-voice profile HTML for Paul Graham (@pg).",
+      "at": "2026-07-15T06:51:46.186Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "mwseibel",
+      "sourceUrl": "https://x.com/mwseibel",
+      "message": "Fetching public X top-voice profile HTML for Michael Seibel (@mwseibel).",
+      "at": "2026-07-15T06:51:46.186Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "sama",
+      "sourceUrl": "https://x.com/sama",
+      "message": "Fetching public X top-voice profile HTML for Sam Altman (@sama).",
+      "at": "2026-07-15T06:51:46.187Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "bchesky",
+      "sourceUrl": "https://x.com/bchesky",
+      "message": "Fetching public X top-voice profile HTML for Brian Chesky (@bchesky).",
+      "at": "2026-07-15T06:51:46.187Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "patrickc",
+      "sourceUrl": "https://x.com/patrickc",
+      "message": "Fetching public X top-voice profile HTML for Patrick Collison (@patrickc).",
+      "at": "2026-07-15T06:51:46.187Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "collision",
+      "sourceUrl": "https://x.com/collision",
+      "message": "Fetching public X top-voice profile HTML for John Collison (@collision).",
+      "at": "2026-07-15T06:51:46.187Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "brianarmstrong",
+      "sourceUrl": "https://x.com/brianarmstrong",
+      "message": "Fetching public X top-voice profile HTML for Brian Armstrong (@brianarmstrong).",
+      "at": "2026-07-15T06:51:46.188Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "drewhouston",
+      "sourceUrl": "https://x.com/drewhouston",
+      "message": "Fetching public X top-voice profile HTML for Drew Houston (@drewhouston).",
+      "at": "2026-07-15T06:51:46.188Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "spez",
+      "sourceUrl": "https://x.com/spez",
+      "message": "Fetching public X top-voice profile HTML for Steve Huffman (@spez).",
+      "at": "2026-07-15T06:51:46.188Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "spez",
+      "sourceUrl": "https://x.com/spez",
+      "count": 0,
+      "message": "Public X top-voice profile for spez exposed 0 candidate status id(s).",
+      "at": "2026-07-15T06:51:46.538Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "spez",
+      "sourceUrl": "https://x.com/spez",
+      "reason": "no_status_ids",
+      "message": "No post-level X status URLs were visible on spez's public top-voice profile HTML.",
+      "at": "2026-07-15T06:51:46.538Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "justinkan",
+      "sourceUrl": "https://x.com/justinkan",
+      "message": "Fetching public X top-voice profile HTML for Justin Kan (@justinkan).",
+      "at": "2026-07-15T06:51:46.538Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "pg",
+      "sourceUrl": "https://x.com/pg",
+      "count": 0,
+      "message": "Public X top-voice profile for pg exposed 0 candidate status id(s).",
+      "at": "2026-07-15T06:51:46.556Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "pg",
+      "sourceUrl": "https://x.com/pg",
+      "reason": "no_status_ids",
+      "message": "No post-level X status URLs were visible on pg's public top-voice profile HTML.",
+      "at": "2026-07-15T06:51:46.556Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "eshear",
+      "sourceUrl": "https://x.com/eshear",
+      "message": "Fetching public X top-voice profile HTML for Emmett Shear (@eshear).",
+      "at": "2026-07-15T06:51:46.556Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "bchesky",
+      "sourceUrl": "https://x.com/bchesky",
+      "count": 1,
+      "message": "Public X top-voice profile for bchesky exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:46.968Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "mwseibel",
+      "sourceUrl": "https://x.com/mwseibel",
+      "count": 1,
+      "message": "Public X top-voice profile for mwseibel exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:46.980Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "paulg",
+      "sourceUrl": "https://x.com/paulg",
+      "count": 1,
+      "message": "Public X top-voice profile for paulg exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:46.983Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "patrickc",
+      "sourceUrl": "https://x.com/patrickc",
+      "count": 1,
+      "message": "Public X top-voice profile for patrickc exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.061Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "brianarmstrong",
+      "sourceUrl": "https://x.com/brianarmstrong",
+      "count": 1,
+      "message": "Public X top-voice profile for brianarmstrong exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.156Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "sama",
+      "sourceUrl": "https://x.com/sama",
+      "count": 1,
+      "message": "Public X top-voice profile for sama exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.164Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "collision",
+      "sourceUrl": "https://x.com/collision",
+      "count": 1,
+      "message": "Public X top-voice profile for collision exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.168Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "drewhouston",
+      "sourceUrl": "https://x.com/drewhouston",
+      "count": 1,
+      "message": "Public X top-voice profile for drewhouston exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.202Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "paulg",
+      "sourceUrl": "https://x.com/paulg/status/1879968688356642917",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1879968688356642917 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.223Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "alexisohanian",
+      "sourceUrl": "https://x.com/alexisohanian",
+      "message": "Fetching public X top-voice profile HTML for Alexis Ohanian (@alexisohanian).",
+      "at": "2026-07-15T06:51:47.223Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "bchesky",
+      "sourceUrl": "https://x.com/bchesky/status/1524372742048718848",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1524372742048718848 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.241Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "rauchg",
+      "sourceUrl": "https://x.com/rauchg",
+      "message": "Fetching public X top-voice profile HTML for Guillermo Rauch (@rauchg).",
+      "at": "2026-07-15T06:51:47.241Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "mwseibel",
+      "sourceUrl": "https://x.com/mwseibel/status/1950321681580576780",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1950321681580576780 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.248Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "zoink",
+      "sourceUrl": "https://x.com/zoink",
+      "message": "Fetching public X top-voice profile HTML for Dylan Field (@zoink).",
+      "at": "2026-07-15T06:51:47.248Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "justinkan",
+      "sourceUrl": "https://x.com/justinkan",
+      "count": 1,
+      "message": "Public X top-voice profile for justinkan exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.274Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "patrickc",
+      "sourceUrl": "https://x.com/patrickc/status/1861749249043796000",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1861749249043796000 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.294Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "aravsrinivas",
+      "sourceUrl": "https://x.com/aravsrinivas",
+      "message": "Fetching public X top-voice profile HTML for Aravind Srinivas (@aravsrinivas).",
+      "at": "2026-07-15T06:51:47.294Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "brianarmstrong",
+      "sourceUrl": "https://x.com/brianarmstrong/status/1445440217985343495",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1445440217985343495 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.369Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "alexandrwang",
+      "sourceUrl": "https://x.com/alexandrwang",
+      "message": "Fetching public X top-voice profile HTML for Alex Wang (@alexandrwang).",
+      "at": "2026-07-15T06:51:47.369Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "collision",
+      "sourceUrl": "https://x.com/collision/status/1387406756880412676",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1387406756880412676 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.377Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "palmerluckey",
+      "sourceUrl": "https://x.com/palmerluckey",
+      "message": "Fetching public X top-voice profile HTML for Palmer Luckey (@palmerluckey).",
+      "at": "2026-07-15T06:51:47.377Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "sama",
+      "sourceUrl": "https://x.com/sama/status/1726345564059832609",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1726345564059832609 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.385Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "parkerconrad",
+      "sourceUrl": "https://x.com/parkerconrad",
+      "message": "Fetching public X top-voice profile HTML for Parker Conrad (@parkerconrad).",
+      "at": "2026-07-15T06:51:47.385Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "eshear",
+      "sourceUrl": "https://x.com/eshear",
+      "count": 1,
+      "message": "Public X top-voice profile for eshear exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.392Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "justinkan",
+      "sourceUrl": "https://x.com/justinkan/status/1748223263413514706",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1748223263413514706 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.419Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "levie",
+      "sourceUrl": "https://x.com/levie",
+      "message": "Fetching public X top-voice profile HTML for Aaron Levie (@levie).",
+      "at": "2026-07-15T06:51:47.419Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "drewhouston",
+      "sourceUrl": "https://x.com/drewhouston/status/826151078316027906",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 826151078316027906 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.420Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "ericmigi",
+      "sourceUrl": "https://x.com/ericmigi",
+      "message": "Fetching public X top-voice profile HTML for Eric Migicovsky (@ericmigi).",
+      "at": "2026-07-15T06:51:47.420Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "eshear",
+      "sourceUrl": "https://x.com/eshear/status/1742993102963658975",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1742993102963658975 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:47.526Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "txu",
+      "sourceUrl": "https://x.com/txu",
+      "message": "Fetching public X top-voice profile HTML for Tony Xu (@txu).",
+      "at": "2026-07-15T06:51:47.526Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "alexandrwang",
+      "sourceUrl": "https://x.com/alexandrwang",
+      "count": 0,
+      "message": "Public X top-voice profile for alexandrwang exposed 0 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.629Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "alexandrwang",
+      "sourceUrl": "https://x.com/alexandrwang",
+      "reason": "no_status_ids",
+      "message": "No post-level X status URLs were visible on alexandrwang's public top-voice profile HTML.",
+      "at": "2026-07-15T06:51:47.629Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "apoorvamehta",
+      "sourceUrl": "https://x.com/apoorvamehta",
+      "message": "Fetching public X top-voice profile HTML for Apoorva Mehta (@apoorvamehta).",
+      "at": "2026-07-15T06:51:47.629Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "txu",
+      "sourceUrl": "https://x.com/txu",
+      "count": 0,
+      "message": "Public X top-voice profile for txu exposed 0 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.810Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "txu",
+      "sourceUrl": "https://x.com/txu",
+      "reason": "no_status_ids",
+      "message": "No post-level X status URLs were visible on txu's public top-voice profile HTML.",
+      "at": "2026-07-15T06:51:47.810Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "maxmullen",
+      "sourceUrl": "https://x.com/maxmullen",
+      "message": "Fetching public X top-voice profile HTML for Max Mullen (@maxmullen).",
+      "at": "2026-07-15T06:51:47.810Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "apoorvamehta",
+      "sourceUrl": "https://x.com/apoorvamehta",
+      "count": 0,
+      "message": "Public X top-voice profile for apoorvamehta exposed 0 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.887Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "apoorvamehta",
+      "sourceUrl": "https://x.com/apoorvamehta",
+      "reason": "no_status_ids",
+      "message": "No post-level X status URLs were visible on apoorvamehta's public top-voice profile HTML.",
+      "at": "2026-07-15T06:51:47.887Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "hdubugras",
+      "sourceUrl": "https://x.com/hdubugras",
+      "message": "Fetching public X top-voice profile HTML for Henrique Dubugras (@hdubugras).",
+      "at": "2026-07-15T06:51:47.887Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "rauchg",
+      "sourceUrl": "https://x.com/rauchg",
+      "count": 1,
+      "message": "Public X top-voice profile for rauchg exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:47.973Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "aravsrinivas",
+      "sourceUrl": "https://x.com/aravsrinivas",
+      "count": 1,
+      "message": "Public X top-voice profile for aravsrinivas exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.034Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "zoink",
+      "sourceUrl": "https://x.com/zoink",
+      "count": 1,
+      "message": "Public X top-voice profile for zoink exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.058Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "alexisohanian",
+      "sourceUrl": "https://x.com/alexisohanian",
+      "count": 1,
+      "message": "Public X top-voice profile for alexisohanian exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.061Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "rauchg",
+      "sourceUrl": "https://x.com/rauchg/status/1198962361941446657",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1198962361941446657 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.098Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "pedroh96",
+      "sourceUrl": "https://x.com/pedroh96",
+      "message": "Fetching public X top-voice profile HTML for Pedro Franceschi (@pedroh96).",
+      "at": "2026-07-15T06:51:48.098Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "maxmullen",
+      "sourceUrl": "https://x.com/maxmullen",
+      "count": 0,
+      "message": "Public X top-voice profile for maxmullen exposed 0 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.116Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "maxmullen",
+      "sourceUrl": "https://x.com/maxmullen",
+      "reason": "no_status_ids",
+      "message": "No post-level X status URLs were visible on maxmullen's public top-voice profile HTML.",
+      "at": "2026-07-15T06:51:48.116Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "collinmathilde",
+      "sourceUrl": "https://x.com/collinmathilde",
+      "message": "Fetching public X top-voice profile HTML for Mathilde Collin (@collinmathilde).",
+      "at": "2026-07-15T06:51:48.116Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "aravsrinivas",
+      "sourceUrl": "https://x.com/aravsrinivas/status/2077105849638728118",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 2077105849638728118 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.169Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "rahulvohra",
+      "sourceUrl": "https://x.com/rahulvohra",
+      "message": "Fetching public X top-voice profile HTML for Rahul Vohra (@rahulvohra).",
+      "at": "2026-07-15T06:51:48.169Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "zoink",
+      "sourceUrl": "https://x.com/zoink/status/1957197024698536054",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1957197024698536054 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.200Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "spenserskates",
+      "sourceUrl": "https://x.com/spenserskates",
+      "message": "Fetching public X top-voice profile HTML for Spenser Skates (@spenserskates).",
+      "at": "2026-07-15T06:51:48.200Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "alexisohanian",
+      "sourceUrl": "https://x.com/alexisohanian/status/1038092056692969472",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1038092056692969472 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.203Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "suhail",
+      "sourceUrl": "https://x.com/suhail",
+      "message": "Fetching public X top-voice profile HTML for Suhail Doshi (@suhail).",
+      "at": "2026-07-15T06:51:48.203Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "palmerluckey",
+      "sourceUrl": "https://x.com/palmerluckey",
+      "count": 1,
+      "message": "Public X top-voice profile for palmerluckey exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.207Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "levie",
+      "sourceUrl": "https://x.com/levie",
+      "count": 1,
+      "message": "Public X top-voice profile for levie exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.213Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "parkerconrad",
+      "sourceUrl": "https://x.com/parkerconrad",
+      "count": 1,
+      "message": "Public X top-voice profile for parkerconrad exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.289Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "levie",
+      "sourceUrl": "https://x.com/levie/status/1800224021193396594",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1800224021193396594 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.327Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "daltonc",
+      "sourceUrl": "https://x.com/daltonc",
+      "message": "Fetching public X top-voice profile HTML for Dalton Caldwell (@daltonc).",
+      "at": "2026-07-15T06:51:48.327Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "palmerluckey",
+      "sourceUrl": "https://x.com/palmerluckey/status/1797662883914154212",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1797662883914154212 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.331Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "qasar",
+      "sourceUrl": "https://x.com/qasar",
+      "message": "Fetching public X top-voice profile HTML for Qasar Younis (@qasar).",
+      "at": "2026-07-15T06:51:48.331Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "ericmigi",
+      "sourceUrl": "https://x.com/ericmigi",
+      "count": 1,
+      "message": "Public X top-voice profile for ericmigi exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.336Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "parkerconrad",
+      "sourceUrl": "https://x.com/parkerconrad/status/1901615179718406276",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1901615179718406276 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.419Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "rowghani",
+      "sourceUrl": "https://x.com/rowghani",
+      "message": "Fetching public X top-voice profile HTML for Ali Rowghani (@rowghani).",
+      "at": "2026-07-15T06:51:48.419Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "ericmigi",
+      "sourceUrl": "https://x.com/ericmigi/status/1883970228574642629",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1883970228574642629 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.468Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "anuhariharan",
+      "sourceUrl": "https://x.com/anuhariharan",
+      "message": "Fetching public X top-voice profile HTML for Anu Hariharan (@anuhariharan).",
+      "at": "2026-07-15T06:51:48.468Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "qasar",
+      "sourceUrl": "https://x.com/qasar",
+      "count": 0,
+      "message": "Public X top-voice profile for qasar exposed 0 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.605Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "qasar",
+      "sourceUrl": "https://x.com/qasar",
+      "reason": "no_status_ids",
+      "message": "No post-level X status URLs were visible on qasar's public top-voice profile HTML.",
+      "at": "2026-07-15T06:51:48.605Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "eladgil",
+      "sourceUrl": "https://x.com/eladgil",
+      "message": "Fetching public X top-voice profile HTML for Elad Gil (@eladgil).",
+      "at": "2026-07-15T06:51:48.605Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "hdubugras",
+      "sourceUrl": "https://x.com/hdubugras",
+      "count": 1,
+      "message": "Public X top-voice profile for hdubugras exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.765Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "collinmathilde",
+      "sourceUrl": "https://x.com/collinmathilde",
+      "count": 1,
+      "message": "Public X top-voice profile for collinmathilde exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.872Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "hdubugras",
+      "sourceUrl": "https://x.com/hdubugras/status/1466271158517575680",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1466271158517575680 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:48.915Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "natfriedman",
+      "sourceUrl": "https://x.com/natfriedman",
+      "message": "Fetching public X top-voice profile HTML for Nat Friedman (@natfriedman).",
+      "at": "2026-07-15T06:51:48.915Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "daltonc",
+      "sourceUrl": "https://x.com/daltonc",
+      "count": 1,
+      "message": "Public X top-voice profile for daltonc exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:48.990Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "suhail",
+      "sourceUrl": "https://x.com/suhail",
+      "count": 1,
+      "message": "Public X top-voice profile for suhail exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.004Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "collinmathilde",
+      "sourceUrl": "https://x.com/collinmathilde/status/1468297995292532738",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1468297995292532738 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.022Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "danielgross",
+      "sourceUrl": "https://x.com/danielgross",
+      "message": "Fetching public X top-voice profile HTML for Daniel Gross (@danielgross).",
+      "at": "2026-07-15T06:51:49.022Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "spenserskates",
+      "sourceUrl": "https://x.com/spenserskates",
+      "count": 1,
+      "message": "Public X top-voice profile for spenserskates exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.063Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "pedroh96",
+      "sourceUrl": "https://x.com/pedroh96",
+      "count": 1,
+      "message": "Public X top-voice profile for pedroh96 exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.115Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "daltonc",
+      "sourceUrl": "https://x.com/daltonc/status/2074219160801042453",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 2074219160801042453 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.118Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "davidsacks",
+      "sourceUrl": "https://x.com/davidsacks",
+      "message": "Fetching public X top-voice profile HTML for David Sacks (@davidsacks).",
+      "at": "2026-07-15T06:51:49.118Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "suhail",
+      "sourceUrl": "https://x.com/suhail/status/1940469007859306698",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1940469007859306698 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.119Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "pmarca",
+      "sourceUrl": "https://x.com/pmarca",
+      "message": "Fetching public X top-voice profile HTML for Marc Andreessen (@pmarca).",
+      "at": "2026-07-15T06:51:49.119Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "rahulvohra",
+      "sourceUrl": "https://x.com/rahulvohra",
+      "count": 1,
+      "message": "Public X top-voice profile for rahulvohra exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.175Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "spenserskates",
+      "sourceUrl": "https://x.com/spenserskates/status/2064759773292368141",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 2064759773292368141 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.207Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "bhorowitz",
+      "sourceUrl": "https://x.com/bhorowitz",
+      "message": "Fetching public X top-voice profile HTML for Ben Horowitz (@bhorowitz).",
+      "at": "2026-07-15T06:51:49.207Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "pedroh96",
+      "sourceUrl": "https://x.com/pedroh96/status/1977779356131819791",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1977779356131819791 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.259Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "naval",
+      "sourceUrl": "https://x.com/naval",
+      "message": "Fetching public X top-voice profile HTML for Naval Ravikant (@naval).",
+      "at": "2026-07-15T06:51:49.259Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "anuhariharan",
+      "sourceUrl": "https://x.com/anuhariharan",
+      "count": 1,
+      "message": "Public X top-voice profile for anuhariharan exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.262Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "rahulvohra",
+      "sourceUrl": "https://x.com/rahulvohra/status/1983563048234402233",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1983563048234402233 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.310Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "rabois",
+      "sourceUrl": "https://x.com/rabois",
+      "message": "Fetching public X top-voice profile HTML for Keith Rabois (@rabois).",
+      "at": "2026-07-15T06:51:49.310Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "rowghani",
+      "sourceUrl": "https://x.com/rowghani",
+      "count": 1,
+      "message": "Public X top-voice profile for rowghani exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.408Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "anuhariharan",
+      "sourceUrl": "https://x.com/anuhariharan/status/1841893394026791326",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1841893394026791326 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.434Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "saranormous",
+      "sourceUrl": "https://x.com/saranormous",
+      "message": "Fetching public X top-voice profile HTML for Sarah Guo (@saranormous).",
+      "at": "2026-07-15T06:51:49.434Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "eladgil",
+      "sourceUrl": "https://x.com/eladgil",
+      "count": 1,
+      "message": "Public X top-voice profile for eladgil exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.491Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "rowghani",
+      "sourceUrl": "https://x.com/rowghani/status/1933171248567394371",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1933171248567394371 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.531Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "andrewchen",
+      "sourceUrl": "https://x.com/andrewchen",
+      "message": "Fetching public X top-voice profile HTML for Andrew Chen (@andrewchen).",
+      "at": "2026-07-15T06:51:49.531Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "natfriedman",
+      "sourceUrl": "https://x.com/natfriedman",
+      "count": 1,
+      "message": "Public X top-voice profile for natfriedman exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.610Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "eladgil",
+      "sourceUrl": "https://x.com/eladgil/status/1902446585747009815",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1902446585747009815 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.664Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "lachygroom",
+      "sourceUrl": "https://x.com/lachygroom",
+      "message": "Fetching public X top-voice profile HTML for Lachy Groom (@lachygroom).",
+      "at": "2026-07-15T06:51:49.664Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "natfriedman",
+      "sourceUrl": "https://x.com/natfriedman/status/1754519304471814555",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1754519304471814555 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.746Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "semil",
+      "sourceUrl": "https://x.com/semil",
+      "message": "Fetching public X top-voice profile HTML for Semil Shah (@semil).",
+      "at": "2026-07-15T06:51:49.746Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "pmarca",
+      "sourceUrl": "https://x.com/pmarca",
+      "count": 1,
+      "message": "Public X top-voice profile for pmarca exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.854Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "danielgross",
+      "sourceUrl": "https://x.com/danielgross",
+      "count": 1,
+      "message": "Public X top-voice profile for danielgross exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.925Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "naval",
+      "sourceUrl": "https://x.com/naval",
+      "count": 1,
+      "message": "Public X top-voice profile for naval exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.956Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "pmarca",
+      "sourceUrl": "https://x.com/pmarca/status/2028892578666651650",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 2028892578666651650 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:49.981Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "zebulgar",
+      "sourceUrl": "https://x.com/zebulgar",
+      "message": "Fetching public X top-voice profile HTML for Delian Asparouhov (@zebulgar).",
+      "at": "2026-07-15T06:51:49.981Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "davidsacks",
+      "sourceUrl": "https://x.com/davidsacks",
+      "count": 1,
+      "message": "Public X top-voice profile for davidsacks exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:49.988Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "danielgross",
+      "sourceUrl": "https://x.com/danielgross/status/1598735800497119232",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1598735800497119232 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.043Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "traestephens",
+      "sourceUrl": "https://x.com/traestephens",
+      "message": "Fetching public X top-voice profile HTML for Trae Stephens (@traestephens).",
+      "at": "2026-07-15T06:51:50.043Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "naval",
+      "sourceUrl": "https://x.com/naval/status/1812255561930731918",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1812255561930731918 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.077Z"
+    },
+    {
+      "stage": "request_sent",
+      "platform": "x",
+      "target": "lennyrachitsky",
+      "sourceUrl": "https://x.com/lennyrachitsky",
+      "message": "Fetching public X top-voice profile HTML for Lenny Rachitsky (@lennyrachitsky).",
+      "at": "2026-07-15T06:51:50.077Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "rabois",
+      "sourceUrl": "https://x.com/rabois",
+      "count": 1,
+      "message": "Public X top-voice profile for rabois exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.081Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "davidsacks",
+      "sourceUrl": "https://x.com/davidsacks/status/1812681510438486422",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1812681510438486422 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.132Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "andrewchen",
+      "sourceUrl": "https://x.com/andrewchen",
+      "count": 1,
+      "message": "Public X top-voice profile for andrewchen exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.171Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "saranormous",
+      "sourceUrl": "https://x.com/saranormous",
+      "count": 1,
+      "message": "Public X top-voice profile for saranormous exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.173Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "bhorowitz",
+      "sourceUrl": "https://x.com/bhorowitz",
+      "count": 1,
+      "message": "Public X top-voice profile for bhorowitz exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.198Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "rabois",
+      "sourceUrl": "https://x.com/rabois/status/934099022603747329",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 934099022603747329 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.205Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "saranormous",
+      "sourceUrl": "https://x.com/saranormous/status/1527839900069875713",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1527839900069875713 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.292Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "andrewchen",
+      "sourceUrl": "https://x.com/andrewchen/status/1151496486028488705",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1151496486028488705 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.294Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "bhorowitz",
+      "sourceUrl": "https://x.com/bhorowitz/status/1917383970498699610",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1917383970498699610 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.355Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "lennyrachitsky",
+      "sourceUrl": "https://x.com/lennyrachitsky",
+      "count": 0,
+      "message": "Public X top-voice profile for lennyrachitsky exposed 0 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.355Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "lennyrachitsky",
+      "sourceUrl": "https://x.com/lennyrachitsky",
+      "reason": "no_status_ids",
+      "message": "No post-level X status URLs were visible on lennyrachitsky's public top-voice profile HTML.",
+      "at": "2026-07-15T06:51:50.355Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "lachygroom",
+      "sourceUrl": "https://x.com/lachygroom",
+      "count": 1,
+      "message": "Public X top-voice profile for lachygroom exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.445Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "semil",
+      "sourceUrl": "https://x.com/semil",
+      "count": 1,
+      "message": "Public X top-voice profile for semil exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.467Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "lachygroom",
+      "sourceUrl": "https://x.com/lachygroom/status/1066470791741616130",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1066470791741616130 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.590Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "semil",
+      "sourceUrl": "https://x.com/semil/status/1519355087843328000",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1519355087843328000 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.590Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "zebulgar",
+      "sourceUrl": "https://x.com/zebulgar",
+      "count": 1,
+      "message": "Public X top-voice profile for zebulgar exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.761Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "zebulgar",
+      "sourceUrl": "https://x.com/zebulgar/status/1620436085376712705",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1620436085376712705 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:50.900Z"
+    },
+    {
+      "stage": "received",
+      "platform": "x",
+      "target": "traestephens",
+      "sourceUrl": "https://x.com/traestephens",
+      "count": 1,
+      "message": "Public X top-voice profile for traestephens exposed 1 candidate status id(s).",
+      "at": "2026-07-15T06:51:50.971Z"
+    },
+    {
+      "stage": "dropped",
+      "platform": "x",
+      "target": "traestephens",
+      "sourceUrl": "https://x.com/traestephens/status/1836401090419740902",
+      "reason": "top_voice_post_missing_company_mention",
+      "message": "Dropped top-voice X status 1836401090419740902 because it did not visibly mention a company, founder, handle, or domain in the selected batch.",
+      "at": "2026-07-15T06:51:51.104Z"
+    },
+    {
+      "stage": "stored",
+      "platform": "all",
+      "count": 0,
+      "message": "Stored 0 accepted live evidence rows in targeted evidence snapshot.",
+      "at": "2026-07-15T06:51:51.114Z"
+    }
+  ]
+}

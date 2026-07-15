@@ -57,7 +57,7 @@ describe("public data debug instrumentation", () => {
 
     expect(report.duplicateGroupCount).toBe(1);
     expect(report.groups[0]).toMatchObject({
-      key: "instagram:post:abc123",
+      key: `${base.entityId}:instagram:post:abc123`,
       platformPostIds: ["ABC123", "abc123"],
       latestCheckedAt: "2026-06-28T00:00:00Z"
     });

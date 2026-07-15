@@ -57,6 +57,25 @@ describe("evidence dedupe", () => {
 
     expect(dedupeEvidenceItems(items).map((item) => item.id)).toEqual(["founder-path"]);
   });
+
+  it("keeps the same post attached to separate entities", () => {
+    const items = [
+      {
+        ...evidence("company-a", "https://www.linkedin.com/posts/tarof_demo-activity-123", 50),
+        platform: "linkedin" as const,
+        platformPostId: "123",
+        entityId: "company-a"
+      },
+      {
+        ...evidence("company-b", "https://www.linkedin.com/posts/tarof_demo-activity-123", 50),
+        platform: "linkedin" as const,
+        platformPostId: "123",
+        entityId: "company-b"
+      }
+    ];
+
+    expect(dedupeEvidenceItems(items).map((item) => item.id)).toEqual(["company-a", "company-b"]);
+  });
 });
 
 function evidence(id: string, sourceUrl: string, contributionScore: number): EvidenceItem {

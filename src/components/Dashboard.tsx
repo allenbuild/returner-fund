@@ -52,8 +52,12 @@ const defaultBatches = [
 ];
 const DEFAULT_BATCH_SLUG = "S2026";
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
-const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-14-benchmark-freshness";
+const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-14-taro-insider-evidence";
 const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
+const STATIC_GRAPH_TIMEOUT_MS = 8_000;
+const API_GRAPH_TIMEOUT_MS = 20_000;
+const REFRESH_TIMEOUT_MS = 45_000;
+const REFRESH_RECOVERY_POLL_DELAYS_MS = [1_500, 5_000, 10_000, 20_000, 40_000, 60_000];
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
 
@@ -64,13 +68,18 @@ function isAbortError(error: unknown): boolean {
 async function fetchGraphPayload(
   url: string,
   attempts = 3,
-  options: { cache?: RequestCache; signal?: AbortSignal } = {}
+  options: { cache?: RequestCache; signal?: AbortSignal; timeoutMs?: number } = {}
 ): Promise<GraphResponse> {
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const response = await fetch(url, { cache: options.cache ?? "no-store", signal: options.signal });
+      const response = await fetchWithTimeout(
+        url,
+        { cache: options.cache ?? "no-store" },
+        options.timeoutMs ?? API_GRAPH_TIMEOUT_MS,
+        options.signal
+      );
       if (!response.ok) {
         throw new Error(`Graph request failed with ${response.status}`);
       }
@@ -94,15 +103,16 @@ async function fetchGraphPayloadWithFreshStaticSnapshot(
   apiUrl: string,
   attempts = 3,
   options: { signal?: AbortSignal } = {}
-): Promise<GraphResponse> {
+): Promise<GraphPayloadResult> {
   if (staticSnapshotUrl) {
     try {
       const staticPayload = await fetchGraphPayload(staticSnapshotUrl, 2, {
-        cache: "force-cache",
+        cache: "no-store",
+        timeoutMs: STATIC_GRAPH_TIMEOUT_MS,
         signal: options.signal
       });
       if (graphBenchmarkDatesAreFresh(staticPayload)) {
-        return staticPayload;
+        return { graph: staticPayload, source: "static" };
       }
     } catch (caught) {
       if (isAbortError(caught) || options.signal?.aborted) {
@@ -111,13 +121,81 @@ async function fetchGraphPayloadWithFreshStaticSnapshot(
     }
   }
 
-  return fetchGraphPayload(apiUrl, attempts, { cache: "no-store", signal: options.signal });
+  return {
+    graph: await fetchGraphPayload(apiUrl, attempts, { cache: "no-store", timeoutMs: API_GRAPH_TIMEOUT_MS, signal: options.signal }),
+    source: "api"
+  };
+}
+
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit,
+  timeoutMs: number,
+  parentSignal?: AbortSignal
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+  const abort = () => controller.abort();
+  parentSignal?.addEventListener("abort", abort, { once: true });
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } catch (caught) {
+    if (controller.signal.aborted && !parentSignal?.aborted) {
+      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
+    }
+    throw caught;
+  } finally {
+    window.clearTimeout(timeoutId);
+    parentSignal?.removeEventListener("abort", abort);
+  }
 }
 
 interface DashboardProps {
   initialGraph?: GraphResponse;
   initialBatchSlug?: string;
+  initialTopVoiceAudience?: TopVoiceAudienceId;
   initialFilters?: Partial<ClientGraphFilters>;
+}
+
+type GraphPayloadSource = "static" | "api";
+
+interface GraphPayloadResult {
+  graph: GraphResponse;
+  source: GraphPayloadSource;
+}
+
+interface CachedGraphEntry {
+  graph: GraphResponse;
+  source: GraphPayloadSource;
+  cachedAt: number;
+}
+
+type RefreshStatus = "completed" | "partial" | "failed";
+
+interface RefreshSummary {
+  status?: RefreshStatus;
+  acceptedRows?: number;
+  visibleRows?: number;
+  unsupportedPlatforms?: Platform[];
+  newestVisibleEvidence?: Array<{
+    companyName?: string;
+    platform?: Platform;
+    sourceUrl?: string;
+  }>;
+  hiddenEvidence?: Array<{
+    companyName?: string;
+    platform?: Platform;
+    sourceUrl?: string;
+    reason?: string;
+  }>;
+  failureReasonCounts?: Record<string, number>;
+}
+
+interface RefreshResponse {
+  graph: GraphResponse;
+  status?: RefreshStatus;
+  errors?: string[];
+  refreshSummary?: RefreshSummary;
 }
 
 function initialSelectedNodeId(graph: GraphResponse | undefined): string | null {
@@ -130,18 +208,15 @@ function initialBatchSlug(graph: GraphResponse | undefined, batchSlug: string | 
   if (propBatchSlug) {
     return propBatchSlug;
   }
-  if (typeof window !== "undefined") {
-    const urlBatchSlug = normalizeBatchSlug(new URLSearchParams(window.location.search).get("batch"));
-    if (urlBatchSlug) {
-      return urlBatchSlug;
-    }
-  }
   return graph?.batch.slug ?? DEFAULT_BATCH_SLUG;
 }
 
-function initialTopVoiceAudience(graph: GraphResponse | undefined): TopVoiceAudienceId {
-  if (typeof window !== "undefined") {
-    return normalizeTopVoiceAudienceId(new URLSearchParams(window.location.search).get("topVoices"));
+function initialTopVoiceAudience(
+  graph: GraphResponse | undefined,
+  initialAudience: TopVoiceAudienceId | undefined
+): TopVoiceAudienceId {
+  if (initialAudience) {
+    return initialAudience;
   }
   return graph?.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE;
 }
@@ -168,17 +243,7 @@ function normalizeInitialPlatforms(platforms: Platform[] | undefined): Platform[
 }
 
 function initialSelectedPlatforms(initialFilters: Partial<ClientGraphFilters> | undefined): Platform[] {
-  const propPlatforms = normalizeInitialPlatforms(initialFilters?.platforms);
-  if (propPlatforms.length || typeof window === "undefined") {
-    return propPlatforms;
-  }
-
-  return normalizeInitialPlatforms(
-    new URLSearchParams(window.location.search)
-      .get("platforms")
-      ?.split(",")
-      .map((item) => item.trim() as Platform)
-  );
+  return normalizeInitialPlatforms(initialFilters?.platforms);
 }
 
 function normalizeBatchSlug(value: string | null | undefined): string | null {
@@ -187,16 +252,60 @@ function normalizeBatchSlug(value: string | null | undefined): string | null {
 }
 
 function staticGraphSnapshotUrl(batchSlug: string, topVoiceAudience: TopVoiceAudienceId): string | null {
-  if (topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
-    return null;
-  }
   const filenames: Record<string, string> = {
-    A16ZSR006: "a16zsr006.json",
-    S2026: "s2026.json",
-    S26: "s26.json"
+    A16ZSR006: "a16zsr006",
+    S2026: "s2026",
+    S26: "s26"
+  };
+  const audienceSuffixes: Record<TopVoiceAudienceId, string> = {
+    off: "",
+    yc_partners: "-yc-partners",
+    insiders: "-insiders"
   };
   const filename = filenames[batchSlug];
-  return filename ? `/graph/${filename}?v=${STATIC_GRAPH_SNAPSHOT_VERSION}-${localDayKey(new Date())}` : null;
+  return filename ? `/graph/${filename}${audienceSuffixes[topVoiceAudience]}.json?v=${STATIC_GRAPH_SNAPSHOT_VERSION}-${localDayKey(new Date())}` : null;
+}
+
+function hasClientGraphFilters(filters: ClientGraphFilters): boolean {
+  return Boolean(
+    filters.platforms.length ||
+      filters.industries.length ||
+      filters.groupPartners.length ||
+      filters.minScore > 0
+  );
+}
+
+function refreshNoticeFor(action: "ingest" | "refresh", payload: RefreshResponse): string | null {
+  const status = payload.status ?? payload.refreshSummary?.status;
+  const summary = payload.refreshSummary;
+  if (!summary) {
+    return status && status !== "completed" ? payload.errors?.[0] ?? `${titleCase(action)} did not complete cleanly.` : null;
+  }
+
+  const acceptedRows = summary.acceptedRows ?? 0;
+  const visibleRows = summary.visibleRows ?? 0;
+  const unsupportedPlatforms = summary.unsupportedPlatforms ?? [];
+  if (status === "failed") {
+    return payload.errors?.[0] ?? `${titleCase(action)} finished without accepted live evidence.`;
+  }
+  if (status === "partial") {
+    return payload.errors?.[0] ?? `Partial ${action}: surfaced ${visibleRows} of ${acceptedRows} accepted live row(s).`;
+  }
+  if (visibleRows > 0) {
+    const newest = summary.newestVisibleEvidence?.[0];
+    const source = newest?.companyName && newest?.platform ? ` Latest: ${newest.companyName} on ${formatPlatform(newest.platform)}.` : "";
+    return `${titleCase(action)} surfaced ${visibleRows} live row(s).${source}`;
+  }
+  if (unsupportedPlatforms.length) {
+    return `${titleCase(action)} completed, but ${unsupportedPlatforms.map(formatPlatform).join(", ")} still use snapshot data.`;
+  }
+  return acceptedRows > 0
+    ? `${titleCase(action)} accepted ${acceptedRows} row(s), but active filters hid them.`
+    : null;
+}
+
+function titleCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function localDayKey(date: Date): string {
@@ -213,15 +322,27 @@ function millisecondsUntilNextLocalMidnight(now = new Date()): number {
   return Math.max(1_000, nextMidnight.getTime() - now.getTime());
 }
 
-export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp, initialFilters }: DashboardProps = {}) {
+export function Dashboard({
+  initialGraph,
+  initialBatchSlug: initialBatchSlugProp,
+  initialTopVoiceAudience: initialTopVoiceAudienceProp,
+  initialFilters
+}: DashboardProps = {}) {
   const [batchSlug, setBatchSlug] = useState(() => initialBatchSlug(initialGraph, initialBatchSlugProp));
-  const [topVoiceAudience, setTopVoiceAudience] = useState<TopVoiceAudienceId>(() => initialTopVoiceAudience(initialGraph));
+  const [topVoiceAudience, setTopVoiceAudience] = useState<TopVoiceAudienceId>(() =>
+    initialTopVoiceAudience(initialGraph, initialTopVoiceAudienceProp)
+  );
   const [graph, setGraph] = useState<GraphResponse | null>(initialGraph ?? null);
   const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(initialGraph ?? null);
-  const graphCacheRef = useRef<Map<string, GraphResponse>>(
+  const graphCacheRef = useRef<Map<string, CachedGraphEntry>>(
     new Map(
       initialGraph
-        ? [[graphCacheKey(initialGraph.batch.slug, initialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE), initialGraph]]
+        ? [
+            [
+              graphCacheKey(initialGraph.batch.slug, initialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE),
+              { graph: initialGraph, source: "api", cachedAt: Date.now() }
+            ]
+          ]
         : []
     )
   );
@@ -240,12 +361,19 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
   const [loading, setLoading] = useState(!initialGraph);
   const [actionLoading, setActionLoading] = useState<"ingest" | "refresh" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [refreshNotice, setRefreshNotice] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterBandRef = useRef<HTMLElement | null>(null);
   const dashboardGridRef = useRef<HTMLElement | null>(null);
   const graphRequestIdRef = useRef(0);
   const activeGraphAbortRef = useRef<AbortController | null>(null);
+  const activeBackgroundGraphAbortRefs = useRef<Set<AbortController>>(new Set());
   const actionRequestIdRef = useRef(0);
+  const activeActionAbortRef = useRef<AbortController | null>(null);
+  const refreshRecoveryTimeoutsRef = useRef<number[]>([]);
+  const refreshRecoveryRunIdRef = useRef(0);
+  const selectionRef = useRef({ batchSlug, topVoiceAudience });
   const initialGraphHydratedRef = useRef(Boolean(initialGraph));
   const currentFilters = useMemo<ClientGraphFilters>(
     () => ({
@@ -262,27 +390,41 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
     currentFiltersRef.current = currentFilters;
   }, [currentFilters]);
 
-  const rememberGraph = useCallback((payload: GraphResponse) => {
+  useEffect(() => {
+    selectionRef.current = { batchSlug, topVoiceAudience };
+  }, [batchSlug, topVoiceAudience]);
+
+  const rememberGraph = useCallback((payload: GraphResponse, source: GraphPayloadSource = "api") => {
     graphCacheRef.current.set(
       graphCacheKey(payload.batch.slug, payload.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE),
-      payload
+      { graph: payload, source, cachedAt: Date.now() }
     );
   }, []);
 
-  const fetchGraph = useCallback(async (options: { background?: boolean; unfiltered?: boolean } = {}) => {
+  const fetchGraph = useCallback(async (options: { background?: boolean; forceApi?: boolean; unfiltered?: boolean } = {}) => {
     const background = options.background === true;
     const requestFilters = options.unfiltered
       ? { platforms: [], industries: [], groupPartners: [], minScore: 0 }
       : currentFiltersRef.current;
-    const requestId = graphRequestIdRef.current + 1;
-    graphRequestIdRef.current = requestId;
+    const requestId = background ? graphRequestIdRef.current : graphRequestIdRef.current + 1;
+    if (!background) {
+      graphRequestIdRef.current = requestId;
+    }
     if (!background) {
       setLoading(true);
     }
-    setError(null);
-    activeGraphAbortRef.current?.abort();
+    if (!background) {
+      setError(null);
+    }
+    if (!background) {
+      activeGraphAbortRef.current?.abort();
+    }
     const controller = new AbortController();
-    activeGraphAbortRef.current = controller;
+    if (background) {
+      activeBackgroundGraphAbortRefs.current.add(controller);
+    } else {
+      activeGraphAbortRef.current = controller;
+    }
 
     const params = new URLSearchParams({ batch: batchSlug });
     if (topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
@@ -301,25 +443,36 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
       params.set("groupPartners", requestFilters.groupPartners.join(","));
     }
     try {
-      const staticSnapshotUrl = options.unfiltered ? staticGraphSnapshotUrl(batchSlug, topVoiceAudience) : null;
-      const payload = await fetchGraphPayloadWithFreshStaticSnapshot(
+      const staticSnapshotUrl =
+        options.unfiltered && !options.forceApi
+          ? staticGraphSnapshotUrl(batchSlug, topVoiceAudience)
+          : null;
+      const result = await fetchGraphPayloadWithFreshStaticSnapshot(
         staticSnapshotUrl,
         `/api/graph?${params.toString()}`,
         3,
         { signal: controller.signal }
       );
+      const payload = result.graph;
       if (options.unfiltered) {
-        rememberGraph(payload);
+        rememberGraph(payload, result.source);
       }
-      if (requestId !== graphRequestIdRef.current) {
+      const selected = selectionRef.current;
+      const matchesCurrentSelection = graphMatchesSelection(payload, selected.batchSlug, selected.topVoiceAudience);
+      if ((!background && requestId !== graphRequestIdRef.current) || !matchesCurrentSelection) {
         return;
       }
       if (options.unfiltered) {
         setFilterMetadataGraph(payload);
       }
       setGraph(options.unfiltered ? applyClientGraphFilters(payload, currentFiltersRef.current) : payload);
+      if (result.source === "static" && options.unfiltered && !background) {
+        window.setTimeout(() => {
+          void fetchGraph({ background: true, forceApi: true, unfiltered: true });
+        }, 0);
+      }
     } catch (caught) {
-      if (requestId !== graphRequestIdRef.current) {
+      if (!background && requestId !== graphRequestIdRef.current) {
         return;
       }
       if (isAbortError(caught) || controller.signal.aborted) {
@@ -329,7 +482,9 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
         setError(caught instanceof Error ? caught.message : "Graph request failed");
       }
     } finally {
-      if (activeGraphAbortRef.current === controller) {
+      if (background) {
+        activeBackgroundGraphAbortRefs.current.delete(controller);
+      } else if (activeGraphAbortRef.current === controller) {
         activeGraphAbortRef.current = null;
       }
       if (!background && requestId === graphRequestIdRef.current) {
@@ -337,6 +492,37 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
       }
     }
   }, [batchSlug, rememberGraph, topVoiceAudience]);
+
+  const clearRefreshRecoveryPolling = useCallback(() => {
+    refreshRecoveryRunIdRef.current += 1;
+    for (const timeoutId of refreshRecoveryTimeoutsRef.current) {
+      window.clearTimeout(timeoutId);
+    }
+    refreshRecoveryTimeoutsRef.current = [];
+  }, []);
+
+  const scheduleRefreshRecoveryPolling = useCallback(
+    (actionRequestId: number) => {
+      clearRefreshRecoveryPolling();
+      const recoveryRunId = refreshRecoveryRunIdRef.current;
+      for (const [index, delay] of REFRESH_RECOVERY_POLL_DELAYS_MS.entries()) {
+        const timeoutId = window.setTimeout(() => {
+          refreshRecoveryTimeoutsRef.current = refreshRecoveryTimeoutsRef.current.filter((item) => item !== timeoutId);
+          if (recoveryRunId !== refreshRecoveryRunIdRef.current || actionRequestId !== actionRequestIdRef.current) {
+            return;
+          }
+          setRefreshNotice(
+            index === REFRESH_RECOVERY_POLL_DELAYS_MS.length - 1
+              ? "Refresh is still running in the background; updates will continue to appear as the graph refreshes."
+              : "Refresh is still running; checking again for completed updates."
+          );
+          void fetchGraph({ background: true, forceApi: true, unfiltered: true });
+        }, delay);
+        refreshRecoveryTimeoutsRef.current.push(timeoutId);
+      }
+    },
+    [clearRefreshRecoveryPolling, fetchGraph]
+  );
 
   const prefetchGraph = useCallback(async (prefetchBatchSlug: string, prefetchTopVoiceAudience: TopVoiceAudienceId) => {
     const key = graphCacheKey(prefetchBatchSlug, prefetchTopVoiceAudience);
@@ -352,11 +538,12 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
 
     try {
       const staticSnapshotUrl = staticGraphSnapshotUrl(prefetchBatchSlug, prefetchTopVoiceAudience);
-      rememberGraph(await fetchGraphPayloadWithFreshStaticSnapshot(
+      const result = await fetchGraphPayloadWithFreshStaticSnapshot(
         staticSnapshotUrl,
         `/api/graph?${params.toString()}`,
         2
-      ));
+      );
+      rememberGraph(result.graph, result.source);
     } catch {
       // Background warming should never interrupt the active dashboard.
     } finally {
@@ -368,8 +555,15 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
     return () => {
       activeGraphAbortRef.current?.abort();
       activeGraphAbortRef.current = null;
+      for (const controller of activeBackgroundGraphAbortRefs.current) {
+        controller.abort();
+      }
+      activeBackgroundGraphAbortRefs.current.clear();
+      activeActionAbortRef.current?.abort();
+      activeActionAbortRef.current = null;
+      clearRefreshRecoveryPolling();
     };
-  }, []);
+  }, [clearRefreshRecoveryPolling]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -381,7 +575,7 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
       timeoutId = window.setTimeout(() => {
         graphCacheRef.current.clear();
         prefetchInFlightRef.current.clear();
-        void fetchGraph({ background: true, unfiltered: true });
+        void fetchGraph({ background: true, forceApi: true, unfiltered: true });
         scheduleDailyRefresh();
       }, millisecondsUntilNextLocalMidnight());
     };
@@ -396,10 +590,11 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
   }, [fetchGraph]);
 
   useEffect(() => {
+    const cachedEntry = graphCacheRef.current.get(graphCacheKey(batchSlug, topVoiceAudience));
     const cachedGraph =
       graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
         ? filterMetadataGraph
-        : graphCacheRef.current.get(graphCacheKey(batchSlug, topVoiceAudience));
+        : cachedEntry?.graph;
 
     if (cachedGraph) {
       if (!graphMatchesSelection(filterMetadataGraph, cachedGraph.batch.slug, cachedGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE)) {
@@ -411,6 +606,13 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
       setError(null);
       setLoading(false);
 
+      if (cachedEntry?.source === "static") {
+        const timeoutId = window.setTimeout(() => {
+          void fetchGraph({ background: true, forceApi: true, unfiltered: true });
+        }, 0);
+        return () => window.clearTimeout(timeoutId);
+      }
+
       if (
         initialGraphHydratedRef.current &&
         initialGraph &&
@@ -419,7 +621,7 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
       ) {
         initialGraphHydratedRef.current = false;
         const timeoutId = window.setTimeout(() => {
-          void fetchGraph({ background: true, unfiltered: true });
+          void fetchGraph({ background: true, forceApi: true, unfiltered: true });
         }, 1400);
         return () => window.clearTimeout(timeoutId);
       }
@@ -432,8 +634,13 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
 
   useEffect(() => {
     actionRequestIdRef.current += 1;
+    activeActionAbortRef.current?.abort();
+    activeActionAbortRef.current = null;
+    clearRefreshRecoveryPolling();
     setActionLoading(null);
-  }, [batchSlug, topVoiceAudience]);
+    setRefreshError(null);
+    setRefreshNotice(null);
+  }, [batchSlug, clearRefreshRecoveryPolling, topVoiceAudience]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -656,44 +863,81 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
   async function runDemoAction(action: "ingest" | "refresh") {
     const actionRequestId = actionRequestIdRef.current + 1;
     actionRequestIdRef.current = actionRequestId;
+    clearRefreshRecoveryPolling();
     setActionLoading(action);
     setError(null);
+    setRefreshError(null);
+    setRefreshNotice(null);
+    activeActionAbortRef.current?.abort();
+    const controller = new AbortController();
+    activeActionAbortRef.current = controller;
 
     try {
-      const response = await fetch("/api/graph/refresh", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          action,
-          batchSlug,
-          platforms: selectedPlatforms,
-          industries: selectedIndustries,
-          groupPartners: selectedGroupPartners,
-          minScore,
-          topVoices: topVoiceAudience
-        })
-      });
+      const response = await fetchWithTimeout(
+        "/api/graph/refresh",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            action,
+            batchSlug,
+            platforms: selectedPlatforms,
+            industries: selectedIndustries,
+            groupPartners: selectedGroupPartners,
+            minScore,
+            topVoices: topVoiceAudience
+          })
+        },
+        REFRESH_TIMEOUT_MS,
+        controller.signal
+      );
 
       if (!response.ok) {
         throw new Error(`${action} request failed with ${response.status}`);
       }
 
-      const payload = (await response.json()) as { graph: GraphResponse };
+      const payload = (await response.json()) as RefreshResponse;
       if (actionRequestId !== actionRequestIdRef.current) {
         return;
       }
+      clearRefreshRecoveryPolling();
 
+      const activeFilters = hasClientGraphFilters({
+        platforms: selectedPlatforms,
+        industries: selectedIndustries,
+        groupPartners: selectedGroupPartners,
+        minScore
+      });
+      graphCacheRef.current.clear();
+      prefetchInFlightRef.current.clear();
       setGraph(payload.graph);
-      if (!selectedPlatforms.length && !selectedIndustries.length && !selectedGroupPartners.length && minScore === 0) {
+      if (!activeFilters) {
         rememberGraph(payload.graph);
         setFilterMetadataGraph(payload.graph);
+      } else {
+        void fetchGraph({ background: true, forceApi: true, unfiltered: true });
+      }
+      const notice = refreshNoticeFor(action, payload);
+      if (payload.status === "failed") {
+        setRefreshError(payload.errors?.[0] ?? notice ?? `${action} finished without visible evidence`);
+      } else {
+        setRefreshError(null);
+        setRefreshNotice(notice);
       }
     } catch (caught) {
       if (actionRequestId !== actionRequestIdRef.current) {
         return;
       }
-      setError(caught instanceof Error ? caught.message : `${action} request failed`);
+      const message = caught instanceof Error ? caught.message : `${action} request failed`;
+      if (message.includes("timed out")) {
+        setRefreshNotice("Refresh is still running; checking for completed updates.");
+        scheduleRefreshRecoveryPolling(actionRequestId);
+      }
+      setError(message);
     } finally {
+      if (activeActionAbortRef.current === controller) {
+        activeActionAbortRef.current = null;
+      }
       if (actionRequestId === actionRequestIdRef.current) {
         setActionLoading(null);
       }
@@ -919,9 +1163,11 @@ export function Dashboard({ initialGraph, initialBatchSlug: initialBatchSlugProp
         </div>
       </section>
 
-      {error && (
+      {(error || refreshError || refreshNotice) && (
         <section className="status-line" aria-live="polite">
-          <span className="error-text">{error}</span>
+          {error && <span className="error-text">{error}</span>}
+          {refreshError && <span className="error-text">{refreshError}</span>}
+          {refreshNotice && <span className="refresh-notice-text">{refreshNotice}</span>}
         </section>
       )}
 

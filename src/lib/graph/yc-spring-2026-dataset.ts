@@ -30,7 +30,7 @@ import {
   type AttributionCompanyProfile,
   type AttributionSocialLink
 } from "./evidence-attribution";
-import { isKnownTopVoiceAccountUrl } from "@/lib/social/top-voices";
+import { isKnownTopVoiceAccountUrl, isKnownTopVoiceNativeIdentity } from "@/lib/social/top-voices";
 
 interface RawSnapshot {
   source: {
@@ -782,6 +782,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
   const contributionScore =
     item.platform === "web" || item.platform === "rss" || isRetweet || isProfileContext ? 0 : item.contributionScore;
   const socialAccountId = `${item.platform}:${item.entityType}:${item.entityId}`;
+  const nativeAuthor = nativeAuthorFromRawVisibleText(item.rawVisibleText);
   const mediaUrls = [
     ...(item.mediaUrls ?? []),
     ...(item.media_posters ?? []),
@@ -793,8 +794,8 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     entityType: item.entityType,
     entityId: item.entityId,
     platform: item.platform,
-    authorName: item.title || item.companyName,
-    authorHandle: null,
+    authorName: nativeAuthor.name ?? item.title ?? item.companyName,
+    authorHandle: nativeAuthor.handle,
     postedAt: item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     title: item.title,
     text: item.text || item.title,
@@ -826,6 +827,29 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     matchReason: item.matchReason,
     review_state: item.review_state
   });
+}
+
+function nativeAuthorFromRawVisibleText(rawVisibleText: string | undefined): { name: string | null; handle: string | null } {
+  if (!rawVisibleText?.trim().startsWith("{")) {
+    return { name: null, handle: null };
+  }
+
+  try {
+    const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    const post = parsed.post && typeof parsed.post === "object" ? parsed.post as Record<string, unknown> : null;
+    const profile = parsed.profile && typeof parsed.profile === "object" ? parsed.profile as Record<string, unknown> : null;
+    return {
+      name: stringRecordValue(post, "authorName") ?? stringRecordValue(post, "name") ?? stringRecordValue(profile, "name"),
+      handle: stringRecordValue(post, "authorHandle") ?? stringRecordValue(post, "username") ?? stringRecordValue(profile, "username")
+    };
+  } catch {
+    return { name: null, handle: null };
+  }
+}
+
+function stringRecordValue(record: Record<string, unknown> | null, key: string): string | null {
+  const value = record?.[key];
+  return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
 function platformPostIdFromUrl(platform: Platform, rawUrl: string): string | null {
@@ -931,7 +955,8 @@ function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
     return (
       isLoggedInLinkedInActivityEvidence(item) ||
       linkedInPostAuthorMatchesKnownEntity(item) ||
-      isKnownTopVoiceAccountUrl(item.platform, item.sourceUrl)
+      isKnownTopVoiceAccountUrl(item.platform, item.sourceUrl) ||
+      isKnownTopVoiceNativeIdentity(item.platform, item.rawVisibleText)
     );
   }
 

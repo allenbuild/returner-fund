@@ -318,19 +318,11 @@ function ContributionThumbnail({ item }: { item: EvidenceItem | null }) {
 function thumbnailUrlCandidates(item: EvidenceItem): string[] {
   const generatedDataUri = generatedEvidenceThumbnailDataUri(item);
   const generatedUrl = generatedEvidenceThumbnailUrl(item);
-  return uniqueStrings(
-    isLocalStaticThumbnail(item.thumbnailUrl)
-      ? [item.thumbnailUrl, generatedDataUri, generatedUrl]
-      : [generatedDataUri, item.thumbnailUrl, generatedUrl]
-  );
+  return uniqueStrings([item.thumbnailUrl, generatedDataUri, generatedUrl]);
 }
 
 function uniqueStrings(values: Array<string | null | undefined>): string[] {
   return values.filter((value, index): value is string => Boolean(value) && values.indexOf(value) === index);
-}
-
-function isLocalStaticThumbnail(value: string | null | undefined): boolean {
-  return Boolean(value?.startsWith("/evidence-thumbnails/"));
 }
 
 function ContributionSummary({
@@ -492,7 +484,7 @@ function formatContribution(item: EvidenceItem | null): {
     metrics: formatMetrics(item.metrics),
     metricPills: formatMetricPills(item.metrics),
     url: item.sourceUrl || null,
-    author: item.authorName || item.authorHandle || ""
+    author: item.topVoice?.displayName || item.authorName || item.authorHandle || ""
   };
 }
 

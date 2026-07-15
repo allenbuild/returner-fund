@@ -44,7 +44,7 @@ jobs:
 
       - name: Commit updated benchmark snapshots
         run: |
-          if git diff --quiet -- outputs/benchmarks public/graph; then
+          if [ -z "$(git status --porcelain -- outputs/benchmarks public/graph)" ]; then
             echo "No benchmark snapshot changes to commit."
             exit 0
           fi

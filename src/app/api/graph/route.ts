@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { applyBenchmarkMomentumRows, benchmarkStoreVersion, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
+import { getCachedGraphResponse, setCachedGraphResponse } from "@/lib/graph/graph-response-cache";
+import { datasetWithLiveEvidence, liveEvidenceCacheVersion } from "@/lib/graph/live-evidence-dataset";
+import { overlayLiveEvidenceOnGraph } from "@/lib/graph/live-evidence-overlay";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
+import { loadLiveEvidenceRecords } from "@/lib/ingestion/live-source-refresh";
 import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { BusinessModel, EdgeType, Platform } from "@/lib/graph/types";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 const platforms: Platform[] = [
   "github",
@@ -36,12 +43,10 @@ const businessModels: BusinessModel[] = [
   "marketplace"
 ];
 
-const graphResponseCache = new Map<string, { createdAt: number; graph: ReturnType<typeof buildGraphResponse> }>();
-const GRAPH_RESPONSE_CACHE_LIMIT = 64;
 const GRAPH_RESPONSE_CACHE_TTL_MS = 60_000;
 const DEFAULT_BATCH_SLUG = YC_SPRING_2026_BATCH_SLUG;
 
-export function GET(request: Request) {
+export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const batchSlug = params.get("batch") ?? DEFAULT_BATCH_SLUG;
   const dataset = yc2026GraphDataset;
@@ -60,21 +65,28 @@ export function GET(request: Request) {
     query: params.get("q") ?? undefined,
     topVoices: normalizeTopVoiceAudienceId(params.get("topVoices"))
   };
+  const liveEvidence = await loadLiveEvidenceRecords().catch((error) => {
+    console.error("Graph live evidence overlay load failed", error);
+    return [];
+  });
   const cacheKey = JSON.stringify({
     filters,
     includeRaw,
     includeNonScoring,
     includeWhy,
     dataset: "yc-2026-official",
-    benchmarkStore: benchmarkStoreVersion(batchSlug)
+    benchmarkLocalDay: localDayKey(new Date()),
+    benchmarkStore: filters.topVoices === "off" ? benchmarkStoreVersion(batchSlug) : "top-voice-native-2026-07-14",
+    liveEvidence: liveEvidenceCacheVersion(liveEvidence)
   });
-  const cached = graphResponseCache.get(cacheKey);
+  const cached = getCachedGraphResponse(cacheKey, GRAPH_RESPONSE_CACHE_TTL_MS);
 
-  if (cached && Date.now() - cached.createdAt < GRAPH_RESPONSE_CACHE_TTL_MS) {
-    return NextResponse.json(cached.graph);
+  if (cached) {
+    return noStoreJson(cached);
   }
 
-  const filteredGraph = buildGraphResponse(filters, dataset);
+  const datasetForGraph = filters.topVoices === "off" ? dataset : datasetWithLiveEvidence(dataset, liveEvidence);
+  const filteredGraph = buildGraphResponse(filters, datasetForGraph);
   let benchmarkRows = filteredGraph.fastestGaining;
   if (filters.topVoices === "off") {
     try {
@@ -84,22 +96,34 @@ export function GET(request: Request) {
       console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
     }
   }
+  const overlay = filters.topVoices === "off"
+    ? overlayLiveEvidenceOnGraph(applyBenchmarkMomentumRows(filteredGraph, benchmarkRows), liveEvidence, {
+        selectedPlatforms: filters.platforms,
+        topVoices: filters.topVoices
+      })
+    : {
+        graph: applyBenchmarkMomentumRows(filteredGraph, benchmarkRows),
+        visibleEvidence: [],
+        hiddenEvidence: []
+      };
   const graph = enrichSummerPlatformStatus(
-    sanitizeGraphResponse(applyBenchmarkMomentumRows(filteredGraph, benchmarkRows), {
+    sanitizeGraphResponse(overlay.graph, {
       includeRaw,
       includeNonScoring,
       includeWhy
     })
   );
-  graphResponseCache.set(cacheKey, { createdAt: Date.now(), graph });
-  if (graphResponseCache.size > GRAPH_RESPONSE_CACHE_LIMIT) {
-    const oldestKey = graphResponseCache.keys().next().value;
-    if (oldestKey) {
-      graphResponseCache.delete(oldestKey);
-    }
-  }
+  setCachedGraphResponse(cacheKey, graph);
 
-  return NextResponse.json(graph);
+  return noStoreJson(graph);
+}
+
+function noStoreJson(body: unknown) {
+  return NextResponse.json(body, {
+    headers: {
+      "Cache-Control": "no-store, max-age=0"
+    }
+  });
 }
 
 function parseList<T extends string>(value: string | null, allowed: T[]): T[] | undefined {
@@ -131,6 +155,14 @@ function parseLooseList(value: string | null): string[] | undefined {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function localDayKey(date: Date): string {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
 }
 
 function hasActiveFilters(filters: {
