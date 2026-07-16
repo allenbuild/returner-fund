@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-07-16T01:34:46.538Z",
+    "fetchedAt": "2026-07-16T19:17:20.770Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -17752,6 +17752,48 @@
         "reason": "Native GitHub repository HTML exposed official organization identity, activity, and public counters."
       },
       "why": "screenpipe/screenleak screenpipe/screenleak. 21 stars, 0 forks, 0 open issues."
+    },
+    {
+      "id": "live-x-founder-heyclicky-2077130366230639022",
+      "entityType": "founder",
+      "entityId": "founder-heyclicky-farza-majeed-manual-farza-majeed",
+      "companyName": "HeyClicky",
+      "platform": "x",
+      "title": "Today we're shipping screen-aware dictation.\n\nFirst, we built a speedy speech-to-text (very fast, ~450ms).\n\nBut, many products do this!\n\nSo…",
+      "sourceUrl": "https://x.com/FarzaTV/status/2077130366230639022",
+      "platformPostId": "2077130366230639022",
+      "text": "Today we're shipping screen-aware dictation.\n\nFirst, we built a speedy speech-to-text (very fast, ~450ms).\n\nBut, many products do this!\n\nSo we went further. Now dictate using your screen as context. In Claude Code, it writes the prompt. In G-Mail, it replies in your voice.\n\nDemo:",
+      "thumbnailUrl": "https://pbs.twimg.com/amplify_video_thumb/2077129836481613824/img/ZSbaceRLdCw73FLM.jpg",
+      "thumbnailSource": "x_media",
+      "mediaUrl": "https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28",
+      "mediaUrls": [
+        "https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28"
+      ],
+      "media_urls": [
+        "https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28"
+      ],
+      "media_posters": [
+        "https://pbs.twimg.com/amplify_video_thumb/2077129836481613824/img/ZSbaceRLdCw73FLM.jpg"
+      ],
+      "linkStatus": "verified",
+      "linkCheckedAt": "2026-07-16T19:17:20.770Z",
+      "rawVisibleText": "{\"source\":\"live_x_profile\",\"profile\":{\"targetHandle\":\"farzatv\",\"accountUrl\":\"https://x.com/FarzaTV\",\"batchSlug\":\"S2026\",\"directSource\":true},\"post\":{\"url\":\"https://x.com/FarzaTV/status/2077130366230639022\",\"id\":\"2077130366230639022\",\"text\":\"Today we're shipping screen-aware dictation.\\n\\nFirst, we built a speedy speech-to-text (very fast, ~450ms).\\n\\nBut, many products do this!\\n\\nSo we went further. Now dictate using your screen as context. In Claude Code, it writes the prompt. In G-Mail, it replies in your voice.\\n\\nDemo:\",\"raw_text\":{\"text\":\"Today we're shipping screen-aware dictation.\\n\\nFirst, we built a speedy speech-to-text (very fast, ~450ms).\\n\\nBut, many products do this!\\n\\nSo we went further. Now dictate using your screen as context. In Claude Code, it writes the prompt. In G-Mail, it replies in your voice.\\n\\nDemo: https://t.co/N5EZKJR5iR\",\"display_text_range\":[0,280],\"facets\":[{\"type\":\"media\",\"indices\":[281,304],\"id\":\"2077129836481613824\",\"display\":\"pic.x.com/N5EZKJR5iR\",\"original\":\"https://t.co/N5EZKJR5iR\",\"replacement\":\"https://x.com/FarzaTV/status/2077130366230639022/video/1\"}]},\"author\":{\"screen_name\":\"FarzaTV\",\"url\":\"https://x.com/FarzaTV\",\"id\":\"327403216\",\"followers\":126089,\"following\":1909,\"likes\":29297,\"media_count\":1498,\"name\":\"Farza 🇵🇰🇺🇸\",\"description\":\"hi. i make things. hacking on @heyclicky. prev founder @_buildspace.\",\"raw_description\":{\"text\":\"hi. i make things. hacking on @heyclicky. prev founder @_buildspace.\",\"facets\":[]},\"location\":\"SF\",\"banner_url\":\"https://pbs.twimg.com/profile_banners/327403216/1584731618\",\"avatar_url\":\"https://pbs.twimg.com/profile_images/1323391305834143745/4zqOJh66_200x200.jpg\",\"joined\":\"Fri Jul 01 14:20:16 +0000 2011\",\"protected\":false,\"website\":{\"url\":\"http://farza.com\",\"display_url\":\"farza.com\"},\"verification\":{\"verified\":true,\"verified_at\":null,\"type\":\"individual\"},\"avatar_color\":null},\"replies\":544,\"retweets\":465,\"likes\":10613,\"bookmarks\":8905,\"quotes\":291,\"created_at\":\"Tue Jul 14 20:37:25 +0000 2026\",\"created_timestamp\":1784061445,\"possibly_sensitive\":false,\"views\":2691586,\"is_note_tweet\":false,\"community_note\":null,\"lang\":\"en\",\"replying_to\":null,\"replying_to_status\":null,\"media\":{\"all\":[{\"id\":\"2077129836481613824\",\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28\",\"thumbnail_url\":\"https://pbs.twimg.com/amplify_video_thumb/2077129836481613824/img/ZSbaceRLdCw73FLM.jpg\",\"duration\":120.053,\"width\":3840,\"height\":2160,\"format\":\"video/mp4\",\"type\":\"video\",\"formats\":[{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/pl/bL8uFk8Rm6jN_NrV.m3u8?tag=28&v=f82\",\"container\":\"m3u8\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/480x270/6oahtcTq46uI5aZy.mp4?tag=28\",\"bitrate\":256000,\"container\":\"mp4\",\"codec\":\"h264\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/640x360/t_Fdf_UDwWWNvibF.mp4?tag=28\",\"bitrate\":832000,\"container\":\"mp4\",\"codec\":\"h264\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/1280x720/9hf7BVgeAhXklPR2.mp4?tag=28\",\"bitrate\":2176000,\"container\":\"mp4\",\"codec\":\"h264\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/1920x1080/U2m6kqrcJeeirxT1.mp4?tag=28\",\"bitrate\":10368000,\"container\":\"mp4\",\"codec\":\"h264\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28\",\"bitrate\":25128000,\"container\":\"mp4\",\"codec\":\"h264\"}],\"publisher\":null,\"variants\":[{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/pl/bL8uFk8Rm6jN_NrV.m3u8?tag=28&v=f82\",\"bitrate\":0,\"content_type\":\"application/x-mpegURL\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/480x270/6oahtcTq46uI5aZy.mp4?tag=28\",\"bitrate\":256000,\"content_type\":\"video/mp4\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/640x360/t_Fdf_UDwWWNvibF.mp4?tag=28\",\"bitrate\":832000,\"content_type\":\"video/mp4\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/1280x720/9hf7BVgeAhXklPR2.mp4?tag=28\",\"bitrate\":2176000,\"content_type\":\"video/mp4\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/1920x1080/U2m6kqrcJeeirxT1.mp4?tag=28\",\"bitrate\":10368000,\"content_type\":\"video/mp4\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28\",\"bitrate\":25128000,\"content_type\":\"video/mp4\"}]}],\"videos\":[{\"id\":\"2077129836481613824\",\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28\",\"thumbnail_url\":\"https://pbs.twimg.com/amplify_video_thumb/2077129836481613824/img/ZSbaceRLdCw73FLM.jpg\",\"duration\":120.053,\"width\":3840,\"height\":2160,\"format\":\"video/mp4\",\"type\":\"video\",\"formats\":[{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/pl/bL8uFk8Rm6jN_NrV.m3u8?tag=28&v=f82\",\"container\":\"m3u8\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/480x270/6oahtcTq46uI5aZy.mp4?tag=28\",\"bitrate\":256000,\"container\":\"mp4\",\"codec\":\"h264\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/640x360/t_Fdf_UDwWWNvibF.mp4?tag=28\",\"bitrate\":832000,\"container\":\"mp4\",\"codec\":\"h264\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/1280x720/9hf7BVgeAhXklPR2.mp4?tag=28\",\"bitrate\":2176000,\"container\":\"mp4\",\"codec\":\"h264\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/1920x1080/U2m6kqrcJeeirxT1.mp4?tag=28\",\"bitrate\":10368000,\"container\":\"mp4\",\"codec\":\"h264\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28\",\"bitrate\":25128000,\"container\":\"mp4\",\"codec\":\"h264\"}],\"publisher\":null,\"variants\":[{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/pl/bL8uFk8Rm6jN_NrV.m3u8?tag=28&v=f82\",\"bitrate\":0,\"content_type\":\"application/x-mpegURL\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/480x270/6oahtcTq46uI5aZy.mp4?tag=28\",\"bitrate\":256000,\"content_type\":\"video/mp4\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/640x360/t_Fdf_UDwWWNvibF.mp4?tag=28\",\"bitrate\":832000,\"content_type\":\"video/mp4\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/1280x720/9hf7BVgeAhXklPR2.mp4?tag=28\",\"bitrate\":2176000,\"content_type\":\"video/mp4\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/1920x1080/U2m6kqrcJeeirxT1.mp4?tag=28\",\"bitrate\":10368000,\"content_type\":\"video/mp4\"},{\"url\":\"https://video.twimg.com/amplify_video/2077129836481613824/vid/avc1/3840x2160/INsS5kGH1IBeKPCQ.mp4?tag=28\",\"bitrate\":25128000,\"content_type\":\"video/mp4\"}]}]},\"source\":\"Twitter Web App\",\"twitter_card\":\"player\",\"color\":null,\"provider\":\"twitter\",\"reposted_by\":null},\"counts\":{\"views\":2691586,\"likes\":10613,\"comments\":544,\"replies\":544,\"reposts\":465,\"quotes\":291,\"saves\":8905}}",
+      "postedAt": "2026-07-14T20:37:25.000Z",
+      "metrics": {
+        "views": 2691586,
+        "likes": 10613,
+        "comments": 544,
+        "replies": 544,
+        "reposts": 465,
+        "quotes": 291,
+        "saves": 8905
+      },
+      "contributionScore": 100,
+      "review_state": "verified",
+      "matchReason": "Live manual refresh verified an explicitly supplied native X post from verified founder @farzatv for HeyClicky. Visible metrics were available from public post JSON.",
+      "first_seen_at": "2026-07-16T19:17:20.770Z",
+      "last_checked_at": "2026-07-16T19:17:20.770Z",
+      "last_updated_at": "2026-07-14T20:37:25.000Z"
     }
   ],
   "needsReview": [

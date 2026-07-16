@@ -432,7 +432,7 @@ async function fetchXTweets(target, workerIndex) {
       socialEvidenceItem({
         target,
         sourceUrl: tweet.url || `https://x.com/${handle}`,
-        title: `${tweet.author || target.name} X post`,
+        title: descriptiveXTitle(tweet.text, tweet.author || target.name),
         text: tweet.text || "",
         rawVisibleText: JSON.stringify(tweet),
         postedAt: parseXDateLabel(tweet.created_at) ?? parseDateOrNull(tweet.created_at),
@@ -536,7 +536,7 @@ async function fetchXTweetsFromBrowser(target, handle, workerIndex) {
         target,
         sourceUrl: tweet.url || `https://x.com/${handle}`,
         platformPostId: tweet.id ?? null,
-        title: `${tweet.author || target.name} X post`,
+        title: descriptiveXTitle(tweet.text, tweet.author || target.name),
         text: tweet.text || "",
         rawVisibleText: JSON.stringify(tweet),
         postedAt: parseXDateLabel(tweet.created_at) ?? parseDateOrNull(tweet.created_at),
@@ -986,6 +986,13 @@ function redactTokenLikeStrings(value) {
 
 function cleanText(value) {
   return String(value ?? "").replace(/\\u0026/g, "&").replace(/\s+/g, " ").trim();
+}
+
+function descriptiveXTitle(text, fallbackName) {
+  const compact = cleanText(text);
+  if (!compact) return `${fallbackName} X post`;
+  const firstSentence = compact.match(/^(.+?[.!?])(?:\s|$)/)?.[1] ?? compact;
+  return firstSentence.length > 140 ? `${firstSentence.slice(0, 137).trimEnd()}...` : firstSentence;
 }
 
 function sanitizePublicText(value) {

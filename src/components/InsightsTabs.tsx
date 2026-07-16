@@ -20,6 +20,7 @@ import {
   generatedEvidenceThumbnailDataUri,
   generatedEvidenceThumbnailUrl
 } from "@/lib/graph/generated-evidence-thumbnail";
+import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
 import type {
   EvidenceItem,
   FastestGainingRow,
@@ -492,12 +493,33 @@ function formatContribution(item: EvidenceItem | null): {
   }
 
   return {
-    title: firstSentence(item.text || item.title || "No evidence"),
+    title: firstSentence(evidenceDisplayText(item, "No evidence")),
     metrics: formatMetrics(item.metrics),
     metricPills: formatMetricPills(item.metrics),
     url: item.sourceUrl || null,
-    author: item.topVoice?.displayName || item.authorName || item.authorHandle || ""
+    author: evidenceAuthorLabel(item)
   };
+}
+
+function evidenceAuthorLabel(item: EvidenceItem): string {
+  if (item.topVoice?.displayName) {
+    return item.topVoice.displayName;
+  }
+  if (item.authorName && !isGenericEvidenceLabel(item.authorName)) {
+    return item.authorName;
+  }
+  return item.authorHandle || xHandleFromEvidenceUrl(item.accountUrl) || xHandleFromEvidenceUrl(item.sourceUrl) || "";
+}
+
+function xHandleFromEvidenceUrl(value: string | null | undefined): string {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    if (url.hostname !== "x.com" && url.hostname !== "twitter.com" && url.hostname !== "www.x.com") return "";
+    return url.pathname.split("/").filter(Boolean)[0] ?? "";
+  } catch {
+    return "";
+  }
 }
 
 function firstSentence(text: string): string {

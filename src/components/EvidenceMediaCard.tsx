@@ -5,6 +5,7 @@ import {
   generatedEvidenceThumbnailDataUri,
   generatedEvidenceThumbnailUrl
 } from "@/lib/graph/generated-evidence-thumbnail";
+import { evidenceDisplayText } from "@/lib/graph/evidence-display";
 import type { EvidenceItem } from "@/lib/graph/types";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
 
@@ -19,11 +20,7 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
   const metrics = compactMetrics(item.metrics).join(" / ");
   const thumbnailCandidates = thumbnailUrlCandidates(item);
   const thumbnailUrl = thumbnailCandidates.find((candidate) => !failedThumbnailUrls.includes(candidate)) ?? null;
-  const accountLabel = item.topVoice
-    ? `Top Voice: ${item.topVoice.displayName}`
-    : item.entityType === "founder"
-      ? "Founder account"
-      : "Company account";
+  const postDate = formatPostDate(item.postedAt);
 
   useEffect(() => {
     setFailedThumbnailUrls([]);
@@ -69,7 +66,7 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
             <PlatformLogo platform={item.platform} />
             <span>{formatPlatform(item.platform)}</span>
           </span>
-          <span>{accountLabel}</span>
+          <time dateTime={item.postedAt}>{postDate}</time>
         </div>
         <h4>{snippet}</h4>
         {metrics && <p className="evidence-card-stats">{metrics}</p>}
@@ -89,10 +86,29 @@ function uniqueStrings(values: Array<string | null | undefined>): string[] {
 }
 
 function evidenceSnippet(item: EvidenceItem): string {
-  const text = item.title || item.text || "Untitled evidence";
+  const text = evidenceDisplayText(item);
   const compact = text.replace(/\s+/g, " ").replace(/([.!?]){2,}/g, "$1").trim();
   const sentence = compact.match(/^(.+?[.!?])\s/)?.[1] ?? compact;
   return sentence.length > 170 ? `${sentence.slice(0, 167)}...` : sentence;
+}
+
+function formatPostDate(value: string): string {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) {
+    return "Date unavailable";
+  }
+
+  const day = date.getUTCDate();
+  const month = new Intl.DateTimeFormat("en-US", { month: "long", timeZone: "UTC" }).format(date);
+  return `${month} ${day}${ordinalSuffix(day)}, ${date.getUTCFullYear()}`;
+}
+
+function ordinalSuffix(day: number): string {
+  if (day >= 11 && day <= 13) return "th";
+  if (day % 10 === 1) return "st";
+  if (day % 10 === 2) return "nd";
+  if (day % 10 === 3) return "rd";
+  return "th";
 }
 
 

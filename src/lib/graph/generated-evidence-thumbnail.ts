@@ -1,4 +1,5 @@
 import type { EvidenceItem, Platform } from "./types";
+import { evidenceDisplayText, isGenericEvidenceLabel } from "./evidence-display";
 
 type GeneratedThumbnailInput = Pick<EvidenceItem, "id" | "platform" | "sourceUrl"> &
   Partial<Pick<EvidenceItem, "authorHandle" | "authorName" | "contributionScore" | "text" | "title">>;
@@ -29,9 +30,9 @@ export function generatedEvidenceThumbnailUrl(item: GeneratedThumbnailInput | nu
   const params = new URLSearchParams();
   params.set("platform", item.platform);
   params.set("id", compactParam(item.id || item.sourceUrl, 96));
-  params.set("title", compactParam(item.title || item.text || item.sourceUrl || "Traction post", 140));
+  params.set("title", compactParam(evidenceDisplayText(item, "Traction post"), 140));
 
-  const author = item.authorName || item.authorHandle;
+  const author = item.authorName && !isGenericEvidenceLabel(item.authorName) ? item.authorName : item.authorHandle;
   if (author) {
     params.set("author", compactParam(author, 80));
   }
@@ -55,8 +56,10 @@ export function generatedEvidenceThumbnailSvg(item: GeneratedThumbnailInput | nu
 
   const theme = platformThemes[item.platform] ?? platformThemes.web;
   const label = platformThumbnailLabel(item.platform);
-  const title = item.title || item.text || item.sourceUrl || "Traction post";
-  const author = item.authorName || item.authorHandle || "";
+  const title = evidenceDisplayText(item, "Traction post");
+  const author = item.authorName && !isGenericEvidenceLabel(item.authorName)
+    ? item.authorName
+    : item.authorHandle || "";
   const score = normalizeScore(item.contributionScore);
   const lines = wrapText(title, 24, 3);
   const authorLine = author ? escapeXml(author) : "Verified public traction";

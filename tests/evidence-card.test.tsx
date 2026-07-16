@@ -32,6 +32,8 @@ describe("EvidenceMediaCard", () => {
     const { container } = render(<EvidenceMediaCard item={item} />);
 
     expect(screen.getByText("Watch me control my computer with just my voice.")).toBeInTheDocument();
+    expect(screen.getByText("May 30th, 2026")).toBeInTheDocument();
+    expect(screen.queryByText("Founder account")).not.toBeInTheDocument();
     expect(screen.queryByText("Farza / FarzaTV")).not.toBeInTheDocument();
     expect(screen.getByText("100")).toBeInTheDocument();
     expect(container.querySelector(".evidence-card-stats")).toHaveTextContent(
@@ -46,6 +48,59 @@ describe("EvidenceMediaCard", () => {
     expect(screen.queryByText(/checked/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/attached/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^open$/i)).not.toBeInTheDocument();
+  });
+
+  it("replaces a generic source title with descriptive post text and its publication date", () => {
+    const item: EvidenceItem = {
+      id: "ev-farza-screen-aware-dictation",
+      entityType: "founder",
+      entityId: "founder-heyclicky-farza",
+      platform: "x",
+      authorName: "Farza",
+      authorHandle: "FarzaTV",
+      postedAt: "2026-07-14T20:37:25.000Z",
+      title: "FarzaTV X post",
+      text: "Today we're shipping screen-aware dictation. First, we built a speedy speech-to-text.",
+      mediaType: "video",
+      metrics: { views: 2_687_075, likes: 10_602, comments: 544, reposts: 465 },
+      contributionScore: 100,
+      sourceUrl: "https://x.com/FarzaTV/status/2077130366230639022",
+      why: "Visible first-party X traction."
+    };
+
+    const { container } = render(<EvidenceMediaCard item={item} />);
+
+    expect(screen.getAllByText("Today we're shipping screen-aware dictation.").length).toBeGreaterThan(0);
+    expect(screen.queryByText("FarzaTV X post")).not.toBeInTheDocument();
+    expect(screen.getByText("July 14th, 2026")).toBeInTheDocument();
+    const generatedThumbnail = decodeDataImage(container.querySelector("img")?.getAttribute("src"));
+    expect(generatedThumbnail).toContain("Today we're shipping");
+    expect(generatedThumbnail).toContain("screen-aware dictation.");
+    expect(generatedThumbnail).not.toContain("FarzaTV X post");
+  });
+
+  it("never renders a generic platform title when post text is unavailable", () => {
+    const item: EvidenceItem = {
+      id: "ev-generic-title-only",
+      entityType: "founder",
+      entityId: "founder-heyclicky-farza",
+      platform: "x",
+      authorName: "Farza",
+      authorHandle: "FarzaTV",
+      postedAt: "2026-07-14T20:37:25.000Z",
+      title: "FarzaTV X post",
+      text: "",
+      mediaType: "text",
+      metrics: { views: 100 },
+      contributionScore: 10,
+      sourceUrl: "https://x.com/FarzaTV/status/2077130366230639022",
+      why: "Visible first-party X traction."
+    };
+
+    render(<EvidenceMediaCard item={item} />);
+
+    expect(screen.queryByText("FarzaTV X post")).not.toBeInTheDocument();
+    expect(screen.getByText(item.sourceUrl)).toBeInTheDocument();
   });
 
   it("generates a post thumbnail when no native thumbnail exists", () => {

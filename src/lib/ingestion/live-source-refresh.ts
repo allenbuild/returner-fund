@@ -89,6 +89,17 @@ interface RawFounder {
   socialLinks?: Partial<Record<Platform, string>>;
 }
 
+interface VerifiedSocialOverride {
+  companySocialLinks?: Partial<Record<Platform, string>>;
+  founders?: VerifiedFounderOverride[];
+}
+
+interface VerifiedFounderOverride {
+  id: string;
+  name: string;
+  socialLinks?: Partial<Record<Platform, string>>;
+}
+
 interface A16zSocialAccountSnapshot {
   companies?: A16zSocialAccountCompany[];
 }
@@ -221,6 +232,7 @@ interface ParsedLiveRawVisibleText {
     targetHandle?: string;
     accountUrl?: string;
     batchSlug?: string;
+    directSource?: boolean;
     topVoiceMemberId?: string;
     topVoiceDisplayName?: string;
   };
@@ -242,6 +254,7 @@ const DEFAULT_X_REQUEST_TIMEOUT_MS = 4_500;
 const TOP_VOICE_X_MISS_CACHE_TTL_MS = 10 * 60 * 1000;
 const TARGETED_EVIDENCE_PATH = join("src", "lib", "social", "targeted-evidence-current.json");
 const A16Z_SOCIAL_ACCOUNTS_PATH = join("src", "lib", "social", "a16z-speedrun-006-social-accounts.json");
+const VERIFIED_SOCIAL_OVERRIDES_PATH = join("src", "lib", "social", "verified-social-overrides.json");
 const STAGE_LOG_PATH = join("outputs", "ingestion-refresh-stage-log-current.json");
 const LIVE_EVIDENCE_RECORD_CACHE_LIMIT = 8;
 const AMBIGUOUS_TOP_VOICE_MATCH_TERMS = new Set([
@@ -569,7 +582,9 @@ function validatePersistedLiveEvidenceRecord(
     if (target.handle !== authorHandle || normalizeHandle(parsedRaw.profile?.targetHandle) !== target.handle) {
       return { ok: false, reason: "author_handle_mismatch" };
     }
-    const validation = validateXEvidenceRecord(record, target);
+    const validation = validateXEvidenceRecord(record, target, {
+      allowDirectFounderAttribution: parsedRaw.profile?.directSource === true
+    });
     return validation.ok ? { ok: true } : { ok: false, reason: validation.reason };
   }
 
@@ -613,6 +628,7 @@ async function loadXTargets(
     readBatchSnapshot(join(rootDir, "src", "lib", "yc", "summer-2026-companies.json"), "S26", log),
     readBatchSnapshot(join(rootDir, "src", "lib", "yc", "spring-2026-companies.json"), "S2026", log)
   ]);
+  const verifiedSocialOverrides = await readVerifiedSocialOverrides(rootDir, log);
   const selectedBatchSlugs = new Set(batchSlugs);
 
   for (const { slug, snapshot } of snapshots) {
@@ -630,6 +646,17 @@ async function loadXTargets(
           targets.push(founderTarget);
         }
       }
+      const override = verifiedSocialOverrides[company.slug];
+      const overrideCompanyTarget = xTargetForVerifiedCompany(slug, company, override);
+      if (overrideCompanyTarget) {
+        targets.push(overrideCompanyTarget);
+      }
+      for (const founder of override?.founders ?? []) {
+        const founderTarget = xTargetForVerifiedFounder(slug, company, founder);
+        if (founderTarget) {
+          targets.push(founderTarget);
+        }
+      }
     }
   }
 
@@ -637,7 +664,27 @@ async function loadXTargets(
     targets.push(...await loadA16zXTargets(rootDir, log));
   }
 
-  return prioritizeXTargets(targets);
+  return prioritizeXTargets(dedupeXTargets(targets));
+}
+
+async function readVerifiedSocialOverrides(
+  rootDir: string,
+  log: (entry: Omit<LiveRefreshStageLog, "at">) => void
+): Promise<Record<string, VerifiedSocialOverride>> {
+  try {
+    return JSON.parse(await readFile(join(rootDir, VERIFIED_SOCIAL_OVERRIDES_PATH), "utf8")) as Record<
+      string,
+      VerifiedSocialOverride
+    >;
+  } catch (error) {
+    log({
+      stage: "failed",
+      platform: "all",
+      reason: "verified_social_overrides_read_failed",
+      message: `Could not read verified social overrides: ${error instanceof Error ? error.message : "unknown error"}.`
+    });
+    return {};
+  }
 }
 
 async function readBatchSnapshot(
@@ -827,6 +874,60 @@ function xTargetForFounder(batchSlug: string, company: RawCompany, founder: RawF
     accountUrl,
     handle
   };
+}
+
+function xTargetForVerifiedCompany(
+  batchSlug: string,
+  company: RawCompany,
+  override: VerifiedSocialOverride | undefined
+): XTarget | null {
+  const accountUrl = override?.companySocialLinks?.x;
+  const handle = handleFromUrl(accountUrl);
+  if (!accountUrl || !handle) {
+    return null;
+  }
+
+  return {
+    platform: "x",
+    batchSlug,
+    entityType: "company",
+    entityId: `company-${company.slug}`,
+    companyName: company.name,
+    companySlug: company.slug,
+    companyWebsiteUrl: company.websiteUrl ?? null,
+    entityName: company.name,
+    accountUrl,
+    handle
+  };
+}
+
+function xTargetForVerifiedFounder(
+  batchSlug: string,
+  company: RawCompany,
+  founder: VerifiedFounderOverride
+): XTarget | null {
+  const accountUrl = founder.socialLinks?.x;
+  const handle = handleFromUrl(accountUrl);
+  if (!accountUrl || !handle) {
+    return null;
+  }
+
+  return {
+    platform: "x",
+    batchSlug,
+    entityType: "founder",
+    entityId: `founder-${company.slug}-${slugify(founder.name)}-${founder.id}`,
+    companyName: company.name,
+    companySlug: company.slug,
+    companyWebsiteUrl: company.websiteUrl ?? null,
+    entityName: founder.name,
+    accountUrl,
+    handle
+  };
+}
+
+function dedupeXTargets(targets: XTarget[]): XTarget[] {
+  return [...new Map(targets.map((target) => [`${target.batchSlug}:${target.entityId}:${target.handle}`, target])).values()];
 }
 
 function prioritizeXTargets(targets: XTarget[]): XTarget[] {
@@ -1201,8 +1302,8 @@ async function refreshDirectXSourceUrls(
       continue;
     }
 
-    const record = xTweetToEvidenceRecord(target, tweetResult.tweet, options.now);
-    const validation = validateXEvidenceRecord(record, target);
+    const record = xTweetToEvidenceRecord(target, tweetResult.tweet, options.now, { directSource: true });
+    const validation = validateXEvidenceRecord(record, target, { allowDirectFounderAttribution: true });
     if (!validation.ok) {
       options.log({
         stage: "dropped",
@@ -1495,7 +1596,12 @@ async function refreshSingleXTarget(
   return accepted;
 }
 
-function xTweetToEvidenceRecord(target: XTarget, tweet: FxTweet, now: Date): LiveEvidenceRecord {
+function xTweetToEvidenceRecord(
+  target: XTarget,
+  tweet: FxTweet,
+  now: Date,
+  options: { directSource?: boolean } = {}
+): LiveEvidenceRecord {
   const postId = String(tweet.id ?? "");
   const authorHandle = normalizeHandle(tweet.author?.screen_name ?? target.handle);
   const sourceUrl = tweet.url ?? `https://x.com/${authorHandle || target.handle}/status/${postId}`;
@@ -1512,7 +1618,8 @@ function xTweetToEvidenceRecord(target: XTarget, tweet: FxTweet, now: Date): Liv
     profile: {
       targetHandle: target.handle,
       accountUrl: target.accountUrl,
-      batchSlug: target.batchSlug
+      batchSlug: target.batchSlug,
+      directSource: options.directSource === true
     },
     post: tweet,
     counts: metrics
@@ -1545,6 +1652,8 @@ function xTweetToEvidenceRecord(target: XTarget, tweet: FxTweet, now: Date): Liv
     matchReason:
       target.entityType === "company"
         ? `Live manual refresh verified a native X post from official @${target.handle} for ${target.companyName}. Visible metrics were available from public post JSON.`
+        : options.directSource
+          ? `Live manual refresh verified an explicitly supplied native X post from verified founder @${target.handle} for ${target.companyName}. Visible metrics were available from public post JSON.`
         : `Live manual refresh verified a native X post from founder @${target.handle} mentioning ${target.companyName}. Visible metrics were available from public post JSON.`,
     first_seen_at: now.toISOString(),
     last_checked_at: now.toISOString(),
@@ -1635,7 +1744,8 @@ function matchTopVoiceTweetToCompanies(tweet: FxTweet, targets: CompanyMatchTarg
 
 function validateXEvidenceRecord(
   record: LiveEvidenceRecord,
-  target: XTarget
+  target: XTarget,
+  options: { allowDirectFounderAttribution?: boolean } = {}
 ): { ok: true } | { ok: false; reason: string; message: string } {
   if (!record.platformPostId) {
     return { ok: false, reason: "no_post_id", message: "Dropped X row because no post id was available." };
@@ -1663,7 +1773,11 @@ function validateXEvidenceRecord(
       message: `Dropped ${record.sourceUrl} because it is a retweet/repost rather than a native post from @${target.handle}.`
     };
   }
-  if (target.entityType === "founder" && !mentionsCompanyTarget(record, target)) {
+  if (
+    target.entityType === "founder" &&
+    !options.allowDirectFounderAttribution &&
+    !mentionsCompanyTarget(record, target)
+  ) {
     return {
       ok: false,
       reason: "founder_post_missing_company_mention",
@@ -1690,7 +1804,7 @@ function isRepostLikeXTweet(tweet: FxTweet | undefined): boolean {
 }
 
 function mentionsCompanyTarget(record: LiveEvidenceRecord, target: XTarget): boolean {
-  const text = normalizeSearchText([record.title, record.text, record.rawVisibleText].join(" "));
+  const text = normalizeSearchText([record.title, record.text].join(" "));
   return targetTerms(target).some((term) => containsSearchTerm(text, term));
 }
 

@@ -15,6 +15,8 @@ describe("insights tabs", () => {
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Zeta Labs");
     expect(screen.getByRole("table")).toHaveClass("overview-table");
     expect(screen.getByText("First sentence.")).toBeInTheDocument();
+    expect(screen.getByText("zetalabs")).toBeInTheDocument();
+    expect(screen.queryByText("Zeta Labs X post")).not.toBeInTheDocument();
     expect(screen.queryByText(/Second sentence/)).not.toBeInTheDocument();
     expect(screen.getByText("1.2K views / 45 likes / 7 comments")).toBeInTheDocument();
 
@@ -380,7 +382,7 @@ function graphResponse(): GraphResponse {
           entityType: "company",
           entityId: "company-a",
           platform: "x",
-          authorName: "Zeta Labs",
+          authorName: "Zeta Labs X post",
           authorHandle: "zetalabs",
           postedAt: "2026-06-29T00:00:00.000Z",
           title: "Zeta Labs X post",

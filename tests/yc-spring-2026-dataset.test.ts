@@ -44,6 +44,10 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(graph.leaderboard).toHaveLength(197);
     expect(graph.nodes.some((node) => node.label === "HeyClicky")).toBe(true);
     expect(graph.nodes.some((node) => node.label === "Conifer")).toBe(false);
+    expect(graph.evidence.some((item) => item.title === "FarzaTV X post")).toBe(false);
+    expect(
+      graph.evidence.find((item) => item.sourceUrl === "https://x.com/FarzaTV/status/2077130366230639022")?.title
+    ).toContain("Today we're shipping screen-aware dictation.");
   });
 
   it("loads the complete public YC batch instead of the demo seed", () => {

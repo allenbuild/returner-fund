@@ -23,6 +23,7 @@ import {
   normalizeEvidenceScores
 } from "./traction-scoring";
 import { dedupeEvidenceItems } from "./dedupe";
+import { evidenceDisplayText } from "./evidence-display";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
 import {
   applyAttributionGuard,
@@ -788,6 +789,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     ...(item.media_posters ?? []),
     ...(item.media_urls ?? [])
   ].filter(Boolean);
+  const displayTitle = evidenceDisplayText(item, item.companyName);
 
   return enrichEvidenceThumbnail({
     id: item.id,
@@ -797,8 +799,8 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     authorName: nativeAuthor.name ?? item.title ?? item.companyName,
     authorHandle: nativeAuthor.handle,
     postedAt: item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
-    title: item.title,
-    text: item.text || item.title,
+    title: displayTitle,
+    text: item.text || displayTitle,
     mediaType: mediaTypeForPlatform(item.platform),
     mediaUrl: item.mediaUrl ?? null,
     mediaUrls,

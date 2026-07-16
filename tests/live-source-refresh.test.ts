@@ -164,6 +164,75 @@ describe("live source refresh", () => {
     }
   });
 
+  it("accepts a direct post from a founder defined by a verified social override", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-verified-founder-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    const fetchImpl = async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "https://api.fxtwitter.com/farzatv/status/2077130366230639022") {
+        return Response.json({
+          code: 200,
+          tweet: {
+            url: "https://x.com/FarzaTV/status/2077130366230639022",
+            id: "2077130366230639022",
+            text: "Today we're shipping screen-aware dictation. Now dictate using your screen as context.",
+            created_at: "Tue Jul 14 20:37:25 +0000 2026",
+            replies: 544,
+            retweets: 465,
+            likes: 10602,
+            views: 2687075,
+            author: {
+              screen_name: "FarzaTV",
+              name: "Farza",
+              url: "https://x.com/FarzaTV"
+            }
+          }
+        });
+      }
+      return new Response("not found", { status: 404 });
+    };
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S2026",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xRequestTimeoutMs: 500,
+        xSourceUrls: ["https://x.com/FarzaTV/status/2077130366230639022"],
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T18:00:00.000Z"),
+        fetchImpl
+      });
+
+      expect(result.acceptedEvidence, JSON.stringify(result.stageLog, null, 2)).toHaveLength(1);
+      expect(result.acceptedEvidence[0]).toMatchObject({
+        entityType: "founder",
+        entityId: "founder-heyclicky-farza-majeed-manual-farza-majeed",
+        companyName: "HeyClicky",
+        title: "Today we're shipping screen-aware dictation. Now dictate using your screen as context.",
+        sourceUrl: "https://x.com/FarzaTV/status/2077130366230639022",
+        postedAt: "2026-07-14T20:37:25.000Z",
+        metrics: expect.objectContaining({
+          views: 2687075,
+          likes: 10602,
+          comments: 544,
+          reposts: 465
+        })
+      });
+      expect(result.failureReasonCounts.direct_x_url_not_batch_target).toBeUndefined();
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("dedupes a live X post found by both profile scanning and a direct status URL", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-dedupe-accepted-"));
     const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
@@ -380,6 +449,68 @@ describe("live source refresh", () => {
         review_state: "verified"
       });
       expect(result.failureReasonCounts.founder_post_missing_company_mention).toBeUndefined();
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not treat a founder profile bio as a company mention in an unrelated X post", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-founder-bio-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    const fetchImpl = async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "https://x.com/chinmaychauhan") {
+        return new Response('<a href="https://x.com/chinmaychauhan/status/2078000000000000003">post</a>', {
+          status: 200,
+          headers: { "content-type": "text/html" }
+        });
+      }
+      if (url === "https://api.fxtwitter.com/chinmaychauhan/status/2078000000000000003") {
+        return Response.json({
+          code: 200,
+          tweet: {
+            url: "https://x.com/chinmaychauhan/status/2078000000000000003",
+            id: "2078000000000000003",
+            text: "A great weekend at the tennis final.",
+            created_timestamp: 1784047200,
+            replies: 11,
+            retweets: 8,
+            likes: 97,
+            views: 12000,
+            author: {
+              screen_name: "chinmaychauhan",
+              name: "Chinmay Chauhan",
+              description: "Founder and CEO at Acceler8",
+              url: "https://x.com/chinmaychauhan"
+            }
+          }
+        });
+      }
+      return new Response("not found", { status: 404 });
+    };
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "A16ZSR006",
+        platforms: ["x"],
+        xTargetHandles: ["chinmaychauhan"],
+        xConcurrency: 1,
+        xRequestTimeoutMs: 500,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-14T17:09:00.000Z"),
+        fetchImpl
+      });
+
+      expect(result.acceptedEvidence).toHaveLength(0);
+      expect(result.failureReasonCounts.founder_post_missing_company_mention).toBe(1);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
