@@ -52,10 +52,13 @@ const defaultBatches = [
 ];
 const DEFAULT_BATCH_SLUG = "S2026";
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
-const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-14-taro-insider-evidence";
+const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-16-fast-snapshot-loading";
 const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
 const STATIC_GRAPH_TIMEOUT_MS = 8_000;
 const API_GRAPH_TIMEOUT_MS = 20_000;
+const STALE_STATIC_REFRESH_DELAY_MS = 1_200;
+const FRESH_STATIC_REFRESH_DELAY_MS = 5_000;
+const TOP_VOICE_STATIC_MAX_AGE_MS = 24 * 60 * 60 * 1_000;
 const REFRESH_TIMEOUT_MS = 45_000;
 const REFRESH_RECOVERY_POLL_DELAYS_MS = [1_500, 5_000, 10_000, 20_000, 40_000, 60_000];
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
@@ -98,7 +101,7 @@ async function fetchGraphPayload(
   throw lastError ?? new Error("Graph request failed");
 }
 
-async function fetchGraphPayloadWithFreshStaticSnapshot(
+async function fetchGraphPayloadWithStaticSnapshot(
   staticSnapshotUrl: string | null,
   apiUrl: string,
   attempts = 3,
@@ -107,13 +110,11 @@ async function fetchGraphPayloadWithFreshStaticSnapshot(
   if (staticSnapshotUrl) {
     try {
       const staticPayload = await fetchGraphPayload(staticSnapshotUrl, 2, {
-        cache: "no-store",
+        cache: "force-cache",
         timeoutMs: STATIC_GRAPH_TIMEOUT_MS,
         signal: options.signal
       });
-      if (graphBenchmarkDatesAreFresh(staticPayload)) {
-        return { graph: staticPayload, source: "static" };
-      }
+      return { graph: staticPayload, source: "static" };
     } catch (caught) {
       if (isAbortError(caught) || options.signal?.aborted) {
         throw caught;
@@ -266,6 +267,21 @@ function staticGraphSnapshotUrl(batchSlug: string, topVoiceAudience: TopVoiceAud
   return filename ? `/graph/${filename}${audienceSuffixes[topVoiceAudience]}.json?v=${STATIC_GRAPH_SNAPSHOT_VERSION}-${localDayKey(new Date())}` : null;
 }
 
+function staticGraphBackgroundRefreshDelay(graph: GraphResponse, now = new Date()): number | null {
+  const audience = graph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE;
+  if (audience !== DEFAULT_TOP_VOICE_AUDIENCE) {
+    const generatedAt = Date.parse(graph.generatedAt);
+    const age = now.getTime() - generatedAt;
+    return Number.isFinite(generatedAt) && age >= 0 && age <= TOP_VOICE_STATIC_MAX_AGE_MS
+      ? null
+      : STALE_STATIC_REFRESH_DELAY_MS;
+  }
+
+  return graphBenchmarkDatesAreFresh(graph, now)
+    ? FRESH_STATIC_REFRESH_DELAY_MS
+    : STALE_STATIC_REFRESH_DELAY_MS;
+}
+
 function hasClientGraphFilters(filters: ClientGraphFilters): boolean {
   return Boolean(
     filters.platforms.length ||
@@ -369,6 +385,7 @@ export function Dashboard({
   const graphRequestIdRef = useRef(0);
   const activeGraphAbortRef = useRef<AbortController | null>(null);
   const activeBackgroundGraphAbortRefs = useRef<Set<AbortController>>(new Set());
+  const backgroundGraphInFlightRef = useRef<Set<string>>(new Set());
   const actionRequestIdRef = useRef(0);
   const activeActionAbortRef = useRef<AbortController | null>(null);
   const refreshRecoveryTimeoutsRef = useRef<number[]>([]);
@@ -403,6 +420,13 @@ export function Dashboard({
 
   const fetchGraph = useCallback(async (options: { background?: boolean; forceApi?: boolean; unfiltered?: boolean } = {}) => {
     const background = options.background === true;
+    const backgroundKey = background ? graphCacheKey(batchSlug, topVoiceAudience) : null;
+    if (backgroundKey && backgroundGraphInFlightRef.current.has(backgroundKey)) {
+      return;
+    }
+    if (backgroundKey) {
+      backgroundGraphInFlightRef.current.add(backgroundKey);
+    }
     const requestFilters = options.unfiltered
       ? { platforms: [], industries: [], groupPartners: [], minScore: 0 }
       : currentFiltersRef.current;
@@ -447,7 +471,7 @@ export function Dashboard({
         options.unfiltered && !options.forceApi
           ? staticGraphSnapshotUrl(batchSlug, topVoiceAudience)
           : null;
-      const result = await fetchGraphPayloadWithFreshStaticSnapshot(
+      const result = await fetchGraphPayloadWithStaticSnapshot(
         staticSnapshotUrl,
         `/api/graph?${params.toString()}`,
         3,
@@ -466,11 +490,6 @@ export function Dashboard({
         setFilterMetadataGraph(payload);
       }
       setGraph(options.unfiltered ? applyClientGraphFilters(payload, currentFiltersRef.current) : payload);
-      if (result.source === "static" && options.unfiltered && !background) {
-        window.setTimeout(() => {
-          void fetchGraph({ background: true, forceApi: true, unfiltered: true });
-        }, 0);
-      }
     } catch (caught) {
       if (!background && requestId !== graphRequestIdRef.current) {
         return;
@@ -482,6 +501,9 @@ export function Dashboard({
         setError(caught instanceof Error ? caught.message : "Graph request failed");
       }
     } finally {
+      if (backgroundKey) {
+        backgroundGraphInFlightRef.current.delete(backgroundKey);
+      }
       if (background) {
         activeBackgroundGraphAbortRefs.current.delete(controller);
       } else if (activeGraphAbortRef.current === controller) {
@@ -538,7 +560,7 @@ export function Dashboard({
 
     try {
       const staticSnapshotUrl = staticGraphSnapshotUrl(prefetchBatchSlug, prefetchTopVoiceAudience);
-      const result = await fetchGraphPayloadWithFreshStaticSnapshot(
+      const result = await fetchGraphPayloadWithStaticSnapshot(
         staticSnapshotUrl,
         `/api/graph?${params.toString()}`,
         2
@@ -559,6 +581,7 @@ export function Dashboard({
         controller.abort();
       }
       activeBackgroundGraphAbortRefs.current.clear();
+      backgroundGraphInFlightRef.current.clear();
       activeActionAbortRef.current?.abort();
       activeActionAbortRef.current = null;
       clearRefreshRecoveryPolling();
@@ -607,9 +630,13 @@ export function Dashboard({
       setLoading(false);
 
       if (cachedEntry?.source === "static") {
+        const refreshDelay = staticGraphBackgroundRefreshDelay(cachedEntry.graph);
+        if (refreshDelay === null) {
+          return;
+        }
         const timeoutId = window.setTimeout(() => {
           void fetchGraph({ background: true, forceApi: true, unfiltered: true });
-        }, 0);
+        }, refreshDelay);
         return () => window.clearTimeout(timeoutId);
       }
 
@@ -756,33 +783,6 @@ export function Dashboard({
       void prefetchGraph(targetBatchSlug, audience.id);
     }
   }, [prefetchGraph, topVoiceAudiences]);
-
-  useEffect(() => {
-    if (!graph) {
-      return;
-    }
-    if (batchSlug === A16Z_SPEEDRUN_BATCH_SLUG) {
-      return;
-    }
-    const batchSlugs = new Set(batches.map((batch) => batch.slug));
-    const prefetchBatchSlug = A16Z_SPEEDRUN_BATCH_SLUG;
-    if (!batchSlugs.has(prefetchBatchSlug)) {
-      return;
-    }
-
-    const warmBatch = () => {
-      void prefetchGraph(prefetchBatchSlug, topVoiceAudience);
-    };
-    const requestIdleCallback = window.requestIdleCallback;
-    const cancelIdleCallback = window.cancelIdleCallback;
-    if (requestIdleCallback && cancelIdleCallback) {
-      const idleId = requestIdleCallback(warmBatch, { timeout: 2800 });
-      return () => cancelIdleCallback(idleId);
-    }
-
-    const timeoutId = window.setTimeout(warmBatch, 2400);
-    return () => window.clearTimeout(timeoutId);
-  }, [batchSlug, batches, graph, prefetchGraph, topVoiceAudience]);
 
   const industryOptions = useMemo(() => {
     const byIndustry = new Map<string, { name: string; count: number; color: string }>();

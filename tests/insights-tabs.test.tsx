@@ -32,12 +32,13 @@ describe("insights tabs", () => {
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Alpha AI");
 
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Alpha AI");
-    expect(screen.queryByRole("button", { name: "Alpha AI" })).not.toBeInTheDocument();
-    expect(onSelectNode).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Alpha AI" }));
+    expect(onSelectNode).toHaveBeenCalledWith("company:company-b");
   });
 
   it("shows hottest companies as DoD/WoW score and rank momentum without evidence columns", () => {
-    render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
+    const onSelectNode = vi.fn();
+    render(<InsightsTabs graph={graphResponse()} onSelectNode={onSelectNode} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Hottest" }));
 
@@ -50,6 +51,8 @@ describe("insights tabs", () => {
     expect(screen.queryByText("New high-performing evidence")).not.toBeInTheDocument();
     expect(screen.getByText("+5 pts (+10%)")).toBeInTheDocument();
     expect(screen.getByText("+3")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Company A" }));
+    expect(onSelectNode).toHaveBeenCalledWith("company:company-a");
 
     fireEvent.click(screen.getByRole("button", { name: "Week over week" }));
 

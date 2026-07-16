@@ -2632,19 +2632,36 @@ td button {
   box-shadow: 0 10px 18px var(--accent-shadow);
 }
 
-.insight-company-cell button,
-.overview-company-cell span {
+.leaderboard-company-button {
+  max-width: 100%;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
   color: var(--neutral-900);
+  cursor: pointer;
   font-family: var(--font-ui);
   font-size: 1.08rem;
   font-style: normal;
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1.15;
+  text-align: left;
+  transition: color 140ms ease, text-decoration-color 140ms ease;
 }
 
-.overview-company-cell span {
-  cursor: default;
+.leaderboard-company-button:hover {
+  color: var(--overview-hover-text);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-outline);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.leaderboard-company-button:focus-visible {
+  color: var(--overview-hover-text);
+  outline: 2px solid var(--accent-outline);
+  outline-offset: 3px;
 }
 
 .overview-platform-cell {
@@ -3611,9 +3628,9 @@ td button {
     grid-row: 2;
   }
 
-  .overview-company-cell span,
-  .insight-company-cell button {
+  .leaderboard-company-button {
     display: block;
+    width: 100%;
     max-width: 100%;
     overflow: hidden;
     font-size: 1.02rem;
@@ -3847,7 +3864,7 @@ td button {
     font-size: 1rem;
   }
 
-  .overview-company-cell span {
+  .overview-company-cell .leaderboard-company-button {
     font-size: 0.98rem;
   }
 

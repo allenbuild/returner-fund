@@ -165,7 +165,7 @@ describe("dashboard filters", () => {
       ...fullGraph,
       selectedTopVoiceAudience: fullGraph.topVoiceAudiences[1]!
     };
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
       ok: true,
       json: async () => partnerGraph
     }));
@@ -180,16 +180,13 @@ describe("dashboard filters", () => {
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/graph/s2026-yc-partners.json"))).toBe(true);
     });
+    const staticCall = fetchMock.mock.calls.find(([input]) => String(input).includes("/graph/s2026-yc-partners.json"));
+    expect(staticCall?.[1]).toMatchObject({ cache: "force-cache" });
     expect(window.location.search).toContain("topVoices=yc_partners");
   });
 
-  it("switches to a prefetched Speedrun graph immediately, then promotes the cached static graph through the API", async () => {
-    vi.stubGlobal("requestIdleCallback", (callback: IdleRequestCallback) => {
-      callback({ didTimeout: false, timeRemaining: () => 12 });
-      return 1;
-    });
-    vi.stubGlobal("cancelIdleCallback", vi.fn());
-
+  it("switches batches through the static snapshot before the delayed API refresh", async () => {
+    vi.useFakeTimers();
     const springGraph = graphResponse([
       makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100)
     ]);
@@ -210,30 +207,29 @@ describe("dashboard filters", () => {
     render(<Dashboard initialGraph={springGraph} />);
 
     expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
-    await waitFor(() => {
-      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/graph/a16zsr006.json"))).toBe(true);
-    });
-    await Promise.resolve();
-
-    const callsBeforeSwitch = fetchMock.mock.calls.map(([input]) => String(input));
     fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
 
-    await waitFor(() => {
-      expect(within(screen.getByTestId("graph-canvas")).getByText("SUN")).toBeInTheDocument();
-      expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe")).not.toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
     });
-    const callsImmediatelyAfterSwitch = fetchMock.mock.calls.slice(callsBeforeSwitch.length).map(([input]) => String(input));
-    expect(callsImmediatelyAfterSwitch.some((input) => input.startsWith("/graph/a16zsr006.json"))).toBe(false);
-    await waitFor(() => {
-      expect(
-        fetchMock.mock.calls
-          .slice(callsBeforeSwitch.length)
-          .some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
-      ).toBe(true);
+    expect(within(screen.getByTestId("graph-canvas")).getByText("SUN")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/a16zsr006.json"))).toBe(true);
+    expect(
+      fetchMock.mock.calls
+        .some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
+    ).toBe(false);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
     });
+    expect(
+      fetchMock.mock.calls
+        .some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
+    ).toBe(true);
   });
 
-  it("falls back to the live graph API when a static graph snapshot has stale benchmark dates", async () => {
+  it("renders a stale static graph immediately, then refreshes it through the API", async () => {
+    vi.useFakeTimers();
     const staleGraph = withBenchmarkDates(
       graphResponse([makeNode("company:stale", "Stale Snapshot", "b2b", "#7dd3fc", "Partner A")]),
       localDateIso(-2),
@@ -245,26 +241,42 @@ describe("dashboard filters", () => {
       localDateIso(-7)
     );
 
+    let resolveApiGraph!: (response: { ok: boolean; json: () => Promise<GraphResponse> }) => void;
+    const apiGraphResponse = new Promise<{ ok: boolean; json: () => Promise<GraphResponse> }>((resolve) => {
+      resolveApiGraph = resolve;
+    });
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
-      return {
-        ok: true,
-        json: async () => (url.startsWith("/graph/s2026.json") ? staleGraph : liveGraph)
-      };
+      return url.startsWith("/graph/s2026.json")
+        ? { ok: true, json: async () => staleGraph }
+        : apiGraphResponse;
     });
     vi.stubGlobal("fetch", fetchMock);
 
     render(<Dashboard />);
 
-    await waitFor(() => {
-      expect(within(screen.getByTestId("graph-canvas")).getByText("Fresh API")).toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
     });
-    expect(within(screen.getByTestId("graph-canvas")).queryByText("Stale Snapshot")).not.toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Stale Snapshot")).toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_200);
+    });
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
     expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+
+    resolveApiGraph({ ok: true, json: async () => liveGraph });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Fresh API")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Stale Snapshot")).not.toBeInTheDocument();
   });
 
-  it("uses the fresh static graph snapshot for filtered initial loads, then refreshes from the API in the background", async () => {
+  it("uses the fresh static graph snapshot for filtered initial loads, then refreshes from the API after the first paint", async () => {
+    vi.useFakeTimers();
     const staticGraph = withBenchmarkDates(
       graphResponse([
         makeNode("company:x-only", "Static X Only", "b2b", "#7dd3fc", "Partner A", 80, "x"),
@@ -297,20 +309,60 @@ describe("dashboard filters", () => {
 
     render(<Dashboard initialFilters={{ platforms: ["x"] }} />);
 
-    await waitFor(() => {
-      expect(within(screen.getByTestId("graph-canvas")).getByText("Static X Only")).toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
     });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Static X Only")).toBeInTheDocument();
     expect(within(screen.getByTestId("graph-canvas")).queryByText("GitHub Only")).not.toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
-    await waitFor(() => {
-      expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
     });
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
 
     resolveApiGraph({ ok: true, json: async () => apiGraph });
-    await waitFor(() => {
-      expect(within(screen.getByTestId("graph-canvas")).getByText("Live API X")).toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
     });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Live API X")).toBeInTheDocument();
     expect(within(screen.getByTestId("graph-canvas")).queryByText("Static X Only")).not.toBeInTheDocument();
+  });
+
+  it("does not rebuild a recent Top Voices snapshot when switching audiences", async () => {
+    vi.useFakeTimers();
+    const fullGraph = graphResponse([
+      makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const partnerGraph = withBenchmarkDates(
+      {
+        ...fullGraph,
+        generatedAt: new Date().toISOString(),
+        selectedTopVoiceAudience: fullGraph.topVoiceAudiences[1]!
+      },
+      null,
+      null
+    );
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
+      ok: true,
+      json: async () => partnerGraph
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("HeyClicky")).toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/api/graph"))).toBe(false);
   });
 
   it("filters minimum score locally without waiting for a graph request", async () => {
@@ -511,7 +563,7 @@ function graphResponse(
   };
 }
 
-function withBenchmarkDates(graph: GraphResponse, dodBenchmarkedAt: string, wowBenchmarkedAt: string): GraphResponse {
+function withBenchmarkDates(graph: GraphResponse, dodBenchmarkedAt: string | null, wowBenchmarkedAt: string | null): GraphResponse {
   return {
     ...graph,
     fastestGaining: graph.leaderboard.map((row) => ({

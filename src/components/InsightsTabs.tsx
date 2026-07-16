@@ -147,7 +147,14 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                       <RankDisplay rank={row.rank} />
                     </td>
                     <td className="overview-company-cell">
-                      <span>{row.companyName}</span>
+                      <button
+                        type="button"
+                        className="leaderboard-company-button"
+                        title={`Open ${row.companyName} profile`}
+                        onClick={() => onSelectNode(`company:${row.companyId}`)}
+                      >
+                        {row.companyName}
+                      </button>
                     </td>
                     <td className="overview-score-cell">
                       <span>{row.score}</span>
@@ -215,7 +222,12 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                       <RankDisplay rank={index + 1} />
                     </td>
                     <td className="insight-company-cell">
-                      <button type="button" onClick={() => onSelectNode(`company:${row.companyId}`)}>
+                      <button
+                        type="button"
+                        className="leaderboard-company-button"
+                        title={`Open ${row.companyName} profile`}
+                        onClick={() => onSelectNode(`company:${row.companyId}`)}
+                      >
                         {row.companyName}
                       </button>
                     </td>

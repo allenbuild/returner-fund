@@ -112,6 +112,7 @@ export function CytoscapeGraph({
   const introStartedRef = useRef(false);
   const introAnimatingRef = useRef(false);
   const introHasSettledRef = useRef(false);
+  const introGraphSignatureRef = useRef<string | null>(null);
   const introTimersRef = useRef<number[]>([]);
   const lastFitSignatureRef = useRef<string | null>(null);
   const suppressSelectedZoomUntilRef = useRef(0);
@@ -351,6 +352,7 @@ export function CytoscapeGraph({
     introStartedRef.current = true;
     introAnimatingRef.current = true;
     introHasSettledRef.current = false;
+    introGraphSignatureRef.current = graphFitSignature;
     graphShellRef.current?.setAttribute("data-graph-intro-state", "running");
     suppressSelectedZoomUntilRef.current = performance.now() + 4300;
     rememberGraphIntroPlayed();
@@ -653,6 +655,7 @@ export function CytoscapeGraph({
       cy.elements().removeStyle("opacity transition-duration width height");
       introAnimatingRef.current = false;
       introHasSettledRef.current = true;
+      introGraphSignatureRef.current = null;
       graphShellRef.current?.setAttribute("data-graph-intro-state", "settled");
       suppressSelectedZoomUntilRef.current = performance.now() + 3000;
       lastFitSignatureRef.current = graphFitSignature;
@@ -669,6 +672,31 @@ export function CytoscapeGraph({
 
     addTimer(settleCamera, cameraPullbackDelay + cameraPullbackDuration + 280);
   }, [applyCanonicalPositions, cyReadyRevision, graphFitSignature, nodes.length]);
+
+  useLayoutEffect(() => {
+    const cy = cyRef.current;
+    const introGraphSignature = introGraphSignatureRef.current;
+    if (
+      !isUsableCy(cy) ||
+      !introAnimatingRef.current ||
+      !introGraphSignature ||
+      introGraphSignature === graphFitSignature
+    ) {
+      return;
+    }
+
+    introTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+    introTimersRef.current = [];
+    cy.stop(true);
+    cy.elements().removeStyle("opacity transition-duration width height");
+    introAnimatingRef.current = false;
+    introHasSettledRef.current = true;
+    introGraphSignatureRef.current = null;
+    suppressSelectedZoomUntilRef.current = performance.now() + 180;
+    graphShellRef.current?.setAttribute("data-graph-intro-state", "settled");
+    applyCanonicalPositions({ fit: true });
+    lastFitSignatureRef.current = graphFitSignature;
+  }, [applyCanonicalPositions, graphFitSignature]);
 
   useEffect(() => {
     document.body.classList.toggle("graph-fullscreen-open", isFullscreen);
