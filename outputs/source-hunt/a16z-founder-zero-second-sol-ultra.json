@@ -1,0 +1,1067 @@
+{
+  "generatedAt": "2026-07-16T01:13:30Z",
+  "shard": "a16z-founder-zero-second-sol-ultra",
+  "searches": [
+    {
+      "platform": "dedupe",
+      "query": "search-ledger.json + validated-candidates.json + rejected-candidates.json + targeted-evidence-current.json + logged-in-evidence-current.json + a16z-speedrun-006-social-evidence.json + outputs/source-hunt/*.json",
+      "companies": ["Advocate", "August", "Meridian", "Oasis", "PayPath", "Quinn", "Simula"],
+      "result": "Loaded the ledger, canonical evidence, candidate files, and every prior source-hunt artifact before discovery; refreshed exact URL and platform-ID checks immediately before writing."
+    },
+    {
+      "platform": "company_website",
+      "query": "https://advocatewellbeing.com",
+      "companies": ["Advocate"],
+      "result": "Found the exact company site and its official advocate-wellbeing LinkedIn company link, but no native article or post with visible engagement metrics."
+    },
+    {
+      "platform": "company_website",
+      "query": "https://tryaugust.com",
+      "companies": ["August"],
+      "result": "Homepage and site assets exposed no blog, native post, or social activity URL with visible metrics."
+    },
+    {
+      "platform": "company_website",
+      "query": "https://trymeridian.dev/ sitemap and /blog",
+      "companies": ["Meridian"],
+      "result": "Found two first-party blog articles, including The Myth of the Knowledge Management System, but neither exposes views, reactions, comments, or other qualifying audience metrics."
+    },
+    {
+      "platform": "company_website",
+      "query": "https://joinoasis.com",
+      "companies": ["Oasis"],
+      "result": "Current site is a coming-soon page with no native post or visible activity metrics."
+    },
+    {
+      "platform": "company_website",
+      "query": "https://paypath.ai",
+      "companies": ["PayPath"],
+      "result": "Homepage exposed no blog or post-level social URL with visible metrics."
+    },
+    {
+      "platform": "company_website",
+      "query": "https://meetquinn.ai sitemap and /blog",
+      "companies": ["Quinn"],
+      "result": "Found a large first-party article and blog corpus, but the pages do not expose qualifying views, reactions, or comments; the site did corroborate official LinkedIn and X identities."
+    },
+    {
+      "platform": "company_website",
+      "query": "https://simula.ad",
+      "companies": ["Simula"],
+      "result": "Site metadata exposed a stale @simulaai creator handle but no qualifying native social post; exact-domain links later corroborated the official GitHub SDK organization."
+    },
+    {
+      "platform": "github",
+      "query": "\"advocatewellbeing.com\" in:readme,description",
+      "companies": ["Advocate"],
+      "result": "GitHub repository search returned zero matches."
+    },
+    {
+      "platform": "github",
+      "query": "\"tryaugust.com\" in:readme,description",
+      "companies": ["August"],
+      "result": "GitHub repository search returned zero matches."
+    },
+    {
+      "platform": "github",
+      "query": "\"trymeridian.dev\" in:readme,description",
+      "companies": ["Meridian"],
+      "result": "GitHub repository search returned zero matches."
+    },
+    {
+      "platform": "github",
+      "query": "\"joinoasis.com\" in:readme,description",
+      "companies": ["Oasis"],
+      "result": "GitHub repository search returned zero matches."
+    },
+    {
+      "platform": "github",
+      "query": "\"paypath.ai\" in:readme,description",
+      "companies": ["PayPath"],
+      "result": "One personal-finance repository surfaced, but its owner, product description, and Vercel homepage identify an unrelated name collision."
+    },
+    {
+      "platform": "github",
+      "query": "\"meetquinn.ai\" in:readme,description",
+      "companies": ["Quinn"],
+      "result": "Resolved the MeetQuinn organization plus a personal dashboard repository; only the exact company organization repositories passed native-author attribution."
+    },
+    {
+      "platform": "github",
+      "query": "\"simula.ad\" in:readme,description",
+      "companies": ["Simula"],
+      "result": "Resolved the Simula-AI-SDK organization and exact-domain SDK repositories, plus personal copies that failed company/founder authorship."
+    },
+    {
+      "platform": "github",
+      "query": "GET /orgs/MeetQuinn/repos and GET /repos/MeetQuinn/{anima,quinn-sdk}",
+      "companies": ["Quinn"],
+      "result": "Verified two current non-fork repositories with public counters; README content links @meetquinn packages, anima.meetquinn.ai, or Quinn platform business domains."
+    },
+    {
+      "platform": "github",
+      "query": "MeetQuinn repository README, contributors, commits, and public organization events",
+      "companies": ["Quinn"],
+      "result": "Confirmed active repository-level company activity; visible commit authors were engineers rather than listed founders, so accepted rows remain company-level."
+    },
+    {
+      "platform": "github",
+      "query": "GET /orgs/Simula-AI-SDK/repos plus README and latest commits",
+      "companies": ["Simula"],
+      "result": "Verified 11 public repositories; the four SDK repositories are non-forks and their READMEs link docs.simula.ad, publisher.simula.ad, and simula.ad."
+    },
+    {
+      "platform": "github",
+      "query": "Simula-AI-SDK commits filtered by author=zhenyiplusone with single-commit detail",
+      "companies": ["Simula"],
+      "result": "Mapped GitHub user zhenyiplusone to Yizhen Zhen and resolved metric-bearing founder commits across Kotlin, Swift, React Native, and core SDK repositories."
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts (\"advocatewellbeing.com\" OR \"tryaugust.com\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "companies": ["Advocate", "August", "Meridian", "Oasis"],
+      "result": "No new first-party post-level candidate with qualifying metrics resolved."
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts (\"paypath.ai\" OR \"meetquinn.ai\" OR \"simula.ad\")",
+      "companies": ["PayPath", "Quinn", "Simula"],
+      "result": "Resolved two new native Arlen Marmel Quinn posts; other results were profiles, company reposts, or third-party posts."
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts/arlenmarmel \"meetquinn.ai\" OR (\"frontline\" AND \"Quinn\")",
+      "companies": ["Quinn"],
+      "result": "Confirmed the two post-level candidates and surfaced additional profile-only activity snippets that did not expose resolvable post URLs."
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts/arlenmarmel exact phrases: hope program; create the SOPs; cannot hire people fast enough",
+      "companies": ["Quinn"],
+      "result": "Search exposed the text only inside Arlen's profile activity module; no post-level URL or native counters could be resolved, so those snippets were rejected."
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts/benjamin-anderson-6aab0914 \"meetquinn.ai\" OR (\"Claude\" AND \"Codex\")",
+      "companies": ["Quinn"],
+      "result": "A recent first-person hiring message appeared only on Benjamin Anderson's profile, without a post URL or post counters."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/*/status (\"advocatewellbeing.com\" OR \"tryaugust.com\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "companies": ["Advocate", "August", "Meridian", "Oasis"],
+      "result": "No new first-party status URL resolved beyond the accounts and Oasis posts handled in the prior shard."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/*/status (\"paypath.ai\" OR \"meetquinn.ai\" OR \"simula.ad\")",
+      "companies": ["PayPath", "Quinn", "Simula"],
+      "result": "No new first-party status URL with visible metrics resolved; Simula's known account still exposed zero statuses."
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com/products (\"advocatewellbeing.com\" OR \"tryaugust.com\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "companies": ["Advocate", "August", "Meridian", "Oasis"],
+      "result": "No exact-domain Product Hunt launch or maker comment resolved."
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com/products (\"paypath.ai\" OR \"meetquinn.ai\" OR \"simula.ad\")",
+      "companies": ["PayPath", "Quinn", "Simula"],
+      "result": "No exact-domain Product Hunt launch or maker comment resolved."
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com (\"Advocate Wellbeing\" OR \"August AI autonomous bankers\")",
+      "companies": ["Advocate", "August"],
+      "result": "Only unrelated products and generic text matches surfaced."
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com (\"Meridian\" \"trymeridian.dev\" OR \"Oasis\" \"joinoasis.com\")",
+      "companies": ["Meridian", "Oasis"],
+      "result": "No target company launch or native maker activity resolved."
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com (\"PayPath\" \"paypath.ai\" OR \"Quinn\" \"meetquinn.ai\")",
+      "companies": ["PayPath", "Quinn"],
+      "result": "No target company launch or native maker activity resolved."
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com \"Simula\" \"simula.ad\"",
+      "companies": ["Simula"],
+      "result": "No target company launch or native maker activity resolved."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch (\"Advocate Wellbeing\" OR \"August AI autonomous bankers\" OR \"Meridian consulting AI\" OR \"Oasis joinoasis\")",
+      "companies": ["Advocate", "August", "Meridian", "Oasis"],
+      "result": "No company- or founder-authored video resolved; Oasis music-band false positives were excluded."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch (\"PayPath AI\" OR \"Meet Quinn AI\" OR \"Simula AI ads\")",
+      "companies": ["PayPath", "Quinn", "Simula"],
+      "result": "No company- or founder-authored video resolved."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch \"Andrew Baran\" Advocate wellbeing",
+      "companies": ["Advocate"],
+      "result": "No relevant native video resolved."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch (\"Bar Ittah\" OR \"Tom Tankilevitch\") August AI",
+      "companies": ["August"],
+      "result": "No relevant native video resolved."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch (\"Kashyap Nathan\" OR \"Chris Farrington\") Meridian",
+      "companies": ["Meridian"],
+      "result": "No relevant native video resolved; unrelated name matches were excluded."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch (\"Stefano Delmanto\" OR \"Naveen Sharma\") Oasis",
+      "companies": ["Oasis"],
+      "result": "No relevant native video resolved; unrelated Oasis media was excluded."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch (\"Dean Glas\" OR \"Matthew Lippl\" OR \"Matthew Angelini\") PayPath",
+      "companies": ["PayPath"],
+      "result": "No relevant native video resolved."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch (\"Benjamin Anderson\" OR \"Arlen Marmel\") \"meetquinn.ai\"",
+      "companies": ["Quinn"],
+      "result": "No relevant founder-authored video resolved."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch \"Yizhen Zhen\" Simula",
+      "companies": ["Simula"],
+      "result": "No relevant founder-authored video resolved."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch \"simula.ad\"",
+      "companies": ["Simula"],
+      "result": "No exact-domain native video resolved."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com (\"advocatewellbeing.com\" OR \"tryaugust.com\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "companies": ["Advocate", "August", "Meridian", "Oasis"],
+      "result": "No exact-domain founder/company post or comment resolved."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com (\"paypath.ai\" OR \"meetquinn.ai\" OR \"simula.ad\")",
+      "companies": ["PayPath", "Quinn", "Simula"],
+      "result": "No exact-domain founder/company post or comment resolved."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com (\"Andrew Baran\" Advocate OR \"Bar Ittah\" August OR \"Tom Tankilevitch\")",
+      "companies": ["Advocate", "August"],
+      "result": "No attributable native founder post or comment resolved."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com (\"Kashyap Nathan\" Meridian OR \"Chris Farrington\" Meridian OR \"Stefano Delmanto\" OR \"Naveen Sharma\" Oasis)",
+      "companies": ["Meridian", "Oasis"],
+      "result": "No attributable native founder post or comment resolved."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com (\"Dean Glas\" OR \"Matthew Lippl\" OR \"Matthew Angelini\" OR \"Benjamin Anderson\" Quinn OR \"Arlen Marmel\")",
+      "companies": ["PayPath", "Quinn"],
+      "result": "No attributable native founder post or comment resolved."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com \"Yizhen Zhen\" Simula",
+      "companies": ["Simula"],
+      "result": "No attributable native founder post or comment resolved."
+    },
+    {
+      "platform": "instagram",
+      "query": "site:instagram.com (\"advocatewellbeing.com\" OR \"tryaugust.com\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "companies": ["Advocate", "August", "Meridian", "Oasis"],
+      "result": "No exact-domain native reel or post resolved."
+    },
+    {
+      "platform": "instagram",
+      "query": "site:instagram.com (\"paypath.ai\" OR \"meetquinn.ai\" OR \"simula.ad\")",
+      "companies": ["PayPath", "Quinn", "Simula"],
+      "result": "No exact-domain native reel or post resolved."
+    },
+    {
+      "platform": "instagram",
+      "query": "site:instagram.com (\"Andrew Baran\" OR \"Bar Ittah\" OR \"Tom Tankilevitch\")",
+      "companies": ["Advocate", "August"],
+      "result": "No attributable native founder post resolved."
+    },
+    {
+      "platform": "instagram",
+      "query": "site:instagram.com (\"Kashyap Nathan\" OR \"Chris Farrington\" OR \"Stefano Delmanto\" OR \"Naveen Sharma\")",
+      "companies": ["Meridian", "Oasis"],
+      "result": "No attributable native founder post resolved."
+    },
+    {
+      "platform": "instagram",
+      "query": "site:instagram.com (\"Dean Glas\" OR \"Matthew Lippl\" OR \"Matthew Angelini\")",
+      "companies": ["PayPath"],
+      "result": "No attributable native founder post resolved."
+    },
+    {
+      "platform": "instagram",
+      "query": "site:instagram.com (\"Benjamin Anderson\" OR \"Arlen Marmel\" OR \"Yizhen Zhen\")",
+      "companies": ["Quinn", "Simula"],
+      "result": "No attributable native founder post resolved."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia query=advocatewellbeing.com",
+      "companies": ["Advocate"],
+      "result": "0 hits."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia query=tryaugust.com",
+      "companies": ["August"],
+      "result": "0 hits."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia query=trymeridian.dev",
+      "companies": ["Meridian"],
+      "result": "0 hits."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia query=joinoasis.com",
+      "companies": ["Oasis"],
+      "result": "0 hits."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia query=paypath.ai",
+      "companies": ["PayPath"],
+      "result": "0 hits."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia query=meetquinn.ai",
+      "companies": ["Quinn"],
+      "result": "0 hits."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia query=simula.ad",
+      "companies": ["Simula"],
+      "result": "0 hits."
+    }
+  ],
+  "accepted": [
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "founderName": "Arlen Marmel",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/arlenmarmel_why-frontline-training-fails-real-insights-activity-7469821319237410819-QnOe",
+      "platformPostId": "7469821319237410819",
+      "postedAt": "2026-06-08T18:43:05.057Z",
+      "author": {
+        "name": "Arlen Marmel",
+        "handle": "arlenmarmel",
+        "profileUrl": "https://www.linkedin.com/in/arlenmarmel",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 5,
+        "comments": 0,
+        "metricSource": "Native LinkedIn SocialMediaPosting JSON-LD interactionStatistic counters fetched from the post URL."
+      },
+      "nativeEvidence": {
+        "headline": "Making the module takes a million of years to be honest with you.",
+        "visibleTextSignals": [
+          "The founder says his team has talked to hundreds of companies with frontline workers across HVAC distribution, pest control, and manufacturing.",
+          "The post describes inconsistent apprenticeship practices, technical bulletins that go unread, and a manager unable to map training to 30-plus technicians.",
+          "The native link preview is titled Why Frontline Training Fails: Real Insights from 100+ Calls and visibly identifies meetquinn.ai."
+        ],
+        "verificationMethod": "Fetched the native LinkedIn post; parsed datePublished, headline, articleBody, author, LikeAction count, CommentAction count, and the visible meetquinn.ai link-preview title from the page."
+      },
+      "attributionSignals": [
+        "The native URL is under the arlenmarmel author path.",
+        "LinkedIn JSON-LD names Arlen Marmel and links his profile.",
+        "The post's native preview visibly names meetquinn.ai, matching Quinn's verified company domain."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/arlenmarmel_why-frontline-training-fails-real-insights-activity-7469821319237410819-QnOe",
+        "canonicalPlatformPostId": "7469821319237410819",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json"
+        ],
+        "checkedAt": "2026-07-16T01:13:30Z"
+      }
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "founderName": "Arlen Marmel",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/arlenmarmel_scale-training-capacity-beyond-limited-windows-activity-7468638529665863680-ds-F",
+      "platformPostId": "7468638529665863680",
+      "postedAt": "2026-06-05T12:23:06.047Z",
+      "author": {
+        "name": "Arlen Marmel",
+        "handle": "arlenmarmel",
+        "profileUrl": "https://www.linkedin.com/in/arlenmarmel",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 3,
+        "comments": 0,
+        "metricSource": "Native LinkedIn SocialMediaPosting JSON-LD interactionStatistic counters fetched from the post URL."
+      },
+      "nativeEvidence": {
+        "headline": "Nothing sticks past that first in-person session.",
+        "visibleTextSignals": [
+          "The founder describes training-capacity constraints across a pest-control company serving 800-plus employees, HVAC contractors, restaurants, and a company with 90 percent annual new staff.",
+          "The post argues for micro-learning, just-in-time support, and automated reinforcement rather than trying to clone trainers or scale road shows.",
+          "The native link preview is titled Scale training capacity beyond limited windows and visibly identifies meetquinn.ai."
+        ],
+        "verificationMethod": "Fetched the native LinkedIn post; parsed datePublished, headline, articleBody, author, LikeAction count, CommentAction count, and the visible meetquinn.ai link-preview title from the page."
+      },
+      "attributionSignals": [
+        "The native URL is under the arlenmarmel author path.",
+        "LinkedIn JSON-LD names Arlen Marmel and links his profile.",
+        "The post's native preview visibly names meetquinn.ai, matching Quinn's verified company domain."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/arlenmarmel_scale-training-capacity-beyond-limited-windows-activity-7468638529665863680-ds-F",
+        "canonicalPlatformPostId": "7468638529665863680",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json"
+        ],
+        "checkedAt": "2026-07-16T01:13:30Z"
+      }
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "company_repository_activity",
+      "sourceUrl": "https://github.com/MeetQuinn/anima",
+      "platformPostId": "MeetQuinn/anima",
+      "postedAt": "2026-07-15T17:39:18Z",
+      "author": {
+        "name": "Quinn",
+        "handle": "MeetQuinn",
+        "profileUrl": "https://github.com/MeetQuinn",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 3,
+        "forks": 0,
+        "subscribers": 0,
+        "openIssues": 12,
+        "repositorySizeKb": 24374,
+        "metricSource": "GitHub repository API counters fetched from the native repository URL."
+      },
+      "nativeEvidence": {
+        "headline": "AI teammates in your Slack, building shared team context.",
+        "visibleTextSignals": [
+          "The README says Anima turns coding agents into named, durable teammates that a team can work with in Slack.",
+          "The repository links the @meetquinn/animactl package and exact-domain documentation and installation URLs under anima.meetquinn.ai.",
+          "The repository is a current non-fork TypeScript project with an Apache-2.0 license and a latest push on July 15, 2026."
+        ],
+        "verificationMethod": "Fetched the native GitHub repository, README, API metadata, contributors, latest commits, and organization events; recorded repository counters and pushedAt directly from GitHub."
+      },
+      "attributionSignals": [
+        "Repository owner is the company-branded MeetQuinn GitHub organization.",
+        "README package scope is @meetquinn and documentation is hosted on the verified meetquinn.ai domain.",
+        "Repository is non-fork and has current first-party organization activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/MeetQuinn/anima",
+        "canonicalPlatformPostId": "MeetQuinn/anima",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json"
+        ],
+        "checkedAt": "2026-07-16T01:13:30Z"
+      }
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "company_repository_activity",
+      "sourceUrl": "https://github.com/MeetQuinn/quinn-sdk",
+      "platformPostId": "MeetQuinn/quinn-sdk",
+      "postedAt": "2026-07-01T14:34:51Z",
+      "author": {
+        "name": "Quinn",
+        "handle": "MeetQuinn",
+        "profileUrl": "https://github.com/MeetQuinn",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "subscribers": 0,
+        "openIssues": 1,
+        "repositorySizeKb": 184,
+        "metricSource": "GitHub repository API counters fetched from the native repository URL."
+      },
+      "nativeEvidence": {
+        "headline": "Typed TypeScript SDK for Quinn Platform.",
+        "visibleTextSignals": [
+          "The README identifies @kaizenlabs/quinn-sdk as an organization-scoped client for the Quinn Platform.",
+          "It names Quinn business domains including members, roles, courses, assignments, sign-off, groups, programs, and knowledge.",
+          "The repository is a non-fork TypeScript project with an Apache-2.0 license and a latest push on July 1, 2026."
+        ],
+        "verificationMethod": "Fetched the native GitHub repository, README, API metadata, contributors, and latest commits; recorded repository counters and pushedAt directly from GitHub."
+      },
+      "attributionSignals": [
+        "Repository owner is the company-branded MeetQuinn GitHub organization.",
+        "README repeatedly identifies the Quinn Platform and product-specific business domains.",
+        "Repository is non-fork and has current first-party organization activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/MeetQuinn/quinn-sdk",
+        "canonicalPlatformPostId": "MeetQuinn/quinn-sdk",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json"
+        ],
+        "checkedAt": "2026-07-16T01:13:30Z"
+      }
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Simula",
+      "companySlug": "simula",
+      "founderName": "Yizhen Zhen",
+      "platform": "github",
+      "evidenceType": "founder_repository_commit",
+      "sourceUrl": "https://github.com/Simula-AI-SDK/simula-ad-sdk-kotlin/commit/11709687a966f26f9932bfef08adf724108cc989",
+      "platformPostId": "11709687a966f26f9932bfef08adf724108cc989",
+      "postedAt": "2026-07-14T13:21:30Z",
+      "author": {
+        "name": "Yizhen Zhen",
+        "handle": "zhenyiplusone",
+        "profileUrl": "https://github.com/zhenyiplusone",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "additions": 148,
+        "deletions": 11,
+        "totalChanges": 159,
+        "filesChanged": 5,
+        "commitComments": 0,
+        "repositoryStars": 0,
+        "repositoryForks": 0,
+        "repositoryOpenIssues": 1,
+        "metricSource": "GitHub single-commit and repository API counters fetched from the native URLs."
+      },
+      "nativeEvidence": {
+        "headline": "Merge pull request #40 from Simula-AI-SDK/dev - Dev -> Main - Release 07-14",
+        "visibleTextSignals": [
+          "The founder merged the July 14 release into the Simula Android/Kotlin ad SDK.",
+          "The public commit changes 159 lines across five files.",
+          "The repository README describes AI-powered native, interstitial, and rewarded ads and links docs.simula.ad, publisher.simula.ad, and simula.ad."
+        ],
+        "verificationMethod": "Fetched the native GitHub commit and repository; verified author login/name/date/message, diff statistics, repository counters, and exact-domain README links through GitHub's public API and raw README."
+      },
+      "attributionSignals": [
+        "GitHub resolves commit author zhenyiplusone to the exact name Yizhen Zhen.",
+        "The A16ZSR006 company record lists Yizhen Zhen as Simula's founder.",
+        "The commit is inside the Simula-AI-SDK organization and the repository README links the verified simula.ad domain."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/Simula-AI-SDK/simula-ad-sdk-kotlin/commit/11709687a966f26f9932bfef08adf724108cc989",
+        "canonicalPlatformPostId": "11709687a966f26f9932bfef08adf724108cc989",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json"
+        ],
+        "checkedAt": "2026-07-16T01:13:30Z"
+      }
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Simula",
+      "companySlug": "simula",
+      "founderName": "Yizhen Zhen",
+      "platform": "github",
+      "evidenceType": "founder_repository_commit",
+      "sourceUrl": "https://github.com/Simula-AI-SDK/simula-ad-sdk-swift/commit/5e28c5e37da6d987cec0b10457993a98fb79687c",
+      "platformPostId": "5e28c5e37da6d987cec0b10457993a98fb79687c",
+      "postedAt": "2026-07-09T22:24:40Z",
+      "author": {
+        "name": "Yizhen Zhen",
+        "handle": "zhenyiplusone",
+        "profileUrl": "https://github.com/zhenyiplusone",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "additions": 29,
+        "deletions": 4,
+        "totalChanges": 33,
+        "filesChanged": 1,
+        "commitComments": 0,
+        "repositoryStars": 0,
+        "repositoryForks": 0,
+        "repositoryOpenIssues": 1,
+        "metricSource": "GitHub single-commit and repository API counters fetched from the native URLs."
+      },
+      "nativeEvidence": {
+        "headline": "Native ad fix",
+        "visibleTextSignals": [
+          "The founder authored a native-ad fix in Simula's Swift SDK repository.",
+          "The public commit changes 33 lines in one file.",
+          "The repository README describes Simula's iOS native, interstitial, and rewarded ads and links docs.simula.ad, publisher.simula.ad, and simula.ad."
+        ],
+        "verificationMethod": "Fetched the native GitHub commit and repository; verified author login/name/date/message, diff statistics, repository counters, and exact-domain README links through GitHub's public API and raw README."
+      },
+      "attributionSignals": [
+        "GitHub resolves commit author zhenyiplusone to the exact name Yizhen Zhen.",
+        "The A16ZSR006 company record lists Yizhen Zhen as Simula's founder.",
+        "The commit is inside the Simula-AI-SDK organization and the repository README links the verified simula.ad domain."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/Simula-AI-SDK/simula-ad-sdk-swift/commit/5e28c5e37da6d987cec0b10457993a98fb79687c",
+        "canonicalPlatformPostId": "5e28c5e37da6d987cec0b10457993a98fb79687c",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json"
+        ],
+        "checkedAt": "2026-07-16T01:13:30Z"
+      }
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Simula",
+      "companySlug": "simula",
+      "founderName": "Yizhen Zhen",
+      "platform": "github",
+      "evidenceType": "founder_repository_commit",
+      "sourceUrl": "https://github.com/Simula-AI-SDK/simula-ad-sdk-react-native/commit/7a51abafc1a825bed71010845b9124e964a19deb",
+      "platformPostId": "7a51abafc1a825bed71010845b9124e964a19deb",
+      "postedAt": "2026-06-15T11:00:26Z",
+      "author": {
+        "name": "Yizhen Zhen",
+        "handle": "zhenyiplusone",
+        "profileUrl": "https://github.com/zhenyiplusone",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "additions": 24,
+        "deletions": 395,
+        "totalChanges": 419,
+        "filesChanged": 1,
+        "commitComments": 0,
+        "repositoryStars": 0,
+        "repositoryForks": 0,
+        "repositoryOpenIssues": 0,
+        "metricSource": "GitHub single-commit and repository API counters fetched from the native URLs."
+      },
+      "nativeEvidence": {
+        "headline": "Update README to standard format linking to docs.simula.ad",
+        "visibleTextSignals": [
+          "The founder authored the README update that exposes Simula's exact-domain SDK documentation.",
+          "The public commit changes 419 lines in one file.",
+          "The resulting README describes React Native ad formats and links docs.simula.ad, publisher.simula.ad, and simula.ad."
+        ],
+        "verificationMethod": "Fetched the native GitHub commit and repository; verified author login/name/date/message, diff statistics, repository counters, and exact-domain README links through GitHub's public API and raw README."
+      },
+      "attributionSignals": [
+        "GitHub resolves commit author zhenyiplusone to the exact name Yizhen Zhen.",
+        "The A16ZSR006 company record lists Yizhen Zhen as Simula's founder.",
+        "The commit is inside the Simula-AI-SDK organization and explicitly links the verified simula.ad domain."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/Simula-AI-SDK/simula-ad-sdk-react-native/commit/7a51abafc1a825bed71010845b9124e964a19deb",
+        "canonicalPlatformPostId": "7a51abafc1a825bed71010845b9124e964a19deb",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json"
+        ],
+        "checkedAt": "2026-07-16T01:13:30Z"
+      }
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Simula",
+      "companySlug": "simula",
+      "founderName": "Yizhen Zhen",
+      "platform": "github",
+      "evidenceType": "founder_repository_commit",
+      "sourceUrl": "https://github.com/Simula-AI-SDK/simula-ad-sdk/commit/4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
+      "platformPostId": "4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
+      "postedAt": "2026-04-27T23:57:15Z",
+      "author": {
+        "name": "Yizhen Zhen",
+        "handle": "zhenyiplusone",
+        "profileUrl": "https://github.com/zhenyiplusone",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "additions": 347,
+        "deletions": 218,
+        "totalChanges": 565,
+        "filesChanged": 13,
+        "commitComments": 0,
+        "repositoryStars": 0,
+        "repositoryForks": 0,
+        "repositoryOpenIssues": 3,
+        "metricSource": "GitHub single-commit and repository API counters fetched from the native URLs."
+      },
+      "nativeEvidence": {
+        "headline": "logging improvement",
+        "visibleTextSignals": [
+          "The founder authored a logging improvement in Simula's core ad SDK repository.",
+          "The public commit changes 565 lines across 13 files.",
+          "The repository is a non-fork TypeScript SDK under the exact Simula-AI-SDK organization and carries an MIT license."
+        ],
+        "verificationMethod": "Fetched the native GitHub commit and repository; verified author login/name/date/message, diff statistics, repository counters, organization ownership, and repository metadata through GitHub's public API."
+      },
+      "attributionSignals": [
+        "GitHub resolves commit author zhenyiplusone to the exact name Yizhen Zhen.",
+        "The A16ZSR006 company record lists Yizhen Zhen as Simula's founder.",
+        "The commit is inside the exact product-named Simula-AI-SDK/simula-ad-sdk repository."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/Simula-AI-SDK/simula-ad-sdk/commit/4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
+        "canonicalPlatformPostId": "4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json"
+        ],
+        "checkedAt": "2026-07-16T01:13:30Z"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "companyName": "Advocate",
+      "companySlug": "advocate",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/company/advocate-wellbeing/",
+      "platformPostId": null,
+      "reason": "profile_only_no_native_post_url",
+      "details": "The company website corroborates this as Advocate's company page, but a profile is not a native post and no qualifying post URL with visible metrics resolved.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Advocate",
+      "companySlug": "advocate",
+      "platform": "company_website",
+      "sourceUrl": "https://advocatewellbeing.com",
+      "platformPostId": null,
+      "reason": "homepage_not_native_activity",
+      "details": "The homepage verifies company identity but is not a native post and exposes no post-level audience metrics.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "August",
+      "companySlug": "august",
+      "platform": "company_website",
+      "sourceUrl": "https://tryaugust.com",
+      "platformPostId": null,
+      "reason": "homepage_not_native_activity",
+      "details": "The homepage is not a native post and exposes no blog entry or post-level audience metrics.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Meridian",
+      "companySlug": "meridian",
+      "platform": "company_website",
+      "sourceUrl": "https://trymeridian.dev/blog/why-km-keeps-failing",
+      "platformPostId": null,
+      "reason": "native_blog_no_visible_metrics",
+      "details": "This is a substantive first-party Meridian Team article dated January 28, 2026, but its six-minute reading-time label is not an audience metric and it exposes no views, reactions, or comments.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Meridian",
+      "companySlug": "meridian",
+      "platform": "company_website",
+      "sourceUrl": "https://trymeridian.dev/blog/mid-market",
+      "platformPostId": null,
+      "reason": "native_blog_no_visible_metrics",
+      "details": "First-party article content resolved, but no qualifying view, reaction, or comment counter is visible.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Oasis",
+      "companySlug": "oasis",
+      "platform": "company_website",
+      "sourceUrl": "https://joinoasis.com",
+      "platformPostId": null,
+      "reason": "homepage_not_native_activity",
+      "details": "The current coming-soon page is not a native post and exposes no audience metrics.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "PayPath",
+      "companySlug": "paypath",
+      "platform": "company_website",
+      "sourceUrl": "https://paypath.ai",
+      "platformPostId": null,
+      "reason": "homepage_not_native_activity",
+      "details": "The homepage is not native activity and exposes no blog post or visible post-level metrics.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/company/meetquinn",
+      "platformPostId": null,
+      "reason": "repost_feed_or_company_profile_no_native_post",
+      "details": "The official company page mainly surfaced reposts of founder or third-party posts. Profiles and company reposts are disallowed, and no new native company-authored post URL resolved.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "founderName": "Benjamin Anderson",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/benjamin-anderson-6aab0914",
+      "platformPostId": null,
+      "reason": "profile_only_no_native_post_url",
+      "details": "A recent first-person Quinn hiring message is visible in the profile activity module, but searches did not resolve a post URL or native post counters. The profile itself cannot be imported as evidence.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "founderName": "Arlen Marmel",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/arlenmarmel",
+      "platformPostId": null,
+      "reason": "profile_only_no_native_post_url",
+      "details": "Several additional current activity snippets were visible, including the hope-program and SOP quotes, but their native post URLs and counters could not be resolved. Only the two post-level URLs in accepted were retained.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "platform": "github",
+      "sourceUrl": "https://github.com/jkimhap/quinn-gtm-dashboard",
+      "platformPostId": "jkimhap/quinn-gtm-dashboard",
+      "reason": "third_party_repo_not_company_or_founder",
+      "details": "The repository is owned by a personal GitHub account that is not mapped to Quinn or either listed founder; its name alone is insufficient attribution.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "PayPath",
+      "companySlug": "paypath",
+      "platform": "github",
+      "sourceUrl": "https://github.com/magana272/PayPath",
+      "platformPostId": "magana272/PayPath",
+      "reason": "name_collision_unrelated_company",
+      "details": "This personal-finance dashboard is owned by magana272 and links a different Vercel application; it is unrelated to the A16Z PayPath debt platform and its founders.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Simula",
+      "companySlug": "simula",
+      "platform": "github",
+      "sourceUrl": "https://github.com/ffahadMalikk/Simula-Ad-SDK",
+      "platformPostId": "ffahadMalikk/Simula-Ad-SDK",
+      "reason": "third_party_repo_not_company_or_founder",
+      "details": "The repository mentions simula.ad but is owned by an unmapped personal account, not Simula-AI-SDK or listed founder Yizhen Zhen; native author attribution therefore fails.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Simula",
+      "companySlug": "simula",
+      "platform": "x",
+      "sourceUrl": "https://x.com/simula_ad",
+      "platformPostId": null,
+      "reason": "profile_has_no_native_posts",
+      "details": "The exact-name account identifies Simula and simula.ad but exposes zero statuses. A profile with no native post cannot qualify.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Simula",
+      "companySlug": "simula",
+      "platform": "x",
+      "sourceUrl": "https://x.com/simulaai",
+      "platformPostId": null,
+      "reason": "stale_or_unresolved_profile",
+      "details": "The company website's twitter:creator metadata names @simulaai, but the public timeline endpoint did not resolve an account or any native status.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Advocate",
+      "companySlug": "advocate",
+      "platform": "product_hunt",
+      "sourceUrl": "https://www.producthunt.com/products/pine-10",
+      "platformPostId": null,
+      "reason": "name_collision_unrelated_company",
+      "details": "Search matched generic advocate language on Pine, an unrelated billing-negotiation product with a different domain and team.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    },
+    {
+      "companyName": "Oasis",
+      "companySlug": "oasis",
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=ajGoIsB7uDE",
+      "platformPostId": "ajGoIsB7uDE",
+      "reason": "third_party_media",
+      "details": "This is third-party media about the British band Oasis, not founder/company-authored activity for joinoasis.com.",
+      "checkedAt": "2026-07-16T01:13:30Z"
+    }
+  ],
+  "duplicateUrls": [],
+  "productivity": {
+    "queriesPerformed": 61,
+    "companiesSearched": 7,
+    "platformsSearched": [
+      "company_website",
+      "x",
+      "linkedin",
+      "instagram",
+      "youtube",
+      "reddit",
+      "github",
+      "product_hunt",
+      "hacker_news"
+    ],
+    "accepted": 8,
+    "rejected": 17,
+    "duplicates": 0,
+    "acceptedFounderEvidence": 6,
+    "acceptedCompanyEvidence": 2,
+    "acceptedByCompany": {
+      "Quinn": 4,
+      "Simula": 4
+    },
+    "acceptedByPlatform": {
+      "linkedin": 2,
+      "github": 6
+    },
+    "zeroAcceptedCompanies": ["Advocate", "August", "Meridian", "Oasis", "PayPath"],
+    "rejectionsByReason": {
+      "homepage_not_native_activity": 4,
+      "profile_only_no_native_post_url": 3,
+      "native_blog_no_visible_metrics": 2,
+      "repost_feed_or_company_profile_no_native_post": 1,
+      "third_party_repo_not_company_or_founder": 2,
+      "name_collision_unrelated_company": 2,
+      "profile_has_no_native_posts": 1,
+      "stale_or_unresolved_profile": 1,
+      "third_party_media": 1
+    }
+  }
+}

@@ -1,0 +1,660 @@
+{
+  "generatedAt": "2026-07-16T01:00:30Z",
+  "batch": "S26",
+  "topVoiceAudience": "yc_partners",
+  "shard": "s26-yc-partners-people-only-sol-ultra",
+  "mode": "source-discovery-validation-only",
+  "imported": false,
+  "scope": {
+    "peopleOnly": true,
+    "topVoiceSource": "src/lib/social/top-voices.ts#ycPartnerSeeds",
+    "topVoicePeopleCount": 18,
+    "companySource": "src/lib/yc/summer-2026-companies.json",
+    "companyCount": 83,
+    "acceptanceRule": "Accept only a native post, article, or comment authored by a real person in ycPartnerSeeds, with a post-level URL, visible native metrics, timestamp when available, and explicit attribution in the authored text or native quote/reply context to one local S26 company, founder, handle, or domain.",
+    "excluded": [
+      "Y Combinator and Y Combinator Community accounts",
+      "YC organization accounts",
+      "company accounts",
+      "founder accounts",
+      "company or founder reposts",
+      "likes without a partner-authored post",
+      "third-party posts that quote or thank a partner",
+      "generic S26 or YC content without one specific local S26 company attribution"
+    ]
+  },
+  "preflightRead": [
+    "outputs/source-hunt/search-ledger.json",
+    "outputs/source-hunt/coverage-matrix.json",
+    "outputs/source-hunt/agent-queue.json",
+    "outputs/source-hunt/validated-candidates.json",
+    "outputs/source-hunt/rejected-candidates.json",
+    "outputs/source-hunt/run-progress.json",
+    "src/lib/social/top-voices.ts"
+  ],
+  "dedupe": {
+    "checkedBeforeSearch": true,
+    "baselineGeneratedAt": "2026-07-15T23:59:00.000Z",
+    "baselineCounts": {
+      "completedSearches": 176,
+      "sourceUrls": 499,
+      "platformPostIds": 347,
+      "candidates": 904,
+      "validatedCandidates": 29,
+      "rejectedCandidates": 875,
+      "knownTopVoicePeople": 68
+    },
+    "checkedAgainst": [
+      "outputs/source-hunt/search-ledger.json",
+      "outputs/source-hunt/validated-candidates.json",
+      "outputs/source-hunt/rejected-candidates.json",
+      "outputs/source-hunt/s26-topvoices-tenth-pass.json",
+      "outputs/source-hunt/summer-topvoices-eighth-pass.json",
+      "outputs/source-hunt/summer-topvoices-seventh-pass.json",
+      "outputs/source-hunt/topvoices-ninth-pass.json"
+    ],
+    "method": "Exact platform-post-ID scan plus normalized post-URL scan before candidate validation. Previously completed query families were reviewed and not rerun.",
+    "knownDuplicateRowsImported": 0,
+    "knownDuplicateRowsAccepted": 0,
+    "newRowsWithLedgerCollision": 0
+  },
+  "topVoicePeopleSearched": [
+    {
+      "personId": "garry-tan",
+      "name": "Garry Tan",
+      "handles": {
+        "x": "garrytan",
+        "linkedin": "garrytan"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile review plus new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "harj-taggar",
+      "name": "Harj Taggar",
+      "handles": {
+        "x": "harjtaggar",
+        "linkedin": "harjtaggar"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile review plus new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "jared-friedman",
+      "name": "Jared Friedman",
+      "handles": {
+        "x": "snowmaker",
+        "linkedin": "jaredfriedman"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile review plus new exact-author index fallback",
+        "result": "one net-new native post rejected for no specific local S26 attribution; known rows skipped"
+      }
+    },
+    {
+      "personId": "aaron-epstein",
+      "name": "Aaron Epstein",
+      "handles": {
+        "x": "aaron_epstein",
+        "linkedin": "aaron-epstein"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "diana-hu",
+      "name": "Diana Hu",
+      "handles": {
+        "x": null,
+        "linkedin": "dianajhu"
+      },
+      "coverage": {
+        "x": "supplemental name-matched profile checked but not used as author proof because the source roster has no X handle",
+        "linkedin": "public profile attempt plus new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "gustaf-alstromer",
+      "name": "Gustaf Alströmer",
+      "handles": {
+        "x": "gustaf",
+        "linkedin": "gustafalstromer"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile review plus new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "nicolas-dessaigne",
+      "name": "Nicolas Dessaigne",
+      "handles": {
+        "x": "dessaigne",
+        "linkedin": "dessaigne"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "tom-blomfield",
+      "name": "Tom Blomfield",
+      "handles": {
+        "x": "t_blom",
+        "linkedin": "tomblomfield"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile review plus new exact-author index fallback",
+        "result": "organization and third-party attributions found, but no native person-authored company-specific S26 source"
+      }
+    },
+    {
+      "personId": "brad-flora",
+      "name": "Brad Flora",
+      "handles": {
+        "x": "bradflora",
+        "linkedin": "bradflora"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile review plus new exact-author index fallback",
+        "result": "one net-new founder-authored mention rejected; no native partner-authored qualifying source"
+      }
+    },
+    {
+      "personId": "pete-koomen",
+      "name": "Pete Koomen",
+      "handles": {
+        "x": "pkoomen",
+        "linkedin": "petekoomen"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile review plus new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "ankit-gupta",
+      "name": "Ankit Gupta",
+      "handles": {
+        "x": "agupta",
+        "linkedin": "guptaankit"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "current public profile and native activity refresh; completed exact searches were not repeated",
+        "result": "known person-authored rows and founder reposts skipped; no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "tyler-bosmeny",
+      "name": "Tyler Bosmeny",
+      "handles": {
+        "x": "bosmeny",
+        "linkedin": "tylerbosmeny"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "current public profile and native activity refresh; completed exact searches were not repeated",
+        "result": "known person-authored rows skipped and one net-new founder-authored mention rejected"
+      }
+    },
+    {
+      "personId": "david-lieb",
+      "name": "David Lieb",
+      "handles": {
+        "x": "dflieb",
+        "linkedin": "davidlieb"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile review plus new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "andrew-miklas",
+      "name": "Andrew Miklas",
+      "handles": {
+        "x": null,
+        "linkedin": "andrewmiklas"
+      },
+      "coverage": {
+        "x": "not applicable; no source-listed X handle",
+        "linkedin": "public profile attempt plus new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "harshita-arora",
+      "name": "Harshita Arora",
+      "handles": {
+        "x": "harshitaarora",
+        "linkedin": "harshitaapps"
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "public profile attempt plus new exact-author index fallback",
+        "result": "organization attribution found, but no native person-authored company-specific S26 source"
+      }
+    },
+    {
+      "personId": "jon-xu",
+      "name": "Jon Xu",
+      "handles": {
+        "x": null,
+        "linkedin": "jonxu"
+      },
+      "coverage": {
+        "x": "supplemental name-matched profile checked but not used as author proof because the source roster has no X handle",
+        "linkedin": "public profile attempt plus new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "grey-baker",
+      "name": "Grey Baker",
+      "handles": {
+        "x": "greybaker",
+        "linkedin": [
+          "greybaker",
+          "greysteil"
+        ]
+      },
+      "coverage": {
+        "x": "fresh recent-profile mirror and unledgered status validation",
+        "linkedin": "new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    },
+    {
+      "personId": "chris-golda",
+      "name": "Chris Golda",
+      "handles": {
+        "x": null,
+        "linkedin": "chris-golda"
+      },
+      "coverage": {
+        "x": "not applicable; no source-listed X handle",
+        "linkedin": "new exact-author index fallback",
+        "result": "no net-new qualifying S26 source"
+      }
+    }
+  ],
+  "searches": [
+    {
+      "searchId": "s26-ycp-sol-ultra-001",
+      "platform": "dedupe",
+      "query": "Exact URL and platform-post-ID membership scan across the required ledger, validated, rejected, queue, progress, and prior S26 top-voice artifacts",
+      "status": "completed",
+      "outcome": "Established a 499-URL and 347-post-ID baseline; all four rows retained below are net-new to the baseline.",
+      "checkedAt": "2026-07-16T01:00:30Z"
+    },
+    {
+      "searchId": "s26-ycp-sol-ultra-002",
+      "platform": "x",
+      "query": "Fresh TwStalker recent-profile card sweep for every source-listed yc_partners X handle, with two supplemental name-matched profiles isolated from author-proof decisions",
+      "status": "completed",
+      "coverage": {
+        "sourceListedProfiles": 14,
+        "supplementalProfiles": 2,
+        "recentCardsParsed": 143,
+        "companySignalsMatchedAgainst": 83
+      },
+      "outcome": "Only already-ledgered Tyler Bosmeny company matches surfaced. No new X candidate was retained.",
+      "checkedAt": "2026-07-16T01:00:30Z"
+    },
+    {
+      "searchId": "s26-ycp-sol-ultra-003",
+      "platform": "x",
+      "query": "FxTwitter post-level API validation of every fresh mirror status ID absent from search-ledger.json",
+      "status": "completed",
+      "coverage": {
+        "previouslyUnledgeredStatusIdsChecked": 133,
+        "apiErrors": 0,
+        "specificS26AttributionHits": 0
+      },
+      "outcome": "No unledgered person-authored X status named a local S26 company, founder, handle, or domain.",
+      "checkedAt": "2026-07-16T01:00:30Z"
+    },
+    {
+      "searchId": "s26-ycp-sol-ultra-004",
+      "platform": "linkedin",
+      "query": "Native public profile and activity review for Garry Tan, Harj Taggar, Jared Friedman, Gustaf Alströmer, Tom Blomfield, Brad Flora, Pete Koomen, Ankit Gupta, Tyler Bosmeny, and David Lieb",
+      "status": "completed-with-public-visibility-limits",
+      "outcome": "Current authored posts, shares, repost labels, and likes were separated. The company-attributed person-authored rows visible for Ankit, Tyler, and Jared were already ledgered; founder/company reposts and likes were excluded.",
+      "checkedAt": "2026-07-16T01:00:30Z"
+    },
+    {
+      "searchId": "s26-ycp-sol-ultra-005",
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts/{authorSlug} (\"YC S26\" OR \"Summer 2026\")",
+      "expandedAuthorSlugs": [
+        "petekoomen",
+        "davidlieb",
+        "andrewmiklas",
+        "chris-golda",
+        "aaron-epstein",
+        "dessaigne",
+        "harjtaggar",
+        "garrytan",
+        "tomblomfield",
+        "dianajhu",
+        "gustafalstromer",
+        "jaredfriedman",
+        "bradflora",
+        "harshitaapps",
+        "jonxu",
+        "greybaker"
+      ],
+      "status": "completed",
+      "outcome": "Sixteen new exact-author queries produced no qualifying person-authored company-specific S26 row. Results were founder announcements, YC-org posts, third-party quotations, unrelated Summer 2026 content, one generic Jared post, or empty.",
+      "checkedAt": "2026-07-16T01:00:30Z"
+    },
+    {
+      "searchId": "s26-ycp-sol-ultra-006",
+      "platform": "linkedin",
+      "query": "Open and validate each net-new post-level candidate against native heading, author identity, visible metrics, local S26 roster, and top-voice roster",
+      "status": "completed",
+      "outcome": "Four net-new URLs were rejected: two founder-authored announcements, one generic partner-authored post without company attribution, and one YC-org post attributed to partners.",
+      "checkedAt": "2026-07-16T01:00:30Z"
+    },
+    {
+      "searchId": "s26-ycp-sol-ultra-007",
+      "platform": "hacker_news",
+      "query": "Prior exact-name sweep across all 83 S26 companies, top-voice handles, and S26 variants",
+      "status": "not-repeated-ledger-complete",
+      "outcome": "The completed HN Algolia query family in s26-topvoices-tenth-pass.json was reviewed; it had no net-new qualifying comment and was not duplicated.",
+      "checkedAt": "2026-07-16T01:00:30Z"
+    },
+    {
+      "searchId": "s26-ycp-sol-ultra-008",
+      "platform": "youtube_reddit_product_hunt",
+      "query": "Prior partner-name plus S26 company/founder searches on YouTube, Reddit, and Product Hunt",
+      "status": "not-repeated-ledger-complete",
+      "outcome": "Completed cross-platform query families in the seventh, eighth, ninth, and tenth passes were reviewed and not rerun; none supplied an unledgered qualifying people-only row.",
+      "checkedAt": "2026-07-16T01:00:30Z"
+    }
+  ],
+  "accepted": [],
+  "rejected": [
+    {
+      "rowId": "s26-ycp-sol-ultra-reject-001",
+      "batch": "S26",
+      "topVoiceAudience": "yc_partners",
+      "topVoice": {
+        "personId": "tyler-bosmeny",
+        "name": "Tyler Bosmeny",
+        "handle": "tylerbosmeny"
+      },
+      "company": {
+        "id": "32586",
+        "slug": "greypoint-industries",
+        "name": "Greypoint Industries"
+      },
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/sxu22_excited-to-announce-that-greypoint-industries-activity-7477827440313069569-a4Zf",
+      "platformPostId": "7477827440313069569",
+      "postedAt": "2026-06-30T20:56:33.085Z",
+      "postedAtVisible": "2w",
+      "text": "Steven Xu announces that Greypoint Industries joined S26 and thanks Tyler Bosmeny as the company's YC partner.",
+      "metrics": {
+        "reactions": 142,
+        "comments": 16,
+        "reposts": null,
+        "views": null,
+        "capturedAt": "2026-07-16T01:00:30Z"
+      },
+      "nativeAuthorProof": {
+        "authorName": "Steven Xu",
+        "authorHandle": "sxu22",
+        "authorProfileUrl": "https://www.linkedin.com/in/sxu22/",
+        "proof": "The native public page heading is Steven Xu's Post, and the local S26 roster lists Steven Xu as a Greypoint Industries co-founder.",
+        "isTopVoicePerson": false
+      },
+      "attributionProof": {
+        "specificS26Attribution": true,
+        "matchedSignals": [
+          "Greypoint Industries (YC S26)",
+          "Tyler Bosmeny, our YC Partner"
+        ],
+        "proof": "The authored text explicitly names the company, batch, and partner."
+      },
+      "verificationMethod": [
+        "opened native public LinkedIn post",
+        "confirmed native author heading",
+        "matched Steven Xu to the local S26 founder roster",
+        "captured visible native reaction and comment counters",
+        "decoded the LinkedIn activity ID timestamp and retained the visible relative timestamp"
+      ],
+      "checkedAt": "2026-07-16T01:00:30Z",
+      "dedupeChecks": {
+        "normalizedSourceUrlSeenBefore": false,
+        "platformPostIdSeenBefore": false,
+        "checkedAgainstRequiredLedgers": true
+      },
+      "rejectionReasonCodes": [
+        "founder_authored_not_top_voice"
+      ],
+      "rejectionReason": "The native author is an S26 founder, not Tyler Bosmeny. Thanking a partner does not make the post partner-authored."
+    },
+    {
+      "rowId": "s26-ycp-sol-ultra-reject-002",
+      "batch": "S26",
+      "topVoiceAudience": "yc_partners",
+      "topVoice": {
+        "personId": "brad-flora",
+        "name": "Brad Flora",
+        "handle": "bradflora"
+      },
+      "company": {
+        "id": "33023",
+        "slug": "levocred-ai",
+        "name": "Levocred AI"
+      },
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/gupsak_last-year-i-quit-my-job-to-build-my-own-startup-activity-7475449697017421825-Brcl",
+      "platformPostId": "7475449697017421825",
+      "postedAt": "2026-06-24T07:28:14.907Z",
+      "postedAtVisible": "3w Edited",
+      "text": "Saksham Gupta describes building Levocred AI for S26 and thanks Brad Flora and other supporters.",
+      "metrics": {
+        "reactions": 51,
+        "comments": 10,
+        "reposts": null,
+        "views": null,
+        "capturedAt": "2026-07-16T01:00:30Z"
+      },
+      "nativeAuthorProof": {
+        "authorName": "Saksham Gupta",
+        "authorHandle": "gupsak",
+        "authorProfileUrl": "https://www.linkedin.com/in/gupsak",
+        "proof": "The native public page heading is Saksham Gupta's Post, and the local S26 roster lists Saksham Gupta as a Levocred AI founder.",
+        "isTopVoicePerson": false
+      },
+      "attributionProof": {
+        "specificS26Attribution": true,
+        "matchedSignals": [
+          "Levocred AI (YC S26)",
+          "Brad Flora"
+        ],
+        "proof": "The authored text explicitly names the company, batch, and partner."
+      },
+      "verificationMethod": [
+        "opened native public LinkedIn post",
+        "confirmed native author heading",
+        "matched Saksham Gupta to the local S26 founder roster",
+        "captured visible native reaction and comment counters",
+        "decoded the LinkedIn activity ID timestamp and retained the visible relative timestamp"
+      ],
+      "checkedAt": "2026-07-16T01:00:30Z",
+      "dedupeChecks": {
+        "normalizedSourceUrlSeenBefore": false,
+        "platformPostIdSeenBefore": false,
+        "checkedAgainstRequiredLedgers": true
+      },
+      "rejectionReasonCodes": [
+        "founder_authored_not_top_voice"
+      ],
+      "rejectionReason": "The native author is an S26 founder, not Brad Flora. A founder thank-you is not a partner-authored source."
+    },
+    {
+      "rowId": "s26-ycp-sol-ultra-reject-003",
+      "batch": "S26",
+      "topVoiceAudience": "yc_partners",
+      "topVoice": {
+        "personId": "jared-friedman",
+        "name": "Jared Friedman",
+        "handle": "jaredfriedman"
+      },
+      "company": null,
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/jaredfriedman_y-combinator-in-the-age-of-ai-ep-43-activity-7434817846783815681-JZlA",
+      "platformPostId": "7434817846783815681",
+      "postedAt": "2026-03-04T04:31:46.908Z",
+      "postedAtVisible": "4mo",
+      "text": "Jared Friedman shares a podcast appearance about YC, AI, startups, and San Francisco without naming a local S26 company or founder.",
+      "metrics": {
+        "reactions": 110,
+        "comments": 5,
+        "reposts": null,
+        "views": null,
+        "capturedAt": "2026-07-16T01:00:30Z"
+      },
+      "nativeAuthorProof": {
+        "authorName": "Jared Friedman",
+        "authorHandle": "jaredfriedman",
+        "authorProfileUrl": "https://www.linkedin.com/in/jaredfriedman",
+        "proof": "The native public page heading is Jared Friedman's Post, matching the yc_partners roster entry and LinkedIn handle.",
+        "isTopVoicePerson": true
+      },
+      "attributionProof": {
+        "specificS26Attribution": false,
+        "matchedSignals": [],
+        "proof": "Neither the authored text nor the native quoted post names any of the 83 local S26 companies, their founders, handles, or domains."
+      },
+      "verificationMethod": [
+        "opened native public LinkedIn post",
+        "confirmed native author heading and roster handle",
+        "checked authored and quoted text against the complete local S26 roster",
+        "captured visible native reaction and comment counters",
+        "decoded the LinkedIn activity ID timestamp and retained the visible relative timestamp"
+      ],
+      "checkedAt": "2026-07-16T01:00:30Z",
+      "dedupeChecks": {
+        "normalizedSourceUrlSeenBefore": false,
+        "platformPostIdSeenBefore": false,
+        "checkedAgainstRequiredLedgers": true
+      },
+      "rejectionReasonCodes": [
+        "no_specific_s26_company_attribution"
+      ],
+      "rejectionReason": "The author is a valid top voice, but the post is generic YC content and cannot be attributed to a specific local S26 company."
+    },
+    {
+      "rowId": "s26-ycp-sol-ultra-reject-004",
+      "batch": "S26",
+      "topVoiceAudience": "yc_partners",
+      "topVoice": null,
+      "referencedTopVoices": [
+        {
+          "personId": "brad-flora",
+          "name": "Brad Flora",
+          "handle": "bradflora"
+        },
+        {
+          "personId": "harshita-arora",
+          "name": "Harshita Arora",
+          "handle": "harshitaapps"
+        }
+      ],
+      "company": null,
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_for-the-first-time-a-23-person-team-can-activity-7456511242694987776-aVYN",
+      "platformPostId": "7456511242694987776",
+      "postedAt": "2026-05-03T01:13:35.538Z",
+      "postedAtVisible": "2mo",
+      "text": "Y Combinator publishes a generic Summer 2026 application video and attributes the message to Brad Flora and Harshita Arora.",
+      "metrics": {
+        "reactions": 388,
+        "comments": 39,
+        "reposts": null,
+        "views": null,
+        "capturedAt": "2026-07-16T01:00:30Z"
+      },
+      "nativeAuthorProof": {
+        "authorName": "Y Combinator",
+        "authorHandle": "y-combinator",
+        "authorProfileUrl": "https://www.linkedin.com/company/y-combinator/",
+        "proof": "The native public page identifies Y Combinator as the publishing account; Brad Flora and Harshita Arora appear only as attribution in the organization-authored text.",
+        "isTopVoicePerson": false
+      },
+      "attributionProof": {
+        "specificS26Attribution": false,
+        "matchedSignals": [
+          "YC Summer 2026"
+        ],
+        "proof": "The post discusses the batch generically and names no local S26 company, founder, handle, or domain."
+      },
+      "verificationMethod": [
+        "opened native public LinkedIn post",
+        "confirmed organization author heading",
+        "checked authored text and transcript against the complete local S26 roster",
+        "captured visible native reaction and comment counters",
+        "decoded the LinkedIn activity ID timestamp and retained the visible relative timestamp"
+      ],
+      "checkedAt": "2026-07-16T01:00:30Z",
+      "dedupeChecks": {
+        "normalizedSourceUrlSeenBefore": false,
+        "platformPostIdSeenBefore": false,
+        "checkedAgainstRequiredLedgers": true
+      },
+      "rejectionReasonCodes": [
+        "organization_authored_not_person",
+        "no_specific_s26_company_attribution"
+      ],
+      "rejectionReason": "The native author is the excluded Y Combinator organization account, not either attributed partner, and the post has no specific local S26 company attribution."
+    }
+  ],
+  "counts": {
+    "topVoicePeopleScoped": 18,
+    "s26CompaniesScoped": 83,
+    "sourceListedXProfilesRefreshed": 14,
+    "supplementalXProfilesCheckedButNotReliedUpon": 2,
+    "xRecentCardsParsed": 143,
+    "xPreviouslyUnledgeredPostsValidated": 133,
+    "linkedinNewExactAuthorQueries": 16,
+    "newCandidatesValidated": 4,
+    "accepted": 0,
+    "rejected": 4,
+    "rejectedByPrimaryReason": {
+      "founder_authored_not_top_voice": 2,
+      "no_specific_s26_company_attribution": 1,
+      "organization_authored_not_person": 1
+    },
+    "imported": 0
+  },
+  "limitations": [
+    "This is exhaustive over the publicly reachable surfaces, local 83-company roster, source-listed partner roster, and prior dedupe ledger available at check time; private or login-only activity is not observable.",
+    "X mirror pagination became rate-limited after the fresh recent-profile sweep. Every newly observed status ID was still validated post-by-post, and prior deeper profile sweeps were reviewed instead of repeated.",
+    "LinkedIn sometimes exposes only relative timestamps. Exact postedAt values here are decoded from the native activity IDs, while the visible relative labels are preserved separately.",
+    "Native metrics are capture-time snapshots and can change after checkedAt."
+  ],
+  "result": "No net-new qualifying people-authored YC partner source was found for a local S26 company. Nothing was imported and no canonical evidence, graph, test, or code file was edited."
+}

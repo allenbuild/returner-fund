@@ -1,0 +1,327 @@
+{
+  "generatedAt": "2026-07-16T02:52:16.128Z",
+  "phase": "final_import_cleanup_tested_built_snapshots_verified",
+  "currentCanonicalCounts": {
+    "byBatch": {
+      "S26": 160,
+      "S2026": 307,
+      "A16ZSR006": 251
+    },
+    "byPlatform": {
+      "github": 67,
+      "hacker_news": 21,
+      "instagram": 70,
+      "linkedin": 241,
+      "x": 203,
+      "product_hunt": 14,
+      "youtube": 91,
+      "reddit": 11
+    },
+    "byTopVoiceAudience": {
+      "yc_partners": 52,
+      "insiders": 18
+    }
+  },
+  "importedThisTurn": {
+    "S2026": 74,
+    "S26": 68,
+    "A16ZSR006": 104,
+    "totalStrictImported": 246,
+    "totalRemovedDuringCleanup": 68
+  },
+  "completedShardReports": [
+    {
+      "shard": "S2026 yc_partners x tenth-pass",
+      "queriesPerformed": 25,
+      "candidatesFound": 33,
+      "netNewVerifiedRows": 12,
+      "duplicates": 0,
+      "rejections": 21,
+      "rowsImported": 12,
+      "validation": "12/12 live FxTwitter API checks passed",
+      "artifact": "outputs/source-hunt/s2026-topvoices-tenth-pass.json"
+    },
+    {
+      "shard": "all batches regular tenth pass",
+      "queriesPerformed": 13,
+      "candidatesFound": 18,
+      "netNewVerifiedRows": 9,
+      "duplicates": 0,
+      "rejections": 9,
+      "rowsImported": 9,
+      "rowsVisibleInGraph": 9,
+      "validation": "9/9 imported LinkedIn rows covered by tests/yc-traction-regressions.test.ts",
+      "artifact": "outputs/source-hunt/all-batches-regular-tenth-pass.json"
+    },
+    {
+      "shard": "S26 top voices eleventh pass",
+      "queriesPerformed": 13,
+      "candidatesFound": 8,
+      "netNewVerifiedRows": 0,
+      "duplicates": 0,
+      "rejections": 8,
+      "rowsImported": 0,
+      "rowsVisibleInGraph": 0,
+      "validation": "No accepted rows; strategy marked low-yield after second pass.",
+      "artifact": "outputs/source-hunt/s26-topvoices-eleventh-pass.json"
+    },
+    {
+      "shard": "S2026 regular zero-evidence Sol Ultra A-M/N-Z",
+      "queriesPerformed": null,
+      "candidatesFound": 58,
+      "netNewVerifiedRows": 58,
+      "duplicates": 3,
+      "rejections": 39,
+      "rowsImported": 55,
+      "rowsVisibleInGraph": 55,
+      "validation": "55/55 imported rows covered by tests/yc-traction-regressions.test.ts Sol Ultra first-party regression.",
+      "artifact": "outputs/source-hunt/s2026-regular-zero-am-sol-ultra.json + outputs/source-hunt/s2026-regular-zero-nz-sol-ultra.json"
+    },
+    {
+      "shard": "A16Z founder zero-evidence Sol Ultra",
+      "queriesPerformed": 37,
+      "candidatesFound": 22,
+      "netNewVerifiedRows": 6,
+      "duplicates": 0,
+      "rejections": 16,
+      "rowsImported": 6,
+      "rowsVisibleInGraph": 6,
+      "validation": "6/6 imported rows covered by tests/a16z-speedrun-006-dataset.test.ts Sol Ultra regression.",
+      "artifact": "outputs/source-hunt/a16z-founder-zero-sol-ultra.json"
+    },
+    {
+      "shard": "S2026 YC partners follow-up Sol Ultra",
+      "queriesPerformed": 56,
+      "candidatesFound": 8,
+      "netNewVerifiedRows": 0,
+      "duplicates": 5,
+      "rejections": 3,
+      "rowsImported": 0,
+      "rowsVisibleInGraph": 0,
+      "validation": "No net-new people-only YC partner rows after exact duplicate exclusion.",
+      "artifact": "outputs/source-hunt/s2026-yc-partners-followup-sol-ultra.json"
+    },
+    {
+      "shard": "S26 YC partners people-only Sol Ultra",
+      "queriesPerformed": 24,
+      "candidatesFound": 143,
+      "netNewVerifiedRows": 0,
+      "duplicates": 133,
+      "rejections": 4,
+      "rowsImported": 0,
+      "rowsVisibleInGraph": 0,
+      "validation": "No accepted people-only partner rows after 143 X cards and 16 LinkedIn author queries.",
+      "artifact": "outputs/source-hunt/s26-yc-partners-people-only-sol-ultra.json"
+    },
+    {
+      "shard": "S2026 insiders people-only Sol Ultra",
+      "queriesPerformed": null,
+      "candidatesFound": 3,
+      "netNewVerifiedRows": 3,
+      "duplicates": 0,
+      "rejections": 0,
+      "rowsImported": 3,
+      "rowsVisibleInGraph": 3,
+      "validation": "3/3 imported LinkedIn comment rows covered by tests/yc-traction-regressions.test.ts top voice regression.",
+      "artifact": "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+    },
+    {
+      "shard": "S26 regular sparse Sol Ultra",
+      "queriesPerformed": null,
+      "candidatesFound": 83,
+      "netNewVerifiedRows": 57,
+      "duplicates": 19,
+      "rejections": 26,
+      "rowsImported": 57,
+      "rowsVisibleInGraph": 57,
+      "validation": "Representative GitHub, YouTube, and LinkedIn imports covered by tests/yc-traction-regressions.test.ts Summer Sol Ultra regression.",
+      "artifact": "outputs/source-hunt/s26-regular-zero-sol-ultra.json"
+    },
+    {
+      "shard": "S26/S2026 insiders people-only second Sol Ultra",
+      "queriesPerformed": 120,
+      "candidatesFound": 14,
+      "netNewVerifiedRows": 0,
+      "duplicates": 0,
+      "rejections": 14,
+      "rowsImported": 0,
+      "rowsVisibleInGraph": 0,
+      "validation": "No qualifying rows: comments checked were duplicate founder/company parent posts, not new insider-authored evidence.",
+      "artifact": "outputs/source-hunt/insiders-people-only-second-sol-ultra.json"
+    }
+  ],
+  "productivity": {
+    "rowsImported": 246,
+    "notes": "Initial imports occurred before ledger strategy change; subsequent agents must read search-ledger.json first.",
+    "latest": "Final active-agent artifacts imported: +2 top-voice comments, +90 A16Z non-LinkedIn rows, +25 supported non-X/non-LinkedIn rows; strict cleanup removed 68 duplicate/profile/no-metric rows."
+  },
+  "remainingUncoveredCells": [
+    {
+      "priority": 186,
+      "batchSlug": "S2026",
+      "sourceType": "regular",
+      "platform": "multi",
+      "shard": "S2026 zero-evidence companies multi-platform native sweep",
+      "rationale": "86 companies have zero canonical evidence; expected yield highest."
+    },
+    {
+      "priority": 170,
+      "batchSlug": "A16ZSR006",
+      "sourceType": "founder",
+      "platform": "linkedin+x",
+      "shard": "A16ZSR006 founders with zero evidence LinkedIn/X account-history sweep",
+      "rationale": "89 founders have no attached evidence."
+    },
+    {
+      "priority": 170,
+      "batchSlug": "S2026",
+      "sourceType": "founder",
+      "platform": "linkedin+x",
+      "shard": "S2026 founders with zero evidence LinkedIn/X account-history sweep",
+      "rationale": "385 founders have no attached evidence."
+    },
+    {
+      "priority": 170,
+      "batchSlug": "S26",
+      "sourceType": "founder",
+      "platform": "linkedin+x",
+      "shard": "S26 founders with zero evidence LinkedIn/X account-history sweep",
+      "rationale": "153 founders have no attached evidence."
+    },
+    {
+      "priority": 128,
+      "batchSlug": "S26",
+      "sourceType": "regular",
+      "platform": "multi",
+      "shard": "S26 zero-evidence companies multi-platform native sweep",
+      "rationale": "28 companies have zero canonical evidence; expected yield highest."
+    },
+    {
+      "priority": 107,
+      "batchSlug": "A16ZSR006",
+      "sourceType": "regular",
+      "platform": "multi",
+      "shard": "A16ZSR006 zero-evidence companies multi-platform native sweep",
+      "rationale": "7 companies have zero canonical evidence; expected yield highest."
+    },
+    {
+      "priority": 93,
+      "batchSlug": "A16ZSR006",
+      "sourceType": "insiders",
+      "platform": "linkedin",
+      "shard": "A16ZSR006 insiders linkedin people-only complete-history sweep",
+      "rationale": "0 canonical insiders/linkedin rows; strict people-only top voice surface remains undercovered."
+    },
+    {
+      "priority": 93,
+      "batchSlug": "A16ZSR006",
+      "sourceType": "insiders",
+      "platform": "x",
+      "shard": "A16ZSR006 insiders x people-only complete-history sweep",
+      "rationale": "0 canonical insiders/x rows; strict people-only top voice surface remains undercovered."
+    },
+    {
+      "priority": 93,
+      "batchSlug": "S2026",
+      "sourceType": "insiders",
+      "platform": "linkedin",
+      "shard": "S2026 insiders linkedin people-only complete-history sweep",
+      "rationale": "0 canonical insiders/linkedin rows; strict people-only top voice surface remains undercovered."
+    },
+    {
+      "priority": 93,
+      "batchSlug": "S26",
+      "sourceType": "insiders",
+      "platform": "linkedin",
+      "shard": "S26 insiders linkedin people-only complete-history sweep",
+      "rationale": "0 canonical insiders/linkedin rows; strict people-only top voice surface remains undercovered."
+    },
+    {
+      "priority": 89,
+      "batchSlug": "S26",
+      "sourceType": "insiders",
+      "platform": "x",
+      "shard": "S26 insiders x people-only complete-history sweep",
+      "rationale": "1 canonical insiders/x rows; strict people-only top voice surface remains undercovered."
+    },
+    {
+      "priority": 85,
+      "batchSlug": "A16ZSR006",
+      "sourceType": "yc_partners",
+      "platform": "linkedin",
+      "shard": "A16ZSR006 yc_partners linkedin people-only complete-history sweep",
+      "rationale": "0 canonical yc_partners/linkedin rows; strict people-only top voice surface remains undercovered."
+    },
+    {
+      "priority": 85,
+      "batchSlug": "A16ZSR006",
+      "sourceType": "yc_partners",
+      "platform": "x",
+      "shard": "A16ZSR006 yc_partners x people-only complete-history sweep",
+      "rationale": "0 canonical yc_partners/x rows; strict people-only top voice surface remains undercovered."
+    },
+    {
+      "priority": 59,
+      "batchSlug": "A16ZSR006",
+      "sourceType": "regular",
+      "platform": "x",
+      "shard": "A16ZSR006 x undercovered native-source sweep",
+      "rationale": "11 canonical x rows for batch."
+    },
+    {
+      "priority": 55,
+      "batchSlug": "A16ZSR006",
+      "sourceType": "regular",
+      "platform": "hacker_news",
+      "shard": "A16ZSR006 hacker_news undercovered native-source sweep",
+      "rationale": "0 canonical hacker_news rows for batch."
+    },
+    {
+      "priority": 55,
+      "batchSlug": "S2026",
+      "sourceType": "regular",
+      "platform": "reddit",
+      "shard": "S2026 reddit undercovered native-source sweep",
+      "rationale": "0 canonical reddit rows for batch."
+    },
+    {
+      "priority": 55,
+      "batchSlug": "S26",
+      "sourceType": "regular",
+      "platform": "instagram",
+      "shard": "S26 instagram undercovered native-source sweep",
+      "rationale": "0 canonical instagram rows for batch."
+    },
+    {
+      "priority": 55,
+      "batchSlug": "S26",
+      "sourceType": "regular",
+      "platform": "reddit",
+      "shard": "S26 reddit undercovered native-source sweep",
+      "rationale": "0 canonical reddit rows for batch."
+    },
+    {
+      "priority": 53,
+      "batchSlug": "S26",
+      "sourceType": "yc_partners",
+      "platform": "linkedin",
+      "shard": "S26 yc_partners linkedin people-only complete-history sweep",
+      "rationale": "8 canonical yc_partners/linkedin rows; strict people-only top voice surface remains undercovered."
+    },
+    {
+      "priority": 53,
+      "batchSlug": "S26",
+      "sourceType": "regular",
+      "platform": "youtube",
+      "shard": "S26 youtube undercovered native-source sweep",
+      "rationale": "2 canonical youtube rows for batch."
+    }
+  ],
+  "finalValidation": {
+    "tests": "./node_modules/.bin/vitest run --reporter=dot: 36 files passed, 245 tests passed",
+    "typecheck": "./node_modules/.bin/tsc --noEmit: passed",
+    "build": "./node_modules/.bin/next build: passed with existing Turbopack NFT trace warning in refresh route",
+    "snapshots": "scripts/update-daily-benchmarks.mjs --base-url=http://127.0.0.1:3112: wrote 9 public graph snapshots",
+    "ui": "Browser verified regular, insiders, and yc_partners modes for S2026, S26, and A16ZSR006 on fresh server port 3112"
+  }
+}

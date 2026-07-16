@@ -1,0 +1,299 @@
+{
+  "accepted": [
+    {
+      "batchSlug": "P26",
+      "companyName": "Sazabi",
+      "companyId": "31211",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2037230367598666221",
+      "platformPostId": "2037230367598666221",
+      "postedAt": "2026-03-26T18:09:04.000Z",
+      "title": "Aaron Epstein X post about Sazabi founder Sherwood Callaway",
+      "text": "Super excited to work with @shcallaway again with @sazabi! He's a second-time YC founder with a big chip on his shoulder, building in the space he knows best - reinventing observability.",
+      "metrics": {
+        "views": 12019,
+        "likes": 45,
+        "comments": 1,
+        "replies": 1,
+        "reposts": 1,
+        "retweets": 1,
+        "quotes": 0,
+        "saves": 3
+      },
+      "attributionReason": "Native X post is authored by Aaron Epstein, a listed yc_partners top voice. The post mentions Sazabi's official X handle @sazabi and founder handle @shcallaway; the local Spring 2026 company snapshot maps Sazabi to companyId 31211 and founder Sherwood Callaway.",
+      "evidenceType": "native_x_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "P26",
+      "companyName": "Interfaze",
+      "companyId": "31386",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2054035382795370914",
+      "platformPostId": "2054035382795370914",
+      "postedAt": "2026-05-12T03:06:12.000Z",
+      "title": "Aaron Epstein X quote-post about Interfaze model release",
+      "text": "New model just released that beats sonnet 4.6, gemini 3 flash, and gpt 5.4 mini on OCR, vision, and STT tasks @interfaze_ai",
+      "metrics": {
+        "views": 50288,
+        "likes": 282,
+        "comments": 14,
+        "replies": 14,
+        "reposts": 20,
+        "retweets": 20,
+        "quotes": 4,
+        "saves": 162
+      },
+      "attributionReason": "Native X post is authored by Aaron Epstein, a listed yc_partners top voice. The post mentions Interfaze's official X handle @interfaze_ai; the local Spring 2026 company snapshot maps Interfaze to companyId 31386 and website interfaze.ai.",
+      "evidenceType": "native_x_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "P26",
+      "companyName": "InsForge",
+      "companyId": "31547",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Andrew Miklas",
+      "topVoiceHandle": "andrewmiklas",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_insforge-turns-your-coding-agent-into-a-principal-activity-7462200339899846656-CUEF",
+      "platformPostId": "7462200339899846656",
+      "postedAt": "2026-05-18T18:00:02.010000Z",
+      "title": "Andrew Miklas LinkedIn comment about InsForge agent experience",
+      "text": "As more software development is done by agents, it makes perfect sense that devtools will aim to be at least as usable and useful to coding agents as they are to human coders. Insforge is the first company I've seen to think carefully about what it means for a devtool to have both good developer experience & \"agent experience\".",
+      "metrics": {
+        "postReactions": 376,
+        "postComments": 87,
+        "commentReactions": 2
+      },
+      "attributionReason": "LinkedIn profile activity for Andrew Miklas showed this native comment, and the public LinkedIn activity page exposed the Andrew Miklas comment text with visible comment-level reaction count. Andrew Miklas is listed under yc_partners in top-voices.ts; the post/comment names InsForge, which is Spring 2026 companyId 31547.",
+      "evidenceType": "native_linkedin_comment",
+      "duplicateLikely": false,
+      "authorProfileUrl": "https://www.linkedin.com/in/amiklas"
+    },
+    {
+      "batchSlug": "P26",
+      "companyName": "Hexa",
+      "companyId": "31350",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Grey Baker",
+      "topVoiceHandle": "greysteil",
+      "sourceUrl": "https://www.linkedin.com/posts/greysteil_displacing-erps-used-to-be-impossible-now-activity-7468140763088879616-_hfp",
+      "platformPostId": "7468140763088879616",
+      "postedAt": "2026-06-04T03:25:09.266000Z",
+      "title": "Grey Baker LinkedIn post about Hexa and ERP displacement",
+      "text": "Displacing ERPs used to be impossible. Now AI has made the gulf between modern and legacy systems ginormous, the switching costs smaller than ever, and the wedge product obvious.",
+      "metrics": {
+        "reactions": 27,
+        "comments": 2
+      },
+      "attributionReason": "Native LinkedIn share is authored by Grey Baker, a listed yc_partners top voice. The shared YC launch card names Hexa (YC P26), and the local Spring 2026 company snapshot maps Hexa to companyId 31350.",
+      "evidenceType": "native_linkedin_share",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "P26",
+      "companyName": "Cignara",
+      "companyId": "31117",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Grey Baker",
+      "topVoiceHandle": "greysteil",
+      "sourceUrl": "https://www.linkedin.com/posts/greysteil_the-appetite-for-ai-in-consumer-sales-and-activity-7465926199710511104-94v0",
+      "platformPostId": "7465926199710511104",
+      "postedAt": "2026-05-29T00:45:16.212000Z",
+      "title": "Grey Baker LinkedIn post about Cignara and Fortune 500 demand",
+      "text": "The appetite for AI in consumer sales and customer support is so strong that the best early stage startups are already able to close deals with Fortune 500 companies. Congrats on the launch Cignara (YC P26)!",
+      "metrics": {
+        "reactions": 13,
+        "comments": 1
+      },
+      "attributionReason": "Native LinkedIn share is authored by Grey Baker, a listed yc_partners top voice, and directly names Cignara (YC P26). The exact sourceUrl/platformPostId is already represented in targeted-evidence-current.json, so this row is kept as a duplicate for import-side dedupe.",
+      "evidenceType": "native_linkedin_share",
+      "duplicateLikely": true
+    }
+  ],
+  "rejected": [
+    {
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Paul Graham",
+      "topVoiceHandle": "paulg",
+      "sourceUrl": "https://x.com/paulg/status/2061927825171751222",
+      "title": "Generic Spring YC office-hours post",
+      "reason": "Rejected: authored by a listed insider with visible public engagement, but the text only references the Spring YC batch broadly and does not mention or match a specific company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Diana Hu",
+      "topVoiceHandle": "sdianahu",
+      "sourceUrl": "https://x.com/sdianahu/status/2066916978326147413",
+      "title": "Generic P26 congratulations post",
+      "reason": "Rejected: authored by a listed YC partner, but the visible text only says kudos to all P26 companies; no specific company, founder, handle, or domain is present."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Harj Taggar",
+      "topVoiceHandle": "harjtaggar",
+      "sourceUrl": "https://x.com/harjtaggar/status/2018743484015137069",
+      "title": "Spring 2026 applications promotion",
+      "reason": "Rejected: native person post, but it promotes Spring 2026 applications and does not mention or match a Spring/P26 company, founder, handle, or domain."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Andrew Miklas",
+      "topVoiceHandle": "andrewmiklas",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_alchemize-yc-p26-is-building-the-first-activity-7465069323779215360-er0S",
+      "companyName": "Alchemize",
+      "title": "Andrew Miklas profile teaser: Congrats on launching",
+      "reason": "Rejected: Andrew Miklas profile activity exposed a comment teaser, but the native LinkedIn activity page did not show the Andrew comment or comment-level metric during verification."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Andrew Miklas",
+      "topVoiceHandle": "andrewmiklas",
+      "sourceUrl": "https://www.linkedin.com/posts/hang-huang-oliver_we-just-hit-10k-github-stars-it-took-us-activity-7462181647451521024-655Y",
+      "companyName": "InsForge",
+      "title": "Andrew Miklas profile teaser: Congrats",
+      "reason": "Rejected: a profile teaser suggested an Andrew Miklas comment, but the native founder post did not expose the Andrew-authored comment or metric publicly enough to verify."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Grey Baker",
+      "topVoiceHandle": "greysteil",
+      "sourceUrl": "https://www.linkedin.com/in/greysteil",
+      "companyName": "Hessian",
+      "title": "Grey Baker profile repost of Hessian launch",
+      "reason": "Rejected: profile scan showed a bare repost/reshare pattern without Grey Baker-authored commentary visible on a native post URL."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Grey Baker",
+      "topVoiceHandle": "greysteil",
+      "sourceUrl": "https://www.linkedin.com/in/greysteil",
+      "companyName": "9 Mothers",
+      "title": "Grey Baker profile activity around 9 Mothers",
+      "reason": "Rejected: visible activity was a bare repost/like of another post, not a native authored post or comment by the listed top voice."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tom Blomfield",
+      "topVoiceHandle": "t_blom",
+      "sourceUrl": "https://x.com/ycombinator/status/2061855368796586169",
+      "companyName": "tday.com",
+      "title": "YC org tday.com post, plus unresolvable Tom analytics teaser",
+      "reason": "Rejected: the native X URL found is authored by the Y Combinator org account, which is out of scope. A secondary analytics page appeared to show a Tom Blomfield tday.com post with metrics, but no native Tom-authored status URL was discoverable."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Pete Koomen",
+      "topVoiceHandle": "petekoomen",
+      "sourceUrl": "https://www.linkedin.com/in/petekoomen",
+      "title": "Pete Koomen Spring/P26 profile scan",
+      "reason": "Rejected: profile and search results surfaced likes or bare reposts, not a publicly verifiable native authored post/comment tied to a Spring/P26 company."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Aaron Levie",
+      "topVoiceHandle": "aaronlevie",
+      "sourceUrl": "https://www.linkedin.com/in/aaronlevie",
+      "title": "Aaron Levie Spring/P26 search sweep",
+      "reason": "Rejected: searches did not surface a native authored Spring/P26 company-specific post/comment with visible metrics."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Lenny Rachitsky",
+      "topVoiceHandle": "lennyrachitsky",
+      "sourceUrl": "https://www.linkedin.com/in/lennyrachitsky",
+      "title": "Lenny Spring/P26 search sweep",
+      "reason": "Rejected: searches surfaced generic activity/likes or unrelated content, not a strict native authored Spring/P26 company-specific source."
+    }
+  ],
+  "searches": [
+    {
+      "searchedAt": "2026-07-15",
+      "query": "Read src/lib/social/top-voices.ts for yc_partners and insiders; checked targeted-evidence-current.json and prior source-hunt JSON for duplicates",
+      "platform": "local_repo",
+      "resultSummary": "Confirmed top-voice membership and duplicate status. The two Aaron Epstein X posts, Andrew Miklas InsForge comment, and Grey Baker Hexa share were not present in canonical targeted evidence; Grey Baker Cignara was already canonical."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "site:x.com/aaron_epstein/status Sazabi Interfaze YC P26 Spring 2026",
+      "platform": "web_x",
+      "resultSummary": "Accepted two native Aaron Epstein X posts: Sazabi status 2037230367598666221 and Interfaze status 2054035382795370914. FxTwitter public JSON exposed author, timestamps, text, and metrics."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "Andrew Miklas LinkedIn profile activity InsForge Alchemize P26",
+      "platform": "web_linkedin",
+      "resultSummary": "Accepted Andrew Miklas's publicly visible InsForge comment on LinkedIn activity 7462200339899846656. Rejected Alchemize/founder-post teasers where the native page did not expose the Andrew-authored comment."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "Grey Baker LinkedIn profile activity Hexa Cignara Hessian 9 Mothers P26",
+      "platform": "web_linkedin",
+      "resultSummary": "Accepted Grey Baker's Hexa native LinkedIn share as new and retained the already-canonical Cignara share as duplicateLikely. Rejected Hessian and 9 Mothers profile activity as bare repost/like patterns without visible authored commentary."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "site:x.com/paulg/status Spring YC batch P26 companies",
+      "platform": "web_x",
+      "resultSummary": "Found a generic Paul Graham Spring batch office-hours post and existing canonical Ploy evidence. Generic batch post rejected for no specific company/founder/handle/domain match."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "site:x.com/sdianahu/status P26 YC companies",
+      "platform": "web_x",
+      "resultSummary": "Found Diana Hu generic P26 congratulations post; rejected because it did not identify a specific company/founder/handle/domain."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "site:x.com/harjtaggar/status Spring 2026 YC",
+      "platform": "web_x",
+      "resultSummary": "Found Harj Taggar Spring 2026 applications promotion; rejected because it was not company-specific evidence."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "Tom Blomfield tday.com @designtday YC P26 native status",
+      "platform": "web_x",
+      "resultSummary": "A secondary analytics page suggested a Tom-authored tday.com post with metrics, but no native Tom status URL was recoverable. The only native URL found was a Y Combinator org post, which was rejected."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "YC partner LinkedIn profile sweeps for Harj Taggar, Gustaf Alstromer, Jared Friedman, David Lieb, Pete Koomen, Tom Blomfield, Ankit Gupta, and related P26 company names",
+      "platform": "web_linkedin",
+      "resultSummary": "Most visible candidates were already canonical, non-Spring, likes, or bare reposts. No additional strict non-duplicate Spring/P26 native authored evidence survived."
+    },
+    {
+      "searchedAt": "2026-07-15",
+      "query": "Insider sweeps for Aaron Levie, Lenny Rachitsky, and other listed insiders plus Spring/P26 company/founder/handle/domain terms",
+      "platform": "web_x_linkedin",
+      "resultSummary": "No strict new authored Spring/P26 company-specific evidence with visible metrics was found beyond existing canonical rows and the rejected generic/non-attributable candidates."
+    }
+  ],
+  "notes": [
+    "Accepted evidence is limited to native posts/comments/shares authored by real people listed in src/lib/social/top-voices.ts; Y Combinator org/community authored posts were excluded unless a listed top voice had a visible native comment/share with their own text.",
+    "Company reposts of top-voice posts were not counted.",
+    "LinkedIn postedAt values for accepted LinkedIn rows are derived from the public activity ID timestamp when the page only exposed relative dates.",
+    "Aaron Epstein's top-voices.ts seed only lists LinkedIn, but the accepted X posts are authored by the same listed real person and the public X profile identifies him as a Y Combinator general partner.",
+    "Grey Baker's top-voices.ts seed lists LinkedIn handle greybaker, while public LinkedIn evidence uses the visible profile slug greysteil; attribution was made by full name and YC partner identity.",
+    "Andrew Miklas's top-voices.ts seed lists LinkedIn handle andrewmiklas, while the public profile activity inspected was https://www.linkedin.com/in/amiklas; attribution was made by full name and visible profile activity."
+  ]
+}

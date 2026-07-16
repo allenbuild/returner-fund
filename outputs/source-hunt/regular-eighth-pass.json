@@ -1,0 +1,824 @@
+{
+  "scope": {
+    "generatedAt": "2026-07-15T22:30:06Z",
+    "repo": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund",
+    "task": "regular eighth pass first-party YC evidence hunt",
+    "batches": [
+      {
+        "batchSlug": "S2026",
+        "label": "YC Spring 2026 / P26",
+        "companyCount": 197,
+        "graphFile": "public/graph/s2026.json",
+        "graphEvidenceCount": 2292
+      },
+      {
+        "batchSlug": "S26",
+        "label": "YC Summer 2026 / S26",
+        "companyCount": 83,
+        "graphFile": "public/graph/s26.json",
+        "graphEvidenceCount": 409
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "label": "a16z speedrun 006",
+        "companyCount": 59,
+        "graphFile": "public/graph/a16zsr006.json",
+        "graphEvidenceCount": 140
+      }
+    ],
+    "policy": {
+      "acceptedOnly": "Native first-party posts, videos, comments, repos, releases, issues, discussions, Product Hunt launches, or Launch YC launches with verifiable URLs and visible metrics.",
+      "rejected": "Profiles, search pages, third-party reposts, YC org posts, unavailable repos, inferred metrics, blocked pages without visible metrics, and duplicates already present in targeted evidence, graph files, or prior source-hunt outputs."
+    },
+    "dedupeAgainst": [
+      "src/lib/social/targeted-evidence-current.json",
+      "public/graph/s2026.json",
+      "public/graph/s26.json",
+      "public/graph/a16zsr006.json",
+      "outputs/source-hunt/*.json"
+    ],
+    "outputOnlyFileTouched": "outputs/source-hunt/regular-eighth-pass.json"
+  },
+  "accepted": [
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/mzxzhou_i-got-into-y-combinator-s26-the-past-6-activity-7464365183025717248-QEeY",
+      "platformPostId": "7464365183025717248",
+      "postedAt": "2026-05-24T17:22:20.816Z",
+      "author": {
+        "name": "Michael Zhou",
+        "profileUrl": "https://www.linkedin.com/in/mzxzhou",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 1237,
+        "comments": 147,
+        "authorFollowers": 3258
+      },
+      "nativeEvidence": {
+        "headline": "I got into Y Combinator S26!",
+        "visibleTextSignals": [
+          "mentions Y Combinator S26",
+          "names Codag"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed datePublished, author, interactionStatistic, commentCount, headline, and author follower count."
+      },
+      "attributionSignals": [
+        "Live YC company page for Codag listed Michael Zhou as founder and linked the mzxzhou LinkedIn profile.",
+        "Local S26 company snapshot had no competing founder identity for this company."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/mzxzhou_40-billion-was-spent-on-enterprise-ai-last-activity-7425169865281261568-_KK-",
+      "platformPostId": "7425169865281261568",
+      "postedAt": null,
+      "visibleAge": "5mo ago on LinkedIn public page during 2026-07-15 check",
+      "author": {
+        "name": "Michael Zhou",
+        "profileUrl": "https://www.linkedin.com/in/mzxzhou",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 97,
+        "comments": 16,
+        "authorFollowers": 3258,
+        "makerLinkCommentReactions": 3
+      },
+      "nativeEvidence": {
+        "headline": "40 billion was spent on enterprise AI last year.",
+        "visibleTextSignals": [
+          "names Codag",
+          "founder comment links the Codag GitHub repo and Product Hunt page"
+        ],
+        "verificationMethod": "LinkedIn public post page rendered post text, author, reaction count, comment count, follower count, and a founder comment containing native Codag URLs."
+      },
+      "attributionSignals": [
+        "Live YC company page for Codag listed Michael Zhou as founder and linked the mzxzhou LinkedIn profile.",
+        "The post and comment link to Codag-owned GitHub and Product Hunt assets."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "Product Hunt",
+      "evidenceType": "product_hunt_launch",
+      "sourceUrl": "https://www.producthunt.com/products/codag",
+      "platformPostId": "codag",
+      "postedAt": null,
+      "author": {
+        "name": "Michael Zhou",
+        "profileUrl": "https://www.producthunt.com/@michael_zhou2",
+        "relationship": "YC-listed founder and launch team member"
+      },
+      "metrics": {
+        "points": 19,
+        "followers": 37,
+        "rating": 5.0,
+        "reviews": 1,
+        "makerCommentUpvotes": 14
+      },
+      "nativeEvidence": {
+        "title": "Codag",
+        "visibleTextSignals": [
+          "launch team shows Michael Zhou",
+          "page links GitHub as the open source repository",
+          "maker comment invites users to try Codag"
+        ],
+        "verificationMethod": "Product Hunt product page rendered launch team, points, followers, reviews, rating, repository link, and maker comment metrics."
+      },
+      "attributionSignals": [
+        "Michael Zhou is the YC-listed Codag founder.",
+        "The founder's LinkedIn post comment linked this exact Product Hunt page."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "GitHub",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/codag-megalith/codag-visualizer",
+      "platformPostId": "codag-megalith/codag-visualizer",
+      "postedAt": "2025-11-14T22:53:29Z",
+      "updatedAt": "2026-07-11T06:07:12Z",
+      "pushedAt": "2026-02-11T01:52:33Z",
+      "author": {
+        "name": "codag-megalith",
+        "profileUrl": "https://github.com/codag-megalith",
+        "relationship": "Codag GitHub organization"
+      },
+      "metrics": {
+        "stars": 635,
+        "watchers": 635,
+        "forks": 59,
+        "openIssues": 1,
+        "subscribers": 2
+      },
+      "nativeEvidence": {
+        "description": "Visualize AI/LLM workflows in your codebase.",
+        "homepage": "https://codag.ai/",
+        "language": "TypeScript",
+        "license": "MIT",
+        "verificationMethod": "GitHub REST API returned repository metadata and visible counts; the founder-linked URL redirected to this canonical org repo."
+      },
+      "attributionSignals": [
+        "Founder LinkedIn comment linked https://github.com/michaelzixizhou/codag.",
+        "GitHub API followed that URL to codag-megalith/codag-visualizer.",
+        "Product Hunt page also linked the same open source repository."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Molagri",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zaky-hassan_super-excited-to-announce-that-molagri-is-activity-7475880498527891456-RDYY",
+      "platformPostId": "7475880498527891456",
+      "postedAt": "2026-06-25T12:00:05.945Z",
+      "author": {
+        "name": "Zaky Hassan",
+        "profileUrl": "https://ca.linkedin.com/in/zaky-hassan",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 393,
+        "comments": 92,
+        "authorFollowers": 3080
+      },
+      "nativeEvidence": {
+        "headline": "Super excited to announce that Molagri is joining the Y Combinator S26 batch!",
+        "visibleTextSignals": [
+          "names Molagri",
+          "mentions Y Combinator S26"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, author, headline, reaction count, comment count, and author follower count."
+      },
+      "attributionSignals": [
+        "Local summer-2026 YC snapshot lists Zaky Hassan as Molagri founder and links the zaky-hassan LinkedIn profile."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Operon",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/anderson-chen-2b6941216_operon-yc-s26-is-a-software-company-but-activity-7474640743337222145-W5Bg",
+      "platformPostId": "7474640743337222145",
+      "postedAt": "2026-06-22T01:53:45.306Z",
+      "author": {
+        "name": "Anderson Chen",
+        "profileUrl": "https://www.linkedin.com/in/anderson-chen-2b6941216",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 209,
+        "comments": 8,
+        "authorFollowers": 3423
+      },
+      "nativeEvidence": {
+        "headline": "Operon (YC S26) is a software company, but many of our founding engineering team will be chemical engineers.",
+        "visibleTextSignals": [
+          "names Operon",
+          "mentions YC S26"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, author, headline, reaction count, comment count, and author follower count."
+      },
+      "attributionSignals": [
+        "Local summer-2026 YC snapshot lists Anderson Chen as Operon founder and links this LinkedIn profile."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Operon",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/anderson-chen-2b6941216_excited-to-announce-operon-yc-s26-has-raised-activity-7478586962652655616-vNXc",
+      "platformPostId": "7478586962652655616",
+      "postedAt": "2026-07-02T23:14:37.306Z",
+      "author": {
+        "name": "Anderson Chen",
+        "profileUrl": "https://www.linkedin.com/in/anderson-chen-2b6941216",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 231,
+        "comments": 24,
+        "authorFollowers": 3423
+      },
+      "nativeEvidence": {
+        "headline": "The world's most mission-critical infrastructure still runs on decades of messy data.",
+        "visibleTextSignals": [
+          "names Operon",
+          "links operonsolutions.com/en"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, author, headline/body, reaction count, comment count, and author follower count."
+      },
+      "attributionSignals": [
+        "Local summer-2026 YC snapshot lists Anderson Chen as Operon founder and links this LinkedIn profile."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Rex",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/merlinkafka_we-just-moved-to-san-francisco-for-y-combinator-activity-7475606763560632320-5161",
+      "platformPostId": "7475606763560632320",
+      "postedAt": "2026-06-24T17:52:22.467Z",
+      "author": {
+        "name": "Merlin Kafka",
+        "profileUrl": "https://www.linkedin.com/in/merlinkafka",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 462,
+        "comments": 175,
+        "authorFollowers": 4983
+      },
+      "nativeEvidence": {
+        "headline": "We just moved to San Francisco for Y Combinator (S26)",
+        "visibleTextSignals": [
+          "names Rex",
+          "mentions Y Combinator S26"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, author, headline/body, reaction count, comment count, and author follower count."
+      },
+      "attributionSignals": [
+        "Local summer-2026 YC snapshot lists Merlin Kafka as Rex founder and links this LinkedIn profile."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Rindler",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/michael-y-serrano_we-launched-rindler-yc-s26-on-launch-yc-activity-7481010555260915712-y0_U",
+      "platformPostId": "7481010555260915712",
+      "postedAt": "2026-07-09T15:45:06.807Z",
+      "author": {
+        "name": "Michael Serrano",
+        "profileUrl": "https://www.linkedin.com/in/michael-y-serrano",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 49,
+        "comments": 2,
+        "authorFollowers": 2289
+      },
+      "nativeEvidence": {
+        "headline": "We launched Rindler (YC S26) on Launch YC today",
+        "visibleTextSignals": [
+          "names Rindler",
+          "mentions YC S26 and Launch YC"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, author, headline, reaction count, comment count, and author follower count."
+      },
+      "attributionSignals": [
+        "Local summer-2026 YC snapshot lists Michael Serrano as Rindler founder and links this LinkedIn profile."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Rindler",
+      "batchSlug": "S26",
+      "platform": "Launch YC",
+      "evidenceType": "launch_yc_launch",
+      "sourceUrl": "https://www.ycombinator.com/launches/RHN-rindler-turn-any-website-into-an-api-for-ai-agents",
+      "platformPostId": "104865",
+      "postedAt": "2026-07-09T11:07:42.901Z",
+      "author": {
+        "name": "Michael Serrano",
+        "profileUrl": "https://www.ycombinator.com/launches/RHN-rindler-turn-any-website-into-an-api-for-ai-agents",
+        "relationship": "YC-listed founder and Launch YC user"
+      },
+      "metrics": {
+        "vote_count": 15
+      },
+      "nativeEvidence": {
+        "title": "Rindler - Turn Any Website Into An API For AI Agents",
+        "tagline": "Reliable web actions for AI agents, without integrations or scripts",
+        "verificationMethod": "Launch YC page props exposed launch id, company id/name/batch, created_at, user Michael Serrano, and vote_count."
+      },
+      "attributionSignals": [
+        "Launch YC page identifies the company as Rindler with company batch field s2026.",
+        "Local summer-2026 YC snapshot lists Michael Serrano as Rindler founder."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Petrarch",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/sudhish-swain_excited-to-officially-launch-petrarch-yc-activity-7482470659839950848-GeT7",
+      "platformPostId": "7482470659839950848",
+      "postedAt": "2026-07-13T16:27:02.863Z",
+      "author": {
+        "name": "Sudhish Swain",
+        "profileUrl": "https://www.linkedin.com/in/sudhish-swain",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 72,
+        "comments": 8
+      },
+      "nativeEvidence": {
+        "headline": "Excited to officially launch Petrarch (YC S26)!",
+        "visibleTextSignals": [
+          "names Petrarch",
+          "mentions YC S26"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed datePublished, headline, interactionStatistic, and commentCount; author/body fields were omitted in the JSON-LD."
+      },
+      "attributionSignals": [
+        "Post URL slug is sudhish-swain.",
+        "Local summer-2026 YC snapshot lists Sudhish Swain as Petrarch founder and links this LinkedIn profile."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Petrarch",
+      "batchSlug": "S26",
+      "platform": "Launch YC",
+      "evidenceType": "launch_yc_launch",
+      "sourceUrl": "https://www.ycombinator.com/launches/RJf-petrarch-the-market-maker-for-data",
+      "platformPostId": "105007",
+      "postedAt": "2026-07-13T16:11:02.837Z",
+      "author": {
+        "name": "Ian Lee",
+        "profileUrl": "https://www.ycombinator.com/launches/RJf-petrarch-the-market-maker-for-data",
+        "relationship": "YC-listed founder and Launch YC user"
+      },
+      "metrics": {
+        "vote_count": 9
+      },
+      "nativeEvidence": {
+        "title": "Petrarch - The market maker for data",
+        "tagline": "The market for specialized data locked up in enterprise companies.",
+        "verificationMethod": "Launch YC page props exposed launch id, company id/name/batch, created_at, user Ian Lee, and vote_count."
+      },
+      "attributionSignals": [
+        "Launch YC page identifies the company as Petrarch with company batch field s2026.",
+        "Local summer-2026 YC snapshot lists Ian Lee as Petrarch founder."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Risklytics",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/alexanderrisio_beyond-excited-to-announce-that-samuel-gold-activity-7480353809894907904-I-lq",
+      "platformPostId": "7480353809894907904",
+      "postedAt": "2026-07-07T20:15:26.515Z",
+      "author": {
+        "name": "Alexander Risio",
+        "profileUrl": "https://www.linkedin.com/in/alexanderrisio",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 53,
+        "comments": 6,
+        "authorFollowers": 641
+      },
+      "nativeEvidence": {
+        "headline": "Beyond excited to announce that Samuel Gold and I have been working on Risklytics (YC S26) together",
+        "visibleTextSignals": [
+          "names Risklytics",
+          "mentions YC S26"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, author, headline/body, reaction count, comment count, and author follower count."
+      },
+      "attributionSignals": [
+        "Local summer-2026 YC snapshot lists Alexander Risio as Risklytics founder and links this LinkedIn profile."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Arzana",
+      "batchSlug": "S2026",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/william--alexander_ycombinator-manufacturingai-industrialai-activity-7473418710851170304-ybad",
+      "platformPostId": "7473418710851170304",
+      "postedAt": "2026-06-18T16:57:50.054Z",
+      "author": {
+        "name": "William Alexander",
+        "profileUrl": "https://www.linkedin.com/in/william--alexander",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 118,
+        "comments": 16,
+        "authorFollowers": 4526
+      },
+      "nativeEvidence": {
+        "headline": "We almost didn't make it to Demo Day:",
+        "visibleTextSignals": [
+          "names Arzana",
+          "mentions YC P26 and Demo Day"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, author, headline/body, reaction count, comment count, and author follower count."
+      },
+      "attributionSignals": [
+        "Local spring-2026 YC snapshot lists William Alexander as Arzana founder and links this LinkedIn profile."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Arctic Health",
+      "batchSlug": "S2026",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_company_post",
+      "sourceUrl": "https://www.linkedin.com/posts/arctic-health_ai-will-modernize-credentialing-but-not-activity-7456050921798569984-TzW_",
+      "platformPostId": "7456050921798569984",
+      "postedAt": "2026-05-01T18:44:26.463Z",
+      "author": {
+        "name": "Arctic Health (YC P26)",
+        "profileUrl": "https://www.linkedin.com/company/arctic-health",
+        "relationship": "official company account"
+      },
+      "metrics": {
+        "reactions": 33,
+        "comments": 3,
+        "authorFollowers": 624
+      },
+      "nativeEvidence": {
+        "headline": "AI will modernize credentialing, but not overnight.",
+        "visibleTextSignals": [
+          "official company account name includes YC P26",
+          "post discusses Arctic Health's credentialing workflow"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, company author, headline/body, reaction count, comment count, and company follower count."
+      },
+      "attributionSignals": [
+        "Local spring-2026 YC snapshot lists the Arctic Health LinkedIn company page as its official LinkedIn account."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    },
+    {
+      "companyName": "Acceler8",
+      "batchSlug": "A16ZSR006",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/chinmaychauhan_excited-to-announce-that-acceler8-has-raised-activity-7434784959380279296-DUM6",
+      "platformPostId": "7434784959380279296",
+      "postedAt": "2026-03-04T02:21:05.916Z",
+      "author": {
+        "name": "Chinmay Chauhan",
+        "profileUrl": "https://www.linkedin.com/in/chinmaychauhan",
+        "relationship": "company founder listed in local a16z speedrun graph"
+      },
+      "metrics": {
+        "reactions": 590,
+        "comments": 211,
+        "authorFollowers": 23074
+      },
+      "nativeEvidence": {
+        "headline": "Excited to announce that Acceler8 has raised our seed round led by Andreessen Horowitz (a16z speedrun)",
+        "visibleTextSignals": [
+          "names Acceler8",
+          "mentions a16z speedrun"
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD exposed post date, author, headline/body, reaction count, comment count, and author follower count."
+      },
+      "attributionSignals": [
+        "Local a16z speedrun 006 graph lists Chinmay Chauhan as Acceler8 founder and links this LinkedIn profile.",
+        "Separate Acceler8 Demo Day LinkedIn URL was found as a duplicate, but this seed-round URL was not present in prior outputs."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "companyName": "Molagri",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/company/molagri",
+      "reason": "Profile/company page, not a native post, comment, video, launch, repo, release, issue, or discussion with post-level metrics.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Operon",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/company/operonsolutions",
+      "reason": "Profile/company page only; no post-level evidence accepted from this URL.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Petrarch",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/company/petrarchinc",
+      "reason": "Profile/company page, not a qualifying native post.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Risklytics",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/company/risklytics",
+      "reason": "Profile/company page only; no native post-level metric source.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Petrarch",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_petrarch-yc-s26-is-building-the-market-activity-7482466860744040448-rV30",
+      "reason": "Native post with visible metrics, but the author is the YC organization rather than the company or founder.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Rindler",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_rindler-yc-s26-turns-websites-into-deterministic-activity-7480969184013602816-5u21",
+      "reason": "Native post with visible metrics, but the author is the YC organization rather than the company or founder.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "TrustAI",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_trustai-yc-s26-makes-ai-proactive-by-suggesting-activity-7480251834125668352-lLz6",
+      "reason": "Native post with visible metrics, but the author is the YC organization rather than the company or founder.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "CentralComs",
+      "batchSlug": "S2026",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_centralcoms-yc-p26-builds-ai-agents-for-activity-7465892774500990976-s4IX",
+      "reason": "YC organization post, not first-party company/founder evidence.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Arctic Health",
+      "batchSlug": "S2026",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_arctic-health-yc-p26-is-the-full-service-activity-7465054145717190656-t8Z0",
+      "reason": "YC organization post; rejected in favor of the official Arctic Health company post.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "OpenRelay",
+      "batchSlug": "S26",
+      "platform": "GitHub",
+      "sourceUrl": "https://github.com/OpenRelayInc/OpenRelay",
+      "reason": "The exact GitHub URL in the local YC snapshot returned 404/null through GitHub REST API during this pass. Other org repos were not accepted because they were not directly verified as the YC company source.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Acceler8",
+      "batchSlug": "A16ZSR006",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/chinmaychauhan_just-wrapped-a16z-speedrun-demo-day-last-activity-7453305802741915648-gaSm",
+      "reason": "Duplicate of an Acceler8 LinkedIn post already accepted in prior source-hunt output.",
+      "duplicateLikely": true
+    },
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "Reddit",
+      "sourceUrl": "https://www.reddit.com/r/ProductHunters/comments/1qwosnr/i_just_launched_on_producthunt_for_the_first_time/",
+      "reason": "Native Reddit page was reachable, but no visible post score/comment count was available in the rendered page, and the author handle was not independently matched to the YC-listed founder.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "Reddit",
+      "sourceUrl": "https://www.reddit.com/r/Anthropic/comments/1qeq7cs/i_made_a_coding_agent_that_maps_out_a_codebase/",
+      "reason": "Native Reddit search result, but the checked page path did not produce accepted visible metrics plus first-party founder attribution within this pass.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "Third-party Product Hunt mirror",
+      "sourceUrl": "https://huntscreens.com/en/products/codag",
+      "reason": "Third-party derivative page; rejected because the native Product Hunt page was directly verified.",
+      "duplicateLikely": true
+    },
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "Third-party Product Hunt digest",
+      "sourceUrl": "https://www.freeourdays.com/producthunt-daily-2026-02-05",
+      "reason": "Third-party digest with inferred/republished Product Hunt data, not native first-party evidence.",
+      "duplicateLikely": true
+    },
+    {
+      "companyName": "Codag",
+      "batchSlug": "S26",
+      "platform": "X",
+      "sourceUrl": "https://x.com/michaelzixizhou",
+      "reason": "Profile page surfaced by search; strict policy rejects profiles and search-result pages.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Risklytics",
+      "batchSlug": "S26",
+      "platform": "X",
+      "sourceUrl": "https://x.com/samuelgold_",
+      "reason": "Profile page surfaced by search; no qualifying status URL with visible metrics found in this pass.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Operon",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7480826378395570176?commentUrn=urn%3Ali%3Acomment%3A%28activity%3A7480826378395570176%2C7480908120623874050%29",
+      "reason": "Native comment by Anderson Chen was visible, but it was a generic comment on another company's post and did not provide Operon-specific evidence beyond the commenter identity.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Molagri",
+      "batchSlug": "S26",
+      "platform": "Instagram",
+      "sourceUrl": "https://www.instagram.com/p/DJZSlc8PuXV/",
+      "reason": "Search surfaced an Instagram event/promotional result mentioning Molagri/Zaky Hassan, but it was not verified as a first-party company or founder post with usable visible metrics.",
+      "duplicateLikely": false
+    }
+  ],
+  "searches": [
+    {
+      "surface": "repo_inventory",
+      "queryOrCommand": "jq counts over public/graph/s2026.json public/graph/s26.json public/graph/a16zsr006.json and targeted evidence source URL extraction",
+      "result": "Scoped three graph batches: S2026 197 companies/2292 evidence, S26 83 companies/409 evidence, A16ZSR006 59 companies/140 evidence. Dedupe set included targeted-evidence-current, graph JSON, and prior outputs/source-hunt JSON."
+    },
+    {
+      "surface": "LinkedIn",
+      "queryOrCommand": "\"Molagri\" \"YC S26\" \"LinkedIn\"; \"OpenRelay\" \"YC S26\" \"LinkedIn\"; \"Operon\" \"YC S26\" \"LinkedIn\"; \"Codag\" \"YC S26\" \"LinkedIn\"",
+      "result": "Accepted Molagri founder post, two Operon founder posts, and Codag founder YC announcement. OpenRelay surfaced profiles/related pages only."
+    },
+    {
+      "surface": "LinkedIn",
+      "queryOrCommand": "\"Perceptron ML\" \"YC S26\" \"LinkedIn\"; \"Petrarch\" \"YC S26\" \"LinkedIn\"; \"Rex\" \"YC S26\" \"LinkedIn\"; \"Rindler\" \"YC S26\" \"LinkedIn\"",
+      "result": "Accepted Rex, Rindler, and Petrarch founder posts plus Rindler/Petrarch Launch YC pages. Perceptron ML surfaced no qualifying first-party post."
+    },
+    {
+      "surface": "LinkedIn",
+      "queryOrCommand": "\"Risklytics\" \"YC S26\" \"LinkedIn\"; \"Salem Robotics\" \"YC S26\" \"LinkedIn\"; \"Torus\" \"YC S26\" \"LinkedIn\"; \"TrustAI\" \"YC S26\" \"LinkedIn\"",
+      "result": "Accepted Risklytics founder post. TrustAI surfaced a YC-org post and was rejected; Salem Robotics and Torus did not produce qualifying first-party native posts in the checked results."
+    },
+    {
+      "surface": "LinkedIn",
+      "queryOrCommand": "\"AICE\" \"YC P26\" \"LinkedIn\"; \"Arctic Health\" \"YC P26\" \"LinkedIn\"; \"Arzana\" \"YC P26\" \"LinkedIn\"; \"CentralComs\" \"YC P26\" \"LinkedIn\"; follow-up quote searches for Arzana and Arctic Health post text",
+      "result": "Accepted William Alexander's Arzana founder post and Arctic Health's official company post. CentralComs and one Arctic Health candidate were YC-org posts and rejected."
+    },
+    {
+      "surface": "LinkedIn",
+      "queryOrCommand": "\"Advocate\" \"a16z speedrun\" \"LinkedIn\"; \"Meridian\" \"a16z speedrun\" \"LinkedIn\"; \"PartyHat\" \"a16z speedrun\" \"LinkedIn\"; \"PayPath\" \"a16z speedrun\" \"LinkedIn\"; \"Acceler8\" \"a16z speedrun\" \"LinkedIn\" \"activity\"",
+      "result": "Accepted Acceler8 seed-round founder post. Acceler8 Demo Day post was rejected as a prior-source duplicate; other checked a16z names produced profiles, third-party pages, or no qualifying post."
+    },
+    {
+      "surface": "X",
+      "queryOrCommand": "\"Codag\" \"YC S26\" site:x.com; \"Molagri\" \"YC S26\" site:x.com; \"Operon\" \"YC S26\" site:x.com; \"Risklytics\" \"YC S26\" site:x.com; Launch YC related X searches for Rindler and Petrarch",
+      "result": "No accepted X statuses. Results were profiles, third-party posts, or lacked verifiable native status metrics tied to company/founder authorship."
+    },
+    {
+      "surface": "Product Hunt",
+      "queryOrCommand": "\"Codag\" \"Product Hunt\"; \"Molagri\" \"Product Hunt\"; \"Rindler\" \"Product Hunt\"; \"Petrarch\" \"Product Hunt\"; followed founder LinkedIn comment to Product Hunt",
+      "result": "Accepted Codag Product Hunt native launch page. Third-party Product Hunt mirrors/digests were rejected. Other checked names produced no native first-party Product Hunt launch with visible metrics."
+    },
+    {
+      "surface": "GitHub",
+      "queryOrCommand": "GitHub REST API checks for founder/company-linked repos, especially Codag and OpenRelay",
+      "result": "Accepted Codag canonical GitHub repo after the founder-linked URL redirected to codag-megalith/codag-visualizer with visible stars/forks/issues. Rejected OpenRelay exact local URL because it returned unavailable through the GitHub API."
+    },
+    {
+      "surface": "Reddit",
+      "queryOrCommand": "Native Reddit URL checks for Codag Product Hunt/Anthropic surfaced results plus unauthenticated Reddit searches for Codag, Molagri, Operon, Risklytics, Rindler, Petrarch, Rex, Arzana, Acceler8, and Arctic Health",
+      "result": "No accepted Reddit evidence. One Codag page was reachable but lacked visible metrics and independently matched founder authorship; API/search checks were blocked with HTTP 403."
+    },
+    {
+      "surface": "Hacker News",
+      "queryOrCommand": "HN Algolia searches for Codag, Molagri, Operon, Risklytics, Rindler, Petrarch, Rex, Arzana, Acceler8, and Arctic Health",
+      "result": "No accepted HN evidence; checked target-name searches returned empty or non-qualifying results."
+    },
+    {
+      "surface": "Instagram and TikTok",
+      "queryOrCommand": "\"Codag\" site:instagram.com; \"Molagri\" site:instagram.com; \"Operon\" \"YC S26\" site:instagram.com; \"Rindler\" \"YC S26\" site:instagram.com; corresponding TikTok web searches",
+      "result": "No accepted Instagram/TikTok evidence. Visible results were third-party/event pages, profile/search pages, or blocked/unusable pages without verified first-party metrics."
+    },
+    {
+      "surface": "broad_web",
+      "queryOrCommand": "Attempted high-coverage DuckDuckGo/r.jina web sweep over repo company names and evidence terms",
+      "result": "Initial single-query retrieval worked, but the broad concurrent sweep hit HTTP 429 rate limits. Manual targeted follow-up searches were used for accepted/rejected candidates above."
+    }
+  ],
+  "notes": [
+    "All accepted entries are first-party company/founder/company-account native URLs with visible metrics and exact URLs.",
+    "LinkedIn evidence was accepted only when public post pages exposed post-level metrics. Most accepted LinkedIn pages exposed SocialMediaPosting JSON-LD with datePublished, headline/body, author, interactionStatistic, commentCount, and follower counts.",
+    "Petrarch's LinkedIn post was accepted with a medium attribution caveat: the public JSON-LD omitted author/body, but the URL slug matches the YC-listed founder Sudhish Swain and the page exposed date/headline/metrics.",
+    "Launch YC evidence was treated as native first-party YC launch evidence because the pages expose launch ids, company names, company batch fields, creator users, creation timestamps, and vote_count metrics.",
+    "Product Hunt Codag was accepted only after direct native-page verification; third-party mirrors and daily digests were rejected even when they repeated Product Hunt metrics.",
+    "GitHub repo evidence was accepted only for a directly linked/canonical repo with visible API metrics. Unavailable exact repos and inferred sibling repos were rejected.",
+    "No app/source JSON files were edited."
+  ]
+}

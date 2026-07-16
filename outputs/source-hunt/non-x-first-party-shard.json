@@ -1,0 +1,482 @@
+{
+  "source": {
+    "label": "Non-X first-party source hunt shard",
+    "repository": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund",
+    "generatedAt": "2026-07-15T19:31:47Z",
+    "outputPath": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/outputs/source-hunt/non-x-first-party-shard.json",
+    "cohortsCovered": ["A16ZSR006", "S2026", "S26"],
+    "platformsCovered": ["github", "product_hunt", "youtube", "reddit"],
+    "dedupedAgainst": [
+      "src/lib/social/targeted-evidence-current.json",
+      "src/lib/social/a16z-speedrun-006-social-evidence.json"
+    ],
+    "constraints": [
+      "Accepted evidence is native first-party company, founder, repo, video, comment, or launch URL.",
+      "Accepted evidence is not a profile, search page, or account-existence-only URL.",
+      "Accepted evidence has visible item-level metrics.",
+      "Exact source URLs are absent from both dedupe files at write time."
+    ]
+  },
+  "accepted": [
+    {
+      "id": "accepted-github-s26-screenpipe-screenpipe",
+      "cohort": "S26",
+      "platform": "github",
+      "companyName": "screenpipe",
+      "sourceUrl": "https://github.com/screenpipe/screenpipe",
+      "urlLevel": "repo",
+      "title": "screenpipe/screenpipe",
+      "metrics": {
+        "stars": 20080,
+        "forks": 1966,
+        "watchers": 20080,
+        "openIssues": 124
+      },
+      "visibleMetricText": "20,080 stars; 1,966 forks; 20,080 watchers; 124 open issues",
+      "attributionNote": "YC S26 snapshot lists screenpipe with official GitHub org https://github.com/screenpipe; repo homepage is screenpipe.com and repo description includes YC (S26).",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; local YC snapshot confirms company GitHub org.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s2026-openwork-openwork",
+      "cohort": "S2026",
+      "platform": "github",
+      "companyName": "OpenWork",
+      "sourceUrl": "https://github.com/different-ai/openwork",
+      "urlLevel": "repo",
+      "title": "different-ai/openwork",
+      "metrics": {
+        "stars": 16888,
+        "forks": 1737,
+        "watchers": 16888,
+        "openIssues": 296
+      },
+      "visibleMetricText": "16,888 stars; 1,737 forks; 16,888 watchers; 296 open issues",
+      "attributionNote": "YC S2026 snapshot lists OpenWork with website openworklabs.com and tagline matching the repo; repo homepage is openworklabs.com.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; homepage and tagline matched local YC snapshot.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s2026-superset-superset",
+      "cohort": "S2026",
+      "platform": "github",
+      "companyName": "Superset",
+      "sourceUrl": "https://github.com/superset-sh/superset",
+      "urlLevel": "repo",
+      "title": "superset-sh/superset",
+      "metrics": {
+        "stars": 12438,
+        "forks": 1083,
+        "watchers": 12438,
+        "openIssues": 332
+      },
+      "visibleMetricText": "12,438 stars; 1,083 forks; 12,438 watchers; 332 open issues",
+      "attributionNote": "YC S2026 snapshot lists Superset with website superset.sh; repo owner and homepage match superset.sh and the AI Agents Era tagline.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; homepage matched local YC snapshot.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s2026-insforge-insforge",
+      "cohort": "S2026",
+      "platform": "github",
+      "companyName": "InsForge",
+      "sourceUrl": "https://github.com/InsForge/InsForge",
+      "urlLevel": "repo",
+      "title": "InsForge/InsForge",
+      "metrics": {
+        "stars": 12294,
+        "forks": 1070,
+        "watchers": 12294,
+        "openIssues": 92
+      },
+      "visibleMetricText": "12,294 stars; 1,070 forks; 12,294 watchers; 92 open issues",
+      "attributionNote": "YC S2026 snapshot lists InsForge with website insforge.dev; repo owner, homepage, and description identify InsForge.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; homepage matched local YC snapshot.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s2026-smol-machines-smolvm",
+      "cohort": "S2026",
+      "platform": "github",
+      "companyName": "smol machines",
+      "sourceUrl": "https://github.com/smol-machines/smolvm",
+      "urlLevel": "repo",
+      "title": "smol-machines/smolvm",
+      "metrics": {
+        "stars": 4403,
+        "forks": 203,
+        "watchers": 4403,
+        "openIssues": 49
+      },
+      "visibleMetricText": "4,403 stars; 203 forks; 4,403 watchers; 49 open issues",
+      "attributionNote": "YC S2026 snapshot lists smol machines with website smolmachines.com; repo owner and homepage match smolmachines.com.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; homepage matched local YC snapshot.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s2026-miso-labs-misotts",
+      "cohort": "S2026",
+      "platform": "github",
+      "companyName": "Miso Labs",
+      "sourceUrl": "https://github.com/MisoLabsAI/MisoTTS",
+      "urlLevel": "repo",
+      "title": "MisoLabsAI/MisoTTS",
+      "metrics": {
+        "stars": 3110,
+        "forks": 318,
+        "watchers": 3110,
+        "openIssues": 18
+      },
+      "visibleMetricText": "3,110 stars; 318 forks; 3,110 watchers; 18 open issues",
+      "attributionNote": "YC S2026 snapshot lists Miso Labs with X handle MisoLabsAI; repo owner MisoLabsAI and repo title identify Miso TTS.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; org name matched local YC snapshot social identity.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s2026-openprose-prose",
+      "cohort": "S2026",
+      "platform": "github",
+      "companyName": "OpenProse",
+      "sourceUrl": "https://github.com/openprose/prose",
+      "urlLevel": "repo",
+      "title": "openprose/prose",
+      "metrics": {
+        "stars": 1630,
+        "forks": 130,
+        "watchers": 1630,
+        "openIssues": 36
+      },
+      "visibleMetricText": "1,630 stars; 130 forks; 1,630 watchers; 36 open issues",
+      "attributionNote": "YC S2026 snapshot lists OpenProse with website prose.md; repo owner and homepage match prose.md.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; homepage matched local YC snapshot.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-youtube-s2026-insforge-yc-launch-video",
+      "cohort": "S2026",
+      "platform": "youtube",
+      "companyName": "InsForge",
+      "sourceUrl": "https://www.youtube.com/watch?v=7Bax5qz0IfM",
+      "urlLevel": "video",
+      "title": "InsForge YC Launch Video",
+      "metrics": {
+        "views": 1207,
+        "likes": 12
+      },
+      "visibleMetricText": "1,207 views; 12 likes",
+      "attributionNote": "YouTube oEmbed identifies author Hang Huang, and YC S2026 snapshot lists Hang Huang as an InsForge founder; native video title names InsForge YC launch.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "YouTube oEmbed for title/author plus public watch-page initial data for views/likes; local YC snapshot confirms founder.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s2026-voquill-voquill",
+      "cohort": "S2026",
+      "platform": "github",
+      "companyName": "Voquill",
+      "sourceUrl": "https://github.com/voquill/voquill",
+      "urlLevel": "repo",
+      "title": "voquill/voquill",
+      "metrics": {
+        "stars": 980,
+        "forks": 119,
+        "watchers": 980,
+        "openIssues": 54
+      },
+      "visibleMetricText": "980 stars; 119 forks; 980 watchers; 54 open issues",
+      "attributionNote": "YC S2026 snapshot lists Voquill with website voquill.com; repo owner and homepage match voquill.com.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; homepage matched local YC snapshot.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s26-nebula-security-cybermeowfia",
+      "cohort": "S26",
+      "platform": "github",
+      "companyName": "Nebula Security",
+      "sourceUrl": "https://github.com/NebuSec/CyberMeowfia",
+      "urlLevel": "repo",
+      "title": "NebuSec/CyberMeowfia",
+      "metrics": {
+        "stars": 978,
+        "forks": 287,
+        "watchers": 978,
+        "openIssues": 36
+      },
+      "visibleMetricText": "978 stars; 287 forks; 978 watchers; 36 open issues",
+      "attributionNote": "YC S26 snapshot lists Nebula Security with official GitHub org https://github.com/NebuSec; repo lives under that org.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; local YC snapshot confirms company GitHub org.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-product-hunt-s2026-insforge-3",
+      "cohort": "S2026",
+      "platform": "product_hunt",
+      "companyName": "InsForge",
+      "sourceUrl": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3",
+      "urlLevel": "launch",
+      "title": "InsForge - Give agents everything they need to ship fullstack apps",
+      "metrics": {
+        "upvotes": 637,
+        "comments": 127
+      },
+      "visibleMetricText": "637 upvotes; 127 comments; ranked #1 of the day and #3 of the week for March 11, 2026",
+      "attributionNote": "Product Hunt launch page is native to InsForge, links company info to insforge.dev, and marks InsForge as Y Combinator; YC S2026 snapshot lists InsForge.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "Public Product Hunt launch page; counters inferred using existing Product Hunt evidence convention.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-product-hunt-s2026-insforge-backend-branching",
+      "cohort": "S2026",
+      "platform": "product_hunt",
+      "companyName": "InsForge",
+      "sourceUrl": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-backend-branching",
+      "urlLevel": "launch",
+      "title": "InsForge Backend Branching",
+      "metrics": {
+        "upvotes": 569,
+        "comments": 186
+      },
+      "visibleMetricText": "569 upvotes; 186 comments; ranked #2 of the day and #4 of the week for June 3, 2026",
+      "attributionNote": "Product Hunt launch page is native to InsForge and links company info to insforge.dev; YC S2026 snapshot lists InsForge.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "Public Product Hunt launch page; counters inferred using existing Product Hunt evidence convention.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-a16zsr006-modaic-gepa-viz",
+      "cohort": "A16ZSR006",
+      "platform": "github",
+      "companyName": "Modaic",
+      "sourceUrl": "https://github.com/modaic-ai/gepa-viz",
+      "urlLevel": "repo",
+      "title": "modaic-ai/gepa-viz",
+      "metrics": {
+        "stars": 417,
+        "forks": 29,
+        "watchers": 417,
+        "openIssues": 0
+      },
+      "visibleMetricText": "417 stars; 29 forks; 417 watchers; 0 open issues",
+      "attributionNote": "A16ZSR006 source profile lists Modaic; local GitHub traction snapshot conservatively matched modaic-ai repos from the official Speedrun company page.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; local A16Z Speedrun GitHub traction snapshot confirms company attribution.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-github-s26-conifer-sage",
+      "cohort": "S26",
+      "platform": "github",
+      "companyName": "Conifer",
+      "sourceUrl": "https://github.com/ConiferKit/sage",
+      "urlLevel": "repo",
+      "title": "ConiferKit/sage",
+      "metrics": {
+        "stars": 304,
+        "forks": 12,
+        "watchers": 304,
+        "openIssues": 0
+      },
+      "visibleMetricText": "304 stars; 12 forks; 304 watchers; 0 open issues",
+      "attributionNote": "YC S26 snapshot lists Conifer with official GitHub org https://github.com/ConiferKit; repo lives under that org.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "GitHub repo API plus native repo URL; local YC snapshot confirms company GitHub org.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    },
+    {
+      "id": "accepted-product-hunt-s26-screenpipe-2",
+      "cohort": "S26",
+      "platform": "product_hunt",
+      "companyName": "screenpipe",
+      "sourceUrl": "https://www.producthunt.com/products/screenpipe/launches/screenpipe-2",
+      "urlLevel": "launch",
+      "title": "screenpipe - Your AI finally knows what you're doing",
+      "metrics": {
+        "upvotes": 106,
+        "comments": 23
+      },
+      "visibleMetricText": "106 upvotes; 23 comments",
+      "attributionNote": "Product Hunt launch page is native to Screenpipe, links company info to screenpi.pe, and matches the YC S26 screenpipe product identity.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:31:47Z",
+        "method": "Public Product Hunt launch page; counters inferred using existing Product Hunt evidence convention.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "exactUrlMissingFromDedupSources": true
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "platform": "github",
+      "companyName": "Zibra Labs",
+      "sourceUrl": "https://github.com/ray-project/ray",
+      "metrics": {
+        "stars": 43253,
+        "forks": 7795,
+        "watchers": 43253,
+        "openIssues": 3469
+      },
+      "visibleMetricText": "43,253 stars; 7,795 forks; 43,253 watchers; 3,469 open issues",
+      "attributionNote": "Rejected: very strong repo metrics but owner/homepage are ray-project/ray.io, not visibly first-party to Zibra Labs.",
+      "rejectReason": "Third-party upstream project; fails first-party company/founder/repo attribution."
+    },
+    {
+      "platform": "github",
+      "companyName": "smol machines",
+      "sourceUrl": "https://github.com/libkrun/libkrun",
+      "metrics": {
+        "stars": 2480,
+        "forks": 228,
+        "watchers": 2480,
+        "openIssues": 94
+      },
+      "visibleMetricText": "2,480 stars; 228 forks; 2,480 watchers; 94 open issues",
+      "attributionNote": "Rejected: libkrun is an upstream org repo, while the accepted first-party smol machines repo is https://github.com/smol-machines/smolvm.",
+      "rejectReason": "Not first-party to the cohort company."
+    },
+    {
+      "platform": "github",
+      "companyName": "Bota",
+      "sourceUrl": "https://github.com/botallen/repository.botallen",
+      "metrics": {
+        "stars": 337,
+        "forks": 125,
+        "watchers": 337,
+        "openIssues": 129
+      },
+      "visibleMetricText": "337 stars; 125 forks; 337 watchers; 129 open issues",
+      "attributionNote": "Rejected: repo description says deprecated Kodi add-on repository and does not visibly tie to Bota.",
+      "rejectReason": "Name/account match only; fails first-party product evidence."
+    },
+    {
+      "platform": "github",
+      "companyName": "Mirror Mirror AI",
+      "sourceUrl": "https://github.com/MirrorMirrorAI-Shengkai/amplify-next-template",
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "visibleMetricText": "0 stars; 0 forks; 0 watchers; 0 open issues",
+      "attributionNote": "Rejected: account name resembles the company but repo is an Amplify starter template with no product context.",
+      "rejectReason": "Account-name match only; no visible company/product evidence."
+    },
+    {
+      "platform": "product_hunt",
+      "companyName": "InsForge",
+      "sourceUrl": "https://www.producthunt.com/products/insforge-alpha",
+      "metrics": {
+        "followers": 2400
+      },
+      "visibleMetricText": "2.4K followers",
+      "attributionNote": "Rejected as an accepted item because the task excludes profiles/account-existence pages; specific launch URLs were accepted instead.",
+      "rejectReason": "Product overview/profile page, not a launch URL."
+    },
+    {
+      "platform": "youtube",
+      "companyName": "Superset",
+      "sourceUrl": "https://www.youtube.com/watch?v=-mMIkzgI_ek",
+      "metrics": {
+        "views": 296,
+        "likes": 8
+      },
+      "visibleMetricText": "296 views; 8 likes",
+      "attributionNote": "Rejected: native video names a Superset cofounder but is hosted by a third-party podcast channel, not company or founder first-party.",
+      "rejectReason": "Third-party video, not first-party evidence."
+    },
+    {
+      "platform": "reddit",
+      "companyName": "screenpipe",
+      "sourceUrl": "https://www.reddit.com/r/rust/comments/1frutvo/github_mediaraiscreenpipe_247_local_ai_screen_mic/",
+      "metrics": {
+        "upvotes": 0,
+        "comments": 0
+      },
+      "visibleMetricText": "0 / 0 visible counters in public scrape",
+      "attributionNote": "Rejected: author may be associated with screenpipe, but public Reddit scrape exposes ambiguous/collapsed counters and the post predates the YC S26 attribution.",
+      "rejectReason": "Metrics and cohort attribution are not strong enough for accepted first-party evidence."
+    }
+  ]
+}

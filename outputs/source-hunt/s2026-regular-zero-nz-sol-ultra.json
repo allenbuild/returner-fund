@@ -1,0 +1,1527 @@
+{
+  "generatedAt": "2026-07-16T00:36:58Z",
+  "shard": "s2026-regular-zero-nz-sol-ultra",
+  "searches": [
+    {
+      "query": "Harbor, Napkin Math, Netter, Nine Fives, Ornadyne first-party LinkedIn posts",
+      "platform": "linkedin",
+      "company": "Harbor; Napkin Math; Netter; Nine Fives; Ornadyne",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Pairio, Panacea, Parrot, PerfectBit first-party LinkedIn posts",
+      "platform": "linkedin",
+      "company": "Pairio; Panacea; Parrot; PerfectBit, Inc.",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Playabl.ai, Plena Health, Prism, Prototyping.io first-party LinkedIn posts",
+      "platform": "linkedin",
+      "company": "Playabl.ai; Plena Health; Prism; Prototyping.io",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "qomplement, Replicas, Result, Revnu founder and company post history",
+      "platform": "linkedin",
+      "company": "qomplement; Replicas; Result; Revnu",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "RASPIRE and Salesgraph founder-name and company-name post search",
+      "platform": "linkedin",
+      "company": "RASPIRE; Salesgraph",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Saffron, Savant, shotwell.ai founder-name post search",
+      "platform": "linkedin",
+      "company": "Saffron; Savant; shotwell.ai",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Sidekick, Smartbase, Soria, StableBrowse founder and company history",
+      "platform": "linkedin",
+      "company": "Sidekick; Smartbase; Soria; StableBrowse",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Stage, Standard Signal, tday.com, Tenet Industries founder post search",
+      "platform": "linkedin",
+      "company": "Stage; Standard Signal; tday.com; Tenet Industries",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Trellis, Twolabs, Walter, Wealor founder post search",
+      "platform": "linkedin",
+      "company": "Trellis; Twolabs; Walter; Wealor",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Zibra Labs and Zolvo founder post history",
+      "platform": "linkedin",
+      "company": "Zibra Labs; Zolvo",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "PLAN0 AI, ProjectX, RASPIRE, RentAHuman exact founder-handle search",
+      "platform": "linkedin",
+      "company": "PLAN0 AI; ProjectX; RASPIRE; RentAHuman",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Aaryan Kushwah, Savio Martin, and Revanth Bodepudi exact post history",
+      "platform": "linkedin",
+      "company": "Result; Prototyping.io",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Robert Chondro, Kazuma Choji, Jerry Yao, Ruhan Ponnada, Ricardo Nunez exact post history",
+      "platform": "linkedin",
+      "company": "Saffron; Salesgraph",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Kareem Selim, Hassan Mostafa, Rounak Adhikary, Bishal Karmakar, Sourya Majumder exact post history",
+      "platform": "linkedin",
+      "company": "RASPIRE; ProjectX",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Exact visible-text lookup for unlinked profile activity",
+      "platform": "linkedin",
+      "company": "Sidekick; StableBrowse; Stage; Twolabs",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "timeline-profile account histories: runharbor, trybloomai, napkinmathclub, PerfectbitAI, ProjectX_Cloud, prototyping_io, raspire_, theregbase, trysaffron, salesgraph, with_sherpa, ShotwellSt, stagereviewapp, StandardSignal, takecareos, designtday",
+      "platform": "x",
+      "company": "multiple N-Z target accounts",
+      "dateRange": "complete visible account history through 2026-07-15"
+    },
+    {
+      "query": "timeline-profile account histories: thecompanyai, twolabsai, MyUnoWallet, ValCtrl, walterindustry, withai_inc, pavoot_com, runpentagon, playabl_ai, pops_fyi, qomplementai, rentahumanx, tryreplicas, revnu_app, river_markets, saudaraAI, standoutwork, surtrdefense, TaigaBilling, TaskletAI, TesterArmy, madebythomasai, tolmhq, totalistrading, userlens_hq, tryresult",
+      "platform": "x",
+      "company": "multiple N-Z target accounts",
+      "dateRange": "complete visible account history through 2026-07-15"
+    },
+    {
+      "query": "timeline-profile account history: samgoldman0",
+      "platform": "x",
+      "company": "Smartbase",
+      "dateRange": "complete visible account history through 2026-07-15"
+    },
+    {
+      "query": "ProjectX, RASPIRE, Savant, shotwell.ai, Soria, StableBrowse, Standard Signal, Walter",
+      "platform": "hacker-news",
+      "company": "multiple zero-evidence targets",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "tolmohq organization repository, release, and issue history",
+      "platform": "github",
+      "company": "Tolmo",
+      "dateRange": "complete organization history through 2026-07-15"
+    },
+    {
+      "query": "ProjectX, RASPIRE, shotwell.ai, Soria, Savant, StableBrowse, Standard Signal, Walter",
+      "platform": "product-hunt",
+      "company": "multiple zero-evidence targets",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "ProjectX, RASPIRE, shotwell.ai, Standard Signal first-party submissions or comments",
+      "platform": "reddit",
+      "company": "ProjectX; RASPIRE; shotwell.ai; Standard Signal",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "StableBrowse, Zibra Labs, Salesgraph, Saffron, ProjectX, shotwell.ai, Standard Signal, Walter founder videos",
+      "platform": "youtube",
+      "company": "multiple zero-evidence targets",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Zolvo, Trellis, Twolabs, Wealor, ProjectX, RASPIRE, StableBrowse, Soria native posts and reels",
+      "platform": "instagram",
+      "company": "multiple zero-evidence targets",
+      "dateRange": "2026-01-01/2026-07-15"
+    },
+    {
+      "query": "Public LinkedIn profile activity history for every known founder handle returned by the YC roster in the N-Z zero/<3 cohort",
+      "platform": "linkedin",
+      "company": "all 69 eligible N-Z targets",
+      "dateRange": "complete visible account history through 2026-07-15"
+    }
+  ],
+  "accepted": [
+    {
+      "batchSlug": "S2026",
+      "companyName": "Harbor",
+      "companySlug": "runharbor",
+      "founderName": "Albert Cai",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ac-ai_from-the-outside-clinical-research-is-an-activity-7439367203184898049-TWPq",
+      "platformPostId": "7439367203184898049",
+      "postedAt": "2026-03-16T17:49:17.967Z",
+      "author": {
+        "name": "Albert Cai",
+        "handle": "ac-ai",
+        "profileUrl": "https://www.linkedin.com/in/ac-ai",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 132, "comments": 19 },
+      "nativeEvidence": {
+        "headline": "From the outside, clinical research is an...",
+        "visibleTextSignals": [
+          "The founder names Harbor (YC P26).",
+          "The post says Harbor is building an EDC and is joining YC Spring 2026."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD for timestamp and counters; direct post rendering for native commentary and quoted content."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Harbor named in visible post", "YC P26 named in visible post"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/ac-ai_from-the-outside-clinical-research-is-an-activity-7439367203184898049-TWPq",
+        "platformPostId": "7439367203184898049",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Harbor",
+      "companySlug": "runharbor",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "company_post",
+      "sourceUrl": "https://www.linkedin.com/posts/runharbor_why-traditional-edcs-are-stuck-doing-2-3-activity-7437615294975672320-zJSl",
+      "platformPostId": "7437615294975672320",
+      "postedAt": "2026-03-11T21:47:50.510Z",
+      "author": {
+        "name": "Harbor (YC P26)",
+        "handle": "runharbor",
+        "profileUrl": "https://www.linkedin.com/company/runharbor",
+        "relationship": "company_account"
+      },
+      "metrics": { "likes": 23, "comments": 2 },
+      "nativeEvidence": {
+        "headline": "Even after a protocol is finalized, it can still take weeks or months to build the study database in the EDC.",
+        "visibleTextSignals": [
+          "Harbor says a protocol can become a baseline EDC build in minutes.",
+          "The author is the Harbor (YC P26) company account."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: datePublished, article body, author, and InteractionCounter values."
+      },
+      "attributionSignals": ["Official company account", "Harbor product named in native body", "YC P26 in account name"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/runharbor_why-traditional-edcs-are-stuck-doing-2-3-activity-7437615294975672320-zJSl",
+        "platformPostId": "7437615294975672320",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Napkin Math",
+      "companySlug": "napkin-math",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "company_post",
+      "sourceUrl": "https://www.linkedin.com/posts/napkinmath_hey-were-jynnie-tang-claire-nord-and-activity-7448054220575907840-C7am",
+      "platformPostId": "7448054220575907840",
+      "postedAt": "2026-04-09T17:08:24.324Z",
+      "author": {
+        "name": "Napkin Math (YC P26)",
+        "handle": "napkinmath",
+        "profileUrl": "https://www.linkedin.com/company/napkinmath",
+        "relationship": "company_account"
+      },
+      "metrics": { "likes": 71, "comments": 6 },
+      "nativeEvidence": {
+        "headline": "Hey!",
+        "visibleTextSignals": [
+          "The company introduces founders Jynnie Tang and Claire Nord.",
+          "The body describes Napkin Math and links its waitlist."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: timestamp, company author, full body, and counters."
+      },
+      "attributionSignals": ["Official company account", "Company and founders named", "YC P26 in account name"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/napkinmath_hey-were-jynnie-tang-claire-nord-and-activity-7448054220575907840-C7am",
+        "platformPostId": "7448054220575907840",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Netter",
+      "companySlug": "netter",
+      "founderName": "Samuel Ladroue",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/samuel-ladroue_very-happy-to-share-that-we-got-into-the-activity-7462146861769003008-Yetq",
+      "platformPostId": "7462146861769003008",
+      "postedAt": "2026-05-18T14:27:31.807Z",
+      "author": {
+        "name": "Samuel Ladroue",
+        "handle": "samuel-ladroue",
+        "profileUrl": "https://fr.linkedin.com/in/samuel-ladroue",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 635, "comments": 141 },
+      "nativeEvidence": {
+        "headline": "Very happy to share that we got into the YC spring batch.",
+        "visibleTextSignals": [
+          "The founder explicitly says he is building Netter (YC P26).",
+          "The post says Netter's frontier models are already in production."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Netter named", "YC spring batch and P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/samuel-ladroue_very-happy-to-share-that-we-got-into-the-activity-7462146861769003008-Yetq",
+        "platformPostId": "7462146861769003008",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Nine Fives",
+      "companySlug": "nine-fives",
+      "founderName": "Andrew Kurtz",
+      "platform": "linkedin",
+      "evidenceType": "founder_quote_post",
+      "sourceUrl": "https://www.linkedin.com/posts/andrew-e-kurtz_excited-to-final-share-more-details-about-activity-7463274368979243009-IBdJ",
+      "platformPostId": "7463274368979243009",
+      "postedAt": "2026-05-21T17:07:50.470Z",
+      "author": {
+        "name": "Andrew Kurtz",
+        "handle": "andrew-e-kurtz",
+        "profileUrl": "https://www.linkedin.com/in/andrew-e-kurtz/",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 26, "comments": 0 },
+      "nativeEvidence": {
+        "headline": "Excited to finally share more details about what Noah Levy and I have been building!",
+        "visibleTextSignals": [
+          "The founder adds native commentary about what he and co-founder Noah Levy built.",
+          "The displayed quoted launch identifies Nine Fives and its RF test product."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD for timestamp/counters plus direct public rendering of native commentary and quoted launch."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Co-founder named", "Displayed quote names Nine Fives"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/andrew-e-kurtz_excited-to-final-share-more-details-about-activity-7463274368979243009-IBdJ",
+        "platformPostId": "7463274368979243009",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Ornadyne",
+      "companySlug": "ornadyne",
+      "founderName": "Geourg Kivijian",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/geourg-kivijian_armen-and-i-are-joining-y-combinator-p26-activity-7452446287834300416-WgeL",
+      "platformPostId": "7452446287834300416",
+      "postedAt": "2026-04-21T20:00:54.747Z",
+      "author": {
+        "name": "Geourg Kivijian",
+        "handle": "geourg-kivijian",
+        "profileUrl": "https://www.linkedin.com/in/geourg-kivijian",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 280, "comments": 56 },
+      "nativeEvidence": {
+        "headline": "Armen and I are joining Y Combinator P26.",
+        "visibleTextSignals": [
+          "The founder explicitly names Ornadyne (YC P26).",
+          "The post describes robot birds for autonomous reconnaissance."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Ornadyne named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/geourg-kivijian_armen-and-i-are-joining-y-combinator-p26-activity-7452446287834300416-WgeL",
+        "platformPostId": "7452446287834300416",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Pairio",
+      "companySlug": "pairio",
+      "founderName": "Tim Zinkl",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/timzinkl_documenting-on-the-shop-floor-can-be-super-activity-7467254205846581248-pH3d",
+      "platformPostId": "7467254205846581248",
+      "postedAt": "2026-06-01T16:42:17.528Z",
+      "author": {
+        "name": "Tim Zinkl",
+        "handle": "timzinkl",
+        "profileUrl": "https://www.linkedin.com/in/timzinkl/",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 79, "comments": 1 },
+      "nativeEvidence": {
+        "headline": "Documenting on the shop floor can be super annoying.",
+        "visibleTextSignals": [
+          "The public post identifies Pairio (YC P26).",
+          "It reports phone-based documentation and roughly 30 minutes of wrench time saved per shift."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD for timestamp/counters; public post excerpt for author and visible text."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Pairio named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/timzinkl_documenting-on-the-shop-floor-can-be-super-activity-7467254205846581248-pH3d",
+        "platformPostId": "7467254205846581248",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Parrot",
+      "companySlug": "useparrot",
+      "founderName": "Phillip Baek",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/phillip-baek_here-are-3-tips-from-y-combinator-that-anyone-activity-7472459888850280448-Lrzw",
+      "platformPostId": "7472459888850280448",
+      "postedAt": "2026-06-16T01:27:49.075Z",
+      "author": {
+        "name": "Phillip Baek",
+        "handle": "phillip-baek",
+        "profileUrl": "https://www.linkedin.com/in/phillip-baek",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 330, "comments": 54 },
+      "nativeEvidence": {
+        "headline": "Here are 3 tips from Y Combinator that anyone can use.",
+        "visibleTextSignals": [
+          "The founder names Parrot (YC P26).",
+          "He describes pivoting and scaling the company in three weeks."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Parrot named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/phillip-baek_here-are-3-tips-from-y-combinator-that-anyone-activity-7472459888850280448-Lrzw",
+        "platformPostId": "7472459888850280448",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "PerfectBit, Inc.",
+      "companySlug": "perfectbit-inc",
+      "founderName": "Seiji Yamamoto",
+      "platform": "linkedin",
+      "evidenceType": "founder_quote_post",
+      "sourceUrl": "https://www.linkedin.com/posts/seiji-yamamoto-a630897_im-thrilled-to-announce-perfectbit-our-activity-7460816338631180288-Lm7-",
+      "platformPostId": "7460816338631180288",
+      "postedAt": "2026-05-14T22:20:30.364Z",
+      "author": {
+        "name": "Seiji Yamamoto",
+        "handle": "seiji-yamamoto-a630897",
+        "profileUrl": "https://www.linkedin.com/in/seiji-yamamoto-a630897/",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 123, "comments": 21 },
+      "nativeEvidence": {
+        "headline": "I'm thrilled to announce PerfectBit, our new YC-backed startup.",
+        "visibleTextSignals": [
+          "The founder's native commentary names PerfectBit and YC backing.",
+          "The displayed quoted launch describes the product."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD for timestamp/counters plus direct public rendering of native commentary and quote."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "PerfectBit named by founder", "YC backing named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/seiji-yamamoto-a630897_im-thrilled-to-announce-perfectbit-our-activity-7460816338631180288-Lm7-",
+        "platformPostId": "7460816338631180288",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Playabl.ai",
+      "companySlug": "playablai",
+      "founderName": "Hamza Al Ali",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/hamzawy998_we-made-13m-building-modding-tools-for-activity-7462946456786608128-opNZ",
+      "platformPostId": "7462946456786608128",
+      "postedAt": "2026-05-20T19:24:50.109Z",
+      "author": {
+        "name": "Hamza Al Ali",
+        "handle": "hamzawy998",
+        "profileUrl": "https://www.linkedin.com/in/hamzawy998",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 426, "comments": 78 },
+      "nativeEvidence": {
+        "headline": "We made $1.3m building modding tools for AAA games from Jordan.",
+        "visibleTextSignals": [
+          "The founder names Playabl AI (YC P26).",
+          "He reports $1.3m prior revenue, 5B content views, and more than 100k beta users."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Playabl AI named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/hamzawy998_we-made-13m-building-modding-tools-for-activity-7462946456786608128-opNZ",
+        "platformPostId": "7462946456786608128",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Plena Health",
+      "companySlug": "plena-health",
+      "founderName": "Eyad Abdalla",
+      "platform": "linkedin",
+      "evidenceType": "founder_quote_post",
+      "sourceUrl": "https://www.linkedin.com/posts/eyadabd_incredibly-proud-of-our-team-activity-7467304881113108481-fnHq",
+      "platformPostId": "7467304881113108481",
+      "postedAt": "2026-06-01T20:03:39.450Z",
+      "author": {
+        "name": "Eyad Abdalla",
+        "handle": "eyadabd",
+        "profileUrl": "https://www.linkedin.com/in/eyadabd/",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 297, "comments": 37 },
+      "nativeEvidence": {
+        "headline": "Incredibly proud of our team!",
+        "visibleTextSignals": [
+          "The YC-listed founder adds native commentary to the launch.",
+          "The displayed quoted post names Plena Health and reports 17x growth to seven-figure committed ARR."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD for timestamp/counters plus direct public rendering of native commentary and quoted launch."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Displayed quote names Plena Health", "Company traction visible in quote"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/eyadabd_incredibly-proud-of-our-team-activity-7467304881113108481-fnHq",
+        "platformPostId": "7467304881113108481",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Prism",
+      "companySlug": "tryprism",
+      "founderName": "Theo Kitsberg",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/theokitsberg_proud-to-announce-weve-renamed-to-prism-activity-7451307304030945280-UGfy",
+      "platformPostId": "7451307304030945280",
+      "postedAt": "2026-04-18T16:34:59.856Z",
+      "author": {
+        "name": "Theo Kitsberg",
+        "handle": "theokitsberg",
+        "profileUrl": "https://www.linkedin.com/in/theokitsberg",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 179, "comments": 21 },
+      "nativeEvidence": {
+        "headline": "Proud to announce we've renamed to Prism.",
+        "visibleTextSignals": [
+          "The founder explicitly names Prism (YC P26).",
+          "The body explains the company's AI-native recruiting product."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Prism named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/theokitsberg_proud-to-announce-weve-renamed-to-prism-activity-7451307304030945280-UGfy",
+        "platformPostId": "7451307304030945280",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Prism",
+      "companySlug": "tryprism",
+      "founderName": "Theo Kitsberg",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/theokitsberg_a-few-exciting-updates-1-we-now-have-concrete-activity-7458203719000653826-999F",
+      "platformPostId": "7458203719000653826",
+      "postedAt": "2026-05-07T17:18:53.316Z",
+      "author": {
+        "name": "Theo Kitsberg",
+        "handle": "theokitsberg",
+        "profileUrl": "https://www.linkedin.com/in/theokitsberg",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 95, "comments": 9 },
+      "nativeEvidence": {
+        "headline": "A few exciting updates.",
+        "visibleTextSignals": [
+          "The founder explicitly names Prism (YC P26).",
+          "The post reports a people-search benchmark and award."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Prism named", "Product benchmark named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/theokitsberg_a-few-exciting-updates-1-we-now-have-concrete-activity-7458203719000653826-999F",
+        "platformPostId": "7458203719000653826",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Prototyping.io",
+      "companySlug": "prototypingio",
+      "founderName": "Revanth Bodepudi",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX",
+      "platformPostId": "7442597593697902592",
+      "postedAt": "2026-03-25T15:45:43.091Z",
+      "author": {
+        "name": "Revanth Bodepudi",
+        "handle": "revanth279",
+        "profileUrl": "https://www.linkedin.com/in/revanth279",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 481, "comments": 94 },
+      "nativeEvidence": {
+        "headline": "We got into Y Combinator (P26)!",
+        "visibleTextSignals": [
+          "The founder names Prototyping.io.",
+          "The post says it moves mechanical engineers from design to prototype parts to production faster."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Prototyping.io named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX",
+        "platformPostId": "7442597593697902592",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "qomplement",
+      "companySlug": "qomplement",
+      "founderName": "Kerim Taray",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/kerim-taray_qomplement-yc-p26-started-with-a-jaguar-activity-7462536885119123456-QxAJ",
+      "platformPostId": "7462536885119123456",
+      "postedAt": "2026-05-19T16:17:20.618Z",
+      "author": {
+        "name": "Kerim Taray",
+        "handle": "kerim-taray",
+        "profileUrl": "https://www.linkedin.com/in/kerim-taray",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 90, "comments": 7 },
+      "nativeEvidence": {
+        "headline": "qomplement (YC P26) started with a Jaguar.",
+        "visibleTextSignals": [
+          "The founder names qomplement (YC P26).",
+          "The body describes the origin, first customer, YC, and launch."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "qomplement named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/kerim-taray_qomplement-yc-p26-started-with-a-jaguar-activity-7462536885119123456-QxAJ",
+        "platformPostId": "7462536885119123456",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "RASPIRE",
+      "companySlug": "raspire",
+      "founderName": "Hassan Mostafa",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/h4ss4nmostafa_48-hours-ago-we-launched-raspire-yc-p26-activity-7469104872290811904-ZB0p",
+      "platformPostId": "7469104872290811904",
+      "postedAt": "2026-06-06T19:16:10.795Z",
+      "author": {
+        "name": "Hassan Mostafa",
+        "handle": "h4ss4nmostafa",
+        "profileUrl": "https://www.linkedin.com/in/h4ss4nmostafa",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 742, "comments": 35 },
+      "nativeEvidence": {
+        "headline": "48 hours ago, we launched RASPIRE (YC P26) on Y Combinator.",
+        "visibleTextSignals": [
+          "The founder says RASPIRE was the #1 startup on Launch YC.",
+          "The post describes global response from CISOs, security leaders, and mobile teams."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "RASPIRE named", "YC P26 and Launch YC named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/h4ss4nmostafa_48-hours-ago-we-launched-raspire-yc-p26-activity-7469104872290811904-ZB0p",
+        "platformPostId": "7469104872290811904",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Replicas",
+      "companySlug": "replicas",
+      "founderName": "Saai Arora",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/saaiarora_a-month-and-a-half-ago-i-dropped-out-of-waterloo-activity-7473781672547794944-DLcG",
+      "platformPostId": "7473781672547794944",
+      "postedAt": "2026-06-19T17:00:06.866Z",
+      "author": {
+        "name": "Saai Arora",
+        "handle": "saaiarora",
+        "profileUrl": "https://ca.linkedin.com/in/saaiarora",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 204, "comments": 24 },
+      "nativeEvidence": {
+        "headline": "A month and a half ago, I dropped out of Waterloo.",
+        "visibleTextSignals": [
+          "The founder explicitly names Replicas.",
+          "The body discusses YC P26 Demo Day and the product."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Replicas named", "YC P26 Demo Day named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/saaiarora_a-month-and-a-half-ago-i-dropped-out-of-waterloo-activity-7473781672547794944-DLcG",
+        "platformPostId": "7473781672547794944",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Replicas",
+      "companySlug": "replicas",
+      "founderName": "Connor Loi",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/connor-loi_this-past-tuesday-y-combinator-invited-us-activity-7460724368310960128-orge",
+      "platformPostId": "7460724368310960128",
+      "postedAt": "2026-05-14T16:15:02.937Z",
+      "author": {
+        "name": "Connor Loi",
+        "handle": "connor-loi",
+        "profileUrl": "https://ca.linkedin.com/in/connor-loi",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 270, "comments": 18 },
+      "nativeEvidence": {
+        "headline": "This past Tuesday, Y Combinator invited us...",
+        "visibleTextSignals": [
+          "The founder explicitly says he demoed Replicas.",
+          "The post ties the demo and product to Y Combinator."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Replicas named", "Y Combinator demo named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/connor-loi_this-past-tuesday-y-combinator-invited-us-activity-7460724368310960128-orge",
+        "platformPostId": "7460724368310960128",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Result",
+      "companySlug": "result",
+      "founderName": "Aaryan Kushwah",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/aaryan-kushwah_we-got-into-y-combinator-p26-as-some-of-the-activity-7461110619740487681-qQOY",
+      "platformPostId": "7461110619740487681",
+      "postedAt": "2026-05-15T17:49:52.462Z",
+      "author": {
+        "name": "Aaryan Kushwah",
+        "handle": "aaryan-kushwah",
+        "profileUrl": "https://www.linkedin.com/in/aaryan-kushwah",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 558, "comments": 49 },
+      "nativeEvidence": {
+        "headline": "We got into Y Combinator P26 as some of the youngest Indians ever to get in.",
+        "visibleTextSignals": [
+          "The founder names Result (YC P26).",
+          "The post calls Result the platform for one-to-three-person teams in a post-work economy."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Result named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/aaryan-kushwah_we-got-into-y-combinator-p26-as-some-of-the-activity-7461110619740487681-qQOY",
+        "platformPostId": "7461110619740487681",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Result",
+      "companySlug": "result",
+      "founderName": "Savio Martin",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7",
+      "platformPostId": "7461110736979857408",
+      "postedAt": "2026-05-15T17:50:20.409Z",
+      "author": {
+        "name": "Savio Martin",
+        "handle": "saviomartin",
+        "profileUrl": "https://in.linkedin.com/in/saviomartin",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 551, "comments": 37 },
+      "nativeEvidence": {
+        "headline": "We got into Y Combinator (P26).",
+        "visibleTextSignals": [
+          "The founder says he is skipping college to build Result.",
+          "The post reports scaling SimpleClaw to $40k MRR in under three weeks before the Result announcement."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Result named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7",
+        "platformPostId": "7461110736979857408",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Revnu",
+      "companySlug": "revnu",
+      "founderName": "George Jefferson",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/georgejeffers_we-dropped-out-of-uni-to-join-y-combinator-activity-7445563862327877632-twRo",
+      "platformPostId": "7445563862327877632",
+      "postedAt": "2026-04-02T20:12:36.641Z",
+      "author": {
+        "name": "George Jefferson",
+        "handle": "georgejeffers",
+        "profileUrl": "https://www.linkedin.com/in/georgejeffers",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 640, "comments": 81 },
+      "nativeEvidence": {
+        "headline": "We dropped out of uni to join Y Combinator.",
+        "visibleTextSignals": [
+          "The founder says he joined YC to build Revnu.",
+          "The body describes agents that automate growth."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Revnu named", "Y Combinator named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/georgejeffers_we-dropped-out-of-uni-to-join-y-combinator-activity-7445563862327877632-twRo",
+        "platformPostId": "7445563862327877632",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Revnu",
+      "companySlug": "revnu",
+      "founderName": "Art Freebrey",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/artfreebrey_anthropic-just-hit-30b-in-run-rate-revenue-activity-7447389595782082560-1ofd",
+      "platformPostId": "7447389595782082560",
+      "postedAt": "2026-04-07T21:07:25.426Z",
+      "author": {
+        "name": "Art Freebrey",
+        "handle": "artfreebrey",
+        "profileUrl": "https://www.linkedin.com/in/artfreebrey",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 92, "comments": 6 },
+      "nativeEvidence": {
+        "headline": "Anthropic just hit $30B in run-rate revenue.",
+        "visibleTextSignals": [
+          "The founder explicitly says this is what the team is building at Revnu (P26).",
+          "The post frames the growth-automation market gap."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Revnu named", "P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/artfreebrey_anthropic-just-hit-30b-in-run-rate-revenue-activity-7447389595782082560-1ofd",
+        "platformPostId": "7447389595782082560",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Saffron",
+      "companySlug": "saffron",
+      "founderName": "Robert Chondro",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/robertchondro_were-trying-something-new-over-the-next-activity-7460441658501791744-wd56",
+      "platformPostId": "7460441658501791744",
+      "postedAt": "2026-05-13T21:31:39.668Z",
+      "author": {
+        "name": "Robert Chondro",
+        "handle": "robertchondro",
+        "profileUrl": "https://www.linkedin.com/in/robertchondro",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 106, "comments": 18 },
+      "nativeEvidence": {
+        "headline": "We're trying something new.",
+        "visibleTextSignals": [
+          "The founder names the Saffron Tour.",
+          "The body describes Saffron's embedded engineering-hiring assessment workflow."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Saffron named", "Product workflow described"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/robertchondro_were-trying-something-new-over-the-next-activity-7460441658501791744-wd56",
+        "platformPostId": "7460441658501791744",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Salesgraph",
+      "companySlug": "salesgraph",
+      "founderName": "Ruhan Ponnada",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ruhanponnada_today-were-launching-salesgraph-proactive-activity-7468384924497231872-roAW",
+      "platformPostId": "7468384924497231872",
+      "postedAt": "2026-06-04T19:35:21.864Z",
+      "author": {
+        "name": "Ruhan Ponnada",
+        "handle": "ruhanponnada",
+        "profileUrl": "https://www.linkedin.com/in/ruhanponnada",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 325, "comments": 80 },
+      "nativeEvidence": {
+        "headline": "Today, we're launching Salesgraph: Proactive AI agents that learn from your sales motions and run the work around every deal.",
+        "visibleTextSignals": [
+          "The founder explicitly launches Salesgraph.",
+          "The visible body describes CRM, call, calendar, Slack, document, and email context."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD for timestamp/counters; direct public rendering for author and full visible launch text."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Salesgraph named in headline", "Product integrations described"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/ruhanponnada_today-were-launching-salesgraph-proactive-activity-7468384924497231872-roAW",
+        "platformPostId": "7468384924497231872",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Salesgraph",
+      "companySlug": "salesgraph",
+      "founderName": "Ruhan Ponnada",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ruhanponnada_last-week-i-announced-that-ricardo-nunez-activity-7442246355319836673-J14c",
+      "platformPostId": "7442246355319836673",
+      "postedAt": "2026-03-24T16:30:01.336Z",
+      "author": {
+        "name": "Ruhan Ponnada",
+        "handle": "ruhanponnada",
+        "profileUrl": "https://www.linkedin.com/in/ruhanponnada",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 100, "comments": 14 },
+      "nativeEvidence": {
+        "headline": "Last week, I announced that Ricardo Nunez and I are joining YC to build Salesgraph.",
+        "visibleTextSignals": [
+          "The founder names his co-founder, YC, and Salesgraph.",
+          "The body describes a self-updating sales context graph."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Co-founder named", "Salesgraph and YC named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/ruhanponnada_last-week-i-announced-that-ricardo-nunez-activity-7442246355319836673-J14c",
+        "platformPostId": "7442246355319836673",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Standout",
+      "companySlug": "standout",
+      "founderName": null,
+      "platform": "x",
+      "evidenceType": "company_post",
+      "sourceUrl": "https://x.com/standoutwork/status/2067105160627917183",
+      "platformPostId": "2067105160627917183",
+      "postedAt": "2026-06-17T04:40:49Z",
+      "author": {
+        "name": "Standout",
+        "handle": "standoutwork",
+        "profileUrl": "https://x.com/standoutwork",
+        "relationship": "company_account"
+      },
+      "metrics": { "likes": 24, "replies": 3, "reposts": 2, "quotes": 3 },
+      "nativeEvidence": {
+        "headline": "silicon boosters at demo day who did you pack?",
+        "visibleTextSignals": [
+          "The official Standout account posts its Demo Day activation.",
+          "The post includes native media and visible engagement counters."
+        ],
+        "verificationMethod": "X public syndication timeline entry: id_str, created_at, account identity, text, and native counters."
+      },
+      "attributionSignals": ["Official company account", "Demo Day named", "Native media post"],
+      "dedupe": {
+        "normalizedUrl": "https://x.com/standoutwork/status/2067105160627917183",
+        "platformPostId": "2067105160627917183",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "tday.com",
+      "companySlug": "tdaycom",
+      "founderName": "Cyrus Kelly",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/cyruskelly_tdaycom-ai-that-turns-your-product-into-activity-7467130703483174913-Xs4P",
+      "platformPostId": "7467130703483174913",
+      "postedAt": "2026-06-01T08:31:32.273Z",
+      "author": {
+        "name": "Cyrus Kelly",
+        "handle": "cyruskelly",
+        "profileUrl": "https://www.linkedin.com/in/cyruskelly",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 86, "comments": 3 },
+      "nativeEvidence": {
+        "headline": "TDAY IS THE DAY...",
+        "visibleTextSignals": [
+          "The founder names tday.com (YC P26).",
+          "The post says the company is live on the YC directory."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "tday.com named", "YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/cyruskelly_tdaycom-ai-that-turns-your-product-into-activity-7467130703483174913-Xs4P",
+        "platformPostId": "7467130703483174913",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Tenet Industries",
+      "companySlug": "tenet-industries",
+      "founderName": "Hugo Frisk",
+      "platform": "linkedin",
+      "evidenceType": "founder_quote_post",
+      "sourceUrl": "https://www.linkedin.com/posts/hugo-frisk_there-is-nothing-honorable-about-building-activity-7445735764451213312-x1xx",
+      "platformPostId": "7445735764451213312",
+      "postedAt": "2026-04-03T07:35:41.299Z",
+      "author": {
+        "name": "Hugo Frisk",
+        "handle": "hugo-frisk",
+        "profileUrl": "https://se.linkedin.com/in/hugo-frisk",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 83, "comments": 17 },
+      "nativeEvidence": {
+        "headline": "there is nothing honorable about building expensive equipment.",
+        "visibleTextSignals": [
+          "The founder adds native commentary about building equipment cheaper than China.",
+          "The displayed Tenet Industries quote announces YC Spring 2026 admission and low-cost strike drones."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD for native commentary, timestamp, and counters; direct rendering for displayed company quote."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Displayed quote is from Tenet Industries", "YC Spring 2026 named in quote"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/hugo-frisk_there-is-nothing-honorable-about-building-activity-7445735764451213312-x1xx",
+        "platformPostId": "7445735764451213312",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "TesterArmy",
+      "companySlug": "testerarmy",
+      "founderName": null,
+      "platform": "x",
+      "evidenceType": "company_post",
+      "sourceUrl": "https://x.com/TesterArmy/status/2063043884759085112",
+      "platformPostId": "2063043884759085112",
+      "postedAt": "2026-06-05T23:42:46Z",
+      "author": {
+        "name": "TesterArmy (YC P26)",
+        "handle": "TesterArmy",
+        "profileUrl": "https://x.com/TesterArmy",
+        "relationship": "company_account"
+      },
+      "metrics": { "likes": 32, "replies": 1, "reposts": 4, "quotes": 2 },
+      "nativeEvidence": {
+        "headline": "TesterArmy now supports testing on Android.",
+        "visibleTextSignals": [
+          "The official account announces Android APK testing.",
+          "The native post says users can upload an APK and start testing in minutes."
+        ],
+        "verificationMethod": "X public syndication timeline entry: id_str, created_at, account identity, text, and native counters."
+      },
+      "attributionSignals": ["Official company account", "TesterArmy named", "YC P26 in account name"],
+      "dedupe": {
+        "normalizedUrl": "https://x.com/TesterArmy/status/2063043884759085112",
+        "platformPostId": "2063043884759085112",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "TesterArmy",
+      "companySlug": "testerarmy",
+      "founderName": null,
+      "platform": "x",
+      "evidenceType": "company_post",
+      "sourceUrl": "https://x.com/TesterArmy/status/2074488134079770880",
+      "platformPostId": "2074488134079770880",
+      "postedAt": "2026-07-07T13:38:07Z",
+      "author": {
+        "name": "TesterArmy (YC P26)",
+        "handle": "TesterArmy",
+        "profileUrl": "https://x.com/TesterArmy",
+        "relationship": "company_account"
+      },
+      "metrics": { "likes": 5, "replies": 0, "reposts": 1, "quotes": 0 },
+      "nativeEvidence": {
+        "headline": "setting this up literally takes 2 minutes.",
+        "visibleTextSignals": [
+          "The official account calls TesterArmy the easiest way to run agentic tests.",
+          "The post links the product and reports a two-minute setup."
+        ],
+        "verificationMethod": "X public syndication timeline entry: id_str, created_at, account identity, text, and native counters."
+      },
+      "attributionSignals": ["Official company account", "Agentic testing product described", "Product link in native post"],
+      "dedupe": {
+        "normalizedUrl": "https://x.com/TesterArmy/status/2074488134079770880",
+        "platformPostId": "2074488134079770880",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Trellis",
+      "companySlug": "trellistech",
+      "founderName": "Lodovico Benvenuti",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/lodovico-benvenuti_at-last-me-and-jan-sahagun-joined-y-activity-7452485772315684864-MY97",
+      "platformPostId": "7452485772315684864",
+      "postedAt": "2026-04-21T22:37:48.592Z",
+      "author": {
+        "name": "Lodovico Benvenuti",
+        "handle": "lodovico-benvenuti",
+        "profileUrl": "https://www.linkedin.com/in/lodovico-benvenuti",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 233, "comments": 45 },
+      "nativeEvidence": {
+        "headline": "AT LAST!!!!!!",
+        "visibleTextSignals": [
+          "The founder says he and Jan Sahagun joined YC to build Trellis (YC P26).",
+          "The body defines Trellis's infrastructure and adaptive software layers."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Co-founder named", "Trellis and YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/lodovico-benvenuti_at-last-me-and-jan-sahagun-joined-y-activity-7452485772315684864-MY97",
+        "platformPostId": "7452485772315684864",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Trellis",
+      "companySlug": "trellistech",
+      "founderName": "Jan Sahagun",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/jan-sahagun-str_lodovico-and-i-decided-to-join-yc-for-an-activity-7452717948068294657-5-Ry",
+      "platformPostId": "7452717948068294657",
+      "postedAt": "2026-04-22T14:00:23.602Z",
+      "author": {
+        "name": "Jan Sahagun",
+        "handle": "jan-sahagun-str",
+        "profileUrl": "https://www.linkedin.com/in/jan-sahagun-str",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 211, "comments": 91 },
+      "nativeEvidence": {
+        "headline": "Lodovico and I decided to join YC for an industry that we deeply care about: Short-Term Rentals.",
+        "visibleTextSignals": [
+          "The founder names Trellis (YC P26).",
+          "The body describes the agentic platform, unified operations data, workflows, and deployed agents."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Co-founder named", "Trellis and YC P26 named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/jan-sahagun-str_lodovico-and-i-decided-to-join-yc-for-an-activity-7452717948068294657-5-Ry",
+        "platformPostId": "7452717948068294657",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Wealor",
+      "companySlug": "wealor",
+      "founderName": "Karim Bouri",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/karim-bouri-7a570824a_%F0%9D%97%AA%F0%9D%97%B2%F0%9D%97%BF%F0%9D%97%B2-%F0%9D%97%B2%F0%9D%98%85%F0%9D%97%B0%F0%9D%97%B6%F0%9D%98%81%F0%9D%97%B2%F0%9D%97%B1-%F0%9D%98%81%F0%9D%97%BC-%F0%9D%97%AE%F0%9D%97%BB%F0%9D%97%BB%F0%9D%97%BC%F0%9D%98%82%F0%9D%97%BB%F0%9D%97%B0%F0%9D%97%B2-activity-7440396722062872578-RsBs",
+      "platformPostId": "7440396722062872578",
+      "postedAt": "2026-03-19T14:00:14.402Z",
+      "author": {
+        "name": "Karim Bouri",
+        "handle": "karim-bouri-7a570824a",
+        "profileUrl": "https://www.linkedin.com/in/karim-bouri-7a570824a",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 762, "comments": 242 },
+      "nativeEvidence": {
+        "headline": "We're excited to announce that Wealor (YC P26) is backed by Y Combinator.",
+        "visibleTextSignals": [
+          "The founder names Wealor and co-founder Pierre Depuydt.",
+          "The body describes an AI-native operating system and unified data layer for wealth managers."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Wealor named", "YC P26 and Y Combinator named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/karim-bouri-7a570824a_%F0%9D%97%AA%F0%9D%97%B2%F0%9D%97%BF%F0%9D%97%B2-%F0%9D%97%B2%F0%9D%98%85%F0%9D%97%B0%F0%9D%97%B6%F0%9D%98%81%F0%9D%97%B2%F0%9D%97%B1-%F0%9D%98%81%F0%9D%97%BC-%F0%9D%97%AE%F0%9D%97%BB%F0%9D%97%BB%F0%9D%97%BC%F0%9D%98%82%F0%9D%97%BB%F0%9D%97%B0%F0%9D%97%B2-activity-7440396722062872578-RsBs",
+        "platformPostId": "7440396722062872578",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Zibra Labs",
+      "companySlug": "zibra-labs",
+      "founderName": "Ibrahim Rabbani",
+      "platform": "linkedin",
+      "evidenceType": "founder_quote_post",
+      "sourceUrl": "https://www.linkedin.com/posts/israbbani_hello-world-zac-policzer-and-i-are-launching-activity-7462539870989697024-dcFl",
+      "platformPostId": "7462539870989697024",
+      "postedAt": "2026-05-19T16:29:12.509Z",
+      "author": {
+        "name": "Ibrahim Rabbani",
+        "handle": "israbbani",
+        "profileUrl": "https://www.linkedin.com/in/israbbani/",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 84, "comments": 11 },
+      "nativeEvidence": {
+        "headline": "Hello world.",
+        "visibleTextSignals": [
+          "The founder says he and Zac Policzer are launching Zibra Labs.",
+          "The native commentary says Zibra Labs provides HPC clusters in the cloud and names YC partners."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD for timestamp/counters; direct public rendering for native commentary, founder identity, and quote."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Co-founder and Zibra Labs named", "YC partners named"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/israbbani_hello-world-zac-policzer-and-i-are-launching-activity-7462539870989697024-dcFl",
+        "platformPostId": "7462539870989697024",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "founderName": "Isabela Rodriguez",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/isabela-rodriguez-438785170_every-commercial-lender-ive-talked-to-has-activity-7444879457032577024-CnNv",
+      "platformPostId": "7444879457032577024",
+      "postedAt": "2026-03-31T22:53:01.707Z",
+      "author": {
+        "name": "Isabela Rodriguez",
+        "handle": "isabela-rodriguez-438785170",
+        "profileUrl": "https://co.linkedin.com/in/isabela-rodriguez-438785170",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 87, "comments": 7 },
+      "nativeEvidence": {
+        "headline": "Every commercial lender I've talked to has 10+ people doing the exact same thing every day.",
+        "visibleTextSignals": [
+          "The founder explicitly says she built Zolvo to eliminate manual reconciliation work.",
+          "The body describes the AI layer, supported bank inputs, lending systems, confidence scores, and audit trails."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Zolvo named", "Product and customer workflow described"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/isabela-rodriguez-438785170_every-commercial-lender-ive-talked-to-has-activity-7444879457032577024-CnNv",
+        "platformPostId": "7444879457032577024",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "founderName": "Isabela Rodriguez",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/isabela-rodriguez-438785170_zolvo-joined-international-factoring-association-activity-7455659217807491072-0iqx",
+      "platformPostId": "7455659217807491072",
+      "postedAt": "2026-04-30T16:47:56.957Z",
+      "author": {
+        "name": "Isabela Rodriguez",
+        "handle": "isabela-rodriguez-438785170",
+        "profileUrl": "https://co.linkedin.com/in/isabela-rodriguez-438785170",
+        "relationship": "founder"
+      },
+      "metrics": { "likes": 90, "comments": 1 },
+      "nativeEvidence": {
+        "headline": "Zolvo joined International Factoring Association!!",
+        "visibleTextSignals": [
+          "The founder names Zolvo and co-founder Tony Montes.",
+          "The post says Zolvo is sponsoring the IFA Small Factor Round Table."
+        ],
+        "verificationMethod": "LinkedIn public post JSON-LD: full body, founder author, timestamp, and counters."
+      },
+      "attributionSignals": ["Exact YC-listed founder", "Zolvo and co-founder named", "Native partnership announcement"],
+      "dedupe": {
+        "normalizedUrl": "https://www.linkedin.com/posts/isabela-rodriguez-438785170_zolvo-joined-international-factoring-association-activity-7455659217807491072-0iqx",
+        "platformPostId": "7455659217807491072",
+        "checkedAgainst": ["search-ledger.json", "existing source-hunt artifacts", "src/lib/social JSON evidence"],
+        "status": "net-new"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "sourceUrl": "https://x.com/trybloomai/status/2061469236871225652",
+      "companyName": "Bloom",
+      "platform": "x",
+      "reason": "duplicate_existing_evidence: URL and post ID already occur in the ledger and canonical social evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7449862056914362368-qhAv",
+      "companyName": "qomplement",
+      "platform": "linkedin",
+      "reason": "duplicate_existing_evidence: launch post is already present in public-evidence-current.json."
+    },
+    {
+      "sourceUrl": "https://github.com/tolmohq/tolmo",
+      "companyName": "Tolmo",
+      "platform": "github",
+      "reason": "duplicate_existing_evidence: official repository already appears in github-traction.json."
+    },
+    {
+      "sourceUrl": "https://github.com/tolmohq/tolmoenv",
+      "companyName": "Tolmo",
+      "platform": "github",
+      "reason": "duplicate_existing_evidence: official repository already appears in github-traction.json."
+    },
+    {
+      "sourceUrl": "https://github.com/tolmohq/blaxel-devbox",
+      "companyName": "Tolmo",
+      "platform": "github",
+      "reason": "duplicate_existing_evidence: URL already appears in the ledger and rejected-candidates history."
+    },
+    {
+      "sourceUrl": "https://x.com/runpentagon/status/2057515254645428479",
+      "companyName": "Pentagon",
+      "platform": "x",
+      "reason": "duplicate_existing_evidence: URL and post ID already occur in targeted evidence and the ledger."
+    },
+    {
+      "sourceUrl": "https://x.com/revnu_app/status/2057593506567512169",
+      "companyName": "Revnu",
+      "platform": "x",
+      "reason": "duplicate_existing_evidence: company launch post is already present in logged-in evidence."
+    },
+    {
+      "sourceUrl": "https://x.com/revnu_app/status/2062199835206516819",
+      "companyName": "Revnu",
+      "platform": "x",
+      "reason": "duplicate_existing_evidence: URL and post ID already occur in logged-in evidence and the ledger."
+    },
+    {
+      "sourceUrl": "https://x.com/standoutwork/status/2068016009680728130",
+      "companyName": "Standout",
+      "platform": "x",
+      "reason": "duplicate_existing_evidence: URL and post ID already occur in targeted evidence and the ledger."
+    },
+    {
+      "sourceUrl": "https://x.com/TaskletAI/status/2062569557089460242",
+      "companyName": "Tasklet",
+      "platform": "x",
+      "reason": "duplicate_existing_evidence: URL and post ID already occur in public evidence and the ledger."
+    },
+    {
+      "sourceUrl": "https://x.com/TesterArmy/status/2066724247054221382",
+      "companyName": "TesterArmy",
+      "platform": "x",
+      "reason": "duplicate_existing_evidence: post ID already occurs in logged-in evidence."
+    },
+    {
+      "sourceUrl": "https://x.com/TesterArmy/status/2069140665716375593",
+      "companyName": "TesterArmy",
+      "platform": "x",
+      "reason": "duplicate_existing_evidence: URL and post ID already occur in logged-in evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/haris-javed-akhtar_myself-and-yaman-are-joining-y-combinator-activity-7450988785225383936-5rDU",
+      "companyName": "Panacea",
+      "platform": "linkedin",
+      "reason": "unclear_target_attribution: founder and product theme match the roster, but Panacea is not named in the visible post."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/yaman-ziadeh_haris-and-i-are-joining-y-combinator-my-activity-7451027183487057920-8T5h",
+      "companyName": "Panacea",
+      "platform": "linkedin",
+      "reason": "unclear_target_attribution: founder and product theme match the roster, but Panacea is not named in the visible post."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/kazuma-choji_launched-activity-7455007281840254977-k8_t",
+      "companyName": "Saffron",
+      "platform": "linkedin",
+      "reason": "repost_only_commentary: native founder text is only 'LAUNCHED'; all substantive evidence belongs to the quoted YC post."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/somanshshah_activity-7455365978068226048-4AqQ",
+      "companyName": "StableBrowse",
+      "platform": "linkedin",
+      "reason": "repost_only_commentary: native founder text contains only emoji; all substantive evidence belongs to another author's quoted post."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/justinso1_were-hiring-an-account-executive-at-sidekick-activity-7474211358738104321-7n_4",
+      "companyName": "Sidekick",
+      "platform": "linkedin",
+      "reason": "inaccessible_native_page: the post-level URL no longer returned native post metadata, so its timestamp and counters could not be revalidated."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/in/souryapx",
+      "companyName": "ProjectX",
+      "platform": "linkedin",
+      "reason": "profile_not_post_level: visible qualifying activity had no recoverable native post URL."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/in/justinso1",
+      "companyName": "Sidekick",
+      "platform": "linkedin",
+      "reason": "profile_not_post_level: profile activity is not an acceptable post-level evidence URL."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/in/sam-goldman",
+      "companyName": "Smartbase",
+      "platform": "linkedin",
+      "reason": "profile_not_post_level: visible Smartbase activity was a profile-level repost without a qualifying first-party post URL."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/stablebrowse",
+      "companyName": "StableBrowse",
+      "platform": "linkedin",
+      "reason": "profile_not_post_level: company updates were visible only through the company profile result, not recoverable post URLs."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/in/dean-stratakos",
+      "companyName": "Stage",
+      "platform": "linkedin",
+      "reason": "profile_not_post_level: qualifying founder activity was visible only in profile history without a post-level URL."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/in/sardor-rahmatulloev",
+      "companyName": "Twolabs",
+      "platform": "linkedin",
+      "reason": "profile_not_post_level: substantive founder posts were visible in profile history but no post-level URLs were recoverable."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/in/michaelroyzen",
+      "companyName": "Standard Signal",
+      "platform": "linkedin",
+      "reason": "profile_not_post_level: the profile identified the company but exposed no qualifying first-party post URL."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/in/nikolas-keller",
+      "companyName": "Walter",
+      "platform": "linkedin",
+      "reason": "profile_not_post_level: Walter activity was visible only in profile/search context without a native founder post URL."
+    }
+  ],
+  "duplicateUrls": [
+    "https://x.com/trybloomai/status/2061469236871225652",
+    "https://www.linkedin.com/posts/activity-7449862056914362368-qhAv",
+    "https://github.com/tolmohq/tolmo",
+    "https://github.com/tolmohq/tolmoenv",
+    "https://github.com/tolmohq/blaxel-devbox",
+    "https://x.com/runpentagon/status/2057515254645428479",
+    "https://x.com/revnu_app/status/2057593506567512169",
+    "https://x.com/revnu_app/status/2062199835206516819",
+    "https://x.com/standoutwork/status/2068016009680728130",
+    "https://x.com/TaskletAI/status/2062569557089460242",
+    "https://x.com/TesterArmy/status/2066724247054221382",
+    "https://x.com/TesterArmy/status/2069140665716375593"
+  ],
+  "productivity": {
+    "queriesPerformed": 25,
+    "accountsSearched": 93,
+    "companiesSearched": 69,
+    "candidatesFound": 61,
+    "netNewVerifiedRows": 36,
+    "duplicates": 12,
+    "rejectionsByReason": {
+      "duplicate_existing_evidence": 12,
+      "profile_not_post_level": 8,
+      "unclear_target_attribution": 2,
+      "repost_only_commentary": 2,
+      "inaccessible_native_page": 1
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "updatedAt": "2026-07-16T02:19:34.606Z",
+  "active": [],
+  "completedSinceLastImport": [
+    {
+      "artifact": "outputs/source-hunt/s2026-regular-zero-am-sol-ultra.json",
+      "accepted": 22,
+      "imported": 19,
+      "skippedDuplicates": 3
+    },
+    {
+      "artifact": "outputs/source-hunt/s2026-regular-zero-nz-sol-ultra.json",
+      "accepted": 36,
+      "imported": 36,
+      "skippedDuplicates": 0
+    },
+    {
+      "artifact": "outputs/source-hunt/a16z-founder-zero-sol-ultra.json",
+      "accepted": 6,
+      "imported": 6,
+      "skippedDuplicates": 0
+    },
+    {
+      "artifact": "outputs/source-hunt/a16z-founder-zero-second-sol-ultra.json",
+      "accepted": 8,
+      "imported": 8,
+      "skippedDuplicates": 0
+    },
+    {
+      "artifact": "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json",
+      "accepted": 3,
+      "imported": 3,
+      "skippedDuplicates": 0
+    },
+    {
+      "artifact": "outputs/source-hunt/s26-regular-zero-sol-ultra.json",
+      "accepted": 57,
+      "imported": 57,
+      "skippedDuplicates": 0
+    },
+    {
+      "artifact": "outputs/source-hunt/insiders-people-only-second-sol-ultra.json",
+      "accepted": 0,
+      "imported": 0,
+      "skippedDuplicates": 0
+    },
+    {
+      "artifact": "outputs/source-hunt/topvoices-people-only-third-sol-ultra.json",
+      "accepted": 2,
+      "imported": 2,
+      "skippedDuplicates": 0,
+      "rejected": 5,
+      "duplicates": 3
+    },
+    {
+      "artifact": "outputs/source-hunt/a16z-nonlinkedin-sol-ultra.json",
+      "accepted": 90,
+      "imported": 90,
+      "skippedDuplicates": 0,
+      "rejected": 32,
+      "duplicates": 26
+    },
+    {
+      "artifact": "outputs/source-hunt/all-batches-nonx-nonlinkedin-sol-ultra.json",
+      "accepted": 37,
+      "imported": 25,
+      "skippedDuplicates": 0,
+      "rejected": 30,
+      "duplicates": 23
+    }
+  ]
+}

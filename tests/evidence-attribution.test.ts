@@ -37,6 +37,14 @@ const companies: AttributionCompanyProfile[] = [
     websiteUrl: "https://standout.work",
     socialLinks: [{ platform: "x", url: "https://x.com/standoutwork" }],
     founders: []
+  },
+  {
+    id: "company-ploy",
+    name: "Ploy",
+    slug: "ploy",
+    websiteUrl: "https://ploy.ai",
+    socialLinks: [],
+    founders: []
   }
 ];
 
@@ -96,6 +104,35 @@ describe("evidence attribution guard", () => {
 
     expect(audit.reviewState).toBe("verified");
     expect(audit.scoreMultiplier).toBe(1);
+  });
+
+  it("allows native third-party posts when visible title or public JSON names the target", () => {
+    const item = evidence({
+      platform: "x",
+      authorName: "Trusted Partner",
+      authorHandle: "trustedpartner",
+      title: "Trusted Partner post about Alpha AI",
+      text: "This team is worth watching.",
+      rawVisibleText: JSON.stringify({
+        post: {
+          authorName: "Trusted Partner",
+          authorHandle: "trustedpartner",
+          rawText: "Alpha AI is building a useful workflow agent.",
+          text: "Alpha AI is building a useful workflow agent."
+        }
+      }),
+      sourceUrl: "https://x.com/trustedpartner/status/789",
+      accountUrl: null,
+      attachedCompanyId: "company-alpha-ai",
+      attachedCompanyName: "Alpha AI"
+    });
+
+    const audit = auditEvidenceAttribution(item, context);
+    const guarded = applyAttributionGuard(item, context);
+
+    expect(audit.reviewState).toBe("verified");
+    expect(audit.scoreMultiplier).toBe(1);
+    expect(guarded.contributionScore).toBe(item.contributionScore);
   });
 
   it("does not trust a source URL path when raw post author belongs to another X account", () => {
@@ -268,6 +305,57 @@ describe("evidence attribution guard", () => {
     expect(audit.scoreMultiplier).toBe(1);
   });
 
+  it("allows short company names only when verified snapshot provenance and visible text agree", () => {
+    const item = evidence({
+      platform: "x",
+      authorName: "Jared Friedman",
+      authorHandle: "snowmaker",
+      title: "Jared Friedman post about Ploy",
+      text: "Want more users? You should check out Ploy.",
+      rawVisibleText: JSON.stringify({
+        profile: {
+          name: "Jared Friedman",
+          username: "snowmaker"
+        },
+        post: {
+          rawText: "Want more users? You should check out Ploy.",
+          text: "Want more users? You should check out Ploy."
+        },
+        batchContext: {
+          batch: "YC Spring 2026",
+          source: "known_spring_snapshot_entity_id"
+        }
+      }),
+      sourceUrl: "https://x.com/snowmaker/status/12345",
+      platformPostId: "12345",
+      attachedCompanyId: "company-ploy",
+      attachedCompanyName: "Ploy"
+    });
+
+    const audit = auditEvidenceAttribution(item, context);
+
+    expect(audit.reviewState).toBe("verified");
+    expect(audit.scoreMultiplier).toBe(1);
+  });
+
+  it("does not globally trust short company names without snapshot provenance", () => {
+    const item = evidence({
+      platform: "x",
+      authorName: "Outside Investor",
+      authorHandle: "outsideinvestor",
+      text: "Want more users? You should check out Ploy.",
+      sourceUrl: "https://x.com/outsideinvestor/status/12345",
+      platformPostId: "12345",
+      attachedCompanyId: "company-ploy",
+      attachedCompanyName: "Ploy"
+    });
+
+    const audit = auditEvidenceAttribution(item, context);
+
+    expect(audit.reviewState).toBe("needs_review");
+    expect(audit.scoreMultiplier).toBe(0);
+  });
+
   it("moves weak third-party social evidence to needs review before scoring", () => {
     const item = evidence({
       platform: "youtube",
@@ -317,6 +405,7 @@ function evidence(overrides: Partial<EvidenceItem> & { platform: Platform; text:
     metrics: { views: 100_000, likes: 1_000, comments: 10 },
     contributionScore: 80,
     sourceUrl: overrides.sourceUrl ?? "https://example.com/post",
+    platformPostId: overrides.platformPostId,
     rawVisibleText: overrides.rawVisibleText,
     why: "test",
     attachedCompanyId: overrides.attachedCompanyId,

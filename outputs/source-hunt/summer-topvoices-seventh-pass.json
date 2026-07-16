@@ -1,0 +1,590 @@
+{
+  "accepted": [
+    {
+      "batchSlug": "s26",
+      "companyName": "Instance",
+      "companyId": "31341",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "agupta",
+      "sourceUrl": "https://x.com/agupta/status/2077125864006062268",
+      "platformPostId": "2077125864006062268",
+      "postedAt": "2026-07-14T20:19:31Z",
+      "title": "Introducing Instance: Evaluation for Robot Policies",
+      "text": "Ankit Gupta's native X article launches Instance, names the robot-policy evaluation product, demo.instancelabs.ai, and founders Claire Mao and Lucy Cai.",
+      "metrics": {
+        "views": 18016,
+        "likes": 88,
+        "replies": 5,
+        "reposts": 3,
+        "quotes": 0,
+        "bookmarks": 52
+      },
+      "attributionReason": "The X author profile is Ankit Gupta, general partner at @ycombinator; src/lib/social/top-voices.ts lists Ankit Gupta under yc_partners. The article body directly names Instance, founders @clairemao78 and @lucyjcai, and demo.instancelabs.ai, matching the Summer 2026 roster.",
+      "evidenceType": "native_x_article",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Prized",
+      "companyId": "32164",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "agupta",
+      "sourceUrl": "https://x.com/agupta/status/2077424054966088137",
+      "platformPostId": "2077424054966088137",
+      "postedAt": "2026-07-15T16:04:26Z",
+      "title": "Introducing Prized: Agentic builder for internal tools",
+      "text": "Ankit Gupta's native X article introduces Prized, links prized.dev, and names founders Marinos Eliades and Hudson Griffith as his YC batch founders.",
+      "metrics": {
+        "views": 4129,
+        "likes": 21,
+        "replies": 3,
+        "reposts": 3,
+        "quotes": 1,
+        "bookmarks": 16
+      },
+      "attributionReason": "The X author profile is Ankit Gupta, a listed yc_partners top voice. The article text names Prized, prized.dev, @itsmarinos, @hudson_gri, and says he is their group partner at YC; all match the Summer 2026 company record.",
+      "evidenceType": "native_x_article",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Prized",
+      "companyId": "32164",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "agupta",
+      "sourceUrl": "https://x.com/agupta/status/2077044076273164665",
+      "platformPostId": "2077044076273164665",
+      "postedAt": "2026-07-14T14:54:32Z",
+      "title": "Ankit Gupta quote-post congratulating Prized founders",
+      "text": "Ankit Gupta congratulates @itsmarinos and @hudson_gri on launch; the quoted founder post names Prized and the @useprized YC S26 founder context.",
+      "metrics": {
+        "views": 5126,
+        "likes": 22,
+        "replies": 0,
+        "reposts": 1,
+        "quotes": 0,
+        "bookmarks": 3
+      },
+      "attributionReason": "Native X quote-post is authored by Ankit Gupta. It names Prized founders Marinos Eliades and Hudson Griffith by handle, and the visible quoted post names Prized and comes from Hudson's profile, which identifies him as co-founder of @useprized (YC S26).",
+      "evidenceType": "native_x_quote_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Instance",
+      "companyId": "31341",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "agupta",
+      "sourceUrl": "https://x.com/agupta/status/2076783005025124492",
+      "platformPostId": "2076783005025124492",
+      "postedAt": "2026-07-13T21:37:07Z",
+      "title": "Ankit Gupta quote-post on Instance founders",
+      "text": "Ankit Gupta praises @clairemao78 and @lucyjcai; the quoted founder launch post names Instance and links the YC launch page.",
+      "metrics": {
+        "views": 18541,
+        "likes": 106,
+        "replies": 1,
+        "reposts": 7,
+        "quotes": 0,
+        "bookmarks": 50
+      },
+      "attributionReason": "Native X quote-post is authored by Ankit Gupta, a listed YC partner. It names Instance founders Claire Mao and Lucy Cai by handle, and the quoted Claire Mao post names Instance, @tryinstance context, YC S26, and the YC launch URL.",
+      "evidenceType": "native_x_quote_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Instance",
+      "companyId": "31341",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "agupta",
+      "sourceUrl": "https://x.com/agupta/status/2076799833214505373",
+      "platformPostId": "2076799833214505373",
+      "postedAt": "2026-07-13T22:43:59Z",
+      "title": "Ankit Gupta quote-post on Lucy Cai Instance launch",
+      "text": "Ankit Gupta says he is impressed by the founders; the quoted Lucy Cai launch post names Instance and her profile identifies @tryinstance (YC S26).",
+      "metrics": {
+        "views": 14370,
+        "likes": 89,
+        "replies": 1,
+        "reposts": 1,
+        "quotes": 0,
+        "bookmarks": 30
+      },
+      "attributionReason": "Native X quote-post is authored by Ankit Gupta. The visible quoted post is by Lucy Cai, whose author profile says she is building @tryinstance (YC S26), and the quoted text launches Instance's robot rollout detector.",
+      "evidenceType": "native_x_quote_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Bloomy",
+      "companyId": "32551",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2072753766701625532",
+      "platformPostId": "2072753766701625532",
+      "postedAt": "2026-07-02T18:46:22Z",
+      "title": "Tyler Bosmeny X post about Bloomy",
+      "text": "Tyler Bosmeny backs Bloomy's faster-learning claim, names founder @alexsouthmayd and company handle @bloomylearning.",
+      "metrics": {
+        "views": 13555,
+        "likes": 33,
+        "replies": 3,
+        "reposts": 3,
+        "quotes": 0,
+        "bookmarks": 11
+      },
+      "attributionReason": "Native X post by seeded YC partner Tyler Bosmeny. The post names S26 founder Alex Southmayd and official Bloomy handle; quoted founder context names Bloomy and bloomylearning.com.",
+      "evidenceType": "native_x_quote_post",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "83 Sciences",
+      "companyId": "33056",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2075013475424952797",
+      "platformPostId": "2075013475424952797",
+      "postedAt": "2026-07-09T00:25:39Z",
+      "title": "Tyler Bosmeny X post about 83 Sciences",
+      "text": "Tyler Bosmeny says 83 Sciences is using AI to mine discarded lab data for scientific breakthroughs.",
+      "metrics": {
+        "views": 11382,
+        "likes": 27,
+        "replies": 2,
+        "reposts": 2,
+        "quotes": 0,
+        "bookmarks": 10
+      },
+      "attributionReason": "Native X post by seeded YC partner Tyler Bosmeny directly names 83 Sciences. The quoted official-company post names @83sciences and 83sciences.ai.",
+      "evidenceType": "native_x_quote_post",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Inkbox",
+      "companyId": "33014",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2075342772392067278",
+      "platformPostId": "2075342772392067278",
+      "postedAt": "2026-07-09T22:14:09Z",
+      "title": "Tyler Bosmeny X post about Inkbox",
+      "text": "Tyler Bosmeny names Inkbox as the communication layer for AI agents and congratulates founder @rayruizhiliao.",
+      "metrics": {
+        "views": 4946,
+        "likes": 16,
+        "replies": 0,
+        "reposts": 1,
+        "quotes": 1,
+        "bookmarks": 6
+      },
+      "attributionReason": "Native X post by seeded YC partner Tyler Bosmeny directly names Inkbox and founder Ray Liao; quoted founder context names @inkbox_ai and inkbox.ai.",
+      "evidenceType": "native_x_quote_post",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "screenpipe",
+      "companyId": "32259",
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Jared Friedman",
+      "topVoiceHandle": "snowmaker",
+      "sourceUrl": "https://x.com/snowmaker/status/2068734568472207470",
+      "platformPostId": "2068734568472207470",
+      "postedAt": "2026-06-21T16:35:31Z",
+      "title": "Jared Friedman X reply linking screenpipe founder context",
+      "text": "Jared Friedman replies with credit to @louis030195 and links the founder post; the linked author context identifies screenpipe (YC S26).",
+      "metrics": {
+        "views": 20520,
+        "likes": 46,
+        "replies": 1,
+        "reposts": 0,
+        "quotes": 1,
+        "bookmarks": 8
+      },
+      "attributionReason": "Native X reply is authored by seeded YC partner Jared Friedman and mentions Louis Beaumont's handle. The linked founder post context identifies Louis as screenpipe (YC S26), matching the Summer 2026 roster.",
+      "evidenceType": "native_x_reply_with_linked_context",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Context.dev",
+      "companyId": "32227",
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Parker Conrad",
+      "topVoiceHandle": "parkerconrad",
+      "sourceUrl": "https://x.com/parkerconrad/status/2069810389022343466",
+      "platformPostId": "2069810389022343466",
+      "postedAt": "2026-06-24T15:50:26Z",
+      "title": "Parker Conrad X reply to Context.dev founder",
+      "text": "Parker Conrad replies to @mynameisyahia, the S26 founder handle for Context.dev founder Yahia Bakour.",
+      "metrics": {
+        "views": 115,
+        "likes": 1,
+        "replies": 1,
+        "reposts": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "attributionReason": "Native X reply is authored by listed insider Parker Conrad and visibly mentions @mynameisyahia, which the Summer 2026 roster maps to Context.dev founder Yahia Bakour.",
+      "evidenceType": "native_x_reply",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Instance",
+      "companyId": "31341",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "ankitvgupta",
+      "sourceUrl": "https://www.linkedin.com/posts/ankitvgupta_introducing-instance-congrats-on-the-launch-activity-7482921740625555457-Jw1O",
+      "platformPostId": "7482921740625555457",
+      "postedAt": "2026-07-14T22:19:28.928Z",
+      "title": "Introducing Instance: Evaluation for Robot Policies",
+      "text": "Ankit Gupta shares his Instance article; public LinkedIn comments and article context identify Instance (YC S26), Claire Mao, and Lucy Cai.",
+      "metrics": {
+        "reactions": 99,
+        "comments": 7
+      },
+      "attributionReason": "Native LinkedIn post by Ankit Gupta, a seeded YC partner. The public post links his Instance article, and visible comments/context name Instance (YC S26) and the listed founders.",
+      "evidenceType": "native_linkedin_post_article_share",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Prized",
+      "companyId": "32164",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "ankitvgupta",
+      "sourceUrl": "https://www.linkedin.com/posts/ankitvgupta_prized-yc-s26-lets-anyone-at-your-company-activity-7482809378585231360-P3SR",
+      "platformPostId": "7482809378585231360",
+      "postedAt": "2026-07-14T14:52:59.730Z",
+      "title": "Ankit Gupta LinkedIn post about Prized",
+      "text": "Ankit Gupta recommends Prized, names Hudson Griffith and Marinos Eliades, and the shared YC context names Prized (YC S26).",
+      "metrics": {
+        "reactions": 22,
+        "comments": 0
+      },
+      "attributionReason": "Native LinkedIn post by seeded YC partner Ankit Gupta directly names Prized founders Hudson Griffith and Marinos Eliades; shared visible context names Prized (YC S26) and prized.dev.",
+      "evidenceType": "native_linkedin_post",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Instance",
+      "companyId": "31341",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "ankitvgupta",
+      "sourceUrl": "https://www.linkedin.com/posts/ankitvgupta_today-evaluating-a-robot-policy-means-humans-activity-7482566122979082240-GyUI",
+      "platformPostId": "7482566122979082240",
+      "postedAt": "2026-07-13T22:46:23.074Z",
+      "title": "Ankit Gupta LinkedIn post about Instance founders",
+      "text": "Ankit Gupta praises Claire Mao and Lucy Cai; shared YC context names Instance (YC S26) and describes the launch.",
+      "metrics": {
+        "reactions": 10,
+        "comments": 0
+      },
+      "attributionReason": "Native LinkedIn post by seeded YC partner Ankit Gupta names the S26 founders Claire Mao and Lucy Cai. The visible shared YC context names Instance (YC S26).",
+      "evidenceType": "native_linkedin_post",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Bloomy",
+      "companyId": "32551",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "tylerbosmeny",
+      "sourceUrl": "https://www.linkedin.com/posts/tylerbosmeny_bloomy-yc-s26-is-helping-kids-learn-faster-activity-7478590522912075776-rx88",
+      "platformPostId": "7478590522912075776",
+      "postedAt": "2026-07-02T23:28:46.155Z",
+      "title": "Tyler Bosmeny LinkedIn post about Bloomy",
+      "text": "Tyler Bosmeny predicts Bloomy will be a great edtech company and congratulates Alex Southmayd.",
+      "metrics": {
+        "reactions": 24,
+        "comments": 7
+      },
+      "attributionReason": "Native LinkedIn post by seeded YC partner Tyler Bosmeny directly names Bloomy (YC S26) and founder Alex Southmayd; shared YC context links bloomylearning.com.",
+      "evidenceType": "native_linkedin_post",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "83 Sciences",
+      "companyId": "33056",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "tylerbosmeny",
+      "sourceUrl": "https://www.linkedin.com/posts/tylerbosmeny_83-sciences-future-of-scientific-discovery-activity-7480779232332324864-860p",
+      "platformPostId": "7480779232332324864",
+      "postedAt": "2026-07-09T00:25:55.145Z",
+      "title": "83 Sciences Future of Scientific Discovery",
+      "text": "Tyler Bosmeny says 83 Sciences uses AI to mine discarded lab data; the shared company context includes 83sciences.ai.",
+      "metrics": {
+        "reactions": 40,
+        "comments": 5
+      },
+      "attributionReason": "Native LinkedIn post by seeded YC partner Tyler Bosmeny directly names 83 Sciences; shared visible company context names 83 Sciences and hello@83sciences.ai.",
+      "evidenceType": "native_linkedin_post",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "s26",
+      "companyName": "Litmus",
+      "companyId": "31304",
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Jared Friedman",
+      "topVoiceHandle": "jaredfriedman",
+      "sourceUrl": "https://www.linkedin.com/posts/jaredfriedman_in-the-ai-coding-world-technical-interviews-activity-7465792243405131776-frhF",
+      "platformPostId": "7465792243405131776",
+      "postedAt": "2026-05-28T15:52:58.540Z",
+      "title": "Jared Friedman LinkedIn post about technical interviews",
+      "text": "Jared Friedman says technical interviews need reinvention; the shared founder context names Litmus, Y Combinator, and litmushiring.com.",
+      "metrics": {
+        "reactions": 75,
+        "comments": 15
+      },
+      "attributionReason": "Native LinkedIn post by seeded YC partner Jared Friedman. The visible shared post by Litmus founder Shaivi Rau names Litmus, Y Combinator backing, and litmushiring.com, matching the Summer 2026 company record.",
+      "evidenceType": "native_linkedin_post",
+      "duplicateLikely": true
+    }
+  ],
+  "rejected": [
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/garrytan/status/2058645042621976680",
+      "topVoiceName": "Garry Tan",
+      "reason": "Rejected: URL resolves to a repost of Diana Hu's generic S26 advice post, not native Garry Tan authorship, and it does not mention a target company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/garrytan/status/2051290046565843168",
+      "topVoiceName": "Garry Tan",
+      "reason": "Rejected: native top-voice post with visible metrics, but it is generic Summer 2026 application-deadline advice with no target company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/sdianahu/status/2058644733677986223",
+      "topVoiceName": "Diana Hu",
+      "reason": "Rejected: native YC partner post with visible metrics, but only generic S26 application/advice content and no target company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/bradflora/status/2052044928780484647",
+      "topVoiceName": "Brad Flora",
+      "reason": "Rejected: native YC partner post with visible metrics, but it promotes S26 interviews and does not identify a specific S26 company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/bosmeny/status/2062974811165671542",
+      "topVoiceName": "Tyler Bosmeny",
+      "reason": "Rejected: native YC partner post with visible metrics, but it is batch-level hard-tech commentary and has no target company/founder/handle/domain."
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/gustaf/status/2069461894138941860",
+      "topVoiceName": "Gustaf Alstromer",
+      "reason": "Rejected: native YC partner post welcomes the S26 batch to San Francisco, but it does not mention or match any specific Summer 2026 company/founder/handle/domain."
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/sdianahu/status/2070216980322549923",
+      "topVoiceName": "Diana Hu",
+      "reason": "Rejected: native YC partner post thanks a kickoff speaker; @aditabrm is not a Summer 2026 company or founder in the local roster, and no company/domain target is visible."
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/agupta/status/2070210446293147960",
+      "topVoiceName": "Ankit Gupta",
+      "reason": "Rejected: native post by Ankit Gupta with visible metrics, but Intelligence Factory was not found in src/lib/yc/summer-2026-companies.json, so it is out of this S26 company scope."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/prateekjannu_i-dropped-my-stanford-admit-to-build-coasty-activity-7475434306400796673-j8jM",
+      "topVoiceName": "Brad Flora",
+      "reason": "Rejected: founder-authored Coasty post thanks Brad Flora, but the native author is not a listed top voice."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/nitish-kovuru-2423351b4_happy-to-announce-were-part-of-yc-s26-activity-7475429173289943040-AKWv",
+      "topVoiceName": "Brad Flora",
+      "reason": "Rejected: founder-authored Coasty post mentions Brad Flora; thanking or tagging a YC partner is not native top-voice authorship."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/sean-cole-8985a4207_excited-to-announce-that-parasma-is-joining-activity-7476123052993372160-SiNp",
+      "topVoiceName": "Tyler Bosmeny",
+      "reason": "Rejected: founder-authored Parasma post thanks Tyler Bosmeny, but the native author is Sean Cole, not a listed top voice."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/ranvirdeshmukh_realpact-yc-s26-has-closed-an-oversubscribed-activity-7474911105610502146-ZQvZ",
+      "topVoiceName": "Jon Xu",
+      "reason": "Rejected: founder-authored RealPact post thanks Jon Xu; the top voice is not the native author."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_screenpipe-yc-s26-lets-you-record-how-you-activity-7482811226582867968-zym2",
+      "topVoiceName": "Y Combinator",
+      "reason": "Rejected: native author is the Y Combinator organization account, which the task explicitly excludes."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/company/inkbox-ai",
+      "topVoiceName": "Tyler Bosmeny",
+      "reason": "Rejected: company page contains founder-authored and company-reposted Inkbox content with Tyler Bosmeny named as a group partner, but it is not a native post/comment authored by Tyler Bosmeny."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tylerbosmeny_excited-to-announce-that-pocket-yc-w26-activity-7477758781926400016-5I7E",
+      "topVoiceName": "Tyler Bosmeny",
+      "reason": "Rejected: native top-voice post with visible metrics, but the visible context identifies Pocket as YC W26, not Summer 2026/S26."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tylerbosmeny_with-clodo-describe-exactly-who-youre-looking-activity-7477506620155928576-OYPE",
+      "topVoiceName": "Tyler Bosmeny",
+      "reason": "Rejected: native top-voice post with visible metrics, but CLODO was not found in src/lib/yc/summer-2026-companies.json."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/sdianahu_many-companies-are-1-on-a-benchmark-they-activity-7477821474305626112-nSao",
+      "topVoiceName": "Diana Hu",
+      "reason": "Rejected: native top-voice post with visible metrics, but Reducto was not found in src/lib/yc/summer-2026-companies.json."
+    },
+    {
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/",
+      "topVoiceName": null,
+      "reason": "Rejected: HN searches found founder-authored Launch HN threads and unrelated historical mentions, but no native story/comment authored by a listed top voice for a Summer 2026 target."
+    },
+    {
+      "platform": "product_hunt",
+      "sourceUrl": "https://www.producthunt.com/",
+      "topVoiceName": null,
+      "reason": "Rejected: Product Hunt searches for Context.dev, screenpipe, Prized, and Instance did not surface attributable comments by listed top voices with visible metrics."
+    }
+  ],
+  "searches": [
+    {
+      "type": "local_roster",
+      "query": "src/lib/social/top-voices.ts",
+      "result": "Parsed 68 configured top-voice people: 18 yc_partners and 50 insiders."
+    },
+    {
+      "type": "local_roster",
+      "query": "src/lib/yc/summer-2026-companies.json",
+      "result": "Scoped target set to 83 Summer 2026 companies and their founders, handles, domains, and primary partners."
+    },
+    {
+      "type": "canonical_duplicate_check",
+      "query": "src/lib/social/targeted-evidence-current.json sourceUrl/platformPostId",
+      "result": "Marked duplicateLikely for canonical source URLs or platformPostIds already present."
+    },
+    {
+      "type": "web_search",
+      "query": "site:x.com/agupta/status \"YC S26\"; \"Instance\"; \"Prized\"; \"S26\"",
+      "result": "Accepted five native X posts/articles by Ankit Gupta for Instance and Prized; rejected one Intelligence Factory post as out of S26 roster scope."
+    },
+    {
+      "type": "web_search",
+      "query": "site:x.com/bosmeny/status \"S26\" \"YC\" and company-specific Bloomy/83 Sciences/Inkbox searches",
+      "result": "Confirmed Tyler Bosmeny X duplicates for Bloomy, 83 Sciences, and Inkbox; rejected generic hard-tech S26 commentary."
+    },
+    {
+      "type": "web_search",
+      "query": "site:x.com/snowmaker/status \"S26\" \"YC\"",
+      "result": "Confirmed Jared Friedman X duplicate for screenpipe founder context."
+    },
+    {
+      "type": "web_search",
+      "query": "site:x.com/garrytan/status \"S26\" \"YC\"; \"Summer 2026\" \"YC\"",
+      "result": "Rejected Garry Tan generic application content and reposted Diana Hu content; no strict company-targeted S26 evidence found."
+    },
+    {
+      "type": "web_search",
+      "query": "site:x.com/sdianahu/status \"S26\"; \"Praxis\"; \"Amulet\"; \"OpenTrade\"",
+      "result": "Rejected generic S26 advice/kickoff posts; no strict company-targeted Diana Hu S26 evidence found."
+    },
+    {
+      "type": "web_search",
+      "query": "site:x.com/bradflora/status Coasty/Talentpluto/Touchmark/Truffle and \"Brad Flora\" company searches",
+      "result": "Found founder-authored thank-you posts for Coasty and generic interview content; rejected because not native Brad Flora authorship or no target."
+    },
+    {
+      "type": "web_search",
+      "query": "site:x.com/gustaf/status \"S26\"; screenpipe/Pango/Nori/Conifer searches",
+      "result": "Rejected Gustaf Alstromer generic S26 welcome post; no strict company-targeted native Gustaf evidence found."
+    },
+    {
+      "type": "web_search",
+      "query": "\"Jon Xu\" Context.dev/Mireye/RealPact/Trope \"YC S26\"",
+      "result": "Found founder/company pages thanking or naming Jon Xu as partner; rejected because Jon Xu was not the native author."
+    },
+    {
+      "type": "web_search",
+      "query": "\"Harshita Arora\" Markov/Codag \"YC S26\" and site:x.com/harshitaarora/status",
+      "result": "No strict native Harshita-authored Summer 2026 evidence found."
+    },
+    {
+      "type": "web_search",
+      "query": "Y Combinator And Partners LinkedIn Posts (OutX) and direct LinkedIn post URLs for Ankit Gupta, Tyler Bosmeny, Jared Friedman",
+      "result": "Accepted six LinkedIn duplicates with direct public counters; rejected non-S26 or generic LinkedIn posts."
+    },
+    {
+      "type": "web_search",
+      "query": "site:news.ycombinator.com/item Ankit Gupta/Jared Friedman/Garry Tan with Instance/Litmus/S26",
+      "result": "No qualifying HN top-voice-authored comments or posts found."
+    },
+    {
+      "type": "web_search",
+      "query": "site:producthunt.com/products Context.dev/screenpipe/Prized/Instance with Garry Tan/Jared Friedman/Ankit Gupta",
+      "result": "No qualifying Product Hunt top-voice-authored comments found."
+    },
+    {
+      "type": "metric_verification",
+      "query": "api.fxtwitter.com/{handle}/status/{id}",
+      "result": "Verified native X author identity, text/article/quote context, timestamps, and counters for all accepted X rows and key rejected X rows."
+    },
+    {
+      "type": "metric_verification",
+      "query": "Public LinkedIn post HTML and decoded LinkedIn activity IDs",
+      "result": "Verified public LinkedIn reaction/comment counters and concrete timestamps for accepted LinkedIn rows."
+    }
+  ],
+  "notes": [
+    "Strict scope: Summer 2026/S26 companies from src/lib/yc/summer-2026-companies.json only. Spring/P26/W26 rows from previous passes were not accepted here.",
+    "Y Combinator organization/community accounts, company accounts, company reposts, and founder-authored posts that merely thank a top voice were rejected.",
+    "X @agupta is not currently listed as Ankit Gupta's handle in src/lib/social/top-voices.ts, but the public X author profile names Ankit Gupta as a general partner at @ycombinator and the person is listed under yc_partners. If import matching requires seeded platform handles only, add/override this handle before relying on automatic top-voice matching.",
+    "duplicateLikely is true only where sourceUrl or platformPostId is already present in src/lib/social/targeted-evidence-current.json; related-but-different cross-posts are left false.",
+    "Metrics are point-in-time public counters observed on 2026-07-15 via api.fxtwitter.com, public LinkedIn HTML, or prior canonical checks; social counters may drift."
+  ]
+}

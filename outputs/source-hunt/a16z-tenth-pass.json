@@ -1,0 +1,816 @@
+{
+  "accepted": [
+    {
+      "companySlug": "taxnova",
+      "companyName": "Taxnova",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/nichkov_were-launching-taxnova-to-fix-a-broken-activity-7424452124068970496--ytf",
+      "platformPostId": "7424452124068970496",
+      "postedAt": "2026-02-03T14:02:06.005Z",
+      "author": {
+        "name": "George Nichkov",
+        "handle": "nichkov",
+        "profileUrl": "https://www.linkedin.com/in/nichkov",
+        "relationship": "A16Z Speedrun-listed Taxnova founder"
+      },
+      "metrics": {
+        "reactions": 792,
+        "comments": 272,
+        "authorFollowers": 5916
+      },
+      "nativeEvidence": {
+        "headline": "We're launching Taxnova to fix a broken R&D tax process",
+        "visibleTextSignals": [
+          "post says Taxnova is launching with $1M led by a16z speedrun",
+          "post describes Taxnova connecting GitHub, Jira, Slack, and Notion for R&D tax claims",
+          "public LinkedIn page shows 792 reactions and 272 comments"
+        ],
+        "verificationMethod": "Public LinkedIn post page plus first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists George Nichkov's LinkedIn profile for Taxnova.",
+        "Post author names Taxnova and co-founder Maria Malykh directly.",
+        "A16Z Speedrun Taxnova profile lists Taxnova as cohort 006."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "taxnova",
+      "companyName": "Taxnova",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/maria-malykh-ilyina_excited-to-announce-taxnova-were-out-activity-7424466196000894977-AaMN",
+      "platformPostId": "7424466196000894977",
+      "postedAt": "2026-02-03T14:58:01.019Z",
+      "author": {
+        "name": "Maria Malykh",
+        "handle": "maria-malykh-ilyina",
+        "profileUrl": "https://www.linkedin.com/in/maria-malykh-ilyina",
+        "relationship": "A16Z Speedrun-listed Taxnova founder"
+      },
+      "metrics": {
+        "reactions": 625,
+        "comments": 157,
+        "authorFollowers": 3691
+      },
+      "nativeEvidence": {
+        "headline": "Excited to announce TaxNova - we're out of stealth",
+        "visibleTextSignals": [
+          "post says TaxNova closed $1M from a16z speedrun, s16vc, Karaoke Club, and angels",
+          "post describes Taxnova as AI infrastructure for global innovation incentives and R&D tax claims",
+          "public LinkedIn page shows 625 reactions and 157 comments"
+        ],
+        "verificationMethod": "Public LinkedIn post page plus first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists Maria Malykh's LinkedIn profile for Taxnova.",
+        "Post author names TaxNova directly and links back to the George Nichkov announcement in comments.",
+        "A16Z Speedrun Taxnova profile lists Maria Malykh as Taxnova CTO."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "sentra",
+      "companyName": "Sentra",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ashgopi_after-nearly-15-years-of-keeping-one-foot-activity-7422324732504686593-nuT0",
+      "platformPostId": "7422324732504686593",
+      "postedAt": "2026-01-28T17:08:36.325Z",
+      "author": {
+        "name": "Ashwin Gopinath",
+        "handle": "ashgopi",
+        "profileUrl": "https://www.linkedin.com/in/ashgopi",
+        "relationship": "A16Z Speedrun-listed Sentra co-founder and CEO"
+      },
+      "metrics": {
+        "reactions": 159,
+        "comments": 22,
+        "authorFollowers": 15244
+      },
+      "nativeEvidence": {
+        "headline": "Ashwin Gopinath goes all-in on Sentra",
+        "visibleTextSignals": [
+          "post says Ashwin Gopinath went all-in on Sentra",
+          "post says Sentra raised a bit north of $5M co-led by a16z speedrun and Together Fund",
+          "public LinkedIn page shows 159 reactions and 22 comments"
+        ],
+        "verificationMethod": "Public LinkedIn post page plus first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun Sentra profile lists Ashwin Gopinath as co-founder and CEO.",
+        "A16Z Speedrun 006 social-account snapshot links Ashwin Gopinath's LinkedIn profile to Sentra.",
+        "Post body names Sentra and a16z speedrun directly."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "sentra",
+      "companyName": "Sentra",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/andreystarenky_had-a-blast-at-a16z-speedrun-demo-day-today-activity-7449968966829236224-qhh4",
+      "platformPostId": "7449968966829236224",
+      "postedAt": "2026-04-14T23:56:55.393Z",
+      "author": {
+        "name": "Andrey Starenky",
+        "handle": "andreystarenky",
+        "profileUrl": "https://www.linkedin.com/in/andreystarenky",
+        "relationship": "A16Z Speedrun-listed Sentra co-founder and CTO"
+      },
+      "metrics": {
+        "reactions": 114,
+        "comments": 10,
+        "authorFollowers": 3269
+      },
+      "nativeEvidence": {
+        "headline": "Sentra a16z speedrun Demo Day post",
+        "visibleTextSignals": [
+          "post says Andrey Starenky shared what the team was working on at Sentra at a16z speedrun Demo Day",
+          "post describes growth in team, product, and traction during speedrun",
+          "public LinkedIn page shows 114 reactions and 10 comments"
+        ],
+        "verificationMethod": "Public LinkedIn post page plus first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun Sentra profile lists Andrey Starenky as co-founder and CTO.",
+        "A16Z Speedrun 006 social-account snapshot links Andrey Starenky's LinkedIn profile to Sentra.",
+        "Post body names Sentra and a16z speedrun directly."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "partyhat",
+      "companyName": "PartyHat",
+      "platform": "instagram",
+      "evidenceType": "instagram_post",
+      "sourceUrl": "https://www.instagram.com/p/DWRzTfAARbN/",
+      "platformPostId": "DWRzTfAARbN",
+      "postedAt": "2026-03-24",
+      "author": {
+        "name": "PartyHat",
+        "handle": "officialpartyhat",
+        "profileUrl": "https://www.instagram.com/officialpartyhat",
+        "relationship": "verified company Instagram account"
+      },
+      "metrics": {
+        "likes": 8,
+        "comments": 0
+      },
+      "nativeEvidence": {
+        "headline": "PartyHat Instagram cybersecurity post",
+        "visibleTextSignals": [
+          "search result shows native Instagram post by officialpartyhat on March 24, 2026",
+          "caption begins with a cybersecurity/VPN prompt",
+          "search result shows 8 likes and 0 comments"
+        ],
+        "verificationMethod": "Public web search result for the native Instagram post URL with visible account, date, caption, likes, and comments."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://www.instagram.com/officialpartyhat as PartyHat's verified Instagram account.",
+        "Native URL is an Instagram post, not a profile or search page.",
+        "Author handle matches the verified PartyHat company handle."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "partyhat",
+      "companyName": "PartyHat",
+      "platform": "instagram",
+      "evidenceType": "instagram_post",
+      "sourceUrl": "https://www.instagram.com/p/DYM0MOwkRqS/",
+      "platformPostId": "DYM0MOwkRqS",
+      "postedAt": null,
+      "author": {
+        "name": "PartyHat",
+        "handle": "officialpartyhat",
+        "profileUrl": "https://www.instagram.com/officialpartyhat",
+        "relationship": "verified company Instagram account"
+      },
+      "metrics": {
+        "likes": 8
+      },
+      "nativeEvidence": {
+        "headline": "PartyHat Instagram SMB cybersecurity post",
+        "visibleTextSignals": [
+          "search result shows native Instagram post by officialpartyhat",
+          "caption begins with a smarter, more practical way to approach cyber security for SMBs",
+          "search result shows 8 likes"
+        ],
+        "verificationMethod": "Public web search result for the native Instagram post URL with visible account, caption, and like count; exact timestamp was not exposed publicly."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://www.instagram.com/officialpartyhat as PartyHat's verified Instagram account.",
+        "Native URL is an Instagram post, not a profile or search page.",
+        "Author handle matches the verified PartyHat company handle."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/modaic-ai/trajectory-compress",
+      "platformPostId": "modaic-ai/trajectory-compress",
+      "postedAt": "2026-07-01T02:28:47Z",
+      "author": {
+        "name": "modaic-ai",
+        "handle": "modaic-ai",
+        "profileUrl": "https://github.com/modaic-ai",
+        "relationship": "verified company GitHub organization"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "language": "TypeScript",
+        "isFork": false
+      },
+      "nativeEvidence": {
+        "headline": "modaic-ai/trajectory-compress",
+        "visibleTextSignals": [
+          "repo description: Compress long-horizon agent trajectories into a summarized sequence of events without any loss. Powered by RLMs.",
+          "GitHub API returned created_at, updated_at, repo URL, owner, and visible counters",
+          "repo is not a fork"
+        ],
+        "verificationMethod": "GitHub public repository API and native repo URL."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://github.com/modaic-ai for Modaic.",
+        "Repository owner is the verified Modaic GitHub organization.",
+        "Native URL is a repository URL, not an org/profile page."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/modaic-ai/probes-v2",
+      "platformPostId": "modaic-ai/probes-v2",
+      "postedAt": "2026-03-21T06:47:31Z",
+      "author": {
+        "name": "modaic-ai",
+        "handle": "modaic-ai",
+        "profileUrl": "https://github.com/modaic-ai",
+        "relationship": "verified company GitHub organization"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "language": "Python",
+        "isFork": false
+      },
+      "nativeEvidence": {
+        "headline": "modaic-ai/probes-v2",
+        "visibleTextSignals": [
+          "GitHub API returned created_at, updated_at, repo URL, owner, and visible counters",
+          "repository is under the verified modaic-ai organization",
+          "repo is not a fork"
+        ],
+        "verificationMethod": "GitHub public repository API and native repo URL."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://github.com/modaic-ai for Modaic.",
+        "Repository owner is the verified Modaic GitHub organization.",
+        "Native URL is a repository URL, not an org/profile page."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/modaic-ai/probes",
+      "platformPostId": "modaic-ai/probes",
+      "postedAt": "2026-01-29T08:04:00Z",
+      "author": {
+        "name": "modaic-ai",
+        "handle": "modaic-ai",
+        "profileUrl": "https://github.com/modaic-ai",
+        "relationship": "verified company GitHub organization"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "language": "Jupyter Notebook",
+        "isFork": false
+      },
+      "nativeEvidence": {
+        "headline": "modaic-ai/probes",
+        "visibleTextSignals": [
+          "GitHub API returned created_at, updated_at, repo URL, owner, and visible counters",
+          "repository is under the verified modaic-ai organization",
+          "repo is not a fork"
+        ],
+        "verificationMethod": "GitHub public repository API and native repo URL."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://github.com/modaic-ai for Modaic.",
+        "Repository owner is the verified Modaic GitHub organization.",
+        "Native URL is a repository URL, not an org/profile page."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/modaic-ai/skill-issue",
+      "platformPostId": "modaic-ai/skill-issue",
+      "postedAt": "2026-02-02T19:53:29Z",
+      "author": {
+        "name": "modaic-ai",
+        "handle": "modaic-ai",
+        "profileUrl": "https://github.com/modaic-ai",
+        "relationship": "verified company GitHub organization"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "language": "Python",
+        "isFork": false
+      },
+      "nativeEvidence": {
+        "headline": "modaic-ai/skill-issue",
+        "visibleTextSignals": [
+          "GitHub API returned created_at, updated_at, repo URL, owner, and visible counters",
+          "repository is under the verified modaic-ai organization",
+          "repo is not a fork"
+        ],
+        "verificationMethod": "GitHub public repository API and native repo URL."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://github.com/modaic-ai for Modaic.",
+        "Repository owner is the verified Modaic GitHub organization.",
+        "Native URL is a repository URL, not an org/profile page."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/modaic-ai/retrievers",
+      "platformPostId": "modaic-ai/retrievers",
+      "postedAt": "2025-12-07T21:28:04Z",
+      "author": {
+        "name": "modaic-ai",
+        "handle": "modaic-ai",
+        "profileUrl": "https://github.com/modaic-ai",
+        "relationship": "verified company GitHub organization"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 10,
+        "language": "Python",
+        "isFork": false
+      },
+      "nativeEvidence": {
+        "headline": "modaic-ai/retrievers",
+        "visibleTextSignals": [
+          "GitHub API returned created_at, updated_at, repo URL, owner, and visible counters",
+          "repository is under the verified modaic-ai organization",
+          "repo is not a fork"
+        ],
+        "verificationMethod": "GitHub public repository API and native repo URL."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://github.com/modaic-ai for Modaic.",
+        "Repository owner is the verified Modaic GitHub organization.",
+        "Native URL is a repository URL, not an org/profile page."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/modaic-ai/modaic-docs",
+      "platformPostId": "modaic-ai/modaic-docs",
+      "postedAt": "2025-12-10T19:16:01Z",
+      "author": {
+        "name": "modaic-ai",
+        "handle": "modaic-ai",
+        "profileUrl": "https://github.com/modaic-ai",
+        "relationship": "verified company GitHub organization"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "language": null,
+        "isFork": false
+      },
+      "nativeEvidence": {
+        "headline": "modaic-ai/modaic-docs",
+        "visibleTextSignals": [
+          "repo description: Aggregated repo for all modaic docs",
+          "GitHub API returned created_at, updated_at, repo URL, owner, and visible counters",
+          "repo is not a fork"
+        ],
+        "verificationMethod": "GitHub public repository API and native repo URL."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://github.com/modaic-ai for Modaic.",
+        "Repository owner is the verified Modaic GitHub organization.",
+        "Native URL is a repository URL, not an org/profile page."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    },
+    {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/modaic-ai/persana-lead-gen",
+      "platformPostId": "modaic-ai/persana-lead-gen",
+      "postedAt": "2025-10-03T23:25:53Z",
+      "author": {
+        "name": "modaic-ai",
+        "handle": "modaic-ai",
+        "profileUrl": "https://github.com/modaic-ai",
+        "relationship": "verified company GitHub organization"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "language": "Python",
+        "isFork": false
+      },
+      "nativeEvidence": {
+        "headline": "modaic-ai/persana-lead-gen",
+        "visibleTextSignals": [
+          "GitHub API returned created_at, updated_at, repo URL, owner, and visible counters",
+          "repository is under the verified modaic-ai organization",
+          "repo is not a fork"
+        ],
+        "verificationMethod": "GitHub public repository API and native repo URL."
+      },
+      "attributionSignals": [
+        "A16Z Speedrun 006 social-account snapshot lists https://github.com/modaic-ai for Modaic.",
+        "Repository owner is the verified Modaic GitHub organization.",
+        "Native URL is a repository URL, not an org/profile page."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "checkedAgainst": [
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "outputs/source-hunt/*.json"
+        ]
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "sourceUrl": "https://github.com/modaic-ai/EnterpriseOps-Gym",
+      "platformPostId": "modaic-ai/EnterpriseOps-Gym",
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "isFork": true
+      },
+      "reason": "Rejected: GitHub API marks the repo as a fork and the description says it is codebase for EnterpriseOps-Gym from ServiceNow, so first-party Modaic attribution is weaker than the official-org non-fork repos.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "amdahl",
+      "companyName": "Amdahl",
+      "platform": "github",
+      "sourceUrl": "https://github.com/amdahl-ai",
+      "metrics": {},
+      "reason": "Rejected: verified account URL returned 404 through the GitHub API during this pass; profile/org pages are not acceptable native repo evidence.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "panorama",
+      "companyName": "Panorama",
+      "platform": "github",
+      "sourceUrl": "https://github.com/panorama-dev",
+      "metrics": {},
+      "reason": "Rejected: GitHub API returned no public repositories; org/profile page alone is not a native repo URL.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "taxnova",
+      "companyName": "Taxnova",
+      "platform": "github",
+      "sourceUrl": "https://github.com/TaxNova-AI",
+      "metrics": {},
+      "reason": "Rejected: GitHub API returned no public repositories; org/profile page alone is not a native repo URL.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "oasis",
+      "companyName": "Oasis",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/naveensharma02_i-left-palantir-with-stefano-delmanto-to-activity-7447055836243439617-onfB",
+      "metrics": {
+        "reactions": 225,
+        "comments": 53
+      },
+      "reason": "Rejected as already seen and previously rejected: founder match is strong, but visible company/product identity says Mercury/mercury.build rather than Oasis, creating a company-name mismatch.",
+      "duplicateLikely": true
+    },
+    {
+      "companySlug": "august",
+      "companyName": "August",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/noya-kremer-49028a197_a16z-speedrun-is-the-best-place-to-build-activity-7450378564123742208-GToK",
+      "metrics": {
+        "reactions": 182,
+        "comments": 10
+      },
+      "reason": "Rejected as already seen in outputs/source-hunt and not first-party: the post mentions August and its founders but is authored by an a16z Speedrun partner, not August or a verified founder account.",
+      "duplicateLikely": true
+    },
+    {
+      "companySlug": "advocate",
+      "companyName": "Advocate",
+      "platform": "linkedin",
+      "sourceUrl": null,
+      "metrics": {},
+      "reason": "Rejected: targeted searches found A16Z profile/gist/context pages and a generic workflow LinkedIn post, but no native company/founder post URL with visible post metrics.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "quinn",
+      "companyName": "Quinn",
+      "platform": "instagram",
+      "sourceUrl": "https://www.instagram.com/reel/DQZdl6wEfbE/",
+      "metrics": {},
+      "reason": "Rejected: native Instagram reel mentions meetquinn.ai, but the Instagram handle is not verified in the A16Z Speedrun 006 account snapshot and the search result did not expose visible post metrics.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "paypath",
+      "companyName": "PayPath",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/datadog-for-startups_nytechweek-datadog-a16z-activity-7469828299221962752-7OTT",
+      "metrics": {
+        "reactions": 69,
+        "comments": 4
+      },
+      "reason": "Rejected: native LinkedIn event recap mentions Dean Glas (PayPath), but it is third-party event context rather than direct PayPath/founder-authored company evidence.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "taxnova",
+      "companyName": "Taxnova",
+      "platform": "product_hunt",
+      "sourceUrl": "https://www.producthunt.com/products/taxnova",
+      "metrics": {
+        "points": 66,
+        "dayRank": 63,
+        "followers": 26
+      },
+      "reason": "Rejected as duplicate/context: canonical Product Hunt product page already exists in src/lib/social/a16z-speedrun-006-social-evidence.json, and this pass did not find a new Product Hunt launch URL.",
+      "duplicateLikely": true
+    },
+    {
+      "companySlug": "quinn",
+      "companyName": "Quinn",
+      "platform": "reddit",
+      "sourceUrl": "https://www.reddit.com/r/dalmatians/comments/1jw13bc/meet_quinn/",
+      "metrics": {},
+      "reason": "Rejected: false-positive Reddit result about a dog named Quinn, not the A16Z Speedrun company.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "sentra",
+      "companyName": "Sentra",
+      "platform": "hacker_news",
+      "sourceUrl": null,
+      "metrics": {},
+      "reason": "Rejected: HN Algolia searches for Sentra and other zero-evidence A16Z Speedrun 006 company names returned no relevant story or comment hits.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "simula",
+      "companyName": "Simula",
+      "platform": "web",
+      "sourceUrl": "https://happenstance.ai/u/logan-nicholson-5712",
+      "metrics": {},
+      "reason": "Rejected: useful official/web-style context only; not a native supported-platform post/video/repo/comment/launch URL with visible metrics.",
+      "duplicateLikely": false
+    },
+    {
+      "companySlug": "advocate",
+      "companyName": "Advocate",
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=WhW9BasafSI",
+      "metrics": {},
+      "reason": "Rejected: YouTube search result matched the generic word advocating, not the Advocate company, and provided no direct company/founder attribution.",
+      "duplicateLikely": false
+    }
+  ],
+  "searches": [
+    {
+      "platform": "dedupe",
+      "query": "Recursive URL and platform-id scan of src/lib/social/a16z-speedrun-006-social-evidence.json plus outputs/source-hunt/*.json",
+      "resultSummary": "Built exact URL/activity-id dedupe set before accepting candidates; rejected already seen Oasis and August LinkedIn URLs.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "github",
+      "query": "GitHub API /users/{handle}/repos for amdahl-ai, amdahlco, Belong-dev, grove-tax, modaic-ai, panorama-dev, TaxNova-AI",
+      "resultSummary": "Found seven new non-fork Modaic repos with visible repo counters; rejected one Modaic fork, one 404 account, two empty public-repo accounts, and duplicate existing repos.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts \"Taxnova\" \"a16z speedrun\" \"George Nichkov\" OR \"Maria Malykh\"",
+      "resultSummary": "Accepted two first-party Taxnova founder posts with public metrics and exact LinkedIn activity IDs.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts \"Sentra\" \"a16z speedrun\" \"Andrey Starenky\" OR \"Ashwin Gopinath\"",
+      "resultSummary": "Accepted two first-party Sentra founder posts; left Jae Gwan Park's post out because the official A16Z Sentra page and local account snapshot list Ashwin Gopinath and Andrey Starenky as the verified founder accounts.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts \"Advocate\" \"Andrew Baran\" \"a16z speedrun\"; site:linkedin.com/posts \"August\" \"Bar Ittah\" \"a16z speedrun\"; site:linkedin.com/posts \"Oasis\" \"Naveen Sharma\" \"a16z speedrun\"",
+      "resultSummary": "No qualifying Advocate founder post found; August and Oasis hits were already seen and previously rejected for third-party authorship or name mismatch.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "linkedin",
+      "query": "site:linkedin.com/posts \"PayPath\" \"Dean Glas\" \"a16z speedrun\"; site:linkedin.com/posts \"Quinn\" \"Ben Anderson\" \"a16z speedrun\"; site:linkedin.com/posts \"Simula\" \"Yizhen Zhen\" \"a16z speedrun\"",
+      "resultSummary": "No new first-party LinkedIn posts with visible metrics; PayPath hits were third-party event/comment context, Quinn hits were job/web context, and Simula hits were profile/web context.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "instagram",
+      "query": "site:instagram.com/p \"officialpartyhat\"; site:instagram.com/reel \"meetquinn\"; site:instagram.com/reel \"simula\" \"a16z\"",
+      "resultSummary": "Accepted two official PartyHat Instagram posts from verified local account snapshot; rejected Quinn/Simula hits without verified account and/or visible metrics.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/{verified handles}/status PayPath OR Quinn OR Simula OR PartyHat OR Sentra OR Oasis OR Meridian a16z speedrun",
+      "resultSummary": "No new native X status URLs with visible metrics and direct verified company/founder attribution found in public search results.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch \"Advocate\" OR \"Sentra\" OR \"Quinn\" OR \"PartyHat\" OR \"PayPath\" \"a16z speedrun\"",
+      "resultSummary": "No new qualifying native YouTube videos; one result was a false-positive generic 'advocating' match.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com/products/taxnova/launches Taxnova; site:producthunt.com/products/quanto/launches Quanto; site:producthunt.com/products \"a16z speedrun\"",
+      "resultSummary": "No new launch URLs found; Taxnova and Quanto product pages are already represented in the canonical social evidence or prior source-hunt rejects.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com/r \"Sentra\" OR \"PartyHat\" OR \"Quinn\" OR \"Taxnova\" \"a16z speedrun\"",
+      "resultSummary": "No qualifying Reddit post/comment URLs; visible Quinn hit was a false-positive pet post.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia search for Advocate, August, Meridian, Oasis, PartyHat, PayPath, Quinn, Sentra, Simula, Taxnova, Modaic",
+      "resultSummary": "No relevant HN story or comment hits with direct company/founder attribution.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    },
+    {
+      "platform": "official_context",
+      "query": "speedrun.a16z.com company pages and local A16Z Speedrun 006 social-account snapshot",
+      "resultSummary": "Used only for attribution checks, especially Sentra founder verification and PartyHat/Modaic account verification; no official web pages were accepted as social evidence.",
+      "checkedAt": "2026-07-15T23:29:45Z"
+    }
+  ],
+  "notes": [
+    "Artifact written as an append-only tenth-pass source hunt. No snapshots or canonical evidence files were edited.",
+    "Accepted rows are limited to native post/repo URLs with visible metrics and direct company/founder/account attribution; profile pages, generic searches, weak quote-only context, and web-only context were rejected.",
+    "LinkedIn postedAt values use the first datePublished value exposed in the public page HTML for the post. Instagram timestamps are only included when visible in public search results.",
+    "GitHub metrics are from the public GitHub repository API; zero values are retained because they are visible native counters, not inferred metrics.",
+    "Official a16z/company pages were used only as attribution context and never as accepted evidence URLs."
+  ]
+}

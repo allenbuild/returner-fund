@@ -166,6 +166,7 @@ interface SeededSocialEvidenceRecord {
   founderName?: string;
   platform: Platform;
   sourceUrl: string;
+  platformPostId?: string | null;
   accountUrl?: string | null;
   authorName: string;
   authorHandle?: string | null;
@@ -173,7 +174,12 @@ interface SeededSocialEvidenceRecord {
   title: string;
   text: string;
   mediaType: EvidenceItem["mediaType"];
+  mediaUrl?: string | null;
+  mediaUrls?: string[];
+  thumbnailUrl?: string | null;
+  thumbnailSource?: string | null;
   metrics: EvidenceMetrics;
+  rawVisibleText?: string;
   matchReason: string;
   why: string;
   review_state?: "verified" | "needs_review" | "rejected";
@@ -1028,15 +1034,13 @@ function seededSocialEvidenceItem(seed: SeededSocialEvidenceRecord): EvidenceIte
   const normalizedAccount = normalizeNativeAccountRoot(seed.platform, seed.accountUrl ?? null);
   const accountUrl = normalizedAccount?.url ?? null;
   const handle = seed.authorHandle ?? normalizedAccount?.handle ?? handleFromUrl(accountUrl);
-  const entityId =
-    seed.entityType === "founder" && seed.founderName
-      ? founderId(companySlug, seed.founderName)
-      : companyId;
+  const entityId = seededSocialEvidenceEntityId(seed, companySlug, companyId, accountUrl, handle);
+  const entityType = entityId === companyId ? "company" : seed.entityType;
 
   return [
     {
       id: `${seed.platform}-a16z-seed-${companySlug}-${slugify(seed.sourceUrl)}`,
-      entityType: seed.entityType,
+      entityType,
       entityId,
       platform: seed.platform,
       authorName: seed.authorName,
@@ -1045,11 +1049,15 @@ function seededSocialEvidenceItem(seed: SeededSocialEvidenceRecord): EvidenceIte
       title: seed.title,
       text: seed.text,
       mediaType: seed.mediaType,
+      mediaUrl: seed.mediaUrl ?? null,
+      mediaUrls: seed.mediaUrls ?? [],
+      thumbnailUrl: seed.thumbnailUrl ?? null,
+      thumbnailSource: seed.thumbnailSource ?? null,
       metrics: seed.metrics,
       contributionScore: 1,
       sourceUrl: seed.sourceUrl,
-      platformPostId: platformPostIdFromUrl(seed.sourceUrl),
-      rawVisibleText: JSON.stringify({
+      platformPostId: seed.platformPostId ?? platformPostIdFromUrl(seed.sourceUrl),
+      rawVisibleText: seed.rawVisibleText ?? JSON.stringify({
         title: seed.title,
         metrics: seed.metrics,
         seededFrom: "a16z-speedrun-006-social-evidence"
@@ -1066,6 +1074,58 @@ function seededSocialEvidenceItem(seed: SeededSocialEvidenceRecord): EvidenceIte
       review_state: seed.review_state ?? "verified"
     }
   ];
+}
+
+function seededSocialEvidenceEntityId(
+  seed: SeededSocialEvidenceRecord,
+  companySlug: string,
+  companyId: string,
+  accountUrl: string | null,
+  handle: string | null
+): string {
+  if (seed.entityType !== "founder") {
+    return companyId;
+  }
+
+  const profile = speedrun006Profiles.find((candidate) => slugify(candidate.name) === companySlug);
+  const profileFounderNames = profile?.founders ?? [];
+  const exactFounderName = seed.founderName
+    ? profileFounderNames.find((name) => slugify(name) === slugify(seed.founderName ?? ""))
+    : null;
+  if (exactFounderName) {
+    return founderId(companySlug, exactFounderName);
+  }
+
+  const snapshotCompany = socialAccountSnapshot.companies.find((company) => {
+    const slug = slugify(company.companySlug ?? company.companyName);
+    return slug === companySlug;
+  });
+  const normalizedHandle = normalizeEvidenceHandle(handle);
+  const normalizedAccountUrl = normalizeNativeAccountRoot(seed.platform, accountUrl)?.url ?? null;
+  const matchedFounder = snapshotCompany?.founders?.find((founder) =>
+    (founder.accounts ?? []).some((account) => {
+      if (account.platform !== seed.platform) return false;
+      const normalizedRecordAccount = normalizeNativeAccountRoot(account.platform, account.url);
+      const normalizedRecordUrl = normalizedRecordAccount?.url ?? null;
+      const normalizedRecordHandle = normalizeEvidenceHandle(account.handle ?? normalizedRecordAccount?.handle ?? handleFromUrl(account.url));
+
+      return (
+        (normalizedAccountUrl && normalizedRecordUrl === normalizedAccountUrl) ||
+        (normalizedHandle && normalizedRecordHandle === normalizedHandle)
+      );
+    })
+  );
+
+  if (matchedFounder && profileFounderNames.some((name) => slugify(name) === slugify(matchedFounder.name))) {
+    return founderId(companySlug, matchedFounder.name);
+  }
+
+  return companyId;
+}
+
+function normalizeEvidenceHandle(value: string | null | undefined): string | null {
+  const normalized = value?.replace(/^@/, "").trim().toLowerCase() ?? "";
+  return normalized || null;
 }
 
 function groupEvidenceByEntity(items: EvidenceItem[]): Map<string, EvidenceItem[]> {

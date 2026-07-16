@@ -179,9 +179,11 @@ describe("a16z speedrun 006 dataset", () => {
     expect(modaic?.topPlatform).toBe("github");
     expect(modaic?.score).toBeGreaterThan(0);
     expect(modaic?.socialAccounts.map((account) => account.platform)).toContain("github");
-    expect(sentra?.topPlatform).toBe("linkedin");
+    expect(sentra?.topPlatform).toBe("x");
     expect(sentra?.score).toBeGreaterThan(0);
-    expect(sentra?.socialAccounts.map((account) => account.platform)).toContain("linkedin");
+    expect(sentra?.socialAccounts.map((account) => account.platform)).toEqual(
+      expect.arrayContaining(["linkedin", "x"])
+    );
   });
 
   it("renders A16Z account buttons from platform URLs instead of Speedrun profile URLs", () => {
@@ -324,14 +326,17 @@ describe("a16z speedrun 006 dataset", () => {
       (item) => item.sourceUrl === "https://www.youtube.com/watch?v=RqS_WpgsPdY"
     );
 
-    expect(sunYouTubeEvidence).toHaveLength(11);
+    expect(sunYouTubeEvidence).toHaveLength(14);
     expect(sunYouTubeEvidence.map((item) => item.sourceUrl)).toEqual(
       expect.arrayContaining([
         "https://www.youtube.com/watch?v=FTVKNZtv7-o",
         "https://www.youtube.com/watch?v=Qj6VFxD0Hbo",
         "https://www.youtube.com/watch?v=qHlEhqdAZxc",
         "https://www.youtube.com/watch?v=tJS3OsGtGQw",
-        "https://www.youtube.com/watch?v=HbJiEHaSz-s"
+        "https://www.youtube.com/watch?v=HbJiEHaSz-s",
+        "https://www.youtube.com/watch?v=HWO_-A7oWDc",
+        "https://www.youtube.com/watch?v=PwRToG-32Jg",
+        "https://www.youtube.com/watch?v=weMHJD_lQ_Y"
       ])
     );
     expect(sunYouTubeEvidence.every((item) => item.contributionScore > 0)).toBe(true);
@@ -436,6 +441,146 @@ describe("a16z speedrun 006 dataset", () => {
     expect(taxnovaNode?.platformScores.product_hunt).toBeGreaterThan(0);
   });
 
+  it("surfaces second-pass A16Z LinkedIn and GitHub evidence in the graph", () => {
+    const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
+
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/davewevans_im-excited-to-announce-that-auto-has-raised-activity-7477783080536014849-LBsU",
+      "Auto",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/sanjaydasari_today-were-officially-launching-heavi-ai-activity-7434677355584856065-mh5S",
+      "Heavi",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/andrewchen_ai-retention-say-no-more-activity-7449510003406815232-aewb",
+      "Sirius Technology",
+      "linkedin"
+    );
+    expectA16zEvidence(graph.evidence, "https://github.com/Belong-dev/careers", "Belong", "github");
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/margaretczhang_i-joined-forces-with-david-s-huang-to-unlock-activity-7449510766657060864-g9St",
+      "Thirdbrain Labs",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/ben-segal-39306311b_this-has-been-hard-to-keep-quiet-variant-activity-7429910776573886464-Akw3",
+      "VariantNow",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/addihd_some-news-we-are-backed-by-a16z-speedrun-activity-7444826615626424320-_cUR",
+      "Alike",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/aaron-hao-tan_excited-to-share-lume-a-lamp-that-does-your-activity-7454570532571873280-osow",
+      "Syncere",
+      "linkedin"
+    );
+    expectA16zEvidence(graph.evidence, "https://x.com/aaronistan/status/2039859651500761143", "Syncere", "x");
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/ryanlau512_today-im-super-excited-to-share-that-straia-activity-7404579406955872258-spWu",
+      "Straia",
+      "linkedin"
+    );
+    expectA16zEvidence(graph.evidence, "https://www.youtube.com/watch?v=yykNCQBosHs", "snag", "youtube");
+    expectA16zEvidence(graph.evidence, "https://github.com/modaic-ai/ds.ts", "Modaic", "github");
+    expectA16zEvidence(graph.evidence, "https://github.com/modaic-ai/gepa-viz", "Modaic", "github");
+    expectA16zEvidence(graph.evidence, "https://github.com/modaic-ai/microcode", "Modaic", "github");
+    expectA16zEvidence(graph.evidence, "https://github.com/modaic-ai/modaic", "Modaic", "github");
+    expectA16zEvidence(graph.evidence, "https://github.com/modaic-ai/gepa-rpc", "Modaic", "github");
+    expectA16zEvidence(graph.evidence, "https://github.com/firetix/vibe-coding-penetration-tester", "SafeWorld", "github");
+    expectA16zEvidence(graph.evidence, "https://www.instagram.com/reel/DL8lQcXSma5/", "Mirror Mirror AI", "instagram");
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/chinmaychauhan_excited-to-announce-that-acceler8-has-raised-activity-7434784959380279296-DUM6",
+      "Acceler8",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/samuel-oh1_why-are-my-hands-in-the-air-cheering-while-activity-7452803290792361985-i6SA",
+      "Concorda",
+      "linkedin"
+    );
+    expectA16zEvidence(graph.evidence, "https://github.com/amdahlco/amdahl-cookbook", "Amdahl", "github");
+  });
+
+  it("surfaces Sol Ultra A16Z founder posts in the graph", () => {
+    const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
+
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/kash-nathan_weve-spent-the-past-6-weeks-building-closely-activity-7415075507148619776-5TRg",
+      "Meridian",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/arlenmarmel_ahr-activity-7426329274074234880-roTw",
+      "Quinn",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/arlenmarmel_ahr-ahr-ahr2026-activity-7424261864970162176-bf4u",
+      "Quinn",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/arlenmarmel_why-frontline-training-fails-real-insights-activity-7469821319237410819-QnOe",
+      "Quinn",
+      "linkedin"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://www.linkedin.com/posts/arlenmarmel_scale-training-capacity-beyond-limited-windows-activity-7468638529665863680-ds-F",
+      "Quinn",
+      "linkedin"
+    );
+    expectA16zEvidence(graph.evidence, "https://github.com/MeetQuinn/anima", "Quinn", "github");
+    expectA16zEvidence(graph.evidence, "https://github.com/MeetQuinn/quinn-sdk", "Quinn", "github");
+    expectA16zEvidence(
+      graph.evidence,
+      "https://github.com/Simula-AI-SDK/simula-ad-sdk-kotlin/commit/11709687a966f26f9932bfef08adf724108cc989",
+      "Simula",
+      "github"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://github.com/Simula-AI-SDK/simula-ad-sdk-swift/commit/5e28c5e37da6d987cec0b10457993a98fb79687c",
+      "Simula",
+      "github"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://github.com/Simula-AI-SDK/simula-ad-sdk-react-native/commit/7a51abafc1a825bed71010845b9124e964a19deb",
+      "Simula",
+      "github"
+    );
+    expectA16zEvidence(
+      graph.evidence,
+      "https://github.com/Simula-AI-SDK/simula-ad-sdk/commit/4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
+      "Simula",
+      "github"
+    );
+    expectA16zEvidence(graph.evidence, "https://x.com/stedelmanto/status/2072374506149064784", "Oasis", "x");
+    expectA16zEvidence(graph.evidence, "https://x.com/stedelmanto/status/2070183181970530569", "Oasis", "x");
+    expectA16zEvidence(graph.evidence, "https://x.com/stedelmanto/status/2068042968410247494", "Oasis", "x");
+  });
+
   it("does not count unseeded previous founder history as company traction", () => {
     const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
     const hammock = graph.nodes.find((node) => node.entityType === "company" && node.label === "Hammock");
@@ -450,7 +595,12 @@ describe("a16z speedrun 006 dataset", () => {
       "https://www.linkedin.com/posts/jesserose_ai-a16z-speedrun-activity-7442990067469553664-UgHd",
       "https://www.linkedin.com/posts/williamldennis_im-excited-to-share-that-my-long-time-friend-activity-7442990082891894784-H7Iw"
     ]));
-    expect(heavi?.score).toBe(0);
+    expect(
+      graph.evidence
+        .filter((item) => item.attachedCompanyName === "Heavi")
+        .map((item) => item.sourceUrl)
+    ).not.toContain("https://www.linkedin.com/posts/williamldennis_im-excited-to-share-that-my-long-time-friend-activity-7442990082891894784-H7Iw");
+    expect(heavi?.score).toBeGreaterThan(0);
   });
 });
 
@@ -519,4 +669,22 @@ function accountUrlMatchesPlatform(account: SocialAccountSummary): boolean {
     default:
       return false;
   }
+}
+
+function expectA16zEvidence(
+  items: Array<{ sourceUrl: string; attachedCompanyName?: string; platform: Platform; contributionScore: number }>,
+  sourceUrl: string,
+  companyName: string,
+  platform: Platform
+): void {
+  const item = items.find((candidate) => candidate.sourceUrl === sourceUrl);
+
+  expect(item).toEqual(
+    expect.objectContaining({
+      platform,
+      attachedCompanyName: companyName,
+      sourceUrl
+    })
+  );
+  expect(item?.contributionScore).toBeGreaterThan(0);
 }

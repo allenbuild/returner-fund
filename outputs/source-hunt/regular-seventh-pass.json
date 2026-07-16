@@ -1,0 +1,383 @@
+{
+  "accepted": [
+    {
+      "batchSlug": "S26",
+      "companyName": "Whitespace",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/alexytung_leon-yao-and-i-are-launching-whitespace-activity-7475928359827492865-DCbJ",
+      "platformPostId": "7475928359827492865",
+      "postedAt": "2026-06-25T15:10:16.997Z",
+      "title": "Whitespace YC S26 launch post",
+      "text": "Verified founder Alex Tung announced that he and Leon Yao are launching Whitespace, backed by Y Combinator, and described self-improving AI agents for wholesale distribution businesses.",
+      "metrics": {
+        "reactions": 483,
+        "comments": 217,
+        "authorFollowers": 2688
+      },
+      "accountType": "verified founder",
+      "attributionReason": "Alex Tung's LinkedIn account is listed as a verified founder account on the YC S26 Whitespace node; the post explicitly names Whitespace (YC S26).",
+      "evidenceType": "linkedin_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "machine0",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/barnabymalet_excited-to-share-that-ive-been-accepted-activity-7470031192965246977-D9a1",
+      "platformPostId": "7470031192965246977",
+      "postedAt": "2026-06-09T08:37:02.852Z",
+      "title": "machine0 YC S26 acceptance and product demo",
+      "text": "Verified founder Barnaby Malet announced acceptance into YC S26 as a solo founder and demoed machine0 for persistent cloud VMs used by agents.",
+      "metrics": {
+        "reactions": 317,
+        "comments": 113,
+        "authorFollowers": 2539
+      },
+      "accountType": "verified founder",
+      "attributionReason": "Barnaby Malet's LinkedIn account is listed as a verified founder account on the YC S26 machine0 node; the post explicitly says machine0 (YC S26).",
+      "evidenceType": "linkedin_video",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Touchmark",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/ilia-bolgov-8683b0254_excited-to-share-that-together-with-roman-activity-7473063836632117248-vedj",
+      "platformPostId": "7473063836632117248",
+      "postedAt": "2026-06-17T17:27:41.446Z",
+      "title": "Touchmark joins YC S26",
+      "text": "Verified founder Ilia Bolgov announced that he and Roman Yanushevskyi are joining Y Combinator to build Touchmark (YC S26), linking to touchmark.ai.",
+      "metrics": {
+        "reactions": 301,
+        "comments": 95,
+        "authorFollowers": 1975
+      },
+      "accountType": "verified founder",
+      "attributionReason": "Ilia Bolgov's LinkedIn account is listed as a verified founder account on the YC S26 Touchmark node; the post explicitly names Touchmark (YC S26).",
+      "evidenceType": "linkedin_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Poth Labs",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/mojmir-horvath_we-got-into-y-combinatorand-today-were-activity-7475955975368101888-A-Jt",
+      "platformPostId": "7475955975368101888",
+      "postedAt": "2026-06-25T17:00:01.043Z",
+      "title": "Poth YC S26 demo post",
+      "text": "Verified founder Mojmir Horvath announced Poth Labs joining Y Combinator and shared a demo of adaptive customer interviews for understanding churn, abandonment, activation, and adoption.",
+      "metrics": {
+        "reactions": 137,
+        "comments": 26,
+        "authorFollowers": 1212
+      },
+      "accountType": "verified founder",
+      "attributionReason": "Mojmir Horvath's LinkedIn account is listed as a verified founder account on the YC S26 Poth Labs node; the post explicitly links to Poth Labs (YC S26).",
+      "evidenceType": "linkedin_video",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "GUILD",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/kaya-celebi_were-excited-to-announce-that-guild-is-joining-activity-7475606483179741185-nPRl",
+      "platformPostId": "7475606483179741185",
+      "postedAt": "2026-06-24T17:51:15.613Z",
+      "title": "GUILD joins YC S26",
+      "text": "Verified founder Kaya Celebi announced that GUILD is joining Y Combinator for S26 and described building an AI-native neoprime for defense manufacturing.",
+      "metrics": {
+        "reactions": 155,
+        "comments": 14,
+        "authorFollowers": 1127
+      },
+      "accountType": "verified founder",
+      "attributionReason": "Kaya Celebi's LinkedIn account is listed as a verified founder account on the YC S26 GUILD node; the post explicitly says GUILD is joining Y Combinator for S26.",
+      "evidenceType": "linkedin_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Poth Labs",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/poth_poth-labs-is-now-backed-by-y-combinatorand-activity-7475964079661137920-jURv",
+      "platformPostId": "7475964079661137920",
+      "postedAt": "2026-06-25T17:32:13.260Z",
+      "title": "Poth Labs company launch post",
+      "text": "Official Poth Labs company account announced backing by Y Combinator and described its AI-native customer research platform for finding why users churn, abandon, convert, or engage.",
+      "metrics": {
+        "reactions": 19,
+        "comments": 5,
+        "companyFollowers": 200
+      },
+      "accountType": "verified company",
+      "attributionReason": "The Poth company LinkedIn account is listed as a verified company account on the YC S26 Poth Labs node; the post is from the company account and explicitly names Poth Labs.",
+      "evidenceType": "linkedin_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "AquaShield",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/marguerite-benoist_water-leaks-in-buildings-arent-detected-activity-7460731923880079361--vpc",
+      "platformPostId": "7460731923880079361",
+      "postedAt": "2026-05-14T16:45:04.327Z",
+      "title": "AquaShield water leak detection demo",
+      "text": "Verified founder Marguerite Benoist posted a video explaining AquaShield (YC P26) hydraulic-aware ML for detecting leaks down to the pipe segment.",
+      "metrics": {
+        "reactions": 117,
+        "comments": 11,
+        "authorFollowers": 1400
+      },
+      "accountType": "verified founder",
+      "attributionReason": "Marguerite Benoist's LinkedIn account is listed as a verified founder account on the YC Spring 2026 AquaShield node; the post explicitly names AquaShield (YC P26).",
+      "evidenceType": "linkedin_video",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Surtr Defense Systems",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/surtr-defense-systems_defensetech-counteruas-airdefense-activity-7475246742599315456-fPTt",
+      "platformPostId": "7475246742599315456",
+      "postedAt": "2026-06-23T18:01:46.787Z",
+      "title": "Surtr ParallaxOS Ukraine field test post",
+      "text": "Official Surtr Defense Systems account described returning from Ukraine after testing ParallaxOS with operators and gathering field feedback for counter-UAS workflows.",
+      "metrics": {
+        "reactions": 52,
+        "comments": 2,
+        "companyFollowers": 806
+      },
+      "accountType": "verified company",
+      "attributionReason": "The Surtr Defense Systems LinkedIn account is listed as a verified company account on the YC Spring 2026 Surtr node; the post is authored by the company account.",
+      "evidenceType": "linkedin_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Concorda",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/samuel-oh1_why-are-my-hands-in-the-air-cheering-while-activity-7452803290792361985-i6SA",
+      "platformPostId": "7452803290792361985",
+      "postedAt": "2026-04-22T19:39:30.892Z",
+      "title": "Concorda founder a16z Speedrun demo post",
+      "text": "Verified founder Samuel Oh posted about presenting at a16z Speedrun demo day and said the team shared how Concorda is changing litigation practice.",
+      "metrics": {
+        "reactions": 167,
+        "comments": 21,
+        "authorFollowers": 2079
+      },
+      "accountType": "verified founder",
+      "attributionReason": "Samuel Oh's LinkedIn account is listed as a verified founder account on the A16ZSR006 Concorda node; the post refers to the team's Speedrun demo and company work.",
+      "evidenceType": "linkedin_post",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Amdahl",
+      "platform": "github",
+      "sourceUrl": "https://github.com/amdahlco/amdahl-cookbook",
+      "platformPostId": "amdahlco/amdahl-cookbook",
+      "postedAt": "2026-05-07T01:59:35Z",
+      "title": "amdahl-cookbook public repository",
+      "text": "Official Amdahl GitHub organization repo containing examples for Amdahl, with homepage set to amdahl.ai and public repo activity after Speedrun.",
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "pushedAt": "2026-07-13T16:12:06Z",
+        "updatedAt": "2026-07-13T16:12:57Z"
+      },
+      "accountType": "verified company GitHub org",
+      "attributionReason": "The A16ZSR006 graph lists amdahlco as a verified Amdahl GitHub company account; the repo homepage points to amdahl.ai.",
+      "evidenceType": "github_repo",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Grove Tax",
+      "platform": "github",
+      "sourceUrl": "https://github.com/grove-tax/grove-mcp",
+      "platformPostId": "grove-tax/grove-mcp",
+      "postedAt": "2026-05-27T08:33:32Z",
+      "title": "grove-mcp public repository",
+      "text": "Official Grove Tax GitHub organization repo for an MCP integration connecting Claude, Codex, or Cursor to a tax firm via OAuth, with homepage set to grove.tax.",
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "pushedAt": "2026-05-29T07:32:02Z",
+        "updatedAt": "2026-05-29T07:32:06Z",
+        "topics": [
+          "anthropic",
+          "claude",
+          "codex",
+          "cursor",
+          "drake",
+          "lacerte",
+          "mcp",
+          "model-context-protocol",
+          "oauth",
+          "tax"
+        ]
+      },
+      "accountType": "verified company GitHub org",
+      "attributionReason": "The A16ZSR006 graph lists grove-tax as a verified Grove Tax GitHub company account; the repo description and homepage identify Grove/grove.tax.",
+      "evidenceType": "github_repo",
+      "duplicateLikely": false
+    }
+  ],
+  "rejected": [
+    {
+      "batchSlug": "S26",
+      "companyName": "RealPact",
+      "platform": "github",
+      "sourceUrl": "https://github.com/RealPact/Documentation",
+      "reason": "Exact sourceUrl already exists in the canonical S26 graph evidence.",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Mireye",
+      "platform": "github",
+      "sourceUrl": "https://github.com/Mireye-Labs/mireye-earth-mcp",
+      "reason": "Exact sourceUrl already exists in the canonical S26 graph evidence.",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Belong",
+      "platform": "github",
+      "sourceUrl": "https://github.com/Belong-dev/careers",
+      "reason": "Exact sourceUrl already exists in the canonical A16ZSR006 graph evidence.",
+      "duplicateLikely": true
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Surtr Defense Systems",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_surtr-defense-systems-yc-p26-is-building-activity-7460403503870504960-_nOu",
+      "reason": "Native LinkedIn post has visible metrics but is authored by Y Combinator, not the company, founder, or official Surtr account.",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Standard Signal",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/singularity-capital-management-llc_standard-signal-hedge-fund-where-ai-researches-activity-7473064428134047744-PLhP",
+      "reason": "Native LinkedIn post is from Singularity Capital, not a company/founder/official account.",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quinn",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/jordancarver_demo-day-just-happened-20000-teams-applied-activity-7450223167425413120-3Y7R",
+      "reason": "Post mentions Quinn hiring but is authored by Jordan Carver, not Quinn or a verified Quinn founder account.",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "August",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/noya-kremer-49028a197_a16z-speedrun-is-the-best-place-to-build-activity-7450378564123742208-GToK",
+      "reason": "Post mentions August but is authored by an a16z Speedrun partner, not the company or founders.",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Poth Labs",
+      "platform": "product_hunt",
+      "sourceUrl": null,
+      "reason": "Product Hunt searches for Poth/Poth Labs did not return a verifiable first-party launch page with explicit native metrics.",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "machine0",
+      "platform": "product_hunt",
+      "sourceUrl": null,
+      "reason": "Product Hunt searches returned unrelated machine/AI products and no verified first-party machine0 launch page.",
+      "duplicateLikely": false
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "AquaShield",
+      "platform": "x",
+      "sourceUrl": "https://x.com/AquaShieldai",
+      "reason": "Official account is verified in the graph, but this pass did not obtain a native post URL with visible engagement metrics.",
+      "duplicateLikely": false
+    }
+  ],
+  "searches": [
+    {
+      "query": "low/no evidence companies from public/graph/s2026.json, public/graph/s26.json, public/graph/a16zsr006.json",
+      "platform": "local canonical",
+      "result": "Identified zero/low evidence targets and verified account handles without modifying canonical JSON."
+    },
+    {
+      "query": "site:linkedin.com/posts/ \"Poth\" \"YC S26\"",
+      "platform": "linkedin",
+      "result": "Accepted founder and company Poth Labs posts with public LinkedIn JSON-LD metrics."
+    },
+    {
+      "query": "site:linkedin.com/posts/ \"Touchmark (YC S26)\"",
+      "platform": "linkedin",
+      "result": "Accepted Ilia Bolgov founder post; rejected non-first-party related repost/search results."
+    },
+    {
+      "query": "site:linkedin.com/posts/ \"machine0\" \"YC S26\"",
+      "platform": "linkedin",
+      "result": "Accepted Barnaby Malet founder video post."
+    },
+    {
+      "query": "site:linkedin.com/posts/ \"Whitespace\" \"YC S26\"",
+      "platform": "linkedin",
+      "result": "Accepted Alex Tung founder launch post."
+    },
+    {
+      "query": "site:linkedin.com/posts/ \"AquaShield\" \"YC P26\"",
+      "platform": "linkedin",
+      "result": "Accepted Marguerite Benoist founder video post; rejected YC/third-party posts."
+    },
+    {
+      "query": "site:linkedin.com/posts/ \"Surtr Defense Systems\" \"YC P26\"",
+      "platform": "linkedin",
+      "result": "Accepted official Surtr company post; rejected YC/press/investor authored posts."
+    },
+    {
+      "query": "site:linkedin.com/posts/ \"GUILD\" \"YC S26\"",
+      "platform": "linkedin",
+      "result": "Accepted Kaya Celebi founder launch post surfaced from related LinkedIn results."
+    },
+    {
+      "query": "site:linkedin.com/posts/ \"Concorda\" \"a16z speedrun\"",
+      "platform": "linkedin",
+      "result": "Accepted Samuel Oh founder Speedrun demo post."
+    },
+    {
+      "query": "GitHub API org repos for verified low-evidence accounts: amdahlco, grove-tax, RealPact, Mireye-Labs, Belong-dev",
+      "platform": "github",
+      "result": "Accepted Amdahl and Grove Tax repos missing from canonical; rejected RealPact, Mireye, and Belong duplicates."
+    },
+    {
+      "query": "Product Hunt searches for Poth Labs, machine0, Touchmark, Risklytics",
+      "platform": "product_hunt",
+      "result": "No accepted first-party Product Hunt launch found with verifiable metrics for target gaps."
+    },
+    {
+      "query": "X public syndication endpoint probe against known canonical status",
+      "platform": "x",
+      "result": "Endpoint returned no usable engagement payload in this environment, so no X rows were accepted without visible metrics."
+    }
+  ],
+  "notes": [
+    "Generated 2026-07-15 from the local returner-fund checkout plus live public web/API reads.",
+    "Canonical duplicate checks used exact sourceUrl matches against public/graph/s2026.json, public/graph/s26.json, and public/graph/a16zsr006.json.",
+    "LinkedIn metrics came from public post HTML/JSON-LD fields such as datePublished, commentCount, and interactionStatistic, plus visible reaction/comment attributes.",
+    "GitHub metrics came from the public GitHub REST API for verified official company organizations already present in the canonical graph account metadata.",
+    "Accepted rows are first-party only: verified founder accounts, verified company accounts, or verified company GitHub organizations. Third-party press, YC/a16z amplification, and investor/talent-network posts were rejected.",
+    "The two accepted GitHub rows have low public engagement but are native repos with explicit metrics and are missing from canonical snapshots; keep them lower priority than the LinkedIn engagement rows if importing."
+  ]
+}

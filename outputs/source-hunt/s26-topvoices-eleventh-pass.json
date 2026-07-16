@@ -1,0 +1,568 @@
+{
+  "accepted": [],
+  "rejected": [
+    {
+      "candidateId": "linkedin-tarof-9-mothers-p26-not-s26",
+      "batchSlug": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Taro Fukuyama",
+      "topVoiceHandle": "tarof",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/russellhowardsmith_having-done-yc-before-its-amazing-to-be-activity-7445188889805271040-8CLR",
+      "platformPostId": "7445188889805271040",
+      "companyName": "9 Mothers",
+      "companySlug": null,
+      "founderNames": [
+        "Russell Smith"
+      ],
+      "postedAt": null,
+      "metrics": {
+        "postReactions": 96,
+        "postComments": 23,
+        "commentReactionsVisibleText": "2 Reactions / 3 Reactions"
+      },
+      "visibleTextSummary": "Search-visible LinkedIn comment by Taro says: 9 mothers will be one of the hottest companies at demo day of P26.",
+      "attributionSignals": [
+        "Search result exposes a LinkedIn comment block under Taro Fukuyama with visible comment reaction text.",
+        "The target text says P26, not S26, and 9 Mothers is not in src/lib/yc/summer-2026-companies.json."
+      ],
+      "dedupe": {
+        "checked": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/coverage-matrix.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "outputs/source-hunt/*.json"
+        ],
+        "status": "rejected_non_s26_and_prior_p26_surface"
+      },
+      "reason": "Rejected: native listed-person LinkedIn comment has visible metrics and names a company, but the company/batch is P26 rather than the local Summer 2026 target set."
+    },
+    {
+      "candidateId": "linkedin-tarof-p26-native-posts-not-s26",
+      "batchSlug": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Taro Fukuyama",
+      "topVoiceHandle": "tarof",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "companyName": null,
+      "companySlug": null,
+      "founderNames": [],
+      "postedAt": null,
+      "metrics": {
+        "reactions": 22,
+        "comments": 3
+      },
+      "visibleTextSummary": "Native Taro post lists YC P26 companies such as Superset, InsForge, Superlog, Chronicle Labs, Minicor, Humwork, and AgentPhone.",
+      "attributionSignals": [
+        "LinkedIn search result exposes Taro as native post author with visible post metrics.",
+        "The visible authored text repeatedly says YC P26, not YC S26."
+      ],
+      "dedupe": {
+        "checked": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/*.json"
+        ],
+        "status": "covered_p26_surface"
+      },
+      "reason": "Rejected: native people-only top-voice evidence, but all visible company targets are Spring/P26 rows, not Summer/S26."
+    },
+    {
+      "candidateId": "linkedin-brian-chesky-mentioned-by-founder-not-author",
+      "batchSlug": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Brian Chesky",
+      "topVoiceHandle": "bchesky",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/ianyfong_ycombinator-ycp26-startup-activity-7458288693695627264-XXu8",
+      "platformPostId": "7458288693695627264",
+      "companyName": "Chert",
+      "companySlug": null,
+      "founderNames": [
+        "Ian Fong"
+      ],
+      "postedAt": null,
+      "metrics": {
+        "postReactions": 482,
+        "postComments": 133
+      },
+      "visibleTextSummary": "Founder-authored LinkedIn post says the P26 batch got talks from Brian Chesky, Sam Altman, and Tarek Mansour.",
+      "attributionSignals": [
+        "The listed insider is only mentioned in a founder-authored post.",
+        "The post target is Chert (YC P26), not any local S26 company."
+      ],
+      "dedupe": {
+        "checked": [
+          "outputs/source-hunt/search-ledger.json",
+          "src/lib/social/targeted-evidence-current.json"
+        ],
+        "status": "not_a_top_voice_authored_surface"
+      },
+      "reason": "Rejected: not authored by Brian Chesky and not an S26 target."
+    },
+    {
+      "candidateId": "linkedin-aravind-brain-no-s26-target",
+      "batchSlug": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Aravind Srinivas",
+      "topVoiceHandle": "aravsrinivas",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/aravind-srinivas-16051987_were-rolling-out-brain-a-self-improving-activity-7473410003790409729-mgIE",
+      "platformPostId": "7473410003790409729",
+      "companyName": null,
+      "companySlug": null,
+      "founderNames": [],
+      "postedAt": null,
+      "metrics": {
+        "reactions": 127,
+        "comments": 8
+      },
+      "visibleTextSummary": "Native Aravind LinkedIn post describes Perplexity Brain as a self-improving context graph.",
+      "attributionSignals": [
+        "LinkedIn search result exposes Aravind Srinivas as the native author with visible post metrics.",
+        "The authored text does not name or link any S26 company, founder, domain, or handle."
+      ],
+      "dedupe": {
+        "checked": [
+          "outputs/source-hunt/search-ledger.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "outputs/source-hunt/*.json"
+        ],
+        "status": "no_s26_target"
+      },
+      "reason": "Rejected: native listed-person post with visible metrics, but no direct S26 target in the authored text."
+    },
+    {
+      "candidateId": "x-aravind-context-generic-not-contextdev",
+      "batchSlug": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Aravind Srinivas",
+      "topVoiceHandle": "aravsrinivas",
+      "platform": "x",
+      "sourceUrl": "https://x.com/AravSrinivas/status/1993826832827957445",
+      "platformPostId": "1993826832827957445",
+      "companyName": "Context.dev",
+      "companySlug": "contextdev",
+      "founderNames": [],
+      "postedAt": "2025-11-26T23:38:55.000Z",
+      "metrics": {
+        "likes": 222,
+        "replies": 21,
+        "reposts": 15
+      },
+      "visibleTextSummary": "Aravind's native X text says, 'Context is all you need. AI is going to understand you pretty deeply and be a lot more helpful as a result of it.'",
+      "attributionSignals": [
+        "VxTwitter public JSON attributes the post to Aravind Srinivas and exposes post-level metrics.",
+        "The text uses the generic word context and does not name Context.dev, context.dev, a founder, or a company handle."
+      ],
+      "dedupe": {
+        "checked": [
+          "outputs/source-hunt/search-ledger.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "outputs/source-hunt/*.json"
+        ],
+        "status": "strict_authored_text_fail"
+      },
+      "reason": "Rejected: the authored text does not directly name or link the S26 company/founder/domain/handle."
+    },
+    {
+      "candidateId": "linkedin-max-mullen-gumloop-comment-non-s26",
+      "batchSlug": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Max Mullen",
+      "topVoiceHandle": "maxmullen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/max-brodeur-urbas_gumloop-raised-a-50m-series-b-led-by-benchmark-activity-7437885423881768960-1GDq",
+      "platformPostId": "7437885423881768960",
+      "companyName": "Gumloop",
+      "companySlug": null,
+      "founderNames": [
+        "Max Brodeur-Urbas",
+        "Rahul Behal",
+        "Luis Manrique"
+      ],
+      "postedAt": null,
+      "metrics": {
+        "commentReactionsVisibleText": "5 Reactions / 6 Reactions"
+      },
+      "visibleTextSummary": "Max Mullen comment congratulates Max, Rahul, and Luis on Gumloop's $50M Series B and compliments the craft of the video.",
+      "attributionSignals": [
+        "Search result exposes Max Mullen as a LinkedIn commenter with visible comment reaction text.",
+        "Gumloop is not in the local Summer 2026 company snapshot."
+      ],
+      "dedupe": {
+        "checked": [
+          "outputs/source-hunt/search-ledger.json",
+          "src/lib/social/targeted-evidence-current.json"
+        ],
+        "status": "non_s26_company"
+      },
+      "reason": "Rejected: native listed-person comment with visible metrics, but the named company is not an S26 target."
+    },
+    {
+      "candidateId": "linkedin-elad-third-party-not-authored",
+      "batchSlug": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Elad Gil",
+      "topVoiceHandle": "eladgil",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/josh-burwick_elad-gil-on-the-core-traits-that-define-the-activity-7413379607552262145-_g4G",
+      "platformPostId": "7413379607552262145",
+      "companyName": "Florin",
+      "companySlug": "florin",
+      "founderNames": [
+        "Shaurya Aggarwal"
+      ],
+      "postedAt": null,
+      "metrics": {
+        "visibleReactions": 8
+      },
+      "visibleTextSummary": "Third-party LinkedIn post discusses Elad Gil's traits of successful founders; a related visible item references Shaurya Aggarwal of Florin (YC S26).",
+      "attributionSignals": [
+        "Elad Gil is the subject of the third-party post, not the native author.",
+        "The visible S26 founder/company reference is not authored by Elad Gil."
+      ],
+      "dedupe": {
+        "checked": [
+          "outputs/source-hunt/search-ledger.json",
+          "src/lib/social/targeted-evidence-current.json"
+        ],
+        "status": "not_a_top_voice_authored_surface"
+      },
+      "reason": "Rejected: not native authored evidence by the listed person."
+    },
+    {
+      "candidateId": "youtube-unattributed-result-set",
+      "batchSlug": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": null,
+      "topVoiceHandle": null,
+      "platform": "youtube",
+      "sourceUrl": null,
+      "platformPostId": null,
+      "companyName": null,
+      "companySlug": null,
+      "founderNames": [],
+      "postedAt": null,
+      "metrics": {},
+      "visibleTextSummary": "YouTube result checks for Brian Chesky/Agentcard, Aravind Srinivas/screenpipe, Max Mullen/machine0, and Taro Fukuyama/YC S26 returned third-party videos or unrelated company-owned S26 launch videos.",
+      "attributionSignals": [
+        "OEmbed titles identified videos from third-party channels such as Entrepreneurs of Emirates, CNBC Television, Mashable, My First Million, NFX, Blunt, and Zaplar.",
+        "No native video/comment by a listed top voice with visible S26 target text was found."
+      ],
+      "dedupe": {
+        "checked": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/coverage-matrix.json"
+        ],
+        "status": "no_qualifying_people_authored_video"
+      },
+      "reason": "Rejected: no native listed-person YouTube surface with visible post-level metrics and direct S26 target text."
+    }
+  ],
+  "searches": [
+    {
+      "platform": "local",
+      "queries": [
+        "Read outputs/source-hunt/search-ledger.json",
+        "Read outputs/source-hunt/coverage-matrix.json"
+      ],
+      "accounts": [],
+      "companies": [],
+      "outcome": "Confirmed ledger has 904 candidates, 176 searched entries, 875 rejected candidates, 734 source URLs, 687 platform post IDs, and 68 top-voice people. Confirmed matrix priority for this shard is S26 insiders LinkedIn/X plus sparse YC-partner LinkedIn/X, with 28 S26 companies having zero top-voice coverage."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Taro Fukuyama\" \"Report this comment\" \"YC S26\"",
+        "\"Taro Fukuyama\" \"YC S26\" \"Report this comment\" \"Like Reply\"",
+        "\"Taro Fukuyama\" \"S26\" \"Report this comment\" \"LinkedIn\"",
+        "\"Taro Fukuyama\" \"Agentcard\" OR \"Poth Labs\" OR \"Rindler\" \"YC S26\""
+      ],
+      "accounts": [
+        "Taro Fukuyama"
+      ],
+      "companies": [
+        "Agentcard",
+        "Poth Labs",
+        "Rindler"
+      ],
+      "outcome": "Found Taro-authored/comment surfaces, but they were P26/W26 or generic YC, not local S26."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Brian Chesky\" \"Report this comment\" \"YC S26\"",
+        "\"Steve Huffman\" \"Report this comment\" \"YC S26\"",
+        "\"Drew Houston\" \"Report this comment\" \"YC S26\"",
+        "\"Emmett Shear\" \"Report this comment\" \"YC S26\""
+      ],
+      "accounts": [
+        "Brian Chesky",
+        "Steve Huffman",
+        "Drew Houston",
+        "Emmett Shear"
+      ],
+      "companies": [],
+      "outcome": "Returned third-party posts mentioning the insider or unrelated LinkedIn content; no native listed-person S26 evidence."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Aravind Srinivas\" \"Report this comment\" \"YC S26\"",
+        "\"Dylan Field\" \"Report this comment\" \"YC S26\"",
+        "\"Elad Gil\" \"Report this comment\" \"YC S26\"",
+        "\"Anu Hariharan\" \"Report this comment\" \"YC S26\""
+      ],
+      "accounts": [
+        "Aravind Srinivas",
+        "Dylan Field",
+        "Elad Gil",
+        "Anu Hariharan"
+      ],
+      "companies": [
+        "screenpipe",
+        "Florin"
+      ],
+      "outcome": "Found generic or third-party material; Aravind native Brain post had no S26 target; Elad result was third-party."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Suhail Doshi\" \"Report this comment\" \"YC S26\"",
+        "\"Rahul Vohra\" \"Report this comment\" \"YC S26\"",
+        "\"Qasar Younis\" \"Report this comment\" \"YC S26\"",
+        "\"Ali Rowghani\" \"Report this comment\" \"YC S26\""
+      ],
+      "accounts": [
+        "Suhail Doshi",
+        "Rahul Vohra",
+        "Qasar Younis",
+        "Ali Rowghani"
+      ],
+      "companies": [],
+      "outcome": "No qualifying S26 top-voice surfaces; Rahul results were older Superhuman/Grammarly material."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Jessica Livingston\" \"YC S26\"",
+        "\"Brian Armstrong\" \"YC S26\"",
+        "\"John Collison\" \"YC S26\"",
+        "\"Max Mullen\" \"YC S26\""
+      ],
+      "accounts": [
+        "Jessica Livingston",
+        "Brian Armstrong",
+        "John Collison",
+        "Max Mullen"
+      ],
+      "companies": [
+        "6thSense"
+      ],
+      "outcome": "Found third-party or unrelated references; Max Mullen native comment was about Gumloop, not S26."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Elad Gil\" \"Summer 2026\" \"Y Combinator\" \"LinkedIn\"",
+        "\"Nat Friedman\" \"Summer 2026\" \"Y Combinator\"",
+        "\"Daniel Gross\" \"Summer 2026\" \"Y Combinator\"",
+        "\"Lenny Rachitsky\" \"Summer 2026\" \"Y Combinator\""
+      ],
+      "accounts": [
+        "Elad Gil",
+        "Nat Friedman",
+        "Daniel Gross",
+        "Lenny Rachitsky"
+      ],
+      "companies": [],
+      "outcome": "Returned generic YC/AI/startup content, old HN references, or non-target investor mentions; no direct S26 company text by the listed people."
+    },
+    {
+      "platform": "x",
+      "queries": [
+        "site:x.com/aravsrinivas/status \"YC S26\" OR \"S26\"",
+        "site:x.com/zoink/status \"YC S26\" OR \"S26\"",
+        "site:x.com/drewhouston/status \"YC S26\" OR \"S26\"",
+        "site:x.com/eshear/status \"YC S26\" OR \"S26\"",
+        "site:x.com/aravsrinivas/status \"Agentcard\"",
+        "site:x.com/aravsrinivas/status \"Context.dev\"",
+        "site:x.com/aravsrinivas/status \"Agnost\"",
+        "site:x.com/aravsrinivas/status \"screenpipe\""
+      ],
+      "accounts": [
+        "Aravind Srinivas",
+        "Dylan Field",
+        "Drew Houston",
+        "Emmett Shear"
+      ],
+      "companies": [
+        "Agentcard",
+        "Context.dev",
+        "Agnost AI",
+        "screenpipe"
+      ],
+      "outcome": "Only material result was Aravind's generic context X post; strict authored-text check failed for Context.dev."
+    },
+    {
+      "platform": "x",
+      "queries": [
+        "site:x.com/bchesky/status \"Agentcard\" OR \"YC S26\"",
+        "site:x.com/drewhouston/status \"Agentcard\" OR \"YC S26\"",
+        "site:x.com/eshear/status \"Agentcard\" OR \"YC S26\"",
+        "site:x.com/ericmigi/status \"YC S26\" OR \"Agentcard\"",
+        "site:x.com/hdubugras/status \"Agentcard\" OR \"YC S26\"",
+        "site:x.com/pedroh96/status \"Agentcard\" OR \"YC S26\"",
+        "site:x.com/maxmullen/status \"machine0\" OR \"YC S26\"",
+        "site:x.com/t_xu/status \"YC S26\" OR \"Agentcard\""
+      ],
+      "accounts": [
+        "Brian Chesky",
+        "Drew Houston",
+        "Emmett Shear",
+        "Eric Migicovsky",
+        "Henrique Dubugras",
+        "Pedro Franceschi",
+        "Max Mullen",
+        "Tony Xu"
+      ],
+      "companies": [
+        "Agentcard",
+        "machine0"
+      ],
+      "outcome": "No qualifying native X posts surfaced."
+    },
+    {
+      "platform": "product_hunt",
+      "queries": [
+        "site:producthunt.com \"Aravind Srinivas\" \"screenpipe\"",
+        "site:producthunt.com \"Brian Chesky\" \"Agentcard\"",
+        "site:producthunt.com \"Dylan Field\" \"Mireye\"",
+        "site:producthunt.com \"Max Mullen\" \"machine0\""
+      ],
+      "accounts": [
+        "Aravind Srinivas",
+        "Brian Chesky",
+        "Dylan Field",
+        "Max Mullen"
+      ],
+      "companies": [
+        "screenpipe",
+        "Agentcard",
+        "Mireye",
+        "machine0"
+      ],
+      "outcome": "No qualifying Product Hunt top-voice comment/post surfaced in web search."
+    },
+    {
+      "platform": "reddit",
+      "queries": [
+        "site:reddit.com/user/spez \"YC S26\"",
+        "site:reddit.com/user/spez \"Agentcard\"",
+        "site:reddit.com/user/kn0thing \"Rise Reforming\"",
+        "site:reddit.com/user/kn0thing \"YC S26\""
+      ],
+      "accounts": [
+        "Steve Huffman",
+        "Alexis Ohanian"
+      ],
+      "companies": [
+        "Agentcard",
+        "Rise Reforming"
+      ],
+      "outcome": "Web search found no qualifying Reddit native evidence. Reddit JSON endpoint was also attempted for five account/target pairs and returned HTTP 403 blocked."
+    },
+    {
+      "platform": "hacker_news",
+      "queries": [
+        "\"Brian Chesky\" \"Agentcard\"",
+        "\"Aravind Srinivas\" \"screenpipe\"",
+        "\"Max Mullen\" \"machine0\"",
+        "\"Taro Fukuyama\" \"YC S26\"",
+        "\"Steve Huffman\" \"Agentcard\"",
+        "\"Jessica Livingston\" \"6thSense\"",
+        "\"Drew Houston\" \"Agentcard\"",
+        "\"Elad Gil\" \"Agnost AI\""
+      ],
+      "accounts": [
+        "Brian Chesky",
+        "Aravind Srinivas",
+        "Max Mullen",
+        "Taro Fukuyama",
+        "Steve Huffman",
+        "Jessica Livingston",
+        "Drew Houston",
+        "Elad Gil"
+      ],
+      "companies": [
+        "Agentcard",
+        "screenpipe",
+        "machine0",
+        "6thSense",
+        "Agnost AI"
+      ],
+      "outcome": "HN Algolia returned zero comment hits for all eight exact top-voice/target pairs."
+    },
+    {
+      "platform": "youtube",
+      "queries": [
+        "site:youtube.com/watch \"Brian Chesky\" \"Agentcard\"",
+        "site:youtube.com/watch \"Aravind Srinivas\" \"screenpipe\"",
+        "site:youtube.com/watch \"Max Mullen\" \"machine0\"",
+        "site:youtube.com/watch \"Taro Fukuyama\" \"YC S26\"",
+        "Brian Chesky Agentcard",
+        "Aravind Srinivas screenpipe",
+        "Max Mullen machine0",
+        "Taro Fukuyama YC S26"
+      ],
+      "accounts": [
+        "Brian Chesky",
+        "Aravind Srinivas",
+        "Max Mullen",
+        "Taro Fukuyama"
+      ],
+      "companies": [
+        "Agentcard",
+        "screenpipe",
+        "machine0"
+      ],
+      "outcome": "YouTube result IDs were verified by oEmbed; videos were third-party or company-owned, not native listed-person evidence."
+    }
+  ],
+  "notes": {
+    "scope": "S26 top voices only; allowed people are yc_partners and insiders from src/lib/social/top-voices.ts. Y Combinator organization/community, company accounts, founder posts, repost-only surfaces, and people outside that file were excluded.",
+    "strategyUpdateApplied": "Read search-ledger.json and coverage-matrix.json before continuing. Avoided already imported URLs/post IDs and shifted away from repeatedly searched Ankit/Tyler/Jared/Paul lanes toward uncovered insider LinkedIn/X plus undercovered Product Hunt, Reddit, YouTube, and HN checks.",
+    "productivity": {
+      "queriesSearched": 73,
+      "topVoiceAccountsOrNamesSearched": 25,
+      "s26CompaniesExplicitlySearched": 10,
+      "candidatesFound": 8,
+      "netNewVerifiedRows": 0,
+      "duplicates": {
+        "s26Duplicates": 0,
+        "priorNonS26OrCoveredSurfacesSkipped": 3
+      },
+      "rejectionReasonCounts": {
+        "notS26OrNotInLocalSummerSnapshot": 4,
+        "notAuthoredByListedPerson": 2,
+        "noDirectS26TargetInAuthoredText": 3,
+        "noNativeListedPersonSurface": 1,
+        "blockedOrNoSearchResults": 2
+      }
+    },
+    "dedupeSources": [
+      "outputs/source-hunt/search-ledger.json",
+      "outputs/source-hunt/coverage-matrix.json",
+      "src/lib/social/targeted-evidence-current.json",
+      "outputs/source-hunt/*.json"
+    ],
+    "highSignalGapsRemaining": [
+      "S26 insiders LinkedIn people-only remains effectively uncovered in canonical counts, but this pass found no qualifying native S26 company/founder/domain/handle text by newly searched insiders.",
+      "S26 Product Hunt, Reddit, and YouTube top-voice people-only surfaces remain sparse; public web search and direct unauthenticated probes did not expose qualifying rows.",
+      "YC partner accounts appear heavily covered by prior shards, especially Ankit Gupta, Tyler Bosmeny, Jared Friedman, Grey Baker, David Lieb, Garry Tan, and Taro's non-S26 rows."
+    ],
+    "result": "No accepted rows were added in this eleventh pass."
+  }
+}

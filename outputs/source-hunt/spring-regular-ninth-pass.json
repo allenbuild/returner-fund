@@ -1,0 +1,858 @@
+{
+  "scope": {
+    "generatedAt": "2026-07-15T22:52:11Z",
+    "repo": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund",
+    "task": "spring regular ninth pass first-party evidence hunt",
+    "batch": {
+      "batchSlug": "S2026",
+      "label": "YC Spring 2026 / P26",
+      "companyCount": 197,
+      "sourceCompanyFile": "src/lib/yc/spring-2026-companies.json"
+    },
+    "currentTargetedEvidenceTally": {
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "springCompaniesWithZeroEvidence": 97,
+      "springCompaniesWithOneEvidence": 43,
+      "springCompaniesWithTwoEvidence": 28,
+      "springCompaniesWithThreeOrMoreEvidence": 29
+    },
+    "policy": {
+      "acceptedOnly": "Native LinkedIn/X/Product Hunt/GitHub/YouTube/Reddit/HN post, repo, launch, comment, or video URLs with visible metrics and first-party company/founder/official-account authorship.",
+      "rejected": "Profiles, search pages, result pages, third-party posts, inferred profile follower counts, duplicate exact URLs already present in targeted-evidence-current.json, and posts whose author or company specificity could not be verified."
+    },
+    "dedupeAgainst": [
+      "src/lib/social/targeted-evidence-current.json exact sourceUrl set",
+      "outputs/source-hunt/*.json for incremental ninth-pass hygiene"
+    ],
+    "outputOnlyFileTouched": "outputs/source-hunt/spring-regular-ninth-pass.json"
+  },
+  "accepted": [
+    {
+      "companyName": "Zenbu",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/RobKnight__/status/2053867901028110592",
+      "platformPostId": "2053867901028110592",
+      "postedAt": "2026-05-11T16:00:41.000Z",
+      "author": {
+        "name": "Rob Pruzan",
+        "handle": "RobKnight__",
+        "profileUrl": "https://x.com/RobKnight__",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 49928,
+        "likes": 554,
+        "replies": 53,
+        "retweets": 41,
+        "quotes": 14,
+        "bookmarks": 427
+      },
+      "nativeEvidence": {
+        "visibleText": "Introducing Zenbu.js - The framework for hackable software",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Rob Pruzan as Zenbu founder.",
+        "The YC founder block links Rob Pruzan to https://x.com/RobKnight__.",
+        "Zenbu had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Zenbu",
+      "batchSlug": "S2026",
+      "platform": "GitHub",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/zenbu-labs/zenbu.js",
+      "platformPostId": "zenbu-labs/zenbu.js",
+      "postedAt": "2026-04-17T00:01:06Z",
+      "author": {
+        "name": "zenbu-labs",
+        "profileUrl": "https://github.com/zenbu-labs",
+        "relationship": "official GitHub organization linked from YC company profile"
+      },
+      "metrics": {
+        "stars": 250,
+        "watchers": 250,
+        "forks": 25,
+        "network": 25,
+        "openIssues": 29,
+        "subscribers": 1,
+        "sizeKb": 13809
+      },
+      "nativeEvidence": {
+        "repoName": "zenbu-labs/zenbu.js",
+        "description": "The framework for building hackable software",
+        "language": "TypeScript",
+        "license": "MIT",
+        "pushedAt": "2026-06-28T02:25:57Z",
+        "updatedAt": "2026-07-14T10:29:42Z",
+        "verificationMethod": "GitHub REST repo API exposed repo URL, owner, creation/update timestamps, visibility, and repo metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot links Zenbu's company GitHub to https://github.com/zenbu-labs.",
+        "The repo owner matches that official YC-linked GitHub organization."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Zenbu",
+      "batchSlug": "S2026",
+      "platform": "GitHub",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/zenbu-labs/zenbu-release",
+      "platformPostId": "zenbu-labs/zenbu-release",
+      "postedAt": "2026-05-22T23:40:32Z",
+      "author": {
+        "name": "zenbu-labs",
+        "profileUrl": "https://github.com/zenbu-labs",
+        "relationship": "official GitHub organization linked from YC company profile"
+      },
+      "metrics": {
+        "stars": 12,
+        "watchers": 12,
+        "forks": 5,
+        "network": 5,
+        "openIssues": 3,
+        "subscribers": 0,
+        "sizeKb": 6627
+      },
+      "nativeEvidence": {
+        "repoName": "zenbu-labs/zenbu-release",
+        "description": "zenbu release repo",
+        "language": "TypeScript",
+        "pushedAt": "2026-06-05T04:07:32Z",
+        "updatedAt": "2026-06-19T21:46:39Z",
+        "verificationMethod": "GitHub REST repo API exposed repo URL, owner, timestamps, visibility, and repo metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot links Zenbu's company GitHub to https://github.com/zenbu-labs.",
+        "The repo owner matches that official YC-linked GitHub organization."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Drip",
+      "batchSlug": "S2026",
+      "platform": "GitHub",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/DripYCx26/drip-sdk",
+      "platformPostId": "DripYCx26/drip-sdk",
+      "postedAt": "2026-01-08T21:28:19Z",
+      "author": {
+        "name": "DripYCx26",
+        "profileUrl": "https://github.com/DripYCx26",
+        "relationship": "official GitHub organization linked from YC company profile"
+      },
+      "metrics": {
+        "stars": 21,
+        "watchers": 21,
+        "forks": 2,
+        "network": 2,
+        "openIssues": 4,
+        "subscribers": 1,
+        "sizeKb": 505
+      },
+      "nativeEvidence": {
+        "repoName": "DripYCx26/drip-sdk",
+        "language": "TypeScript",
+        "license": "MIT",
+        "pushedAt": "2026-04-16T05:23:39Z",
+        "updatedAt": "2026-04-25T02:58:49Z",
+        "verificationMethod": "GitHub REST repo API exposed repo URL, owner, timestamps, visibility, and repo metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot links Drip's company GitHub to https://github.com/DripYCx26.",
+        "The repo owner matches that official YC-linked GitHub organization.",
+        "Drip had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Drip",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/Drippaygmi/status/2037982123169292784",
+      "platformPostId": "2037982123169292784",
+      "postedAt": "2026-03-28T19:56:16.000Z",
+      "author": {
+        "name": "Drip (YC P26)",
+        "handle": "Drippaygmi",
+        "profileUrl": "https://x.com/Drippaygmi",
+        "relationship": "official X account linked from YC company profile"
+      },
+      "metrics": {
+        "views": 266,
+        "likes": 3,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "nativeEvidence": {
+        "visibleText": "Billing shouldn't be the bottleneck. Drip tracks usage off-chain...",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot links Drip's company X account to https://x.com/Drippaygmi.",
+        "The post author handle matches the YC-linked company X account."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Drip",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/mike_drip/status/2070307970983104954",
+      "platformPostId": "2070307970983104954",
+      "postedAt": "2026-06-26T00:47:39.000Z",
+      "author": {
+        "name": "Michael Levin (YC P 26)",
+        "handle": "mike_drip",
+        "profileUrl": "https://x.com/mike_drip",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 583,
+        "likes": 8,
+        "replies": 0,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "nativeEvidence": {
+        "visibleText": "adding x to drip - surface hidden dms and reply autonomously to them",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Mike Levin as Drip founder.",
+        "The YC founder block links Mike Levin to https://x.com/mike_drip."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Archer",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/bennewgen/status/2028523026506223703",
+      "platformPostId": "2028523026506223703",
+      "postedAt": "2026-03-02T17:29:12.000Z",
+      "author": {
+        "name": "Benjamin Nguyen",
+        "handle": "bennewgen",
+        "profileUrl": "https://x.com/bennewgen",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 30257,
+        "likes": 216,
+        "replies": 46,
+        "retweets": 3,
+        "quotes": 4,
+        "bookmarks": 121
+      },
+      "nativeEvidence": {
+        "visibleText": "I and my co-founder have founded @archer_money (YC S26)...",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Benjamin Nguyen as Archer founder.",
+        "The YC founder block links Benjamin Nguyen to https://x.com/bennewgen.",
+        "The post names @archer_money, and the YC company snapshot links Archer's company X to https://x.com/archer_money.",
+        "Archer had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Archer",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/bennewgen/status/2056506180588257418",
+      "platformPostId": "2056506180588257418",
+      "postedAt": "2026-05-18T22:44:16.000Z",
+      "author": {
+        "name": "Benjamin Nguyen",
+        "handle": "bennewgen",
+        "profileUrl": "https://x.com/bennewgen",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 1725,
+        "likes": 18,
+        "replies": 4,
+        "retweets": 2,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "nativeEvidence": {
+        "visibleText": "Stay tuned for the @archer_money @ycombinator launch tomorrow",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Benjamin Nguyen as Archer founder.",
+        "The post tags @archer_money and @ycombinator.",
+        "The YC company snapshot links Archer's company X to https://x.com/archer_money."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Taiga",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/nandaguntupalli/status/2041285224622133575",
+      "platformPostId": "2041285224622133575",
+      "postedAt": "2026-04-06T22:41:37.000Z",
+      "author": {
+        "name": "Nanda Guntupalli",
+        "handle": "nandaguntupalli",
+        "profileUrl": "https://x.com/nandaguntupalli",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 6517,
+        "likes": 65,
+        "replies": 15,
+        "retweets": 8,
+        "quotes": 2,
+        "bookmarks": 10
+      },
+      "nativeEvidence": {
+        "visibleText": "Today we're announcing that Taiga got into the YC Spring 26 batch.",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Nanda Guntupalli as Taiga founder.",
+        "The YC founder block links Nanda Guntupalli to https://x.com/nandaguntupalli.",
+        "Taiga had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Astraea",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/joshwqngsr/status/2054995057518989535",
+      "platformPostId": "2054995057518989535",
+      "postedAt": "2026-05-14T18:39:36.000Z",
+      "author": {
+        "name": "Joshua Wang",
+        "handle": "joshwqngsr",
+        "profileUrl": "https://x.com/joshwqngsr",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 96,
+        "likes": 3,
+        "replies": 2,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "nativeEvidence": {
+        "visibleText": "Astraea just launched on @ycombinator's Launch YC!",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Joshua Wang as Astraea founder.",
+        "The YC founder block links Joshua Wang to https://x.com/joshwqngsr.",
+        "Astraea had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Lamina Labs",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/mk314k/status/2062590182524903642",
+      "platformPostId": "2062590182524903642",
+      "postedAt": "2026-06-04T17:39:55.000Z",
+      "author": {
+        "name": "Kartikesh Mishra",
+        "handle": "mk314k",
+        "profileUrl": "https://x.com/mk314k",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 544,
+        "likes": 7,
+        "replies": 2,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "nativeEvidence": {
+        "visibleText": "We just launched Simi! It's the fastest infra for turning your docs and prompts into whiteboard explainer videos instantly.",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Kartikesh Mishra as Lamina Labs founder.",
+        "The YC founder block links Kartikesh Mishra to https://x.com/mk314k.",
+        "The post links laminalabs.ai, matching the YC company website domain.",
+        "Lamina Labs had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Aseon Labs",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/kalligeros/status/2070546381652045967",
+      "platformPostId": "2070546381652045967",
+      "postedAt": "2026-06-26T16:35:00.000Z",
+      "author": {
+        "name": "George Kalligeros (YC P26)",
+        "handle": "kalligeros",
+        "profileUrl": "https://x.com/kalligeros",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 7729,
+        "likes": 20,
+        "replies": 4,
+        "retweets": 4,
+        "quotes": 2,
+        "bookmarks": 2
+      },
+      "nativeEvidence": {
+        "visibleText": "Today we announced @aseonlabs' $10M seed round...",
+        "verificationMethod": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists George Kalligeros as Aseon Labs founder.",
+        "The YC founder block links George Kalligeros to https://x.com/kalligeros.",
+        "The post tags @aseonlabs; the YC company snapshot links Aseon Labs's company X to https://x.com/aseonlabs.",
+        "Aseon Labs had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Amboras",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=xr0VEaJPJow",
+      "platformPostId": "xr0VEaJPJow",
+      "postedAt": "2026-05-19T13:45:47.000Z",
+      "author": {
+        "name": "Amboras",
+        "profileUrl": "https://www.youtube.com/@Amboras",
+        "relationship": "company-named YouTube channel"
+      },
+      "metrics": {
+        "views": 2076,
+        "likes": 43
+      },
+      "nativeEvidence": {
+        "title": "Amboras Launch YCP26",
+        "channelId": "UC_lLYV-H7aDYXGpuiEVDNGA",
+        "lengthSeconds": 71,
+        "verificationMethod": "YouTube watch-page embedded metadata and oEmbed exposed title, channel, publish date, views, likes, and canonical video URL."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Amboras as a YC Spring/P26 company.",
+        "The YouTube channel name and video title exactly name Amboras and YCP26.",
+        "Amboras had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Humwork",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=Bqw_qP_jubA",
+      "platformPostId": "Bqw_qP_jubA",
+      "postedAt": "2026-04-15T05:15:08.000Z",
+      "author": {
+        "name": "Humwork",
+        "profileUrl": "https://www.youtube.com/@HumworkAI",
+        "relationship": "company-named YouTube channel"
+      },
+      "metrics": {
+        "views": 1622,
+        "likes": 34
+      },
+      "nativeEvidence": {
+        "title": "Introducing Humwork (YC P26)",
+        "channelId": "UCStgOsWtx9Ptu9TmVgyHm7w",
+        "lengthSeconds": 86,
+        "visibleDescriptionSignal": "Humwork lets AI agents chat with human experts in real-time.",
+        "verificationMethod": "YouTube watch-page embedded metadata and oEmbed exposed title, channel, publish date, views, likes, and canonical video URL."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Humwork as a YC Spring/P26 company.",
+        "The YouTube channel name and video title exactly name Humwork and YC P26.",
+        "Humwork had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "InstaAgent",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=NM3l6c2cm0w",
+      "platformPostId": "NM3l6c2cm0w",
+      "postedAt": "2026-05-11T13:39:58.000Z",
+      "author": {
+        "name": "InstaAgent",
+        "profileUrl": "https://www.youtube.com/@InstaAgent",
+        "relationship": "company-named YouTube channel"
+      },
+      "metrics": {
+        "views": 1300,
+        "likes": 6
+      },
+      "nativeEvidence": {
+        "title": "InstaAgent Launch YC",
+        "channelId": "UCK4M_KfUPA-HsFyDg5s1Ntg",
+        "lengthSeconds": 57,
+        "visibleDescriptionSignal": "InstaAgent helps B2C companies scale a single marketing campaign...",
+        "verificationMethod": "YouTube watch-page embedded metadata and oEmbed exposed title, channel, publish date, views, likes, and canonical video URL."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists InstaAgent as a YC Spring/P26 company.",
+        "The YouTube channel name and video title exactly name InstaAgent and Launch YC.",
+        "InstaAgent had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Arlo Industries",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=2F0cugbrq3A",
+      "platformPostId": "2F0cugbrq3A",
+      "postedAt": "2026-05-26T08:19:59.000Z",
+      "author": {
+        "name": "Arlo Industries",
+        "profileUrl": "https://www.youtube.com/@ArloIndustries",
+        "relationship": "company-named YouTube channel"
+      },
+      "metrics": {
+        "views": 1108,
+        "likes": 10
+      },
+      "nativeEvidence": {
+        "title": "Arlo Industries (YC P26) Launch",
+        "channelId": "UCL7OoZ7VkopQaK-Z_uSNUSw",
+        "lengthSeconds": 75,
+        "visibleDescriptionSignal": "Arlo Industries develops technologies to better counteract drone and aerial threats. https://arlo1.com/careers",
+        "verificationMethod": "YouTube watch-page embedded metadata and oEmbed exposed title, channel, publish date, views, likes, and canonical video URL."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Arlo Industries and its website as https://arlo1.com/.",
+        "The YouTube video description links arlo1.com, matching the YC company website domain.",
+        "Arlo Industries had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "InLoop Robotics",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=25SjZ28WX6Q",
+      "platformPostId": "25SjZ28WX6Q",
+      "postedAt": "2026-05-19T09:29:05.000Z",
+      "author": {
+        "name": "InLoop Robotics",
+        "profileUrl": "https://www.youtube.com/@InLoopRobotics",
+        "relationship": "company-named YouTube channel"
+      },
+      "metrics": {
+        "views": 194,
+        "likes": 0
+      },
+      "nativeEvidence": {
+        "title": "InLoop Robotics (YC P26) Launch",
+        "channelId": "UCYb2vTuOQOwO_QxUSAZfQpg",
+        "lengthSeconds": 67,
+        "visibleDescriptionSignal": "Tell us. We'll show you how: www.inloop-robotics.com",
+        "verificationMethod": "YouTube watch-page embedded metadata and oEmbed exposed title, channel, publish date, views, likes, and canonical video URL."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists InLoop Robotics and its website as https://inloop-robotics.com/.",
+        "The YouTube video description links inloop-robotics.com, matching the YC company website domain.",
+        "InLoop Robotics had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    },
+    {
+      "companyName": "Fuchsia",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=epMVQDNfy-4",
+      "platformPostId": "epMVQDNfy-4",
+      "postedAt": "2026-05-21T14:35:33.000Z",
+      "author": {
+        "name": "Tony Gao",
+        "profileUrl": "https://www.youtube.com/@tony-noetic",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 133,
+        "likes": 1
+      },
+      "nativeEvidence": {
+        "title": "Fuchsia YC Launch",
+        "channelId": "UCfi1E4EAUGzcwy9SgpDjOUA",
+        "lengthSeconds": 75,
+        "visibleDescriptionSignal": "getfuchsia.ai",
+        "verificationMethod": "YouTube watch-page embedded metadata and oEmbed exposed title, channel, publish date, views, likes, and canonical video URL."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 snapshot lists Tony Gao as Fuchsia founder.",
+        "The YouTube channel author is Tony Gao and the description links getfuchsia.ai, matching the YC company website domain.",
+        "Fuchsia had zero matched entries in targeted-evidence-current.json during this pass."
+      ],
+      "dedupe": {
+        "currentTargetedEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "companyName": "Aseon Labs",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "sourceUrl": "https://x.com/kalligeros/status/2067273387492209093",
+      "platformPostId": "2067273387492209093",
+      "metrics": {
+        "views": 85,
+        "likes": 2,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "reason": "Native founder post with visible metrics, but the visible text is only 'And what a day it was!' and relies on quoted context for company specificity. Rejected under the strict self-contained company/founder evidence rule.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Asendia AI",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "sourceUrl": "https://x.com/LajmiRihab/status/2059326725704880476",
+      "platformPostId": "2059326725704880476",
+      "reason": "Strong first-party founder post, but the exact platformPostId/sourceUrl already exists in src/lib/social/targeted-evidence-current.json.",
+      "duplicateLikely": true
+    },
+    {
+      "companyName": "Cignara",
+      "batchSlug": "S2026",
+      "platform": "Product Hunt",
+      "sourceUrl": "https://www.producthunt.com/p/cignara/ai-agents-for-fortune-500-grade-customer-support",
+      "reason": "Native Product Hunt launch/comment-style URL with first-party founder attribution, but the exact URL already exists in src/lib/social/targeted-evidence-current.json.",
+      "duplicateLikely": true
+    },
+    {
+      "companyName": "Memory Store",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "sourceUrl": "https://www.youtube.com/watch?v=vncrqtgEPdY",
+      "metrics": {
+        "views": 1115,
+        "likes": 55
+      },
+      "reason": "Not present in targeted-evidence-current.json, but the exact URL was already surfaced in outputs/source-hunt/yc-nonx-fifth-pass.json. Omitted from accepted to keep the ninth pass incremental.",
+      "duplicateLikely": true
+    },
+    {
+      "companyName": "KugelAudio",
+      "batchSlug": "S2026",
+      "platform": "Hacker News",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48358446",
+      "metrics": {
+        "upvotes": 4,
+        "comments": 1
+      },
+      "reason": "Native HN item with visible metrics, but title is an Ask HN about KugelAudio and the author could not be verified as company, founder, or official account from the local YC identity snapshot.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Zenbu",
+      "batchSlug": "S2026",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_zenbu-labs-is-an-extensible-ide-for-coding-activity-7468376038251610112-ckMx",
+      "reason": "Native LinkedIn post with visible public snippet, but author is the Y Combinator organization rather than the company, founder, or company official account. Rejected as not first-party under this pass's stricter rule.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Drip",
+      "batchSlug": "S2026",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/phillip-li-a28a84217_the-most-unpatched-gtm-method-that-helped-activity-7464802640003031040-Ai95",
+      "reason": "Search snippet showed a Drip founder comment, but the available URL is another person's post, not a native Drip founder/company comment URL with comment-level metrics.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Aster",
+      "batchSlug": "S2026",
+      "platform": "X",
+      "sourceUrl": "https://x.com/emmett_bicker",
+      "reason": "Profile page surfaced in search results; profiles are explicitly out of scope even when the profile is a YC-listed founder.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Stage",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "sourceUrl": "https://www.youtube.com/watch?v=lw2X3PxKlAY",
+      "metrics": {
+        "views": 485865
+      },
+      "reason": "False-positive YouTube match: video is a Y Combinator pitching video, not a native Stage company/founder/official-account post.",
+      "duplicateLikely": false
+    },
+    {
+      "companyName": "Expanse",
+      "batchSlug": "S2026",
+      "platform": "YouTube",
+      "sourceUrl": "https://www.youtube.com/watch?v=0KZRFIdbJzc",
+      "metrics": {
+        "views": 80897
+      },
+      "reason": "False-positive YouTube match: video is an Expanse TV-series clip, not first-party evidence for the YC company Expanse.",
+      "duplicateLikely": false
+    }
+  ],
+  "searches": [
+    {
+      "surface": "local_inventory",
+      "queryOrCommand": "jq tally of Spring 2026 companies against src/lib/social/targeted-evidence-current.json",
+      "result": "Current targeted source matched 97 Spring/P26 companies with zero evidence, 43 with one evidence row, 28 with two rows, and 29 with three or more rows. Zero-evidence companies were prioritized."
+    },
+    {
+      "surface": "dedupe",
+      "queryOrCommand": "jq -r '.evidence[].sourceUrl' src/lib/social/targeted-evidence-current.json | sort -u",
+      "result": "Built a 292-URL exact current-source dedupe set. All accepted sourceUrl values above were absent from that set."
+    },
+    {
+      "surface": "GitHub API",
+      "queryOrCommand": "GET /orgs/DripYCx26/repos, /orgs/zenbu-labs/repos, and selected /repos/{owner}/{repo}",
+      "urlsChecked": [
+        "https://github.com/DripYCx26/drip-sdk",
+        "https://github.com/DripYCx26/drip-sdk-python",
+        "https://github.com/DripYCx26/drip-sdk-cpp",
+        "https://github.com/DripYCx26/drip-releases",
+        "https://github.com/zenbu-labs/zenbu.js",
+        "https://github.com/zenbu-labs/zenbu-release",
+        "https://github.com/zenbu-labs/docs"
+      ],
+      "result": "Accepted the highest-signal official Drip and Zenbu repos with visible GitHub metrics; lower-signal sibling repos were checked but not all were needed in accepted."
+    },
+    {
+      "surface": "X / FxTwitter",
+      "queryOrCommand": "api.fxtwitter.com/status/{id} for native X leads from search and local graph thumbnails",
+      "urlsChecked": [
+        "https://x.com/RobKnight__/status/2053867901028110592",
+        "https://x.com/joshwqngsr/status/2054995057518989535",
+        "https://x.com/nandaguntupalli/status/2041285224622133575",
+        "https://x.com/mk314k/status/2062590182524903642",
+        "https://x.com/bennewgen/status/2028523026506223703",
+        "https://x.com/bennewgen/status/2056506180588257418",
+        "https://x.com/mike_drip/status/2070307970983104954",
+        "https://x.com/Drippaygmi/status/2037982123169292784",
+        "https://x.com/kalligeros/status/2067273387492209093",
+        "https://x.com/kalligeros/status/2070546381652045967"
+      ],
+      "result": "Accepted native founder/company posts with visible metrics and local YC founder/company-account attribution. Rejected one Aseon post whose visible text was too context-dependent."
+    },
+    {
+      "surface": "YouTube watch metadata and oEmbed",
+      "queryOrCommand": "curl YouTube watch pages and /oembed for zero-evidence company launch videos",
+      "urlsChecked": [
+        "https://www.youtube.com/watch?v=xr0VEaJPJow",
+        "https://www.youtube.com/watch?v=Bqw_qP_jubA",
+        "https://www.youtube.com/watch?v=NM3l6c2cm0w",
+        "https://www.youtube.com/watch?v=vncrqtgEPdY",
+        "https://www.youtube.com/watch?v=2F0cugbrq3A",
+        "https://www.youtube.com/watch?v=25SjZ28WX6Q",
+        "https://www.youtube.com/watch?v=epMVQDNfy-4"
+      ],
+      "result": "Accepted company/founder-authored videos where watch-page metadata exposed channel, publish date, views, and likes and attribution matched the local YC company/founder snapshot. Memory Store was held out because it had already appeared in a prior source-hunt output."
+    },
+    {
+      "surface": "web_search",
+      "queryOrCommand": "site:linkedin.com/posts and site:x.com searches for Zenbu, Drip, Archer, Astraea, Aster, and Product Hunt variants",
+      "result": "Found several useful native X URLs and duplicate/non-first-party LinkedIn/Product Hunt leads. LinkedIn YC-org posts and LinkedIn snippets without native first-party comment URLs were rejected."
+    },
+    {
+      "surface": "graph_lead_review",
+      "queryOrCommand": "jq review of public/graph/s2026.json product_hunt, hacker_news, youtube, reddit platforms",
+      "result": "Used local graph rows only as leads, then re-checked native URLs and current metrics before accepting. Rejected HN Ask HN and false-positive YouTube matches where first-party authorship failed."
+    }
+  ],
+  "notes": [
+    "No source/app JSON files were edited; src/lib/social/targeted-evidence-current.json was read only.",
+    "All accepted URLs are absent from the exact sourceUrl set in src/lib/social/targeted-evidence-current.json.",
+    "Most accepted entries are for companies with zero current targeted evidence: Zenbu, Drip, Archer, Taiga, Astraea, Lamina Labs, Aseon Labs, Amboras, Humwork, InstaAgent, Arlo Industries, InLoop Robotics, and Fuchsia.",
+    "X metrics were captured from FxTwitter public post JSON. GitHub metrics were captured from the GitHub REST repo API. YouTube metrics were captured from watch-page embedded metadata and oEmbed.",
+    "No profile pages, search pages, result pages, or inferred profile follower counts were accepted."
+  ]
+}

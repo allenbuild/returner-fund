@@ -1,0 +1,437 @@
+{
+  "scope": {
+    "label": "YC Summer 2026 top-voice evidence eighth pass",
+    "createdAt": "2026-07-15T23:59:00.000Z",
+    "targetBatch": "Summer 2026",
+    "targetCompanySource": "src/lib/yc/summer-2026-companies.json",
+    "targetCompanyCount": 83,
+    "topVoiceSource": "src/lib/social/top-voices.ts",
+    "topVoiceScope": "Only real people listed in src/lib/social/top-voices.ts; emphasis on yc_partners and insiders.",
+    "dedupeSource": "src/lib/social/targeted-evidence-current.json",
+    "strictPolicy": [
+      "Accepted evidence must be a native post or native comment authored by the listed person.",
+      "Accepted evidence must have a verifiable post/comment URL and visible metrics.",
+      "Profiles, org accounts, search pages, inferred metrics, likes-only rows, and company reposts are rejected.",
+      "The top-voice-authored row must mention the target company, founder, handle, or domain in the native post/comment text or native quote/reply context.",
+      "Exact sourceUrl and platformPostId values already present in targeted-evidence-current.json are treated as duplicates and rejected here."
+    ],
+    "methods": [
+      "Parsed local Summer 2026 company/founder names, handles, domains, and group partners.",
+      "Parsed current targeted evidence sourceUrl and platformPostId keys for dedupe.",
+      "Used TwStalker only as an X discovery index, then verified candidates with api.fxtwitter.com native post JSON.",
+      "Used public LinkedIn pages/search snippets only for direct post/comment lead discovery and native author checks.",
+      "Used HN Algolia, GitHub Search API, and web search for Product Hunt, Reddit, and YouTube coverage."
+    ]
+  },
+  "accepted": [
+    {
+      "platform": "x",
+      "topVoiceSet": "yc_partners",
+      "topVoicePersonId": "ankit-gupta",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "agupta",
+      "companyName": "Instance",
+      "companySlug": "instance",
+      "entityId": "company-instance",
+      "sourceUrl": "https://x.com/agupta/status/2077126412700365109",
+      "platformPostId": "2077126412700365109",
+      "postedAt": "2026-07-14T20:21:42.000Z",
+      "text": "and read more about their launch here: https://x.com/lucyjcai/status/2076778369530958196",
+      "metrics": {
+        "views": 1616,
+        "likes": 4,
+        "replies": 0,
+        "comments": 0,
+        "reposts": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "saves": 1
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false
+      },
+      "sourceEvidence": {
+        "nativeUrl": "https://x.com/agupta/status/2077126412700365109",
+        "nativeAuthor": {
+          "name": "Ankit Gupta",
+          "handle": "agupta",
+          "profileUrl": "https://x.com/agupta",
+          "description": "general partner @ycombinator. co-founder of @reverielabs (acquired). @harvard CS."
+        },
+        "nativePostText": "and read more about their launch here: https://x.com/lucyjcai/status/2076778369530958196",
+        "nativeReplyContext": {
+          "replyingTo": "agupta",
+          "replyingToStatus": "2077125864006062268"
+        },
+        "nativeQuote": {
+          "url": "https://x.com/lucyjcai/status/2076778369530958196",
+          "authorName": "Lucy Cai",
+          "authorHandle": "lucyjcai",
+          "text": "We're excited to launch Instance - a success detector for robot rollouts! Describe your task and drop in a dataset, and it judges success/fail on each rollout with detailed subtask captions. This is the first step toward an autonomous evaluation rig for robot learning.",
+          "visibleMetrics": {
+            "views": 69085,
+            "likes": 516,
+            "replies": 59,
+            "retweets": 27,
+            "quotes": 4,
+            "saves": 200
+          }
+        },
+        "targetMatch": "The native quote names Instance; Lucy Cai's native author profile says she is building @tryinstance (YC S26); the local Summer 2026 registry lists Instance with founder Lucy Cai and company handle @tryinstance.",
+        "verification": {
+          "method": "api.fxtwitter.com public post JSON",
+          "checkedAt": "2026-07-15T23:59:00.000Z"
+        }
+      },
+      "notes": "Ankit Gupta is listed as a yc_partner in top-voices.ts. The X handle @agupta is not seeded there, but native author name/profile identify the listed YC partner."
+    },
+    {
+      "platform": "x",
+      "topVoiceSet": "yc_partners",
+      "topVoicePersonId": "tyler-bosmeny",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "companyName": "Inkbox",
+      "companySlug": "inkbox",
+      "entityId": "company-inkbox",
+      "sourceUrl": "https://x.com/bosmeny/status/2076459852113858684",
+      "platformPostId": "2076459852113858684",
+      "postedAt": "2026-07-13T00:13:02.000Z",
+      "text": "@rayruizhiliao @inkbox_ai @alxwlcx @DVremenko WOW I totally forgot about this!",
+      "metrics": {
+        "views": 191,
+        "likes": 4,
+        "replies": 1,
+        "comments": 1,
+        "reposts": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "saves": 0
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false
+      },
+      "sourceEvidence": {
+        "nativeUrl": "https://x.com/bosmeny/status/2076459852113858684",
+        "nativeAuthor": {
+          "name": "Tyler Bosmeny",
+          "handle": "bosmeny",
+          "profileUrl": "https://x.com/bosmeny",
+          "description": "Co-Founder of @Clever. Now Partner at @YCombinator"
+        },
+        "nativePostText": "@rayruizhiliao @inkbox_ai @alxwlcx @DVremenko WOW I totally forgot about this!",
+        "nativeReplyContext": {
+          "replyingTo": "rayruizhiliao",
+          "replyingToStatus": "2076390778218414507"
+        },
+        "targetMatch": "The native reply mentions @inkbox_ai and founder handles @rayruizhiliao, @alxwlcx, and @DVremenko; the local Summer 2026 registry lists Inkbox with those company/founder handles.",
+        "verification": {
+          "method": "api.fxtwitter.com public post JSON",
+          "checkedAt": "2026-07-15T23:59:00.000Z"
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "platform": "x",
+      "topVoiceName": "Ankit Gupta",
+      "sourceUrl": "https://x.com/agupta/status/2077044076273164665",
+      "platformPostId": "2077044076273164665",
+      "reason": "Duplicate: sourceUrl/platformPostId already present in src/lib/social/targeted-evidence-current.json for Prized.",
+      "sourceEvidence": "Native X post by Ankit Gupta congratulates Prized founders @itsmarinos and @hudson_gri and quotes the Prized launch."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Ankit Gupta",
+      "sourceUrl": "https://x.com/agupta/status/2076799833214505373",
+      "platformPostId": "2076799833214505373",
+      "reason": "Duplicate: sourceUrl/platformPostId already present in src/lib/social/targeted-evidence-current.json for Instance.",
+      "sourceEvidence": "Native X post by Ankit Gupta says he is impressed by the Instance founders and quotes the Instance launch."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Ankit Gupta",
+      "sourceUrl": "https://x.com/agupta/status/2076783005025124492",
+      "platformPostId": "2076783005025124492",
+      "reason": "Duplicate: sourceUrl/platformPostId already present in src/lib/social/targeted-evidence-current.json for Instance.",
+      "sourceEvidence": "Native X post by Ankit Gupta mentions @clairemao78 and @lucyjcai and quotes the Instance YC launch."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Tyler Bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2075342772392067278",
+      "platformPostId": "2075342772392067278",
+      "reason": "Duplicate: sourceUrl/platformPostId already present in src/lib/social/targeted-evidence-current.json for Inkbox.",
+      "sourceEvidence": "Native X post by Tyler Bosmeny says Inkbox is the communication layer for AI agents and congratulates @rayruizhiliao."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Tyler Bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2075013475424952797",
+      "platformPostId": "2075013475424952797",
+      "reason": "Duplicate: sourceUrl/platformPostId already present in src/lib/social/targeted-evidence-current.json for 83 Sciences.",
+      "sourceEvidence": "Native X post by Tyler Bosmeny names 83 Sciences and 83sciences.ai with visible metrics."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Tyler Bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2072753766701625532",
+      "platformPostId": "2072753766701625532",
+      "reason": "Duplicate: sourceUrl/platformPostId already present in src/lib/social/targeted-evidence-current.json for Bloomy.",
+      "sourceEvidence": "Native X post by Tyler Bosmeny congratulates @alexsouthmayd and @bloomylearning."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Parker Conrad",
+      "sourceUrl": "https://x.com/parkerconrad/status/2069810389022343466",
+      "platformPostId": "2069810389022343466",
+      "reason": "Duplicate: sourceUrl/platformPostId already present in src/lib/social/targeted-evidence-current.json for Context.dev.",
+      "sourceEvidence": "Native X reply by Parker Conrad mentions @mynameisyahia."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Harj Taggar",
+      "sourceUrl": "https://x.com/harjtaggar/status/2069815056766800192",
+      "platformPostId": "2069815056766800192",
+      "reason": "Rejected false target match: text is about Coval, not Cova; Coval is not a Summer 2026 company in the local registry.",
+      "sourceEvidence": "Native X post says Coval understood voice-agent testing and announced a $28M Series A."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Aaron Epstein",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2075635266585297042",
+      "platformPostId": "2075635266585297042",
+      "reason": "Rejected false target match: generic use of the word context; does not mention Context.dev, founder Yahia Bakour, @getcontextdev, @mynameisyahia, or context.dev.",
+      "sourceEvidence": "Native X post discusses an AI-native design workflow and YC Head of Design Eve Bouff."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Aaron Epstein",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2064850336465162725",
+      "platformPostId": "2064850336465162725",
+      "reason": "Rejected false target match: generic visual-context wording for Aspect; no Summer 2026 target company/founder/handle/domain.",
+      "sourceEvidence": "Native X quote discusses Aspect as software for media production teams."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Diana Hu",
+      "sourceUrl": "https://x.com/sdianahu/status/2072473164408574020",
+      "platformPostId": "2072473164408574020",
+      "reason": "Rejected false target match: generic use of context; no Context.dev, founder, handle, or domain mention.",
+      "sourceEvidence": "Native X post says the problem in enterprise AI is missing context."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Tom Blomfield",
+      "sourceUrl": "https://x.com/t_blom/status/2067336537059328432",
+      "platformPostId": "2067336537059328432",
+      "reason": "Rejected false target match: substring collision with LATO; post is a generic reply about regulators.",
+      "sourceEvidence": "Native X reply text: @jackisgeeky Or that your regulators are too cautious?"
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Brad Flora",
+      "sourceUrl": "https://x.com/bradflora/status/2054597968435810437",
+      "platformPostId": "2054597968435810437",
+      "reason": "Rejected false target match: generic context wording in a Relace/Jacq launch; no Context.dev target signal.",
+      "sourceEvidence": "Native X post discusses @relace_ai releasing Jacq and pulling context from connected devices."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Tyler Bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2077494848517816670",
+      "platformPostId": "2077494848517816670",
+      "reason": "Rejected false target match: Poetiq quote uses the phrase long-context; Poetiq is not in the local Summer 2026 registry.",
+      "sourceEvidence": "Native X post says Poetiq built benchmark harnesses; no Summer 2026 company/founder/handle/domain from the local roster."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Paul Graham",
+      "sourceUrl": "https://x.com/paulg/status/2076812752774123650",
+      "platformPostId": "2076812752774123650",
+      "reason": "Rejected false target match: Denta substring collision inside unrelated wording; no Denta company/founder/handle/domain signal.",
+      "sourceEvidence": "Native X reply discusses Paul Graham's definition of wokeness and links paulgraham.com/woke.html."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Sarah Guo",
+      "sourceUrl": "https://x.com/saranormous/status/2076044778010238992",
+      "platformPostId": "2076044778010238992",
+      "reason": "Rejected false target match: Glen matched the name Glenn Fogel; no Glen Summer 2026 company signal.",
+      "sourceEvidence": "Native X post promotes a No Priors episode with Booking Holdings CEO Glenn Fogel."
+    },
+    {
+      "platform": "x",
+      "topVoiceName": "Mathilde Collin",
+      "sourceUrl": "https://x.com/collinmathilde/status/2019111339223121957",
+      "platformPostId": "2019111339223121957",
+      "reason": "Rejected false target match: generic context wording; post predates Summer 2026 and mentions Kora, not Context.dev.",
+      "sourceEvidence": "Native X reply links korabench.ai and says more context here."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceName": "Tyler Bosmeny",
+      "sourceUrl": "https://www.linkedin.com/in/tylerbosmeny",
+      "reason": "Rejected: LinkedIn profile/activity page is not a native post/comment URL, and several visible items are likes rather than authored top-voice posts.",
+      "sourceEvidence": "Public profile activity showed liked/shared items for Bloomy, 83 Sciences, Inkbox, Molagri, and CLODO; profile/activity pages and likes-only rows are disallowed."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceName": "Tyler Bosmeny",
+      "sourceUrl": "https://www.linkedin.com/posts/sean-cole-8985a4207_excited-to-announce-that-parasma-is-joining-activity-7476123052993372160-SiNp",
+      "reason": "Rejected: native post is founder-authored by Sean Cole, not authored by Tyler Bosmeny.",
+      "sourceEvidence": "Post thanks YC partners Tyler Bosmeny and Boris Jabes for believing in Parasma, but the top voice is not the native author."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceName": "Tyler Bosmeny",
+      "sourceUrl": "https://www.linkedin.com/posts/alxwlcx_it-happened-inkbox-yc-s26-is-joining-y-activity-7470193342639751169-wxTJ",
+      "reason": "Rejected: native post is founder-authored by Alex Wilcox, not authored by Tyler Bosmeny.",
+      "sourceEvidence": "Post names Inkbox (YC S26) and says the founders are working with Tyler Bosmeny, but the top voice is not the native author."
+    },
+    {
+      "platform": "hacker_news",
+      "topVoiceName": "Paul Graham",
+      "sourceUrl": "https://hn.algolia.com/api/v1/search_by_date?query=Cova&tags=comment,author_pg",
+      "reason": "Rejected: HN Algolia hits were old generic word matches and not Summer 2026 target comments.",
+      "sourceEvidence": "Example hits were 2013-era comments by pg; no native HN item/comment by pg mentioned a local Summer 2026 target."
+    },
+    {
+      "platform": "hacker_news",
+      "topVoiceName": "Jared Friedman",
+      "sourceUrl": "https://hn.algolia.com/api/v1/search_by_date?query=Inkbox&tags=comment,author_snowmaker",
+      "reason": "Rejected: HN Algolia hits matched older generic Inbox/Quirk content, not the Summer 2026 Inkbox company.",
+      "sourceEvidence": "Returned snowmaker comments from 2010 and 2015; no S26 target context."
+    },
+    {
+      "platform": "reddit",
+      "sourceUrl": "https://www.reddit.com/r/ycombinator/comments/1shy5p3/summer_26_megathread/",
+      "reason": "Rejected: native Reddit thread has visible comments/metrics, but search did not find a comment authored by a listed top voice and mentioning a target Summer 2026 company/founder/handle/domain.",
+      "sourceEvidence": "Thread is a Summer 2026 application megathread; visible references to Paul Graham are resource links, not native top-voice-authored comments."
+    },
+    {
+      "platform": "product_hunt",
+      "sourceUrl": "https://www.producthunt.com/",
+      "reason": "Rejected: Product Hunt searches did not surface a native comment/post authored by a listed top voice with visible metrics for a Summer 2026 target.",
+      "sourceEvidence": "Searches for Tyler Bosmeny/Inkbox/Bloomy/83 Sciences, Ankit Gupta/Instance/Prized, Jared Friedman/Litmus/screenpipe, and Paul Graham/Inkbox/Instance/Prized returned no qualifying native top-voice comments."
+    },
+    {
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/",
+      "reason": "Rejected: YouTube searches did not surface a native video/comment authored by a listed top voice with visible metrics and a Summer 2026 target mention.",
+      "sourceEvidence": "Searches for Ankit Gupta Instance, Tyler Bosmeny Bloomy, Jared Friedman Litmus, and Paul Graham Inkbox produced no qualifying native top-voice-authored YouTube evidence."
+    },
+    {
+      "platform": "github",
+      "topVoiceName": "Guillermo Rauch",
+      "sourceUrl": "https://api.github.com/search/issues?q=commenter:rauchg+screenpipe",
+      "reason": "Rejected: GitHub Search API returned zero issue/discussion/comment hits for a listed top-voice GitHub handle and Summer 2026 target.",
+      "sourceEvidence": "GitHub API result total_count was 0 for commenter:rauchg screenpipe."
+    },
+    {
+      "platform": "github",
+      "topVoiceName": "Nat Friedman",
+      "sourceUrl": "https://api.github.com/search/issues?q=commenter:nat+screenpipe+OR+inkbox+OR+instance+OR+prized",
+      "reason": "Rejected: GitHub Search API hits were unrelated historical issues and did not mention local Summer 2026 targets in a qualifying top-voice-authored comment.",
+      "sourceEvidence": "GitHub API returned unrelated issues such as omnivore-app/omnivore#419 and isaacs/github#253."
+    }
+  ],
+  "searches": [
+    {
+      "platform": "local",
+      "query": "Parse src/lib/social/top-voices.ts",
+      "result": "Identified listed top-voice people and seeded handles; YC partner priority set included Garry Tan, Harj Taggar, Jared Friedman, Aaron Epstein, Diana Hu, Gustaf Alstromer, Nicolas Dessaigne, Tom Blomfield, Brad Flora, Pete Koomen, Ankit Gupta, Tyler Bosmeny, David Lieb, Harshita Arora, Grey Baker, and Chris Golda."
+    },
+    {
+      "platform": "local",
+      "query": "Parse src/lib/yc/summer-2026-companies.json",
+      "result": "Scoped targets to 83 Summer 2026 companies and their founders, handles, domains, and group partners."
+    },
+    {
+      "platform": "local",
+      "query": "Parse src/lib/social/targeted-evidence-current.json sourceUrl/platformPostId",
+      "result": "Built dedupe key set from 319 evidence rows, 278 unique sourceUrls, and 275 unique platformPostIds."
+    },
+    {
+      "platform": "x",
+      "query": "TwStalker profile + service API pages for YC partner handles: garrytan, harjtaggar, snowmaker, aaron_epstein, sdianahu, gustaf, dessaigne, t_blom, bradflora, pkoomen, agupta, bosmeny, dflieb, harshitaarora, greybaker, golda",
+      "result": "27 mirror candidates reduced to 15 native FxTwitter-verified candidates; 2 accepted as new, 6 rejected as duplicates, and the rest rejected as false target matches or out-of-scope company matches."
+    },
+    {
+      "platform": "x",
+      "query": "api.fxtwitter.com/agupta/status/2077126412700365109",
+      "result": "Accepted native Ankit Gupta X reply/thread post for Instance with visible metrics."
+    },
+    {
+      "platform": "x",
+      "query": "api.fxtwitter.com/bosmeny/status/2076459852113858684",
+      "result": "Accepted native Tyler Bosmeny X reply mentioning @inkbox_ai and Inkbox founder handles with visible metrics."
+    },
+    {
+      "platform": "x",
+      "query": "TwStalker profile + service API pages for insider subset: paulg, parkerconrad, saranormous, collinmathilde, daltonc, rauchg, lennyrachitsky, natfriedman, danielgross, naval, levie, justinkan, mwseibel, sama, alexisohanian",
+      "result": "14 mirror candidates reduced to 10 FxTwitter-verified candidates; Parker Conrad Context.dev was already a duplicate and the others were rejected as generic word/substring collisions."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"Tyler Bosmeny\" \"Inkbox\" \"YC S26\" \"LinkedIn\"; \"Tyler Bosmeny\" \"Agnost AI\" \"YC S26\" \"LinkedIn\"; \"Tyler Bosmeny\" \"Cerenovus\" \"YC S26\" \"LinkedIn\"; \"Tyler Bosmeny\" \"Parasma\" \"YC S26\" \"LinkedIn\"",
+      "result": "Found profile/activity snippets, founder-authored thank-you posts, and the already-known Bloomy post; no new native Tyler-authored post/comment accepted."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"Ankit Gupta\" \"Shared by Ankit Gupta\" \"YC S26\" \"LinkedIn\"; \"Ankit Gupta\" \"Robocurve\" \"Shared by Ankit Gupta\"; \"Ankit Gupta\" \"Instance\" \"Shared by Ankit Gupta\" LinkedIn; \"Ankit Gupta\" \"Prized\" \"Shared by Ankit Gupta\" LinkedIn",
+      "result": "No new qualifying native LinkedIn post/comment by the listed YC partner beyond rows already imported in targeted evidence."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"Jared Friedman commented\" \"YC S26\"; \"Ankit Gupta commented\" \"YC S26\"; \"Tyler Bosmeny commented\" \"YC S26\"; \"Diana Hu commented\" \"YC S26\"",
+      "result": "Searches surfaced profiles, older posts, founder thank-you posts, or org posts; no new native top-voice-authored Summer 2026 comments accepted."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia search_by_date for query in Instance, Prized, Inkbox, Bloomy, Context.dev, Cova, Litmus, Coasty with tags=comment,author_pg",
+      "result": "Returned old generic matches or zero hits; no Summer 2026 top-voice evidence accepted."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia search_by_date for query in Instance, Prized, Inkbox, Bloomy, Context.dev, Litmus, screenpipe with tags=comment,author_sama",
+      "result": "Returned zero or old generic matches; no Summer 2026 top-voice evidence accepted."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia search_by_date for query in Instance, Prized, Inkbox, Bloomy, Context.dev, Litmus, screenpipe with tags=comment,author_snowmaker",
+      "result": "Returned old generic matches for Instance/Prized/Inkbox and zero target hits for current Summer 2026 evidence."
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com \"Tyler Bosmeny\" \"Inkbox\" OR \"Bloomy\" OR \"83 Sciences\"; site:producthunt.com \"Ankit Gupta\" \"Instance\" OR \"Prized\"; site:producthunt.com \"Jared Friedman\" \"Litmus\" OR \"screenpipe\"; site:producthunt.com \"Paul Graham\" \"Inkbox\" OR \"Instance\" OR \"Prized\"",
+      "result": "No qualifying native Product Hunt post/comment authored by a listed top voice found."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com \"Tyler Bosmeny\" \"YC S26\"; site:reddit.com \"Ankit Gupta\" \"YC S26\" \"Instance\"; site:reddit.com \"Jared Friedman\" \"YC S26\" \"Litmus\"; site:reddit.com \"Paul Graham\" \"YC S26\"",
+      "result": "Found YC Summer 2026 megathreads and resource mentions, but no native comment authored by a listed top voice for a target company."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com \"Ankit Gupta\" \"Instance\" \"YC S26\"; site:youtube.com \"Tyler Bosmeny\" \"Bloomy\" \"YC S26\"; site:youtube.com \"Jared Friedman\" \"Litmus\" \"YC S26\"; site:youtube.com \"Paul Graham\" \"Inkbox\" \"YC S26\"",
+      "result": "No qualifying native YouTube video/comment authored by a listed top voice found."
+    },
+    {
+      "platform": "github",
+      "query": "GitHub Search API commenter:rauchg screenpipe; commenter:rauchg Inkbox OR Instance OR Prized; commenter:nat screenpipe OR inkbox OR instance OR prized",
+      "result": "No qualifying GitHub issue/comment/discussion evidence; returned zero hits or unrelated historical issues."
+    }
+  ],
+  "notes": [
+    "Only outputs/source-hunt/summer-topvoices-eighth-pass.json was written.",
+    "No app/source JSON files were edited.",
+    "Third-party X mirror pages were used only for discovery. Accepted source evidence comes from native x.com URLs verified through public FxTwitter post JSON with visible counters.",
+    "Ankit Gupta's accepted @agupta row is identity-verified by native author name/profile as the listed YC partner, but @agupta is not seeded as his X handle in src/lib/social/top-voices.ts.",
+    "Several false positives came from generic company names or domain-root tokens such as context, Denta, LATO, Glen, and Cova/Coval. They are explicitly rejected here.",
+    "Social counters are point-in-time public counters observed on 2026-07-15 and may drift."
+  ]
+}

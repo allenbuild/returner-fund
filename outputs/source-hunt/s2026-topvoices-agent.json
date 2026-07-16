@@ -1,0 +1,2633 @@
+{
+  "generatedAt": "2026-07-15T00:00:00-05:00",
+  "task": "Exhaustive public-source hunt for YC Spring 2026/P26 top-voice evidence beyond existing source JSON/graphs. Top voices limited to src/lib/social/top-voices.ts yc_partners and insiders.",
+  "sourceExclusion": "Checked src/lib/social/*.json and public/graph/*.json post/activity IDs before accepting; did not edit shared source JSON.",
+  "acceptedCount": 35,
+  "rejectedCount": 16,
+  "accepted": [
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Armature",
+      "entityClue": "quoted founder profile names Armature (YC P26) and links armature.tech",
+      "topVoiceName": "Garry Tan",
+      "platform": "x",
+      "url": "https://x.com/garrytan/status/2040179321441271966",
+      "postId": "2040179321441271966",
+      "postedAt": "Fri Apr 03 21:27:09 +0000 2026",
+      "title": "Garry Tan native X post mentioning Armature",
+      "text": "I see me tagged in this photo and I like it",
+      "metrics": {
+        "views": 14814,
+        "likes": 69,
+        "replies": 5,
+        "retweets": 1,
+        "quotes": 1,
+        "bookmarks": 6
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Garry Tan",
+          "username": "garrytan",
+          "url": "https://x.com/garrytan"
+        },
+        "post": {
+          "id": "2040179321441271966",
+          "url": "https://x.com/garrytan/status/2040179321441271966",
+          "rawText": "I see me tagged in this photo and I like it",
+          "created_at": "Fri Apr 03 21:27:09 +0000 2026",
+          "quote": {
+            "url": "https://x.com/Totzenberger/status/2039930163014856835",
+            "id": "2039930163014856835",
+            "rawText": "My fav cap just got a massive upgrade.\n\nI probably wouldn’t be here without what @PalantirTech brought me, and definitely not trying to change the Construction sector",
+            "authorName": "Theo (YC P26)",
+            "authorHandle": "Totzenberger",
+            "authorDescription": "Founder of Armature (YC P26). Previously working at Palantir. Studied in France (Polytechnique 2018).",
+            "authorWebsite": "armature.tech"
+          }
+        },
+        "counts": {
+          "views": 14814,
+          "likes": 69,
+          "replies": 5,
+          "retweets": 1,
+          "quotes": 1,
+          "bookmarks": 6
+        },
+        "target": {
+          "companyName": "Armature",
+          "entityClue": "quoted founder profile names Armature (YC P26) and links armature.tech"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Garry Tan (yc_partners); visible target clue: quoted founder profile names Armature (YC P26) and links armature.tech.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Kinro",
+      "entityClue": "reply mentions official founder handle @pierrealexai",
+      "topVoiceName": "Nicolas Dessaigne",
+      "platform": "x",
+      "url": "https://x.com/dessaigne/status/2067619530751492214",
+      "postId": "2067619530751492214",
+      "postedAt": "Thu Jun 18 14:44:45 +0000 2026",
+      "title": "Nicolas Dessaigne native X post mentioning Kinro",
+      "text": "@pierrealexai @garrytan I wish :)",
+      "metrics": {
+        "views": 46,
+        "likes": 3,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Nicolas Dessaigne",
+          "username": "dessaigne",
+          "url": "https://x.com/dessaigne"
+        },
+        "post": {
+          "id": "2067619530751492214",
+          "url": "https://x.com/dessaigne/status/2067619530751492214",
+          "rawText": "@pierrealexai @garrytan I wish :)",
+          "created_at": "Thu Jun 18 14:44:45 +0000 2026"
+        },
+        "counts": {
+          "views": 46,
+          "likes": 3,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Kinro",
+          "entityClue": "reply mentions official founder handle @pierrealexai"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Nicolas Dessaigne (yc_partners); visible target clue: reply mentions official founder handle @pierrealexai.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Apollo Atomics, Inc.",
+      "entityClue": "native text mentions official company handle @ApolloAtomics and nuclear reactor context",
+      "topVoiceName": "Tom Blomfield",
+      "platform": "x",
+      "url": "https://x.com/t_blom/status/2061499660901253613",
+      "postId": "2061499660901253613",
+      "postedAt": "Mon Jun 01 17:26:34 +0000 2026",
+      "title": "Tom Blomfield native X post mentioning Apollo Atomics, Inc.",
+      "text": "I turned up at the YC office this morning to find @ApolloAtomics installing the primary loop autoclave for their nuclear reactor 😬\n\nIt’s the new component that means their SMRs will be 80% smaller than traditional designs.",
+      "metrics": {
+        "views": 43018,
+        "likes": 247,
+        "replies": 24,
+        "retweets": 29,
+        "quotes": 4,
+        "bookmarks": 27
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Tom Blomfield",
+          "username": "t_blom",
+          "url": "https://x.com/t_blom"
+        },
+        "post": {
+          "id": "2061499660901253613",
+          "url": "https://x.com/t_blom/status/2061499660901253613",
+          "rawText": "I turned up at the YC office this morning to find @ApolloAtomics installing the primary loop autoclave for their nuclear reactor 😬\n\nIt’s the new component that means their SMRs will be 80% smaller than traditional designs.",
+          "created_at": "Mon Jun 01 17:26:34 +0000 2026"
+        },
+        "counts": {
+          "views": 43018,
+          "likes": 247,
+          "replies": 24,
+          "retweets": 29,
+          "quotes": 4,
+          "bookmarks": 27
+        },
+        "target": {
+          "companyName": "Apollo Atomics, Inc.",
+          "entityClue": "native text mentions official company handle @ApolloAtomics and nuclear reactor context"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Tom Blomfield (yc_partners); visible target clue: native text mentions official company handle @ApolloAtomics and nuclear reactor context.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "YouArt",
+      "entityClue": "native text mentions official company handle @YouArtStudio",
+      "topVoiceName": "Tom Blomfield",
+      "platform": "x",
+      "url": "https://x.com/t_blom/status/2063674103316480135",
+      "postId": "2063674103316480135",
+      "postedAt": "Sun Jun 07 17:27:02 +0000 2026",
+      "title": "Tom Blomfield native X post mentioning YouArt",
+      "text": "The next blockbuster movie is going to be made by a single person using @YouArtStudio",
+      "metrics": {
+        "views": 37730,
+        "likes": 148,
+        "replies": 20,
+        "retweets": 8,
+        "quotes": 6,
+        "bookmarks": 81
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Tom Blomfield",
+          "username": "t_blom",
+          "url": "https://x.com/t_blom"
+        },
+        "post": {
+          "id": "2063674103316480135",
+          "url": "https://x.com/t_blom/status/2063674103316480135",
+          "rawText": "The next blockbuster movie is going to be made by a single person using @YouArtStudio",
+          "created_at": "Sun Jun 07 17:27:02 +0000 2026"
+        },
+        "counts": {
+          "views": 37730,
+          "likes": 148,
+          "replies": 20,
+          "retweets": 8,
+          "quotes": 6,
+          "bookmarks": 81
+        },
+        "target": {
+          "companyName": "YouArt",
+          "entityClue": "native text mentions official company handle @YouArtStudio"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Tom Blomfield (yc_partners); visible target clue: native text mentions official company handle @YouArtStudio.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "9 Mothers",
+      "entityClue": "native text mentions official company handle @9Mothers and counter-drone context",
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "x",
+      "url": "https://x.com/bosmeny/status/2059813178826235963",
+      "postId": "2059813178826235963",
+      "postedAt": "Thu May 28 01:45:05 +0000 2026",
+      "title": "Tyler Bosmeny native X post mentioning 9 Mothers",
+      "text": "YC is quietly building a counter-drone ecosystem.\n\n@PerseusDefense - Guided missiles to shoot down drones\n@9Mothers - AI machine guns to shoot down drones\n@surtrdefense - Open OS that fuses every sensor into one threat picture\nMilliray - Spots drones too small for legacy systems\nArlo Industries - Passive aerial sensing mesh for drone detection\n\nThree years ago, I couldn't get the best defense founders to apply. Now I can barely keep up 🇺🇸💪🇺🇸",
+      "metrics": {
+        "views": 57460,
+        "likes": 160,
+        "replies": 20,
+        "retweets": 20,
+        "quotes": 5,
+        "bookmarks": 73
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Tyler Bosmeny",
+          "username": "bosmeny",
+          "url": "https://x.com/bosmeny"
+        },
+        "post": {
+          "id": "2059813178826235963",
+          "url": "https://x.com/bosmeny/status/2059813178826235963",
+          "rawText": "YC is quietly building a counter-drone ecosystem.\n\n@PerseusDefense - Guided missiles to shoot down drones\n@9Mothers - AI machine guns to shoot down drones\n@surtrdefense - Open OS that fuses every sensor into one threat picture\nMilliray - Spots drones too small for legacy systems\nArlo Industries - Passive aerial sensing mesh for drone detection\n\nThree years ago, I couldn't get the best defense founders to apply. Now I can barely keep up 🇺🇸💪🇺🇸",
+          "created_at": "Thu May 28 01:45:05 +0000 2026"
+        },
+        "counts": {
+          "views": 57460,
+          "likes": 160,
+          "replies": 20,
+          "retweets": 20,
+          "quotes": 5,
+          "bookmarks": 73
+        },
+        "target": {
+          "companyName": "9 Mothers",
+          "entityClue": "native text mentions official company handle @9Mothers and counter-drone context"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Tyler Bosmeny (yc_partners); visible target clue: native text mentions official company handle @9Mothers and counter-drone context.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "AgentPhone",
+      "entityClue": "reply mentions official founder handle @manav2modi",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "url": "https://x.com/dflieb/status/2071741496471200254",
+      "postId": "2071741496471200254",
+      "postedAt": "Mon Jun 29 23:43:58 +0000 2026",
+      "title": "David Lieb native X post mentioning AgentPhone",
+      "text": "@manav2modi 1) you’ve already worked with them before\n2) backdoor reference from someone you trust",
+      "metrics": {
+        "views": 515,
+        "likes": 10,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "David Lieb",
+          "username": "dflieb",
+          "url": "https://x.com/dflieb"
+        },
+        "post": {
+          "id": "2071741496471200254",
+          "url": "https://x.com/dflieb/status/2071741496471200254",
+          "rawText": "@manav2modi 1) you’ve already worked with them before\n2) backdoor reference from someone you trust",
+          "created_at": "Mon Jun 29 23:43:58 +0000 2026"
+        },
+        "counts": {
+          "views": 515,
+          "likes": 10,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "AgentPhone",
+          "entityClue": "reply mentions official founder handle @manav2modi"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice David Lieb (yc_partners); visible target clue: reply mentions official founder handle @manav2modi.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Hyper",
+      "entityClue": "reply mentions official founder handle @KanyesThaker",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "url": "https://x.com/dflieb/status/2067787008932810889",
+      "postId": "2067787008932810889",
+      "postedAt": "Fri Jun 19 01:50:15 +0000 2026",
+      "title": "David Lieb native X post mentioning Hyper",
+      "text": "@KanyesThaker 🤜🏼🤛🏼",
+      "metrics": {
+        "views": 617,
+        "likes": 7,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "David Lieb",
+          "username": "dflieb",
+          "url": "https://x.com/dflieb"
+        },
+        "post": {
+          "id": "2067787008932810889",
+          "url": "https://x.com/dflieb/status/2067787008932810889",
+          "rawText": "@KanyesThaker 🤜🏼🤛🏼",
+          "created_at": "Fri Jun 19 01:50:15 +0000 2026"
+        },
+        "counts": {
+          "views": 617,
+          "likes": 7,
+          "replies": 1,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Hyper",
+          "entityClue": "reply mentions official founder handle @KanyesThaker"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice David Lieb (yc_partners); visible target clue: reply mentions official founder handle @KanyesThaker.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Pavoot",
+      "entityClue": "native quote-card context mentions official founder handle @gohar_tamrazyan",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "url": "https://x.com/dflieb/status/2066546952414880232",
+      "postId": "2066546952414880232",
+      "postedAt": "Mon Jun 15 15:42:42 +0000 2026",
+      "title": "David Lieb native X post mentioning Pavoot",
+      "text": "Seen at Alumni Demo Day 👀",
+      "metrics": {
+        "views": 5839,
+        "likes": 32,
+        "replies": 1,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "David Lieb",
+          "username": "dflieb",
+          "url": "https://x.com/dflieb"
+        },
+        "post": {
+          "id": "2066546952414880232",
+          "url": "https://x.com/dflieb/status/2066546952414880232",
+          "rawText": "Seen at Alumni Demo Day 👀",
+          "created_at": "Mon Jun 15 15:42:42 +0000 2026",
+          "quote": {
+            "url": "https://x.com/greybaker/status/2066312464304902174",
+            "id": "2066312464304902174",
+            "rawText": "Impromptu demo day demo from @gohar_tamrazyan. So far the answer is a resounding “no”",
+            "authorName": "Grey Baker",
+            "authorHandle": "greybaker",
+            "authorDescription": "Partner at @ycombinator.\n\nCo-founded @pincitesai (acq. by @filevine) and @dependabot (acq. by @github), and was employee #3 at @gocardless.",
+            "authorWebsite": null
+          }
+        },
+        "counts": {
+          "views": 5839,
+          "likes": 32,
+          "replies": 1,
+          "retweets": 1,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Pavoot",
+          "entityClue": "native quote-card context mentions official founder handle @gohar_tamrazyan"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice David Lieb (yc_partners); visible target clue: native quote-card context mentions official founder handle @gohar_tamrazyan.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Keyframe Labs",
+      "entityClue": "native text names Keyframe Labs; quoted founder profile says co-founder @KeyframeLabs (YC P26)",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "url": "https://x.com/dflieb/status/2061690434532131179",
+      "postId": "2061690434532131179",
+      "postedAt": "Tue Jun 02 06:04:38 +0000 2026",
+      "title": "David Lieb native X post mentioning Keyframe Labs",
+      "text": "How Keyframe Labs trained a sota video avatar model in their garage for $50k:",
+      "metrics": {
+        "views": 19651,
+        "likes": 34,
+        "replies": 2,
+        "retweets": 4,
+        "quotes": 0,
+        "bookmarks": 24
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "David Lieb",
+          "username": "dflieb",
+          "url": "https://x.com/dflieb"
+        },
+        "post": {
+          "id": "2061690434532131179",
+          "url": "https://x.com/dflieb/status/2061690434532131179",
+          "rawText": "How Keyframe Labs trained a sota video avatar model in their garage for $50k:",
+          "created_at": "Tue Jun 02 06:04:38 +0000 2026",
+          "quote": {
+            "url": "https://x.com/parthnradia/status/2061619589864456466",
+            "id": "2061619589864456466",
+            "rawText": "",
+            "authorName": "Parth Radia",
+            "authorHandle": "parthnradia",
+            "authorDescription": "Co-founder @KeyframeLabs (YC P26)",
+            "authorWebsite": null
+          }
+        },
+        "counts": {
+          "views": 19651,
+          "likes": 34,
+          "replies": 2,
+          "retweets": 4,
+          "quotes": 0,
+          "bookmarks": 24
+        },
+        "target": {
+          "companyName": "Keyframe Labs",
+          "entityClue": "native text names Keyframe Labs; quoted founder profile says co-founder @KeyframeLabs (YC P26)"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice David Lieb (yc_partners); visible target clue: native text names Keyframe Labs; quoted founder profile says co-founder @KeyframeLabs (YC P26).",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Datost",
+      "entityClue": "reply mentions official founder handle @MaceoCk",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "url": "https://x.com/dflieb/status/2060210682826768498",
+      "postId": "2060210682826768498",
+      "postedAt": "Fri May 29 04:04:38 +0000 2026",
+      "title": "David Lieb native X post mentioning Datost",
+      "text": "@MaceoCk Yeah I think that’s one of the exceptions: scientific research",
+      "metrics": {
+        "views": 2684,
+        "likes": 11,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 1
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "David Lieb",
+          "username": "dflieb",
+          "url": "https://x.com/dflieb"
+        },
+        "post": {
+          "id": "2060210682826768498",
+          "url": "https://x.com/dflieb/status/2060210682826768498",
+          "rawText": "@MaceoCk Yeah I think that’s one of the exceptions: scientific research",
+          "created_at": "Fri May 29 04:04:38 +0000 2026"
+        },
+        "counts": {
+          "views": 2684,
+          "likes": 11,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "target": {
+          "companyName": "Datost",
+          "entityClue": "reply mentions official founder handle @MaceoCk"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice David Lieb (yc_partners); visible target clue: reply mentions official founder handle @MaceoCk.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "AgentPhone",
+      "entityClue": "native text mentions official company handle @AgentPhoneHQ and YC event context",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "url": "https://x.com/dflieb/status/2052146123079639398",
+      "postId": "2052146123079639398",
+      "postedAt": "Wed May 06 21:58:57 +0000 2026",
+      "title": "David Lieb native X post mentioning AgentPhone",
+      "text": "@AgentPhoneHQ is hosting Call My Agent Hackathon at YC on May 17th. Build agents that actually touch the real world across voice, SMS, iMessage, and more. No more sandbox demos. Over $10k in prizes and first place gets a guaranteed YC interview.\n\nhttps://events.ycombinator.com/CallMyAgentHackathon",
+      "metrics": {
+        "views": 29264,
+        "likes": 80,
+        "replies": 15,
+        "retweets": 11,
+        "quotes": 2,
+        "bookmarks": 23
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "David Lieb",
+          "username": "dflieb",
+          "url": "https://x.com/dflieb"
+        },
+        "post": {
+          "id": "2052146123079639398",
+          "url": "https://x.com/dflieb/status/2052146123079639398",
+          "rawText": "@AgentPhoneHQ is hosting Call My Agent Hackathon at YC on May 17th. Build agents that actually touch the real world across voice, SMS, iMessage, and more. No more sandbox demos. Over $10k in prizes and first place gets a guaranteed YC interview.\n\nhttps://events.ycombinator.com/CallMyAgentHackathon",
+          "created_at": "Wed May 06 21:58:57 +0000 2026"
+        },
+        "counts": {
+          "views": 29264,
+          "likes": 80,
+          "replies": 15,
+          "retweets": 11,
+          "quotes": 2,
+          "bookmarks": 23
+        },
+        "target": {
+          "companyName": "AgentPhone",
+          "entityClue": "native text mentions official company handle @AgentPhoneHQ and YC event context"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice David Lieb (yc_partners); visible target clue: native text mentions official company handle @AgentPhoneHQ and YC event context.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Pavoot",
+      "entityClue": "native text mentions official founder handle @gohar_tamrazyan",
+      "topVoiceName": "Grey Baker",
+      "platform": "x",
+      "url": "https://x.com/greybaker/status/2066312464304902174",
+      "postId": "2066312464304902174",
+      "postedAt": "Mon Jun 15 00:10:56 +0000 2026",
+      "title": "Grey Baker native X post mentioning Pavoot",
+      "text": "Impromptu demo day demo from @gohar_tamrazyan. So far the answer is a resounding “no”",
+      "metrics": {
+        "views": 23868,
+        "likes": 64,
+        "replies": 7,
+        "retweets": 5,
+        "quotes": 3,
+        "bookmarks": 3
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Grey Baker",
+          "username": "greybaker",
+          "url": "https://x.com/greybaker"
+        },
+        "post": {
+          "id": "2066312464304902174",
+          "url": "https://x.com/greybaker/status/2066312464304902174",
+          "rawText": "Impromptu demo day demo from @gohar_tamrazyan. So far the answer is a resounding “no”",
+          "created_at": "Mon Jun 15 00:10:56 +0000 2026"
+        },
+        "counts": {
+          "views": 23868,
+          "likes": 64,
+          "replies": 7,
+          "retweets": 5,
+          "quotes": 3,
+          "bookmarks": 3
+        },
+        "target": {
+          "companyName": "Pavoot",
+          "entityClue": "native text mentions official founder handle @gohar_tamrazyan"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Grey Baker (yc_partners); visible target clue: native text mentions official founder handle @gohar_tamrazyan.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Cignara",
+      "entityClue": "native quote card visibly names Cignara and official handle @cignara_ai",
+      "topVoiceName": "Grey Baker",
+      "platform": "x",
+      "url": "https://x.com/greybaker/status/2060162054380761195",
+      "postId": "2060162054380761195",
+      "postedAt": "Fri May 29 00:51:24 +0000 2026",
+      "title": "Grey Baker native X post mentioning Cignara",
+      "text": "The appetite for AI in consumer sales and customer support is so strong that the best early stage startups are already able to close deals with Fortune 500 companies",
+      "metrics": {
+        "views": 316,
+        "likes": 2,
+        "replies": 1,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Grey Baker",
+          "username": "greybaker",
+          "url": "https://x.com/greybaker"
+        },
+        "post": {
+          "id": "2060162054380761195",
+          "url": "https://x.com/greybaker/status/2060162054380761195",
+          "rawText": "The appetite for AI in consumer sales and customer support is so strong that the best early stage startups are already able to close deals with Fortune 500 companies",
+          "created_at": "Fri May 29 00:51:24 +0000 2026",
+          "quote": {
+            "url": "https://x.com/ycombinator/status/2060058526043763044",
+            "id": "2060058526043763044",
+            "rawText": "Cignara (@cignara_ai) automates sales and customer support for large B2C enterprises across voice + chat. Its AI agents go beyond FAQs to resolve issues, execute governed policy-bound actions, and surface retention and growth moments. \n\nCongrats on the launch, @nalingupta01!\n\nhttps://www.ycombinator.com/launches/QYm-cignara-ai-agents-to-automate-b2c-sales-customer-support",
+            "authorName": "Y Combinator",
+            "authorHandle": "ycombinator",
+            "authorDescription": "We help founders make something people want. Subscribe to our newsletter: http://yc.link/newsletter",
+            "authorWebsite": "ycombinator.com"
+          }
+        },
+        "counts": {
+          "views": 316,
+          "likes": 2,
+          "replies": 1,
+          "retweets": 1,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Cignara",
+          "entityClue": "native quote card visibly names Cignara and official handle @cignara_ai"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Grey Baker (yc_partners); visible target clue: native quote card visibly names Cignara and official handle @cignara_ai.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Voquill",
+      "entityClue": "native quote card visibly names Voquill and founders @HenryHabibAI/@josiahsrc",
+      "topVoiceName": "Grey Baker",
+      "platform": "x",
+      "url": "https://x.com/greybaker/status/2057492590782726498",
+      "postId": "2057492590782726498",
+      "postedAt": "Thu May 21 16:03:54 +0000 2026",
+      "title": "Grey Baker native X post mentioning Voquill",
+      "text": "Pathologists use software from the 90s because high switching costs let their suppliers get lazy. That's about to change. Voice and agentic workflows have increased the feature gap while AI has reduced the switching costs.\n\nPrepare to see a lot of legacy software get swept away.",
+      "metrics": {
+        "views": 355,
+        "likes": 0,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Grey Baker",
+          "username": "greybaker",
+          "url": "https://x.com/greybaker"
+        },
+        "post": {
+          "id": "2057492590782726498",
+          "url": "https://x.com/greybaker/status/2057492590782726498",
+          "rawText": "Pathologists use software from the 90s because high switching costs let their suppliers get lazy. That's about to change. Voice and agentic workflows have increased the feature gap while AI has reduced the switching costs.\n\nPrepare to see a lot of legacy software get swept away.",
+          "created_at": "Thu May 21 16:03:54 +0000 2026",
+          "quote": {
+            "url": "https://x.com/ycombinator/status/2057484059706851621",
+            "id": "2057484059706851621",
+            "rawText": "Voquill helps pathologists write case reports faster.\n\nMany pathologists spend more time writing reports than diagnosing. Voquill listens as they work and drafts a sign-out-ready report in real time.\n\nCongrats on the launch, @HenryHabibAI, @josiahsrc, and Michael!\n\nhttps://www.ycombinator.com/launches/QRY-voquill-voice-ai-for-pathologists",
+            "authorName": "Y Combinator",
+            "authorHandle": "ycombinator",
+            "authorDescription": "We help founders make something people want. Subscribe to our newsletter: http://yc.link/newsletter",
+            "authorWebsite": "ycombinator.com"
+          }
+        },
+        "counts": {
+          "views": 355,
+          "likes": 0,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Voquill",
+          "entityClue": "native quote card visibly names Voquill and founders @HenryHabibAI/@josiahsrc"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Grey Baker (yc_partners); visible target clue: native quote card visibly names Voquill and founders @HenryHabibAI/@josiahsrc.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "FinalDose",
+      "entityClue": "native text and quote card visibly name FinalDose",
+      "topVoiceName": "Grey Baker",
+      "platform": "x",
+      "url": "https://x.com/greybaker/status/2054271684539199779",
+      "postId": "2054271684539199779",
+      "postedAt": "Tue May 12 18:45:10 +0000 2026",
+      "title": "Grey Baker native X post mentioning FinalDose",
+      "text": "FinalDose are developing a programmable drug. If it works, it will provide a platform for fighting all cancers. It's hugely ambitious work and they have the backgrounds to pull it off.",
+      "metrics": {
+        "views": 937,
+        "likes": 8,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Grey Baker",
+          "username": "greybaker",
+          "url": "https://x.com/greybaker"
+        },
+        "post": {
+          "id": "2054271684539199779",
+          "url": "https://x.com/greybaker/status/2054271684539199779",
+          "rawText": "FinalDose are developing a programmable drug. If it works, it will provide a platform for fighting all cancers. It's hugely ambitious work and they have the backgrounds to pull it off.",
+          "created_at": "Tue May 12 18:45:10 +0000 2026",
+          "quote": {
+            "url": "https://x.com/ycombinator/status/2054230123730161929",
+            "id": "2054230123730161929",
+            "rawText": "FinalDose is building the first programmable drug platform - a single smart drug molecule that finds diseased cells by their DNA and destroys them. They're starting with all cancers.\n\nCongrats on the launch, @Jeffliu6068Liu, @sklin_lite, and @liyaohuang2!\n\nhttps://www.ycombinator.com/launches/QKj-finaldose-the-first-programmable-drug-to-cure-all-cancers",
+            "authorName": "Y Combinator",
+            "authorHandle": "ycombinator",
+            "authorDescription": "We help founders make something people want. Subscribe to our newsletter: http://yc.link/newsletter",
+            "authorWebsite": "ycombinator.com"
+          }
+        },
+        "counts": {
+          "views": 937,
+          "likes": 8,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "target": {
+          "companyName": "FinalDose",
+          "entityClue": "native text and quote card visibly name FinalDose"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Grey Baker (yc_partners); visible target clue: native text and quote card visibly name FinalDose.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Hyper",
+      "entityClue": "native text mentions official company handle @heyhyperai; quote card names Hyper",
+      "topVoiceName": "Grey Baker",
+      "platform": "x",
+      "url": "https://x.com/greybaker/status/2053990262410752067",
+      "postId": "2053990262410752067",
+      "postedAt": "Tue May 12 00:06:54 +0000 2026",
+      "title": "Grey Baker native X post mentioning Hyper",
+      "text": "Imagine if you could keep track of everything happening in your company, down to the tiniest detail. A human brain isn't capable of that. An AI agent brain is. That's the promise of @heyhyperai.",
+      "metrics": {
+        "views": 4883,
+        "likes": 13,
+        "replies": 3,
+        "retweets": 3,
+        "quotes": 0,
+        "bookmarks": 6
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Grey Baker",
+          "username": "greybaker",
+          "url": "https://x.com/greybaker"
+        },
+        "post": {
+          "id": "2053990262410752067",
+          "url": "https://x.com/greybaker/status/2053990262410752067",
+          "rawText": "Imagine if you could keep track of everything happening in your company, down to the tiniest detail. A human brain isn't capable of that. An AI agent brain is. That's the promise of @heyhyperai.",
+          "created_at": "Tue May 12 00:06:54 +0000 2026",
+          "quote": {
+            "url": "https://x.com/ycombinator/status/2053882832208929262",
+            "id": "2053882832208929262",
+            "rawText": "Hyper (@heyhyperai) is building the self-driving brain for companies.\n\nHyper's agents synthesize millions of emails, docs, Slacks, and make everyone's AI tools instantly smarter without anyone doing anything.\n\nCongrats on the launch, @kanyesthaker and @_shalinshah_!\n\nhttp://heyhyper.ai",
+            "authorName": "Y Combinator",
+            "authorHandle": "ycombinator",
+            "authorDescription": "We help founders make something people want. Subscribe to our newsletter: http://yc.link/newsletter",
+            "authorWebsite": "ycombinator.com"
+          }
+        },
+        "counts": {
+          "views": 4883,
+          "likes": 13,
+          "replies": 3,
+          "retweets": 3,
+          "quotes": 0,
+          "bookmarks": 6
+        },
+        "target": {
+          "companyName": "Hyper",
+          "entityClue": "native text mentions official company handle @heyhyperai; quote card names Hyper"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Grey Baker (yc_partners); visible target clue: native text mentions official company handle @heyhyperai; quote card names Hyper.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Imperfect",
+      "entityClue": "native text names Imperfect and quote card shows @imperfectco_",
+      "topVoiceName": "Grey Baker",
+      "platform": "x",
+      "url": "https://x.com/greybaker/status/2052545118658585054",
+      "postId": "2052545118658585054",
+      "postedAt": "Fri May 08 00:24:25 +0000 2026",
+      "title": "Grey Baker native X post mentioning Imperfect",
+      "text": "Imperfect is the fitness coach I've always wanted - one that adapts when my plans have to change. Congrats on the launch @matin!",
+      "metrics": {
+        "views": 572,
+        "likes": 4,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 1
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Grey Baker",
+          "username": "greybaker",
+          "url": "https://x.com/greybaker"
+        },
+        "post": {
+          "id": "2052545118658585054",
+          "url": "https://x.com/greybaker/status/2052545118658585054",
+          "rawText": "Imperfect is the fitness coach I've always wanted - one that adapts when my plans have to change. Congrats on the launch @matin!",
+          "created_at": "Fri May 08 00:24:25 +0000 2026",
+          "quote": {
+            "url": "https://x.com/ycombinator/status/2052508782324863320",
+            "id": "2052508782324863320",
+            "rawText": "Imperfect (@imperfectco_) is an AI fitness coach that's personalized based on your health data. It adapts your training, recovery, and nutrition each day to how your body is actually responding. \n\nCongrats on the launch, and welcome back @matin (W11)!\n\nhttps://www.ycombinator.com/launches/QG0-imperfect-training-that-adapts-to-real-life",
+            "authorName": "Y Combinator",
+            "authorHandle": "ycombinator",
+            "authorDescription": "We help founders make something people want. Subscribe to our newsletter: http://yc.link/newsletter",
+            "authorWebsite": "ycombinator.com"
+          }
+        },
+        "counts": {
+          "views": 572,
+          "likes": 4,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "target": {
+          "companyName": "Imperfect",
+          "entityClue": "native text names Imperfect and quote card shows @imperfectco_"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Grey Baker (yc_partners); visible target clue: native text names Imperfect and quote card shows @imperfectco_.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Chert",
+      "entityClue": "native text mentions official company handle @Cherthq and quote card names Chert",
+      "topVoiceName": "Grey Baker",
+      "platform": "x",
+      "url": "https://x.com/greybaker/status/2052542154682290250",
+      "postId": "2052542154682290250",
+      "postedAt": "Fri May 08 00:12:38 +0000 2026",
+      "title": "Grey Baker native X post mentioning Chert",
+      "text": "Sending iMessages programmatically should be easy. Congrats on the launch @Cherthq!",
+      "metrics": {
+        "views": 2166,
+        "likes": 14,
+        "replies": 3,
+        "retweets": 4,
+        "quotes": 0,
+        "bookmarks": 3
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Grey Baker",
+          "username": "greybaker",
+          "url": "https://x.com/greybaker"
+        },
+        "post": {
+          "id": "2052542154682290250",
+          "url": "https://x.com/greybaker/status/2052542154682290250",
+          "rawText": "Sending iMessages programmatically should be easy. Congrats on the launch @Cherthq!",
+          "created_at": "Fri May 08 00:12:38 +0000 2026",
+          "quote": {
+            "url": "https://x.com/ycombinator/status/2052523883656273936",
+            "id": "2052523883656273936",
+            "rawText": "Chert (@Cherthq) is building the infrastructure for teams to send, receive, and automate conversations over iMessage using APIs. \n\nThey’re already working with B2C startups, customer experience teams, and sales teams to reach end users through trusted and conversational messaging.\n\nCongrats on the launch, @GaryGao891219 & @ianyfong!\n\nhttps://www.ycombinator.com/launches/QGN-chert-imessage-infrastructure-for-trusted-communication-at-scale",
+            "authorName": "Y Combinator",
+            "authorHandle": "ycombinator",
+            "authorDescription": "We help founders make something people want. Subscribe to our newsletter: http://yc.link/newsletter",
+            "authorWebsite": "ycombinator.com"
+          }
+        },
+        "counts": {
+          "views": 2166,
+          "likes": 14,
+          "replies": 3,
+          "retweets": 4,
+          "quotes": 0,
+          "bookmarks": 3
+        },
+        "target": {
+          "companyName": "Chert",
+          "entityClue": "native text mentions official company handle @Cherthq and quote card names Chert"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Grey Baker (yc_partners); visible target clue: native text mentions official company handle @Cherthq and quote card names Chert.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Clawvisor",
+      "entityClue": "native text mentions official company handle @clawvisor and quote card names Clawvisor",
+      "topVoiceName": "Grey Baker",
+      "platform": "x",
+      "url": "https://x.com/greybaker/status/2052430499126419950",
+      "postId": "2052430499126419950",
+      "postedAt": "Thu May 07 16:48:57 +0000 2026",
+      "title": "Grey Baker native X post mentioning Clawvisor",
+      "text": "Personal agents are the future, but security concerns are blocking most people from using them. @clawvisor  fixes that. Congrats on the launch @ericlevine!",
+      "metrics": {
+        "views": 345,
+        "likes": 4,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 1
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Grey Baker",
+          "username": "greybaker",
+          "url": "https://x.com/greybaker"
+        },
+        "post": {
+          "id": "2052430499126419950",
+          "url": "https://x.com/greybaker/status/2052430499126419950",
+          "rawText": "Personal agents are the future, but security concerns are blocking most people from using them. @clawvisor  fixes that. Congrats on the launch @ericlevine!",
+          "created_at": "Thu May 07 16:48:57 +0000 2026",
+          "quote": {
+            "url": "https://x.com/ycombinator/status/2052425727828508705",
+            "id": "2052425727828508705",
+            "rawText": "Clawvisor (@clawvisor) lets you give AI agents access to apps like Gmail and Slack without handing over your credentials or worrying they'll go rogue. You approve tasks once, Clawvisor enforce them.\n\nCongrats on the launch, @ericlevine!\n\nhttps://www.ycombinator.com/launches/QFP-clawvisor-the-authorization-layer-for-ai-agents",
+            "authorName": "Y Combinator",
+            "authorHandle": "ycombinator",
+            "authorDescription": "We help founders make something people want. Subscribe to our newsletter: http://yc.link/newsletter",
+            "authorWebsite": "ycombinator.com"
+          }
+        },
+        "counts": {
+          "views": 345,
+          "likes": 4,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "target": {
+          "companyName": "Clawvisor",
+          "entityClue": "native text mentions official company handle @clawvisor and quote card names Clawvisor"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Grey Baker (yc_partners); visible target clue: native text mentions official company handle @clawvisor and quote card names Clawvisor.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Wato",
+      "entityClue": "reply mentions official founder handle @rahulrejeev",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2068036340072239550",
+      "postId": "2068036340072239550",
+      "postedAt": "Fri Jun 19 18:21:00 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Wato",
+      "text": "@rahulrejeev thank YOU!",
+      "metrics": {
+        "views": 690,
+        "likes": 4,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2068036340072239550",
+          "url": "https://x.com/collinmathilde/status/2068036340072239550",
+          "rawText": "@rahulrejeev thank YOU!",
+          "created_at": "Fri Jun 19 18:21:00 +0000 2026"
+        },
+        "counts": {
+          "views": 690,
+          "likes": 4,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Wato",
+          "entityClue": "reply mentions official founder handle @rahulrejeev"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official founder handle @rahulrejeev.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Klaimee",
+      "entityClue": "reply mentions official founder handle @inesboutem",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2062577176961228911",
+      "postId": "2062577176961228911",
+      "postedAt": "Thu Jun 04 16:48:14 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Klaimee",
+      "text": "@inesboutem record everything ;)",
+      "metrics": {
+        "views": 14,
+        "likes": 1,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2062577176961228911",
+          "url": "https://x.com/collinmathilde/status/2062577176961228911",
+          "rawText": "@inesboutem record everything ;)",
+          "created_at": "Thu Jun 04 16:48:14 +0000 2026"
+        },
+        "counts": {
+          "views": 14,
+          "likes": 1,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Klaimee",
+          "entityClue": "reply mentions official founder handle @inesboutem"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official founder handle @inesboutem.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "BentoLabs AI",
+      "entityClue": "reply mentions official company handle @BentoLabsAI and founder handles",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2061503072191558032",
+      "postId": "2061503072191558032",
+      "postedAt": "Mon Jun 01 17:40:07 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning BentoLabs AI",
+      "text": "@ycombinator @BentoLabsAI @Abhinavv_soni @kacppian 💥",
+      "metrics": {
+        "views": 1051,
+        "likes": 3,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2061503072191558032",
+          "url": "https://x.com/collinmathilde/status/2061503072191558032",
+          "rawText": "@ycombinator @BentoLabsAI @Abhinavv_soni @kacppian 💥",
+          "created_at": "Mon Jun 01 17:40:07 +0000 2026"
+        },
+        "counts": {
+          "views": 1051,
+          "likes": 3,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "BentoLabs AI",
+          "entityClue": "reply mentions official company handle @BentoLabsAI and founder handles"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official company handle @BentoLabsAI and founder handles.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Klaimee",
+      "entityClue": "reply mentions official founder handle @inesboutem",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2059376409974575169",
+      "postId": "2059376409974575169",
+      "postedAt": "Tue May 26 20:49:32 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Klaimee",
+      "text": "@inesboutem t'étais deja trop forte avant, non? :D",
+      "metrics": {
+        "views": 197,
+        "likes": 1,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2059376409974575169",
+          "url": "https://x.com/collinmathilde/status/2059376409974575169",
+          "rawText": "@inesboutem t'étais deja trop forte avant, non? :D",
+          "created_at": "Tue May 26 20:49:32 +0000 2026"
+        },
+        "counts": {
+          "views": 197,
+          "likes": 1,
+          "replies": 1,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Klaimee",
+          "entityClue": "reply mentions official founder handle @inesboutem"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official founder handle @inesboutem.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Superset",
+      "entityClue": "native text names Superset; quote/founder profile includes @superset_sh and YC P26",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2059323043613483505",
+      "postId": "2059323043613483505",
+      "postedAt": "Tue May 26 17:17:28 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Superset",
+      "text": "Doing office hours with the superset team is exactly as fun as this video suggests",
+      "metrics": {
+        "views": 3356,
+        "likes": 15,
+        "replies": 3,
+        "retweets": 2,
+        "quotes": 0,
+        "bookmarks": 4
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2059323043613483505",
+          "url": "https://x.com/collinmathilde/status/2059323043613483505",
+          "rawText": "Doing office hours with the superset team is exactly as fun as this video suggests",
+          "created_at": "Tue May 26 17:17:28 +0000 2026",
+          "quote": {
+            "url": "https://x.com/FlyaKiet/status/2059318680635560260",
+            "id": "2059318680635560260",
+            "rawText": "Introducing: Our users @superset_sh",
+            "authorName": "Kiet",
+            "authorHandle": "FlyaKiet",
+            "authorDescription": "Building @superset_sh -  Agentic IDE (yc p26)\n\nprev cofounder @onlookdev (yc w25), swe @amazon @servicenow",
+            "authorWebsite": "superset.sh"
+          }
+        },
+        "counts": {
+          "views": 3356,
+          "likes": 15,
+          "replies": 3,
+          "retweets": 2,
+          "quotes": 0,
+          "bookmarks": 4
+        },
+        "target": {
+          "companyName": "Superset",
+          "entityClue": "native text names Superset; quote/founder profile includes @superset_sh and YC P26"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: native text names Superset; quote/founder profile includes @superset_sh and YC P26.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Adialante",
+      "entityClue": "reply mentions official founder handle @ET_adialante and YC launch context",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2054663559867703432",
+      "postId": "2054663559867703432",
+      "postedAt": "Wed May 13 20:42:21 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Adialante",
+      "text": "@ycombinator @ET_adialante @ManW_dePlan Congrats on the launch! So grateful you're working on this.",
+      "metrics": {
+        "views": 838,
+        "likes": 2,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2054663559867703432",
+          "url": "https://x.com/collinmathilde/status/2054663559867703432",
+          "rawText": "@ycombinator @ET_adialante @ManW_dePlan Congrats on the launch! So grateful you're working on this.",
+          "created_at": "Wed May 13 20:42:21 +0000 2026"
+        },
+        "counts": {
+          "views": 838,
+          "likes": 2,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Adialante",
+          "entityClue": "reply mentions official founder handle @ET_adialante and YC launch context"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official founder handle @ET_adialante and YC launch context.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Scope",
+      "entityClue": "reply mentions official company handle @tryscope_app and founder handle @anandPa94",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2053905762855125204",
+      "postId": "2053905762855125204",
+      "postedAt": "Mon May 11 18:31:08 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Scope",
+      "text": "@ycombinator @tryscope_app @anandPa94 Let's go! 🙌",
+      "metrics": {
+        "views": 259,
+        "likes": 3,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2053905762855125204",
+          "url": "https://x.com/collinmathilde/status/2053905762855125204",
+          "rawText": "@ycombinator @tryscope_app @anandPa94 Let's go! 🙌",
+          "created_at": "Mon May 11 18:31:08 +0000 2026"
+        },
+        "counts": {
+          "views": 259,
+          "likes": 3,
+          "replies": 1,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Scope",
+          "entityClue": "reply mentions official company handle @tryscope_app and founder handle @anandPa94"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official company handle @tryscope_app and founder handle @anandPa94.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "BentoLabs AI",
+      "entityClue": "reply mentions official founder handle @Abhinavv_soni",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2052528199012401259",
+      "postId": "2052528199012401259",
+      "postedAt": "Thu May 07 23:17:11 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning BentoLabs AI",
+      "text": "@Abhinavv_soni thank you for sharing 🙇‍♀️",
+      "metrics": {
+        "views": 269,
+        "likes": 2,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2052528199012401259",
+          "url": "https://x.com/collinmathilde/status/2052528199012401259",
+          "rawText": "@Abhinavv_soni thank you for sharing 🙇‍♀️",
+          "created_at": "Thu May 07 23:17:11 +0000 2026"
+        },
+        "counts": {
+          "views": 269,
+          "likes": 2,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "BentoLabs AI",
+          "entityClue": "reply mentions official founder handle @Abhinavv_soni"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official founder handle @Abhinavv_soni.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Superset",
+      "entityClue": "reply mentions official company handle @superset_sh and founder handle @FlyaKiet",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2051705121017565259",
+      "postId": "2051705121017565259",
+      "postedAt": "Tue May 05 16:46:34 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Superset",
+      "text": "@FlyaKiet @superset_sh 💥",
+      "metrics": {
+        "views": 170,
+        "likes": 4,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2051705121017565259",
+          "url": "https://x.com/collinmathilde/status/2051705121017565259",
+          "rawText": "@FlyaKiet @superset_sh 💥",
+          "created_at": "Tue May 05 16:46:34 +0000 2026"
+        },
+        "counts": {
+          "views": 170,
+          "likes": 4,
+          "replies": 0,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Superset",
+          "entityClue": "reply mentions official company handle @superset_sh and founder handle @FlyaKiet"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official company handle @superset_sh and founder handle @FlyaKiet.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Foaster",
+      "entityClue": "native quote-card profile names Foaster (YC P26) and founder Raphaël Dabadie",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2048443287338623044",
+      "postId": "2048443287338623044",
+      "postedAt": "Sun Apr 26 16:45:12 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Foaster",
+      "text": "Some useful advice on how an existing company can become AI native (by Raphael, a great founder!)",
+      "metrics": {
+        "views": 12651,
+        "likes": 19,
+        "replies": 2,
+        "retweets": 2,
+        "quotes": 0,
+        "bookmarks": 53
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2048443287338623044",
+          "url": "https://x.com/collinmathilde/status/2048443287338623044",
+          "rawText": "Some useful advice on how an existing company can become AI native (by Raphael, a great founder!)",
+          "created_at": "Sun Apr 26 16:45:12 +0000 2026",
+          "quote": {
+            "url": "https://x.com/RaphaelDabadie/status/2048433094198231296",
+            "id": "2048433094198231296",
+            "rawText": "",
+            "authorName": "Raphaël Dabadie",
+            "authorHandle": "RaphaelDabadie",
+            "authorDescription": "CEO @ Foaster (YC P26). The AI-native consulting firm.",
+            "authorWebsite": "foaster.ai"
+          }
+        },
+        "counts": {
+          "views": 12651,
+          "likes": 19,
+          "replies": 2,
+          "retweets": 2,
+          "quotes": 0,
+          "bookmarks": 53
+        },
+        "target": {
+          "companyName": "Foaster",
+          "entityClue": "native quote-card profile names Foaster (YC P26) and founder Raphaël Dabadie"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: native quote-card profile names Foaster (YC P26) and founder Raphaël Dabadie.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Superset",
+      "entityClue": "native text mentions official company handle @superset_sh",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2041584988857200865",
+      "postId": "2041584988857200865",
+      "postedAt": "Tue Apr 07 18:32:46 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Superset",
+      "text": "@superset_sh 💃",
+      "metrics": {
+        "views": 380,
+        "likes": 2,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2041584988857200865",
+          "url": "https://x.com/collinmathilde/status/2041584988857200865",
+          "rawText": "@superset_sh 💃",
+          "created_at": "Tue Apr 07 18:32:46 +0000 2026"
+        },
+        "counts": {
+          "views": 380,
+          "likes": 2,
+          "replies": 1,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Superset",
+          "entityClue": "native text mentions official company handle @superset_sh"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: native text mentions official company handle @superset_sh.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Scope",
+      "entityClue": "reply mentions official company handle @tryscope_app and founder handle @anandPa94",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2039761795234332678",
+      "postId": "2039761795234332678",
+      "postedAt": "Thu Apr 02 17:48:03 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Scope",
+      "text": "@anandPa94 @ycombinator @tryscope_app 🙌 😎 let's goooo!",
+      "metrics": {
+        "views": 339,
+        "likes": 3,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2039761795234332678",
+          "url": "https://x.com/collinmathilde/status/2039761795234332678",
+          "rawText": "@anandPa94 @ycombinator @tryscope_app 🙌 😎 let's goooo!",
+          "created_at": "Thu Apr 02 17:48:03 +0000 2026"
+        },
+        "counts": {
+          "views": 339,
+          "likes": 3,
+          "replies": 1,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Scope",
+          "entityClue": "reply mentions official company handle @tryscope_app and founder handle @anandPa94"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official company handle @tryscope_app and founder handle @anandPa94.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Kinro",
+      "entityClue": "reply mentions official company handle @kinroai",
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2039737176259514763",
+      "postId": "2039737176259514763",
+      "postedAt": "Thu Apr 02 16:10:13 +0000 2026",
+      "title": "Mathilde Collin native X post mentioning Kinro",
+      "text": "@ycombinator @kinroai 🙌",
+      "metrics": {
+        "views": 137,
+        "likes": 2,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2039737176259514763",
+          "url": "https://x.com/collinmathilde/status/2039737176259514763",
+          "rawText": "@ycombinator @kinroai 🙌",
+          "created_at": "Thu Apr 02 16:10:13 +0000 2026"
+        },
+        "counts": {
+          "views": 137,
+          "likes": 2,
+          "replies": 1,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Kinro",
+          "entityClue": "reply mentions official company handle @kinroai"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Mathilde Collin (insiders); visible target clue: reply mentions official company handle @kinroai.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "Sazabi",
+      "entityClue": "reply mentions official company handle @sazabi and founder handle @shcallaway",
+      "topVoiceName": "Dalton Caldwell",
+      "platform": "x",
+      "url": "https://x.com/daltonc/status/2070285933992411339",
+      "postId": "2070285933992411339",
+      "postedAt": "Thu Jun 25 23:20:05 +0000 2026",
+      "title": "Dalton Caldwell native X post mentioning Sazabi",
+      "text": "@shcallaway @sazabi congrats Sherwood!",
+      "metrics": {
+        "views": 448,
+        "likes": 3,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Dalton Caldwell",
+          "username": "daltonc",
+          "url": "https://x.com/daltonc"
+        },
+        "post": {
+          "id": "2070285933992411339",
+          "url": "https://x.com/daltonc/status/2070285933992411339",
+          "rawText": "@shcallaway @sazabi congrats Sherwood!",
+          "created_at": "Thu Jun 25 23:20:05 +0000 2026"
+        },
+        "counts": {
+          "views": 448,
+          "likes": 3,
+          "replies": 1,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "Sazabi",
+          "entityClue": "reply mentions official company handle @sazabi and founder handle @shcallaway"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Dalton Caldwell (insiders); visible target clue: reply mentions official company handle @sazabi and founder handle @shcallaway.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "insiders",
+      "companyName": "HeyClicky",
+      "entityClue": "native text names HeyClicky",
+      "topVoiceName": "Sarah Guo",
+      "platform": "x",
+      "url": "https://x.com/saranormous/status/2077409287211811191",
+      "postId": "2077409287211811191",
+      "postedAt": "Wed Jul 15 15:05:45 +0000 2026",
+      "title": "Sarah Guo native X post mentioning HeyClicky",
+      "text": "@hthieblot that’s quite a claim. would Steve name his company heyclicky",
+      "metrics": {
+        "views": 2912,
+        "likes": 50,
+        "replies": 4,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "sarah guo",
+          "username": "saranormous",
+          "url": "https://x.com/saranormous"
+        },
+        "post": {
+          "id": "2077409287211811191",
+          "url": "https://x.com/saranormous/status/2077409287211811191",
+          "rawText": "@hthieblot that’s quite a claim. would Steve name his company heyclicky",
+          "created_at": "Wed Jul 15 15:05:45 +0000 2026"
+        },
+        "counts": {
+          "views": 2912,
+          "likes": 50,
+          "replies": 4,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "target": {
+          "companyName": "HeyClicky",
+          "entityClue": "native text names HeyClicky"
+        }
+      },
+      "verificationMethod": "FxTwitter public post JSON; checked against src/lib/social/top-voices.ts allowlist and src/lib/yc/spring-2026-companies.json company/founder clues; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native X post by allowlisted top voice Sarah Guo (insiders); visible target clue: native text names HeyClicky.",
+      "sourceSearch": "X web search/TwStalker timeline discovery plus FxTwitter verification"
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": "yc_partners",
+      "companyName": "Ontora",
+      "entityClue": "native text links Ontora (YC P26); shared-card text names Ontora and ontora.com",
+      "topVoiceName": "Tom Blomfield",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/tomblomfield_organizational-knowledge-is-buried-in-peoples-activity-7452014262845177856-hBOK",
+      "postId": "7452014262845177856",
+      "postedAt": "2026-04-20T15:24:11.970Z",
+      "title": "Unlock Organizational Knowledge with Ontora",
+      "text": "Organizational knowledge is buried in people's heads. \n\nOntora (YC P26) can instantly talk with everyone in a company to uncover that information.",
+      "metrics": {
+        "reactions": 45,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "source": "linkedin_public_post_html_json_ld",
+        "profile": {
+          "name": "Tom Blomfield",
+          "url": "https://www.linkedin.com/in/tomblomfield"
+        },
+        "post": {
+          "id": "7452014262845177856",
+          "url": "https://www.linkedin.com/posts/tomblomfield_organizational-knowledge-is-buried-in-peoples-activity-7452014262845177856-hBOK",
+          "headline": "Organizational knowledge is buried in people's heads.",
+          "description": "Organizational knowledge is buried in people's heads. \n\nOntora (YC P26) can instantly talk with everyone in a company to uncover that information.",
+          "datePublished": "2026-04-20T15:24:11.970Z"
+        },
+        "sharedContent": {
+          "@type": "WebPage",
+          "author": {
+            "name": "Y Combinator",
+            "image": {
+              "url": "https://media.licdn.com/dms/image/v2/C4D0BAQGPzdBPNxrmEg/company-logo_100_100/company-logo_100_100/0/1673555093250/y_combinator_logo?e=2147483647&v=beta&t=RS-SKAR96j7FsrAn0a9I038RANOJTRufT4hYWIaeNMk",
+              "@type": "ImageObject"
+            },
+            "url": "https://www.linkedin.com/school/y-combinator/",
+            "@type": "Organization",
+            "interactionStatistic": {
+              "@type": "InteractionCounter",
+              "interactionType": "http://schema.org/FollowAction",
+              "userInteractionCount": 1742143
+            }
+          },
+          "headline": "Ontora (YC P26) does what no CEO can: talk to every single employee and find out what's actually broken.\n\n80% of operational knowledge never gets documented. It lives in people's heads, and it walks out the door every time someone quits. Leaders are making million-dollar decisions without it. You can't optimize what you don't understand. And most companies have no clue how work actually flows across departments.\n\nImagine talking to every employee in your company within an hour and getting a clear picture of what's really going on. With Ontora, you can. Our AI agent conducts insight-driven interviews across your entire workforce, maps how work actually gets done, and surfaces the bottlenecks nobody's telling you about.\n\nBook a demo and see it in action: https://ontora.com/\n\nCongrats on the launch, Maximilian Arnold, leon iwanowitsch, and David Korn!\n\n🚀 https://lnkd.in/gRB2AfJB"
+        },
+        "counts": {
+          "reactions": 45,
+          "comments": 1
+        },
+        "target": {
+          "companyName": "Ontora",
+          "entityClue": "Ontora (YC P26) and ontora.com visible in native/share text"
+        }
+      },
+      "verificationMethod": "Public LinkedIn post HTML/JSON-LD exposed author, post URL/activity ID, date, native text, shared-card context, reactions and comments; checked against top-voices.ts and spring-2026 company snapshot; source JSON/graph IDs checked for duplicates.",
+      "whyQualifies": "Native LinkedIn post by allowlisted YC partner Tom Blomfield; text visibly names Ontora (YC P26) and LinkedIn exposes post-level metrics.",
+      "sourceSearch": "Public web search result and direct LinkedIn public HTML verification"
+    }
+  ],
+  "rejected": [
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "Gojiberry AI",
+      "entityClue": null,
+      "topVoiceName": "Gabriel Jarrosson",
+      "platform": "x",
+      "url": "https://x.com/GJarrosson/status/2053158304642171102",
+      "postId": "2053301559178805605",
+      "postedAt": "Sat May 09 17:01:00 +0000 2026",
+      "title": "Rejected X near-miss for Gojiberry AI",
+      "text": "I just met a team that’s breaking the most common \"consensus\" rule in Silicon Valley.  \n\nMost founders think YC is for two kids and a PowerPoint. They think once you hit $1M ARR, you’re \"too big\" to give up 7%.  \n\n@pierreeliottlal, @romanbuildsaas and @Dylan_txa of Gojiberry AI (P26) just proved them wrong.  \n\nI went on-site with them in SF to get the real story. These guys didn't just join YC with $1M ARR, they used the YC pressure cooker to double it to $2M in their first 30 days. 📈  \n\nIn this vlog, we’re breaking down the \"Big Cake\" math: \n- Why serial founders with $20M in the bank are still doing the batch. \n- The \"SF Effect\": How being in the room changes your GTM speed. \n- The 7% Question: Is it a cost, or is it a strategic purchase of a massive moat?  \n\nIf you’re sitting at $1M ARR and think you’ve \"made it,\" this is the reality check you need.  \n\nHow about you? What would you do? Keep 100% of a $50M company, or 93% of a $5B one? Let’s talk in the comments",
+      "metrics": {
+        "views": 9621,
+        "likes": 52,
+        "replies": 4,
+        "retweets": 9,
+        "quotes": 0,
+        "bookmarks": 23
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Gabriel Jarrosson",
+          "username": "GJarrosson",
+          "url": "https://x.com/GJarrosson"
+        },
+        "post": {
+          "id": "2053158304642171102",
+          "url": "https://x.com/GJarrosson/status/2053158304642171102",
+          "rawText": "I just met a team that’s breaking the most common \"consensus\" rule in Silicon Valley.  \n\nMost founders think YC is for two kids and a PowerPoint. They think once you hit $1M ARR, you’re \"too big\" to give up 7%.  \n\n@pierreeliottlal, @romanbuildsaas and @Dylan_txa of Gojiberry AI (P26) just proved them wrong.  \n\nI went on-site with them in SF to get the real story. These guys didn't just join YC with $1M ARR, they used the YC pressure cooker to double it to $2M in their first 30 days. 📈  \n\nIn this vlog, we’re breaking down the \"Big Cake\" math: \n- Why serial founders with $20M in the bank are still doing the batch. \n- The \"SF Effect\": How being in the room changes your GTM speed. \n- The 7% Question: Is it a cost, or is it a strategic purchase of a massive moat?  \n\nIf you’re sitting at $1M ARR and think you’ve \"made it,\" this is the reality check you need.  \n\nHow about you? What would you do? Keep 100% of a $50M company, or 93% of a $5B one? Let’s talk in the comments",
+          "created_at": "Sat May 09 17:01:00 +0000 2026"
+        },
+        "counts": {
+          "views": 9621,
+          "likes": 52,
+          "replies": 4,
+          "retweets": 9,
+          "quotes": 0,
+          "bookmarks": 23
+        },
+        "target": {
+          "companyName": "Gojiberry AI",
+          "entityClue": "Rejected: visible target, but this is a repost of Gabriel Jarrosson; native author is not an allowlisted top voice."
+        }
+      },
+      "verificationMethod": "X web search hit for snowmaker P26; FxTwitter showed reposted_by Jared Friedman and native author GJarrosson.",
+      "reason": "Rejected: visible target, but this is a repost of Gabriel Jarrosson; native author is not an allowlisted top voice."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "Corgi / generic P26 Demo Day",
+      "entityClue": null,
+      "topVoiceName": "Jared Friedman",
+      "platform": "x",
+      "url": "https://x.com/snowmaker/status/2066754534609977661",
+      "postId": "2066754534609977661",
+      "postedAt": "Tue Jun 16 05:27:34 +0000 2026",
+      "title": "Rejected X near-miss for Corgi / generic P26 Demo Day",
+      "text": "The best marketing campaigns cost almost nothing.",
+      "metrics": {
+        "views": 66633,
+        "likes": 302,
+        "replies": 22,
+        "retweets": 18,
+        "quotes": 3,
+        "bookmarks": 44
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Jared Friedman",
+          "username": "snowmaker",
+          "url": "https://x.com/snowmaker"
+        },
+        "post": {
+          "id": "2066754534609977661",
+          "url": "https://x.com/snowmaker/status/2066754534609977661",
+          "rawText": "The best marketing campaigns cost almost nothing.",
+          "created_at": "Tue Jun 16 05:27:34 +0000 2026",
+          "quote": {
+            "url": "https://x.com/UseCorgi/status/2066602548333887669",
+            "id": "2066602548333887669",
+            "rawText": "Don't Uber to YC Demo Day. We've got you.\n\nHere's our YC Demo Day bus route tomorrow: \n> 7:00am: Leave Corgi Cafe (9 Claude Lane)\n> 7:30-9am: The Landing -> Avalon Dogpatch -> YC (shuttle 🔁) \n> 6 pm: Pick-up\n\nWe'll have free coffee and Thai Teas at each station for founders.\n\nGood luck to all the P26 companies pitching!",
+            "authorName": "Corgi",
+            "authorHandle": "UseCorgi",
+            "authorDescription": "Building the first full-stack AI financial infrastructure | Events: http://luma.com/UseCorgi",
+            "authorWebsite": "corgi.com"
+          }
+        },
+        "counts": {
+          "views": 66633,
+          "likes": 302,
+          "replies": 22,
+          "retweets": 18,
+          "quotes": 3,
+          "bookmarks": 44
+        },
+        "target": {
+          "companyName": "Corgi / generic P26 Demo Day",
+          "entityClue": "Rejected: native Jared Friedman post, but quoted Corgi Demo Day logistics are not a Spring 2026 target company in the source snapshot and only refer generically to P26 companies."
+        }
+      },
+      "verificationMethod": "X web search hit for snowmaker P26; FxTwitter verification.",
+      "reason": "Rejected: native Jared Friedman post, but quoted Corgi Demo Day logistics are not a Spring 2026 target company in the source snapshot and only refer generically to P26 companies."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "generic YC batch naming",
+      "entityClue": null,
+      "topVoiceName": "Garry Tan",
+      "platform": "x",
+      "url": "https://x.com/garrytan/status/2032129690014814550",
+      "postId": "2032129690014814550",
+      "postedAt": "Thu Mar 12 16:20:47 +0000 2026",
+      "title": "Rejected X near-miss for generic YC batch naming",
+      "text": "We’re renaming the YC spring batches from X25 and (what was going to be) X26 to P25 and P26 — P for Primavera, which literally means “first spring” in Latin-derived languages.\n\nThe original X was a cute programmer in-joke, but people kept asking “what does X stand for?”, so we’re switching to something that actually says “spring” while still keeping it to a single letter.",
+      "metrics": {
+        "views": 82876,
+        "likes": 677,
+        "replies": 107,
+        "retweets": 13,
+        "quotes": 16,
+        "bookmarks": 79
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Garry Tan",
+          "username": "garrytan",
+          "url": "https://x.com/garrytan"
+        },
+        "post": {
+          "id": "2032129690014814550",
+          "url": "https://x.com/garrytan/status/2032129690014814550",
+          "rawText": "We’re renaming the YC spring batches from X25 and (what was going to be) X26 to P25 and P26 — P for Primavera, which literally means “first spring” in Latin-derived languages.\n\nThe original X was a cute programmer in-joke, but people kept asking “what does X stand for?”, so we’re switching to something that actually says “spring” while still keeping it to a single letter.",
+          "created_at": "Thu Mar 12 16:20:47 +0000 2026"
+        },
+        "counts": {
+          "views": 82876,
+          "likes": 677,
+          "replies": 107,
+          "retweets": 13,
+          "quotes": 16,
+          "bookmarks": 79
+        },
+        "target": {
+          "companyName": "generic YC batch naming",
+          "entityClue": "Rejected: native Garry Tan post, but it only explains batch renaming to P26 and does not name a target company/founder/official handle/domain."
+        }
+      },
+      "verificationMethod": "X web search hit for garrytan P26; FxTwitter verification.",
+      "reason": "Rejected: native Garry Tan post, but it only explains batch renaming to P26 and does not name a target company/founder/official handle/domain."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "generic hard-tech batch comment",
+      "entityClue": null,
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "x",
+      "url": "https://x.com/bosmeny/status/2062974811165671542",
+      "postId": "2062974811165671542",
+      "postedAt": "Fri Jun 05 19:08:17 +0000 2026",
+      "title": "Rejected X near-miss for generic hard-tech batch comment",
+      "text": "P26 set the record for the highest % of hard tech in a batch\n\nAnd S26 will be even higher!\n\nWhat a time to build",
+      "metrics": {
+        "views": 3015,
+        "likes": 22,
+        "replies": 1,
+        "retweets": 3,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Tyler Bosmeny",
+          "username": "bosmeny",
+          "url": "https://x.com/bosmeny"
+        },
+        "post": {
+          "id": "2062974811165671542",
+          "url": "https://x.com/bosmeny/status/2062974811165671542",
+          "rawText": "P26 set the record for the highest % of hard tech in a batch\n\nAnd S26 will be even higher!\n\nWhat a time to build",
+          "created_at": "Fri Jun 05 19:08:17 +0000 2026",
+          "quote": {
+            "url": "https://x.com/paulg/status/2062889573517242767",
+            "id": "2062889573517242767",
+            "rawText": "Sam Altman deserves credit for YC's turn toward hard tech. When he became CEO in 2014 he went out and recruited companies doing stuff like airliners and fusion, and hard tech startups have been some of the best in every batch since.",
+            "authorName": "Paul Graham",
+            "authorHandle": "paulg",
+            "authorDescription": "",
+            "authorWebsite": "paulgraham.com"
+          }
+        },
+        "counts": {
+          "views": 3015,
+          "likes": 22,
+          "replies": 1,
+          "retweets": 3,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "target": {
+          "companyName": "generic hard-tech batch comment",
+          "entityClue": "Rejected: native Tyler Bosmeny post, but it references P26 hard-tech share at batch level and does not visibly name a target company/founder/official handle/domain."
+        }
+      },
+      "verificationMethod": "X web search hit for bosmeny P26/S26; FxTwitter verification.",
+      "reason": "Rejected: native Tyler Bosmeny post, but it references P26 hard-tech share at batch level and does not visibly name a target company/founder/official handle/domain."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "generic YC P26 founders",
+      "entityClue": null,
+      "topVoiceName": "Mathilde Collin",
+      "platform": "x",
+      "url": "https://x.com/collinmathilde/status/2067996834145210736",
+      "postId": "2067996834145210736",
+      "postedAt": "Fri Jun 19 15:44:01 +0000 2026",
+      "title": "Rejected X near-miss for generic YC P26 founders",
+      "text": "It's a wrap! YC P26 was special because of all these amazing founders.",
+      "metrics": {
+        "views": 24358,
+        "likes": 87,
+        "replies": 14,
+        "retweets": 12,
+        "quotes": 2,
+        "bookmarks": 7
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Mathilde Collin",
+          "username": "collinmathilde",
+          "url": "https://x.com/collinmathilde"
+        },
+        "post": {
+          "id": "2067996834145210736",
+          "url": "https://x.com/collinmathilde/status/2067996834145210736",
+          "rawText": "It's a wrap! YC P26 was special because of all these amazing founders.",
+          "created_at": "Fri Jun 19 15:44:01 +0000 2026"
+        },
+        "counts": {
+          "views": 24358,
+          "likes": 87,
+          "replies": 14,
+          "retweets": 12,
+          "quotes": 2,
+          "bookmarks": 7
+        },
+        "target": {
+          "companyName": "generic YC P26 founders",
+          "entityClue": "Rejected: native Mathilde Collin post, but it only says YC P26 was special because of the founders and does not identify a target company or founder."
+        }
+      },
+      "verificationMethod": "X web search hit for collinmathilde P26; FxTwitter verification.",
+      "reason": "Rejected: native Mathilde Collin post, but it only says YC P26 was special because of the founders and does not identify a target company or founder."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "generic recent YC founders",
+      "entityClue": null,
+      "topVoiceName": "Dalton Caldwell",
+      "platform": "x",
+      "url": "https://x.com/daltonc/status/2059672559038435806",
+      "postId": "2059672559038435806",
+      "postedAt": "Wed May 27 16:26:19 +0000 2026",
+      "title": "Rejected X near-miss for generic recent YC founders",
+      "text": "YC founders from P26, W26, F25 and S25, this is for you 👇",
+      "metrics": {
+        "views": 21396,
+        "likes": 150,
+        "replies": 4,
+        "retweets": 10,
+        "quotes": 1,
+        "bookmarks": 63
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Dalton Caldwell",
+          "username": "daltonc",
+          "url": "https://x.com/daltonc"
+        },
+        "post": {
+          "id": "2059672559038435806",
+          "url": "https://x.com/daltonc/status/2059672559038435806",
+          "rawText": "YC founders from P26, W26, F25 and S25, this is for you 👇",
+          "created_at": "Wed May 27 16:26:19 +0000 2026",
+          "quote": {
+            "url": "https://x.com/daltonc/status/2057921770586357847",
+            "id": "2057921770586357847",
+            "rawText": "A message for recent YC founders",
+            "authorName": "Dalton Caldwell",
+            "authorHandle": "daltonc",
+            "authorDescription": "Founder and Partner @Standard_Cap,\nPartner Emeritus @ycombinator",
+            "authorWebsite": "standardcap.com"
+          }
+        },
+        "counts": {
+          "views": 21396,
+          "likes": 150,
+          "replies": 4,
+          "retweets": 10,
+          "quotes": 1,
+          "bookmarks": 63
+        },
+        "target": {
+          "companyName": "generic recent YC founders",
+          "entityClue": "Rejected: native Dalton Caldwell post, but it addresses YC founders from several batches and does not identify a target company/founder."
+        }
+      },
+      "verificationMethod": "X web search hit for daltonc P26; FxTwitter verification.",
+      "reason": "Rejected: native Dalton Caldwell post, but it addresses YC founders from several batches and does not identify a target company/founder."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "Ploy",
+      "entityClue": null,
+      "topVoiceName": "Eric Bahn 💛",
+      "platform": "x",
+      "url": "https://x.com/ericbahn/status/2070544088299176035",
+      "postId": "2070544088299176035",
+      "postedAt": "Fri Jun 26 16:25:54 +0000 2026",
+      "title": "Rejected X near-miss for Ploy",
+      "text": "Been using http://Ploy.ai for several weeks now, it is freaking magic.",
+      "metrics": {
+        "views": 85714,
+        "likes": 214,
+        "replies": 20,
+        "retweets": 4,
+        "quotes": 0,
+        "bookmarks": 404
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Eric Bahn 💛",
+          "username": "ericbahn",
+          "url": "https://x.com/ericbahn"
+        },
+        "post": {
+          "id": "2070544088299176035",
+          "url": "https://x.com/ericbahn/status/2070544088299176035",
+          "rawText": "Been using http://Ploy.ai for several weeks now, it is freaking magic.",
+          "created_at": "Fri Jun 26 16:25:54 +0000 2026",
+          "quote": {
+            "url": "https://x.com/bryantchou/status/2070516573954289857",
+            "id": "2070516573954289857",
+            "rawText": "After launching last week, we slurped over 14,000 sites,  sent over 20,000 growth reports, and gave every business a platform to turn their website into automated growth. Here's how ploy works 👇",
+            "authorName": "brryant",
+            "authorHandle": "bryantchou",
+            "authorDescription": "building @ployai",
+            "authorWebsite": null
+          }
+        },
+        "counts": {
+          "views": 85714,
+          "likes": 214,
+          "replies": 20,
+          "retweets": 4,
+          "quotes": 0,
+          "bookmarks": 404
+        },
+        "target": {
+          "companyName": "Ploy",
+          "entityClue": "Rejected: target Ploy is visible, but native author is Eric Bahn, who is not in top-voices.ts; it was discovered from Harj Taggar timeline context, not authored by Harj."
+        }
+      },
+      "verificationMethod": "TwStalker timeline candidate; FxTwitter post-level author check.",
+      "reason": "Rejected: target Ploy is visible, but native author is Eric Bahn, who is not in top-voices.ts; it was discovered from Harj Taggar timeline context, not authored by Harj."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "Tasklet",
+      "entityClue": null,
+      "topVoiceName": "Raphael Schaad",
+      "platform": "x",
+      "url": "https://x.com/raphaelschaad/status/2061562509576839645",
+      "postId": "2061562509576839645",
+      "postedAt": "Mon Jun 01 21:36:18 +0000 2026",
+      "title": "Rejected X near-miss for Tasklet",
+      "text": "Spilling some beans 🤫 This very startup is actually looking for their first design engineer: \n\nhttps://tasklet.notion.site/Staff-Design-Engineer-33668856530881c3921cc61d1c810c32\n\nIt's an incredible opportunity, owning the product design end-to-end. They've identified that great design is essential for them.\n\nFunnily, I've told the founder to *not* look for a \"design engineer.\" I told him, the most cracked product designers are all AI-pilled and now working with code anyway. If that's you and you're remotely curious, highly rec to get in touch with the founder.\n\nOh and, did I mention, it's the Firebase founder?!",
+      "metrics": {
+        "views": 33414,
+        "likes": 85,
+        "replies": 3,
+        "retweets": 20,
+        "quotes": 4,
+        "bookmarks": 46
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Raphael Schaad",
+          "username": "raphaelschaad",
+          "url": "https://x.com/raphaelschaad"
+        },
+        "post": {
+          "id": "2061562509576839645",
+          "url": "https://x.com/raphaelschaad/status/2061562509576839645",
+          "rawText": "Spilling some beans 🤫 This very startup is actually looking for their first design engineer: \n\nhttps://tasklet.notion.site/Staff-Design-Engineer-33668856530881c3921cc61d1c810c32\n\nIt's an incredible opportunity, owning the product design end-to-end. They've identified that great design is essential for them.\n\nFunnily, I've told the founder to *not* look for a \"design engineer.\" I told him, the most cracked product designers are all AI-pilled and now working with code anyway. If that's you and you're remotely curious, highly rec to get in touch with the founder.\n\nOh and, did I mention, it's the Firebase founder?!",
+          "created_at": "Mon Jun 01 21:36:18 +0000 2026",
+          "quote": {
+            "url": "https://x.com/GJarrosson/status/2050983949250273646",
+            "id": "2050983949250273646",
+            "rawText": "There's a startup in the current YC batch (P26) that's adding $1M in ARR every two weeks 😳",
+            "authorName": "Gabriel Jarrosson",
+            "authorHandle": "GJarrosson",
+            "authorDescription": "Founder & Managing Partner @LobsterCapVC 🦞 Investing in the top 2% of @YCombinator startups. Founder with 3 exits. Creator of @YCRoaster",
+            "authorWebsite": "linktr.ee/gabrieljarross…"
+          }
+        },
+        "counts": {
+          "views": 33414,
+          "likes": 85,
+          "replies": 3,
+          "retweets": 20,
+          "quotes": 4,
+          "bookmarks": 46
+        },
+        "target": {
+          "companyName": "Tasklet",
+          "entityClue": "Rejected: target Tasklet is visible, but native author is Raphael Schaad, not an allowlisted top voice."
+        }
+      },
+      "verificationMethod": "TwStalker timeline candidate; FxTwitter post-level author check.",
+      "reason": "Rejected: target Tasklet is visible, but native author is Raphael Schaad, not an allowlisted top voice."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "Autostep",
+      "entityClue": null,
+      "topVoiceName": "Y Combinator",
+      "platform": "x",
+      "url": "https://x.com/ycombinator/status/2062595238749687896",
+      "postId": "2062595238749687896",
+      "postedAt": "Thu Jun 04 18:00:00 +0000 2026",
+      "title": "Rejected X near-miss for Autostep",
+      "text": "Autostep finds the repetitive work hiding inside your company, then helps you fix it. It context mines how your team works across emails, decks and reports. Then it proactively spawns agents on that context so the work never gets repeated again.\n\nCongrats on the launch, @aidan__pratt!\n\nhttps://www.ycombinator.com/launches/PYq-autostep-uncover-repetitive-tasks-ready-for-ai",
+      "metrics": {
+        "views": 21327,
+        "likes": 145,
+        "replies": 21,
+        "retweets": 11,
+        "quotes": 1,
+        "bookmarks": 99
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Y Combinator",
+          "username": "ycombinator",
+          "url": "https://x.com/ycombinator"
+        },
+        "post": {
+          "id": "2062595238749687896",
+          "url": "https://x.com/ycombinator/status/2062595238749687896",
+          "rawText": "Autostep finds the repetitive work hiding inside your company, then helps you fix it. It context mines how your team works across emails, decks and reports. Then it proactively spawns agents on that context so the work never gets repeated again.\n\nCongrats on the launch, @aidan__pratt!\n\nhttps://www.ycombinator.com/launches/PYq-autostep-uncover-repetitive-tasks-ready-for-ai",
+          "created_at": "Thu Jun 04 18:00:00 +0000 2026"
+        },
+        "counts": {
+          "views": 21327,
+          "likes": 145,
+          "replies": 21,
+          "retweets": 11,
+          "quotes": 1,
+          "bookmarks": 99
+        },
+        "target": {
+          "companyName": "Autostep",
+          "entityClue": "Rejected: native author is Y Combinator organization account; org/community accounts are explicitly out of scope even if a top voice reposted or surfaced it."
+        }
+      },
+      "verificationMethod": "TwStalker timeline candidate; FxTwitter post-level author check.",
+      "reason": "Rejected: native author is Y Combinator organization account; org/community accounts are explicitly out of scope even if a top voice reposted or surfaced it."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "Memory Store",
+      "entityClue": null,
+      "topVoiceName": "Y Combinator",
+      "platform": "x",
+      "url": "https://x.com/ycombinator/status/2056797036490752082",
+      "postId": "2056797036490752082",
+      "postedAt": "Tue May 19 18:00:01 +0000 2026",
+      "title": "Rejected X near-miss for Memory Store",
+      "text": "Memory Store (@memorydotstore) gives your team and AI agents a shared company brain.\n\nYour team's knowledge & decisions are scattered across slack, emails, and people's heads. Memory Store turns them into a living wiki for your agents and teammates.\n\nCongrats on the launch, @ishitajindal17 & @diwanksingh!\n\nhttps://www.ycombinator.com/launches/QPs-memory-store-your-company-s-brain",
+      "metrics": {
+        "views": 244007,
+        "likes": 552,
+        "replies": 98,
+        "retweets": 74,
+        "quotes": 25,
+        "bookmarks": 360
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Y Combinator",
+          "username": "ycombinator",
+          "url": "https://x.com/ycombinator"
+        },
+        "post": {
+          "id": "2056797036490752082",
+          "url": "https://x.com/ycombinator/status/2056797036490752082",
+          "rawText": "Memory Store (@memorydotstore) gives your team and AI agents a shared company brain.\n\nYour team's knowledge & decisions are scattered across slack, emails, and people's heads. Memory Store turns them into a living wiki for your agents and teammates.\n\nCongrats on the launch, @ishitajindal17 & @diwanksingh!\n\nhttps://www.ycombinator.com/launches/QPs-memory-store-your-company-s-brain",
+          "created_at": "Tue May 19 18:00:01 +0000 2026"
+        },
+        "counts": {
+          "views": 244007,
+          "likes": 552,
+          "replies": 98,
+          "retweets": 74,
+          "quotes": 25,
+          "bookmarks": 360
+        },
+        "target": {
+          "companyName": "Memory Store",
+          "entityClue": "Rejected: native author is Y Combinator organization account, not an allowlisted person in top-voices.ts."
+        }
+      },
+      "verificationMethod": "TwStalker timeline candidate; FxTwitter post-level author check.",
+      "reason": "Rejected: native author is Y Combinator organization account, not an allowlisted person in top-voices.ts."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "AgentPhone",
+      "entityClue": null,
+      "topVoiceName": "Y Combinator",
+      "platform": "x",
+      "url": "https://x.com/ycombinator/status/2055333191595204682",
+      "postId": "2055333191595204682",
+      "postedAt": "Fri May 15 17:03:13 +0000 2026",
+      "title": "Rejected X near-miss for AgentPhone",
+      "text": "The $2T telecom industry was built for humans. @AgentPhoneHQ is rebuilding it for agents. One API gives every AI agent its own phone number and a trusted identity to reach the real world.\n\nCongrats on the launch, @themeetmodi & @manav2modi!\n\nhttps://www.ycombinator.com/launches/QNE-agentphone-phone-numbers-for-ai-agents",
+      "metrics": {
+        "views": 76328,
+        "likes": 358,
+        "replies": 66,
+        "retweets": 42,
+        "quotes": 10,
+        "bookmarks": 156
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Y Combinator",
+          "username": "ycombinator",
+          "url": "https://x.com/ycombinator"
+        },
+        "post": {
+          "id": "2055333191595204682",
+          "url": "https://x.com/ycombinator/status/2055333191595204682",
+          "rawText": "The $2T telecom industry was built for humans. @AgentPhoneHQ is rebuilding it for agents. One API gives every AI agent its own phone number and a trusted identity to reach the real world.\n\nCongrats on the launch, @themeetmodi & @manav2modi!\n\nhttps://www.ycombinator.com/launches/QNE-agentphone-phone-numbers-for-ai-agents",
+          "created_at": "Fri May 15 17:03:13 +0000 2026"
+        },
+        "counts": {
+          "views": 76328,
+          "likes": 358,
+          "replies": 66,
+          "retweets": 42,
+          "quotes": 10,
+          "bookmarks": 156
+        },
+        "target": {
+          "companyName": "AgentPhone",
+          "entityClue": "Rejected: native author is Y Combinator organization account, not an allowlisted person in top-voices.ts."
+        }
+      },
+      "verificationMethod": "TwStalker timeline candidate; FxTwitter post-level author check.",
+      "reason": "Rejected: native author is Y Combinator organization account, not an allowlisted person in top-voices.ts."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "primitive",
+      "entityClue": null,
+      "topVoiceName": "Aaron Levie",
+      "platform": "x",
+      "url": "https://x.com/levie/status/2068068247413694532",
+      "postId": "2068068247413694532",
+      "postedAt": "Fri Jun 19 20:27:47 +0000 2026",
+      "title": "Rejected X near-miss for primitive",
+      "text": "The main variable in getting success with agents is whether you can get the agent the context it needs to do its work; and a major factor in that is if you can create a shared working area for that agent that a human can understand as well. \n\nThis is one of the reasons why agents using file systems is such a big deal. It creates a unified system that both the person and the agent can work within to pass around data. \n\n“What they need is a working set: plans, notes, task lists, policies, drafts, summaries, logs, corrections,  decisions, etc. For that layer, a filesystem-shaped interface tends to be more legible to both the model and the humans supervising it.”\n\nIt turns out giving agents access to the systems we already know how to use, but in a way that is best optimized for them, is the perfect primitive for agents to work.",
+      "metrics": {
+        "views": 92960,
+        "likes": 405,
+        "replies": 64,
+        "retweets": 46,
+        "quotes": 10,
+        "bookmarks": 556
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Aaron Levie",
+          "username": "levie",
+          "url": "https://x.com/levie"
+        },
+        "post": {
+          "id": "2068068247413694532",
+          "url": "https://x.com/levie/status/2068068247413694532",
+          "rawText": "The main variable in getting success with agents is whether you can get the agent the context it needs to do its work; and a major factor in that is if you can create a shared working area for that agent that a human can understand as well. \n\nThis is one of the reasons why agents using file systems is such a big deal. It creates a unified system that both the person and the agent can work within to pass around data. \n\n“What they need is a working set: plans, notes, task lists, policies, drafts, summaries, logs, corrections,  decisions, etc. For that layer, a filesystem-shaped interface tends to be more legible to both the model and the humans supervising it.”\n\nIt turns out giving agents access to the systems we already know how to use, but in a way that is best optimized for them, is the perfect primitive for agents to work.",
+          "created_at": "Fri Jun 19 20:27:47 +0000 2026",
+          "quote": {
+            "url": "https://x.com/crtr0/status/2066558169741173177",
+            "id": "2066558169741173177",
+            "rawText": "",
+            "authorName": "Carter Rabasa",
+            "authorHandle": "crtr0",
+            "authorDescription": "Head of DevRel at @Box // organizer of @CascadiaJS + @SeattleJS // long on the PacNW 🌲",
+            "authorWebsite": "github.com/crtr0"
+          }
+        },
+        "counts": {
+          "views": 92960,
+          "likes": 405,
+          "replies": 64,
+          "retweets": 46,
+          "quotes": 10,
+          "bookmarks": 556
+        },
+        "target": {
+          "companyName": "primitive",
+          "entityClue": "Rejected: Aaron Levie is a top voice, but the match was the generic word “primitive”; the post does not visibly name Primitive, its official handle, founder, or domain."
+        }
+      },
+      "verificationMethod": "TwStalker clue match followed by FxTwitter verification.",
+      "reason": "Rejected: Aaron Levie is a top voice, but the match was the generic word “primitive”; the post does not visibly name Primitive, its official handle, founder, or domain."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "Juno",
+      "entityClue": null,
+      "topVoiceName": "Marshall Gould",
+      "platform": "x",
+      "url": "https://x.com/MarshallJGould/status/2075232407540703280",
+      "postId": "2075232407540703280",
+      "postedAt": "Thu Jul 09 14:55:36 +0000 2026",
+      "title": "Rejected X near-miss for Juno",
+      "text": "finally a hackathon worth going to.\n\nthe winner gets a guaranteed yc interview for the f26 batch.\n\nhosted with @AnthropicAI @supabase @ElevenLabs @encodeclub @junocompanion + more to be announced \n\nlink below 👇👇",
+      "metrics": {
+        "views": 7494,
+        "likes": 44,
+        "replies": 5,
+        "retweets": 5,
+        "quotes": 1,
+        "bookmarks": 10
+      },
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "profile": {
+          "name": "Marshall Gould",
+          "username": "MarshallJGould",
+          "url": "https://x.com/MarshallJGould"
+        },
+        "post": {
+          "id": "2075232407540703280",
+          "url": "https://x.com/MarshallJGould/status/2075232407540703280",
+          "rawText": "finally a hackathon worth going to.\n\nthe winner gets a guaranteed yc interview for the f26 batch.\n\nhosted with @AnthropicAI @supabase @ElevenLabs @encodeclub @junocompanion + more to be announced \n\nlink below 👇👇",
+          "created_at": "Thu Jul 09 14:55:36 +0000 2026"
+        },
+        "counts": {
+          "views": 7494,
+          "likes": 44,
+          "replies": 5,
+          "retweets": 5,
+          "quotes": 1,
+          "bookmarks": 10
+        },
+        "target": {
+          "companyName": "Juno",
+          "entityClue": "Rejected: native author is Marshall Gould, not an allowlisted top voice; additionally this references an F26 interview/hackathon, not Spring 2026/P26 evidence."
+        }
+      },
+      "verificationMethod": "TwStalker timeline candidate; FxTwitter post-level author check.",
+      "reason": "Rejected: native author is Marshall Gould, not an allowlisted top voice; additionally this references an F26 interview/hackathon, not Spring 2026/P26 evidence."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "qomplement",
+      "entityClue": "Tom Blomfield LinkedIn post about qomplement",
+      "topVoiceName": "Tom Blomfield",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/tomblomfield_are-you-taking-still-manually-reading-information-activity-7462932561909116930-xIHb",
+      "postId": "7462932561909116930",
+      "postedAt": null,
+      "title": "Tom Blomfield qomplement LinkedIn post",
+      "text": "Are you still manually reading information from spreadsheets and entering into Excel or ERPs? Try qomplement!",
+      "metrics": {},
+      "rawVisibleText": {
+        "source": "public_web_search_snippet/source_id_check",
+        "searchSnippet": "Tom Blomfield post about qomplement (YC P26). Exact activity ID already present in source JSON/graphs."
+      },
+      "verificationMethod": "Public web search plus source JSON/graph ID exclusion check.",
+      "reason": "Rejected from this artifact because it is already present in the source JSON/graphs; task asked for evidence beyond existing source."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "Prized",
+      "entityClue": "founder post thanks Ankit Gupta",
+      "topVoiceName": "Marinos Eliades",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/meliades_excited-to-share-that-i-got-into-y-combinators-activity-7477757103290499073-VI4_",
+      "postId": "7477757103290499073",
+      "postedAt": null,
+      "title": "Marinos Eliades Prized post",
+      "text": "Founder post thanks YC partners Ankit Gupta and Finbarr Taylor.",
+      "metrics": {
+        "reactions": 205,
+        "comments": 52
+      },
+      "rawVisibleText": {
+        "source": "public_web_search_result",
+        "visibleSnippet": "Excited to share that I got into Y Combinator S26... Excited to be working with YC partners Ankit Gupta and Finbarr Taylor."
+      },
+      "verificationMethod": "Public web search result snippet exposed post URL and metrics, but native author is a founder, not the top voice.",
+      "reason": "Rejected: mentions an allowlisted top voice, but the native LinkedIn post is by the founder, not by Ankit Gupta."
+    },
+    {
+      "batch": "S2026/P26",
+      "audience": null,
+      "companyName": "generic YC P26 kickoff",
+      "entityClue": "mentions Jared Friedman",
+      "topVoiceName": "Nico Laqua",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/nico-laqua-302b17233_had-a-great-time-speaking-at-the-yc-p26-kickoff-activity-7446959251534790656-e4Wz",
+      "postId": "7446959251534790656",
+      "postedAt": null,
+      "title": "Nico Laqua YC P26 kickoff post",
+      "text": "Had a great time speaking at the YC P26 kickoff with Jared Friedman.",
+      "metrics": {},
+      "rawVisibleText": {
+        "source": "public_web_search_result",
+        "visibleSnippet": "Had a great time speaking at the YC P26 kickoff with Jared Friedman."
+      },
+      "verificationMethod": "Public web search discovery.",
+      "reason": "Rejected: native LinkedIn author is not an allowlisted top voice and no specific target company/founder evidence from a top voice is present."
+    }
+  ]
+}

@@ -1,0 +1,894 @@
+{
+  "generatedAt": "2026-07-16T02:18:38.478Z",
+  "files": {
+    "src/lib/social/targeted-evidence-current.json": {
+      "before": 532,
+      "after": 467,
+      "removed": 65
+    },
+    "src/lib/social/a16z-speedrun-006-social-evidence.json": {
+      "before": 254,
+      "after": 251,
+      "removed": 3
+    }
+  },
+  "removed": [
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "instagram-profile-company-heyclicky-instagram-com-_heyclicky",
+      "companyName": "HeyClicky",
+      "platform": "instagram",
+      "sourceUrl": "https://www.instagram.com/_heyclicky/",
+      "platformPostId": null,
+      "reasons": [
+        "no_positive_visible_metric",
+        "instagram_profile_or_other",
+        "missing_platform_post_id"
+      ],
+      "duplicateOfPostId": null
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-adialante-tarof-activity-7471229920451629056",
+      "companyName": "Adialante",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+      "platformPostId": "7471229920451629056",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-adialante-tarof-activity-7472317066167885824",
+      "companyName": "Adialante",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-apollo-atomics-inc-tarof-activity-7471229920451629056",
+      "companyName": "Apollo Atomics, Inc.",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+      "platformPostId": "7471229920451629056",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-apollo-atomics-inc-tarof-activity-7472317066167885824",
+      "companyName": "Apollo Atomics, Inc.",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-chronicle-labs-tarof-activity-7470880751752781824",
+      "companyName": "Chronicle Labs",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-chronicle-labs-tarof-activity-7471954633335275520",
+      "companyName": "Chronicle Labs",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-clara-2-tarof-activity-7471592225164906496",
+      "companyName": "Clara",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-healthtech-startups-in-y-combinator-activity-7471592225164906496-6Vz3",
+      "platformPostId": "7471592225164906496",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496",
+      "duplicateOfPostId": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-complir-tarof-activity-7472317066167885824",
+      "companyName": "Complir",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-dispatch-tarof-activity-7471229920451629056",
+      "companyName": "Dispatch",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+      "platformPostId": "7471229920451629056",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-dispatch-tarof-activity-7472317066167885824",
+      "companyName": "Dispatch",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-eden-robotics-tarof-activity-7471229920451629056",
+      "companyName": "Eden Robotics",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+      "platformPostId": "7471229920451629056",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-finaldose-tarof-activity-7471592225164906496",
+      "companyName": "FinalDose",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-healthtech-startups-in-y-combinator-activity-7471592225164906496-6Vz3",
+      "platformPostId": "7471592225164906496",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496",
+      "duplicateOfPostId": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-general-aviation-tarof-activity-7471229920451629056",
+      "companyName": "General Aviation",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+      "platformPostId": "7471229920451629056",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-general-aviation-tarof-activity-7472317066167885824",
+      "companyName": "General Aviation",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-humwork-tarof-activity-7470880751752781824",
+      "companyName": "Humwork",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-humwork-tarof-activity-7471954633335275520",
+      "companyName": "Humwork",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-insforge-tarof-activity-7470880751752781824",
+      "companyName": "InsForge",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-insforge-tarof-activity-7471954633335275520",
+      "companyName": "InsForge",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-insforge-tarof-activity-7472317066167885824",
+      "companyName": "InsForge",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-klaimee-tarof-activity-7471954633335275520",
+      "companyName": "Klaimee",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-limrun-tarof-activity-7470880751752781824",
+      "companyName": "Limrun",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-limrun-tarof-activity-7472317066167885824",
+      "companyName": "Limrun",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-lumius-tarof-activity-7471229920451629056",
+      "companyName": "Lumius",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+      "platformPostId": "7471229920451629056",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-lumius-tarof-activity-7471592225164906496",
+      "companyName": "Lumius",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-healthtech-startups-in-y-combinator-activity-7471592225164906496-6Vz3",
+      "platformPostId": "7471592225164906496",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496",
+      "duplicateOfPostId": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-minicor-tarof-activity-7470880751752781824",
+      "companyName": "Minicor",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-mount-tarof-activity-7471954633335275520",
+      "companyName": "Mount",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-primitive-tarof-activity-7470880751752781824",
+      "companyName": "primitive",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-primitive-tarof-activity-7471954633335275520",
+      "companyName": "primitive",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-primitive-tarof-activity-7472317066167885824",
+      "companyName": "primitive",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-rentahuman-tarof-activity-7471954633335275520",
+      "companyName": "RentAHuman",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-replicas-tarof-activity-7470880751752781824",
+      "companyName": "Replicas",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-smol-machines-tarof-activity-7470880751752781824",
+      "companyName": "smol machines",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-standout-tarof-activity-7471954633335275520",
+      "companyName": "Standout",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-superlog-tarof-activity-7470880751752781824",
+      "companyName": "Superlog",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-superset-tarof-activity-7470880751752781824",
+      "companyName": "Superset",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "platformPostId": "7470880751752781824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-superset-tarof-activity-7471954633335275520",
+      "companyName": "Superset",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-superset-tarof-activity-7472317066167885824",
+      "companyName": "Superset",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-synphony-tarof-activity-7471229920451629056",
+      "companyName": "Synphony",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+      "platformPostId": "7471229920451629056",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-tasklet-2-tarof-activity-7472317066167885824",
+      "companyName": "Tasklet",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "platformPostId": "7472317066167885824",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824",
+      "duplicateOfPostId": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-thomas-tarof-activity-7471954633335275520",
+      "companyName": "Thomas",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "platformPostId": "7471954633335275520",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520",
+      "duplicateOfPostId": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-company-voquill-tarof-activity-7471592225164906496",
+      "companyName": "Voquill",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-healthtech-startups-in-y-combinator-activity-7471592225164906496-6Vz3",
+      "platformPostId": "7471592225164906496",
+      "reasons": [
+        "duplicate_native_url",
+        "duplicate_platform_post_id"
+      ],
+      "duplicateOfUrl": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496",
+      "duplicateOfPostId": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496"
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-s26-company-instance-ankit-gupta-introducing-instance-evaluation-robot-policies-ankit-gupta-txx2e",
+      "companyName": "Instance",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/pulse/introducing-instance-evaluation-robot-policies-ankit-gupta-txx2e",
+      "platformPostId": "introducing-instance-evaluation-robot-policies-ankit-gupta-txx2e",
+      "reasons": [
+        "linkedin_profile_or_other"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "web-company-heyclicky-dailydropout-viral-context",
+      "companyName": "HeyClicky",
+      "platform": "web",
+      "sourceUrl": "https://dailydropout.substack.com/p/heyclicky-give-your-cursor-infinite",
+      "platformPostId": null,
+      "reasons": [
+        "no_positive_visible_metric",
+        "missing_platform_post_id"
+      ],
+      "duplicateOfPostId": null
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "x-topvoice-s2026-company-ontora-tom-blomfield-7452014262845177856",
+      "companyName": "Ontora",
+      "platform": "x",
+      "sourceUrl": "https://www.linkedin.com/posts/tomblomfield_organizational-knowledge-is-buried-in-peoples-activity-7452014262845177856-hBOK",
+      "platformPostId": "7452014262845177856",
+      "reasons": [
+        "x_profile_or_other"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "linkedin-topvoice-tenth-pass-s26-company-prized-ankit-gupta-prized-agentic-builder-internal-tools-ankit-gupta-8ceee",
+      "companyName": "Prized",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/pulse/prized-agentic-builder-internal-tools-ankit-gupta-8ceee",
+      "platformPostId": "prized-agentic-builder-internal-tools-ankit-gupta-8ceee",
+      "reasons": [
+        "linkedin_profile_or_other"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-blueprints-carboncopyinc-carboncopyinc-docs",
+      "companyName": "Blueprints",
+      "platform": "github",
+      "sourceUrl": "https://github.com/CarbonCopyInc/docs",
+      "platformPostId": "CarbonCopyInc/docs",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-blueprints-carboncopyinc-carboncopyinc-mintlify-docs",
+      "companyName": "Blueprints",
+      "platform": "github",
+      "sourceUrl": "https://github.com/CarbonCopyInc/mintlify-docs",
+      "platformPostId": "CarbonCopyInc/mintlify-docs",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-blueprints-carboncopyinc-carboncopyinc-documentation",
+      "companyName": "Blueprints",
+      "platform": "github",
+      "sourceUrl": "https://github.com/CarbonCopyInc/documentation",
+      "platformPostId": "CarbonCopyInc/documentation",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-conifer-coniferkit-coniferkit-cli-release",
+      "companyName": "Conifer",
+      "platform": "github",
+      "sourceUrl": "https://github.com/ConiferKit/CLI-release",
+      "platformPostId": "ConiferKit/CLI-release",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-glen-glen-web-app-glen-web-app-glen-codex-plugin",
+      "companyName": "Glen",
+      "platform": "github",
+      "sourceUrl": "https://github.com/Glen-Web-App/glen-codex-plugin",
+      "platformPostId": "Glen-Web-App/glen-codex-plugin",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-mireye-mireye-labs-mireye-labs-docs",
+      "companyName": "Mireye",
+      "platform": "github",
+      "sourceUrl": "https://github.com/Mireye-Labs/docs",
+      "platformPostId": "Mireye-Labs/docs",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-openrelay-openrelayinc-openrelayinc-orl",
+      "companyName": "OpenRelay",
+      "platform": "github",
+      "sourceUrl": "https://github.com/OpenRelayInc/orl",
+      "platformPostId": "OpenRelayInc/orl",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-openrelay-openrelayinc-openrelayinc-homebrew-tap",
+      "companyName": "OpenRelay",
+      "platform": "github",
+      "sourceUrl": "https://github.com/OpenRelayInc/homebrew-tap",
+      "platformPostId": "OpenRelayInc/homebrew-tap",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-robocurve-robocurve-robocurve-worldpolicies",
+      "companyName": "Robocurve",
+      "platform": "github",
+      "sourceUrl": "https://github.com/robocurve/worldpolicies",
+      "platformPostId": "robocurve/worldpolicies",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-docs",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/docs",
+      "platformPostId": "SpekoAI/docs",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-typescript-adapter-retell",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/typescript-adapter-retell",
+      "platformPostId": "SpekoAI/typescript-adapter-retell",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-typescript-adapter-vapi",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/typescript-adapter-vapi",
+      "platformPostId": "SpekoAI/typescript-adapter-vapi",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-tts-arena",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/tts-arena",
+      "platformPostId": "SpekoAI/tts-arena",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-voice-agent-starter",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/voice-agent-starter",
+      "platformPostId": "SpekoAI/voice-agent-starter",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-mcp-bridge",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/mcp-bridge",
+      "platformPostId": "SpekoAI/mcp-bridge",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-typescript-adapter-livekit",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/typescript-adapter-livekit",
+      "platformPostId": "SpekoAI/typescript-adapter-livekit",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-latency-ladder",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/latency-ladder",
+      "platformPostId": "SpekoAI/latency-ladder",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-yap-index",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/yap-index",
+      "platformPostId": "SpekoAI/yap-index",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/targeted-evidence-current.json",
+      "id": "github-sol-ultra-s26-company-speko-spekoai-spekoai-client",
+      "companyName": "Speko",
+      "platform": "github",
+      "sourceUrl": "https://github.com/SpekoAI/client",
+      "platformPostId": "SpekoAI/client",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "id": null,
+      "companyName": "Grove Tax",
+      "platform": "github",
+      "sourceUrl": "https://github.com/grove-tax/grove-mcp",
+      "platformPostId": "grove-tax/grove-mcp",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "id": null,
+      "companyName": "Modaic",
+      "platform": "github",
+      "sourceUrl": "https://github.com/modaic-ai/modaic-examples",
+      "platformPostId": "modaic-ai/modaic-examples",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    },
+    {
+      "file": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "id": null,
+      "companyName": "Modaic",
+      "platform": "github",
+      "sourceUrl": "https://github.com/modaic-ai/modaic-ts",
+      "platformPostId": "modaic-ai/modaic-ts",
+      "reasons": [
+        "no_positive_visible_metric"
+      ]
+    }
+  ],
+  "pidBackfilled": 150
+}

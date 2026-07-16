@@ -1,0 +1,758 @@
+{
+  "generatedAt": "2026-07-16T00:49:46Z",
+  "shard": "a16z-founder-zero-sol-ultra",
+  "batch": "A16ZSR006",
+  "scope": "Net-new native founder/company source discovery for A16ZSR006 companies with zero or weak founder/company evidence coverage. This shard is discovery-only and was not imported.",
+  "preflight": {
+    "readBeforeSearch": [
+      "outputs/source-hunt/search-ledger.json",
+      "outputs/source-hunt/coverage-matrix.json",
+      "outputs/source-hunt/agent-queue.json",
+      "outputs/source-hunt/validated-candidates.json",
+      "outputs/source-hunt/rejected-candidates.json",
+      "outputs/source-hunt/run-progress.json"
+    ],
+    "ledgerGeneratedAt": "2026-07-15T23:59:00.000Z",
+    "coverageTarget": {
+      "zeroCompanyEvidenceCompanies": [
+        "Advocate",
+        "August",
+        "Meridian",
+        "Oasis",
+        "PayPath",
+        "Quinn",
+        "Simula"
+      ],
+      "zeroCompanyEvidenceCount": 7,
+      "zeroFounderEvidenceCount": 89,
+      "belowThreeFounderEvidenceCount": 43
+    },
+    "duplicatePolicy": "Every accepted source URL and platform post ID was checked against the ledger, candidate files, all other JSON shards under outputs/source-hunt, canonical social evidence, and the A16ZSR006 graph. Exact completed ledger queries were not rerun."
+  },
+  "searches": [
+    {
+      "query": "\"Kashyap Nathan\" Meridian site:linkedin.com/posts",
+      "platform": "linkedin",
+      "companies": ["Meridian"],
+      "result": "Resolved one native founder post with direct Meridian product/customer evidence and visible reactions/comments."
+    },
+    {
+      "query": "\"Christopher Farrington\" Meridian site:linkedin.com/posts",
+      "platform": "linkedin",
+      "companies": ["Meridian"],
+      "result": "Found a relevant profile activity excerpt but no resolvable post-level URL."
+    },
+    {
+      "query": "\"Andrew Baran\" Advocate LinkedIn",
+      "platform": "linkedin",
+      "companies": ["Advocate"],
+      "result": "Verified the intended profile; no qualifying authored Advocate post URL surfaced."
+    },
+    {
+      "query": "\"Bar Ittah\" August LinkedIn",
+      "platform": "linkedin",
+      "companies": ["August"],
+      "result": "Verified the intended profile; no qualifying authored August post URL surfaced."
+    },
+    {
+      "query": "\"Tom Tankilevitch\" August LinkedIn",
+      "platform": "linkedin",
+      "companies": ["August"],
+      "result": "Verified the intended profile; no qualifying authored August post URL surfaced."
+    },
+    {
+      "query": "\"Stefano Delmanto\" Oasis site:linkedin.com/posts",
+      "platform": "linkedin",
+      "companies": ["Oasis"],
+      "result": "No qualifying native LinkedIn post URL surfaced."
+    },
+    {
+      "query": "\"Naveen Sharma\" Oasis site:linkedin.com/posts",
+      "platform": "linkedin",
+      "companies": ["Oasis"],
+      "result": "No qualifying native LinkedIn post URL surfaced."
+    },
+    {
+      "query": "site:linkedin.com/posts/deanglas PayPath",
+      "platform": "linkedin",
+      "companies": ["PayPath"],
+      "result": "Only older, unrelated Dean Glas posts and the current profile surfaced; no PayPath post URL."
+    },
+    {
+      "query": "site:linkedin.com/posts/matthewlippl PayPath",
+      "platform": "linkedin",
+      "companies": ["PayPath"],
+      "result": "Only the founder profile surfaced; no qualifying PayPath post URL."
+    },
+    {
+      "query": "site:linkedin.com/posts/matthew-angelini PayPath",
+      "platform": "linkedin",
+      "companies": ["PayPath"],
+      "result": "The result resolved to a different Matthew Angelini identity; no qualifying PayPath post URL."
+    },
+    {
+      "query": "\"Arlen Marmel\" Quinn site:linkedin.com/posts",
+      "platform": "linkedin",
+      "companies": ["Quinn"],
+      "result": "Resolved two native founder posts with direct Quinn attribution and visible reactions/comments."
+    },
+    {
+      "query": "site:linkedin.com/posts/benjamin-anderson-6aab0914 Quinn",
+      "platform": "linkedin",
+      "companies": ["Quinn"],
+      "result": "Relevant first-person activity was visible only on the profile page; no post-level URL resolved."
+    },
+    {
+      "query": "site:linkedin.com/posts/yizhen-zhen Simula",
+      "platform": "linkedin",
+      "companies": ["Simula"],
+      "result": "Only profile activity and liked content surfaced; no authored Simula post URL."
+    },
+    {
+      "query": "\"The future isn't about choosing between humans and AI\" \"Arlen Marmel\"",
+      "platform": "linkedin",
+      "companies": ["Quinn"],
+      "result": "Resolved and validated the native LinkedIn post URL."
+    },
+    {
+      "query": "\"Overheard at #AHR\" \"Arlen Marmel\" Quinn",
+      "platform": "linkedin",
+      "companies": ["Quinn"],
+      "result": "Resolved and validated the canonical native LinkedIn post URL."
+    },
+    {
+      "query": "\"We have room in our organization for two roles\" \"Benjamin Anderson\"",
+      "platform": "linkedin",
+      "companies": ["Quinn"],
+      "result": "Exact text remained available only through the founder profile result, so it was rejected."
+    },
+    {
+      "query": "\"Most facilities teams are still training techs with binders\"",
+      "platform": "linkedin",
+      "companies": ["Quinn"],
+      "result": "No post-level URL surfaced."
+    },
+    {
+      "query": "site:linkedin.com/posts/paypath \"AI operating system\" debt",
+      "platform": "linkedin",
+      "companies": ["PayPath"],
+      "result": "Only the generic company page and unrelated third-party results surfaced."
+    },
+    {
+      "query": "site:linkedin.com/posts/try-meridian Meridian consultancy",
+      "platform": "linkedin",
+      "companies": ["Meridian"],
+      "result": "Results were unrelated companies with the same name; no additional target-company post."
+    },
+    {
+      "query": "site:youtube.com/watch (\"meetquinn.ai\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "platform": "youtube",
+      "companies": ["Meridian", "Oasis", "Quinn"],
+      "result": "No results."
+    },
+    {
+      "query": "site:producthunt.com/products (\"meetquinn.ai\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "platform": "product_hunt",
+      "companies": ["Meridian", "Oasis", "Quinn"],
+      "result": "No results."
+    },
+    {
+      "query": "site:reddit.com (\"meetquinn.ai\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "platform": "reddit",
+      "companies": ["Meridian", "Oasis", "Quinn"],
+      "result": "No results."
+    },
+    {
+      "query": "site:news.ycombinator.com (\"meetquinn.ai\" OR \"trymeridian.dev\" OR \"joinoasis.com\")",
+      "platform": "hacker_news",
+      "companies": ["Meridian", "Oasis", "Quinn"],
+      "result": "No results."
+    },
+    {
+      "query": "site:youtube.com/watch (\"paypath.ai\" OR \"simula.ad\" OR \"August\" \"Bar Ittah\" OR \"Advocate\" \"Andy Baran\")",
+      "platform": "youtube",
+      "companies": ["Advocate", "August", "PayPath", "Simula"],
+      "result": "No qualifying first-party video result."
+    },
+    {
+      "query": "site:producthunt.com/products (\"paypath.ai\" OR \"simula.ad\" OR \"Bar Ittah\" OR \"Andy Baran\")",
+      "platform": "product_hunt",
+      "companies": ["Advocate", "August", "PayPath", "Simula"],
+      "result": "No qualifying launch result."
+    },
+    {
+      "query": "site:reddit.com (\"paypath.ai\" OR \"simula.ad\" OR \"Bar Ittah\" OR \"Andy Baran\")",
+      "platform": "reddit",
+      "companies": ["Advocate", "August", "PayPath", "Simula"],
+      "result": "No qualifying first-party post or comment."
+    },
+    {
+      "query": "site:github.com (\"paypath.ai\" OR \"simula.ad\" OR \"meetquinn.ai\" OR \"trymeridian.dev\")",
+      "platform": "github",
+      "companies": ["Meridian", "PayPath", "Quinn", "Simula"],
+      "result": "Only a third-party founder-list gist surfaced; rejected as non-first-party and metricless."
+    },
+    {
+      "query": "FxTwitter /2/profile/IamChocolateBar/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["August"],
+      "result": "No August product/company evidence among the returned authored posts."
+    },
+    {
+      "query": "FxTwitter /2/profile/tryMerid1an/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["Meridian"],
+      "result": "Two company replies surfaced; both were contextless and their parent posts were unavailable."
+    },
+    {
+      "query": "FxTwitter /2/profile/KashyapNathan_/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["Meridian"],
+      "result": "One direct Meridian mention surfaced but was too insubstantial; remaining founder posts were unrelated replies."
+    },
+    {
+      "query": "FxTwitter /2/profile/OasisHQ/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["Oasis"],
+      "result": "Company-authored results were context-dependent replies; none qualified."
+    },
+    {
+      "query": "FxTwitter /2/profile/stedelmanto/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["Oasis"],
+      "result": "Resolved three substantive founder-authored posts and validated each by exact status ID."
+    },
+    {
+      "query": "FxTwitter /2/profile/DeanGlas/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["PayPath"],
+      "result": "No PayPath product/company evidence among the returned authored posts."
+    },
+    {
+      "query": "FxTwitter /2/profile/matt_uxl/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["PayPath"],
+      "result": "No PayPath product/company evidence among the returned authored posts."
+    },
+    {
+      "query": "FxTwitter /2/profile/meetquinn/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["Quinn"],
+      "result": "No authored company statuses returned."
+    },
+    {
+      "query": "FxTwitter /2/profile/Benjo430/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["Quinn"],
+      "result": "A website-build post and its link-only reply surfaced; both were rejected for weak standalone attribution/context."
+    },
+    {
+      "query": "FxTwitter /2/profile/simula_ad/statuses?count=100&with_replies=1",
+      "platform": "x",
+      "companies": ["Simula"],
+      "result": "No authored company statuses returned."
+    }
+  ],
+  "accepted": [
+    {
+      "company": "Meridian",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Kashyap Nathan",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/kash-nathan_weve-spent-the-past-6-weeks-building-closely-activity-7415075507148619776-5TRg",
+      "platformPostId": "7415075507148619776",
+      "postedAt": "2026-01-08T17:02:46.321Z",
+      "author": {
+        "name": "Kashyap Nathan",
+        "handle": "kash-nathan",
+        "profileUrl": "https://www.linkedin.com/in/kash-nathan",
+        "relationship": "Founder of Meridian; the post is first-person and explicitly names Meridian."
+      },
+      "metrics": {
+        "reactions": 122,
+        "comments": 43,
+        "metricSource": "Native LinkedIn post JSON-LD interactionStatistic counters fetched from the source URL."
+      },
+      "exactVisibleTextSummary": "The founder describes six weeks building with mid-market consultancies, including a 160K-page upload, thousands of mislabeled documents, and proposal drafts reaching 80 percent before analyst review.",
+      "attributionSignals": [
+        "Native LinkedIn URL is under the founder's kash-nathan author path.",
+        "LinkedIn JSON-LD names Kashyap Nathan and links his profile.",
+        "The visible body explicitly says customers uploaded work into Meridian and used Meridian to flag documents and draft proposals."
+      ],
+      "verificationMethod": "Fetched the native LinkedIn post directly; parsed datePublished, headline, articleBody, author, LikeAction count, and CommentAction count from embedded JSON-LD.",
+      "checkedAt": "2026-07-16T00:49:46Z",
+      "dedupeEvidence": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/kash-nathan_weve-spent-the-past-6-weeks-building-closely-activity-7415075507148619776-5TRg",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "sourceUrlInOtherShardOutputs": false,
+        "platformPostIdInOtherShardOutputs": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social",
+          "public/graph/a16zsr006.json"
+        ],
+        "checkedAt": "2026-07-16T00:49:46Z"
+      }
+    },
+    {
+      "company": "Quinn",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Arlen Marmel",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/arlenmarmel_ahr-activity-7426329274074234880-roTw",
+      "platformPostId": "7426329274074234880",
+      "postedAt": "2026-02-08T18:21:13.446Z",
+      "author": {
+        "name": "Arlen Marmel",
+        "handle": "arlenmarmel",
+        "profileUrl": "https://www.linkedin.com/in/arlenmarmel",
+        "relationship": "Co-founder of Quinn; the post explicitly says why the team built Quinn."
+      },
+      "metrics": {
+        "reactions": 13,
+        "comments": 2,
+        "metricSource": "Native LinkedIn post JSON-LD interactionStatistic counters fetched from the source URL."
+      },
+      "exactVisibleTextSummary": "The founder argues for human-and-AI superteams and identifies Quinn as AI-powered training that complements on-the-job learning so new technicians ramp faster.",
+      "attributionSignals": [
+        "Native LinkedIn URL is under the founder's arlenmarmel author path.",
+        "LinkedIn JSON-LD names Arlen Marmel and links his profile.",
+        "The visible body explicitly states that this is why the team built Quinn and describes its training product."
+      ],
+      "verificationMethod": "Fetched the native LinkedIn post directly; parsed datePublished, headline, articleBody, author, LikeAction count, and CommentAction count from embedded JSON-LD.",
+      "checkedAt": "2026-07-16T00:49:46Z",
+      "dedupeEvidence": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/arlenmarmel_ahr-activity-7426329274074234880-roTw",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "sourceUrlInOtherShardOutputs": false,
+        "platformPostIdInOtherShardOutputs": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social",
+          "public/graph/a16zsr006.json"
+        ],
+        "checkedAt": "2026-07-16T00:49:46Z"
+      }
+    },
+    {
+      "company": "Quinn",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Arlen Marmel",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://www.linkedin.com/posts/arlenmarmel_ahr-ahr-ahr2026-activity-7424261864970162176-bf4u",
+      "platformPostId": "7424261864970162176",
+      "postedAt": "2026-02-03T01:26:04.703Z",
+      "author": {
+        "name": "Arlen Marmel",
+        "handle": "arlenmarmel",
+        "profileUrl": "https://www.linkedin.com/in/arlenmarmel",
+        "relationship": "Co-founder of Quinn; the post explicitly ties the skilled-trades training problem to founding Quinn."
+      },
+      "metrics": {
+        "reactions": 33,
+        "comments": 9,
+        "metricSource": "Native LinkedIn post JSON-LD interactionStatistic counters fetched from the source URL."
+      },
+      "exactVisibleTextSummary": "The founder cites technician recruitment and retirement pressure, says the session reinforced why Quinn was started, and frames modern training as a competitive advantage.",
+      "attributionSignals": [
+        "Native LinkedIn URL is under the founder's arlenmarmel author path.",
+        "LinkedIn JSON-LD names Arlen Marmel and links his profile.",
+        "The visible body twice names Quinn and directly explains the founding rationale."
+      ],
+      "verificationMethod": "Fetched the native LinkedIn post directly; followed the canonical activity ID returned by LinkedIn and parsed datePublished, headline, articleBody, author, LikeAction count, and CommentAction count from JSON-LD.",
+      "checkedAt": "2026-07-16T00:49:46Z",
+      "dedupeEvidence": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/arlenmarmel_ahr-ahr-ahr2026-activity-7424261864970162176-bf4u",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "sourceUrlInOtherShardOutputs": false,
+        "platformPostIdInOtherShardOutputs": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social",
+          "public/graph/a16zsr006.json"
+        ],
+        "checkedAt": "2026-07-16T00:49:46Z"
+      }
+    },
+    {
+      "company": "Oasis",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Stefano Fantini Delmanto",
+      "platform": "x",
+      "evidenceType": "founder_post",
+      "sourceUrl": "https://x.com/stedelmanto/status/2072374506149064784",
+      "platformPostId": "2072374506149064784",
+      "postedAt": "2026-07-01T17:39:19Z",
+      "author": {
+        "name": "Stefano",
+        "handle": "stedelmanto",
+        "profileUrl": "https://x.com/stedelmanto",
+        "relationship": "Founder of Oasis; the live author bio says founder @OasisHQ and links joinoasis.com."
+      },
+      "metrics": {
+        "views": 638,
+        "likes": 7,
+        "replies": 4,
+        "reposts": 0,
+        "quotes": 0,
+        "bookmarks": 3,
+        "metricSource": "Native X status-page embedded ApiCounts and ViewCountInfo records fetched directly from the source URL; counters were not inferred."
+      },
+      "exactVisibleTextSummary": "The founder says the team is shipping a multiplayer agent manager where teams can deploy and use their agents together in one place.",
+      "attributionSignals": [
+        "The native status is authored by @stedelmanto.",
+        "The live author bio explicitly says founder @OasisHQ and links joinoasis.com.",
+        "The post uses first-person plural shipping language and describes the agent-management product."
+      ],
+      "verificationMethod": "Fetched the native X source URL directly and parsed its embedded post payload for text, author, ApiCounts, and ViewCountInfo; cross-checked status ID, URL, author bio, timestamp, text, media, and counters with the exact FxTwitter v2 status response.",
+      "checkedAt": "2026-07-16T00:49:46Z",
+      "dedupeEvidence": {
+        "normalizedSourceUrl": "https://x.com/stedelmanto/status/2072374506149064784",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "sourceUrlInOtherShardOutputs": false,
+        "platformPostIdInOtherShardOutputs": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social",
+          "public/graph/a16zsr006.json"
+        ],
+        "checkedAt": "2026-07-16T00:49:46Z"
+      }
+    },
+    {
+      "company": "Oasis",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Stefano Fantini Delmanto",
+      "platform": "x",
+      "evidenceType": "founder_technical_thesis",
+      "sourceUrl": "https://x.com/stedelmanto/status/2070183181970530569",
+      "platformPostId": "2070183181970530569",
+      "postedAt": "2026-06-25T16:31:47Z",
+      "author": {
+        "name": "Stefano",
+        "handle": "stedelmanto",
+        "profileUrl": "https://x.com/stedelmanto",
+        "relationship": "Founder of Oasis; the live author bio says founder @OasisHQ and links joinoasis.com."
+      },
+      "metrics": {
+        "views": 962,
+        "likes": 7,
+        "replies": 4,
+        "reposts": 1,
+        "quotes": 1,
+        "bookmarks": 3,
+        "metricSource": "Native X status-page embedded ApiCounts and ViewCountInfo records fetched directly from the source URL; counters were not inferred."
+      },
+      "exactVisibleTextSummary": "The founder models organizational memory as a permissioned multidimensional graph and argues that agents will hold overlapping but distinct slices of company knowledge.",
+      "attributionSignals": [
+        "The native status is authored by @stedelmanto.",
+        "The live author bio explicitly says founder @OasisHQ and links joinoasis.com.",
+        "The post is a substantive first-person technical thesis about agent memory, context, permissions, and inter-agent communication, matching Oasis's stated product domain."
+      ],
+      "verificationMethod": "Fetched the native X source URL directly and parsed its embedded post payload for text, author, ApiCounts, and ViewCountInfo; cross-checked status ID, URL, author bio, timestamp, text, and counters with the exact FxTwitter v2 status response.",
+      "checkedAt": "2026-07-16T00:49:46Z",
+      "dedupeEvidence": {
+        "normalizedSourceUrl": "https://x.com/stedelmanto/status/2070183181970530569",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "sourceUrlInOtherShardOutputs": false,
+        "platformPostIdInOtherShardOutputs": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social",
+          "public/graph/a16zsr006.json"
+        ],
+        "checkedAt": "2026-07-16T00:49:46Z"
+      }
+    },
+    {
+      "company": "Oasis",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Stefano Fantini Delmanto",
+      "platform": "x",
+      "evidenceType": "founder_build_note",
+      "sourceUrl": "https://x.com/stedelmanto/status/2068042968410247494",
+      "platformPostId": "2068042968410247494",
+      "postedAt": "2026-06-19T18:47:20Z",
+      "author": {
+        "name": "Stefano",
+        "handle": "stedelmanto",
+        "profileUrl": "https://x.com/stedelmanto",
+        "relationship": "Founder of Oasis; the live author bio says founder @OasisHQ and links joinoasis.com."
+      },
+      "metrics": {
+        "views": 188,
+        "likes": 5,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "bookmarks": 1,
+        "metricSource": "Native X status-page embedded ApiCounts and ViewCountInfo records fetched directly from the source URL; counters were not inferred."
+      },
+      "exactVisibleTextSummary": "The founder says the team initially used an org chart as its product primitive, then learned that org charts capture accountability rather than how work moves.",
+      "attributionSignals": [
+        "The native status is authored by @stedelmanto.",
+        "The live author bio explicitly says founder @OasisHQ and links joinoasis.com.",
+        "The post uses first-person plural building language and records a concrete product-model lesson."
+      ],
+      "verificationMethod": "Fetched the native X source URL directly and parsed its embedded post payload for text, author, ApiCounts, and ViewCountInfo; cross-checked status ID, URL, author bio, timestamp, text, and counters with the exact FxTwitter v2 status response.",
+      "checkedAt": "2026-07-16T00:49:46Z",
+      "dedupeEvidence": {
+        "normalizedSourceUrl": "https://x.com/stedelmanto/status/2068042968410247494",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "sourceUrlInOtherShardOutputs": false,
+        "platformPostIdInOtherShardOutputs": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social",
+          "public/graph/a16zsr006.json"
+        ],
+        "checkedAt": "2026-07-16T00:49:46Z"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "company": "Advocate",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Andrew Baran",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/andy-baran",
+      "platformPostId": null,
+      "reason": "profile_only_no_native_post_url",
+      "detail": "The intended founder profile was verified, but surfaced Advocate-related evidence did not resolve to an authored post URL. Profiles are not acceptable evidence rows.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "August",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Bar Ittah",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/bar-ittah",
+      "platformPostId": null,
+      "reason": "profile_only_no_native_post_url",
+      "detail": "The intended founder profile was verified, but no qualifying August-authored post URL surfaced.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "August",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Tom Tankilevitch",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/tanki",
+      "platformPostId": null,
+      "reason": "profile_only_no_native_post_url",
+      "detail": "The intended founder profile was verified, but no qualifying August-authored post URL surfaced.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Meridian",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Chris Farrington",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/christopher-farrington-2332a01ba",
+      "platformPostId": null,
+      "reason": "profile_activity_excerpt_without_post_url",
+      "detail": "A relevant first-person excerpt about automating Big Four consulting work and building at Meridian was visible, including 19 reactions, but no native post-level URL could be resolved.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Meridian",
+      "batch": "A16ZSR006",
+      "entityType": "company",
+      "platform": "x",
+      "sourceUrl": "https://x.com/tryMerid1an/status/2006513346988880212",
+      "platformPostId": "2006513346988880212",
+      "reason": "context_dependent_reply_parent_unavailable",
+      "detail": "The entire visible text is a tagged eye reaction. Its parent status returned 404, so the post has no standalone company or product evidence. Visible metrics: 75 views, 0 likes, 0 replies, 0 reposts, 0 quotes, 0 bookmarks.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Meridian",
+      "batch": "A16ZSR006",
+      "entityType": "company",
+      "platform": "x",
+      "sourceUrl": "https://x.com/tryMerid1an/status/2006512105562976760",
+      "platformPostId": "2006512105562976760",
+      "reason": "context_dependent_reply_parent_unavailable",
+      "detail": "The entire visible text is a tagged eye reaction. Its parent status returned 404, so the post has no standalone company or product evidence. Visible metrics: 37 views, 1 like, 0 replies, 0 reposts, 0 quotes, 0 bookmarks.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Meridian",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Kashyap Nathan",
+      "platform": "x",
+      "sourceUrl": "https://x.com/KashyapNathan_/status/2023846075392741783",
+      "platformPostId": "2023846075392741783",
+      "reason": "insufficient_substantive_evidence",
+      "detail": "The native founder post names @tryMerid1an but contains only 'Swag gap' plus media; it does not provide meaningful company, product, technical, traction, or launch evidence. Visible metrics: 590 views, 9 likes, 1 reply.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Meridian",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Kashyap Nathan",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/kash-nathan_keystone-was-one-of-our-earliest-customers-activity-7432466724937138176-2Y2A",
+      "platformPostId": "7432466724937138176",
+      "reason": "quoted_company_post_and_metrics_not_reliably_visible",
+      "detail": "The founder's short comment depends on a quoted Meridian company post for its primary evidence, and native post metrics could not be captured reliably. Rejected rather than inferring context or counters.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "PayPath",
+      "batch": "A16ZSR006",
+      "entityType": "company",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/company/paypath",
+      "platformPostId": null,
+      "reason": "generic_company_page_no_post_url_or_post_metrics",
+      "detail": "The company page carries product positioning but is not a native post/launch URL and exposes no qualifying post-level metrics.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Quinn",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Ben Anderson",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/benjamin-anderson-6aab0914",
+      "platformPostId": null,
+      "reason": "profile_activity_excerpt_without_post_url",
+      "detail": "A current first-person hiring/building post about agentic systems and skilled-trades careers was visible only on the profile page. Exact-text searches did not resolve a native post URL.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Quinn",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Ben Anderson",
+      "platform": "x",
+      "sourceUrl": "https://x.com/Benjo430/status/1921024650311516296",
+      "platformPostId": "1921024650311516296",
+      "reason": "standalone_attribution_insufficient",
+      "detail": "The founder discusses rebuilding a marketing site with Cursor and Replit, but the post does not name Quinn or link the company; the Quinn URL appears only in a separate reply. Visible metrics: 449 views, 0 likes, 3 replies.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Quinn",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Ben Anderson",
+      "platform": "x",
+      "sourceUrl": "https://x.com/Benjo430/status/1921024679764017264",
+      "platformPostId": "1921024679764017264",
+      "reason": "link_only_context_dependent_reply",
+      "detail": "The reply contains only tags and the Quinn website URL; it has no standalone evidence text. Visible metrics: 360 views and zero visible engagements.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Quinn",
+      "batch": "A16ZSR006",
+      "entityType": "company",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/company/meetquinn",
+      "platformPostId": null,
+      "reason": "company_page_excerpt_without_post_url",
+      "detail": "A training-product update was visible through company/profile activity, but no native post-level URL could be resolved. A company page is not an acceptable source row.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Oasis",
+      "batch": "A16ZSR006",
+      "entityType": "company",
+      "platform": "x",
+      "sourceUrl": "https://x.com/OasisHQ/status/2043768371221876954",
+      "platformPostId": "2043768371221876954",
+      "reason": "context_dependent_reply_low_evidence",
+      "detail": "The company post is a joke reply about agents making agents. It lacks standalone product, technical, traction, or launch evidence. Visible metrics: 22 views, 1 like, and zero other engagements.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Simula",
+      "batch": "A16ZSR006",
+      "entityType": "founder",
+      "founder": "Yizhen Zhen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/yizhen-zhen",
+      "platformPostId": null,
+      "reason": "liked_content_profile_only_and_company_identity_conflict",
+      "detail": "The profile showed liked launch content for a different named company and no authored Simula post URL. Likes and profile pages are not first-party native evidence rows.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    },
+    {
+      "company": "Multiple A16ZSR006 zero-coverage companies",
+      "batch": "A16ZSR006",
+      "entityType": "third_party",
+      "platform": "github",
+      "sourceUrl": "https://gist.github.com/Humiris/8042d454fbff0e0fef0e02b1c9071ae1",
+      "platformPostId": "8042d454fbff0e0fef0e02b1c9071ae1",
+      "reason": "third_party_not_approved_top_voice_and_no_visible_repo_metrics",
+      "detail": "The gist is a third-party founder list, not an official company/founder repo or an approved top-voice row, and the search result did not expose qualifying visible repo metrics.",
+      "checkedAt": "2026-07-16T00:49:46Z"
+    }
+  ],
+  "duplicateUrls": [],
+  "productivity": {
+    "queriesPerformed": 37,
+    "companiesSearched": 7,
+    "accepted": 6,
+    "rejected": 16,
+    "duplicates": 0,
+    "acceptedByCompany": {
+      "Meridian": 1,
+      "Oasis": 3,
+      "Quinn": 2
+    },
+    "acceptedByPlatform": {
+      "linkedin": 3,
+      "x": 3
+    },
+    "rejectionsByReason": {
+      "profile_only_or_profile_activity_without_post_url": 6,
+      "context_dependent_or_low_substance_native_post": 6,
+      "generic_page_without_post_url_or_metrics": 2,
+      "quoted_post_or_unreliable_metrics": 1,
+      "third_party_not_allowed": 1
+    }
+  }
+}

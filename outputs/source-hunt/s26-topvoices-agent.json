@@ -1,0 +1,709 @@
+{
+  "generatedAt": "2026-07-15T19:07:10Z",
+  "repository": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund",
+  "scope": {
+    "batch": "YC Summer 2026 (S26)",
+    "companySource": "src/lib/yc/summer-2026-companies.json",
+    "topVoiceSource": "src/lib/social/top-voices.ts",
+    "allowedTopVoiceSets": [
+      "yc_partners",
+      "insiders"
+    ],
+    "excludedAuthorTypes": [
+      "organization accounts",
+      "community accounts",
+      "company/founder reposts of top voices",
+      "founder/company posts that only thank or tag a top voice"
+    ],
+    "acceptanceRules": [
+      "The post author must be one of the people seeded in src/lib/social/top-voices.ts.",
+      "The evidence must be a native post by that top voice.",
+      "The post must have a post-level URL.",
+      "The visible post text or quoted-card context must name the S26 target company, founder, official handle, or domain.",
+      "Visible post-level metrics must be available.",
+      "The post must not already be present in source JSON or public graph JSON."
+    ]
+  },
+  "localBaseline": {
+    "existingPostBlocklistCount": 2323,
+    "blocklistMethod": "Extracted x.com/twitter.com status IDs, linkedin.com/posts slugs, and linkedin.com/feed/update activity IDs from src/lib/social/*.json and public/graph/*.json into /tmp/returner_existing_posts.txt.",
+    "sourceJsonAndGraphFilesChecked": [
+      "src/lib/social/public-evidence-current.json",
+      "src/lib/social/targeted-evidence-current.json",
+      "src/lib/social/logged-in-evidence-current.json",
+      "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "public/graph/s26.json",
+      "public/graph/s26-yc-partners.json",
+      "public/graph/s26-insiders.json",
+      "public/graph/s2026.json",
+      "public/graph/s2026-yc-partners.json",
+      "public/graph/s2026-insiders.json",
+      "public/graph/a16zsr006.json",
+      "public/graph/a16zsr006-yc-partners.json",
+      "public/graph/a16zsr006-insiders.json"
+    ],
+    "visibleS26TopVoiceGraphBaseline": {
+      "ycPartnerEvidenceRows": 7,
+      "insiderEvidenceRows": 2,
+      "postUrls": [
+        "https://www.linkedin.com/posts/tylerbosmeny_83-sciences-future-of-scientific-discovery-activity-7480779232332324864-860p",
+        "https://www.linkedin.com/posts/tylerbosmeny_bloomy-yc-s26-is-helping-kids-learn-faster-activity-7478590522912075776-rx88",
+        "https://www.linkedin.com/posts/ankitvgupta_introducing-instance-congrats-on-the-launch-activity-7482921740625555457-Jw1O",
+        "https://www.linkedin.com/posts/ankitvgupta_today-evaluating-a-robot-policy-means-humans-activity-7482566122979082240-GyUI",
+        "https://www.linkedin.com/posts/jaredfriedman_in-the-ai-coding-world-technical-interviews-activity-7465792243405131776-frhF",
+        "https://www.linkedin.com/posts/ankitvgupta_prized-yc-s26-lets-anyone-at-your-company-activity-7482809378585231360-P3SR",
+        "https://x.com/snowmaker/status/2068734568472207470",
+        "https://x.com/parkerconrad/status/2069810389022343466",
+        "https://www.linkedin.com/posts/alexisohanian_thrilled-to-announce-our-2025-776-foundation-activity-7345937006784356353-NbUe"
+      ]
+    }
+  },
+  "accepted": [
+    {
+      "id": "x-s26-topvoice-83-sciences-tyler-bosmeny-2075013475424952797",
+      "platform": "x",
+      "postUrl": "https://x.com/bosmeny/status/2075013475424952797",
+      "platformPostId": "2075013475424952797",
+      "postedAt": "2026-07-09T00:25:39Z",
+      "author": {
+        "personId": "tyler-bosmeny",
+        "displayName": "Tyler Bosmeny",
+        "handle": "bosmeny",
+        "profileUrl": "https://x.com/bosmeny",
+        "topVoiceSet": "yc_partners",
+        "topVoiceSource": "src/lib/social/top-voices.ts"
+      },
+      "target": {
+        "companyId": "company-83-sciences",
+        "companyName": "83 Sciences",
+        "companySlug": "83-sciences",
+        "batch": "Summer 2026",
+        "ycProfileUrl": "https://www.ycombinator.com/companies/83-sciences",
+        "websiteUrl": "https://83sciences.ai",
+        "officialX": "https://x.com/83sciences",
+        "founders": [
+          "Ian Naccarella",
+          "Eric Riesel",
+          "Yankang Yang"
+        ]
+      },
+      "text": "This is cool. 83 Sciences is using AI to mine discarded lab data (like failed experiments) for scientific breakthroughs.",
+      "quotedContext": {
+        "url": "https://x.com/83sciences/status/2074985540156637605",
+        "authorName": "83 Sciences",
+        "authorHandle": "83sciences",
+        "text": "The next industrial era will be built on materials discoveries and insights hiding in the 90% of experimental data that never gets published. Innovate faster, publish more, do more with your data with 83 Sciences http://83sciences.ai",
+        "metrics": {
+          "views": 12142,
+          "likes": 12,
+          "replies": 1,
+          "reposts": 6,
+          "retweets": 6,
+          "quotes": 1
+        }
+      },
+      "metrics": {
+        "views": 11378,
+        "likes": 27,
+        "replies": 2,
+        "comments": 2,
+        "reposts": 2,
+        "retweets": 2,
+        "quotes": 0,
+        "bookmarks": 10
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "nativePostByTopVoice": true,
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "visibleTargetMatch": "Post text and quoted context visibly name 83 Sciences; quoted context also shows official @83sciences and 83sciences.ai.",
+        "notOrgOrCommunityAccount": true,
+        "notRepostByCompanyOrFounder": true,
+        "notAlreadyInSourceJsonOrGraphs": true,
+        "duplicateCheck": "No match for bosmeny/2075013475424952797 or 2075013475424952797 in /tmp/returner_existing_posts.txt, src/lib/social/*.json, or public/graph/*.json."
+      },
+      "sourceSearch": {
+        "query": "site:x.com/bosmeny/status \"83 Sciences\"",
+        "resultUrl": "https://x.com/bosmeny/status/2075013475424952797"
+      },
+      "acceptanceReason": "Native X post by YC partner Tyler Bosmeny, visibly naming the S26 company and quote-posting the official company account with domain and metrics."
+    },
+    {
+      "id": "x-s26-topvoice-inkbox-tyler-bosmeny-2075342772392067278",
+      "platform": "x",
+      "postUrl": "https://x.com/bosmeny/status/2075342772392067278",
+      "platformPostId": "2075342772392067278",
+      "postedAt": "2026-07-09T22:14:09Z",
+      "author": {
+        "personId": "tyler-bosmeny",
+        "displayName": "Tyler Bosmeny",
+        "handle": "bosmeny",
+        "profileUrl": "https://x.com/bosmeny",
+        "topVoiceSet": "yc_partners",
+        "topVoiceSource": "src/lib/social/top-voices.ts"
+      },
+      "target": {
+        "companyId": "company-inkbox",
+        "companyName": "Inkbox",
+        "companySlug": "inkbox",
+        "batch": "Summer 2026",
+        "ycProfileUrl": "https://www.ycombinator.com/companies/inkbox",
+        "websiteUrl": "https://inkbox.ai",
+        "officialX": "https://x.com/inkbox_ai",
+        "founders": [
+          "Ray Liao",
+          "Dima Vremenko",
+          "Alex Wilcox"
+        ]
+      },
+      "text": "Inkbox: the communication layer for AI agents. Check out their signup flow, it's one the lowest friction I've ever seen. Congrats on the launch @rayruizhiliao !!",
+      "quotedContext": {
+        "url": "https://x.com/rayruizhiliao/status/2074893783133733039",
+        "authorName": "Ray Liao",
+        "authorHandle": "rayruizhiliao",
+        "text": "Today we're launching Inkbox: the identity and communication layer for AI agents. We give agents their own email, phone, iMessage, and an internet address. Install @inkbox_ai identity with one command: allow anyone to reach your Claude Code, Codex, or Hermes from anywhere, and let it reach anyone.",
+        "metrics": {
+          "views": 49262,
+          "likes": 228,
+          "replies": 60,
+          "reposts": 31,
+          "retweets": 31,
+          "quotes": 12
+        }
+      },
+      "metrics": {
+        "views": 4945,
+        "likes": 16,
+        "replies": 0,
+        "comments": 0,
+        "reposts": 1,
+        "retweets": 1,
+        "quotes": 1,
+        "bookmarks": 6
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "nativePostByTopVoice": true,
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "visibleTargetMatch": "Post text names Inkbox and @rayruizhiliao; quoted founder post names Inkbox and @inkbox_ai.",
+        "notOrgOrCommunityAccount": true,
+        "notRepostByCompanyOrFounder": true,
+        "notAlreadyInSourceJsonOrGraphs": true,
+        "duplicateCheck": "No match for bosmeny/2075342772392067278 or 2075342772392067278 in /tmp/returner_existing_posts.txt, src/lib/social/*.json, or public/graph/*.json."
+      },
+      "sourceSearch": {
+        "query": "site:x.com/bosmeny/status \"Inkbox\"",
+        "resultUrl": "https://x.com/bosmeny/status/2075342772392067278"
+      },
+      "acceptanceReason": "Native X post by YC partner Tyler Bosmeny, visibly naming Inkbox and quote-posting the official founder launch post with @inkbox_ai context and metrics."
+    },
+    {
+      "id": "x-s26-topvoice-bloomy-tyler-bosmeny-2072753766701625532",
+      "platform": "x",
+      "postUrl": "https://x.com/bosmeny/status/2072753766701625532",
+      "platformPostId": "2072753766701625532",
+      "postedAt": "2026-07-02T18:46:22Z",
+      "author": {
+        "personId": "tyler-bosmeny",
+        "displayName": "Tyler Bosmeny",
+        "handle": "bosmeny",
+        "profileUrl": "https://x.com/bosmeny",
+        "topVoiceSet": "yc_partners",
+        "topVoiceSource": "src/lib/social/top-voices.ts"
+      },
+      "target": {
+        "companyId": "company-bloomy",
+        "companyName": "Bloomy",
+        "companySlug": "bloomy",
+        "batch": "Summer 2026",
+        "ycProfileUrl": "https://www.ycombinator.com/companies/bloomy",
+        "websiteUrl": "https://bloomylearning.com/",
+        "officialX": "https://www.x.com/bloomylearning",
+        "founders": [
+          "Alex Southmayd"
+        ]
+      },
+      "text": "He's right.. kids SHOULD be learning faster... and my money is on @alexsouthmayd to figure it out. Congrats on the launch of @bloomylearning!",
+      "quotedContext": {
+        "url": "https://x.com/alexsouthmayd/status/2072350508526735698",
+        "authorName": "Alex Southmayd",
+        "authorHandle": "alexsouthmayd",
+        "text": "Kids should be learning faster. AI can help. Bloomy (@bloomylearning) is an AI-powered mastery learning platform that meets every student where they are. Students receive standards-aligned instruction from a Socratic AI tutor, while teachers save time and spot misconceptions faster thanks to AI-enabled insights. In early pilots, Bloomy students grew ~2x faster than projected on their NWEA MAP assessment. Starting with English, Math, and Writing for K-12. http://bloomylearning.com",
+        "metrics": {
+          "views": 304716,
+          "likes": 163,
+          "replies": 57,
+          "reposts": 41,
+          "retweets": 41,
+          "quotes": 8
+        }
+      },
+      "metrics": {
+        "views": 13555,
+        "likes": 33,
+        "replies": 3,
+        "comments": 3,
+        "reposts": 3,
+        "retweets": 3,
+        "quotes": 0,
+        "bookmarks": 11
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "nativePostByTopVoice": true,
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "visibleTargetMatch": "Post text names founder @alexsouthmayd and official @bloomylearning; quoted context visibly names Bloomy and bloomylearning.com.",
+        "notOrgOrCommunityAccount": true,
+        "notRepostByCompanyOrFounder": true,
+        "notAlreadyInSourceJsonOrGraphs": true,
+        "duplicateCheck": "No match for bosmeny/2072753766701625532 or 2072753766701625532 in /tmp/returner_existing_posts.txt, src/lib/social/*.json, or public/graph/*.json."
+      },
+      "sourceSearch": {
+        "query": "site:x.com/bosmeny/status \"@alexsouthmayd\"",
+        "resultUrl": "https://x.com/bosmeny/status/2072753766701625532"
+      },
+      "acceptanceReason": "Native X post by YC partner Tyler Bosmeny, visibly naming Bloomy's founder and official handle with quoted founder/company context and metrics."
+    }
+  ],
+  "rejected": [
+    {
+      "id": "reject-x-tyler-bosmeny-generic-hardtech-s26-2062974811165671542",
+      "platform": "x",
+      "postUrl": "https://x.com/bosmeny/status/2062974811165671542",
+      "platformPostId": "2062974811165671542",
+      "postedAt": "2026-06-05T19:08:17Z",
+      "author": {
+        "displayName": "Tyler Bosmeny",
+        "handle": "bosmeny",
+        "topVoiceSet": "yc_partners"
+      },
+      "text": "P26 set the record for the highest % of hard tech in a batch. And S26 will be even higher! What a time to build",
+      "metrics": {
+        "views": 3015,
+        "likes": 22,
+        "replies": 1,
+        "comments": 1,
+        "reposts": 3,
+        "retweets": 3,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": true,
+        "visibleTargetMatch": false
+      },
+      "rejectionReason": "Generic batch-level S26/hard-tech commentary; it does not visibly mention any S26 company, founder, official handle, or domain."
+    },
+    {
+      "id": "reject-x-diana-hu-generic-s26-deadline-2058644733677986223",
+      "platform": "x",
+      "postUrl": "https://x.com/sdianahu/status/2058644733677986223",
+      "platformPostId": "2058644733677986223",
+      "postedAt": "2026-05-24T20:22:06Z",
+      "author": {
+        "displayName": "Diana",
+        "handle": "sdianahu",
+        "topVoicePerson": "Diana Hu",
+        "topVoiceSet": "yc_partners",
+        "note": "Person is in top-voices.ts; this X handle is not seeded there."
+      },
+      "text": "yc s26 extended deadline ends tomorrow with the $2M openAI offer which we don't know if we'll do again as is an experiment. some thoughts on how to tokenmaxx effectively from 0->1 AI native startups that have done it:",
+      "metrics": {
+        "views": 135943,
+        "likes": 646,
+        "replies": 58,
+        "comments": 58,
+        "reposts": 22,
+        "retweets": 22,
+        "quotes": 7,
+        "bookmarks": 316
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": true,
+        "visibleTargetMatch": false
+      },
+      "rejectionReason": "Generic S26 application-deadline/advice post; no visible S26 company, founder, official handle, or domain."
+    },
+    {
+      "id": "reject-x-garry-tan-repost-of-diana-hu-2058645042621976680",
+      "platform": "x",
+      "candidateUrl": "https://x.com/garrytan/status/2058645042621976680",
+      "canonicalPostUrl": "https://x.com/sdianahu/status/2058644733677986223",
+      "platformPostId": "2058644733677986223",
+      "postedAt": "2026-05-24T20:22:06Z",
+      "author": {
+        "displayName": "Diana",
+        "handle": "sdianahu",
+        "topVoicePerson": "Diana Hu",
+        "topVoiceSet": "yc_partners"
+      },
+      "repostedBy": {
+        "displayName": "Garry Tan",
+        "handle": "garrytan",
+        "topVoiceSet": "yc_partners"
+      },
+      "text": "yc s26 extended deadline ends tomorrow with the $2M openAI offer which we don't know if we'll do again as is an experiment. some thoughts on how to tokenmaxx effectively from 0->1 AI native startups that have done it:",
+      "metrics": {
+        "views": 135943,
+        "likes": 646,
+        "replies": 58,
+        "comments": 58,
+        "reposts": 22,
+        "retweets": 22,
+        "quotes": 7,
+        "bookmarks": 316
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "FxTwitter public post JSON resolved candidate retweet to canonical Diana post and exposed reposted_by Garry Tan.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": false,
+        "visibleTargetMatch": false
+      },
+      "rejectionReason": "Candidate Garry Tan URL is a repost, not Garry's native post; the canonical Diana post is also generic and lacks a target company/founder/handle/domain."
+    },
+    {
+      "id": "reject-x-garry-tan-generic-summer-2026-deadline-2051290046565843168",
+      "platform": "x",
+      "postUrl": "https://x.com/garrytan/status/2051290046565843168",
+      "platformPostId": "2051290046565843168",
+      "postedAt": "2026-05-04T13:17:12Z",
+      "author": {
+        "displayName": "Garry Tan",
+        "handle": "garrytan",
+        "topVoiceSet": "yc_partners"
+      },
+      "text": "Today is the deadline to apply for YC Summer 2026. If you're still hesitating: the companies that change the world don't wait until they're 100% ready. Applying is sometimes literally the first step.",
+      "metrics": {
+        "views": 144555,
+        "likes": 2075,
+        "replies": 183,
+        "comments": 183,
+        "reposts": 122,
+        "retweets": 122,
+        "quotes": 32,
+        "bookmarks": 333
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": true,
+        "visibleTargetMatch": false
+      },
+      "rejectionReason": "Generic YC Summer 2026 application deadline post; no visible S26 company, founder, official handle, or domain."
+    },
+    {
+      "id": "reject-x-brad-flora-nyc-s26-interviews-2052044928780484647",
+      "platform": "x",
+      "postUrl": "https://x.com/bradflora/status/2052044928780484647",
+      "platformPostId": "2052044928780484647",
+      "postedAt": "2026-05-06T15:16:50Z",
+      "author": {
+        "displayName": "Brad Flora",
+        "handle": "bradflora",
+        "topVoiceSet": "yc_partners"
+      },
+      "text": "YC interviews in NYC this month! We're seeing so many interesting fintech, crypto and future-of-finance applications at YC these days that @nemild and I thought it'd be fun to interview a bunch in the heart of the financial world for S26.",
+      "quotedContext": {
+        "url": "https://x.com/ycombinator/status/2052039960115679725",
+        "authorName": "Y Combinator",
+        "authorHandle": "ycombinator",
+        "text": "YC is coming to NYC on May 21! Calling all fintech builders. We're hosting live interviews for the S26 batch. We're interested in tokenization, stablecoins, prediction markets, AI trading, and more. Come pitch us the future of finance. Apply at https://www.ycombinator.com/apply",
+        "metrics": {
+          "views": 159923,
+          "likes": 710,
+          "replies": 55,
+          "reposts": 34,
+          "retweets": 34,
+          "quotes": 23
+        }
+      },
+      "metrics": {
+        "views": 17376,
+        "likes": 66,
+        "replies": 11,
+        "comments": 11,
+        "reposts": 6,
+        "retweets": 6,
+        "quotes": 0,
+        "bookmarks": 13
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": true,
+        "visibleTargetMatch": false
+      },
+      "rejectionReason": "Native top-voice post, but it only promotes S26 interviews and quotes the YC org account; no visible target company/founder/handle/domain."
+    },
+    {
+      "id": "reject-x-jared-friedman-industrialization-ideas-2045886464811266512",
+      "platform": "x",
+      "postUrl": "https://x.com/snowmaker/status/2045886464811266512",
+      "platformPostId": "2045886464811266512",
+      "postedAt": "2026-04-19T15:25:18Z",
+      "author": {
+        "displayName": "Jared Friedman",
+        "handle": "snowmaker",
+        "topVoiceSet": "yc_partners"
+      },
+      "text": "If you want to reindustrialize America, this is an amazing list of ideas to work on.",
+      "quotedContext": {
+        "url": "https://x.com/zanehengsperger/status/2045862018020745579",
+        "authorName": "Zane Hengsperger",
+        "authorHandle": "zanehengsperger",
+        "text": "",
+        "metrics": {
+          "views": null,
+          "likes": null,
+          "replies": null,
+          "reposts": null,
+          "retweets": null,
+          "quotes": null
+        }
+      },
+      "metrics": {
+        "views": 422719,
+        "likes": 1746,
+        "replies": 38,
+        "comments": 38,
+        "reposts": 136,
+        "retweets": 136,
+        "quotes": 13,
+        "bookmarks": null
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": true,
+        "visibleTargetMatch": false
+      },
+      "rejectionReason": "No visible S26 company, founder, official handle, or domain in Jared's text; FxTwitter did not expose target-identifying quote text."
+    },
+    {
+      "id": "reject-x-sam-altman-working-together-2065160791205310565",
+      "platform": "x",
+      "postUrl": "https://x.com/sama/status/2065160791205310565",
+      "platformPostId": "2065160791205310565",
+      "postedAt": "2026-06-11T19:54:36Z",
+      "author": {
+        "displayName": "Sam Altman",
+        "handle": "sama",
+        "topVoiceSet": "insiders"
+      },
+      "text": "really looking forward to working together!",
+      "quotedContext": {
+        "url": "https://x.com/jolandgraf/status/2065089676122235376",
+        "authorName": "Johannes Landgraf",
+        "authorHandle": "jolandgraf",
+        "text": "",
+        "metrics": {
+          "views": 1002713,
+          "likes": 365,
+          "replies": 44,
+          "reposts": 31,
+          "retweets": 31,
+          "quotes": 23
+        }
+      },
+      "metrics": {
+        "views": 914536,
+        "likes": 3047,
+        "replies": 518,
+        "comments": 518,
+        "reposts": 177,
+        "retweets": 177,
+        "quotes": 24,
+        "bookmarks": 478
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public web search result followed by FxTwitter public post JSON.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": true,
+        "visibleTargetMatch": false
+      },
+      "rejectionReason": "Search surfaced this from a broad S26/company query, but visible text and exposed quote context do not identify any S26 target."
+    },
+    {
+      "id": "reject-linkedin-parasma-founder-thanking-tyler-7476123052993372160",
+      "platform": "linkedin",
+      "postUrl": "https://www.linkedin.com/posts/sean-cole-8985a4207_excited-to-announce-that-parasma-is-joining-activity-7476123052993372160-SiNp",
+      "platformPostId": "7476123052993372160",
+      "postedAt": null,
+      "author": {
+        "displayName": "Sean Cole",
+        "handle": "sean-cole-8985a4207",
+        "topVoiceSet": null
+      },
+      "target": {
+        "companyName": "Parasma",
+        "companySlug": "parasma",
+        "batch": "Summer 2026"
+      },
+      "text": "Excited to announce that Parasma is joining Y Combinator for the S26 batch... Thanks ... to our YC partners Tyler Bosmeny and Boris Jabes for believing in us!",
+      "metrics": {
+        "reactions": 183,
+        "comments": 23,
+        "reposts": null,
+        "views": null
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public LinkedIn page surfaced by web search.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": false,
+        "visibleTargetMatch": true
+      },
+      "rejectionReason": "Native post is by the S26 founder, not by a top voice; thanking/tagging Tyler Bosmeny does not satisfy native top-voice evidence."
+    },
+    {
+      "id": "reject-linkedin-coasty-founder-thanking-brad-7475434306400796673",
+      "platform": "linkedin",
+      "postUrl": "https://www.linkedin.com/posts/prateekjannu_i-dropped-my-stanford-admit-to-build-coasty-activity-7475434306400796673-j8jM",
+      "platformPostId": "7475434306400796673",
+      "postedAt": null,
+      "author": {
+        "displayName": "Prateek Jannu",
+        "handle": "prateekjannu",
+        "topVoiceSet": null
+      },
+      "target": {
+        "companyName": "Coasty",
+        "companySlug": "coasty",
+        "batch": "Summer 2026"
+      },
+      "text": "I dropped my Stanford admit to build Coasty. Today, we're a Y Combinator company... Brad Flora and Christina Gilbert, thank you too, for betting on us early.",
+      "metrics": {
+        "reactions": 123,
+        "comments": 39,
+        "reposts": null,
+        "views": null
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public LinkedIn page surfaced by web search.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": false,
+        "visibleTargetMatch": true
+      },
+      "rejectionReason": "Native post is by the S26 founder, not by a top voice; thanking Brad Flora does not satisfy native top-voice evidence."
+    },
+    {
+      "id": "reject-linkedin-third-party-s26-list-pasha23-7456828691088859137",
+      "platform": "linkedin",
+      "postUrl": "https://www.linkedin.com/posts/pasha23_ycombinator-startups-founders-activity-7456828691088859137-GAK5",
+      "platformPostId": "7456828691088859137",
+      "postedAt": null,
+      "author": {
+        "displayName": "Pasha MD",
+        "handle": "pasha23",
+        "topVoiceSet": null
+      },
+      "target": {
+        "companyNamesMentioned": [
+          "Tsenta",
+          "Control Seat",
+          "Archal"
+        ],
+        "batch": "Summer 2026"
+      },
+      "text": "Here are a few companies already in the YC Summer 2026 batch... Tsenta... Backed by YC cc: Jared Friedman... Control Seat... Backed by YC cc: Jared Friedman... Archal... Backed by YC cc: Ankit Gupta...",
+      "metrics": {
+        "reactions": 15,
+        "comments": null,
+        "reposts": null,
+        "views": null
+      },
+      "verification": {
+        "checkedAt": "2026-07-15T19:07:10Z",
+        "method": "Public LinkedIn page surfaced by web search.",
+        "postLevelUrl": true,
+        "visibleMetrics": true,
+        "nativePostByTopVoice": false,
+        "visibleTargetMatch": true
+      },
+      "rejectionReason": "Third-party/community-style list post. It mentions top voices as 'cc' backing context but is not a native post by a seeded top voice."
+    }
+  ],
+  "searchAudit": {
+    "companiesInScope": 83,
+    "topVoicePeopleInScope": 68,
+    "topVoiceBreakdown": {
+      "yc_partners": 18,
+      "insiders": 50
+    },
+    "primarySearchSurfaces": [
+      "Public web search",
+      "FxTwitter public post JSON",
+      "LinkedIn public post pages",
+      "OutX public YC partner LinkedIn feed"
+    ],
+    "groupPartnerSweep": {
+      "partnersSearched": [
+        "Ankit Gupta",
+        "Brad Flora",
+        "Diana Hu",
+        "Gustaf Alstromer",
+        "Harshita Arora",
+        "Jared Friedman",
+        "Jon Xu",
+        "Tyler Bosmeny"
+      ],
+      "partnerCompanyPairsPrioritized": true,
+      "notes": [
+        "Searched native X status pages for seeded X handles where available.",
+        "Searched LinkedIn post slugs for seeded LinkedIn handles where public search indexed them.",
+        "Used company names, founder names, official handles, and domains from the S26 YC snapshot.",
+        "Vivian Midha Shen appears as an S26 group partner in the YC snapshot but is not in top-voices.ts, so Vivian-authored evidence was out of scope."
+      ]
+    },
+    "highSignalQueriesThatProducedAcceptedFindings": [
+      "site:x.com/bosmeny/status \"83 Sciences\"",
+      "site:x.com/bosmeny/status \"Inkbox\"",
+      "site:x.com/bosmeny/status \"@alexsouthmayd\""
+    ],
+    "otherSearchPatternsSwept": [
+      "site:x.com/bosmeny/status with Tyler Bosmeny S26 company names and founder handles",
+      "site:x.com/snowmaker/status with Jared Friedman S26 company names and founder handles",
+      "site:x.com/bradflora/status with Brad Flora S26 company names and founder handles",
+      "site:x.com/gustaf/status with Gustaf Alstromer S26 company names and founder handles",
+      "site:x.com/harshitaarora/status with Harshita Arora S26 company names and founder handles",
+      "site:x.com/garrytan/status with YC S26, Summer 2026, and high-signal S26 company handles",
+      "site:x.com/paulg/status, site:x.com/sama/status, site:x.com/parkerconrad/status, site:x.com/alexisohanian/status with YC S26 and known S26 company/founder terms",
+      "site:linkedin.com/posts/{seeded LinkedIn handle} for YC partners and insider names with S26 company names",
+      "OutX YC partner LinkedIn feed for recent native YC partner LinkedIn posts and metrics"
+    ],
+    "noNewAcceptedEvidenceFrom": [
+      "Founder announcement posts that only thank a YC partner",
+      "YC org/community posts",
+      "Generic S26 application or deadline posts",
+      "Generic batch-level commentary without a visible target",
+      "Posts already present in source JSON or public graph JSON"
+    ]
+  }
+}

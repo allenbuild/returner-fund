@@ -1,0 +1,394 @@
+{
+  "summary": {
+    "batch": "Spring 2026",
+    "checkedAt": "2026-07-15T20:02:23.000Z",
+    "acceptedCount": 6,
+    "rejectedCount": 10,
+    "acceptedByPlatform": {
+      "x": 6
+    },
+    "priorEvidenceChecked": [
+      "outputs/source-hunt/*.json",
+      "src/lib/social/targeted-evidence-current.json"
+    ],
+    "notes": "Accepted rows are new by exact URL and post/activity ID against prior source-hunt outputs and targeted-evidence-current. Spring membership was checked against src/lib/yc/spring-2026-companies.json; Summer/Winter-only rows are rejected."
+  },
+  "accepted": [
+    {
+      "batch": "Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "platform": "x",
+      "url": "https://x.com/garrytan/status/2073858886180942200",
+      "company": "Ploy",
+      "founder": "Bryant Chou",
+      "title": "Garry Tan quote-post on older founders and Ploy",
+      "text": "The founder in their 40s with taste and discernment is the new gentleman unicorn founder. Quoted post says Bryant Chou is back in the current YC batch with Ploy, an AI marketing platform.",
+      "metrics": {
+        "views": 974976,
+        "likes": 4103,
+        "replies": 317,
+        "reposts": 286,
+        "quotes": 162,
+        "bookmarks": 2271
+      },
+      "publishedAt": "2026-07-05T19:57:43.000Z",
+      "attributionSignals": [
+        "native X post by @garrytan, a seeded yc_partners top voice",
+        "quoted post visibly names Bryant Chou, the current YC batch, and Ploy",
+        "Spring 2026 roster lists Ploy with founder Bryant Chou"
+      ],
+      "reason": "Accepted: new native top-voice X quote-post with visible Spring company and founder context in the quoted post."
+    },
+    {
+      "batch": "Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "platform": "x",
+      "url": "https://x.com/garrytan/status/2061568169354129640",
+      "company": "Lightsprint",
+      "founder": null,
+      "title": "Garry Tan post linking GStack office-hours on Lightsprint",
+      "text": "Want to try GStack /office-hours for your product idea as quickly as possible? It's one click here: https://app.lightsprint.ai/office-hours",
+      "metrics": {
+        "views": 76010,
+        "likes": 662,
+        "replies": 65,
+        "reposts": 39,
+        "quotes": 13,
+        "bookmarks": 758
+      },
+      "publishedAt": "2026-06-01T21:58:48.000Z",
+      "attributionSignals": [
+        "native X post by @garrytan, a seeded yc_partners top voice",
+        "native text links app.lightsprint.ai, a subdomain of the Spring company domain lightsprint.ai",
+        "Spring 2026 roster lists Lightsprint with website lightsprint.ai"
+      ],
+      "reason": "Accepted: new native top-voice X post visibly links an official Spring company domain."
+    },
+    {
+      "batch": "Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "url": "https://x.com/dflieb/status/2044855844379255082",
+      "company": "Datost",
+      "founder": "Maceo Cardinale Kwik; Jason Wang",
+      "title": "David Lieb quote-post on Datost launch",
+      "text": "We built something like this internally at YC, and I can't imagine living without it. Now any company can have it too. Quoted YC launch card names Datost (@datostapp), @maceock, and @jasonhywang.",
+      "metrics": {
+        "views": 119737,
+        "likes": 178,
+        "replies": 12,
+        "reposts": 17,
+        "quotes": 1,
+        "bookmarks": 201
+      },
+      "publishedAt": "2026-04-16T19:09:59.000Z",
+      "attributionSignals": [
+        "native X post by @dflieb, a seeded yc_partners top voice",
+        "quoted YC launch card visibly names Datost and founder handles @maceock and @jasonhywang",
+        "Spring 2026 roster lists Datost and founder Maceo Cardinale Kwik"
+      ],
+      "reason": "Accepted: new native top-voice X quote-post with visible Spring company and founder/official-handle context."
+    },
+    {
+      "batch": "Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Tom Blomfield",
+      "platform": "x",
+      "url": "https://x.com/t_blom/status/2061500802896949515",
+      "company": "Apollo Atomics, Inc.",
+      "founder": "Assil Halimi",
+      "title": "Tom Blomfield reply explaining Apollo Atomics reactor hardware",
+      "text": "@ApolloAtomics This is the high-pressure water circuit that carries heat away from the reactor core and ultimately generates electricity. Assil, the CEO, spent the last 5 years studying nuclear physics at MIT.",
+      "metrics": {
+        "views": 3100,
+        "likes": 15,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "publishedAt": "2026-06-01T17:31:06.000Z",
+      "attributionSignals": [
+        "native X reply by @t_blom, a seeded yc_partners top voice",
+        "native text mentions official company handle @ApolloAtomics and CEO Assil",
+        "Spring 2026 roster lists Apollo Atomics, Inc. and founder Assil Halimi"
+      ],
+      "reason": "Accepted: new native top-voice X reply with visible official handle and founder reference."
+    },
+    {
+      "batch": "Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "url": "https://x.com/dflieb/status/2053896017481965682",
+      "company": "Hyper",
+      "founder": "Shalin Shah; Kanyes Thaker",
+      "title": "David Lieb post on Hyper as a company brain",
+      "text": "In the future, all information created inside a company will be captured and used by AI to help operate the company. Hyper is building the brain where all that is structured and lives.",
+      "metrics": {
+        "views": 8387,
+        "likes": 28,
+        "replies": 3,
+        "reposts": 4,
+        "quotes": 0,
+        "bookmarks": 21
+      },
+      "publishedAt": "2026-05-11T17:52:24.000Z",
+      "attributionSignals": [
+        "native X post by @dflieb, a seeded yc_partners top voice",
+        "native text names Hyper",
+        "quoted YC launch card names official handle @heyhyperai and founders @kanyesthaker and @_shalinshah_",
+        "Spring 2026 roster lists Hyper with founders Shalin Shah and Kanyes Thaker"
+      ],
+      "reason": "Accepted: new native top-voice X post visibly names a Spring company, with official handle and founders in quoted launch context."
+    },
+    {
+      "batch": "Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "platform": "x",
+      "url": "https://x.com/garrytan/status/2067101655934591154",
+      "company": "9 Mothers",
+      "founder": null,
+      "title": "Garry Tan quote-post on 9 Mothers anti-drone demo",
+      "text": "9Mothers is one of those technologies whose impact is immediately obvious to warfighters. Quoted post describes an anti-drone artillery gun at YC demo day.",
+      "metrics": {
+        "views": 39023,
+        "likes": 228,
+        "replies": 19,
+        "reposts": 10,
+        "quotes": 5,
+        "bookmarks": 40
+      },
+      "publishedAt": "2026-06-17T04:26:54.000Z",
+      "attributionSignals": [
+        "native X post by @garrytan, a seeded yc_partners top voice",
+        "native text names 9Mothers",
+        "Spring 2026 roster lists 9 Mothers and official handle @9mothers"
+      ],
+      "reason": "Accepted: new native top-voice X quote-post visibly naming a Spring company."
+    }
+  ],
+  "rejected": [
+    {
+      "batch": "Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/garrytan_want-to-try-gstack-office-hours-for-your-activity-7467336673572327424-Wisa",
+      "company": "Lightsprint",
+      "founder": null,
+      "title": "Garry Tan LinkedIn post with GStack office-hours shortlink",
+      "text": "Want to try GStack /office-hours for your product idea as quickly as possible? It's one click here: https://lnkd.in/gtTrA-uV",
+      "metrics": {
+        "reactions": 792,
+        "comments": 67
+      },
+      "publishedAt": "2026-06-01T22:09:59.371Z",
+      "attributionSignals": [
+        "native LinkedIn post by Garry Tan",
+        "public LinkedIn page exposes post URL and comment count",
+        "native visible text only exposes a LinkedIn shortlink; anonymous redirect verification hit a challenge page"
+      ],
+      "reason": "Rejected: likely Lightsprint-adjacent, but the native LinkedIn page text does not visibly name a Spring company, founder, official handle, or official domain."
+    },
+    {
+      "batch": "Summer 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/ankitvgupta_introducing-instance-congrats-on-the-launch-activity-7482921740625555457-Jw1O",
+      "company": "Instance",
+      "founder": "Claire Mao; Lucy Cai",
+      "title": "Ankit Gupta post introducing Instance",
+      "text": "Ankit Gupta highlighted Instance with a native LinkedIn post.",
+      "metrics": {
+        "reactions": 97,
+        "comments": 7
+      },
+      "publishedAt": "2026-07-14T22:19:28.928Z",
+      "attributionSignals": [
+        "native LinkedIn post by seeded yc_partners top voice Ankit Gupta",
+        "Instance appears in src/lib/yc/summer-2026-companies.json, not the Spring 2026 roster",
+        "activity ID already appears in prior targeted evidence"
+      ],
+      "reason": "Rejected: wrong batch for this Spring 2026 pass and already prior accepted elsewhere."
+    },
+    {
+      "batch": "Summer 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/ankitvgupta_prized-yc-s26-lets-anyone-at-your-company-activity-7482809378585231360-P3SR",
+      "company": "Prized",
+      "founder": "Hudson Griffith; Marinos Eliades",
+      "title": "Ankit Gupta post about Prized",
+      "text": "If your team is building internal tools with AI, check out Prized. Hudson Griffith and Marinos Eliades have excellent product taste, and it's been great working with them this batch.",
+      "metrics": {
+        "reactions": 19,
+        "comments": 0
+      },
+      "publishedAt": "2026-07-14T14:52:59.730Z",
+      "attributionSignals": [
+        "native LinkedIn post by seeded yc_partners top voice Ankit Gupta",
+        "Prized appears in src/lib/yc/summer-2026-companies.json, not the Spring 2026 roster",
+        "activity ID already appears in prior targeted evidence"
+      ],
+      "reason": "Rejected: wrong batch for this Spring 2026 pass and already prior accepted elsewhere."
+    },
+    {
+      "batch": "Summer 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/ankitvgupta_today-evaluating-a-robot-policy-means-humans-activity-7482566122979082240-GyUI",
+      "company": "Instance",
+      "founder": "Claire Mao; Lucy Cai",
+      "title": "Ankit Gupta post on robot model training",
+      "text": "Very impressed with Claire Mao and Lucy Cai's speed and depth of experience with robot model training and data. If you're working on building robotics models or deploying robots, reach out!",
+      "metrics": {
+        "reactions": 6,
+        "comments": 0
+      },
+      "publishedAt": "2026-07-13T22:46:23.074Z",
+      "attributionSignals": [
+        "native LinkedIn post by seeded yc_partners top voice Ankit Gupta",
+        "named founders Claire Mao and Lucy Cai map to Instance in the Summer 2026 roster",
+        "no matching Spring 2026 company/founder record"
+      ],
+      "reason": "Rejected: wrong batch for this Spring-focused pass."
+    },
+    {
+      "batch": "Unknown / not Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/tylerbosmeny_with-clodo-describe-exactly-who-youre-looking-activity-7477506620155928576-OYPE",
+      "company": "CLODO",
+      "founder": "Sid; Rithvik",
+      "title": "Tyler Bosmeny post about CLODO",
+      "text": "Congratulations Sid and Rithvik on the launch of CLODO - the people search engine I've always wanted!",
+      "metrics": {
+        "reactions": 7,
+        "comments": 2,
+        "shares": 0
+      },
+      "publishedAt": "2026-06-29T23:41:43.600Z",
+      "attributionSignals": [
+        "native LinkedIn post by seeded yc_partners top voice Tyler Bosmeny",
+        "CLODO was not found in the Spring 2026 company roster"
+      ],
+      "reason": "Rejected: visible target is not a Spring 2026 roster company/founder/domain."
+    },
+    {
+      "batch": "Unknown / not Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Diana Hu",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/sdianahu_many-companies-are-1-on-a-benchmark-they-activity-7477821474305626112-nSao",
+      "company": "Reducto",
+      "founder": null,
+      "title": "Diana Hu post mentioning Reducto",
+      "text": "The current AI research roadmap is tackling long horizon tasks and Reducto is leading the way with solving long document extraction with these results.",
+      "metrics": {
+        "reactions": 9,
+        "comments": 1,
+        "shares": 0
+      },
+      "publishedAt": "2026-06-30T20:32:50.679Z",
+      "attributionSignals": [
+        "native LinkedIn post by Diana Hu",
+        "Reducto was not found in the Spring 2026 company roster"
+      ],
+      "reason": "Rejected: visible target is not a Spring 2026 roster company/founder/domain."
+    },
+    {
+      "batch": "Unknown / not Spring 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/ankitvgupta_wereproud-to-share-that-tamarind-bio-has-activity-7471224256740196352-msos",
+      "company": "Tamarind Bio",
+      "founder": null,
+      "title": "Ankit Gupta post about Tamarind Bio",
+      "text": "Really great to see Tamarind Bio and a unique deal that I think may be a bellwether for more software in pharma.",
+      "metrics": {
+        "reactions": 7,
+        "comments": 0,
+        "shares": 0
+      },
+      "publishedAt": "2026-06-12T15:37:51.441Z",
+      "attributionSignals": [
+        "native LinkedIn post by seeded yc_partners top voice Ankit Gupta",
+        "Tamarind Bio was not found in the Spring 2026 company roster"
+      ],
+      "reason": "Rejected: visible target is not a Spring 2026 roster company/founder/domain."
+    },
+    {
+      "batch": "Winter 2026",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/tylerbosmeny_excited-to-announce-that-pocket-yc-w26-activity-7477758781926400016-5I7E",
+      "company": "Pocket",
+      "founder": null,
+      "title": "Tyler Bosmeny post about Pocket YC W26",
+      "text": "Excited to announce that Pocket (YC W26) ...",
+      "metrics": {
+        "reactions": 66,
+        "comments": 6,
+        "shares": 1
+      },
+      "publishedAt": "2026-06-30T16:23:43.651Z",
+      "attributionSignals": [
+        "native LinkedIn post by seeded yc_partners top voice Tyler Bosmeny",
+        "slug and text identify YC W26, not Spring 2026"
+      ],
+      "reason": "Rejected: wrong batch."
+    },
+    {
+      "batch": "Not applicable",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Michael Seibel",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/mwseibel_anyone-have-a-hookup-at-stubhub-having-activity-7469906660682010624-_-Fu",
+      "company": null,
+      "founder": null,
+      "title": "Michael Seibel StubHub customer-service ask",
+      "text": "Anyone have a hookup at StubHub? Having a customer service issue re: the World Cup and hard to get the right people on the phone. Thanks!",
+      "metrics": {
+        "reactions": 24,
+        "comments": 9,
+        "shares": 1
+      },
+      "publishedAt": "2026-06-09T00:22:12.061Z",
+      "attributionSignals": [
+        "native LinkedIn post by seeded insider Michael Seibel",
+        "no Spring 2026 company, founder, official handle, or official domain visible"
+      ],
+      "reason": "Rejected: generic/non-target post."
+    },
+    {
+      "batch": "Spring 2026 search candidate",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Garry Tan (mentioned only)",
+      "platform": "reddit",
+      "url": "https://www.reddit.com/r/buildinpublic/comments/1sfb9c0/we_joined_yc_p26_at_70k_mrr/",
+      "company": null,
+      "founder": null,
+      "title": "We joined YC P26 at $70K MRR.",
+      "text": "Reddit post says the author talked to Garry Tan during YC P26, but it is not native activity by Garry Tan or another seeded top voice.",
+      "metrics": {},
+      "publishedAt": null,
+      "attributionSignals": [
+        "native Reddit author is not a seeded top voice",
+        "Garry Tan is mentioned only",
+        "no post-level native top-voice activity"
+      ],
+      "reason": "Rejected: not real-person native activity by a top voice."
+    }
+  ]
+}

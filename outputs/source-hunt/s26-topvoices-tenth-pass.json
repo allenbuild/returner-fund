@@ -1,0 +1,352 @@
+{
+  "accepted": [
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "ankitvgupta",
+      "platform": "linkedin",
+      "surface": "linkedin_article",
+      "sourceUrl": "https://www.linkedin.com/pulse/prized-agentic-builder-internal-tools-ankit-gupta-8ceee",
+      "platformPostId": "prized-agentic-builder-internal-tools-ankit-gupta-8ceee",
+      "nativePostUrn": "urn:li:ugcPost:7483212819740438530",
+      "companyName": "Prized",
+      "companySlug": "prized",
+      "founders": [
+        "Marinos Eliades",
+        "Hudson Griffith"
+      ],
+      "publishedAt": "2026-07-15T17:36:08.000Z",
+      "metrics": {
+        "reactions": 8,
+        "comments": 0,
+        "authorFollowers": 12439
+      },
+      "visibleTextSummary": "Ankit Gupta's native LinkedIn article says Prized is launching publicly, links prized.dev, names Marinos Eliades and Hudson Griffith as his YC group founders, and discusses their work through the S26 batch.",
+      "attributionSignals": [
+        "LinkedIn article JSON-LD names Ankit Gupta as author and links https://www.linkedin.com/in/ankitvgupta.",
+        "LinkedIn article JSON-LD exposes 8 LikeAction interactions, 0 CommentAction interactions, and 12439 author followers.",
+        "Article body visibly links prized.dev and names Prized, Marinos Eliades, Hudson Griffith, YC, and the S26 batch.",
+        "src/lib/social/top-voices.ts lists Ankit Gupta under yc_partners.",
+        "src/lib/yc/summer-2026-companies.json lists Prized in S26 with founders Marinos Eliades and Hudson Griffith."
+      ],
+      "dedupeChecked": [
+        "src/lib/social/targeted-evidence-current.json",
+        "outputs/source-hunt/*"
+      ],
+      "reason": "Accepted: new exact LinkedIn URL/UGC id not found in targeted evidence or prior source-hunt outputs; native top-voice-authored text directly names/links the S26 target and founders with visible metrics."
+    }
+  ],
+  "rejected": [
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "x",
+      "companyName": "Prized",
+      "sourceUrls": [
+        "https://x.com/agupta/status/2077424054966088137",
+        "https://x.com/agupta/article/2077424054966088137",
+        "https://x.com/agupta/status/2077044076273164665"
+      ],
+      "platformPostIds": [
+        "2077424054966088137",
+        "2077044076273164665"
+      ],
+      "reason": "Rejected duplicate: these Ankit Gupta Prized X article/quote-post records are already present in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "linkedin",
+      "companyName": "Prized",
+      "sourceUrl": "https://www.linkedin.com/posts/ankitvgupta_prized-yc-s26-lets-anyone-at-your-company-activity-7482809378585231360-P3SR",
+      "platformPostId": "7482809378585231360",
+      "reason": "Rejected duplicate: exact LinkedIn activity id already exists in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "linkedin",
+      "companyName": "Instance",
+      "sourceUrls": [
+        "https://www.linkedin.com/pulse/introducing-instance-evaluation-robot-policies-ankit-gupta-txx2e",
+        "https://www.linkedin.com/posts/ankitvgupta_introducing-instance-congrats-on-the-launch-activity-7482921740625555457-Jw1O",
+        "https://www.linkedin.com/posts/ankitvgupta_today-evaluating-a-robot-policy-means-humans-activity-7482566122979082240-GyUI"
+      ],
+      "platformPostIds": [
+        "introducing-instance-evaluation-robot-policies-ankit-gupta-txx2e",
+        "7482921740625555457",
+        "7482566122979082240"
+      ],
+      "reason": "Rejected duplicate: exact LinkedIn Instance article/post URLs or activity ids are already present in targeted-evidence-current.json and/or prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "x",
+      "companyName": "Instance",
+      "sourceUrls": [
+        "https://x.com/agupta/status/2077125864006062268",
+        "https://x.com/agupta/status/2076783005025124492",
+        "https://x.com/agupta/status/2076799833214505373"
+      ],
+      "platformPostIds": [
+        "2077125864006062268",
+        "2076783005025124492",
+        "2076799833214505373"
+      ],
+      "reason": "Rejected duplicate: exact X status ids already exist in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "platform": "x",
+      "companyName": "Instance",
+      "sourceUrl": "https://x.com/agupta/status/2077126412700365109",
+      "platformPostId": "2077126412700365109",
+      "reason": "Rejected duplicate and strict authored-text fail: prior source-hunt outputs already contain this status, and the top-voice-authored text is only a read-more pointer to Lucy Cai's launch post rather than naming Instance, a founder, a handle, or a domain itself."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "x",
+      "companyName": "Inkbox",
+      "sourceUrls": [
+        "https://x.com/bosmeny/status/2075342772392067278",
+        "https://x.com/bosmeny/status/2076459852113858684"
+      ],
+      "platformPostIds": [
+        "2075342772392067278",
+        "2076459852113858684"
+      ],
+      "reason": "Rejected duplicate: exact X status ids already exist in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "x",
+      "companyName": "83 Sciences",
+      "sourceUrl": "https://x.com/bosmeny/status/2075013475424952797",
+      "platformPostId": "2075013475424952797",
+      "reason": "Rejected duplicate: exact X status id already exists in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "x",
+      "companyName": "Bloomy",
+      "sourceUrl": "https://x.com/bosmeny/status/2072753766701625532",
+      "platformPostId": "2072753766701625532",
+      "reason": "Rejected duplicate: exact X status id already exists in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "linkedin",
+      "companyName": "83 Sciences",
+      "sourceUrl": "https://www.linkedin.com/posts/tylerbosmeny_83-sciences-future-of-scientific-discovery-activity-7480779232332324864-860p",
+      "platformPostId": "7480779232332324864",
+      "reason": "Rejected duplicate: exact LinkedIn activity id already exists in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "platform": "linkedin",
+      "companyName": "Bloomy",
+      "sourceUrl": "https://www.linkedin.com/posts/tylerbosmeny_bloomy-yc-s26-is-helping-kids-learn-faster-activity-7478590522912075776-rx88",
+      "platformPostId": "7478590522912075776",
+      "reason": "Rejected duplicate: exact LinkedIn activity id already exists in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Jared Friedman",
+      "platform": "x",
+      "companyName": "screenpipe",
+      "sourceUrl": "https://x.com/snowmaker/status/2068734568472207470",
+      "platformPostId": "2068734568472207470",
+      "reason": "Rejected duplicate: exact X status id already exists in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "yc_partners",
+      "topVoiceName": "Jared Friedman",
+      "platform": "linkedin",
+      "companyName": "Litmus",
+      "sourceUrl": "https://www.linkedin.com/posts/jaredfriedman_in-the-ai-coding-world-technical-interviews-activity-7465792243405131776-frhF",
+      "platformPostId": "7465792243405131776",
+      "reason": "Rejected duplicate: exact LinkedIn activity id already exists in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "topVoiceCategory": "insiders",
+      "topVoiceName": "Parker Conrad",
+      "platform": "x",
+      "companyName": "Context.dev",
+      "sourceUrl": "https://x.com/parkerconrad/status/2069810389022343466",
+      "platformPostId": "2069810389022343466",
+      "reason": "Rejected duplicate: exact X status id already exists in targeted-evidence-current.json and prior source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/sdianahu/status/2070216980322549923",
+        "https://x.com/gustaf/status/2069461894138941860",
+        "https://x.com/bradflora/status/2052044928780484647",
+        "https://x.com/xuster/status/2067328562491752791"
+      ],
+      "topVoiceNames": [
+        "Diana Hu",
+        "Gustaf Alstromer",
+        "Brad Flora",
+        "Jon Xu"
+      ],
+      "reason": "Rejected: native top-voice-authored X posts are generic S26, YC kickoff, interview, or Startup School content and do not visibly name/handle/link an S26 target company, founder, handle, or domain."
+    },
+    {
+      "batch": "S26",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/yousefhll/status/2071700351078826144",
+        "https://x.com/virattt/status/2074132804443750502",
+        "https://x.com/rayann_mubarak/status/2066829349727429034"
+      ],
+      "topVoiceNames": [
+        "Ankit Gupta",
+        "Brad Flora"
+      ],
+      "reason": "Rejected: discovered only as reposts/retweets or mirrored profile activity; native authors are not the listed top voices, and at least one named company is not in the local S26 roster."
+    },
+    {
+      "batch": "S26",
+      "platform": "linkedin",
+      "sourceUrls": [
+        "https://www.linkedin.com/posts/nitish-kovuru-2423351b4_happy-to-announce-were-part-of-yc-s26-activity-7475429173289943040-AKWv",
+        "https://www.linkedin.com/posts/prateekjannu_i-dropped-my-stanford-admit-to-build-coasty-activity-7475434306400796673-j8jM",
+        "https://www.linkedin.com/posts/sean-cole-8985a4207_excited-to-announce-that-parasma-is-joining-activity-7476123052993372160-SiNp",
+        "https://www.linkedin.com/posts/shubhampalriwala_we-got-into-y-combinator-agnost-ai-yc-activity-7469751210191794176-V8Fb",
+        "https://www.linkedin.com/posts/ranvirdeshmukh_realpact-yc-s26-has-closed-an-oversubscribed-activity-7474911105610502146-ZQvZ"
+      ],
+      "reason": "Rejected: founder-authored LinkedIn posts thank or tag listed partners, but the native author is not the top voice."
+    },
+    {
+      "batch": "S26",
+      "platform": "linkedin",
+      "sourceUrls": [
+        "https://www.linkedin.com/in/ankitvgupta",
+        "https://www.linkedin.com/posts/michael-y-serrano_we-launched-rindler-yc-s26-on-launch-yc-activity-7481010555260915712-y0_U",
+        "https://www.linkedin.com/posts/poth_poth-labs-is-now-backed-by-y-combinatorand-activity-7475964079661137920-jURv",
+        "https://www.linkedin.com/posts/mojmir-horvath_we-got-into-y-combinatorand-today-were-activity-7475955975368101888-A-Jt"
+      ],
+      "reason": "Rejected: Ankit Gupta profile/activity surfaces showed reposted Rindler and Poth Labs content, but the native authors are founders or company accounts rather than Ankit Gupta."
+    },
+    {
+      "batch": "S26",
+      "platform": "linkedin",
+      "sourceUrls": [
+        "https://www.linkedin.com/posts/y-combinator_screenpipe-yc-s26-lets-you-record-how-you-activity-7482811226582867968-zym2",
+        "https://www.linkedin.com/company/inkbox-ai"
+      ],
+      "reason": "Rejected: Y Combinator, company pages, and organization account updates are explicitly out of scope for top-voice person evidence."
+    },
+    {
+      "batch": "S26",
+      "platform": "x",
+      "sourceUrls": [
+        "https://twstalker.com/gustaf",
+        "https://twstalker.com/agupta",
+        "https://twstalker.com/bradflora",
+        "https://twstalker.com/bosmeny"
+      ],
+      "reason": "Rejected: mirror hits that looked like S26 targets were sidebar/following cards, quoted/retweeted third-party posts, or known duplicate native posts, not new top-voice-authored native text."
+    },
+    {
+      "batch": "S26",
+      "platform": "hacker_news",
+      "sourceUrls": [
+        "https://hn.algolia.com/api/v1/search_by_date?query=YC%20S26&tags=comment&hitsPerPage=1000",
+        "https://hn.algolia.com/api/v1/search_by_date?query=S26&tags=comment&hitsPerPage=1000"
+      ],
+      "reason": "Rejected: HN sweep found no native comments by allowed top-voice handles that name a local S26 target; matched comments were old, generic YC, or false matches such as NYC/S26 job text."
+    },
+    {
+      "batch": "S26",
+      "platform": "youtube_reddit",
+      "sourceUrls": [
+        "https://www.youtube.com/watch?v=WILimoqemD4",
+        "https://www.reddit.com/search/?q=YC%20S26%20Ankit%20Gupta%20Prized"
+      ],
+      "reason": "Rejected: web searches found target/founder launch material but no attributable native YouTube or Reddit comment/reply by a listed top voice with visible metrics."
+    }
+  ],
+  "searches": [
+    {
+      "type": "local_scope",
+      "query": "src/lib/social/top-voices.ts + src/lib/yc/summer-2026-companies.json",
+      "outcome": "Scoped to listed yc_partners and insiders only; local S26 roster has 83 target companies."
+    },
+    {
+      "type": "dedupe",
+      "query": "src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*",
+      "outcome": "Exact URL/platformPostId dedupe rejected known Ankit, Tyler, Jared, and Parker S26 top-voice rows; no snapshots were edited."
+    },
+    {
+      "type": "linkedin_direct",
+      "query": "https://www.linkedin.com/pulse/prized-agentic-builder-internal-tools-ankit-gupta-8ceee",
+      "outcome": "Accepted new Ankit Gupta native LinkedIn article for Prized with JSON-LD author, date, metrics, and direct company/founder/domain mentions."
+    },
+    {
+      "type": "linkedin_profile_and_search",
+      "query": "Ankit Gupta LinkedIn Activity, Prized, Instance, Rindler, Poth Labs, Alkera AI",
+      "outcome": "Found one new LinkedIn article accepted for Prized; found duplicate Instance/Prized posts and repost/profile surfaces rejected because native authors were founders, companies, or already-deduped Ankit posts."
+    },
+    {
+      "type": "linkedin_search",
+      "query": "site:linkedin.com/posts top voice names plus S26 company names for Ankit Gupta, Tyler Bosmeny, Jared Friedman, Brad Flora, Diana Hu, Gustaf Alstromer, Jon Xu",
+      "outcome": "Returned existing top-voice posts/articles, YC/company accounts, and founder-authored thank-you posts; only the new Prized LinkedIn article survived dedupe and authorship checks."
+    },
+    {
+      "type": "x_fxtwitter",
+      "query": "api.fxtwitter.com for Ankit Prized/Instance and Tyler Inkbox/83 Sciences/Bloomy status ids",
+      "outcome": "Confirmed visible metrics and authorship for known rows, then rejected as duplicates; rejected Ankit Instance read-more status under the stricter authored-text rule."
+    },
+    {
+      "type": "x_web_and_mirror",
+      "query": "site:x.com and twstalker sweeps for allowed handles agupta, bosmeny, snowmaker, bradflora, gustaf, sdianahu, harshitaarora, garrytan, xuster, jonxu",
+      "outcome": "Found only prior accepted duplicates, generic S26/YC posts, third-party reposts, and sidebar/following-card false positives."
+    },
+    {
+      "type": "hacker_news",
+      "query": "HN Algolia exact company-name sweep across all 83 S26 companies, filtered to top-voice handles/aliases; plus S26/YC S26/Summer 2026 comments",
+      "outcome": "No qualifying native HN comment by a listed top voice naming a local S26 target."
+    },
+    {
+      "type": "youtube_reddit",
+      "query": "YouTube and Reddit web searches for top voice names plus S26 targets, especially Ankit/Prized/Instance, Tyler/Bloomy/Inkbox/83 Sciences, Jared/Litmus/screenpipe, Diana/GUILD/Amulet, Brad/Coasty/Truffle, Jon/RealPact",
+      "outcome": "No attributable native YouTube or Reddit comment/reply by a listed top voice with visible metrics."
+    },
+    {
+      "type": "strict_rule",
+      "query": "quote-only/read-more/native authored-text filter",
+      "outcome": "Rows were not accepted when the top-voice-authored native text itself failed to name/handle/link the S26 company, founder, handle, or domain, even if quoted context did."
+    }
+  ],
+  "notes": [
+    "Tenth pass found one new non-duplicate accepted item: Ankit Gupta's native LinkedIn article for Prized.",
+    "The matching Ankit Gupta X article/status for Prized was not accepted here because it already exists in targeted-evidence-current.json and prior source-hunt outputs.",
+    "All organization, Y Combinator, company account, profile-only, repost-only, sidebar, and founder-authored thank-you surfaces were rejected for top-voice person evidence.",
+    "Dedupe was intentionally stricter than a simple current-evidence check: outputs/source-hunt/* also counted, so ninth-pass and earlier source-hunt rows were rejected.",
+    "No snapshots, current evidence files, top-voice definitions, or existing source-hunt outputs were edited."
+  ]
+}

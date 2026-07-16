@@ -1,0 +1,610 @@
+{
+  "generatedAt": "2026-07-16T01:24:18Z",
+  "shard": "YC Spring/P26 (S2026) and YC Summer 2026 (S26) insiders people-only SOL ultra",
+  "searchedVoices": [
+    { "topVoicePersonId": "paul-graham", "displayName": "Paul Graham", "xHandle": "paulg", "linkedinHandle": "pg", "status": "searched" },
+    { "topVoicePersonId": "jessica-livingston", "displayName": "Jessica Livingston", "xHandle": null, "linkedinHandle": null, "status": "searched_by_name; no seeded social handle" },
+    { "topVoicePersonId": "michael-seibel", "displayName": "Michael Seibel", "xHandle": "mwseibel", "linkedinHandle": "michaelseibel", "status": "searched" },
+    { "topVoicePersonId": "sam-altman", "displayName": "Sam Altman", "xHandle": "sama", "linkedinHandle": "samaltman", "status": "searched" },
+    { "topVoicePersonId": "brian-chesky", "displayName": "Brian Chesky", "xHandle": "bchesky", "linkedinHandle": "brianchesky", "status": "searched" },
+    { "topVoicePersonId": "patrick-collison", "displayName": "Patrick Collison", "xHandle": "patrickc", "linkedinHandle": "patrickcollison", "status": "searched" },
+    { "topVoicePersonId": "john-collison", "displayName": "John Collison", "xHandle": "collision", "linkedinHandle": "johncollison", "status": "searched" },
+    { "topVoicePersonId": "brian-armstrong", "displayName": "Brian Armstrong", "xHandle": "brian_armstrong", "linkedinHandle": "barmstrong", "status": "searched" },
+    { "topVoicePersonId": "drew-houston", "displayName": "Drew Houston", "xHandle": "drewhouston", "linkedinHandle": "drewhouston", "status": "searched" },
+    { "topVoicePersonId": "steve-huffman", "displayName": "Steve Huffman", "xHandle": "spez", "linkedinHandle": "stevehuffman", "status": "searched" },
+    { "topVoicePersonId": "justin-kan", "displayName": "Justin Kan", "xHandle": "justinkan", "linkedinHandle": "justinkan", "status": "searched" },
+    { "topVoicePersonId": "emmett-shear", "displayName": "Emmett Shear", "xHandle": "eshear", "linkedinHandle": "emmettshear", "status": "searched" },
+    { "topVoicePersonId": "alexis-ohanian", "displayName": "Alexis Ohanian", "xHandle": "alexisohanian", "linkedinHandle": "alexisohanian", "status": "searched" },
+    { "topVoicePersonId": "guillermo-rauch", "displayName": "Guillermo Rauch", "xHandle": "rauchg", "linkedinHandle": "rauchg", "status": "searched" },
+    { "topVoicePersonId": "dylan-field", "displayName": "Dylan Field", "xHandle": "zoink", "linkedinHandle": "dylanfield", "status": "searched" },
+    { "topVoicePersonId": "aravind-srinivas", "displayName": "Aravind Srinivas", "xHandle": "aravsrinivas", "linkedinHandle": "aravind-srinivas", "status": "searched" },
+    { "topVoicePersonId": "alex-wang", "displayName": "Alex Wang", "xHandle": "alexandr_wang", "linkedinHandle": "alexwang", "status": "searched" },
+    { "topVoicePersonId": "palmer-luckey", "displayName": "Palmer Luckey", "xHandle": "palmerluckey", "linkedinHandle": "palmerluckey", "status": "searched" },
+    { "topVoicePersonId": "parker-conrad", "displayName": "Parker Conrad", "xHandle": "parkerconrad", "linkedinHandle": "parkerconrad", "status": "searched" },
+    { "topVoicePersonId": "aaron-levie", "displayName": "Aaron Levie", "xHandle": "levie", "linkedinHandle": "aaronlevie", "status": "searched" },
+    { "topVoicePersonId": "eric-migicovsky", "displayName": "Eric Migicovsky", "xHandle": "ericmigi", "linkedinHandle": "ericmigicovsky", "status": "searched" },
+    { "topVoicePersonId": "tony-xu", "displayName": "Tony Xu", "xHandle": "t_xu", "linkedinHandle": "tonyxu", "status": "searched" },
+    { "topVoicePersonId": "apoorva-mehta", "displayName": "Apoorva Mehta", "xHandle": "apoorva_mehta", "linkedinHandle": "apoorvamehta", "status": "searched" },
+    { "topVoicePersonId": "max-mullen", "displayName": "Max Mullen", "xHandle": "maxmullen", "linkedinHandle": "maxmullen", "status": "searched" },
+    { "topVoicePersonId": "henrique-dubugras", "displayName": "Henrique Dubugras", "xHandle": "hdubugras", "linkedinHandle": "henriquedubugras", "status": "searched" },
+    { "topVoicePersonId": "pedro-franceschi", "displayName": "Pedro Franceschi", "xHandle": "pedroh96", "linkedinHandle": "pedrofranceschi", "status": "searched" },
+    { "topVoicePersonId": "mathilde-collin", "displayName": "Mathilde Collin", "xHandle": "collinmathilde", "linkedinHandle": "mathildecollin", "status": "searched" },
+    { "topVoicePersonId": "rahul-vohra", "displayName": "Rahul Vohra", "xHandle": "rahulvohra", "linkedinHandle": "rahulvohra", "status": "searched" },
+    { "topVoicePersonId": "spenser-skates", "displayName": "Spenser Skates", "xHandle": "spenserskates", "linkedinHandle": "spenserskates", "status": "searched" },
+    { "topVoicePersonId": "suhail-doshi", "displayName": "Suhail Doshi", "xHandle": "suhail", "linkedinHandle": "suhaildoshi", "status": "searched" },
+    { "topVoicePersonId": "taro-fukuyama", "displayName": "Taro Fukuyama", "xHandle": "taro_f", "linkedinHandle": "tarof", "status": "searched; X handle discovered during hunt and is not seeded" },
+    { "topVoicePersonId": "dalton-caldwell", "displayName": "Dalton Caldwell", "xHandle": "daltonc", "linkedinHandle": "daltoncaldwell", "status": "searched" },
+    { "topVoicePersonId": "qasar-younis", "displayName": "Qasar Younis", "xHandle": "qasar", "linkedinHandle": "qasaryounis", "status": "searched" },
+    { "topVoicePersonId": "ali-rowghani", "displayName": "Ali Rowghani", "xHandle": "rowghani", "linkedinHandle": "alirowghani", "status": "searched" },
+    { "topVoicePersonId": "anu-hariharan", "displayName": "Anu Hariharan", "xHandle": "anuhariharan", "linkedinHandle": "anuhariharan", "status": "searched" },
+    { "topVoicePersonId": "elad-gil", "displayName": "Elad Gil", "xHandle": "eladgil", "linkedinHandle": "eladgil", "status": "searched" },
+    { "topVoicePersonId": "nat-friedman", "displayName": "Nat Friedman", "xHandle": "natfriedman", "linkedinHandle": "natfriedman", "status": "searched" },
+    { "topVoicePersonId": "daniel-gross", "displayName": "Daniel Gross", "xHandle": "danielgross", "linkedinHandle": "danielgross", "status": "searched" },
+    { "topVoicePersonId": "david-sacks", "displayName": "David Sacks", "xHandle": "davidsacks", "linkedinHandle": "davidsacks", "status": "searched" },
+    { "topVoicePersonId": "marc-andreessen", "displayName": "Marc Andreessen", "xHandle": "pmarca", "linkedinHandle": "marcandreessen", "status": "searched" },
+    { "topVoicePersonId": "ben-horowitz", "displayName": "Ben Horowitz", "xHandle": "bhorowitz", "linkedinHandle": "benhorowitz", "status": "searched" },
+    { "topVoicePersonId": "naval-ravikant", "displayName": "Naval Ravikant", "xHandle": "naval", "linkedinHandle": "naval", "status": "searched" },
+    { "topVoicePersonId": "keith-rabois", "displayName": "Keith Rabois", "xHandle": "rabois", "linkedinHandle": "keithrabois", "status": "searched" },
+    { "topVoicePersonId": "sarah-guo", "displayName": "Sarah Guo", "xHandle": "saranormous", "linkedinHandle": "sarahguo", "status": "searched" },
+    { "topVoicePersonId": "andrew-chen", "displayName": "Andrew Chen", "xHandle": "andrewchen", "linkedinHandle": "andrewchen", "status": "searched" },
+    { "topVoicePersonId": "lachy-groom", "displayName": "Lachy Groom", "xHandle": "lachygroom", "linkedinHandle": "lachygroom", "status": "searched" },
+    { "topVoicePersonId": "semil-shah", "displayName": "Semil Shah", "xHandle": "semil", "linkedinHandle": "semilshah", "status": "searched" },
+    { "topVoicePersonId": "delian-asparouhov", "displayName": "Delian Asparouhov", "xHandle": "zebulgar", "linkedinHandle": "delianasparouhov", "status": "searched" },
+    { "topVoicePersonId": "trae-stephens", "displayName": "Trae Stephens", "xHandle": "traestephens", "linkedinHandle": "trae-stephens", "status": "searched" },
+    { "topVoicePersonId": "lenny-rachitsky", "displayName": "Lenny Rachitsky", "xHandle": "lennyrachitsky", "linkedinHandle": "lennyrachitsky", "status": "searched" }
+  ],
+  "searches": [
+    {
+      "id": "dedupe-preflight",
+      "platform": "local corpus",
+      "scope": "All requested ledgers, candidate files, current evidence snapshots, and prior source-hunt artifacts",
+      "queriesPerformed": 1,
+      "outcome": "Built a normalized URL and platform-ID exclusion set before accepting candidates; 32 already-qualified target-batch insider URLs were classified as duplicates."
+    },
+    {
+      "id": "x-native-history-sweep",
+      "platform": "X",
+      "scope": "All 48 seeded X handles, discovered @taro_f, and a name-index fallback for Jessica Livingston; company names, slugs, domains, founder names, and batch markers were matched against native posts",
+      "accountsSearched": 50,
+      "cardsScanned": 913,
+      "nativePostsScanned": 1112,
+      "apiPostsScanned": 645,
+      "paginationPagesFetched": 34,
+      "outcome": "No net-new qualifying native X post. Strong matches resolved to already-canonical duplicates; reposts and lexical false positives were rejected."
+    },
+    {
+      "id": "linkedin-canonical-target-comment-sweep",
+      "platform": "LinkedIn",
+      "scope": "Public native pages for every canonical or explicit target-company LinkedIn post, checking visible comments for the 50 curated insider people",
+      "pagesAttempted": 171,
+      "pagesFetched": 171,
+      "commentsFound": 3,
+      "outcome": "Found Mathilde Collin comments on Lumius, Playabl.ai, and Atrisa. Lumius and Atrisa passed; Playabl.ai failed the strict visible-metric rule."
+    },
+    {
+      "id": "linkedin-prior-artifact-target-comment-sweep",
+      "platform": "LinkedIn",
+      "scope": "Target-company post URLs present only in prior source-hunt artifacts, excluding canonical pages already scanned",
+      "pagesAttempted": 44,
+      "pagesFetched": 19,
+      "publicPagesUnavailable": 25,
+      "commentsFound": 1,
+      "outcome": "Found and verified a net-new Taro Fukuyama native comment on 9 Mothers."
+    },
+    {
+      "id": "linkedin-indexed-voice-batch-sweep",
+      "platform": "web index / LinkedIn",
+      "scope": "Each of the 50 insider names paired with exact YC P26 and YC S26 terms",
+      "queriesPerformed": 100,
+      "uniqueLinkedinUrlsReturned": 10,
+      "nativePagesOpened": 10,
+      "outcome": "No additional qualifying source beyond candidates found in the direct native-page comment sweeps."
+    },
+    {
+      "id": "candidate-native-verification",
+      "platform": "LinkedIn",
+      "scope": "Deep-linked native comment URLs for all four newly discovered comment candidates",
+      "pagesVerified": 4,
+      "outcome": "Confirmed stable comment URNs, native author links, exact text, timestamps, and structured reaction counts; only comments with a nonzero native counter were accepted."
+    },
+    {
+      "id": "other-native-platform-prior-pass-review",
+      "platform": "Reddit, YouTube, Hacker News, GitHub",
+      "scope": "Reviewed strict people-only target-batch sweeps and candidate evidence already captured in prior source-hunt artifacts",
+      "queriesPerformed": 0,
+      "outcome": "No qualifying insider-authored target-company post or comment survived the prior strict passes; no duplicate live query was added."
+    }
+  ],
+  "accepted": [
+    {
+      "candidateId": "linkedin-comment-mathilde-collin-lumius-7444469004846510080",
+      "batchSlug": "S2026",
+      "companyName": "Lumius",
+      "companySlug": "lumius",
+      "founderName": "Tri Vu",
+      "platform": "LinkedIn",
+      "evidenceType": "native_comment",
+      "topVoice": {
+        "displayName": "Mathilde Collin",
+        "handle": "mathildecollin",
+        "profileUrl": "https://www.linkedin.com/in/mathildecollin",
+        "audienceId": "insiders"
+      },
+      "sourceUrl": "https://www.linkedin.com/posts/tri-vu-pa_startup-medtech-ycombinator-activity-7444403934800297984-7dMc?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7444403934800297984%2C7444469004846510080%29",
+      "parentSourceUrl": "https://www.linkedin.com/posts/tri-vu-pa_startup-medtech-ycombinator-activity-7444403934800297984-7dMc",
+      "platformPostId": "7444469004846510080",
+      "platformCommentUrn": "urn:li:comment:(urn:li:activity:7444403934800297984,7444469004846510080)",
+      "postedAt": "2026-03-30T19:42:02.302Z",
+      "author": {
+        "name": "Mathilde Collin",
+        "handle": "mathilde-collin-bb59492a",
+        "profileUrl": "https://www.linkedin.com/in/mathilde-collin-bb59492a/en",
+        "relationship": "insider"
+      },
+      "metrics": {
+        "reactions": 1
+      },
+      "nativeEvidence": {
+        "headline": "Mathilde Collin comments on Lumius joining YC P26",
+        "visibleTextSignals": [
+          "Mathilde Collin's native comment text is: 🙌",
+          "The parent post by YC-listed founder Tri Vu says that he, Chenhang Li, and Luca Menozzi are joining Y Combinator with Lumius.",
+          "The native comment exposes 1 reaction."
+        ],
+        "verificationMethod": "The public native LinkedIn post HTML exposed the insider author link and stable comment URN; public JSON-LD exposed the exact comment text, timestamp, and reaction count."
+      },
+      "attributionSignals": [
+        "The local S2026 roster lists Lumius and identifies parent-post author Tri Vu as a founder.",
+        "The parent post explicitly names Lumius and says the team is joining Y Combinator.",
+        "The comment author resolves to curated insider Mathilde Collin, not a company or organization account."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/tri-vu-pa_startup-medtech-ycombinator-activity-7444403934800297984-7dMc?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7444403934800297984%2C7444469004846510080%29",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "parentUrlInPriorArtifacts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json"
+        ],
+        "status": "net_new_accepted",
+        "checkedAt": "2026-07-16T01:24:18Z"
+      }
+    },
+    {
+      "candidateId": "linkedin-comment-mathilde-collin-atrisa-7471364906072686592",
+      "batchSlug": "S2026",
+      "companyName": "Atrisa",
+      "companySlug": "atrisa",
+      "founderName": "Rithik Jain",
+      "platform": "LinkedIn",
+      "evidenceType": "native_comment",
+      "topVoice": {
+        "displayName": "Mathilde Collin",
+        "handle": "mathildecollin",
+        "profileUrl": "https://www.linkedin.com/in/mathildecollin",
+        "audienceId": "insiders"
+      },
+      "sourceUrl": "https://www.linkedin.com/posts/rithik--jain_ycombinator-p26-analog-activity-7471007050957733888-U_3-?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7471007050957733888%2C7471364906072686592%29",
+      "parentSourceUrl": "https://www.linkedin.com/posts/rithik--jain_ycombinator-p26-analog-activity-7471007050957733888-U_3-",
+      "platformPostId": "7471364906072686592",
+      "platformCommentUrn": "urn:li:comment:(urn:li:activity:7471007050957733888,7471364906072686592)",
+      "postedAt": "2026-06-13T00:56:44.856Z",
+      "author": {
+        "name": "Mathilde Collin",
+        "handle": "mathilde-collin-bb59492a",
+        "profileUrl": "https://www.linkedin.com/in/mathilde-collin-bb59492a/en",
+        "relationship": "insider"
+      },
+      "metrics": {
+        "reactions": 4
+      },
+      "nativeEvidence": {
+        "headline": "Mathilde Collin comments on Atrisa's YC P26 announcement",
+        "visibleTextSignals": [
+          "Mathilde Collin's native comment text is: We love working with you guys <3",
+          "The parent post by YC-listed founder Rithik Jain explicitly announces Atrisa and YC P26.",
+          "The native comment exposes 4 reactions."
+        ],
+        "verificationMethod": "The public native LinkedIn post HTML exposed the insider author link and stable comment URN; public JSON-LD exposed the exact comment text, timestamp, and reaction count."
+      },
+      "attributionSignals": [
+        "The local S2026 roster lists Atrisa and identifies parent-post author Rithik Jain as a founder.",
+        "The parent post explicitly names Atrisa and YC P26.",
+        "The comment author resolves to curated insider Mathilde Collin, not a company or organization account."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/rithik--jain_ycombinator-p26-analog-activity-7471007050957733888-U_3-?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7471007050957733888%2C7471364906072686592%29",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "parentUrlInPriorArtifacts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json"
+        ],
+        "status": "net_new_accepted",
+        "checkedAt": "2026-07-16T01:24:18Z"
+      }
+    },
+    {
+      "candidateId": "linkedin-comment-taro-fukuyama-9-mothers-7445191769534676992",
+      "batchSlug": "S2026",
+      "companyName": "9 Mothers",
+      "companySlug": "9-mothers-corporation",
+      "founderName": "Russell Smith",
+      "platform": "LinkedIn",
+      "evidenceType": "native_comment",
+      "topVoice": {
+        "displayName": "Taro Fukuyama",
+        "handle": "tarof",
+        "profileUrl": "https://www.linkedin.com/in/tarof",
+        "audienceId": "insiders"
+      },
+      "sourceUrl": "https://www.linkedin.com/posts/russellhowardsmith_having-done-yc-before-its-amazing-to-be-activity-7445188889805271040-8CLR?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7445188889805271040%2C7445191769534676992%29",
+      "parentSourceUrl": "https://www.linkedin.com/posts/russellhowardsmith_having-done-yc-before-its-amazing-to-be-activity-7445188889805271040-8CLR",
+      "platformPostId": "7445191769534676992",
+      "platformCommentUrn": "urn:li:comment:(urn:li:activity:7445188889805271040,7445191769534676992)",
+      "postedAt": "2026-04-01T19:34:02.831Z",
+      "author": {
+        "name": "Taro Fukuyama",
+        "handle": "tarof",
+        "profileUrl": "https://www.linkedin.com/in/tarof",
+        "relationship": "insider"
+      },
+      "metrics": {
+        "reactions": 2
+      },
+      "nativeEvidence": {
+        "headline": "Taro Fukuyama comments on 9 Mothers in YC P26",
+        "visibleTextSignals": [
+          "Taro Fukuyama's native comment text is: 9 mothers will be one of the hottest companies at demo day of P26!!",
+          "The parent post is by YC-listed 9 Mothers founder Russell Smith and describes returning to YC.",
+          "The native comment exposes 2 reactions."
+        ],
+        "verificationMethod": "The public native LinkedIn post HTML exposed the insider author link and stable comment URN; public JSON-LD exposed the exact comment text, timestamp, and reaction count."
+      },
+      "attributionSignals": [
+        "The local S2026 roster lists 9 Mothers and identifies parent-post author Russell Smith as a founder.",
+        "The comment itself explicitly names 9 Mothers and P26.",
+        "The comment author resolves to curated insider Taro Fukuyama, not a company or organization account."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/russellhowardsmith_having-done-yc-before-its-amazing-to-be-activity-7445188889805271040-8CLR?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7445188889805271040%2C7445191769534676992%29",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "parentUrlInPriorArtifacts": true,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json"
+        ],
+        "status": "net_new_accepted",
+        "checkedAt": "2026-07-16T01:24:18Z"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "candidateId": "linkedin-comment-mathilde-collin-playablai-7462966254518157313",
+      "batchSlug": "S2026",
+      "companyName": "Playabl.ai",
+      "companySlug": "playablai",
+      "founderName": "Hamza Al-Ali",
+      "platform": "LinkedIn",
+      "evidenceType": "native_comment_no_visible_metric",
+      "topVoice": {
+        "displayName": "Mathilde Collin",
+        "handle": "mathildecollin",
+        "profileUrl": "https://www.linkedin.com/in/mathildecollin",
+        "audienceId": "insiders"
+      },
+      "sourceUrl": "https://www.linkedin.com/posts/hamzawy998_we-made-13m-building-modding-tools-for-activity-7462946456786608128-opNZ?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7462946456786608128%2C7462966254518157313%29",
+      "parentSourceUrl": "https://www.linkedin.com/posts/hamzawy998_we-made-13m-building-modding-tools-for-activity-7462946456786608128-opNZ",
+      "platformPostId": "7462966254518157313",
+      "platformCommentUrn": "urn:li:comment:(urn:li:activity:7462946456786608128,7462966254518157313)",
+      "postedAt": "2026-05-20T20:43:30.286Z",
+      "author": {
+        "name": "Mathilde Collin",
+        "handle": "mathilde-collin-bb59492a",
+        "profileUrl": "https://www.linkedin.com/in/mathilde-collin-bb59492a/en",
+        "relationship": "insider"
+      },
+      "metrics": {
+        "reactions": 0
+      },
+      "nativeEvidence": {
+        "headline": "Mathilde Collin comments on Playabl.ai founder Hamza Al-Ali's YC P26 post",
+        "visibleTextSignals": [
+          "Mathilde Collin's native comment text is: Totally the right time yes 😉",
+          "The parent post by YC-listed founder Hamza Al-Ali explicitly discusses Playabl.ai and YC P26.",
+          "Public JSON-LD records zero reactions, so the rendered native comment has no visible engagement counter."
+        ],
+        "verificationMethod": "The public native LinkedIn page confirmed the author, comment URN, text, and timestamp. Its structured interaction count is zero, and no visible native metric counter is rendered."
+      },
+      "attributionSignals": [
+        "The local S2026 roster lists Playabl.ai and identifies parent-post author Hamza Al-Ali as a founder.",
+        "The parent post clearly targets Playabl.ai and YC P26.",
+        "The author is a curated insider, but the candidate fails the user's visible-metrics requirement."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/hamzawy998_we-made-13m-building-modding-tools-for-activity-7462946456786608128-opNZ?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7462946456786608128%2C7462966254518157313%29",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "parentUrlInPriorArtifacts": true,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json"
+        ],
+        "status": "net_new_rejected",
+        "checkedAt": "2026-07-16T01:24:18Z"
+      },
+      "reason": "Rejected: the native comment has no visible engagement counter. The zero in JSON-LD is explicit rather than inferred, but it does not satisfy the stricter visible-metrics acceptance bar."
+    },
+    {
+      "candidateId": "x-paul-graham-agentcard-founder-repost-2076726758767018125",
+      "batchSlug": "S26",
+      "companyName": "Agentcard",
+      "companySlug": "agentcard",
+      "founderName": "Karen Serfaty",
+      "platform": "X",
+      "evidenceType": "repost_only",
+      "topVoice": {
+        "displayName": "Paul Graham",
+        "handle": "paulg",
+        "profileUrl": "https://x.com/paulg",
+        "audienceId": "insiders"
+      },
+      "sourceUrl": "https://x.com/keyserfaty/status/2076726758767018125",
+      "platformPostId": "2076726758767018125",
+      "postedAt": "2026-07-13T17:53:37Z",
+      "author": {
+        "name": "Karen Serfaty",
+        "handle": "keyserfaty",
+        "profileUrl": "https://x.com/keyserfaty",
+        "relationship": "YC-listed founder; not an insider"
+      },
+      "metrics": {
+        "views": 58844,
+        "likes": 195,
+        "replies": 32,
+        "reposts": 16,
+        "quotes": 3,
+        "bookmarks": 123
+      },
+      "nativeEvidence": {
+        "headline": "Paul Graham reposts an Agentcard founder post",
+        "visibleTextSignals": [
+          "The native post is authored by Agentcard founder Karen Serfaty.",
+          "Paul Graham appears only as a reposter; there is no separate Paul Graham native source URL."
+        ],
+        "verificationMethod": "Native X post metadata and a public history mirror agreed on the native author, post ID, text, timestamp, and visible metrics."
+      },
+      "attributionSignals": [
+        "The local S26 roster identifies Karen Serfaty as an Agentcard founder.",
+        "The curated insider is not the native author."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://x.com/keyserfaty/status/2076726758767018125",
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "outputs/source-hunt/s26-insiders-people-only-sol-ultra.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json"
+        ],
+        "status": "prior_rejected_duplicate",
+        "checkedAt": "2026-07-16T01:24:18Z"
+      },
+      "reason": "Rejected: Paul Graham only reposted the post; the native author is the company founder."
+    },
+    {
+      "candidateId": "linkedin-sam-altman-screenpipe-founder-post-7477404387649286145",
+      "batchSlug": "S26",
+      "companyName": "screenpipe",
+      "companySlug": "screenpipe",
+      "founderName": "Louis Beaumont",
+      "platform": "LinkedIn",
+      "evidenceType": "third_party_founder_authored",
+      "topVoice": {
+        "displayName": "Sam Altman",
+        "handle": "samaltman",
+        "profileUrl": "https://www.linkedin.com/in/samaltman",
+        "audienceId": "insiders"
+      },
+      "sourceUrl": "https://www.linkedin.com/posts/merlinkafka_yc-week-1-saw-sam-altman-openai-activity-7477404387649286145-IDEr",
+      "platformPostId": "7477404387649286145",
+      "postedAt": "2026-06-29T16:55:29.470Z",
+      "author": {
+        "name": "Merlin Kafka",
+        "handle": "merlinkafka",
+        "profileUrl": "https://www.linkedin.com/in/merlinkafka",
+        "relationship": "third-party founder; not an insider"
+      },
+      "metrics": {
+        "reactions": 178,
+        "comments": 18
+      },
+      "nativeEvidence": {
+        "headline": "Third-party founder post mentions Sam Altman and screenpipe",
+        "visibleTextSignals": [
+          "Merlin Kafka authored the post and mentions seeing Sam Altman.",
+          "The post also mentions screenpipe and LATO, but Sam Altman did not author it."
+        ],
+        "verificationMethod": "The public native LinkedIn page exposed the author, post body, timestamp, and visible engagement counters."
+      },
+      "attributionSignals": [
+        "Sam Altman is only mentioned in third-party text.",
+        "The native author is not one of the curated insiders."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/merlinkafka_yc-week-1-saw-sam-altman-openai-activity-7477404387649286145-IDEr",
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "outputs/source-hunt/s26-insiders-people-only-sol-ultra.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json"
+        ],
+        "status": "prior_rejected_duplicate",
+        "checkedAt": "2026-07-16T01:24:18Z"
+      },
+      "reason": "Rejected: this is a third-party founder-authored post that merely mentions an insider."
+    },
+    {
+      "candidateId": "x-taro-fukuyama-21st-w26-2031399683717746905",
+      "batchSlug": "W26",
+      "companyName": "21st",
+      "companySlug": "21st",
+      "founderName": null,
+      "platform": "X",
+      "evidenceType": "native_post_wrong_batch",
+      "topVoice": {
+        "displayName": "Taro Fukuyama",
+        "handle": "taro_f",
+        "profileUrl": "https://x.com/taro_f",
+        "audienceId": "insiders"
+      },
+      "sourceUrl": "https://x.com/taro_f/status/2031399683717746905",
+      "platformPostId": "2031399683717746905",
+      "postedAt": "2026-03-10T16:00:00Z",
+      "author": {
+        "name": "Taro Fukuyama",
+        "handle": "taro_f",
+        "profileUrl": "https://x.com/taro_f",
+        "relationship": "insider"
+      },
+      "metrics": {
+        "views": 4287,
+        "likes": 22,
+        "replies": 1,
+        "reposts": 1,
+        "quotes": 1,
+        "bookmarks": 5
+      },
+      "nativeEvidence": {
+        "headline": "Taro Fukuyama natively posts about 21st",
+        "visibleTextSignals": [
+          "The post is natively authored by Taro Fukuyama and explicitly targets 21st.",
+          "The company belongs to YC W26, not S2026 or S26."
+        ],
+        "verificationMethod": "Native X metadata confirmed the author, post ID, timestamp, target, and visible metrics; the local rosters confirmed the batch mismatch."
+      },
+      "attributionSignals": [
+        "Taro Fukuyama is a curated insider and native author.",
+        "21st is absent from the two requested batch rosters and is listed in W26."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://x.com/taro_f/status/2031399683717746905",
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "outputs/source-hunt/s26-insiders-people-only-sol-ultra.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json"
+        ],
+        "status": "prior_rejected_duplicate",
+        "checkedAt": "2026-07-16T01:24:18Z"
+      },
+      "reason": "Rejected: the company is YC W26 and is outside both requested batches."
+    }
+  ],
+  "duplicateUrls": [
+    "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+    "https://www.linkedin.com/posts/tarof_heres-the-top-healthtech-startups-in-y-combinator-activity-7471592225164906496-6Vz3",
+    "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+    "https://www.linkedin.com/posts/tarof_new-investment-adialante-im-excited-activity-7469417919719022593-vYVb",
+    "https://www.linkedin.com/posts/tarof_new-investment-apollo-atomics-yc-p26-activity-7470505102114459649-jIhq",
+    "https://www.linkedin.com/posts/tarof_new-investment-complir-im-excited-activity-7470142691662536704-eyvI",
+    "https://www.linkedin.com/posts/tarof_new-investment-insforge-im-excited-activity-7468745981598126080-8d2q",
+    "https://www.linkedin.com/posts/tarof_new-investment-limrun-yc-p26-im-activity-7468693184567586816-M3KV",
+    "https://www.linkedin.com/posts/tarof_new-investment-superset-im-excited-activity-7469055520994250753-dOgg",
+    "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+    "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+    "https://x.com/collinmathilde/status/2039737176259514763",
+    "https://x.com/collinmathilde/status/2039761795234332678",
+    "https://x.com/collinmathilde/status/2041584988857200865",
+    "https://x.com/collinmathilde/status/2048443287338623044",
+    "https://x.com/collinmathilde/status/2051705121017565259",
+    "https://x.com/collinmathilde/status/2052528199012401259",
+    "https://x.com/collinmathilde/status/2053905762855125204",
+    "https://x.com/collinmathilde/status/2054663559867703432",
+    "https://x.com/collinmathilde/status/2059323043613483505",
+    "https://x.com/collinmathilde/status/2059376409974575169",
+    "https://x.com/collinmathilde/status/2061503072191558032",
+    "https://x.com/collinmathilde/status/2062577176961228911",
+    "https://x.com/collinmathilde/status/2068036340072239550",
+    "https://x.com/daltonc/status/2070285933992411339",
+    "https://x.com/parkerconrad/status/2069810389022343466",
+    "https://x.com/paulg/status/2062585995674128790",
+    "https://x.com/paulg/status/2062737380516524209",
+    "https://x.com/paulg/status/2063091245334044902",
+    "https://x.com/paulg/status/2067373693689315405",
+    "https://x.com/rauchg/status/2073101113617010728",
+    "https://x.com/saranormous/status/2077409287211811191"
+  ],
+  "productivity": {
+    "queriesPerformed": 101,
+    "voicesSearched": 50,
+    "companiesSearched": 280,
+    "batches": {
+      "S2026": 197,
+      "S26": 83
+    },
+    "xAccountsSearched": 49,
+    "xCardsScanned": 913,
+    "xNativePostsScanned": 1112,
+    "xApiPostsScanned": 645,
+    "xPaginationPagesFetched": 34,
+    "xVoicesReachedDateCutoff": 5,
+    "xVoicesWithCursorLimit": 37,
+    "linkedinTargetPagesAttempted": 215,
+    "linkedinTargetPagesFetched": 190,
+    "linkedinPublicPagesUnavailable": 25,
+    "linkedinNativeCommentsFound": 4,
+    "indexedLinkedinQueries": 100,
+    "indexedLinkedinPagesOpened": 10,
+    "candidatesFound": 7,
+    "netNewVerifiedRows": 3,
+    "accepted": 3,
+    "rejected": 4,
+    "duplicates": 32,
+    "rejectionsByReason": {
+      "no_visible_metric_counter": 1,
+      "repost_only_native_author_not_insider": 1,
+      "third_party_founder_authored": 1,
+      "company_outside_requested_batches": 1
+    },
+    "coverageLimitations": [
+      "X cursor pagination was interrupted by public-mirror Cloudflare limits for 37 voices; indexed searches and prior corpus dedupe were used as fallback, and five voices reached the batch date cutoff directly.",
+      "The public X history view returned zero current cards for @spez and @lennyrachitsky; name and indexed native-status searches were used as fallback.",
+      "Jessica Livingston has no seeded X or LinkedIn handle in the curated insider list, so she was searched by exact name across indexed sources.",
+      "Twenty-five artifact-only LinkedIn parent URLs no longer exposed a public guest page, and guest pages expose only the publicly rendered comment subset.",
+      "Reddit, YouTube, Hacker News, and GitHub were covered by strict prior source-hunt passes reviewed in this run rather than rerunning identical queries."
+    ]
+  }
+}

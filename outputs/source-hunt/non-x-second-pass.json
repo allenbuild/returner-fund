@@ -1,0 +1,398 @@
+{
+  "accepted": [
+    {
+      "batch": "S26",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/elena-zhao-015353217_were-headed-to-y-combinator-this-summer-activity-7426814091199119360-4mJT",
+      "company": "Litmus",
+      "founder": "Elena Zhao",
+      "sourceKind": "founder_post",
+      "title": "Elena Zhao announced Litmus is headed to Y Combinator",
+      "text": "Founder post says Elena Zhao and Shaivi Rau are building Litmus and headed to Y Combinator this summer.",
+      "metrics": { "reactions": 290, "comments": 102 },
+      "publishedAt": "2026-02-10T02:27:42.875Z",
+      "attributionSignals": [
+        "Local S26 snapshot lists Litmus founders Shaivi Rau and Elena Zhao.",
+        "LinkedIn page identifies the author as Elena Zhao and the post text names Litmus and Y Combinator.",
+        "The URL is a native LinkedIn post, not a profile or search page."
+      ],
+      "reason": "Accepted: founder-native S26 LinkedIn post with visible reactions/comments and URL not present in the two protected evidence snapshots."
+    },
+    {
+      "batch": "S26",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/parthajmera_life-updates-agnost-ai-yc-s26-is-joining-activity-7475915114043555840-felZ",
+      "company": "Agnost AI",
+      "founder": "Parth Ajmera",
+      "sourceKind": "founder_post",
+      "title": "Agnost AI is joining Y Combinator",
+      "text": "Founder post says Agnost AI (YC S26) is joining Y Combinator and describes production AI analytics infrastructure.",
+      "metrics": { "reactions": 762, "comments": 97 },
+      "publishedAt": "2026-06-25T14:17:38.973Z",
+      "attributionSignals": [
+        "Local S26 snapshot lists Agnost AI founder Parth Ajmera.",
+        "LinkedIn page identifies Parth Ajmera as author and links Agnost AI (YC S26) in the post text.",
+        "The URL is a native LinkedIn post."
+      ],
+      "reason": "Accepted: founder-native S26 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S26",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/lukasz-reszczynski-bio_pango-yc-s26-is-joining-y-combinator-today-activity-7473269455783948288-S_GE",
+      "company": "Pango",
+      "founder": "Lukasz Reszczynski",
+      "sourceKind": "founder_post",
+      "title": "Pango is joining Y Combinator",
+      "text": "Founder post says Pango (YC S26) is joining Y Combinator and describes software that runs ecommerce operations by itself.",
+      "metrics": { "reactions": 319, "comments": 43 },
+      "publishedAt": "2026-06-18T07:04:44.891Z",
+      "attributionSignals": [
+        "Local S26 snapshot lists Pango founders Steve Rahimi and Lukasz Reszczynski.",
+        "LinkedIn page identifies Lukasz Reszczynski as author and names Pango (YC S26).",
+        "The URL is a native LinkedIn post."
+      ],
+      "reason": "Accepted: founder-native S26 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S26",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/risereforming_were-joining-y-combinators-s26-batch-thank-activity-7462887812569243649-BVMe",
+      "company": "Rise Reforming",
+      "founder": null,
+      "sourceKind": "company_post",
+      "title": "Rise Reforming announced joining YC S26",
+      "text": "Company post says Rise Reforming is joining Y Combinator's S26 batch and describes turning underutilized biogas into low-carbon chemicals.",
+      "metrics": { "reactions": 240, "comments": 66 },
+      "publishedAt": "2026-05-20T15:31:48.266Z",
+      "attributionSignals": [
+        "Local S26 snapshot lists Rise Reforming.",
+        "LinkedIn page identifies the author as Rise Reforming and post text names Y Combinator's S26 batch.",
+        "The URL is a native company LinkedIn post."
+      ],
+      "reason": "Accepted: first-party company post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/devon-krapcho-439a7498_cohesion-yc-p26-is-joining-y-combinator-activity-7450237541909233665-0ZJY",
+      "company": "Cohesion",
+      "founder": "Devon Krapcho",
+      "sourceKind": "founder_post",
+      "title": "Cohesion is joining Y Combinator",
+      "text": "Founder post says Cohesion (YC P26) is joining Y Combinator and is live with 10+ equity funds managing $10B+ AUM.",
+      "metrics": { "reactions": 226, "comments": 28 },
+      "publishedAt": "2026-04-15T17:44:08.710Z",
+      "attributionSignals": [
+        "Local S2026 snapshot lists Cohesion founder Devon Krapcho.",
+        "LinkedIn page identifies Devon Krapcho as author and names Cohesion (YC P26).",
+        "The URL is a native LinkedIn post."
+      ],
+      "reason": "Accepted: founder-native Spring 2026 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/hetdave_johann-and-i-are-joining-y-combinator-we-activity-7443688674510360576-3-_z",
+      "company": "Andustry",
+      "founder": "Het Dave",
+      "sourceKind": "founder_post",
+      "title": "Andustry is joining Y Combinator",
+      "text": "Founder post says Het Dave and Johann are joining Y Combinator and building Andustry (YC P26), with a first customer ordering machines worth over $1M.",
+      "metrics": { "reactions": 903, "comments": 147 },
+      "publishedAt": "2026-03-28T16:01:17.051Z",
+      "attributionSignals": [
+        "Local S2026 snapshot lists Andustry founders Het Dave and Johann Sturken.",
+        "LinkedIn page identifies Het Dave as author and names Andustry (YC P26).",
+        "The URL is a native LinkedIn post."
+      ],
+      "reason": "Accepted: founder-native Spring 2026 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/ankurdahama_big-update-were-joining-y-combinator-p26-activity-7444774689597583360-7aeZ",
+      "company": "Userlens",
+      "founder": "Ankur Dahama",
+      "sourceKind": "founder_post",
+      "title": "Userlens is joining Y Combinator P26",
+      "text": "Founder post says Userlens (YC P26) is joining Y Combinator P26 and reflects on arriving in San Francisco for the batch.",
+      "metrics": { "reactions": 320, "comments": 54 },
+      "publishedAt": "2026-03-31T15:56:43.224Z",
+      "attributionSignals": [
+        "Local S2026 snapshot lists Userlens founder Ankur Dahama.",
+        "LinkedIn page identifies Ankur Dahama as author and names Userlens (YC P26).",
+        "The URL is a native LinkedIn post."
+      ],
+      "reason": "Accepted: founder-native Spring 2026 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/boenils_transload-yc-p26-is-joining-y-combinator-activity-7452261106724573184-_Oja",
+      "company": "transload",
+      "founder": "Nils Borner",
+      "sourceKind": "founder_post",
+      "title": "transload is joining Y Combinator",
+      "text": "Founder post says transload (YC P26) is joining Y Combinator and helps logistics companies measure shipments using existing security cameras.",
+      "metrics": { "reactions": 248, "comments": 59 },
+      "publishedAt": "2026-04-21T07:45:04.158Z",
+      "attributionSignals": [
+        "Local S2026 snapshot lists transload founder Nils Borner.",
+        "LinkedIn page identifies Nils Borner as author and names transload (YC P26).",
+        "The URL is a native LinkedIn post."
+      ],
+      "reason": "Accepted: founder-native Spring 2026 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/rayanmubarak_excited-to-share-enjamb-yc-p26-is-joining-activity-7450398541010616320-wm_N",
+      "company": "Enjamb Labs",
+      "founder": "Rayan Mubarak",
+      "sourceKind": "founder_post",
+      "title": "Enjamb is joining Y Combinator",
+      "text": "Founder post says Enjamb (YC P26) is joining Y Combinator and is building Claude Co-work for collaborative research.",
+      "metrics": { "reactions": 224, "comments": 46 },
+      "publishedAt": "2026-04-16T04:23:53.888Z",
+      "attributionSignals": [
+        "Local S2026 snapshot lists Enjamb Labs founder Rayan Mubarak.",
+        "LinkedIn page identifies Rayan Mubarak as author and names Enjamb (YC P26).",
+        "The URL is a native LinkedIn post."
+      ],
+      "reason": "Accepted: founder-native Spring 2026 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/rihab-l-085182164_since-joining-y-combinator-yc-p26-we-2xd-activity-7465092563004346368-YZGH",
+      "company": "Asendia AI",
+      "founder": "Rihab Lajmi",
+      "sourceKind": "founder_post",
+      "title": "Asendia AI doubled revenue since joining YC P26",
+      "text": "Founder post says that since joining Y Combinator (YC P26), Asendia AI 2x'd revenue, sponsored 4 major industry events, and hosted a webinar with 700 industry leaders.",
+      "metrics": { "reactions": 810, "comments": 105 },
+      "publishedAt": "2026-05-26T17:32:41.733Z",
+      "attributionSignals": [
+        "Local S2026 snapshot lists Asendia AI founder Rihab Lajmi.",
+        "LinkedIn page identifies Rihab L. as author and names Asendia AI.",
+        "The URL is a native LinkedIn post with transcript and visible metrics."
+      ],
+      "reason": "Accepted: founder-native Spring 2026 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/theodore-otzenberger-895345131_armature-yc-p26-is-joining-y-combinator-activity-7458040434158723072-MdMJ",
+      "company": "Armature",
+      "founder": "Theodore Otzenberger",
+      "sourceKind": "founder_post",
+      "title": "Armature is joining Y Combinator",
+      "text": "Founder post says Armature (YC P26) is joining Y Combinator and names cofounder Louis.",
+      "metrics": { "reactions": 430, "comments": 88 },
+      "publishedAt": "2026-05-07T06:30:03.194Z",
+      "attributionSignals": [
+        "Local S2026 snapshot lists Armature founder Theodore Otzenberger.",
+        "LinkedIn page identifies Theodore Otzenberger as author and names Armature (YC P26).",
+        "The URL is a native LinkedIn post."
+      ],
+      "reason": "Accepted: founder-native Spring 2026 post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/margaretczhang_i-joined-forces-with-david-s-huang-to-unlock-activity-7449510766657060864-g9St",
+      "company": "Thirdbrain Labs",
+      "founder": "Margaret Zhang",
+      "sourceKind": "founder_post",
+      "title": "Thirdbrain Labs launch/backing post",
+      "text": "Founder post says Margaret Zhang joined David Huang to build Thirdbrain Labs, backed by a16z speedrun, and describes a scalable post-training factory for specialized models.",
+      "metrics": { "reactions": 345, "comments": 84 },
+      "publishedAt": "2026-04-13T17:36:11.987Z",
+      "attributionSignals": [
+        "Local A16ZSR006 profile lists Thirdbrain Labs founders Margaret Zhang and David Huang.",
+        "LinkedIn page identifies Margaret Zhang as author and names Thirdbrain Labs and a16z speedrun.",
+        "The URL is a native LinkedIn post with visible counters."
+      ],
+      "reason": "Accepted: founder-native A16Z Speedrun post with visible metrics and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/ben-segal-39306311b_this-has-been-hard-to-keep-quiet-variant-activity-7429910776573886464-Akw3",
+      "company": "VariantNow",
+      "founder": "Ben Segal",
+      "sourceKind": "founder_post",
+      "title": "Variant is backed by a16z speedrun",
+      "text": "Founder post says Variant is backed by a16z speedrun and describes adaptive web infrastructure for brands.",
+      "metrics": { "reactions": 268, "comments": 93 },
+      "publishedAt": "2026-02-18T15:32:50.201Z",
+      "attributionSignals": [
+        "Local A16ZSR006 profile lists VariantNow founders Elad Nissenberg and Ben Segal.",
+        "LinkedIn page identifies Ben Segal as author and names Variant plus a16z speedrun.",
+        "VariantNow local website is variantnow.com; the post's visible product name is Variant."
+      ],
+      "reason": "Accepted: founder-native A16Z Speedrun post with visible metrics; Variant/VariantNow attribution is supported by founder match and local profile."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "GitHub",
+      "url": "https://github.com/modaic-ai/gepa-viz",
+      "company": "Modaic",
+      "founder": null,
+      "sourceKind": "github_repo",
+      "title": "modaic-ai/gepa-viz",
+      "text": "Interactive live visualizer for GEPA prompt-optimization runs.",
+      "metrics": { "stars": 417, "forks": 29, "openIssues": 0 },
+      "publishedAt": null,
+      "attributionSignals": [
+        "Local A16ZSR006 profile lists Modaic with website modaic.dev.",
+        "Local GitHub traction snapshot attributes modaic-ai repos to Modaic.",
+        "GitHub repo page is under the modaic-ai org and links the native repository URL."
+      ],
+      "reason": "Accepted: first-party repo URL with visible GitHub stars/forks/issues and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "GitHub",
+      "url": "https://github.com/modaic-ai/microcode",
+      "company": "Modaic",
+      "founder": null,
+      "sourceKind": "github_repo",
+      "title": "modaic-ai/microcode",
+      "text": "Context-efficient terminal agent powered by reasoning language models.",
+      "metrics": { "stars": 60, "forks": 5, "openIssues": 0 },
+      "publishedAt": null,
+      "attributionSignals": [
+        "Local A16ZSR006 profile lists Modaic with website modaic.dev.",
+        "GitHub repo page is under modaic-ai, links homepage modaic.dev, and says built by Modaic.",
+        "The URL is a native repository page."
+      ],
+      "reason": "Accepted: first-party repo URL with visible GitHub stars/forks/issues and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "GitHub",
+      "url": "https://github.com/modaic-ai/modaic",
+      "company": "Modaic",
+      "founder": null,
+      "sourceKind": "github_repo",
+      "title": "modaic-ai/modaic",
+      "text": "Python SDK for Modaic.",
+      "metrics": { "stars": 27, "forks": 1, "openIssues": 5 },
+      "publishedAt": null,
+      "attributionSignals": [
+        "Local A16ZSR006 profile lists Modaic with website modaic.dev.",
+        "GitHub repo page is under modaic-ai and the README describes Modaic.",
+        "The URL is a native repository page."
+      ],
+      "reason": "Accepted: first-party repo URL with visible GitHub stars/forks/issues and no current protected-snapshot URL duplicate."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "GitHub",
+      "url": "https://github.com/modaic-ai/gepa-rpc",
+      "company": "Modaic",
+      "founder": null,
+      "sourceKind": "github_repo",
+      "title": "modaic-ai/gepa-rpc",
+      "text": "Run GEPA on non-Python libraries, including Vercel AI SDK agents.",
+      "metrics": { "stars": 36, "forks": 2, "openIssues": 0 },
+      "publishedAt": null,
+      "attributionSignals": [
+        "Local A16ZSR006 profile lists Modaic with website modaic.dev.",
+        "Local GitHub traction snapshot attributes modaic-ai repos to Modaic.",
+        "The URL is a native repository page under modaic-ai."
+      ],
+      "reason": "Accepted: first-party repo URL with visible GitHub stars/forks/issues and no current protected-snapshot URL duplicate."
+    }
+  ],
+  "rejected": [
+    {
+      "batch": "S26",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/anshtandon_today-were-thrilled-to-publicly-share-that-activity-7477821790933688321-2yxL",
+      "company": "Cova",
+      "founder": "Ansh Tandon",
+      "sourceKind": "founder_post",
+      "title": "Cova founder post announcing YC S26",
+      "text": "Founder-native post with visible metrics, but already present in the protected evidence snapshots.",
+      "metrics": { "reactions": 230, "comments": 54 },
+      "publishedAt": "2026-06-30T20:34:06.168Z",
+      "attributionSignals": [
+        "Local S26 snapshot lists Cova founder Ansh Tandon.",
+        "Exact URL already exists in src/lib/social/targeted-evidence-current.json."
+      ],
+      "reason": "Rejected: duplicate of current protected evidence."
+    },
+    {
+      "batch": "S2026",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/anand-arnaud-pajaniradjane_im-joining-y-combinator-p26-as-a-solo-founder-activity-7445519929191280640-PLuf",
+      "company": "Scope",
+      "founder": "Anand-Arnaud Pajaniradjane",
+      "sourceKind": "founder_post",
+      "title": "Scope founder post announcing YC P26",
+      "text": "Founder-native post with visible company context, but already present in the protected evidence snapshots.",
+      "metrics": {},
+      "publishedAt": "2026-04-02T17:18:02.190Z",
+      "attributionSignals": [
+        "Local S2026 snapshot lists Scope founder Anand-Arnaud Pajaniradjane.",
+        "Exact URL already exists in src/lib/social/targeted-evidence-current.json."
+      ],
+      "reason": "Rejected: duplicate of current protected evidence."
+    },
+    {
+      "batch": "S26",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/paul-leutheuser-54207364_starting-a-company-has-been-a-dream-of-mine-activity-7473877019521372160-_w6q",
+      "company": "Applied Electrodynamics",
+      "founder": "Paul Leutheuser",
+      "sourceKind": "founder_post",
+      "title": "Applied Electrodynamics launches with YC S26",
+      "text": "Native founder post has visible YC S26 context and metrics, but the company is not in the repo's local S26 snapshot.",
+      "metrics": { "reactions": 83, "comments": 11 },
+      "publishedAt": "2026-06-19T23:18:59.374Z",
+      "attributionSignals": [
+        "Web result and LinkedIn page identify a native post.",
+        "Local src/lib/yc/summer-2026-companies.json does not list Applied Electrodynamics."
+      ],
+      "reason": "Rejected: outside the supported batch roster in this checkout."
+    },
+    {
+      "batch": "S26",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/aerogen-systems-company_a-huge-milestone-for-aerogen-systems-we-activity-7476042048043761664-yOie",
+      "company": "Aerogen Systems",
+      "founder": null,
+      "sourceKind": "company_post",
+      "title": "Aerogen Systems joins Y Combinator",
+      "text": "Native company post says Aerogen Systems is joining Y Combinator and shows visible metrics, but the company is not in the repo's local S26 snapshot.",
+      "metrics": { "reactions": 16, "comments": 4 },
+      "publishedAt": "2026-06-25T22:42:02.398Z",
+      "attributionSignals": [
+        "LinkedIn page identifies the author as Aerogen Systems (YC S26).",
+        "Local src/lib/yc/summer-2026-companies.json does not list Aerogen Systems."
+      ],
+      "reason": "Rejected: outside the supported batch roster in this checkout."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "LinkedIn",
+      "url": "https://www.linkedin.com/posts/naveensharma02_i-left-palantir-with-stefano-delmanto-to-activity-7447055836243439617-onfB",
+      "company": "Oasis",
+      "founder": "Naveen Sharma",
+      "sourceKind": "founder_post",
+      "title": "Naveen Sharma post about a16z speedrun backing",
+      "text": "Founder-native post says Naveen Sharma and Stefano Delmanto are backed by a16z speedrun, but the visible product/domain are Mercury and mercury.build rather than Oasis/joinoasis.",
+      "metrics": { "reactions": 225, "comments": 53 },
+      "publishedAt": "2026-04-06T23:01:10.967Z",
+      "attributionSignals": [
+        "Local A16ZSR006 profile lists Oasis founders Stefano Fantini Delmanto and Naveen Sharma.",
+        "LinkedIn page identifies Naveen Sharma as author and names a16z speedrun.",
+        "Visible post text and CTA use Mercury/mercury.build, creating a company-name/domain mismatch."
+      ],
+      "reason": "Rejected: founder match is strong, but visible company/product identity does not match the local Oasis profile closely enough for a clean accepted row."
+    }
+  ]
+}

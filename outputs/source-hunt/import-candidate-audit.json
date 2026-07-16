@@ -1,0 +1,483 @@
+{
+  "generatedAt": "2026-07-15T21:15:33Z",
+  "scope": {
+    "sourceHuntGlob": "outputs/source-hunt/*.json",
+    "canonicalFiles": [
+      "src/lib/social/targeted-evidence-current.json",
+      "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "src/lib/social/github-traction-a16z-speedrun-006.json"
+    ],
+    "comparisonKeys": [
+      "normalized sourceUrl/url/postUrl/githubUrl/htmlUrl",
+      "platformPostId/postId/sourceId",
+      "derived source IDs: x-status, linkedin-activity, hn-item, youtube-video, producthunt path, instagram post/reel, reddit-comments, github owner/repo"
+    ],
+    "supportRules": [
+      "Candidate rows come from top-level accepted arrays only.",
+      "Accepted company_site/company_blog/company_news/company_research rows are unsupported for these canonical social/GitHub import files.",
+      "GitHub account-crawl and visibility-audit outputs are diagnostic, not direct import-candidate lists."
+    ]
+  },
+  "canonicalBaseline": {
+    "sourceUrlCount": 388,
+    "sourceIdCount": 594
+  },
+  "files": [
+    {
+      "outputFile": "outputs/source-hunt/a16z-all-sources-agent.json",
+      "acceptedCount": 31,
+      "duplicateCount": 31,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/a16z-fifth-pass.json",
+      "acceptedCount": 27,
+      "duplicateCount": 0,
+      "unsupportedCount": 0,
+      "netNewCount": 27,
+      "netNewCandidates": [
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/ryanlau512_today-im-super-excited-to-share-that-straia-activity-7404579406955872258-spWu",
+          "sourceIds": [
+            "linkedin-activity:7404579406955872258",
+            "sourceId:7404579406955872258"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/aghchan_we-raised-our-pre-seed-straia-is-officially-activity-7404582297187954688-xOBo",
+          "sourceIds": [
+            "linkedin-activity:7404582297187954688",
+            "sourceId:7404582297187954688"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/straia-ai_had-an-absolute-blast-at-a16z-speedruns-activity-7445517086082351104-oD8F",
+          "sourceIds": [
+            "linkedin-activity:7445517086082351104",
+            "sourceId:7445517086082351104"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/ryanlau512_what-a-day-what-a-time-could-not-have-had-activity-7450256118829723648-Aa44",
+          "sourceIds": [
+            "linkedin-activity:7450256118829723648",
+            "sourceId:7450256118829723648"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/nolan-abeyta_miraka-is-now-backed-by-a16z-speedrun-growing-activity-7423552233965010944-nJvL",
+          "sourceIds": [
+            "linkedin-activity:7423552233965010944",
+            "sourceId:7423552233965010944"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/nolan-abeyta_demo-day-was-a-blast-huge-thank-you-to-activity-7450202277627297792-z_Bi",
+          "sourceIds": [
+            "linkedin-activity:7450202277627297792",
+            "sourceId:7450202277627297792"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/gunnr_i-am-looking-for-friends-at-companies-between-activity-7478189389098024961-lJl9",
+          "sourceIds": [
+            "linkedin-activity:7478189389098024961",
+            "sourceId:7478189389098024961"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=yykNCQBosHs",
+          "sourceIds": [
+            "sourceId:yykNCQBosHs",
+            "youtube-video:yykNCQBosHs"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=Rexnn_WpChE",
+          "sourceIds": [
+            "sourceId:Rexnn_WpChE",
+            "youtube-video:Rexnn_WpChE"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=qkJu_qEGG8I",
+          "sourceIds": [
+            "sourceId:qkJu_qEGG8I",
+            "youtube-video:qkJu_qEGG8I"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=QSfjUUjoOlE",
+          "sourceIds": [
+            "sourceId:QSfjUUjoOlE",
+            "youtube-video:QSfjUUjoOlE"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=Cqq5c87yXJ0",
+          "sourceIds": [
+            "sourceId:Cqq5c87yXJ0",
+            "youtube-video:Cqq5c87yXJ0"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=kEasCk8-2Xc",
+          "sourceIds": [
+            "sourceId:kEasCk8-2Xc",
+            "youtube-video:kEasCk8-2Xc"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=_R8xQ2UhDXg",
+          "sourceIds": [
+            "sourceId:_R8xQ2UhDXg",
+            "youtube-video:_R8xQ2UhDXg"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=SnIE-Rqr2bw",
+          "sourceIds": [
+            "sourceId:SnIE-Rqr2bw",
+            "youtube-video:SnIE-Rqr2bw"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=Rd0qh3xdzNQ",
+          "sourceIds": [
+            "sourceId:Rd0qh3xdzNQ",
+            "youtube-video:Rd0qh3xdzNQ"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=ViuZBqeB-ZA",
+          "sourceIds": [
+            "sourceId:ViuZBqeB-ZA",
+            "youtube-video:ViuZBqeB-ZA"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=CknsP-GpP6E",
+          "sourceIds": [
+            "sourceId:CknsP-GpP6E",
+            "youtube-video:CknsP-GpP6E"
+          ]
+        },
+        {
+          "sourceUrl": "https://github.com/modaic-ai/ds.ts",
+          "sourceIds": [
+            "github-repo:modaic-ai/ds.ts",
+            "sourceId:modaic-ai/ds.ts"
+          ]
+        },
+        {
+          "sourceUrl": "https://github.com/modaic-ai/dspy-intellisense",
+          "sourceIds": [
+            "github-repo:modaic-ai/dspy-intellisense",
+            "sourceId:modaic-ai/dspy-intellisense"
+          ]
+        },
+        {
+          "sourceUrl": "https://github.com/modaic-ai/mo-reach",
+          "sourceIds": [
+            "github-repo:modaic-ai/mo-reach",
+            "sourceId:modaic-ai/mo-reach"
+          ]
+        },
+        {
+          "sourceUrl": "https://github.com/modaic-ai/optiglot",
+          "sourceIds": [
+            "github-repo:modaic-ai/optiglot",
+            "sourceId:modaic-ai/optiglot"
+          ]
+        },
+        {
+          "sourceUrl": "https://github.com/modaic-ai/modaic-examples",
+          "sourceIds": [
+            "github-repo:modaic-ai/modaic-examples",
+            "sourceId:modaic-ai/modaic-examples"
+          ]
+        },
+        {
+          "sourceUrl": "https://github.com/modaic-ai/modaic-ts",
+          "sourceIds": [
+            "github-repo:modaic-ai/modaic-ts",
+            "sourceId:modaic-ai/modaic-ts"
+          ]
+        },
+        {
+          "sourceUrl": "https://github.com/firetix/vibe-coding-penetration-tester",
+          "sourceIds": [
+            "github-repo:firetix/vibe-coding-penetration-tester",
+            "sourceId:firetix/vibe-coding-penetration-tester"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.instagram.com/reel/DL8lQcXSma5/",
+          "sourceIds": [
+            "instagram:reel/DL8lQcXSma5",
+            "sourceId:DL8lQcXSma5"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.instagram.com/reel/DKa2Eudpc8c/",
+          "sourceIds": [
+            "instagram:reel/DKa2Eudpc8c",
+            "sourceId:DKa2Eudpc8c"
+          ]
+        }
+      ],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/first-party-fourth-pass.json",
+      "acceptedCount": 22,
+      "duplicateCount": 18,
+      "unsupportedCount": 4,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": [
+        {
+          "sourceUrl": "https://kimpton.ai/news/kimpton-launches-on-yc",
+          "sourceIds": [],
+          "reason": "company-site context URL is not a canonical social/GitHub import candidate"
+        },
+        {
+          "sourceUrl": "https://interfaze.ai/blog/interfaze-a-new-model-architecture-built-for-high-accuracy-at-scale",
+          "sourceIds": [],
+          "reason": "company-site context URL is not a canonical social/GitHub import candidate"
+        },
+        {
+          "sourceUrl": "https://nebusec.ai/research/ionstack-part-2/",
+          "sourceIds": [],
+          "reason": "company-site context URL is not a canonical social/GitHub import candidate"
+        },
+        {
+          "sourceUrl": "https://www.sazabi.com/blog/seed-round",
+          "sourceIds": [],
+          "reason": "company-site context URL is not a canonical social/GitHub import candidate"
+        }
+      ]
+    },
+    {
+      "outputFile": "outputs/source-hunt/first-party-third-pass.json",
+      "acceptedCount": 11,
+      "duplicateCount": 11,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/github-official-accounts-agent.json",
+      "acceptedCount": 0,
+      "duplicateCount": 0,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": [],
+      "notes": [
+        "No top-level accepted array; keys=source,accounts. Treated as diagnostic/non-import output."
+      ]
+    },
+    {
+      "outputFile": "outputs/source-hunt/live-hn-fifth-pass.json",
+      "acceptedCount": 13,
+      "duplicateCount": 13,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/non-x-first-party-shard.json",
+      "acceptedCount": 15,
+      "duplicateCount": 15,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/non-x-second-pass.json",
+      "acceptedCount": 17,
+      "duplicateCount": 17,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/non-x-third-pass.json",
+      "acceptedCount": 18,
+      "duplicateCount": 18,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/s2026-topvoices-agent.json",
+      "acceptedCount": 35,
+      "duplicateCount": 35,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/s2026-topvoices-fourth-pass.json",
+      "acceptedCount": 93,
+      "duplicateCount": 93,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/s2026-topvoices-second-pass.json",
+      "acceptedCount": 6,
+      "duplicateCount": 6,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/s26-topvoices-agent.json",
+      "acceptedCount": 3,
+      "duplicateCount": 3,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/s26-topvoices-fourth-pass.json",
+      "acceptedCount": 8,
+      "duplicateCount": 8,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/s26-topvoices-second-pass.json",
+      "acceptedCount": 1,
+      "duplicateCount": 1,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/s26-x-topvoices-shard.json",
+      "acceptedCount": 3,
+      "duplicateCount": 3,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": []
+    },
+    {
+      "outputFile": "outputs/source-hunt/visibility-audit-fifth-pass.json",
+      "acceptedCount": 0,
+      "duplicateCount": 0,
+      "unsupportedCount": 0,
+      "netNewCount": 0,
+      "netNewCandidates": [],
+      "unsupported": [],
+      "notes": [
+        "No top-level accepted array; keys=generatedAt,lane,output,scope,methodNotes,summary,drops,stalePublicGraphOnlyMisses,records. Treated as diagnostic/non-import output."
+      ]
+    },
+    {
+      "outputFile": "outputs/source-hunt/yc-nonx-fifth-pass.json",
+      "acceptedCount": 23,
+      "duplicateCount": 13,
+      "unsupportedCount": 0,
+      "netNewCount": 10,
+      "netNewCandidates": [
+        {
+          "sourceUrl": "https://www.producthunt.com/products/context-dev",
+          "sourceIds": [
+            "producthunt:products/context-dev",
+            "sourceId:context-dev"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.producthunt.com/products/compendium-2",
+          "sourceIds": [
+            "producthunt:products/compendium-2",
+            "sourceId:compendium-2"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/jonathan-waldorf_buildinpublic-ycombinator-startups-activity-7480447104734109696-R0m8",
+          "sourceIds": [
+            "linkedin-activity:7480447104734109696",
+            "sourceId:7480447104734109696"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/kimjihyun_zomma-yc-s26-is-backed-by-y-combinator-activity-7478287014090432512-ylbn",
+          "sourceIds": [
+            "linkedin-activity:7478287014090432512",
+            "sourceId:7478287014090432512"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.linkedin.com/posts/erik-peterson-mn_onward-and-upward-realpact-yc-s26-pre-seed-activity-7474911468765855744-O4Ts",
+          "sourceIds": [
+            "linkedin-activity:7474911468765855744",
+            "sourceId:7474911468765855744"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=K_xNXWnlf98",
+          "sourceIds": [
+            "sourceId:K_xNXWnlf98",
+            "youtube-video:K_xNXWnlf98"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=iSOz7KXU8cY",
+          "sourceIds": [
+            "sourceId:iSOz7KXU8cY",
+            "youtube-video:iSOz7KXU8cY"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.youtube.com/watch?v=zOzDQIbvYLc",
+          "sourceIds": [
+            "sourceId:zOzDQIbvYLc",
+            "youtube-video:zOzDQIbvYLc"
+          ]
+        },
+        {
+          "sourceUrl": "https://www.instagram.com/reel/DZ270dHoplQ/",
+          "sourceIds": [
+            "instagram:reel/DZ270dHoplQ",
+            "sourceId:DZ270dHoplQ"
+          ]
+        },
+        {
+          "sourceUrl": "https://github.com/Aradotso/ara-mcp",
+          "sourceIds": [
+            "github-repo:Aradotso/ara-mcp",
+            "sourceId:Aradotso/ara-mcp"
+          ]
+        }
+      ],
+      "unsupported": []
+    }
+  ],
+  "totals": {
+    "acceptedCount": 326,
+    "duplicateCount": 285,
+    "unsupportedCount": 4,
+    "netNewCount": 37
+  }
+}

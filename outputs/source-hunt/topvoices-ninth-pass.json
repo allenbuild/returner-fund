@@ -1,0 +1,453 @@
+{
+  "scope": {
+    "pass": "topvoices-ninth-pass",
+    "createdAt": "2026-07-15T23:59:00.000Z",
+    "targetBatches": [
+      "YC Spring/P26 2026",
+      "YC Summer 2026"
+    ],
+    "targetCompanySources": [
+      "src/lib/yc/spring-2026-companies.json",
+      "src/lib/yc/summer-2026-companies.json"
+    ],
+    "targetCompanyCounts": {
+      "springP26": 197,
+      "summer2026": 83
+    },
+    "topVoiceSource": "src/lib/social/top-voices.ts",
+    "allowedVoiceGroups": [
+      "yc_partners",
+      "insiders"
+    ],
+    "allowedPeopleCount": 68,
+    "dedupeSource": "src/lib/social/targeted-evidence-current.json",
+    "dedupeState": {
+      "evidenceRows": 333,
+      "uniqueSourceUrls": 292,
+      "uniquePlatformPostIds": 289
+    },
+    "strictPolicy": [
+      "Accepted evidence must be a native post or native comment authored by a real person listed in src/lib/social/top-voices.ts.",
+      "Organization accounts, company accounts, and company reposts are not insiders or partners.",
+      "Accepted evidence must expose a stable native post/comment URL plus visible metrics.",
+      "The listed person's native visible text, or visible native quote/reply context, must mention the target company, founder, official handle, or domain.",
+      "Profiles, search pages, profile snippets, likes-only activity, inferred engagement, and posts authored by founders thanking a top voice are rejected.",
+      "Exact sourceUrl or platformPostId values already present in src/lib/social/targeted-evidence-current.json are rejected as duplicates."
+    ]
+  },
+  "accepted": [
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "ankit-gupta",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "agupta",
+      "companyName": "Instance",
+      "companySlug": "instance",
+      "companyId": "31341",
+      "entityId": "company-instance",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://x.com/agupta/status/2077126412700365109",
+      "platformPostId": "2077126412700365109",
+      "postedAt": "2026-07-14T20:21:42.000Z",
+      "text": "and read more about their launch here: https://x.com/lucyjcai/status/2076778369530958196",
+      "metrics": {
+        "views": 1619,
+        "likes": 4,
+        "replies": 0,
+        "comments": 0,
+        "reposts": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 1
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "relatedCurrentEvidence": [
+          {
+            "sourceUrl": "https://x.com/agupta/status/2077125864006062268",
+            "platformPostId": "2077125864006062268",
+            "relationship": "Earlier Ankit Gupta native X article about Instance; this accepted row is a separate native follow-up reply in the same launch thread."
+          }
+        ],
+        "presentInPriorSourceHuntOutput": [
+          "outputs/source-hunt/summer-topvoices-eighth-pass.json"
+        ],
+        "dedupeDecision": "Included because the user-specified dedupe authority is src/lib/social/targeted-evidence-current.json, where this exact sourceUrl/platformPostId is absent."
+      },
+      "sourceEvidence": {
+        "nativeUrl": "https://x.com/agupta/status/2077126412700365109",
+        "nativeAuthor": {
+          "name": "Ankit Gupta",
+          "handle": "agupta",
+          "profileUrl": "https://x.com/agupta",
+          "descriptionExactExcerpt": "general partner @ycombinator"
+        },
+        "nativePostTextExact": "and read more about their launch here: https://x.com/lucyjcai/status/2076778369530958196",
+        "nativeReplyContext": {
+          "replyingTo": "agupta",
+          "replyingToStatus": "2077125864006062268"
+        },
+        "nativeQuote": {
+          "url": "https://x.com/lucyjcai/status/2076778369530958196",
+          "platformPostId": "2076778369530958196",
+          "authorName": "Lucy Cai",
+          "authorHandle": "lucyjcai",
+          "authorDescriptionExact": "building @tryinstance (YC S26)\nI like robots! @MIT_LISLab\nMIT",
+          "visibleTextExactExcerpt": "We\u2019re excited to launch Instance \u2013 a success detector for robot rollouts!",
+          "visibleTextSummary": "The quoted native launch post describes Instance's robot rollout success detector and evaluation workflow.",
+          "visibleMetrics": {
+            "views": 69112,
+            "likes": 516,
+            "replies": 59,
+            "retweets": 27,
+            "quotes": 4,
+            "bookmarks": 200
+          }
+        },
+        "targetCompanyRegistryEvidence": {
+          "companyName": "Instance",
+          "batch": "Summer 2026",
+          "ycProfileUrl": "https://www.ycombinator.com/companies/instance",
+          "websiteUrl": "https://tryinstance.app/",
+          "officialX": "https://twitter.com/tryinstance",
+          "groupPartner": "Ankit Gupta",
+          "matchingFounder": "Lucy Cai"
+        },
+        "targetMatch": "Native quote/reply context names Instance and @tryinstance (YC S26); the local Summer 2026 registry lists Instance, founder Lucy Cai, official X handle tryinstance, and group partner Ankit Gupta.",
+        "visibleMetricsSource": "api.fxtwitter.com public post JSON",
+        "checkedAt": "2026-07-15T23:59:00.000Z"
+      },
+      "notes": "Native X post by a listed real person in top-voices.ts. The top-voice-authored text points to a visible quoted/replied launch context that names the company/handle and exposes metrics."
+    }
+  ],
+  "rejected": [
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "companyName": "Inkbox",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://x.com/bosmeny/status/2076459852113858684",
+      "platformPostId": "2076459852113858684",
+      "sourceEvidence": {
+        "nativeAuthor": "Tyler Bosmeny",
+        "nativeTextExactExcerpt": "@rayruizhiliao @inkbox_ai @alxwlcx @DVremenko WOW I totally forgot about this!",
+        "visibleMetrics": {
+          "views": 191,
+          "likes": 4,
+          "replies": 1,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "observedVia": "api.fxtwitter.com public post JSON and targeted-evidence-current.json"
+      },
+      "reason": "Rejected duplicate: exact sourceUrl/platformPostId already exists in src/lib/social/targeted-evidence-current.json as x-topvoice-eighth-pass-s26-company-inkbox-tyler-bosmeny-2076459852113858684."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "companyName": "Inkbox",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://x.com/bosmeny/status/2075342772392067278",
+      "platformPostId": "2075342772392067278",
+      "sourceEvidence": {
+        "nativeAuthor": "Tyler Bosmeny",
+        "nativeTextExactExcerpt": "Inkbox: the communication layer for AI agents.",
+        "targetContext": "The visible post also congratulates @rayruizhiliao, an Inkbox founder handle in the local Summer 2026 registry.",
+        "observedVia": "TwStalker discovery row cross-checked against targeted-evidence-current.json"
+      },
+      "reason": "Rejected duplicate: exact sourceUrl/platformPostId already exists in src/lib/social/targeted-evidence-current.json for Inkbox."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "companyName": "83 Sciences",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://x.com/bosmeny/status/2075013475424952797",
+      "platformPostId": "2075013475424952797",
+      "sourceEvidence": {
+        "nativeAuthor": "Tyler Bosmeny",
+        "nativeTextExactExcerpt": "This is cool. 83 Sciences is using AI",
+        "targetContext": "The same native row points to 83sciences.ai.",
+        "observedVia": "TwStalker discovery row cross-checked against targeted-evidence-current.json"
+      },
+      "reason": "Rejected duplicate: exact sourceUrl/platformPostId already exists in src/lib/social/targeted-evidence-current.json for 83 Sciences."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "companyName": "Bloomy",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://x.com/bosmeny/status/2072753766701625532",
+      "platformPostId": "2072753766701625532",
+      "sourceEvidence": {
+        "nativeAuthor": "Tyler Bosmeny",
+        "nativeTextExactExcerpt": "Congrats on the launch of @bloomylearning!",
+        "targetContext": "The visible native text also names founder handle @alexsouthmayd.",
+        "observedVia": "TwStalker discovery row cross-checked against targeted-evidence-current.json"
+      },
+      "reason": "Rejected duplicate: exact sourceUrl/platformPostId already exists in src/lib/social/targeted-evidence-current.json for Bloomy."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "ankitvgupta",
+      "companyName": "Instance",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://www.linkedin.com/posts/ankitvgupta_introducing-instance-congrats-on-the-launch-activity-7482921740625555457-Jw1O",
+      "platformPostId": "7482921740625555457",
+      "sourceEvidence": {
+        "nativeAuthor": "Ankit Gupta",
+        "nativeTextExact": "introducing instance congrats on the launch!",
+        "visibleMetrics": {
+          "reactions": 99,
+          "comments": 7
+        },
+        "observedVia": "Native LinkedIn post page from OutX YC partner feed"
+      },
+      "reason": "Rejected duplicate: exact sourceUrl/platformPostId already exists in src/lib/social/targeted-evidence-current.json for Instance."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "ankitvgupta",
+      "companyName": "Prized",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://www.linkedin.com/posts/ankitvgupta_prized-yc-s26-lets-anyone-at-your-company-activity-7482809378585231360-P3SR",
+      "platformPostId": "7482809378585231360",
+      "sourceEvidence": {
+        "nativeAuthor": "Ankit Gupta",
+        "nativeTextExactExcerpt": "if your team is building internal tools with AI, check out Prized.",
+        "visibleMetrics": {
+          "reactions": 22,
+          "comments": 0
+        },
+        "observedVia": "Native LinkedIn post page from OutX YC partner feed"
+      },
+      "reason": "Rejected duplicate: exact sourceUrl/platformPostId already exists in src/lib/social/targeted-evidence-current.json for Prized."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "ankitvgupta",
+      "companyName": "Instance",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://www.linkedin.com/posts/ankitvgupta_today-evaluating-a-robot-policy-means-humans-activity-7482566122979082240-GyUI",
+      "platformPostId": "7482566122979082240",
+      "sourceEvidence": {
+        "nativeAuthor": "Ankit Gupta",
+        "nativeTextExactExcerpt": "Very impressed with Claire Mao and Lucy Cai's speed",
+        "visibleMetrics": {
+          "reactions": 10,
+          "comments": 0
+        },
+        "observedVia": "Native LinkedIn post page from OutX YC partner feed"
+      },
+      "reason": "Rejected duplicate: exact sourceUrl/platformPostId already exists in src/lib/social/targeted-evidence-current.json for Instance."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "tylerbosmeny",
+      "companyName": "83 Sciences",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://www.linkedin.com/posts/tylerbosmeny_83-sciences-future-of-scientific-discovery-activity-7480779232332324864-860p",
+      "platformPostId": "7480779232332324864",
+      "sourceEvidence": {
+        "nativeAuthor": "Tyler Bosmeny",
+        "nativeTextExactExcerpt": "This is cool. 83 Sciences is using AI",
+        "visibleMetrics": {
+          "reactions": 40,
+          "comments": 5
+        },
+        "observedVia": "Native LinkedIn post page from OutX YC partner feed"
+      },
+      "reason": "Rejected duplicate: exact sourceUrl/platformPostId already exists in src/lib/social/targeted-evidence-current.json for 83 Sciences."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "topVoiceHandle": "garrytan",
+      "batch": "YC Spring/P26 2026",
+      "sourceUrl": "https://x.com/garrytan/status/2032129690014814550",
+      "platformPostId": "2032129690014814550",
+      "sourceEvidence": {
+        "nativeAuthor": "Garry Tan",
+        "postedAt": "2026-03-12T16:20:47.000Z",
+        "nativeTextExactExcerpt": "We're renaming the YC spring batches",
+        "visibleMetrics": {
+          "views": 82876,
+          "likes": 677,
+          "replies": 107,
+          "retweets": 13,
+          "quotes": 16,
+          "bookmarks": 79
+        },
+        "observedVia": "api.fxtwitter.com public post JSON"
+      },
+      "reason": "Rejected: real top-voice post with visible metrics, but it only discusses Spring/P26 batch naming and does not mention a target company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "batch": "YC Spring/P26 2026 and YC Summer 2026",
+      "sourceUrl": "https://x.com/bosmeny/status/2062974811165671542",
+      "platformPostId": "2062974811165671542",
+      "sourceEvidence": {
+        "nativeAuthor": "Tyler Bosmeny",
+        "postedAt": "2026-06-05T19:08:17.000Z",
+        "nativeTextExactExcerpt": "P26 set the record for the highest % of hard tech",
+        "visibleMetrics": {
+          "views": 3015,
+          "likes": 22,
+          "replies": 1,
+          "retweets": 3,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "observedVia": "api.fxtwitter.com public post JSON"
+      },
+      "reason": "Rejected: real top-voice post with visible metrics, but it refers to P26/S26 as batches and does not mention a target company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Paul Graham",
+      "topVoiceHandle": "paulg",
+      "companyName": "Foresight",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://x.com/paulg/status/2077048016037679104",
+      "platformPostId": "2077048016037679104",
+      "sourceEvidence": {
+        "nativeAuthor": "Paul Graham",
+        "nativeTextExactExcerpt": "some kind of foresight",
+        "observedVia": "TwStalker discovery row"
+      },
+      "reason": "Rejected false positive: the native text uses the generic word foresight and does not mention the company Foresight, its founder, handle, or domain."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Brad Flora",
+      "topVoiceHandle": "bradflora",
+      "companyName": "Coasty",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://www.linkedin.com/posts/prateekjannu_i-dropped-my-stanford-admit-to-build-coasty-activity-7475434306400796673-j8jM",
+      "platformPostId": "7475434306400796673",
+      "sourceEvidence": {
+        "nativeAuthor": "Prateek Jannu",
+        "nativeTextSummary": "Founder-authored Coasty post mentions or thanks Brad Flora.",
+        "observedVia": "LinkedIn search result"
+      },
+      "reason": "Rejected: source is authored by a founder, not by Brad Flora or another listed top voice."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Brad Flora",
+      "topVoiceHandle": "bradflora",
+      "companyName": "Coasty",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://www.linkedin.com/posts/nitish-kovuru-2423351b4_happy-to-announce-were-part-of-yc-s26-activity-7475429173289943040-AKWv",
+      "platformPostId": "7475429173289943040",
+      "sourceEvidence": {
+        "nativeAuthor": "Nitish Kovuru",
+        "nativeTextSummary": "Founder-authored YC S26 announcement mentions or thanks Brad Flora.",
+        "observedVia": "LinkedIn search result"
+      },
+      "reason": "Rejected: source is authored by a founder, not by Brad Flora or another listed top voice."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Jared Friedman",
+      "companyName": "Litmus",
+      "batch": "YC Summer 2026 (S26)",
+      "sourceUrl": "https://www.linkedin.com/posts/elena-zhao-015353217_were-headed-to-y-combinator-this-summer-activity-7426814091199119360-4mJT",
+      "platformPostId": "7426814091199119360",
+      "sourceEvidence": {
+        "nativeAuthor": "Elena Zhao",
+        "nativeTextSummary": "Founder-authored post about joining YC S26 mentions Jared Friedman and Gustaf Alstromer.",
+        "observedVia": "LinkedIn search result"
+      },
+      "reason": "Rejected: source is authored by a founder, not by Jared Friedman, Gustaf Alstromer, or another listed top voice."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "sourceUrl": "https://www.linkedin.com/in/ankitvgupta",
+      "sourceEvidence": {
+        "visibleContext": "Profile snippets and repost/search surfaces exposed S26-related activity.",
+        "observedVia": "LinkedIn profile/search snippets"
+      },
+      "reason": "Rejected: profile and search pages are not native authored post/comment URLs with stable metrics."
+    }
+  ],
+  "searches": [
+    {
+      "type": "local_dedupe",
+      "query": "Parsed src/lib/social/top-voices.ts plus Spring/Summer YC registry files; compared candidate sourceUrl and platformPostId values against src/lib/social/targeted-evidence-current.json.",
+      "outcome": "Confirmed 68 allowed real people, 197 Spring/P26 companies, 83 Summer 2026 companies, and current evidence dedupe state of 333 rows / 292 unique sourceUrls / 289 unique platformPostIds."
+    },
+    {
+      "type": "x_native_verification",
+      "query": "api.fxtwitter.com/agupta/status/2077126412700365109",
+      "outcome": "Accepted Ankit Gupta native X follow-up for Instance because the exact sourceUrl/platformPostId is absent from targeted-evidence-current.json and the visible quote/reply context names Instance/@tryinstance with metrics."
+    },
+    {
+      "type": "x_native_verification",
+      "query": "api.fxtwitter.com/bosmeny/status/2076459852113858684",
+      "outcome": "Rejected Tyler Bosmeny Inkbox reply as duplicate because targeted-evidence-current.json already contains platformPostId 2076459852113858684."
+    },
+    {
+      "type": "x_native_verification",
+      "query": "api.fxtwitter.com/garrytan/status/2032129690014814550 and api.fxtwitter.com/bosmeny/status/2062974811165671542",
+      "outcome": "Rejected Spring/P26 batch-level posts with visible metrics because neither names a target company, founder, handle, or domain."
+    },
+    {
+      "type": "x_discovery",
+      "query": "TwStalker narrow sweep over garrytan, harjtaggar, snowmaker, aaron_epstein, gustaf, dessaigne, t_blom, bradflora, agupta, bosmeny, dflieb, harshitaarora, greybaker, paulg, parkerconrad, rauchg, collinmathilde, daltonc, saranormous",
+      "outcome": "Found high-yield X candidates for Inkbox, 83 Sciences, Bloomy, AgentPhone, Hyper, Linzumi, Ploy, Pavoot, Wato, Klaimee, BentoLabs, Superset, Adialante, Scope, and HeyClicky; exact matches were already in current evidence, except the Paul Graham 'foresight' false positive."
+    },
+    {
+      "type": "linkedin_discovery",
+      "query": "OutX YC partner feed plus native LinkedIn pages for Ankit Gupta, Tyler Bosmeny, Diana Hu, David Lieb, Garry Tan, and other partner-visible rows.",
+      "outcome": "Rejected native LinkedIn rows that were already in targeted-evidence-current.json, were not Spring/Summer target companies, or did not mention a target company/founder/handle/domain."
+    },
+    {
+      "type": "web_search",
+      "query": "\"Ankit Gupta\" \"YC S26\" \"LinkedIn\" \"Instance\"; \"Tyler Bosmeny\" \"Bloomy (YC S26)\" \"LinkedIn\"; \"Brad Flora\" \"Coasty\" \"LinkedIn\"; \"Jared Friedman\" \"Litmus\" \"LinkedIn\"",
+      "outcome": "Returned known duplicate top-voice posts, founder-authored thank-you posts, profile pages, or non-native search surfaces; no additional acceptable non-duplicate top-voice row."
+    },
+    {
+      "type": "web_search",
+      "query": "site:x.com/agupta/status \"YC S26\" target-company/founder terms; site:linkedin.com/posts/ankitvgupta \"YC S26\"; site:linkedin.com/posts/tylerbosmeny \"YC S26\"",
+      "outcome": "Found the accepted Ankit follow-up via native X verification and otherwise led to current-file duplicates or ineligible profile/search pages."
+    }
+  ],
+  "notes": [
+    "Only this source-hunt output file was written; src/lib/social/targeted-evidence-current.json and src/lib/social/top-voices.ts were not edited.",
+    "The accepted Ankit Gupta row is absent from targeted-evidence-current.json by both sourceUrl and platformPostId, but it was present in an older source-hunt output. This file records that explicitly for downstream dedupe decisions.",
+    "All accepted/rejected items here treat organization accounts, company accounts, and company reposts as ineligible.",
+    "X metrics are the visible values returned by api.fxtwitter.com at verification time and may drift on the native platform.",
+    "LinkedIn metric counts are visible counts from native post pages reached through public discovery surfaces; rows already present in the current evidence file were rejected as duplicates."
+  ]
+}

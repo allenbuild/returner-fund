@@ -1,0 +1,1445 @@
+{
+  "source": {
+    "label": "A16Z Speedrun 006 all-platform source hunt by Codex agent",
+    "repository": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund",
+    "generatedAt": "2026-07-15T19:20:00.000Z",
+    "outputPath": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/outputs/source-hunt/a16z-all-sources-agent.json",
+    "taskConstraints": [
+      "Do not edit shared source JSON.",
+      "Accepted evidence must be post/video/comment/repo-level URL; no profiles/search pages.",
+      "Accepted evidence must have visible metrics.",
+      "Top-voice evidence must be native posts by people listed in src/lib/social/top-voices.ts with visible company/founder context."
+    ],
+    "platformsCovered": [
+      "x",
+      "linkedin",
+      "instagram",
+      "youtube",
+      "reddit",
+      "product_hunt",
+      "github"
+    ],
+    "topVoiceRosterChecked": {
+      "ycPartners": 18,
+      "insiders": 50,
+      "sourcePath": "src/lib/social/top-voices.ts"
+    },
+    "localSourcesRead": [
+      "src/lib/social/top-voices.ts",
+      "src/lib/social/a16z-speedrun-006-social-accounts.json",
+      "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "src/lib/social/github-traction-a16z-speedrun-006.json",
+      "public/graph/a16zsr006.json",
+      "public/graph/a16zsr006-insiders.json"
+    ],
+    "notes": [
+      "Shared source JSON files were read only.",
+      "GitHub API was rate-limited after an exploratory pass; accepted GitHub rows rely on visible earlier API output plus existing saved repo snapshot.",
+      "LinkedIn public post pages exposed post text and visible reaction/comment counters without login for accepted rows."
+    ]
+  },
+  "accepted": [
+    {
+      "id": "accepted-linkedin-auto-davewevans",
+      "companySlug": "auto",
+      "companyName": "Auto",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/davewevans_im-excited-to-announce-that-auto-has-raised-activity-7477783080536014849-LBsU",
+      "authorName": "David Evans",
+      "authorHandle": "davewevans",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 238,
+        "comments": 54
+      },
+      "visibleMetricText": "238 reactions; 54 comments",
+      "visibleContext": "Founder post says Auto raised $2.6M with participation from a16z speedrun and describes Auto as personal software for the phone camera.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"a16z Speedrun\" \"Auto\" \"Dave Evans\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-belong-nickmanic",
+      "companySlug": "belong",
+      "companyName": "Belong",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/nickmanic_belong-fantech-startups-activity-7413949908304465920-XJR5",
+      "authorName": "Nick Holmsten",
+      "authorHandle": "nickmanic",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 190,
+        "comments": 42
+      },
+      "visibleMetricText": "190 reactions; 42 comments",
+      "visibleContext": "Founder post says Belong raised $2.7M seed and names a16z speedrun as an investor.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"a16z Speedrun\" \"Belong\" \"Nick Holmsten\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-bilrost-silvia-chen",
+      "companySlug": "bilrost",
+      "companyName": "Bilrost",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/silvia-chen_excited-to-finally-share-that-were-backed-activity-7427033853703217153-jMQN",
+      "authorName": "Silvia Chen",
+      "authorHandle": "silvia-chen",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 274,
+        "comments": 87
+      },
+      "visibleMetricText": "274 reactions; 87 comments",
+      "visibleContext": "Founder post says Bilrost is backed by a16z speedrun and describes commercial loan processing automation.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"a16z Speedrun\" \"Bilrost\" \"Silvia Chen\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-cascade-hanniazia",
+      "companySlug": "cascade",
+      "companyName": "Cascade",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/hanniazia_excited-to-announce-that-cascade-is-now-backed-activity-7427841051870138368-YE0E",
+      "authorName": "Hannia Zia",
+      "authorHandle": "hanniazia",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 427,
+        "comments": 131
+      },
+      "visibleMetricText": "427 reactions; 131 comments",
+      "visibleContext": "Founder post says Cascade is backed by a16z speedrun and helps AEC firms find and win projects using AI.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"a16z Speedrun\" \"Cascade\" \"Hannia Zia\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-coalition-systems-vijayppathak",
+      "companySlug": "coalition-systems",
+      "companyName": "Coalition Systems",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/vijayppathak_an-absolute-privilege-building-coalition-activity-7461170790785355777-z8P4",
+      "authorName": "Vijay Pathak",
+      "authorHandle": "vijayppathak",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 430,
+        "comments": 62
+      },
+      "visibleMetricText": "430 reactions; 62 comments",
+      "visibleContext": "Founder post says Coalition Systems is backed from day one by a16z speedrun and describes secure AI coordination.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"a16z Speedrun\" \"Coalition Systems\" \"Vijay Pathak\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-concorda-samuel-oh1",
+      "companySlug": "concorda",
+      "companyName": "Concorda",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/samuel-oh1_big-news-concorda-is-now-backed-by-a16z-activity-7424533996287655938-Y5we",
+      "authorName": "Samuel Oh",
+      "authorHandle": "samuel-oh1",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 317,
+        "comments": 76
+      },
+      "visibleMetricText": "317 reactions; 76 comments",
+      "visibleContext": "Founder post says Concorda is now backed by a16z speedrun and describes litigation software.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts/samuel-oh1 \"Concorda\" \"a16z speedrun\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-heavi-sanjaydasari",
+      "companySlug": "heavi",
+      "companyName": "Heavi",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/sanjaydasari_today-were-officially-launching-heavi-ai-activity-7434677355584856065-mh5S",
+      "authorName": "Sanjay Dasari",
+      "authorHandle": "sanjaydasari",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 501,
+        "comments": 147
+      },
+      "visibleMetricText": "501 reactions; 147 comments",
+      "visibleContext": "Founder post launches Heavi AI, says the team chose to build as part of a16z Speedrun, and describes heavy vehicle repair AI.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Heavi AI\" \"a16z speedrun\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-kaaro-sa1i",
+      "companySlug": "kaaro",
+      "companyName": "Kaaro",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/sa1i_finally-announcing-kaaro-is-a-part-of-a16z-activity-7425629361355251713-Dsxf",
+      "authorName": "Sai Surisetti",
+      "authorHandle": "sa1i",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 368,
+        "comments": 73
+      },
+      "visibleMetricText": "368 reactions; 73 comments",
+      "visibleContext": "Founder post says Kaaro is part of a16z speedrun and describes AI agents for rail.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"a16z Speedrun\" \"Kaaro\" \"Sai Surisetti\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-modern-industrials-a-mao",
+      "companySlug": "modern-industrials",
+      "companyName": "Modern Industrials",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/a-mao_were-excited-to-launch-modern-industrials-activity-7445523105655005184-hZ_p",
+      "authorName": "Austin Mao",
+      "authorHandle": "a-mao",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 460,
+        "comments": 168
+      },
+      "visibleMetricText": "460 reactions; 168 comments",
+      "visibleContext": "Founder post launches Modern Industrials, says it is backed by a16z speedrun, and describes AI for building materials distribution.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Modern Industrials\" \"a16z speedrun\" \"Austin Mao\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-oasiz-abel-dagne",
+      "companySlug": "oasiz",
+      "companyName": "Oasiz",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/abel-dagne_this-is-6-year-old-me-presenting-a-game-i-activity-7449558050228633600-c4vr",
+      "authorName": "Abel Dagne",
+      "authorHandle": "abel-dagne",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 806,
+        "comments": 118
+      },
+      "visibleMetricText": "806 reactions; 118 comments",
+      "visibleContext": "Founder post says he is presenting at a16z Speedrun Demo Day and names Oasiz as the interactive social distribution platform being built.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Oasiz\" \"a16z speedrun\" \"Abel Dagne\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-pluvo-alex-labreche",
+      "companySlug": "pluvo",
+      "companyName": "Pluvo",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/alex-labreche_just-walking-out-of-a16z-speedrun-ai-faire-activity-7435846202157514752-st62",
+      "authorName": "Alexandre Labreche",
+      "authorHandle": "alex-labreche",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 129,
+        "comments": 28
+      },
+      "visibleMetricText": "129 reactions; 28 comments",
+      "visibleContext": "Founder post is from a16z speedrun AI Faire; visible thread context identifies the Pluvo team.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "\"Pluvo\" \"a16z speedrun\" \"Alexandre Labreche\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-sellara-charlesjolly",
+      "companySlug": "sellara",
+      "companyName": "Sellara",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/charlesjolly_im-thrilled-to-announce-that-sellara-is-activity-7434628660315435008-id2n",
+      "authorName": "Charles-Andre Jolly",
+      "authorHandle": "charlesjolly",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 438,
+        "comments": 281
+      },
+      "visibleMetricText": "438 reactions; 281 comments",
+      "visibleContext": "Founder post says Sellara is backed by a16z speedrun and describes AI agents for financial institutions.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Sellara\" \"a16z speedrun\" \"Charles-Andre\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-sirius-technology-theazamat",
+      "companySlug": "sirius-technology",
+      "companyName": "Sirius Technology",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/theazamat_catch-sirius-technology-at-a16z-speedrun-activity-7449876960425713664-YFAO",
+      "authorName": "Azamat Khamidov",
+      "authorHandle": "theazamat",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 28,
+        "comments": 2
+      },
+      "visibleMetricText": "28 reactions; 2 comments",
+      "visibleContext": "Founder post says Sirius Technology will be at a16z speedrun 006 Demo Day and describes AI-driven retention.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Sirius Technology\" \"a16z speedrun\" \"Azamat\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-sparta-arya-kanna",
+      "companySlug": "sparta",
+      "companyName": "Sparta",
+      "platform": "linkedin",
+      "evidenceKind": "first_party",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/arya-kanna_had-an-amazing-time-at-the-a16z-speedrun-activity-7437893925719265280-U8QU",
+      "authorName": "Arya Kanna",
+      "authorHandle": "arya-kanna",
+      "entityType": "founder",
+      "topVoice": null,
+      "metrics": {
+        "reactions": 114,
+        "comments": 5
+      },
+      "visibleMetricText": "114 reactions; 5 comments",
+      "visibleContext": "Founder post says Sparta attended a16z speedrun AI Faire and describes data movement infrastructure.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Sparta\" \"a16z speedrun\" \"Arya Kanna\""
+      }
+    },
+    {
+      "id": "accepted-linkedin-sirius-technology-andrewchen",
+      "companySlug": "sirius-technology",
+      "companyName": "Sirius Technology",
+      "platform": "linkedin",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://www.linkedin.com/posts/andrewchen_ai-retention-say-no-more-activity-7449510003406815232-aewb",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "reactions": 46,
+        "comments": 5
+      },
+      "visibleMetricText": "46 reactions; 5 comments",
+      "visibleContext": "Andrew Chen native LinkedIn post says \"AI retention. Say no more\" and embeds Azamat Khamidov introducing Sirius Technology.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web LinkedIn post page opened/read by source hunt",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts/andrewchen \"Sirius Technology\""
+      }
+    },
+    {
+      "id": "accepted-github-amdahl-amdahlco-amdahl-cookbook",
+      "companySlug": "amdahl",
+      "companyName": "Amdahl",
+      "platform": "github",
+      "evidenceKind": "first_party",
+      "urlLevel": "repo",
+      "sourceUrl": "https://github.com/amdahlco/amdahl-cookbook",
+      "authorName": "amdahlco",
+      "authorHandle": "amdahlco",
+      "entityType": "company",
+      "topVoice": null,
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "visibleMetricText": "0 stars; 0 forks; 0 watchers; 0 open issues",
+      "visibleContext": "Examples for Amdahl; homepage matches amdahl.ai.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "GitHub public API / saved repo snapshot; repo metrics are visible on repo page",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "official GitHub account from a16z social account snapshot"
+      }
+    },
+    {
+      "id": "accepted-github-belong-belong-dev-careers",
+      "companySlug": "belong",
+      "companyName": "Belong",
+      "platform": "github",
+      "evidenceKind": "first_party",
+      "urlLevel": "repo",
+      "sourceUrl": "https://github.com/Belong-dev/careers",
+      "authorName": "Belong-dev",
+      "authorHandle": "Belong-dev",
+      "entityType": "company",
+      "topVoice": null,
+      "metrics": {
+        "stars": 4,
+        "forks": 9,
+        "watchers": 4,
+        "openIssues": 1
+      },
+      "visibleMetricText": "4 stars; 9 forks; 4 watchers; 1 open issues",
+      "visibleContext": "Careers task repo from official Belong-dev organization.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "GitHub public API / saved repo snapshot; repo metrics are visible on repo page",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "official GitHub account from a16z social account snapshot"
+      }
+    },
+    {
+      "id": "accepted-github-grove-tax-grove-tax-grove-mcp",
+      "companySlug": "grove-tax",
+      "companyName": "Grove Tax",
+      "platform": "github",
+      "evidenceKind": "first_party",
+      "urlLevel": "repo",
+      "sourceUrl": "https://github.com/grove-tax/grove-mcp",
+      "authorName": "grove-tax",
+      "authorHandle": "grove-tax",
+      "entityType": "company",
+      "topVoice": null,
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "visibleMetricText": "0 stars; 0 forks; 0 watchers; 0 open issues",
+      "visibleContext": "AI plugin for Grove (grove.tax), connects Claude/Codex/Cursor to tax firm data.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "GitHub public API / saved repo snapshot; repo metrics are visible on repo page",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "official GitHub account from a16z social account snapshot"
+      }
+    },
+    {
+      "id": "accepted-github-modaic-modaic-ai-gepa-viz",
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceKind": "first_party",
+      "urlLevel": "repo",
+      "sourceUrl": "https://github.com/modaic-ai/gepa-viz",
+      "authorName": "modaic-ai",
+      "authorHandle": "modaic-ai",
+      "entityType": "company",
+      "topVoice": null,
+      "metrics": {
+        "stars": 417,
+        "forks": 29,
+        "watchers": 417,
+        "openIssues": 0
+      },
+      "visibleMetricText": "417 stars; 29 forks; 417 watchers; 0 open issues",
+      "visibleContext": "Interactive live visualizer for gepa runs.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "GitHub public API / saved repo snapshot; repo metrics are visible on repo page",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "src/lib/social/github-traction-a16z-speedrun-006.json"
+      }
+    },
+    {
+      "id": "accepted-github-modaic-modaic-ai-microcode",
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceKind": "first_party",
+      "urlLevel": "repo",
+      "sourceUrl": "https://github.com/modaic-ai/microcode",
+      "authorName": "modaic-ai",
+      "authorHandle": "modaic-ai",
+      "entityType": "company",
+      "topVoice": null,
+      "metrics": {
+        "stars": 60,
+        "forks": 5,
+        "watchers": 60,
+        "openIssues": 0
+      },
+      "visibleMetricText": "60 stars; 5 forks; 60 watchers; 0 open issues",
+      "visibleContext": "Context-efficient terminal agent powered by an RLM.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "GitHub public API / saved repo snapshot; repo metrics are visible on repo page",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "src/lib/social/github-traction-a16z-speedrun-006.json"
+      }
+    },
+    {
+      "id": "accepted-github-modaic-modaic-ai-modaic",
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceKind": "first_party",
+      "urlLevel": "repo",
+      "sourceUrl": "https://github.com/modaic-ai/modaic",
+      "authorName": "modaic-ai",
+      "authorHandle": "modaic-ai",
+      "entityType": "company",
+      "topVoice": null,
+      "metrics": {
+        "stars": 26,
+        "forks": 1,
+        "watchers": 26,
+        "openIssues": 10
+      },
+      "visibleMetricText": "26 stars; 1 forks; 26 watchers; 10 open issues",
+      "visibleContext": "Python SDK for Modaic.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "GitHub public API / saved repo snapshot; repo metrics are visible on repo page",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "src/lib/social/github-traction-a16z-speedrun-006.json"
+      }
+    },
+    {
+      "id": "accepted-github-modaic-modaic-ai-gepa-rpc",
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "platform": "github",
+      "evidenceKind": "first_party",
+      "urlLevel": "repo",
+      "sourceUrl": "https://github.com/modaic-ai/gepa-rpc",
+      "authorName": "modaic-ai",
+      "authorHandle": "modaic-ai",
+      "entityType": "company",
+      "topVoice": null,
+      "metrics": {
+        "stars": 34,
+        "forks": 2,
+        "watchers": 34,
+        "openIssues": 0
+      },
+      "visibleMetricText": "34 stars; 2 forks; 34 watchers; 0 open issues",
+      "visibleContext": "Run GEPA on your favorite non-python libraries.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "GitHub public API / saved repo snapshot; repo metrics are visible on repo page",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "src/lib/social/github-traction-a16z-speedrun-006.json"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-quo-labs-2044890935075684598",
+      "companySlug": "quo-labs",
+      "companyName": "Quo Labs",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2044890935075684598",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 3983,
+        "likes": 32,
+        "replies": 4,
+        "reposts": 1,
+        "quotes": 0,
+        "saves": 2
+      },
+      "visibleMetricText": "views=3983; likes=32; replies=4; reposts=1; quotes=0; saves=2",
+      "visibleContext": "Andrew Chen replied to Quo Labs founder Audrey Lo: Have loved working with you and team at a16z Speedrun.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-quo-labs-2044330562874421368",
+      "companySlug": "quo-labs",
+      "companyName": "Quo Labs",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2044330562874421368",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 2039,
+        "likes": 5,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 0,
+        "saves": 1
+      },
+      "visibleMetricText": "views=2039; likes=5; replies=0; reposts=0; quotes=0; saves=1",
+      "visibleContext": "Andrew Chen replied to Quo Labs founder Audrey Lo mentioning @a16z and @speedrun.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-syncere-2041223647688589807",
+      "companySlug": "syncere",
+      "companyName": "Syncere",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2041223647688589807",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 4073,
+        "likes": 5,
+        "replies": 1,
+        "reposts": 0,
+        "quotes": 0,
+        "saves": 0
+      },
+      "visibleMetricText": "views=4073; likes=5; replies=1; reposts=0; quotes=0; saves=0",
+      "visibleContext": "Andrew Chen replied to Syncere founder Aaron Tan and the @bySyncere company account.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-syncere-2041918478635123042",
+      "companySlug": "syncere",
+      "companyName": "Syncere",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2041918478635123042",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 4517,
+        "likes": 32,
+        "replies": 0,
+        "reposts": 2,
+        "quotes": 0,
+        "saves": 0
+      },
+      "visibleMetricText": "views=4517; likes=32; replies=0; reposts=2; quotes=0; saves=0",
+      "visibleContext": "Andrew Chen replied to Syncere founder Aaron Tan.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-syncere-2041937346703282307",
+      "companySlug": "syncere",
+      "companyName": "Syncere",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2041937346703282307",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 43,
+        "likes": 3,
+        "replies": 1,
+        "reposts": 0,
+        "quotes": 0,
+        "saves": 0
+      },
+      "visibleMetricText": "views=43; likes=3; replies=1; reposts=0; quotes=0; saves=0",
+      "visibleContext": "Andrew Chen replied in a Syncere founder thread mentioning Aaron Tan.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-syncere-2041984756582379720",
+      "companySlug": "syncere",
+      "companyName": "Syncere",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2041984756582379720",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 288,
+        "likes": 4,
+        "replies": 3,
+        "reposts": 0,
+        "quotes": 0,
+        "saves": 0
+      },
+      "visibleMetricText": "views=288; likes=4; replies=3; reposts=0; quotes=0; saves=0",
+      "visibleContext": "Andrew Chen replied to @speedrun and Syncere founder Aaron Tan.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-syncere-2047772306358124584",
+      "companySlug": "syncere",
+      "companyName": "Syncere",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2047772306358124584",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 2399,
+        "likes": 23,
+        "replies": 0,
+        "reposts": 0,
+        "quotes": 1,
+        "saves": 0
+      },
+      "visibleMetricText": "views=2399; likes=23; replies=0; reposts=0; quotes=1; saves=0",
+      "visibleContext": "Andrew Chen replied to Syncere founder Aaron Tan.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-hotbox-2034761120188379267",
+      "companySlug": "hotbox",
+      "companyName": "Hotbox",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2034761120188379267",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 992,
+        "likes": 6,
+        "replies": 1,
+        "reposts": 0,
+        "quotes": 0,
+        "saves": 0
+      },
+      "visibleMetricText": "views=992; likes=6; replies=1; reposts=0; quotes=0; saves=0",
+      "visibleContext": "Andrew Chen replied to Hotbox founder Harpriya Bagri mentioning a16z and speedrun.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    },
+    {
+      "id": "accepted-x-topvoice-panorama-2046634958152991118",
+      "companySlug": "panorama",
+      "companyName": "Panorama",
+      "platform": "x",
+      "evidenceKind": "top_voice",
+      "urlLevel": "post",
+      "sourceUrl": "https://x.com/andrewchen/status/2046634958152991118",
+      "authorName": "Andrew Chen",
+      "authorHandle": "andrewchen",
+      "entityType": "top_voice",
+      "topVoice": {
+        "personId": "andrew-chen",
+        "displayName": "Andrew Chen",
+        "audience": "insiders",
+        "matchedFrom": "src/lib/social/top-voices.ts"
+      },
+      "metrics": {
+        "views": 724,
+        "likes": 3,
+        "replies": 1,
+        "reposts": 0,
+        "quotes": 0,
+        "saves": 0
+      },
+      "visibleMetricText": "views=724; likes=3; replies=1; reposts=0; quotes=0; saves=0",
+      "visibleContext": "Andrew Chen replied to Panorama founder Jingwei Hao and the @withpanorama company account.",
+      "verification": {
+        "status": "accepted",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "prebuilt A16ZSR006 insiders graph plus targeted top-voice search; native X post/reply URL",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "nativePostByListedTopVoice": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "public/graph/a16zsr006-insiders.json and top-voice X search"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "rejected-linkedin-advocate-1",
+      "companySlug": "advocate",
+      "companyName": "Advocate",
+      "platform": "linkedin",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "No qualifying post/comment/video/repo URL found; public hits were a16z/profile/startup directory pages, not native social evidence.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "\"Advocate\" \"Andrew Baran\" \"a16z speedrun\""
+      }
+    },
+    {
+      "id": "rejected-linkedin-august-2",
+      "companySlug": "august",
+      "companyName": "August",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/troykirwin_a16z-speedrun-is-the-bridge-to-the-us-for-activity-7450204954151235585-MXcd",
+      "metrics": {
+        "reactions": 298,
+        "comments": 25
+      },
+      "visibleContext": "Mentions August founders and visible 298 reactions / 25 comments, but author is Troy Kirwin.",
+      "rejectionReason": "Third-party/a16z staff post, not first-party company/founder and Troy Kirwin is not listed in top-voices.ts.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts/bar-ittah \"August\" \"a16z speedrun\""
+      }
+    },
+    {
+      "id": "rejected-github-auto-3",
+      "companySlug": "auto",
+      "companyName": "Auto",
+      "platform": "github",
+      "sourceUrl": "https://github.com/daredevildave",
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "Founder GitHub account had no repo-level URL with visible Auto/company context in fetched public repos.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "official founder GitHub account crawl"
+      }
+    },
+    {
+      "id": "rejected-github-bota-4",
+      "companySlug": "bota",
+      "companyName": "Bota",
+      "platform": "github",
+      "sourceUrl": "https://github.com/botallen/repository.botallen",
+      "metrics": {
+        "stars": 337,
+        "forks": 125,
+        "watchers": 337,
+        "openIssues": 129
+      },
+      "visibleContext": "Deprecated Kodi add-on repository; no Bota company/founder context.",
+      "rejectionReason": "GitHub search false positive: BotAllen Kodi repository is unrelated to Bota.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "src/lib/social/github-traction-a16z-speedrun-006.json"
+      }
+    },
+    {
+      "id": "rejected-github-cedar-5",
+      "companySlug": "cedar",
+      "companyName": "Cedar",
+      "platform": "github",
+      "sourceUrl": "https://github.com/beiercai",
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "Founder GitHub account is profile-level and had no public repo evidence with Cedar context.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "official founder GitHub account crawl"
+      }
+    },
+    {
+      "id": "rejected-linkedin-meridian-6",
+      "companySlug": "meridian",
+      "companyName": "Meridian",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/unicornernews_meridian-the-ai-native-enterprise-search-activity-7381029709893132288-2nXE",
+      "metrics": {},
+      "visibleContext": "Unicorner post mentions Meridian and a16z speedrun.",
+      "rejectionReason": "Third-party publisher post, not first-party company/founder or listed top voice.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": true,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Meridian\" \"a16z speedrun\" \"Kashyap Nathan\""
+      }
+    },
+    {
+      "id": "rejected-all-miraka-7",
+      "companySlug": "miraka",
+      "companyName": "Miraka",
+      "platform": "all",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "No URL-level post/video/comment/repo with visible metrics found in the covered searches.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "Miraka founder/company searches across requested platforms"
+      }
+    },
+    {
+      "id": "rejected-linkedin-oasis-8",
+      "companySlug": "oasis",
+      "companyName": "Oasis",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/naveensharma02_i-left-palantir-with-stefano-delmanto-to-activity-7447055836243439617-onfB",
+      "metrics": {
+        "reactions": 225,
+        "comments": 53
+      },
+      "visibleContext": "Naveen/Stefano founder context; mentions backed by a16z speedrun; visible product name Mercury.",
+      "rejectionReason": "Founder post was visible and metric-bearing, but the visible company name/context says Mercury rather than Oasis/joinoasis; kept out as a possible rename mismatch.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Oasis\" \"a16z speedrun\" \"Stefano\" \"Naveen\""
+      }
+    },
+    {
+      "id": "rejected-linkedin-partyhat-9",
+      "companySlug": "partyhat",
+      "companyName": "linkedin",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/bryanchangjiangliu_not-many-vlogs-on-linkedin-exactly-why-im-activity-7450562401822859265-qTUj",
+      "metrics": {
+        "reactions": 77,
+        "comments": 19
+      },
+      "visibleContext": "Mentions Jarret Cuisinier in a comment list; visible 77 reactions / 19 comments.",
+      "rejectionReason": "Third-party demo-day vlog/comment context; not first-party PartyHat founder/company evidence and not listed top voice.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "\"PartyHat\" \"a16z speedrun\" \"Jarret Cuisinier\""
+      }
+    },
+    {
+      "id": "rejected-linkedin-paypath-10",
+      "companySlug": "paypath",
+      "companyName": "PayPath",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/datadog-for-startups_nytechweek-datadog-a16z-activity-7469828299221962752-7OTT",
+      "metrics": {
+        "reactions": 67,
+        "comments": 4
+      },
+      "visibleContext": "Datadog event recap with PayPath mention.",
+      "rejectionReason": "Third-party event recap mentions Dean Glas/PayPath but is not first-party or listed top-voice evidence.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts/deanglas \"PayPath\" \"a16z speedrun\""
+      }
+    },
+    {
+      "id": "rejected-all-quinn-11",
+      "companySlug": "quinn",
+      "companyName": "Quinn",
+      "platform": "all",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "No qualifying first-party or listed-top-voice URL-level evidence found with visible metrics.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Quinn\" \"a16z speedrun\" \"Ben Anderson\""
+      }
+    },
+    {
+      "id": "rejected-all-simula-12",
+      "companySlug": "simula",
+      "companyName": "Simula",
+      "platform": "all",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "No qualifying post/video/comment/repo URL found; hits were profiles/directories without post-level metrics.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "\"Simula\" \"Yizhen Zhen\" \"a16z speedrun\""
+      }
+    },
+    {
+      "id": "rejected-linkedin-thirdbrain-labs-13",
+      "companySlug": "thirdbrain-labs",
+      "companyName": "Thirdbrain Labs",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/margaretczhang_i-joined-forces-with-david-s-huang-to-unlock-activity-7449510766657060864-g9St",
+      "metrics": {},
+      "visibleContext": "Post text says Thirdbrain Labs is backed by a16z speedrun.",
+      "rejectionReason": "First-party-looking LinkedIn post found, but full visible metrics were not verified in this pass; left rejected rather than accepting metric-incomplete evidence.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"Thirdbrain Labs\" \"a16z speedrun\" \"Margaret Zhang\""
+      }
+    },
+    {
+      "id": "rejected-linkedin-variantnow-14",
+      "companySlug": "variantnow",
+      "companyName": "VariantNow",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/ben-segal-39306311b_this-has-been-hard-to-keep-quiet-variant-activity-7429910776573886464-Akw3",
+      "metrics": {
+        "comments": 93
+      },
+      "visibleContext": "Ben Segal post says Variant is backed by a16z speedrun; 93 comments visible.",
+      "rejectionReason": "First-party-looking post found but only comment count was visible in captured result; rejected as metric-incomplete.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": true,
+        "contextVisible": true,
+        "notProfileOrSearchPage": true,
+        "queryOrDiscoveryPath": "site:linkedin.com/posts \"VariantNow\" \"a16z speedrun\" \"Elad Nissenberg\""
+      }
+    },
+    {
+      "id": "rejected-product_hunt-all-15",
+      "companySlug": "all",
+      "companyName": "Multiple",
+      "platform": "product_hunt",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "Product Hunt searches for missing zero-evidence companies returned no qualifying product/launch URLs beyond already-known SUN/Taxnova/Quanto rows.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "site:producthunt.com/products queries for Belong, Oasiz, PartyHat, Auto, Pluvo, Variant, Sellara"
+      }
+    },
+    {
+      "id": "rejected-youtube-all-16",
+      "companySlug": "all",
+      "companyName": "Multiple",
+      "platform": "youtube",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "YouTube searches returned no qualifying first-party A16ZSR006 video URLs with visible metrics beyond already-known rows.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "site:youtube.com/watch queries for Auto, Heavi AI, Pluvo, Modern Industrials"
+      }
+    },
+    {
+      "id": "rejected-instagram-all-17",
+      "companySlug": "all",
+      "companyName": "Multiple",
+      "platform": "instagram",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "Instagram results were profile/search-level or already-known rows; no new post/reel URL with visible metrics verified in this pass.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "Instagram company/founder account checks from a16z social account snapshot"
+      }
+    },
+    {
+      "id": "rejected-reddit-all-18",
+      "companySlug": "all",
+      "companyName": "Multiple",
+      "platform": "reddit",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "No first-party company/founder or listed-top-voice Reddit post/comment URL with visible metrics found for missing A16ZSR006 evidence.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "Reddit/source-hunt pass across requested company names"
+      }
+    },
+    {
+      "id": "rejected-x-all-19",
+      "companySlug": "all",
+      "companyName": "Multiple",
+      "platform": "x",
+      "sourceUrl": null,
+      "metrics": {},
+      "visibleContext": null,
+      "rejectionReason": "Most X public hits were profile pages or existing Andrew Chen top-voice replies; no additional first-party status URL with visible metrics accepted.",
+      "verification": {
+        "status": "rejected",
+        "checkedAt": "2026-07-15T19:20:00.000Z",
+        "method": "public web/source hunt review",
+        "metricsVisible": false,
+        "contextVisible": false,
+        "notProfileOrSearchPage": false,
+        "queryOrDiscoveryPath": "site:x.com status queries for founders/company handles"
+      }
+    }
+  ],
+  "summary": {
+    "acceptedCount": 31,
+    "rejectedCount": 19,
+    "acceptedByPlatform": {
+      "github": 7,
+      "linkedin": 15,
+      "x": 9
+    },
+    "rejectedByPlatform": {
+      "all": 3,
+      "github": 3,
+      "instagram": 1,
+      "linkedin": 8,
+      "product_hunt": 1,
+      "reddit": 1,
+      "x": 1,
+      "youtube": 1
+    },
+    "acceptedTopVoiceCount": 10,
+    "acceptedFirstPartyCount": 21
+  }
+}

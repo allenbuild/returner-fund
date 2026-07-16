@@ -1,0 +1,1242 @@
+{
+  "generatedAt": "2026-07-16T00:30:08Z",
+  "shard": "S2026 regular zero-evidence A-M, SOL ultra",
+  "searches": [
+    {
+      "query": "site:x.com/{known_handle}/status (company name OR \"YC P26\")",
+      "platform": "X",
+      "company": "ANORIA; Lab0; Gravy; Auxos",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + founder announcement or launch",
+      "platform": "LinkedIn, X, YouTube",
+      "company": "ANORIA; Lab0; Gravy; Auxos",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + founder post",
+      "platform": "LinkedIn, X",
+      "company": "AbInitio Bio; AICE; Akkari; ANORIA",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "exact company and founder names + site:linkedin.com/posts",
+      "platform": "LinkedIn",
+      "company": "AICE; AbInitio Bio; ANORIA",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + founder launch or traction post",
+      "platform": "LinkedIn, X, YouTube",
+      "company": "Arden; Arga Labs; Auxos; Avea Robotics",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + founder launch or product post",
+      "platform": "LinkedIn, X, YouTube",
+      "company": "BioStack Platforms; CharacterQuilt; Deep Interactions; Elyra",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + founder launch, demo, or traction post",
+      "platform": "LinkedIn, X, YouTube",
+      "company": "flowscope; Framewise Health; Gigacatalyst; GovGuard",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + native company or founder post",
+      "platform": "LinkedIn, X, YouTube",
+      "company": "Gravy; Harbor; HEVN, inc; Huscarl",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + native company or founder launch",
+      "platform": "LinkedIn, X, YouTube, Product Hunt",
+      "company": "Incandor; Infera; jo; KelAI",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + native company or founder launch",
+      "platform": "LinkedIn, X, YouTube",
+      "company": "Korso; Lab0; Lattice Health; Light Anchor",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "company name + YC P26 + native founder demo, launch, or traction post",
+      "platform": "LinkedIn, X, YouTube",
+      "company": "Madrone; Maquoketa Research; matforge; Mochatrade",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "site:x.com/{known_handle}/status + target-specific terms",
+      "platform": "X",
+      "company": "Akkari; GovGuard; Gravy; Harbor",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "exact founder and company names + site:linkedin.com/posts",
+      "platform": "LinkedIn",
+      "company": "Framewise Health; Maquoketa Research; Light Anchor; KelAI",
+      "dateRange": "2026-01-01 through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "AbInitio Bio; AICE; Akkari; Alchemize",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "Allowance; Andco; ANORIA; Archer",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "Arden; Arga Labs; Aster; Atrisa",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "Auxos; Avea Robotics; BioStack Platforms; CentralComs",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "CharacterQuilt; Dayjob; Deep Interactions; Elyra",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "flowscope; Foresight; Framewise Health; Gigacatalyst",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "GovGuard; Gravy; Harbor; Hessian",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "HEVN, inc; Huscarl; Incandor; Infera",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "Intelligence Factory; jo; KelAI; Kinect",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "Korso; KugelAudio; Lab0; Lattice Health",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "Light Anchor; Madrone; Maquoketa Research; matforge",
+      "dateRange": "account inception through 2026-07-15"
+    },
+    {
+      "query": "complete first-page timeline and pinned-post history for every known X handle; no-account state recorded where no X handle exists",
+      "platform": "X",
+      "company": "Memory Store; Mochatrade",
+      "dateRange": "account inception through 2026-07-15"
+    }
+  ],
+  "accepted": [
+    {
+      "batchSlug": "S2026",
+      "companyName": "AbInitio Bio",
+      "companySlug": "abinitio-bio",
+      "founderName": "Nisha Gopal",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/gopalnisha_just-wrapped-y-combinator-p26-with-daniel-activity-7473820951579734016-mUfS",
+      "platformPostId": "7473820951579734016",
+      "postedAt": "2026-06-19T19:36:11.718Z",
+      "author": {
+        "name": "Nisha Gopal, PhD",
+        "handle": "gopalnisha",
+        "profileUrl": "https://www.linkedin.com/in/gopalnisha",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 137,
+        "comments": 7
+      },
+      "nativeEvidence": {
+        "headline": "Just wrapped Y Combinator P26 with Daniel Mukasa, PhD for Abinitio Bio!",
+        "visibleTextSignals": [
+          "The founder names Abinitio Bio, cofounder Daniel Mukasa, and Y Combinator P26 in the native post."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Nisha Gopal as an AbInitio Bio founder with this LinkedIn account.",
+        "The native post explicitly names Abinitio Bio and P26."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/gopalnisha_just-wrapped-y-combinator-p26-with-daniel-activity-7473820951579734016-mufs",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "AICE",
+      "companySlug": "aice",
+      "founderName": "Gregoire Chomette",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/gregoirechomette_today-aice-power-is-joining-y-combinator-activity-7444791109265920000-SHGi",
+      "platformPostId": "7444791109265920000",
+      "postedAt": "2026-03-31T17:01:57.955Z",
+      "author": {
+        "name": "Gregoire Chomette",
+        "handle": "gregoirechomette",
+        "profileUrl": "https://www.linkedin.com/in/gregoirechomette",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 421,
+        "comments": 73
+      },
+      "nativeEvidence": {
+        "headline": "Today, AICE Power is joining Y Combinator.",
+        "visibleTextSignals": [
+          "The founder identifies AICE Power, cofounder Remi Bouteiller, YC advisers, and the company's energy-optimization product."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Gregoire Chomette as an AICE founder with this LinkedIn account.",
+        "The native post explicitly names AICE Power and its YC participation."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/gregoirechomette_today-aice-power-is-joining-y-combinator-activity-7444791109265920000-shgi",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "ANORIA",
+      "companySlug": "anoria",
+      "founderName": "Michael Belhassen",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/michaelblhssn/status/2051708754086051876",
+      "platformPostId": "2051708754086051876",
+      "postedAt": "2026-05-05T17:01:00.000Z",
+      "author": {
+        "name": "Michael Belhassen",
+        "handle": "michaelblhssn",
+        "profileUrl": "https://x.com/michaelblhssn",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 5662989,
+        "likes": 935,
+        "replies": 370,
+        "retweets": 178,
+        "quotes": 105,
+        "bookmarks": 762
+      },
+      "nativeEvidence": {
+        "headline": "Meet Anoria.",
+        "visibleTextSignals": [
+          "The founder describes Anoria as a wearable that reads emotions and invites users to pre-order."
+        ],
+        "verificationMethod": "The native X status was validated through its public FxTwitter rendering, which exposed author, timestamp, text, URL, and visible metrics."
+      },
+      "attributionSignals": [
+        "The S2026 company record lists Michael Belhassen as ANORIA's founder and links this X account.",
+        "The author's native X bio identifies him as CEO of @Anoria_inc and YC P26.",
+        "The post explicitly names Anoria and its product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://x.com/michaelblhssn/status/2051708754086051876",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "ANORIA",
+      "companySlug": "anoria",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=xnOjtP4qIgk",
+      "platformPostId": "xnOjtP4qIgk",
+      "postedAt": "2026-05-05T17:00:06.000Z",
+      "author": {
+        "name": "Anoria",
+        "handle": "UCge59soIFC5aX06173CgroA",
+        "profileUrl": "https://www.youtube.com/channel/UCge59soIFC5aX06173CgroA",
+        "relationship": "company account"
+      },
+      "metrics": {
+        "views": 2147,
+        "likes": 57
+      },
+      "nativeEvidence": {
+        "headline": "Anoria: Read your emotions. Write your story.",
+        "visibleTextSignals": [
+          "The native video title names Anoria and its emotion-reading product proposition."
+        ],
+        "verificationMethod": "Native YouTube watch-page data exposed the title, channel name and ID, publication time, view count, and like count."
+      },
+      "attributionSignals": [
+        "The channel name exactly matches the company brand.",
+        "The native title explicitly names Anoria and its product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.youtube.com/watch?v=xnOjtP4qIgk",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Arden",
+      "companySlug": "arden",
+      "founderName": "Aryaman Khanna",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/aryaman-khanna-210a9121b_arden-yc-p26-is-backed-by-y-combinator-activity-7450643893903208448-OBBq",
+      "platformPostId": "7450643893903208448",
+      "postedAt": "2026-04-16T20:38:50.550Z",
+      "author": {
+        "name": "Aryaman Khanna",
+        "handle": "aryaman-khanna-210a9121b",
+        "profileUrl": "https://www.linkedin.com/in/aryaman-khanna-210a9121b",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 514,
+        "comments": 157
+      },
+      "nativeEvidence": {
+        "headline": "Arden (YC P26) is backed by Y Combinator.",
+        "visibleTextSignals": [
+          "The founder describes customer discovery and Arden's AI-native platform for internal audit teams."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Aryaman Khanna as an Arden founder with this LinkedIn account.",
+        "The native post explicitly names Arden, P26, its cofounder, and product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/aryaman-khanna-210a9121b_arden-yc-p26-is-backed-by-y-combinator-activity-7450643893903208448-obbq",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Arga Labs",
+      "companySlug": "arga-labs",
+      "founderName": "Akira Tong",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/akira-tong_my-cofounder-phillip-li-said-something-smart-activity-7468336170469617664-VJtT",
+      "platformPostId": "7468336170469617664",
+      "postedAt": "2026-06-04T16:21:38.000Z",
+      "author": {
+        "name": "Akira Tong",
+        "handle": "akira-tong",
+        "profileUrl": "https://www.linkedin.com/in/akira-tong",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 95,
+        "comments": 7
+      },
+      "nativeEvidence": {
+        "headline": "My cofounder Phillip Li said something smart and got quoted by Forbes",
+        "visibleTextSignals": [
+          "The founder says Arga Labs builds a way to test AI-agent software interactions before production."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Akira Tong as an Arga Labs founder with this LinkedIn account.",
+        "The founder's own text explicitly names Arga Labs (YC P26) and the product problem."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/akira-tong_my-cofounder-phillip-li-said-something-smart-activity-7468336170469617664-vjtt",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Auxos",
+      "companySlug": "auxos",
+      "founderName": "Ashton Daniel",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ashton-daniel_auxos-yc-p26-recently-hosted-a-dinner-with-activity-7461103888213983232-8ltq",
+      "platformPostId": "7461103888213983232",
+      "postedAt": "2026-05-15T17:23:07.541Z",
+      "author": {
+        "name": "Ashton Daniel",
+        "handle": "ashton-daniel",
+        "profileUrl": "https://www.linkedin.com/in/ashton-daniel",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 80,
+        "comments": 3
+      },
+      "nativeEvidence": {
+        "headline": "Auxos (YC P26) recently hosted a dinner with marketing leaders.",
+        "visibleTextSignals": [
+          "The founder describes customer research demand and Auxos digital twins of populations."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Ashton Daniel as an Auxos founder with this LinkedIn account.",
+        "The native post names Auxos, P26, its product, and the useauxos.com domain."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/ashton-daniel_auxos-yc-p26-recently-hosted-a-dinner-with-activity-7461103888213983232-8ltq",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Auxos",
+      "companySlug": "auxos",
+      "founderName": "Ashton Daniel",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ashton-daniel_what-the-start-of-our-week-looks-like-at-activity-7462553432420392960-U25e",
+      "platformPostId": "7462553432420392960",
+      "postedAt": "2026-05-19T17:23:05.811Z",
+      "author": {
+        "name": "Ashton Daniel",
+        "handle": "ashton-daniel",
+        "profileUrl": "https://www.linkedin.com/in/ashton-daniel",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 102,
+        "comments": 13
+      },
+      "nativeEvidence": {
+        "headline": "What the start of our week looks like at Auxos (YC P26)",
+        "visibleTextSignals": [
+          "The founder reports 50-plus booked demos, customer onboarding, and digital-twin research use cases."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Ashton Daniel as an Auxos founder with this LinkedIn account.",
+        "The native post explicitly names Auxos, P26, product use cases, and useauxos.com."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/ashton-daniel_what-the-start-of-our-week-looks-like-at-activity-7462553432420392960-u25e",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "BioStack Platforms",
+      "companySlug": "biostack-platforms",
+      "founderName": "Parth Patwa",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/parth-patwa_excited-to-share-that-we-are-joining-y-combinator-activity-7457104305419046912-WjSP",
+      "platformPostId": "7457104305419046912",
+      "postedAt": "2026-05-04T16:30:12.687Z",
+      "author": {
+        "name": "Parth Patwa",
+        "handle": "parth-patwa",
+        "profileUrl": "https://www.linkedin.com/in/parth-patwa",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 407,
+        "comments": 62
+      },
+      "nativeEvidence": {
+        "headline": "Excited to share that we are joining Y Combinator!",
+        "visibleTextSignals": [
+          "The founder says BioStack Platforms builds healthcare simulations for training AI models on clinical problems."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Parth Patwa as a BioStack Platforms founder with this LinkedIn account.",
+        "The native post explicitly names BioStack Platforms (YC P26), its cofounder, and product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/parth-patwa_excited-to-share-that-we-are-joining-y-combinator-activity-7457104305419046912-wjsp",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Deep Interactions",
+      "companySlug": "deep-interactions",
+      "founderName": "Sruthi Viswanathan",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/sruvis_when-i-started-a-phd-at-oxford-trying-to-activity-7447721926220750848-WCmT",
+      "platformPostId": "7447721926220750848",
+      "postedAt": "2026-04-08T19:07:59.174Z",
+      "author": {
+        "name": "Sruthi Viswanathan",
+        "handle": "sruvis",
+        "profileUrl": "https://www.linkedin.com/in/sruvis",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 359,
+        "comments": 116
+      },
+      "nativeEvidence": {
+        "headline": "Introducing Deep Interactions (YC P26), a collaborative AI builder for teams.",
+        "visibleTextSignals": [
+          "The founder describes a collaborative builder for teams shipping AI products in high-stakes domains."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Sruthi Viswanathan as the Deep Interactions founder with this LinkedIn account.",
+        "The native post explicitly introduces Deep Interactions (YC P26) and its product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/sruvis_when-i-started-a-phd-at-oxford-trying-to-activity-7447721926220750848-wcmt",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Deep Interactions",
+      "companySlug": "deep-interactions",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=AuSnAHZP2lM",
+      "platformPostId": "AuSnAHZP2lM",
+      "postedAt": "2026-05-18T15:00:15.000Z",
+      "author": {
+        "name": "Deep Interactions",
+        "handle": "UCR8317TZ6IB9gbrYU0qbgcQ",
+        "profileUrl": "https://www.youtube.com/channel/UCR8317TZ6IB9gbrYU0qbgcQ",
+        "relationship": "company account"
+      },
+      "metrics": {
+        "views": 235,
+        "likes": 2
+      },
+      "nativeEvidence": {
+        "headline": "DEEP INTERACTIONS",
+        "visibleTextSignals": [
+          "The native video and channel names both exactly match the target company."
+        ],
+        "verificationMethod": "Native YouTube watch-page data exposed the title, channel name and ID, publication time, view count, and like count."
+      },
+      "attributionSignals": [
+        "The channel and video title both use the exact Deep Interactions brand.",
+        "The platform item is a native video rather than a profile or search page."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.youtube.com/watch?v=AuSnAHZP2lM",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Gigacatalyst",
+      "companySlug": "gigacatalyst",
+      "founderName": "Namanyay Goel",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/namanyayg_ycombinator-activity-7456364381602365440-bW-i",
+      "platformPostId": "7456364381602365440",
+      "postedAt": "2026-05-02T15:30:01.103Z",
+      "author": {
+        "name": "Namanyay Goel",
+        "handle": "namanyayg",
+        "profileUrl": "https://www.linkedin.com/in/namanyayg",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 533,
+        "comments": 141
+      },
+      "nativeEvidence": {
+        "headline": "Gigacatalyst (YC P26) is in Y Combinator.",
+        "visibleTextSignals": [
+          "The founder says customers unblocked $1M in pipeline by addressing software feature gaps."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Namanyay Goel as the Gigacatalyst founder with this LinkedIn account.",
+        "The native post names Gigacatalyst, P26, its product, and a customer pipeline result."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/namanyayg_ycombinator-activity-7456364381602365440-bw-i",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Gigacatalyst",
+      "companySlug": "gigacatalyst",
+      "founderName": "Namanyay Goel",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/namanyayg_when-your-customers-start-cheering-you-on-activity-7459784869838020608--xcr",
+      "platformPostId": "7459784869838020608",
+      "postedAt": "2026-05-12T02:01:49.054Z",
+      "author": {
+        "name": "Namanyay Goel",
+        "handle": "namanyayg",
+        "profileUrl": "https://www.linkedin.com/in/namanyayg",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 55,
+        "comments": 15
+      },
+      "nativeEvidence": {
+        "headline": "When your customers start cheering you on, you know you're on to something big.",
+        "visibleTextSignals": [
+          "The founder ties Gigacatalyst (YC P26) to lost sales from missing features and engineering backlogs."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Namanyay Goel as the Gigacatalyst founder with this LinkedIn account.",
+        "The native post explicitly names Gigacatalyst (YC P26) and its customer problem."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/namanyayg_when-your-customers-start-cheering-you-on-activity-7459784869838020608--xcr",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Gigacatalyst",
+      "companySlug": "gigacatalyst",
+      "founderName": "Namanyay Goel",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/namanyayg_1000-investors-me-and-gigacatalyst-yc-activity-7473415485594968068-GQrV",
+      "platformPostId": "7473415485594968068",
+      "postedAt": "2026-06-18T16:45:01.085Z",
+      "author": {
+        "name": "Namanyay Goel",
+        "handle": "namanyayg",
+        "profileUrl": "https://www.linkedin.com/in/namanyayg",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 210,
+        "comments": 32
+      },
+      "nativeEvidence": {
+        "headline": "1000 investors, me, and Gigacatalyst (YC P26)",
+        "visibleTextSignals": [
+          "The founder places Gigacatalyst on a Y Combinator stage before a large investor audience."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Namanyay Goel as the Gigacatalyst founder with this LinkedIn account.",
+        "The native post explicitly names Gigacatalyst (YC P26) and Y Combinator."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/namanyayg_1000-investors-me-and-gigacatalyst-yc-activity-7473415485594968068-gqrv",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Gravy",
+      "companySlug": "gravy",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/gravy_finance/status/2055861215361204483",
+      "platformPostId": "2055861215361204483",
+      "postedAt": "2026-05-17T04:01:24.000Z",
+      "author": {
+        "name": "Gravy (YC P26)",
+        "handle": "gravy_finance",
+        "profileUrl": "https://x.com/gravy_finance",
+        "relationship": "company account"
+      },
+      "metrics": {
+        "views": 941,
+        "likes": 16,
+        "replies": 8,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 5
+      },
+      "nativeEvidence": {
+        "headline": "Meet Gravy. Your AI Personal CFO. Backed by YC.",
+        "visibleTextSignals": [
+          "The company account names Gravy, describes the AI personal CFO product, and states YC backing."
+        ],
+        "verificationMethod": "The native X status was validated through its public FxTwitter rendering, which exposed author, timestamp, text, URL, and visible metrics."
+      },
+      "attributionSignals": [
+        "The S2026 company record links @gravy_finance as Gravy's company X account.",
+        "The account display name includes YC P26 and the post explicitly names Gravy."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://x.com/gravy_finance/status/2055861215361204483",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Incandor",
+      "companySlug": "incandor",
+      "founderName": "Luc Rosenzweig",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=dWrp82VkDbA",
+      "platformPostId": "dWrp82VkDbA",
+      "postedAt": "2026-05-21T21:23:57.000Z",
+      "author": {
+        "name": "Luc Rosenzweig",
+        "handle": "UCs4IgPrOePADt_5YDNRi3Tw",
+        "profileUrl": "https://www.youtube.com/channel/UCs4IgPrOePADt_5YDNRi3Tw",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 254,
+        "likes": 15
+      },
+      "nativeEvidence": {
+        "headline": "Introduction to Incandor",
+        "visibleTextSignals": [
+          "The YC-listed founder published a native video whose title explicitly names Incandor."
+        ],
+        "verificationMethod": "Native YouTube watch-page data exposed the title, channel name and ID, publication time, view count, and like count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Luc Rosenzweig as an Incandor founder.",
+        "The native video title explicitly names Incandor and the author name matches the founder record."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.youtube.com/watch?v=dWrp82VkDbA",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "jo",
+      "companySlug": "jo",
+      "founderName": "Kevin Li",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/liveink/status/2060068450257793045",
+      "platformPostId": "2060068450257793045",
+      "postedAt": "2026-05-28T18:39:27.000Z",
+      "author": {
+        "name": "Kevin Li",
+        "handle": "liveink",
+        "profileUrl": "https://x.com/liveink",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "views": 423672,
+        "likes": 283,
+        "replies": 48,
+        "retweets": 44,
+        "quotes": 17,
+        "bookmarks": 217
+      },
+      "nativeEvidence": {
+        "headline": "A proactive assistant that acts before the user types a prompt.",
+        "visibleTextSignals": [
+          "The founder describes the assistant his team built and links the post to a real-family product demonstration."
+        ],
+        "verificationMethod": "The native X status was validated through its public FxTwitter rendering, which exposed author, timestamp, text, URL, bio, and visible metrics."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Kevin Li as a jo founder and links this X account.",
+        "The author's native X bio identifies his role at @askjoai.",
+        "The post describes the core jo assistant behavior in first person plural."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://x.com/liveink/status/2060068450257793045",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "KelAI",
+      "companySlug": "kelai",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/kelai-capital_for-decades-systematic-hedge-funds-scaled-activity-7454912721357004800-UOkW",
+      "platformPostId": "7454912721357004800",
+      "postedAt": "2026-04-28T15:21:38.335Z",
+      "author": {
+        "name": "KelAI",
+        "handle": "kelai-tech",
+        "profileUrl": "https://www.linkedin.com/company/kelai-tech",
+        "relationship": "company account"
+      },
+      "metrics": {
+        "reactions": 39,
+        "comments": 7
+      },
+      "nativeEvidence": {
+        "headline": "For decades, systematic hedge funds scaled by hiring more brilliant minds.",
+        "visibleTextSignals": [
+          "KelAI describes autonomous investment-workflow agents and states that it joined Y Combinator in spring 2026."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 company record links this LinkedIn organization account for KelAI.",
+        "The company-authored post names KelAI's product and states YC P26 participation."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/kelai-capital_for-decades-systematic-hedge-funds-scaled-activity-7454912721357004800-uokw",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Korso",
+      "companySlug": "korso",
+      "founderName": "Alex Liu",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/alexdliu7_excited-to-finally-share-that-korso-yc-p26-activity-7445533826312921088-w7qI",
+      "platformPostId": "7445533826312921088",
+      "postedAt": "2026-04-02T18:13:15.505Z",
+      "author": {
+        "name": "Alex Liu",
+        "handle": "alexdliu7",
+        "profileUrl": "https://www.linkedin.com/in/alexdliu7",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 369,
+        "comments": 67
+      },
+      "nativeEvidence": {
+        "headline": "Excited to finally share that Korso (YC P26) is backed by Y Combinator!",
+        "visibleTextSignals": [
+          "The founder names both cofounders and describes customer work with manufacturers and factories."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Alex Liu as a Korso founder with this LinkedIn account.",
+        "The native post explicitly names Korso (YC P26), its cofounders, and target customers."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/alexdliu7_excited-to-finally-share-that-korso-yc-p26-activity-7445533826312921088-w7qi",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Lab0",
+      "companySlug": "lab0",
+      "platform": "YouTube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=UDrqfnYWlLI",
+      "platformPostId": "UDrqfnYWlLI",
+      "postedAt": "2026-05-18T13:28:05.000Z",
+      "author": {
+        "name": "Lab0",
+        "handle": "UCij7Db_BBYZHZ333OLQZ2AQ",
+        "profileUrl": "https://www.youtube.com/channel/UCij7Db_BBYZHZ333OLQZ2AQ",
+        "relationship": "company account"
+      },
+      "metrics": {
+        "views": 274,
+        "likes": 1
+      },
+      "nativeEvidence": {
+        "headline": "Lab0 (YC P26) Launch Video",
+        "visibleTextSignals": [
+          "The native company-channel title identifies Lab0, P26, and the item as its launch video."
+        ],
+        "verificationMethod": "Native YouTube watch-page data exposed the title, channel name and ID, publication time, view count, and like count."
+      },
+      "attributionSignals": [
+        "The channel name exactly matches the company brand.",
+        "The native video title explicitly names Lab0 and YC P26."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.youtube.com/watch?v=UDrqfnYWlLI",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Light Anchor",
+      "companySlug": "light-anchor",
+      "founderName": "Chase Kim",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/chasingjohnn_after-a-long-hard-but-incredibly-meaningful-activity-7437373153187901441-fiEP",
+      "platformPostId": "7437373153187901441",
+      "postedAt": "2026-03-11T05:45:39.414Z",
+      "author": {
+        "name": "Chase Kim",
+        "handle": "chasingjohnn",
+        "profileUrl": "https://www.linkedin.com/in/chasingjohnn",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 344,
+        "comments": 45
+      },
+      "nativeEvidence": {
+        "headline": "I've started a new chapter at Light Anchor (YC X26) with my co-founder Sangha Park.",
+        "visibleTextSignals": [
+          "The founder says Light Anchor builds AI agents for data operations across commerce, finance, supply chain, and healthcare."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Chase Kim as a Light Anchor founder with this LinkedIn account.",
+        "The native post names Light Anchor, cofounder Sangha Park, YC X26, and the product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/chasingjohnn_after-a-long-hard-but-incredibly-meaningful-activity-7437373153187901441-fiep",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Maquoketa Research",
+      "companySlug": "maquoketa-research",
+      "founderName": "Evan Yeager",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/evanyeager_had-the-opportunity-to-demo-maquoketa-researchs-activity-7454329912750157824-1WGw",
+      "platformPostId": "7454329912750157824",
+      "postedAt": "2026-04-27T00:45:45.931Z",
+      "author": {
+        "name": "Evan Yeager",
+        "handle": "evanyeager",
+        "profileUrl": "https://www.linkedin.com/in/evanyeager",
+        "relationship": "YC-listed founder"
+      },
+      "metrics": {
+        "reactions": 48,
+        "comments": 7
+      },
+      "nativeEvidence": {
+        "headline": "Demoing Maquoketa Research's flagship UAS, Magpie, for YC P26 founders.",
+        "visibleTextSignals": [
+          "The founder describes an in-house quadrotor, onboard target detection, ground control, and autonomous mission software."
+        ],
+        "verificationMethod": "Native LinkedIn public JSON-LD exposed the SocialMediaPosting author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The S2026 coverage matrix lists Evan Yeager as a Maquoketa Research founder with this LinkedIn account.",
+        "The native post explicitly names Maquoketa Research, Magpie, YC P26, and technical product details."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/evanyeager_had-the-opportunity-to-demo-maquoketa-researchs-activity-7454329912750157824-1wgw",
+        "sourceUrlInLedger": false,
+        "platformPostIdInLedger": false,
+        "checkedAgainst": [
+          "search-ledger.json",
+          "validated-candidates.json",
+          "rejected-candidates.json",
+          "existing outputs/source-hunt JSON artifacts"
+        ],
+        "checkedAt": "2026-07-16T00:30:08Z"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "sourceUrl": "https://www.linkedin.com/in/tanekim",
+      "companyName": "Framewise Health",
+      "platform": "LinkedIn",
+      "reason": "profile_only_no_post_url: indexed text exposed a founder announcement and aggregate engagement, but no post-level URL could be resolved; profiles are not admissible evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/flow-scope_and-so-it-begins-activity-7459982885777735680-A3Xq",
+      "companyName": "flowscope",
+      "platform": "LinkedIn",
+      "reason": "third_party_or_repost_only: the company-authored text is only a context-dependent phrase and relies on quoted Y Combinator content for target specificity."
+    },
+    {
+      "sourceUrl": "https://x.com/ycombinator/status/2047027659432177682",
+      "companyName": "GovGuard",
+      "platform": "X",
+      "reason": "third_party_or_repost_only: the native author is Y Combinator, not the company or a founder; known target accounts only reposted it."
+    },
+    {
+      "sourceUrl": "https://x.com/ycombinator/status/2055724970735755644",
+      "companyName": "Elyra",
+      "platform": "X",
+      "reason": "third_party_or_repost_only: the native author is Y Combinator, not the company or a founder; known target accounts only reposted it."
+    },
+    {
+      "sourceUrl": "https://x.com/ycombinator/status/2064754465152913691",
+      "companyName": "Lattice Health",
+      "platform": "X",
+      "reason": "third_party_or_repost_only: the native author is Y Combinator, not the company or a founder; known target accounts only reposted it."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_companies-can-now-decrease-their-insurance-activity-7453140671151910912-tyTA",
+      "companyName": "Huscarl",
+      "platform": "LinkedIn",
+      "reason": "third_party_or_repost_only: the native author is Y Combinator rather than Huscarl or a listed founder."
+    },
+    {
+      "sourceUrl": "https://x.com/runharbor/status/2060079477783453817",
+      "companyName": "Harbor",
+      "platform": "X",
+      "reason": "context_dependent_or_unclear_target: the company-account item is a short reply to another company's thread and provides no Harbor-specific evidence."
+    },
+    {
+      "sourceUrl": "https://x.com/hevn_finance/status/2050100696763220477",
+      "companyName": "HEVN, inc",
+      "platform": "X",
+      "reason": "context_dependent_or_unclear_target: the post says only that it was a big, long day and does not identify HEVN, a product, launch, or result."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/michael-belhassen_a-few-weeks-ago-i-shared-this-video-with-activity-7460463599791255552-ZI4u",
+      "companyName": "ANORIA",
+      "platform": "LinkedIn",
+      "reason": "inaccessible_or_no_native_metrics: the post-level URL was found, but the native public page did not expose a verifiable SocialMediaPosting payload or metrics during validation."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/sujaysriv_finally-launched-lab0-yc-p26-on-y-combinator-activity-7462831020313153537-wcP3",
+      "companyName": "Lab0",
+      "platform": "LinkedIn",
+      "reason": "inaccessible_or_no_native_metrics: the post-level URL was found, but the native public page did not expose a verifiable SocialMediaPosting payload or metrics during validation."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/parthm1801_mochatrade-yc-p26-featured-on-forbes-activity-7468384705525141504-yuaJ",
+      "companyName": "Mochatrade",
+      "platform": "LinkedIn",
+      "reason": "third_party_media_or_no_verified_metrics: the item primarily shares a Forbes feature and native post metrics were not independently verified."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/sujaysriv_we-got-into-y-combinator-a-few-months-ago-activity-7445675707990519808-0pxn",
+      "companyName": "Lab0",
+      "platform": "LinkedIn",
+      "reason": "duplicate_or_already_in_ledger: the normalized source URL and platform post ID 7445675707990519808 are already recorded."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/parthm1801_excited-to-share-that-were-backed-by-y-combinator-activity-7447133638141595648-kfd5",
+      "companyName": "Mochatrade",
+      "platform": "LinkedIn",
+      "reason": "duplicate_or_already_in_ledger: the normalized source URL and platform post ID 7447133638141595648 are already recorded."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/posts/utksn15_excited-to-announce-that-my-new-company-mochatrade-activity-7454371499039293440-b6_r",
+      "companyName": "Mochatrade",
+      "platform": "LinkedIn",
+      "reason": "duplicate_or_already_in_ledger: the normalized source URL and platform post ID 7454371499039293440 are already recorded."
+    }
+  ],
+  "duplicateUrls": [
+    "https://www.linkedin.com/posts/sujaysriv_we-got-into-y-combinator-a-few-months-ago-activity-7445675707990519808-0pxn",
+    "https://www.linkedin.com/posts/parthm1801_excited-to-share-that-were-backed-by-y-combinator-activity-7447133638141595648-kfd5",
+    "https://www.linkedin.com/posts/utksn15_excited-to-announce-that-my-new-company-mochatrade-activity-7454371499039293440-b6_r"
+  ],
+  "productivity": {
+    "queriesPerformed": 124,
+    "accountsSearched": 72,
+    "companiesSearched": 46,
+    "candidatesFound": 36,
+    "netNewVerifiedRows": 22,
+    "duplicates": 3,
+    "rejectionsByReason": {
+      "duplicate_or_already_in_ledger": 3,
+      "third_party_or_repost_only": 5,
+      "profile_only_no_post_url": 1,
+      "context_dependent_or_unclear_target": 2,
+      "inaccessible_or_no_native_metrics": 2,
+      "third_party_media_or_no_verified_metrics": 1
+    }
+  }
+}

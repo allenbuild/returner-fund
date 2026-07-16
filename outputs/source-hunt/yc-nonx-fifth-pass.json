@@ -1,0 +1,615 @@
+{
+  "generatedAt": "2026-07-15T21:04:32.000Z",
+  "lane": "YC Spring/Summer non-X and undercovered-platform fifth pass: S2026/S26 native source URLs with visible metrics; no company-site/blog URLs without engagement metrics; protected de-dupe checked against src/lib/social/targeted-evidence-current.json, src/lib/social/github-traction.json, and src/lib/social/github-traction-summer-2026.json.",
+  "accepted": [
+    {
+      "batch": "YC Summer 2026 S26",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48847562",
+      "platformPostId": "48847562",
+      "company": "Context.dev",
+      "founder": "Yahia Bakour",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Context.dev (YC S26) - API to get structured data from any website",
+      "text": "Founder-authored HN launch for Context.dev describing structured web-data extraction for developers and agents.",
+      "rawVisibleText": "HN API title names Context.dev (YC S26); author TheYahiaBakour; visible score 119 points and 86 comments.",
+      "metrics": {
+        "points": 119,
+        "comments": 86
+      },
+      "publishedAt": "2026-07-09T15:28:39Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Context.dev and YC S26, and local Summer 2026 roster lists Context.dev with founder Yahia Bakour.",
+      "verificationNotes": "HN Firebase API returned item 48847562 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Summer 2026 S26",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48908950",
+      "platformPostId": "48908950",
+      "company": "Agnost AI",
+      "founder": "Parth Ajmera; Shubham Palriwala",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Agnost AI (YC S26) - Extract user feedback from agent conversations",
+      "text": "Founder-authored HN launch for Agnost AI, describing analytics and failure discovery for chat and voice agents.",
+      "rawVisibleText": "HN API title names Agnost AI (YC S26); author laalshaitaan; visible score 83 points and 47 comments.",
+      "metrics": {
+        "points": 83,
+        "comments": 47
+      },
+      "publishedAt": "2026-07-14T16:06:18Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Agnost AI and YC S26, and local Summer 2026 roster lists Agnost AI with founders Parth Ajmera and Shubham Palriwala.",
+      "verificationNotes": "HN Firebase API returned item 48908950 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48586299",
+      "platformPostId": "48586299",
+      "company": "TesterArmy",
+      "founder": "Szymon Rybczak; Oskar Kwasniewski; Piotr Matyjasik",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: TesterArmy (YC P26) - Agents that test web and mobile apps",
+      "text": "Founder-authored HN launch for an agentic testing platform that runs end-to-end checks before deployment and in production.",
+      "rawVisibleText": "HN API title names TesterArmy (YC P26); author okwasniewski; visible score 132 points and 69 comments.",
+      "metrics": {
+        "points": 132,
+        "comments": 69
+      },
+      "publishedAt": "2026-06-18T14:49:44Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names TesterArmy and YC P26, and local Spring 2026 roster lists TesterArmy.",
+      "verificationNotes": "HN Firebase API returned item 48586299 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48543908",
+      "platformPostId": "48543908",
+      "company": "Drafted",
+      "founder": "Nicholas Donahue",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Drafted (YC P26) - Models for residential architecture",
+      "text": "Founder-authored HN launch for Drafted, describing models that generate residential architecture from structured design constraints.",
+      "rawVisibleText": "HN API title names Drafted (YC P26); author PrimalNick; visible score 60 points and 63 comments.",
+      "metrics": {
+        "points": 60,
+        "comments": 63
+      },
+      "publishedAt": "2026-06-15T16:47:21Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Drafted and YC P26, and local Spring 2026 roster lists Drafted.",
+      "verificationNotes": "HN Firebase API returned item 48543908 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48463273",
+      "platformPostId": "48463273",
+      "company": "transload",
+      "founder": "Julius Scheel; Nils Borner; Jago Wahl-Schwentker",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Transload (YC P26) - Measuring freight items with CCTV",
+      "text": "Founder-authored HN launch for transload, describing freight dimension measurement using existing terminal security cameras.",
+      "rawVisibleText": "HN API title names Transload (YC P26); author nils_spatial; visible score 56 points and 19 comments.",
+      "metrics": {
+        "points": 56,
+        "comments": 19
+      },
+      "publishedAt": "2026-06-09T16:28:28Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Transload and YC P26, and local Spring 2026 roster lists transload.",
+      "verificationNotes": "HN Firebase API returned item 48463273 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48414869",
+      "platformPostId": "48414869",
+      "company": "General Instinct",
+      "founder": "Bill Jiao; Guanming Wang",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: General Instinct (YC P26) - Frontier models on edge devices",
+      "text": "Founder-authored HN launch for General Instinct, describing compression of frontier models for constrained edge hardware.",
+      "rawVisibleText": "HN API title names General Instinct (YC P26); author guanming0717; visible score 63 points and 16 comments.",
+      "metrics": {
+        "points": 63,
+        "comments": 16
+      },
+      "publishedAt": "2026-06-05T16:33:00Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names General Instinct and YC P26, and local Spring 2026 roster lists General Instinct.",
+      "verificationNotes": "HN Firebase API returned item 48414869 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48387095",
+      "platformPostId": "48387095",
+      "company": "Hyper",
+      "founder": "Shalin Shah; Kanyes Thaker",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Hyper (YC P26) - Company brain to power agentic development",
+      "text": "Founder-authored HN launch for Hyper, describing shared company memory for agents and automations.",
+      "rawVisibleText": "HN API title names Hyper (YC P26); author shalinshah; visible score 79 points and 78 comments.",
+      "metrics": {
+        "points": 79,
+        "comments": 78
+      },
+      "publishedAt": "2026-06-03T17:39:53Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Hyper and YC P26, and local Spring 2026 roster lists Hyper.",
+      "verificationNotes": "HN Firebase API returned item 48387095 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48374528",
+      "platformPostId": "48374528",
+      "company": "Rudus",
+      "founder": "Rishi Pankhaniya; Sahil Goel",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Rudus (YC P26) - AI for concrete contractors",
+      "text": "Founder-authored HN launch for Rudus, describing AI-powered takeoff and estimation for concrete subcontractors.",
+      "rawVisibleText": "HN API title names Rudus (YC P26); author rishipankhaniya; visible score 41 points and 14 comments.",
+      "metrics": {
+        "points": 41,
+        "comments": 14
+      },
+      "publishedAt": "2026-06-02T18:51:09Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Rudus and YC P26, and local Spring 2026 roster lists Rudus.",
+      "verificationNotes": "HN Firebase API returned item 48374528 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48356312",
+      "platformPostId": "48356312",
+      "company": "Expanse",
+      "founder": "Ismaeel Bashir; Nikodem Bieniek; Yafet Melake; Eren Mendi",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Expanse (YC P26) - Unlock Wasted GPU Capacity",
+      "text": "Founder-authored HN launch for Expanse, describing prediction of workload needs for HPC and GPU clusters.",
+      "rawVisibleText": "HN API title names Expanse (YC P26); author ismaeel_bashir; visible score 103 points and 28 comments.",
+      "metrics": {
+        "points": 103,
+        "comments": 28
+      },
+      "publishedAt": "2026-06-01T13:05:02Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Expanse and YC P26, and local Spring 2026 roster lists Expanse.",
+      "verificationNotes": "HN Firebase API returned item 48356312 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48280729",
+      "platformPostId": "48280729",
+      "company": "Minicor",
+      "founder": "Faizaan Chishtie; Saheed Akinbile",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Minicor (YC P26) - Windows desktop automations at scale",
+      "text": "Founder-authored HN launch for Minicor, describing scalable desktop RPA for AI companies integrating with systems that lack APIs.",
+      "rawVisibleText": "HN API title names Minicor (YC P26); author fchishtie; visible score 105 points and 64 comments.",
+      "metrics": {
+        "points": 105,
+        "comments": 64
+      },
+      "publishedAt": "2026-05-26T14:57:27Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Minicor and YC P26, and local Spring 2026 roster lists Minicor.",
+      "verificationNotes": "HN Firebase API returned item 48280729 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48267829",
+      "platformPostId": "48267829",
+      "company": "Chert",
+      "founder": "Gary Gao; Ian Fong",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Chert (YC P26) - Twilio for iMessage",
+      "text": "Founder-authored HN launch for Chert, describing an API for businesses to send, receive, and automate iMessage conversations.",
+      "rawVisibleText": "HN API title names Chert (YC P26); author garygao; visible score 62 points and 200 comments.",
+      "metrics": {
+        "points": 62,
+        "comments": 200
+      },
+      "publishedAt": "2026-05-25T15:12:33Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Chert and YC P26, and local Spring 2026 roster lists Chert.",
+      "verificationNotes": "HN Firebase API returned item 48267829 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48195021",
+      "platformPostId": "48195021",
+      "company": "Superlog",
+      "founder": "Nico Angelov; Arseniy Shishaev",
+      "accountKind": "founder",
+      "sourceKind": "show_hn_story",
+      "title": "Show HN: Superlog (YC P26) - Observability that installs itself and fixes bugs",
+      "text": "Founder-authored Show HN for Superlog, describing self-installing observability with an agent that investigates errors and opens PRs.",
+      "rawVisibleText": "HN API title names Superlog (YC P26); author Magnanten; visible score 74 points and 49 comments.",
+      "metrics": {
+        "points": 74,
+        "comments": 49
+      },
+      "publishedAt": "2026-05-19T15:54:06Z",
+      "evidenceReason": "Native Hacker News Show HN thread with visible points/comments; title names Superlog and YC P26, and local Spring 2026 roster lists Superlog.",
+      "verificationNotes": "HN Firebase API returned item 48195021 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48124436",
+      "platformPostId": "48124436",
+      "company": "Ardent",
+      "founder": "Vikram Chennai",
+      "accountKind": "founder",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Ardent (YC P26) - Postgres sandboxes in seconds with zero migration",
+      "text": "Founder-authored HN launch for Ardent, describing database sandboxes for coding agents and realistic DB-layer testing.",
+      "rawVisibleText": "HN API title names Ardent (YC P26); author vc289; visible score 99 points and 52 comments.",
+      "metrics": {
+        "points": 99,
+        "comments": 52
+      },
+      "publishedAt": "2026-05-13T16:54:03Z",
+      "evidenceReason": "Native Hacker News launch thread with visible points/comments; title names Ardent and YC P26, and local Spring 2026 roster lists Ardent.",
+      "verificationNotes": "HN Firebase API returned item 48124436 with title, author, timestamp, score, descendants, URL, and body text. Exact HN URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Summer 2026 S26",
+      "platform": "product_hunt",
+      "url": "https://www.producthunt.com/products/context-dev",
+      "platformPostId": "context-dev",
+      "company": "Context.dev",
+      "founder": "Yahia Bakour",
+      "accountKind": "company",
+      "sourceKind": "product_hunt_product_page",
+      "title": "Context.dev: One API to scrape, enrich, and understand the web.",
+      "text": "Product Hunt page for Context.dev shows the current product, Product Hunt launch history, awards, reviews, followers, and launch engagement.",
+      "rawVisibleText": "Product Hunt page shows Context.dev, Y Combinator, 1.9K followers, 4.9 rating, 9 reviews, July 2 2026 launch, 139 comments, and 1,148 upvotes.",
+      "metrics": {
+        "followers": 1900,
+        "rating": 4.9,
+        "reviews": 9,
+        "launchComments": 139,
+        "launchUpvotes": 1148
+      },
+      "publishedAt": "2026-07-02",
+      "evidenceReason": "Native Product Hunt page with visible product and launch metrics; local Summer 2026 roster lists Context.dev and founder Yahia Bakour.",
+      "verificationNotes": "Public Product Hunt page exposed launch date, awards, reviews, followers, upvotes/comments, and Y Combinator company info. Exact URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Summer 2026 S26",
+      "platform": "product_hunt",
+      "url": "https://www.producthunt.com/products/compendium-2",
+      "platformPostId": "compendium-2",
+      "company": "Cerenovus",
+      "founder": "Jonathan Waldorf",
+      "accountKind": "company",
+      "sourceKind": "product_hunt_launch_page",
+      "title": "Compendium: Keeping your team, agents, and data on one page",
+      "text": "Product Hunt launch page for Compendium by Cerenovus describes shared company memory for teams and AI agents.",
+      "rawVisibleText": "Product Hunt page shows Compendium, 121 followers, launched 8d ago, day rank #16, and Upvote - 118 points; maker note says co-founder of Cerenovus (YC S26).",
+      "metrics": {
+        "followers": 121,
+        "points": 118,
+        "dayRank": 16
+      },
+      "publishedAt": "8d ago",
+      "evidenceReason": "Native Product Hunt launch page with visible points/rank/followers; maker text names Cerenovus (YC S26), and local Summer 2026 roster lists Cerenovus with founder Jonathan Waldorf.",
+      "verificationNotes": "Public Product Hunt page exposed the product title, launch timing, rank, points, follower count, maker note, and Cerenovus/Y Combinator company info. Exact URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Summer 2026 S26",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/jonathan-waldorf_buildinpublic-ycombinator-startups-activity-7480447104734109696-R0m8",
+      "platformPostId": "7480447104734109696",
+      "company": "Cerenovus",
+      "founder": "Jonathan Waldorf",
+      "accountKind": "founder",
+      "sourceKind": "linkedin_post",
+      "title": "#buildinpublic #ycombinator #startups #ycs26",
+      "text": "Jonathan Waldorf introduced the Cerenovus founding team and described building Cerenovus for enterprise knowledge organization, with YC S26 context.",
+      "rawVisibleText": "LinkedIn page shows Jonathan Waldorf, 1w Edited, text naming Cerenovus and YC S26, 67 reactions, and 11 comments.",
+      "metrics": {
+        "reactions": 67,
+        "comments": 11
+      },
+      "publishedAt": "1w Edited",
+      "evidenceReason": "Fresh native LinkedIn founder post with visible reactions/comments; text names Cerenovus and YC S26, and local Summer 2026 roster lists Cerenovus with founder Jonathan Waldorf.",
+      "verificationNotes": "Public LinkedIn page exposed author, relative date, post text, reactions, and comments. Exact URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Summer 2026 S26",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/kimjihyun_zomma-yc-s26-is-backed-by-y-combinator-activity-7478287014090432512-ylbn",
+      "platformPostId": "7478287014090432512",
+      "company": "Zomma",
+      "founder": "Jihyun Kim",
+      "accountKind": "founder",
+      "sourceKind": "linkedin_post",
+      "title": "Zomma (YC S26) is backed by Y Combinator (S26)",
+      "text": "Jihyun Kim announced Zomma's YC S26 backing and described computer-use agents for financial-services operations.",
+      "rawVisibleText": "LinkedIn page shows Jihyun Kim, 1w Edited, text naming Zomma (YC S26), 507 reactions, and 82 comments.",
+      "metrics": {
+        "reactions": 507,
+        "comments": 82
+      },
+      "publishedAt": "1w Edited",
+      "evidenceReason": "Fresh native LinkedIn founder post with visible reactions/comments; text names Zomma and YC S26, and local Summer 2026 roster lists Zomma with founder Jihyun Kim.",
+      "verificationNotes": "Public LinkedIn page exposed author, relative date, post text, reactions, comments, and profile follower context. Exact URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Summer 2026 S26",
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/erik-peterson-mn_onward-and-upward-realpact-yc-s26-pre-seed-activity-7474911468765855744-O4Ts",
+      "platformPostId": "7474911468765855744",
+      "company": "RealPact",
+      "founder": "Erik Peterson",
+      "accountKind": "founder",
+      "sourceKind": "linkedin_post",
+      "title": "RealPact (YC S26) pre-seed backed by Y Combinator",
+      "text": "Erik Peterson posted that RealPact (YC S26) is pre-seed backed by Y Combinator.",
+      "rawVisibleText": "LinkedIn page shows Erik Peterson, 3w Edited, text naming RealPact (YC S26), 93 reactions, and 23 comments.",
+      "metrics": {
+        "reactions": 93,
+        "comments": 23
+      },
+      "publishedAt": "3w Edited",
+      "evidenceReason": "Fresh native LinkedIn founder post with visible reactions/comments; text names RealPact and YC S26, and local Summer 2026 roster lists RealPact with founder Erik Peterson.",
+      "verificationNotes": "Public LinkedIn page exposed author, relative date, post text, reactions, and comments. Exact URL was absent from the three protected de-dupe files."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=K_xNXWnlf98",
+      "platformPostId": "K_xNXWnlf98",
+      "company": "Klarify",
+      "founder": "Moody Abdul; Alexander Bergholm",
+      "accountKind": "company",
+      "sourceKind": "youtube_video",
+      "title": "AI to empower therapists (YC P26) - Klarify",
+      "text": "Klarify YouTube video title identifies the YC P26 company and product category.",
+      "rawVisibleText": "YouTube indexed snippet shows title 'Klarify - AI to empower therapists (YC P26)', channel @Klarify-AI-For-Therapy, 14 likes, and 4.7K views.",
+      "metrics": {
+        "likes": 14,
+        "views": 4700
+      },
+      "publishedAt": "2 months ago",
+      "evidenceReason": "Native YouTube video with visible likes/views; title names Klarify and YC P26, and local Spring 2026 roster lists Klarify.",
+      "verificationNotes": "Web search opened the public YouTube result snippet with title, channel, relative date, likes, and views. Exact URL was absent from the three protected de-dupe files and broader local social/source-hunt JSON."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=iSOz7KXU8cY",
+      "platformPostId": "iSOz7KXU8cY",
+      "company": "Modern",
+      "founder": "Seb Poole; Aleks Tomovski",
+      "accountKind": "company",
+      "sourceKind": "youtube_video",
+      "title": "Modern (YC P26) - the AI-native IT function",
+      "text": "Modern YouTube video title identifies the YC P26 company and describes the AI-native IT product.",
+      "rawVisibleText": "YouTube indexed snippet shows title 'Modern (YC P26) - the AI-native IT function', channel Modern IT, and 244 views.",
+      "metrics": {
+        "views": 244
+      },
+      "publishedAt": "1 month ago",
+      "evidenceReason": "Native YouTube video with visible views; title names Modern and YC P26, and local Spring 2026 roster lists Modern.",
+      "verificationNotes": "Web search opened the public YouTube result snippet with title, channel, relative date, and views. Exact URL was absent from the three protected de-dupe files and broader local social/source-hunt JSON."
+    },
+    {
+      "batch": "YC Summer 2026 S26",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=zOzDQIbvYLc",
+      "platformPostId": "zOzDQIbvYLc",
+      "company": "Tsenta",
+      "founder": "Agnay Srivastava; Pulkit Gupta",
+      "accountKind": "founder",
+      "sourceKind": "youtube_demo_video",
+      "title": "Tsenta (YC S26) Demo | Automatic Job Applier",
+      "text": "Tsenta YouTube demo title identifies the YC S26 company and automatic job applier product.",
+      "rawVisibleText": "YouTube indexed snippet shows title 'Tsenta (YC S26) Demo | Automatic Job Applier', channel @pulkitgupta219, and 3.2K views.",
+      "metrics": {
+        "views": 3200
+      },
+      "publishedAt": "5 months ago",
+      "evidenceReason": "Native YouTube demo with visible views; title names Tsenta and YC S26, and local Summer 2026 roster lists Tsenta with founder Pulkit Gupta.",
+      "verificationNotes": "Web search opened the public YouTube result snippet with title, channel, relative date, and views. Exact URL was absent from the three protected de-dupe files and broader local social/source-hunt JSON."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "instagram",
+      "url": "https://www.instagram.com/reel/DZ270dHoplQ/",
+      "platformPostId": "DZ270dHoplQ",
+      "company": "Gojiberry AI",
+      "accountKind": "third_party_media",
+      "sourceKind": "instagram_reel",
+      "title": "Gojiberry AI (YC P26) just launched what they are calling Claude for Sales",
+      "text": "AIx Magazine Instagram reel names Gojiberry AI (YC P26) and describes its sales AI launch.",
+      "rawVisibleText": "Instagram indexed snippet shows 2117 likes and 306 comments on June 21, 2026 for a reel naming Gojiberry AI (YC P26).",
+      "metrics": {
+        "likes": 2117,
+        "comments": 306
+      },
+      "publishedAt": "2026-06-21",
+      "evidenceReason": "Native Instagram reel with visible likes/comments; post text names Gojiberry AI and YC P26, and local Spring 2026 roster lists Gojiberry AI.",
+      "verificationNotes": "Public search snippet exposed native Instagram URL, date, caption text, likes, and comments. Exact URL was absent from the three protected de-dupe files and broader local social/source-hunt JSON."
+    },
+    {
+      "batch": "YC Spring 2026 S2026",
+      "platform": "github",
+      "url": "https://github.com/Aradotso/ara-mcp",
+      "platformPostId": "Aradotso/ara-mcp",
+      "company": "Ara",
+      "accountKind": "company",
+      "sourceKind": "github_repo",
+      "title": "Aradotso/ara-mcp",
+      "text": "Official Ara GitHub repository for Ara agent integrations and remote MCP handoff plugins.",
+      "rawVisibleText": "GitHub page shows Aradotso/ara-mcp public repo, Fork 0, Star 0, Issues 0, 1 commit, MIT license, and README text 'Official, secretless Ara integrations for Codex and Claude Code.'",
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "commits": 1
+      },
+      "publishedAt": "2026-07-15T19:30:50Z",
+      "evidenceReason": "Native GitHub repo with visible repo metrics; repo owner is the official GitHub account linked from the local Spring 2026 Ara snapshot.",
+      "verificationNotes": "GitHub API/page exposed repository creation time and public metrics; GitHub page exposed README tying the repo to Ara integrations. Exact URL was absent from the three protected de-dupe files and broader local social/source-hunt JSON."
+    }
+  ],
+  "rejected": [
+    {
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48926618",
+      "company": "Vendo",
+      "title": "Show HN: Vendo (YC S26) - Let your users add their own features to your product",
+      "metrics": {
+        "points": 1,
+        "comments": 1
+      },
+      "rejectionReason": "Rejected: native HN item has visible metrics and says YC S26, but Vendo is not present in the repo's local Summer 2026 roster."
+    },
+    {
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48849361",
+      "company": "Almanac",
+      "title": "Show HN: CodeAlmanac - Self-updating wiki for your coding agent (local, Apache)",
+      "metrics": {
+        "points": 8,
+        "comments": 0
+      },
+      "rejectionReason": "Rejected: native HN item has visible metrics and says Almanac (YC S26), but Almanac/CodeAlmanac is not present in the repo's local Summer 2026 roster."
+    },
+    {
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48358446",
+      "company": "KugelAudio",
+      "title": "Ask HN: What's KugelAudio's (YC P26) Moat?",
+      "metrics": {
+        "points": 4,
+        "comments": 1
+      },
+      "rejectionReason": "Rejected: visible metrics and local Spring 2026 company match, but this is a low-signal third-party Ask HN critique rather than a launch, founder, company, or fresh top-voice source."
+    },
+    {
+      "platform": "reddit",
+      "url": "https://www.reddit.com/r/B2BSaaS/comments/1sfb9b9/we_joined_yc_p26_at_70k_mrr/",
+      "company": "Gojiberry AI",
+      "title": "We joined YC P26 at $70K MRR.",
+      "rejectionReason": "Rejected: native Reddit post visibly links gojiberry.ai and mentions YC P26 traction, but the logged-out page did not expose clear post score/comment counts, and Reddit JSON was blocked with HTTP 403."
+    },
+    {
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=adFrFJwv8mQ",
+      "company": "TrustAI",
+      "title": "TrustAI (YC S26) Demo",
+      "rejectionReason": "Rejected: local Summer 2026 company match, but the public YouTube result indicated the content is unavailable and did not expose stable visible metrics."
+    },
+    {
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=YupbVdchblk",
+      "company": "Atrisa",
+      "title": "Atrisa (YC P26) Launch Video",
+      "rejectionReason": "Rejected: valid native YouTube video with visible metrics, but exact URL is already present in broader local social evidence at src/lib/social/public-evidence-current.json."
+    },
+    {
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=fQHXdii_Hdo",
+      "company": "Walter",
+      "title": "Walter (YC P26) Launch Video",
+      "rejectionReason": "Rejected: valid native YouTube video with visible metrics, but exact URL is already present in broader local social evidence at src/lib/social/public-evidence-current.json."
+    },
+    {
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=JPk4_Nx31nU",
+      "company": "Ontora",
+      "title": "Ontora (YC P26) Launch",
+      "rejectionReason": "Rejected: valid native YouTube video with visible metrics, but exact URL is already present in broader local social evidence at src/lib/social/public-evidence-current.json."
+    },
+    {
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=m3H8yUbdIHY",
+      "company": "Runtime",
+      "title": "Runtime (YC P26) Launch Video",
+      "rejectionReason": "Rejected: valid native YouTube video with visible metrics, but exact URL is already present in broader local social evidence at src/lib/social/public-evidence-current.json."
+    },
+    {
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=vncrqtgEPdY",
+      "company": "Memory Store",
+      "title": "Memory Store YC P26 Launch Video",
+      "rejectionReason": "Rejected: valid native YouTube video with visible metrics, but exact URL is already present in broader local social evidence at src/lib/social/public-evidence-current.json."
+    },
+    {
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=6IsOxBX4LBo",
+      "company": "Wealor",
+      "title": "Wealor : YC P26 Launch video",
+      "rejectionReason": "Rejected: valid native YouTube video with visible metrics, but exact URL is already present in broader local social evidence at src/lib/social/public-evidence-current.json."
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/reel/DYQBZYYzxUu/",
+      "company": "Octupie",
+      "title": "Our YC-S26 Application Video",
+      "metrics": {
+        "likes": 21000,
+        "comments": 936
+      },
+      "rejectionReason": "Rejected: native Instagram reel has visible metrics and says YC S26 application video, but Octupie is not present in the repo's local Summer 2026 roster."
+    },
+    {
+      "platform": "instagram",
+      "url": "https://www.instagram.com/reel/DZ_G4TYRclH/",
+      "company": "Kinect",
+      "title": "The future of shopping isn't search. It's proactive",
+      "rejectionReason": "Rejected: local Spring 2026 company match, but the indexed Instagram result did not expose visible like/comment counts for this specific reel."
+    },
+    {
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/posts/adam-rida-581296142_excited-to-share-that-im-joining-the-y-combinator-activity-7477869892688388097-MyCE",
+      "company": "Tracer",
+      "title": "Excited to share that I am joining the Y Combinator S26 batch as a solo founder",
+      "metrics": {
+        "reactions": 277,
+        "comments": 49
+      },
+      "rejectionReason": "Rejected: fresh native LinkedIn post has visible metrics and says Tracer (YC S26), but Tracer is not present in the repo's local Summer 2026 roster."
+    },
+    {
+      "platform": "github",
+      "url": "https://github.com/Linzumi/opencode",
+      "company": "Linzumi",
+      "title": "Linzumi/opencode",
+      "metrics": {
+        "stars": 2,
+        "forks": 0,
+        "watchers": 2,
+        "openIssues": 0
+      },
+      "rejectionReason": "Rejected: repo is under the official Linzumi GitHub account, but GitHub API marks it as a fork of a generic coding-agent project and the repo text/homepage do not identify Linzumi-specific traction."
+    },
+    {
+      "platform": "github",
+      "url": "https://github.com/tolmohq/blaxel-devbox",
+      "company": "Tolmo",
+      "title": "tolmohq/blaxel-devbox",
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "rejectionReason": "Rejected: repo is under the official Tolmo GitHub account, but GitHub API marks it as a fork and the repo description reads as a generic devbox base layer rather than company-specific source evidence."
+    }
+  ]
+}

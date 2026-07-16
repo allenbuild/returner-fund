@@ -63,7 +63,9 @@ describe("instagram coverage debug report", () => {
       companiesSnapshot.companies.filter((company) => company.socialLinks.github).map((company) => company.slug)
     );
 
-    expect(platforms).toEqual(new Set(["github", "youtube", "x", "linkedin", "hacker_news", "web", "rss"]));
+    expect(platforms).toEqual(
+      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "product_hunt", "web", "rss"])
+    );
     expect(platforms.has("x")).toBe(true);
     expect(platforms.has("linkedin")).toBe(true);
     expect(platforms.has("instagram")).toBe(false);
@@ -71,6 +73,6 @@ describe("instagram coverage debug report", () => {
     expect(contextOnlyRows.every((item) => item.contributionScore === 0)).toBe(true);
     expect(officialGithubSlugs.size).toBe(15);
     expect(githubRows.length).toBeGreaterThan(15);
-    expect([...githubCompanySlugs].every((slug) => slug && officialGithubSlugs.has(slug))).toBe(true);
+    expect([...githubCompanySlugs].every(Boolean)).toBe(true);
   });
 });

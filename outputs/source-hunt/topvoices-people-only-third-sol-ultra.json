@@ -1,0 +1,238 @@
+{
+  "accepted": [
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/lukasz-reszczynski-bio_pango-yc-s26-is-joining-y-combinator-today-activity-7473269455783948288-S_GE?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7473269455783948288%2C7473616064967266304%29",
+      "platformPostId": "7473616064967266304",
+      "batchSlug": "S26",
+      "companySlug": "pango",
+      "companyName": "Pango",
+      "authorName": "Pete Koomen",
+      "authorHandle": "petekoomen",
+      "profileUrl": "https://www.linkedin.com/in/petekoomen",
+      "topVoiceAudience": "yc_partners",
+      "text": "congrats, guys :)",
+      "rawVisibleText": "Pete Koomen: congrats, guys :) | Parent headline: Pango (YC S26) is joining Y Combinator | Visible comment metric: 3 Reactions",
+      "postedAt": "2026-06-19T06:02:02.961Z",
+      "metrics": {
+        "reactions": 3,
+        "visibleText": "3 Reactions"
+      },
+      "verificationNotes": {
+        "checkedAt": "2026-07-16T01:50:22Z",
+        "nativeActivityType": "comment",
+        "parentSourceUrl": "https://www.linkedin.com/posts/lukasz-reszczynski-bio_pango-yc-s26-is-joining-y-combinator-today-activity-7473269455783948288-S_GE",
+        "commentUrn": "urn:li:comment:(urn:li:activity:7473269455783948288,7473616064967266304)",
+        "method": "Public native LinkedIn HTML exposed Pete Koomen's profile link, stable comment URN, exact comment text, and rendered 3 Reactions counter. Public JSON-LD independently exposed the exact timestamp and reaction count.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "sourceUrlInTargetedEvidence": false,
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInTargetedEvidence": false,
+        "platformPostIdInSearchLedger": false,
+        "parentSourceUrlAlreadyKnown": true
+      },
+      "attributionSignals": [
+        "Pete Koomen is a curated human member of the local yc_partners top-voice set.",
+        "The native parent post is authored by local S26 roster founder Lukasz Reszczynski.",
+        "The parent headline explicitly says Pango (YC S26) is joining Y Combinator.",
+        "The direct comment permalink identifies Pete Koomen as the comment author and exposes three reactions."
+      ]
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_insforge-turns-your-coding-agent-into-a-principal-activity-7462200339899846656-CUEF?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3AugcPost%3A7462186801160441856%2C7462760262366842880%29",
+      "platformPostId": "7462760262366842880",
+      "batchSlug": "S2026",
+      "companySlug": "insforge",
+      "companyName": "InsForge",
+      "authorName": "Andrew Miklas",
+      "authorHandle": "amiklas",
+      "profileUrl": "https://www.linkedin.com/in/amiklas",
+      "topVoiceAudience": "yc_partners",
+      "text": "As more software development is done by agents, it makes perfect sense that devtools will aim to be at least as usable and useful to coding agents as they are to human coders. Insforge is the first company I've seen to think carefully about what it means for a devtool to have both good developer experience & \"agent experience\".",
+      "rawVisibleText": "Andrew Miklas: As more software development is done by agents, it makes perfect sense that devtools will aim to be at least as usable and useful to coding agents as they are to human coders. Insforge is the first company I've seen to think carefully about what it means for a devtool to have both good developer experience & \"agent experience\". | Parent headline: InsForge turns your coding agent into a principal backend engineer. | Visible comment metric: 1 Reaction",
+      "postedAt": "2026-05-20T07:04:57.929Z",
+      "metrics": {
+        "reactions": 1,
+        "visibleText": "1 Reaction"
+      },
+      "verificationNotes": {
+        "checkedAt": "2026-07-16T01:50:22Z",
+        "nativeActivityType": "comment",
+        "parentSourceUrl": "https://www.linkedin.com/posts/y-combinator_insforge-turns-your-coding-agent-into-a-principal-activity-7462200339899846656-CUEF",
+        "commentUrn": "urn:li:comment:(urn:li:ugcPost:7462186801160441856,7462760262366842880)",
+        "method": "Public native LinkedIn HTML exposed Andrew Miklas's profile link, stable comment URN, exact comment text, and rendered 1 Reaction counter. Public JSON-LD independently exposed the exact timestamp and reaction count.",
+        "metricsVisible": true,
+        "notProfileOrSearchPage": true,
+        "sourceUrlInTargetedEvidence": false,
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInTargetedEvidence": false,
+        "platformPostIdInSearchLedger": false,
+        "parentSourceUrlAlreadyKnown": true,
+        "orgExclusionApplied": "The Y Combinator parent post is not treated as evidence or as the author. The accepted activity is the separately identified native comment authored by Andrew Miklas, and the comment text itself explicitly names Insforge."
+      },
+      "attributionSignals": [
+        "Andrew Miklas is a curated human member of the local yc_partners top-voice set.",
+        "The native comment text itself explicitly names Insforge and discusses its developer and agent experience.",
+        "The local S2026 roster lists InsForge and founders Hang Huang and Tony Chang.",
+        "The direct comment permalink identifies Andrew Miklas as the comment author and exposes one reaction."
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/hamzawy998_we-made-13m-building-modding-tools-for-activity-7462946456786608128-opNZ?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7462946456786608128%2C7462966254518157313%29",
+      "platformPostId": "7462966254518157313",
+      "batchSlug": "S2026",
+      "companySlug": "playablai",
+      "companyName": "Playabl.ai",
+      "authorName": "Mathilde Collin",
+      "authorHandle": "mathilde-collin-bb59492a",
+      "profileUrl": "https://www.linkedin.com/in/mathilde-collin-bb59492a/en",
+      "topVoiceAudience": "insiders",
+      "text": "Totally the right time yes ;)",
+      "postedAt": "2026-05-20T20:43:30.286Z",
+      "metrics": {
+        "reactions": 0
+      },
+      "reason": "Rejected because the native comment renders no engagement counter. The structured zero is verifiable but is not a visible metric under the strict acceptance rule."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/kareem-se1im_raspire-yc-p26-is-joining-y-combinator-activity-7448807180209692672-TPcP",
+      "platformPostId": "7448807180209692672",
+      "batchSlug": "S2026",
+      "companySlug": "raspire",
+      "companyName": "RASPIRE",
+      "authorName": "Kareem Selim",
+      "reason": "Rejected because this is a founder-authored post that thanks Andrew Miklas; it is not native activity authored by the curated top voice. None of the ten publicly rendered comments was authored by a curated person."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/pierre-depuydt-887779280_were-excited-to-share-that-wealor-yc-p26-activity-7440396759593525248-UzN7",
+      "platformPostId": "7440396759593525248",
+      "batchSlug": "S2026",
+      "companySlug": "wealor",
+      "companyName": "Wealor",
+      "authorName": "Pierre Depuydt",
+      "reason": "Rejected because this is a founder-authored post that thanks Andrew Miklas; a mention of a top voice does not satisfy human top-voice authorship. None of the ten publicly rendered comments was authored by a curated person."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/deoarlo_y-combinator-demo-day-was-a-success-thank-activity-7475216169373696000-YK6r",
+      "platformPostId": "7475216169373696000",
+      "batchSlug": "S2026",
+      "companySlug": "arlo-industries",
+      "companyName": "Arlo Industries",
+      "authorName": "Deo Arlo",
+      "reason": "Rejected because this is a founder-authored post that names several YC partners. It contains no separately verifiable native post or visible-metric comment authored by a curated top voice."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/maanav-agrawal_0-15k-in-mrr-in-only-two-weeks-thats-activity-7467690536422895616-uJ_e",
+      "platformPostId": "7467690536422895616",
+      "batchSlug": "S2026",
+      "companySlug": "memoir",
+      "companyName": "Memoir",
+      "authorName": "Maanav Agrawal",
+      "reason": "Rejected because this is a founder-authored post thanking Andrew Miklas, not native top-voice-authored activity. None of the nine publicly rendered comments was authored by a curated person."
+    }
+  ],
+  "duplicates": [
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/rithik--jain_ycombinator-p26-analog-activity-7471007050957733888-U_3-?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7471007050957733888%2C7471364906072686592%29",
+      "platformPostId": "7471364906072686592",
+      "batchSlug": "S2026",
+      "companySlug": "atrisa",
+      "companyName": "Atrisa",
+      "authorName": "Mathilde Collin",
+      "topVoiceAudience": "insiders",
+      "duplicateOf": "src/lib/social/targeted-evidence-current.json",
+      "reason": "Exact comment source URL and platform post ID already exist in canonical targeted evidence."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/tri-vu-pa_startup-medtech-ycombinator-activity-7444403934800297984-7dMc?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7444403934800297984%2C7444469004846510080%29",
+      "platformPostId": "7444469004846510080",
+      "batchSlug": "S2026",
+      "companySlug": "lumius",
+      "companyName": "Lumius",
+      "authorName": "Mathilde Collin",
+      "topVoiceAudience": "insiders",
+      "duplicateOf": "src/lib/social/targeted-evidence-current.json",
+      "reason": "Exact comment source URL and platform post ID already exist in canonical targeted evidence."
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/russellhowardsmith_having-done-yc-before-its-amazing-to-be-activity-7445188889805271040-8CLR?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A7445188889805271040%2C7445191769534676992%29",
+      "platformPostId": "7445191769534676992",
+      "batchSlug": "S2026",
+      "companySlug": "9-mothers-corporation",
+      "companyName": "9 Mothers",
+      "authorName": "Taro Fukuyama",
+      "topVoiceAudience": "insiders",
+      "duplicateOf": "src/lib/social/targeted-evidence-current.json",
+      "reason": "Exact comment source URL and platform post ID already exist in canonical targeted evidence."
+    }
+  ],
+  "summary": {
+    "generatedAt": "2026-07-16T01:50:22Z",
+    "scope": "People-only top-voice source hunt for YC Spring 2026 (S2026/P26) and YC Summer 2026 (S26), limited to curated yc_partners and insiders.",
+    "result": "Two net-new native LinkedIn comments met every authorship, batch attribution, direct URL, and visible-metric gate. No source dataset was edited.",
+    "counts": {
+      "accepted": 2,
+      "rejected": 5,
+      "duplicates": 3,
+      "acceptedByBatch": {
+        "S2026": 1,
+        "S26": 1
+      },
+      "acceptedByTopVoiceAudience": {
+        "yc_partners": 2,
+        "insiders": 0
+      }
+    },
+    "existingUrlsAndPostIdsChecked": {
+      "targetedEvidenceCurrent": {
+        "uniqueSourceUrls": 464,
+        "uniquePlatformPostIds": 461
+      },
+      "searchLedger": {
+        "uniqueSourceUrls": 548,
+        "uniquePlatformPostIds": 416
+      },
+      "deduplicatedUnion": {
+        "uniqueSourceUrlsChecked": 855,
+        "uniquePlatformPostIdsChecked": 476
+      },
+      "checkedAt": "2026-07-16T01:52:51Z",
+      "method": "Every candidate was compared by exact source URL and string-normalized platform post ID against both required files."
+    },
+    "huntCoverage": {
+      "curatedPeopleAllowlistCount": 68,
+      "batchCompanyCount": {
+        "S2026": 197,
+        "S26": 83,
+        "total": 280
+      },
+      "publicWebSearchQueries": 28,
+      "uniqueNativeLinkedInPostPagesAudited": 193,
+      "nativePagesWithPubliclyRenderedComments": 187,
+      "curatedHumanCommentMatches": 6
+    },
+    "acceptancePolicy": [
+      "Accepted only a native post, comment, or repository activity authored by a person in the curated top-voices allowlist.",
+      "Required the native activity itself or its direct comment context to identify a local S2026 or S26 company or founder.",
+      "Required a verifiable native activity URL, stable platform post ID, and a visibly rendered engagement metric.",
+      "Excluded organization authors, Y Combinator Community, company reposts, profile/search pages, account existence, and inferred metrics."
+    ],
+    "limitations": [
+      "Public LinkedIn pages render a ranked subset of comments, so comments outside the public subset cannot be verified and were not inferred.",
+      "The Y Combinator parent post for the InsForge row is not counted as evidence; only Andrew Miklas's separately identified native comment is accepted.",
+      "No source dataset files were modified; this artifact is research output only."
+    ]
+  }
+}

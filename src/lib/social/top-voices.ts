@@ -42,7 +42,7 @@ const ycPartnerSeeds = [
     handles: { x: ["snowmaker"], linkedin: ["jaredfriedman"] }
   }),
   member("aaron-epstein", "Aaron Epstein", {
-    handles: { linkedin: ["aaron-epstein"] }
+    handles: { x: ["aaron_epstein"], linkedin: ["aaron-epstein"] }
   }),
   member("diana-hu", "Diana Hu", {
     handles: { linkedin: ["dianajhu"] }
@@ -64,7 +64,7 @@ const ycPartnerSeeds = [
     handles: { x: ["pkoomen"], linkedin: ["petekoomen"] }
   }),
   member("ankit-gupta", "Ankit Gupta", {
-    handles: { linkedin: ["guptaankit"] }
+    handles: { x: ["agupta"], linkedin: ["guptaankit"] }
   }),
   member("tyler-bosmeny", "Tyler Bosmeny", {
     handles: { x: ["bosmeny"], linkedin: ["tylerbosmeny"] }
@@ -83,7 +83,7 @@ const ycPartnerSeeds = [
     handles: { linkedin: ["jonxu"] }
   }),
   member("grey-baker", "Grey Baker", {
-    handles: { x: ["greybaker"], linkedin: ["greybaker"] }
+    handles: { x: ["greybaker"], linkedin: ["greybaker", "greysteil"] }
   }),
   member("chris-golda", "Chris Golda", {
     handles: { linkedin: ["chris-golda"] }

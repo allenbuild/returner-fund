@@ -1,0 +1,1040 @@
+{
+  "generatedAt": "2026-07-15T23:59:00.000Z",
+  "candidates": [
+    {
+      "artifact": "a16z-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": null,
+      "companyName": "PartyHat",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "instagram",
+      "sourceUrls": [
+        "https://instagram.com/p/DYM0MOwkRqS"
+      ],
+      "platformPostIds": [
+        "DYM0MOwkRqS"
+      ],
+      "reason": "Public web search result for the native Instagram post URL with visible account, caption, and like count; exact timestamp was not exposed publicly.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "a16z-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": null,
+      "companyName": "Modaic",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "github",
+      "sourceUrls": [
+        "https://github.com/modaic-ai/trajectory-compress"
+      ],
+      "platformPostIds": [
+        "modaic-ai/trajectory-compress"
+      ],
+      "reason": "GitHub public repository API and native repo URL.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "a16z-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": null,
+      "companyName": "Modaic",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "github",
+      "sourceUrls": [
+        "https://github.com/modaic-ai/probes-v2"
+      ],
+      "platformPostIds": [
+        "modaic-ai/probes-v2"
+      ],
+      "reason": "GitHub public repository API and native repo URL.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "a16z-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": null,
+      "companyName": "Modaic",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "github",
+      "sourceUrls": [
+        "https://github.com/modaic-ai/probes"
+      ],
+      "platformPostIds": [
+        "modaic-ai/probes"
+      ],
+      "reason": "GitHub public repository API and native repo URL.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "a16z-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": null,
+      "companyName": "Modaic",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "github",
+      "sourceUrls": [
+        "https://github.com/modaic-ai/skill-issue"
+      ],
+      "platformPostIds": [
+        "modaic-ai/skill-issue"
+      ],
+      "reason": "GitHub public repository API and native repo URL.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "a16z-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": null,
+      "companyName": "Modaic",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "github",
+      "sourceUrls": [
+        "https://github.com/modaic-ai/retrievers"
+      ],
+      "platformPostIds": [
+        "modaic-ai/retrievers"
+      ],
+      "reason": "GitHub public repository API and native repo URL.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "a16z-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": null,
+      "companyName": "Modaic",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "github",
+      "sourceUrls": [
+        "https://github.com/modaic-ai/modaic-docs"
+      ],
+      "platformPostIds": [
+        "modaic-ai/modaic-docs"
+      ],
+      "reason": "GitHub public repository API and native repo URL.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "a16z-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": null,
+      "companyName": "Modaic",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "github",
+      "sourceUrls": [
+        "https://github.com/modaic-ai/persana-lead-gen"
+      ],
+      "platformPostIds": [
+        "modaic-ai/persana-lead-gen"
+      ],
+      "reason": "GitHub public repository API and native repo URL.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "first-party-fourth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Kimpton AI",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "company_site",
+      "sourceUrls": [
+        "https://kimpton.ai/news/kimpton-launches-on-yc"
+      ],
+      "platformPostIds": [],
+      "reason": "First-party company news item on the official Kimpton domain from the YC Spring 2026 snapshot.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "accountKind",
+        "batch",
+        "company",
+        "evidenceReason",
+        "founder",
+        "metrics",
+        "platform",
+        "platformPostId",
+        "publishedAt",
+        "rawVisibleText",
+        "sourceKind",
+        "status",
+        "text",
+        "title",
+        "url",
+        "verificationNotes"
+      ]
+    },
+    {
+      "artifact": "first-party-fourth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Interfaze",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "company_site",
+      "sourceUrls": [
+        "https://interfaze.ai/blog/interfaze-a-new-model-architecture-built-for-high-accuracy-at-scale"
+      ],
+      "platformPostIds": [],
+      "reason": "First-party blog item on the official Interfaze domain from the YC Spring 2026 snapshot.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "accountKind",
+        "batch",
+        "company",
+        "evidenceReason",
+        "founder",
+        "metrics",
+        "platform",
+        "platformPostId",
+        "publishedAt",
+        "rawVisibleText",
+        "sourceKind",
+        "status",
+        "text",
+        "title",
+        "url",
+        "verificationNotes"
+      ]
+    },
+    {
+      "artifact": "first-party-fourth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S26",
+      "companyName": "Nebula Security",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "company_site",
+      "sourceUrls": [
+        "https://nebusec.ai/research/ionstack-part-2"
+      ],
+      "platformPostIds": [],
+      "reason": "First-party research item on the official Nebula Security domain from the YC Summer 2026 snapshot.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "accountKind",
+        "batch",
+        "company",
+        "evidenceReason",
+        "founder",
+        "metrics",
+        "platform",
+        "platformPostId",
+        "publishedAt",
+        "rawVisibleText",
+        "sourceKind",
+        "status",
+        "text",
+        "title",
+        "url",
+        "verificationNotes"
+      ]
+    },
+    {
+      "artifact": "first-party-fourth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Sazabi",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "company_site",
+      "sourceUrls": [
+        "https://sazabi.com/blog/seed-round"
+      ],
+      "platformPostIds": [],
+      "reason": "First-party blog item on the official Sazabi domain from the YC Spring 2026 snapshot.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "accountKind",
+        "batch",
+        "company",
+        "evidenceReason",
+        "founder",
+        "metrics",
+        "platform",
+        "platformPostId",
+        "publishedAt",
+        "rawVisibleText",
+        "sourceKind",
+        "status",
+        "text",
+        "title",
+        "url",
+        "verificationNotes"
+      ]
+    },
+    {
+      "artifact": "regular-eighth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S26",
+      "companyName": "Rindler",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "launch_yc",
+      "sourceUrls": [
+        "https://ycombinator.com/launches/RHN-rindler-turn-any-website-into-an-api-for-ai-agents"
+      ],
+      "platformPostIds": [
+        "104865"
+      ],
+      "reason": "Launch YC page props exposed launch id, company id/name/batch, created_at, user Michael Serrano, and vote_count.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "batchSlug",
+        "companyName",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "regular-eighth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S26",
+      "companyName": "Petrarch",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "launch_yc",
+      "sourceUrls": [
+        "https://ycombinator.com/launches/RJf-petrarch-the-market-maker-for-data"
+      ],
+      "platformPostIds": [
+        "105007"
+      ],
+      "reason": "Launch YC page props exposed launch id, company id/name/batch, created_at, user Ian Lee, and vote_count.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "batchSlug",
+        "companyName",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Keyframe Labs",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/dflieb/status/2055345726067187880"
+      ],
+      "platformPostIds": [
+        "2055345726067187880"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Kuli",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "David Lieb",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/dflieb/status/2051399396944961822"
+      ],
+      "platformPostIds": [
+        "2051399396944961822"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Result",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2067276082529882563"
+      ],
+      "platformPostIds": [
+        "2067276082529882563"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "HeyClicky",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2066992416578785574"
+      ],
+      "platformPostIds": [
+        "2066992416578785574"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Standout",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2066279367509188904"
+      ],
+      "platformPostIds": [
+        "2066279367509188904"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Standout",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2066278602321379593"
+      ],
+      "platformPostIds": [
+        "2066278602321379593"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Sazabi",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2062211036942643588"
+      ],
+      "platformPostIds": [
+        "2062211036942643588"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Parrot",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2061593320770650309"
+      ],
+      "platformPostIds": [
+        "2061593320770650309"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Drafted",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2060395527322406924"
+      ],
+      "platformPostIds": [
+        "2060395527322406924"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Twolabs",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2059523990964805976"
+      ],
+      "platformPostIds": [
+        "2059523990964805976"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Amboras",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2057901345508835799"
+      ],
+      "platformPostIds": [
+        "2057901345508835799"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "s2026-topvoices-tenth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Panacea",
+      "founderName": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/aaron_epstein/status/2056858519635374466"
+      ],
+      "platformPostIds": [
+        "2056858519635374466"
+      ],
+      "reason": null,
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "batch",
+        "companyName",
+        "companySlug",
+        "dedupe",
+        "metrics",
+        "nativeText",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "registryCheck",
+        "sourceUrl",
+        "status",
+        "targetClue",
+        "topVoiceAudience",
+        "topVoiceHandle",
+        "topVoiceName",
+        "topVoicePersonId",
+        "verificationMethod",
+        "whyQualifies"
+      ]
+    },
+    {
+      "artifact": "spring-regular-ninth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Archer",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/bennewgen/status/2028523026506223703"
+      ],
+      "platformPostIds": [
+        "2028523026506223703"
+      ],
+      "reason": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "batchSlug",
+        "companyName",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "spring-regular-ninth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Archer",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "x",
+      "sourceUrls": [
+        "https://x.com/bennewgen/status/2056506180588257418"
+      ],
+      "platformPostIds": [
+        "2056506180588257418"
+      ],
+      "reason": "FxTwitter public post JSON exposed author, timestamp, text, URL, and visible post metrics.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "attributionSignals",
+        "author",
+        "batchSlug",
+        "companyName",
+        "dedupe",
+        "evidenceType",
+        "metrics",
+        "nativeEvidence",
+        "platform",
+        "platformPostId",
+        "postedAt",
+        "sourceUrl",
+        "status"
+      ]
+    },
+    {
+      "artifact": "yc-nonx-fifth-pass.json",
+      "status": "accepted",
+      "batchSlug": "S2026",
+      "companyName": "Gojiberry AI",
+      "founderName": null,
+      "topVoiceAudience": null,
+      "topVoiceName": null,
+      "platform": "instagram",
+      "sourceUrls": [
+        "https://instagram.com/reel/DZ270dHoplQ"
+      ],
+      "platformPostIds": [
+        "DZ270dHoplQ"
+      ],
+      "reason": "Native Instagram reel with visible likes/comments; post text names Gojiberry AI and YC P26, and local Spring 2026 roster lists Gojiberry AI.",
+      "duplicateOfCanonical": false,
+      "rawKeys": [
+        "accountKind",
+        "batch",
+        "company",
+        "evidenceReason",
+        "metrics",
+        "platform",
+        "platformPostId",
+        "publishedAt",
+        "rawVisibleText",
+        "sourceKind",
+        "status",
+        "text",
+        "title",
+        "url",
+        "verificationNotes"
+      ]
+    }
+  ]
+}

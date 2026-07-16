@@ -133,9 +133,13 @@ export function auditEvidenceAttribution(
   const visibleText = visibleEvidenceText(item);
   const identityText = identityEvidenceText(item);
   const signals = entitySignals(company);
+  const hasVerifiedSnapshotCompanyNameSignal = hasVerifiedSnapshotCompanyNameSignalForCompany(item, company, visibleText);
+  const hasValidatedTopVoiceTargetSignal = hasValidatedTopVoiceTargetSignalForCompany(item, company, visibleText);
   const hasVisibleOwnSignal =
     hasEntitySignal(visibleText, signals, item.platform) ||
     hasBatchListCompanySignal(visibleText, company) ||
+    hasVerifiedSnapshotCompanyNameSignal ||
+    hasValidatedTopVoiceTargetSignal ||
     sourceUrlMatchesOwnDomain(item, signals);
   const hasOwnSignal = hasVisibleOwnSignal || hasEntitySignal(identityText, signals, item.platform);
   const hasVerifiedAccountSignal = hasVerifiedAccountSignalForCompany(item, signals);
@@ -393,6 +397,76 @@ function hasBatchListCompanySignal(text: string, company: AttributionCompanyProf
   return /\b(?:yc|y combinator|spring batch|demo day|p26)\b/.test(normalized);
 }
 
+function hasVerifiedSnapshotCompanyNameSignalForCompany(
+  item: EvidenceItem,
+  company: AttributionCompanyProfile,
+  text: string
+): boolean {
+  if ((item.review_state ?? "verified") !== "verified" || !item.sourceUrl || !item.platformPostId) {
+    return false;
+  }
+
+  const raw = item.rawVisibleText ?? "";
+  if (!/"source"\s*:\s*"known_(?:spring_)?snapshot_entity_id"/i.test(raw)) {
+    return false;
+  }
+
+  const normalized = normalizeText(text);
+  const exactNames = [
+    company.name,
+    company.slug.replace(/-/g, " "),
+    compactText(company.name),
+    compactText(company.slug)
+  ]
+    .map(normalizeText)
+    .filter(Boolean);
+
+  return [...new Set(exactNames)].some((name) => hasPhrase(normalized, name));
+}
+
+function hasValidatedTopVoiceTargetSignalForCompany(
+  item: EvidenceItem,
+  company: AttributionCompanyProfile,
+  text: string
+): boolean {
+  if ((item.review_state ?? "verified") !== "verified" || !item.sourceUrl || !item.platformPostId) {
+    return false;
+  }
+
+  const raw = item.rawVisibleText ?? "";
+  if (!/"topVoiceAudience"\s*:\s*"(?:yc_partners|insiders)"/i.test(raw)) {
+    return false;
+  }
+  if (!/"status"\s*:\s*"accepted"/i.test(raw)) {
+    return false;
+  }
+
+  const normalized = normalizeText(text);
+  const targetNames = validatedTopVoiceTargetNames(raw, company)
+    .map(normalizeText)
+    .filter(Boolean);
+
+  return [...new Set(targetNames)].some((name) => hasPhrase(normalized, name));
+}
+
+function validatedTopVoiceTargetNames(
+  rawVisibleText: string,
+  company: AttributionCompanyProfile
+): string[] {
+  try {
+    const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    const target = recordValue(parsed.target);
+    return [
+      typeof target?.companyName === "string" ? target.companyName : null,
+      typeof target?.companySlug === "string" ? target.companySlug.replace(/-/g, " ") : null,
+      company.name,
+      company.slug.replace(/-/g, " ")
+    ].filter((value): value is string => Boolean(value));
+  } catch {
+    return [company.name, company.slug.replace(/-/g, " ")];
+  }
+}
+
 function conflictingCompanyMatches(
   text: string,
   context: AttributionContext,
@@ -457,6 +531,7 @@ function distinctiveConflictNames(company: AttributionCompanyProfile): string[] 
 
 function visibleEvidenceText(item: EvidenceItem): string {
   return [
+    item.title,
     item.text,
     extractVisibleBodyText(item.rawVisibleText)
   ]
@@ -482,19 +557,44 @@ function extractVisibleBodyText(rawVisibleText: string | undefined): string {
 
   try {
     const parsed = JSON.parse(rawVisibleText);
+    const post = recordValue(parsed.post);
+    const detail = recordValue(parsed.detail);
+    const quotedPost = recordValue(parsed.quotedPost);
+    const quote = recordValue(post?.quote);
+    const rawText = recordValue(post?.raw_text);
     return [
       parsed.text,
       parsed.caption,
       parsed.title,
       parsed.story_text,
       parsed.description,
-      parsed.full_text
+      parsed.full_text,
+      post?.rawText,
+      post?.text,
+      post?.caption,
+      post?.quote_text,
+      rawText?.text,
+      quote?.rawText,
+      quote?.text,
+      quote?.authorName,
+      quote?.authorHandle,
+      quote?.authorDescription,
+      quote?.authorWebsite,
+      detail?.rawText,
+      detail?.text,
+      detail?.caption,
+      quotedPost?.rawText,
+      quotedPost?.text
     ]
       .filter(Boolean)
       .join(" ");
   } catch {
     return rawVisibleText;
   }
+}
+
+function recordValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" ? value as Record<string, unknown> : null;
 }
 
 function sourceUrlMatchesOwnDomain(item: EvidenceItem, signals: EntitySignals): boolean {

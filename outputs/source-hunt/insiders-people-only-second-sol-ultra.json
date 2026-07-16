@@ -1,0 +1,1235 @@
+{
+  "generatedAt": "2026-07-16T01:46:11Z",
+  "shard": "YC Spring/P26 (S2026) and YC Summer 2026 (S26) insiders people-only second SOL ultra",
+  "searchedVoices": [
+    {
+      "topVoicePersonId": "paul-graham",
+      "displayName": "Paul Graham",
+      "xHandle": "paulg",
+      "linkedinHandle": "pg",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "jessica-livingston",
+      "displayName": "Jessica Livingston",
+      "xHandle": null,
+      "linkedinHandle": null,
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "michael-seibel",
+      "displayName": "Michael Seibel",
+      "xHandle": "mwseibel",
+      "linkedinHandle": "michaelseibel",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "sam-altman",
+      "displayName": "Sam Altman",
+      "xHandle": "sama",
+      "linkedinHandle": "samaltman",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "brian-chesky",
+      "displayName": "Brian Chesky",
+      "xHandle": "bchesky",
+      "linkedinHandle": "brianchesky",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "patrick-collison",
+      "displayName": "Patrick Collison",
+      "xHandle": "patrickc",
+      "linkedinHandle": "patrickcollison",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "john-collison",
+      "displayName": "John Collison",
+      "xHandle": "collision",
+      "linkedinHandle": "johncollison",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "brian-armstrong",
+      "displayName": "Brian Armstrong",
+      "xHandle": "brian_armstrong",
+      "linkedinHandle": "barmstrong",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "drew-houston",
+      "displayName": "Drew Houston",
+      "xHandle": "drewhouston",
+      "linkedinHandle": "drewhouston",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "steve-huffman",
+      "displayName": "Steve Huffman",
+      "xHandle": "spez",
+      "linkedinHandle": "stevehuffman",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "justin-kan",
+      "displayName": "Justin Kan",
+      "xHandle": "justinkan",
+      "linkedinHandle": "justinkan",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "emmett-shear",
+      "displayName": "Emmett Shear",
+      "xHandle": "eshear",
+      "linkedinHandle": "emmettshear",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "alexis-ohanian",
+      "displayName": "Alexis Ohanian",
+      "xHandle": "alexisohanian",
+      "linkedinHandle": "alexisohanian",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "guillermo-rauch",
+      "displayName": "Guillermo Rauch",
+      "xHandle": "rauchg",
+      "linkedinHandle": "rauchg",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "dylan-field",
+      "displayName": "Dylan Field",
+      "xHandle": "zoink",
+      "linkedinHandle": "dylanfield",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "aravind-srinivas",
+      "displayName": "Aravind Srinivas",
+      "xHandle": "aravsrinivas",
+      "linkedinHandle": "aravind-srinivas",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "alex-wang",
+      "displayName": "Alex Wang",
+      "xHandle": "alexandr_wang",
+      "linkedinHandle": "alexwang",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "palmer-luckey",
+      "displayName": "Palmer Luckey",
+      "xHandle": "palmerluckey",
+      "linkedinHandle": "palmerluckey",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "parker-conrad",
+      "displayName": "Parker Conrad",
+      "xHandle": "parkerconrad",
+      "linkedinHandle": "parkerconrad",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "aaron-levie",
+      "displayName": "Aaron Levie",
+      "xHandle": "levie",
+      "linkedinHandle": "aaronlevie",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "eric-migicovsky",
+      "displayName": "Eric Migicovsky",
+      "xHandle": "ericmigi",
+      "linkedinHandle": "ericmigicovsky",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "tony-xu",
+      "displayName": "Tony Xu",
+      "xHandle": "t_xu",
+      "linkedinHandle": "tonyxu",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "apoorva-mehta",
+      "displayName": "Apoorva Mehta",
+      "xHandle": "apoorva_mehta",
+      "linkedinHandle": "apoorvamehta",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "max-mullen",
+      "displayName": "Max Mullen",
+      "xHandle": "maxmullen",
+      "linkedinHandle": "maxmullen",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "henrique-dubugras",
+      "displayName": "Henrique Dubugras",
+      "xHandle": "hdubugras",
+      "linkedinHandle": "henriquedubugras",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "pedro-franceschi",
+      "displayName": "Pedro Franceschi",
+      "xHandle": "pedroh96",
+      "linkedinHandle": "pedrofranceschi",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "rahul-vohra",
+      "displayName": "Rahul Vohra",
+      "xHandle": "rahulvohra",
+      "linkedinHandle": "rahulvohra",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "spenser-skates",
+      "displayName": "Spenser Skates",
+      "xHandle": "spenserskates",
+      "linkedinHandle": "spenserskates",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "suhail-doshi",
+      "displayName": "Suhail Doshi",
+      "xHandle": "suhail",
+      "linkedinHandle": "suhaildoshi",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "dalton-caldwell",
+      "displayName": "Dalton Caldwell",
+      "xHandle": "daltonc",
+      "linkedinHandle": "daltoncaldwell",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "qasar-younis",
+      "displayName": "Qasar Younis",
+      "xHandle": "qasar",
+      "linkedinHandle": "qasaryounis",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "ali-rowghani",
+      "displayName": "Ali Rowghani",
+      "xHandle": "rowghani",
+      "linkedinHandle": "alirowghani",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "anu-hariharan",
+      "displayName": "Anu Hariharan",
+      "xHandle": "anuhariharan",
+      "linkedinHandle": "anuhariharan",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "elad-gil",
+      "displayName": "Elad Gil",
+      "xHandle": "eladgil",
+      "linkedinHandle": "eladgil",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "nat-friedman",
+      "displayName": "Nat Friedman",
+      "xHandle": "natfriedman",
+      "linkedinHandle": "natfriedman",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "daniel-gross",
+      "displayName": "Daniel Gross",
+      "xHandle": "danielgross",
+      "linkedinHandle": "danielgross",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "david-sacks",
+      "displayName": "David Sacks",
+      "xHandle": "davidsacks",
+      "linkedinHandle": "davidsacks",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "marc-andreessen",
+      "displayName": "Marc Andreessen",
+      "xHandle": "pmarca",
+      "linkedinHandle": "marcandreessen",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "ben-horowitz",
+      "displayName": "Ben Horowitz",
+      "xHandle": "bhorowitz",
+      "linkedinHandle": "benhorowitz",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "naval-ravikant",
+      "displayName": "Naval Ravikant",
+      "xHandle": "naval",
+      "linkedinHandle": "naval",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "keith-rabois",
+      "displayName": "Keith Rabois",
+      "xHandle": "rabois",
+      "linkedinHandle": "keithrabois",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "sarah-guo",
+      "displayName": "Sarah Guo",
+      "xHandle": "saranormous",
+      "linkedinHandle": "sarahguo",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "andrew-chen",
+      "displayName": "Andrew Chen",
+      "xHandle": "andrewchen",
+      "linkedinHandle": "andrewchen",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "lachy-groom",
+      "displayName": "Lachy Groom",
+      "xHandle": "lachygroom",
+      "linkedinHandle": "lachygroom",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "semil-shah",
+      "displayName": "Semil Shah",
+      "xHandle": "semil",
+      "linkedinHandle": "semilshah",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "delian-asparouhov",
+      "displayName": "Delian Asparouhov",
+      "xHandle": "zebulgar",
+      "linkedinHandle": "delianasparouhov",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "trae-stephens",
+      "displayName": "Trae Stephens",
+      "xHandle": "traestephens",
+      "linkedinHandle": "trae-stephens",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    },
+    {
+      "topVoicePersonId": "lenny-rachitsky",
+      "displayName": "Lenny Rachitsky",
+      "xHandle": "lennyrachitsky",
+      "linkedinHandle": "lennyrachitsky",
+      "status": "searched_followup; no accepted row in prior combined insider artifact"
+    }
+  ],
+  "searches": [
+    {
+      "id": "dedupe-preflight",
+      "platform": "local corpus",
+      "scope": "Current S2026/S26 canonical JSON plus every pre-existing source-hunt artifact, explicitly including insiders-people-only-both-batches-sol-ultra.json",
+      "canonicalFilesChecked": 5,
+      "sourceHuntArtifactsChecked": 51,
+      "uniqueUrlsIndexed": 10810,
+      "uniqueNumericPlatformIdsIndexed": 2628,
+      "outcome": "Built normalized URL and platform-ID exclusions before candidate review. All 14 fresh parent surfaces were already present in the later regular-zero source-hunt artifact and absent from current canonical evidence."
+    },
+    {
+      "id": "post-prior-artifact-delta",
+      "platform": "local corpus",
+      "scope": "Substantive source-hunt artifacts created after insiders-people-only-both-batches-sol-ultra.json",
+      "substantiveArtifactsFound": 1,
+      "artifact": "outputs/source-hunt/s26-regular-zero-sol-ultra.json",
+      "companiesFound": 10,
+      "nativeLinkedinParentPagesFound": 14,
+      "outcome": "The only new substantive target artifact contributed 14 S26 founder/company LinkedIn pages across 10 companies. No fresh S2026 parent-page artifact landed after the prior insider cutoff."
+    },
+    {
+      "id": "linkedin-fresh-parent-comment-sweep",
+      "platform": "LinkedIn",
+      "scope": "Native guest pages for the 14 post-cutoff S26 parent posts, matching comment names against all 50 curated insiders",
+      "pagesAttempted": 14,
+      "pagesFetched": 14,
+      "parentReportedCommentCount": 596,
+      "stableVisibleCommentUrnsChecked": 120,
+      "curatedInsiderCommentsFound": 0,
+      "outcome": "Every page exposed verifiable post metrics and a public comment subset. None of the 120 stable visible comment URNs was authored by a curated insider."
+    },
+    {
+      "id": "linkedin-remaining-voice-index-sweep",
+      "platform": "web index / LinkedIn",
+      "scope": "Each of the 48 curated insiders without a prior accepted row paired with the 10 fresh S26 company names and native-comment wording",
+      "queriesPerformed": 48,
+      "targetPageHits": 0,
+      "outcome": "No indexed native post/comment result connected a remaining curated insider to any of the 14 fresh parent pages."
+    },
+    {
+      "id": "prior-platform-coverage-review",
+      "platform": "X, Reddit, YouTube, Hacker News, GitHub",
+      "scope": "Reviewed the combined insider artifact and strict people-only predecessor shards for unchanged account/target coverage",
+      "queriesPerformed": 0,
+      "outcome": "No identical live query was repeated. The prior combined artifact had already swept all curated X accounts and the bounded secondary-platform surfaces; the only genuinely new discovery surface was the later LinkedIn parent-page set."
+    }
+  ],
+  "accepted": [
+
+  ],
+  "rejected": [
+    {
+      "candidateId": "linkedin-parent-cosmic-robotics-7358860398701260800",
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "LinkedIn",
+      "evidenceType": "company_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/cosmic-robotics_solar-construction-constructiontech-activity-7358860398701260800-5Nwv",
+      "platformPostId": "7358860398701260800",
+      "postedAt": "2025-08-06T14:04:00.035Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "cosmic-robotics",
+        "profileUrl": "https://www.linkedin.com/company/cosmic-robotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "reactions": 161,
+        "comments": 5
+      },
+      "nativeEvidence": {
+        "headline": "The future of construction is robotic.",
+        "visibleTextSignals": [
+          "The company account explains why Cosmic Robotics builds field tools for solar construction crews.",
+          "The native guest page exposed 5 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links the official Cosmic Robotics LinkedIn account.",
+        "The company account explains why Cosmic Robotics builds field tools for solar construction crews.",
+        "The native author is a listed-company company, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/cosmic-robotics_solar-construction-constructiontech-activity-7358860398701260800-5Nwv",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a company, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-dialogus-7476734114193240064",
+      "batchSlug": "S26",
+      "companyName": "Dialogus",
+      "companySlug": "dialogus",
+      "founderName": "Rodrigo Terán",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4",
+      "platformPostId": "7476734114193240064",
+      "postedAt": "2026-06-27T20:32:03.800Z",
+      "author": {
+        "name": "Rodrigo Terán Hernández",
+        "handle": "rodrigoteranhdz",
+        "profileUrl": "https://www.linkedin.com/in/rodrigoteranhdz",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 210,
+        "comments": 28
+      },
+      "nativeEvidence": {
+        "headline": "We're excited to share that Dialogus (YC S26) has been accepted into Y Combinator S26",
+        "visibleTextSignals": [
+          "The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra.",
+          "The native guest page exposed 10 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Rodrigo Terán as a Dialogus founder.",
+        "The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-greypoint-industries-7477560408162074624",
+      "batchSlug": "S26",
+      "companyName": "Greypoint Industries",
+      "companySlug": "greypoint-industries",
+      "founderName": "Darcy Zhang",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/darcy-zhang-021134243_%F0%9D%97%99%F0%9D%97%B6%F0%9D%97%BF%F0%9D%98%80%F0%9D%98%81-%F0%9D%98%81%F0%9D%97%B6%F0%9D%97%BA%F0%9D%97%B2-founder-%F0%9D%97%99%F0%9D%97%B6%F0%9D%97%BF%F0%9D%98%80-activity-7477560408162074624-8KAP",
+      "platformPostId": "7477560408162074624",
+      "postedAt": "2026-06-30T03:15:27.637Z",
+      "author": {
+        "name": "Darcy Zhang",
+        "handle": "darcy-zhang-021134243",
+        "profileUrl": "https://www.linkedin.com/in/darcy-zhang-021134243",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 205,
+        "comments": 28
+      },
+      "nativeEvidence": {
+        "headline": "First time founder. First time YC applicant.",
+        "visibleTextSignals": [
+          "The founder names Greypoint Industries and YC S26 and describes a man-portable autonomous drone interceptor.",
+          "The native guest page exposed 10 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Darcy Zhang as a Greypoint Industries founder.",
+        "The founder names Greypoint Industries and YC S26 and describes a man-portable autonomous drone interceptor.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/darcy-zhang-021134243_%F0%9D%97%99%F0%9D%97%B6%F0%9D%97%BF%F0%9D%98%80%F0%9D%98%81-%F0%9D%98%81%F0%9D%97%B6%F0%9D%97%BA%F0%9D%97%B2-founder-%F0%9D%97%99%F0%9D%97%B6%F0%9D%97%BF%F0%9D%98%80-activity-7477560408162074624-8KAP",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-greypoint-industries-7477761858276327426",
+      "batchSlug": "S26",
+      "companyName": "Greypoint Industries",
+      "companySlug": "greypoint-industries",
+      "founderName": "Jordan Khoo",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/jordankh00_im-excited-to-announce-my-ai-b2b-saas-startup-activity-7477761858276327426-1DZI",
+      "platformPostId": "7477761858276327426",
+      "postedAt": "2026-06-30T16:35:57.094Z",
+      "author": {
+        "name": "Jordan Khoo",
+        "handle": "jordankh00",
+        "profileUrl": "https://www.linkedin.com/in/jordankh00",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 463,
+        "comments": 51
+      },
+      "nativeEvidence": {
+        "headline": "I'm excited to announce my AI B2B SaaS startup!!!!!",
+        "visibleTextSignals": [
+          "The founder identifies Greypoint Industries as YC S26, describes its autonomous counter-drone system, and names the founding team.",
+          "The native guest page exposed 10 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Jordan Khoo as a Greypoint Industries founder.",
+        "The founder identifies Greypoint Industries as YC S26, describes its autonomous counter-drone system, and names the founding team.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/jordankh00_im-excited-to-announce-my-ai-b2b-saas-startup-activity-7477761858276327426-1DZI",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-hyperprobe-7477556526430482432",
+      "batchSlug": "S26",
+      "companyName": "HyperProbe",
+      "companySlug": "hyperprobe",
+      "founderName": "Shailendra Singh",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT",
+      "platformPostId": "7477556526430482432",
+      "postedAt": "2026-06-30T03:00:02.138Z",
+      "author": {
+        "name": "Shailendra Singh",
+        "handle": "shailendra-singh-shekhawat",
+        "profileUrl": "https://www.linkedin.com/in/shailendra-singh-shekhawat",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 153,
+        "comments": 41
+      },
+      "nativeEvidence": {
+        "headline": "We are excited to announce that we got into YC S26!",
+        "visibleTextSignals": [
+          "The founder says HyperTest became HyperProbe and explains its remote debugging infrastructure for coding agents.",
+          "The native guest page exposed 9 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Shailendra Singh as a HyperProbe founder.",
+        "The founder says HyperTest became HyperProbe and explains its remote debugging infrastructure for coding agents.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-lato-7435638659648958464",
+      "batchSlug": "S26",
+      "companyName": "LATO",
+      "companySlug": "lato",
+      "founderName": "Tymek Staniszewski",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/tymeks_investing-is-complex-multimillion-dollar-activity-7435638659648958464-ALUx",
+      "platformPostId": "7435638659648958464",
+      "postedAt": "2026-03-06T10:53:23.928Z",
+      "author": {
+        "name": "Tymek Staniszewski",
+        "handle": "tymeks",
+        "profileUrl": "https://www.linkedin.com/in/tymeks",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 113,
+        "comments": 35
+      },
+      "nativeEvidence": {
+        "headline": "Investing is complex - multimillion-dollar decisions, fast-moving markets, and never enough time.",
+        "visibleTextSignals": [
+          "The founder says why the team is building LATO and explains its AI investing workflow inside Excel, PowerPoint, and Outlook.",
+          "The native guest page exposed 8 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Tymek Staniszewski as a LATO founder.",
+        "The founder says why the team is building LATO and explains its AI investing workflow inside Excel, PowerPoint, and Outlook.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/tymeks_investing-is-complex-multimillion-dollar-activity-7435638659648958464-ALUx",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-lato-7467545440540930048",
+      "batchSlug": "S26",
+      "companyName": "LATO",
+      "companySlug": "lato",
+      "founderName": "Tymek Staniszewski",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/tymeks_builtineurope-activity-7467545440540930048-baYT",
+      "platformPostId": "7467545440540930048",
+      "postedAt": "2026-06-02T11:59:33.290Z",
+      "author": {
+        "name": "Tymek Staniszewski",
+        "handle": "tymeks",
+        "profileUrl": "https://www.linkedin.com/in/tymeks",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 308,
+        "comments": 33
+      },
+      "nativeEvidence": {
+        "headline": "Proud moment for LATO.",
+        "visibleTextSignals": [
+          "The founder names LATO and its inclusion in the native Built in Europe campaign post.",
+          "The native guest page exposed 10 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Tymek Staniszewski as a LATO founder.",
+        "The founder names LATO and its inclusion in the native Built in Europe campaign post.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/tymeks_builtineurope-activity-7467545440540930048-baYT",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-lato-7478092002446909441",
+      "batchSlug": "S26",
+      "companyName": "LATO",
+      "companySlug": "lato",
+      "founderName": "Tymek Staniszewski",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7478092002446909441",
+      "platformPostId": "7478092002446909441",
+      "postedAt": "2026-07-01T14:27:49.589Z",
+      "author": {
+        "name": "Tymek Staniszewski",
+        "handle": "tymeks",
+        "profileUrl": "https://www.linkedin.com/in/tymeks",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 130,
+        "comments": 39
+      },
+      "nativeEvidence": {
+        "headline": "100s of people ask me what Y Combinator is like and what we're building with LATO (YC S26).",
+        "visibleTextSignals": [
+          "The founder names LATO and YC S26 and demonstrates its expert-research workflow for investors.",
+          "The native guest page exposed 8 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Tymek Staniszewski as a LATO founder.",
+        "The founder names LATO and YC S26 and demonstrates its expert-research workflow for investors.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7478092002446909441",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-mireye-7475246340638203905",
+      "batchSlug": "S26",
+      "companyName": "Mireye",
+      "companySlug": "mireye",
+      "founderName": "Ansh Chokshi",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/ansh-chokshi_y-combinators-motto-is-make-something-people-activity-7475246340638203905-cmDM",
+      "platformPostId": "7475246340638203905",
+      "postedAt": "2026-06-23T18:00:10.944Z",
+      "author": {
+        "name": "Ansh Chokshi",
+        "handle": "ansh-chokshi",
+        "profileUrl": "https://www.linkedin.com/in/ansh-chokshi",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 241,
+        "comments": 135
+      },
+      "nativeEvidence": {
+        "headline": "Y Combinator's motto is make something people want.",
+        "visibleTextSignals": [
+          "The founder connects the YC S26 journey to building Mireye and names cofounder Shashwat Kapoor.",
+          "The native guest page exposed 10 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Ansh Chokshi as a Mireye founder.",
+        "The founder connects the YC S26 journey to building Mireye and names cofounder Shashwat Kapoor.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/ansh-chokshi_y-combinators-motto-is-make-something-people-activity-7475246340638203905-cmDM",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-salem-robotics-inc-7477935003184578560",
+      "batchSlug": "S26",
+      "companyName": "Salem Robotics Inc",
+      "companySlug": "salem-robotics-inc",
+      "founderName": "Caleb Horan",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tFKV",
+      "platformPostId": "7477935003184578560",
+      "postedAt": "2026-07-01T04:03:58.036Z",
+      "author": {
+        "name": "Caleb Horan",
+        "handle": "caleb-horan",
+        "profileUrl": "https://www.linkedin.com/in/caleb-horan",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 62,
+        "comments": 6
+      },
+      "nativeEvidence": {
+        "headline": "We're excited to share that Salem Robotics (YC S26) has joined Y Combinator.",
+        "visibleTextSignals": [
+          "The founder names Salem Robotics, YC S26, its autonomy layer for hazardous environments, and cofounder Janak Panthi.",
+          "The native guest page exposed 6 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Caleb Horan as a Salem Robotics Inc founder.",
+        "The founder names Salem Robotics, YC S26, its autonomy layer for hazardous environments, and cofounder Janak Panthi.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tFKV",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-trustai-7473857930623098880",
+      "batchSlug": "S26",
+      "companyName": "TrustAI",
+      "companySlug": "trustai",
+      "founderName": null,
+      "platform": "LinkedIn",
+      "evidenceType": "company_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/autotrytrustai_activity-7473857930623098880--z1e",
+      "platformPostId": "7473857930623098880",
+      "postedAt": "2026-06-19T22:03:08.218Z",
+      "author": {
+        "name": "TrustAI (YC S26)",
+        "handle": "autotrytrustai",
+        "profileUrl": "https://www.linkedin.com/company/autotrytrustai",
+        "relationship": "company"
+      },
+      "metrics": {
+        "reactions": 89,
+        "comments": 7
+      },
+      "nativeEvidence": {
+        "headline": "Bought AI does not equal adopted AI.",
+        "visibleTextSignals": [
+          "The company account names TrustAI and YC S26 and explains its one-click workflow automation product.",
+          "The native guest page exposed 6 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links the official TrustAI LinkedIn account.",
+        "The company account names TrustAI and YC S26 and explains its one-click workflow automation product.",
+        "The native author is a listed-company company, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/autotrytrustai_activity-7473857930623098880--z1e",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a company, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-verdant-7477527744684171264",
+      "batchSlug": "S26",
+      "companyName": "Verdant",
+      "companySlug": "verdant",
+      "founderName": "Jason Yi",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg",
+      "platformPostId": "7477527744684171264",
+      "postedAt": "2026-06-30T01:05:40.056Z",
+      "author": {
+        "name": "Jason Yi",
+        "handle": "jason-yi1",
+        "profileUrl": "https://www.linkedin.com/in/jason-yi1",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 401,
+        "comments": 91
+      },
+      "nativeEvidence": {
+        "headline": "Excited to share that Verdant has been accepted into Y Combinator for the Summer 26 batch!",
+        "visibleTextSignals": [
+          "The founder names Verdant, Summer 26, cofounder Aidan Ng, and their planning and permitting software.",
+          "The native guest page exposed 9 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Jason Yi as a Verdant founder.",
+        "The founder names Verdant, Summer 26, cofounder Aidan Ng, and their planning and permitting software.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-vestris-7467251847137939459",
+      "batchSlug": "S26",
+      "companyName": "Vestris",
+      "companySlug": "vestris",
+      "founderName": "Aahil Valliani",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/aahil-valliani_my-cofounder-joshua-tang-and-i-didnt-talk-activity-7467251847137939459-YHIb",
+      "platformPostId": "7467251847137939459",
+      "postedAt": "2026-06-01T16:32:55.170Z",
+      "author": {
+        "name": "Aahil Valliani",
+        "handle": "aahil-valliani",
+        "profileUrl": "https://www.linkedin.com/in/aahil-valliani",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 213,
+        "comments": 73
+      },
+      "nativeEvidence": {
+        "headline": "My cofounder Joshua Tang and I didn't talk to each other after our first day at work.",
+        "visibleTextSignals": [
+          "The author self-identifies as Vestris cofounder, names Joshua Tang, YC S26, and the real-estate closing automation product.",
+          "The native guest page exposed 10 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The public Vestris company page and reciprocal native founder posts identify the author as a Vestris cofounder.",
+        "The author self-identifies as Vestris cofounder, names Joshua Tang, YC S26, and the real-estate closing automation product.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/aahil-valliani_my-cofounder-joshua-tang-and-i-didnt-talk-activity-7467251847137939459-YHIb",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    },
+    {
+      "candidateId": "linkedin-parent-vestris-7467271346683801600",
+      "batchSlug": "S26",
+      "companyName": "Vestris",
+      "companySlug": "vestris",
+      "founderName": "Joshua Tang",
+      "platform": "LinkedIn",
+      "evidenceType": "founder_post_parent_scan_only",
+      "topVoice": null,
+      "sourceUrl": "https://www.linkedin.com/posts/tangjoshua_i-told-myself-that-i-would-never-write-one-activity-7467271346683801600--RLb",
+      "platformPostId": "7467271346683801600",
+      "postedAt": "2026-06-01T17:50:24.218Z",
+      "author": {
+        "name": "Joshua Tang",
+        "handle": "tangjoshua",
+        "profileUrl": "https://www.linkedin.com/in/tangjoshua",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 105,
+        "comments": 24
+      },
+      "nativeEvidence": {
+        "headline": "I told myself that I would never write one of these LinkedIn posts, but here I am.",
+        "visibleTextSignals": [
+          "The author self-identifies as Vestris cofounder, names Aahil Valliani, YC S26, and the real-estate closing automation product.",
+          "The native guest page exposed 9 stable comment URNs in the verification pass; none was authored by a curated insider."
+        ],
+        "verificationMethod": "Fetched the native public LinkedIn page; parsed the post author, timestamp, visible post counters, stable comment URNs, comment author names, and native reaction counters. The remaining-insider exact-name index sweep returned no matching target-page result."
+      },
+      "attributionSignals": [
+        "The public Vestris company page and reciprocal native founder posts identify the author as a Vestris cofounder.",
+        "The author self-identifies as Vestris cofounder, names Aahil Valliani, YC S26, and the real-estate closing automation product.",
+        "The native author is a listed-company founder, not a person in the insiders audience.",
+        "No publicly rendered or indexed comment on this parent page resolved to any curated insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/tangjoshua_i-told-myself-that-i-would-never-write-one-activity-7467271346683801600--RLb",
+        "sourceUrlInCanonical": false,
+        "platformPostIdInCanonical": false,
+        "sourceUrlInPriorArtifacts": true,
+        "platformPostIdInPriorArtifacts": true,
+        "checkedAgainst": [
+          "public/graph/s2026.json",
+          "public/graph/s26.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/insiders-people-only-both-batches-sol-ultra.json"
+        ],
+        "status": "prior_source_hunt_parent_surface_not_canonical",
+        "checkedAt": "2026-07-16T01:46:11Z"
+      },
+      "reason": "Rejected as a standalone insider candidate: the native author is a founder, not a curated insider. The URL was used only as a fresh parent surface for comment discovery, and no qualifying insider comment was visible or index-discoverable."
+    }
+  ],
+  "duplicateUrls": [
+    "https://www.linkedin.com/posts/cosmic-robotics_solar-construction-constructiontech-activity-7358860398701260800-5Nwv",
+    "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4",
+    "https://www.linkedin.com/posts/darcy-zhang-021134243_%F0%9D%97%99%F0%9D%97%B6%F0%9D%97%BF%F0%9D%98%80%F0%9D%98%81-%F0%9D%98%81%F0%9D%97%B6%F0%9D%97%BA%F0%9D%97%B2-founder-%F0%9D%97%99%F0%9D%97%B6%F0%9D%97%BF%F0%9D%98%80-activity-7477560408162074624-8KAP",
+    "https://www.linkedin.com/posts/jordankh00_im-excited-to-announce-my-ai-b2b-saas-startup-activity-7477761858276327426-1DZI",
+    "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT",
+    "https://www.linkedin.com/posts/tymeks_investing-is-complex-multimillion-dollar-activity-7435638659648958464-ALUx",
+    "https://www.linkedin.com/posts/tymeks_builtineurope-activity-7467545440540930048-baYT",
+    "https://www.linkedin.com/feed/update/urn:li:activity:7478092002446909441",
+    "https://www.linkedin.com/posts/ansh-chokshi_y-combinators-motto-is-make-something-people-activity-7475246340638203905-cmDM",
+    "https://www.linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tFKV",
+    "https://www.linkedin.com/posts/autotrytrustai_activity-7473857930623098880--z1e",
+    "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg",
+    "https://www.linkedin.com/posts/aahil-valliani_my-cofounder-joshua-tang-and-i-didnt-talk-activity-7467251847137939459-YHIb",
+    "https://www.linkedin.com/posts/tangjoshua_i-told-myself-that-i-would-never-write-one-activity-7467271346683801600--RLb"
+  ],
+  "productivity": {
+    "queriesPerformed": 50,
+    "voicesSearched": 48,
+    "voicesSkippedBecausePriorAccepted": [
+      "Mathilde Collin",
+      "Taro Fukuyama"
+    ],
+    "companiesSearched": 10,
+    "batches": {
+      "S2026": 0,
+      "S26": 10
+    },
+    "canonicalFilesChecked": 5,
+    "sourceHuntArtifactsChecked": 51,
+    "dedupeUniqueUrls": 10810,
+    "dedupeUniqueNumericPlatformIds": 2628,
+    "newSubstantiveArtifactsAfterPriorCutoff": 1,
+    "linkedinTargetPagesAttempted": 14,
+    "linkedinTargetPagesFetched": 14,
+    "linkedinParentReportedComments": 596,
+    "linkedinVisibleCommentUrnsChecked": 120,
+    "linkedinNativeInsiderCommentsFound": 0,
+    "indexedLinkedinQueries": 48,
+    "indexedLinkedinTargetPageHits": 0,
+    "candidatesFound": 14,
+    "netNewPeopleAuthoredCandidates": 0,
+    "netNewVerifiedRows": 0,
+    "accepted": 0,
+    "rejected": 14,
+    "duplicates": 14,
+    "rejectionsByPrimaryReason": {
+      "company_authored_parent_not_insider": 2,
+      "founder_authored_parent_not_insider": 12
+    },
+    "coverageLimitations": [
+      "LinkedIn guest pages exposed 120 stable comment URNs from 596 reported comments; exact-name web-index checks for all 48 remaining insiders were used as a fallback for comments outside the rendered subset.",
+      "The post-cutoff artifact delta contained fresh S26 LinkedIn parent pages only. No new S2026 parent-page artifact existed to extend the prior S2026 native-page sweep.",
+      "X and the bounded secondary platforms were not re-queried because the prior combined artifact had already searched the same curated accounts and all target names, slugs, domains, founders, and handles; no new account seed or non-LinkedIn target surface appeared after its cutoff."
+    ]
+  }
+}

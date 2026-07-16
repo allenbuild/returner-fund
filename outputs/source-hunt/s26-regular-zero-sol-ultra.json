@@ -1,0 +1,3533 @@
+{
+  "generatedAt": "2026-07-16T01:32:08Z",
+  "shard": "s26-regular-zero-sol-ultra",
+  "searches": [
+    {
+      "platform": "local",
+      "scope": "S26 coverage matrix and YC roster",
+      "queryCount": 1,
+      "result": "68 companies had fewer than three rows; 28 had zero rows at hunt start."
+    },
+    {
+      "platform": "local",
+      "scope": "baseline dedupe ledgers",
+      "queryCount": 1,
+      "result": "Loaded 53 current ledger, canonical-evidence, and prior source-hunt JSON files."
+    },
+    {
+      "platform": "web",
+      "scope": "all 68 sparse S26 company sites",
+      "queryCount": 68,
+      "result": "Followed native outbound links and embeds for company-owned LinkedIn, YouTube, GitHub, Instagram, and X accounts."
+    },
+    {
+      "platform": "linkedin",
+      "scope": "zero-evidence companies and founders",
+      "queryCount": 56,
+      "result": "Verified 14 net-new post-level rows; profile-only and third-party pages were rejected."
+    },
+    {
+      "platform": "linkedin",
+      "scope": "native public JSON-LD verification",
+      "queryCount": 14,
+      "result": "Checked author, timestamp, body, reaction count, and comment count on each accepted candidate."
+    },
+    {
+      "platform": "github",
+      "scope": "11 official or first-party-linked organizations",
+      "queryCount": 11,
+      "result": "Inspected 40 public non-fork repositories; accepted 33 unique repo-activity rows and suppressed known duplicates."
+    },
+    {
+      "platform": "youtube",
+      "scope": "three first-party channels plus native watch pages",
+      "queryCount": 13,
+      "result": "Verified 10 unique videos through channel RSS and watch-page metadata."
+    },
+    {
+      "platform": "hacker_news",
+      "scope": "all 68 sparse company names and exact company domains",
+      "queryCount": 68,
+      "result": "Strict exact-domain/title filtering surfaced founder-authored and ambiguous-author candidates."
+    },
+    {
+      "platform": "hacker_news",
+      "scope": "Firebase item verification",
+      "queryCount": 7,
+      "result": "Four founder-authored items were valid but already present in shared ledgers; three exact-domain items failed author attribution."
+    },
+    {
+      "platform": "reddit",
+      "scope": "five direct public JSON searches",
+      "queryCount": 5,
+      "result": "Public search endpoint returned HTTP 403; no inaccessible result was treated as evidence."
+    },
+    {
+      "platform": "reddit",
+      "scope": "indexed exact-domain searches for all 28 zero-evidence companies",
+      "queryCount": 4,
+      "result": "No post-level result with native company/founder authorship and visible metrics was found."
+    },
+    {
+      "platform": "product_hunt",
+      "scope": "exact-domain searches for all 28 zero-evidence companies",
+      "queryCount": 4,
+      "result": "No admissible native product post with visible metrics was found."
+    },
+    {
+      "platform": "product_hunt",
+      "scope": "distinctive company-name searches",
+      "queryCount": 4,
+      "result": "No additional post-level candidate passed identity and metric requirements."
+    },
+    {
+      "platform": "instagram",
+      "scope": "distinctive company-name and official-account searches",
+      "queryCount": 4,
+      "result": "Only profiles or no results; no post/reel URL with visible metrics qualified."
+    },
+    {
+      "platform": "x",
+      "scope": "official zero-company and founder handles",
+      "queryCount": 8,
+      "result": "Search results were profiles, false matches, or already-ledgered URLs; no net-new verifiable status qualified."
+    },
+    {
+      "platform": "rss",
+      "scope": "RSS/Atom autodiscovery across all 68 sparse company websites plus discovered-feed inspection",
+      "queryCount": 70,
+      "result": "Speko and Zomma exposed first-party feeds, but their article pages did not expose visible engagement metrics; no feed item qualified."
+    },
+    {
+      "platform": "tiktok",
+      "scope": "distinctive zero-evidence company-name search",
+      "queryCount": 1,
+      "result": "Indexed search was blocked by TikTok robots policy; no inaccessible result was treated as evidence."
+    },
+    {
+      "platform": "bilibili",
+      "scope": "distinctive zero-evidence company-name search",
+      "queryCount": 1,
+      "result": "No target-matching native video with visible metrics was found."
+    },
+    {
+      "platform": "xiaohongshu",
+      "scope": "distinctive zero-evidence company-name search",
+      "queryCount": 1,
+      "result": "No target-matching native post or video with visible metrics was found."
+    },
+    {
+      "platform": "local",
+      "scope": "final recursive exact URL and platform ID dedupe",
+      "queryCount": 1,
+      "result": "Accepted 57 net-new rows and retained 19 duplicate URLs separately."
+    }
+  ],
+  "accepted": [
+    {
+      "batchSlug": "S26",
+      "companyName": "Blueprints",
+      "companySlug": "blueprints",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/CarbonCopyInc/carboncopy-mcp",
+      "platformPostId": "CarbonCopyInc/carboncopy-mcp",
+      "postedAt": "2026-04-08T16:41:00Z",
+      "author": {
+        "name": "Blueprints",
+        "handle": "CarbonCopyInc",
+        "profileUrl": "https://github.com/CarbonCopyInc",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 5,
+        "forks": 0,
+        "watchers": 5,
+        "openIssues": 1
+      },
+      "nativeEvidence": {
+        "headline": "MCP server for the Carbon Copy API \u2014 programmatic Polymarket copy-trading for AI agents",
+        "visibleTextSignals": [
+          "Repository description: MCP server for the Carbon Copy API \u2014 programmatic Polymarket copy-trading for AI agents",
+          "The public non-fork repository is owned by the CarbonCopyInc organization and was last pushed at 2026-04-08T16:41:00Z.",
+          "GitHub exposes 5 stars, 0 forks, 5 watchers, and 1 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The official Blueprints website links the CarbonCopyInc GitHub organization directly.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/carboncopyinc/carboncopy-mcp",
+        "canonicalPlatformPostId": "CarbonCopyInc/carboncopy-mcp",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Blueprints",
+      "companySlug": "blueprints",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/CarbonCopyInc/docs",
+      "platformPostId": "CarbonCopyInc/docs",
+      "postedAt": "2026-04-08T16:44:25Z",
+      "author": {
+        "name": "Blueprints",
+        "handle": "CarbonCopyInc",
+        "profileUrl": "https://github.com/CarbonCopyInc",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "CarbonCopyInc/docs",
+        "visibleTextSignals": [
+          "The public non-fork repository is owned by the CarbonCopyInc organization and was last pushed at 2026-04-08T16:44:25Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The official Blueprints website links the CarbonCopyInc GitHub organization directly.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/carboncopyinc/docs",
+        "canonicalPlatformPostId": "CarbonCopyInc/docs",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Blueprints",
+      "companySlug": "blueprints",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/CarbonCopyInc/mintlify-docs",
+      "platformPostId": "CarbonCopyInc/mintlify-docs",
+      "postedAt": "2026-05-04T00:55:33Z",
+      "author": {
+        "name": "Blueprints",
+        "handle": "CarbonCopyInc",
+        "profileUrl": "https://github.com/CarbonCopyInc",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "CarbonCopyInc/mintlify-docs",
+        "visibleTextSignals": [
+          "The public non-fork repository is owned by the CarbonCopyInc organization and was last pushed at 2026-05-04T00:55:33Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The official Blueprints website links the CarbonCopyInc GitHub organization directly.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/carboncopyinc/mintlify-docs",
+        "canonicalPlatformPostId": "CarbonCopyInc/mintlify-docs",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Blueprints",
+      "companySlug": "blueprints",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/CarbonCopyInc/documentation",
+      "platformPostId": "CarbonCopyInc/documentation",
+      "postedAt": "2026-05-06T16:22:55Z",
+      "author": {
+        "name": "Blueprints",
+        "handle": "CarbonCopyInc",
+        "profileUrl": "https://github.com/CarbonCopyInc",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "CarbonCopyInc/documentation",
+        "visibleTextSignals": [
+          "The public non-fork repository is owned by the CarbonCopyInc organization and was last pushed at 2026-05-06T16:22:55Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The official Blueprints website links the CarbonCopyInc GitHub organization directly.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/carboncopyinc/documentation",
+        "canonicalPlatformPostId": "CarbonCopyInc/documentation",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Conifer",
+      "companySlug": "conifer",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/ConiferKit/CLI-release",
+      "platformPostId": "ConiferKit/CLI-release",
+      "postedAt": "2026-06-07T09:41:57Z",
+      "author": {
+        "name": "Conifer",
+        "handle": "ConiferKit",
+        "profileUrl": "https://github.com/ConiferKit",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "ConiferKit/CLI-release",
+        "visibleTextSignals": [
+          "The public non-fork repository is owned by the ConiferKit organization and was last pushed at 2026-06-07T09:41:57Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Conifer to the ConiferKit GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/coniferkit/cli-release",
+        "canonicalPlatformPostId": "ConiferKit/CLI-release",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Control Seat",
+      "companySlug": "control-seat",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=DfSQ8L7d0BM",
+      "platformPostId": "DfSQ8L7d0BM",
+      "postedAt": "2026-07-07T07:00:01Z",
+      "author": {
+        "name": "Control Seat",
+        "handle": "Control-Seat",
+        "profileUrl": "https://www.youtube.com/@Control-Seat",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 154,
+        "likes": 1
+      },
+      "nativeEvidence": {
+        "headline": "Introducing Control Seat",
+        "visibleTextSignals": [
+          "The company channel and native description introduce Control Seat and its AI-native industrial control platform."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Control Seat website links this exact YouTube channel.",
+        "The native channel name, title, and description all identify Control Seat."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:dfsq8l7d0bm",
+        "canonicalPlatformPostId": "DfSQ8L7d0BM",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/cosmic-robotics_solar-construction-constructiontech-activity-7358860398701260800-5Nwv",
+      "platformPostId": "7358860398701260800",
+      "postedAt": "2025-08-06T14:04:00.035Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "cosmic-robotics",
+        "profileUrl": "https://www.linkedin.com/company/cosmic-robotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "reactions": 161,
+        "comments": 5
+      },
+      "nativeEvidence": {
+        "headline": "The future of construction is robotic.",
+        "visibleTextSignals": [
+          "The company account explains why Cosmic Robotics builds field tools for solar construction crews."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links the official Cosmic Robotics LinkedIn account.",
+        "The company account explains why Cosmic Robotics builds field tools for solar construction crews."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/cosmic-robotics_solar-construction-constructiontech-activity-7358860398701260800-5nwv",
+        "canonicalPlatformPostId": "7358860398701260800",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=UytA4qy8Qcc",
+      "platformPostId": "UytA4qy8Qcc",
+      "postedAt": "2024-03-22T23:14:41Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "CosmicRobotics",
+        "profileUrl": "https://www.youtube.com/@CosmicRobotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 276,
+        "likes": 3
+      },
+      "nativeEvidence": {
+        "headline": "Cosmic-1 Rendering",
+        "visibleTextSignals": [
+          "The official Cosmic Robotics channel published the native video titled Cosmic-1 Rendering."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Cosmic Robotics website links this exact YouTube channel.",
+        "The channel name and Cosmic-1 product title identify first-party Cosmic Robotics activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:uyta4qy8qcc",
+        "canonicalPlatformPostId": "UytA4qy8Qcc",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=10H-ckrT5KY",
+      "platformPostId": "10H-ckrT5KY",
+      "postedAt": "2024-03-27T17:56:32Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "CosmicRobotics",
+        "profileUrl": "https://www.youtube.com/@CosmicRobotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 330,
+        "likes": 4
+      },
+      "nativeEvidence": {
+        "headline": "Cosmic-1 pier 9 pick and place demo",
+        "visibleTextSignals": [
+          "The official Cosmic Robotics channel published the native video titled Cosmic-1 pier 9 pick and place demo."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Cosmic Robotics website links this exact YouTube channel.",
+        "The channel name and Cosmic-1 product title identify first-party Cosmic Robotics activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:10h-ckrt5ky",
+        "canonicalPlatformPostId": "10H-ckrT5KY",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=wPLJcNB89jI",
+      "platformPostId": "wPLJcNB89jI",
+      "postedAt": "2024-07-31T23:02:14Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "CosmicRobotics",
+        "profileUrl": "https://www.youtube.com/@CosmicRobotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 244,
+        "likes": 2
+      },
+      "nativeEvidence": {
+        "headline": "Cosmic-1 spring 2024 highlights",
+        "visibleTextSignals": [
+          "The official Cosmic Robotics channel published the native video titled Cosmic-1 spring 2024 highlights."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Cosmic Robotics website links this exact YouTube channel.",
+        "The channel name and Cosmic-1 product title identify first-party Cosmic Robotics activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:wpljcnb89ji",
+        "canonicalPlatformPostId": "wPLJcNB89jI",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=EGZAe5N2aJ4",
+      "platformPostId": "EGZAe5N2aJ4",
+      "postedAt": "2024-10-28T23:19:50Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "CosmicRobotics",
+        "profileUrl": "https://www.youtube.com/@CosmicRobotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 2425,
+        "likes": 23
+      },
+      "nativeEvidence": {
+        "headline": "Cosmic-1A Field Test 001",
+        "visibleTextSignals": [
+          "The official Cosmic Robotics channel published the native video titled Cosmic-1A Field Test 001."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Cosmic Robotics website links this exact YouTube channel.",
+        "The channel name and Cosmic-1 product title identify first-party Cosmic Robotics activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:egzae5n2aj4",
+        "canonicalPlatformPostId": "EGZAe5N2aJ4",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=KBOEZp5R6Ek",
+      "platformPostId": "KBOEZp5R6Ek",
+      "postedAt": "2025-08-06T07:15:03Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "CosmicRobotics",
+        "profileUrl": "https://www.youtube.com/@CosmicRobotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 313,
+        "likes": 4
+      },
+      "nativeEvidence": {
+        "headline": "Cosmic-1A - Summer 2025 Project Spotlight",
+        "visibleTextSignals": [
+          "The official Cosmic Robotics channel published the native video titled Cosmic-1A - Summer 2025 Project Spotlight."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Cosmic Robotics website links this exact YouTube channel.",
+        "The channel name and Cosmic-1 product title identify first-party Cosmic Robotics activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:kboezp5r6ek",
+        "canonicalPlatformPostId": "KBOEZp5R6Ek",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=bzMir9z4Sqg",
+      "platformPostId": "bzMir9z4Sqg",
+      "postedAt": "2026-04-29T05:21:33Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "CosmicRobotics",
+        "profileUrl": "https://www.youtube.com/@CosmicRobotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 526,
+        "likes": 8
+      },
+      "nativeEvidence": {
+        "headline": "Cosmic-1A - Spring 2026 Project Highlight",
+        "visibleTextSignals": [
+          "The official Cosmic Robotics channel published the native video titled Cosmic-1A - Spring 2026 Project Highlight."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Cosmic Robotics website links this exact YouTube channel.",
+        "The channel name and Cosmic-1 product title identify first-party Cosmic Robotics activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:bzmir9z4sqg",
+        "canonicalPlatformPostId": "bzMir9z4Sqg",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=haDojDzdyvE",
+      "platformPostId": "haDojDzdyvE",
+      "postedAt": "2026-07-01T23:35:56Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "CosmicRobotics",
+        "profileUrl": "https://www.youtube.com/@CosmicRobotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 47,
+        "likes": 0
+      },
+      "nativeEvidence": {
+        "headline": "Cosmic-1 Pipe Install Demo",
+        "visibleTextSignals": [
+          "The official Cosmic Robotics channel published the native video titled Cosmic-1 Pipe Install Demo."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Cosmic Robotics website links this exact YouTube channel.",
+        "The channel name and Cosmic-1 product title identify first-party Cosmic Robotics activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:hadojdzdyve",
+        "canonicalPlatformPostId": "haDojDzdyvE",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Cosmic Robotics",
+      "companySlug": "cosmic-robotics",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=Pfe4uegm83g",
+      "platformPostId": "Pfe4uegm83g",
+      "postedAt": "2026-07-02T23:11:01Z",
+      "author": {
+        "name": "Cosmic Robotics",
+        "handle": "CosmicRobotics",
+        "profileUrl": "https://www.youtube.com/@CosmicRobotics",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 46,
+        "likes": 0
+      },
+      "nativeEvidence": {
+        "headline": "Cosmic-1 timelapse",
+        "visibleTextSignals": [
+          "The official Cosmic Robotics channel published the native video titled Cosmic-1 timelapse."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Cosmic Robotics website links this exact YouTube channel.",
+        "The channel name and Cosmic-1 product title identify first-party Cosmic Robotics activity."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:pfe4uegm83g",
+        "canonicalPlatformPostId": "Pfe4uegm83g",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Dialogus",
+      "companySlug": "dialogus",
+      "founderName": "Rodrigo Ter\u00e1n",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4",
+      "platformPostId": "7476734114193240064",
+      "postedAt": "2026-06-27T20:32:03.800Z",
+      "author": {
+        "name": "Rodrigo Ter\u00e1n Hern\u00e1ndez",
+        "handle": "rodrigoteranhdz",
+        "profileUrl": "https://www.linkedin.com/in/rodrigoteranhdz",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 210,
+        "comments": 28
+      },
+      "nativeEvidence": {
+        "headline": "We're excited to share that Dialogus (YC S26) has been accepted into Y Combinator S26",
+        "visibleTextSignals": [
+          "The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Rodrigo Ter\u00e1n as a Dialogus founder.",
+        "The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-sbx4",
+        "canonicalPlatformPostId": "7476734114193240064",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Experiential Labs",
+      "companySlug": "experiential-labs",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/experientiallabs/openclaas",
+      "platformPostId": "experientiallabs/openclaas",
+      "postedAt": "2026-03-07T04:51:11Z",
+      "author": {
+        "name": "Experiential Labs",
+        "handle": "experientiallabs",
+        "profileUrl": "https://github.com/experientiallabs",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 58,
+        "forks": 5,
+        "watchers": 58,
+        "openIssues": 6
+      },
+      "nativeEvidence": {
+        "headline": "Continual Learning as a Service",
+        "visibleTextSignals": [
+          "Repository description: Continual Learning as a Service",
+          "The public non-fork repository is owned by the experientiallabs organization and was last pushed at 2026-03-07T04:51:11Z.",
+          "GitHub exposes 58 stars, 5 forks, 58 watchers, and 6 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Experiential Labs to the experientiallabs GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/experientiallabs/openclaas",
+        "canonicalPlatformPostId": "experientiallabs/openclaas",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Experiential Labs",
+      "companySlug": "experiential-labs",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/experientiallabs/autoresearch-distillation",
+      "platformPostId": "experientiallabs/autoresearch-distillation",
+      "postedAt": "2026-06-13T02:32:23Z",
+      "author": {
+        "name": "Experiential Labs",
+        "handle": "experientiallabs",
+        "profileUrl": "https://github.com/experientiallabs",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 9,
+        "forks": 0,
+        "watchers": 9,
+        "openIssues": 2
+      },
+      "nativeEvidence": {
+        "headline": "Open-source repo for applying continual learning to autoresearch with SDPO and other RL algorithms. Current example: Qwen3-14B achieves 1.023 val_bpb (\u22123.1%), surpassing the original Karpathy agent (\u22122.8%).",
+        "visibleTextSignals": [
+          "Repository description: Open-source repo for applying continual learning to autoresearch with SDPO and other RL algorithms. Current example: Qwen3-14B achieves 1.023 val_bpb (\u22123.1%), surpassing the original Karpathy agent (\u22122.8%).",
+          "The public non-fork repository is owned by the experientiallabs organization and was last pushed at 2026-06-13T02:32:23Z.",
+          "GitHub exposes 9 stars, 0 forks, 9 watchers, and 2 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Experiential Labs to the experientiallabs GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/experientiallabs/autoresearch-distillation",
+        "canonicalPlatformPostId": "experientiallabs/autoresearch-distillation",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Glen",
+      "companySlug": "glen",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/Glen-Web-App/glen-codex-plugin",
+      "platformPostId": "Glen-Web-App/glen-codex-plugin",
+      "postedAt": "2026-07-10T23:42:13Z",
+      "author": {
+        "name": "Glen",
+        "handle": "Glen-Web-App",
+        "profileUrl": "https://github.com/Glen-Web-App",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Glen-Web-App/glen-codex-plugin",
+        "visibleTextSignals": [
+          "The public non-fork repository is owned by the Glen-Web-App organization and was last pushed at 2026-07-10T23:42:13Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Glen to the Glen-Web-App GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/glen-web-app/glen-codex-plugin",
+        "canonicalPlatformPostId": "Glen-Web-App/glen-codex-plugin",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Glen",
+      "companySlug": "glen",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/Glen-Web-App/glen-cursor-plugin",
+      "platformPostId": "Glen-Web-App/glen-cursor-plugin",
+      "postedAt": "2026-07-10T23:42:13Z",
+      "author": {
+        "name": "Glen",
+        "handle": "Glen-Web-App",
+        "profileUrl": "https://github.com/Glen-Web-App",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 1,
+        "forks": 0,
+        "watchers": 1,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Glen's Cursor plugin \u2014 generated marketplace repo; source of truth is the glen monorepo (packages/cursor-plugin)",
+        "visibleTextSignals": [
+          "Repository description: Glen's Cursor plugin \u2014 generated marketplace repo; source of truth is the glen monorepo (packages/cursor-plugin)",
+          "The public non-fork repository is owned by the Glen-Web-App organization and was last pushed at 2026-07-10T23:42:13Z.",
+          "GitHub exposes 1 stars, 0 forks, 1 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Glen to the Glen-Web-App GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/glen-web-app/glen-cursor-plugin",
+        "canonicalPlatformPostId": "Glen-Web-App/glen-cursor-plugin",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Glen",
+      "companySlug": "glen",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/Glen-Web-App/glen-claude-code-plugin",
+      "platformPostId": "Glen-Web-App/glen-claude-code-plugin",
+      "postedAt": "2026-07-10T23:42:22Z",
+      "author": {
+        "name": "Glen",
+        "handle": "Glen-Web-App",
+        "profileUrl": "https://github.com/Glen-Web-App",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 1,
+        "forks": 0,
+        "watchers": 1,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Glen-Web-App/glen-claude-code-plugin",
+        "visibleTextSignals": [
+          "The public non-fork repository is owned by the Glen-Web-App organization and was last pushed at 2026-07-10T23:42:22Z.",
+          "GitHub exposes 1 stars, 0 forks, 1 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Glen to the Glen-Web-App GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/glen-web-app/glen-claude-code-plugin",
+        "canonicalPlatformPostId": "Glen-Web-App/glen-claude-code-plugin",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Greypoint Industries",
+      "companySlug": "greypoint-industries",
+      "founderName": "Darcy Zhang",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/darcy-zhang-021134243_%F0%9D%97%99%F0%9D%97%B6%F0%9D%97%BF%F0%9D%98%80%F0%9D%98%81-%F0%9D%98%81%F0%9D%97%B6%F0%9D%97%BA%F0%9D%97%B2-founder-%F0%9D%97%99%F0%9D%97%B6%F0%9D%97%BF%F0%9D%98%80-activity-7477560408162074624-8KAP",
+      "platformPostId": "7477560408162074624",
+      "postedAt": "2026-06-30T03:15:27.637Z",
+      "author": {
+        "name": "Darcy Zhang",
+        "handle": "darcy-zhang-021134243",
+        "profileUrl": "https://www.linkedin.com/in/darcy-zhang-021134243",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 205,
+        "comments": 28
+      },
+      "nativeEvidence": {
+        "headline": "First time founder. First time YC applicant.",
+        "visibleTextSignals": [
+          "The founder names Greypoint Industries and YC S26 and describes a man-portable autonomous drone interceptor."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Darcy Zhang as a Greypoint Industries founder.",
+        "The founder names Greypoint Industries and YC S26 and describes a man-portable autonomous drone interceptor."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/darcy-zhang-021134243_%f0%9d%97%99%f0%9d%97%b6%f0%9d%97%bf%f0%9d%98%80%f0%9d%98%81-%f0%9d%98%81%f0%9d%97%b6%f0%9d%97%ba%f0%9d%97%b2-founder-%f0%9d%97%99%f0%9d%97%b6%f0%9d%97%bf%f0%9d%98%80-activity-7477560408162074624-8kap",
+        "canonicalPlatformPostId": "7477560408162074624",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Greypoint Industries",
+      "companySlug": "greypoint-industries",
+      "founderName": "Jordan Khoo",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/jordankh00_im-excited-to-announce-my-ai-b2b-saas-startup-activity-7477761858276327426-1DZI",
+      "platformPostId": "7477761858276327426",
+      "postedAt": "2026-06-30T16:35:57.094Z",
+      "author": {
+        "name": "Jordan Khoo",
+        "handle": "jordankh00",
+        "profileUrl": "https://www.linkedin.com/in/jordankh00",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 463,
+        "comments": 51
+      },
+      "nativeEvidence": {
+        "headline": "I'm excited to announce my AI B2B SaaS startup!!!!!",
+        "visibleTextSignals": [
+          "The founder identifies Greypoint Industries as YC S26, describes its autonomous counter-drone system, and names the founding team."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Jordan Khoo as a Greypoint Industries founder.",
+        "The founder identifies Greypoint Industries as YC S26, describes its autonomous counter-drone system, and names the founding team."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/jordankh00_im-excited-to-announce-my-ai-b2b-saas-startup-activity-7477761858276327426-1dzi",
+        "canonicalPlatformPostId": "7477761858276327426",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "HyperProbe",
+      "companySlug": "hyperprobe",
+      "founderName": "Shailendra Singh",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT",
+      "platformPostId": "7477556526430482432",
+      "postedAt": "2026-06-30T03:00:02.138Z",
+      "author": {
+        "name": "Shailendra Singh",
+        "handle": "shailendra-singh-shekhawat",
+        "profileUrl": "https://www.linkedin.com/in/shailendra-singh-shekhawat",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 153,
+        "comments": 41
+      },
+      "nativeEvidence": {
+        "headline": "We are excited to announce that we got into YC S26!",
+        "visibleTextSignals": [
+          "The founder says HyperTest became HyperProbe and explains its remote debugging infrastructure for coding agents."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Shailendra Singh as a HyperProbe founder.",
+        "The founder says HyperTest became HyperProbe and explains its remote debugging infrastructure for coding agents."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-x6nt",
+        "canonicalPlatformPostId": "7477556526430482432",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "LATO",
+      "companySlug": "lato",
+      "founderName": "Tymek Staniszewski",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/tymeks_investing-is-complex-multimillion-dollar-activity-7435638659648958464-ALUx",
+      "platformPostId": "7435638659648958464",
+      "postedAt": "2026-03-06T10:53:23.928Z",
+      "author": {
+        "name": "Tymek Staniszewski",
+        "handle": "tymeks",
+        "profileUrl": "https://www.linkedin.com/in/tymeks",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 113,
+        "comments": 35
+      },
+      "nativeEvidence": {
+        "headline": "Investing is complex - multimillion-dollar decisions, fast-moving markets, and never enough time.",
+        "visibleTextSignals": [
+          "The founder says why the team is building LATO and explains its AI investing workflow inside Excel, PowerPoint, and Outlook."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Tymek Staniszewski as a LATO founder.",
+        "The founder says why the team is building LATO and explains its AI investing workflow inside Excel, PowerPoint, and Outlook."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/tymeks_investing-is-complex-multimillion-dollar-activity-7435638659648958464-alux",
+        "canonicalPlatformPostId": "7435638659648958464",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "LATO",
+      "companySlug": "lato",
+      "founderName": "Tymek Staniszewski",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/tymeks_builtineurope-activity-7467545440540930048-baYT",
+      "platformPostId": "7467545440540930048",
+      "postedAt": "2026-06-02T11:59:33.290Z",
+      "author": {
+        "name": "Tymek Staniszewski",
+        "handle": "tymeks",
+        "profileUrl": "https://www.linkedin.com/in/tymeks",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 308,
+        "comments": 33
+      },
+      "nativeEvidence": {
+        "headline": "Proud moment for LATO.",
+        "visibleTextSignals": [
+          "The founder names LATO and its inclusion in the native Built in Europe campaign post."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Tymek Staniszewski as a LATO founder.",
+        "The founder names LATO and its inclusion in the native Built in Europe campaign post."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/tymeks_builtineurope-activity-7467545440540930048-bayt",
+        "canonicalPlatformPostId": "7467545440540930048",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "LATO",
+      "companySlug": "lato",
+      "founderName": "Tymek Staniszewski",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7478092002446909441",
+      "platformPostId": "7478092002446909441",
+      "postedAt": "2026-07-01T14:27:49.589Z",
+      "author": {
+        "name": "Tymek Staniszewski",
+        "handle": "tymeks",
+        "profileUrl": "https://www.linkedin.com/in/tymeks",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 130,
+        "comments": 39
+      },
+      "nativeEvidence": {
+        "headline": "100s of people ask me what Y Combinator is like and what we're building with LATO (YC S26).",
+        "visibleTextSignals": [
+          "The founder names LATO and YC S26 and demonstrates its expert-research workflow for investors."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Tymek Staniszewski as a LATO founder.",
+        "The founder names LATO and YC S26 and demonstrates its expert-research workflow for investors."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/feed/update/urn:li:activity:7478092002446909441",
+        "canonicalPlatformPostId": "7478092002446909441",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Mireye",
+      "companySlug": "mireye",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/Mireye-Labs/docs",
+      "platformPostId": "Mireye-Labs/docs",
+      "postedAt": "2026-06-10T20:07:55Z",
+      "author": {
+        "name": "Mireye",
+        "handle": "Mireye-Labs",
+        "profileUrl": "https://github.com/Mireye-Labs",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Mireye-Labs/docs",
+        "visibleTextSignals": [
+          "The public non-fork repository is owned by the Mireye-Labs organization and was last pushed at 2026-06-10T20:07:55Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Mireye to the Mireye-Labs GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/mireye-labs/docs",
+        "canonicalPlatformPostId": "Mireye-Labs/docs",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Mireye",
+      "companySlug": "mireye",
+      "founderName": "Ansh Chokshi",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ansh-chokshi_y-combinators-motto-is-make-something-people-activity-7475246340638203905-cmDM",
+      "platformPostId": "7475246340638203905",
+      "postedAt": "2026-06-23T18:00:10.944Z",
+      "author": {
+        "name": "Ansh Chokshi",
+        "handle": "ansh-chokshi",
+        "profileUrl": "https://www.linkedin.com/in/ansh-chokshi",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 241,
+        "comments": 135
+      },
+      "nativeEvidence": {
+        "headline": "Y Combinator's motto is make something people want.",
+        "visibleTextSignals": [
+          "The founder connects the YC S26 journey to building Mireye and names cofounder Shashwat Kapoor."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Ansh Chokshi as a Mireye founder.",
+        "The founder connects the YC S26 journey to building Mireye and names cofounder Shashwat Kapoor."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/ansh-chokshi_y-combinators-motto-is-make-something-people-activity-7475246340638203905-cmdm",
+        "canonicalPlatformPostId": "7475246340638203905",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "OpenRelay",
+      "companySlug": "openrelay",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/OpenRelayInc/orl",
+      "platformPostId": "OpenRelayInc/orl",
+      "postedAt": "2026-07-04T02:03:40Z",
+      "author": {
+        "name": "OpenRelay",
+        "handle": "OpenRelayInc",
+        "profileUrl": "https://github.com/OpenRelayInc",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "The OpenRelay CLI (orl): GPU VMs, clusters, billing, and provider tools from your terminal. Release binaries; source lives in the OpenRelay monorepo.",
+        "visibleTextSignals": [
+          "Repository description: The OpenRelay CLI (orl): GPU VMs, clusters, billing, and provider tools from your terminal. Release binaries; source lives in the OpenRelay monorepo.",
+          "The public non-fork repository is owned by the OpenRelayInc organization and was last pushed at 2026-07-04T02:03:40Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links OpenRelay to the OpenRelayInc GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/openrelayinc/orl",
+        "canonicalPlatformPostId": "OpenRelayInc/orl",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "OpenRelay",
+      "companySlug": "openrelay",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/OpenRelayInc/homebrew-tap",
+      "platformPostId": "OpenRelayInc/homebrew-tap",
+      "postedAt": "2026-07-04T02:03:42Z",
+      "author": {
+        "name": "OpenRelay",
+        "handle": "OpenRelayInc",
+        "profileUrl": "https://github.com/OpenRelayInc",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Homebrew tap for OpenRelay tools. brew install openrelayinc/tap/orl",
+        "visibleTextSignals": [
+          "Repository description: Homebrew tap for OpenRelay tools. brew install openrelayinc/tap/orl",
+          "The public non-fork repository is owned by the OpenRelayInc organization and was last pushed at 2026-07-04T02:03:42Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links OpenRelay to the OpenRelayInc GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/openrelayinc/homebrew-tap",
+        "canonicalPlatformPostId": "OpenRelayInc/homebrew-tap",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Osmaura",
+      "companySlug": "osmaura",
+      "founderName": null,
+      "platform": "youtube",
+      "evidenceType": "youtube_video",
+      "sourceUrl": "https://www.youtube.com/watch?v=hbBDbuNP-Mw",
+      "platformPostId": "hbBDbuNP-Mw",
+      "postedAt": "2026-06-30T15:59:51Z",
+      "author": {
+        "name": "Osmaura",
+        "handle": "UCZvt8dOOJTJMPWw3ocQhr2g",
+        "profileUrl": "https://www.youtube.com/channel/UCZvt8dOOJTJMPWw3ocQhr2g",
+        "relationship": "company"
+      },
+      "metrics": {
+        "views": 416,
+        "likes": 3
+      },
+      "nativeEvidence": {
+        "headline": "How do you find new clients as a law firm partner?",
+        "visibleTextSignals": [
+          "The native description names Osmaura, YC S26, its law-firm business-development product, and the osmaura.com domain."
+        ],
+        "verificationMethod": "YouTube watch-page embedded metadata plus the native channel RSS feed exposed canonical video ID, channel, timestamp, views, and likes."
+      },
+      "attributionSignals": [
+        "The official Osmaura website embeds this exact video.",
+        "The native video description names Osmaura and YC S26."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "youtube:hbbdbunp-mw",
+        "canonicalPlatformPostId": "hbBDbuNP-Mw",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Robocurve",
+      "companySlug": "robocurve",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/robocurve/gr00t-n1.7-so-101",
+      "platformPostId": "robocurve/gr00t-n1.7-so-101",
+      "postedAt": "2026-07-10T01:59:20Z",
+      "author": {
+        "name": "Robocurve",
+        "handle": "robocurve",
+        "profileUrl": "https://github.com/robocurve",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 1,
+        "forks": 0,
+        "watchers": 1,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "LoRA fine-tune of GR00T N1.7 on SO-101 episodes from the MolmoAct2 manifest, trained on Modal",
+        "visibleTextSignals": [
+          "Repository description: LoRA fine-tune of GR00T N1.7 on SO-101 episodes from the MolmoAct2 manifest, trained on Modal",
+          "The public non-fork repository is owned by the robocurve organization and was last pushed at 2026-07-10T01:59:20Z.",
+          "GitHub exposes 1 stars, 0 forks, 1 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Robocurve to the robocurve GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/robocurve/gr00t-n1.7-so-101",
+        "canonicalPlatformPostId": "robocurve/gr00t-n1.7-so-101",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Robocurve",
+      "companySlug": "robocurve",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/robocurve/worldpolicies",
+      "platformPostId": "robocurve/worldpolicies",
+      "postedAt": "2026-07-14T01:16:04Z",
+      "author": {
+        "name": "Robocurve",
+        "handle": "robocurve",
+        "profileUrl": "https://github.com/robocurve",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Robocurve's registry of published robot-policy (VLA) checkpoints, indexed with eval numbers and validated by CI",
+        "visibleTextSignals": [
+          "Repository description: Robocurve's registry of published robot-policy (VLA) checkpoints, indexed with eval numbers and validated by CI",
+          "The public non-fork repository is owned by the robocurve organization and was last pushed at 2026-07-14T01:16:04Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Robocurve to the robocurve GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/robocurve/worldpolicies",
+        "canonicalPlatformPostId": "robocurve/worldpolicies",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Robocurve",
+      "companySlug": "robocurve",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/robocurve/worldevals",
+      "platformPostId": "robocurve/worldevals",
+      "postedAt": "2026-07-14T01:19:16Z",
+      "author": {
+        "name": "Robocurve",
+        "handle": "robocurve",
+        "profileUrl": "https://github.com/robocurve",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 2,
+        "forks": 1,
+        "watchers": 2,
+        "openIssues": 2
+      },
+      "nativeEvidence": {
+        "headline": "A curated catalog of VLA / physical-AI benchmarks, each runnable on real robots or sims via Inspect Robots. (The Inspect Evals for robotics.)",
+        "visibleTextSignals": [
+          "Repository description: A curated catalog of VLA / physical-AI benchmarks, each runnable on real robots or sims via Inspect Robots. (The Inspect Evals for robotics.)",
+          "The public non-fork repository is owned by the robocurve organization and was last pushed at 2026-07-14T01:19:16Z.",
+          "GitHub exposes 2 stars, 1 forks, 2 watchers, and 2 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Robocurve to the robocurve GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/robocurve/worldevals",
+        "canonicalPlatformPostId": "robocurve/worldevals",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Robocurve",
+      "companySlug": "robocurve",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/robocurve/inspect-robots-so101",
+      "platformPostId": "robocurve/inspect-robots-so101",
+      "postedAt": "2026-07-14T16:09:24Z",
+      "author": {
+        "name": "Robocurve",
+        "handle": "robocurve",
+        "profileUrl": "https://github.com/robocurve",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 1,
+        "watchers": 0,
+        "openIssues": 2
+      },
+      "nativeEvidence": {
+        "headline": "Inspect Robots adapters for LeRobot SO-ARM followers (SO-100/SO-101) driven by LeRobot policies",
+        "visibleTextSignals": [
+          "Repository description: Inspect Robots adapters for LeRobot SO-ARM followers (SO-100/SO-101) driven by LeRobot policies",
+          "The public non-fork repository is owned by the robocurve organization and was last pushed at 2026-07-14T16:09:24Z.",
+          "GitHub exposes 0 stars, 1 forks, 0 watchers, and 2 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Robocurve to the robocurve GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/robocurve/inspect-robots-so101",
+        "canonicalPlatformPostId": "robocurve/inspect-robots-so101",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Robocurve",
+      "companySlug": "robocurve",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/robocurve/kitchenbench",
+      "platformPostId": "robocurve/kitchenbench",
+      "postedAt": "2026-07-14T17:53:41Z",
+      "author": {
+        "name": "Robocurve",
+        "handle": "robocurve",
+        "profileUrl": "https://github.com/robocurve",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 1,
+        "forks": 1,
+        "watchers": 1,
+        "openIssues": 1
+      },
+      "nativeEvidence": {
+        "headline": "A bimanual kitchen-manipulation benchmark for VLA models, built on Inspect Robots (part of WorldEvals).",
+        "visibleTextSignals": [
+          "Repository description: A bimanual kitchen-manipulation benchmark for VLA models, built on Inspect Robots (part of WorldEvals).",
+          "The public non-fork repository is owned by the robocurve organization and was last pushed at 2026-07-14T17:53:41Z.",
+          "GitHub exposes 1 stars, 1 forks, 1 watchers, and 1 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Robocurve to the robocurve GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/robocurve/kitchenbench",
+        "canonicalPlatformPostId": "robocurve/kitchenbench",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Robocurve",
+      "companySlug": "robocurve",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/robocurve/inspect-robots-yam",
+      "platformPostId": "robocurve/inspect-robots-yam",
+      "postedAt": "2026-07-15T22:16:23Z",
+      "author": {
+        "name": "Robocurve",
+        "handle": "robocurve",
+        "profileUrl": "https://github.com/robocurve",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 1,
+        "forks": 2,
+        "watchers": 1,
+        "openIssues": 7
+      },
+      "nativeEvidence": {
+        "headline": "Inspect Robots adapters for I2RT YAM bimanual arms driven by MolmoAct2",
+        "visibleTextSignals": [
+          "Repository description: Inspect Robots adapters for I2RT YAM bimanual arms driven by MolmoAct2",
+          "The public non-fork repository is owned by the robocurve organization and was last pushed at 2026-07-15T22:16:23Z.",
+          "GitHub exposes 1 stars, 2 forks, 1 watchers, and 7 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Robocurve to the robocurve GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/robocurve/inspect-robots-yam",
+        "canonicalPlatformPostId": "robocurve/inspect-robots-yam",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Salem Robotics Inc",
+      "companySlug": "salem-robotics-inc",
+      "founderName": "Caleb Horan",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tFKV",
+      "platformPostId": "7477935003184578560",
+      "postedAt": "2026-07-01T04:03:58.036Z",
+      "author": {
+        "name": "Caleb Horan",
+        "handle": "caleb-horan",
+        "profileUrl": "https://www.linkedin.com/in/caleb-horan",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 62,
+        "comments": 6
+      },
+      "nativeEvidence": {
+        "headline": "We're excited to share that Salem Robotics (YC S26) has joined Y Combinator.",
+        "visibleTextSignals": [
+          "The founder names Salem Robotics, YC S26, its autonomy layer for hazardous environments, and cofounder Janak Panthi."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Caleb Horan as a Salem Robotics Inc founder.",
+        "The founder names Salem Robotics, YC S26, its autonomy layer for hazardous environments, and cofounder Janak Panthi."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tfkv",
+        "canonicalPlatformPostId": "7477935003184578560",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/docs",
+      "platformPostId": "SpekoAI/docs",
+      "postedAt": "2026-05-12T10:12:56Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Speko documentation - voice AI routing + failover, STT, TTS, and V2V APIs, SDKs, and MCP. Live at docs.speko.dev",
+        "visibleTextSignals": [
+          "Repository description: Speko documentation - voice AI routing + failover, STT, TTS, and V2V APIs, SDKs, and MCP. Live at docs.speko.dev",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-05-12T10:12:56Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/docs",
+        "canonicalPlatformPostId": "SpekoAI/docs",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/typescript-adapter-retell",
+      "platformPostId": "SpekoAI/typescript-adapter-retell",
+      "postedAt": "2026-05-21T05:44:05Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Retell adapter for Speko - voice AI routing + failover (coming soon)",
+        "visibleTextSignals": [
+          "Repository description: Retell adapter for Speko - voice AI routing + failover (coming soon)",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-05-21T05:44:05Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/typescript-adapter-retell",
+        "canonicalPlatformPostId": "SpekoAI/typescript-adapter-retell",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/typescript-adapter-vapi",
+      "platformPostId": "SpekoAI/typescript-adapter-vapi",
+      "postedAt": "2026-05-21T05:44:06Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Vapi adapter for Speko - voice AI routing + failover (coming soon)",
+        "visibleTextSignals": [
+          "Repository description: Vapi adapter for Speko - voice AI routing + failover (coming soon)",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-05-21T05:44:06Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/typescript-adapter-vapi",
+        "canonicalPlatformPostId": "SpekoAI/typescript-adapter-vapi",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/tts-arena",
+      "platformPostId": "SpekoAI/tts-arena",
+      "postedAt": "2026-06-19T11:53:16Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Anonymous multilingual TTS arena \u2014 blind A/B voting, per-language Bradley-Terry rankings",
+        "visibleTextSignals": [
+          "Repository description: Anonymous multilingual TTS arena \u2014 blind A/B voting, per-language Bradley-Terry rankings",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-06-19T11:53:16Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/tts-arena",
+        "canonicalPlatformPostId": "SpekoAI/tts-arena",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/voice-agent-starter",
+      "platformPostId": "SpekoAI/voice-agent-starter",
+      "postedAt": "2026-07-06T03:42:08Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Production-ready AI voice agent starter - Next.js + Speko",
+        "visibleTextSignals": [
+          "Repository description: Production-ready AI voice agent starter - Next.js + Speko",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-06T03:42:08Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/voice-agent-starter",
+        "canonicalPlatformPostId": "SpekoAI/voice-agent-starter",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/python-sdk",
+      "platformPostId": "SpekoAI/python-sdk",
+      "postedAt": "2026-07-10T01:11:14Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 2,
+        "forks": 1,
+        "watchers": 2,
+        "openIssues": 1
+      },
+      "nativeEvidence": {
+        "headline": "Official Speko Python SDK (spekoai) - one API for every voice AI provider: STT, TTS, and LLM routing + failover, sync + async",
+        "visibleTextSignals": [
+          "Repository description: Official Speko Python SDK (spekoai) - one API for every voice AI provider: STT, TTS, and LLM routing + failover, sync + async",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-10T01:11:14Z.",
+          "GitHub exposes 2 stars, 1 forks, 2 watchers, and 1 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/python-sdk",
+        "canonicalPlatformPostId": "SpekoAI/python-sdk",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/mcp",
+      "platformPostId": "SpekoAI/mcp",
+      "postedAt": "2026-07-10T02:37:37Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 5
+      },
+      "nativeEvidence": {
+        "headline": "Hosted MCP server for Speko - manage voice AI agents, sessions, and calls from Claude Code, Cursor, and any MCP client",
+        "visibleTextSignals": [
+          "Repository description: Hosted MCP server for Speko - manage voice AI agents, sessions, and calls from Claude Code, Cursor, and any MCP client",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-10T02:37:37Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 5 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/mcp",
+        "canonicalPlatformPostId": "SpekoAI/mcp",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/mcp-dev-calls",
+      "platformPostId": "SpekoAI/mcp-dev-calls",
+      "postedAt": "2026-07-10T15:20:17Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 1,
+        "forks": 0,
+        "watchers": 1,
+        "openIssues": 1
+      },
+      "nativeEvidence": {
+        "headline": "SpekoAI/mcp-dev-calls",
+        "visibleTextSignals": [
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-10T15:20:17Z.",
+          "GitHub exposes 1 stars, 0 forks, 1 watchers, and 1 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/mcp-dev-calls",
+        "canonicalPlatformPostId": "SpekoAI/mcp-dev-calls",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/mcp-bridge",
+      "platformPostId": "SpekoAI/mcp-bridge",
+      "postedAt": "2026-07-11T16:56:25Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Installer and local stdio bridge for Speko's hosted MCP server - npx @spekoai/mcp@latest init",
+        "visibleTextSignals": [
+          "Repository description: Installer and local stdio bridge for Speko's hosted MCP server - npx @spekoai/mcp@latest init",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-11T16:56:25Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/mcp-bridge",
+        "canonicalPlatformPostId": "SpekoAI/mcp-bridge",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/typescript-adapter-livekit",
+      "platformPostId": "SpekoAI/typescript-adapter-livekit",
+      "postedAt": "2026-07-12T21:06:00Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "LiveKit Agents adapter for Speko - voice AI routing + failover, one SDK, every provider",
+        "visibleTextSignals": [
+          "Repository description: LiveKit Agents adapter for Speko - voice AI routing + failover, one SDK, every provider",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-12T21:06:00Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/typescript-adapter-livekit",
+        "canonicalPlatformPostId": "SpekoAI/typescript-adapter-livekit",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/typescript-sdk",
+      "platformPostId": "SpekoAI/typescript-sdk",
+      "postedAt": "2026-07-13T03:09:06Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 2,
+        "forks": 1,
+        "watchers": 2,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Official Speko TypeScript SDK - one API for every voice AI provider: STT, TTS, and LLM routing + failover",
+        "visibleTextSignals": [
+          "Repository description: Official Speko TypeScript SDK - one API for every voice AI provider: STT, TTS, and LLM routing + failover",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-13T03:09:06Z.",
+          "GitHub exposes 2 stars, 1 forks, 2 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/typescript-sdk",
+        "canonicalPlatformPostId": "SpekoAI/typescript-sdk",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/latency-ladder",
+      "platformPostId": "SpekoAI/latency-ladder",
+      "postedAt": "2026-07-13T05:52:33Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Latency Ladder - measure your conversational latency against a live voice agent. Built on the Speko voice API.",
+        "visibleTextSignals": [
+          "Repository description: Latency Ladder - measure your conversational latency against a live voice agent. Built on the Speko voice API.",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-13T05:52:33Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/latency-ladder",
+        "canonicalPlatformPostId": "SpekoAI/latency-ladder",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/yap-index",
+      "platformPostId": "SpekoAI/yap-index",
+      "postedAt": "2026-07-13T05:54:12Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "The Yap Index - the talking speed of tech podcasts, measured. Built on the Speko voice API.",
+        "visibleTextSignals": [
+          "Repository description: The Yap Index - the talking speed of tech podcasts, measured. Built on the Speko voice API.",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-13T05:54:12Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/yap-index",
+        "canonicalPlatformPostId": "SpekoAI/yap-index",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Speko",
+      "companySlug": "speko",
+      "founderName": null,
+      "platform": "github",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/SpekoAI/client",
+      "platformPostId": "SpekoAI/client",
+      "postedAt": "2026-07-14T13:52:34Z",
+      "author": {
+        "name": "Speko",
+        "handle": "SpekoAI",
+        "profileUrl": "https://github.com/SpekoAI",
+        "relationship": "company"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0
+      },
+      "nativeEvidence": {
+        "headline": "Speko browser SDK (@spekoai/client) - real-time voice AI conversations in the browser",
+        "visibleTextSignals": [
+          "Repository description: Speko browser SDK (@spekoai/client) - real-time voice AI conversations in the browser",
+          "The public non-fork repository is owned by the SpekoAI organization and was last pushed at 2026-07-14T13:52:34Z.",
+          "GitHub exposes 0 stars, 0 forks, 0 watchers, and 0 open issues."
+        ],
+        "verificationMethod": "GitHub REST repository API and the native repository URL exposed ownership, visibility, timestamps, description, and repository counters."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links Speko to the SpekoAI GitHub organization.",
+        "The repository owner is that exact first-party organization."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://github.com/spekoai/client",
+        "canonicalPlatformPostId": "SpekoAI/client",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "TrustAI",
+      "companySlug": "trustai",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/autotrytrustai_activity-7473857930623098880--z1e",
+      "platformPostId": "7473857930623098880",
+      "postedAt": "2026-06-19T22:03:08.218Z",
+      "author": {
+        "name": "TrustAI (YC S26)",
+        "handle": "autotrytrustai",
+        "profileUrl": "https://www.linkedin.com/company/autotrytrustai",
+        "relationship": "company"
+      },
+      "metrics": {
+        "reactions": 89,
+        "comments": 7
+      },
+      "nativeEvidence": {
+        "headline": "Bought AI does not equal adopted AI.",
+        "visibleTextSignals": [
+          "The company account names TrustAI and YC S26 and explains its one-click workflow automation product."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster links the official TrustAI LinkedIn account.",
+        "The company account names TrustAI and YC S26 and explains its one-click workflow automation product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/autotrytrustai_activity-7473857930623098880--z1e",
+        "canonicalPlatformPostId": "7473857930623098880",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Verdant",
+      "companySlug": "verdant",
+      "founderName": "Jason Yi",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg",
+      "platformPostId": "7477527744684171264",
+      "postedAt": "2026-06-30T01:05:40.056Z",
+      "author": {
+        "name": "Jason Yi",
+        "handle": "jason-yi1",
+        "profileUrl": "https://www.linkedin.com/in/jason-yi1",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 401,
+        "comments": 91
+      },
+      "nativeEvidence": {
+        "headline": "Excited to share that Verdant has been accepted into Y Combinator for the Summer 26 batch!",
+        "visibleTextSignals": [
+          "The founder names Verdant, Summer 26, cofounder Aidan Ng, and their planning and permitting software."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The YC S26 roster lists Jason Yi as a Verdant founder.",
+        "The founder names Verdant, Summer 26, cofounder Aidan Ng, and their planning and permitting software."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gzg",
+        "canonicalPlatformPostId": "7477527744684171264",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Vestris",
+      "companySlug": "vestris",
+      "founderName": "Aahil Valliani",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/aahil-valliani_my-cofounder-joshua-tang-and-i-didnt-talk-activity-7467251847137939459-YHIb",
+      "platformPostId": "7467251847137939459",
+      "postedAt": "2026-06-01T16:32:55.170Z",
+      "author": {
+        "name": "Aahil Valliani",
+        "handle": "aahil-valliani",
+        "profileUrl": "https://www.linkedin.com/in/aahil-valliani",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 213,
+        "comments": 73
+      },
+      "nativeEvidence": {
+        "headline": "My cofounder Joshua Tang and I didn't talk to each other after our first day at work.",
+        "visibleTextSignals": [
+          "The author self-identifies as Vestris cofounder, names Joshua Tang, YC S26, and the real-estate closing automation product."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The public Vestris company page and reciprocal native founder posts identify the author as a Vestris cofounder.",
+        "The author self-identifies as Vestris cofounder, names Joshua Tang, YC S26, and the real-estate closing automation product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/aahil-valliani_my-cofounder-joshua-tang-and-i-didnt-talk-activity-7467251847137939459-yhib",
+        "canonicalPlatformPostId": "7467251847137939459",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Vestris",
+      "companySlug": "vestris",
+      "founderName": "Joshua Tang",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/tangjoshua_i-told-myself-that-i-would-never-write-one-activity-7467271346683801600--RLb",
+      "platformPostId": "7467271346683801600",
+      "postedAt": "2026-06-01T17:50:24.218Z",
+      "author": {
+        "name": "Joshua Tang",
+        "handle": "tangjoshua",
+        "profileUrl": "https://www.linkedin.com/in/tangjoshua",
+        "relationship": "founder"
+      },
+      "metrics": {
+        "reactions": 105,
+        "comments": 24
+      },
+      "nativeEvidence": {
+        "headline": "I told myself that I would never write one of these LinkedIn posts, but here I am.",
+        "visibleTextSignals": [
+          "The author self-identifies as Vestris cofounder, names Aahil Valliani, YC S26, and the real-estate closing automation product."
+        ],
+        "verificationMethod": "Native public LinkedIn JSON-LD exposed the post-level author, timestamp, body, reaction count, and comment count."
+      },
+      "attributionSignals": [
+        "The public Vestris company page and reciprocal native founder posts identify the author as a Vestris cofounder.",
+        "The author self-identifies as Vestris cofounder, names Aahil Valliani, YC S26, and the real-estate closing automation product."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://linkedin.com/posts/tangjoshua_i-told-myself-that-i-would-never-write-one-activity-7467271346683801600--rlb",
+        "canonicalPlatformPostId": "7467271346683801600",
+        "sourceUrlInSearchLedger": false,
+        "platformPostIdInSearchLedger": false,
+        "sourceUrlInCandidateLedgers": false,
+        "platformPostIdInCandidateLedgers": false,
+        "sourceUrlInCanonicalEvidence": false,
+        "platformPostIdInCanonicalEvidence": false,
+        "sourceUrlInPriorSourceHunts": false,
+        "platformPostIdInPriorSourceHunts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/logged-in-evidence-current.json",
+          "src/lib/social/public-evidence-current.json",
+          "all prior outputs/source-hunt/*.json artifacts"
+        ],
+        "checkedAt": "2026-07-16T01:28:58Z"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "sourceUrl": "https://www.linkedin.com/company/amulet-labs/",
+      "companyName": "Amulet",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/useskope/",
+      "companyName": "Async",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: roster-linked profile exposed no admissible native post URL with metrics."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/ekpa/",
+      "companyName": "Ekpa",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/florinbank/",
+      "companyName": "Florin",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/insurf/",
+      "companyName": "Insurf",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/isengard-industries/",
+      "companyName": "Isengard Industries Inc",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/justinianai/",
+      "companyName": "Justinian",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/lemonlime-ai/",
+      "companyName": "LemonLime",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://linkedin.com/company/perceptron-yc",
+      "companyName": "Perceptron ML",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/130274179/admin/dashboard/",
+      "companyName": "Praxis AI",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: admin/profile URL is not public post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/prescienceinc/",
+      "companyName": "Prescience, Inc.",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/torus-intelligence/",
+      "companyName": "Torus",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.linkedin.com/company/usetruffle/",
+      "companyName": "Truffle",
+      "platform": "linkedin",
+      "reason": "profile_only_no_post_url: company profile is not native post-level evidence."
+    },
+    {
+      "sourceUrl": "https://www.instagram.com/control.seat/",
+      "companyName": "Control Seat",
+      "platform": "instagram",
+      "reason": "profile_only_no_post_url: the official site exposed only a profile URL, not a post or reel with verifiable metrics."
+    },
+    {
+      "sourceUrl": "https://news.ycombinator.com/item?id=48841133",
+      "companyName": "Cerenovus",
+      "platform": "hacker_news",
+      "reason": "unverified_native_author: exact-domain submission author Azimuth05 could not be tied to the company or YC-listed founder."
+    },
+    {
+      "sourceUrl": "https://news.ycombinator.com/item?id=47171611",
+      "companyName": "Talentpluto",
+      "platform": "hacker_news",
+      "reason": "unverified_native_author: submission author pipervw could not be tied to the company or any YC-listed founder."
+    },
+    {
+      "sourceUrl": "https://news.ycombinator.com/item?id=47343576",
+      "companyName": "Agentcard",
+      "platform": "hacker_news",
+      "reason": "unverified_native_author: exact-domain submission author compootr could not be tied to the company or either YC-listed founder."
+    },
+    {
+      "sourceUrl": "https://news.ycombinator.com/item?id=47363013",
+      "companyName": "Agentcard",
+      "platform": "hacker_news",
+      "reason": "third_party_native_author: exact-domain submission was authored by haebom, not the company or a YC-listed founder."
+    },
+    {
+      "sourceUrl": "https://news.ycombinator.com/item?id=48232687",
+      "companyName": "Blueprints",
+      "platform": "hacker_news",
+      "reason": "false_target_match: the story concerns Factorio blueprints and is unrelated to the S26 company."
+    },
+    {
+      "sourceUrl": "https://news.ycombinator.com/item?id=46914758",
+      "companyName": "Perceptron ML",
+      "platform": "hacker_news",
+      "reason": "false_target_match: generic perceptron and ML wording does not identify the S26 company."
+    },
+    {
+      "sourceUrl": "https://www.youtube.com/watch?v=k5UdyCCmunU",
+      "companyName": "Parasma",
+      "platform": "youtube",
+      "reason": "third_party_native_author: the video is an LBC interview, not a native Parasma or founder upload."
+    },
+    {
+      "sourceUrl": "https://youtu.be/rn0oicqHV8w",
+      "companyName": "Salem Robotics Inc",
+      "platform": "youtube",
+      "reason": "duplicate_or_already_in_ledger: exact video is already present in public-evidence-current and its Engage Salem channel authorship is not the company identity."
+    },
+    {
+      "sourceUrl": "https://github.com/fdmtl/machine0-nixos",
+      "companyName": "machine0",
+      "platform": "github",
+      "reason": "unverified_native_author: website-linked repository owner fdmtl could not be verified as machine0 or its YC-listed founder."
+    },
+    {
+      "sourceUrl": "https://github.com/fdmtl/machine0-ubuntu",
+      "companyName": "machine0",
+      "platform": "github",
+      "reason": "unverified_native_author: website-linked repository owner fdmtl could not be verified as machine0 or its YC-listed founder."
+    },
+    {
+      "sourceUrl": "https://speko.ai/rss.xml",
+      "companyName": "Speko",
+      "platform": "rss",
+      "reason": "inaccessible_or_no_native_metrics: first-party feed items exposed URLs and dates but no visible engagement metrics."
+    },
+    {
+      "sourceUrl": "https://zommalabs.com/feed.xml",
+      "companyName": "Zomma",
+      "platform": "rss",
+      "reason": "inaccessible_or_no_native_metrics: first-party feed items exposed URLs and dates but no visible engagement metrics."
+    }
+  ],
+  "duplicateUrls": [
+    "https://github.com/ConiferKit/sage",
+    "https://github.com/experientiallabs/world-model-harness",
+    "https://github.com/Glen-Web-App/glen-pi-plugin",
+    "https://github.com/Mireye-Labs/mireye-earth-mcp",
+    "https://github.com/RealPact/Documentation",
+    "https://github.com/robocurve/inspect-robots",
+    "https://github.com/SpekoAI/pitch-gauntlet",
+    "https://linkedin.com/posts/were-joining-y-combinators-s26-batch-thank-share-7462887811168325632-tm99",
+    "https://news.ycombinator.com/item?id=48098478",
+    "https://news.ycombinator.com/item?id=48605055",
+    "https://news.ycombinator.com/item?id=48651248",
+    "https://news.ycombinator.com/item?id=48817537",
+    "https://www.linkedin.com/feed/update/urn:li:activity:7475223428757815296/",
+    "https://www.linkedin.com/feed/update/urn:li:activity:7475271593498349568/",
+    "https://www.linkedin.com/posts/gupsak_last-year-i-quit-my-job-to-build-my-own-startup-activity-7475449697017421825-Brcl",
+    "https://www.linkedin.com/posts/sxu22_excited-to-announce-that-greypoint-industries-activity-7477827440313069569-a4Zf",
+    "https://www.linkedin.com/posts/tselote_im-excited-to-share-that-osmaura-yc-s26-activity-7475947824581529600-j5BM",
+    "https://x.com/DevvMandal/status/2043722227791872259",
+    "https://youtu.be/rn0oicqHV8w"
+  ],
+  "productivity": {
+    "queriesPerformed": 342,
+    "companiesSearched": 68,
+    "zeroEvidenceCompaniesSearched": 28,
+    "dedupeFilesChecked": 53,
+    "candidatesFound": 102,
+    "netNewVerifiedRows": 57,
+    "acceptedByPlatform": {
+      "github": 33,
+      "linkedin": 14,
+      "youtube": 10
+    },
+    "duplicates": 19,
+    "rejected": 26,
+    "rejectionsByReason": {
+      "duplicate_or_already_in_ledger": 1,
+      "false_target_match": 2,
+      "inaccessible_or_no_native_metrics": 2,
+      "profile_only_no_post_url": 14,
+      "third_party_native_author": 2,
+      "unverified_native_author": 5
+    },
+    "githubApiErrors": []
+  }
+}

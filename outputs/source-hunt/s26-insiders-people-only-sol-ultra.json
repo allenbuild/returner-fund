@@ -1,0 +1,550 @@
+{
+  "generatedAt": "2026-07-16T00:40:07Z",
+  "shard": "YC Summer 2026 insiders people-only SOL ultra",
+  "topVoicePeopleSearched": [
+    {
+      "topVoiceName": "Paul Graham",
+      "topVoicePersonId": "paul-graham",
+      "xPostsScanned": 43
+    },
+    {
+      "topVoiceName": "Jessica Livingston",
+      "topVoicePersonId": "jessica-livingston",
+      "xPostsScanned": 0,
+      "xCoverageNote": "No X handle is seeded; indexed X discovery returned no attributable target post."
+    },
+    {
+      "topVoiceName": "Michael Seibel",
+      "topVoicePersonId": "michael-seibel",
+      "xPostsScanned": 42
+    },
+    {
+      "topVoiceName": "Sam Altman",
+      "topVoicePersonId": "sam-altman",
+      "xPostsScanned": 20
+    },
+    {
+      "topVoiceName": "Brian Chesky",
+      "topVoicePersonId": "brian-chesky",
+      "xPostsScanned": 0,
+      "xCoverageNote": "The public history endpoint exposed zero cards; indexed status/domain fallback returned no target post."
+    },
+    {
+      "topVoiceName": "Patrick Collison",
+      "topVoicePersonId": "patrick-collison",
+      "xPostsScanned": 0,
+      "xCoverageNote": "The public history endpoint exposed zero cards; indexed status/domain fallback returned no target post."
+    },
+    {
+      "topVoiceName": "John Collison",
+      "topVoicePersonId": "john-collison",
+      "xPostsScanned": 135
+    },
+    {
+      "topVoiceName": "Brian Armstrong",
+      "topVoicePersonId": "brian-armstrong",
+      "xPostsScanned": 41
+    },
+    {
+      "topVoiceName": "Drew Houston",
+      "topVoicePersonId": "drew-houston",
+      "xPostsScanned": 19
+    },
+    {
+      "topVoiceName": "Steve Huffman",
+      "topVoicePersonId": "steve-huffman",
+      "xPostsScanned": 0,
+      "xCoverageNote": "The public history endpoint exposed zero cards; indexed status/domain fallback returned no target post."
+    },
+    {
+      "topVoiceName": "Justin Kan",
+      "topVoicePersonId": "justin-kan",
+      "xPostsScanned": 19
+    },
+    {
+      "topVoiceName": "Emmett Shear",
+      "topVoicePersonId": "emmett-shear",
+      "xPostsScanned": 22
+    },
+    {
+      "topVoiceName": "Alexis Ohanian",
+      "topVoicePersonId": "alexis-ohanian",
+      "xPostsScanned": 41
+    },
+    {
+      "topVoiceName": "Guillermo Rauch",
+      "topVoicePersonId": "guillermo-rauch",
+      "xPostsScanned": 0,
+      "xCoverageNote": "The public history endpoint exposed zero cards; indexed status/domain fallback and GitHub checks returned no target post or activity."
+    },
+    {
+      "topVoiceName": "Dylan Field",
+      "topVoicePersonId": "dylan-field",
+      "xPostsScanned": 78
+    },
+    {
+      "topVoiceName": "Aravind Srinivas",
+      "topVoicePersonId": "aravind-srinivas",
+      "xPostsScanned": 20
+    },
+    {
+      "topVoiceName": "Alex Wang",
+      "topVoicePersonId": "alex-wang",
+      "xPostsScanned": 41
+    },
+    {
+      "topVoiceName": "Palmer Luckey",
+      "topVoicePersonId": "palmer-luckey",
+      "xPostsScanned": 37
+    },
+    {
+      "topVoiceName": "Parker Conrad",
+      "topVoicePersonId": "parker-conrad",
+      "xPostsScanned": 21
+    },
+    {
+      "topVoiceName": "Aaron Levie",
+      "topVoicePersonId": "aaron-levie",
+      "xPostsScanned": 39
+    },
+    {
+      "topVoiceName": "Eric Migicovsky",
+      "topVoicePersonId": "eric-migicovsky",
+      "xPostsScanned": 19
+    },
+    {
+      "topVoiceName": "Tony Xu",
+      "topVoicePersonId": "tony-xu",
+      "xPostsScanned": 31
+    },
+    {
+      "topVoiceName": "Apoorva Mehta",
+      "topVoicePersonId": "apoorva-mehta",
+      "xPostsScanned": 56
+    },
+    {
+      "topVoiceName": "Max Mullen",
+      "topVoicePersonId": "max-mullen",
+      "xPostsScanned": 1
+    },
+    {
+      "topVoiceName": "Henrique Dubugras",
+      "topVoicePersonId": "henrique-dubugras",
+      "xPostsScanned": 20
+    },
+    {
+      "topVoiceName": "Pedro Franceschi",
+      "topVoicePersonId": "pedro-franceschi",
+      "xPostsScanned": 42
+    },
+    {
+      "topVoiceName": "Mathilde Collin",
+      "topVoicePersonId": "mathilde-collin",
+      "xPostsScanned": 92
+    },
+    {
+      "topVoiceName": "Rahul Vohra",
+      "topVoicePersonId": "rahul-vohra",
+      "xPostsScanned": 0,
+      "xCoverageNote": "The public history endpoint exposed zero cards; indexed status/domain fallback returned no target post."
+    },
+    {
+      "topVoiceName": "Spenser Skates",
+      "topVoicePersonId": "spenser-skates",
+      "xPostsScanned": 101
+    },
+    {
+      "topVoiceName": "Suhail Doshi",
+      "topVoicePersonId": "suhail-doshi",
+      "xPostsScanned": 22
+    },
+    {
+      "topVoiceName": "Taro Fukuyama",
+      "topVoicePersonId": "taro-fukuyama",
+      "xPostsScanned": 0,
+      "xCurrentCardsInspected": 28,
+      "discoveredXHandle": "taro_f",
+      "xCoverageNote": "No X handle is seeded; @taro_f was discovered, its current public cards and all-roster indexed status results were checked, and deep mirror pagination was rate-limited."
+    },
+    {
+      "topVoiceName": "Dalton Caldwell",
+      "topVoicePersonId": "dalton-caldwell",
+      "xPostsScanned": 120
+    },
+    {
+      "topVoiceName": "Qasar Younis",
+      "topVoicePersonId": "qasar-younis",
+      "xPostsScanned": 48
+    },
+    {
+      "topVoiceName": "Ali Rowghani",
+      "topVoicePersonId": "ali-rowghani",
+      "xPostsScanned": 39
+    },
+    {
+      "topVoiceName": "Anu Hariharan",
+      "topVoicePersonId": "anu-hariharan",
+      "xPostsScanned": 112
+    },
+    {
+      "topVoiceName": "Elad Gil",
+      "topVoicePersonId": "elad-gil",
+      "xPostsScanned": 165
+    },
+    {
+      "topVoiceName": "Nat Friedman",
+      "topVoicePersonId": "nat-friedman",
+      "xPostsScanned": 41
+    },
+    {
+      "topVoiceName": "Daniel Gross",
+      "topVoicePersonId": "daniel-gross",
+      "xPostsScanned": 38
+    },
+    {
+      "topVoiceName": "David Sacks",
+      "topVoicePersonId": "david-sacks",
+      "xPostsScanned": 79
+    },
+    {
+      "topVoiceName": "Marc Andreessen",
+      "topVoicePersonId": "marc-andreessen",
+      "xPostsScanned": 21
+    },
+    {
+      "topVoiceName": "Ben Horowitz",
+      "topVoicePersonId": "ben-horowitz",
+      "xPostsScanned": 121
+    },
+    {
+      "topVoiceName": "Naval Ravikant",
+      "topVoicePersonId": "naval-ravikant",
+      "xPostsScanned": 42
+    },
+    {
+      "topVoiceName": "Keith Rabois",
+      "topVoicePersonId": "keith-rabois",
+      "xPostsScanned": 20
+    },
+    {
+      "topVoiceName": "Sarah Guo",
+      "topVoicePersonId": "sarah-guo",
+      "xPostsScanned": 20
+    },
+    {
+      "topVoiceName": "Andrew Chen",
+      "topVoicePersonId": "andrew-chen",
+      "xPostsScanned": 81
+    },
+    {
+      "topVoiceName": "Lachy Groom",
+      "topVoicePersonId": "lachy-groom",
+      "xPostsScanned": 58
+    },
+    {
+      "topVoiceName": "Semil Shah",
+      "topVoicePersonId": "semil-shah",
+      "xPostsScanned": 101
+    },
+    {
+      "topVoiceName": "Delian Asparouhov",
+      "topVoicePersonId": "delian-asparouhov",
+      "xPostsScanned": 59
+    },
+    {
+      "topVoiceName": "Trae Stephens",
+      "topVoicePersonId": "trae-stephens",
+      "xPostsScanned": 60
+    },
+    {
+      "topVoiceName": "Lenny Rachitsky",
+      "topVoicePersonId": "lenny-rachitsky",
+      "xPostsScanned": 0,
+      "xCoverageNote": "The public history endpoint exposed zero cards; indexed status/domain fallback returned no target post."
+    }
+  ],
+  "searches": [
+    {
+      "platform": "local",
+      "query": "Ledger and artifact preflight before live discovery",
+      "inputs": [
+        "outputs/source-hunt/search-ledger.json",
+        "outputs/source-hunt/coverage-matrix.json",
+        "outputs/source-hunt/validated-candidates.json",
+        "outputs/source-hunt/rejected-candidates.json",
+        "outputs/source-hunt/*.json",
+        "src/lib/social/targeted-evidence-current.json",
+        "src/lib/social/top-voices.ts",
+        "src/lib/yc/summer-2026-companies.json"
+      ],
+      "outcome": "Built prior-query, normalized-URL, and platform-post-ID exclusion sets before searching. Existing Parker Conrad/Context.dev and Paul Graham/Ploy evidence was not re-queried or re-added."
+    },
+    {
+      "platform": "X",
+      "query": "Complete public account-history sweep for every seeded insider X account against all 83 S26 company names, domains, company handles, founder names, and founder handles",
+      "dateRange": "2026-01-01 through 2026-07-15",
+      "accountsSearched": 48,
+      "postsScanned": 2227,
+      "outcome": "One net-new apparent match was found: Paul Graham had reposted an Agentcard founder post. The native author is Karen Serfaty, so the post is rejected. No native insider-authored S26 post, reply, or quote-post was found."
+    },
+    {
+      "platform": "LinkedIn",
+      "query": "site:linkedin.com/posts \"<insider name>\" \"YC S26\", with Summer 2026 variants and targeted follow-ups",
+      "queriesPerformed": 52,
+      "peopleSearched": 50,
+      "outcome": "Public indexed histories and resolvable public post pages produced no insider-authored S26 evidence. The strongest net-new result was Merlin Kafka's founder-authored post mentioning Sam Altman, Pedro Franceschi, screenpipe, and LATO; it is rejected because Merlin, not an insider, is the native author."
+    },
+    {
+      "platform": "X",
+      "query": "Indexed status/domain fallback for zero-card or unseeded accounts, followed by four all-roster @taro_f status-query clusters",
+      "queriesPerformed": 16,
+      "accounts": [
+        "bchesky",
+        "patrickc",
+        "spez",
+        "rauchg",
+        "rahulvohra",
+        "lennyrachitsky",
+        "Jessica Livingston name search",
+        "taro_f"
+      ],
+      "outcome": "No S26 target evidence was found. A native Taro Fukuyama post about 21st was validated, but YC's official company page lists 21st as Winter 2026 and the post contains no S26 attribution."
+    },
+    {
+      "platform": "GitHub",
+      "query": "Public event feeds plus commenter:{rauchg,nat} updated:>=2026-01-01",
+      "queriesPerformed": 2,
+      "accounts": [
+        "rauchg",
+        "nat"
+      ],
+      "issuesInspected": 13,
+      "outcome": "Neither public event feed exposed current events. The commenter search returned 13 Guillermo Rauch issue/PR surfaces and zero Nat Friedman surfaces; none identified an S26 company, founder, handle, or domain."
+    },
+    {
+      "platform": "YouTube/Reddit",
+      "query": "Fresh people-only S26 and high-signal current-company combinations for likely creator accounts",
+      "queriesPerformed": 4,
+      "outcome": "No post-level result was returned. No candidate URL or post ID was added."
+    },
+    {
+      "platform": "Hacker News/Reddit/YouTube",
+      "query": "Prior artifact review; no repeated live query",
+      "queriesPerformed": 0,
+      "outcome": "Prior source-hunt artifacts already contain strict all-roster HN, Reddit, and YouTube passes with no qualifying people-only insider row. Those exact queries and URLs were not repeated; GitHub was the only secondary platform with a productive new bounded search."
+    }
+  ],
+  "accepted": [],
+  "rejected": [
+    {
+      "candidateId": "x-paul-graham-agentcard-founder-repost-2076726758767018125",
+      "batchSlug": "S26",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Paul Graham",
+      "topVoicePersonId": "paul-graham",
+      "companyName": "Agentcard",
+      "companySlug": "agentcard",
+      "ycCompanyId": "33018",
+      "founderName": "Karen Serfaty",
+      "founderHandle": "keyserfaty",
+      "platform": "X",
+      "evidenceType": "repost_only",
+      "sourceUrl": "https://x.com/keyserfaty/status/2076726758767018125",
+      "platformPostId": "2076726758767018125",
+      "postedAt": "2026-07-13T17:53:37Z",
+      "author": {
+        "name": "mrs. robot",
+        "handle": "keyserfaty",
+        "profileUrl": "https://x.com/keyserfaty",
+        "relationship": "YC-listed Agentcard founder Karen Serfaty; not a listed insider"
+      },
+      "metrics": {
+        "views": 58844,
+        "likes": 195,
+        "replies": 32,
+        "reposts": 16,
+        "quotes": 3,
+        "bookmarks": 123
+      },
+      "nativeEvidence": {
+        "visibleTextSummary": "Karen Serfaty announces an Agentcard company offer and identifies @agentcardhq; her profile identifies Agentcard as YC S26.",
+        "verificationUrls": [
+          "https://x.com/keyserfaty/status/2076726758767018125",
+          "https://api.fxtwitter.com/keyserfaty/status/2076726758767018125"
+        ],
+        "verificationMethod": "The native X URL and FxTwitter post JSON agree on the native author, post ID, timestamp, text, and visible metrics. A public @paulg history mirror displayed the post only as a Paul Graham repost."
+      },
+      "attributionSignals": [
+        "The local S26 roster lists Agentcard, YC company ID 33018, founder Karen Serfaty, and founder handle @keyserfaty.",
+        "FxTwitter identifies @keyserfaty as the native author; there is no separate insider-authored native post URL.",
+        "A repost by Paul Graham does not satisfy the people-only native-author rule."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://x.com/keyserfaty/status/2076726758767018125",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json"
+        ],
+        "status": "net_new_rejected",
+        "checkedAt": "2026-07-16T00:40:07Z"
+      },
+      "reason": "Rejected: Paul Graham only reposted the post. The native author is Agentcard founder Karen Serfaty, and founder/company reposts or insider reposts without an insider-authored native source do not count."
+    },
+    {
+      "candidateId": "linkedin-sam-altman-screenpipe-third-party-7477404387649286145",
+      "batchSlug": "S26",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Sam Altman",
+      "topVoicePersonId": "sam-altman",
+      "alsoMentionsInsider": {
+        "topVoiceName": "Pedro Franceschi",
+        "topVoicePersonId": "pedro-franceschi"
+      },
+      "companyName": "screenpipe",
+      "companySlug": "screenpipe",
+      "ycCompanyId": "32259",
+      "founderName": "Louis Beaumont",
+      "platform": "LinkedIn",
+      "evidenceType": "third_party_founder_post_mention",
+      "sourceUrl": "https://www.linkedin.com/posts/merlinkafka_yc-week-1-saw-sam-altman-openai-activity-7477404387649286145-IDEr",
+      "platformPostId": "7477404387649286145",
+      "postedAt": "2026-06-29T16:55:29.470Z",
+      "author": {
+        "name": "Merlin Kafka",
+        "handle": "merlinkafka",
+        "profileUrl": "https://www.linkedin.com/in/merlinkafka",
+        "relationship": "YC S26 founder of Rex; not a listed insider"
+      },
+      "metrics": {
+        "reactions": 178,
+        "comments": 18
+      },
+      "nativeEvidence": {
+        "headline": "YC Week 1",
+        "visibleTextSummary": "Merlin Kafka says he saw Sam Altman, Garry Tan, and Pedro speak, then names Louis building screenpipe and Tymek building LATO in the S26 batch.",
+        "verificationUrls": [
+          "https://www.linkedin.com/posts/merlinkafka_yc-week-1-saw-sam-altman-openai-activity-7477404387649286145-IDEr"
+        ],
+        "verificationMethod": "The public native LinkedIn post page exposes Merlin Kafka as author, the complete post body, the post ID, 178 reactions, and 18 comments. The timestamp is decoded from the LinkedIn activity ID."
+      },
+      "attributionSignals": [
+        "The local S26 roster lists Merlin Kafka as a Rex founder, Louis Beaumont as the screenpipe founder, and screenpipe as YC company ID 32259.",
+        "The visible post body names screenpipe and LATO as YC S26 companies and mentions insiders Sam Altman and Pedro Franceschi.",
+        "The native author is Merlin Kafka, not either listed insider."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/merlinkafka_yc-week-1-saw-sam-altman-openai-activity-7477404387649286145-ider",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json"
+        ],
+        "status": "net_new_rejected",
+        "checkedAt": "2026-07-16T00:40:07Z"
+      },
+      "reason": "Rejected: this is a native S26 founder post that mentions insiders and S26 companies, not a native post or comment authored by an insider."
+    },
+    {
+      "candidateId": "x-taro-fukuyama-21st-non-s26-2031399683717746905",
+      "batchSlug": "S26",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Taro Fukuyama",
+      "topVoicePersonId": "taro-fukuyama",
+      "companyName": "21st",
+      "companySlug": "21st",
+      "ycCompanyId": null,
+      "founderNames": [
+        "Serafim Korablev",
+        "Sergey Bunas"
+      ],
+      "founderHandles": [
+        "korablev",
+        "sergeybunas"
+      ],
+      "platform": "X",
+      "evidenceType": "native_post_non_target_company",
+      "sourceUrl": "https://x.com/taro_f/status/2031399683717746905",
+      "platformPostId": "2031399683717746905",
+      "postedAt": "2026-03-10T16:00:00Z",
+      "author": {
+        "name": "Taro Fukuyama",
+        "handle": "taro_f",
+        "profileUrl": "https://x.com/taro_f",
+        "relationship": "listed insider"
+      },
+      "metrics": {
+        "views": 4287,
+        "likes": 22,
+        "replies": 1,
+        "reposts": 1,
+        "quotes": 1,
+        "bookmarks": 5
+      },
+      "nativeEvidence": {
+        "visibleTextSummary": "Taro Fukuyama announces an investment in @21st_dev alongside Y Combinator and names the company's founders.",
+        "verificationUrls": [
+          "https://x.com/taro_f/status/2031399683717746905",
+          "https://api.fxtwitter.com/taro_f/status/2031399683717746905",
+          "https://www.ycombinator.com/companies/21st"
+        ],
+        "verificationMethod": "The native X page and FxTwitter post JSON agree on Taro Fukuyama as native author, the post ID, timestamp, text, and visible metrics. YC's official 21st company page identifies the company and founders and labels its batch Winter 2026."
+      },
+      "attributionSignals": [
+        "The post is native and authored by a listed insider.",
+        "The post identifies 21st and its founders but does not say Summer 2026 or S26.",
+        "YC's official company page lists 21st as Winter 2026, and 21st is absent from src/lib/yc/summer-2026-companies.json, whose 83 records define the local target roster."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://x.com/taro_f/status/2031399683717746905",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "checkedAgainst": [
+          "outputs/source-hunt/search-ledger.json",
+          "outputs/source-hunt/validated-candidates.json",
+          "outputs/source-hunt/rejected-candidates.json",
+          "outputs/source-hunt/*.json",
+          "src/lib/social/targeted-evidence-current.json"
+        ],
+        "status": "net_new_rejected",
+        "checkedAt": "2026-07-16T00:40:07Z"
+      },
+      "reason": "Rejected: the native insider post identifies 21st, but YC's official company page lists 21st as Winter 2026 rather than Summer 2026."
+    }
+  ],
+  "duplicateUrls": [],
+  "productivity": {
+    "queriesPerformed": 74,
+    "accountsSearched": 50,
+    "companiesSearched": 83,
+    "seededXAccountsSearched": 48,
+    "discoveredXAccountsSearched": 1,
+    "xPostsScanned": 2227,
+    "linkedinPeopleSearched": 50,
+    "linkedinQueriesPerformed": 52,
+    "githubIssuesInspected": 13,
+    "candidatesFound": 3,
+    "netNewVerifiedRows": 0,
+    "accepted": 0,
+    "rejected": 3,
+    "duplicates": 0,
+    "rejectionsByReason": {
+      "repost_only_native_author_not_insider": 1,
+      "third_party_founder_authored": 1,
+      "company_not_in_s26_roster": 1
+    },
+    "coverageLimitations": [
+      "The public X history endpoint exposed zero cards for Brian Chesky, Patrick Collison, Steve Huffman, Guillermo Rauch, Rahul Vohra, and Lenny Rachitsky; indexed native-status/domain searches were used as fallback.",
+      "Taro Fukuyama has no seeded X handle. The discovered @taro_f profile exposed 28 current cards, but deep mirror pagination was rate-limited; four all-roster indexed status-query clusters returned no S26 target result.",
+      "LinkedIn coverage is limited to publicly indexed histories and public post pages; a logged-in complete-history view was unavailable. All 50 names were nevertheless searched, and the one net-new post-level candidate was opened and checked on its public native page."
+    ]
+  }
+}

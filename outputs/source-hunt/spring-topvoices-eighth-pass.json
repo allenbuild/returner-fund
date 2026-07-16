@@ -1,0 +1,608 @@
+{
+  "scope": {
+    "pass": "spring-topvoices-eighth-pass",
+    "runDate": "2026-07-15",
+    "targetBatch": "YC Spring/P26 2026",
+    "allowedVoiceGroups": [
+      "yc_partners",
+      "insiders"
+    ],
+    "allowedPeopleSource": "src/lib/social/top-voices.ts",
+    "comparisonFile": "src/lib/social/targeted-evidence-current.json",
+    "comparisonState": {
+      "evidenceRows": 319,
+      "rowsWithSourceUrl": 319,
+      "rowsWithPlatformPostId": 316
+    },
+    "policy": [
+      "Accepted evidence must be a native post or native comment authored by a real person listed in src/lib/social/top-voices.ts.",
+      "Accepted evidence must mention the Spring/P26 2026 company, founder, official handle, or domain in the top voice row itself or visible native card context.",
+      "Accepted evidence must have a verifiable source URL and visible metrics.",
+      "Profiles, organization accounts, search pages, inferred metrics, company reposts, founder-authored thanks posts, and top voice mentions by others are rejected.",
+      "Candidates already represented in targeted-evidence-current.json by sourceUrl or platformPostId are not accepted again."
+    ]
+  },
+  "accepted": [],
+  "rejected": [
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "topVoiceHandle": "garrytan",
+      "sourceUrl": "https://x.com/garrytan/status/2032129690014814550",
+      "platformPostId": "2032129690014814550",
+      "title": "Generic YC Spring batch renaming post",
+      "sourceEvidence": {
+        "author": "Garry Tan",
+        "postedAt": "2026-03-12T16:20:47.000Z",
+        "visibleText": "We're renaming the YC spring batches from X25 and (what was going to be) X26 to P25 and P26 - P for Primavera, which literally means first spring in Latin-derived languages. The original X was a cute programmer in-joke, but people kept asking what does X stand for, so we're switching to something that actually says spring while still keeping it to a single letter.",
+        "visibleMetrics": {
+          "views": 82876,
+          "likes": 677,
+          "replies": 107,
+          "retweets": 13,
+          "quotes": 16,
+          "bookmarks": 79
+        },
+        "observedVia": "X post metadata via fxtwitter API"
+      },
+      "reason": "Rejected: authored by a listed YC partner with visible metrics, but it only discusses batch naming and does not mention any listed Spring/P26 company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tyler Bosmeny",
+      "topVoiceHandle": "bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2062974811165671542",
+      "platformPostId": "2062974811165671542",
+      "title": "Generic P26 hard-tech batch post",
+      "sourceEvidence": {
+        "author": "Tyler Bosmeny",
+        "postedAt": "2026-06-05T19:08:17.000Z",
+        "visibleText": "P26 set the record for the highest % of hard tech in a batch And S26 will be even higher! What a time to build",
+        "visibleMetrics": {
+          "views": 3015,
+          "likes": 22,
+          "replies": 1,
+          "retweets": 3,
+          "quotes": 0,
+          "bookmarks": 2
+        },
+        "observedVia": "X post metadata via fxtwitter API"
+      },
+      "reason": "Rejected: authored by a listed YC partner with visible metrics, but it is about P26 as a batch and does not mention any specific Spring/P26 company, founder, handle, or domain."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "topVoiceHandle": "garrytan",
+      "sourceUrl": "https://www.linkedin.com/posts/garrytan_yc-spring-2026-office-hours-with-garry-activity-7467336673572327424-5wjf",
+      "platformPostId": "7467336673572327424",
+      "title": "GStack office-hours teaser without visible company match",
+      "sourceEvidence": {
+        "author": "Garry Tan",
+        "visibleText": "YC Spring 2026 Office Hours with Garry Tan. A free, 5-week online workshop for founders applying to YC's Spring 2026 batch. Learn how to craft a startup idea, build your MVP, talk to users, and submit a strong YC application.",
+        "visibleMetrics": {
+          "reactions": 550,
+          "comments": 54,
+          "shares": 24
+        },
+        "observedVia": "OutX LinkedIn activity mirror for YC partners"
+      },
+      "reason": "Rejected: authored by a listed YC partner with visible metrics, but the native visible text is an office-hours/program post. It does not name a Spring/P26 company, founder, handle, or domain."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Ankit Gupta",
+      "topVoiceHandle": "ankitvgupta",
+      "sourceUrl": "https://www.linkedin.com/posts/ankitvgupta_wereproud-to-share-that-tamarind-bio-has-activity-7471224256740196352-msos",
+      "platformPostId": "7471224256740196352",
+      "title": "Tamarind Bio post is not a Spring/P26 roster match",
+      "sourceEvidence": {
+        "author": "Ankit Gupta",
+        "visibleText": "We're proud to share that Tamarind Bio has been acquired by Bristol Myers Squibb.",
+        "visibleMetrics": {
+          "reactions": 7,
+          "comments": 0
+        },
+        "observedVia": "OutX LinkedIn activity mirror for YC partners"
+      },
+      "reason": "Rejected: authored by a listed YC partner, but Tamarind Bio is not a Spring/P26 2026 company in the local Spring snapshot."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Diana Hu",
+      "topVoiceHandle": "sdianahu",
+      "sourceUrl": "https://www.linkedin.com/posts/dianahu_ai-reducto-documents-activity-7477821474305626112-K7cF",
+      "platformPostId": "7477821474305626112",
+      "title": "Reducto post is not a Spring/P26 roster match",
+      "sourceEvidence": {
+        "author": "Diana Hu",
+        "visibleText": "AI agents are eating documents, and Reducto is powering the ingestion layer.",
+        "visibleMetrics": {
+          "reactions": 9,
+          "comments": 1
+        },
+        "observedVia": "OutX LinkedIn activity mirror for YC partners"
+      },
+      "reason": "Rejected: authored by a listed YC partner, but Reducto is not a Spring/P26 2026 company in the local Spring snapshot."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Andrew Miklas",
+      "topVoiceHandle": "andrewmiklas",
+      "sourceUrl": "https://www.linkedin.com/in/amiklas",
+      "title": "Andrew Miklas profile activity teasers",
+      "sourceEvidence": {
+        "author": "Andrew Miklas",
+        "visibleText": "Profile snippets exposed comment teasers such as 'Congrats on launching! Very timely product idea.' and 'Congrats!', plus reactions to Tasklet, Gigacatalyst, Alchemize, and InsForge.",
+        "visibleMetrics": null,
+        "observedVia": "LinkedIn profile search result snippets and profile activity page attempts"
+      },
+      "reason": "Rejected: profile snippets are not native post/comment URLs, do not expose stable comment IDs or visible comment metrics, and some snippets do not visibly mention the Spring company in the comment text."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Tom Blomfield",
+      "topVoiceHandle": "tomblomfield",
+      "sourceUrl": "https://www.linkedin.com/in/tomblomfield",
+      "title": "Tom Blomfield liked/profile activity for tday.com",
+      "sourceEvidence": {
+        "author": "Tom Blomfield",
+        "visibleText": "Profile/search result showed liked activity around tday.com rather than a native Tom Blomfield-authored post or comment.",
+        "visibleMetrics": null,
+        "observedVia": "LinkedIn profile/search snippets"
+      },
+      "reason": "Rejected: liked/profile activity is not an authored native post/comment by the listed person and does not provide a verifiable native source URL with visible metrics."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Grey Baker",
+      "topVoiceHandle": "greybaker",
+      "sourceUrl": "https://x.com/greybaker?lang=en",
+      "title": "Profile-only snippet for Arseniy Shishaev join-us post",
+      "sourceEvidence": {
+        "author": "Grey Baker",
+        "visibleText": "Search/profile snippet showed 'Join us! Arseniy Shishaev (YC P26)' with visible-looking engagement numbers, but no resolvable native status URL was found.",
+        "visibleMetrics": {
+          "snippetNumbers": [
+            44,
+            50,
+            1047,
+            79064
+          ]
+        },
+        "observedVia": "X profile search result and direct profile fetch attempts"
+      },
+      "reason": "Rejected: the only evidence available was a profile/search snippet, not a verifiable native post URL or platformPostId."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "sourceUrl": "https://www.linkedin.com/posts/seb-poole_modern-yc-p26-has-joined-y-combinator-activity-7448872578582061056-jnCh",
+      "platformPostId": "7448872578582061056",
+      "title": "Modern founder post thanking Aaron Epstein",
+      "sourceEvidence": {
+        "author": "Seb Poole",
+        "visibleText": "Modern (YC P26) founder-authored launch post thanks Aaron Epstein among others.",
+        "visibleMetrics": null,
+        "observedVia": "LinkedIn search result"
+      },
+      "reason": "Rejected: the post is authored by a founder, not by the listed YC partner. Mentions of a top voice by another person do not qualify."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Sam Altman",
+      "topVoiceHandle": "sama",
+      "sourceUrl": "https://www.linkedin.com/posts/anand-arnaud-pajaniradjane_im-part-of-the-yc-p26-batch-that-got-offered-activity-7463388423731699712-vxWa",
+      "platformPostId": "7463388423731699712",
+      "title": "Founder post mentioning Sam Altman related YC funding",
+      "sourceEvidence": {
+        "author": "Anand Arnaud Pajaniradjane",
+        "visibleText": "Founder-authored post about being part of YC P26 and receiving funding associated with Sam Altman/YC context.",
+        "visibleMetrics": null,
+        "observedVia": "LinkedIn search result"
+      },
+      "reason": "Rejected: authored by a founder, not by Sam Altman or another listed top voice."
+    },
+    {
+      "platform": "reddit",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "topVoiceHandle": "garrytan",
+      "sourceUrl": "https://www.reddit.com/r/buildinpublic/comments/1sfb9c0/we_joined_yc_p26_at_70k_mrr/",
+      "title": "Founder/community Reddit post mentioning Garry Tan",
+      "sourceEvidence": {
+        "author": "Reddit poster, not Garry Tan",
+        "visibleText": "The Reddit post discusses joining YC P26 and mentions talking to Garry Tan.",
+        "visibleMetrics": null,
+        "observedVia": "Reddit search result"
+      },
+      "reason": "Rejected: not authored by the listed YC partner. Third-party mentions of Garry Tan do not qualify."
+    },
+    {
+      "platform": "youtube",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "topVoiceHandle": "garrytan",
+      "sourceUrl": "https://www.youtube.com/watch?v=PXHvt_0eoZ4",
+      "title": "LIVE @ YC Demo Day media result",
+      "sourceEvidence": {
+        "author": "TBPN/media channel result, not a listed top voice",
+        "visibleText": "Search result surfaced a YC Demo Day livestream/media video rather than a native top voice post/comment about a specific company.",
+        "visibleMetrics": null,
+        "observedVia": "YouTube web search"
+      },
+      "reason": "Rejected: not a native post/comment authored by a listed person, and not company-specific top voice evidence."
+    },
+    {
+      "platform": "hacker_news",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Paul Graham",
+      "topVoiceHandle": "pg",
+      "sourceUrl": "https://hn.algolia.com/api/v1/search_by_date?query=P26&tags=comment,author_pg",
+      "title": "HN Algolia false positives for author_pg and P26",
+      "sourceEvidence": {
+        "author": "Paul Graham search filter",
+        "visibleText": "Algolia returned old/unrelated matches where the query token P26 matched unrelated numeric text rather than YC Spring/P26 2026 companies.",
+        "visibleMetrics": null,
+        "observedVia": "HN Algolia API search"
+      },
+      "reason": "Rejected: no native HN comment by Paul Graham about a Spring/P26 company, founder, handle, or domain was found."
+    },
+    {
+      "platform": "github",
+      "topVoiceAudience": "insiders",
+      "topVoiceName": "Guillermo Rauch",
+      "topVoiceHandle": "rauchg",
+      "sourceUrl": "https://github.com/stylus/stylus/issues/43",
+      "title": "Old GitHub issue returned by YC search",
+      "sourceEvidence": {
+        "author": "GitHub search result involving rauchg/YC terms",
+        "visibleText": "Search returned an old Stylus issue with 'Y Combinator' wording unrelated to Spring/P26 2026.",
+        "visibleMetrics": null,
+        "observedVia": "GitHub Search API"
+      },
+      "reason": "Rejected: old unrelated GitHub issue; no Spring/P26 2026 company, founder, handle, or domain match."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "topVoiceHandle": "garrytan",
+      "sourceUrl": "https://x.com/garrytan/status/2067253344100561216",
+      "platformPostId": "2067253344100561216",
+      "title": "Ploy X evidence already in targeted-evidence-current",
+      "sourceEvidence": {
+        "author": "Garry Tan",
+        "companyName": "Ploy",
+        "observedVia": "X search and targeted-evidence-current duplicate comparison"
+      },
+      "reason": "Rejected as additional evidence: exact platformPostId/sourceUrl is already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "topVoiceHandle": "garrytan",
+      "sourceUrl": "https://x.com/garrytan/status/2069474420113146355",
+      "platformPostId": "2069474420113146355",
+      "title": "Linzumi X evidence already in targeted-evidence-current",
+      "sourceEvidence": {
+        "author": "Garry Tan",
+        "companyName": "Linzumi",
+        "observedVia": "X search and targeted-evidence-current duplicate comparison"
+      },
+      "reason": "Rejected as additional evidence: exact platformPostId/sourceUrl is already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Garry Tan",
+      "topVoiceHandle": "garrytan",
+      "sourceUrl": "https://x.com/garrytan/status/2075670806345170990",
+      "platformPostId": "2075670806345170990",
+      "title": "InsForge X evidence already in targeted-evidence-current",
+      "sourceEvidence": {
+        "author": "Garry Tan",
+        "companyName": "InsForge",
+        "observedVia": "X search and targeted-evidence-current duplicate comparison"
+      },
+      "reason": "Rejected as additional evidence: exact platformPostId/sourceUrl is already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2037230367598666221",
+      "platformPostId": "2037230367598666221",
+      "title": "Sazabi X evidence already in targeted-evidence-current",
+      "sourceEvidence": {
+        "author": "Aaron Epstein",
+        "companyName": "Sazabi",
+        "observedVia": "X search, prior pass output, and targeted-evidence-current duplicate comparison"
+      },
+      "reason": "Rejected as additional evidence: exact platformPostId/sourceUrl is already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2054035382795370914",
+      "platformPostId": "2054035382795370914",
+      "title": "Interfaze X evidence already in targeted-evidence-current",
+      "sourceEvidence": {
+        "author": "Aaron Epstein",
+        "companyName": "Interfaze",
+        "observedVia": "X search, prior pass output, and targeted-evidence-current duplicate comparison"
+      },
+      "reason": "Rejected as additional evidence: exact platformPostId/sourceUrl is already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Andrew Miklas",
+      "topVoiceHandle": "andrewmiklas",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_insforge-turns-your-coding-agent-into-a-principal-activity-7462200339899846656-CUEF",
+      "platformPostId": "7462200339899846656",
+      "title": "InsForge LinkedIn comment evidence already in targeted-evidence-current",
+      "sourceEvidence": {
+        "author": "Andrew Miklas",
+        "companyName": "InsForge",
+        "observedVia": "LinkedIn search, prior pass output, and targeted-evidence-current duplicate comparison"
+      },
+      "reason": "Rejected as additional evidence: exact platformPostId/sourceUrl is already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Grey Baker",
+      "topVoiceHandle": "greysteil",
+      "sourceUrl": "https://www.linkedin.com/posts/greysteil_displacing-erps-used-to-be-impossible-now-activity-7468140763088879616-_hfp",
+      "platformPostId": "7468140763088879616",
+      "title": "Hexa LinkedIn evidence already in targeted-evidence-current",
+      "sourceEvidence": {
+        "author": "Grey Baker",
+        "companyName": "Hexa",
+        "observedVia": "LinkedIn search, prior pass output, and targeted-evidence-current duplicate comparison"
+      },
+      "reason": "Rejected as additional evidence: exact platformPostId/sourceUrl is already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "linkedin",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Grey Baker",
+      "topVoiceHandle": "greysteil",
+      "sourceUrl": "https://www.linkedin.com/posts/greysteil_the-appetite-for-ai-in-consumer-sales-and-activity-7465926199710511104-94v0",
+      "platformPostId": "7465926199710511104",
+      "title": "Cignara LinkedIn evidence already in targeted-evidence-current",
+      "sourceEvidence": {
+        "author": "Grey Baker",
+        "companyName": "Cignara",
+        "observedVia": "LinkedIn search, prior pass output, and targeted-evidence-current duplicate comparison"
+      },
+      "reason": "Rejected as additional evidence: exact platformPostId/sourceUrl is already represented in targeted-evidence-current.json."
+    }
+  ],
+  "searches": [
+    {
+      "platform": "linkedin",
+      "query": "\"Y Combinator And Partners\" \"LinkedIn Posts\" \"OutX\"",
+      "urlsChecked": [
+        "https://www.outx.ai/linkedin-posts/y-combinator-%28official%29-c15538a3/activity%3A7415120180126617600",
+        "https://www.outx.ai/linkedin/startups/y-combinator-official"
+      ],
+      "result": "Reviewed public OutX mirrors for YC partner LinkedIn activity. Fresh Spring leads failed policy; qualifying-looking Spring rows were already in targeted-evidence-current.json."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"P26\" \"Garry Tan\" \"LinkedIn\"",
+      "urlsChecked": [
+        "https://www.linkedin.com/posts/garrytan_yc-spring-2026-office-hours-with-garry-activity-7467336673572327424-5wjf"
+      ],
+      "result": "Found generic Spring office-hours post. Rejected because it does not mention a Spring/P26 company, founder, handle, or domain."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"P26\" \"David Lieb\" \"LinkedIn\"",
+      "urlsChecked": [
+        "https://www.linkedin.com/posts/davidlieb_most-founders-obsess-over-dashboards-and-activity-7480993884144099328-UuXn"
+      ],
+      "result": "Found generic David Lieb post about dot plots/dashboards with visible metrics but no Spring/P26 target company match."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"P26\" \"Grey Baker\" \"LinkedIn\"",
+      "urlsChecked": [
+        "https://www.linkedin.com/posts/greysteil_displacing-erps-used-to-be-impossible-now-activity-7468140763088879616-_hfp",
+        "https://www.linkedin.com/posts/greysteil_the-appetite-for-ai-in-consumer-sales-and-activity-7465926199710511104-94v0"
+      ],
+      "result": "Found Hexa and Cignara rows, but both exact sourceUrl/platformPostId values are already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"P26\" \"Tom Blomfield\" \"LinkedIn\"",
+      "urlsChecked": [
+        "https://www.linkedin.com/in/tomblomfield"
+      ],
+      "result": "Only profile/liked activity and already-known rows surfaced. Profile/liked activity rejected as non-authored evidence."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"P26\" \"Aaron Epstein\" \"LinkedIn\"",
+      "urlsChecked": [
+        "https://www.linkedin.com/posts/seb-poole_modern-yc-p26-has-joined-y-combinator-activity-7448872578582061056-jnCh"
+      ],
+      "result": "Founder-authored posts thanking or mentioning Aaron Epstein surfaced. Rejected because the top voice is not the author."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"P26\" \"Andrew Miklas\" \"LinkedIn\"",
+      "urlsChecked": [
+        "https://www.linkedin.com/in/amiklas",
+        "https://www.linkedin.com/posts/y-combinator_insforge-turns-your-coding-agent-into-a-principal-activity-7462200339899846656-CUEF"
+      ],
+      "result": "Andrew Miklas InsForge comment is already current. Other profile snippets lacked native comment URLs and visible comment metrics."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"P26\" \"Jared Friedman\" \"LinkedIn\"",
+      "urlsChecked": [],
+      "result": "No additional Spring/P26 native Jared Friedman authored post/comment with visible metrics found; surfaced Summer/S26 or non-target results were excluded."
+    },
+    {
+      "platform": "linkedin",
+      "query": "\"P26\" \"Tyler Bosmeny\" \"LinkedIn\"",
+      "urlsChecked": [],
+      "result": "No additional Spring/P26 native Tyler Bosmeny authored LinkedIn row with company-specific text found."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/garrytan/status \"P26\" \"YC\"",
+      "urlsChecked": [
+        "https://x.com/garrytan/status/2032129690014814550",
+        "https://x.com/garrytan/status/2067253344100561216",
+        "https://x.com/garrytan/status/2069474420113146355",
+        "https://x.com/garrytan/status/2075670806345170990",
+        "https://x.com/garrytan/status/2058043367704195271"
+      ],
+      "result": "Generic batch-renaming post rejected. Company-specific Ploy, Linzumi, InsForge, and 9 Mothers posts were already represented in targeted-evidence-current.json."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/dflieb/status \"P26\" \"YC\"",
+      "urlsChecked": [],
+      "result": "No additional David Lieb Spring/P26 authored X post/comment with visible metrics found."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/greybaker/status \"P26\" \"YC\"",
+      "urlsChecked": [
+        "https://x.com/greybaker?lang=en"
+      ],
+      "result": "Search/profile snippet for a possible Arseniy Shishaev post could not be resolved to a native status URL; rejected as profile-only."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/t_blom/status \"P26\" \"YC\"",
+      "urlsChecked": [],
+      "result": "No additional Tom Blomfield Spring/P26 authored X post/comment with visible metrics found."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/snowmaker/status \"YC P26\" OR \"P26\"",
+      "urlsChecked": [],
+      "result": "No additional Harj Taggar Spring/P26 authored X post/comment with visible metrics found."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/bosmeny/status \"YC P26\" OR \"P26\"",
+      "urlsChecked": [
+        "https://x.com/bosmeny/status/2062974811165671542"
+      ],
+      "result": "Found generic P26 hard-tech post. Rejected because it does not mention a specific Spring/P26 company, founder, handle, or domain."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/harjtaggar/status \"YC P26\" OR \"P26\"",
+      "urlsChecked": [],
+      "result": "No additional Harj Taggar Spring/P26 authored X post/comment with visible metrics found."
+    },
+    {
+      "platform": "x",
+      "query": "site:x.com/dessaigne/status \"YC P26\" OR \"P26\"",
+      "urlsChecked": [],
+      "result": "No additional Nicolas Dessaigne Spring/P26 authored X post/comment with visible metrics found."
+    },
+    {
+      "platform": "x",
+      "query": "\"P26\" \"Garry Tan\" \"Y Combinator\"",
+      "urlsChecked": [
+        "https://x.com/garrytan/status/2032129690014814550"
+      ],
+      "result": "Mostly founder-authored or profile/search results. Only Garry-authored generic batch post was verifiable and it failed company-specific matching."
+    },
+    {
+      "platform": "youtube",
+      "query": "site:youtube.com/watch \"P26\" \"Garry Tan\" OR \"Jared Friedman\" OR \"Tom Blomfield\" OR \"Paul Graham\"",
+      "urlsChecked": [
+        "https://www.youtube.com/watch?v=PXHvt_0eoZ4"
+      ],
+      "result": "Surfaced Demo Day/media results, not native top voice authored company-specific evidence."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com \"YC P26\" \"Garry Tan\"",
+      "urlsChecked": [
+        "https://www.reddit.com/r/buildinpublic/comments/1sfb9c0/we_joined_yc_p26_at_70k_mrr/"
+      ],
+      "result": "Founder/community posts mentioning Garry Tan surfaced. Rejected because top voices were not the authors."
+    },
+    {
+      "platform": "reddit",
+      "query": "site:reddit.com \"YC P26\" \"Paul Graham\" OR \"spez\"",
+      "urlsChecked": [],
+      "result": "No native Reddit post/comment authored by a listed insider about a specific Spring/P26 company found."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia: query=P26 tags=comment,author_pg",
+      "urlsChecked": [
+        "https://hn.algolia.com/api/v1/search_by_date?query=P26&tags=comment,author_pg"
+      ],
+      "result": "Returned old/unrelated false positives, not Spring/P26 company evidence."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia: query=YC P26 tags=comment",
+      "urlsChecked": [
+        "https://hn.algolia.com/api/v1/search_by_date?query=YC%20P26&tags=comment"
+      ],
+      "result": "No qualifying native comment by a listed top voice about a Spring/P26 company found."
+    },
+    {
+      "platform": "hacker_news",
+      "query": "HN Algolia company-name spot checks including Adialante",
+      "urlsChecked": [],
+      "result": "Returned unrelated token matches such as similar words or non-top-voice comments; no accepted candidates."
+    },
+    {
+      "platform": "product_hunt",
+      "query": "site:producthunt.com/posts \"YC P26\" \"Garry Tan\" OR \"Paul Graham\" OR \"Taro Fukuyama\" OR \"Tom Blomfield\"",
+      "urlsChecked": [],
+      "result": "No native Product Hunt post/comment authored by a listed top voice about a Spring/P26 company found."
+    },
+    {
+      "platform": "github",
+      "query": "GitHub Search API: commenter:rauchg Superlog, author:rauchg P26, author:rauchg YC",
+      "urlsChecked": [
+        "https://github.com/stylus/stylus/issues/43"
+      ],
+      "result": "No Spring/P26 GitHub issue/comment/discussion by Guillermo Rauch found; one old unrelated YC result rejected."
+    },
+    {
+      "platform": "github",
+      "query": "GitHub Search API: commenter:nat P26, author:nat P26, commenter:nat YC, author:nat YC",
+      "urlsChecked": [],
+      "result": "No Spring/P26 GitHub issue/comment/discussion by Nat Friedman found in scoped searches."
+    }
+  ],
+  "notes": [
+    "No new accepted candidates were added in this pass.",
+    "The strongest newly verified native posts were Garry Tan's batch-renaming X post and Tyler Bosmeny's hard-tech X post, but both failed the company/founder/handle/domain specificity requirement.",
+    "Several company-specific YC partner rows surfaced again, including Garry Tan on Ploy/Linzumi/InsForge, Aaron Epstein on Sazabi/Interfaze, Andrew Miklas on InsForge, and Grey Baker on Hexa/Cignara. All were rejected as additional candidates because their sourceUrl/platformPostId values already exist in targeted-evidence-current.json.",
+    "LinkedIn profile activity snippets were treated as non-qualifying unless a native post/comment URL and visible metrics could be verified.",
+    "No app/source JSON files were edited."
+  ]
+}

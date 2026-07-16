@@ -1,0 +1,1110 @@
+{
+  "accepted": [
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Keyframe Labs",
+      "companySlug": "keyframe-labs",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2055345726067187880",
+      "platformPostId": "2055345726067187880",
+      "postedAt": "2026-05-15T17:53:02Z",
+      "nativeText": "Fun demo of @KeyframeLabs' real-time video avatars. Have AI Garry and AI Dave talk about any topic, and drop questions live into the chat! The internet is about to get weird.\n\nhttps://demo.keyframelabs.com/lightconelm",
+      "metrics": {
+        "views": 21648,
+        "likes": 84,
+        "replies": 8,
+        "retweets": 10,
+        "quotes": 7,
+        "bookmarks": 43
+      },
+      "targetClue": "native text mentions official company handle @KeyframeLabs",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/keyframe-labs",
+        "websiteUrl": "https://keyframelabs.com",
+        "officialX": "https://x.com/KeyframeLabs",
+        "founders": [
+          "Parth Radia",
+          "Kaahan Radia"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Kuli",
+      "companySlug": "kuli",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2051399396944961822",
+      "platformPostId": "2051399396944961822",
+      "postedAt": "2026-05-04T20:31:44Z",
+      "nativeText": "Highly paid marketing teams spend hours per week scouting TikTok and IG, but now AI can do that for them. \n\nKuli is already live with customers like Disney, Supercell, and Nivea.",
+      "metrics": {
+        "views": 117411,
+        "likes": 347,
+        "replies": 11,
+        "retweets": 13,
+        "quotes": 0,
+        "bookmarks": 572
+      },
+      "targetClue": "native text names Kuli",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/kuli",
+        "websiteUrl": "https://kuli.one",
+        "officialX": null,
+        "founders": [
+          "Michael Hodara",
+          "Jonathan Hassan"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Result",
+      "companySlug": "result",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2067276082529882563",
+      "platformPostId": "2067276082529882563",
+      "postedAt": "2026-06-17T16:00:00Z",
+      "nativeText": "@kushwah_aaryan @charliewarren Tough to measure determination, but wow you\u2019ve got it",
+      "metrics": {
+        "views": 268,
+        "likes": 7,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "targetClue": "native reply mentions official founder handle @kushwah_aaryan",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/result",
+        "websiteUrl": "https://result.dev/",
+        "officialX": "https://x.com/tryresult",
+        "founders": [
+          "Aaryan Kushwah",
+          "Savio Martin"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "HeyClicky",
+      "companySlug": "heyclicky",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2066992416578785574",
+      "platformPostId": "2066992416578785574",
+      "postedAt": "2026-06-16T21:12:49Z",
+      "nativeText": "Wild new @heyclicky demo just dropped \ud83d\udc40",
+      "metrics": {
+        "views": 16879,
+        "likes": 102,
+        "replies": 5,
+        "retweets": 4,
+        "quotes": 0,
+        "bookmarks": 31
+      },
+      "targetClue": "native text mentions official company handle @heyclicky",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/heyclicky",
+        "websiteUrl": "https://heyclicky.com/",
+        "officialX": "https://x.com/heyclicky",
+        "founders": []
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Standout",
+      "companySlug": "standout",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2066279367509188904",
+      "platformPostId": "2066279367509188904",
+      "postedAt": "2026-06-14T21:59:25Z",
+      "nativeText": "@shcallaway @standoutwork Crazy pull",
+      "metrics": {
+        "views": 569,
+        "likes": 5,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "targetClue": "native reply mentions official company handle @standoutwork",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/standout",
+        "websiteUrl": "https://standout.work",
+        "officialX": "https://x.com/standoutwork",
+        "founders": [
+          "Alexis Aftalion",
+          "Witold de La Chapelle"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Standout",
+      "companySlug": "standout",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2066278602321379593",
+      "platformPostId": "2066278602321379593",
+      "postedAt": "2026-06-14T21:56:23Z",
+      "nativeText": "Gotta collect em all! @standoutwork",
+      "metrics": {
+        "views": 22668,
+        "likes": 172,
+        "replies": 16,
+        "retweets": 6,
+        "quotes": 8,
+        "bookmarks": 42
+      },
+      "targetClue": "native text mentions official company handle @standoutwork",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/standout",
+        "websiteUrl": "https://standout.work",
+        "officialX": "https://x.com/standoutwork",
+        "founders": [
+          "Alexis Aftalion",
+          "Witold de La Chapelle"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Sazabi",
+      "companySlug": "sazabi",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2062211036942643588",
+      "platformPostId": "2062211036942643588",
+      "postedAt": "2026-06-03T16:33:19Z",
+      "nativeText": "Second-time founders like @shcallaway are different. He's built observability at scale at Brex, and now is reinventing how it's done for modern teams. Smart, experienced, opinionated, and has a chip on his shoulder to win. Not surprising users have been raving about the product.",
+      "metrics": {
+        "views": 5586,
+        "likes": 30,
+        "replies": 4,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 5
+      },
+      "targetClue": "native text mentions official founder handle @shcallaway",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/sazabi",
+        "websiteUrl": "https://www.sazabi.com/",
+        "officialX": "https://x.com/sazabi",
+        "founders": [
+          "Sherwood Callaway"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Parrot",
+      "companySlug": "useparrot",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2061593320770650309",
+      "platformPostId": "2061593320770650309",
+      "postedAt": "2026-06-01T23:38:44Z",
+      "nativeText": "The $200B auto repair industry still runs on phone calls, to negotiate insurance, source parts, and coordinate with customers. @tryparrotai agents handle all of it, saving shops $1K+ per repair order through automated negotiation.\n\n@pbaek5699 & @Parrot_Liam are living on shop floors to solve these problems \u2013 congrats on the launch!",
+      "metrics": {
+        "views": 12683,
+        "likes": 40,
+        "replies": 4,
+        "retweets": 4,
+        "quotes": 0,
+        "bookmarks": 17
+      },
+      "targetClue": "native text mentions Parrot handles @tryparrotai and @Parrot_Liam",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/useparrot",
+        "websiteUrl": "https://www.useparrot.com/",
+        "officialX": null,
+        "founders": [
+          "Phillip Baek",
+          "Liam McBride"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Drafted",
+      "companySlug": "drafted",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2060395527322406924",
+      "platformPostId": "2060395527322406924",
+      "postedAt": "2026-05-29T16:19:08Z",
+      "nativeText": "AI for the real world is going to change how the world looks.\n\n@DraftedAI built an AI model that can design complete custom homes in seconds, and it\u2019s a lot of fun to play with!",
+      "metrics": {
+        "views": 6244,
+        "likes": 29,
+        "replies": 9,
+        "retweets": 2,
+        "quotes": 1,
+        "bookmarks": 5
+      },
+      "targetClue": "native text mentions official company handle @DraftedAI",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/drafted",
+        "websiteUrl": "https://www.drafted.ai/",
+        "officialX": "https://x.com/DraftedAI",
+        "founders": [
+          "Nicholas Donahue"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Twolabs",
+      "companySlug": "twolabs",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2059523990964805976",
+      "platformPostId": "2059523990964805976",
+      "postedAt": "2026-05-27T06:35:58Z",
+      "nativeText": "While other robotics companies are trying to move boxes or fold laundry, @Twolabs is building humanoid robots to care for humans.",
+      "metrics": {
+        "views": 10896,
+        "likes": 89,
+        "replies": 10,
+        "retweets": 8,
+        "quotes": 1,
+        "bookmarks": 14
+      },
+      "targetClue": "native text mentions official company handle @Twolabs",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/twolabs",
+        "websiteUrl": "https://www.twolabs.ai",
+        "officialX": "https://x.com/twolabsai",
+        "founders": [
+          "Sardor Rahmatulloev",
+          "Danyal Ahmad"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Amboras",
+      "companySlug": "amboras",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2057901345508835799",
+      "platformPostId": "2057901345508835799",
+      "postedAt": "2026-05-22T19:08:09Z",
+      "nativeText": "It used to be that you'd need to build a wedge product to take on a massive incumbent, but as of a few months ago that's no longer the case.\n\nAmboras is building an AI-native ecommerce platform, with all the typical third-party plugins and customizations built in, out of the box.",
+      "metrics": {
+        "views": 5851,
+        "likes": 21,
+        "replies": 3,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 17
+      },
+      "targetClue": "native text names Amboras",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/amboras",
+        "websiteUrl": "https://amboras.com",
+        "officialX": null,
+        "founders": [
+          "Imad Mokadem",
+          "Amin Mokadem"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Panacea",
+      "companySlug": "panacea",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2056858519635374466",
+      "platformPostId": "2056858519635374466",
+      "postedAt": "2026-05-19T22:04:20Z",
+      "nativeText": "FDA approval can take years and costs millions. Most of that is slow, manual regulatory work billed by the hour.\n\n@withpanacea gives the best FDA consultants AI superpowers, and cuts timelines in half.\n\nEvery day faster = more patients helped sooner.",
+      "metrics": {
+        "views": 1558,
+        "likes": 12,
+        "replies": 2,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 6
+      },
+      "targetClue": "native text mentions official company handle @withpanacea",
+      "registryCheck": {
+        "ycProfileUrl": "https://www.ycombinator.com/companies/panacea",
+        "websiteUrl": "https://withpanacea.com",
+        "officialX": null,
+        "founders": [
+          "Haris Javed-Akhtar",
+          "Yaman Ziadeh"
+        ]
+      },
+      "dedupe": {
+        "sourceUrlPresentInCurrent": false,
+        "platformPostIdPresentInCurrent": false,
+        "presentInPriorSourceHuntOutput": false,
+        "dedupeDecision": "Included because exact sourceUrl/platformPostId was absent from src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*."
+      },
+      "verificationMethod": "api.fxtwitter.com public post JSON; local top-voices and Spring/P26 registry checks; sourceUrl/platformPostId absent from targeted-evidence-current.json and outputs/source-hunt/*.",
+      "whyQualifies": "Native post by a listed real person; top-voice-authored text itself names the Spring/P26 target company, founder handle, official handle, or target domain."
+    }
+  ],
+  "rejected": [
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Juno",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2058019320027058194",
+      "platformPostId": "2058019320027058194",
+      "postedAt": "2026-05-23T02:56:56Z",
+      "nativeText": "5k paid users and growing fast",
+      "metrics": {
+        "views": 35316,
+        "likes": 117,
+        "replies": 7,
+        "retweets": 0,
+        "quotes": 1,
+        "bookmarks": 43
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text says only \"5k paid users and growing fast\"; the company/founder clues appear only in the quoted Y Combinator card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Juno",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2055358477124669945",
+      "platformPostId": "2055358477124669945",
+      "postedAt": "2026-05-15T18:43:42Z",
+      "nativeText": "\"Niche\" products in today's world are massive markets.",
+      "metrics": {
+        "views": 5451,
+        "likes": 26,
+        "replies": 1,
+        "retweets": 4,
+        "quotes": 0,
+        "bookmarks": 14
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text says only a general market comment; Juno appears only in the quoted founder profile/context.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "AgentPhone",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2055340032626729451",
+      "platformPostId": "2055340032626729451",
+      "postedAt": "2026-05-15T17:30:24Z",
+      "nativeText": "There's a new class of startup to be built where the customer is agents instead of developers. Seems possible that the market is 10x the existing human-centric incumbents.",
+      "metrics": {
+        "views": 7486,
+        "likes": 37,
+        "replies": 8,
+        "retweets": 2,
+        "quotes": 0,
+        "bookmarks": 12
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text is a generic agents/customer thesis; AgentPhone and founders appear only in the quoted Y Combinator launch post.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "YouArt",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2055165121664889034",
+      "platformPostId": "2055165121664889034",
+      "postedAt": "2026-05-15T05:55:22Z",
+      "nativeText": "My friends in Hollywood worry AI will replace them, but what if actually it could let them bring their ideas to life without slaving away at the mercy of production companies and distributors?",
+      "metrics": {
+        "views": 5362,
+        "likes": 23,
+        "replies": 3,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 8
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text discusses Hollywood/AI generally; YouArt appears only in the quoted Y Combinator launch card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Saffron",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2054666614164066305",
+      "platformPostId": "2054666614164066305",
+      "postedAt": "2026-05-13T20:54:29Z",
+      "nativeText": "Do things that don't scale",
+      "metrics": {
+        "views": 1811,
+        "likes": 6,
+        "replies": 2,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 1
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text says only \"Do things that don't scale\"; Saffron appears only in quoted founder/profile context.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Juno",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2054578954863075614",
+      "platformPostId": "2054578954863075614",
+      "postedAt": "2026-05-13T15:06:09Z",
+      "nativeText": "The feeling a founder gets when a stranger tells them their app made a difference is unmatched in the human experience.",
+      "metrics": {
+        "views": 1180,
+        "likes": 16,
+        "replies": 0,
+        "retweets": 2,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text is a generic founder-feeling comment; Juno appears only in the quoted founder profile/context.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Oddpool",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2053909251412967588",
+      "platformPostId": "2053909251412967588",
+      "postedAt": "2026-05-11T18:44:59Z",
+      "nativeText": "These guys built data tools on top of prediction markets for themselves as a hobby, grew to several k MRR from consumers, and then realized that this is mega valuable to institutional investors.",
+      "metrics": {
+        "views": 825,
+        "likes": 3,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text says \"These guys\" without naming the company/founder/handle/domain; Oddpool appears only in the quote card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Expanse",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2051378443364016373",
+      "platformPostId": "2051378443364016373",
+      "postedAt": "2026-05-04T19:08:28Z",
+      "nativeText": "Seems like the long-term constraint on intelligence is power and compute, so ideas like this will be always important.",
+      "metrics": {
+        "views": 1956,
+        "likes": 7,
+        "replies": 0,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text is a generic compute/power comment; Expanse appears only in the quoted Y Combinator launch card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Andco",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2049925949286965339",
+      "platformPostId": "2049925949286965339",
+      "postedAt": "2026-04-30T18:56:46Z",
+      "nativeText": "Love seeing YC alums come back with a chip on their shoulders. This is a great example of how AI can transform the economics of an industry.",
+      "metrics": {
+        "views": 2261,
+        "likes": 2,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 1
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text references YC alums and an industry generally; Andco appears only in the quoted Y Combinator launch card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Saffron",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2049286686816063637",
+      "platformPostId": "2049286686816063637",
+      "postedAt": "2026-04-29T00:36:34Z",
+      "nativeText": "Anyone looking to hire engineers who are top 1% at using the newest coding tools should check this out.",
+      "metrics": {
+        "views": 2734,
+        "likes": 7,
+        "replies": 3,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 3
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text says only \"check this out\" for engineers; Saffron appears only in the quoted Y Combinator launch card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Kinect",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2047432256575406359",
+      "platformPostId": "2047432256575406359",
+      "postedAt": "2026-04-23T21:47:44Z",
+      "nativeText": "It's kind of nuts that the state of the art for e-commerce storefronts hasn't changed in 2 decades. I suspect AI will change this.",
+      "metrics": {
+        "views": 32358,
+        "likes": 73,
+        "replies": 6,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 50
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text is a generic e-commerce storefront comment; Kinect appears only in the quoted Y Combinator launch card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "david-lieb",
+      "topVoiceName": "David Lieb",
+      "topVoiceHandle": "dflieb",
+      "companyName": "Keyframe Labs",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/dflieb/status/2044464736763580431",
+      "platformPostId": "2044464736763580431",
+      "postedAt": "2026-04-15T17:15:52Z",
+      "nativeText": "These are the best AI avatars I've seen. Crazy that this was built from scratch by a team of two (human) founders.",
+      "metrics": {
+        "views": 1567,
+        "likes": 6,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 4
+      },
+      "rejectionType": "quote_only",
+      "reason": "native David Lieb text praises AI avatars but does not name Keyframe/founders/handle/domain; the company appears only in the quote card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "RentAHuman",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2060521910346420378",
+      "platformPostId": "2060521910346420378",
+      "postedAt": "2026-05-30T00:41:20Z",
+      "nativeText": "what if AI actually creates more jobs?",
+      "metrics": {
+        "views": 45355,
+        "likes": 132,
+        "replies": 26,
+        "retweets": 11,
+        "quotes": 3,
+        "bookmarks": 31
+      },
+      "rejectionType": "quote_only",
+      "reason": "native Aaron Epstein text says only \"what if AI actually creates more jobs?\"; RentAHuman appears only in the quoted Y Combinator card.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "CentralComs",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2060446351150940452",
+      "platformPostId": "2060446351150940452",
+      "postedAt": "2026-05-29T19:41:06Z",
+      "nativeText": "Kyle and Kevin grew up as landlords' kids watching their parents grind through leasing calls and maintenance tickets, so now they're automating it for property managers everywhere.",
+      "metrics": {
+        "views": 5406,
+        "likes": 28,
+        "replies": 3,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 13
+      },
+      "rejectionType": "vague_native",
+      "reason": "native Aaron Epstein text uses only first names \"Kyle and Kevin\" and does not visibly name CentralComs, a handle, a domain, or full founder names.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "yc_partners",
+      "topVoicePersonId": "aaron-epstein",
+      "topVoiceName": "Aaron Epstein",
+      "topVoiceHandle": "aaron_epstein",
+      "companyName": "Klaimee",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/aaron_epstein/status/2058777715109683516",
+      "platformPostId": "2058777715109683516",
+      "postedAt": "2026-05-25T05:10:32Z",
+      "nativeText": "Only 3 things founders should focus on during the YC batch:\n\n1) build your product\n2) talk to users\n3) exercise, or whatever you need to do to stay sane doing the first 2 things",
+      "metrics": {
+        "views": 96520,
+        "likes": 640,
+        "replies": 33,
+        "retweets": 31,
+        "quotes": 2,
+        "bookmarks": 184
+      },
+      "rejectionType": "quote_only",
+      "reason": "native Aaron Epstein text gives generic YC batch advice; Klaimee appears only in quoted founder profile/context.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoicePersonId": "aaron-levie",
+      "topVoiceName": "Aaron Levie",
+      "topVoiceHandle": "levie",
+      "companyName": "Standout",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/levie/status/2065287110744297809",
+      "platformPostId": "2065287110744297809",
+      "postedAt": "2026-06-12T04:16:33Z",
+      "nativeText": "At Box, we just surveyed 1,640 IT leaders across the US, Japan, and Europe about agentic AI adoption. Many standout findings, but a big one was that the companies that adopted AI the most are planning to grow headcount the most.\n\nObviously lots of ways you can read that data and variables mixed in, but it\u2019s actually quite intuitive that the companies that become most productive want to (and are able to) reinvest back into the business to keep getting the gains going. \n\nThe narrative of jobs being wiped out assumes that companies will take a fixed approach to what they want to be able for work on. What\u2019s happening in practice is it\u2019s causing companies to want to light up more engineering projects, sell to more customers, automate more processes to give time back, and more. That all leads to more work to be done by people.",
+      "metrics": {
+        "views": 44625,
+        "likes": 239,
+        "replies": 48,
+        "retweets": 53,
+        "quotes": 8,
+        "bookmarks": 138
+      },
+      "rejectionType": "generic_false_positive",
+      "reason": "Aaron Levie uses the ordinary word \"standout\" in a Box/AI survey thread; it does not name the Spring company Standout, its handle, founder, or domain.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoicePersonId": "alex-wang",
+      "topVoiceName": "Alex Wang",
+      "topVoiceHandle": "alexandr_wang",
+      "companyName": "Standout",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/alexandr_wang/status/2075680655258845621",
+      "platformPostId": "2075680655258845621",
+      "postedAt": "2026-07-10T20:36:47Z",
+      "nativeText": "muse spark 1.1 is ahead of gpt-5.6 on SciCode",
+      "metrics": {
+        "views": 55212,
+        "likes": 572,
+        "replies": 44,
+        "retweets": 30,
+        "quotes": 4,
+        "bookmarks": 32
+      },
+      "rejectionType": "generic_false_positive",
+      "reason": "Alex Wang uses the ordinary word \"standout\" about a benchmark; it does not name the Spring company Standout, its handle, founder, or domain.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoicePersonId": "keith-rabois",
+      "topVoiceName": "Keith Rabois",
+      "topVoiceHandle": "rabois",
+      "companyName": "Drafted",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/rabois/status/2074466782237147269",
+      "platformPostId": "2074466782237147269",
+      "postedAt": "2026-07-07T12:13:17Z",
+      "nativeText": "@pelaseyed @Eyesandvibes probably not but 2 maybe all 3 goals could have been saved.  and he was clearly incompetent vs Bosnia. drafted a text at halftime to pull him but didn\u2019t post:(",
+      "metrics": {
+        "views": 453,
+        "likes": 3,
+        "replies": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "rejectionType": "generic_false_positive",
+      "reason": "Keith Rabois uses \"drafted\" as an ordinary verb in a sports reply; it does not name DraftedAI, a founder, handle, or domain.",
+      "observedVia": "api.fxtwitter.com public post JSON"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoicePersonId": "brian-armstrong",
+      "topVoiceName": "Brian Armstrong",
+      "topVoiceHandle": "brian_armstrong",
+      "companyName": "Allowance",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/brian_armstrong/status/2076506739764330581",
+      "platformPostId": "2076506739764330581",
+      "postedAt": null,
+      "nativeText": "Brian Armstrong @brian_armstrong 3 days ago \"If\u2014\" is a poem by English poet Rudyard Kipling If you can keep your head when all about you Are losing theirs and blaming it on you; If you can trust yourself when all men doubt you, But make allowance for their doubting too: If you can wait and not be tired by waiting, Or being lied about, don't deal in lies, Or being hated don't give way to hating, And yet don't look too good, nor talk too wise; If you can dream\u2014and not make dreams your master; If you can think\u2014and not make thoughts your aim, If you can meet with Triumph and Disaster And treat those two impostors just the same: If you can bear to hear the truth you've spoken Twisted by knaves to make a trap for fools, Or watch the things you gave your life to, broken, And stoop and build 'em up with worn-out tools; If you can make one heap of all your winnings And risk it on one turn of pitc",
+      "metrics": {},
+      "rejectionType": "generic_false_positive",
+      "reason": "Brian Armstrong post is a Rudyard Kipling poem containing the ordinary word \"allowance\"; it does not name the Spring company Allowance, founder, handle, or domain.",
+      "observedVia": "TwStalker public timeline scan"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoicePersonId": "brian-armstrong",
+      "topVoiceName": "Brian Armstrong",
+      "topVoiceHandle": "brian_armstrong",
+      "companyName": "Foresight",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/brian_armstrong/status/2072333756426236231",
+      "platformPostId": "2072333756426236231",
+      "postedAt": "Wed Jul 01 14:57:24 +0000 2026",
+      "nativeText": "Important infrastructure for freedom - great foresight by <a style=\"text-decoration: none;\" href=\"/ErikVoorhees\">@ErikVoorhees</a> building Venice",
+      "metrics": {
+        "views": "128861",
+        "likes": 984,
+        "replies": 76,
+        "retweets": 111,
+        "bookmarks": 179
+      },
+      "rejectionType": "generic_false_positive",
+      "reason": "Brian Armstrong uses \"foresight\" as an ordinary word about Venice; it does not name the Spring company Foresight, founder, handle, or domain.",
+      "observedVia": "TwStalker public timeline scan"
+    },
+    {
+      "platform": "x",
+      "topVoiceAudience": "insiders",
+      "topVoicePersonId": "palmer-luckey",
+      "topVoiceName": "Palmer Luckey",
+      "topVoiceHandle": "palmerluckey",
+      "companyName": "Pentagon",
+      "batch": "YC Spring 2026 (P26)",
+      "sourceUrl": "https://x.com/palmerluckey/status/2076040030154625360",
+      "platformPostId": "2076040030154625360",
+      "postedAt": "Sat Jul 11 20:24:48 +0000 2026",
+      "nativeText": "\"The Pentagon announced they're doing an LCCM buy from Anduril; our Barracuda-500 class. We will produce 7,000 barracudas in 2027. Deliveries on Tomahawks and Patriots are both less than 1,000 a year, so we will make ten times more Barracuda-500s than Patriots or Tomahawks.\"",
+      "metrics": {
+        "views": "400851",
+        "likes": 4600,
+        "replies": 193,
+        "retweets": 344,
+        "bookmarks": 326
+      },
+      "rejectionType": "generic_false_positive",
+      "reason": "Palmer Luckey text refers to the U.S. Pentagon and Anduril; it does not name the Spring company Pentagon, founder Edgar Pavlovsky, handle, or domain.",
+      "observedVia": "TwStalker public timeline scan"
+    }
+  ],
+  "searches": [
+    {
+      "type": "local_dedupe",
+      "query": "Parsed src/lib/social/top-voices.ts, src/lib/yc/spring-2026-companies.json, src/lib/social/targeted-evidence-current.json, and outputs/source-hunt/*.json.",
+      "outcome": "Confirmed 68 listed real people, 63 X handles, 197 Spring/P26 companies, 368 current targeted evidence rows, and 465 prior accepted source-hunt rows. Exact sourceUrl/platformPostId duplicates were excluded from accepted."
+    },
+    {
+      "type": "x_timeline_sweep",
+      "query": "TwStalker public profile/API sweep over every allowlisted X handle from top-voices.ts, pages 1-6 where available.",
+      "outcome": "Scanned 63 X handles; found 181 raw target-clue candidates; 44 were exact current/prior duplicates, 30 plausible new rows were FxTwitter-verified, and 12 met the stricter native-text rule."
+    },
+    {
+      "type": "x_native_verification",
+      "query": "api.fxtwitter.com verification for David Lieb and Aaron Epstein candidate post IDs plus selected generic false positives.",
+      "outcome": "Accepted native-text hits for Keyframe Labs, Kuli, Result, HeyClicky, Standout, Sazabi, Parrot, Drafted, Twolabs, Amboras, and Panacea; rejected quote-only/vague rows where the target appeared only in quote context."
+    },
+    {
+      "type": "linkedin_web_search",
+      "query": "Searches for LinkedIn top-voice P26 posts: David Lieb, Aaron Epstein, Garry Tan, Grey Baker, Tom Blomfield, Taro Fukuyama, Harj Taggar, and Ankit Gupta.",
+      "outcome": "Search results surfaced known prior Taro Fukuyama LinkedIn P26 posts and founder repost pages already represented in source-hunt/current evidence; no new non-duplicate LinkedIn post by a listed top voice was accepted."
+    },
+    {
+      "type": "non_x_web_search",
+      "query": "Searches across Hacker News, Reddit, and YouTube for YC P26 plus listed top-voice names/handles.",
+      "outcome": "No eligible native comments/replies by listed people with visible target company/founder clues and visible metrics were found; Reddit hits mention Garry Tan in founder-authored stories, not top-voice-authored native activity."
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "dflieb",
+      "outcome": "scanned 6 pages; raw candidates 32"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "greybaker",
+      "outcome": "scanned 3 pages; raw candidates 45; errors page4 JSONDecodeError"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "t_blom",
+      "outcome": "scanned 2 pages; raw candidates 1; errors page3 JSONDecodeError"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "collinmathilde",
+      "outcome": "scanned 2 pages; raw candidates 13; errors page3 JSONDecodeError"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "dessaigne",
+      "outcome": "scanned 2 pages; raw candidates 4; errors page3 JSONDecodeError"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "bosmeny",
+      "outcome": "scanned 3 pages; raw candidates 2; errors page4 JSONDecodeError"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "aaron_epstein",
+      "outcome": "scanned 6 pages; raw candidates 35"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "paulg",
+      "outcome": "scanned 4 pages; raw candidates 1; errors page5 JSONDecodeError"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "daltonc",
+      "outcome": "scanned 2 pages; raw candidates 2; errors page3 JSONDecodeError"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "saranormous",
+      "outcome": "scanned 6 pages; raw candidates 1"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "levie",
+      "outcome": "scanned 6 pages; raw candidates 2"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "harjtaggar",
+      "outcome": "scanned 6 pages; raw candidates 10"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "agupta",
+      "outcome": "scanned 5 pages; raw candidates 2; errors page6 JSONDecodeError"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "gustaf",
+      "outcome": "scanned 6 pages; raw candidates 4"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "bradflora",
+      "outcome": "scanned 6 pages; raw candidates 6"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "patrickc",
+      "outcome": "scanned 3 pages; raw candidates 5"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "collision",
+      "outcome": "scanned 6 pages; raw candidates 1"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "brian_armstrong",
+      "outcome": "scanned 4 pages; raw candidates 2; errors page5 non_object_json"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "alexandr_wang",
+      "outcome": "scanned 6 pages; raw candidates 1"
+    },
+    {
+      "type": "x_handle_scan_summary",
+      "query": "palmerluckey",
+      "outcome": "scanned 6 pages; raw candidates 1"
+    }
+  ],
+  "notes": [
+    "Only outputs/source-hunt/s2026-topvoices-tenth-pass.json was written; snapshots and source JSON files were not edited.",
+    "Applied the task's strict rule: quote-only or vague native text was rejected even when the quoted card visibly named a Spring/P26 company.",
+    "Organization accounts, company accounts, and founder-authored posts surfaced through top-voice retweets were treated as ineligible unless the native author was a listed real person.",
+    "X metrics are visible values returned by api.fxtwitter.com at verification time and may drift on the native platform.",
+    "The LinkedIn web sweep found only already-deduped Taro Fukuyama/David Lieb/Garry Tan/Grey Baker/Tom Blomfield style P26 posts or founder repost pages, so no LinkedIn accepts were added in this pass."
+  ]
+}

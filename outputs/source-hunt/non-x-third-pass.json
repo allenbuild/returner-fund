@@ -1,0 +1,531 @@
+{
+  "source": {
+    "label": "Third-pass non-X/non-LinkedIn source hunt",
+    "generatedAt": "2026-07-15T20:24:22Z",
+    "repository": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund",
+    "cohortsCovered": ["S2026", "S26", "A16ZSR006"],
+    "platformsCovered": ["instagram", "youtube", "reddit", "product_hunt", "hacker_news", "github"],
+    "dedupedAgainst": [
+      "src/lib/social/targeted-evidence-current.json",
+      "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "src/lib/social/github-traction.json",
+      "src/lib/social/github-traction-summer-2026.json",
+      "src/lib/social/github-traction-a16z-speedrun-006.json",
+      "outputs/source-hunt/*.json"
+    ],
+    "notes": [
+      "Accepted rows are native item URLs, not profile-only or search URLs.",
+      "Visible metrics came from public HN Algolia item data, Product Hunt pages, YouTube watch HTML, or GitHub public repo API.",
+      "No protected source files were edited."
+    ]
+  },
+  "accepted": [
+    {
+      "batch": "S26",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48922706",
+      "company": "Coasty",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
+      "author": "nkov47",
+      "externalUrl": "https://coasty.ai/docs",
+      "publishedAt": "2026-07-15T15:51:20.000Z",
+      "metrics": { "points": 25, "comments": 3 },
+      "attributionSignals": [
+        "Local S26 snapshot lists Coasty with website coasty.ai and founders Prateek Jannu and Nitish Kovuru.",
+        "HN title names Coasty and YC S26.",
+        "HN story URL points to coasty.ai/docs."
+      ],
+      "reason": "Accepted: new native Launch HN item with visible points/comments and exact URL absent from all dedupe files."
+    },
+    {
+      "batch": "S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48236770",
+      "company": "Superset",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Superset (YC P26) - IDE for the agents era",
+      "author": "avipeltz",
+      "externalUrl": "https://github.com/superset-sh/superset",
+      "publishedAt": "2026-05-22T14:53:55.000Z",
+      "metrics": { "points": 108, "comments": 135 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Superset with website superset.sh and founder Avi Peltz.",
+        "HN title names Superset and YC P26.",
+        "External URL is the Superset GitHub repo tied to the local Superset identity."
+      ],
+      "reason": "Accepted: new native Launch HN discussion URL with visible points/comments; underlying GitHub repo may be known, but the HN item URL is not present in prior evidence."
+    },
+    {
+      "batch": "S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=46612494",
+      "company": "OpenWork",
+      "sourceKind": "show_hn_story",
+      "title": "Show HN: OpenWork - An open-source alternative to Claude Cowork",
+      "author": "ben_talent",
+      "externalUrl": "https://github.com/different-ai/openwork",
+      "publishedAt": "2026-01-14T04:55:04.000Z",
+      "metrics": { "points": 231, "comments": 60 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists OpenWork with website openworklabs.com.",
+        "HN title names OpenWork.",
+        "External URL is the different-ai/openwork repo already matched to OpenWork by the local GitHub traction context."
+      ],
+      "reason": "Accepted: new native Show HN discussion URL with visible points/comments and no URL duplicate in prior hunt outputs or protected evidence files."
+    },
+    {
+      "batch": "S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48225040",
+      "company": "Runtime",
+      "sourceKind": "launch_hn_story",
+      "title": "Launch HN: Runtime (YC P26) - Sandboxed coding agents for everyone on a team",
+      "author": "gustrigos",
+      "externalUrl": "https://www.runtm.com/",
+      "publishedAt": "2026-05-21T16:07:13.000Z",
+      "metrics": { "points": 103, "comments": 30 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Runtime with website runtm.com and founder Gus Trigos.",
+        "HN title names Runtime and YC P26.",
+        "External URL points to the official Runtime domain."
+      ],
+      "reason": "Accepted: new native Launch HN item with visible points/comments and exact URL absent from all dedupe files."
+    },
+    {
+      "batch": "S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48097078",
+      "company": "Interfaze",
+      "sourceKind": "hacker_news_story",
+      "title": "Interfaze: A new model architecture built for high accuracy at scale",
+      "author": "yoeven",
+      "externalUrl": "https://interfaze.ai/blog/interfaze-a-new-model-architecture-built-for-high-accuracy-at-scale",
+      "publishedAt": "2026-05-11T16:22:31.000Z",
+      "metrics": { "points": 164, "comments": 43 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Interfaze with website interfaze.ai and founder Yoeven D Khemlani.",
+        "HN title names Interfaze.",
+        "External URL is an interfaze.ai blog URL."
+      ],
+      "reason": "Accepted: new native HN discussion item with visible points/comments and strong official-domain attribution."
+    },
+    {
+      "batch": "S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=47808268",
+      "company": "smol machines",
+      "sourceKind": "show_hn_story",
+      "title": "Show HN: Smol machines - subsecond coldstart, portable virtual machines",
+      "author": "binsquare",
+      "externalUrl": "https://github.com/smol-machines/smolvm",
+      "publishedAt": "2026-04-17T17:18:58.000Z",
+      "metrics": { "points": 499, "comments": 139 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists smol machines with website smolmachines.com.",
+        "HN title names Smol machines.",
+        "External URL is the smol-machines/smolvm repo tied to the local company identity."
+      ],
+      "reason": "Accepted: new native Show HN item with visible points/comments; source URL is distinct from prior repo evidence."
+    },
+    {
+      "batch": "S26",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48834309",
+      "company": "Nebula Security",
+      "sourceKind": "hacker_news_story",
+      "title": "GhostLock, a stack-UAF that has existed in all Linux distributions for 15 years",
+      "author": "ranger_danger",
+      "externalUrl": "https://nebusec.ai/research/ionstack-part-2/",
+      "publishedAt": "2026-07-08T16:53:58.000Z",
+      "metrics": { "points": 414, "comments": 182 },
+      "attributionSignals": [
+        "Local S26 snapshot lists Nebula Security with website nebusec.ai.",
+        "HN external URL is on nebusec.ai.",
+        "The story is native HN discussion activity with visible public points and comments."
+      ],
+      "reason": "Accepted: new native HN item tied to the official company domain and absent from dedupe files."
+    },
+    {
+      "batch": "S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48181342",
+      "company": "InsForge",
+      "sourceKind": "show_hn_story",
+      "title": "Show HN: InsForge - Open-source Heroku for coding agents",
+      "author": "mrcoldbrew",
+      "externalUrl": "https://github.com/InsForge/InsForge",
+      "publishedAt": "2026-05-18T15:40:42.000Z",
+      "metrics": { "points": 62, "comments": 7 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists InsForge with website insforge.dev.",
+        "HN title names InsForge.",
+        "External URL is the InsForge/InsForge repo already tied to the local InsForge identity."
+      ],
+      "reason": "Accepted: new native Show HN discussion URL with visible points/comments and no exact URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "product_hunt",
+      "url": "https://www.producthunt.com/products/runtime",
+      "company": "Runtime",
+      "sourceKind": "product_hunt_launch",
+      "title": "Runtime - Sandboxed coding agents for everyone on your team",
+      "author": "Runtime",
+      "publishedAt": "2026-05-20",
+      "metrics": { "points": 312, "dayRank": 5, "followers": 918, "reviews": 2 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Runtime with website runtm.com.",
+        "Product Hunt page links to runtm.com and labels Runtime as Y Combinator.",
+        "Page shows launch rank, points, followers, and review count."
+      ],
+      "reason": "Accepted: new native Product Hunt launch/product URL with visible engagement and exact URL absent from prior outputs/evidence."
+    },
+    {
+      "batch": "S2026",
+      "platform": "product_hunt",
+      "url": "https://www.producthunt.com/p/cignara/ai-agents-for-fortune-500-grade-customer-support",
+      "company": "Cignara",
+      "sourceKind": "product_hunt_forum_thread",
+      "title": "AI agents for Fortune 500 grade customer support",
+      "author": "Nalin Gupta",
+      "publishedAt": "2026-07-12",
+      "metrics": { "views": 3, "upvotes": 0, "comments": 6 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Cignara with founder Nalin Gupta and website cignara.com.",
+        "Product Hunt thread author is Nalin Gupta and the text says he is founder of Cignara in the Y Combinator P26 batch.",
+        "Thread URL exposes item-level views/upvote/comment counters."
+      ],
+      "reason": "Accepted: new native Product Hunt thread with visible metrics and direct founder/company/batch attribution."
+    },
+    {
+      "batch": "S2026",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=vI8shNqqmRE",
+      "company": "Ontora",
+      "sourceKind": "youtube_video",
+      "title": "Launch: 1 Month of Ontora (YC P26)",
+      "author": "Ontora",
+      "publishedAt": "2026-06-08",
+      "metrics": { "views": 597, "likes": 8 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Ontora with website ontora.com.",
+        "YouTube title names Ontora and YC P26.",
+        "Video author is Ontora and watch page exposes views and likes."
+      ],
+      "reason": "Accepted: new first-party YouTube video with visible views/likes and exact URL absent from all dedupe files."
+    },
+    {
+      "batch": "S26",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=oJKl6tPHxRA",
+      "company": "Inkbox",
+      "sourceKind": "youtube_video",
+      "title": "Give your AI agents email, phone, iMessage, and an internet address | Inkbox (YC S26)",
+      "author": "Inkbox (YC S26)",
+      "publishedAt": "2026-07-07",
+      "metrics": { "views": 239, "likes": 5 },
+      "attributionSignals": [
+        "Local S26 snapshot lists Inkbox with website inkbox.ai and official GitHub inkbox-ai.",
+        "YouTube title and channel identify Inkbox and YC S26.",
+        "Watch page exposes views and likes."
+      ],
+      "reason": "Accepted: new first-party YouTube video with visible metrics and no URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=xVmMhqS0eZg",
+      "company": "Imperfect",
+      "sourceKind": "youtube_video",
+      "title": "Imperfect (YC P26): Training that Adapts to Real Life",
+      "author": "Imperfect_co",
+      "publishedAt": "2026-05-05",
+      "metrics": { "views": 611, "likes": 20 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Imperfect with website imperfect.co.",
+        "YouTube title names Imperfect and YC P26.",
+        "Watch page exposes views and likes."
+      ],
+      "reason": "Accepted: new native YouTube video with visible metrics and direct title attribution."
+    },
+    {
+      "batch": "S2026",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=jHsd4voiRZQ",
+      "company": "Gojiberry AI",
+      "sourceKind": "youtube_video",
+      "title": "How Gojiberry AI Hit $2M ARR With Cold Outreach That Actually Works",
+      "author": "buildersgrowthlab",
+      "publishedAt": "2026-05-03",
+      "metrics": { "views": 52, "likes": 1 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Gojiberry AI with website gojiberry.ai.",
+        "YouTube title names Gojiberry AI and the search result identifies the YC P26 context.",
+        "Watch page exposes views and likes."
+      ],
+      "reason": "Accepted: new native YouTube video URL with visible metrics and company-name attribution; marked as third-party coverage rather than first-party."
+    },
+    {
+      "batch": "S26",
+      "platform": "github",
+      "url": "https://github.com/inkbox-ai/opencode-plugin",
+      "company": "Inkbox",
+      "sourceKind": "github_repo",
+      "title": "inkbox-ai/opencode-plugin",
+      "author": "inkbox-ai",
+      "publishedAt": "2026-07-09T06:52:38Z",
+      "lastActivityAt": "2026-07-15T19:20:21Z",
+      "metrics": { "stars": 3, "forks": 0, "watchers": 3, "openIssues": 0 },
+      "attributionSignals": [
+        "Local S26 snapshot lists Inkbox with official GitHub account https://github.com/inkbox-ai.",
+        "Repo owner is the official inkbox-ai account.",
+        "Repo description and homepage identify Inkbox."
+      ],
+      "reason": "Accepted: new official GitHub repo with visible repo metrics and no exact URL in GitHub traction snapshots or prior hunts."
+    },
+    {
+      "batch": "S26",
+      "platform": "github",
+      "url": "https://github.com/SpekoAI/pitch-gauntlet",
+      "company": "Speko",
+      "sourceKind": "github_repo",
+      "title": "SpekoAI/pitch-gauntlet",
+      "author": "SpekoAI",
+      "publishedAt": "2026-07-13T03:10:20Z",
+      "lastActivityAt": "2026-07-13T05:57:39Z",
+      "metrics": { "stars": 0, "forks": 0, "watchers": 0, "openIssues": 0 },
+      "attributionSignals": [
+        "Local S26 snapshot lists Speko with official GitHub account https://github.com/spekoai.",
+        "Repo owner is the official SpekoAI account.",
+        "Repo description says it is built on the Speko voice API."
+      ],
+      "reason": "Accepted: new official GitHub repo with visible zero-state metrics and exact URL absent from snapshots/source-hunt outputs."
+    },
+    {
+      "batch": "S26",
+      "platform": "github",
+      "url": "https://github.com/Glen-Web-App/glen-pi-plugin",
+      "company": "Glen",
+      "sourceKind": "github_repo",
+      "title": "Glen-Web-App/glen-pi-plugin",
+      "author": "Glen-Web-App",
+      "publishedAt": "2026-07-10T23:45:55Z",
+      "lastActivityAt": "2026-07-10T23:45:56Z",
+      "metrics": { "stars": 0, "forks": 0, "watchers": 0, "openIssues": 0 },
+      "attributionSignals": [
+        "Local S26 snapshot lists Glen with official GitHub account https://github.com/Glen-Web-App.",
+        "Repo owner is the official Glen-Web-App account.",
+        "Repo description names Glen and the Glen monorepo."
+      ],
+      "reason": "Accepted: new official GitHub repo with visible metrics and no exact URL duplicate."
+    },
+    {
+      "batch": "S2026",
+      "platform": "github",
+      "url": "https://github.com/Aradotso/ara-agent-integrations",
+      "company": "Ara",
+      "sourceKind": "github_repo",
+      "title": "Aradotso/ara-agent-integrations",
+      "author": "Aradotso",
+      "publishedAt": "2026-07-15T19:30:50Z",
+      "lastActivityAt": "2026-07-15T19:30:53Z",
+      "metrics": { "stars": 0, "forks": 0, "watchers": 0, "openIssues": 0 },
+      "attributionSignals": [
+        "Local S2026 snapshot lists Ara with official GitHub account https://github.com/Aradotso.",
+        "Repo owner is the official Aradotso account.",
+        "Repo URL is absent from all GitHub traction snapshots and prior source hunts."
+      ],
+      "reason": "Accepted: new official GitHub repo with visible zero-state metrics and current repo activity."
+    }
+  ],
+  "rejected": [
+    {
+      "batch": "A16ZSR006",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=31668426",
+      "company": "SUN",
+      "sourceKind": "hacker_news_story",
+      "title": "Sunsetting Atom",
+      "metrics": { "points": 1320, "comments": 853 },
+      "attributionSignals": [
+        "Query matched the token SUN.",
+        "Title and story URL are about GitHub Atom, not the A16ZSR006 SUN company.",
+        "No official SUN domain or founder identity appears in the item."
+      ],
+      "reason": "Rejected: false-positive generic word match."
+    },
+    {
+      "batch": "S26",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=48317774",
+      "company": "Glen",
+      "sourceKind": "hacker_news_story",
+      "title": "Blue Origin's New Glenn blows up during static fire test",
+      "metrics": { "points": 503, "comments": 557 },
+      "attributionSignals": [
+        "Query matched Glen/Glenn spelling.",
+        "The item is about Blue Origin's New Glenn rocket.",
+        "No tryglen.com, Glen-Web-App, or local Glen founder signal appears."
+      ],
+      "reason": "Rejected: name collision, not company evidence."
+    },
+    {
+      "batch": "S2026",
+      "platform": "hacker_news",
+      "url": "https://news.ycombinator.com/item?id=46454693",
+      "company": "OpenWork",
+      "sourceKind": "show_hn_story",
+      "title": "Show HN: OpenWorkers - Self-hosted Cloudflare workers in Rust",
+      "metrics": { "points": 500, "comments": 158 },
+      "attributionSignals": [
+        "Query matched OpenWork-like spelling.",
+        "Story URL is openworkers.com, not openworklabs.com or the different-ai/openwork repo.",
+        "Title names OpenWorkers, a distinct project."
+      ],
+      "reason": "Rejected: similar-name project with no local company attribution."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "product_hunt",
+      "url": "https://www.producthunt.com/products/taxnova",
+      "company": "Taxnova",
+      "sourceKind": "product_hunt_launch",
+      "metrics": { "followers": 26 },
+      "attributionSignals": [
+        "Product Hunt page names Taxnova and a16z Speedrun.",
+        "The URL already appears in src/lib/social/a16z-speedrun-006-social-evidence.json.",
+        "A prior A16Z source-hunt output also marks SUN/Taxnova/Quanto Product Hunt rows as already known."
+      ],
+      "reason": "Rejected: duplicate of protected A16Z social evidence."
+    },
+    {
+      "batch": "S2026",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=-mMIkzgI_ek",
+      "company": "Superset",
+      "sourceKind": "youtube_video",
+      "metrics": {},
+      "attributionSignals": [
+        "Search result names Superset and YC P26.",
+        "Exact YouTube URL already appears in outputs/source-hunt/non-x-first-party-shard.json as rejected.",
+        "The prior rejection found insufficient clean first-party attribution for acceptance."
+      ],
+      "reason": "Rejected: duplicate prior source-hunt lead."
+    },
+    {
+      "batch": "S2026",
+      "platform": "reddit",
+      "url": "https://www.reddit.com/r/ycombinator/comments/1t6u6sz/im_in_yc_p26_were_hosting_call_my_agent_hackathon/",
+      "company": "AgentPhone",
+      "sourceKind": "reddit_post",
+      "metrics": {},
+      "attributionSignals": [
+        "Search snippet says Manav is in YC P26 building AgentPhone.",
+        "Local S2026 snapshot lists AgentPhone founders Manav Modi and Meet Modi.",
+        "Reddit JSON and old.reddit were blocked with HTTP 403 from this network."
+      ],
+      "reason": "Rejected: plausible native Reddit post, but visible post metrics could not be verified."
+    },
+    {
+      "batch": "S2026",
+      "platform": "reddit",
+      "url": "https://www.reddit.com/r/ExperiencedFounders/comments/1t6se1v/what_y_combinator_actually_feels_like_from_a/",
+      "company": "Gojiberry AI",
+      "sourceKind": "reddit_post",
+      "metrics": {},
+      "attributionSignals": [
+        "Search snippet says the author is halfway through YC P26 with gojiberry.ai.",
+        "Local S2026 snapshot lists Gojiberry AI with website gojiberry.ai.",
+        "Reddit public JSON returned HTTP 403, and search snippets did not expose numeric counters."
+      ],
+      "reason": "Rejected: good attribution lead, but metrics were not visible."
+    },
+    {
+      "batch": "S26",
+      "platform": "youtube",
+      "url": "https://www.youtube.com/watch?v=T8mePmTE-WQ",
+      "company": "Coasty",
+      "sourceKind": "youtube_video",
+      "title": "Coasty Application Video (YC S26) - Accepted",
+      "metrics": { "views": 12, "likes": 0 },
+      "attributionSignals": [
+        "Local S26 snapshot lists Coasty founders Prateek Jannu and Nitish Kovuru.",
+        "YouTube author is Nitish Kovuru and title names Coasty YC S26.",
+        "Watch page exposes views and likes."
+      ],
+      "reason": "Rejected: native and attributable, but it is a low-signal application video rather than a launch, product, repo, or community traction item."
+    },
+    {
+      "batch": "S26",
+      "platform": "github",
+      "url": "https://github.com/OpenRelayInc/OpenRelay",
+      "company": "OpenRelay",
+      "sourceKind": "github_repo",
+      "metrics": {},
+      "attributionSignals": [
+        "Local S26 snapshot lists OpenRelay with official GitHub URL https://github.com/OpenRelayInc/OpenRelay.",
+        "GitHub public API returned 404 for the exact repo URL during this pass.",
+        "No visible repo metrics were available."
+      ],
+      "reason": "Rejected: official URL exists in the local snapshot but could not be verified as a native repo item."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "github",
+      "url": "https://github.com/amdahl-ai",
+      "company": "Amdahl",
+      "sourceKind": "github_account",
+      "metrics": {},
+      "attributionSignals": [
+        "A16Z social-account snapshot lists amdahl-ai as a GitHub account.",
+        "The public GitHub API returned 404 for the account during this pass.",
+        "The URL is account-level, not a post/repo/comment/release item."
+      ],
+      "reason": "Rejected: no verifiable native item URL or visible metrics."
+    },
+    {
+      "batch": "A16ZSR006",
+      "platform": "instagram",
+      "url": "https://www.instagram.com/reel/DYkLXwiMkOu/",
+      "company": "Antihero Studios",
+      "sourceKind": "instagram_reel",
+      "title": "Antihero Studios founder story reel",
+      "metrics": { "likes": 56, "comments": 7 },
+      "attributionSignals": [
+        "A16Z social-account snapshot lists https://www.instagram.com/antihero.studios as the official Antihero Studios Instagram account.",
+        "The Instagram reel is already present in src/lib/social/a16z-speedrun-006-social-evidence.json.",
+        "Protected evidence row already stores visible likes/comments."
+      ],
+      "reason": "Rejected: valid native Instagram evidence, but already covered by protected A16Z social evidence."
+    }
+  ],
+  "summary": {
+    "acceptedCount": 18,
+    "rejectedCount": 11,
+    "acceptedByPlatform": {
+      "hacker_news": 8,
+      "product_hunt": 2,
+      "youtube": 4,
+      "github": 4
+    },
+    "acceptedByBatch": {
+      "S2026": 13,
+      "S26": 5,
+      "A16ZSR006": 0
+    },
+    "rejectedByPlatform": {
+      "hacker_news": 3,
+      "product_hunt": 1,
+      "youtube": 2,
+      "reddit": 2,
+      "github": 2,
+      "instagram": 1
+    },
+    "remarks": [
+      "A16ZSR006 yielded no new accepted rows after dedupe; the known Product Hunt, YouTube, Instagram, and Reddit items were already in the protected A16Z evidence file or prior hunt outputs.",
+      "Reddit produced plausible AgentPhone and Gojiberry AI leads, but Reddit blocked metric verification from this network.",
+      "GitHub API rate limiting prevented a full refresh of every official account; accepted GitHub rows are limited to repos verified before rate limit."
+    ]
+  }
+}

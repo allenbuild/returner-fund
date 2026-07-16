@@ -728,13 +728,27 @@ function visibleRawText(rawVisibleText: string | undefined): string {
   }
   try {
     const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    const post = recordValue(parsed.post);
+    const detail = recordValue(parsed.detail);
+    const profile = recordValue(parsed.profile);
     return [
       typeof parsed.rawText === "string" ? parsed.rawText : null,
-      typeof parsed.text === "string" ? parsed.text : null
+      typeof parsed.text === "string" ? parsed.text : null,
+      typeof post?.rawText === "string" ? post.rawText : null,
+      typeof post?.text === "string" ? post.text : null,
+      typeof post?.caption === "string" ? post.caption : null,
+      typeof detail?.rawText === "string" ? detail.rawText : null,
+      typeof detail?.caption === "string" ? detail.caption : null,
+      typeof profile?.name === "string" ? profile.name : null,
+      typeof profile?.username === "string" ? profile.username : null
     ].filter(Boolean).join(" ");
   } catch {
     return rawVisibleText;
   }
+}
+
+function recordValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" ? value as Record<string, unknown> : null;
 }
 
 function domainToken(rawUrl: string): string | null {

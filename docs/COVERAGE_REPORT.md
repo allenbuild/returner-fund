@@ -2,28 +2,28 @@
 
 ## Latest Snapshot
 
-- Generated at: 2026-06-30T17:25:10.446Z.
+- Generated at: 2026-07-16T00:24:31.860Z.
 - Graph nodes: 197 company nodes.
 - Founder graph nodes: 0.
-- Evidence rows: 3031.
-- Non-GitHub scored evidence rows: 1689.
-- Live ingestion checkpoint: 964 evidence rows, 890 needs-review rows, 1684 failures, 629 discovery attempts.
-- Logged-in read-only social artifact: 2000 evidence rows, platform rows {"instagram":86,"x":1914}, companies by platform {"instagram":5,"x":130}.
-- X target coverage: 367 known X targets across 164 companies; 367 attempted, 0 not yet attempted, 107 zero-post, 130 companies with X evidence.
-- Instagram discovery: 0 companies checked, 0 candidates, 0 newly verified, 13 total verified company Instagram profiles.
+- Evidence rows: 3294.
+- Non-GitHub scored evidence rows: 2202.
+- Live ingestion checkpoint: 1021 evidence rows, 994 needs-review rows, 2549 failures, 1243 discovery attempts.
+- Logged-in read-only social artifact: 2546 evidence rows, platform rows {"instagram":86,"x":2158,"linkedin":302}, companies by platform {"instagram":5,"x":145,"linkedin":42}.
+- X target coverage: 144 known X targets across 65 companies; 144 attempted, 0 not yet attempted, 117 zero-post, 145 companies with X evidence.
+- Instagram discovery: 1 companies checked, 13 candidates, 0 newly verified, 13 total verified company Instagram profiles.
 
 ## Platform Coverage
 
-- github: 209 evidence rows, 88 scored rows, 39 companies with evidence, 23 companies with scored evidence, 0 needs-review candidates, status working.
-- x: 1892 evidence rows, 1559 scored rows, 133 companies with evidence, 128 companies with scored evidence, 340 needs-review candidates, status working.
-- linkedin: 0 evidence rows, 0 scored rows, 0 companies with evidence, 0 companies with scored evidence, 548 needs-review candidates, status public_only.
-- instagram: 64 evidence rows, 63 scored rows, 3 companies with evidence, 3 companies with scored evidence, 3 needs-review candidates, status working.
-- product_hunt: 0 evidence rows, 0 scored rows, 0 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status public_only.
-- youtube: 74 evidence rows, 56 scored rows, 57 companies with evidence, 47 companies with scored evidence, 0 needs-review candidates, status working.
+- github: 218 evidence rows, 97 scored rows, 39 companies with evidence, 24 companies with scored evidence, 0 needs-review candidates, status working.
+- x: 2017 evidence rows, 1961 scored rows, 143 companies with evidence, 141 companies with scored evidence, 340 needs-review candidates, status public_only.
+- linkedin: 116 evidence rows, 86 scored rows, 72 companies with evidence, 56 companies with scored evidence, 548 needs-review candidates, status working.
+- instagram: 65 evidence rows, 63 scored rows, 3 companies with evidence, 3 companies with scored evidence, 3 needs-review candidates, status public_only.
+- product_hunt: 4 evidence rows, 4 scored rows, 3 companies with evidence, 3 companies with scored evidence, 0 needs-review candidates, status public_only.
+- youtube: 76 evidence rows, 70 scored rows, 59 companies with evidence, 57 companies with scored evidence, 0 needs-review candidates, status working.
 - rss: 20 evidence rows, 0 scored rows, 4 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status working.
-- web: 761 evidence rows, 0 scored rows, 197 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status disabled.
+- web: 760 evidence rows, 0 scored rows, 197 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status disabled.
 - reddit: 0 evidence rows, 0 scored rows, 0 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status public_only.
-- hacker_news: 11 evidence rows, 11 scored rows, 10 companies with evidence, 10 companies with scored evidence, 0 needs-review candidates, status working.
+- hacker_news: 18 evidence rows, 18 scored rows, 18 companies with evidence, 18 companies with scored evidence, 0 needs-review candidates, status working.
 - bilibili: 0 evidence rows, 0 scored rows, 0 companies with evidence, 0 companies with scored evidence, 0 needs-review candidates, status needs_config.
 
 ## Known Coverage Gaps
@@ -36,47 +36,41 @@
 
 ## X Target Coverage
 
-- Known X targets: 367.
-- Companies with known X targets: 164/197.
-- Attempted X targets: 367.
+- Known X targets: 144.
+- Companies with known X targets: 65/197.
+- Attempted X targets: 144.
 - Not yet attempted X targets: 0.
-- Zero-post X targets: 107.
+- Zero-post X targets: 117.
 - Failed X targets: 0.
-- Companies with X evidence: 130.
-- Companies with known X but no evidence: 34.
+- Companies with X evidence: 145.
+- Companies with known X but no evidence: 51.
 - Not-yet-attempted examples: none.
-- Zero-post examples: Andustry / Andustry, AquaShield / AquaShield, Arden / Aryaman Khanna, Asendia AI / Asendia AI, Avea Robotics / Avea Robotics, Chert / Chert, Deep Interactions / Deep Interactions, Dispatch / Payton Case, Eden Robotics / Stamatios Floratos, Elyra / Elyra, Elyra / Felix Odeberg Glasenapp, Enjamb Labs / Enjamb Labs.
+- Zero-post examples: 83 Sciences / Eric Riesel, Alloovium / Alloovium, Alloovium / Zander Schweitzer, Amulet / Amulet, Bloomy / Bloomy, Bylaw / Gurshabd Singh Varaich, Context.dev / Context.dev, Context.dev / Yahia Bakour, Control Seat / Warren Shepard, Cosmic Robotics / Cosmic Robotics, Cosmic Robotics / James Emerick, Cosmic Robotics / Lewis Jones.
 - Failed examples: none.
 
 ## Live Ingestion Platform Rows
 
-- Evidence: {"web":765,"x":31,"linkedin":25,"youtube":74,"hacker_news":49,"rss":20}.
-- Needs review: {"linkedin":548,"x":340,"instagram":2}.
-- Failures: {"hacker_news":167,"instagram":197,"linkedin":20,"product_hunt":358,"reddit":197,"rss":3,"web":6,"x":596,"youtube":140}.
+- Evidence: {"web":773,"x":32,"linkedin":49,"youtube":78,"hacker_news":50,"rss":39}.
+- Needs review: {"linkedin":605,"x":375,"instagram":4,"youtube":9,"reddit":1}.
+- Failures: {"hacker_news":250,"instagram":257,"linkedin":166,"product_hunt":443,"reddit":281,"rss":3,"web":90,"x":839,"youtube":220}.
 
 ## Platform Backlog
 
-- github: 174 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
-- x: 69 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
-- linkedin: 197 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
-- instagram: 194 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
-- product_hunt: 197 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
-- youtube: 150 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
-- reddit: 197 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
-- hacker_news: 187 companies missing scored evidence. Examples: AICE, AquaShield, Arctic Health, Arden, Arzana, CentralComs, Complir, Dayjob, Dispatch, Eden Robotics, Elyra, flowscope.
+- github: 173 companies missing scored evidence. Examples: AICE, Arden, CentralComs, Dayjob, Elyra, flowscope, Framewise Health, GovGuard, Hessian, Hexa, Huscarl, Incandor.
+- x: 56 companies missing scored evidence. Examples: AICE, Arden, CentralComs, Dayjob, Elyra, flowscope, Framewise Health, GovGuard, Hessian, Hexa, Huscarl, Incandor.
+- linkedin: 141 companies missing scored evidence. Examples: AICE, Arden, CentralComs, Dayjob, Elyra, flowscope, Framewise Health, GovGuard, Hessian, Hexa, Huscarl, Incandor.
+- instagram: 194 companies missing scored evidence. Examples: AICE, Arden, CentralComs, Dayjob, Elyra, flowscope, Framewise Health, GovGuard, Hessian, Hexa, Huscarl, Incandor.
+- product_hunt: 194 companies missing scored evidence. Examples: AICE, Arden, CentralComs, Dayjob, Elyra, flowscope, Framewise Health, GovGuard, Hessian, Hexa, Huscarl, Incandor.
+- youtube: 140 companies missing scored evidence. Examples: AICE, Arden, CentralComs, Dayjob, Elyra, flowscope, Framewise Health, GovGuard, Hessian, Hexa, Huscarl, Incandor.
+- reddit: 197 companies missing scored evidence. Examples: AICE, Arden, CentralComs, Dayjob, Elyra, flowscope, Framewise Health, GovGuard, Hessian, Hexa, Huscarl, Incandor.
+- hacker_news: 179 companies missing scored evidence. Examples: AICE, Arden, CentralComs, Dayjob, Elyra, flowscope, Framewise Health, GovGuard, Hessian, Hexa, Huscarl, Incandor.
 
 ## Next Target Companies
 
 - AICE: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- AquaShield: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- Arctic Health: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - Arden: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- Arzana: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - CentralComs: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- Complir: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - Dayjob: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- Dispatch: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- Eden Robotics: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - Elyra: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - flowscope: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - Framewise Health: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
@@ -87,11 +81,17 @@
 - Incandor: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - Infera: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - Intelligence Factory: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- Klarify: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - Korso: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- Lumius: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 - Maquoketa Research: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
-- Modern: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- Netter: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- Nine Fives: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- Pairio: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- Panacea: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- PerfectBit, Inc.: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- PLAN0 AI: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- Prism: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- Savant: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
+- Sherpa: 0 scored rows, 0 non-GitHub scored rows, scored platforms none.
 
 ## Reports
 

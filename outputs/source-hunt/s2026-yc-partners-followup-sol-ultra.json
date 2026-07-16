@@ -1,0 +1,769 @@
+{
+  "generatedAt": "2026-07-16T00:59:10Z",
+  "shard": {
+    "id": "s2026-yc-partners-followup-sol-ultra",
+    "batchSlug": "S2026",
+    "batchLabel": "YC Spring 2026 / P26",
+    "topVoiceAudience": "yc_partners",
+    "mode": "source_discovery_validation_only",
+    "imported": false,
+    "writeScope": "outputs/source-hunt/s2026-yc-partners-followup-sol-ultra.json"
+  },
+  "scope": {
+    "companyRegistry": "src/lib/yc/spring-2026-companies.json",
+    "companyCount": 197,
+    "topVoiceRegistry": "src/lib/social/top-voices.ts",
+    "allowedPeopleCount": 18,
+    "acceptanceRule": "Accept only a native post, article, or comment authored by a real person listed under yc_partners, with a post-level URL, visible native metrics, timestamp where available, and explicit P26 company, founder, official handle, or domain attribution in authored text or native quote/reply context.",
+    "excluded": [
+      "YC and Y Combinator organization accounts",
+      "YCombinator Community",
+      "company accounts",
+      "founder-authored rows",
+      "reposts without a distinct partner-authored native source",
+      "profile-only and search-result URLs",
+      "posts without a Spring 2026 target",
+      "comments without a post-level source or visible comment metric"
+    ],
+    "priorityCoverageSnapshot": {
+      "source": "src/lib/social/targeted-evidence-current.json joined to src/lib/yc/spring-2026-companies.json at generation time; only authors listed under yc_partners counted",
+      "eligiblePartnerEvidenceRows": 78,
+      "companiesWithEligiblePartnerEvidence": 41,
+      "companiesWithZeroEligiblePartnerEvidence": 156,
+      "byPrimaryPartnerPod": [
+        {
+          "partner": "Aaron Epstein",
+          "companies": 27,
+          "zero": 17,
+          "one": 8,
+          "multiple": 2
+        },
+        {
+          "partner": "Andrew Miklas",
+          "companies": 29,
+          "zero": 27,
+          "one": 1,
+          "multiple": 1
+        },
+        {
+          "partner": "David Lieb",
+          "companies": 28,
+          "zero": 13,
+          "one": 6,
+          "multiple": 9
+        },
+        {
+          "partner": "Diana Hu",
+          "companies": 1,
+          "zero": 1,
+          "one": 0,
+          "multiple": 0
+        },
+        {
+          "partner": "Garry Tan",
+          "companies": 15,
+          "zero": 5,
+          "one": 3,
+          "multiple": 7
+        },
+        {
+          "partner": "Harj Taggar",
+          "companies": 19,
+          "zero": 19,
+          "one": 0,
+          "multiple": 0
+        },
+        {
+          "partner": "Nicolas Dessaigne",
+          "companies": 27,
+          "zero": 26,
+          "one": 1,
+          "multiple": 0
+        },
+        {
+          "partner": "Pete Koomen",
+          "companies": 23,
+          "zero": 23,
+          "one": 0,
+          "multiple": 0
+        },
+        {
+          "partner": "Tom Blomfield",
+          "companies": 26,
+          "zero": 23,
+          "one": 2,
+          "multiple": 1
+        },
+        {
+          "partner": "Tyler Bosmeny",
+          "companies": 2,
+          "zero": 2,
+          "one": 0,
+          "multiple": 0
+        }
+      ]
+    },
+    "priorityCompaniesSearched": [
+      "AquaShield",
+      "Allowance",
+      "Alchemize",
+      "Archer",
+      "Arctic Health",
+      "Chronicle Labs",
+      "Complir",
+      "Dispatch",
+      "Eden Robotics",
+      "Foresight",
+      "Fuchsia",
+      "Gigacatalyst",
+      "Gojiberry AI",
+      "Humwork",
+      "Kinro",
+      "Light Anchor",
+      "Limrun",
+      "Lumius",
+      "Minicor",
+      "Mochatrade",
+      "Mount",
+      "OpenProse",
+      "OpenWork",
+      "Pentagon",
+      "ReasonBlocks",
+      "RentAHuman",
+      "Replicas",
+      "Revnu",
+      "Savant",
+      "Smartbase",
+      "smol machines",
+      "Standard Signal",
+      "Superset",
+      "Surtr Defense Systems",
+      "Synphony",
+      "Tasklet",
+      "TesterArmy",
+      "Thomas",
+      "Walter",
+      "Zolvo",
+      "primitive"
+    ]
+  },
+  "preflight": {
+    "filesReadBeforeSearching": [
+      "outputs/source-hunt/search-ledger.json",
+      "outputs/source-hunt/coverage-matrix.json",
+      "outputs/source-hunt/agent-queue.json",
+      "outputs/source-hunt/validated-candidates.json",
+      "outputs/source-hunt/rejected-candidates.json",
+      "outputs/source-hunt/run-progress.json",
+      "src/lib/social/top-voices.ts"
+    ],
+    "additionalReadOnlyInputs": [
+      "src/lib/yc/spring-2026-companies.json",
+      "src/lib/social/targeted-evidence-current.json",
+      "public/graph/s2026.json",
+      "outputs/source-hunt/s2026-topvoices-fourth-pass.json",
+      "outputs/source-hunt/s2026-topvoices-tenth-pass.json",
+      "outputs/source-hunt/spring-topvoices-seventh-pass.json",
+      "outputs/source-hunt/spring-topvoices-eighth-pass.json",
+      "outputs/source-hunt/s26-insiders-people-only-sol-ultra.json"
+    ],
+    "searchLedger": {
+      "generatedAt": "2026-07-15T23:59:00.000Z",
+      "completedQueries": 176,
+      "candidateArtifacts": 904,
+      "sourceUrls": 499,
+      "platformPostIds": 347
+    },
+    "validatedCandidateCount": 29,
+    "rejectedCandidateCount": 875,
+    "targetedEvidenceCountAtFinalDedupe": 445,
+    "priorImportBoundary": "Prior Taro Fukuyama, Paul Graham, Superlog, and tenth-pass partner rows were treated as existing coverage. Taro Fukuyama and Paul Graham are insiders, not yc_partners, and were never eligible authors for this shard."
+  },
+  "topVoicePeopleSearched": [
+    {
+      "name": "Garry Tan",
+      "handles": [
+        "garrytan"
+      ],
+      "methods": [
+        "LinkedIn public activity audit",
+        "prior URL and post-ID comparison"
+      ],
+      "outcome": "Recent Linzumi and Ploy native shares were already represented by existing activity IDs; no net-new low-coverage target survived dedupe."
+    },
+    {
+      "name": "Harj Taggar",
+      "handles": [
+        "harjtaggar"
+      ],
+      "methods": [
+        "LinkedIn company-specific search",
+        "X status search",
+        "TwStalker mirror search",
+        "Hacker News search",
+        "public activity audit"
+      ],
+      "outcome": "No native authored P26 post or comment found for the zero-evidence Harj pod."
+    },
+    {
+      "name": "Jared Friedman",
+      "handles": [
+        "snowmaker",
+        "jaredfriedman"
+      ],
+      "methods": [
+        "LinkedIn public activity audit"
+      ],
+      "outcome": "Visible recent activity was reactions rather than authored P26 evidence."
+    },
+    {
+      "name": "Aaron Epstein",
+      "handles": [
+        "aaron_epstein",
+        "aaron-epstein-a97105"
+      ],
+      "methods": [
+        "LinkedIn pod-specific search",
+        "public profile resolution"
+      ],
+      "outcome": "Searches surfaced founder-authored mentions and existing rows, but no net-new Aaron-authored qualifying source."
+    },
+    {
+      "name": "Diana Hu",
+      "handles": [
+        "sdianahu"
+      ],
+      "methods": [
+        "LinkedIn Foresight-specific search",
+        "public profile resolution",
+        "direct post validation"
+      ],
+      "outcome": "A Foresight founder post explicitly credits Diana, but it is founder-authored and no Diana-authored comment was visible."
+    },
+    {
+      "name": "Gustaf Alströmer",
+      "handles": [
+        "gustaf",
+        "gustafalstromer"
+      ],
+      "methods": [
+        "LinkedIn public activity audit"
+      ],
+      "outcome": "Visible recent activity consisted of likes and non-target YC ecosystem material."
+    },
+    {
+      "name": "Nicolas Dessaigne",
+      "handles": [
+        "dessaigne"
+      ],
+      "methods": [
+        "LinkedIn company-specific search",
+        "X status search",
+        "TwStalker mirror search",
+        "Reddit search",
+        "public profile resolution"
+      ],
+      "outcome": "No net-new Nicolas-authored P26 source found for the 26 zero-evidence companies in his pod."
+    },
+    {
+      "name": "Tom Blomfield",
+      "handles": [
+        "t_blom",
+        "tomblomfield"
+      ],
+      "methods": [
+        "LinkedIn company-specific search",
+        "X status search",
+        "TwStalker mirror search",
+        "public activity audit"
+      ],
+      "outcome": "P26 company activity surfaced as likes or reposts; no net-new qualifying native source."
+    },
+    {
+      "name": "Brad Flora",
+      "handles": [
+        "bradflora"
+      ],
+      "methods": [
+        "LinkedIn public activity audit"
+      ],
+      "outcome": "Visible authored comments were generic YC discussion without a P26 company or founder target; company posts were older-batch shares or reposts."
+    },
+    {
+      "name": "Pete Koomen",
+      "handles": [
+        "pkoomen",
+        "petekoomen"
+      ],
+      "methods": [
+        "LinkedIn company-specific search",
+        "X status search",
+        "TwStalker mirror search",
+        "Product Hunt search",
+        "public activity audit",
+        "direct parent-post validation"
+      ],
+      "outcome": "Two Pete-authored comments were found, but both targets were outside P26 and neither comment exposed a direct permalink or visible comment-level metric."
+    },
+    {
+      "name": "Ankit Gupta",
+      "handles": [
+        "agupta",
+        "ankitvgupta"
+      ],
+      "methods": [
+        "LinkedIn public profile resolution",
+        "public activity audit"
+      ],
+      "outcome": "Recent visible posts were Summer 2026 reposts; no Spring 2026 candidate."
+    },
+    {
+      "name": "Tyler Bosmeny",
+      "handles": [
+        "bosmeny",
+        "tylerbosmeny"
+      ],
+      "methods": [
+        "LinkedIn Fuchsia and Humwork search",
+        "public activity audit",
+        "prior post-ID comparison"
+      ],
+      "outcome": "Recent native posts targeted S26 or W26 companies. The Bloomy activity ID was already in the ledger and targeted evidence; no P26 Fuchsia or Humwork source found."
+    },
+    {
+      "name": "David Lieb",
+      "handles": [
+        "dflieb",
+        "davidlieb"
+      ],
+      "methods": [
+        "LinkedIn public activity audit",
+        "prior URL and post-ID comparison"
+      ],
+      "outcome": "Visible P26 activity was likes or already-imported native evidence; no net-new candidate."
+    },
+    {
+      "name": "Andrew Miklas",
+      "handles": [
+        "amiklas"
+      ],
+      "methods": [
+        "LinkedIn company-specific search",
+        "LinkedIn comment search",
+        "YouTube search",
+        "public activity audit"
+      ],
+      "outcome": "InsForge was already represented. A short Alchemize comment lacked a visible comment metric and its parent URL was already rejected; no net-new qualifying source."
+    }
+  ],
+  "allowedPeopleNotRetargeted": [
+    {
+      "name": "Grey Baker",
+      "reason": "Already the highest-volume allowed Spring partner voice in current targeted evidence and not a low-coverage primary pod owner."
+    },
+    {
+      "name": "Harshita Arora",
+      "reason": "No Spring 2026 primary-partner pod in the local registry; prior broad partner sweeps already covered the account."
+    },
+    {
+      "name": "Jon Xu",
+      "reason": "No Spring 2026 primary-partner pod in the local registry; prior broad partner sweeps already covered the account."
+    },
+    {
+      "name": "Chris Golda",
+      "reason": "No Spring 2026 primary-partner pod in the local registry; prior broad partner sweeps already covered the account."
+    }
+  ],
+  "accepted": [],
+  "rejected": [
+    {
+      "candidateId": "linkedin-diana-hu-foresight-founder-authored-7458203542588248065",
+      "batchSlug": "S2026",
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Diana Hu",
+      "topVoicePersonId": "diana-hu",
+      "companyName": "Foresight",
+      "companySlug": "foresight",
+      "founders": [
+        "Antoine Bertrand",
+        "Eytan Rozenblum"
+      ],
+      "platform": "linkedin",
+      "evidenceType": "founder_post_mentions_partner",
+      "sourceUrl": "https://www.linkedin.com/posts/antoine-bertrand_very-excited-to-share-that-ive-been-accepted-activity-7458203542588248065-ZjwB",
+      "platformPostId": "7458203542588248065",
+      "postedAt": "2026-05-07T17:18:11.273Z",
+      "author": {
+        "name": "Antoine Bertrand",
+        "handle": "antoine-bertrand",
+        "profileUrl": "https://www.linkedin.com/in/antoine-bertrand",
+        "relationship": "YC-listed Foresight founder; not a listed yc_partners person"
+      },
+      "metrics": {
+        "reactions": 281,
+        "comments": 59,
+        "metricSource": "Visible native LinkedIn parent-post counters"
+      },
+      "nativeEvidence": {
+        "visibleTextSummary": "Antoine Bertrand announces Foresight and says he is grateful to partner Diana Hu, who believed in the company from day one.",
+        "verificationMethod": "Opened the native LinkedIn post; verified author, timestamp, authored text, Foresight attribution, and visible counters. Diana Hu was not among the publicly visible comments."
+      },
+      "attributionSignals": [
+        "The local Spring 2026 registry lists Foresight with founders Antoine Bertrand and Eytan Rozenblum and primary partner Diana Hu.",
+        "The post explicitly names Foresight, Y Combinator, and Diana Hu.",
+        "The native author is founder Antoine Bertrand, not Diana Hu."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/antoine-bertrand_very-excited-to-share-that-ive-been-accepted-activity-7458203542588248065-ZjwB",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "status": "net_new_rejected",
+        "checkedAt": "2026-07-16T00:59:10Z"
+      },
+      "reason": "Rejected: founder-authored row. Crediting a listed partner in founder-authored text does not make the partner the native author."
+    },
+    {
+      "candidateId": "linkedin-pete-koomen-upsolve-comment-parent-7475565344720420864",
+      "batchSlug": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Pete Koomen",
+      "topVoicePersonId": "pete-koomen",
+      "companyName": "Upsolve AI",
+      "companySlug": null,
+      "founders": [
+        "Ka Ling Wu",
+        "Serguei Petrov"
+      ],
+      "platform": "linkedin",
+      "evidenceType": "partner_comment_without_comment_permalink",
+      "sourceUrl": "https://www.linkedin.com/posts/wukaling_every-data-agent-demo-feels-like-magic-then-activity-7475565344720420864-wfwy",
+      "platformPostId": "7475565344720420864",
+      "postedAt": "2026-06-24T15:07:47.469Z",
+      "commentPostedAt": null,
+      "author": {
+        "name": "Pete Koomen",
+        "handle": "petekoomen",
+        "profileUrl": "https://www.linkedin.com/in/petekoomen",
+        "relationship": "Listed YC partner; his public activity page surfaced the comment text"
+      },
+      "parentPostAuthor": {
+        "name": "Ka Ling Wu",
+        "relationship": "Upsolve AI founder"
+      },
+      "partnerCommentText": "This looks great!",
+      "metrics": {
+        "parentPostReactions": 185,
+        "parentPostComments": 77,
+        "commentReactions": null,
+        "metricSource": "Visible native LinkedIn parent-post counters; no visible metric for Pete Koomen's comment"
+      },
+      "nativeEvidence": {
+        "visibleTextSummary": "Pete Koomen's public activity page shows the short comment on Ka Ling Wu's Upsolve AI launch post.",
+        "verificationMethod": "Resolved the activity to the native parent post and inspected the public comments. Pete's comment was not exposed among the visible comments, so no direct comment permalink, exact comment timestamp, or comment-level metric could be validated."
+      },
+      "attributionSignals": [
+        "The parent post explicitly identifies Upsolve AI as YC W24.",
+        "Upsolve AI is absent from the Spring 2026 registry.",
+        "The listed partner authored a comment, but the accessible source is only the founder-authored parent post."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/wukaling_every-data-agent-demo-feels-like-magic-then-activity-7475565344720420864-wfwy",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "status": "net_new_rejected",
+        "checkedAt": "2026-07-16T00:59:10Z"
+      },
+      "reason": "Rejected: Upsolve AI is YC W24 rather than P26, and the partner comment lacks a direct comment permalink and visible native comment metric."
+    },
+    {
+      "candidateId": "linkedin-pete-koomen-ralo-comment-parent-7473365156169662466",
+      "batchSlug": null,
+      "topVoiceAudience": "yc_partners",
+      "topVoiceName": "Pete Koomen",
+      "topVoicePersonId": "pete-koomen",
+      "companyName": "Ralo",
+      "companySlug": null,
+      "founders": [
+        "Arjun Lalwani",
+        "Helly Shah"
+      ],
+      "platform": "linkedin",
+      "evidenceType": "partner_comment_without_comment_permalink",
+      "sourceUrl": "https://www.linkedin.com/posts/arjun-lalwani_ai-mortgage-broker-ralo-launches-raises-activity-7473365156169662466-ZHI-",
+      "platformPostId": "7473365156169662466",
+      "postedAt": "2026-06-18T13:25:01.641Z",
+      "commentPostedAt": null,
+      "author": {
+        "name": "Pete Koomen",
+        "handle": "petekoomen",
+        "profileUrl": "https://www.linkedin.com/in/petekoomen",
+        "relationship": "Listed YC partner; his public activity page surfaced the comment text"
+      },
+      "parentPostAuthor": {
+        "name": "Arjun Lalwani",
+        "relationship": "Ralo founder"
+      },
+      "partnerCommentText": "Congratulations Arjun and Helly!",
+      "metrics": {
+        "parentPostReactions": 533,
+        "parentPostComments": 139,
+        "commentReactions": null,
+        "metricSource": "Visible native LinkedIn parent-post counters; no visible metric for Pete Koomen's comment"
+      },
+      "nativeEvidence": {
+        "visibleTextSummary": "Pete Koomen's public activity page shows a congratulatory comment on Arjun Lalwani's Ralo funding post.",
+        "verificationMethod": "Resolved the activity to the native parent post and inspected the public comments. Pete's comment was not exposed among the visible comments, so no direct comment permalink, exact comment timestamp, or comment-level metric could be validated."
+      },
+      "attributionSignals": [
+        "The parent post explicitly names Ralo founders Arjun Lalwani and Helly Shah.",
+        "Ralo is absent from the local Spring 2026 registry.",
+        "The listed partner authored a comment, but the accessible source is only the founder-authored parent post."
+      ],
+      "dedupe": {
+        "normalizedSourceUrl": "https://www.linkedin.com/posts/arjun-lalwani_ai-mortgage-broker-ralo-launches-raises-activity-7473365156169662466-ZHI-",
+        "sourceUrlInPriorArtifacts": false,
+        "platformPostIdInPriorArtifacts": false,
+        "status": "net_new_rejected",
+        "checkedAt": "2026-07-16T00:59:10Z"
+      },
+      "reason": "Rejected: Ralo is not in the Spring 2026 registry, and the partner comment lacks a direct comment permalink and visible native comment metric."
+    }
+  ],
+  "searches": [
+    {
+      "platform": "linkedin",
+      "queries": [
+        "site:linkedin.com/posts/harjtaggar (\"Limrun\" OR \"Replicas\" OR \"Archer\" OR \"Savant\" OR \"Smartbase\")",
+        "site:linkedin.com/posts/petekoomen (\"Chronicle Labs\" OR \"Mount\" OR \"OpenProse\" OR \"primitive\" OR \"smol machines\")",
+        "site:linkedin.com/posts/dessaigne (\"Lumius\" OR \"Superset\" OR \"Thomas\" OR \"Eden Robotics\" OR \"Kinro\")",
+        "site:linkedin.com/posts/andrewmiklas (\"Gojiberry AI\" OR \"Tasklet\" OR \"Synphony\" OR \"Complir\" OR \"Surtr Defense\")"
+      ],
+      "outcome": "No eligible native partner-authored post result."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Harj Taggar\" \"Limrun\" LinkedIn",
+        "\"Pete Koomen\" \"Chronicle Labs\" LinkedIn",
+        "\"Nicolas Dessaigne\" \"Lumius\" LinkedIn",
+        "\"Andrew Miklas\" \"Gojiberry AI\" LinkedIn"
+      ],
+      "outcome": "Results were official YC pages or founder/company profiles, not eligible authored evidence."
+    },
+    {
+      "platform": "x",
+      "queries": [
+        "site:x.com/harjtaggar/status (\"Limrun\" OR \"Replicas\" OR \"Smartbase\" OR \"Soria\" OR \"Mochatrade\")",
+        "site:x.com/pkoomen/status (\"Chronicle Labs\" OR \"OpenProse\" OR \"TesterArmy\" OR \"Standard Signal\" OR \"smol machines\")",
+        "site:x.com/dessaigne/status (\"Lumius\" OR \"Superset\" OR \"Kinro\" OR \"Eden Robotics\" OR \"AquaShield\")",
+        "site:x.com/t_blom/status (\"Minicor\" OR \"Dispatch\" OR \"Pentagon\" OR \"Revnu\" OR \"Zolvo\")"
+      ],
+      "outcome": "No indexed native X status result."
+    },
+    {
+      "platform": "web",
+      "queries": [
+        "\"Harj Taggar\" \"Replicas\" YC",
+        "\"Pete Koomen\" \"OpenProse\" YC",
+        "\"Nicolas Dessaigne\" \"Superset\" YC",
+        "\"Tom Blomfield\" \"Minicor\" YC"
+      ],
+      "outcome": "Official YC pages and founder-authored mentions surfaced; no eligible partner-authored source."
+    },
+    {
+      "platform": "x_mirror",
+      "queries": [
+        "site:twstalker.com/t_blom (\"Minicor\" OR \"Dispatch\" OR \"Pentagon\" OR \"Revnu\" OR \"Zolvo\")",
+        "site:twstalker.com/harjtaggar (\"Limrun\" OR \"Replicas\" OR \"Smartbase\" OR \"Soria\" OR \"Mochatrade\")",
+        "site:twstalker.com/dessaigne (\"Lumius\" OR \"Superset\" OR \"Kinro\" OR \"Eden Robotics\" OR \"AquaShield\")",
+        "site:twstalker.com/pkoomen (\"Chronicle Labs\" OR \"OpenProse\" OR \"TesterArmy\" OR \"Standard Signal\" OR \"smol machines\")"
+      ],
+      "outcome": "No eligible native post. Tom results were repost-only; the Pete mirror was sparse and later rate-limited."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "site:linkedin.com/posts/y-combinator \"YC P26\" \"Andrew Miklas\"",
+        "site:linkedin.com/posts/y-combinator \"YC P26\" \"Harj Taggar\"",
+        "site:linkedin.com/posts/y-combinator \"YC P26\" \"Pete Koomen\"",
+        "site:linkedin.com/posts/y-combinator \"YC P26\" \"Nicolas Dessaigne\""
+      ],
+      "outcome": "Andrew's existing InsForge comment and a weak Alchemize comment surfaced. Other results were founder-authored mentions or org posts."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Congrats on launching! Very timely product idea.\" \"Andrew Miklas\"",
+        "\"Andrew Miklas commented on a post\" \"Gigacatalyst\"",
+        "\"Andrew Miklas commented on a post\" \"Alchemize\"",
+        "\"Andrew Miklas commented\" \"YC P26\""
+      ],
+      "outcome": "No net-new comment with a direct permalink and visible comment metric. The Alchemize parent URL was already rejected."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "site:linkedin.com/in/dessaigne \"Nicolas Dessaigne\"",
+        "site:linkedin.com/in/dessaigne \"commented on a post\"",
+        "site:linkedin.com/in/dessaigne \"YC P26\"",
+        "\"Nicolas Dessaigne commented on a post\""
+      ],
+      "outcome": "No Nicolas-authored P26 activity result."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "site:linkedin.com/in \"Aaron Epstein\" \"Y Combinator\"",
+        "site:linkedin.com/in \"Diana Hu\" \"Y Combinator\"",
+        "site:linkedin.com/in \"Ankit Gupta\" \"Y Combinator\"",
+        "site:linkedin.com/in \"David Lieb\" \"Y Combinator\""
+      ],
+      "outcome": "Resolved public identity/profile URLs for the listed people; profile URLs were used only for validation, never as candidate evidence."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "site:linkedin.com/posts \"Aaron Epstein\" (\"OpenWork\" OR \"Arctic Health\" OR \"RentAHuman\" OR \"ReasonBlocks\")",
+        "site:linkedin.com/posts \"Diana Hu\" (\"Foresight\" OR \"foresight-ai-inc\")",
+        "site:linkedin.com/posts \"Tyler Bosmeny\" (\"Fuchsia\" OR \"Humwork\")",
+        "site:linkedin.com/posts \"Harj Taggar\" (\"Allowance\" OR \"Light Anchor\" OR \"Mochatrade\" OR \"Walter\")"
+      ],
+      "outcome": "Foresight founder post surfaced and was rejected for founder authorship. Other results were unrelated or absent."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "\"Diana Hu commented on a post\" Foresight",
+        "site:linkedin.com/posts/aaron-epstein-a97105 (\"P26\" OR \"Spring 2026\")",
+        "site:linkedin.com/posts/harjtaggar (\"P26\" OR \"Spring 2026\")",
+        "site:linkedin.com/posts/tylerbosmeny (\"Fuchsia\" OR \"Humwork\" OR \"P26\")"
+      ],
+      "outcome": "No eligible target result. The Diana-name result was a different person; Tyler results were company pages or non-P26 material."
+    },
+    {
+      "platform": "non_x_social",
+      "queries": [
+        "site:news.ycombinator.com/item \"Harj Taggar\" (\"Allowance\" OR \"Replicas\" OR \"Light Anchor\")",
+        "site:producthunt.com (\"Pete Koomen\" OR \"pkoomen\") (\"OpenProse\" OR \"TesterArmy\" OR \"primitive\")",
+        "site:reddit.com (\"Nicolas Dessaigne\" OR \"dessaigne\") (\"Superset\" OR \"Lumius\" OR \"Kinro\")",
+        "site:youtube.com \"Andrew Miklas\" (\"Gojiberry AI\" OR \"Tasklet\" OR \"Synphony\")"
+      ],
+      "outcome": "No results on Hacker News comments, Product Hunt, Reddit, or YouTube for these low-coverage partner-company combinations."
+    },
+    {
+      "platform": "linkedin",
+      "queries": [
+        "site:linkedin.com/posts/sdianahu \"Foresight\" YC",
+        "site:linkedin.com/posts/tylerbosmeny \"Humwork\" YC",
+        "site:linkedin.com/posts/harjtaggar \"Allowance\" YC",
+        "site:linkedin.com/posts/petekoomen \"OpenProse\" YC"
+      ],
+      "outcome": "Only the Foresight founder post and Humwork/OpenProse company pages surfaced; no partner-authored source."
+    },
+    {
+      "platform": "x_and_web",
+      "queries": [
+        "\"Allowance\" \"harjtaggar\"",
+        "\"Humwork\" \"bosmeny\"",
+        "\"OpenProse\" \"pkoomen\"",
+        "\"Superset\" \"dessaigne\" YC"
+      ],
+      "outcome": "Results were YC/company pages and founder mirrors; no native status by a listed partner."
+    },
+    {
+      "platform": "linkedin",
+      "activityAuditProfiles": [
+        "Garry Tan",
+        "Harj Taggar",
+        "Jared Friedman",
+        "Diana Hu",
+        "Gustaf Alströmer",
+        "Nicolas Dessaigne",
+        "Tom Blomfield",
+        "Brad Flora",
+        "Pete Koomen",
+        "Ankit Gupta",
+        "Tyler Bosmeny",
+        "David Lieb",
+        "Andrew Miklas"
+      ],
+      "outcome": "Public activity pages were inspected for posts, comments, shares, and reactions. Reposts, likes, wrong-batch posts, generic comments, and existing activity IDs were excluded. Aaron Epstein's profile fetch was blocked, so his pod-specific search results supplied the follow-up audit instead."
+    },
+    {
+      "platform": "linkedin",
+      "directPostValidations": [
+        "https://www.linkedin.com/posts/antoine-bertrand_very-excited-to-share-that-ive-been-accepted-activity-7458203542588248065-ZjwB",
+        "https://www.linkedin.com/posts/wukaling_every-data-agent-demo-feels-like-magic-then-activity-7475565344720420864-wfwy",
+        "https://www.linkedin.com/posts/arjun-lalwani_ai-mortgage-broker-ralo-launches-raises-activity-7473365156169662466-ZHI-"
+      ],
+      "outcome": "Validated native author, parent-post timestamp, body attribution, and visible parent counters. All three failed the people-only P26 acceptance rule and were recorded as net-new rejections."
+    }
+  ],
+  "dedupe": {
+    "checkedAt": "2026-07-16T00:59:10Z",
+    "checkedAgainst": [
+      "outputs/source-hunt/search-ledger.json",
+      "outputs/source-hunt/validated-candidates.json",
+      "outputs/source-hunt/rejected-candidates.json",
+      "outputs/source-hunt/*.json",
+      "src/lib/social/targeted-evidence-current.json",
+      "public/graph/s2026.json"
+    ],
+    "normalizationRules": [
+      "Compare canonical host/path without query parameters or trailing slash.",
+      "Treat linkedin.com and www.linkedin.com as the same host.",
+      "Treat LinkedIn activity IDs as the primary cross-slug post key.",
+      "Treat X status IDs as the primary cross-mirror post key."
+    ],
+    "newAcceptedUrls": [],
+    "newRejectedUrls": [
+      "https://www.linkedin.com/posts/antoine-bertrand_very-excited-to-share-that-ive-been-accepted-activity-7458203542588248065-ZjwB",
+      "https://www.linkedin.com/posts/wukaling_every-data-agent-demo-feels-like-magic-then-activity-7475565344720420864-wfwy",
+      "https://www.linkedin.com/posts/arjun-lalwani_ai-mortgage-broker-ralo-launches-raises-activity-7473365156169662466-ZHI-"
+    ],
+    "duplicateUrlsExcluded": [
+      {
+        "observedUrl": "https://www.linkedin.com/posts/tylerbosmeny_i-predict-bloomy-yc-s26-will-be-the-next-activity-7478590522912075776-uGvL",
+        "priorUrl": "https://www.linkedin.com/posts/tylerbosmeny_bloomy-yc-s26-is-helping-kids-learn-faster-activity-7478590522912075776-rx88",
+        "platformPostId": "7478590522912075776",
+        "reason": "Same LinkedIn activity ID already present in the ledger and targeted evidence; also Summer 2026 rather than P26."
+      },
+      {
+        "observedUrl": "https://www.linkedin.com/posts/geourg-kivijian_armen-and-i-are-joining-y-combinator-p26-activity-7452446287834300416-WgeL",
+        "priorUrl": "https://www.linkedin.com/posts/geourg-kivijian_armen-and-i-are-joining-y-combinator-p26-activity-7452446287834300416-WgeL",
+        "platformPostId": "7452446287834300416",
+        "reason": "Concurrent regular-source shard and targeted evidence already contain the founder-authored Ornadyne post; founder authorship is ineligible here."
+      },
+      {
+        "observedUrl": "https://www.linkedin.com/posts/y-combinator_alchemize-yc-p26-is-building-the-first-activity-7465069323779215360-er0S",
+        "priorUrl": "https://www.linkedin.com/posts/y-combinator_alchemize-yc-p26-is-building-the-first-activity-7465069323779215360-er0S",
+        "platformPostId": "7465069323779215360",
+        "reason": "Already rejected in prior artifacts; YC organization authored the parent and Andrew Miklas's surfaced comment lacked a visible comment metric."
+      },
+      {
+        "observedUrl": "https://www.linkedin.com/posts/garrytan_ai-made-writing-code-cheap-the-new-bottleneck-activity-7475242110372167680-bh5x",
+        "priorUrl": "https://www.linkedin.com/posts/garrytan_ai-made-writing-code-cheap-the-new-bottleneck-activity-7475242110372167680-bh5x",
+        "platformPostId": "7475242110372167680",
+        "reason": "Existing Linzumi evidence in the ledger and targeted evidence."
+      },
+      {
+        "observedUrl": "https://www.linkedin.com/posts/garrytan_ai-is-making-marketers-lazy-so-we-made-activity-7473019100802400256-_eiV",
+        "priorUrl": "https://www.linkedin.com/posts/garrytan_ai-is-making-marketers-lazy-so-we-made-activity-7473019100802400256-_eiV",
+        "platformPostId": "7473019100802400256",
+        "reason": "Existing Ploy evidence in the ledger and targeted evidence."
+      }
+    ]
+  },
+  "summary": {
+    "acceptedCount": 0,
+    "rejectedCount": 3,
+    "searchBatchCount": 16,
+    "exactQueryCount": 56,
+    "peopleSearchedCount": 14,
+    "profileAuditCount": 13,
+    "directPostValidationCount": 3,
+    "duplicateExcludedCount": 5,
+    "netNewRejectedUrlCount": 3,
+    "result": "No net-new source met every acceptance gate. Nothing was imported."
+  }
+}

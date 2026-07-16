@@ -1,0 +1,786 @@
+{
+  "scope": {
+    "generatedAt": "2026-07-15T22:53:40Z",
+    "repo": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund",
+    "task": "Ninth-pass hunt for additional YC Summer 2026 first-party social evidence not already in src/lib/social/targeted-evidence-current.json.",
+    "batchSlug": "S26",
+    "batchLabel": "YC Summer 2026",
+    "dedupeAgainst": [
+      "src/lib/social/targeted-evidence-current.json"
+    ],
+    "policy": {
+      "acceptedUrlTypes": [
+        "native LinkedIn post",
+        "native X post",
+        "native GitHub repository"
+      ],
+      "requiredAuthorType": "company, founder, official account, or author verifiable through local YC identity",
+      "excludedUrlTypes": [
+        "profiles",
+        "search pages",
+        "result pages",
+        "third-party roundups",
+        "inferred profile follower counts"
+      ],
+      "sourceJsonEdited": false
+    },
+    "prioritization": "Focused on YC Summer 2026 companies with zero or sparse current evidence counts, then accepted only strict first-party native URLs with visible metrics."
+  },
+  "searches": [
+    {
+      "surface": "repo_inventory",
+      "queryOrCommand": "jq over src/lib/social/targeted-evidence-current.json and src/lib/yc/summer-2026-companies.json to count current evidence by S26 company.",
+      "result": "Prioritized zero/sparse companies including 6thSense, Alloovium, Atlas Discovery, Care GP, Denta, Edviro, FlowManual, Mireye, and OpenRelay."
+    },
+    {
+      "surface": "repo_inventory",
+      "queryOrCommand": "jq -r '.evidence[].sourceUrl' src/lib/social/targeted-evidence-current.json | sort -u",
+      "result": "Built current native URL set for dedupe checks."
+    },
+    {
+      "surface": "repo_inventory",
+      "queryOrCommand": "rg -F candidate post IDs and repo full names in src/lib/social/targeted-evidence-current.json and outputs/source-hunt/*.json",
+      "result": "Accepted candidate URLs and IDs below were not present in the current source JSON."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"Care GP\" \"Y Combinator\"",
+      "result": "Found native Care GP company and Melvin Chen founder posts with YC S26 context."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"OpenRelay\" \"Y Combinator\" \"S26\"",
+      "result": "Found native Prashant Patel founder post for OpenRelay YC S26."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"Alloovium\" \"YC S26\"",
+      "result": "Found native Zander Schweitzer, Cielo Nicolosi, and official Alloovium posts."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"Atlas Discovery\" \"Y Combinator\" \"S26\"",
+      "result": "Found native Shaamil Karim founder post for Atlas Discovery."
+    },
+    {
+      "surface": "X web search",
+      "queryOrCommand": "site:x.com \"Denta\" \"YC S26\" \"jackbeecher23\" and exact-text search for \"Building the dental practice that runs itself @ycombinator\"",
+      "result": "Found native Jack Beecher X post for Denta."
+    },
+    {
+      "surface": "X web search",
+      "queryOrCommand": "\"Edviro\" \"YC S26\" \"hursheybar2\" and site:x.com/hursheybar2 \"Edviro\"",
+      "result": "Found native Hursh Shah X post for Edviro."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"Edviro\" \"YC S26\" and site:linkedin.com/posts \"Hursh Shah\" \"Y Combinator\"",
+      "result": "Found two native Hursh Shah LinkedIn founder posts for Edviro."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"FlowManual\" \"Y Combinator\" \"S26\"",
+      "result": "Found native official FlowManual company post and David Shijoon Bae founder post."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"6thSense\" \"Y Combinator\" \"S26\" and site:linkedin.com/posts \"6thsenseai\" \"Y Combinator\"",
+      "result": "Found native official 6thSense company post and two James Baek founder posts."
+    },
+    {
+      "surface": "LinkedIn post verification",
+      "queryOrCommand": "curl native LinkedIn post URLs and inspect JSON-LD for datePublished, headline, interactionStatistic, commentCount, author, and creator fields.",
+      "result": "Recorded exact LinkedIn reaction, comment, and author follower counts from native post-page JSON-LD snapshots."
+    },
+    {
+      "surface": "X post verification",
+      "queryOrCommand": "curl https://api.fxtwitter.com/jackbeecher23/status/2074887641623880138 and https://api.fxtwitter.com/hursheybar2/status/2074530139606745589",
+      "result": "Recorded exact X post metrics while preserving native x.com source URLs."
+    },
+    {
+      "surface": "GitHub API",
+      "queryOrCommand": "curl -sL https://api.github.com/orgs/Care-AI-Inc/repos?per_page=100 and curl -sL https://api.github.com/repos/Care-AI-Inc/careai-corina-service-releases",
+      "result": "Accepted public official Care GP organization repository with exact repository metrics."
+    },
+    {
+      "surface": "GitHub API",
+      "queryOrCommand": "curl -sL https://api.github.com/orgs/Mireye-Labs/repos?per_page=100 and curl -sL https://api.github.com/repos/Mireye-Labs/mireye-earth-mcp",
+      "result": "Accepted public official Mireye organization repository with exact repository metrics."
+    },
+    {
+      "surface": "GitHub API",
+      "queryOrCommand": "curl -sI https://api.github.com/repos/OpenRelayInc/OpenRelay and curl -sL https://api.github.com/orgs/askshepherd/repos?per_page=100",
+      "result": "Rejected unavailable or empty public repository surfaces."
+    }
+  ],
+  "accepted": [
+    {
+      "companyName": "Care GP",
+      "companySlug": "care-gp",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/caregp_ycombinator-yc-healthcareai-activity-7467033690557030400-yHU-",
+      "platformPostId": "7467033690557030400",
+      "postedAt": "2026-06-01T02:06:02.590Z",
+      "author": {
+        "name": "Care GP",
+        "type": "official_company_account",
+        "profileUrl": "https://au.linkedin.com/company/caregp",
+        "localYcIdentity": "Care GP local S26 company socialLinks.linkedin is https://www.linkedin.com/company/caregp"
+      },
+      "metrics": {
+        "reactions": 66,
+        "comments": 7,
+        "authorFollowers": 5131
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Care GP says it was selected to be backed by Y Combinator as part of YC S26.",
+        "Post describes Care GP's healthcare AI work and clinic usage."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Care GP",
+      "companySlug": "care-gp",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/melvinchen_ycombinator-healthcareai-healthtech-activity-7470676175162482688-fBNx",
+      "platformPostId": "7470676175162482688",
+      "postedAt": "2026-06-11T03:19:58.586Z",
+      "author": {
+        "name": "Melvin Chen",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://sg.linkedin.com/in/melvinchen",
+        "localYcIdentity": "Care GP local S26 founder Melvin Chen has LinkedIn https://www.linkedin.com/in/melvinchen/"
+      },
+      "metrics": {
+        "reactions": 136,
+        "comments": 13,
+        "authorFollowers": 18303
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder announces a Care GP milestone.",
+        "Post says the milestone happened right as Care GP joined YC."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Care GP",
+      "companySlug": "care-gp",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/caregp_ycombinator-healthcareai-healthtech-activity-7470676358583742465-vNYU",
+      "platformPostId": "7470676358583742465",
+      "postedAt": "2026-06-11T03:20:42.321Z",
+      "author": {
+        "name": "Care GP",
+        "type": "official_company_account",
+        "profileUrl": "https://au.linkedin.com/company/caregp",
+        "localYcIdentity": "Care GP local S26 company socialLinks.linkedin is https://www.linkedin.com/company/caregp"
+      },
+      "metrics": {
+        "reactions": 21,
+        "comments": 2,
+        "authorFollowers": 5131
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Official company repost of the Care GP milestone.",
+        "Text ties the milestone to joining YC."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "OpenRelay",
+      "companySlug": "openrelay",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/prashant182_openrelay-distributed-gpu-cloud-for-production-activity-7482193253954400256-DwG0",
+      "platformPostId": "7482193253954400256",
+      "postedAt": "2026-07-12T22:04:44.151Z",
+      "author": {
+        "name": "Prashant Patel",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/prashant182",
+        "localYcIdentity": "OpenRelay local S26 founder Prashant Patel has LinkedIn https://www.linkedin.com/in/prashant182/"
+      },
+      "metrics": {
+        "reactions": 208,
+        "comments": 24,
+        "authorFollowers": 1407
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder says he is joining Y Combinator's Summer 2026 batch to build OpenRelay.",
+        "Post describes OpenRelay as a distributed GPU cloud for production AI."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Care GP",
+      "companySlug": "care-gp",
+      "batchSlug": "S26",
+      "platform": "GitHub",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/Care-AI-Inc/careai-corina-service-releases",
+      "repoFullName": "Care-AI-Inc/careai-corina-service-releases",
+      "repoCreatedAt": "2025-07-04T03:02:32Z",
+      "pushedAt": "2026-07-08T06:16:04Z",
+      "updatedAt": "2026-07-08T06:16:08Z",
+      "author": {
+        "name": "Care-AI-Inc",
+        "type": "official_github_organization",
+        "profileUrl": "https://github.com/Care-AI-Inc",
+        "localYcIdentity": "Care GP local S26 company socialLinks.github is https://github.com/orgs/Care-AI-Inc"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "subscribers": 0
+      },
+      "repoState": {
+        "private": false,
+        "archived": false,
+        "disabled": false
+      },
+      "metricsSource": "GitHub REST API repo object",
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Mireye",
+      "companySlug": "mireye",
+      "batchSlug": "S26",
+      "platform": "GitHub",
+      "evidenceType": "github_repo",
+      "sourceUrl": "https://github.com/Mireye-Labs/mireye-earth-mcp",
+      "repoFullName": "Mireye-Labs/mireye-earth-mcp",
+      "repoCreatedAt": "2026-06-13T00:31:06Z",
+      "pushedAt": "2026-06-13T01:11:20Z",
+      "updatedAt": "2026-06-13T01:11:23Z",
+      "author": {
+        "name": "Mireye-Labs",
+        "type": "official_github_organization",
+        "profileUrl": "https://github.com/Mireye-Labs",
+        "localYcIdentity": "Mireye local S26 company socialLinks.github is https://github.com/orgs/Mireye-Labs/"
+      },
+      "metrics": {
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "subscribers": 0
+      },
+      "repoState": {
+        "private": false,
+        "archived": false,
+        "disabled": false
+      },
+      "description": "MCP server for Mireye Earth - published source of the mireye-mcp PyPI package (snapshot-synced from a private monorepo)",
+      "metricsSource": "GitHub REST API repo object",
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Alloovium",
+      "companySlug": "alloovium",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zander-schweitzer-1a0651205_today-we-launched-alloovium-yc-s26-on-activity-7482524117519454208-ubba",
+      "platformPostId": "7482524117519454208",
+      "postedAt": "2026-07-13T19:59:28.161Z",
+      "author": {
+        "name": "Zander Schweitzer",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/zander-schweitzer-1a0651205",
+        "localYcIdentity": "Alloovium local S26 founder Zander Schweitzer has the same LinkedIn profile URL."
+      },
+      "metrics": {
+        "reactions": 234,
+        "comments": 31,
+        "authorFollowers": 3378
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder says Alloovium YC S26 launched on Y Combinator.",
+        "Post is a first-party launch announcement."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Alloovium",
+      "companySlug": "alloovium",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/cielo-nicolosi_we-just-launched-to-2-million-people-on-y-activity-7482524277809020930-crzY",
+      "platformPostId": "7482524277809020930",
+      "postedAt": "2026-07-13T20:00:06.378Z",
+      "author": {
+        "name": "Cielo Nicolosi",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/cielo-nicolosi",
+        "localYcIdentity": "Alloovium local S26 founder Cielo Nicolosi has the same LinkedIn profile URL."
+      },
+      "metrics": {
+        "reactions": 261,
+        "comments": 36,
+        "authorFollowers": 8276
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder says Alloovium launched to 2 million people on Y Combinator.",
+        "Post is a first-party launch announcement."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Alloovium",
+      "companySlug": "alloovium",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zander-schweitzer-1a0651205_alloovium-yc-s26-has-been-officially-backed-activity-7467337043484790785-ZdnO",
+      "platformPostId": "7467337043484790785",
+      "postedAt": "2026-06-01T22:11:27.563Z",
+      "author": {
+        "name": "Zander Schweitzer",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/zander-schweitzer-1a0651205",
+        "localYcIdentity": "Alloovium local S26 founder Zander Schweitzer has the same LinkedIn profile URL."
+      },
+      "metrics": {
+        "reactions": 480,
+        "comments": 194,
+        "authorFollowers": 3378
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder says Alloovium YC S26 has been officially backed by Y Combinator.",
+        "Post directly ties the company to YC S26."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Alloovium",
+      "companySlug": "alloovium",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/alloovium_the-big-news-is-here-alloovium-has-been-activity-7467348701171200000-_hPq",
+      "platformPostId": "7467348701171200000",
+      "postedAt": "2026-06-01T22:57:46.974Z",
+      "author": {
+        "name": "Alloovium (YC S26)",
+        "type": "official_company_account",
+        "profileUrl": "https://www.linkedin.com/company/alloovium",
+        "localYcIdentity": "Alloovium local S26 company socialLinks.linkedin is http://linkedin.com/company/alloovium"
+      },
+      "metrics": {
+        "reactions": 152,
+        "comments": 9,
+        "authorFollowers": 1904
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Official company account says Alloovium has been backed by Y Combinator.",
+        "Post identifies the company as YC S26."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Atlas Discovery",
+      "companySlug": "atlas-discovery",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/shaamilkarim_it-breaks-my-heart-every-time-i-hear-about-activity-7475279336908943361-PXEn",
+      "platformPostId": "7475279336908943361",
+      "postedAt": "2026-06-23T20:11:17.877Z",
+      "author": {
+        "name": "Shaamil Karim",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/shaamilkarim",
+        "localYcIdentity": "Atlas Discovery local S26 founder Shaamil Karim has LinkedIn https://www.linkedin.com/in/shaamil-karim/; the live author profile/title also identifies CEO at Atlas Discovery | YC S26."
+      },
+      "metrics": {
+        "reactions": 160,
+        "comments": 38,
+        "authorFollowers": 7072
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder says he started Atlas Discovery.",
+        "Post says Atlas Discovery raised funding from Y Combinator."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Denta",
+      "companySlug": "denta",
+      "batchSlug": "S26",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/jackbeecher23/status/2074887641623880138",
+      "platformPostId": "2074887641623880138",
+      "postedAt": "2026-07-08T16:05:37.000Z",
+      "author": {
+        "name": "Jack Beecher",
+        "handle": "jackbeecher23",
+        "type": "yc_listed_founder",
+        "localYcIdentity": "Denta local S26 founder Jack Beecher has X https://x.com/jackbeecher23"
+      },
+      "metrics": {
+        "views": 35638,
+        "likes": 136,
+        "replies": 20,
+        "reposts": 7,
+        "quotes": 0,
+        "bookmarks": 110
+      },
+      "metricsSource": "FxTwitter API snapshot for native X status",
+      "visibleTextSignals": [
+        "Founder says he is building the dental practice that runs itself at Y Combinator.",
+        "Author bio identifies Founder, Denta with trydenta.com."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Edviro",
+      "companySlug": "edviro",
+      "batchSlug": "S26",
+      "platform": "X",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/hursheybar2/status/2074530139606745589",
+      "platformPostId": "2074530139606745589",
+      "postedAt": "2026-07-07T16:25:02.000Z",
+      "author": {
+        "name": "Hursh Shah",
+        "handle": "hursheybar2",
+        "type": "yc_listed_founder",
+        "localYcIdentity": "Edviro local S26 founder Hursh Shah has X https://x.com/hursheybar2"
+      },
+      "metrics": {
+        "views": 5339,
+        "likes": 20,
+        "replies": 3,
+        "reposts": 5,
+        "quotes": 0,
+        "bookmarks": 9
+      },
+      "metricsSource": "FxTwitter API snapshot for native X status",
+      "visibleTextSignals": [
+        "Founder says Edviro built world models that simulate anything in a building to save energy costs.",
+        "Text names Edviro and links edviroenergy.com; author bio identifies founder at Edviro YC S26."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "FlowManual",
+      "companySlug": "flowmanual",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/flowmanual_hey-this-is-flowmanual-an-ai-native-back-activity-7476435685877514240-OMPy",
+      "platformPostId": "7476435685877514240",
+      "postedAt": "2026-06-27T00:46:12.950Z",
+      "author": {
+        "name": "FlowManual (YC S26)",
+        "type": "official_company_account",
+        "profileUrl": "https://www.linkedin.com/company/flowmanual",
+        "localYcIdentity": "FlowManual local S26 company socialLinks.linkedin is https://www.linkedin.com/company/flowmanual/"
+      },
+      "metrics": {
+        "reactions": 37,
+        "comments": 7,
+        "authorFollowers": 201
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Official company account introduces FlowManual as an AI-native back office for construction contractors.",
+        "Author name identifies FlowManual as YC S26."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "FlowManual",
+      "companySlug": "flowmanual",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/shijoonbae_we-started-building-on-april-18-a-month-activity-7469855846215229440-gUNz",
+      "platformPostId": "7469855846215229440",
+      "postedAt": "2026-06-08T21:00:16.929Z",
+      "author": {
+        "name": "David Shijoon Bae",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/shijoonbae",
+        "localYcIdentity": "FlowManual local S26 founder David Shijoon Bae has LinkedIn https://www.linkedin.com/in/shijoonbae/"
+      },
+      "metrics": {
+        "reactions": 325,
+        "comments": 85,
+        "authorFollowers": 1706
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder says the team raised $500K with YC.",
+        "Post names FlowManual YC S26."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Edviro",
+      "companySlug": "edviro",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/hursh-shah_after-dozens-of-demos-of-edviro-yc-s26-activity-7482524117611589634-A2Jk",
+      "platformPostId": "7482524117611589634",
+      "postedAt": "2026-07-13T19:59:28.195Z",
+      "author": {
+        "name": "Hursh Shah",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/hursh-shah",
+        "localYcIdentity": "Edviro local S26 founder Hursh Shah has LinkedIn https://www.linkedin.com/in/hursh-shah/"
+      },
+      "metrics": {
+        "reactions": 32,
+        "comments": 5,
+        "authorFollowers": 1660
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder discusses demos of Edviro YC S26.",
+        "Post directly names the company and batch."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "Edviro",
+      "companySlug": "edviro",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/hursh-shah_after-a-wild-month-im-excited-to-announce-activity-7476448773238325248-qkLx",
+      "platformPostId": "7476448773238325248",
+      "postedAt": "2026-06-27T01:38:13.225Z",
+      "author": {
+        "name": "Hursh Shah",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/hursh-shah",
+        "localYcIdentity": "Edviro local S26 founder Hursh Shah has LinkedIn https://www.linkedin.com/in/hursh-shah/"
+      },
+      "metrics": {
+        "reactions": 254,
+        "comments": 59,
+        "authorFollowers": 1660
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder announces Edviro is backed by Y Combinator and Reach Capital.",
+        "Post directly names Edviro and YC backing."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "6thSense",
+      "companySlug": "6thsense",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/6thsenseai_robotics-touch-egocentric-activity-7475926279578361856-b1rB",
+      "platformPostId": "7475926279578361856",
+      "postedAt": "2026-06-25T15:02:01.021Z",
+      "author": {
+        "name": "6thSense (YC S26)",
+        "type": "official_company_account",
+        "profileUrl": "https://www.linkedin.com/company/6thsenseai",
+        "localYcIdentity": "6thSense local S26 company socialLinks.linkedin is https://www.linkedin.com/company/6thsenseai"
+      },
+      "metrics": {
+        "reactions": 49,
+        "comments": 2,
+        "authorFollowers": 442
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Official company account says it teaches robots how to feel.",
+        "Author name identifies 6thSense as YC S26."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "6thSense",
+      "companySlug": "6thsense",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/james-baek1_after-leaving-georgia-tech-in-january-to-activity-7476073924280348672-lJIO",
+      "platformPostId": "7476073924280348672",
+      "postedAt": "2026-06-26T00:48:42.264Z",
+      "author": {
+        "name": "James Baek",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/james-baek1",
+        "localYcIdentity": "6thSense local S26 founder James Baek has LinkedIn https://www.linkedin.com/in/james-baek1/"
+      },
+      "metrics": {
+        "reactions": 271,
+        "comments": 84,
+        "authorFollowers": 1796
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder says 6thSense is now backed by Y Combinator.",
+        "Post describes leaving Georgia Tech to build the startup full time."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    },
+    {
+      "companyName": "6thSense",
+      "companySlug": "6thsense",
+      "batchSlug": "S26",
+      "platform": "LinkedIn",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/james-baek1_6thsense-is-giving-out-full-hand-tactile-activity-7476595024709775360-NrFM",
+      "platformPostId": "7476595024709775360",
+      "postedAt": "2026-06-27T11:19:22.286Z",
+      "author": {
+        "name": "James Baek",
+        "type": "yc_listed_founder",
+        "profileUrl": "https://www.linkedin.com/in/james-baek1",
+        "localYcIdentity": "6thSense local S26 founder James Baek has LinkedIn https://www.linkedin.com/in/james-baek1/"
+      },
+      "metrics": {
+        "reactions": 73,
+        "comments": 16,
+        "authorFollowers": 1796
+      },
+      "metricsSource": "LinkedIn JSON-LD on native post page",
+      "visibleTextSignals": [
+        "Founder says 6thSense is giving out full-hand tactile robotic hands.",
+        "Post is first-party company evidence from a YC-listed founder."
+      ],
+      "dedupe": {
+        "checkedAgainstCurrentSourceJson": true,
+        "duplicateFound": false
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "companyName": "OpenRelay",
+      "platform": "GitHub",
+      "sourceUrl": "https://github.com/OpenRelayInc/OpenRelay",
+      "reason": "Local YC social link points to this repo, but GitHub API returned HTTP 404 for https://api.github.com/repos/OpenRelayInc/OpenRelay, so no public native repo metrics could be verified."
+    },
+    {
+      "companyName": "Shepherd",
+      "platform": "GitHub",
+      "sourceUrl": "https://github.com/orgs/askshepherd",
+      "reason": "Organization repo listing at https://api.github.com/orgs/askshepherd/repos?per_page=100 returned no public repositories suitable for native repo evidence."
+    },
+    {
+      "companyName": "Denta",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_denta-yc-s26-is-building-the-dental-practice-activity-7480654434939711488-xQQJ",
+      "reason": "Native LinkedIn post with visible metrics, but author is Y Combinator rather than Denta, a founder, or an official Denta account."
+    },
+    {
+      "companyName": "6thSense",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_6thsense-yc-s26-builds-wearable-tactile-activity-7479915665467047936-g_Kd",
+      "reason": "Native LinkedIn post with visible metrics, but author is Y Combinator rather than 6thSense, a founder, or an official 6thSense account."
+    },
+    {
+      "companyName": "Alloovium",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/y-combinator_alloovium-yc-s26-automates-compliance-for-activity-7482524264227758080-_Qnv",
+      "reason": "Native LinkedIn post with visible metrics, but author is Y Combinator rather than Alloovium, a founder, or an official Alloovium account."
+    },
+    {
+      "companyName": "Multiple S26 companies",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/ollieforsyth_y-combinators-summer-26-batch-discover-activity-7481750407715762178-r5TK",
+      "reason": "Third-party or community roundup, not first-party company, founder, or official account evidence."
+    },
+    {
+      "companyName": "Denta",
+      "platform": "LinkedIn",
+      "sourceUrl": "https://www.linkedin.com/posts/jack-beecher-459a13180_the-most-profitable-practices-on-denta-do-activity-7478579007874289664-aKXN",
+      "reason": "Founder-authored native post surfaced in search, but the visible snippet was product commentary without direct YC S26 or Y Combinator text; held out to avoid relying on author-title inference only."
+    }
+  ],
+  "notes": [
+    "Wrote only this output artifact and did not edit src/lib/social/targeted-evidence-current.json.",
+    "Accepted LinkedIn rows use native post URLs and metrics read from the post-page JSON-LD snapshot: reactions, comments, and author follower counts when present on the post page.",
+    "Accepted X rows preserve native x.com source URLs; post metrics were read from FxTwitter JSON snapshots because unauthenticated X pages do not consistently expose full metrics.",
+    "GitHub rows use public native repo URLs with exact metrics from GitHub REST API repo objects.",
+    "No profile pages, search pages, result pages, or third-party batch roundups were accepted."
+  ]
+}

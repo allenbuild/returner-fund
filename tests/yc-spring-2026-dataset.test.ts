@@ -59,7 +59,7 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(graph.leaderboard).toHaveLength(83);
     expect(graph.evidence.length).toBeGreaterThan(39);
     expect(new Set(graph.evidence.map((item) => item.platform))).toEqual(
-      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "web", "rss"])
+      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "product_hunt", "web", "rss"])
     );
     expect(graph.evidence.some((item) => item.platform === "github" && item.thumbnailUrl)).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "youtube" && item.attachedCompanyName === "Archal")).toBe(true);

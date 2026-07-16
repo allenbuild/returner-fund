@@ -1,0 +1,176 @@
+{
+  "accepted": [
+    {
+      "url": "https://x.com/bosmeny/status/2072753766701625532",
+      "postId": "2072753766701625532",
+      "companyName": "Bloomy",
+      "topVoiceName": "Tyler Bosmeny",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 13555,
+        "likes": 33,
+        "replies": 3,
+        "reposts": 3,
+        "quotes": 0,
+        "bookmarks": 11
+      },
+      "text": "He's right.. kids SHOULD be learning faster... and my money is on @alexsouthmayd to figure it out.\n\nCongrats on the launch of @bloomylearning!",
+      "attributionNote": "Accepted: native X post by seeded top voice Tyler Bosmeny; visible target signal names founder @alexsouthmayd and company handle @bloomylearning, with quoted founder launch post naming Bloomy and bloomylearning.com. Missing from src/lib/social/targeted-evidence-current.json."
+    },
+    {
+      "url": "https://x.com/bosmeny/status/2075013475424952797",
+      "postId": "2075013475424952797",
+      "companyName": "83 Sciences",
+      "topVoiceName": "Tyler Bosmeny",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 11378,
+        "likes": 27,
+        "replies": 2,
+        "reposts": 2,
+        "quotes": 0,
+        "bookmarks": 10
+      },
+      "text": "This is cool. 83 Sciences is using AI to mine discarded lab data (like failed experiments) for scientific breakthroughs.",
+      "attributionNote": "Accepted: native X post by seeded top voice Tyler Bosmeny; visible target signal names 83 Sciences, with quoted official @83sciences post naming 83 Sciences and 83sciences.ai. Missing from src/lib/social/targeted-evidence-current.json."
+    },
+    {
+      "url": "https://x.com/bosmeny/status/2075342772392067278",
+      "postId": "2075342772392067278",
+      "companyName": "Inkbox",
+      "topVoiceName": "Tyler Bosmeny",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 4945,
+        "likes": 16,
+        "replies": 0,
+        "reposts": 1,
+        "quotes": 1,
+        "bookmarks": 6
+      },
+      "text": "Inkbox: the communication layer for AI agents.\n\nCheck out their signup flow, it's one the lowest friction I've ever seen.\n\nCongrats on the launch @rayruizhiliao !!",
+      "attributionNote": "Accepted: native X post by seeded top voice Tyler Bosmeny; visible target signal names Inkbox and founder @rayruizhiliao, with quoted founder launch post naming @inkbox_ai. Missing from src/lib/social/targeted-evidence-current.json."
+    }
+  ],
+  "rejected": [
+    {
+      "url": "https://x.com/bosmeny/status/2062974811165671542",
+      "postId": "2062974811165671542",
+      "companyName": null,
+      "topVoiceName": "Tyler Bosmeny",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 3015,
+        "likes": 22,
+        "replies": 1,
+        "reposts": 3,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "text": "P26 set the record for the highest % of hard tech in a batch. And S26 will be even higher! What a time to build",
+      "attributionNote": "Rejected: generic batch-level S26 and hard-tech commentary; no visible Summer 2026 company, founder, official handle, or domain."
+    },
+    {
+      "url": "https://x.com/sdianahu/status/2058644733677986223",
+      "postId": "2058644733677986223",
+      "companyName": null,
+      "topVoiceName": "Diana Hu",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 135943,
+        "likes": 646,
+        "replies": 58,
+        "reposts": 22,
+        "quotes": 7,
+        "bookmarks": 316
+      },
+      "text": "yc s26 extended deadline ends tomorrow with the $2M openAI offer which we don't know if we'll do again as is an experiment. some thoughts on how to tokenmaxx effectively from 0->1 AI native startups that have done it:",
+      "attributionNote": "Rejected: generic S26 application-deadline/advice post; no visible Summer 2026 company, founder, official handle, or domain."
+    },
+    {
+      "url": "https://x.com/garrytan/status/2058645042621976680",
+      "postId": "2058644733677986223",
+      "companyName": null,
+      "topVoiceName": "Garry Tan",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 135943,
+        "likes": 646,
+        "replies": 58,
+        "reposts": 22,
+        "quotes": 7,
+        "bookmarks": 316
+      },
+      "text": "yc s26 extended deadline ends tomorrow with the $2M openAI offer which we don't know if we'll do again as is an experiment. some thoughts on how to tokenmaxx effectively from 0->1 AI native startups that have done it:",
+      "attributionNote": "Rejected: candidate Garry Tan URL resolves to a repost of Diana Hu's generic S26 advice post, not a native Garry post and not target-specific evidence."
+    },
+    {
+      "url": "https://x.com/garrytan/status/2051290046565843168",
+      "postId": "2051290046565843168",
+      "companyName": null,
+      "topVoiceName": "Garry Tan",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 144555,
+        "likes": 2075,
+        "replies": 183,
+        "reposts": 122,
+        "quotes": 32,
+        "bookmarks": 333
+      },
+      "text": "Today is the deadline to apply for YC Summer 2026. If you're still hesitating: the companies that change the world don't wait until they're 100% ready. Applying is sometimes literally the first step.",
+      "attributionNote": "Rejected: native top-voice post, but only a generic YC Summer 2026 application deadline message; no visible target company, founder, official handle, or domain."
+    },
+    {
+      "url": "https://x.com/bradflora/status/2052044928780484647",
+      "postId": "2052044928780484647",
+      "companyName": null,
+      "topVoiceName": "Brad Flora",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 17376,
+        "likes": 66,
+        "replies": 11,
+        "reposts": 6,
+        "quotes": 0,
+        "bookmarks": 13
+      },
+      "text": "YC interviews in NYC this month! We're seeing so many interesting fintech, crypto and future-of-finance applications at YC these days that @nemild and I thought it'd be fun to interview a bunch in the heart of the financial world for S26.",
+      "attributionNote": "Rejected: native top-voice post, but it promotes S26 interviews and quotes the YC org account; no visible target company, founder, official handle, or domain."
+    },
+    {
+      "url": "https://x.com/snowmaker/status/2045886464811266512",
+      "postId": "2045886464811266512",
+      "companyName": null,
+      "topVoiceName": "Jared Friedman",
+      "audience": "yc_partners",
+      "metrics": {
+        "views": 422716,
+        "likes": 1746,
+        "replies": 38,
+        "reposts": 136,
+        "quotes": 13,
+        "bookmarks": 2408
+      },
+      "text": "If you want to reindustrialize America, this is an amazing list of ideas to work on.",
+      "attributionNote": "Rejected: native top-voice post, but visible text does not identify a Summer 2026 company, founder, official handle, or domain; quoted context was not target-identifying in the verified public JSON."
+    },
+    {
+      "url": "https://x.com/sama/status/2065160791205310565",
+      "postId": "2065160791205310565",
+      "companyName": null,
+      "topVoiceName": "Sam Altman",
+      "audience": "insiders",
+      "metrics": {
+        "views": 914536,
+        "likes": 3047,
+        "replies": 518,
+        "reposts": 177,
+        "quotes": 24,
+        "bookmarks": 478
+      },
+      "text": "really looking forward to working together!",
+      "attributionNote": "Rejected: native insider post, but visible text and exposed quote context do not identify a Summer 2026 target company, founder, official handle, or domain."
+    }
+  ]
+}

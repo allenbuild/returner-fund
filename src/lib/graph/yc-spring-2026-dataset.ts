@@ -469,7 +469,7 @@ function springPublicEvidenceAccepted(item: PublicEvidenceRecord): boolean {
     return true;
   }
 
-  return hasSpringBatchContext(evidenceBatchText(item));
+  return isNativeHackerNewsItemUrl(item.sourceUrl) && hasSpringBatchContext(evidenceBatchText(item));
 }
 
 function companyRecord(raw: RawCompany): CompanyRecord {
@@ -820,13 +820,37 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
       : isProfileContext
         ? "Stored as context only. Profile pages are not counted as post-level traction."
         : item.matchReason,
-    attachedCompanyId: item.entityType === "company" ? item.entityId : companyIdFromEvidenceName(item.companyName),
+    attachedCompanyId: attachedCompanyIdForPublicEvidence(item),
     attachedCompanyName: item.companyName,
     socialAccountId,
     accountUrl: null,
     matchReason: item.matchReason,
     review_state: item.review_state
   });
+}
+
+function attachedCompanyIdForPublicEvidence(item: PublicEvidenceRecord): string {
+  if (item.entityType === "company") {
+    return item.entityId;
+  }
+
+  return companyIdForEvidenceEntityId(item.entityId) ?? companyIdFromEvidenceName(item.companyName);
+}
+
+function companyIdForEvidenceEntityId(entityId: string): string | null {
+  for (const company of [...snapshot.companies, ...springSnapshot.companies]) {
+    if (companyId(company) === entityId) {
+      return companyId(company);
+    }
+    if ((company.founders ?? []).some((founder) => founderId(company, founder) === entityId)) {
+      return companyId(company);
+    }
+    if (manualFounderOverrides(company).some((founder) => manualFounderId(company, founder) === entityId)) {
+      return companyId(company);
+    }
+  }
+
+  return null;
 }
 
 function nativeAuthorFromRawVisibleText(rawVisibleText: string | undefined): { name: string | null; handle: string | null } {
@@ -943,7 +967,7 @@ function hasSummerBatchContext(value: string): boolean {
 }
 
 function hasSpringBatchContext(value: string): boolean {
-  return /\b(?:Spring\s+2026|YC\s*S2026|YCS2026|S2026)\b/i.test(value);
+  return /\b(?:Spring\s+2026|YC\s*S2026|YCS2026|S2026|YC\s*P26|YCP26|P26)\b/i.test(value);
 }
 
 function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
@@ -964,7 +988,16 @@ function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
     return true;
   }
 
-  return hasSummerBatchContext(evidenceBatchText(item));
+  return isNativeHackerNewsItemUrl(item.sourceUrl) && hasSummerBatchContext(evidenceBatchText(item));
+}
+
+function isNativeHackerNewsItemUrl(rawUrl: string | null | undefined): boolean {
+  try {
+    const url = new URL(rawUrl ?? "");
+    return url.hostname === "news.ycombinator.com" && url.pathname === "/item" && Boolean(url.searchParams.get("id"));
+  } catch {
+    return false;
+  }
 }
 
 function isLoggedInLinkedInActivityEvidence(item: PublicEvidenceRecord): boolean {
@@ -1005,7 +1038,81 @@ function linkedInPostAuthorMatchesKnownEntity(item: PublicEvidenceRecord): boole
     if (founderHandle) knownHandles.add(founderHandle);
   }
 
-  return knownHandles.has(authorHandle);
+  if (knownHandles.has(authorHandle)) {
+    return true;
+  }
+
+  return linkedInNativeAuthorMatchesKnownEntity(item, company);
+}
+
+function linkedInNativeAuthorMatchesKnownEntity(item: PublicEvidenceRecord, company: RawCompany): boolean {
+  const nativeAuthor = nativeAuthorFromRawVisibleText(item.rawVisibleText);
+  const authorName = normalizeSearchText(nativeAuthor.name ?? "");
+  if (!authorName) {
+    return false;
+  }
+
+  const knownNames = new Set([
+    normalizeSearchText(company.name),
+    ...company.founders.map((founder) => normalizeSearchText(founder.name)),
+    ...manualFounderOverrides(company).map((founder) => normalizeSearchText(founder.name))
+  ]);
+  if (!knownNames.has(authorName)) {
+    return false;
+  }
+
+  return linkedinEvidenceMentionsCompanyOrFounder(item, company);
+}
+
+function linkedinEvidenceMentionsCompanyOrFounder(item: PublicEvidenceRecord, company: RawCompany): boolean {
+  const haystack = normalizeSearchText([
+    item.title,
+    item.text,
+    visibleLinkedInRawText(item.rawVisibleText)
+  ].filter(Boolean).join(" "));
+  if (!haystack) {
+    return false;
+  }
+
+  const terms = [
+    company.name,
+    company.websiteUrl ? domainToken(company.websiteUrl) : null,
+    ...Object.values(company.socialLinks ?? {}).map(handleFromUrl),
+    ...company.founders.map((founder) => founder.name),
+    ...company.founders.flatMap((founder) => Object.values(founder.socialLinks ?? {}).map(handleFromUrl)),
+    ...manualFounderOverrides(company).map((founder) => founder.name),
+    ...manualFounderOverrides(company).flatMap((founder) => Object.values(founder.socialLinks ?? {}).map(handleFromUrl))
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map(normalizeSearchText)
+    .filter((term) => term.length >= 4);
+
+  return [...new Set(terms)].some((term) => containsSearchTerm(haystack, term));
+}
+
+function visibleLinkedInRawText(rawVisibleText: string | undefined): string {
+  if (!rawVisibleText) {
+    return "";
+  }
+  if (!rawVisibleText.trim().startsWith("{")) {
+    return rawVisibleText;
+  }
+  try {
+    const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    const post = parsed.post && typeof parsed.post === "object" ? parsed.post as Record<string, unknown> : null;
+    const detail = parsed.detail && typeof parsed.detail === "object" ? parsed.detail as Record<string, unknown> : null;
+    return [
+      typeof parsed.rawText === "string" ? parsed.rawText : null,
+      typeof parsed.text === "string" ? parsed.text : null,
+      typeof post?.rawText === "string" ? post.rawText : null,
+      typeof post?.text === "string" ? post.text : null,
+      typeof detail?.rawText === "string" ? detail.rawText : null,
+      typeof detail?.text === "string" ? detail.text : null,
+      typeof detail?.title === "string" ? detail.title : null
+    ].filter(Boolean).join(" ");
+  } catch {
+    return rawVisibleText;
+  }
 }
 
 function linkedInAuthorHandleFromPostUrl(rawUrl: string): string | null {
@@ -1255,4 +1362,29 @@ function handleFromUrl(url: string): string | null {
   } catch {
     return null;
   }
+}
+
+function domainToken(rawUrl: string): string | null {
+  try {
+    const hostname = new URL(rawUrl).hostname.replace(/^www\./, "");
+    return hostname.split(".")[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function containsSearchTerm(haystack: string, term: string): boolean {
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^| )${escaped}($| )`).test(haystack);
+}
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/^@/, "")
+    .replace(/https?:\/\/(www\.)?/, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }

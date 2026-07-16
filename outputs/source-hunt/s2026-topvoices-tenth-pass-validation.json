@@ -1,0 +1,185 @@
+{
+  "validatedAt": "2026-07-15T23:59:00.000Z",
+  "rows": [
+    {
+      "sourceUrl": "https://x.com/dflieb/status/2055345726067187880",
+      "ok": true,
+      "status": 200,
+      "author": "dflieb",
+      "text": "Fun demo of @KeyframeLabs' real-time video avatars. Have AI Garry and AI Dave talk about any topic, and drop questions l",
+      "metrics": {
+        "views": 21648,
+        "likes": 84,
+        "replies": 8,
+        "retweets": 10,
+        "quotes": 7,
+        "bookmarks": 43
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/dflieb/status/2051399396944961822",
+      "ok": true,
+      "status": 200,
+      "author": "dflieb",
+      "text": "Highly paid marketing teams spend hours per week scouting TikTok and IG, but now AI can do that for them. \n\nKuli is alre",
+      "metrics": {
+        "views": 117411,
+        "likes": 347,
+        "replies": 11,
+        "retweets": 13,
+        "quotes": 0,
+        "bookmarks": 572
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2067276082529882563",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "@kushwah_aaryan @charliewarren Tough to measure determination, but wow you’ve got it",
+      "metrics": {
+        "views": 268,
+        "likes": 7,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2066992416578785574",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "Wild new @heyclicky demo just dropped 👀",
+      "metrics": {
+        "views": 16879,
+        "likes": 102,
+        "replies": 5,
+        "retweets": 4,
+        "quotes": 0,
+        "bookmarks": 31
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2066279367509188904",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "@shcallaway @standoutwork Crazy pull",
+      "metrics": {
+        "views": 569,
+        "likes": 5,
+        "replies": 1,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2066278602321379593",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "Gotta collect em all! @standoutwork",
+      "metrics": {
+        "views": 22668,
+        "likes": 172,
+        "replies": 16,
+        "retweets": 6,
+        "quotes": 8,
+        "bookmarks": 42
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2062211036942643588",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "Second-time founders like @shcallaway are different. He's built observability at scale at Brex, and now is reinventing h",
+      "metrics": {
+        "views": 5586,
+        "likes": 30,
+        "replies": 4,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 5
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2061593320770650309",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "The $200B auto repair industry still runs on phone calls, to negotiate insurance, source parts, and coordinate with cust",
+      "metrics": {
+        "views": 12683,
+        "likes": 40,
+        "replies": 4,
+        "retweets": 4,
+        "quotes": 0,
+        "bookmarks": 17
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2060395527322406924",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "AI for the real world is going to change how the world looks.\n\n@DraftedAI built an AI model that can design complete cus",
+      "metrics": {
+        "views": 6244,
+        "likes": 29,
+        "replies": 9,
+        "retweets": 2,
+        "quotes": 1,
+        "bookmarks": 5
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2059523990964805976",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "While other robotics companies are trying to move boxes or fold laundry, @Twolabs is building humanoid robots to care fo",
+      "metrics": {
+        "views": 10896,
+        "likes": 89,
+        "replies": 10,
+        "retweets": 8,
+        "quotes": 1,
+        "bookmarks": 14
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2057901345508835799",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "It used to be that you'd need to build a wedge product to take on a massive incumbent, but as of a few months ago that's",
+      "metrics": {
+        "views": 5851,
+        "likes": 21,
+        "replies": 3,
+        "retweets": 1,
+        "quotes": 0,
+        "bookmarks": 17
+      }
+    },
+    {
+      "sourceUrl": "https://x.com/aaron_epstein/status/2056858519635374466",
+      "ok": true,
+      "status": 200,
+      "author": "aaron_epstein",
+      "text": "FDA approval can take years and costs millions. Most of that is slow, manual regulatory work billed by the hour.\n\n@withp",
+      "metrics": {
+        "views": 1558,
+        "likes": 12,
+        "replies": 2,
+        "retweets": 0,
+        "quotes": 0,
+        "bookmarks": 6
+      }
+    }
+  ]
+}

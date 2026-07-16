@@ -1,0 +1,760 @@
+{
+  "accepted": [
+    {
+      "batchSlug": "S2026",
+      "companyName": "Lab0",
+      "companySlug": "lab0",
+      "founderName": "Sujay Srivastava",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/sujaysriv_we-got-into-y-combinator-a-few-months-ago-activity-7445675707990519808-0Pxn",
+      "platformPostId": "7445675707990519808",
+      "postedAt": "2026-04-03T03:37:02.722Z",
+      "author": {
+        "name": "Sujay Srivastava",
+        "handle": "sujaysriv",
+        "profileUrl": "https://www.linkedin.com/in/sujaysriv/",
+        "relationship": "YC Spring 2026-listed Lab0 founder"
+      },
+      "metrics": {
+        "reactions": 1052,
+        "comments": 360,
+        "authorFollowers": 1507
+      },
+      "nativeEvidence": {
+        "headline": "We got into Y Combinator a few months ago",
+        "visibleTextSignals": [
+          "Founder says Lab0 got into Y Combinator and is building AI software engineers for cloud infrastructure.",
+          "Post mentions early MRR and successful Kubernetes task completion.",
+          "Public LinkedIn page shows 1052 reactions and 360 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible author, YC/company text, reaction count, comment count, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists Lab0 with slug lab0.",
+        "Local YC founder data lists Sujay Srivastava as a Lab0 founder with the same LinkedIn profile.",
+        "The post body names Lab0 and Y Combinator directly."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ]
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Mochatrade",
+      "companySlug": "mochatrade",
+      "founderName": "Utkarsh Sinha",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/utksn15_excited-to-announce-that-my-new-company-mochatrade-activity-7454371499039293440-B6_R",
+      "platformPostId": "7454371499039293440",
+      "postedAt": "2026-04-27T03:31:00.870Z",
+      "author": {
+        "name": "Utkarsh Sinha",
+        "handle": "utksn15",
+        "profileUrl": "https://www.linkedin.com/in/utksn15/",
+        "relationship": "YC Spring 2026-listed Mochatrade founder"
+      },
+      "metrics": {
+        "reactions": 136,
+        "comments": 43,
+        "authorFollowers": 2549
+      },
+      "nativeEvidence": {
+        "headline": "Excited to announce my new company Mochatrade",
+        "visibleTextSignals": [
+          "Founder says Mochatrade is joining Y Combinator and describes access to global stocks for India.",
+          "Post names co-founders Parth and Chetan.",
+          "Public LinkedIn page shows 136 reactions and 43 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible author, company text, YC text, reactions, comments, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists Mochatrade with slug mochatrade.",
+        "Local YC founder data lists Utkarsh Sinha as a Mochatrade founder with the same LinkedIn profile.",
+        "The post names Mochatrade and Y Combinator directly."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ],
+        "companyPlatformPriorCoverage": "Existing logged-in X rows for Mochatrade were observed in src/lib/social/logged-in-evidence-current.json, but this LinkedIn post URL and activity ID were absent."
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Mochatrade",
+      "companySlug": "mochatrade",
+      "founderName": "Parth Maheshwari",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/parthm1801_excited-to-share-that-were-backed-by-y-combinator-activity-7447133638141595648-KFd5",
+      "platformPostId": "7447133638141595648",
+      "postedAt": "2026-04-07T04:10:20.362Z",
+      "author": {
+        "name": "Parth Maheshwari",
+        "handle": "parthm1801",
+        "profileUrl": "https://www.linkedin.com/in/parthm1801",
+        "relationship": "YC Spring 2026-listed Mochatrade founder"
+      },
+      "metrics": {
+        "reactions": 836,
+        "comments": 157,
+        "authorFollowers": 2248
+      },
+      "nativeEvidence": {
+        "headline": "Excited to share that we are backed by Y Combinator",
+        "visibleTextSignals": [
+          "Founder says the team is backed by Y Combinator and links the announcement to Mochatrade.",
+          "Post describes giving Indian traders access to global markets without traditional remittance constraints.",
+          "Public LinkedIn page shows 836 reactions and 157 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible author, company context, YC backing text, reaction count, comment count, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists Mochatrade with slug mochatrade.",
+        "Local YC founder data lists Parth Maheshwari as a Mochatrade founder with the same LinkedIn profile.",
+        "The post names Y Combinator and ties the product context to Mochatrade."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ],
+        "companyPlatformPriorCoverage": "Existing logged-in X rows for Mochatrade were observed in src/lib/social/logged-in-evidence-current.json, but this LinkedIn post URL and activity ID were absent."
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "WithAI",
+      "companySlug": "withai",
+      "founderName": "Ian McInnis",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/imj-mcinnis_withai-yc-p26-is-joining-y-combinator-activity-7457828885729140736-2mKO",
+      "platformPostId": "7457828885729140736",
+      "postedAt": "2026-05-06T16:29:26.097Z",
+      "author": {
+        "name": "Ian McInnis",
+        "handle": "imj-mcinnis",
+        "profileUrl": "https://www.linkedin.com/in/imj-mcinnis/",
+        "relationship": "YC Spring 2026-listed WithAI founder"
+      },
+      "metrics": {
+        "reactions": 66,
+        "comments": 18,
+        "authorFollowers": 536
+      },
+      "nativeEvidence": {
+        "headline": "WithAI YC P26 is joining Y Combinator",
+        "visibleTextSignals": [
+          "Founder says WithAI is joining Y Combinator.",
+          "Post says the company provides a platform for DevOps and platform teams to automate scripts, infrastructure, and incidents.",
+          "Public LinkedIn page shows 66 reactions and 18 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible author, company text, YC text, reaction count, comment count, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists WithAI with slug withai.",
+        "Local YC founder data lists Ian McInnis as a WithAI founder with the same LinkedIn profile.",
+        "The post names WithAI and Y Combinator directly."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ]
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "WithAI",
+      "companySlug": "withai",
+      "founderName": "Benjamin Finch",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ben-finch-3a82471b5_excited-to-officially-announce-that-withai-activity-7457867745402073088-T_4g",
+      "platformPostId": "7457867745402073088",
+      "postedAt": "2026-05-06T19:03:50.954Z",
+      "author": {
+        "name": "Benjamin Finch",
+        "handle": "ben-finch-3a82471b5",
+        "profileUrl": "https://www.linkedin.com/in/ben-finch-3a82471b5/",
+        "relationship": "YC Spring 2026-listed WithAI founder"
+      },
+      "metrics": {
+        "reactions": 136,
+        "comments": 34,
+        "authorFollowers": 952
+      },
+      "nativeEvidence": {
+        "headline": "Officially announce that WithAI is joining YC",
+        "visibleTextSignals": [
+          "Founder says WithAI is joining Y Combinator's Spring 2026 batch.",
+          "Post describes building for DevOps and platform teams.",
+          "Public LinkedIn page shows 136 reactions and 34 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible author, company text, YC batch text, reaction count, comment count, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists WithAI with slug withai.",
+        "Local YC founder data lists Benjamin Finch as a WithAI founder with the same LinkedIn profile.",
+        "The post names WithAI and Y Combinator directly."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ]
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "River Markets",
+      "companySlug": "river-markets",
+      "founderName": "Oscar Levy",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/oscar-levy_for-2-years-antonin-and-i-wrote-trading-activity-7465112255437844481-gdEy",
+      "platformPostId": "7465112255437844481",
+      "postedAt": "2026-05-26T18:50:56.753Z",
+      "author": {
+        "name": "Oscar Levy",
+        "handle": "oscar-levy",
+        "profileUrl": "https://www.linkedin.com/in/oscar-levy/",
+        "relationship": "YC Spring 2026-listed River Markets founder"
+      },
+      "metrics": {
+        "reactions": 113,
+        "comments": 17,
+        "authorFollowers": 2471
+      },
+      "nativeEvidence": {
+        "headline": "Launching River Markets out of YC",
+        "visibleTextSignals": [
+          "Founder says River Markets is launching out of YC as prime broker infrastructure for prediction markets.",
+          "Embedded Y Combinator context says the platform has traded more than $50M to date and powers professional traders.",
+          "Public LinkedIn page shows 113 reactions and 17 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible author, company text, YC launch context, reaction count, comment count, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists River Markets with slug river-markets.",
+        "Local YC founder data lists Oscar Levy as a River Markets founder with the same LinkedIn profile.",
+        "The post names River Markets, YC, and co-founder Antonin Parrot directly."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ],
+        "companyPlatformPriorCoverage": "Existing logged-in X rows for River Markets were observed in src/lib/social/logged-in-evidence-current.json, but this LinkedIn post URL and activity ID were absent."
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "River Markets",
+      "companySlug": "river-markets",
+      "founderName": "Antonin Parrot",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/antonin-parrot-a16625196_were-offering-a-11000-referral-fee-to-activity-7469575991892299776-jioE",
+      "platformPostId": "7469575991892299776",
+      "postedAt": "2026-06-08T02:28:14.461Z",
+      "author": {
+        "name": "Antonin Parrot",
+        "handle": "antonin-parrot-a16625196",
+        "profileUrl": "https://www.linkedin.com/in/antonin-parrot-a16625196",
+        "relationship": "YC Spring 2026-listed River Markets founder"
+      },
+      "metrics": {
+        "reactions": 79,
+        "comments": 11,
+        "authorFollowers": 2795
+      },
+      "nativeEvidence": {
+        "headline": "Referral fee for first founding engineer",
+        "visibleTextSignals": [
+          "Founder says River Markets is YC P26 and is hiring a founding engineer.",
+          "Post describes the company as prime brokerage infrastructure for prediction markets.",
+          "Public LinkedIn page shows 79 reactions and 11 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible author, company text, YC batch text, reaction count, comment count, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists River Markets with slug river-markets.",
+        "Local YC founder data lists Antonin Parrot as a River Markets founder with the same LinkedIn profile.",
+        "The post names River Markets and YC P26 directly."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ],
+        "companyPlatformPriorCoverage": "Existing logged-in X rows for River Markets were observed in src/lib/social/logged-in-evidence-current.json, but this LinkedIn post URL and activity ID were absent."
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Sherpa",
+      "companySlug": "sherpa",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/withsherpa_your-website-should-improve-itself-most-activity-7439700075905339393-49jE",
+      "platformPostId": "7439700075905339393",
+      "postedAt": "2026-03-17T15:52:01.020Z",
+      "author": {
+        "name": "Sherpa (YC P26)",
+        "handle": "withsherpa",
+        "profileUrl": "https://www.linkedin.com/company/withsherpa",
+        "relationship": "official company LinkedIn account from local YC company social links"
+      },
+      "metrics": {
+        "reactions": 89,
+        "comments": 13,
+        "authorFollowers": 695
+      },
+      "nativeEvidence": {
+        "headline": "Your website should improve itself",
+        "visibleTextSignals": [
+          "Official company account describes Sherpa's site optimization workflow.",
+          "Post says Sherpa is seeing 20%+ conversion lifts on sites with 100k+ monthly visitors.",
+          "Public LinkedIn page shows 89 reactions and 13 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible official company author, company account identity, reaction count, comment count, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists Sherpa with slug sherpa.",
+        "Local YC company social links list https://www.linkedin.com/company/withsherpa.",
+        "The LinkedIn author is Sherpa (YC P26), matching the local company account."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ],
+        "companyPlatformPriorCoverage": "A separate Sherpa founder LinkedIn announcement activity ID was already present in public evidence and was rejected below; this official company activity ID was absent."
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "TakeCareOS",
+      "companySlug": "takecareos",
+      "founderName": "Ragav Sachdeva",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ragavsachdeva_super-excited-to-finally-launch-something-activity-7460815540392075265-7_vO",
+      "platformPostId": "7460815540392075265",
+      "postedAt": "2026-05-14T22:17:20.055Z",
+      "author": {
+        "name": "Ragav Sachdeva",
+        "handle": "ragavsachdeva",
+        "profileUrl": "https://www.linkedin.com/in/ragavsachdeva",
+        "relationship": "YC Spring 2026-listed TakeCareOS founder"
+      },
+      "metrics": {
+        "reactions": 269,
+        "comments": 24,
+        "authorFollowers": 3076
+      },
+      "nativeEvidence": {
+        "headline": "Finally launch something I have been working on",
+        "visibleTextSignals": [
+          "Founder says TakeCareOS launched after first pilots.",
+          "Post says the company signed 6 agencies representing 200+ employees.",
+          "Public LinkedIn page shows 269 reactions and 24 comments."
+        ],
+        "verificationMethod": "Opened public LinkedIn post page and checked visible author, company text, traction claim, reaction count, comment count, follower count, and first datePublished value from page HTML."
+      },
+      "attributionSignals": [
+        "Local YC Spring 2026 company snapshot lists TakeCareOS with slug takecareos.",
+        "Local YC founder data lists Ragav Sachdeva as the TakeCareOS founder with the same LinkedIn profile.",
+        "The post names TakeCareOS directly and is from the listed founder account."
+      ],
+      "dedupe": {
+        "duplicateFound": false,
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true,
+        "currentTargetedEvidenceExactUrl": false,
+        "a16zEvidenceExactUrl": false,
+        "priorSourceHuntExactUrl": false,
+        "anyCurrentSocialJsonExactUrlOrPostId": false,
+        "searchLedgerExactUrlOrPostId": false,
+        "checkedAgainst": [
+          "src/lib/social/targeted-evidence-current.json",
+          "src/lib/social/a16z-speedrun-006-social-evidence.json",
+          "src/lib/social/*.json",
+          "outputs/source-hunt/*.json",
+          "outputs/source-hunt/search-ledger.json"
+        ],
+        "companyPlatformPriorCoverage": "Existing public/profile and logged-in X rows for TakeCareOS were observed, but this LinkedIn post URL and activity ID were absent."
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "batchSlug": "S2026",
+      "companyName": "Regbase",
+      "companySlug": "regbase",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/natalie-aresta-katz-a60a0416a_super-excited-to-finally-announce-that-activity-7450605867072217089-9k4G",
+      "platformPostId": "7450605867072217089",
+      "author": {
+        "name": "Natalie Aresta-Katz",
+        "handle": "natalie-aresta-katz-a60a0416a",
+        "profileUrl": "https://www.linkedin.com/in/natalie-aresta-katz-a60a0416a/",
+        "relationship": "YC Spring 2026-listed Regbase founder"
+      },
+      "metrics": {
+        "reactions": 85,
+        "comments": 15
+      },
+      "nativeEvidence": {
+        "headline": "Regbase joins Y Combinator Spring 2026",
+        "visibleTextSignals": [
+          "Founder announcement names Regbase and Y Combinator Spring 2026.",
+          "Public LinkedIn page exposes visible reaction and comment counts."
+        ],
+        "verificationMethod": "Public LinkedIn page and exact activity-id grep across local JSON files."
+      },
+      "reason": "Rejected as duplicate: exact activity ID is already present in src/lib/social/public-evidence-current.json.",
+      "dedupe": {
+        "duplicateFound": true,
+        "duplicateLocation": "src/lib/social/public-evidence-current.json",
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Sherpa",
+      "companySlug": "sherpa",
+      "founderName": "Ethan Kinnan",
+      "platform": "linkedin",
+      "evidenceType": "linkedin_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ethan-kinnan_excited-to-announce-that-sherpa-yc-x26-activity-7437551075596865536-AkZj",
+      "platformPostId": "7437551075596865536",
+      "author": {
+        "name": "Ethan Kinnan",
+        "handle": "ethan-kinnan",
+        "profileUrl": "https://www.linkedin.com/in/ethan-kinnan/",
+        "relationship": "YC Spring 2026-listed Sherpa founder"
+      },
+      "metrics": {
+        "reactions": 148,
+        "comments": 106
+      },
+      "nativeEvidence": {
+        "headline": "Sherpa is backed by Y Combinator",
+        "visibleTextSignals": [
+          "Founder announcement names Sherpa and Y Combinator.",
+          "Public LinkedIn page exposes visible reaction and comment counts."
+        ],
+        "verificationMethod": "Public LinkedIn search/open result and exact activity-id grep across local JSON files."
+      },
+      "reason": "Rejected as duplicate: exact activity ID is already present in src/lib/social/public-evidence-current.json as a Sherpa source.",
+      "dedupe": {
+        "duplicateFound": true,
+        "duplicateLocation": "src/lib/social/public-evidence-current.json",
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Mochatrade",
+      "companySlug": "mochatrade",
+      "platform": "x",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/Mochatradeapp/status/2054757392810967354",
+      "platformPostId": "2054757392810967354",
+      "metrics": {
+        "views": 3400,
+        "likes": 14,
+        "replies": 1,
+        "retweets": 1
+      },
+      "reason": "Rejected as not net-new for this shard: the exact X post is already present in src/lib/social/logged-in-evidence-current.json, and the current pass focused on uncovered regular cells.",
+      "dedupe": {
+        "duplicateFound": true,
+        "duplicateLocation": "src/lib/social/logged-in-evidence-current.json",
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "River Markets",
+      "companySlug": "river-markets",
+      "platform": "x",
+      "evidenceType": "x_post",
+      "sourceUrl": "https://x.com/river_markets/status/2059279737948922233",
+      "platformPostId": "2059279737948922233",
+      "metrics": {
+        "views": 2648,
+        "likes": 12,
+        "replies": 4
+      },
+      "reason": "Rejected as not net-new for this shard: the exact X post is already present in src/lib/social/logged-in-evidence-current.json, and a new LinkedIn source was accepted instead.",
+      "dedupe": {
+        "duplicateFound": true,
+        "duplicateLocation": "src/lib/social/logged-in-evidence-current.json",
+        "exactUrlChecked": true,
+        "platformPostIdChecked": true
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "HEVN, inc",
+      "companySlug": "hevn-inc",
+      "platform": "linkedin",
+      "evidenceType": "search_result",
+      "sourceUrl": null,
+      "metrics": {},
+      "reason": "Targeted native LinkedIn search for HEVN + YC P26 did not surface a company/founder post URL with visible metrics in this pass."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Gravy",
+      "companySlug": "gravy",
+      "platform": "linkedin",
+      "evidenceType": "search_result",
+      "sourceUrl": null,
+      "metrics": {},
+      "reason": "Targeted native LinkedIn search for Gravy + YC P26 did not surface a company/founder post URL with visible metrics in this pass."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Prototyping.io",
+      "companySlug": "prototypingio",
+      "platform": "linkedin",
+      "evidenceType": "search_result",
+      "sourceUrl": null,
+      "metrics": {},
+      "reason": "Targeted native LinkedIn search for Prototyping.io + YC P26 did not surface a company/founder post URL with visible metrics in this pass."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Multiple zero-evidence companies",
+      "platform": "product_hunt",
+      "evidenceType": "search_result",
+      "sourceUrl": null,
+      "metrics": {},
+      "reason": "Product Hunt searches for Lab0, Mochatrade, WithAI, and Sherpa did not surface qualifying native launch URLs with visible launch metrics."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Multiple zero-evidence companies",
+      "platform": "github",
+      "evidenceType": "search_result",
+      "sourceUrl": null,
+      "metrics": {},
+      "reason": "GitHub searches for Lab0, Mochatrade, WithAI, and TakeCareOS did not surface qualifying native repository URLs with clear company attribution and visible repo metrics."
+    }
+  ],
+  "searches": [
+    {
+      "surface": "repo_inventory",
+      "queryOrCommand": "jq over outputs/source-hunt/search-ledger.json and outputs/source-hunt/coverage-matrix.json",
+      "result": "Read the required ledger and matrix first. coverage-matrix summary identified the highest-priority shard as S2026 zero-evidence companies multi-platform native sweep with 86 companies."
+    },
+    {
+      "surface": "repo_inventory",
+      "queryOrCommand": "jq -r '.companies[] | select(.batchSlug==\"S2026\" and (.evidenceCount//0)==0)' outputs/source-hunt/coverage-matrix.json",
+      "result": "Restricted the shard to YC Spring 2026 / P26 companies with evidenceCount=0; excluded A16ZSR006, S26, insiders, YC partners, and top voices."
+    },
+    {
+      "surface": "repo_inventory",
+      "queryOrCommand": "jq over src/lib/yc/spring-2026-companies.json for company/founder LinkedIn and X accounts",
+      "result": "Prioritized zero-evidence companies with native company or founder accounts: Lab0, Mochatrade, WithAI, River Markets, Sherpa, TakeCareOS, Regbase, HEVN, Gravy, Prototyping.io, ProjectX, Salesgraph, The Company Company, Uno Wallet, and ValCtrl."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"WithAI\" \"YC P26\"; site:linkedin.com/posts \"Mochatrade\" \"YC P26\"; site:linkedin.com/posts \"Lab0\" \"YC P26\"; site:linkedin.com/posts \"ProjectX\" \"YC P26\"",
+      "result": "Found qualifying founder LinkedIn posts for WithAI, Mochatrade, and Lab0; no accepted ProjectX native post from this search group."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"Regbase\" \"YC P26\"; site:linkedin.com/posts \"River Markets\" \"YC P26\"; site:linkedin.com/posts \"Salesgraph\" \"YC P26\"; site:linkedin.com/posts \"Sherpa\" \"YC P26\"",
+      "result": "Found River Markets founder posts, Sherpa company/founder posts, and a Regbase founder duplicate; no accepted Salesgraph post."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"HEVN\" \"YC P26\"; site:linkedin.com/posts \"Lab0\" \"YC P26\"; site:linkedin.com/posts \"Gravy\" \"YC P26\"; site:linkedin.com/posts \"Prototyping.io\" \"YC P26\"",
+      "result": "Confirmed Lab0 founder post; HEVN, Gravy, and Prototyping.io did not yield qualifying metric-bearing native post URLs in this pass."
+    },
+    {
+      "surface": "LinkedIn web search",
+      "queryOrCommand": "site:linkedin.com/posts \"TakeCareOS\" \"YC P26\"; site:linkedin.com/posts \"The Company Company\" \"YC P26\"; site:linkedin.com/posts \"Uno Wallet\" \"YC P26\"; site:linkedin.com/posts \"ValCtrl\" \"YC P26\"",
+      "result": "Found qualifying TakeCareOS founder LinkedIn post; no accepted native posts for The Company Company, Uno Wallet, or ValCtrl."
+    },
+    {
+      "surface": "X web search",
+      "queryOrCommand": "site:x.com/Mochatradeapp \"YC P26\"; site:x.com/withai_inc \"YC P26\"; site:x.com/river_markets \"YC P26\"; site:x.com/with_sherpa \"YC P26\"",
+      "result": "Found X account/post traces for Mochatrade and River Markets, but exact posts were already covered in src/lib/social/logged-in-evidence-current.json; no net-new accepted X row."
+    },
+    {
+      "surface": "Hacker News web search",
+      "queryOrCommand": "site:news.ycombinator.com \"Mochatrade\" \"YC P26\"; site:news.ycombinator.com \"WithAI\" \"YC P26\"; site:news.ycombinator.com \"Sherpa\" \"YC P26\"; site:news.ycombinator.com \"River Markets\" \"YC P26\"",
+      "result": "No qualifying HN story/comment URL with visible metrics and clear first-party company/founder attribution found for these zero-evidence companies."
+    },
+    {
+      "surface": "Product Hunt web search",
+      "queryOrCommand": "site:producthunt.com/products \"Lab0\" \"YC P26\"; site:producthunt.com/products \"Mochatrade\"; site:producthunt.com/products \"WithAI\" \"Multiplier\"; site:producthunt.com/products \"Sherpa\" \"YC P26\"",
+      "result": "No qualifying Product Hunt launch URLs with visible launch metrics found."
+    },
+    {
+      "surface": "GitHub web search",
+      "queryOrCommand": "site:github.com \"Lab0\" \"YC P26\"; site:github.com \"WithAI\" \"YC P26\"; site:github.com \"Mochatrade\" \"YC P26\"; site:github.com \"TakeCareOS\" \"YC P26\"",
+      "result": "No qualifying native GitHub repository URLs with clear company attribution and visible repo metrics found."
+    },
+    {
+      "surface": "LinkedIn live page checks",
+      "queryOrCommand": "Opened accepted LinkedIn post URLs and fetched public page HTML with curl where available",
+      "result": "Verified exact source URLs, author identity, visible text signals, reaction counts, comment counts, follower counts, and datePublished values for accepted rows."
+    },
+    {
+      "surface": "dedupe",
+      "queryOrCommand": "rg exact accepted/rejected activity IDs across src/lib/social and outputs/source-hunt",
+      "result": "Accepted activity IDs were absent from targeted evidence, A16Z evidence, current social JSONs, search ledger, and source-hunt artifacts; Regbase and Sherpa founder candidates were rejected as duplicate public-evidence activity IDs."
+    }
+  ],
+  "notes": [
+    {
+      "type": "shard_scope",
+      "text": "Narrowed per user update: this artifact covers only YC Spring 2026 / P26 zero-evidence companies from coverage-matrix, regular native sources only. A16ZSR006, S26, top voices, insiders, and YC partner rows are intentionally excluded."
+    },
+    {
+      "type": "input_files_read_first",
+      "files": [
+        "outputs/source-hunt/search-ledger.json",
+        "outputs/source-hunt/coverage-matrix.json"
+      ],
+      "result": "coverage-matrix generatedAt 2026-07-15T23:59:00.000Z showed 86 S2026 companies with evidenceCount=0; search-ledger was used for source URL, post ID, candidate, rejected, and searched-history avoidance."
+    },
+    {
+      "type": "productivity_counts",
+      "queriesSearched": 35,
+      "nativeAccountsOrHandlesChecked": 18,
+      "companiesSearched": 15,
+      "candidatesFound": 13,
+      "netNewVerifiedRows": 9,
+      "duplicatesRejected": 4,
+      "otherRejectedRows": 5,
+      "acceptedByBatch": {
+        "S2026": 9
+      },
+      "acceptedByPlatform": {
+        "linkedin": 9
+      },
+      "acceptedCompanies": 6,
+      "rejectionReasons": {
+        "duplicate_or_already_imported": 4,
+        "no_metric_bearing_native_post_found": 3,
+        "no_qualifying_product_hunt_launch": 1,
+        "no_qualifying_github_repo": 1
+      }
+    },
+    {
+      "type": "dedupe_policy",
+      "text": "Accepted rows required exact URL and platformPostId absence from src/lib/social/targeted-evidence-current.json, src/lib/social/a16z-speedrun-006-social-evidence.json, all src/lib/social/*.json, outputs/source-hunt/*.json, and outputs/source-hunt/search-ledger.json."
+    },
+    {
+      "type": "artifact_policy",
+      "text": "Only this artifact file was added. No canonical evidence files, snapshots, graph files, or existing source-hunt artifacts were intentionally modified."
+    }
+  ]
+}

@@ -1,0 +1,902 @@
+{
+  "accepted": [
+    {
+      "batch": "S2026",
+      "company": "InsForge",
+      "founder": null,
+      "platform": "x",
+      "sourceUrl": "https://x.com/insforge/status/2062935372703629402",
+      "nativeUrl": "https://x.com/insforge/status/2062935372703629402",
+      "sourceId": "2062935372703629402",
+      "authorName": "InsForge",
+      "authorHandle": "insforge",
+      "title": "InsForge agent-native AWS alternative launch post",
+      "text": "Official InsForge account introduced the agent-native AWS alternative and cited 33000+ projects created, 2x weekly active projects, and 11000+ GitHub stars.",
+      "metrics": {
+        "views": 597038,
+        "likes": 299,
+        "comments": 69,
+        "replies": 69,
+        "reposts": 41,
+        "quotes": 32,
+        "saves": 232
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native X post from the official InsForge account with public post JSON and visible engagement metrics.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists InsForge with official X account https://x.com/Insforge.",
+        "X author profile links insforge.dev and github.com/InsForge/InsForge.",
+        "Post text explicitly introduces InsForge and company traction."
+      ],
+      "confidence": 0.98
+    },
+    {
+      "batch": "S2026",
+      "company": "Drafted",
+      "founder": null,
+      "platform": "x",
+      "sourceUrl": "https://x.com/DraftedAI/status/2060402050635387083",
+      "nativeUrl": "https://x.com/DraftedAI/status/2060402050635387083",
+      "sourceId": "2060402050635387083",
+      "authorName": "Drafted",
+      "authorHandle": "DraftedAI",
+      "title": "Drafted seed and product traction post",
+      "text": "Official Drafted account said 120000 people generated 325000+ home designs with Drafted.ai and announced a $16M round.",
+      "metrics": {
+        "views": 388728,
+        "likes": 557,
+        "comments": 67,
+        "reposts": 116
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native X post from the official Drafted account with visible post metrics.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists Drafted with official X account https://x.com/DraftedAI.",
+        "Post text names Drafted.ai and company traction.",
+        "Author account is the company account rather than a profile or search page."
+      ],
+      "confidence": 0.97
+    },
+    {
+      "batch": "S2026",
+      "company": "Ardent",
+      "founder": "Vikram Chennai",
+      "platform": "x",
+      "sourceUrl": "https://x.com/vchennai2/status/2041651193362182281",
+      "nativeUrl": "https://x.com/vchennai2/status/2041651193362182281",
+      "sourceId": "2041651193362182281",
+      "authorName": "Vikram Chennai",
+      "authorHandle": "vchennai2",
+      "title": "Introducing ArdentAI database clones",
+      "text": "Founder Vikram Chennai introduced @ArdentAI as a way to create infinite clones of any Postgres DB in under 6 seconds so coding agents and developers can test their work.",
+      "metrics": {
+        "views": 43339,
+        "likes": 274,
+        "comments": 32,
+        "replies": 32,
+        "reposts": 14,
+        "quotes": 2,
+        "saves": 183
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native founder X post with direct company handle mention and visible public metrics.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists Vikram Chennai as Ardent founder.",
+        "YC roster lists founder X handle https://x.com/vchennai2.",
+        "Post text directly introduces @ArdentAI and describes the product."
+      ],
+      "confidence": 0.98
+    },
+    {
+      "batch": "S2026",
+      "company": "Asendia AI",
+      "founder": "Rihab Lajmi",
+      "platform": "x",
+      "sourceUrl": "https://x.com/LajmiRihab/status/2059326725704880476",
+      "nativeUrl": "https://x.com/LajmiRihab/status/2059326725704880476",
+      "sourceId": "2059326725704880476",
+      "authorName": "Rihab Lajmi",
+      "authorHandle": "LajmiRihab",
+      "title": "Asendia AI YC traction update",
+      "text": "Founder Rihab Lajmi said that since joining Y Combinator the team 2x'd revenue, onboarded top US staffing agencies, sponsored four industry events, and hosted a 700-person webinar.",
+      "metrics": {
+        "views": 257031,
+        "likes": 209,
+        "comments": 31,
+        "reposts": 15
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native X post by a listed Asendia AI founder with visible metrics and direct YC/company traction context.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists Rihab Lajmi as Asendia AI founder.",
+        "YC roster lists founder X handle https://x.com/LajmiRihab.",
+        "Post reports revenue, customer, event, and webinar traction after joining YC."
+      ],
+      "confidence": 0.96
+    },
+    {
+      "batch": "S2026",
+      "company": "Lightsprint",
+      "founder": null,
+      "platform": "x",
+      "sourceUrl": "https://x.com/lightsprintai/status/2057607939456971248",
+      "nativeUrl": "https://x.com/lightsprintai/status/2057607939456971248",
+      "sourceId": "2057607939456971248",
+      "authorName": "Lightsprint",
+      "authorHandle": "lightsprintai",
+      "title": "Lightsprint launch post",
+      "text": "Official Lightsprint account launched the team layer for AI-powered development, describing visual plan mode, parallel cloud agents, and PR previews.",
+      "metrics": {
+        "views": 44875,
+        "likes": 102,
+        "comments": 23,
+        "reposts": 75
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native company X post from the official Lightsprint account with visible metrics.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists Lightsprint with official X account https://x.com/lightsprintai.",
+        "Post is authored by Lightsprint(YC P26).",
+        "Post text launches the product and quote card points to the YC launch page."
+      ],
+      "confidence": 0.97
+    },
+    {
+      "batch": "S2026",
+      "company": "Ara",
+      "founder": null,
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=6ASb9QW2QEw",
+      "nativeUrl": "https://www.youtube.com/watch?v=6ASb9QW2QEw",
+      "sourceId": "6ASb9QW2QEw",
+      "authorName": "Ara",
+      "authorHandle": "Arasoai",
+      "title": "Ara (YC P26) Launch Video",
+      "text": "Official Ara YouTube launch video for the YC P26 launch.",
+      "metrics": {
+        "views": 1354
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native YouTube watch URL with oEmbed author Ara and visible view count from the public YouTube result.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists Ara.",
+        "YouTube oEmbed identifies author_name as Ara and author_url as youtube.com/@Arasoai.",
+        "Video title names Ara and YC P26."
+      ],
+      "confidence": 0.95
+    },
+    {
+      "batch": "S2026",
+      "company": "Sazabi",
+      "founder": null,
+      "platform": "x",
+      "sourceUrl": "https://x.com/sazabi/status/2070202076572058073",
+      "nativeUrl": "https://x.com/sazabi/status/2070202076572058073",
+      "sourceId": "2070202076572058073",
+      "authorName": "Sazabi",
+      "authorHandle": "sazabi",
+      "title": "Sazabi $8M seed announcement",
+      "text": "Official Sazabi account announced an $8M seed round and described Sazabi as observability for the AI era.",
+      "metrics": {
+        "views": 4872,
+        "likes": 43,
+        "comments": 9,
+        "replies": 9,
+        "reposts": 5,
+        "quotes": 1,
+        "saves": 7
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native X company post with public post JSON, visible metrics, and official domain links in the author profile.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists Sazabi with official X account https://x.com/sazabi.",
+        "X author profile links sazabi.com and github.com/sazabi.",
+        "Post text names Sazabi and links the announcement."
+      ],
+      "confidence": 0.98
+    },
+    {
+      "batch": "S2026",
+      "company": "Saudara AI",
+      "founder": "Jennifer Prasetyo",
+      "platform": "instagram",
+      "sourceUrl": "https://www.instagram.com/reel/DXvlr5dOecC/",
+      "nativeUrl": "https://www.instagram.com/reel/DXvlr5dOecC/",
+      "sourceId": "DXvlr5dOecC",
+      "authorName": "Jennifer Prasetyo",
+      "authorHandle": "jenandtech",
+      "title": "Saudara AI YC launch reel",
+      "text": "Founder-authored reel says Saudara AI just launched on Y Combinator and describes the AI broker for US brands sourcing from Indonesian factories.",
+      "metrics": {
+        "likes": 441,
+        "comments": 17
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native Instagram reel by a listed Saudara AI founder with visible likes/comments and direct company/YC launch text.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists Jennifer Prasetyo as Saudara AI co-founder and CTO.",
+        "YC founder bio references Jennifer's public channel @jenandtech.",
+        "Reel caption names saudara.ai, Y Combinator, and the product."
+      ],
+      "confidence": 0.93
+    },
+    {
+      "batch": "S26",
+      "company": "screenpipe",
+      "founder": null,
+      "platform": "x",
+      "sourceUrl": "https://x.com/screenpipe/status/2077045452579778664",
+      "nativeUrl": "https://x.com/screenpipe/status/2077045452579778664",
+      "sourceId": "2077045452579778664",
+      "authorName": "screenpipe",
+      "authorHandle": "screenpipe",
+      "title": "Introducing screenpipe",
+      "text": "Official screenpipe account introduced screenpipe as local-first work memory for SOPs and AI agents, citing 20K+ GitHub stars, 1900+ forks, and 130+ contributors.",
+      "metrics": {
+        "views": 189890,
+        "likes": 887,
+        "comments": 91,
+        "replies": 91,
+        "reposts": 71,
+        "quotes": 50,
+        "saves": 1359
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native X company launch post with public post JSON and visible metrics.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists screenpipe with official X account https://x.com/screenpipe.",
+        "Author display name says screenpipe (YC S26).",
+        "Author profile links screenpipe.com and the post reports open-source traction."
+      ],
+      "confidence": 0.98
+    },
+    {
+      "batch": "S26",
+      "company": "Archal",
+      "founder": null,
+      "platform": "x",
+      "sourceUrl": "https://x.com/archal_labs/status/2059499757400465804",
+      "nativeUrl": "https://x.com/archal_labs/status/2059499757400465804",
+      "sourceId": "2059499757400465804",
+      "authorName": "Archal",
+      "authorHandle": "archal_labs",
+      "title": "Archal public launch post",
+      "text": "Official Archal account introduced Archal publicly as a deterministic eval platform for AI agents.",
+      "metrics": {
+        "views": 286467,
+        "likes": 35,
+        "comments": 5,
+        "reposts": 3
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native X post from the official Archal company account with visible metrics.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists Archal with official X account https://x.com/archal_labs.",
+        "Post author is Archal.",
+        "Post text explicitly introduces Archal publicly."
+      ],
+      "confidence": 0.97
+    },
+    {
+      "batch": "S26",
+      "company": "Coasty",
+      "founder": "Prateek Jannu",
+      "platform": "x",
+      "sourceUrl": "https://x.com/prateekjannu/status/2070170648564113772",
+      "nativeUrl": "https://x.com/prateekjannu/status/2070170648564113772",
+      "sourceId": "2070170648564113772",
+      "authorName": "Prateek Jannu",
+      "authorHandle": "prateekjannu",
+      "title": "Coasty founder YC S26 announcement",
+      "text": "Founder Prateek Jannu said Coasty is now in Y Combinator S26 and described pushing computer-use for customers, developers, and enterprises.",
+      "metrics": {
+        "views": 4713,
+        "likes": 66,
+        "comments": 19,
+        "reposts": 2
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native founder X post with direct YC S26 and product-market context plus visible metrics.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists Prateek Jannu as a Coasty founder.",
+        "YC roster lists founder X handle https://x.com/prateekjannu.",
+        "Post text says the team is in YC S26 and describes computer-use customers."
+      ],
+      "confidence": 0.95
+    },
+    {
+      "batch": "S26",
+      "company": "Experiential Labs",
+      "founder": null,
+      "platform": "github",
+      "sourceUrl": "https://github.com/experientiallabs/world-model-harness",
+      "nativeUrl": "https://github.com/experientiallabs/world-model-harness",
+      "sourceId": "experientiallabs/world-model-harness",
+      "authorName": "experientiallabs",
+      "authorHandle": "experientiallabs",
+      "title": "world-model-harness",
+      "text": "Official Experiential Labs GitHub repo for world-model-as-a-harness for simulating AI agent environments.",
+      "metrics": {
+        "stars": 73,
+        "forks": 4,
+        "watchers": 73,
+        "openIssues": 22
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native GitHub repo under the official GitHub organization listed on the YC company profile.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists Experiential Labs with GitHub https://github.com/experientiallabs.",
+        "GitHub snapshot recorded repo metrics from the public API.",
+        "Repo description matches the company's AI agent simulation focus."
+      ],
+      "confidence": 0.97
+    },
+    {
+      "batch": "S26",
+      "company": "Bylaw",
+      "founder": null,
+      "platform": "github",
+      "sourceUrl": "https://github.com/UseBylaw/typescript-sdk",
+      "nativeUrl": "https://github.com/UseBylaw/typescript-sdk",
+      "sourceId": "UseBylaw/typescript-sdk",
+      "authorName": "UseBylaw",
+      "authorHandle": "UseBylaw",
+      "title": "typescript-sdk",
+      "text": "Official Bylaw TypeScript SDK repository.",
+      "metrics": {
+        "stars": 4,
+        "forks": 0,
+        "watchers": 4,
+        "openIssues": 0
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native GitHub repo under the official GitHub organization listed on the YC company profile.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists Bylaw with GitHub https://github.com/UseBylaw.",
+        "GitHub snapshot recorded public API metrics.",
+        "Repo name is an SDK under the company organization."
+      ],
+      "confidence": 0.96
+    },
+    {
+      "batch": "S26",
+      "company": "Robocurve",
+      "founder": null,
+      "platform": "github",
+      "sourceUrl": "https://github.com/robocurve/inspect-robots",
+      "nativeUrl": "https://github.com/robocurve/inspect-robots",
+      "sourceId": "robocurve/inspect-robots",
+      "authorName": "robocurve",
+      "authorHandle": "robocurve",
+      "title": "inspect-robots",
+      "text": "Official Robocurve repo for an open-source evaluation framework for VLA and physical-AI models.",
+      "metrics": {
+        "stars": 2,
+        "forks": 2,
+        "watchers": 2,
+        "openIssues": 10
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native GitHub repo under the official GitHub organization listed on the YC company profile.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists Robocurve with GitHub https://github.com/robocurve.",
+        "GitHub snapshot recorded public API metrics.",
+        "Repo description directly names robotics evaluation infrastructure."
+      ],
+      "confidence": 0.96
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Crebit",
+      "founder": "Simmi Sen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/simmi-sen_crebit-is-backed-by-a16z-speedrun-since-activity-7424504480077062144-_L5q",
+      "nativeUrl": "https://www.linkedin.com/posts/simmi-sen_crebit-is-backed-by-a16z-speedrun-since-activity-7424504480077062144-_L5q",
+      "sourceId": "7424504480077062144",
+      "authorName": "Simmi Sen",
+      "authorHandle": "simmi-sen",
+      "title": "Crebit is backed by a16z Speedrun",
+      "text": "Founder Simmi Sen posted that Crebit is backed by a16z Speedrun.",
+      "metrics": {
+        "likes": 481,
+        "reactions": 481,
+        "comments": 66
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native LinkedIn founder post with direct Crebit and a16z Speedrun attribution plus visible reactions/comments.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists Crebit and founder Simmi Sen.",
+        "A16Z social evidence maps the author handle simmi-sen to Simmi Sen.",
+        "Post title and text explicitly name Crebit and a16z Speedrun."
+      ],
+      "confidence": 0.97
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Bota",
+      "founder": "Ruming Zhen",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/zhenruming_today-were-officially-launching-bota-backed-activity-7441876103092330498-dv4O",
+      "nativeUrl": "https://www.linkedin.com/posts/zhenruming_today-were-officially-launching-bota-backed-activity-7441876103092330498-dv4O",
+      "sourceId": "7441876103092330498",
+      "authorName": "Ruming Zhen",
+      "authorHandle": "zhenruming",
+      "title": "Bota launch and a16z Speedrun backing post",
+      "text": "Founder Ruming Zhen posted that Bota was officially launching and backed by a16z Speedrun.",
+      "metrics": {
+        "likes": 100,
+        "reactions": 100,
+        "comments": 29
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native LinkedIn founder launch/backing post with visible metrics.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists Bota and founder Ruming Zhen.",
+        "A16Z social evidence maps author handle zhenruming to Ruming Zhen.",
+        "Post title explicitly says Bota launch and a16z Speedrun backing."
+      ],
+      "confidence": 0.97
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Amdahl",
+      "founder": "Annette Sung",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/annette-sung-baa36042_were-thrilled-to-announce-that-amdahl-has-activity-7437165172181417984-3rPg",
+      "nativeUrl": "https://www.linkedin.com/posts/annette-sung-baa36042_were-thrilled-to-announce-that-amdahl-has-activity-7437165172181417984-3rPg",
+      "sourceId": "7437165172181417984",
+      "authorName": "Annette Sung",
+      "authorHandle": "annette-sung-baa36042",
+      "title": "Amdahl a16z Speedrun announcement",
+      "text": "Founder Annette Sung announced Amdahl and a16z Speedrun context.",
+      "metrics": {
+        "likes": 96,
+        "reactions": 96,
+        "comments": 13
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native LinkedIn founder post explicitly naming Amdahl and a16z Speedrun with visible reactions/comments.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists Amdahl and founder Annette Sung.",
+        "A16Z social evidence maps author handle annette-sung-baa36042 to Annette Sung.",
+        "Post title names Amdahl and a16z Speedrun."
+      ],
+      "confidence": 0.96
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Piper-ai",
+      "founder": null,
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/piper-ai-team_preconstruction-teams-are-under-constant-activity-7461760085355057152-km0r",
+      "nativeUrl": "https://www.linkedin.com/posts/piper-ai-team_preconstruction-teams-are-under-constant-activity-7461760085355057152-km0r",
+      "sourceId": "7461760085355057152",
+      "authorName": "Piper AI",
+      "authorHandle": "piper-ai-team",
+      "title": "Piper AI preconstruction platform post",
+      "text": "Official Piper AI company post described its end-to-end preconstruction platform for stronger bids.",
+      "metrics": {
+        "likes": 15,
+        "reactions": 15,
+        "comments": 0
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native LinkedIn company post from Piper AI with visible engagement metrics.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists Piper-ai.",
+        "A16Z social account snapshot lists Piper-ai's LinkedIn company account.",
+        "Post author handle piper-ai-team matches the company account."
+      ],
+      "confidence": 0.93
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Antihero Studios",
+      "founder": null,
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=OFTcRlPBOxk",
+      "nativeUrl": "https://www.youtube.com/watch?v=OFTcRlPBOxk",
+      "sourceId": "OFTcRlPBOxk",
+      "authorName": "Antihero Studios",
+      "authorHandle": "Antihero_Studios",
+      "title": "We can finally tell you what happened in LA",
+      "text": "Official Antihero Studios video about hosting a MISFITZ playtest at the a16z office.",
+      "metrics": {
+        "views": 1164
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native YouTube watch page from the official Antihero Studios channel with visible view count.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists Antihero Studios.",
+        "A16Z social account snapshot lists Antihero Studios YouTube account.",
+        "Video author is Antihero Studios and title/text refer to the a16z office."
+      ],
+      "confidence": 0.96
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "snag",
+      "founder": null,
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=PbI6rZHttNk",
+      "nativeUrl": "https://www.youtube.com/watch?v=PbI6rZHttNk",
+      "sourceId": "PbI6rZHttNk",
+      "authorName": "snag sublets",
+      "authorHandle": "snagsublets",
+      "title": "snag demo - a16z speedrun",
+      "text": "Official snag sublets product demo with a16z Speedrun in the title.",
+      "metrics": {
+        "views": 6647
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native YouTube watch page from snag's official channel with visible view count.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists snag.",
+        "A16Z social account snapshot lists snag YouTube account snagsublets.",
+        "Video title directly names snag and a16z speedrun."
+      ],
+      "confidence": 0.96
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Antihero Studios",
+      "founder": null,
+      "platform": "instagram",
+      "sourceUrl": "https://www.instagram.com/p/DXZQYOfDCw7/",
+      "nativeUrl": "https://www.instagram.com/p/DXZQYOfDCw7/",
+      "sourceId": "DXZQYOfDCw7",
+      "authorName": "Antihero Studios",
+      "authorHandle": "antihero.studios",
+      "title": "Antihero Studios character design post",
+      "text": "Official Antihero Studios Instagram post about intentionally breaking a main-character design rule.",
+      "metrics": {
+        "likes": 967,
+        "comments": 33
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native Instagram post from the verified Antihero Studios account with visible likes/comments.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists Antihero Studios.",
+        "A16Z social account snapshot lists Instagram handle antihero.studios.",
+        "Post is authored by the company account and concerns its game/character work."
+      ],
+      "confidence": 0.96
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "SUN",
+      "founder": null,
+      "platform": "product_hunt",
+      "sourceUrl": "https://www.producthunt.com/products/sun-ai/launches/sun-to-spotify",
+      "nativeUrl": "https://www.producthunt.com/products/sun-ai/launches/sun-to-spotify",
+      "sourceId": "sun-ai/sun-to-spotify",
+      "authorName": "SUN",
+      "authorHandle": "sun-ai",
+      "title": "SUN-to-Spotify Product Hunt launch",
+      "text": "SUN-to-Spotify launched on Product Hunt and was ranked #3 of the day.",
+      "metrics": {
+        "upvotes": 361,
+        "comments": 32
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native Product Hunt launch page with visible upvotes/comments.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists SUN.",
+        "A16Z social account snapshot lists Product Hunt handle sun-ai.",
+        "Launch page is under the SUN Product Hunt product and names the launch."
+      ],
+      "confidence": 0.96
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "ZeroDrift",
+      "founder": null,
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=EMT2VhGFidw",
+      "nativeUrl": "https://www.youtube.com/watch?v=EMT2VhGFidw",
+      "sourceId": "EMT2VhGFidw",
+      "authorName": "ZeroDrift",
+      "authorHandle": "ZeroDrift-AI",
+      "title": "Introducing ZeroDrift",
+      "text": "Official ZeroDrift YouTube introduction video.",
+      "metrics": {
+        "views": 163
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Accepted: native YouTube watch page from the official ZeroDrift channel with visible view count.",
+      "attributionSignals": [
+        "A16Z Speedrun 006 dataset lists ZeroDrift.",
+        "A16Z social account snapshot lists ZeroDrift YouTube account.",
+        "Video author is ZeroDrift and title introduces the company."
+      ],
+      "confidence": 0.96
+    }
+  ],
+  "rejected": [
+    {
+      "batch": "S26",
+      "company": "6thSense",
+      "founder": "Matt Wulff",
+      "platform": "x",
+      "sourceUrl": "https://x.com/makeitmatto/status/2072905224667398591",
+      "nativeUrl": "https://x.com/makeitmatto/status/2072905224667398591",
+      "sourceId": "2072905224667398591",
+      "authorName": "Matt Wulff",
+      "authorHandle": "makeitmatto",
+      "title": "A top 5 lecture of 2026",
+      "text": "A top 5 lecture of 2026 from Yasmine Khosrowshahi.",
+      "metrics": {
+        "views": 153707,
+        "likes": 1975,
+        "comments": 17,
+        "reposts": 232
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: native post and founder account are valid, but the post does not mention 6thSense, its product, launch, or company traction.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists Matt Wulff as a 6thSense founder.",
+        "Post text is unrelated lecture commentary."
+      ],
+      "confidence": 0.12
+    },
+    {
+      "batch": "S26",
+      "company": "Agnost AI",
+      "founder": "Shubham Palriwala",
+      "platform": "x",
+      "sourceUrl": "https://x.com/ShubhamInTech/status/2074307717360242817",
+      "nativeUrl": "https://x.com/ShubhamInTech/status/2074307717360242817",
+      "sourceId": "2074307717360242817",
+      "authorName": "Shubham Palriwala",
+      "authorHandle": "ShubhamInTech",
+      "title": "YC S26 founders LinkedIn joke",
+      "text": "Suddenly all YC S26 founders are superactive on LinkedIn.",
+      "metrics": {
+        "views": 186670,
+        "likes": 918,
+        "comments": 80,
+        "reposts": 11
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: native founder post with visible metrics, but it is generic batch commentary and does not attribute Agnost AI or company traction.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists Shubham Palriwala as an Agnost AI founder.",
+        "Post text does not mention Agnost AI or its product."
+      ],
+      "confidence": 0.1
+    },
+    {
+      "batch": "S26",
+      "company": "6thSense",
+      "founder": "James Baek",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/in/james-baek1/recent-activity/all/#post-4",
+      "nativeUrl": "https://www.linkedin.com/in/james-baek1/recent-activity/all/#post-4",
+      "sourceId": null,
+      "authorName": "James Baek",
+      "authorHandle": "james-baek1",
+      "title": "James Baek LinkedIn recent-activity anchor",
+      "text": "Recent-activity profile URL with an anchor rather than a stable native post URL.",
+      "metrics": {},
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: profile/recent-activity page is not a native post URL and the post ID is not verifiable from the URL.",
+      "attributionSignals": [
+        "YC Summer 2026 roster lists James Baek as a 6thSense founder.",
+        "URL is a LinkedIn profile activity page, which the task explicitly disallows."
+      ],
+      "confidence": 0.05
+    },
+    {
+      "batch": "S2026",
+      "company": "9 Mothers",
+      "founder": null,
+      "platform": "x",
+      "sourceUrl": "https://x.com/9mothers",
+      "nativeUrl": "https://x.com/9mothers",
+      "sourceId": "9mothers",
+      "authorName": "9 Mothers",
+      "authorHandle": "9mothers",
+      "title": "9 Mothers X profile",
+      "text": "Company profile page only.",
+      "metrics": {},
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: profile page only; follower counts are profile context and are not post/launch/repo traction under this task.",
+      "attributionSignals": [
+        "YC Spring 2026 roster lists 9 Mothers with this X profile.",
+        "No native post URL or post-level metrics are present."
+      ],
+      "confidence": 0.04
+    },
+    {
+      "batch": "S2026",
+      "company": "Expanse",
+      "founder": null,
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=0KZRFIdbJzc",
+      "nativeUrl": "https://www.youtube.com/watch?v=0KZRFIdbJzc",
+      "sourceId": "0KZRFIdbJzc",
+      "authorName": null,
+      "authorHandle": null,
+      "title": "Nauvoo Launch Scene | The Expanse",
+      "text": "Search result matched the word Expanse but refers to the television show, not the YC company.",
+      "metrics": {
+        "views": 80897
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: false positive name match; not authored by the company/founder/team and unrelated to the YC Spring 2026 company.",
+      "attributionSignals": [
+        "Title is about The Expanse media property.",
+        "No company, founder, or official account attribution."
+      ],
+      "confidence": 0.02
+    },
+    {
+      "batch": "S2026",
+      "company": "Andco",
+      "founder": null,
+      "platform": "hacker_news",
+      "sourceUrl": "https://medium.com/@andco_26266/free-lancers-and-technology-are-leading-the-workforce-revolution-29d7f18e3841#.o4mwsuk70",
+      "nativeUrl": "https://medium.com/@andco_26266/free-lancers-and-technology-are-leading-the-workforce-revolution-29d7f18e3841#.o4mwsuk70",
+      "sourceId": null,
+      "authorName": "andco_26266",
+      "authorHandle": "andco_26266",
+      "title": "Start Up Founder Is Revolutionizing Freelance",
+      "text": "HN Algolia result points to an external Medium URL rather than a native HN item.",
+      "metrics": {
+        "upvotes": 2,
+        "comments": 0
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: not a native HN item URL and not verifiably the YC Spring 2026 Andco company/founder account.",
+      "attributionSignals": [
+        "Source URL is Medium, not news.ycombinator.com/item.",
+        "Exact company-name match alone is insufficient."
+      ],
+      "confidence": 0.08
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Bota",
+      "founder": null,
+      "platform": "github",
+      "sourceUrl": "https://github.com/botallen/repository.botallen",
+      "nativeUrl": "https://github.com/botallen/repository.botallen",
+      "sourceId": "botallen/repository.botallen",
+      "authorName": "botallen",
+      "authorHandle": "botallen",
+      "title": "repository.botallen",
+      "text": "Deprecated Kodi add-on repository focused on Indian media contents.",
+      "metrics": {
+        "stars": 337,
+        "forks": 125,
+        "watchers": 337,
+        "openIssues": 129
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: conservative GitHub search false positive; repository is unrelated to the a16z Speedrun Bota company.",
+      "attributionSignals": [
+        "GitHub description says deprecated Kodi add-on repository.",
+        "No official Bota domain, founder, or company attribution."
+      ],
+      "confidence": 0.03
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Crebit",
+      "founder": null,
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=RqS_WpgsPdY",
+      "nativeUrl": "https://www.youtube.com/watch?v=RqS_WpgsPdY",
+      "sourceId": "RqS_WpgsPdY",
+      "authorName": "Finovate TV",
+      "authorHandle": "FinovateTV",
+      "title": "FinovateSpring 2026 / Crebit",
+      "text": "Third-party Finovate video about Crebit.",
+      "metrics": {
+        "views": 120
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: native video exists with visible views, but it is authored by Finovate TV, not Crebit or a Crebit founder/team account.",
+      "attributionSignals": [
+        "A16Z dataset lists Crebit.",
+        "YouTube author is Finovate TV, which is third-party coverage."
+      ],
+      "confidence": 0.18
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Modaic",
+      "founder": null,
+      "platform": "reddit",
+      "sourceUrl": "https://old.reddit.com/r/LocalLLaMA/comments/1oarzhf/modaic_a_new_rl_native_agent_development_kit/",
+      "nativeUrl": "https://old.reddit.com/r/LocalLLaMA/comments/1oarzhf/modaic_a_new_rl_native_agent_development_kit/",
+      "sourceId": "1oarzhf",
+      "authorName": "Disneyskidney",
+      "authorHandle": "Disneyskidney",
+      "title": "Modaic RL native agent development kit Reddit post",
+      "text": "Native Reddit post launches Modaic as an RL-native agent development kit.",
+      "metrics": {
+        "upvotes": 1,
+        "comments": 76
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: the post is native and company-relevant, but the Reddit author is not verified as a Modaic company, founder, or team account.",
+      "attributionSignals": [
+        "A16Z dataset lists Modaic.",
+        "No local social-account mapping ties Disneyskidney to Modaic or its founders.",
+        "Task requires first-party/company/founder/team authorship."
+      ],
+      "confidence": 0.25
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Prior Foundry",
+      "founder": null,
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/zeen_a16z-speedrun-just-wrapped-their-sixth-cohort-activity-7457089172978200578-wwkG",
+      "nativeUrl": "https://www.linkedin.com/posts/zeen_a16z-speedrun-just-wrapped-their-sixth-cohort-activity-7457089172978200578-wwkG",
+      "sourceId": "7457089172978200578",
+      "authorName": "Zhen Lu",
+      "authorHandle": "zeen",
+      "title": "a16z Speedrun sixth cohort recap mentioning Prior Foundry",
+      "text": "Third-party cohort recap mentioning Prior Foundry.",
+      "metrics": {
+        "likes": 98,
+        "reactions": 98,
+        "comments": 2
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: native LinkedIn post with metrics, but it is third-party recap content rather than company/founder/team-authored evidence.",
+      "attributionSignals": [
+        "A16Z dataset lists Prior Foundry.",
+        "Author is not mapped to Prior Foundry as founder/company/team."
+      ],
+      "confidence": 0.18
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "SUN",
+      "founder": null,
+      "platform": "reddit",
+      "sourceUrl": "https://old.reddit.com/r/GrowthHacking/comments/1s6tgjc/what_if_you_could_learn_anything_without_ever/",
+      "nativeUrl": "https://old.reddit.com/r/GrowthHacking/comments/1s6tgjc/what_if_you_could_learn_anything_without_ever/",
+      "sourceId": "1s6tgjc",
+      "authorName": "createvalue-dontspam",
+      "authorHandle": "createvalue-dontspam",
+      "title": "SUN GrowthHacking Reddit launch post",
+      "text": "Reddit post about learning without reading or watching.",
+      "metrics": {
+        "upvotes": 10,
+        "comments": 3
+      },
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: native Reddit post with visible metrics, but the author is not verified as SUN company/founder/team.",
+      "attributionSignals": [
+        "A16Z dataset lists SUN.",
+        "No local social-account mapping ties createvalue-dontspam to SUN or its founders."
+      ],
+      "confidence": 0.22
+    },
+    {
+      "batch": "A16ZSR006",
+      "company": "Taxnova",
+      "founder": null,
+      "platform": "product_hunt",
+      "sourceUrl": "https://www.producthunt.com/products/taxnova/alternatives",
+      "nativeUrl": "https://www.producthunt.com/products/taxnova/alternatives",
+      "sourceId": "taxnova/alternatives",
+      "authorName": "Taxnova",
+      "authorHandle": "taxnova",
+      "title": "Taxnova alternatives page",
+      "text": "Product Hunt alternatives page for Taxnova.",
+      "metrics": {},
+      "capturedAt": "2026-07-15T21:14:16Z",
+      "evidenceReason": "Rejected: derivative alternatives page, not a native launch/thread page with supported post-level metrics.",
+      "attributionSignals": [
+        "Product Hunt canonical product page exists elsewhere.",
+        "Alternatives URL is not a first-party launch/post evidence URL."
+      ],
+      "confidence": 0.05
+    }
+  ]
+}
