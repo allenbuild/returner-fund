@@ -75,6 +75,24 @@ describe("evidence thumbnail resolution", () => {
     expect(resolved.thumbnailUrl).toContain("media.licdn.com");
   });
 
+  it.each([
+    ["tiktok", "https://p16-sign.tiktokcdn-us.com/tos-useast5-p-0068/example"],
+    ["bluesky", "https://cdn.bsky.app/img/feed_thumbnail/plain/did:plc:example/blob@jpeg"]
+  ] as const)("uses native %s post media", (platform, mediaUrl) => {
+    const resolved = resolveEvidenceThumbnail({
+      id: `${platform}-evidence`,
+      platform,
+      sourceUrl:
+        platform === "tiktok"
+          ? "https://www.tiktok.com/@acme/video/7512345678901234567"
+          : "https://bsky.app/profile/acme.example/post/3ltforwardcompat",
+      mediaUrl
+    });
+
+    expect(resolved.thumbnailUrl).toBe(mediaUrl);
+    expect(resolved.thumbnailSource).toBe(`${platform}-media`);
+  });
+
   it("derives GitHub repo and profile thumbnails", () => {
     expect(githubThumbnailFromUrl("https://github.com/superset-sh/superset", "ev-gh", null)).toBe(
       "https://opengraph.githubassets.com/ev-gh/superset-sh/superset"

@@ -2,7 +2,12 @@ import type { EvidenceItem, Platform } from "./types";
 import { evidenceDisplayText, isGenericEvidenceLabel } from "./evidence-display";
 
 type GeneratedThumbnailInput = Pick<EvidenceItem, "id" | "platform" | "sourceUrl"> &
-  Partial<Pick<EvidenceItem, "authorHandle" | "authorName" | "contributionScore" | "text" | "title">>;
+  Partial<
+    Pick<
+      EvidenceItem,
+      "authorHandle" | "authorName" | "contributionScore" | "text" | "title" | "tractionStatus"
+    >
+  >;
 
 const GENERATED_THUMBNAIL_PATH = "/api/evidence-thumbnail";
 const WIDTH = 640;
@@ -19,7 +24,9 @@ const platformThemes: Record<Platform, { accent: string; accent2: string; surfac
   web: { accent: "#2563eb", accent2: "#67e8f9", surface: "#f7fbff", ink: "#172033" },
   reddit: { accent: "#ff4500", accent2: "#ffb199", surface: "#fff7f3", ink: "#172033" },
   hacker_news: { accent: "#ff6600", accent2: "#ffb27a", surface: "#fff8f2", ink: "#172033" },
-  bilibili: { accent: "#00aeec", accent2: "#93e7ff", surface: "#f5fcff", ink: "#172033" }
+  bilibili: { accent: "#00aeec", accent2: "#93e7ff", surface: "#f5fcff", ink: "#172033" },
+  tiktok: { accent: "#111111", accent2: "#25f4ee", surface: "#f8fafc", ink: "#111827" },
+  bluesky: { accent: "#1185fe", accent2: "#8ec5ff", surface: "#f5faff", ink: "#172033" }
 };
 
 export function generatedEvidenceThumbnailUrl(item: GeneratedThumbnailInput | null | undefined): string | null {
@@ -37,7 +44,7 @@ export function generatedEvidenceThumbnailUrl(item: GeneratedThumbnailInput | nu
     params.set("author", compactParam(author, 80));
   }
 
-  if (Number.isFinite(item.contributionScore)) {
+  if (item.tractionStatus !== "unscored" && Number.isFinite(item.contributionScore)) {
     params.set("score", String(Math.round(Number(item.contributionScore))));
   }
 
@@ -111,7 +118,9 @@ export function platformThumbnailLabel(platform: Platform): string {
     web: "Web",
     reddit: "Reddit",
     hacker_news: "Hacker News",
-    bilibili: "Bilibili"
+    bilibili: "Bilibili",
+    tiktok: "TikTok",
+    bluesky: "Bluesky"
   };
   return labels[platform] ?? platform;
 }

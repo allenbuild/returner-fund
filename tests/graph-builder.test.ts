@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
   buildGraphEdges,
@@ -6,8 +7,11 @@ import {
   nodeId
 } from "@/lib/graph/graph-builder";
 import { demoGraphDataset } from "@/lib/graph/demo-data";
+import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { CompanyRecord, DemoGraphDataset, EvidenceItem, FounderRecord } from "@/lib/graph/types";
+
+const graphBuilderBenchmark = process.env.RUN_GRAPH_BUILDER_BENCHMARK === "1" ? it : it.skip;
 
 describe("graph builder", () => {
   it("sizes company and founder nodes relative to peers with caps", () => {
@@ -81,6 +85,103 @@ describe("graph builder", () => {
     expect(similarityEdge?.explanation).toContain("similarity score");
   });
 
+  it("matches the legacy all-pairs similarity edge semantics", () => {
+    const companies = [
+      makeCompany({
+        id: "company-a",
+        name: "Company A",
+        industries: ["Developer Tools", "AI Infrastructure", "developer tools"],
+        tagline: "Fast, reliable evals!",
+        description: "Evaluation tests for AI product teams."
+      }),
+      makeCompany({
+        id: "company-b",
+        name: "Company B",
+        industries: ["developer tools", "LLM Evals"],
+        tagline: "Regression evaluation tools",
+        description: "Evaluation workflows for reliable AI teams."
+      }),
+      makeCompany({
+        id: "company-c",
+        name: "Company C",
+        industries: ["Healthcare", "Clinical AI"],
+        tagline: "Clinical workflow automation",
+        description: "AI assistants for clinical operations teams."
+      }),
+      makeCompany({
+        id: "company-d",
+        name: "Company D",
+        industries: ["healthcare", "Developer Tools"],
+        tagline: "Clinical model evaluation",
+        description: "Reliable evaluation tests for clinical AI models."
+      }),
+      makeCompany({
+        id: "company-e",
+        name: "Company E",
+        industries: [],
+        tagline: "The company builds for teams",
+        description: "And gives the teams a workflow."
+      })
+    ];
+    const threshold = 0.05;
+
+    expect(
+      buildGraphEdges(companies, [], {
+        selectedEdgeTypes: ["industry_similarity"],
+        similarityThreshold: threshold
+      })
+    ).toEqual(buildLegacySimilarityEdges(companies, threshold));
+  });
+
+  graphBuilderBenchmark("reports graph-builder CPU benchmark timings and semantic hashes", () => {
+    const similarityCompanies = makeSimilarityBenchmarkCompanies(420);
+    const evidenceDataset = makeEvidenceBenchmarkDataset(500, 12);
+    const similarity = measureMedian(() =>
+      buildGraphEdges(similarityCompanies, [], {
+        selectedEdgeTypes: ["industry_similarity"],
+        similarityThreshold: 0
+      })
+    );
+    const response = measureMedian(() =>
+      buildGraphResponse(
+        {
+          batchSlug: "S2026",
+          edgeTypes: ["same_group_partner"],
+          platforms: ["x"]
+        },
+        evidenceDataset
+      )
+    );
+    const normalizedResponse = {
+      ...response.result,
+      generatedAt: "<generated-at>",
+      scoringContext: {
+        ...response.result.scoringContext,
+        responseBuiltAt: "<generated-at>"
+      }
+    };
+    const benchmarkResult = {
+      similarityMedianMs: similarity.medianMs,
+      responseMedianMs: response.medianMs,
+      similarityEdgeCount: similarity.result.length,
+      responseNodeCount: response.result.nodes.length,
+      responseEvidenceCount: response.result.evidence.length,
+      similaritySha256: sha256(similarity.result),
+      responseSha256: sha256(normalizedResponse)
+    };
+
+    console.info(`GRAPH_BUILDER_BENCHMARK ${JSON.stringify(benchmarkResult)}`);
+    expect(benchmarkResult).toEqual(
+      expect.objectContaining({
+        similarityEdgeCount: expect.any(Number),
+        responseNodeCount: 500,
+        responseEvidenceCount: 6_000,
+        similaritySha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        responseSha256: expect.stringMatching(/^[a-f0-9]{64}$/)
+      })
+    );
+  }, 120_000);
+
   it("applies platform and founder-name query filters in the graph response", () => {
     const graph = buildGraphResponse(
       {
@@ -98,6 +199,219 @@ describe("graph builder", () => {
     expect(graph.evidence.every((item) => item.platform === "github")).toBe(true);
   });
 
+  it("filters platform evidence without changing canonical company or founder score state", () => {
+    const dataset: DemoGraphDataset = {
+      mode: "demo",
+      batches: [{ slug: "S2026", label: "Test batch", companyCountExpected: 3, companyCountObserved: 3 }],
+      companies: [
+        makeCompany({
+          id: "stored-high",
+          name: "Stored High",
+          founderIds: ["founder-stored-high"],
+          totalScore: 95,
+          previousScore: 90,
+          platformScores: { github: 95 }
+        }),
+        makeCompany({
+          id: "selected-high-a",
+          name: "Selected High A",
+          totalScore: 5,
+          previousScore: 4,
+          platformScores: { github: 5 }
+        }),
+        makeCompany({
+          id: "selected-high-b",
+          name: "Selected High B",
+          totalScore: 4,
+          previousScore: 3,
+          platformScores: { github: 4 }
+        })
+      ],
+      founders: [
+        makeFounder({
+          id: "founder-stored-high",
+          companyIds: ["stored-high"],
+          totalScore: 95,
+          previousScore: 90,
+          platformScores: { github: 95 }
+        })
+      ],
+      evidence: [
+        makeEvidence({
+          id: "x-founder-low",
+          entityType: "founder",
+          entityId: "founder-stored-high",
+          contributionScore: 20,
+          metricsCheckedAt: "2026-07-14T10:00:00.000Z"
+        }),
+        makeEvidence({
+          id: "x-company-high-a",
+          entityId: "selected-high-a",
+          contributionScore: 80,
+          metricsCheckedAt: "2026-07-16T12:00:00.000Z"
+        }),
+        makeEvidence({
+          id: "x-company-high-b",
+          entityId: "selected-high-b",
+          contributionScore: 80,
+          metricsCheckedAt: "2026-07-15T12:00:00.000Z"
+        })
+      ],
+      needsReview: [],
+      platformStatus: []
+    };
+
+    const canonicalGraph = buildGraphResponse({ batchSlug: "S2026" }, dataset);
+    const graph = buildGraphResponse({ batchSlug: "S2026", platforms: ["x"] }, dataset);
+    const storedHigh = graph.nodes.find((node) => node.entityId === "stored-high");
+
+    expect(graph.leaderboard.map((row) => [row.companyId, row.rank])).toEqual([
+      ["stored-high", 1],
+      ["selected-high-a", 2],
+      ["selected-high-b", 3]
+    ]);
+    expect(graph.leaderboard.map(({ companyId, score, rank }) => ({ companyId, score, rank })))
+      .toEqual(canonicalGraph.leaderboard.map(({ companyId, score, rank }) => ({ companyId, score, rank })));
+    expect(graph.fastestGaining).toEqual(canonicalGraph.fastestGaining);
+    expect(graph.evidence.every((item) => item.platform === "x")).toBe(true);
+    expect(graph.nodes.map((node) => ({
+      entityId: node.entityId,
+      score: node.score,
+      previousScore: node.previousScore,
+      radius: node.radius,
+      topPlatform: node.topPlatform,
+      platformScores: node.platformScores,
+      scoreBreakdown: node.scoreBreakdown
+    }))).toEqual(canonicalGraph.nodes.map((node) => ({
+      entityId: node.entityId,
+      score: node.score,
+      previousScore: node.previousScore,
+      radius: node.radius,
+      topPlatform: node.topPlatform,
+      platformScores: node.platformScores,
+      scoreBreakdown: node.scoreBreakdown
+    })));
+    expect(storedHigh?.score).toBe(95);
+    expect(storedHigh?.topPlatform).toBe("github");
+    expect(storedHigh?.founders[0]?.platformScores).toEqual({ github: 95 });
+    expect(graph.scoringContext).toEqual({
+      modelId: TRACTION_SCORING_CONFIG.modelId,
+      modelVersion: TRACTION_SCORING_CONFIG.version,
+      modelName: TRACTION_SCORING_CONFIG.name,
+      scoreScope: "all_platforms",
+      selectedPlatforms: [],
+      responseBuiltAt: graph.generatedAt,
+      evidenceAsOf: "2026-07-16T12:00:00.000Z"
+    });
+  });
+
+  it("preserves legacy company evidence ownership, ordering, and tied ranks", () => {
+    const companies = [
+      makeCompany({ id: "company-alpha", name: "Alpha", founderIds: ["founder-alpha"] }),
+      makeCompany({ id: "company-beta", name: "Beta", founderIds: ["founder-shared"] }),
+      makeCompany({ id: "company-gamma", name: "Gamma", founderIds: ["founder-shared"] })
+    ];
+    const evidence = [
+      makeEvidence({ id: "evidence-alpha", entityId: "company-alpha", contributionScore: 70 }),
+      makeEvidence({
+        id: "evidence-attached-alpha",
+        entityType: "founder",
+        entityId: "founder-shared",
+        attachedCompanyId: "company-alpha",
+        contributionScore: 90
+      }),
+      makeEvidence({
+        id: "evidence-shared",
+        entityType: "founder",
+        entityId: "founder-shared",
+        contributionScore: 55
+      }),
+      makeEvidence({ id: "evidence-beta", entityId: "company-beta", contributionScore: 40 }),
+      makeEvidence({ id: "evidence-gamma", entityId: "company-gamma", contributionScore: 40 })
+    ];
+    const dataset: DemoGraphDataset = {
+      mode: "demo",
+      batches: [{ slug: "S2026", label: "Test batch", companyCountExpected: 3, companyCountObserved: 3 }],
+      companies,
+      founders: [
+        makeFounder({ id: "founder-alpha", companyIds: ["company-alpha"] }),
+        makeFounder({ id: "founder-shared", companyIds: ["company-beta", "company-gamma"] })
+      ],
+      evidence,
+      needsReview: [],
+      platformStatus: []
+    };
+
+    const graph = buildGraphResponse(
+      { batchSlug: "S2026", edgeTypes: ["same_group_partner"], platforms: ["x"] },
+      dataset
+    );
+    const legacyEvidenceByCompany = legacyGroupCompanyRollupEvidence(companies, evidence);
+    const expectedRanks = legacyTiedRanks(
+      graph.nodes.map((node) => ({ id: node.entityId, score: node.score }))
+    );
+
+    expect(graph.evidence.map((item) => item.id)).toEqual([
+      "evidence-attached-alpha",
+      "evidence-alpha",
+      "evidence-shared",
+      "evidence-beta",
+      "evidence-gamma"
+    ]);
+    expect(graph.leaderboard.map((row) => [row.companyId, row.rank, row.biggestContribution?.id])).toEqual(
+      graph.leaderboard.map((row) => [
+        row.companyId,
+        expectedRanks.get(row.companyId),
+        legacyEvidenceByCompany.get(row.companyId)?.[0]?.id
+      ])
+    );
+    expect(graph.leaderboard.find((row) => row.companyId === "company-beta")?.rank).toBe(
+      graph.leaderboard.find((row) => row.companyId === "company-gamma")?.rank
+    );
+    expect(legacyEvidenceByCompany.get("company-alpha")?.map((item) => item.id)).toEqual([
+      "evidence-attached-alpha",
+      "evidence-alpha"
+    ]);
+    expect(legacyEvidenceByCompany.get("company-beta")?.map((item) => item.id)).toEqual([
+      "evidence-shared",
+      "evidence-beta"
+    ]);
+    expect(legacyEvidenceByCompany.get("company-gamma")?.map((item) => item.id)).toEqual([
+      "evidence-shared",
+      "evidence-gamma"
+    ]);
+  });
+
+  it("orders tied leaderboard rows canonically regardless of company input order", () => {
+    const companies = [
+      makeCompany({ id: "company-z", name: "Zulu", totalScore: 50 }),
+      makeCompany({ id: "company-b", name: "Alpha", totalScore: 50 }),
+      makeCompany({ id: "company-a", name: "Alpha", totalScore: 50 })
+    ];
+    const buildDataset = (orderedCompanies: CompanyRecord[]): DemoGraphDataset => ({
+      mode: "demo",
+      batches: [{ slug: "S2026", label: "Test batch", companyCountExpected: 3, companyCountObserved: 3 }],
+      companies: orderedCompanies,
+      founders: [],
+      evidence: [],
+      needsReview: [],
+      platformStatus: []
+    });
+    const leaderboardIdentity = (orderedCompanies: CompanyRecord[]) =>
+      buildGraphResponse(
+        { batchSlug: "S2026", edgeTypes: ["same_group_partner"] },
+        buildDataset(orderedCompanies)
+      ).leaderboard.map((row) => [row.companyId, row.companyName, row.rank]);
+    const expected = [
+      ["company-a", "Alpha", 1],
+      ["company-b", "Alpha", 1],
+      ["company-z", "Zulu", 1]
+    ];
+
+    expect(leaderboardIdentity(companies)).toEqual(expected);
+    expect(leaderboardIdentity([...companies].reverse())).toEqual(expected);
+  });
+
   it("uses fuzzy company/founder matching for graph query filters", () => {
     const companyGraph = buildGraphResponse({ batchSlug: "S26", query: "Conifr" }, ycSpring2026GraphDataset);
     const founderGraph = buildGraphResponse({ batchSlug: "S2026", query: "Lukka Martn" }, demoGraphDataset);
@@ -112,7 +426,13 @@ describe("graph builder", () => {
 
     expect(graph.batch.label).toBe("YC Summer 2026 (S26)");
     expect(graph.batch.companyCountExpected).toBe(83);
-    expect(JSON.stringify(graph)).not.toContain(bannedIdentityQualityField);
+    expect(graph.nodes.every((node) => !(bannedIdentityQualityField in node))).toBe(true);
+    expect(
+      graph.nodes.every((node) =>
+        [...node.socialAccounts, ...node.founders.flatMap((founder) => founder.socialAccounts)]
+          .every((account) => !(bannedIdentityQualityField in account))
+      )
+    ).toBe(true);
     expect(graph.nodes[0]).toEqual(
       expect.objectContaining({
         review_state: expect.stringMatching(/^(verified|needs_review|rejected)$/),
@@ -184,27 +504,93 @@ describe("graph builder", () => {
 
     expect(graph.selectedTopVoiceAudience.id).toBe("off");
     expect(graph.leaderboard.map((row) => [row.companyId, row.score])).toEqual([
-      ["company-partner-backed", 50],
       ["company-founder-backed", 50],
       ["company-insider-backed", 50],
-      ["company-outsider-backed", 50]
+      ["company-outsider-backed", 50],
+      ["company-partner-backed", 50]
     ]);
+    expect(graph.fastestGaining.every((row) =>
+      row.dod.baselineScore === 45 &&
+      row.dod.baselineRank === 1 &&
+      row.dod.benchmarkedAt === null &&
+      row.wow.baselineScore === 45 &&
+      row.wow.baselineRank === 1 &&
+      row.wow.benchmarkedAt === null
+    )).toBe(true);
     expect(graph.edges.some((edge) => edge.edgeType === "top_voice_attention")).toBe(false);
   });
 
   it("filters YC Partners mode to partner-authored traction only", () => {
-    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, topVoiceDataset());
+    const dataset = topVoiceDataset();
+    const canonicalGraph = buildGraphResponse({ batchSlug: "S2026" }, dataset);
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, dataset);
+    const canonicalNode = canonicalGraph.nodes.find((node) => node.entityId === "company-partner-backed");
+    const audienceNode = graph.nodes[0];
 
     expect(graph.selectedTopVoiceAudience.displayName).toBe("YC Partners");
     expect(graph.leaderboard.map((row) => row.companyId)).toEqual(["company-partner-backed"]);
+    expect(graph.leaderboard[0]).toEqual(expect.objectContaining({ score: 50, rank: 1 }));
     expect(graph.leaderboard[0]?.topVoiceConnectionCount).toBe(1);
     expect(graph.leaderboard[0]?.topVoiceConnections?.[0]?.displayName).toBe("Garry Tan");
+    expect(graph.leaderboard[0]?.topVoiceConnections?.[0]?.contributionScore).toBe(40);
     expect(graph.evidence).toHaveLength(1);
     expect(graph.evidence[0]?.authorName).toBe("Garry Tan");
     expect(graph.evidence[0]?.topVoice?.displayName).toBe("Garry Tan");
+    expect(graph.evidence[0]?.topVoice?.weight).toEqual(expect.any(Number));
+    expect(graph.leaderboard[0]?.topVoiceConnections?.[0]?.weight)
+      .toBe(graph.evidence[0]?.topVoice?.weight);
+    expect(graph.evidence[0]?.topVoice?.originalContributionScore).toBe(40);
+    expect(graph.evidence[0]?.contributionScore).toBe(40);
+    expect(audienceNode).toEqual(expect.objectContaining({
+      score: canonicalNode?.score,
+      previousScore: canonicalNode?.previousScore,
+      radius: canonicalNode?.radius,
+      topPlatform: canonicalNode?.topPlatform,
+      platformScores: canonicalNode?.platformScores,
+      scoreBreakdown: canonicalNode?.scoreBreakdown
+    }));
     expect(graph.nodes.some((node) => node.isTopVoiceNode)).toBe(false);
     expect(graph.edges.some((edge) => edge.edgeType === "top_voice_attention")).toBe(false);
     expect(graph.nodes.map((node) => node.id)).toEqual(["company:company-partner-backed"]);
+    expect(graph.scoringContext).toEqual(
+      expect.objectContaining({
+        scoreScope: "all_platforms",
+        selectedPlatforms: [],
+        responseBuiltAt: graph.generatedAt
+      })
+    );
+  });
+
+  it("preserves full-cohort canonical momentum in a filtered Top Voice response", () => {
+    const dataset = topVoiceDataset();
+    const canonicalGraph = buildGraphResponse({ batchSlug: "S2026" }, dataset);
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, dataset);
+    const canonicalRow = canonicalGraph.fastestGaining.find(
+      (row) => row.companyId === "company-partner-backed"
+    );
+
+    expect(graph.fastestGaining).toHaveLength(1);
+    expect(graph.fastestGaining[0]).toEqual(canonicalRow);
+    expect(graph.fastestGaining[0]?.dod).toEqual(expect.objectContaining({
+      currentScore: 50,
+      currentRank: 1,
+      baselineScore: 45,
+      baselineRank: 1,
+      scoreDelta: 5,
+      benchmarkedAt: null
+    }));
+  });
+
+  it("keeps empty Top Voice audiences free of fabricated momentum rows", () => {
+    const dataset = topVoiceDataset();
+    dataset.evidence = [];
+
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, dataset);
+
+    expect(graph.selectedTopVoiceAudience.id).toBe("yc_partners");
+    expect(graph.nodes).toEqual([]);
+    expect(graph.leaderboard).toEqual([]);
+    expect(graph.fastestGaining).toEqual([]);
   });
 
   it("treats removed batch-circle audience URLs as the default all-voices graph", () => {
@@ -213,10 +599,10 @@ describe("graph builder", () => {
 
     expect(graph.selectedTopVoiceAudience.id).toBe("off");
     expect(graph.leaderboard.map((row) => row.companyId)).toEqual([
-      "company-partner-backed",
       "company-founder-backed",
       "company-insider-backed",
-      "company-outsider-backed"
+      "company-outsider-backed",
+      "company-partner-backed"
     ]);
   });
 
@@ -636,10 +1022,211 @@ function makeEvidence(overrides: Partial<EvidenceItem>): EvidenceItem {
     title: "Demo X post",
     text: "Demo X post.",
     mediaType: "text",
+    linkStatus: "verified",
     metrics: { likes: 40 },
     contributionScore: 40,
+    tractionStatus: "scored",
     sourceUrl: "https://x.com/demo/status/1",
     why: "Test evidence.",
+    review_state: "verified",
     ...overrides
   };
+}
+
+function buildLegacySimilarityEdges(companies: CompanyRecord[], threshold: number) {
+  const candidates: ReturnType<typeof buildGraphEdges> = [];
+
+  for (let i = 0; i < companies.length; i += 1) {
+    for (let j = i + 1; j < companies.length; j += 1) {
+      const source = companies[i];
+      const target = companies[j];
+      const industrySimilarity = legacyJaccard(source.industries, target.industries);
+      const descriptionSimilarity = legacyJaccard(
+        legacyTokenize(`${source.tagline} ${source.description}`),
+        legacyTokenize(`${target.tagline} ${target.description}`)
+      );
+      const similarity = roundToHundredths(industrySimilarity * 0.75 + descriptionSimilarity * 0.25);
+
+      if (similarity >= threshold) {
+        candidates.push({
+          id: `edge-industry-${source.id}-${target.id}`,
+          source: nodeId("company", source.id),
+          target: nodeId("company", target.id),
+          edgeType: "industry_similarity",
+          weight: roundToHundredths(similarity),
+          label: "Industry similarity",
+          explanation: `Shared tags or description terms produced a ${Math.round(
+            similarity * 100
+          )}% similarity score.`
+        });
+      }
+    }
+  }
+
+  const perCompany = new Map<string, number>();
+  const limited: ReturnType<typeof buildGraphEdges> = [];
+  for (const candidate of [...candidates].sort((left, right) => right.weight - left.weight)) {
+    const sourceCount = perCompany.get(candidate.source) ?? 0;
+    const targetCount = perCompany.get(candidate.target) ?? 0;
+    if (limited.length >= 140 || sourceCount >= 2 || targetCount >= 2) {
+      continue;
+    }
+    limited.push(candidate);
+    perCompany.set(candidate.source, sourceCount + 1);
+    perCompany.set(candidate.target, targetCount + 1);
+  }
+
+  return limited;
+}
+
+function legacyJaccard(sourceValues: string[], targetValues: string[]): number {
+  const sourceSet = new Set(sourceValues.map((value) => value.toLowerCase()));
+  const targetSet = new Set(targetValues.map((value) => value.toLowerCase()));
+  const intersection = [...sourceSet].filter((value) => targetSet.has(value)).length;
+  const union = new Set([...sourceSet, ...targetSet]).size;
+  return union ? intersection / union : 0;
+}
+
+function legacyTokenize(text: string): string[] {
+  const stopWords = new Set([
+    "and",
+    "the",
+    "for",
+    "with",
+    "that",
+    "from",
+    "into",
+    "teams",
+    "company",
+    "builds",
+    "gives"
+  ]);
+
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length > 2 && !stopWords.has(token));
+}
+
+function legacyGroupCompanyRollupEvidence(companies: CompanyRecord[], evidence: EvidenceItem[]) {
+  const grouped = new Map<string, EvidenceItem[]>();
+
+  for (const company of companies) {
+    const allowedEntityIds = new Set([company.id, ...company.founderIds]);
+    grouped.set(
+      company.id,
+      evidence
+        .filter((item) =>
+          item.attachedCompanyId
+            ? item.attachedCompanyId === company.id
+            : allowedEntityIds.has(item.entityId)
+        )
+        .sort((left, right) => right.contributionScore - left.contributionScore)
+    );
+  }
+
+  return grouped;
+}
+
+function legacyTiedRanks(companies: Array<{ id: string; score: number }>): Map<string, number> {
+  const ranked = [...companies].sort((left, right) => right.score - left.score);
+  let tiedRank = 0;
+  let previousScore: number | null = null;
+
+  return new Map(
+    ranked.map((company, index) => {
+      if (previousScore === null || company.score !== previousScore) {
+        tiedRank = index + 1;
+      }
+      previousScore = company.score;
+      return [company.id, tiedRank];
+    })
+  );
+}
+
+function makeSimilarityBenchmarkCompanies(count: number): CompanyRecord[] {
+  return Array.from({ length: count }, (_, index) =>
+    makeCompany({
+      id: `benchmark-company-${index}`,
+      name: `Benchmark Company ${index}`,
+      industries: [`Industry ${index % 17}`, `Sector ${index % 29}`],
+      tagline: `Operational analytics workflow ${index % 31}`,
+      description: `Reliable evaluation and reporting for product operations segment ${index % 43} cohort ${index}`
+    })
+  );
+}
+
+function makeEvidenceBenchmarkDataset(companyCount: number, evidencePerCompany: number): DemoGraphDataset {
+  const companies = Array.from({ length: companyCount }, (_, index) =>
+    makeCompany({
+      id: `evidence-company-${index}`,
+      name: `Evidence Company ${index}`,
+      founderIds: [`evidence-founder-${index}`],
+      totalScore: index % 100,
+      previousScore: index % 100
+    })
+  );
+  const founders = companies.map((company, index) =>
+    makeFounder({
+      id: `evidence-founder-${index}`,
+      name: `Evidence Founder ${index}`,
+      companyIds: [company.id]
+    })
+  );
+  const evidence = companies.flatMap((company, companyIndex) =>
+    Array.from({ length: evidencePerCompany }, (_, evidenceIndex) => {
+      const founderEvidence = evidenceIndex % 2 === 1;
+      return makeEvidence({
+        id: `benchmark-evidence-${companyIndex}-${evidenceIndex}`,
+        entityType: founderEvidence ? "founder" : "company",
+        entityId: founderEvidence ? `evidence-founder-${companyIndex}` : company.id,
+        attachedCompanyId: evidenceIndex % 4 === 0 ? company.id : undefined,
+        contributionScore: 20 + ((companyIndex + evidenceIndex) % 70),
+        metrics: { likes: 40 + ((companyIndex * 3 + evidenceIndex) % 200) },
+        sourceUrl: `https://x.com/benchmark/status/${companyIndex}-${evidenceIndex}`
+      });
+    })
+  );
+
+  return {
+    mode: "demo",
+    batches: [{
+      slug: "S2026",
+      label: "Benchmark batch",
+      companyCountExpected: companyCount,
+      companyCountObserved: companyCount
+    }],
+    companies,
+    founders,
+    evidence,
+    needsReview: [],
+    platformStatus: []
+  };
+}
+
+function measureMedian<T>(operation: () => T): { medianMs: number; result: T } {
+  operation();
+  const durations: number[] = [];
+  let result!: T;
+
+  for (let iteration = 0; iteration < 5; iteration += 1) {
+    const startedAt = performance.now();
+    result = operation();
+    durations.push(performance.now() - startedAt);
+  }
+
+  durations.sort((left, right) => left - right);
+  return {
+    medianMs: Math.round(durations[Math.floor(durations.length / 2)] * 100) / 100,
+    result
+  };
+}
+
+function sha256(value: unknown): string {
+  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+}
+
+function roundToHundredths(value: number): number {
+  return Math.round(value * 100) / 100;
 }

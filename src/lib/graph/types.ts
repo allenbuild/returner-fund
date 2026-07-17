@@ -11,7 +11,9 @@ export type Platform =
   | "web"
   | "reddit"
   | "hacker_news"
-  | "bilibili";
+  | "bilibili"
+  | "tiktok"
+  | "bluesky";
 
 export type EdgeType = "founder_of" | "industry_similarity" | "same_group_partner" | "top_voice_attention";
 export type ReviewState = "verified" | "needs_review" | "rejected";
@@ -83,6 +85,9 @@ export interface EvidenceItem {
   authorName: string;
   authorHandle: string | null;
   postedAt: string;
+  publishedAtPrecision?: "exact" | "day" | "unknown";
+  observedAt?: string | null;
+  metricsCheckedAt?: string | null;
   title?: string;
   text: string;
   mediaType: "text" | "image" | "video" | "link" | "repo" | "launch" | "unknown";
@@ -97,6 +102,8 @@ export interface EvidenceItem {
   contributionScore: number;
   rawEngagement?: number;
   normalizedScore?: number;
+  tractionStatus?: "scored" | "unscored";
+  tractionLimitations?: string[];
   sourceUrl: string;
   platformPostId?: string | null;
   rawVisibleText?: string;
@@ -133,15 +140,58 @@ export interface WeightedPlatformScore {
   evidenceCount: number;
 }
 
+export type ScoreConfidenceLevel = "low" | "medium" | "high";
+
+export interface ScoreConfidence {
+  level: ScoreConfidenceLevel;
+  value: number;
+  reasons: string[];
+  scoredEvidenceCount: number;
+  datedEvidenceCount: number;
+  verifiedLinkCount: number;
+}
+
+export interface ScoreCalibration {
+  method: "none" | "tie_aware_percentile_blend";
+  cohortSize: number;
+  percentile: number | null;
+  inputScore: number;
+}
+
 export interface ScoreBreakdown {
+  modelId: string;
+  modelVersion: string;
+  modelName: string;
   totalScore: number;
+  absoluteScore: number;
   weightedAvailableScore: number;
   coverageFactor: number;
   platformsWithEvidence: number;
   totalSupportedPlatforms: number;
   platformScores: Partial<Record<Platform, number>>;
   weightedPlatforms: WeightedPlatformScore[];
+  signalFamilyScores: {
+    reach: number;
+    engagement: number;
+    developerAdoption: number;
+    launchAndCommunity: number;
+    momentum: number;
+  };
+  confidence: ScoreConfidence;
+  calibration: ScoreCalibration;
+  limitations: string[];
+  evidenceAsOf: string | null;
   explanation: string;
+}
+
+export interface ScoringContext {
+  modelId: string;
+  modelVersion: string;
+  modelName: string;
+  scoreScope: "all_platforms" | "selected_platforms" | "top_voice";
+  selectedPlatforms: Platform[];
+  responseBuiltAt: string;
+  evidenceAsOf: string | null;
 }
 
 export interface CompanyRecord {
@@ -380,5 +430,6 @@ export interface GraphResponse {
   selectedTopVoiceAudience: TopVoiceAudienceSummary;
   topVoiceAudiences: TopVoiceAudienceSummary[];
   generatedAt: string;
+  scoringContext?: ScoringContext;
   mode: "demo" | "database" | "official_snapshot";
 }

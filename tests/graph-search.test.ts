@@ -25,6 +25,23 @@ describe("graph search", () => {
     expect(conifer?.companyScore).toBeGreaterThanOrEqual(0);
   });
 
+  it("uses canonical leaderboard ranks for filtered subsets, including ties", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const companyNodes = graph.nodes.filter((node) => node.entityType === "company");
+    const first = companyNodes[0]!;
+    const second = companyNodes[1]!;
+    const canonicalRanks = new Map([
+      [first.entityId, 7],
+      [second.entityId, 7]
+    ]);
+
+    const firstResult = searchGraphNodes([first], first.label, 12, canonicalRanks)[0];
+    const secondResult = searchGraphNodes([second], second.label, 12, canonicalRanks)[0];
+
+    expect(firstResult).toMatchObject({ rank: 7, subtitle: `#7, Score: ${Math.round(first.score)}` });
+    expect(secondResult).toMatchObject({ rank: 7, subtitle: `#7, Score: ${Math.round(second.score)}` });
+  });
+
   it("returns founder matches that focus the founder's company node", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026" }, demoGraphDataset);
     const results = searchGraphNodes(graph.nodes, "Luca");

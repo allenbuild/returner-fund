@@ -46,8 +46,8 @@ describe("public data debug instrumentation", () => {
     const duplicate = {
       ...base,
       id: "duplicate-fresh",
-      sourceUrl: "https://www.instagram.com/p/ignored",
-      platformPostId: "abc123",
+      sourceUrl: "https://instagram.com/reel/ABC123/?utm_source=two",
+      platformPostId: "ABC123",
       last_checked_at: "2026-06-28T00:00:00Z"
     };
     const report = buildDuplicateReport({
@@ -57,8 +57,8 @@ describe("public data debug instrumentation", () => {
 
     expect(report.duplicateGroupCount).toBe(1);
     expect(report.groups[0]).toMatchObject({
-      key: `${base.entityId}:instagram:post:abc123`,
-      platformPostIds: ["ABC123", "abc123"],
+      key: `${base.entityId}:instagram:post:ABC123`,
+      platformPostIds: ["ABC123"],
       latestCheckedAt: "2026-06-28T00:00:00Z"
     });
   });

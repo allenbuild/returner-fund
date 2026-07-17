@@ -17,7 +17,9 @@ export function sanitizeGraphResponse(
 
   const compactIds = options.compactIds ?? (!options.includeRaw && !options.includeNonScoring);
   const includeWhy = options.includeWhy ?? Boolean(options.includeRaw);
-  const rawEvidence = graph.evidence.filter((item) => options.includeNonScoring || item.contributionScore > 0);
+  const rawEvidence = graph.evidence.filter(
+    (item) => options.includeNonScoring || item.contributionScore > 0 || item.tractionStatus === "unscored"
+  );
   const evidenceIdByOriginalId = new Map(
     rawEvidence.map((item, index) => [item.id, compactIds ? `ev-${index.toString(36)}` : item.id])
   );

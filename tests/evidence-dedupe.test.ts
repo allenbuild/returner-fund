@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { canonicalEvidenceUrl, dedupeEvidenceItems } from "@/lib/graph/dedupe";
+import {
+  canonicalEvidenceKey,
+  canonicalEvidenceUrl,
+  canonicalPostKey,
+  dedupeEvidenceForScoring,
+  dedupeEvidenceItems,
+  hasEvidenceIdentityConflict
+} from "@/lib/graph/dedupe";
 import type { EvidenceItem } from "@/lib/graph/types";
 
 describe("evidence dedupe", () => {
@@ -28,34 +35,231 @@ describe("evidence dedupe", () => {
     const items = [
       {
         ...evidence("older-high", "https://x.com/allenxtech/status/12345?utm_source=one", 95),
+        platformPostId: "12345",
         last_checked_at: "2026-06-01T00:00:00Z"
       },
       {
         ...evidence("newer-lower", "https://twitter.com/allenxtech/status/12345?s=20", 72),
+        platformPostId: "12345",
         last_checked_at: "2026-06-28T00:00:00Z"
       }
     ];
 
     expect(dedupeEvidenceItems(items).map((item) => item.id)).toEqual(["newer-lower"]);
+    expect(dedupeEvidenceItems([...items].reverse()).map((item) => item.id)).toEqual(["newer-lower"]);
   });
 
-  it("uses platform post IDs as the strongest canonical key when available", () => {
+  it("coalesces an explicit post ID with the same URL-derived identity", () => {
+    const idOnly = {
+      ...evidence("id-only", "https://x.com/allenxtech", 40),
+      platformPostId: "12345",
+      last_checked_at: "2026-06-20T00:00:00Z"
+    };
+    const urlOnly = {
+      ...evidence("url-only", "https://twitter.com/allenxtech/status/12345?s=20", 48),
+      platformPostId: null,
+      last_checked_at: "2026-06-21T00:00:00Z"
+    };
+
+    expect(canonicalEvidenceKey(idOnly)).toBe(canonicalEvidenceKey(urlOnly));
+    expect(canonicalPostKey(idOnly)).toBe(canonicalPostKey(urlOnly));
+    expect(dedupeEvidenceItems([idOnly, urlOnly]).map((item) => item.id)).toEqual(["url-only"]);
+  });
+
+  it("prefers explicit post ID and URL agreement before completeness or freshness", () => {
+    const agreed = {
+      ...evidence("agreed", "https://x.com/allenxtech/status/12345", 20),
+      platformPostId: "12345",
+      metrics: { views: 2_000 },
+      last_checked_at: "2026-06-20T00:00:00Z"
+    };
+    const urlOnly = {
+      ...evidence("url-only", "https://twitter.com/allenxtech/status/12345", 99),
+      platformPostId: null,
+      metrics: { views: 9_000, likes: 900, replies: 90 },
+      last_checked_at: "2026-06-28T00:00:00Z"
+    };
+
+    expect(dedupeEvidenceItems([agreed, urlOnly]).map((item) => item.id)).toEqual(["agreed"]);
+    expect(dedupeEvidenceItems([urlOnly, agreed]).map((item) => item.id)).toEqual(["agreed"]);
+  });
+
+  it("prefers metric completeness before freshness for equivalent parent observations", () => {
+    const complete = {
+      ...evidence("complete", "https://x.com/allenxtech/status/12345", 20),
+      platformPostId: "12345",
+      metrics: { views: 2_000, likes: 200, replies: 20 },
+      last_checked_at: "2026-06-20T00:00:00Z"
+    };
+    const sparse = {
+      ...evidence("sparse", "https://twitter.com/allenxtech/status/12345", 99),
+      platformPostId: "12345",
+      metrics: { views: 9_000 },
+      last_checked_at: "2026-06-28T00:00:00Z"
+    };
+
+    expect(dedupeEvidenceItems([complete, sparse]).map((item) => item.id)).toEqual(["complete"]);
+    expect(dedupeEvidenceItems([sparse, complete]).map((item) => item.id)).toEqual(["complete"]);
+  });
+
+  it("keeps opaque platform IDs case-sensitive", () => {
     const items = [
       {
-        ...evidence("company-path", "https://instagram.com/reel/ABC123?igshid=one", 40),
+        ...evidence("upper", "https://instagram.com/allenxtech", 40),
         platform: "instagram" as const,
-        platformPostId: "ABC123",
-        last_checked_at: "2026-06-20T00:00:00Z"
+        platformPostId: "ABC123"
       },
       {
-        ...evidence("founder-path", "https://instagram.com/p/ignored", 48),
+        ...evidence("lower", "https://instagram.com/allenxtech", 48),
         platform: "instagram" as const,
-        platformPostId: "abc123",
-        last_checked_at: "2026-06-21T00:00:00Z"
+        platformPostId: "abc123"
       }
     ];
 
-    expect(dedupeEvidenceItems(items).map((item) => item.id)).toEqual(["founder-path"]);
+    expect(canonicalPostKey(items[0])).not.toBe(canonicalPostKey(items[1]));
+    expect(dedupeEvidenceItems(items).map((item) => item.id)).toEqual(["upper", "lower"]);
+  });
+
+  it("keeps case-sensitive opaque IDs distinct when they come from native URLs", () => {
+    const upper = {
+      ...evidence("upper-url", "https://youtube.com/watch?v=AbC_123", 40),
+      platform: "youtube" as const,
+      platformPostId: null
+    };
+    const lower = {
+      ...evidence("lower-url", "https://youtube.com/watch?v=abc_123", 48),
+      platform: "youtube" as const,
+      platformPostId: null
+    };
+
+    expect(canonicalPostKey(upper)).not.toBe(canonicalPostKey(lower));
+    expect(dedupeEvidenceItems([upper, lower]).map((item) => item.id)).toEqual(["upper-url", "lower-url"]);
+  });
+
+  it("treats GitHub owner and repo identity as case-insensitive", () => {
+    const mixedCase = {
+      ...evidence("github-mixed-case", "https://github.com/OpenAI/Returner", 40),
+      platform: "github" as const,
+      platformPostId: "OpenAI/Returner"
+    };
+    const lowerCase = {
+      ...evidence("github-lower-case", "https://github.com/openai/returner", 50),
+      platform: "github" as const,
+      platformPostId: "openai/returner"
+    };
+
+    expect(hasEvidenceIdentityConflict(mixedCase)).toBe(false);
+    expect(canonicalPostKey(mixedCase)).toBe(canonicalPostKey(lowerCase));
+    expect(dedupeEvidenceForScoring([mixedCase, lowerCase]).map((item) => item.id)).toEqual([
+      "github-lower-case"
+    ]);
+  });
+
+  it("quarantines URL and explicit-ID conflicts from physical scoring", () => {
+    const valid = {
+      ...evidence("github-valid", "https://github.com/openai/returner", 50),
+      platform: "github" as const,
+      platformPostId: "openai/returner"
+    };
+    const conflicted = {
+      ...evidence("github-conflicted", "https://github.com/openai/returner", 99),
+      platform: "github" as const,
+      platformPostId: "openai/different-repo"
+    };
+
+    expect(hasEvidenceIdentityConflict(conflicted)).toBe(true);
+    expect(canonicalPostKey(conflicted)).not.toBe(canonicalPostKey(valid));
+    expect(dedupeEvidenceForScoring([conflicted])).toEqual([]);
+    expect(dedupeEvidenceForScoring([valid, conflicted]).map((item) => item.id)).toEqual(["github-valid"]);
+  });
+
+  it("accepts equivalent canonical and flattened Product Hunt IDs", () => {
+    const canonicalId = {
+      ...evidence(
+        "product-hunt-canonical-id",
+        "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3",
+        50
+      ),
+      platform: "product_hunt" as const,
+      platformPostId: "products/insforge-alpha/launches/insforge-3"
+    };
+    const flattenedId = {
+      ...canonicalId,
+      id: "product-hunt-flattened-id",
+      platformPostId: "insforge-alpha-insforge-3"
+    };
+
+    expect(hasEvidenceIdentityConflict(canonicalId)).toBe(false);
+    expect(hasEvidenceIdentityConflict(flattenedId)).toBe(false);
+    expect(canonicalPostKey(canonicalId)).toBe(canonicalPostKey(flattenedId));
+  });
+
+  it("prefers an eligible observation over a fresher blocked duplicate", () => {
+    const eligible = {
+      ...evidence("eligible", "https://x.com/allenxtech/status/12345", 20),
+      platformPostId: "12345",
+      linkStatus: "verified" as const,
+      review_state: "verified" as const,
+      observedAt: "2026-06-01T00:00:00Z",
+      metricsCheckedAt: "2026-06-01T00:00:00Z"
+    };
+    const blocked = {
+      ...evidence("blocked", "https://twitter.com/allenxtech/status/12345", 99),
+      platformPostId: "12345",
+      linkStatus: "blocked" as const,
+      review_state: "verified" as const,
+      metrics: { views: 99_000, likes: 9_000, replies: 900 },
+      observedAt: "2100-01-01T00:00:00Z",
+      metricsCheckedAt: "2100-01-01T00:00:00Z"
+    };
+
+    expect(dedupeEvidenceForScoring([eligible, blocked]).map((item) => item.id)).toEqual(["eligible"]);
+    expect(dedupeEvidenceForScoring([blocked, eligible]).map((item) => item.id)).toEqual(["eligible"]);
+    expect(dedupeEvidenceItems([eligible, blocked]).map((item) => item.id)).toEqual(["eligible"]);
+  });
+
+  it("keeps a fresher LinkedIn comment fragment from replacing its native parent", () => {
+    const parentPostId = "7473269455783948288";
+    const parentUrl =
+      "https://www.linkedin.com/posts/lukasz-reszczynski-bio_pango-yc-s26-is-joining-y-combinator-today-activity-7473269455783948288-S_GE";
+    const parent = {
+      ...evidence("pango-parent", parentUrl, 80),
+      entityType: "founder" as const,
+      entityId: "founder-pango-lukasz-reszczynski",
+      platform: "linkedin" as const,
+      platformPostId: parentPostId,
+      authorName: "Lukasz Reszczynski",
+      authorHandle: "lukasz-reszczynski-bio",
+      text: "Pango is joining Y Combinator",
+      metrics: { reactions: 319, comments: 43, reposts: 0 },
+      last_checked_at: "2026-07-15T23:15:00Z"
+    };
+    const comment = {
+      ...evidence(
+        "pango-comment",
+        `${parentUrl}?commentUrn=urn%3Ali%3Acomment%3A%28urn%3Ali%3Aactivity%3A${parentPostId}%2C7473616064967266304%29`,
+        99
+      ),
+      entityId: "company-pango",
+      platform: "linkedin" as const,
+      platformPostId: "7473616064967266304",
+      authorName: "Pete Koomen",
+      authorHandle: "petekoomen",
+      text: "congrats, guys :)",
+      metrics: { reactions: 3 },
+      last_checked_at: "2026-07-16T01:50:22Z"
+    };
+
+    expect(canonicalPostKey(parent)).toBe(canonicalPostKey(comment));
+    expect(dedupeEvidenceItems([parent, comment]).map((item) => item.id)).toEqual([
+      "pango-parent",
+      "pango-comment"
+    ]);
+    expect(dedupeEvidenceForScoring([parent, comment]).map((item) => item.id)).toEqual(["pango-parent"]);
+    expect(dedupeEvidenceForScoring([comment, parent]).map((item) => item.id)).toEqual(["pango-parent"]);
+
+    const sameEntityComment = { ...comment, entityType: parent.entityType, entityId: parent.entityId };
+    expect(dedupeEvidenceItems([parent, sameEntityComment]).map((item) => item.id)).toEqual(["pango-parent"]);
   });
 
   it("keeps the same post attached to separate entities", () => {

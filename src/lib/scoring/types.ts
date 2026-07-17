@@ -11,7 +11,8 @@ export type Platform =
   | "web"
   | "hacker_news"
   | "bilibili"
-  | "tiktok";
+  | "tiktok"
+  | "bluesky";
 
 export type BaselineReliability = "high" | "medium" | "low" | "none";
 export type ReviewState = "verified" | "needs_review" | "rejected";
@@ -89,6 +90,7 @@ export interface PostScoreResult {
   recencyWeight: number;
   engagementRate: number | null;
   contributionScore: number;
+  scoringStatus?: "scored" | "unscored";
   explanationJson: PostScoreExplanation;
 }
 
@@ -133,6 +135,7 @@ export interface PlatformScoreResult<TExplanation = PlatformScoreExplanation> {
   entityId: string;
   platform: Platform;
   score: number;
+  scoringStatus?: "scored" | "unscored";
   review_state: ReviewState;
   explanationJson: TExplanation;
 }

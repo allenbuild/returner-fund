@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   generatedEvidenceThumbnailDataUri,
   generatedEvidenceThumbnailUrl
 } from "@/lib/graph/generated-evidence-thumbnail";
 import { evidenceDisplayText } from "@/lib/graph/evidence-display";
+import { normalizeMetricsForScoring } from "@/lib/graph/traction-scoring-config";
 import type { EvidenceItem } from "@/lib/graph/types";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
 
@@ -15,16 +16,23 @@ interface EvidenceMediaCardProps {
 }
 
 export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardProps) {
+  return (
+    <EvidenceMediaCardContent
+      key={`${item.id}:${item.thumbnailUrl ?? ""}`}
+      item={item}
+      compact={compact}
+    />
+  );
+}
+
+function EvidenceMediaCardContent({ item, compact = false }: EvidenceMediaCardProps) {
   const [failedThumbnailUrls, setFailedThumbnailUrls] = useState<string[]>([]);
   const snippet = evidenceSnippet(item);
-  const metrics = compactMetrics(item.metrics).join(" / ");
+  const metrics = compactMetrics(item).join(" / ");
   const thumbnailCandidates = thumbnailUrlCandidates(item);
   const thumbnailUrl = thumbnailCandidates.find((candidate) => !failedThumbnailUrls.includes(candidate)) ?? null;
   const postDate = formatPostDate(item.postedAt);
-
-  useEffect(() => {
-    setFailedThumbnailUrls([]);
-  }, [item.id, item.thumbnailUrl]);
+  const isUnscored = item.tractionStatus === "unscored";
 
   function handleThumbnailError(url: string) {
     setFailedThumbnailUrls((current) => (current.includes(url) ? current : [...current, url]));
@@ -55,8 +63,8 @@ export function EvidenceMediaCard({ item, compact = false }: EvidenceMediaCardPr
             {metrics && <small>{metrics}</small>}
           </div>
         )}
-        <div className="contribution-pill">
-          <strong>{item.contributionScore}</strong>
+        <div className={isUnscored ? "contribution-pill unscored" : "contribution-pill"}>
+          <strong>{isUnscored ? "Unscored" : item.contributionScore}</strong>
         </div>
       </div>
 
@@ -112,25 +120,56 @@ function ordinalSuffix(day: number): string {
 }
 
 
-function compactMetrics(metrics: EvidenceItem["metrics"]): string[] {
+function compactMetrics(item: EvidenceItem): string[] {
+  const metrics = normalizeMetricsForScoring(item.platform, item.metrics);
   const ordered = [
     "views",
     "likes",
+    "reactions",
     "comments",
     "replies",
     "reposts",
+    "shares",
     "quotes",
     "upvotes",
     "stars",
     "forks",
-    "watchers"
+    "watchers",
+    "issues",
+    "recent_commits_30d",
+    "saves"
   ];
 
   return ordered
     .map((metric) => [metric, metrics[metric]] as const)
     .filter(([, value]) => Number.isFinite(value) && Number(value) > 0)
     .slice(0, 4)
-    .map(([metric, value]) => `${formatNumber(Number(value))} ${metric}`);
+    .map(([metric, value]) => `${formatNumber(Number(value))} ${metricLabel(item.platform, metric, Number(value))}`);
+}
+
+function metricLabel(platform: EvidenceItem["platform"], metric: string, value: number): string {
+  const labels: Record<string, [string, string]> = {
+    views: ["view", "views"],
+    likes: ["like", "likes"],
+    reactions: ["reaction", "reactions"],
+    comments: ["comment", "comments"],
+    replies: ["reply", "replies"],
+    reposts: ["repost", "reposts"],
+    shares: ["share", "shares"],
+    quotes: ["quote", "quotes"],
+    upvotes: ["upvote", "upvotes"],
+    stars: ["star", "stars"],
+    forks: ["fork", "forks"],
+    watchers: ["watcher", "watchers"],
+    issues: ["issue", "issues"],
+    recent_commits_30d: ["recent commit", "recent commits"],
+    saves: ["save", "saves"]
+  };
+  if (platform === "x" && metric === "replies") {
+    return value === 1 ? "comment" : "comments";
+  }
+  const [singular, plural] = labels[metric] ?? [metric, metric];
+  return value === 1 ? singular : plural;
 }
 
 function formatNumber(value: number): string {

@@ -49,7 +49,16 @@ const POST_PLATFORMS_REQUIRING_ENTITY_SIGNAL = new Set<Platform>([
   "linkedin"
 ]);
 
-const SOCIAL_HOSTS = ["x.com", "twitter.com", "instagram.com", "linkedin.com", "youtube.com", "youtu.be"];
+const SOCIAL_HOSTS = [
+  "x.com",
+  "twitter.com",
+  "instagram.com",
+  "linkedin.com",
+  "youtube.com",
+  "youtu.be",
+  "tiktok.com",
+  "bsky.app"
+];
 
 const GENERIC_SINGLE_WORD_NAMES = new Set([
   "aice",
@@ -130,19 +139,18 @@ export function auditEvidenceAttribution(
     return auditGithubEvidence(item, context, company);
   }
 
-  const visibleText = visibleEvidenceText(item);
-  const identityText = identityEvidenceText(item);
+  const visibleText = nativeEvidenceText(item);
   const signals = entitySignals(company);
   const hasVerifiedSnapshotCompanyNameSignal = hasVerifiedSnapshotCompanyNameSignalForCompany(item, company, visibleText);
   const hasValidatedTopVoiceTargetSignal = hasValidatedTopVoiceTargetSignalForCompany(item, company, visibleText);
+  const hasVerifiedAccountSignal = hasVerifiedAccountSignalForCompany(item, signals);
   const hasVisibleOwnSignal =
     hasEntitySignal(visibleText, signals, item.platform) ||
     hasBatchListCompanySignal(visibleText, company) ||
     hasVerifiedSnapshotCompanyNameSignal ||
     hasValidatedTopVoiceTargetSignal ||
     sourceUrlMatchesOwnDomain(item, signals);
-  const hasOwnSignal = hasVisibleOwnSignal || hasEntitySignal(identityText, signals, item.platform);
-  const hasVerifiedAccountSignal = hasVerifiedAccountSignalForCompany(item, signals);
+  const hasOwnSignal = hasVisibleOwnSignal || hasVerifiedAccountSignal;
   const conflictingCompanies = conflictingCompanyMatches(visibleText, context, company);
   const hasStrongConflict = conflictingCompanies.length > 0 && !hasVisibleOwnSignal;
   const hasClearOffTopicVisibleContext = hasClearOffTopicContext(visibleText);
@@ -286,7 +294,7 @@ function auditGithubEvidence(
   company: AttributionCompanyProfile
 ): AttributionAuditResult {
   const signals = entitySignals(company);
-  const evidenceText = `${visibleEvidenceText(item)} ${identityEvidenceText(item)}`;
+  const evidenceText = nativeEvidenceText(item);
   const ownGithubSignal = hasEntitySignal(evidenceText, signals, "github");
   const verifiedAccount = hasVerifiedAccountSignalForCompany(item, signals);
 
@@ -318,7 +326,7 @@ function appendAttributionReason(existing: string | undefined, audit: Attributio
 }
 
 function hasVerifiedAccountSignalForCompany(item: EvidenceItem, signals: EntitySignals): boolean {
-  const handle = normalizeHandle(item.authorHandle ?? item.authorName);
+  const handle = normalizeHandle(item.authorHandle);
   const accountHandle = handleFromUrl(item.accountUrl);
   const sourceHandle = handleFromUrl(item.sourceUrl);
   const rawAuthorHandle = nativeAuthorHandleFromRawVisibleText(item.rawVisibleText);
@@ -382,9 +390,18 @@ function hasEntitySignal(text: string, signals: EntitySignals, platform: Platfor
 
   return (
     signals.names.some((name) => hasPhrase(normalized, name)) ||
-    signals.domains.some((domain) => domain && normalized.includes(domain)) ||
+    signals.domains.some(
+      (domain) => domain && (normalized.includes(domain) || hasDomainHandleSignal(text, domain))
+    ) ||
     [...platformHandles].some((handle) => handle && hasHandleSignal(normalized, handle))
   );
+}
+
+function hasDomainHandleSignal(rawText: string, domain: string): boolean {
+  const stem = normalizeHandle(domain.replace(/^www\./, "").split(".")[0]);
+  if (stem.length < 5) return false;
+  const escaped = stem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9])@${escaped}([^a-z0-9]|$)`, "i").test(rawText);
 }
 
 function hasBatchListCompanySignal(text: string, company: AttributionCompanyProfile): boolean {
@@ -442,29 +459,16 @@ function hasValidatedTopVoiceTargetSignalForCompany(
   }
 
   const normalized = normalizeText(text);
-  const targetNames = validatedTopVoiceTargetNames(raw, company)
+  const targetNames = [
+    company.name,
+    company.slug.replace(/-/g, " "),
+    compactText(company.name),
+    compactText(company.slug)
+  ]
     .map(normalizeText)
     .filter(Boolean);
 
   return [...new Set(targetNames)].some((name) => hasPhrase(normalized, name));
-}
-
-function validatedTopVoiceTargetNames(
-  rawVisibleText: string,
-  company: AttributionCompanyProfile
-): string[] {
-  try {
-    const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
-    const target = recordValue(parsed.target);
-    return [
-      typeof target?.companyName === "string" ? target.companyName : null,
-      typeof target?.companySlug === "string" ? target.companySlug.replace(/-/g, " ") : null,
-      company.name,
-      company.slug.replace(/-/g, " ")
-    ].filter((value): value is string => Boolean(value));
-  } catch {
-    return [company.name, company.slug.replace(/-/g, " ")];
-  }
 }
 
 function conflictingCompanyMatches(
@@ -504,7 +508,7 @@ function entitySignals(company: AttributionCompanyProfile): EntitySignals {
   return {
     company,
     names: [...new Set([...distinctiveCompanyNames(company), ...company.founders.map((founder) => normalizeText(founder.name))])],
-    domains: [...new Set([company.websiteUrl, ...company.socialLinks.map((link) => link.url)].map(domainFromUrl).filter(Boolean))],
+    domains: [...new Set([company.websiteUrl].map(domainFromUrl).filter(Boolean))],
     handlesByPlatform
   };
 }
@@ -529,52 +533,74 @@ function distinctiveConflictNames(company: AttributionCompanyProfile): string[] 
   });
 }
 
-function visibleEvidenceText(item: EvidenceItem): string {
+function nativeEvidenceText(item: EvidenceItem): string {
   return [
-    item.title,
-    item.text,
-    extractVisibleBodyText(item.rawVisibleText)
+    nativeItemText(item),
+    extractNativeBodyText(item.rawVisibleText)
   ]
     .filter(Boolean)
     .join(" ");
 }
 
-function identityEvidenceText(item: EvidenceItem): string {
-  return [
-    item.authorName,
-    item.authorHandle,
-    item.matchReason,
-    item.why
-  ]
-    .filter(Boolean)
-    .join(" ");
+function nativeItemText(item: EvidenceItem): string {
+  const text = item.text?.trim() ?? "";
+  if (!text) {
+    return "";
+  }
+
+  const title = item.title?.trim() ?? "";
+  return title && normalizeText(text) === normalizeText(title) ? "" : text;
 }
 
-function extractVisibleBodyText(rawVisibleText: string | undefined): string {
+function extractNativeBodyText(rawVisibleText: string | undefined): string {
   if (!rawVisibleText) {
     return "";
   }
 
   try {
-    const parsed = JSON.parse(rawVisibleText);
+    const parsed = recordValue(JSON.parse(rawVisibleText));
+    if (!parsed) {
+      return "";
+    }
     const post = recordValue(parsed.post);
     const detail = recordValue(parsed.detail);
     const quotedPost = recordValue(parsed.quotedPost);
     const quote = recordValue(post?.quote);
     const rawText = recordValue(post?.raw_text);
+    const quoteRawText = recordValue(quote?.raw_text ?? quote?.rawText);
+    const quotedPostRawText = recordValue(quotedPost?.raw_text ?? quotedPost?.rawText);
+    const cards = [
+      parsed.card,
+      parsed.shareCard,
+      parsed.share_card,
+      parsed.linkPreview,
+      parsed.link_preview,
+      post?.card,
+      post?.shareCard,
+      post?.share_card,
+      post?.linkPreview,
+      post?.link_preview,
+      post?.attachment,
+      detail?.card,
+      quote?.card,
+      quotedPost?.card
+    ].map(recordValue).filter((card): card is Record<string, unknown> => Boolean(card));
     return [
       parsed.text,
       parsed.caption,
-      parsed.title,
       parsed.story_text,
       parsed.description,
       parsed.full_text,
       post?.rawText,
       post?.text,
       post?.caption,
+      post?.description,
+      post?.full_text,
       post?.quote_text,
       rawText?.text,
+      quote?.url,
       quote?.rawText,
+      quoteRawText?.text,
       quote?.text,
       quote?.authorName,
       quote?.authorHandle,
@@ -583,14 +609,31 @@ function extractVisibleBodyText(rawVisibleText: string | undefined): string {
       detail?.rawText,
       detail?.text,
       detail?.caption,
+      quotedPost?.url,
       quotedPost?.rawText,
-      quotedPost?.text
+      quotedPostRawText?.text,
+      quotedPost?.text,
+      ...cards.flatMap(nativeCardText)
     ]
       .filter(Boolean)
       .join(" ");
   } catch {
     return rawVisibleText;
   }
+}
+
+function nativeCardText(card: Record<string, unknown>): unknown[] {
+  return [
+    card.title,
+    card.headline,
+    card.subtitle,
+    card.description,
+    card.text,
+    card.url,
+    card.domain,
+    card.display_url,
+    card.expanded_url
+  ];
 }
 
 function recordValue(value: unknown): Record<string, unknown> | null {
@@ -657,10 +700,14 @@ function handleFromUrl(rawUrl: string | null | undefined): string {
     const url = new URL(rawUrl);
     const hostname = url.hostname.replace(/^www\./, "").toLowerCase();
     const parts = url.pathname.split("/").filter(Boolean);
-    if (isPlatformHost(hostname, ["github.com"])) return normalizeHandle(parts[0]);
+    if (isPlatformHost(hostname, ["github.com"])) {
+      return normalizeHandle(parts[0]?.toLowerCase() === "orgs" ? parts[1] : parts[0]);
+    }
     if (isPlatformHost(hostname, ["instagram.com"])) return normalizeHandle(parts[0]);
     if (isPlatformHost(hostname, ["x.com", "twitter.com"])) return normalizeHandle(parts[0]);
     if (isPlatformHost(hostname, ["linkedin.com"])) return normalizeHandle(parts.at(-1));
+    if (isPlatformHost(hostname, ["tiktok.com"])) return normalizeHandle(parts[0]);
+    if (hostname === "bsky.app" && parts[0] === "profile") return normalizeHandle(parts[1]);
   } catch {
     return "";
   }

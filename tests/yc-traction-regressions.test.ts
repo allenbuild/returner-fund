@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
+import { dedupeEvidenceForScoring } from "@/lib/graph/dedupe";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import {
   aggregateBalancedTractionScore,
@@ -84,8 +85,6 @@ describe("YC traction scoring regressions", () => {
     expectTopVoiceEvidence(springPartners.evidence, "2067101655934591154", "Garry Tan", "9 Mothers");
     expectTopVoiceEvidence(springPartners.evidence, "2037230367598666221", "Aaron Epstein", "Sazabi");
     expectTopVoiceEvidence(springPartners.evidence, "2054035382795370914", "Aaron Epstein", "Interfaze");
-    expectTopVoiceEvidence(springPartners.evidence, "7462200339899846656", "Andrew Miklas", "InsForge");
-    expectTopVoiceEvidence(springPartners.evidence, "7462760262366842880", "Andrew Miklas", "InsForge");
     expectTopVoiceEvidence(springPartners.evidence, "2055345726067187880", "David Lieb", "Keyframe Labs");
     expectTopVoiceEvidence(springPartners.evidence, "2051399396944961822", "David Lieb", "Kuli");
     expectTopVoiceEvidence(springPartners.evidence, "2067276082529882563", "Aaron Epstein", "Result");
@@ -100,9 +99,6 @@ describe("YC traction scoring regressions", () => {
     expectTopVoiceEvidence(springPartners.evidence, "2056858519635374466", "Aaron Epstein", "Panacea");
     expectTopVoiceEvidence(springInsiders.evidence, "2077409287211811191", "Sarah Guo", "HeyClicky");
     expectTopVoiceEvidence(springInsiders.evidence, "2039737176259514763", "Mathilde Collin", "Kinro");
-    expectTopVoiceEvidence(springInsiders.evidence, "7444469004846510080", "Mathilde Collin", "Lumius");
-    expectTopVoiceEvidence(springInsiders.evidence, "7471364906072686592", "Mathilde Collin", "Atrisa");
-    expectTopVoiceEvidence(springInsiders.evidence, "7445191769534676992", "Taro Fukuyama", "9 Mothers");
     expectTopVoiceEvidence(summerPartners.evidence, "2075013475424952797", "Tyler Bosmeny", "83 Sciences");
     expectTopVoiceEvidence(summerPartners.evidence, "2075342772392067278", "Tyler Bosmeny", "Inkbox");
     expectTopVoiceEvidence(summerPartners.evidence, "2072753766701625532", "Tyler Bosmeny", "Bloomy");
@@ -110,7 +106,11 @@ describe("YC traction scoring regressions", () => {
     expectTopVoiceEvidence(summerPartners.evidence, "2077424054966088137", "Ankit Gupta", "Prized");
     expectTopVoiceEvidence(summerPartners.evidence, "2076783005025124492", "Ankit Gupta", "Instance");
     expectTopVoiceEvidence(summerPartners.evidence, "2076459852113858684", "Tyler Bosmeny", "Inkbox");
-    expectTopVoiceEvidence(summerPartners.evidence, "7473616064967266304", "Pete Koomen", "Pango");
+    expect(
+      springPartners.evidence.some(
+        (item) => item.id === "linkedin-topvoice-seventh-pass-s2026-company-insforge-andrew-miklas-7462200339899846656"
+      )
+    ).toBe(false);
   });
 
   it("surfaces tenth-pass regular LinkedIn rows in the Spring graph", () => {
@@ -289,7 +289,7 @@ describe("YC traction scoring regressions", () => {
       "Superset",
       "hacker_news"
     );
-    expectGraphEvidence(
+    expectGraphContextEvidence(
       springGraph.evidence,
       "https://www.producthunt.com/products/runtime",
       "Runtime",
@@ -309,7 +309,12 @@ describe("YC traction scoring regressions", () => {
     expectGraphEvidence(summerGraph.evidence, "https://github.com/inkbox-ai/opencode-plugin", "Inkbox", "github");
     expectGraphEvidence(summerGraph.evidence, "https://github.com/coasty-ai/open-cowork", "Coasty", "github");
     expectGraphEvidence(summerGraph.evidence, "https://x.com/alexsouthmayd/status/2072350508526735698", "Bloomy", "x");
-    expectGraphEvidence(summerGraph.evidence, "https://www.producthunt.com/products/context-dev", "Context.dev", "product_hunt");
+    expectGraphContextEvidence(
+      summerGraph.evidence,
+      "https://www.producthunt.com/products/context-dev",
+      "Context.dev",
+      "product_hunt"
+    );
     expectGraphEvidence(
       summerGraph.evidence,
       "https://www.linkedin.com/posts/kimjihyun_zomma-yc-s26-is-backed-by-y-combinator-activity-7478287014090432512-ylbn",
@@ -377,7 +382,12 @@ describe("YC traction scoring regressions", () => {
       "Codag",
       "linkedin"
     );
-    expectGraphEvidence(summerGraph.evidence, "https://www.producthunt.com/products/codag", "Codag", "product_hunt");
+    expectGraphContextEvidence(
+      summerGraph.evidence,
+      "https://www.producthunt.com/products/codag",
+      "Codag",
+      "product_hunt"
+    );
     expectGraphEvidence(summerGraph.evidence, "https://github.com/codag-megalith/codag-visualizer", "Codag", "github");
     expectGraphEvidence(
       summerGraph.evidence,
@@ -453,7 +463,7 @@ describe("YC traction scoring regressions", () => {
     const selectedEvidence = selectedNodeEvidence(graph, conifer!);
     const profileAggregate = selectedEvidence.find((item) => item.id === "evidence-github-profile-company-conifer");
     const repoEvidence = selectedEvidence.filter(
-      (item) => item.platform === "github" && item.id.startsWith("evidence-github-repo-company-conifer")
+      (item) => item.platform === "github" && item.sourceUrl === "https://github.com/ConiferKit/sage"
     );
 
     expect(profileAggregate?.contributionScore ?? 0).toBe(0);
@@ -467,18 +477,108 @@ describe("YC traction scoring regressions", () => {
 
     expect(careGp?.score).toBeLessThan(70);
     expect(screenpipe?.score).toBeGreaterThan(careGp?.score ?? 0);
-    expect(careGp?.scoreBreakdown?.explanation).toContain("Evidence-depth factor");
+    expect(careGp?.scoreBreakdown?.calibration.method).toBe("tie_aware_percentile_blend");
+    expect(careGp?.scoreBreakdown?.calibration.inputScore).toBe(careGp?.scoreBreakdown?.absoluteScore);
+    expect(careGp?.scoreBreakdown?.explanation).not.toContain("Evidence-depth factor");
     expect(careGp?.scoreBreakdown?.weightedPlatforms[0]?.evidenceCount).toBeGreaterThanOrEqual(1);
   });
 
-  it("uses the full 0-100 peer range for Summer 2026 company scores", () => {
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const companyScores = graph.nodes.filter((node) => node.entityType === "company").map((node) => node.score);
+  it("records the same absolute-preserving calibration for S2026, S26, and A16Z", () => {
+    for (const batchSlug of ["S2026", "S26", "A16ZSR006"]) {
+      const companies = ycSpring2026GraphDataset.companies.filter((company) => company.batchSlug === batchSlug);
+      const positiveCompanies = companies.filter((company) => (company.scoreBreakdown?.absoluteScore ?? 0) > 0);
 
-    expect(companyScores).toHaveLength(83);
-    expect(Math.max(...companyScores)).toBe(100);
-    expect(Math.min(...companyScores)).toBe(0);
-    expect(graph.leaderboard[0]?.score).toBe(100);
+      expect(positiveCompanies.length).toBeGreaterThan(0);
+      for (const company of positiveCompanies) {
+        expect(company.totalScore).toBeGreaterThan(0);
+        expect(company.scoreBreakdown?.calibration).toEqual(
+          expect.objectContaining({
+            method: "tie_aware_percentile_blend",
+            cohortSize: positiveCompanies.length,
+            inputScore: company.scoreBreakdown?.absoluteScore
+          })
+        );
+        expect(company.scoreBreakdown?.calibration.percentile).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("dedupes physical posts across company and founder rollups before aggregation", () => {
+    const arlo = ycSpring2026GraphDataset.companies.find(
+      (company) => company.batchSlug === "S2026" && company.name === "Arlo Industries"
+    );
+    const rollupEntityIds = new Set([arlo?.id, ...(arlo?.founderIds ?? [])]);
+    const scoredRollupEvidence = ycSpring2026GraphDataset.evidence.filter(
+      (item) => rollupEntityIds.has(item.entityId) && item.contributionScore > 0
+    );
+    const uniquePhysicalPosts = dedupeEvidenceForScoring(scoredRollupEvidence);
+    const aggregatedEvidenceCount =
+      arlo?.scoreBreakdown?.weightedPlatforms.reduce((sum, platform) => sum + platform.evidenceCount, 0) ?? 0;
+
+    expect(arlo).toBeTruthy();
+    expect(scoredRollupEvidence).toHaveLength(uniquePhysicalPosts.length);
+    expect(aggregatedEvidenceCount).toBe(uniquePhysicalPosts.length);
+  });
+
+  it("keeps LinkedIn profile activity fragments as unscored context with timestamp provenance", () => {
+    const fragment = ycSpring2026GraphDataset.evidence.find(
+      (item) => item.platform === "linkedin" && item.sourceUrl.includes("/recent-activity/all/#post-")
+    );
+
+    expect(fragment).toEqual(
+      expect.objectContaining({
+        contributionScore: 0,
+        publishedAtPrecision: "unknown",
+        observedAt: expect.any(String),
+        metricsCheckedAt: expect.any(String),
+        review_state: "verified"
+      })
+    );
+    expect(fragment?.why).toContain("Stored as context only");
+    expect(fragment?.why).toContain("stable native post identity");
+  });
+
+  it("keeps LinkedIn comments out of regular company and founder score aggregation", () => {
+    const commentContextIds = new Set([
+      "linkedin-topvoice-company-rise-reforming-alexisohanian-activity-7345937006784356353-comment-george-rose",
+      "linkedin-topvoice-seventh-pass-s2026-company-insforge-andrew-miklas-7462200339899846656",
+      "linkedin-topvoice-insider-sol-ultra-s2026-lumius-mathilde-collin-7444469004846510080",
+      "linkedin-topvoice-insider-sol-ultra-s2026-atrisa-mathilde-collin-7471364906072686592",
+      "linkedin-topvoice-insider-sol-ultra-s2026-9-mothers-corporation-taro-fukuyama-7445191769534676992",
+      "linkedin-topvoices_people_only_third_sol_ultra-s26-topvoice-pango-petekoomen-7473616064967266304",
+      "linkedin-topvoices_people_only_third_sol_ultra-s2026-topvoice-insforge-amiklas-7462760262366842880"
+    ]);
+    const contexts = ycSpring2026GraphDataset.evidence.filter((item) => commentContextIds.has(item.id));
+
+    expect(contexts).toHaveLength(commentContextIds.size);
+    expect(contexts.every((item) => item.platform === "linkedin" && item.contributionScore === 0)).toBe(true);
+
+    for (const companyId of new Set(contexts.map((item) => item.attachedCompanyId))) {
+      const company = ycSpring2026GraphDataset.companies.find((candidate) => candidate.id === companyId);
+      const rollupEntityIds = new Set([company?.id, ...(company?.founderIds ?? [])]);
+      const rollupEvidence = ycSpring2026GraphDataset.evidence.filter((item) => rollupEntityIds.has(item.entityId));
+      const scoreWithoutCommentContexts = aggregateBalancedTractionScore(
+        rollupEvidence.filter((item) => !commentContextIds.has(item.id))
+      );
+
+      expect(company).toBeTruthy();
+      expect(aggregateBalancedTractionScore(rollupEvidence).totalScore).toBe(scoreWithoutCommentContexts.totalScore);
+      expect(company?.scoreBreakdown?.absoluteScore).toBe(scoreWithoutCommentContexts.totalScore);
+    }
+  });
+
+  it("marks synthesized GitHub profile publication dates as unknown", () => {
+    const profile = ycSpring2026GraphDataset.evidence.find(
+      (item) => item.id === "evidence-github-profile-company-conifer"
+    );
+
+    expect(profile).toEqual(
+      expect.objectContaining({
+        publishedAtPrecision: "unknown",
+        observedAt: expect.any(String),
+        metricsCheckedAt: expect.any(String)
+      })
+    );
   });
 
   it("makes X views material after log scaling", () => {
@@ -489,28 +589,30 @@ describe("YC traction scoring regressions", () => {
     expect(computeEvidenceRawEngagement("x", highView.metrics)).toBeGreaterThan(
       computeEvidenceRawEngagement("x", lowView.metrics) * 20
     );
-    expect(scored.find((item) => item.id === "high-x")?.contributionScore).toBeGreaterThan(
+    expect(scored.find((item) => item.id === "high-x")?.contributionScore).toBeGreaterThanOrEqual(
       (scored.find((item) => item.id === "low-x")?.contributionScore ?? 0) + 40
     );
   });
 
-  it("applies recency decay before platform normalization", () => {
+  it("applies recency as a bounded momentum modifier", () => {
     const oldPost = {
       ...evidence("old-instagram", "instagram", { views: 100_000, likes: 500, comments: 20 }),
       postedAt: "2025-06-01T00:00:00Z",
-      last_checked_at: "2026-06-28T00:00:00Z"
+      observedAt: "2026-06-28T00:00:00Z",
+      metricsCheckedAt: "2026-06-28T00:00:00Z"
     };
     const freshPost = {
       ...evidence("fresh-instagram", "instagram", { views: 100_000, likes: 500, comments: 20 }),
       postedAt: "2026-06-20T00:00:00Z",
-      last_checked_at: "2026-06-28T00:00:00Z"
+      observedAt: "2026-06-28T00:00:00Z",
+      metricsCheckedAt: "2026-06-28T00:00:00Z"
     };
     const scored = normalizeEvidenceScores([oldPost, freshPost]);
 
     expect(scored.find((item) => item.id === "fresh-instagram")?.contributionScore).toBeGreaterThan(
-      (scored.find((item) => item.id === "old-instagram")?.contributionScore ?? 0) + 40
+      (scored.find((item) => item.id === "old-instagram")?.contributionScore ?? 0) + 10
     );
-    expect(scored.find((item) => item.id === "fresh-instagram")?.why).toContain("Recency-adjusted");
+    expect(scored.find((item) => item.id === "fresh-instagram")?.why).toContain("recency");
   });
 
   it("keeps visible LinkedIn engagement ahead of freshness-only signals", () => {
@@ -537,7 +639,7 @@ describe("YC traction scoring regressions", () => {
     expect(scored[0]?.contributionScore).toBeGreaterThan(scored[2]?.contributionScore ?? 0);
   });
 
-  it("lets strong cross-platform traction beat one perfect GitHub-only signal", () => {
+  it("does not add a hidden diversity bonus to cross-platform traction", () => {
     const githubOnly = aggregateBalancedTractionScore([evidence("github-only", "github", {}, 100)]);
     const crossPlatform = aggregateBalancedTractionScore([
       evidence("x", "x", {}, 98),
@@ -547,7 +649,8 @@ describe("YC traction scoring regressions", () => {
       evidence("youtube", "youtube", {}, 98)
     ]);
 
-    expect(crossPlatform.totalScore).toBeGreaterThan(githubOnly.totalScore);
+    expect(crossPlatform.totalScore).toBeLessThan(githubOnly.totalScore);
+    expect(crossPlatform.totalScore).toBe(crossPlatform.weightedAvailableScore);
   });
 
   it("does not average away a viral view-heavy social post", () => {
@@ -560,10 +663,11 @@ describe("YC traction scoring regressions", () => {
     ]);
 
     expect(score.platformScores.x).toBeGreaterThanOrEqual(80);
-    expect(score.totalScore).toBeGreaterThanOrEqual(70);
+    expect(score.totalScore).toBeGreaterThanOrEqual(60);
+    expect(score.totalScore).toBe(score.absoluteScore);
   });
 
-  it("applies a coverage penalty to one-platform companies", () => {
+  it("does not penalize companies for platforms where they have no evidence", () => {
     const onePlatform = aggregateBalancedTractionScore([evidence("x", "x", {}, 100)]);
     const allConfiguredPlatforms = aggregateBalancedTractionScore([
       evidence("x", "x", {}, 100),
@@ -577,13 +681,13 @@ describe("YC traction scoring regressions", () => {
       evidence("bilibili", "bilibili", {}, 100)
     ]);
 
-    expect(onePlatform.coverageFactor).toBeLessThan(allConfiguredPlatforms.coverageFactor);
+    expect(onePlatform.coverageFactor).toBe(allConfiguredPlatforms.coverageFactor);
     expect(allConfiguredPlatforms.coverageFactor).toBe(1);
-    expect(onePlatform.totalScore).toBeLessThan(100);
-    expect(allConfiguredPlatforms.totalScore).toBeGreaterThan(onePlatform.totalScore);
+    expect(onePlatform.totalScore).toBe(82);
+    expect(allConfiguredPlatforms.totalScore).toBe(onePlatform.totalScore);
   });
 
-  it("orders score explanations by current weighted platform contribution", () => {
+  it("orders score explanations by configured-weight contribution", () => {
     const score = aggregateBalancedTractionScore([
       evidence("github", "github", {}, 100),
       evidence("instagram", "instagram", {}, 80)
@@ -591,7 +695,7 @@ describe("YC traction scoring regressions", () => {
 
     expect(score.weightedPlatforms[0]?.platform).toBe("instagram");
     expect(score.weightedPlatforms[0]?.contribution).toBeGreaterThan(score.weightedPlatforms[1]?.contribution ?? 0);
-    expect(score.explanation).toContain("contributes");
+    expect(score.explanation).toContain("largest contribution");
   });
 
   it("lets a perfect social signal outrank a moderate GitHub signal", () => {
@@ -605,23 +709,26 @@ describe("YC traction scoring regressions", () => {
   });
 
   it("uses the recommended long-run scoring config for live graph scoring", () => {
-    expect(TRACTION_SCORING_CONFIG.name).toBe("social-traction-v3-balanced-recency");
-    expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.14);
-    expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.34);
-    expect(TRACTION_SCORING_CONFIG.platformWeights.linkedin).toBe(0.14);
-    expect(TRACTION_SCORING_CONFIG.metricWeights.instagram?.views).toBe(0.075);
-    expect(TRACTION_SCORING_CONFIG.metricWeights.x?.views).toBe(0.08);
-    expect(TRACTION_SCORING_CONFIG.metricWeights.linkedin?.views).toBe(0.08);
-    expect(TRACTION_SCORING_CONFIG.metricWeights.youtube?.views).toBe(0.035);
-    expect(TRACTION_SCORING_CONFIG.metricWeights.x?.reposts).toBe(8);
-    expect(TRACTION_SCORING_CONFIG.metricWeights.linkedin?.comments).toBe(5.5);
+    expect(TRACTION_SCORING_CONFIG.name).toBe("returner-traction-v4-canonical");
+    expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.15);
+    expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.21);
+    expect(TRACTION_SCORING_CONFIG.platformWeights.linkedin).toBe(0.15);
+    expect(TRACTION_SCORING_CONFIG.metricWeights.instagram?.views).toBe(0.04);
+    expect(TRACTION_SCORING_CONFIG.metricWeights.x?.views).toBe(0.04);
+    expect(TRACTION_SCORING_CONFIG.metricWeights.linkedin?.views).toBe(0.04);
+    expect(TRACTION_SCORING_CONFIG.metricWeights.youtube?.views).toBe(0.025);
+    expect(TRACTION_SCORING_CONFIG.metricWeights.x?.reposts).toBe(6);
+    expect(TRACTION_SCORING_CONFIG.metricWeights.linkedin?.comments).toBe(4.5);
     expect(TRACTION_SCORING_CONFIG.metricWeights.github?.recent_commits_30d).toBe(1);
-    expect(TRACTION_SCORING_CONFIG.recencyWeightFloor).toBe(0.6);
-    expect(computeEvidenceRawEngagement("instagram", { views: 100_000, likes: 100, comments: 10 })).toBe(7660);
-    expect(computeEvidenceRawEngagement("x", { views: 1_000_000, likes: 1_000, comments: 100, reposts: 100 })).toBe(82850);
-    expect(computeEvidenceRawEngagement("linkedin", { views: 100_000, reactions: 100, comments: 20, reposts: 10 })).toBe(8340);
-    expect(computeEvidenceRawEngagement("linkedin", { likes: 100, reactions: 100, comments: 10 })).toBe(205);
-    expect(computeEvidenceRawEngagement("linkedin", { likes: 100, reactions: 140, comments: 10 })).toBe(265);
+    expect(TRACTION_SCORING_CONFIG.absoluteEvidenceWeight).toBe(0.85);
+    expect(TRACTION_SCORING_CONFIG.cohortPercentileWeight).toBe(0.15);
+    expect(TRACTION_SCORING_CONFIG.durableSignalWeight).toBe(0.75);
+    expect(TRACTION_SCORING_CONFIG.momentumSignalWeight).toBe(0.25);
+    expect(computeEvidenceRawEngagement("instagram", { views: 100_000, likes: 100, comments: 10 })).toBe(4155);
+    expect(computeEvidenceRawEngagement("x", { views: 1_000_000, likes: 1_000, comments: 100, reposts: 100 })).toBe(42450);
+    expect(computeEvidenceRawEngagement("linkedin", { views: 100_000, reactions: 100, comments: 20, reposts: 10 })).toBe(4290);
+    expect(computeEvidenceRawEngagement("linkedin", { likes: 100, reactions: 100, comments: 10 })).toBe(185);
+    expect(computeEvidenceRawEngagement("linkedin", { likes: 100, reactions: 140, comments: 10 })).toBe(241);
   });
 
   it("carries GitHub recent activity into scoring experiments", () => {
@@ -641,6 +748,7 @@ function evidence(
   metrics: EvidenceItem["metrics"],
   contributionScore = 50
 ): EvidenceItem {
+  const visibleMetrics = Object.keys(metrics).length ? metrics : scoreableFixtureMetrics(platform);
   return {
     id,
     entityType: "company",
@@ -651,11 +759,35 @@ function evidence(
     postedAt: "2026-06-01T00:00:00Z",
     text: id,
     mediaType: platform === "github" ? "repo" : "text",
-    metrics,
+    linkStatus: "verified",
+    metrics: visibleMetrics,
     contributionScore,
-    sourceUrl: `https://example.com/${id}`,
-    why: "test"
+    tractionStatus: "scored",
+    sourceUrl: nativeEvidenceUrl(platform, id),
+    why: "test",
+    review_state: "verified"
   };
+}
+
+function scoreableFixtureMetrics(platform: Platform): EvidenceItem["metrics"] {
+  if (platform === "github") return { stars: 1 };
+  if (["product_hunt", "hacker_news", "reddit"].includes(platform)) return { upvotes: 1 };
+  return { views: 1 };
+}
+
+function nativeEvidenceUrl(platform: Platform, id: string): string {
+  const numericId = String([...id].reduce((sum, character) => sum + character.charCodeAt(0), 10)).padEnd(16, "0");
+
+  if (platform === "x") return `https://x.com/test/status/${numericId}`;
+  if (platform === "instagram") return `https://www.instagram.com/p/${id}/`;
+  if (platform === "linkedin") return `https://www.linkedin.com/posts/test_${id}-activity-${numericId}-test`;
+  if (platform === "youtube") return `https://www.youtube.com/watch?v=${id}`;
+  if (platform === "reddit") return `https://www.reddit.com/r/test/comments/${id}/test/`;
+  if (platform === "product_hunt") return `https://www.producthunt.com/posts/${id}`;
+  if (platform === "hacker_news") return `https://news.ycombinator.com/item?id=${numericId}`;
+  if (platform === "bilibili") return `https://www.bilibili.com/video/${id}`;
+  if (platform === "github") return `https://github.com/test/${id}`;
+  return `https://example.com/${id}`;
 }
 
 function postIds(items: EvidenceItem[]): string[] {
@@ -698,4 +830,23 @@ function expectGraphEvidence(
     })
   );
   expect(item?.contributionScore).toBeGreaterThan(0);
+}
+
+function expectGraphContextEvidence(
+  items: EvidenceItem[],
+  sourceUrl: string,
+  companyName: string,
+  platform: Platform
+): void {
+  const item = items.find((candidate) => candidate.sourceUrl === sourceUrl);
+
+  expect(item).toEqual(
+    expect.objectContaining({
+      platform,
+      attachedCompanyName: companyName,
+      sourceUrl,
+      contributionScore: 0
+    })
+  );
+  expect(item?.why).toContain("not_native_evidence");
 }

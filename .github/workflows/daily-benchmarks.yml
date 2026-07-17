@@ -2,10 +2,10 @@ name: Daily Score Benchmarks
 
 on:
   schedule:
-    # GitHub schedules use UTC. Running at both 05:00 and 06:00 UTC keeps this
-    # aligned with 12am America/Chicago across daylight saving time changes; the
-    # script exits unless the local Central time hour is midnight.
-    - cron: "0 5,6 * * *"
+    # Separate expressions let the script identify which UTC slot fired. It
+    # evaluates that slot against Central midnight even when Actions starts late.
+    - cron: "0 5 * * *"
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -13,11 +13,12 @@ permissions:
 
 concurrency:
   group: daily-score-benchmarks
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -25,32 +26,60 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24.14.0
           cache: npm
 
       - name: Install dependencies
+        timeout-minutes: 10
         run: npm ci
 
+      - name: Test daily benchmark updater
+        run: npm run test:benchmarks:daily
+
       - name: Build app
+        timeout-minutes: 15
         run: npm run build
 
       - name: Update daily benchmark snapshots
+        timeout-minutes: 10
         run: |
-          extra_args=""
+          scheduled_args=()
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            extra_args="--only-central-midnight"
+            case "${{ github.event.schedule }}" in
+              "0 5 * * *") scheduled_args+=("--scheduled-utc-hour=5") ;;
+              "0 6 * * *") scheduled_args+=("--scheduled-utc-hour=6") ;;
+              *) echo "Unexpected benchmark schedule: ${{ github.event.schedule }}"; exit 1 ;;
+            esac
           fi
-          npm run benchmarks:daily -- $extra_args
+          npm run benchmarks:daily -- "${scheduled_args[@]}"
+
+      - name: Validate generated public artifacts
+        run: npm run artifacts:validate
 
       - name: Commit updated benchmark snapshots
         run: |
-          if [ -z "$(git status --porcelain -- outputs/benchmarks public/graph)" ]; then
+          benchmark_files=(
+            outputs/benchmarks/s2026-score-benchmarks.json
+            outputs/benchmarks/s26-score-benchmarks.json
+            outputs/benchmarks/a16zsr006-score-benchmarks.json
+            public/graph/s2026.json
+            public/graph/s2026-yc-partners.json
+            public/graph/s2026-insiders.json
+            public/graph/s26.json
+            public/graph/s26-yc-partners.json
+            public/graph/s26-insiders.json
+            public/graph/a16zsr006.json
+            public/graph/a16zsr006-yc-partners.json
+            public/graph/a16zsr006-insiders.json
+          )
+
+          if [ -z "$(git status --porcelain -- "${benchmark_files[@]}")" ]; then
             echo "No benchmark snapshot changes to commit."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add outputs/benchmarks public/graph
+          git add -- "${benchmark_files[@]}"
           git commit -m "Update daily score benchmark snapshots"
           git push

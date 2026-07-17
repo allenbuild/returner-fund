@@ -42,7 +42,9 @@ const PLATFORM_HOST_HINTS: Record<Platform, RegExp[]> = {
   rss: [],
   reddit: [/preview\.redd\.it/i, /i\.redd\.it/i],
   hacker_news: [],
-  bilibili: [/hdslb\.com/i]
+  bilibili: [/hdslb\.com/i],
+  tiktok: [/tiktokcdn/i, /muscdn/i, /byteoversea/i],
+  bluesky: [/cdn\.bsky\.app/i]
 };
 
 const REJECT_ALWAYS = [
@@ -61,6 +63,8 @@ const PLATFORM_REJECTS: Partial<Record<Platform, RegExp[]>> = {
   instagram: [/profile_pic/i, /s150x150/i, /e35\/s\d+x\d+/i, /t51\.82787-19/i],
   linkedin: [/profile-displayphoto/i, /company-logo/i],
   product_hunt: [/favicon/i],
+  tiktok: [/-avt-/i, /avatar/i],
+  bluesky: [/\/img\/avatar\//i],
   web: [/logo(?:[-_./]|$)/i, /icon(?:[-_./]|$)/i],
   rss: [/logo(?:[-_./]|$)/i, /icon(?:[-_./]|$)/i]
 };
@@ -368,6 +372,8 @@ function isLikelyImageUrl(url: string): boolean {
     /pbs\.twimg\.com\/(?:media|amplify_video_thumb|tweet_video_thumb|card_img)\//i.test(url) ||
     /media\.licdn\.com/i.test(url) ||
     /cdninstagram\.com/i.test(url) ||
-    /ph-files\.imgix\.net/i.test(url)
+    /ph-files\.imgix\.net/i.test(url) ||
+    /tiktokcdn|muscdn|byteoversea/i.test(url) ||
+    /cdn\.bsky\.app/i.test(url)
   );
 }

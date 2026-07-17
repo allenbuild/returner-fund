@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 
 describe("initial page graph", () => {
-  it("persists today's daily benchmark while hydrating stored momentum for first paint", async () => {
+  it("hydrates stored momentum for first paint without mutating benchmark history", async () => {
     const previousCwd = process.cwd();
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-initial-page-benchmarks-"));
 
@@ -13,13 +13,13 @@ describe("initial page graph", () => {
     vi.resetModules();
 
     try {
-      const { ensureBenchmarkMomentum } = await import("@/lib/graph/benchmarks");
+      const { recordBenchmarkMomentum } = await import("@/lib/graph/benchmarks");
       const { buildGraphResponse } = await import("@/lib/graph/graph-builder");
       const { ycSpring2026GraphDataset } = await import("@/lib/graph/yc-spring-2026-dataset");
       const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
       const firstCompany = graph.leaderboard[0]!;
 
-      const persisted = ensureBenchmarkMomentum(graph, {
+      const persisted = recordBenchmarkMomentum(graph, {
         now: new Date("2026-06-30T12:00:00.000Z")
       });
 
@@ -37,16 +37,9 @@ describe("initial page graph", () => {
 
       expect(row?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
       expect(store.daily.map((snapshot) => snapshot.recordedAt)).toEqual([
-        "2026-06-24T05:00:00.000Z",
-        "2026-06-25T05:00:00.000Z",
-        "2026-06-26T05:00:00.000Z",
-        "2026-06-27T05:00:00.000Z",
-        "2026-06-28T05:00:00.000Z",
-        "2026-06-29T05:00:00.000Z",
-        "2026-06-30T12:00:00.000Z",
-        "2026-07-01T12:00:00.000Z"
+        "2026-06-30T12:00:00.000Z"
       ]);
-      expect(after).not.toBe(before);
+      expect(after).toBe(before);
     } finally {
       vi.useRealTimers();
       process.chdir(previousCwd);
@@ -131,7 +124,7 @@ describe("initial page graph", () => {
     expect(linkedinFiltered.evidence.length).toBeGreaterThan(0);
   });
 
-  it("sizes Top Voices platform-filtered company circles from visible evidence only", async () => {
+  it("preserves canonical Top Voices scores and circle sizes when platform evidence is filtered", async () => {
     const { buildGraphResponse } = await import("@/lib/graph/graph-builder");
     const { ycSpring2026GraphDataset } = await import("@/lib/graph/yc-spring-2026-dataset");
     const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, ycSpring2026GraphDataset);
@@ -176,9 +169,9 @@ describe("initial page graph", () => {
     expect(filteredRow.biggestContribution?.id).toBe("synthetic-insider-x-evidence");
     expect(filteredNode.topPlatform).toBe("x");
     expect(filteredRow.topPlatform).toBe("x");
-    expect(filteredNode.score).toBeLessThan(originalNode.score);
-    expect(filteredRow.score).toBe(filteredNode.score);
-    expect(filteredNode.radius).not.toBe(originalNode.radius);
+    expect(filteredNode.score).toBe(originalNode.score);
+    expect(filteredRow.score).toBe(originalRow.score);
+    expect(filteredNode.radius).toBe(originalNode.radius);
     expect(originalRow.biggestContribution?.platform).toBe("linkedin");
   });
 });

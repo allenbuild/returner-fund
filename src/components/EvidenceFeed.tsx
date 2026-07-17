@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { EvidenceItem, Platform } from "@/lib/graph/types";
 import { EvidenceMediaCard } from "./EvidenceMediaCard";
+import { formatPlatform } from "./PlatformLogo";
 
 interface EvidenceFeedProps {
   items: EvidenceItem[];
@@ -90,21 +91,4 @@ export function EvidenceFeed({ items, compact = false }: EvidenceFeedProps) {
       </div>
     </section>
   );
-}
-
-function formatPlatform(platform: Platform): string {
-  const labels: Record<Platform, string> = {
-    github: "GitHub",
-    x: "X",
-    linkedin: "LinkedIn",
-    instagram: "Instagram",
-    product_hunt: "Product Hunt",
-    youtube: "YouTube",
-    rss: "RSS",
-    web: "Web",
-    reddit: "Reddit",
-    hacker_news: "Hacker News",
-    bilibili: "Bilibili"
-  };
-  return labels[platform];
 }

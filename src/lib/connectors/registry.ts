@@ -2,6 +2,7 @@ import { GitHubConnector } from "@/lib/connectors/github";
 import { InstagramPublicConnector } from "@/lib/connectors/instagram-public";
 import { LinkedInSafePlaceholderConnector } from "@/lib/connectors/linkedin-safe";
 import { ProductHuntConnector } from "@/lib/connectors/product-hunt";
+import { BlueskyUnavailableConnector, TikTokUnavailableConnector } from "@/lib/connectors/placeholders";
 import { RssConnector } from "@/lib/connectors/rss";
 import { WebSearchConnector } from "@/lib/connectors/web-search";
 import { XOfficialApiConnector } from "@/lib/connectors/x-official";
@@ -17,7 +18,9 @@ export function createDefaultConnectors(): SocialConnector[] {
     new RssConnector(),
     new InstagramPublicConnector(),
     new XOfficialApiConnector(),
-    new LinkedInSafePlaceholderConnector()
+    new LinkedInSafePlaceholderConnector(),
+    new TikTokUnavailableConnector(),
+    new BlueskyUnavailableConnector()
   ];
 }
 

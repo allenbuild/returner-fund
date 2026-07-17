@@ -13,7 +13,9 @@ export const PUBLIC_CONNECTOR_PLATFORMS: Platform[] = [
   "web",
   "reddit",
   "hacker_news",
-  "bilibili"
+  "bilibili",
+  "tiktok",
+  "bluesky"
 ];
 
 export type IngestionTaskStatus = "completed" | "needs_review" | "blocked_or_empty" | "skipped" | "queued";

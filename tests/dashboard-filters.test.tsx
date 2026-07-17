@@ -1,7 +1,19 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Dashboard } from "@/components/Dashboard";
-import type { GraphNode, GraphResponse, Platform } from "@/lib/graph/types";
+import { validateStaticGraphSnapshotContract } from "@/lib/graph/static-graph-snapshot-contract.mjs";
+import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
+import type {
+  EvidenceItem,
+  GraphNode,
+  GraphResponse,
+  Platform,
+  ScoreBreakdown,
+  TopVoiceAudienceId
+} from "@/lib/graph/types";
+
+const V4_MODEL_ID = "returner-traction";
+const V4_MODEL_VERSION = "4.0.0";
 
 vi.mock("@/components/CytoscapeGraph", () => ({
   CytoscapeGraph: ({ nodes }: { nodes: GraphNode[] }) => (
@@ -14,11 +26,26 @@ vi.mock("@/components/CytoscapeGraph", () => ({
 }));
 
 vi.mock("@/components/InsightsTabs", () => ({
-  InsightsTabs: () => <div data-testid="insights-tabs" />
+  InsightsTabs: ({ graph, onSelectNode }: { graph: GraphResponse; onSelectNode: (nodeId: string) => void }) => {
+    const leader = graph.leaderboard[0];
+    return (
+      <div data-testid="insights-tabs">
+        {leader && (
+          <button type="button" onClick={() => onSelectNode(`company:${leader.companyId}`)}>
+            Open leaderboard {leader.companyName}
+          </button>
+        )}
+      </div>
+    );
+  }
 }));
 
 vi.mock("@/components/NodePanel", () => ({
-  NodePanel: () => <aside data-testid="node-panel" />
+  NodePanel: ({ node }: { node: GraphNode | null }) => (
+    <aside data-testid="node-panel">
+      {node && <button type="button">Open profile {node.label}</button>}
+    </aside>
+  )
 }));
 
 describe("dashboard filters", () => {
@@ -107,6 +134,34 @@ describe("dashboard filters", () => {
     expect(screen.queryByText("Graph unavailable")).not.toBeInTheDocument();
   });
 
+  it("marks an initial uncached load busy and disables scope-specific filters", () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard />);
+
+    expect(screen.getByRole("region", { name: "Network map results" })).toHaveAttribute("aria-busy", "true");
+    const industryGroup = screen.getByText("Industry").closest(".filter-dropdown") as HTMLElement;
+    const groupPartnerGroup = screen.getByText("Group partner").closest(".filter-dropdown") as HTMLElement;
+    const platformGroup = screen.getByText("Platform").closest(".filter-dropdown") as HTMLElement;
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    expect(within(industryGroup).getByRole("button", { name: /all industries/i })).toBeDisabled();
+    expect(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i })).toBeDisabled();
+    expect(within(platformGroup).getByRole("button", { name: /all platforms/i })).toBeEnabled();
+    expect(within(topVoicesGroup).getByRole("button", { name: /all voices/i })).toBeEnabled();
+  });
+
+  it("omits the manual refresh control when production refresh is unavailable", () => {
+    const fullGraph = graphResponse([
+      makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} manualRefreshEnabled={false} />);
+
+    expect(screen.queryByRole("button", { name: /refresh/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /batch/i })).toBeInTheDocument();
+  });
+
   it("keeps the batch selector visible with Spring, Summer, and Speedrun available", () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
@@ -157,17 +212,15 @@ describe("dashboard filters", () => {
     await waitFor(() => expect(document.title).toBe("a16z Network Map"));
   });
 
-  it("fetches the static Top Voices graph when Top Voices changes", async () => {
+  it("fetches only the selected Top Voices snapshot", async () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
     ]);
-    const partnerGraph = {
-      ...fullGraph,
-      selectedTopVoiceAudience: fullGraph.topVoiceAudiences[1]!
-    };
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
+    const partnerGraph = withTopVoiceAudience(fullGraph, "yc_partners");
+    const insiderGraph = withTopVoiceAudience(fullGraph, "insiders");
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => ({
       ok: true,
-      json: async () => partnerGraph
+      json: async () => String(input).includes("insiders") ? insiderGraph : partnerGraph
     }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -175,6 +228,11 @@ describe("dashboard filters", () => {
 
     const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
     fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+
     fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
 
     await waitFor(() => {
@@ -182,17 +240,223 @@ describe("dashboard filters", () => {
     });
     const staticCall = fetchMock.mock.calls.find(([input]) => String(input).includes("/graph/s2026-yc-partners.json"));
     expect(staticCall?.[1]).toMatchObject({ cache: "force-cache" });
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("s2026-insiders.json"))).toBe(false);
     expect(window.location.search).toContain("topVoices=yc_partners");
   });
 
-  it("switches batches through the static snapshot before the delayed API refresh", async () => {
+  it("navigates Top Voices by keyboard and restores focus after selection", () => {
+    const fullGraph = graphResponse([
+      makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    const trigger = within(topVoicesGroup).getByRole("button", { name: /all voices/i });
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+
+    const allVoices = within(topVoicesGroup).getByRole("menuitemradio", { name: /all voices/i });
+    const partners = within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i });
+    const insiders = within(topVoicesGroup).getByRole("menuitemradio", { name: /Insiders/i });
+    expect(allVoices).toHaveFocus();
+
+    fireEvent.keyDown(allVoices, { key: "ArrowDown" });
+    expect(partners).toHaveFocus();
+    fireEvent.keyDown(partners, { key: "End" });
+    expect(insiders).toHaveFocus();
+    fireEvent.keyDown(insiders, { key: "Home" });
+    expect(allVoices).toHaveFocus();
+    fireEvent.keyDown(allVoices, { key: "ArrowUp" });
+    expect(insiders).toHaveFocus();
+
+    fireEvent.keyDown(insiders, { key: "Enter" });
+
+    expect(trigger).toHaveFocus();
+    expect(trigger).toHaveTextContent("Insiders");
+    expect(within(topVoicesGroup).queryByRole("menuitemradio")).not.toBeInTheDocument();
+    expect(new URLSearchParams(window.location.search).get("topVoices")).toBe("insiders");
+  });
+
+  it("falls through a fresh legacy static snapshot to the graph API", async () => {
+    const generatedAt = new Date().toISOString();
+    const legacyBase = graphResponse([
+      makeNode("company:legacy", "Fresh Legacy Snapshot", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const legacyStaticGraph: GraphResponse = {
+      ...legacyBase,
+      generatedAt,
+      scoringContext: {
+        ...legacyBase.scoringContext!,
+        modelId: "traction-score",
+        responseBuiltAt: generatedAt
+      }
+    };
+    const apiGraph = graphResponse([
+      makeNode("company:api", "Live API Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).startsWith("/graph/") ? legacyStaticGraph : apiGraph
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard />);
+
+    expect(await screen.findByText("Live API Graph")).toBeInTheDocument();
+    expect(screen.queryByText("Fresh Legacy Snapshot")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+  });
+
+  it("falls through a contradictory v4 static snapshot to the graph API", async () => {
+    const invalidStaticGraph = graphResponse([
+      makeNode("company:invalid", "Invalid Static Snapshot", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    invalidStaticGraph.nodes[0]!.scoreBreakdown!.totalScore = invalidStaticGraph.nodes[0]!.score + 1;
+    const apiGraph = graphResponse([
+      makeNode("company:api", "Canonical API Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).startsWith("/graph/") ? invalidStaticGraph : apiGraph
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard />);
+
+    expect(await screen.findByText("Canonical API Graph")).toBeInTheDocument();
+    expect(screen.queryByText("Invalid Static Snapshot")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+  });
+
+  it("falls through a valid static snapshot for the wrong graph scope", async () => {
+    const wrongScopeGraph = graphResponse(
+      [makeNode("company:wrong", "Wrong Batch Snapshot", "consumer", "#88CCF6", "Partner B")],
+      { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+    );
+    const apiGraph = graphResponse([
+      makeNode("company:api", "Correct Spring Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).startsWith("/graph/") ? wrongScopeGraph : apiGraph
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard />);
+
+    expect(await screen.findByText("Correct Spring Graph")).toBeInTheDocument();
+    expect(screen.queryByText("Wrong Batch Snapshot")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+  });
+
+  it("keeps stale controls inert during rapid audience switches and exposes only the final scope", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:default", "Default Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const partnerBaseGraph = graphResponse([
+      makeNode("company:partner", "Partner Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const partnerGraph = withTopVoiceAudience(
+      { ...partnerBaseGraph, generatedAt: new Date().toISOString() },
+      "yc_partners"
+    );
+    const insiderBaseGraph = graphResponse([
+      makeNode("company:insider", "Insider Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const insiderGraph = withTopVoiceAudience(
+      { ...insiderBaseGraph, generatedAt: new Date().toISOString() },
+      "insiders"
+    );
+    let resolvePartnerBody!: (graph: GraphResponse) => void;
+    let resolveInsiderBody!: (graph: GraphResponse) => void;
+    let partnerSignal: AbortSignal | undefined;
+    const partnerBody = new Promise<GraphResponse>((resolve) => {
+      resolvePartnerBody = resolve;
+    });
+    const insiderBody = new Promise<GraphResponse>((resolve) => {
+      resolveInsiderBody = resolve;
+    });
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      return {
+        ok: true,
+        json: async () => {
+          if (url.includes("s2026-yc-partners.json")) {
+            partnerSignal = init?.signal ?? undefined;
+            return partnerBody;
+          }
+          if (url.includes("s2026-insiders.json") || url.includes("topVoices=insiders")) {
+            return insiderBody;
+          }
+          return fullGraph;
+        }
+      };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    expect(screen.getByRole("button", { name: "Open profile Default Graph" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open leaderboard Default Graph" })).toBeInTheDocument();
+
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
+    await waitFor(() => expect(partnerSignal).toBeDefined());
+
+    const resultsRegion = screen.getByRole("region", { name: "Network map results" });
+    const resultsGrid = resultsRegion.querySelector(".dashboard-grid") as HTMLElement;
+    expect(screen.getByTestId("graph-canvas")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
+    expect(screen.queryByText("Loading YC map...")).not.toBeInTheDocument();
+    expect(screen.getByText("Refreshing graph")).toBeInTheDocument();
+    expect(resultsRegion).toHaveAttribute("aria-busy", "true");
+    expect(resultsGrid).toHaveAttribute("inert");
+    expect(within(resultsGrid).queryByText("Open profile Default Graph")).not.toBeInTheDocument();
+    expect(within(resultsGrid).queryByText("Open leaderboard Default Graph")).not.toBeInTheDocument();
+
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /YC Partners/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /Insiders/i }));
+
+    expect(partnerSignal?.aborted).toBe(true);
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
+
+    await act(async () => {
+      resolvePartnerBody(partnerGraph);
+      await Promise.resolve();
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Partner Graph")).not.toBeInTheDocument();
+    expect(within(resultsGrid).queryByText("Open profile Partner Graph")).not.toBeInTheDocument();
+    expect(within(resultsGrid).queryByText("Open leaderboard Partner Graph")).not.toBeInTheDocument();
+
+    await act(async () => {
+      resolveInsiderBody(insiderGraph);
+      await Promise.resolve();
+    });
+    expect(await screen.findByText("Insider Graph")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Default Graph")).not.toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Open profile Insider Graph" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open leaderboard Insider Graph" })).toBeInTheDocument();
+    expect(resultsRegion).toHaveAttribute("aria-busy", "false");
+    expect(resultsGrid).not.toHaveAttribute("inert");
+    expect(new URLSearchParams(window.location.search).get("topVoices")).toBe("insiders");
+  });
+
+  it("switches batches through a fresh static snapshot and revalidates once", async () => {
     vi.useFakeTimers();
     const springGraph = graphResponse([
       makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100)
     ]);
-    const speedrunGraph = graphResponse(
-      [makeNode("company:sun", "SUN", "consumer", "#88CCF6", "Partner A", 100)],
-      { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+    const speedrunGraph = withBenchmarkDates(
+      graphResponse(
+        [makeNode("company:sun", "SUN", "consumer", "#88CCF6", "Partner A", 100)],
+        { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+      ),
+      localDateIso(-1),
+      localDateIso(-7)
     );
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
@@ -218,14 +482,118 @@ describe("dashboard filters", () => {
     expect(
       fetchMock.mock.calls
         .some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
-    ).toBe(false);
+    ).toBe(true);
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(5_000);
+      await vi.advanceTimersByTimeAsync(10_000);
     });
     expect(
       fetchMock.mock.calls
-        .some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
-    ).toBe(true);
+        .filter(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
+    ).toHaveLength(1);
+  });
+
+  it("keeps the old graph and clears scope-specific filters while an uncached scope loads", async () => {
+    const springGraph = graphResponse([
+      makeNode("company:fintech", "Spring Fintech", "fintech", "#2563eb", "Partner A")
+    ]);
+    const speedrunGraph = graphResponse(
+      [makeNode("company:consumer", "Speedrun Consumer", "consumer", "#88CCF6", "Partner B")],
+      { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+    );
+    let resolveSpeedrun!: (response: { ok: boolean; json: () => Promise<GraphResponse> }) => void;
+    const speedrunResponse = new Promise<{ ok: boolean; json: () => Promise<GraphResponse> }>((resolve) => {
+      resolveSpeedrun = resolve;
+    });
+    const fetchMock = vi.fn((input: RequestInfo | URL) =>
+      String(input).includes("a16zsr006")
+        ? speedrunResponse
+        : new Promise<never>(() => undefined)
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={springGraph} />);
+    const industryGroup = screen.getByText("Industry").closest(".filter-dropdown") as HTMLElement;
+    const groupPartnerGroup = screen.getByText("Group partner").closest(".filter-dropdown") as HTMLElement;
+    const platformGroup = screen.getByText("Platform").closest(".filter-dropdown") as HTMLElement;
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(industryGroup).getByRole("button", { name: /all industries/i }));
+    fireEvent.click(within(industryGroup).getByRole("menuitemcheckbox", { name: /Fintech/i }));
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Spring Fintech")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
+
+    expect(screen.getByTestId("graph-canvas")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Spring Fintech")).toBeInTheDocument();
+    expect(screen.queryByText("Loading a16z map...")).not.toBeInTheDocument();
+    expect(screen.getByText("Refreshing graph")).toBeInTheDocument();
+    expect(within(industryGroup).getByRole("button", { name: /all industries/i })).toBeInTheDocument();
+    expect(within(industryGroup).getByRole("button", { name: /all industries/i })).toBeDisabled();
+    expect(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i })).toBeDisabled();
+    expect(within(platformGroup).getByRole("button", { name: /all platforms/i })).toBeEnabled();
+    expect(within(topVoicesGroup).getByRole("button", { name: /all voices/i })).toBeEnabled();
+    expect(new URLSearchParams(window.location.search).get("batch")).toBe("A16ZSR006");
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/graph/a16zsr006.json"))).toBe(true);
+    });
+
+    await act(async () => {
+      resolveSpeedrun({ ok: true, json: async () => speedrunGraph });
+      await Promise.resolve();
+    });
+
+    expect(await screen.findByText("Speedrun Consumer")).toBeInTheDocument();
+    expect(screen.queryByText("Spring Fintech")).not.toBeInTheDocument();
+    expect(within(industryGroup).getByRole("button", { name: /all industries/i })).toBeEnabled();
+    expect(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i })).toBeEnabled();
+    fireEvent.click(within(industryGroup).getByRole("button", { name: /all industries/i }));
+    expect(within(industryGroup).getByRole("menuitemcheckbox", { name: /Consumer\s*\(1\)/i })).toBeInTheDocument();
+    expect(within(industryGroup).queryByRole("menuitemcheckbox", { name: /Fintech/i })).not.toBeInTheDocument();
+  });
+
+  it("offers a direct retry after an uncached scope load fails", async () => {
+    vi.useFakeTimers();
+    const springGraph = graphResponse([
+      makeNode("company:spring", "Spring Company", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const speedrunGraph = graphResponse(
+      [makeNode("company:speedrun", "Recovered Speedrun", "consumer", "#88CCF6", "Partner B")],
+      { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
+    );
+    let failTargetScope = true;
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (!url.includes("a16zsr006") && !url.includes("batch=A16ZSR006")) {
+        return new Promise<Response>(() => undefined);
+      }
+      if (failTargetScope) {
+        return Promise.reject(new Error("Graph service unavailable"));
+      }
+      return Promise.resolve({ ok: true, json: async () => speedrunGraph } as Response);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={springGraph} />);
+    const resultsRegion = screen.getByRole("region", { name: "Network map results" });
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+
+    expect(resultsRegion).toHaveAttribute("aria-busy", "false");
+    expect(screen.getByText("Graph service unavailable")).toBeInTheDocument();
+    const retry = screen.getByRole("button", { name: /retry selected graph/i });
+
+    failTargetScope = false;
+    fireEvent.click(retry);
+    expect(resultsRegion).toHaveAttribute("aria-busy", "true");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Recovered Speedrun")).toBeInTheDocument();
+    expect(resultsRegion).toHaveAttribute("aria-busy", "false");
+    expect(screen.queryByRole("button", { name: /retry selected graph/i })).not.toBeInTheDocument();
   });
 
   it("renders a stale static graph immediately, then refreshes it through the API", async () => {
@@ -259,11 +627,6 @@ describe("dashboard filters", () => {
       await vi.advanceTimersByTimeAsync(0);
     });
     expect(within(screen.getByTestId("graph-canvas")).getByText("Stale Snapshot")).toBeInTheDocument();
-    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_200);
-    });
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
     expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
 
@@ -275,7 +638,7 @@ describe("dashboard filters", () => {
     expect(within(screen.getByTestId("graph-canvas")).queryByText("Stale Snapshot")).not.toBeInTheDocument();
   });
 
-  it("uses the fresh static graph snapshot for filtered initial loads, then refreshes from the API after the first paint", async () => {
+  it("uses a fresh static graph for filtered first paint while revalidating unfiltered", async () => {
     vi.useFakeTimers();
     const staticGraph = withBenchmarkDates(
       graphResponse([
@@ -285,26 +648,8 @@ describe("dashboard filters", () => {
       localDateIso(-1),
       localDateIso(-7)
     );
-    const apiGraph = withBenchmarkDates(
-      graphResponse([
-        makeNode("company:x-live", "Live API X", "b2b", "#7dd3fc", "Partner A", 90, "x"),
-        makeNode("company:github-only", "GitHub Only", "fintech", "#2563eb", "Partner B", 70, "github")
-      ]),
-      localDateIso(-1),
-      localDateIso(-7)
-    );
-    let resolveApiGraph!: (response: { ok: boolean; json: () => Promise<GraphResponse> }) => void;
-    const apiGraphResponse = new Promise<{ ok: boolean; json: () => Promise<GraphResponse> }>((resolve) => {
-      resolveApiGraph = resolve;
-    });
-
-    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-      const url = String(input);
-      if (url.startsWith("/api/graph")) {
-        return apiGraphResponse;
-      }
-      return { ok: true, json: async () => staticGraph };
-    });
+    expect(validateStaticGraphSnapshotContract(staticGraph)).toEqual({ ok: true, issues: [] });
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({ ok: true, json: async () => staticGraph }));
     vi.stubGlobal("fetch", fetchMock);
 
     render(<Dashboard initialFilters={{ platforms: ["x"] }} />);
@@ -315,32 +660,58 @@ describe("dashboard filters", () => {
     expect(within(screen.getByTestId("graph-canvas")).getByText("Static X Only")).toBeInTheDocument();
     expect(within(screen.getByTestId("graph-canvas")).queryByText("GitHub Only")).not.toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
-    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(5_000);
-    });
     expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
 
-    resolveApiGraph({ ok: true, json: async () => apiGraph });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(
+      fetchMock.mock.calls.filter(([input]) => String(input) === "/api/graph?batch=S2026")
+    ).toHaveLength(1);
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Static X Only")).toBeInTheDocument();
+  });
+
+  it("downloads a successful fresh static graph once and revalidates the API once", async () => {
+    vi.useFakeTimers();
+    const staticGraph = withBenchmarkDates(
+      graphResponse([makeNode("company:static", "Static First Paint", "b2b", "#7dd3fc", "Partner A")]),
+      localDateIso(-1),
+      localDateIso(-7)
+    );
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => staticGraph
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard />);
     await act(async () => {
       await vi.advanceTimersByTimeAsync(0);
     });
-    expect(within(screen.getByTestId("graph-canvas")).getByText("Live API X")).toBeInTheDocument();
-    expect(within(screen.getByTestId("graph-canvas")).queryByText("Static X Only")).not.toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Static First Paint")).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Static First Paint")).toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.filter(([input]) => String(input) === "/api/graph?batch=S2026").length
+    ).toBe(1);
+    expect(
+      fetchMock.mock.calls.filter(([input]) => String(input).startsWith("/graph/s2026.json")).length
+    ).toBe(1);
   });
 
-  it("does not rebuild a recent Top Voices snapshot when switching audiences", async () => {
+  it("switches to a cached API-revalidated Top Voices graph without another request", async () => {
     vi.useFakeTimers();
     const fullGraph = graphResponse([
-      makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
+      makeNode("company:default", "Default Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const partnerBaseGraph = graphResponse([
+      makeNode("company:cached-partner", "Cached Partner Graph", "b2b", "#7dd3fc", "Partner A")
     ]);
     const partnerGraph = withBenchmarkDates(
-      {
-        ...fullGraph,
-        generatedAt: new Date().toISOString(),
-        selectedTopVoiceAudience: fullGraph.topVoiceAudiences[1]!
-      },
+      withTopVoiceAudience(partnerBaseGraph, "yc_partners"),
       null,
       null
     );
@@ -354,18 +725,28 @@ describe("dashboard filters", () => {
     const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
     fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
     fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
-
     await act(async () => {
       await vi.advanceTimersByTimeAsync(0);
     });
-    expect(within(screen.getByTestId("graph-canvas")).getByText("HeyClicky")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Cached Partner Graph")).toBeInTheDocument();
+    const requestsAfterFirstLoad = fetchMock.mock.calls.length;
+
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /YC Partners/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /all voices/i }));
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
+
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Cached Partner Graph")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(requestsAfterFirstLoad);
+
     await act(async () => {
       await vi.advanceTimersByTimeAsync(10_000);
     });
-    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/api/graph"))).toBe(false);
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/api/graph"))).toHaveLength(1);
   });
 
-  it("filters minimum score locally without waiting for a graph request", async () => {
+  it("filters minimum score locally and derives a valid selection without waiting for a graph request", async () => {
     const fullGraph = graphResponse([
       makeNode("company:low", "Low Score", "b2b", "#7dd3fc", "Partner A", 20),
       makeNode("company:high", "High Score", "fintech", "#2563eb", "Partner B", 90)
@@ -381,6 +762,7 @@ describe("dashboard filters", () => {
     const canvas = screen.getByTestId("graph-canvas");
     expect(within(canvas).getByText("Low Score")).toBeInTheDocument();
     expect(within(canvas).getByText("High Score")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open profile Low Score" })).toBeInTheDocument();
 
     const minimumScore = screen.getByLabelText("Minimum score");
     fireEvent.change(minimumScore, { target: { value: "80" } });
@@ -389,8 +771,166 @@ describe("dashboard filters", () => {
     await waitFor(() => {
       expect(within(screen.getByTestId("graph-canvas")).queryByText("Low Score")).not.toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).getByText("High Score")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Open profile High Score" })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Open profile Low Score" })).not.toBeInTheDocument();
     });
     expect(fetch).not.toHaveBeenCalledWith(expect.stringContaining("minScore=80"), expect.any(Object));
+  });
+
+  it("keeps the route-backed platform filter symmetric with URL state", () => {
+    const fullGraph = graphResponse([
+      makeNode("company:x", "X Company", "b2b", "#7dd3fc", "Partner A", 80, "x")
+    ]);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    const platformGroup = screen.getByText("Platform").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(platformGroup).getByRole("button", { name: /all platforms/i }));
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /^X$/i }));
+
+    expect(new URLSearchParams(window.location.search).get("platforms")).toBe("x");
+
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /all platforms/i }));
+    expect(new URLSearchParams(window.location.search).has("platforms")).toBe(false);
+  });
+
+  it("keeps canonical search rank after a platform filter removes higher-ranked companies", () => {
+    const fullGraph = graphResponse([
+      makeNode("company:github", "GitHub Leader", "b2b", "#7dd3fc", "Partner A", 90, "github"),
+      makeNode("company:x", "X Company", "fintech", "#2563eb", "Partner B", 80, "x")
+    ]);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} initialFilters={{ platforms: ["x"] }} />);
+    fireEvent.change(screen.getByPlaceholderText("Jump to company or founder"), {
+      target: { value: "X Company" }
+    });
+
+    expect(screen.getByText("#2, Score: 80")).toBeInTheDocument();
+    expect(screen.queryByText("#1, Score: 80")).not.toBeInTheDocument();
+  });
+
+  it("uses tied canonical search ranks from a Top Voice audience subset", () => {
+    const audienceGraph = withTopVoiceAudience(
+      graphResponse([
+        makeNode("company:partner-a", "Partner Match A", "b2b", "#7dd3fc", "Partner A", 80, "x"),
+        makeNode("company:partner-b", "Partner Match B", "fintech", "#2563eb", "Partner B", 80, "x")
+      ]),
+      "yc_partners"
+    );
+    audienceGraph.leaderboard = audienceGraph.leaderboard.map((row) => ({ ...row, rank: 3 }));
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={audienceGraph} initialTopVoiceAudience="yc_partners" />);
+    fireEvent.change(screen.getByPlaceholderText("Jump to company or founder"), {
+      target: { value: "Partner Match" }
+    });
+
+    expect(screen.getAllByText("#3, Score: 80")).toHaveLength(2);
+    expect(screen.queryByText("#1, Score: 80")).not.toBeInTheDocument();
+    expect(screen.queryByText("#2, Score: 80")).not.toBeInTheDocument();
+  });
+
+  it("shows a truthful empty state when active filters remove every company", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:low", "Low Score", "b2b", "#7dd3fc", "Partner A", 20)
+    ]);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    fireEvent.change(screen.getByLabelText("Minimum score value"), { target: { value: "80" } });
+    fireEvent.blur(screen.getByLabelText("Minimum score value"));
+
+    expect(await screen.findByText("No companies match the active filters.")).toBeInTheDocument();
+    expect(screen.queryByText(/No companies have traction from this Top Voices audience/i)).not.toBeInTheDocument();
+  });
+
+  it("stores a fresh unfiltered graph after a filtered manual refresh", async () => {
+    const initialGraph = graphResponse([
+      makeNode("company:old", "Old Snapshot", "b2b", "#7dd3fc", "Partner A", 70, "x")
+    ]);
+    const filteredRefreshGraph = graphResponse([
+      makeNode("company:fresh-x", "Fresh X Evidence", "fintech", "#2563eb", "Partner B", 90, "x")
+    ]);
+    const unfilteredFreshGraph = graphResponse([
+      makeNode("company:fresh-x", "Fresh X Evidence", "fintech", "#2563eb", "Partner B", 90, "x"),
+      makeNode("company:fresh-github", "Fresh GitHub Evidence", "healthcare", "#16a34a", "Partner C", 80, "github")
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input) === "/api/graph/refresh") {
+        return {
+          ok: true,
+          json: async () => ({ graph: filteredRefreshGraph, status: "completed" })
+        };
+      }
+      return { ok: true, json: async () => unfilteredFreshGraph };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={initialGraph} />);
+    const platformGroup = screen.getByText("Platform").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(platformGroup).getByRole("button", { name: /all platforms/i }));
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /^X$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /refresh/i }));
+
+    expect(await screen.findByText("Fresh X Evidence")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+    });
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("platforms=x"))).toBe(false);
+
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /all platforms/i }));
+
+    expect(await screen.findByText("Fresh GitHub Evidence")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Old Snapshot")).not.toBeInTheDocument();
+    const industryGroup = screen.getByText("Industry").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(industryGroup).getByRole("button", { name: /all industries/i }));
+    expect(within(industryGroup).getByRole("menuitemcheckbox", { name: /Healthcare\s*\(1\)/i })).toBeInTheDocument();
+  });
+
+  it("keeps fresh filtered refresh metadata when the unfiltered fetch fails", async () => {
+    vi.useFakeTimers();
+    const initialGraph = graphResponse([
+      makeNode("company:old", "Old Snapshot", "b2b", "#7dd3fc", "Partner A", 70, "x")
+    ]);
+    const filteredRefreshGraph = graphResponse([
+      makeNode("company:fresh", "Fresh Live Evidence", "fintech", "#2563eb", "Partner B", 95, "x")
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input) === "/api/graph/refresh") {
+        return {
+          ok: true,
+          json: async () => ({ graph: filteredRefreshGraph, status: "completed" })
+        };
+      }
+      return { ok: false, status: 503, json: async () => ({}) };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={initialGraph} />);
+    const platformGroup = screen.getByText("Platform").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(platformGroup).getByRole("button", { name: /all platforms/i }));
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /^X$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /refresh/i }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Fresh Live Evidence")).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_000);
+    });
+    expect(fetchMock.mock.calls.filter(([input]) => String(input) === "/api/graph?batch=S2026")).toHaveLength(3);
+
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /all platforms/i }));
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Fresh Live Evidence")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Old Snapshot")).not.toBeInTheDocument();
+
+    const industryGroup = screen.getByText("Industry").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(industryGroup).getByRole("button", { name: /all industries/i }));
+    expect(within(industryGroup).getByRole("menuitemcheckbox", { name: /Fintech\s*\(1\)/i })).toBeInTheDocument();
+    expect(within(industryGroup).queryByRole("menuitemcheckbox", { name: /B2B/i })).not.toBeInTheDocument();
   });
 
   it("shows API-level refresh failures instead of treating every HTTP 200 as success", async () => {
@@ -403,7 +943,6 @@ describe("dashboard filters", () => {
           ok: true,
           json: async () => ({
             graph: fullGraph,
-            status: "failed",
             errors: ["Live refresh finished without accepted evidence. Top reasons: no_status_ids:1."],
             refreshSummary: {
               status: "failed",
@@ -428,13 +967,155 @@ describe("dashboard filters", () => {
     expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
   });
 
-  it("keeps polling the graph API after a manual refresh times out until fresh rows surface", async () => {
+  it("surfaces structured refresh errors from non-success responses", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100, "x")
+    ]);
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input) === "/api/graph/refresh") {
+        return {
+          ok: false,
+          status: 503,
+          json: async () => ({
+            status: "failed",
+            errors: ["Refresh storage is temporarily unavailable."],
+            error: { code: "refresh_storage_unavailable" }
+          })
+        };
+      }
+      return { ok: true, json: async () => fullGraph };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    fireEvent.click(screen.getByRole("button", { name: /refresh/i }));
+
+    expect(await screen.findByText("Refresh storage is temporarily unavailable.")).toBeInTheDocument();
+    expect(screen.queryByText(/request failed with 503/i)).not.toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
+  });
+
+  it("cancels an active refresh immediately when the graph scope changes", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100, "x")
+    ]);
+    let refreshSignal: AbortSignal | undefined;
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "/api/graph/refresh") {
+        refreshSignal = init?.signal ?? undefined;
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), { once: true });
+        });
+      }
+      return new Promise<Response>(() => undefined);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    fireEvent.click(screen.getByRole("button", { name: /refresh/i }));
+    await waitFor(() => expect(refreshSignal).toBeDefined());
+
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
+
+    expect(refreshSignal?.aborted).toBe(true);
+    expect(screen.queryByText(/timed out|request failed|cancelled/i)).not.toBeInTheDocument();
+  });
+
+  it("aborts and ignores an older graph response after a fresh manual refresh", async () => {
+    vi.useFakeTimers();
+    const initialGraph = graphResponse([
+      makeNode("company:initial", "Initial Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const staleGraph = graphResponse([
+      makeNode("company:stale", "Stale Background Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const freshGraph = graphResponse([
+      makeNode("company:fresh", "Fresh Manual Graph", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    let resolveStaleBody!: (graph: GraphResponse) => void;
+    let staleRequestSignal: AbortSignal | undefined;
+    const staleBody = new Promise<GraphResponse>((resolve) => {
+      resolveStaleBody = resolve;
+    });
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/graph?batch=S2026") {
+        staleRequestSignal = init?.signal ?? undefined;
+        return {
+          ok: true,
+          json: async () => staleBody
+        };
+      }
+      if (url === "/api/graph/refresh") {
+        return {
+          ok: true,
+          json: async () => ({ graph: freshGraph, status: "completed" })
+        };
+      }
+      return { ok: true, json: async () => initialGraph };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={initialGraph} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_400);
+    });
+    expect(staleRequestSignal).toBeDefined();
+    expect(staleRequestSignal?.aborted).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: /refresh/i }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Fresh Manual Graph")).toBeInTheDocument();
+    expect(staleRequestSignal?.aborted).toBe(true);
+
+    await act(async () => {
+      resolveStaleBody(staleGraph);
+      await Promise.resolve();
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Fresh Manual Graph")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Stale Background Graph")).not.toBeInTheDocument();
+  });
+
+  it("keeps the refresh timeout active while the response body is pending", async () => {
+    vi.useFakeTimers();
+    const fullGraph = graphResponse([
+      makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100, "x")
+    ]);
+    let refreshSignal: AbortSignal | undefined;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "/api/graph/refresh") {
+        refreshSignal = init?.signal ?? undefined;
+        return {
+          ok: true,
+          json: () => new Promise<never>(() => undefined)
+        };
+      }
+      return { ok: true, json: async () => fullGraph };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    fireEvent.click(screen.getByRole("button", { name: /refresh/i }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(44_999);
+    });
+    expect(refreshSignal).toBeDefined();
+    expect(refreshSignal?.aborted).toBe(false);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+    expect(refreshSignal?.aborted).toBe(true);
+    expect(screen.getByText(/Refresh timed out and was cancelled/i)).toBeInTheDocument();
+    expect(screen.queryByText("Request timed out after 45s")).not.toBeInTheDocument();
+  });
+
+  it("cancels a timed-out manual refresh without claiming a background job or polling", async () => {
     vi.useFakeTimers();
     const staleGraph = graphResponse([
       makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 80, "x")
-    ]);
-    const liveGraph = graphResponse([
-      makeNode("company:screenpipe", "screenpipe live", "b2b", "#7dd3fc", "Partner A", 100, "x")
     ]);
     let graphApiCalls = 0;
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
@@ -448,7 +1129,7 @@ describe("dashboard filters", () => {
         graphApiCalls += 1;
         return Promise.resolve({
           ok: true,
-          json: async () => (graphApiCalls >= 3 ? liveGraph : staleGraph)
+          json: async () => staleGraph
         } as Response);
       }
       return Promise.resolve({
@@ -472,19 +1153,13 @@ describe("dashboard filters", () => {
       await vi.advanceTimersByTimeAsync(45_000);
     });
 
-    expect(screen.getByText(/Refresh is still running/i)).toBeInTheDocument();
+    expect(screen.getByText(/Refresh timed out and was cancelled/i)).toBeInTheDocument();
+    expect(screen.queryByText(/still running/i)).not.toBeInTheDocument();
+    const callsAfterTimeout = graphApiCalls;
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_500);
+      await vi.advanceTimersByTimeAsync(60_000);
     });
-    expect(within(screen.getByTestId("graph-canvas")).queryByText("screenpipe live")).not.toBeInTheDocument();
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(5_000);
-    });
-    expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe live")).toBeInTheDocument();
-    expect(
-      fetchMock.mock.calls.filter(([input]) => String(input) === "/api/graph?batch=S2026").length
-    ).toBeGreaterThanOrEqual(2);
+    expect(graphApiCalls).toBe(callsAfterTimeout);
   });
 });
 
@@ -492,7 +1167,29 @@ function graphResponse(
   nodes: GraphNode[],
   batch = { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 }
 ): GraphResponse {
-  const batchNodes = nodes.map((node) => ({ ...node, batchSlug: batch.slug }));
+  const evidence = nodes.map(testEvidenceForNode);
+  const batchNodes = nodes.map((node) => ({
+    ...node,
+    batchSlug: batch.slug,
+    evidenceIds: [testEvidenceId(node)],
+    scoreBreakdown: node.scoreBreakdown ?? testScoreBreakdown(node)
+  }));
+  const leaderboard = batchNodes.map((node, index) => ({
+    rank: index + 1,
+    companyId: node.entityId,
+    companyName: node.label,
+    score: node.score,
+    topPlatform: node.topPlatform,
+    socialAccounts: [],
+    biggestContribution: null
+  }));
+  const fastestGaining = leaderboard.map((row) => ({
+    rank: row.rank,
+    companyId: row.companyId,
+    companyName: row.companyName,
+    dod: unbenchmarkedMomentum(row.score, row.rank),
+    wow: unbenchmarkedMomentum(row.score, row.rank)
+  }));
 
   return {
     batch,
@@ -503,18 +1200,10 @@ function graphResponse(
     ],
     nodes: batchNodes,
     edges: [],
-    leaderboard: batchNodes.map((node, index) => ({
-      rank: index + 1,
-      companyId: node.entityId,
-      companyName: node.label,
-      score: node.score,
-      topPlatform: node.topPlatform,
-      socialAccounts: [],
-      biggestContribution: null
-    })),
-    fastestGaining: [],
+    leaderboard,
+    fastestGaining,
     needsReview: [],
-    evidence: [],
+    evidence,
     platformStatus: [],
     selectedTopVoiceAudience: {
       id: "off",
@@ -559,13 +1248,157 @@ function graphResponse(
       }
     ],
     generatedAt: "2026-06-29T00:00:00.000Z",
+    scoringContext: {
+      modelId: V4_MODEL_ID,
+      modelVersion: V4_MODEL_VERSION,
+      modelName: "returner-traction-v4-canonical",
+      scoreScope: "all_platforms",
+      selectedPlatforms: [],
+      responseBuiltAt: "2026-06-29T00:00:00.000Z",
+      evidenceAsOf: "2026-06-29T00:00:00.000Z"
+    },
     mode: "official_snapshot"
   };
 }
 
-function withBenchmarkDates(graph: GraphResponse, dodBenchmarkedAt: string | null, wowBenchmarkedAt: string | null): GraphResponse {
+function withTopVoiceAudience(graph: GraphResponse, audienceId: TopVoiceAudienceId): GraphResponse {
+  const audience = graph.topVoiceAudiences.find((item) => item.id === audienceId)!;
   return {
     ...graph,
+    selectedTopVoiceAudience: audience,
+    nodes: graph.nodes.map((node) => ({ ...node, selectedTopVoiceAudience: audience })),
+    evidence: graph.evidence.map((item) => ({
+      ...item,
+      topVoice: {
+        audienceId,
+        memberId: `${audienceId}-member`,
+        displayName: audience.displayName,
+        category: "test",
+        weight: 1,
+        matchedBy: "dashboard test fixture",
+        originalContributionScore: item.contributionScore
+      }
+    })),
+    scoringContext: graph.scoringContext
+      ? {
+          ...graph.scoringContext,
+          responseBuiltAt: graph.generatedAt
+        }
+      : undefined
+  };
+}
+
+function unbenchmarkedMomentum(currentScore: number, currentRank: number) {
+  return {
+    scoreDelta: 0,
+    percentDelta: 0,
+    rankDelta: 0,
+    currentScore,
+    currentRank,
+    baselineScore: null,
+    baselineRank: null,
+    benchmarkedAt: null
+  };
+}
+
+function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
+  const platform = node.topPlatform ?? "github";
+  const platformScore = node.platformScores[platform] ?? node.score;
+  return {
+    modelId: V4_MODEL_ID,
+    modelVersion: V4_MODEL_VERSION,
+    modelName: "returner-traction-v4-canonical",
+    totalScore: node.score,
+    absoluteScore: node.score,
+    weightedAvailableScore: node.score,
+    coverageFactor: 1,
+    platformsWithEvidence: 1,
+    totalSupportedPlatforms: 1,
+    platformScores: { ...node.platformScores },
+    weightedPlatforms: [{
+      platform,
+      score: platformScore,
+      configuredWeight: TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0,
+      appliedWeight: 1,
+      contribution: platformScore,
+      evidenceCount: 1
+    }],
+    signalFamilyScores: {
+      reach: node.score,
+      engagement: node.score,
+      developerAdoption: 0,
+      launchAndCommunity: 0,
+      momentum: 0
+    },
+    confidence: {
+      level: "medium",
+      value: 0.5,
+      reasons: ["Dashboard fixture has one verified evidence row."],
+      scoredEvidenceCount: 1,
+      datedEvidenceCount: 1,
+      verifiedLinkCount: 1
+    },
+    calibration: {
+      method: "none",
+      cohortSize: 0,
+      percentile: null,
+      inputScore: node.score
+    },
+    limitations: [],
+    evidenceAsOf: "2026-06-29T00:00:00.000Z",
+    explanation: "Dashboard v4 contract fixture."
+  };
+}
+
+function testEvidenceId(node: GraphNode): string {
+  return `evidence-${node.entityId}-${node.topPlatform ?? "github"}`;
+}
+
+function testEvidenceForNode(node: GraphNode): EvidenceItem {
+  const platform = node.topPlatform ?? "github";
+  const contributionScore = node.platformScores[platform] ?? node.score;
+  return {
+    id: testEvidenceId(node),
+    entityType: "company",
+    entityId: node.entityId,
+    platform,
+    authorName: node.label,
+    authorHandle: node.entityId,
+    postedAt: "2026-06-29T00:00:00.000Z",
+    publishedAtPrecision: "exact",
+    text: `${node.label} traction update`,
+    mediaType: platform === "github" ? "repo" : "text",
+    metrics: platform === "github" ? { stars: 100 } : { views: 10_000 },
+    contributionScore,
+    normalizedScore: contributionScore,
+    linkStatus: "verified",
+    linkCheckedAt: "2026-06-29T00:00:00.000Z",
+    sourceUrl:
+      platform === "github"
+        ? `https://github.com/test/${node.entityId}`
+        : `https://x.com/${node.entityId}/status/${Math.abs(hashText(node.entityId)) + 1}`,
+    platformPostId: `${Math.abs(hashText(node.entityId)) + 1}`,
+    why: "Dashboard test evidence.",
+    attachedCompanyId: node.entityId,
+    attachedCompanyName: node.label,
+    review_state: "verified"
+  };
+}
+
+function hashText(value: string): number {
+  let hash = 0;
+  for (const character of value) hash = Math.imul(hash, 31) + character.charCodeAt(0) | 0;
+  return hash;
+}
+
+function withBenchmarkDates(graph: GraphResponse, dodBenchmarkedAt: string | null, wowBenchmarkedAt: string | null): GraphResponse {
+  const generatedAt = new Date().toISOString();
+  return {
+    ...graph,
+    generatedAt,
+    scoringContext: graph.scoringContext
+      ? { ...graph.scoringContext, responseBuiltAt: generatedAt }
+      : undefined,
     fastestGaining: graph.leaderboard.map((row) => ({
       rank: row.rank,
       companyId: row.companyId,

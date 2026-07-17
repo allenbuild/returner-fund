@@ -1,0 +1,145 @@
+Scoring v4 working-tree changed-path manifest
+Generated: 2026-07-17
+Format: git status --short -uall
+
+ M .github/workflows/daily-benchmarks.yml
+ M docs/SCORING_EXPERIMENTS.md
+ M docs/SCORING_MODEL.md
+ M next.config.mjs
+ M outputs/benchmarks/a16zsr006-score-benchmarks.json
+ M outputs/benchmarks/s2026-score-benchmarks.json
+ M outputs/benchmarks/s26-score-benchmarks.json
+ M package.json
+ M public/graph/a16zsr006-insiders.json
+ M public/graph/a16zsr006-yc-partners.json
+ M public/graph/a16zsr006.json
+ M public/graph/s2026-insiders.json
+ M public/graph/s2026-yc-partners.json
+ M public/graph/s2026.json
+ M public/graph/s26-insiders.json
+ M public/graph/s26-yc-partners.json
+ M public/graph/s26.json
+ M scripts/run-scoring-experiments.mjs
+ M scripts/update-daily-benchmarks.mjs
+ M src/app/api/evidence-thumbnail/route.ts
+ M src/app/api/graph/refresh/route.ts
+ M src/app/api/graph/route.ts
+ M src/app/api/ingest/batch/route.ts
+ M src/app/globals.css
+ M src/app/page.tsx
+ M src/components/Dashboard.tsx
+ M src/components/EvidenceFeed.tsx
+ M src/components/EvidenceMediaCard.tsx
+ M src/components/InsightsTabs.tsx
+ M src/components/NodePanel.tsx
+ M src/components/PlatformLogo.tsx
+ M src/lib/connectors/placeholders.ts
+ M src/lib/connectors/registry.ts
+ M src/lib/graph/a16z-speedrun-006-dataset.ts
+ M src/lib/graph/benchmark-freshness.ts
+ M src/lib/graph/benchmarks.ts
+ M src/lib/graph/client-filters.ts
+ M src/lib/graph/dedupe.ts
+ M src/lib/graph/evidence-attribution.ts
+ M src/lib/graph/evidence-display.ts
+ M src/lib/graph/evidence-thumbnails.ts
+ M src/lib/graph/generated-evidence-thumbnail.ts
+ M src/lib/graph/graph-builder.ts
+ M src/lib/graph/graph-response-cache.ts
+ M src/lib/graph/layout.ts
+ M src/lib/graph/live-evidence-dataset.ts
+ M src/lib/graph/live-evidence-overlay.ts
+ M src/lib/graph/response-sanitizer.ts
+ M src/lib/graph/search.ts
+ M src/lib/graph/traction-scoring-config.ts
+ M src/lib/graph/traction-scoring.ts
+ M src/lib/graph/types.ts
+ M src/lib/graph/yc-spring-2026-dataset.ts
+ M src/lib/ingestion/live-source-refresh.ts
+ M src/lib/ingestion/public-data-debug.ts
+ M src/lib/scoring/aggregation.ts
+ M src/lib/scoring/formulas.ts
+ M src/lib/scoring/model.ts
+ M src/lib/scoring/percentiles.ts
+ M src/lib/scoring/types.ts
+ M src/lib/workers/ingest-batch.ts
+ M src/lib/workers/types.ts
+ M src/types/database.ts
+ M src/types/domain.ts
+ M tests/a16z-speedrun-006-dataset.test.ts
+ M tests/api/graph-refresh-live-route.test.ts
+ M tests/api/ingest-batch-route.test.ts
+ M tests/benchmark-freshness.test.ts
+ M tests/connectors/limitations.test.ts
+ M tests/dashboard-filters.test.tsx
+ M tests/evidence-card.test.tsx
+ M tests/evidence-dedupe.test.ts
+ M tests/evidence-thumbnails.test.ts
+ M tests/graph-builder.test.ts
+ M tests/graph-search.test.ts
+ M tests/initial-page-graph.test.ts
+ M tests/insights-tabs.test.tsx
+ M tests/live-evidence-dataset.test.ts
+ M tests/live-evidence-overlay.test.ts
+ M tests/live-source-refresh.test.ts
+ M tests/node-panel.test.tsx
+ M tests/public-data-debug.test.ts
+ M tests/score-benchmarks.test.ts
+ M tests/scoring.test.ts
+ M tests/yc-spring-2026-dataset.test.ts
+ M tests/yc-traction-regressions.test.ts
+?? .github/workflows/public-artifacts.yml
+?? docs/SCORING_V4_AUDIT.md
+?? docs/SCORING_V4_FINAL_REPORT.md
+?? docs/SCORING_V4_SOURCE_AND_PIPELINE_AUDIT.md
+?? docs/outputs/scoring-diagnostics-v4-audit.json
+?? docs/outputs/scoring-diagnostics-v4-report.md
+?? docs/outputs/scoring-experiments-v4.json
+?? docs/outputs/scoring-experiments-v4.md
+?? docs/outputs/scoring-v4-changed-files.txt
+?? eslint.config.mjs
+?? scripts/lib/scoring-diagnostics-ts-loader.mjs
+?? scripts/ops/apply-scoring-v4-migrations.mjs
+?? scripts/ops/check-scoring-v4-experiment-parity.mjs
+?? scripts/ops/prepare-scoring-v4-rollback.mjs
+?? scripts/ops/publish-scoring-v4-artifacts.mjs
+?? scripts/ops/scoring-v4-ops-lib.mjs
+?? scripts/run-scoring-diagnostics-v4.mjs
+?? scripts/validate-public-artifacts.mjs
+?? src/lib/graph/platform-status.ts
+?? src/lib/graph/static-graph-snapshot-contract.d.mts
+?? src/lib/graph/static-graph-snapshot-contract.mjs
+?? src/lib/scoring/batch-calibration.ts
+?? src/lib/scoring/traction-config.ts
+?? src/lib/time/central-day.ts
+?? supabase/migrations/004_traction_scoring_evidence_lineage.sql
+?? supabase/migrations/005_harden_public_table_access.sql
+?? supabase/migrations/006_add_tiktok_bluesky_platforms.sql
+?? supabase/migrations/007_register_traction_scoring_v4.sql
+?? tests/api/graph-central-day-cache.test.ts
+?? tests/api/graph-live-persistence-route.test.ts
+?? tests/api/graph-platform-route.test.ts
+?? tests/api/graph-query-validation-route.test.ts
+?? tests/api/graph-recomputation-route.test.ts
+?? tests/api/graph-response-cache-route.test.ts
+?? tests/central-day.test.ts
+?? tests/client-filters.test.ts
+?? tests/database-security-migration.test.ts
+?? tests/database-traction-schema.test.ts
+?? tests/database-v4-model-migration.test.ts
+?? tests/evidence-attribution-proof-integrity.test.ts
+?? tests/graph-response-cache.test.ts
+?? tests/ops/scoring-v4-release-ops.node-test.mjs
+?? tests/page-refresh-capability.test.tsx
+?? tests/platform-forward-compat.test.ts
+?? tests/scoring-dataset-contracts-v4.test.ts
+?? tests/scoring-diagnostics-v4.node-test.mjs
+?? tests/static-graph-snapshot-contract.test.ts
+?? tests/top-voice-cache-signatures.test.ts
+?? tests/traction-config-validation.test.ts
+?? tests/traction-scoring-v4-adversarial-properties.test.ts
+?? tests/traction-scoring-v4-redteam-regressions.test.ts
+?? tests/traction-scoring-v4.test.ts
+?? tests/update-daily-benchmarks.test.mjs
+?? tests/validate-public-artifacts-real-data.test.mjs
+?? tests/validate-public-artifacts.node-test.mjs

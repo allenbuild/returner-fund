@@ -50,6 +50,67 @@ describe("EvidenceMediaCard", () => {
     expect(screen.queryByText(/^open$/i)).not.toBeInTheDocument();
   });
 
+  it.each([
+    {
+      platform: "x" as const,
+      metrics: { comments: 7, replies: 5 },
+      expected: "7 comments"
+    },
+    {
+      platform: "linkedin" as const,
+      metrics: { reactions: 6, likes: 8, comments: 5, replies: 7, reposts: 3, shares: 4 },
+      expected: "8 reactions / 7 comments / 4 reposts"
+    }
+  ])(
+    "collapses $platform metric aliases into canonical displayed counts",
+    ({ platform, metrics, expected }) => {
+      const item: EvidenceItem = {
+        id: `ev-${platform}-aliases`,
+        entityType: "company",
+        entityId: "company-aliases",
+        platform,
+        authorName: "Alias Co",
+        authorHandle: "aliasco",
+        postedAt: "2026-07-15T00:00:00.000Z",
+        text: "Alias Co shipped an update.",
+        mediaType: "text",
+        metrics,
+        contributionScore: 42,
+        sourceUrl:
+          platform === "x" ? "https://x.com/aliasco/status/1" : "https://www.linkedin.com/posts/aliasco_1",
+        why: "Canonical metric display regression."
+      };
+
+      const { container } = render(<EvidenceMediaCard item={item} />);
+
+      expect(container.querySelector(".evidence-card-stats")?.textContent).toBe(expected);
+    }
+  );
+
+  it("uses singular labels for metric values of one", () => {
+    const item: EvidenceItem = {
+      id: "ev-singular-metrics",
+      entityType: "company",
+      entityId: "company-singular",
+      platform: "x",
+      authorName: "Singular Co",
+      authorHandle: "singularco",
+      postedAt: "2026-07-15T00:00:00.000Z",
+      text: "Singular Co shipped an update.",
+      mediaType: "text",
+      metrics: { views: 1, likes: 1, replies: 1, reposts: 1 },
+      contributionScore: 42,
+      sourceUrl: "https://x.com/singularco/status/1",
+      why: "Singular metric label regression."
+    };
+
+    const { container } = render(<EvidenceMediaCard item={item} />);
+
+    expect(container.querySelector(".evidence-card-stats")?.textContent).toBe(
+      "1 view / 1 like / 1 comment / 1 repost"
+    );
+  });
+
   it("replaces a generic source title with descriptive post text and its publication date", () => {
     const item: EvidenceItem = {
       id: "ev-farza-screen-aware-dictation",
@@ -131,7 +192,7 @@ describe("EvidenceMediaCard", () => {
     expect(screen.queryByText(/preview pending/i)).not.toBeInTheDocument();
   });
 
-  it("falls through to a generated thumbnail if native media fails", () => {
+  it("falls through to a generated thumbnail and resets failures for a new item", () => {
     const item: EvidenceItem = {
       id: "ev-broken-native",
       entityType: "company",
@@ -150,7 +211,7 @@ describe("EvidenceMediaCard", () => {
       why: "Visible Instagram traction."
     };
 
-    const { container } = render(<EvidenceMediaCard item={item} />);
+    const { container, rerender } = render(<EvidenceMediaCard item={item} />);
     const nativeImg = container.querySelector("img");
 
     expect(nativeImg).toHaveAttribute("src", item.thumbnailUrl);
@@ -160,6 +221,10 @@ describe("EvidenceMediaCard", () => {
     expect(generatedImg?.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
     expect(decodeDataImage(generatedImg?.getAttribute("src"))).toContain("Instagram");
     expect(container.querySelector(".evidence-thumbnail-fallback")).not.toBeInTheDocument();
+
+    rerender(<EvidenceMediaCard item={{ ...item, id: "ev-next-item" }} />);
+
+    expect(container.querySelector("img")).toHaveAttribute("src", item.thumbnailUrl);
   });
 
   it("uses native Instagram CDN covers before generated fallback", () => {
@@ -187,6 +252,37 @@ describe("EvidenceMediaCard", () => {
     const imageSrc = container.querySelector("img")?.getAttribute("src");
     expect(imageSrc).toBe(item.thumbnailUrl);
     expect(screen.queryByText(/cover blocked/i)).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ["tiktok", "TikTok", "https://www.tiktok.com/@acme/video/7512345678901234567"],
+    ["bluesky", "Bluesky", "https://bsky.app/profile/acme.example/post/3ltforwardcompat"]
+  ] as const)("renders unscored %s evidence without presenting zero traction", (platform, label, sourceUrl) => {
+    const item: EvidenceItem = {
+      id: `ev-${platform}`,
+      entityType: "company",
+      entityId: "company-acme",
+      platform,
+      authorName: "Acme",
+      authorHandle: "acme",
+      postedAt: "2026-07-15T00:00:00.000Z",
+      text: "A verified product update.",
+      mediaType: platform === "tiktok" ? "video" : "link",
+      metrics: { views: 10_000, likes: 250 },
+      contributionScore: 0,
+      tractionStatus: "unscored",
+      tractionLimitations: ["No calibrated model."],
+      sourceUrl,
+      review_state: "verified",
+      why: "Verified native post evidence."
+    };
+
+    const { container } = render(<EvidenceMediaCard item={item} />);
+
+    expect(screen.getByText("Unscored")).toBeInTheDocument();
+    expect(screen.getByText(label)).toBeInTheDocument();
+    expect(container.querySelector(".contribution-pill")).not.toHaveTextContent(/^0$/);
+    expect(decodeDataImage(container.querySelector("img")?.getAttribute("src"))).not.toMatch(/>0<\/text>/);
   });
 });
 

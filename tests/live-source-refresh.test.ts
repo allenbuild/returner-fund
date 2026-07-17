@@ -1,8 +1,16 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { loadLiveEvidenceRecords, runLiveSourceRefresh, type LiveEvidenceRecord } from "@/lib/ingestion/live-source-refresh";
+
+const X_PROVIDER_RESPONSE_CASES = [
+  { label: "FxTwitter tweet", shape: "fxtwitter_tweet", provider: "fxtwitter" },
+  { label: "FxTwitter status", shape: "fxtwitter_status", provider: "fxtwitter" },
+  { label: "VxTwitter", shape: "vxtwitter", provider: "vxtwitter" }
+] as const;
+
+type XProviderResponseShape = (typeof X_PROVIDER_RESPONSE_CASES)[number]["shape"];
 
 describe("live source refresh", () => {
   it("discovers and stores the current Screenpipe X post from public profile HTML and post JSON", async () => {
@@ -79,13 +87,21 @@ describe("live source refresh", () => {
         metrics: expect.objectContaining({
           views: 116000,
           likes: 697,
-          comments: 74,
+          replies: 74,
           reposts: 104
         }),
         review_state: "verified"
       });
+      expect(result.acceptedEvidence[0]?.metrics).not.toHaveProperty("comments");
+      expect(result.acceptedEvidence[0]?.metrics).not.toHaveProperty("shares");
       expect(result.failureReasonCounts.adapter_not_wired).toBeUndefined();
       expect(result.stageLog.some((entry) => entry.stage === "accepted" && entry.reason === undefined)).toBe(true);
+      expect(result).toMatchObject({
+        cancellationReason: null,
+        networkRequests: 2,
+        networkRequestBudget: null,
+        networkRequestBudgetExhausted: false
+      });
 
       const stored = JSON.parse(await readFile(targetedEvidencePath, "utf8"));
       expect(stored.evidence).toHaveLength(1);
@@ -153,7 +169,7 @@ describe("live source refresh", () => {
         metrics: expect.objectContaining({
           views: 116000,
           likes: 697,
-          comments: 74,
+          replies: 74,
           reposts: 104
         })
       });
@@ -163,6 +179,93 @@ describe("live source refresh", () => {
       await rm(tempDir, { recursive: true, force: true });
     }
   });
+
+  it.each(X_PROVIDER_RESPONSE_CASES)(
+    "rejects a mismatched status ID from a $label response with structured provider context",
+    async ({ shape, provider }) => {
+      const requestedPostId = "2077045452579778664";
+      const returnedPostId = "2077045452579778999";
+      const result = await runDirectProviderPayload(
+        shape,
+        providerPayload(shape, {
+          returnedPostId,
+          canonicalPostId: requestedPostId
+        }),
+        requestedPostId
+      );
+
+      expect(result.acceptedEvidence).toHaveLength(0);
+      expect(result.failureReasonCounts.provider_post_id_mismatch).toBe(1);
+      expect(result.stageLog).toContainEqual(
+        expect.objectContaining({
+          stage: "failed",
+          provider,
+          reason: "provider_post_id_mismatch",
+          sourceUrl: `https://x.com/screenpipe/status/${requestedPostId}`,
+          expectedPostId: requestedPostId,
+          returnedPostId,
+          returnedCanonicalUrl: `https://x.com/screenpipe/status/${requestedPostId}`
+        })
+      );
+    }
+  );
+
+  it.each(X_PROVIDER_RESPONSE_CASES)(
+    "rejects a canonical URL mismatch from a $label response with structured provider context",
+    async ({ shape, provider }) => {
+      const requestedPostId = "2077045452579778664";
+      const canonicalPostId = "2077045452579778999";
+      const result = await runDirectProviderPayload(
+        shape,
+        providerPayload(shape, {
+          returnedPostId: requestedPostId,
+          canonicalPostId
+        }),
+        requestedPostId
+      );
+
+      expect(result.acceptedEvidence).toHaveLength(0);
+      expect(result.failureReasonCounts.provider_canonical_url_mismatch).toBe(1);
+      expect(result.stageLog).toContainEqual(
+        expect.objectContaining({
+          stage: "failed",
+          provider,
+          reason: "provider_canonical_url_mismatch",
+          sourceUrl: `https://x.com/screenpipe/status/${requestedPostId}`,
+          expectedPostId: requestedPostId,
+          returnedPostId: requestedPostId,
+          returnedCanonicalUrl: `https://x.com/screenpipe/status/${canonicalPostId}`
+        })
+      );
+    }
+  );
+
+  it.each(X_PROVIDER_RESPONSE_CASES)(
+    "accepts a $label response only when its ID and canonical URL match the requested status",
+    async ({ shape }) => {
+      const requestedPostId = "2077045452579778664";
+      const result = await runDirectProviderPayload(
+        shape,
+        providerPayload(shape, {
+          returnedPostId: requestedPostId,
+          canonicalPostId: requestedPostId
+        }),
+        requestedPostId
+      );
+
+      expect(result.acceptedEvidence).toHaveLength(1);
+      expect(result.acceptedEvidence[0]).toMatchObject({
+        entityId: "company-screenpipe",
+        platformPostId: requestedPostId,
+        metrics: expect.objectContaining({ views: 116000, likes: 697, replies: 74, reposts: 104 })
+      });
+      expect(result.acceptedEvidence[0]?.sourceUrl).toMatch(
+        new RegExp(`/screenpipe/status/${requestedPostId}$`, "i")
+      );
+      expect(result.failureReasonCounts.provider_post_id_mismatch).toBeUndefined();
+      expect(result.failureReasonCounts.provider_canonical_url_mismatch).toBeUndefined();
+    }
+  );
 
   it("accepts a direct post from a founder defined by a verified social override", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-verified-founder-"));
@@ -223,7 +326,7 @@ describe("live source refresh", () => {
         metrics: expect.objectContaining({
           views: 2687075,
           likes: 10602,
-          comments: 544,
+          replies: 544,
           reposts: 465
         })
       });
@@ -299,6 +402,361 @@ describe("live source refresh", () => {
     }
   });
 
+  it("aborts an in-flight profile body read when the run deadline expires", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-16T20:00:00.000Z"));
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-deadline-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const snapshotContent = JSON.stringify({
+      source: { fetchedAt: "2026-07-14T00:00:00.000Z" },
+      evidence: [],
+      needsReview: []
+    });
+    const stageLogContent = "existing-stage-log";
+    await writeFile(targetedEvidencePath, snapshotContent);
+    await writeFile(stageLogPath, stageLogContent);
+
+    let markBodyReadStarted: () => void = () => {};
+    const bodyReadStarted = new Promise<void>((resolve) => {
+      markBodyReadStarted = resolve;
+    });
+    const fetchImpl = (async () => ({
+      ok: true,
+      status: 200,
+      text: () => {
+        markBodyReadStarted();
+        return new Promise<string>(() => {});
+      }
+    }) as Response) as typeof fetch;
+
+    try {
+      const refresh = runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        xTargetHandles: ["screenpipe"],
+        xConcurrency: 1,
+        xRequestTimeoutMs: 1_000,
+        deadlineAt: new Date(Date.now() + 50),
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T20:00:00.000Z"),
+        fetchImpl
+      });
+
+      await bodyReadStarted;
+      await vi.advanceTimersByTimeAsync(50);
+      const result = await refresh;
+
+      expect(result.acceptedEvidence).toHaveLength(0);
+      expect(result.cancellationReason).toBe("refresh_deadline_exceeded");
+      expect(result.networkRequests).toBe(1);
+      expect(result.networkRequestBudget).toBeNull();
+      expect(result.networkRequestBudgetExhausted).toBe(false);
+      expect(await readFile(targetedEvidencePath, "utf8")).toBe(snapshotContent);
+      expect(await readFile(stageLogPath, "utf8")).toBe(stageLogContent);
+    } finally {
+      vi.useRealTimers();
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("interrupts a pending response JSON body read when the parent signal aborts", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-abort-body-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    const controller = new AbortController();
+    const requestSignals: AbortSignal[] = [];
+    let markBodyReadStarted: () => void = () => {};
+    const bodyReadStarted = new Promise<void>((resolve) => {
+      markBodyReadStarted = resolve;
+    });
+    const fetchImpl = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.signal) {
+        requestSignals.push(init.signal);
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: () => {
+          markBodyReadStarted();
+          return new Promise<unknown>(() => {});
+        }
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      const refresh = runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xSourceUrls: ["https://x.com/screenpipe/status/2077045452579778664"],
+        xRequestTimeoutMs: 10_000,
+        signal: controller.signal,
+        write: false,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T20:01:00.000Z"),
+        fetchImpl
+      });
+
+      await bodyReadStarted;
+      controller.abort(new Error("caller cancelled"));
+      const result = await refresh;
+
+      expect(requestSignals[0]?.aborted).toBe(true);
+      expect(result.acceptedEvidence).toHaveLength(0);
+      expect(result.cancellationReason).toBe("refresh_cancelled");
+      expect(result.networkRequests).toBe(1);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("caps run-wide network requests and bounds direct URL concurrency", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-request-cap-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const postIds = [
+      "2077045452579778701",
+      "2077045452579778702",
+      "2077045452579778703",
+      "2077045452579778704"
+    ];
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    const fetchedUrls: string[] = [];
+    let activeRequests = 0;
+    let peakActiveRequests = 0;
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      fetchedUrls.push(url);
+      activeRequests += 1;
+      peakActiveRequests = Math.max(peakActiveRequests, activeRequests);
+      await Promise.resolve();
+      activeRequests -= 1;
+      const postId = url.match(/\/status\/(\d+)$/)?.[1] ?? "";
+      return Response.json({
+        code: 200,
+        tweet: {
+          url: `https://x.com/screenpipe/status/${postId}`,
+          id: postId,
+          text: `screenpipe request budget update ${postId}`,
+          created_timestamp: 1784041200,
+          replies: 2,
+          retweets: 3,
+          likes: 20,
+          views: 500,
+          author: {
+            screen_name: "screenpipe",
+            name: "screenpipe (YC S26)",
+            url: "https://x.com/screenpipe"
+          }
+        }
+      });
+    }) as typeof fetch;
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xSourceUrls: postIds.map((postId) => `https://x.com/screenpipe/status/${postId}`),
+        xConcurrency: 2,
+        xRequestTimeoutMs: 500,
+        maxNetworkRequests: 3,
+        write: false,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T20:02:00.000Z"),
+        fetchImpl
+      });
+
+      expect(fetchedUrls).toHaveLength(3);
+      expect(peakActiveRequests).toBe(2);
+      expect(result.acceptedEvidence).toHaveLength(3);
+      expect(result.failureReasonCounts.network_request_budget_exhausted).toBe(1);
+      expect(result).toMatchObject({
+        cancellationReason: null,
+        networkRequests: 3,
+        networkRequestBudget: 3,
+        networkRequestBudgetExhausted: true
+      });
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("spends a constrained network budget on explicit direct X URLs before profiles", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-direct-priority-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const postId = "2077045452579778710";
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    const fetchedUrls: string[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      fetchedUrls.push(url);
+      if (url === `https://api.fxtwitter.com/screenpipe/status/${postId}`) {
+        return Response.json({
+          code: 200,
+          tweet: {
+            url: `https://x.com/screenpipe/status/${postId}`,
+            id: postId,
+            text: "screenpipe direct source priority update",
+            created_timestamp: 1784041200,
+            replies: 4,
+            retweets: 5,
+            likes: 40,
+            views: 900,
+            author: {
+              screen_name: "screenpipe",
+              name: "screenpipe (YC S26)",
+              url: "https://x.com/screenpipe"
+            }
+          }
+        });
+      }
+      return new Response("profile should not be fetched", { status: 500 });
+    }) as typeof fetch;
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        xTargetHandles: ["screenpipe"],
+        xSourceUrls: [`https://x.com/screenpipe/status/${postId}`],
+        xConcurrency: 4,
+        xRequestTimeoutMs: 500,
+        maxNetworkRequests: 1,
+        write: false,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T20:03:00.000Z"),
+        fetchImpl
+      });
+
+      expect(fetchedUrls).toEqual([`https://api.fxtwitter.com/screenpipe/status/${postId}`]);
+      expect(result.acceptedEvidence).toHaveLength(1);
+      expect(result.acceptedEvidence[0]?.rawVisibleText).toContain('"directSource":true');
+      expect(result).toMatchObject({
+        cancellationReason: null,
+        networkRequests: 1,
+        networkRequestBudget: 1,
+        networkRequestBudgetExhausted: true
+      });
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not write evidence or stage logs after parent cancellation", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-no-write-after-abort-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const snapshotContent = JSON.stringify({
+      source: { fetchedAt: "2026-07-14T00:00:00.000Z" },
+      evidence: [],
+      needsReview: []
+    });
+    const stageLogContent = "existing-stage-log";
+    await writeFile(targetedEvidencePath, snapshotContent);
+    await writeFile(stageLogPath, stageLogContent);
+
+    const controller = new AbortController();
+    let markRequestStarted: () => void = () => {};
+    const requestStarted = new Promise<void>((resolve) => {
+      markRequestStarted = resolve;
+    });
+    const fetchImpl = (async () => {
+      markRequestStarted();
+      return new Promise<Response>(() => {});
+    }) as typeof fetch;
+
+    try {
+      const refresh = runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xSourceUrls: ["https://x.com/screenpipe/status/2077045452579778720"],
+        xRequestTimeoutMs: 10_000,
+        signal: controller.signal,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T20:04:00.000Z"),
+        fetchImpl
+      });
+
+      await requestStarted;
+      controller.abort(new Error("client disconnected"));
+      const result = await refresh;
+
+      expect(result.acceptedEvidence).toHaveLength(0);
+      expect(result.storedEvidence).toHaveLength(0);
+      expect(result.cancellationReason).toBe("refresh_cancelled");
+      expect(result.networkRequests).toBe(1);
+      expect(await readFile(targetedEvidencePath, "utf8")).toBe(snapshotContent);
+      expect(await readFile(stageLogPath, "utf8")).toBe(stageLogContent);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("classifies TikTok and Bluesky as requested adapters that are not wired", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-forward-platforms-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        platforms: ["tiktok", "bluesky"],
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T20:05:00.000Z")
+      });
+
+      expect(result.failureReasonCounts.adapter_not_wired).toBe(2);
+      expect(
+        result.stageLog
+          .filter((entry) => entry.reason === "adapter_not_wired")
+          .map((entry) => [entry.platform, entry.stage])
+      ).toEqual([
+        ["tiktok", "skipped"],
+        ["bluesky", "skipped"]
+      ]);
+      expect(result).toMatchObject({
+        cancellationReason: null,
+        networkRequests: 0,
+        networkRequestBudget: null,
+        networkRequestBudgetExhausted: false
+      });
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("discovers and stores A16Z company X posts from the social-account snapshot", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-a16z-company-"));
     const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
@@ -364,7 +822,7 @@ describe("live source refresh", () => {
         metrics: expect.objectContaining({
           views: 48000,
           likes: 186,
-          comments: 17,
+          replies: 17,
           reposts: 22
         }),
         review_state: "verified"
@@ -443,12 +901,263 @@ describe("live source refresh", () => {
         metrics: expect.objectContaining({
           views: 52000,
           likes: 244,
-          comments: 24,
+          replies: 24,
           reposts: 35
         }),
         review_state: "verified"
       });
       expect(result.failureReasonCounts.founder_post_missing_company_mention).toBeUndefined();
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("attributes A16Z company X posts only to verified account records", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-a16z-company-trust-"));
+    const socialDir = join(tempDir, "src", "lib", "social");
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const postId = "2078000000000000101";
+    const fetchedUrls: string[] = [];
+    await mkdir(socialDir, { recursive: true });
+    await writeFile(
+      join(socialDir, "a16z-speedrun-006-social-accounts.json"),
+      JSON.stringify({
+        companies: [
+          {
+            companyName: "Company Trust",
+            companySlug: "company-trust",
+            accounts: [
+              {
+                platform: "x",
+                url: "https://x.com/company_needs_review",
+                handle: "company_needs_review",
+                review_state: "needs_review"
+              },
+              {
+                platform: "x",
+                url: "https://x.com/company_rejected",
+                handle: "company_rejected",
+                review_state: "rejected"
+              },
+              {
+                platform: "x",
+                url: "https://x.com/company_verified",
+                handle: "company_verified",
+                review_state: "verified"
+              }
+            ],
+            founders: []
+          },
+          {
+            companyName: "Untrusted Company",
+            companySlug: "untrusted-company",
+            accounts: [
+              {
+                platform: "x",
+                url: "https://x.com/untrusted_company_review",
+                handle: "untrusted_company_review",
+                review_state: "needs_review"
+              },
+              {
+                platform: "x",
+                url: "https://x.com/untrusted_company_rejected",
+                handle: "untrusted_company_rejected",
+                review_state: "rejected"
+              }
+            ],
+            founders: []
+          }
+        ]
+      })
+    );
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    const fetchImpl = async (input: RequestInfo | URL) => {
+      const url = String(input);
+      fetchedUrls.push(url);
+      if (url === `https://api.fxtwitter.com/company_verified/status/${postId}`) {
+        return Response.json({
+          code: 200,
+          tweet: {
+            url: `https://x.com/company_verified/status/${postId}`,
+            id: postId,
+            text: "Company Trust launch update from the verified company account.",
+            created_timestamp: 1784047200,
+            replies: 8,
+            retweets: 12,
+            likes: 90,
+            views: 14000,
+            author: {
+              screen_name: "company_verified",
+              name: "Company Trust",
+              url: "https://x.com/company_verified"
+            }
+          }
+        });
+      }
+      return new Response("not found", { status: 404 });
+    };
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: tempDir,
+        batchSlug: "A16ZSR006",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xSourceUrls: [
+          `https://x.com/company_needs_review/status/${postId}`,
+          `https://x.com/company_rejected/status/${postId}`,
+          `https://x.com/company_verified/status/${postId}`,
+          `https://x.com/untrusted_company_review/status/${postId}`,
+          `https://x.com/untrusted_company_rejected/status/${postId}`
+        ],
+        xRequestTimeoutMs: 500,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T18:10:00.000Z"),
+        fetchImpl
+      });
+
+      expect(fetchedUrls).toEqual([`https://api.fxtwitter.com/company_verified/status/${postId}`]);
+      expect(result.acceptedEvidence).toHaveLength(1);
+      expect(result.acceptedEvidence[0]).toMatchObject({
+        entityType: "company",
+        entityId: "a16z-speedrun-006-company-trust",
+        sourceUrl: `https://x.com/company_verified/status/${postId}`
+      });
+      expect(result.failureReasonCounts.direct_x_url_not_batch_target).toBe(4);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("attributes A16Z founder X posts only to verified account records", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-a16z-founder-trust-"));
+    const socialDir = join(tempDir, "src", "lib", "social");
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const postId = "2078000000000000102";
+    const fetchedUrls: string[] = [];
+    await mkdir(socialDir, { recursive: true });
+    await writeFile(
+      join(socialDir, "a16z-speedrun-006-social-accounts.json"),
+      JSON.stringify({
+        companies: [
+          {
+            companyName: "Founder Trust",
+            companySlug: "founder-trust",
+            accounts: [],
+            founders: [
+              {
+                name: "Verified Founder",
+                founderSlug: "verified-founder",
+                accounts: [
+                  {
+                    platform: "x",
+                    url: "https://x.com/founder_needs_review",
+                    handle: "founder_needs_review",
+                    review_state: "needs_review"
+                  },
+                  {
+                    platform: "x",
+                    url: "https://x.com/founder_rejected",
+                    handle: "founder_rejected",
+                    review_state: "rejected"
+                  },
+                  {
+                    platform: "x",
+                    url: "https://x.com/founder_verified",
+                    handle: "founder_verified",
+                    review_state: "verified"
+                  }
+                ]
+              },
+              {
+                name: "Untrusted Founder",
+                founderSlug: "untrusted-founder",
+                accounts: [
+                  {
+                    platform: "x",
+                    url: "https://x.com/untrusted_founder_review",
+                    handle: "untrusted_founder_review",
+                    review_state: "needs_review"
+                  },
+                  {
+                    platform: "x",
+                    url: "https://x.com/untrusted_founder_rejected",
+                    handle: "untrusted_founder_rejected",
+                    review_state: "rejected"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      })
+    );
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    const fetchImpl = async (input: RequestInfo | URL) => {
+      const url = String(input);
+      fetchedUrls.push(url);
+      if (url === `https://api.fxtwitter.com/founder_verified/status/${postId}`) {
+        return Response.json({
+          code: 200,
+          tweet: {
+            url: `https://x.com/founder_verified/status/${postId}`,
+            id: postId,
+            text: "Founder Trust launch update from the verified founder account.",
+            created_timestamp: 1784047500,
+            replies: 6,
+            retweets: 9,
+            likes: 75,
+            views: 11000,
+            author: {
+              screen_name: "founder_verified",
+              name: "Verified Founder",
+              url: "https://x.com/founder_verified"
+            }
+          }
+        });
+      }
+      return new Response("not found", { status: 404 });
+    };
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: tempDir,
+        batchSlug: "A16ZSR006",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xSourceUrls: [
+          `https://x.com/founder_needs_review/status/${postId}`,
+          `https://x.com/founder_rejected/status/${postId}`,
+          `https://x.com/founder_verified/status/${postId}`,
+          `https://x.com/untrusted_founder_review/status/${postId}`,
+          `https://x.com/untrusted_founder_rejected/status/${postId}`
+        ],
+        xRequestTimeoutMs: 500,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T18:15:00.000Z"),
+        fetchImpl
+      });
+
+      expect(fetchedUrls).toEqual([`https://api.fxtwitter.com/founder_verified/status/${postId}`]);
+      expect(result.acceptedEvidence).toHaveLength(1);
+      expect(result.acceptedEvidence[0]).toMatchObject({
+        entityType: "founder",
+        entityId: "a16z-speedrun-006-founder-trust-founder-verified-founder",
+        sourceUrl: `https://x.com/founder_verified/status/${postId}`
+      });
+      expect(result.failureReasonCounts.direct_x_url_not_batch_target).toBe(4);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -1060,6 +1769,230 @@ describe("live source refresh", () => {
     }
   });
 
+  it.each([
+    ["malformed JSON", '{"source":{"fetchedAt":"2026-07-14T00:00:00.000Z"},"evidence":['],
+    [
+      "an invalid evidence shape",
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: {}, needsReview: [] })
+    ]
+  ])("refuses to replace a snapshot containing %s", async (_label, snapshotContent) => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-corrupt-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    await writeFile(targetedEvidencePath, snapshotContent);
+
+    try {
+      await expect(
+        runLiveSourceRefresh({
+          rootDir: process.cwd(),
+          platforms: ["github"],
+          targetedEvidencePath,
+          stageLogPath,
+          now: new Date("2026-07-16T18:00:00.000Z")
+        })
+      ).rejects.toThrow(/Refusing to replace (?:corrupt|invalid) evidence snapshot/);
+      expect(await readFile(targetedEvidencePath, "utf8")).toBe(snapshotContent);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("serializes concurrent refresh writes so neither accepted observation is lost", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-concurrent-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const postIds = ["2077045452579778664", "2077045452579778665"];
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    let arrivals = 0;
+    let releaseFetches: () => void = () => {};
+    const bothFetchesReady = new Promise<void>((resolve) => {
+      releaseFetches = resolve;
+    });
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      const match = String(input).match(/api\.fxtwitter\.com\/screenpipe\/status\/(\d+)/);
+      if (!match?.[1]) {
+        return new Response("not found", { status: 404 });
+      }
+      arrivals += 1;
+      if (arrivals === postIds.length) {
+        releaseFetches();
+      }
+      await bothFetchesReady;
+      const postId = match[1];
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          tweet: {
+            url: `https://x.com/screenpipe/status/${postId}`,
+            id: postId,
+            text: `screenpipe concurrent observation ${postId}`,
+            created_timestamp: 1784041200,
+            replies: 4,
+            retweets: 2,
+            likes: 20,
+            views: postId.endsWith("4") ? 400 : 500,
+            author: { screen_name: "screenpipe", name: "screenpipe", url: "https://x.com/screenpipe" }
+          }
+        })
+      } as Response;
+    }) as typeof fetch;
+
+    try {
+      await Promise.all(
+        postIds.map((postId, index) =>
+          runLiveSourceRefresh({
+            rootDir: process.cwd(),
+            batchSlug: "S26",
+            platforms: ["x"],
+            maxXTargets: 0,
+            xSourceUrls: [`https://x.com/screenpipe/status/${postId}`],
+            xRequestTimeoutMs: 500,
+            targetedEvidencePath,
+            stageLogPath: join(tempDir, `stage-log-${index}.json`),
+            now: new Date(`2026-07-16T18:0${index}:00.000Z`),
+            fetchImpl
+          })
+        )
+      );
+
+      const stored = JSON.parse(await readFile(targetedEvidencePath, "utf8"));
+      expect(stored.evidence.map((record: LiveEvidenceRecord) => record.platformPostId).sort()).toEqual(postIds);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("uses explicit fallback freshness and only replaces a canonical observation when newer", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-freshness-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const postId = "2077045452579778664";
+    const firstSeenAt = "2026-07-10T12:00:00.000Z";
+    const existing = liveXRecord({
+      linkCheckedAt: "2026-07-18T12:00:00.000Z",
+      last_checked_at: undefined,
+      last_updated_at: undefined,
+      first_seen_at: firstSeenAt,
+      metrics: { views: 900, likes: 90, replies: 9, reposts: 3 }
+    });
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [existing], needsReview: [] })
+    );
+
+    const refresh = (now: string, views: number) =>
+      runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xSourceUrls: [`https://x.com/screenpipe/status/${postId}`],
+        xRequestTimeoutMs: 500,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date(now),
+        fetchImpl: screenpipeFxFetch(postId, { views, likes: 12, replies: 2, retweets: 1 })
+      });
+
+    try {
+      await refresh("2026-07-17T12:00:00.000Z", 700);
+      const afterStaleRefresh = JSON.parse(await readFile(targetedEvidencePath, "utf8"));
+      expect(afterStaleRefresh.evidence[0].metrics.views).toBe(900);
+      expect(afterStaleRefresh.evidence[0].linkCheckedAt).toBe("2026-07-18T12:00:00.000Z");
+
+      await refresh("2026-07-19T12:00:00.000Z", 1200);
+      const afterFreshRefresh = JSON.parse(await readFile(targetedEvidencePath, "utf8"));
+      expect(afterFreshRefresh.evidence[0].metrics.views).toBe(1200);
+      expect(afterFreshRefresh.evidence[0].last_checked_at).toBe("2026-07-19T12:00:00.000Z");
+      expect(afterFreshRefresh.evidence[0].first_seen_at).toBe(firstSeenAt);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("collapses X comment/reply and share/repost aliases into one canonical metric each", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-aliases-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const postId = "2077045452579778664";
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xSourceUrls: [`https://x.com/screenpipe/status/${postId}`],
+        xRequestTimeoutMs: 500,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T18:30:00.000Z"),
+        fetchImpl: screenpipeFxFetch(postId, {
+          views: 1000,
+          likes: 40,
+          comments: 7,
+          replies: 5,
+          shares: 3,
+          reposts: 4,
+          retweets: 2
+        })
+      });
+
+      expect(result.acceptedEvidence).toHaveLength(1);
+      expect(result.acceptedEvidence[0]?.metrics).toEqual({ views: 1000, likes: 40, replies: 7, reposts: 4 });
+      expect(result.acceptedEvidence[0]?.metrics).not.toHaveProperty("comments");
+      expect(result.acceptedEvidence[0]?.metrics).not.toHaveProperty("shares");
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it.each([
+    ["negative", -1],
+    ["nonfinite", Number.POSITIVE_INFINITY]
+  ])("rejects %s X visible metrics and preserves existing evidence", async (_label, invalidLikes) => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-invalid-metrics-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    const postId = "2077045452579778664";
+    const existing = liveXRecord({ metrics: { views: 777, likes: 70, replies: 7, reposts: 3 } });
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [existing], needsReview: [] })
+    );
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        maxXTargets: 0,
+        xSourceUrls: [`https://x.com/screenpipe/status/${postId}`],
+        xRequestTimeoutMs: 500,
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-16T19:00:00.000Z"),
+        fetchImpl: screenpipeFxFetch(postId, { views: 1000, likes: invalidLikes, replies: 2, retweets: 1 })
+      });
+
+      expect(result.acceptedEvidence).toHaveLength(0);
+      expect(result.failureReasonCounts.invalid_visible_metrics).toBe(1);
+      const stored = JSON.parse(await readFile(targetedEvidencePath, "utf8"));
+      expect(stored.evidence).toHaveLength(1);
+      expect(stored.evidence[0].metrics.views).toBe(777);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("revalidates persisted live X rows before they can reload into the graph", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-load-"));
     const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
@@ -1110,12 +2043,36 @@ describe("live source refresh", () => {
         extraPost: { is_retweet: true, retweeted_status: { id: "2077045452579778660" } }
       })
     });
+    const negativeMetrics = liveXRecord({
+      id: "live-x-negative-metrics",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778669",
+      platformPostId: "2077045452579778669",
+      metrics: { views: 100, likes: -1 },
+      rawVisibleText: liveRawText({
+        id: "2077045452579778669",
+        source: "live_x_profile",
+        handle: "screenpipe",
+        text: "screenpipe update with invalid metrics"
+      })
+    });
+    const nonfiniteMetrics = liveXRecord({
+      id: "live-x-nonfinite-metrics",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778670",
+      platformPostId: "2077045452579778670",
+      metrics: { views: 100, likes: "Infinity" as unknown as number },
+      rawVisibleText: liveRawText({
+        id: "2077045452579778670",
+        source: "live_x_profile",
+        handle: "screenpipe",
+        text: "screenpipe update with invalid metrics"
+      })
+    });
 
     await writeFile(
       targetedEvidencePath,
       JSON.stringify({
         source: { fetchedAt: "2026-07-14T00:00:00.000Z" },
-        evidence: [invalidLink, spoofedHost, authorMismatch, repost, good],
+        evidence: [invalidLink, spoofedHost, authorMismatch, repost, negativeMetrics, nonfiniteMetrics, good],
         needsReview: []
       })
     );
@@ -1283,4 +2240,120 @@ function liveRawText({
       reposts: 104
     }
   });
+}
+
+function screenpipeFxFetch(
+  postId: string,
+  metrics: Record<string, unknown>,
+  text = "screenpipe records and learns how you work"
+): typeof fetch {
+  return (async (input: RequestInfo | URL) => {
+    if (String(input) === `https://api.fxtwitter.com/screenpipe/status/${postId}`) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          code: 200,
+          tweet: {
+            url: `https://x.com/screenpipe/status/${postId}`,
+            id: postId,
+            text,
+            created_timestamp: 1784041200,
+            ...metrics,
+            author: {
+              screen_name: "screenpipe",
+              name: "screenpipe (YC S26)",
+              url: "https://x.com/screenpipe"
+            }
+          }
+        })
+      } as Response;
+    }
+    return new Response("not found", { status: 404 });
+  }) as typeof fetch;
+}
+
+function providerPayload(
+  shape: XProviderResponseShape,
+  identity: { returnedPostId: string; canonicalPostId: string }
+): Record<string, unknown> {
+  const canonicalUrl = `https://x.com/screenpipe/status/${identity.canonicalPostId}`;
+  const post = {
+    url: canonicalUrl,
+    id: identity.returnedPostId,
+    text: "screenpipe provider identity verification update",
+    created_timestamp: 1784041200,
+    replies: 74,
+    retweets: 104,
+    likes: 697,
+    views: 116000,
+    author: {
+      screen_name: "screenpipe",
+      name: "screenpipe (YC S26)",
+      url: "https://x.com/screenpipe"
+    }
+  };
+
+  if (shape === "fxtwitter_tweet") {
+    return { code: 200, tweet: post };
+  }
+  if (shape === "fxtwitter_status") {
+    return { code: 200, status: post };
+  }
+  return {
+    tweetID: identity.returnedPostId,
+    tweetURL: canonicalUrl,
+    text: post.text,
+    date: "Tue Jul 14 17:00:00 +0000 2026",
+    date_epoch: post.created_timestamp,
+    replies: post.replies,
+    retweets: post.retweets,
+    likes: post.likes,
+    views: post.views,
+    user_name: post.author.name,
+    user_screen_name: post.author.screen_name,
+    media_extended: []
+  };
+}
+
+async function runDirectProviderPayload(
+  shape: XProviderResponseShape,
+  payload: Record<string, unknown>,
+  requestedPostId: string
+) {
+  const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-provider-trust-"));
+  const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+  const stageLogPath = join(tempDir, "stage-log.json");
+  await writeFile(
+    targetedEvidencePath,
+    JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+  );
+
+  const fxUrl = `https://api.fxtwitter.com/screenpipe/status/${requestedPostId}`;
+  const vxUrl = `https://api.vxtwitter.com/screenpipe/status/${requestedPostId}`;
+  const responseUrl = shape === "vxtwitter" ? vxUrl : fxUrl;
+  const fetchImpl = (async (input: RequestInfo | URL) => {
+    if (String(input) === responseUrl) {
+      return Response.json(payload);
+    }
+    return new Response("not found", { status: 404 });
+  }) as typeof fetch;
+
+  try {
+    return await runLiveSourceRefresh({
+      rootDir: process.cwd(),
+      batchSlug: "S26",
+      platforms: ["x"],
+      maxXTargets: 0,
+      xConcurrency: 1,
+      xRequestTimeoutMs: 500,
+      xSourceUrls: [`https://x.com/screenpipe/status/${requestedPostId}`],
+      targetedEvidencePath,
+      stageLogPath,
+      now: new Date("2026-07-16T21:00:00.000Z"),
+      fetchImpl
+    });
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
 }

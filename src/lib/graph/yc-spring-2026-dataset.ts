@@ -6,6 +6,7 @@ import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
 import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.json";
 import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 import verifiedSocialOverridesJson from "@/lib/social/verified-social-overrides.json";
+import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { a16zSpeedrun006GraphDataset } from "./a16z-speedrun-006-dataset";
 import type {
   BusinessModel,
@@ -22,7 +23,12 @@ import {
   aggregateBalancedTractionScore,
   normalizeEvidenceScores
 } from "./traction-scoring";
-import { dedupeEvidenceItems } from "./dedupe";
+import {
+  canonicalPostKey,
+  dedupeEvidenceForScoring,
+  dedupeEvidenceItems,
+  hasEvidenceIdentityConflict
+} from "./dedupe";
 import { evidenceDisplayText } from "./evidence-display";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
 import {
@@ -71,7 +77,9 @@ interface RawFounder {
   socialLinks: RawSocialLinks;
 }
 
-type RawSocialLinks = Partial<Record<"github" | "linkedin" | "x" | "instagram", string>>;
+type RawSocialLinks = Partial<
+  Record<"github" | "linkedin" | "x" | "instagram" | "tiktok" | "bluesky", string>
+>;
 
 interface VerifiedFounderOverride {
   id: string;
@@ -161,6 +169,7 @@ interface PublicEvidenceRecord {
   mediaUrls?: string[];
   media_urls?: string[];
   media_posters?: string[];
+  accountUrl?: string | null;
   linkStatus?: "verified" | "invalid" | "unchecked" | "blocked" | null;
   linkCheckedAt?: string | null;
   linkFailureReason?: string | null;
@@ -174,6 +183,22 @@ interface PublicEvidenceRecord {
   last_checked_at: string;
   last_updated_at: string;
 }
+
+interface LinkedInCommentReference {
+  commentId: string;
+  parentPostId: string | null;
+  commentUrn: string | null;
+}
+
+type LinkedInActivityPolicy =
+  | { kind: "not_comment" }
+  | { kind: "native_comment"; reference: LinkedInCommentReference; contextUrl: string }
+  | { kind: "unlocated_comment" }
+  | {
+      kind: "mislabelled_parent_comment";
+      sourceAuthorHandle: string | null;
+      claimedAuthorHandle: string | null;
+    };
 
 interface PublicNeedsReviewRecord {
   id: string;
@@ -190,6 +215,23 @@ export const YC_SUMMER_2026_BATCH_SLUG = "S26";
 export const YC_SUMMER_2026_BATCH_LABEL = "YC Summer 2026 (S26)";
 export const YC_SPRING_2026_BATCH_SLUG = "S2026";
 export const YC_SPRING_2026_BATCH_LABEL = "YC Spring 2026 (P26)";
+
+const GENERIC_SOCIAL_IDENTITIES = new Set([
+  "about",
+  "admin",
+  "all",
+  "company",
+  "dashboard",
+  "feed",
+  "home",
+  "in",
+  "login",
+  "posts",
+  "recent-activity",
+  "search",
+  "settings",
+  "signup"
+]);
 
 const snapshot = ycSummer2026Snapshot as RawSnapshot;
 const springSnapshot = ycSpring2026Snapshot as RawSnapshot;
@@ -214,7 +256,7 @@ const officialGithubUrlsByEntityId = new Map(
     )
   ].filter((entry): entry is [string, string] => Boolean(entry)))
 );
-const allowedLoggedInPlatforms = new Set(["instagram", "x", "linkedin"]);
+const allowedLoggedInPlatforms = new Set(["instagram", "x", "linkedin", "tiktok", "bluesky"]);
 const allowedLoggedInEvidence = loggedInSnapshot.evidence.filter((item) =>
   allowedLoggedInPlatforms.has(item.platform)
 );
@@ -231,17 +273,24 @@ const rawGithubEvidenceItems = githubSnapshot.accounts
   .filter(isKnownSummerGithubAccount)
   .flatMap(githubEvidence)
   .map((item) => applyAttributionGuard(item, attributionContext));
-const allEvidenceItems = normalizeEvidenceScores(dedupeEvidenceItems([...rawGithubEvidenceItems, ...rawPublicEvidenceItems]));
+const unresolvedAllEvidenceItems = normalizeEvidenceScores(
+  canonicalizeBatchEvidence(dedupeBatchEvidence([...rawGithubEvidenceItems, ...rawPublicEvidenceItems]))
+);
 const officialSocialLinkCounts = countOfficialSocialLinks(snapshot.companies);
-const summerEvidenceCounts = countEvidenceByPlatform(allEvidenceItems);
-const evidenceByEntityId = groupEvidenceByEntity(allEvidenceItems);
+const summerEvidenceCounts = countEvidenceByPlatform(unresolvedAllEvidenceItems);
+const evidenceByEntityId = groupEvidenceByEntity(unresolvedAllEvidenceItems);
 const publicNeedsReviewItems = [
   ...publicSnapshot.needsReview,
   ...allowedLoggedInNeedsReview,
   ...targetedSnapshot.needsReview
 ].filter(isKnownSummerNeedsReviewRecord).map(publicNeedsReviewItem);
-const companyRecords = calibrateCompanyScores(snapshot.companies.map(companyRecord));
+const companyRecords = calibrateBatchCompanyScores(snapshot.companies.map(companyRecord));
 const founderRecordList = snapshot.companies.flatMap(founderRecords);
+const allEvidenceItems = resolveEvidenceSocialAccountIds(
+  unresolvedAllEvidenceItems,
+  companyRecords,
+  founderRecordList
+);
 
 export const ycSummer2026GraphDataset: DemoGraphDataset = {
   mode: "official_snapshot",
@@ -384,11 +433,11 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
     .filter((account) => springKnownEntityIds.has(account.entityId))
     .flatMap((account) => githubEvidenceForSnapshot(account, springGithubSnapshot))
     .map((item) => applyAttributionGuard(item, springAttributionContext));
-  const springEvidenceItems = normalizeEvidenceScores(
-    dedupeEvidenceItems([...springGithubEvidenceItems, ...springPublicEvidenceItems])
+  const unresolvedSpringEvidenceItems = normalizeEvidenceScores(
+    canonicalizeBatchEvidence(dedupeBatchEvidence([...springGithubEvidenceItems, ...springPublicEvidenceItems]))
   );
-  const springEvidenceByEntityId = groupEvidenceByEntity(springEvidenceItems);
-  const springCompanies = calibrateCompanyScores(
+  const springEvidenceByEntityId = groupEvidenceByEntity(unresolvedSpringEvidenceItems);
+  const springCompanies = calibrateBatchCompanyScores(
     springSnapshot.companies.map((raw) =>
       companyRecordForBatch(raw, {
         batchSlug: YC_SPRING_2026_BATCH_SLUG,
@@ -401,6 +450,11 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
       batchSlug: YC_SPRING_2026_BATCH_SLUG,
       evidenceByEntityId: springEvidenceByEntityId
     })
+  );
+  const springEvidenceItems = resolveEvidenceSocialAccountIds(
+    unresolvedSpringEvidenceItems,
+    springCompanies,
+    springFounders
   );
   const springNeedsReviewItems = [
     ...publicSnapshot.needsReview,
@@ -434,7 +488,9 @@ function countOfficialSocialLinks(companies: RawCompany[]) {
     github: { company: 0, founder: 0 },
     linkedin: { company: 0, founder: 0 },
     x: { company: 0, founder: 0 },
-    instagram: { company: 0, founder: 0 }
+    instagram: { company: 0, founder: 0 },
+    tiktok: { company: 0, founder: 0 },
+    bluesky: { company: 0, founder: 0 }
   };
 
   for (const company of companies) {
@@ -491,15 +547,17 @@ function companyRecordForBatch(
     ...manualFounders.map((founder) => manualFounderId(raw, founder))
   ];
   const entityEvidence = entityIds.flatMap((entityId) => options.evidenceByEntityId.get(entityId) ?? []);
-  const scoreBreakdown = aggregateBalancedTractionScore(entityEvidence);
+  const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
   const socialAccounts = dedupeSocialAccounts([
     ...socialAccountsFor(raw.socialLinks, {
-      entityPrefix: `company-${raw.slug}`,
+      entityType: "company",
+      entityId: companyId(raw),
       discoveredFromUrl: raw.ycProfileUrl,
       matchReason: "Linked from the official public YC company profile."
     }),
     ...socialAccountsFor(verifiedSocialOverrides[raw.slug]?.companySocialLinks ?? {}, {
-      entityPrefix: `company-${raw.slug}-verified-override`,
+      entityType: "company",
+      entityId: companyId(raw),
       discoveredFromUrl: raw.websiteUrl ?? raw.ycProfileUrl,
       matchReason: `Verified social override for ${raw.name}; profile links back to the official company identity.`
     })
@@ -531,65 +589,6 @@ function companyRecordForBatch(
   };
 }
 
-function calibrateCompanyScores(companies: CompanyRecord[]): CompanyRecord[] {
-  const rows = companies.map((company) => {
-    const confidenceFactor = evidenceDepthConfidenceFactor(company);
-    const confidenceAdjustedScore = company.totalScore * confidenceFactor;
-
-    return {
-      company,
-      confidenceFactor,
-      confidenceAdjustedScore
-    };
-  });
-  const positiveScores = rows.map((row) => row.confidenceAdjustedScore).filter((score) => score > 0);
-  const min = Math.min(...positiveScores);
-  const max = Math.max(...positiveScores);
-
-  if (!positiveScores.length || min === max) {
-    return companies;
-  }
-
-  return rows.map(({ company, confidenceFactor, confidenceAdjustedScore }) => {
-    const spreadScore =
-      confidenceAdjustedScore <= 0
-        ? 0
-        : Math.round(Math.pow((confidenceAdjustedScore - min) / (max - min), 1.18) * 100);
-    const scoredEvidenceCount = scoredEvidenceCountFor(company);
-    const calibratedScore = confidenceAdjustedScore <= 0 ? 0 : Math.round(spreadScore * confidenceFactor);
-
-    return {
-      ...company,
-      totalScore: calibratedScore,
-      previousScore: calibratedScore,
-      scoreBreakdown: company.scoreBreakdown
-        ? {
-            ...company.scoreBreakdown,
-            totalScore: calibratedScore,
-            explanation: `${company.scoreBreakdown.explanation} Evidence-depth factor ${round(
-              confidenceFactor,
-              3
-            )} from ${scoredEvidenceCount} scored rows. Batch calibration expands peer-relative traction across the full range, then applies the evidence-depth adjustment to ${calibratedScore}/100.`
-          }
-        : company.scoreBreakdown
-    };
-  });
-}
-
-function evidenceDepthConfidenceFactor(company: CompanyRecord): number {
-  const scoredEvidenceCount = scoredEvidenceCountFor(company);
-  if (scoredEvidenceCount <= 0) {
-    return 0;
-  }
-
-  const depth = Math.min(1, Math.sqrt(scoredEvidenceCount / 5));
-  return 0.72 + 0.28 * depth;
-}
-
-function scoredEvidenceCountFor(company: CompanyRecord): number {
-  return company.scoreBreakdown?.weightedPlatforms.reduce((sum, platform) => sum + platform.evidenceCount, 0) ?? 0;
-}
-
 function founderRecords(raw: RawCompany): FounderRecord[] {
   return founderRecordsForBatch(raw, {
     batchSlug: YC_SUMMER_2026_BATCH_SLUG,
@@ -606,9 +605,10 @@ function founderRecordsForBatch(
 
   const ycFounderRecords = raw.founders.map((founder) => {
     const entityEvidence = options.evidenceByEntityId.get(founderId(raw, founder)) ?? [];
-    const scoreBreakdown = aggregateBalancedTractionScore(entityEvidence);
+    const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
     const socialAccounts = socialAccountsFor(founder.socialLinks, {
-      entityPrefix: `founder-${raw.slug}-${founder.id}`,
+      entityType: "founder",
+      entityId: founderId(raw, founder),
       discoveredFromUrl: raw.ycProfileUrl,
       matchReason: "Linked from the founder block on the official public YC company profile."
     });
@@ -634,9 +634,10 @@ function founderRecordsForBatch(
 
   const manualRecords = manualFounderOverrides(raw).map((founder) => {
     const entityEvidence = options.evidenceByEntityId.get(manualFounderId(raw, founder)) ?? [];
-    const scoreBreakdown = aggregateBalancedTractionScore(entityEvidence);
+    const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
     const socialAccounts = socialAccountsFor(founder.socialLinks, {
-      entityPrefix: `founder-${raw.slug}-${founder.id}`,
+      entityType: "founder",
+      entityId: manualFounderId(raw, founder),
       discoveredFromUrl: founder.sourceUrl,
       matchReason: founder.matchReason
     });
@@ -672,7 +673,6 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
     return [];
   }
   const accountUrl = account.account?.htmlUrl ?? account.githubUrl;
-  const socialAccountId = `github:${account.entityId}:${account.login}`;
   const matchReason = account.matchReason ?? "GitHub account verified from a YC-linked or official company source.";
   const repoItems: EvidenceItem[] = (account.repos ?? []).map((repo) => ({
     id: `evidence-github-repo-${account.entityId}-${slugify(repo.fullName)}`,
@@ -682,6 +682,9 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
     authorName: repo.fullName,
     authorHandle: account.login,
     postedAt: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
+    publishedAtPrecision: repo.pushedAt ? publicationTimestampPrecision(repo.pushedAt) : "unknown",
+    observedAt: sourceSnapshot.source.fetchedAt,
+    metricsCheckedAt: sourceSnapshot.source.fetchedAt,
     text: `${repo.fullName}: ${repo.description || "GitHub repository"}${repo.language ? ` (${repo.language})` : ""}.`,
     mediaType: "repo" as const,
     metrics: {
@@ -699,7 +702,7 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
     why: "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity.",
     attachedCompanyId: attachedCompanyIdForGithub(account),
     attachedCompanyName: account.companyName,
-    socialAccountId,
+    socialAccountId: null,
     accountUrl,
     matchReason,
     review_state: "verified" as const
@@ -707,13 +710,16 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
   const hasRepoLevelEvidence = repoItems.length > 0;
 
   const profile: EvidenceItem = {
-    id: `evidence-github-profile-${account.entityId}`,
+    id: githubProfileEvidenceId(account, sourceSnapshot),
     entityType: account.entityType,
     entityId: account.entityId,
     platform: "github",
     authorName: account.name,
     authorHandle: account.login,
     postedAt: sourceSnapshot.source.fetchedAt,
+    publishedAtPrecision: "unknown",
+    observedAt: sourceSnapshot.source.fetchedAt,
+    metricsCheckedAt: sourceSnapshot.source.fetchedAt,
     text: `${account.name} GitHub profile: ${account.aggregate.totalStars} stars, ${account.aggregate.totalForks} forks, ${account.aggregate.repoCount} public repositories tracked from the YC-linked GitHub account.`,
     mediaType: "repo",
     metrics: {
@@ -732,7 +738,7 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
       : "Measured from the read-only public GitHub API. No YC/web metadata is counted in this score.",
     attachedCompanyId: attachedCompanyIdForGithub(account),
     attachedCompanyName: account.companyName,
-    socialAccountId,
+    socialAccountId: null,
     accountUrl,
     matchReason,
     review_state: "verified"
@@ -777,12 +783,24 @@ function parseDate(value: string | null | undefined): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function publicationTimestampPrecision(value: string): EvidenceItem["publishedAtPrecision"] {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value.trim()) ? "day" : "exact";
+}
+
 function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
   const isRetweet = item.platform === "x" && /"is_retweet"\s*:\s*true/i.test(item.rawVisibleText ?? "");
   const isProfileContext = isProfileOnlySocialEvidence(item);
+  const isLinkedInActivityFragment = isLinkedInProfileActivityFragment(item);
+  const linkedInActivity = classifyLinkedInActivity(item);
+  const isLinkedInCommentContext = linkedInActivity.kind !== "not_comment";
   const contributionScore =
-    item.platform === "web" || item.platform === "rss" || isRetweet || isProfileContext ? 0 : item.contributionScore;
-  const socialAccountId = `${item.platform}:${item.entityType}:${item.entityId}`;
+    item.platform === "web" ||
+    item.platform === "rss" ||
+    isRetweet ||
+    isProfileContext ||
+    isLinkedInCommentContext
+      ? 0
+      : item.contributionScore;
   const nativeAuthor = nativeAuthorFromRawVisibleText(item.rawVisibleText);
   const mediaUrls = [
     ...(item.mediaUrls ?? []),
@@ -799,6 +817,9 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     authorName: nativeAuthor.name ?? item.title ?? item.companyName,
     authorHandle: nativeAuthor.handle,
     postedAt: item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
+    publishedAtPrecision: item.postedAt ? publicationTimestampPrecision(item.postedAt) : "unknown",
+    observedAt: item.first_seen_at ?? item.last_checked_at ?? publicSnapshot.source.fetchedAt,
+    metricsCheckedAt: item.last_checked_at ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     title: displayTitle,
     text: item.text || displayTitle,
     mediaType: mediaTypeForPlatform(item.platform),
@@ -806,28 +827,46 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     mediaUrls,
     thumbnailUrl: item.thumbnailUrl ?? null,
     thumbnailSource: item.thumbnailSource ?? null,
-    linkStatus: item.linkStatus ?? null,
-    linkCheckedAt: item.linkCheckedAt ?? null,
+    linkStatus: isLinkedInCommentContext ? "unchecked" : item.linkStatus ?? null,
+    linkCheckedAt: isLinkedInCommentContext ? null : item.linkCheckedAt ?? null,
     linkFailureReason: item.linkFailureReason ?? null,
     metrics: item.metrics ?? {},
     contributionScore,
-    sourceUrl: item.sourceUrl,
-    platformPostId: item.platformPostId ?? platformPostIdFromUrl(item.platform, item.sourceUrl),
+    sourceUrl: linkedInActivity.kind === "native_comment" ? linkedInActivity.contextUrl : item.sourceUrl,
+    platformPostId:
+      linkedInActivity.kind === "native_comment"
+        ? linkedInActivity.reference.commentId
+        : isLinkedInCommentContext
+          ? null
+          : item.platformPostId ?? platformPostIdFromUrl(item.platform, item.sourceUrl),
     rawVisibleText: item.rawVisibleText,
     first_seen_at: item.first_seen_at,
     last_checked_at: item.last_checked_at,
     last_updated_at: item.last_updated_at,
     why: isRetweet
       ? "Stored as context only. Retweets are not counted as original post traction."
-      : isProfileContext
-        ? "Stored as context only. Profile pages are not counted as post-level traction."
-        : item.matchReason,
+      : linkedInActivity.kind === "native_comment"
+        ? `Stored as context only: contextual Top Voice attention. Native LinkedIn comments are not original posts and never contribute to regular company or founder traction scores. Direct comment locator: ${item.sourceUrl}`
+        : linkedInActivity.kind === "mislabelled_parent_comment"
+          ? `Rejected as traction and retained as context only. The row assigns a comment by ${linkedInActivity.claimedAuthorHandle ?? "an unresolved author"} to a parent post owned by ${linkedInActivity.sourceAuthorHandle ?? "another account"} without a stable comment identity. Parent-post IDs and metrics are never attributed as comment or company traction.`
+          : linkedInActivity.kind === "unlocated_comment"
+            ? "Stored as context only. This LinkedIn comment claim has no separate stable native comment identity, so its parent-post URL, ID, and metrics are never treated as original post traction."
+            : isProfileContext
+              ? isLinkedInActivityFragment
+                ? "Stored as context only. LinkedIn profile activity fragments lack a stable native post identity and are not counted as post-level traction."
+                : "Stored as context only. Profile pages are not counted as post-level traction."
+              : item.matchReason,
     attachedCompanyId: attachedCompanyIdForPublicEvidence(item),
     attachedCompanyName: item.companyName,
-    socialAccountId,
-    accountUrl: null,
+    socialAccountId: null,
+    accountUrl: item.accountUrl ?? null,
     matchReason: item.matchReason,
-    review_state: item.review_state
+    review_state:
+      linkedInActivity.kind === "mislabelled_parent_comment"
+        ? "rejected"
+        : linkedInActivity.kind === "unlocated_comment"
+          ? "needs_review"
+          : item.review_state
   });
 }
 
@@ -886,6 +925,13 @@ function platformPostIdFromUrl(platform: Platform, rawUrl: string): string | nul
     if (platform === "x") {
       return path.match(/\/status\/(\d+)/i)?.[1] ?? null;
     }
+    if (platform === "tiktok") {
+      return path.match(/^\/@[A-Za-z0-9._-]+\/video\/(\d+)/i)?.[1] ?? null;
+    }
+    if (platform === "bluesky") {
+      const match = path.match(/^\/profile\/([^/]+)\/post\/([^/]+)/i);
+      return match ? `${match[1].toLowerCase()}/post/${match[2]}` : null;
+    }
     if (platform === "instagram") {
       return path.match(/^\/(?:p|reel|tv)\/([^/]+)/i)?.[1] ?? null;
     }
@@ -916,8 +962,12 @@ function platformPostIdFromUrl(platform: Platform, rawUrl: string): string | nul
 }
 
 function isProfileOnlySocialEvidence(item: PublicEvidenceRecord): boolean {
-  if (!["linkedin", "x", "instagram"].includes(item.platform)) {
+  if (!["linkedin", "x", "instagram", "tiktok", "bluesky"].includes(item.platform)) {
     return false;
+  }
+
+  if (isLinkedInProfileActivityFragment(item)) {
+    return true;
   }
 
   if (item.platformPostId) {
@@ -934,13 +984,183 @@ function isProfileOnlySocialEvidence(item: PublicEvidenceRecord): boolean {
       return !(/^\/(p|reel|tv)\//.test(pathAndHash) || /#post-\d+/.test(pathAndHash));
     }
     if (item.platform === "linkedin") {
-      return !/\/feed\/update\/|\/posts\/|\/recent-activity\/all\/#post-/.test(pathAndHash);
+      return !/\/feed\/update\/|\/posts\//.test(pathAndHash);
+    }
+    if (item.platform === "tiktok") {
+      return !/\/@[a-z0-9._-]+\/video\/\d+/i.test(pathAndHash);
+    }
+    if (item.platform === "bluesky") {
+      return !/^\/profile\/[^/]+\/post\/[^/]+/i.test(pathAndHash);
     }
   } catch {
     return true;
   }
 
   return false;
+}
+
+function isLinkedInProfileActivityFragment(item: PublicEvidenceRecord): boolean {
+  if (item.platform !== "linkedin") {
+    return false;
+  }
+
+  try {
+    const url = new URL(item.sourceUrl);
+    return /\/recent-activity\//i.test(url.pathname) && /^#post-/i.test(url.hash);
+  } catch {
+    return false;
+  }
+}
+
+function classifyLinkedInActivity(item: PublicEvidenceRecord): LinkedInActivityPolicy {
+  if (item.platform !== "linkedin") {
+    return { kind: "not_comment" };
+  }
+
+  const reference = linkedInCommentReference(item);
+  if (reference && (!item.platformPostId || item.platformPostId === reference.commentId)) {
+    return {
+      kind: "native_comment",
+      reference,
+      contextUrl: canonicalLinkedInCommentContextUrl(item, reference) ?? item.sourceUrl
+    };
+  }
+
+  if (!reference && !claimsLinkedInComment(item)) {
+    return { kind: "not_comment" };
+  }
+
+  const sourceAuthorHandle = linkedInAuthorHandleFromPostUrl(item.sourceUrl);
+  const claimedAuthorHandle =
+    normalizeHandle(nativeAuthorFromRawVisibleText(item.rawVisibleText).handle ?? undefined) || null;
+  if (reference || (sourceAuthorHandle && claimedAuthorHandle && sourceAuthorHandle !== claimedAuthorHandle)) {
+    return {
+      kind: "mislabelled_parent_comment",
+      sourceAuthorHandle,
+      claimedAuthorHandle
+    };
+  }
+
+  return { kind: "unlocated_comment" };
+}
+
+function linkedInCommentReference(item: PublicEvidenceRecord): LinkedInCommentReference | null {
+  if (item.platform !== "linkedin") {
+    return null;
+  }
+
+  try {
+    const sourceUrl = new URL(item.sourceUrl);
+    const sourceHost = sourceUrl.hostname.replace(/^www\./i, "").toLowerCase();
+    if (sourceHost !== "linkedin.com" && !sourceHost.endsWith(".linkedin.com")) {
+      return null;
+    }
+
+    const raw = rawVisibleTextRecord(item.rawVisibleText);
+    const post = recordFromUnknown(raw?.post);
+    const verification = recordFromUnknown(raw?.verification);
+    const verificationReason = recordFromUnknown(verification?.reason);
+    const commentUrns = [
+      ...[...sourceUrl.searchParams.entries()]
+        .filter(([key]) => key.toLowerCase().includes("comment"))
+        .map(([, value]) => value),
+      stringRecordValue(post, "commentUrn"),
+      stringRecordValue(verificationReason, "commentUrn"),
+      stringRecordValue(raw, "commentUrn")
+    ].filter((value): value is string => Boolean(value));
+
+    for (const commentUrn of commentUrns) {
+      const reference = parseLinkedInCommentUrn(commentUrn);
+      if (reference) {
+        return reference;
+      }
+    }
+
+    const activityCommentId = /\/recent-activity\/comments\/?$/i.test(sourceUrl.pathname)
+      ? sourceUrl.hash.match(/^#post-(\d+)$/i)?.[1]
+      : null;
+    return activityCommentId
+      ? { commentId: activityCommentId, parentPostId: null, commentUrn: null }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function parseLinkedInCommentUrn(value: string): LinkedInCommentReference | null {
+  let decoded = value;
+  try {
+    decoded = decodeURIComponent(value);
+  } catch {
+    // URLSearchParams may already have decoded a value containing a literal percent sign.
+  }
+
+  const match = decoded.match(
+    /urn:li:comment:\(\s*urn:li:(?:activity|ugcPost|share):(\d+)\s*,\s*(\d+)\s*\)/i
+  );
+  return match
+    ? { parentPostId: match[1], commentId: match[2], commentUrn: decoded }
+    : null;
+}
+
+function canonicalLinkedInCommentContextUrl(
+  item: PublicEvidenceRecord,
+  reference: LinkedInCommentReference
+): string | null {
+  const nativeAuthor = nativeAuthorFromRawVisibleText(item.rawVisibleText);
+  const rawProfileUrl =
+    item.accountUrl ??
+    (nativeAuthor.handle
+      ? `https://www.linkedin.com/in/${encodeURIComponent(nativeAuthor.handle)}`
+      : null);
+  if (!rawProfileUrl) {
+    return null;
+  }
+
+  try {
+    const profileUrl = new URL(rawProfileUrl);
+    const profileHost = profileUrl.hostname.replace(/^www\./i, "").toLowerCase();
+    const profileHandle = handleFromUrl(profileUrl.toString());
+    if (
+      (profileHost !== "linkedin.com" && !profileHost.endsWith(".linkedin.com")) ||
+      !profileHandle ||
+      !/\/in\//i.test(profileUrl.pathname)
+    ) {
+      return null;
+    }
+
+    profileUrl.search = "";
+    profileUrl.pathname = `/in/${encodeURIComponent(profileHandle)}/recent-activity/comments/`;
+    profileUrl.hash = `post-${reference.commentId}`;
+    return profileUrl.toString();
+  } catch {
+    return null;
+  }
+}
+
+function claimsLinkedInComment(item: PublicEvidenceRecord): boolean {
+  const text = [item.title, item.matchReason, item.rawVisibleText].filter(Boolean).join(" ");
+  return /\b(?:linkedin|native)\s+comment\b|\bcomment-level\b|\bdirect\s+comment\s+(?:permalink|locator)\b|\bcomments?\s+on\b/i.test(
+    text
+  );
+}
+
+function rawVisibleTextRecord(rawVisibleText: string | undefined): Record<string, unknown> | null {
+  if (!rawVisibleText?.trim().startsWith("{")) {
+    return null;
+  }
+
+  try {
+    return recordFromUnknown(JSON.parse(rawVisibleText));
+  } catch {
+    return null;
+  }
+}
+
+function recordFromUnknown(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
 }
 
 function isKnownSummerEvidenceRecord(item: PublicEvidenceRecord): boolean {
@@ -1133,19 +1353,8 @@ function linkedInAuthorHandleFromPostUrl(rawUrl: string): string | null {
 }
 
 function linkedInProfileHandle(rawUrl: string | undefined): string | null {
-  if (!rawUrl) return null;
-  try {
-    const url = new URL(rawUrl);
-    const parts = url.pathname.split("/").filter(Boolean);
-    const markerIndex = parts.findIndex((part) => ["in", "company"].includes(part.toLowerCase()));
-    if (markerIndex >= 0 && parts[markerIndex + 1]) {
-      return normalizeHandle(parts[markerIndex + 1]);
-    }
-  } catch {
-    return null;
-  }
-
-  return null;
+  const handle = rawUrl ? handleFromUrl(rawUrl) : null;
+  return handle ? normalizeHandle(handle) : null;
 }
 
 function normalizeHandle(value: string | undefined): string {
@@ -1199,6 +1408,7 @@ function attributionSocialLinks(links: RawSocialLinks): AttributionSocialLink[] 
   return (Object.entries(links) as [keyof RawSocialLinks, string][])
     .filter(([, url]) => Boolean(url))
     .filter(([platform, url]) => urlMatchesPlatform(url, platform))
+    .filter(([, url]) => Boolean(handleFromUrl(url)))
     .map(([platform, url]) => ({ platform, url }));
 }
 
@@ -1210,29 +1420,204 @@ function groupEvidenceByEntity(items: EvidenceItem[]): Map<string, EvidenceItem[
   return grouped;
 }
 
+function resolveEvidenceSocialAccountIds(
+  items: EvidenceItem[],
+  companies: CompanyRecord[],
+  founders: FounderRecord[]
+): EvidenceItem[] {
+  const accountIdByIdentity = new Map<string, string>();
+
+  for (const company of companies) {
+    addMaterializedSocialAccounts(accountIdByIdentity, "company", company.id, company.socialAccounts);
+  }
+  for (const founder of founders) {
+    addMaterializedSocialAccounts(accountIdByIdentity, "founder", founder.id, founder.socialAccounts);
+  }
+
+  return items.map((item) => {
+    const key = socialAccountIdentityKey(
+      item.entityType,
+      item.entityId,
+      item.platform,
+      evidenceAccountUrl(item)
+    );
+    return {
+      ...item,
+      socialAccountId: key ? accountIdByIdentity.get(key) ?? null : null
+    };
+  });
+}
+
+function evidenceAccountUrl(item: EvidenceItem): string | null {
+  if (item.accountUrl) {
+    return item.accountUrl;
+  }
+
+  return canDeriveAccountUrlFromSource(item.platform) ? item.sourceUrl : null;
+}
+
+function canDeriveAccountUrlFromSource(platform: Platform): boolean {
+  return platform === "github" || platform === "x" || platform === "tiktok" || platform === "bluesky";
+}
+
+function addMaterializedSocialAccounts(
+  accountIdByIdentity: Map<string, string>,
+  entityType: EvidenceItem["entityType"],
+  entityId: string,
+  accounts: SocialAccountSummary[]
+): void {
+  for (const account of accounts) {
+    const key = socialAccountIdentityKey(entityType, entityId, account.platform, account.url);
+    if (key) {
+      accountIdByIdentity.set(key, account.id);
+    }
+  }
+}
+
+function socialAccountIdentityKey(
+  entityType: EvidenceItem["entityType"],
+  entityId: string,
+  platform: Platform,
+  rawUrl: string | null | undefined
+): string | null {
+  if (!rawUrl?.trim()) {
+    return null;
+  }
+
+  return `${entityType}\u0000${entityId}\u0000${platform}\u0000${canonicalAccountUrl(rawUrl)}`;
+}
+
+function materializedSocialAccountId(
+  entityType: EvidenceItem["entityType"],
+  entityId: string,
+  platform: Platform,
+  rawUrl: string
+): string {
+  return `acct:${entityType}:${entityId}:${platform}:${encodeURIComponent(canonicalAccountUrl(rawUrl))}`;
+}
+
+function canonicalizeBatchEvidence(items: EvidenceItem[]): EvidenceItem[] {
+  const groups = new Map<string, EvidenceItem[]>();
+
+  for (const item of items) {
+    const companyScope = item.attachedCompanyId ?? (item.entityType === "company" ? item.entityId : null);
+    const ownerScope = companyScope ?? `${item.entityType}:${item.entityId}`;
+    const evidenceScope = hasEvidenceIdentityConflict(item)
+      ? `context:${item.id}`
+      : canonicalPostKey(item);
+    const key = `${ownerScope}:${evidenceScope}`;
+    groups.set(key, [...(groups.get(key) ?? []), item]);
+  }
+
+  return [...groups.values()].map(canonicalEvidenceObservation);
+}
+
+function dedupeBatchEvidence(items: EvidenceItem[]): EvidenceItem[] {
+  const physicalItems = items.filter((item) => !hasEvidenceIdentityConflict(item));
+  const contextItems = items.filter(hasEvidenceIdentityConflict);
+  return [...dedupeEvidenceItems(physicalItems), ...contextItems];
+}
+
+function canonicalEvidenceObservation(items: EvidenceItem[]): EvidenceItem {
+  if (items.length === 1) {
+    return items[0];
+  }
+
+  const verifiedItems = items.filter((item) => item.review_state === "verified");
+  const candidates = verifiedItems.length ? verifiedItems : items;
+  const payload = strongestEvidenceObservation(candidates);
+  const founderItems = candidates.filter(
+    (item) => item.entityType === "founder" && Boolean(item.attachedCompanyId)
+  );
+  const founderAttribution = founderItems.length
+    ? strongestEvidenceObservation(founderItems)
+    : null;
+  const matchReason = mergeEvidenceProvenance(candidates.map((item) => item.matchReason));
+  const why = mergeEvidenceProvenance(candidates.map((item) => item.why)) ?? payload.why;
+  const canonical = {
+    ...payload,
+    // Keep one real observation intact. Per-field maxima can synthesize a
+    // metric snapshot that never existed and can resurrect stale corrections.
+    metrics: payload.metrics,
+    matchReason,
+    why
+  };
+
+  if (!founderAttribution) {
+    return canonical;
+  }
+
+  return {
+    ...canonical,
+    id: founderAttribution.id,
+    entityType: "founder",
+    entityId: founderAttribution.entityId,
+    attachedCompanyId: founderAttribution.attachedCompanyId,
+    attachedCompanyName: founderAttribution.attachedCompanyName ?? canonical.attachedCompanyName,
+    socialAccountId: founderAttribution.socialAccountId ?? canonical.socialAccountId,
+    canonicalAccountId: founderAttribution.canonicalAccountId ?? canonical.canonicalAccountId,
+    accountUrl: founderAttribution.accountUrl ?? canonical.accountUrl,
+    thumbnailUrl: founderAttribution.thumbnailUrl ?? canonical.thumbnailUrl,
+    thumbnailSource: founderAttribution.thumbnailSource ?? canonical.thumbnailSource
+  };
+}
+
+function strongestEvidenceObservation(items: EvidenceItem[]): EvidenceItem {
+  return dedupeEvidenceForScoring(items)[0] ?? items[0];
+}
+
+function mergeEvidenceProvenance(values: Array<string | null | undefined>): string | undefined {
+  const unique = [
+    ...new Set(
+      values.map((value) => value?.trim()).filter((value): value is string => Boolean(value))
+    )
+  ];
+  return unique.length ? unique.join(" ") : undefined;
+}
+
+function githubProfileEvidenceId(account: GithubAccount, sourceSnapshot: GithubSnapshot): string {
+  const fetchedAccountLogins = new Set(
+    sourceSnapshot.accounts
+      .filter((candidate) => candidate.entityId === account.entityId && candidate.fetched && candidate.aggregate)
+      .map((candidate) => candidate.login.toLowerCase())
+  );
+  const loginSuffix = fetchedAccountLogins.size > 1 ? `-${slugify(account.login)}` : "";
+  return `evidence-github-profile-${account.entityId}${loginSuffix}`;
+}
+
 function mediaTypeForPlatform(platform: Platform): EvidenceItem["mediaType"] {
   if (platform === "github") return "repo";
-  if (platform === "youtube") return "video";
+  if (platform === "youtube" || platform === "tiktok") return "video";
   if (platform === "product_hunt") return "launch";
   return "link";
 }
 
 function socialAccountsFor(
   links: RawSocialLinks,
-  options: { entityPrefix: string; discoveredFromUrl: string; matchReason: string }
+  options: {
+    entityType: EvidenceItem["entityType"];
+    entityId: string;
+    discoveredFromUrl: string;
+    matchReason: string;
+  }
 ): SocialAccountSummary[] {
   return (Object.entries(links) as [keyof RawSocialLinks, string][])
     .filter(([, url]) => Boolean(url))
     .filter(([platform, url]) => urlMatchesPlatform(url, platform))
-    .map(([platform, url]) => ({
-      id: `acct-${options.entityPrefix}-${platform}`,
-      platform,
-      handle: handleFromUrl(url),
-      url,
-      review_state: "verified",
-      discoveredFromUrl: options.discoveredFromUrl,
-      matchReason: options.matchReason
-    }));
+    .map(([platform, url]) => {
+      const handle = handleFromUrl(url);
+      return {
+        id: materializedSocialAccountId(options.entityType, options.entityId, platform, url),
+        platform,
+        handle,
+        url,
+        review_state: handle ? "verified" : "rejected",
+        discoveredFromUrl: options.discoveredFromUrl,
+        matchReason: handle
+          ? options.matchReason
+          : `${options.matchReason} Rejected because the URL has no non-generic account identity.`
+      };
+    });
 }
 
 function manualFounderOverrides(raw: RawCompany): VerifiedFounderOverride[] {
@@ -1259,16 +1644,50 @@ function canonicalAccountUrl(rawUrl: string): string {
     const url = new URL(rawUrl);
     url.hash = "";
     url.search = "";
-    url.hostname = url.hostname.replace(/^www\./, "").toLowerCase();
-    const parts = url.pathname.split("/").filter(Boolean);
-    if (url.hostname === "github.com" && parts[0]?.toLowerCase() === "orgs" && parts[1]) {
-      url.pathname = `/${parts.slice(1).join("/")}`;
-    } else {
-      url.pathname = url.pathname.replace(/\/$/, "");
+    url.protocol = "https:";
+    url.hostname = url.hostname.replace(/^www\./i, "").toLowerCase();
+    const parts = url.pathname
+      .split("/")
+      .filter(Boolean)
+      .map((part) => decodeUrlPathSegment(part));
+    const host = url.hostname;
+
+    if (host === "github.com") {
+      const handle = parts[0]?.toLowerCase() === "orgs" ? parts[1] : parts[0];
+      if (handle) return `https://github.com/${handle.toLowerCase().replace(/\.git$/i, "")}`;
     }
-    return url.toString().toLowerCase();
+
+    if (host === "linkedin.com" || host.endsWith(".linkedin.com")) {
+      const markerIndex = parts.findIndex((part) => ["company", "in", "school"].includes(part.toLowerCase()));
+      const namespace = markerIndex >= 0 ? parts[markerIndex]?.toLowerCase() : null;
+      const handle = markerIndex >= 0 ? parts[markerIndex + 1] : null;
+      if (namespace && handle) return `https://linkedin.com/${namespace}/${handle.toLowerCase()}`;
+    }
+
+    if (host === "x.com" || host === "twitter.com") {
+      const handle = parts[0]?.replace(/^@/, "");
+      if (handle) return `https://x.com/${handle.toLowerCase()}`;
+    }
+
+    if (host === "instagram.com" || host.endsWith(".instagram.com")) {
+      const handle = parts[0]?.replace(/^@/, "");
+      if (handle) return `https://instagram.com/${handle.toLowerCase()}`;
+    }
+
+    if (host === "tiktok.com" || host.endsWith(".tiktok.com")) {
+      const handle = parts[0]?.replace(/^@/, "");
+      if (handle) return `https://tiktok.com/@${handle.toLowerCase()}`;
+    }
+
+    if (host === "bsky.app") {
+      const handle = parts[0]?.toLowerCase() === "profile" ? parts[1] : null;
+      if (handle) return `https://bsky.app/profile/${handle.toLowerCase()}`;
+    }
+
+    url.pathname = `/${parts.join("/")}`.replace(/\/$/, "");
+    return url.toString();
   } catch {
-    return rawUrl.toLowerCase();
+    return rawUrl.trim().toLowerCase();
   }
 }
 
@@ -1279,6 +1698,8 @@ function urlMatchesPlatform(url: string, platform: keyof RawSocialLinks): boolea
     if (platform === "linkedin") return host === "linkedin.com" || host.endsWith(".linkedin.com");
     if (platform === "github") return host === "github.com";
     if (platform === "instagram") return host === "instagram.com";
+    if (platform === "tiktok") return host === "tiktok.com" || host === "m.tiktok.com";
+    if (platform === "bluesky") return host === "bsky.app";
     return true;
   } catch {
     return false;
@@ -1351,18 +1772,45 @@ function slugify(value: string): string {
     .replace(/^-|-$/g, "");
 }
 
-function round(value: number, digits = 2): number {
-  const factor = 10 ** digits;
-  return Math.round(value * factor) / factor;
-}
-
-function handleFromUrl(url: string): string | null {
+export function handleFromUrl(url: string): string | null {
   try {
     const parsed = new URL(url);
-    const parts = parsed.pathname.split("/").filter(Boolean);
-    return parts[parts.length - 1]?.replace(/^@/, "") || parsed.hostname.replace(/^www\./, "");
+    const host = parsed.hostname.replace(/^www\./i, "").toLowerCase();
+    const parts = parsed.pathname
+      .split("/")
+      .filter(Boolean)
+      .map((part) => decodeUrlPathSegment(part));
+    let identity: string | undefined;
+
+    if (host === "linkedin.com" || host.endsWith(".linkedin.com")) {
+      const markerIndex = parts.findIndex((part) => ["company", "in"].includes(part.toLowerCase()));
+      identity = markerIndex >= 0 ? parts[markerIndex + 1] : undefined;
+    } else if (host === "github.com" && parts[0]?.toLowerCase() === "orgs") {
+      identity = parts[1];
+    } else {
+      identity = parts.at(-1);
+    }
+
+    const handle = identity?.replace(/^@/, "").trim();
+    if (
+      !handle ||
+      !/^[A-Za-z0-9._-]+$/.test(handle) ||
+      GENERIC_SOCIAL_IDENTITIES.has(handle.toLowerCase())
+    ) {
+      return null;
+    }
+
+    return handle;
   } catch {
     return null;
+  }
+}
+
+function decodeUrlPathSegment(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
   }
 }
 

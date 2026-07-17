@@ -52,13 +52,34 @@ export function formatPlatform(platform: Platform): string {
     web: "Web",
     reddit: "Reddit",
     hacker_news: "Hacker News",
-    bilibili: "Bilibili"
+    bilibili: "Bilibili",
+    tiktok: "TikTok",
+    bluesky: "Bluesky"
   };
   return labels[platform];
 }
 
 function renderPlatformLogo(platform: Platform, gradientId: string) {
   switch (platform) {
+    case "tiktok":
+      return (
+        <>
+          <rect width="24" height="24" rx="4" fill="#111111" />
+          <path d="M14.7 5.2v8.1a3.7 3.7 0 1 1-3.7-3.7" fill="none" stroke="#25F4EE" strokeLinecap="round" strokeWidth="2.4" transform="translate(-.7 .4)" />
+          <path d="M14.7 5.2v8.1a3.7 3.7 0 1 1-3.7-3.7M14.7 7c1 1.3 2.2 2 3.8 2.2" fill="none" stroke="#FE2C55" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" transform="translate(.7 -.2)" />
+          <path d="M14.7 5.2v8.1a3.7 3.7 0 1 1-3.7-3.7M14.7 7c1 1.3 2.2 2 3.8 2.2" fill="none" stroke="#ffffff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.1" />
+        </>
+      );
+    case "bluesky":
+      return (
+        <>
+          <rect width="24" height="24" rx="4" fill="#1185FE" />
+          <path
+            fill="#ffffff"
+            d="M11.9 11.7C10.8 9.4 8.2 6.5 5.9 5.3 4.3 4.5 3.6 5.9 4 7.4c.5 2.2 2.5 4 5.2 4.7-2.5.4-4.7 1.8-4.9 4-.1 1.2.7 2.1 1.9 1.8 2.5-.6 4.6-2.6 5.8-4.8 1.2 2.2 3.3 4.2 5.8 4.8 1.2.3 2-.6 1.9-1.8-.2-2.2-2.4-3.6-4.9-4 2.7-.7 4.7-2.5 5.2-4.7.4-1.5-.3-2.9-1.9-2-2.3 1.2-4.9 4-6 6.3Z"
+          />
+        </>
+      );
     case "x":
       return (
         <>

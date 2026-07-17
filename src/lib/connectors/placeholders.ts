@@ -64,3 +64,38 @@ export class LinkedInSafeConnector extends ReadOnlyConnector {
     ]
   });
 }
+
+export class TikTokUnavailableConnector extends ReadOnlyConnector {
+  platform = "tiktok" as const;
+  protected limitations = readOnlyLimitations({
+    platform: this.platform,
+    requiresAuth: true,
+    status: "disabled",
+    supportsProfileDiscovery: false,
+    supportsRecentPosts: false,
+    supportsMetrics: false,
+    authentication: "No TikTok collection adapter is configured; future collection requires approved official access.",
+    missingCapabilities: ["No profile discovery, post fetch, or metric collection adapter."],
+    notes: [
+      "Verified externally supplied native TikTok post evidence can be retained, but remains unscored because no calibrated traction model is configured.",
+      "Short-link redirects are not treated as stable post identity."
+    ]
+  });
+}
+
+export class BlueskyUnavailableConnector extends ReadOnlyConnector {
+  platform = "bluesky" as const;
+  protected limitations = readOnlyLimitations({
+    platform: this.platform,
+    requiresAuth: false,
+    status: "stub",
+    supportsProfileDiscovery: false,
+    supportsRecentPosts: false,
+    supportsMetrics: false,
+    authentication: "Public Bluesky and AT Protocol reads are not wired into this worker.",
+    missingCapabilities: ["No profile discovery, post fetch, or metric collection adapter."],
+    notes: [
+      "Verified externally supplied native Bluesky post evidence can be retained, but remains unscored because no calibrated traction model is configured."
+    ]
+  });
+}

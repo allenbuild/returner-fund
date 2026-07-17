@@ -17,19 +17,24 @@ export function graphNodeMatchesSearchQuery(node: GraphNode, rawQuery: string): 
   return searchGraphNodes([node], rawQuery, 1).length > 0;
 }
 
-export function searchGraphNodes(nodes: GraphNode[], rawQuery: string, limit = 12): GraphSearchResult[] {
+export function searchGraphNodes(
+  nodes: GraphNode[],
+  rawQuery: string,
+  limit = 12,
+  canonicalRankByCompanyId?: ReadonlyMap<string, number>
+): GraphSearchResult[] {
   const query = normalizeSearchText(rawQuery);
   if (!query) return [];
 
   const results: GraphSearchResult[] = [];
-  const rankByCompanyNodeId = rankCompanyNodes(nodes);
+  const rankByCompanyId = canonicalRankByCompanyId ?? rankCompanyNodes(nodes);
 
   for (const node of nodes) {
     if (node.entityType !== "company") {
       continue;
     }
 
-    const rank = rankByCompanyNodeId.get(node.id) ?? 0;
+    const rank = rankByCompanyId.get(node.entityId) ?? 0;
     const companyScore = matchScore(query, [node.label]);
     if (companyScore > 0) {
       results.push({
@@ -66,13 +71,23 @@ export function searchGraphNodes(nodes: GraphNode[], rawQuery: string, limit = 1
 }
 
 function rankCompanyNodes(nodes: GraphNode[]): Map<string, number> {
-  return new Map(
-    nodes
-      .filter((node) => node.entityType === "company")
-      .map((node, index) => ({ node, index }))
-      .sort((left, right) => right.node.score - left.node.score || left.index - right.index)
-      .map(({ node }, index) => [node.id, index + 1])
-  );
+  const sortedCompanies = nodes
+    .filter((node) => node.entityType === "company")
+    .map((node, index) => ({ node, index }))
+    .sort((left, right) => right.node.score - left.node.score || left.index - right.index);
+  const ranks = new Map<string, number>();
+  let previousScore: number | null = null;
+  let rank = 0;
+
+  sortedCompanies.forEach(({ node }, index) => {
+    if (previousScore === null || node.score !== previousScore) {
+      rank = index + 1;
+      previousScore = node.score;
+    }
+    ranks.set(node.entityId, rank);
+  });
+
+  return ranks;
 }
 
 function formatRankScore(rank: number, score: number): string {

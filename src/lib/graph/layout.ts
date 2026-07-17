@@ -355,7 +355,7 @@ function estimateLabelDimensions(node: GraphNode, maxTextWidth = LABEL_TEXT_MAX_
 
 function labelFitsInsideNode(node: GraphNode): boolean {
   const { width, height } = estimateLabelDimensions(node, labelMaxWidthForNode(node, { halign: "center", valign: "center", marginX: 0, marginY: 0 }));
-  return width <= node.radius * 2.35 && height <= node.radius * 1.62 && Math.hypot(width / 2, height / 2) <= node.radius * 1.42;
+  return width <= node.radius * 2.45 && height <= node.radius * 1.62 && Math.hypot(width / 2, height / 2) <= node.radius * 1.42;
 }
 
 function bestFallbackLabelOption(

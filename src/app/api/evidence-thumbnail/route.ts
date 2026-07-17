@@ -37,7 +37,9 @@ function normalizePlatform(value: string | null): Platform {
     candidate === "web" ||
     candidate === "reddit" ||
     candidate === "hacker_news" ||
-    candidate === "bilibili"
+    candidate === "bilibili" ||
+    candidate === "tiktok" ||
+    candidate === "bluesky"
     ? candidate
     : "web";
 }

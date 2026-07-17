@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   A16Z_SPEEDRUN_006_BATCH_LABEL,
-  A16Z_SPEEDRUN_006_BATCH_SLUG
+  A16Z_SPEEDRUN_006_BATCH_SLUG,
+  a16zSpeedrun006GraphDataset
 } from "@/lib/graph/a16z-speedrun-006-dataset";
+import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
-import type { GraphNode, Platform, SocialAccountSummary } from "@/lib/graph/types";
+import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
+import { scoringEligibility } from "@/lib/graph/traction-scoring";
+import type { CompanyRecord, GraphNode, Platform, SocialAccountSummary } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import socialAccountSeedSnapshot from "@/lib/social/a16z-speedrun-006-social-accounts.json";
 
@@ -28,6 +32,60 @@ const CREBIT_BACKED_BY_A16Z_POST_URL =
   "https://www.linkedin.com/posts/simmi-sen_crebit-is-backed-by-a16z-speedrun-since-activity-7424504480077062144-_L5q";
 const CREBIT_GROWTH_INTERN_POST_URL =
   "https://www.linkedin.com/posts/simmi-sen_we-are-hiring-ten-paid-growth-interns-for-activity-7403840813530570752-U_Nm";
+const SIMULA_GITHUB_REPOSITORY_CASES = [
+  {
+    sourceUrl: "https://github.com/Simula-AI-SDK/simula-ad-sdk-kotlin",
+    platformPostId: "simula-ai-sdk/simula-ad-sdk-kotlin",
+    sourceCommitUrl:
+      "https://github.com/Simula-AI-SDK/simula-ad-sdk-kotlin/commit/11709687a966f26f9932bfef08adf724108cc989",
+    sourceCommitId: "11709687a966f26f9932bfef08adf724108cc989",
+    metrics: { stars: 0, forks: 0, issues: 1, recent_commits_30d: 1 }
+  },
+  {
+    sourceUrl: "https://github.com/Simula-AI-SDK/simula-ad-sdk-swift",
+    platformPostId: "simula-ai-sdk/simula-ad-sdk-swift",
+    sourceCommitUrl:
+      "https://github.com/Simula-AI-SDK/simula-ad-sdk-swift/commit/5e28c5e37da6d987cec0b10457993a98fb79687c",
+    sourceCommitId: "5e28c5e37da6d987cec0b10457993a98fb79687c",
+    metrics: { stars: 0, forks: 0, issues: 1, recent_commits_30d: 1 }
+  },
+  {
+    sourceUrl: "https://github.com/Simula-AI-SDK/simula-ad-sdk-react-native",
+    platformPostId: "simula-ai-sdk/simula-ad-sdk-react-native",
+    sourceCommitUrl:
+      "https://github.com/Simula-AI-SDK/simula-ad-sdk-react-native/commit/7a51abafc1a825bed71010845b9124e964a19deb",
+    sourceCommitId: "7a51abafc1a825bed71010845b9124e964a19deb",
+    metrics: { stars: 0, forks: 0, issues: 0, recent_commits_30d: 1 }
+  },
+  {
+    sourceUrl: "https://github.com/Simula-AI-SDK/simula-ad-sdk",
+    platformPostId: "simula-ai-sdk/simula-ad-sdk",
+    sourceCommitUrl:
+      "https://github.com/Simula-AI-SDK/simula-ad-sdk/commit/4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
+    sourceCommitId: "4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
+    metrics: { stars: 0, forks: 0, issues: 3, recent_commits_30d: 1 }
+  }
+] as const;
+const EXTERNAL_TOP_VOICE_ATTENTION_CASES = [
+  {
+    companyName: "Panorama",
+    companyId: "a16z-speedrun-006-panorama",
+    targetFounderId: "a16z-speedrun-006-panorama-founder-jingwei-hao",
+    sourceUrl: "https://x.com/andrewchen/status/2046634958152991118"
+  },
+  {
+    companyName: "Quo Labs",
+    companyId: "a16z-speedrun-006-quo-labs",
+    targetFounderId: "a16z-speedrun-006-quo-labs-founder-audrey-lo",
+    sourceUrl: "https://x.com/andrewchen/status/2044330562874421368"
+  },
+  {
+    companyName: "Hotbox",
+    companyId: "a16z-speedrun-006-hotbox",
+    targetFounderId: "a16z-speedrun-006-hotbox-founder-harpriya-bagri",
+    sourceUrl: "https://x.com/andrewchen/status/2034761120188379267"
+  }
+] as const;
 
 interface A16zSocialSeedSnapshot {
   companies: A16zSocialSeedCompany[];
@@ -67,6 +125,39 @@ describe("a16z speedrun 006 dataset", () => {
     expect(companyNodes.map((node) => node.label)).toEqual(
       expect.arrayContaining(["Acceler8", "Piper-ai", "Snapp Stats", "ZeroDrift"])
     );
+  });
+
+  it("uses tie-aware percentiles without erasing absolute or positive scores", () => {
+    const calibrated = calibrateBatchCompanyScores([
+      calibrationCompany("low-a", 10),
+      calibrationCompany("low-b", 10),
+      calibrationCompany("high", 80),
+      calibrationCompany("none", 0)
+    ]);
+    const byId = new Map(calibrated.map((company) => [company.id, company]));
+
+    expect(byId.get("low-a")?.totalScore).toBe(14);
+    expect(byId.get("low-b")?.totalScore).toBe(14);
+    expect(byId.get("high")?.totalScore).toBe(81);
+    expect(byId.get("none")?.totalScore).toBe(0);
+    expect(byId.get("low-a")?.scoreBreakdown).toEqual(
+      expect.objectContaining({
+        absoluteScore: 10,
+        calibration: {
+          method: "tie_aware_percentile_blend",
+          cohortSize: 3,
+          percentile: 0.3333,
+          inputScore: 10
+        }
+      })
+    );
+    expect(byId.get("low-b")?.scoreBreakdown?.calibration.percentile).toBe(0.3333);
+    expect(byId.get("none")?.scoreBreakdown?.calibration).toEqual({
+      method: "none",
+      cohortSize: 3,
+      percentile: null,
+      inputScore: 0
+    });
   });
 
   it("counts only native social/code platforms for A16Z traction", () => {
@@ -201,6 +292,73 @@ describe("a16z speedrun 006 dataset", () => {
           !accountUrlMatchesPlatform(account)
       )
     ).toEqual([]);
+  });
+
+  it("keeps evidence account lineage materialized and unique across account owners and URLs", () => {
+    const owners = materializedAccountOwners(a16zSpeedrun006GraphDataset);
+    const ownersById = new Map<string, typeof owners>();
+    for (const owner of owners) {
+      ownersById.set(owner.account.id, [...(ownersById.get(owner.account.id) ?? []), owner]);
+    }
+
+    const linkedEvidence = a16zSpeedrun006GraphDataset.evidence.filter(
+      (item) => item.socialAccountId !== null && item.socialAccountId !== undefined
+    );
+    const unresolvedEvidence = linkedEvidence.filter((item) => !ownersById.has(item.socialAccountId!));
+    const wrongOwnerEvidence = linkedEvidence.filter(
+      (item) =>
+        !ownersById
+          .get(item.socialAccountId!)
+          ?.some(
+            (owner) =>
+              owner.entityType === item.entityType &&
+              owner.entityId === item.entityId &&
+              owner.account.platform === item.platform
+          )
+    );
+    const collidingAccountIds = [...ownersById.entries()].filter(([, accountOwners]) =>
+      new Set(
+        accountOwners.map(
+          (owner) => `${owner.entityType}:${owner.entityId}:${owner.account.platform}:${owner.account.url}`
+        )
+      ).size > 1
+    );
+    const scoredLinkedEvidence = linkedEvidence.filter((item) => item.contributionScore > 0);
+    const crebitFounderPost = a16zSpeedrun006GraphDataset.evidence.find(
+      (item) => item.sourceUrl === CREBIT_SCREENSHOT_POST_URL
+    );
+    const smartBricksInstagramAccounts = owners.filter(
+      (owner) =>
+        owner.entityType === "company" &&
+        owner.entityId === "a16z-speedrun-006-smart-bricks" &&
+        owner.account.platform === "instagram"
+    );
+
+    expect(linkedEvidence.length).toBeGreaterThan(0);
+    expect(scoredLinkedEvidence.length).toBeGreaterThan(0);
+    expect(unresolvedEvidence).toHaveLength(0);
+    expect(wrongOwnerEvidence).toHaveLength(0);
+    expect(collidingAccountIds).toHaveLength(0);
+    expect(smartBricksInstagramAccounts).toHaveLength(2);
+    expect(new Set(smartBricksInstagramAccounts.map((owner) => owner.account.url)).size).toBe(2);
+    expect(new Set(smartBricksInstagramAccounts.map((owner) => owner.account.id)).size).toBe(2);
+    expect(crebitFounderPost).toEqual(
+      expect.objectContaining({
+        entityType: "founder",
+        platform: "linkedin",
+        contributionScore: expect.any(Number)
+      })
+    );
+    expect(crebitFounderPost?.contributionScore).toBeGreaterThan(0);
+    expect(ownersById.get(crebitFounderPost?.socialAccountId ?? "")).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          entityType: "founder",
+          entityId: crebitFounderPost?.entityId,
+          account: expect.objectContaining({ platform: "linkedin" })
+        })
+      ])
+    );
   });
 
   it("keeps seeded native social accounts visible on representative A16Z companies", () => {
@@ -398,7 +556,7 @@ describe("a16z speedrun 006 dataset", () => {
     );
   });
 
-  it("scores seeded A16Z Product Hunt launches from native Product Hunt URLs", () => {
+  it("scores native Product Hunt launches and preserves product roots as context", () => {
     const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
     const sun = graph.leaderboard.find((row) => row.companyName === "SUN");
     const taxnova = graph.leaderboard.find((row) => row.companyName === "Taxnova");
@@ -434,11 +592,12 @@ describe("a16z speedrun 006 dataset", () => {
       })
     );
     expect(sunLaunchEvidence?.contributionScore).toBeGreaterThan(0);
-    expect(taxnovaLaunchEvidence?.contributionScore).toBeGreaterThan(0);
+    expect(taxnovaLaunchEvidence?.contributionScore).toBe(0);
+    expect(taxnovaLaunchEvidence?.why).toContain("not_native_evidence");
     expect(sun?.socialAccounts.map((account) => account.url)).toContain("https://www.producthunt.com/products/sun-ai");
     expect(taxnova?.socialAccounts.map((account) => account.url)).toContain("https://www.producthunt.com/products/taxnova");
     expect(sunNode?.platformScores.product_hunt).toBeGreaterThan(0);
-    expect(taxnovaNode?.platformScores.product_hunt).toBeGreaterThan(0);
+    expect(taxnovaNode?.platformScores.product_hunt ?? 0).toBe(0);
   });
 
   it("surfaces second-pass A16Z LinkedIn and GitHub evidence in the graph", () => {
@@ -552,33 +711,147 @@ describe("a16z speedrun 006 dataset", () => {
     );
     expectA16zEvidence(graph.evidence, "https://github.com/MeetQuinn/anima", "Quinn", "github");
     expectA16zEvidence(graph.evidence, "https://github.com/MeetQuinn/quinn-sdk", "Quinn", "github");
-    expectA16zEvidence(
-      graph.evidence,
-      "https://github.com/Simula-AI-SDK/simula-ad-sdk-kotlin/commit/11709687a966f26f9932bfef08adf724108cc989",
-      "Simula",
-      "github"
-    );
-    expectA16zEvidence(
-      graph.evidence,
-      "https://github.com/Simula-AI-SDK/simula-ad-sdk-swift/commit/5e28c5e37da6d987cec0b10457993a98fb79687c",
-      "Simula",
-      "github"
-    );
-    expectA16zEvidence(
-      graph.evidence,
-      "https://github.com/Simula-AI-SDK/simula-ad-sdk-react-native/commit/7a51abafc1a825bed71010845b9124e964a19deb",
-      "Simula",
-      "github"
-    );
-    expectA16zEvidence(
-      graph.evidence,
-      "https://github.com/Simula-AI-SDK/simula-ad-sdk/commit/4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
-      "Simula",
-      "github"
-    );
+    for (const repositoryCase of SIMULA_GITHUB_REPOSITORY_CASES) {
+      expectA16zEvidence(graph.evidence, repositoryCase.sourceUrl, "Simula", "github");
+    }
     expectA16zEvidence(graph.evidence, "https://x.com/stedelmanto/status/2072374506149064784", "Oasis", "x");
     expectA16zEvidence(graph.evidence, "https://x.com/stedelmanto/status/2070183181970530569", "Oasis", "x");
     expectA16zEvidence(graph.evidence, "https://x.com/stedelmanto/status/2068042968410247494", "Oasis", "x");
+  });
+
+  it("canonicalizes Simula GitHub repositories without making commit URLs scoreable", () => {
+    const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
+    const simula = graph.nodes.find((node) => node.entityType === "company" && node.label === "Simula");
+    const githubEvidence = graph.evidence.filter(
+      (item) => item.attachedCompanyName === "Simula" && item.platform === "github"
+    );
+
+    expect(githubEvidence).toHaveLength(SIMULA_GITHUB_REPOSITORY_CASES.length);
+    expect(new Set(githubEvidence.map((item) => item.sourceUrl)).size).toBe(githubEvidence.length);
+    expect(githubEvidence.some((item) => /\/commit\//i.test(item.sourceUrl))).toBe(false);
+
+    for (const repositoryCase of SIMULA_GITHUB_REPOSITORY_CASES) {
+      const item = githubEvidence.find((candidate) => candidate.sourceUrl === repositoryCase.sourceUrl);
+      const provenance = JSON.parse(item?.rawVisibleText ?? "null") as {
+        canonicalRepository?: unknown;
+        sourceProvenance?: {
+          kind?: string;
+          sourceUrl?: string;
+          platformPostId?: string;
+          rawVisibleText?: { verification?: { status?: string; metricsVisible?: boolean } };
+        };
+      };
+
+      expect(item).toEqual(
+        expect.objectContaining({
+          sourceUrl: repositoryCase.sourceUrl,
+          platformPostId: repositoryCase.platformPostId,
+          mediaType: "repo",
+          mediaUrl: repositoryCase.sourceUrl,
+          metrics: repositoryCase.metrics,
+          contributionScore: expect.any(Number)
+        })
+      );
+      expect(item?.contributionScore).toBeGreaterThan(0);
+      expect(scoringEligibility(item!)).toEqual({ eligible: true, reason: "eligible" });
+      expect(provenance).toEqual(
+        expect.objectContaining({
+          canonicalRepository: {
+            sourceUrl: repositoryCase.sourceUrl,
+            platformPostId: repositoryCase.platformPostId,
+            metrics: repositoryCase.metrics
+          },
+          sourceProvenance: expect.objectContaining({
+            kind: "github_commit",
+            sourceUrl: repositoryCase.sourceCommitUrl,
+            platformPostId: repositoryCase.sourceCommitId,
+            rawVisibleText: expect.objectContaining({
+              verification: expect.objectContaining({ status: "accepted", metricsVisible: true })
+            })
+          })
+        })
+      );
+
+      expect(
+        scoringEligibility({
+          ...item!,
+          id: `${item!.id}-source-commit`,
+          sourceUrl: repositoryCase.sourceCommitUrl,
+          platformPostId: repositoryCase.sourceCommitId,
+          contributionScore: 1
+        })
+      ).toEqual({ eligible: false, reason: "not_native_evidence" });
+    }
+
+    expect(simula?.platformScores.github).toBeGreaterThan(0);
+    expect(simula?.scoreBreakdown?.absoluteScore).toBeGreaterThan(0);
+    expect(simula?.score).toBeGreaterThan(0);
+  });
+
+  it("keeps external Top Voice attention on the company while retaining its founder target", () => {
+    for (const regressionCase of EXTERNAL_TOP_VOICE_ATTENTION_CASES) {
+      const item = a16zSpeedrun006GraphDataset.evidence.find(
+        (candidate) => candidate.sourceUrl === regressionCase.sourceUrl
+      );
+
+      expect(item).toEqual(
+        expect.objectContaining({
+          entityType: "company",
+          entityId: regressionCase.companyId,
+          attachedCompanyId: regressionCase.companyId,
+          attachedCompanyName: regressionCase.companyName,
+          authorName: "Andrew Chen",
+          authorHandle: "andrewchen",
+          targetFounderId: regressionCase.targetFounderId
+        })
+      );
+    }
+
+    expect(
+      a16zSpeedrun006GraphDataset.evidence.find(
+        (item) => item.sourceUrl === "https://www.linkedin.com/posts/harpriya_what-a-week-at-a16z-speedrun-in-san-francisco-activity-7448045636349775872-R-MR"
+      )
+    ).toEqual(
+      expect.objectContaining({
+        entityType: "founder",
+        entityId: "a16z-speedrun-006-hotbox-founder-harpriya-bagri",
+        authorName: "Harpriya Bagri"
+      })
+    );
+  });
+
+  it("surfaces external A16Z attention in Insider mode without inflating founder rollups", () => {
+    const graph = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG, topVoices: "insiders" },
+      ycSpring2026GraphDataset
+    );
+
+    for (const regressionCase of EXTERNAL_TOP_VOICE_ATTENTION_CASES) {
+      const item = graph.evidence.find((candidate) => candidate.sourceUrl === regressionCase.sourceUrl);
+      const companyNode = graph.nodes.find((node) => node.entityId === regressionCase.companyId);
+      const targetFounder = companyNode?.founders.find((founder) => founder.id === regressionCase.targetFounderId);
+      const targetFounderEvidence = graph.evidence.filter(
+        (candidate) =>
+          targetFounder?.evidenceIds.includes(candidate.id) &&
+          candidate.entityType === "founder" &&
+          candidate.entityId === regressionCase.targetFounderId
+      );
+
+      expect(item).toEqual(
+        expect.objectContaining({
+          entityType: "company",
+          entityId: regressionCase.companyId,
+          attachedCompanyId: regressionCase.companyId,
+          topVoice: expect.objectContaining({
+            audienceId: "insiders",
+            displayName: "Andrew Chen"
+          })
+        })
+      );
+      expect(companyNode?.evidenceIds).toContain(item?.id);
+      expect(targetFounder?.evidenceIds).not.toContain(item?.id);
+      expect(targetFounderEvidence.map((candidate) => candidate.id)).toEqual(targetFounder?.evidenceIds);
+    }
   });
 
   it("does not count unseeded previous founder history as company traction", () => {
@@ -604,12 +877,100 @@ describe("a16z speedrun 006 dataset", () => {
   });
 });
 
+function calibrationCompany(id: string, absoluteScore: number): CompanyRecord {
+  const hasEvidence = absoluteScore > 0;
+
+  return {
+    id,
+    batchSlug: "test",
+    name: id,
+    ycProfileUrl: `https://example.com/${id}`,
+    websiteUrl: `https://example.com/${id}`,
+    tagline: id,
+    description: id,
+    groupPartner: null,
+    primaryIndustry: "test",
+    businessModel: "b2b",
+    review_state: "verified",
+    sourceUrl: `https://example.com/${id}`,
+    industries: [],
+    founderIds: [],
+    socialAccounts: [],
+    totalScore: absoluteScore,
+    previousScore: absoluteScore,
+    platformScores: hasEvidence ? { x: absoluteScore } : {},
+    scoreBreakdown: {
+      modelId: TRACTION_SCORING_CONFIG.modelId,
+      modelVersion: TRACTION_SCORING_CONFIG.version,
+      modelName: TRACTION_SCORING_CONFIG.name,
+      totalScore: absoluteScore,
+      absoluteScore,
+      weightedAvailableScore: absoluteScore,
+      coverageFactor: hasEvidence ? 1 : 0,
+      platformsWithEvidence: hasEvidence ? 1 : 0,
+      totalSupportedPlatforms: 1,
+      platformScores: hasEvidence ? { x: absoluteScore } : {},
+      weightedPlatforms: hasEvidence
+        ? [{
+            platform: "x",
+            score: absoluteScore,
+            configuredWeight: 1,
+            appliedWeight: 1,
+            contribution: absoluteScore,
+            evidenceCount: 1
+          }]
+        : [],
+      signalFamilyScores: {
+        reach: absoluteScore,
+        engagement: absoluteScore,
+        developerAdoption: 0,
+        launchAndCommunity: 0,
+        momentum: 0
+      },
+      confidence: {
+        level: "low",
+        value: hasEvidence ? 0.5 : 0,
+        reasons: [],
+        scoredEvidenceCount: hasEvidence ? 1 : 0,
+        datedEvidenceCount: hasEvidence ? 1 : 0,
+        verifiedLinkCount: hasEvidence ? 1 : 0
+      },
+      calibration: {
+        method: "none",
+        cohortSize: 0,
+        percentile: null,
+        inputScore: absoluteScore
+      },
+      limitations: [],
+      evidenceAsOf: null,
+      explanation: "Absolute score."
+    }
+  };
+}
+
 function nodeSocialAccounts(node: GraphNode | undefined): SocialAccountSummary[] {
   if (!node) return [];
 
   return [
     ...node.socialAccounts,
     ...node.founders.flatMap((founder) => founder.socialAccounts)
+  ];
+}
+
+function materializedAccountOwners(
+  dataset: Pick<typeof a16zSpeedrun006GraphDataset, "companies" | "founders">
+): Array<{
+  entityType: "company" | "founder";
+  entityId: string;
+  account: SocialAccountSummary;
+}> {
+  return [
+    ...dataset.companies.flatMap((company) =>
+      company.socialAccounts.map((account) => ({ entityType: "company" as const, entityId: company.id, account }))
+    ),
+    ...dataset.founders.flatMap((founder) =>
+      founder.socialAccounts.map((account) => ({ entityType: "founder" as const, entityId: founder.id, account }))
+    )
   ];
 }
 

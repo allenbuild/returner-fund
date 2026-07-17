@@ -10,7 +10,8 @@ export type Platform =
   | "reddit"
   | "hacker_news"
   | "bilibili"
-  | "tiktok";
+  | "tiktok"
+  | "bluesky";
 
 export type EntityType = "company" | "founder";
 export type EdgeType = "founder_of" | "industry_similarity" | "same_group_partner";
@@ -109,6 +110,7 @@ export interface PostScore {
   recencyWeight: number;
   engagementRate: number | null;
   contributionScore: number;
+  scoringStatus?: "scored" | "unscored";
   explanation: ScoreExplanation;
 }
 
@@ -131,6 +133,7 @@ export interface ScoreExplanation {
 export interface PlatformScore {
   platform: Platform;
   score: number;
+  scoringStatus?: "scored" | "unscored";
   review_state: ReviewState;
   topPostIds: string[];
   explanation: Record<string, unknown>;
@@ -162,6 +165,8 @@ export interface EvidenceItem {
   metrics: PostMetrics;
   sourceUrl: string;
   contributionScore: number;
+  tractionStatus?: "scored" | "unscored";
+  tractionLimitations?: string[];
   why: string;
 }
 

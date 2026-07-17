@@ -1,5 +1,5 @@
-import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
 import type { EvidenceMetrics, Platform, TopVoiceAudienceId, TopVoiceMember } from "@/lib/graph/types";
 import { computeEvidenceRawEngagement } from "@/lib/graph/traction-scoring";
 import { resolveTopVoiceAudience } from "@/lib/social/top-voices";
@@ -19,10 +19,14 @@ export type LiveRefreshStage =
 export interface LiveRefreshStageLog {
   stage: LiveRefreshStage;
   platform: Platform | "all";
+  provider?: "fxtwitter" | "vxtwitter";
   target?: string;
   companyName?: string;
   entityId?: string;
   sourceUrl?: string;
+  expectedPostId?: string;
+  returnedPostId?: string;
+  returnedCanonicalUrl?: string;
   count?: number;
   reason?: string;
   message: string;
@@ -124,7 +128,7 @@ interface A16zSocialAccountRecord {
   review_state?: "verified" | "needs_review" | "rejected";
 }
 
-interface LiveSourceRefreshOptions {
+export interface LiveSourceRefreshOptions {
   rootDir?: string;
   batchSlug?: string;
   batchSlugs?: string[];
@@ -142,11 +146,21 @@ interface LiveSourceRefreshOptions {
   topVoices?: TopVoiceAudienceId;
   maxTopVoiceXTargets?: number;
   stageLogPath?: string;
+  signal?: AbortSignal;
+  deadline?: Date | number;
+  deadlineAt?: Date | number;
+  maxNetworkRequests?: number;
 }
+
+export type LiveRefreshCancellationReason = "refresh_cancelled" | "refresh_deadline_exceeded";
 
 export interface LiveSourceRefreshResult {
   runId: string;
   generatedAt: string;
+  cancellationReason: LiveRefreshCancellationReason | null;
+  networkRequests: number;
+  networkRequestBudget: number | null;
+  networkRequestBudgetExhausted: boolean;
   acceptedEvidence: LiveEvidenceRecord[];
   storedEvidence: LiveEvidenceRecord[];
   stageLog: LiveRefreshStageLog[];
@@ -205,7 +219,10 @@ interface FxTweet {
   retweeted_tweet?: unknown;
   retweet?: unknown;
   reposted_tweet?: unknown;
+  comments?: number;
   replies?: number;
+  shares?: number;
+  reposts?: number;
   retweets?: number;
   likes?: number;
   views?: number;
@@ -226,6 +243,51 @@ interface FxTweet {
   };
 }
 
+interface VxTweetResponse {
+  tweetID?: string | number;
+  tweetURL?: string;
+  text?: string;
+  date?: string;
+  date_epoch?: number;
+  replies?: number;
+  retweets?: number;
+  likes?: number;
+  views?: number;
+  quotes?: number;
+  bookmarks?: number;
+  user_name?: string;
+  user_screen_name?: string;
+  media_extended?: Array<{
+    url?: string;
+    thumbnail_url?: string;
+    type?: string;
+  }>;
+}
+
+interface ProviderTweetCandidate {
+  tweet: FxTweet;
+  returnedPostId: unknown;
+  returnedCanonicalUrl: unknown;
+}
+
+interface ProviderTweetMismatch {
+  ok: false;
+  reason: "provider_post_id_mismatch" | "provider_canonical_url_mismatch";
+  returnedPostId?: string;
+  returnedCanonicalUrl?: string;
+}
+
+type ProviderTweetPayloadResult = { ok: true; tweet: FxTweet } | ProviderTweetMismatch | null;
+
+type ProviderFailureLogContext = Pick<
+  LiveRefreshStageLog,
+  "provider" | "expectedPostId" | "returnedPostId" | "returnedCanonicalUrl"
+>;
+
+type FxTweetFetchResult =
+  | { ok: true; tweet: FxTweet }
+  | { ok: false; reason: string; message?: string; logContext?: ProviderFailureLogContext };
+
 interface ParsedLiveRawVisibleText {
   source?: string;
   profile?: {
@@ -244,6 +306,25 @@ interface PersistedLiveEvidenceValidationContext {
   firstPartyTargetsByEntity: Map<string, XTarget>;
   topVoiceTargetsByHandle: Map<string, TopVoiceXTarget>;
   companyMatchTargets: CompanyMatchTarget[];
+}
+
+interface LiveRefreshNetworkRequest {
+  signal: AbortSignal;
+  failureReason: () => string;
+  dispose: () => void;
+}
+
+interface LiveRefreshRunControl {
+  signal: AbortSignal;
+  canDequeue: () => boolean;
+  startNetworkRequest: (timeoutMs: number) =>
+    | { ok: true; request: LiveRefreshNetworkRequest }
+    | { ok: false; reason: string };
+  cancellationReason: () => LiveRefreshCancellationReason | null;
+  networkRequests: () => number;
+  networkRequestBudget: () => number | null;
+  networkBudgetExhausted: () => boolean;
+  dispose: () => void;
 }
 
 const DEFAULT_BATCH_SLUGS = ["S26", "S2026"];
@@ -268,6 +349,9 @@ const AMBIGUOUS_TOP_VOICE_MATCH_TERMS = new Set([
 ]);
 const topVoiceXMissCache = new Map<string, { expiresAt: number; reason: string; checkedAt: string }>();
 const liveEvidenceRecordsCache = new Map<string, { mtimeMs: number; size: number; records: LiveEvidenceRecord[] }>();
+// This mutex only coordinates writers in this Node.js process. Multi-process or multi-host
+// production writers still require shared transactional storage or an external lock.
+const evidenceSnapshotWriteQueues = new Map<string, Promise<void>>();
 const UNSUPPORTED_REFRESH_PLATFORMS: Platform[] = [
   "github",
   "linkedin",
@@ -278,10 +362,24 @@ const UNSUPPORTED_REFRESH_PLATFORMS: Platform[] = [
   "web",
   "reddit",
   "hacker_news",
-  "bilibili"
+  "bilibili",
+  "tiktok",
+  "bluesky"
 ];
 
 export async function runLiveSourceRefresh(options: LiveSourceRefreshOptions = {}): Promise<LiveSourceRefreshResult> {
+  const control = createLiveRefreshRunControl(options);
+  try {
+    return await executeLiveSourceRefresh(options, control);
+  } finally {
+    control.dispose();
+  }
+}
+
+async function executeLiveSourceRefresh(
+  options: LiveSourceRefreshOptions,
+  control: LiveRefreshRunControl
+): Promise<LiveSourceRefreshResult> {
   const rootDir = options.rootDir ?? process.cwd();
   const now = options.now ?? new Date();
   const generatedAt = now.toISOString();
@@ -292,6 +390,9 @@ export async function runLiveSourceRefresh(options: LiveSourceRefreshOptions = {
   const topVoiceAudience = options.topVoices ?? "off";
   const stageLog: LiveRefreshStageLog[] = [];
   const log = (entry: Omit<LiveRefreshStageLog, "at">) => {
+    if (control.signal.aborted) {
+      return;
+    }
     stageLog.push({ ...entry, at: new Date().toISOString() });
   };
 
@@ -316,6 +417,9 @@ export async function runLiveSourceRefresh(options: LiveSourceRefreshOptions = {
   let acceptedEvidence: LiveEvidenceRecord[] = [];
   if (shouldRefreshPlatform("x", requestedPlatforms)) {
     const batchSlugs = options.batchSlugs ?? batchSlugExpansion(options.batchSlug);
+    const directReferences = parseXStatusReferences(options.xSourceUrls ?? [], log);
+    const xConcurrency = options.xConcurrency ?? DEFAULT_X_CONCURRENCY;
+    const requestTimeoutMs = options.xRequestTimeoutMs ?? DEFAULT_X_REQUEST_TIMEOUT_MS;
     if (topVoiceAudience === "off") {
       const targets = await loadXTargets(rootDir, batchSlugs, log);
       log({
@@ -327,19 +431,22 @@ export async function runLiveSourceRefresh(options: LiveSourceRefreshOptions = {
       const filteredTargets = options.xTargetHandles?.length
         ? targets.filter((target) => options.xTargetHandles?.map(normalizeHandle).includes(target.handle))
         : targets;
-      acceptedEvidence = await refreshXTargets(filteredTargets.slice(0, options.maxXTargets ?? DEFAULT_MAX_X_TARGETS), {
+      acceptedEvidence = await refreshDirectXSourceUrls(directReferences, targets, {
         fetchImpl,
         now,
-        maxPostsPerTarget: options.maxPostsPerTarget ?? 1,
-        concurrency: options.xConcurrency ?? DEFAULT_X_CONCURRENCY,
-        requestTimeoutMs: options.xRequestTimeoutMs ?? DEFAULT_X_REQUEST_TIMEOUT_MS,
+        concurrency: xConcurrency,
+        requestTimeoutMs,
+        control,
         log
       });
       acceptedEvidence.push(
-        ...(await refreshDirectXSourceUrls(parseXStatusReferences(options.xSourceUrls ?? [], log), targets, {
+        ...(await refreshXTargets(filteredTargets.slice(0, options.maxXTargets ?? DEFAULT_MAX_X_TARGETS), {
           fetchImpl,
           now,
-          requestTimeoutMs: options.xRequestTimeoutMs ?? DEFAULT_X_REQUEST_TIMEOUT_MS,
+          maxPostsPerTarget: options.maxPostsPerTarget ?? 1,
+          concurrency: xConcurrency,
+          requestTimeoutMs,
+          control,
           log
         }))
       );
@@ -364,27 +471,30 @@ export async function runLiveSourceRefresh(options: LiveSourceRefreshOptions = {
       const filteredTargets = options.xTargetHandles?.length
         ? targets.filter((target) => options.xTargetHandles?.map(normalizeHandle).includes(target.handle))
         : targets;
-      acceptedEvidence = await refreshTopVoiceXTargets(
-        filteredTargets.slice(0, options.maxTopVoiceXTargets ?? DEFAULT_MAX_TOP_VOICE_X_TARGETS),
+      acceptedEvidence = await refreshDirectTopVoiceXSourceUrls(
+        directReferences,
+        targets,
         matchTargets,
         {
           fetchImpl,
           now,
-          maxPostsPerTarget: options.maxPostsPerTarget ?? 2,
-          concurrency: options.xConcurrency ?? DEFAULT_X_CONCURRENCY,
-          requestTimeoutMs: options.xRequestTimeoutMs ?? DEFAULT_X_REQUEST_TIMEOUT_MS,
+          concurrency: xConcurrency,
+          requestTimeoutMs,
+          control,
           log
         }
       );
       acceptedEvidence.push(
-        ...(await refreshDirectTopVoiceXSourceUrls(
-          parseXStatusReferences(options.xSourceUrls ?? [], log),
-          targets,
+        ...(await refreshTopVoiceXTargets(
+          filteredTargets.slice(0, options.maxTopVoiceXTargets ?? DEFAULT_MAX_TOP_VOICE_X_TARGETS),
           matchTargets,
           {
             fetchImpl,
             now,
-            requestTimeoutMs: options.xRequestTimeoutMs ?? DEFAULT_X_REQUEST_TIMEOUT_MS,
+            maxPostsPerTarget: options.maxPostsPerTarget ?? 2,
+            concurrency: xConcurrency,
+            requestTimeoutMs,
+            control,
             log
           }
         ))
@@ -401,6 +511,17 @@ export async function runLiveSourceRefresh(options: LiveSourceRefreshOptions = {
     }
   }
 
+  if (control.networkBudgetExhausted()) {
+    const networkRequestBudget = control.networkRequestBudget();
+    log({
+      stage: "skipped",
+      platform: "all",
+      count: networkRequestBudget ?? undefined,
+      reason: "network_request_budget_exhausted",
+      message: `Stopped scheduling live-source network work after reaching the ${networkRequestBudget} request run budget.`
+    });
+  }
+
   const uniqueAcceptedEvidence = mergeEvidence([], acceptedEvidence);
   if (uniqueAcceptedEvidence.length < acceptedEvidence.length) {
     log({
@@ -412,33 +533,48 @@ export async function runLiveSourceRefresh(options: LiveSourceRefreshOptions = {
     });
   }
 
-  const existingSnapshot = await readEvidenceSnapshot(targetedEvidencePath, generatedAt);
-  const mergedEvidence = mergeEvidence(existingSnapshot.evidence, uniqueAcceptedEvidence);
-  const storedEvidence = mergedEvidence.filter((item) =>
-    uniqueAcceptedEvidence.some((accepted) => evidenceKey(accepted) === evidenceKey(item))
-  );
+  const writeEnabled = options.write ?? true;
+  let evidenceWritten = false;
+  const { existingSnapshot, mergedEvidence } = writeEnabled && !control.signal.aborted
+    ? await withEvidenceSnapshotWriteLock(targetedEvidencePath, async () => {
+        const snapshot = await readEvidenceSnapshot(targetedEvidencePath, generatedAt);
+        const evidence = mergeEvidence(snapshot.evidence, uniqueAcceptedEvidence);
+        if (!control.signal.aborted) {
+          evidenceWritten = await writeEvidenceSnapshot(
+            targetedEvidencePath,
+            {
+              source: {
+                ...snapshot.source,
+                label: snapshot.source.label ?? "Targeted long-run public evidence",
+                fetchedAt: freshestIso(snapshot.source.fetchedAt, generatedAt) ?? generatedAt,
+                notes: [
+                  ...(snapshot.source.notes ?? []),
+                  "Live manual refresh can append verified first-party X posts discovered from public profile HTML and FxTwitter/VxTwitter post JSON."
+                ].filter((note, index, notes) => notes.indexOf(note) === index)
+              },
+              evidence,
+              needsReview: snapshot.needsReview ?? []
+            },
+            control.signal
+          );
+        }
+        return { existingSnapshot: snapshot, mergedEvidence: evidence };
+      })
+    : await readAndMergeEvidenceSnapshot(targetedEvidencePath, generatedAt, uniqueAcceptedEvidence);
+  const storedEvidence = writeEnabled && !evidenceWritten
+    ? []
+    : mergedEvidence.filter((item) =>
+        uniqueAcceptedEvidence.some((accepted) => evidenceKey(accepted) === evidenceKey(item))
+      );
 
-  if (options.write ?? true) {
-    await writeEvidenceSnapshot(targetedEvidencePath, {
-      source: {
-        ...existingSnapshot.source,
-        label: existingSnapshot.source.label ?? "Targeted long-run public evidence",
-        fetchedAt: generatedAt,
-        notes: [
-          ...(existingSnapshot.source.notes ?? []),
-          "Live manual refresh can append verified first-party X posts discovered from public profile HTML and FxTwitter/VxTwitter post JSON."
-        ].filter((note, index, notes) => notes.indexOf(note) === index)
-      },
-      evidence: mergedEvidence,
-      needsReview: existingSnapshot.needsReview ?? []
-    });
+  if (evidenceWritten) {
     log({
       stage: "stored",
       platform: "all",
       count: storedEvidence.length,
       message: `Stored ${storedEvidence.length} accepted live evidence rows in targeted evidence snapshot.`
     });
-  } else {
+  } else if (!writeEnabled) {
     log({
       stage: "skipped",
       platform: "all",
@@ -448,18 +584,24 @@ export async function runLiveSourceRefresh(options: LiveSourceRefreshOptions = {
     });
   }
 
-  await writeStageLog(options.stageLogPath ?? join(rootDir, STAGE_LOG_PATH), stageLog);
+  if (!control.signal.aborted) {
+    await writeStageLog(options.stageLogPath ?? join(rootDir, STAGE_LOG_PATH), stageLog, control.signal);
+  }
 
   return {
     runId,
     generatedAt,
+    cancellationReason: control.cancellationReason(),
+    networkRequests: control.networkRequests(),
+    networkRequestBudget: control.networkRequestBudget(),
+    networkRequestBudgetExhausted: control.networkBudgetExhausted(),
     acceptedEvidence: uniqueAcceptedEvidence,
     storedEvidence,
     stageLog,
     sourceSnapshots: {
       targetedEvidencePath,
       targetedEvidenceBefore: existingSnapshot.evidence.length,
-      targetedEvidenceAfter: mergedEvidence.length
+      targetedEvidenceAfter: writeEnabled && !evidenceWritten ? existingSnapshot.evidence.length : mergedEvidence.length
     },
     platformRows: countRowsByPlatform(uniqueAcceptedEvidence),
     failureReasonCounts: countReasons(stageLog)
@@ -548,6 +690,9 @@ function validatePersistedLiveEvidenceRecord(
   if (record.linkStatus !== "verified" || record.review_state !== "verified") {
     return { ok: false, reason: "unverified_live_record" };
   }
+  if (hasInvalidVisibleMetrics(record.metrics ?? {})) {
+    return { ok: false, reason: "invalid_visible_metrics" };
+  }
   if (!record.platformPostId || !hasVisibleMetrics(record.metrics ?? {})) {
     return { ok: false, reason: "missing_post_or_metrics" };
   }
@@ -564,6 +709,9 @@ function validatePersistedLiveEvidenceRecord(
   const post = parsedRaw?.post;
   if (!post?.id || String(post.id) !== record.platformPostId) {
     return { ok: false, reason: "raw_post_id_mismatch" };
+  }
+  if (invalidXTweetMetric(post)) {
+    return { ok: false, reason: "invalid_visible_metrics" };
   }
   if (isRepostLikeXTweet(post)) {
     return { ok: false, reason: "non_native_x_repost" };
@@ -781,7 +929,7 @@ async function loadA16zCompanyMatchTargets(
 }
 
 function a16zXTargetForCompany(companySlug: string, company: A16zSocialAccountCompany): XTarget | null {
-  const account = (company.accounts ?? []).find((candidate) => candidate.platform === "x" && candidate.review_state !== "rejected");
+  const account = (company.accounts ?? []).find((candidate) => candidate.platform === "x" && candidate.review_state === "verified");
   const handle = normalizeHandle(account?.handle ?? handleFromUrl(account?.url));
   if (!account?.url || !handle) {
     return null;
@@ -806,7 +954,7 @@ function a16zXTargetForFounder(
   company: A16zSocialAccountCompany,
   founder: A16zSocialAccountFounder
 ): XTarget | null {
-  const account = (founder.accounts ?? []).find((candidate) => candidate.platform === "x" && candidate.review_state !== "rejected");
+  const account = (founder.accounts ?? []).find((candidate) => candidate.platform === "x" && candidate.review_state === "verified");
   const handle = normalizeHandle(account?.handle ?? handleFromUrl(account?.url));
   if (!account?.url || !handle) {
     return null;
@@ -1056,6 +1204,7 @@ async function refreshTopVoiceXTargets(
     maxPostsPerTarget: number;
     concurrency: number;
     requestTimeoutMs: number;
+    control: LiveRefreshRunControl;
     log: (entry: Omit<LiveRefreshStageLog, "at">) => void;
   }
 ): Promise<LiveEvidenceRecord[]> {
@@ -1064,6 +1213,9 @@ async function refreshTopVoiceXTargets(
 
   async function worker(): Promise<void> {
     while (nextIndex < targets.length) {
+      if (!options.control.canDequeue()) {
+        break;
+      }
       const target = targets[nextIndex];
       nextIndex += 1;
       if (!target) {
@@ -1086,6 +1238,7 @@ async function refreshSingleTopVoiceXTarget(
     now: Date;
     maxPostsPerTarget: number;
     requestTimeoutMs: number;
+    control: LiveRefreshRunControl;
     log: (entry: Omit<LiveRefreshStageLog, "at">) => void;
   }
 ): Promise<LiveEvidenceRecord[]> {
@@ -1115,7 +1268,7 @@ async function refreshSingleTopVoiceXTarget(
     message: `Fetching public X top-voice profile HTML for ${target.member.displayName} (@${target.handle}).`
   });
 
-  const profile = await fetchText(profileUrl, options.fetchImpl, options.requestTimeoutMs);
+  const profile = await fetchText(profileUrl, options.fetchImpl, options.requestTimeoutMs, options.control);
   if (!profile.ok) {
     options.log({
       stage: "failed",
@@ -1153,7 +1306,16 @@ async function refreshSingleTopVoiceXTarget(
   const accepted: LiveEvidenceRecord[] = [];
   const missReasons: string[] = [];
   for (const postId of postIds) {
-    const tweetResult = await fetchFxTweet(target.handle, postId, options.fetchImpl, options.requestTimeoutMs);
+    if (!options.control.canDequeue()) {
+      break;
+    }
+    const tweetResult = await fetchFxTweet(
+      target.handle,
+      postId,
+      options.fetchImpl,
+      options.requestTimeoutMs,
+      options.control
+    );
     if (!tweetResult.ok) {
       options.log({
         stage: "failed",
@@ -1161,7 +1323,10 @@ async function refreshSingleTopVoiceXTarget(
         target: target.handle,
         sourceUrl: `https://x.com/${target.handle}/status/${postId}`,
         reason: tweetResult.reason,
-        message: `Could not resolve top-voice X status ${postId} for ${target.handle}: ${tweetResult.reason}.`
+        ...tweetResult.logContext,
+        message:
+          tweetResult.message
+          ?? `Could not resolve top-voice X status ${postId} for ${target.handle}: ${tweetResult.reason}.`
       });
       missReasons.push(tweetResult.reason);
       continue;
@@ -1191,6 +1356,20 @@ async function refreshSingleTopVoiceXTarget(
         message: `Dropped top-voice X status ${postId} because it is a retweet/repost rather than a native post from ${target.member.displayName}.`
       });
       missReasons.push("non_native_x_repost");
+      continue;
+    }
+
+    const invalidMetric = invalidXTweetMetric(tweetResult.tweet);
+    if (invalidMetric) {
+      options.log({
+        stage: "dropped",
+        platform: "x",
+        target: target.handle,
+        sourceUrl: `https://x.com/${target.handle}/status/${postId}`,
+        reason: "invalid_visible_metrics",
+        message: `Dropped top-voice X status ${postId} because ${invalidMetric} was negative or nonfinite.`
+      });
+      missReasons.push("invalid_visible_metrics");
       continue;
     }
 
@@ -1238,11 +1417,14 @@ async function refreshSingleTopVoiceXTarget(
     }
   }
 
-  if (!accepted.length) {
-    rememberTopVoiceXMiss(missCacheKey, mostCommonReason(missReasons) ?? "no_accepted_top_voice_posts", options.now);
-  } else {
+  if (accepted.length) {
     topVoiceXMissCache.delete(missCacheKey);
+    return accepted;
   }
+  if (!options.control.canDequeue()) {
+    return accepted;
+  }
+  rememberTopVoiceXMiss(missCacheKey, mostCommonReason(missReasons) ?? "no_accepted_top_voice_posts", options.now);
 
   return accepted;
 }
@@ -1253,7 +1435,9 @@ async function refreshDirectXSourceUrls(
   options: {
     fetchImpl: typeof fetch;
     now: Date;
+    concurrency: number;
     requestTimeoutMs: number;
+    control: LiveRefreshRunControl;
     log: (entry: Omit<LiveRefreshStageLog, "at">) => void;
   }
 ): Promise<LiveEvidenceRecord[]> {
@@ -1263,8 +1447,7 @@ async function refreshDirectXSourceUrls(
 
   const targetsByHandle = new Map(targets.map((target) => [target.handle, target]));
   const accepted: LiveEvidenceRecord[] = [];
-
-  for (const reference of references) {
+  await runBoundedNetworkQueue(references, options.concurrency, options.control, async (reference) => {
     const target = targetsByHandle.get(reference.handle);
     if (!target) {
       options.log({
@@ -1275,7 +1458,7 @@ async function refreshDirectXSourceUrls(
         reason: "direct_x_url_not_batch_target",
         message: `Dropped direct X status ${reference.sourceUrl} because @${reference.handle} is not a first-party X account in the selected batch.`
       });
-      continue;
+      return;
     }
 
     options.log({
@@ -1287,7 +1470,13 @@ async function refreshDirectXSourceUrls(
       sourceUrl: reference.sourceUrl,
       message: `Fetching direct X status ${reference.postId} for ${target.companyName} from @${target.handle}.`
     });
-    const tweetResult = await fetchFxTweet(reference.handle, reference.postId, options.fetchImpl, options.requestTimeoutMs);
+    const tweetResult = await fetchFxTweet(
+      reference.handle,
+      reference.postId,
+      options.fetchImpl,
+      options.requestTimeoutMs,
+      options.control
+    );
     if (!tweetResult.ok) {
       options.log({
         stage: "failed",
@@ -1297,9 +1486,27 @@ async function refreshDirectXSourceUrls(
         entityId: target.entityId,
         sourceUrl: reference.sourceUrl,
         reason: tweetResult.reason,
-        message: `Could not resolve direct X status ${reference.postId} for @${target.handle}: ${tweetResult.reason}.`
+        ...tweetResult.logContext,
+        message:
+          tweetResult.message
+          ?? `Could not resolve direct X status ${reference.postId} for @${target.handle}: ${tweetResult.reason}.`
       });
-      continue;
+      return;
+    }
+
+    const invalidMetric = invalidXTweetMetric(tweetResult.tweet);
+    if (invalidMetric) {
+      options.log({
+        stage: "dropped",
+        platform: "x",
+        target: target.handle,
+        companyName: target.companyName,
+        entityId: target.entityId,
+        sourceUrl: reference.sourceUrl,
+        reason: "invalid_visible_metrics",
+        message: `Dropped direct X status ${reference.postId} because ${invalidMetric} was negative or nonfinite.`
+      });
+      return;
     }
 
     const record = xTweetToEvidenceRecord(target, tweetResult.tweet, options.now, { directSource: true });
@@ -1315,7 +1522,7 @@ async function refreshDirectXSourceUrls(
         reason: validation.reason,
         message: validation.message
       });
-      continue;
+      return;
     }
 
     options.log({
@@ -1329,7 +1536,7 @@ async function refreshDirectXSourceUrls(
       message: `Accepted direct X post ${record.platformPostId} for ${target.companyName}: ${formatMetrics(record.metrics)}.`
     });
     accepted.push(record);
-  }
+  });
 
   return accepted;
 }
@@ -1341,7 +1548,9 @@ async function refreshDirectTopVoiceXSourceUrls(
   options: {
     fetchImpl: typeof fetch;
     now: Date;
+    concurrency: number;
     requestTimeoutMs: number;
+    control: LiveRefreshRunControl;
     log: (entry: Omit<LiveRefreshStageLog, "at">) => void;
   }
 ): Promise<LiveEvidenceRecord[]> {
@@ -1351,8 +1560,7 @@ async function refreshDirectTopVoiceXSourceUrls(
 
   const targetsByHandle = new Map(targets.map((target) => [target.handle, target]));
   const accepted: LiveEvidenceRecord[] = [];
-
-  for (const reference of references) {
+  await runBoundedNetworkQueue(references, options.concurrency, options.control, async (reference) => {
     const target = targetsByHandle.get(reference.handle);
     if (!target) {
       options.log({
@@ -1363,7 +1571,7 @@ async function refreshDirectTopVoiceXSourceUrls(
         reason: "direct_x_url_not_top_voice_target",
         message: `Dropped direct X status ${reference.sourceUrl} because @${reference.handle} is not in the selected top-voice audience.`
       });
-      continue;
+      return;
     }
 
     options.log({
@@ -1373,7 +1581,13 @@ async function refreshDirectTopVoiceXSourceUrls(
       sourceUrl: reference.sourceUrl,
       message: `Fetching direct top-voice X status ${reference.postId} from ${target.member.displayName} (@${target.handle}).`
     });
-    const tweetResult = await fetchFxTweet(reference.handle, reference.postId, options.fetchImpl, options.requestTimeoutMs);
+    const tweetResult = await fetchFxTweet(
+      reference.handle,
+      reference.postId,
+      options.fetchImpl,
+      options.requestTimeoutMs,
+      options.control
+    );
     if (!tweetResult.ok) {
       options.log({
         stage: "failed",
@@ -1381,9 +1595,12 @@ async function refreshDirectTopVoiceXSourceUrls(
         target: target.handle,
         sourceUrl: reference.sourceUrl,
         reason: tweetResult.reason,
-        message: `Could not resolve direct top-voice X status ${reference.postId} for @${target.handle}: ${tweetResult.reason}.`
+        ...tweetResult.logContext,
+        message:
+          tweetResult.message
+          ?? `Could not resolve direct top-voice X status ${reference.postId} for @${target.handle}: ${tweetResult.reason}.`
       });
-      continue;
+      return;
     }
 
     const authorHandle = normalizeHandle(tweetResult.tweet.author?.screen_name ?? target.handle);
@@ -1396,7 +1613,7 @@ async function refreshDirectTopVoiceXSourceUrls(
         reason: "author_handle_mismatch",
         message: `Dropped direct top-voice X status ${reference.postId} because @${authorHandle || "unknown"} did not match @${target.handle}.`
       });
-      continue;
+      return;
     }
 
     if (isRepostLikeXTweet(tweetResult.tweet)) {
@@ -1408,7 +1625,20 @@ async function refreshDirectTopVoiceXSourceUrls(
         reason: "non_native_x_repost",
         message: `Dropped direct top-voice X status ${reference.postId} because it is a retweet/repost rather than a native post from ${target.member.displayName}.`
       });
-      continue;
+      return;
+    }
+
+    const invalidMetric = invalidXTweetMetric(tweetResult.tweet);
+    if (invalidMetric) {
+      options.log({
+        stage: "dropped",
+        platform: "x",
+        target: target.handle,
+        sourceUrl: reference.sourceUrl,
+        reason: "invalid_visible_metrics",
+        message: `Dropped direct top-voice X status ${reference.postId} because ${invalidMetric} was negative or nonfinite.`
+      });
+      return;
     }
 
     const metrics = xTweetMetrics(tweetResult.tweet);
@@ -1421,7 +1651,7 @@ async function refreshDirectTopVoiceXSourceUrls(
         reason: "no_visible_metrics",
         message: `Dropped direct top-voice X status ${reference.postId} because no positive public metrics were visible.`
       });
-      continue;
+      return;
     }
 
     const matches = matchTopVoiceTweetToCompanies(tweetResult.tweet, matchTargets);
@@ -1434,7 +1664,7 @@ async function refreshDirectTopVoiceXSourceUrls(
         reason: "top_voice_post_missing_company_mention",
         message: `Dropped direct top-voice X status ${reference.postId} because it did not visibly mention a company, founder, handle, or domain in the selected batch.`
       });
-      continue;
+      return;
     }
 
     for (const match of matches) {
@@ -1451,7 +1681,7 @@ async function refreshDirectTopVoiceXSourceUrls(
       });
       accepted.push(record);
     }
-  }
+  });
 
   return accepted;
 }
@@ -1464,6 +1694,7 @@ async function refreshXTargets(
     maxPostsPerTarget: number;
     concurrency: number;
     requestTimeoutMs: number;
+    control: LiveRefreshRunControl;
     log: (entry: Omit<LiveRefreshStageLog, "at">) => void;
   }
 ): Promise<LiveEvidenceRecord[]> {
@@ -1472,6 +1703,9 @@ async function refreshXTargets(
 
   async function worker(): Promise<void> {
     while (nextIndex < targets.length) {
+      if (!options.control.canDequeue()) {
+        break;
+      }
       const target = targets[nextIndex];
       nextIndex += 1;
       if (!target) {
@@ -1493,6 +1727,7 @@ async function refreshSingleXTarget(
     now: Date;
     maxPostsPerTarget: number;
     requestTimeoutMs: number;
+    control: LiveRefreshRunControl;
     log: (entry: Omit<LiveRefreshStageLog, "at">) => void;
   }
 ): Promise<LiveEvidenceRecord[]> {
@@ -1507,7 +1742,7 @@ async function refreshSingleXTarget(
     message: `Fetching public X profile HTML for ${target.handle}.`
   });
 
-  const profile = await fetchText(profileUrl, options.fetchImpl, options.requestTimeoutMs);
+  const profile = await fetchText(profileUrl, options.fetchImpl, options.requestTimeoutMs, options.control);
   if (!profile.ok) {
     options.log({
       stage: "failed",
@@ -1549,7 +1784,16 @@ async function refreshSingleXTarget(
 
   const accepted: LiveEvidenceRecord[] = [];
   for (const postId of postIds) {
-    const tweetResult = await fetchFxTweet(target.handle, postId, options.fetchImpl, options.requestTimeoutMs);
+    if (!options.control.canDequeue()) {
+      break;
+    }
+    const tweetResult = await fetchFxTweet(
+      target.handle,
+      postId,
+      options.fetchImpl,
+      options.requestTimeoutMs,
+      options.control
+    );
     if (!tweetResult.ok) {
       options.log({
         stage: "failed",
@@ -1559,7 +1803,25 @@ async function refreshSingleXTarget(
         entityId: target.entityId,
         sourceUrl: `https://x.com/${target.handle}/status/${postId}`,
         reason: tweetResult.reason,
-        message: `Could not resolve X status ${postId} for ${target.handle}: ${tweetResult.reason}.`
+        ...tweetResult.logContext,
+        message:
+          tweetResult.message
+          ?? `Could not resolve X status ${postId} for ${target.handle}: ${tweetResult.reason}.`
+      });
+      continue;
+    }
+
+    const invalidMetric = invalidXTweetMetric(tweetResult.tweet);
+    if (invalidMetric) {
+      options.log({
+        stage: "dropped",
+        platform: "x",
+        target: target.handle,
+        companyName: target.companyName,
+        entityId: target.entityId,
+        sourceUrl: `https://x.com/${target.handle}/status/${postId}`,
+        reason: "invalid_visible_metrics",
+        message: `Dropped X status ${postId} because ${invalidMetric} was negative or nonfinite.`
       });
       continue;
     }
@@ -1722,15 +1984,14 @@ function topVoiceTweetToEvidenceRecord(
 }
 
 function xTweetMetrics(tweet: FxTweet): EvidenceMetrics {
-  return {
-    views: finiteNumber(tweet.views),
-    likes: finiteNumber(tweet.likes),
-    comments: finiteNumber(tweet.replies),
-    replies: finiteNumber(tweet.replies),
-    reposts: finiteNumber(tweet.retweets),
-    quotes: finiteNumber(tweet.quotes),
-    saves: finiteNumber(tweet.bookmarks)
-  };
+  const metrics: EvidenceMetrics = {};
+  setMetric(metrics, "views", finiteNumber(tweet.views));
+  setMetric(metrics, "likes", finiteNumber(tweet.likes));
+  setMetric(metrics, "replies", maxFiniteNumber(tweet.replies, tweet.comments));
+  setMetric(metrics, "reposts", maxFiniteNumber(tweet.retweets, tweet.reposts, tweet.shares));
+  setMetric(metrics, "quotes", finiteNumber(tweet.quotes));
+  setMetric(metrics, "saves", finiteNumber(tweet.bookmarks));
+  return metrics;
 }
 
 function matchTopVoiceTweetToCompanies(tweet: FxTweet, targets: CompanyMatchTarget[]): CompanyMatchTarget[] {
@@ -1750,6 +2011,13 @@ function validateXEvidenceRecord(
   if (!record.platformPostId) {
     return { ok: false, reason: "no_post_id", message: "Dropped X row because no post id was available." };
   }
+  if (hasInvalidVisibleMetrics(record.metrics)) {
+    return {
+      ok: false,
+      reason: "invalid_visible_metrics",
+      message: `Dropped ${record.sourceUrl} because visible metrics must be finite and nonnegative.`
+    };
+  }
   if (!hasVisibleMetrics(record.metrics)) {
     return {
       ok: false,
@@ -1757,7 +2025,15 @@ function validateXEvidenceRecord(
       message: `Dropped ${record.sourceUrl} because no positive public metrics were visible.`
     };
   }
-  const parsedPost = (JSON.parse(record.rawVisibleText) as { post?: FxTweet }).post;
+  const parsedPost = parseLiveRawVisibleText(record.rawVisibleText)?.post;
+  const invalidMetric = invalidXTweetMetric(parsedPost);
+  if (invalidMetric) {
+    return {
+      ok: false,
+      reason: "invalid_visible_metrics",
+      message: `Dropped ${record.sourceUrl} because ${invalidMetric} was negative or nonfinite.`
+    };
+  }
   const authorHandle = normalizeHandle(parsedPost?.author?.screen_name);
   if (authorHandle !== target.handle) {
     return {
@@ -1949,129 +2225,597 @@ function parseNativeXStatusReference(rawUrl: string): XStatusReference | null {
   }
 }
 
+function createLiveRefreshRunControl(
+  options: Pick<LiveSourceRefreshOptions, "signal" | "deadline" | "deadlineAt" | "maxNetworkRequests">
+): LiveRefreshRunControl {
+  const controller = new AbortController();
+  const parentSignal = options.signal;
+  const maxNetworkRequests = normalizeNetworkRequestLimit(options.maxNetworkRequests);
+  const deadlineAt = normalizeDeadline(options.deadlineAt ?? options.deadline);
+  let networkRequests = 0;
+  let networkBudgetStoppedWork = false;
+  let cancellationReason: LiveRefreshCancellationReason | null = null;
+  let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const abortRun = (reason: LiveRefreshCancellationReason, cause?: unknown) => {
+    if (controller.signal.aborted) {
+      return;
+    }
+    cancellationReason = reason;
+    controller.abort(cause ?? new Error(reason));
+  };
+  const onParentAbort = () => abortRun("refresh_cancelled", parentSignal?.reason);
+
+  if (parentSignal?.aborted) {
+    onParentAbort();
+  } else {
+    parentSignal?.addEventListener("abort", onParentAbort, { once: true });
+  }
+
+  const scheduleDeadline = () => {
+    if (deadlineAt === null || controller.signal.aborted) {
+      return;
+    }
+    const remainingMs = deadlineAt - Date.now();
+    if (remainingMs <= 0) {
+      abortRun("refresh_deadline_exceeded");
+      return;
+    }
+    deadlineTimer = setTimeout(scheduleDeadline, Math.min(remainingMs, 2_147_483_647));
+  };
+  scheduleDeadline();
+
+  return {
+    signal: controller.signal,
+    canDequeue: () => {
+      if (controller.signal.aborted) {
+        return false;
+      }
+      if (maxNetworkRequests !== null && networkRequests >= maxNetworkRequests) {
+        networkBudgetStoppedWork = true;
+        return false;
+      }
+      return true;
+    },
+    startNetworkRequest: (timeoutMs) => {
+      if (controller.signal.aborted) {
+        return { ok: false, reason: cancellationReason ?? "refresh_cancelled" };
+      }
+      if (maxNetworkRequests !== null && networkRequests >= maxNetworkRequests) {
+        networkBudgetStoppedWork = true;
+        return { ok: false, reason: "network_request_budget_exhausted" };
+      }
+      networkRequests += 1;
+
+      const requestController = new AbortController();
+      let requestTimedOut = false;
+      let requestTimeout: ReturnType<typeof setTimeout> | undefined;
+      const onRunAbort = () => requestController.abort(controller.signal.reason);
+      controller.signal.addEventListener("abort", onRunAbort, { once: true });
+      if (Number.isFinite(timeoutMs)) {
+        requestTimeout = setTimeout(() => {
+          requestTimedOut = true;
+          requestController.abort(new Error("request_timeout"));
+        }, Math.max(0, timeoutMs));
+      }
+
+      return {
+        ok: true,
+        request: {
+          signal: requestController.signal,
+          failureReason: () => {
+            if (requestTimedOut) {
+              return "request_timeout";
+            }
+            return cancellationReason ?? "fetch_aborted";
+          },
+          dispose: () => {
+            controller.signal.removeEventListener("abort", onRunAbort);
+            if (requestTimeout !== undefined) {
+              clearTimeout(requestTimeout);
+            }
+          }
+        }
+      };
+    },
+    cancellationReason: () => cancellationReason,
+    networkRequests: () => networkRequests,
+    networkRequestBudget: () => maxNetworkRequests,
+    networkBudgetExhausted: () => networkBudgetStoppedWork,
+    dispose: () => {
+      parentSignal?.removeEventListener("abort", onParentAbort);
+      if (deadlineTimer !== undefined) {
+        clearTimeout(deadlineTimer);
+      }
+    }
+  };
+}
+
+function normalizeNetworkRequestLimit(value: number | undefined): number | null {
+  if (value === undefined || value === Number.POSITIVE_INFINITY) {
+    return null;
+  }
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+  return Math.max(0, Math.floor(value));
+}
+
+function normalizeDeadline(value: Date | number | undefined): number | null {
+  const timestamp = value instanceof Date ? value.getTime() : value;
+  return typeof timestamp === "number" && Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function boundedWorkerCount(concurrency: number, itemCount: number, minimum: number): number {
+  if (itemCount <= 0) {
+    return 0;
+  }
+  const normalized = Number.isFinite(concurrency) ? Math.floor(concurrency) : itemCount;
+  return Math.min(itemCount, Math.max(minimum, normalized));
+}
+
+async function runBoundedNetworkQueue<T>(
+  items: T[],
+  concurrency: number,
+  control: LiveRefreshRunControl,
+  visit: (item: T) => Promise<void>
+): Promise<void> {
+  let nextIndex = 0;
+
+  async function worker(): Promise<void> {
+    while (nextIndex < items.length) {
+      if (!control.canDequeue()) {
+        break;
+      }
+      const item = items[nextIndex] as T;
+      nextIndex += 1;
+      await visit(item);
+    }
+  }
+
+  await Promise.all(Array.from({ length: boundedWorkerCount(concurrency, items.length, 1) }, () => worker()));
+}
+
+function isTerminalNetworkStopReason(reason: string): boolean {
+  return reason === "network_request_budget_exhausted"
+    || reason === "refresh_cancelled"
+    || reason === "refresh_deadline_exceeded";
+}
+
+function waitForAbort<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) {
+    void operation.catch(() => undefined);
+    return Promise.reject(abortSignalError(signal));
+  }
+  return new Promise<T>((resolveOperation, rejectOperation) => {
+    let settled = false;
+    const cleanup = () => signal.removeEventListener("abort", onAbort);
+    const onAbort = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      rejectOperation(abortSignalError(signal));
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+    operation.then(
+      (value) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        cleanup();
+        resolveOperation(value);
+      },
+      (error) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        cleanup();
+        rejectOperation(error);
+      }
+    );
+  });
+}
+
+function abortSignalError(signal: AbortSignal): Error {
+  if (signal.reason instanceof Error) {
+    return signal.reason;
+  }
+  return new Error(typeof signal.reason === "string" ? signal.reason : "The operation was aborted.");
+}
+
 async function fetchFxTweet(
   handle: string,
   postId: string,
   fetchImpl: typeof fetch,
-  timeoutMs: number
-): Promise<{ ok: true; tweet: FxTweet } | { ok: false; reason: string }> {
-  const urls = [
-    `https://api.fxtwitter.com/${handle}/status/${postId}`,
-    `https://api.vxtwitter.com/${handle}/status/${postId}`
+  timeoutMs: number,
+  control: LiveRefreshRunControl
+): Promise<FxTweetFetchResult> {
+  const providers = [
+    { provider: "fxtwitter" as const, url: `https://api.fxtwitter.com/${handle}/status/${postId}` },
+    { provider: "vxtwitter" as const, url: `https://api.vxtwitter.com/${handle}/status/${postId}` }
   ];
 
-  for (const url of urls) {
-    const response = await fetchJson(url, fetchImpl, timeoutMs);
+  for (const { provider, url } of providers) {
+    const response = await fetchJson(url, fetchImpl, timeoutMs, control);
     if (!response.ok) {
+      if (isTerminalNetworkStopReason(response.reason)) {
+        return response;
+      }
       continue;
     }
-    const tweet = (response.json as { tweet?: FxTweet }).tweet;
-    if (tweet?.id) {
-      return { ok: true, tweet };
+
+    const payload = parseProviderTweetPayload(response.json, postId);
+    if (!payload) {
+      continue;
     }
+    if (!payload.ok) {
+      const logContext: ProviderFailureLogContext = {
+        provider,
+        expectedPostId: postId,
+        returnedPostId: payload.returnedPostId,
+        returnedCanonicalUrl: payload.returnedCanonicalUrl
+      };
+      if (payload.reason === "provider_post_id_mismatch") {
+        return {
+          ok: false,
+          reason: payload.reason,
+          logContext,
+          message: `Rejected ${provider} response for requested X status ${postId} because it returned status ID ${payload.returnedPostId ?? "with an invalid value"}.`
+        };
+      }
+      return {
+        ok: false,
+        reason: payload.reason,
+        logContext,
+        message: `Rejected ${provider} response for requested X status ${postId} because its canonical URL ${payload.returnedCanonicalUrl ?? "was invalid"} did not resolve to that status ID.`
+      };
+    }
+    return payload;
   }
 
   return { ok: false, reason: "post_json_unavailable" };
 }
 
+function parseProviderTweetPayload(json: unknown, expectedPostId: string): ProviderTweetPayloadResult {
+  if (!isObjectRecord(json)) {
+    return null;
+  }
+
+  const candidates: ProviderTweetCandidate[] = [];
+  if (isObjectRecord(json.tweet)) {
+    candidates.push(providerTweetCandidate(json.tweet));
+  }
+  if (isObjectRecord(json.status)) {
+    candidates.push(providerTweetCandidate(json.status));
+  }
+  if ("tweetID" in json || "tweetURL" in json) {
+    candidates.push({
+      tweet: normalizeVxTweet(json),
+      returnedPostId: json.tweetID,
+      returnedCanonicalUrl: json.tweetURL
+    });
+  }
+
+  for (const candidate of candidates) {
+    const hasReturnedPostId = candidate.returnedPostId !== undefined && candidate.returnedPostId !== null;
+    const returnedPostId = providerIdentityString(candidate.returnedPostId);
+    if (hasReturnedPostId && returnedPostId !== expectedPostId) {
+      return {
+        ok: false,
+        reason: "provider_post_id_mismatch",
+        returnedPostId,
+        returnedCanonicalUrl: providerCanonicalUrlString(candidate.returnedCanonicalUrl)
+      };
+    }
+
+    if (candidate.returnedCanonicalUrl !== undefined && candidate.returnedCanonicalUrl !== null) {
+      const returnedCanonicalUrl = providerCanonicalUrlString(candidate.returnedCanonicalUrl);
+      const canonicalReference = returnedCanonicalUrl
+        ? parseNativeXStatusReference(returnedCanonicalUrl)
+        : null;
+      if (canonicalReference?.postId !== expectedPostId) {
+        return {
+          ok: false,
+          reason: "provider_canonical_url_mismatch",
+          returnedPostId,
+          returnedCanonicalUrl
+        };
+      }
+    }
+  }
+
+  const matchingCandidate = candidates.find(
+    (candidate) => providerIdentityString(candidate.returnedPostId) === expectedPostId
+  );
+  return matchingCandidate ? { ok: true, tweet: matchingCandidate.tweet } : null;
+}
+
+function providerTweetCandidate(record: Record<string, unknown>): ProviderTweetCandidate {
+  return {
+    tweet: record as unknown as FxTweet,
+    returnedPostId: record.id,
+    returnedCanonicalUrl: record.url
+  };
+}
+
+function normalizeVxTweet(record: Record<string, unknown>): FxTweet {
+  const tweet = record as unknown as VxTweetResponse;
+  const mediaItems = Array.isArray(tweet.media_extended) ? tweet.media_extended : [];
+  return {
+    id: providerIdentityString(tweet.tweetID),
+    url: tweet.tweetURL,
+    text: tweet.text,
+    created_at: tweet.date,
+    created_timestamp: tweet.date_epoch,
+    replies: tweet.replies,
+    retweets: tweet.retweets,
+    likes: tweet.likes,
+    views: tweet.views,
+    quotes: tweet.quotes,
+    bookmarks: tweet.bookmarks,
+    author: {
+      screen_name: tweet.user_screen_name,
+      name: tweet.user_name,
+      url: tweet.user_screen_name ? `https://x.com/${tweet.user_screen_name}` : undefined
+    },
+    media: mediaItems.length ? { all: mediaItems } : undefined
+  };
+}
+
+function providerIdentityString(value: unknown): string | undefined {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "bigint") {
+    return String(value);
+  }
+  return undefined;
+}
+
+function providerCanonicalUrlString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
 async function fetchText(
   url: string,
   fetchImpl: typeof fetch,
-  timeoutMs: number
+  timeoutMs: number,
+  control: LiveRefreshRunControl
 ): Promise<{ ok: true; text: string } | { ok: false; reason: string }> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const started = control.startNetworkRequest(timeoutMs);
+  if (!started.ok) {
+    return { ok: false, reason: started.reason };
+  }
+  const { request } = started;
   try {
-    const response = await fetchImpl(url, {
-      signal: controller.signal,
-      headers: { "user-agent": "Mozilla/5.0 returner-fund-live-refresh" }
-    });
+    const response = await waitForAbort(
+      fetchImpl(url, {
+        signal: request.signal,
+        headers: { "user-agent": "Mozilla/5.0 returner-fund-live-refresh" }
+      }),
+      request.signal
+    );
     if (!response.ok) {
       return { ok: false, reason: `http_${response.status}` };
     }
-    return { ok: true, text: await response.text() };
+    return { ok: true, text: await waitForAbort(response.text(), request.signal) };
   } catch (error) {
-    return { ok: false, reason: error instanceof Error ? error.message : "fetch_failed" };
+    return { ok: false, reason: request.signal.aborted ? request.failureReason() : errorMessage(error) };
   } finally {
-    clearTimeout(timeout);
+    request.dispose();
   }
 }
 
 async function fetchJson(
   url: string,
   fetchImpl: typeof fetch,
-  timeoutMs: number
+  timeoutMs: number,
+  control: LiveRefreshRunControl
 ): Promise<{ ok: true; json: unknown } | { ok: false; reason: string }> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const started = control.startNetworkRequest(timeoutMs);
+  if (!started.ok) {
+    return { ok: false, reason: started.reason };
+  }
+  const { request } = started;
   try {
-    const response = await fetchImpl(url, {
-      signal: controller.signal,
-      headers: { "user-agent": "Mozilla/5.0 returner-fund-live-refresh" }
-    });
+    const response = await waitForAbort(
+      fetchImpl(url, {
+        signal: request.signal,
+        headers: { "user-agent": "Mozilla/5.0 returner-fund-live-refresh" }
+      }),
+      request.signal
+    );
     if (!response.ok) {
       return { ok: false, reason: `http_${response.status}` };
     }
-    return { ok: true, json: await response.json() };
+    return { ok: true, json: await waitForAbort(response.json(), request.signal) };
   } catch (error) {
-    return { ok: false, reason: error instanceof Error ? error.message : "fetch_failed" };
+    return { ok: false, reason: request.signal.aborted ? request.failureReason() : errorMessage(error) };
   } finally {
-    clearTimeout(timeout);
+    request.dispose();
+  }
+}
+
+async function readAndMergeEvidenceSnapshot(
+  path: string,
+  fallbackFetchedAt: string,
+  accepted: LiveEvidenceRecord[]
+): Promise<{ existingSnapshot: EvidenceSnapshot; mergedEvidence: LiveEvidenceRecord[] }> {
+  const existingSnapshot = await readEvidenceSnapshot(path, fallbackFetchedAt);
+  return {
+    existingSnapshot,
+    mergedEvidence: mergeEvidence(existingSnapshot.evidence, accepted)
+  };
+}
+
+async function withEvidenceSnapshotWriteLock<T>(path: string, task: () => Promise<T>): Promise<T> {
+  const key = resolve(path);
+  const previous = evidenceSnapshotWriteQueues.get(key) ?? Promise.resolve();
+  let release: () => void = () => {};
+  const lock = new Promise<void>((resolveLock) => {
+    release = resolveLock;
+  });
+  const queued = previous.catch(() => undefined).then(() => lock);
+  evidenceSnapshotWriteQueues.set(key, queued);
+
+  await previous.catch(() => undefined);
+  try {
+    return await task();
+  } finally {
+    release();
+    if (evidenceSnapshotWriteQueues.get(key) === queued) {
+      evidenceSnapshotWriteQueues.delete(key);
+    }
   }
 }
 
 async function readEvidenceSnapshot(path: string, fallbackFetchedAt: string): Promise<EvidenceSnapshot> {
+  let rawSnapshot: string;
   try {
-    const snapshot = JSON.parse(await readFile(path, "utf8")) as EvidenceSnapshot;
-    return {
-      source: snapshot.source ?? { fetchedAt: fallbackFetchedAt },
-      evidence: Array.isArray(snapshot.evidence) ? snapshot.evidence : [],
-      needsReview: Array.isArray(snapshot.needsReview) ? snapshot.needsReview : []
-    };
-  } catch {
+    rawSnapshot = await readFile(path, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw new Error(`Could not read evidence snapshot ${path}: ${errorMessage(error)}`);
+    }
     return {
       source: { fetchedAt: fallbackFetchedAt },
       evidence: [],
       needsReview: []
     };
   }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawSnapshot);
+  } catch (error) {
+    throw new Error(`Refusing to replace corrupt evidence snapshot ${path}: ${errorMessage(error)}`);
+  }
+
+  if (!isObjectRecord(parsed) || !Array.isArray(parsed.evidence)) {
+    throw new Error(`Refusing to replace invalid evidence snapshot ${path}: evidence must be an array.`);
+  }
+  if (parsed.source !== undefined && !isObjectRecord(parsed.source)) {
+    throw new Error(`Refusing to replace invalid evidence snapshot ${path}: source must be an object.`);
+  }
+  if (parsed.needsReview !== undefined && !Array.isArray(parsed.needsReview)) {
+    throw new Error(`Refusing to replace invalid evidence snapshot ${path}: needsReview must be an array.`);
+  }
+
+  const source = (parsed.source ?? {}) as Record<string, unknown>;
+  if (source.notes !== undefined && (!Array.isArray(source.notes) || source.notes.some((note) => typeof note !== "string"))) {
+    throw new Error(`Refusing to replace invalid evidence snapshot ${path}: source.notes must be a string array.`);
+  }
+
+  return {
+    source: {
+      ...(source as EvidenceSnapshot["source"]),
+      fetchedAt: typeof source.fetchedAt === "string" ? source.fetchedAt : fallbackFetchedAt
+    },
+    evidence: parsed.evidence as LiveEvidenceRecord[],
+    needsReview: (parsed.needsReview ?? []) as unknown[]
+  };
 }
 
-async function writeEvidenceSnapshot(path: string, snapshot: EvidenceSnapshot): Promise<void> {
+async function writeEvidenceSnapshot(path: string, snapshot: EvidenceSnapshot, signal?: AbortSignal): Promise<boolean> {
+  if (signal?.aborted) {
+    return false;
+  }
   await mkdir(dirname(path), { recursive: true });
+  if (signal?.aborted) {
+    return false;
+  }
   const tempPath = `${path}.${process.pid}.${Date.now()}.tmp`;
-  await writeFile(tempPath, `${JSON.stringify(snapshot, null, 2)}\n`);
-  await rename(tempPath, path);
-  liveEvidenceRecordsCache.delete(path);
+  try {
+    await writeFile(tempPath, `${JSON.stringify(snapshot, null, 2)}\n`, { signal });
+    if (signal?.aborted) {
+      await rm(tempPath, { force: true });
+      return false;
+    }
+    await rename(tempPath, path);
+    liveEvidenceRecordsCache.delete(path);
+    return true;
+  } catch (error) {
+    await rm(tempPath, { force: true }).catch(() => undefined);
+    if (signal?.aborted) {
+      return false;
+    }
+    throw error;
+  }
 }
 
-async function writeStageLog(path: string, stageLog: LiveRefreshStageLog[]): Promise<void> {
+async function writeStageLog(path: string, stageLog: LiveRefreshStageLog[], signal?: AbortSignal): Promise<boolean> {
+  if (signal?.aborted) {
+    return false;
+  }
   await mkdir(dirname(path), { recursive: true });
+  if (signal?.aborted) {
+    return false;
+  }
   const tempPath = `${path}.${process.pid}.${Date.now()}.tmp`;
-  await writeFile(tempPath, `${JSON.stringify({ generatedAt: new Date().toISOString(), stages: stageLog }, null, 2)}\n`);
-  await rename(tempPath, path);
+  try {
+    await writeFile(
+      tempPath,
+      `${JSON.stringify({ generatedAt: new Date().toISOString(), stages: stageLog }, null, 2)}\n`,
+      { signal }
+    );
+    if (signal?.aborted) {
+      await rm(tempPath, { force: true });
+      return false;
+    }
+    await rename(tempPath, path);
+    return true;
+  } catch (error) {
+    await rm(tempPath, { force: true }).catch(() => undefined);
+    if (signal?.aborted) {
+      return false;
+    }
+    throw error;
+  }
 }
 
 function mergeEvidence(existing: LiveEvidenceRecord[], accepted: LiveEvidenceRecord[]): LiveEvidenceRecord[] {
   const byKey = new Map<string, LiveEvidenceRecord>();
 
   for (const item of existing) {
-    byKey.set(evidenceKey(item), item);
+    const key = evidenceKey(item);
+    const canonical = byKey.get(key);
+    byKey.set(key, canonical ? fresherCanonicalEvidence(canonical, item) : item);
   }
   for (const item of accepted) {
     const key = evidenceKey(item);
-    const existingItem = byKey.get(key);
-    byKey.set(key, existingItem ? preserveFirstSeen(existingItem, item) : item);
+    const canonical = byKey.get(key);
+    byKey.set(key, canonical ? fresherCanonicalEvidence(canonical, item) : item);
   }
 
-  return [...byKey.values()].sort((left, right) => compareIso(right.last_checked_at, left.last_checked_at));
+  return [...byKey.values()].sort((left, right) => {
+    const freshnessDifference = evidenceFreshness(right) - evidenceFreshness(left);
+    return freshnessDifference || evidenceKey(left).localeCompare(evidenceKey(right));
+  });
 }
 
-function preserveFirstSeen(existing: LiveEvidenceRecord, next: LiveEvidenceRecord): LiveEvidenceRecord {
+function fresherCanonicalEvidence(existing: LiveEvidenceRecord, candidate: LiveEvidenceRecord): LiveEvidenceRecord {
+  const preferred = evidenceFreshness(candidate) > evidenceFreshness(existing) ? candidate : existing;
   return {
-    ...next,
-    first_seen_at: existing.first_seen_at || next.first_seen_at
+    ...preferred,
+    first_seen_at: earliestIso(existing.first_seen_at, candidate.first_seen_at) ?? preferred.first_seen_at
   };
+}
+
+function evidenceFreshness(item: LiveEvidenceRecord): number {
+  const extended = item as LiveEvidenceRecord & { metricsCheckedAt?: string | null; observedAt?: string | null };
+  const timestamps = [
+    extended.metricsCheckedAt,
+    item.last_checked_at,
+    item.linkCheckedAt,
+    item.last_updated_at,
+    extended.observedAt,
+    item.first_seen_at,
+    item.postedAt
+  ]
+    .map(timestampValue)
+    .filter((value): value is number => value !== null);
+  return timestamps.length ? Math.max(...timestamps) : Number.NEGATIVE_INFINITY;
 }
 
 function evidenceKey(item: LiveEvidenceRecord): string {
@@ -2112,7 +2856,11 @@ function countReasons(stageLog: LiveRefreshStageLog[]): Record<string, number> {
 }
 
 function hasVisibleMetrics(metrics: EvidenceMetrics): boolean {
-  return Object.values(metrics).some((value) => Number.isFinite(value) && Number(value) > 0);
+  return !hasInvalidVisibleMetrics(metrics) && Object.values(metrics).some((value) => Number.isFinite(value) && Number(value) > 0);
+}
+
+function hasInvalidVisibleMetrics(metrics: EvidenceMetrics): boolean {
+  return Object.values(metrics).some((value) => value !== undefined && (!Number.isFinite(value) || Number(value) < 0));
 }
 
 function computeVisibleMetricCount(metrics: EvidenceMetrics): number {
@@ -2138,6 +2886,35 @@ function formatPlatform(platform: Platform): string {
   return platform.replace(/_/g, " ");
 }
 
+function invalidXTweetMetric(tweet: FxTweet | undefined): string | null {
+  if (!tweet) {
+    return null;
+  }
+  const raw = tweet as FxTweet & Record<string, unknown>;
+  for (const key of ["views", "likes", "comments", "replies", "shares", "reposts", "retweets", "quotes", "bookmarks"]) {
+    const value = raw[key];
+    if (value === undefined || value === null) {
+      continue;
+    }
+    const numeric = typeof value === "string" && !value.trim() ? Number.NaN : Number(value);
+    if (!Number.isFinite(numeric) || numeric < 0) {
+      return key;
+    }
+  }
+  return null;
+}
+
+function setMetric(metrics: EvidenceMetrics, key: keyof EvidenceMetrics, value: number | undefined): void {
+  if (value !== undefined) {
+    metrics[key] = value;
+  }
+}
+
+function maxFiniteNumber(...values: unknown[]): number | undefined {
+  const finiteValues = values.map(finiteNumber).filter((value): value is number => value !== undefined);
+  return finiteValues.length ? Math.max(...finiteValues) : undefined;
+}
+
 function finiteNumber(value: unknown): number | undefined {
   const numeric = Number(value);
   return Number.isFinite(numeric) && numeric > 0 ? numeric : undefined;
@@ -2151,8 +2928,41 @@ function parseDate(value: string | undefined): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function compareIso(left: string | undefined, right: string | undefined): number {
-  return Date.parse(left ?? "") - Date.parse(right ?? "");
+function timestampValue(value: string | null | undefined): number | null {
+  if (!value) {
+    return null;
+  }
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function freshestIso(existing: string | undefined, candidate: string | undefined): string | undefined {
+  const existingTimestamp = timestampValue(existing);
+  const candidateTimestamp = timestampValue(candidate);
+  if (candidateTimestamp !== null && (existingTimestamp === null || candidateTimestamp > existingTimestamp)) {
+    return candidate;
+  }
+  return existing ?? candidate;
+}
+
+function earliestIso(left: string | undefined, right: string | undefined): string | undefined {
+  const leftTimestamp = timestampValue(left);
+  const rightTimestamp = timestampValue(right);
+  if (leftTimestamp === null) {
+    return rightTimestamp === null ? left ?? right : right;
+  }
+  if (rightTimestamp === null) {
+    return left;
+  }
+  return leftTimestamp <= rightTimestamp ? left : right;
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function handleFromUrl(rawUrl: string | null | undefined): string | null {

@@ -15,7 +15,9 @@ const queryPlatforms: Platform[] = [
   "web",
   "reddit",
   "hacker_news",
-  "bilibili"
+  "bilibili",
+  "tiktok",
+  "bluesky"
 ];
 
 interface PageProps {
@@ -37,7 +39,14 @@ export default async function Home({ searchParams }: PageProps) {
   const platforms = parsePlatformList(singleQueryValue(params.platforms));
   const topVoices = normalizeTopVoiceAudienceId(singleQueryValue(params.topVoices));
 
-  return <Dashboard initialBatchSlug={batchSlug} initialTopVoiceAudience={topVoices} initialFilters={{ platforms }} />;
+  return (
+    <Dashboard
+      initialBatchSlug={batchSlug}
+      initialTopVoiceAudience={topVoices}
+      initialFilters={{ platforms }}
+      manualRefreshEnabled={process.env.NODE_ENV !== "production"}
+    />
+  );
 }
 
 function singleQueryValue(value: string | string[] | undefined): string | undefined {

@@ -15,7 +15,7 @@ import {
   Trophy,
   Users
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, type KeyboardEvent } from "react";
 import {
   generatedEvidenceThumbnailDataUri,
   generatedEvidenceThumbnailUrl
@@ -68,6 +68,30 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
     }));
   }
 
+  function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, currentTab: TabKey) {
+    const currentIndex = tabs.findIndex((tab) => tab.key === currentTab);
+    let nextIndex: number | null = null;
+
+    if (event.key === "ArrowRight") {
+      nextIndex = (currentIndex + 1) % tabs.length;
+    } else if (event.key === "ArrowLeft") {
+      nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = tabs.length - 1;
+    }
+
+    if (nextIndex === null) {
+      return;
+    }
+
+    event.preventDefault();
+    const nextTab = tabs[nextIndex];
+    setActiveTab(nextTab.key);
+    document.getElementById(`insights-tab-${nextTab.key}`)?.focus();
+  }
+
   return (
     <section className="insights-panel">
       <div className="tab-list" role="tablist" aria-label="Dashboard panels">
@@ -76,11 +100,17 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
           return (
             <button
               key={tab.key}
+              id={`insights-tab-${tab.key}`}
               type="button"
+              role="tab"
               className={activeTab === tab.key ? "active" : ""}
+              aria-controls={`insights-panel-${tab.key}`}
+              aria-selected={activeTab === tab.key}
+              tabIndex={activeTab === tab.key ? 0 : -1}
               onClick={() => setActiveTab(tab.key)}
+              onKeyDown={(event) => handleTabKeyDown(event, tab.key)}
             >
-              <Icon size={16} />
+              <Icon size={16} aria-hidden="true" />
               {tab.label}
             </button>
           );
@@ -93,6 +123,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
             <button
               type="button"
               className={momentumPeriod === "dod" ? "active" : ""}
+              aria-pressed={momentumPeriod === "dod"}
               onClick={() => setMomentumPeriod("dod")}
               tabIndex={activeTab === "gaining" ? 0 : -1}
             >
@@ -101,6 +132,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
             <button
               type="button"
               className={momentumPeriod === "wow" ? "active" : ""}
+              aria-pressed={momentumPeriod === "wow"}
               onClick={() => setMomentumPeriod("wow")}
               tabIndex={activeTab === "gaining" ? 0 : -1}
             >
@@ -111,7 +143,13 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
       </div>
 
       {activeTab === "overview" && (
-        <div className="tab-body">
+        <div
+          className="tab-body"
+          id="insights-panel-overview"
+          role="tabpanel"
+          aria-labelledby="insights-tab-overview"
+        >
+          <ActiveScoreContext graph={graph} />
           <table className="overview-table">
             <thead>
               <tr>
@@ -202,7 +240,13 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
       )}
 
       {activeTab === "gaining" && (
-        <div className="tab-body">
+        <div
+          className="tab-body"
+          id="insights-panel-gaining"
+          role="tabpanel"
+          aria-labelledby="insights-tab-gaining"
+        >
+          <ActiveScoreContext graph={graph} />
           <table className="momentum-table">
             <thead>
               <tr>
@@ -215,12 +259,21 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
               </tr>
             </thead>
             <tbody>
-              {momentumRows.map((row, index) => {
+              {!momentumRows.length && (
+                <tr>
+                  <td colSpan={6}>
+                    <div className="overview-empty-state">
+                      No companies have traction from this Top Voices audience yet.
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {momentumRows.map((row) => {
                 const delta = row[momentumPeriod];
                 return (
                   <tr key={row.companyId}>
                     <td className="insight-rank-cell">
-                      <RankDisplay rank={index + 1} />
+                      <RankDisplay rank={row.rank} />
                     </td>
                     <td className="insight-company-cell">
                       <button
@@ -243,7 +296,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
                     <td className="momentum-stat-cell">
                       <span>Rank</span>
                       {" "}
-                      <strong>{formatRankDelta(delta.rankDelta)}</strong>
+                      <strong>{formatRankDelta(delta)}</strong>
                     </td>
                     <td className="momentum-stat-cell">
                       <span>Now</span>
@@ -276,6 +329,59 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
   );
 }
 
+function ActiveScoreContext({ graph }: { graph: GraphResponse }) {
+  const context = activeScoreContext(graph);
+
+  return (
+    <div className="table-toolbar" aria-label={context.ariaLabel}>
+      <div className="score-filter-header">
+        <span>{context.term}</span>
+        <strong title={context.title}>{context.value}</strong>
+      </div>
+    </div>
+  );
+}
+
+function activeScoreContext(graph: GraphResponse): {
+  term: "Score scope" | "Score audience";
+  value: string;
+  title: string;
+  ariaLabel: string;
+} {
+  const scope =
+    graph.scoringContext?.scoreScope ??
+    (graph.selectedTopVoiceAudience.id === "off" ? "all_platforms" : "top_voice");
+
+  if (scope === "top_voice") {
+    const audience = graph.selectedTopVoiceAudience.displayName;
+    return {
+      term: "Score audience",
+      value: audience,
+      title: audience,
+      ariaLabel: `Active score audience: ${audience}`
+    };
+  }
+
+  if (scope === "selected_platforms") {
+    const platforms = (graph.scoringContext?.selectedPlatforms ?? []).map(formatPlatform);
+    const title = platforms.length ? platforms.join(", ") : "Selected platforms";
+    const value = platforms.length > 2 ? `${platforms.length} platforms` : platforms.join(" + ") || title;
+    return {
+      term: "Score scope",
+      value,
+      title,
+      ariaLabel: `Active score scope: ${title}`
+    };
+  }
+
+  return {
+    term: "Score scope",
+    value: "All platforms",
+    title: "All platforms",
+    ariaLabel: "Active score scope: All platforms"
+  };
+}
+
 function SortIcon({ active, direction }: { active: boolean; direction: SortDirection }) {
   if (!active) {
     return <ArrowUpDown size={13} aria-hidden="true" />;
@@ -297,14 +403,19 @@ function RankDisplay({ rank }: { rank: number }) {
 }
 
 function ContributionThumbnail({ item }: { item: EvidenceItem | null }) {
+  return (
+    <ContributionThumbnailContent
+      key={item ? `${item.id}:${item.thumbnailUrl ?? ""}` : "empty"}
+      item={item}
+    />
+  );
+}
+
+function ContributionThumbnailContent({ item }: { item: EvidenceItem | null }) {
   const [failedThumbnailUrls, setFailedThumbnailUrls] = useState<string[]>([]);
   const platform = item?.platform ?? null;
   const thumbnailCandidates = item ? thumbnailUrlCandidates(item) : [];
   const thumbnailUrl = thumbnailCandidates.find((candidate) => !failedThumbnailUrls.includes(candidate)) ?? null;
-
-  useEffect(() => {
-    setFailedThumbnailUrls([]);
-  }, [item?.id, item?.thumbnailUrl]);
 
   function handleThumbnailError(url: string) {
     setFailedThumbnailUrls((current) => (current.includes(url) ? current : [...current, url]));
@@ -399,14 +510,24 @@ function MetricIcon({ metric }: { metric: string }) {
 }
 
 function formatScoreDelta(delta: MomentumDelta): string {
+  if (delta.baselineScore === null) {
+    return "Awaiting snapshot";
+  }
   return `${signed(delta.scoreDelta)} pts (${signed(delta.percentDelta)}%)`;
 }
 
 function formatScoreDeltaCompact(delta: MomentumDelta): string {
+  if (delta.baselineScore === null) {
+    return "Awaiting snapshot";
+  }
   return `${signed(delta.scoreDelta)} (${signed(delta.percentDelta)}%)`;
 }
 
-function formatRankDelta(rankDelta: number): string {
+function formatRankDelta(delta: MomentumDelta): string {
+  if (delta.baselineRank === null) {
+    return "Awaiting snapshot";
+  }
+  const { rankDelta } = delta;
   if (rankDelta === 0) {
     return "0";
   }
@@ -424,7 +545,7 @@ function formatBenchmark(delta: MomentumDelta): string {
 function formatBenchmarkCompact(delta: MomentumDelta): string {
   const benchmarkDate = formatBenchmarkDate(delta.benchmarkedAt, { month: "numeric", day: "numeric" });
   if (delta.baselineScore === null || delta.baselineRank === null) {
-    return benchmarkDate ? `Pending · ${benchmarkDate}` : "Pending";
+    return benchmarkDate ? `Awaiting ${benchmarkDate} snapshot` : "Awaiting snapshot";
   }
   return `${delta.baselineScore} / #${delta.baselineRank} · ${benchmarkDate ?? "prior"}`;
 }

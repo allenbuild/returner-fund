@@ -2,6 +2,8 @@ import { buildDemoGraph, normalizeBatchSlug } from "./demo-ingest";
 import { createRunStore, isSupabaseConfigured } from "./run-store";
 import type { IngestBatchRequest, IngestBatchResponse } from "./types";
 
+const UNAVAILABLE_PLATFORM_ADAPTERS = new Set(["tiktok", "bluesky"]);
+
 export async function runIngestBatch(request: IngestBatchRequest): Promise<IngestBatchResponse> {
   const batchSlug = normalizeBatchSlug(request.batchSlug);
   const mode = shouldUseDemoMode(request) ? "demo" : "database";
@@ -48,6 +50,14 @@ export async function runIngestBatch(request: IngestBatchRequest): Promise<Inges
 
     if (request.options?.platforms?.length) {
       await log(`Platform filter requested: ${request.options.platforms.join(", ")}.`);
+      const unavailablePlatforms = request.options.platforms.filter((platform) =>
+        UNAVAILABLE_PLATFORM_ADAPTERS.has(platform)
+      );
+      if (unavailablePlatforms.length) {
+        await log(
+          `${unavailablePlatforms.join(", ")} collection adapter(s) are unavailable. Verified native evidence may pass through as unscored; this run will not fetch or score it.`
+        );
+      }
     }
 
     const graph = buildDemoGraph({ ...request, batchSlug });

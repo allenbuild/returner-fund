@@ -2,108 +2,118 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { applyStoredBenchmarkMomentum, ensureBenchmarkMomentum } from "@/lib/graph/benchmarks";
+import {
+  applyStoredBenchmarkMomentum,
+  ensureBenchmarkMomentum,
+  inheritCanonicalCompanyScoring,
+  recordBenchmarkMomentum
+} from "@/lib/graph/benchmarks";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import type { GraphResponse } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("score benchmarks", () => {
-  it("records daily and weekly score/rank baselines only when each interval is due", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
+  it("records only observed snapshots and attaches model/input metadata", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
+    const firstAt = new Date("2026-06-28T12:00:00.000Z");
+    const nextAt = new Date("2026-06-29T12:01:00.000Z");
 
-    const initial = ensureBenchmarkMomentum(graph, {
-      storePath,
-      now: new Date("2026-06-28T12:00:00.000Z")
-    });
-    const duplicate = ensureBenchmarkMomentum(graph, {
+    const initial = recordBenchmarkMomentum(graph, { storePath, now: firstAt });
+    const duplicateRead = ensureBenchmarkMomentum(graph, {
       storePath,
       now: new Date("2026-06-28T18:00:00.000Z")
     });
-    const nextDay = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
-      storePath,
-      now: new Date("2026-06-29T12:01:00.000Z")
-    });
-    const store = JSON.parse(fs.readFileSync(storePath, "utf8")) as {
-      daily: unknown[];
-      weekly: unknown[];
-    };
+    const nextDay = recordBenchmarkMomentum(
+      withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5),
+      { storePath, now: nextAt }
+    );
+    const store = readStore(storePath);
     const updatedRow = nextDay.graph.fastestGaining.find((row) => row.companyId === firstCompany.companyId);
 
     expect(initial.recordedDaily).toBe(true);
     expect(initial.recordedWeekly).toBe(true);
-    expect(duplicate.recordedDaily).toBe(false);
-    expect(duplicate.recordedWeekly).toBe(false);
+    expect(duplicateRead.recordedDaily).toBe(false);
+    expect(duplicateRead.recordedWeekly).toBe(false);
     expect(nextDay.recordedDaily).toBe(true);
     expect(nextDay.recordedWeekly).toBe(false);
-    expect(store.daily).toHaveLength(9);
+    expect(store.daily).toHaveLength(2);
     expect(store.weekly).toHaveLength(1);
+    expect(store.daily[0]).toMatchObject({
+      recordedAt: firstAt.toISOString(),
+      scoringModelVersion: graph.scoringContext?.modelVersion,
+      inputGeneratedAt: graph.generatedAt
+    });
     expect(updatedRow?.dod.scoreDelta).toBe(5);
-    expect(updatedRow?.dod.benchmarkedAt).toBe("2026-06-28T12:00:00.000Z");
-    expect(updatedRow?.wow.scoreDelta).toBe(5);
-    expect(updatedRow?.wow.benchmarkedAt).toBe(localDayIso(2026, 5, 22));
+    expect(updatedRow?.dod.benchmarkedAt).toBe(firstAt.toISOString());
+    expect(updatedRow?.wow.baselineScore).toBeNull();
+    expect(updatedRow?.wow.benchmarkedAt).toBeNull();
   });
 
-  it("keeps day-over-day comparisons pinned to the previous calendar day after today's snapshot exists", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
+  it("keeps read helpers pure when history is missing or present", () => {
+    const { graph, storePath } = benchmarkFixture();
 
-    ensureBenchmarkMomentum(graph, {
-      storePath,
-      now: new Date("2026-06-30T12:00:00.000Z")
-    });
-
-    const firstJulyRun = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
+    const missing = ensureBenchmarkMomentum(graph, {
       storePath,
       now: new Date("2026-07-01T12:00:00.000Z")
     });
-    const secondJulyRun = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 8), {
-      storePath,
-      now: new Date("2026-07-01T18:00:00.000Z")
-    });
-    const store = JSON.parse(fs.readFileSync(storePath, "utf8")) as {
-      daily: { recordedAt: string }[];
-    };
-    const firstJulyRow = firstJulyRun.graph.fastestGaining.find((row) => row.companyId === firstCompany.companyId);
-    const secondJulyRow = secondJulyRun.graph.fastestGaining.find((row) => row.companyId === firstCompany.companyId);
 
-    expect(firstJulyRun.recordedDaily).toBe(true);
-    expect(secondJulyRun.recordedDaily).toBe(false);
-    expect(store.daily.map((snapshot) => snapshot.recordedAt)).toEqual(expect.arrayContaining([
-      localDayIso(2026, 5, 24),
-      localDayIso(2026, 5, 29),
-      "2026-06-30T12:00:00.000Z",
-      "2026-07-01T12:00:00.000Z"
-    ]));
-    expect(firstJulyRow?.dod.scoreDelta).toBe(5);
-    expect(firstJulyRow?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
-    expect(secondJulyRow?.dod.scoreDelta).toBe(8);
-    expect(secondJulyRow?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
+    expect(fs.existsSync(storePath)).toBe(false);
+    expect(missing.graph.fastestGaining[0]?.dod.benchmarkedAt).toBeNull();
+    expect(missing.graph.fastestGaining[0]?.wow.benchmarkedAt).toBeNull();
+
+    recordBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-06-30T12:00:00.000Z")
+    });
+    const before = fs.readFileSync(storePath, "utf8");
+    applyStoredBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const after = fs.readFileSync(storePath, "utf8");
+
+    expect(after).toBe(before);
   });
 
-  it("uses the exact seven-days-prior calendar snapshot for week-over-week comparisons", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
+  it("leaves missed calendar dates missing instead of backfilling them", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
 
-    ensureBenchmarkMomentum(graph, {
+    recordBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-06-29T12:00:00.000Z")
+    });
+    const julyFirst = recordBenchmarkMomentum(
+      withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5),
+      { storePath, now: new Date("2026-07-01T12:00:00.000Z") }
+    );
+    const store = readStore(storePath);
+    const row = julyFirst.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(store.daily.map((snapshot) => snapshot.recordedAt)).toEqual([
+      "2026-06-29T12:00:00.000Z",
+      "2026-07-01T12:00:00.000Z"
+    ]);
+    expect(row?.dod.baselineScore).toBeNull();
+    expect(row?.dod.benchmarkedAt).toBeNull();
+    expect(row?.wow.baselineScore).toBeNull();
+    expect(row?.wow.benchmarkedAt).toBeNull();
+  });
+
+  it("uses exact observed Central calendar days for daily and weekly comparisons", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
+
+    recordBenchmarkMomentum(graph, {
       storePath,
       now: new Date("2026-06-24T12:00:00.000Z")
     });
-    ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 4), {
+    recordBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 4), {
       storePath,
       now: new Date("2026-06-30T12:00:00.000Z")
     });
-
-    const julyFirst = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10), {
-      storePath,
-      now: new Date("2026-07-01T12:00:00.000Z")
-    });
+    const julyFirst = recordBenchmarkMomentum(
+      withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10),
+      { storePath, now: new Date("2026-07-01T12:00:00.000Z") }
+    );
     const row = julyFirst.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
 
     expect(row?.dod.scoreDelta).toBe(6);
@@ -112,171 +122,135 @@ describe("score benchmarks", () => {
     expect(row?.wow.benchmarkedAt).toBe("2026-06-24T12:00:00.000Z");
   });
 
-  it("chooses the latest timestamped weekly baseline when daily and weekly snapshots are merged", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
+  it("uses Central day boundaries across the fall DST transition", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
 
-    ensureBenchmarkMomentum(graph, {
+    recordBenchmarkMomentum(graph, {
       storePath,
-      now: new Date("2026-06-29T12:00:00.000Z")
+      now: new Date("2026-11-01T05:30:00.000Z")
     });
-    ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 4), {
-      storePath,
-      now: new Date("2026-07-02T12:00:00.000Z")
-    });
+    const nextCentralDay = recordBenchmarkMomentum(
+      withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 3),
+      { storePath, now: new Date("2026-11-02T06:30:00.000Z") }
+    );
+    const row = nextCentralDay.graph.fastestGaining.find(
+      (candidate) => candidate.companyId === firstCompany.companyId
+    );
 
-    const julyNinth = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10), {
-      storePath,
-      now: new Date("2026-07-09T12:00:00.000Z")
-    });
-    const row = julyNinth.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
-
-    expect(row?.wow.scoreDelta).toBe(6);
-    expect(row?.wow.benchmarkedAt).toBe("2026-07-02T12:00:00.000Z");
+    expect(row?.dod.scoreDelta).toBe(3);
+    expect(row?.dod.benchmarkedAt).toBe("2026-11-01T05:30:00.000Z");
   });
 
-  it("backfills the exact week-over-week calendar day instead of using yesterday's date", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
+  it("does not replace an observed same-day snapshot", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
 
-    ensureBenchmarkMomentum(graph, {
-      storePath,
-      now: new Date("2026-07-08T12:00:00.000Z")
-    });
-
-    const julyNinth = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10), {
-      storePath,
-      now: new Date("2026-07-09T12:00:00.000Z")
-    });
-    const row = julyNinth.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
-
-    expect(row?.dod.scoreDelta).toBe(10);
-    expect(row?.dod.benchmarkedAt).toBe("2026-07-08T12:00:00.000Z");
-    expect(row?.wow.scoreDelta).toBe(10);
-    expect(row?.wow.benchmarkedAt).toBe(localDayIso(2026, 6, 2));
-  });
-
-  it("backfills missing exact calendar baselines from stored benchmark snapshots", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
-
-    ensureBenchmarkMomentum(graph, {
-      storePath,
-      now: new Date("2026-07-03T12:00:00.000Z")
-    });
-    ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 4), {
-      storePath,
-      now: new Date("2026-07-09T12:00:00.000Z")
-    });
-
-    const julyTwelfth = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 10), {
-      storePath,
-      now: new Date("2026-07-12T12:00:00.000Z")
-    });
-    const row = julyTwelfth.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
-
-    expect(row?.dod.scoreDelta).toBe(6);
-    expect(row?.dod.benchmarkedAt).toBe(localDayIso(2026, 6, 11));
-    expect(row?.wow.scoreDelta).toBe(10);
-    expect(row?.wow.benchmarkedAt).toBe(localDayIso(2026, 6, 5));
-  });
-
-  it("materializes the previous calendar day when a daily snapshot was missed", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
-
-    ensureBenchmarkMomentum(graph, {
-      storePath,
-      now: new Date("2026-06-29T12:00:00.000Z")
-    });
-
-    const julyFirst = ensureBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
-      storePath,
-      now: new Date("2026-07-01T12:00:00.000Z")
-    });
-    const row = julyFirst.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
-
-    expect(row?.dod.scoreDelta).toBe(5);
-    expect(row?.dod.benchmarkedAt).toBe(localDayIso(2026, 5, 30));
-  });
-
-  it("can apply stored momentum rows without recording a new benchmark during first paint", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
-
-    ensureBenchmarkMomentum(graph, {
+    recordBenchmarkMomentum(graph, {
       storePath,
       now: new Date("2026-06-30T12:00:00.000Z")
     });
-
-    const before = fs.readFileSync(storePath, "utf8");
-    const hydrated = applyStoredBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
+    recordBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
       storePath,
       now: new Date("2026-07-01T12:00:00.000Z")
     });
-    const after = fs.readFileSync(storePath, "utf8");
-    const row = hydrated.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+    const before = fs.readFileSync(storePath, "utf8");
+    const repeated = recordBenchmarkMomentum(
+      withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 8),
+      { storePath, now: new Date("2026-07-01T18:00:00.000Z") }
+    );
+    const row = repeated.graph.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
 
-    expect(row?.dod.scoreDelta).toBe(5);
+    expect(repeated.recordedDaily).toBe(false);
+    expect(fs.readFileSync(storePath, "utf8")).toBe(before);
+    expect(row?.dod.scoreDelta).toBe(8);
     expect(row?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
-    expect(after).toBe(before);
   });
 
-  it("normalizes corrupt stored benchmark ranks from score order", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const [firstCompany, secondCompany, thirdCompany] = graph.leaderboard;
+  it("never compares scores from different or unknown scoring model versions", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
+    const oldModelGraph = withModelVersion(graph, "old-model");
+    const newModelGraph = withModelVersion(graph, "new-model");
 
-    fs.writeFileSync(
+    recordBenchmarkMomentum(oldModelGraph, {
       storePath,
-      JSON.stringify(
-        {
-          version: 1,
-          batchSlug: "S26",
-          updatedAt: "2026-06-30T12:00:00.000Z",
-          daily: [
-            {
-              recordedAt: "2026-06-30T12:00:00.000Z",
-              companies: [
-                {
-                  companyId: firstCompany.companyId,
-                  companyName: firstCompany.companyName,
-                  score: 10,
-                  rank: 24
-                },
-                {
-                  companyId: secondCompany.companyId,
-                  companyName: secondCompany.companyName,
-                  score: 90,
-                  rank: 24
-                },
-                {
-                  companyId: thirdCompany.companyId,
-                  companyName: thirdCompany.companyName,
-                  score: 50,
-                  rank: 24
-                }
-              ]
-            }
-          ],
-          weekly: []
-        },
-        null,
-        2
-      ),
-      "utf8"
+      now: new Date("2026-06-30T12:00:00.000Z")
+    });
+    const unmatched = applyStoredBenchmarkMomentum(
+      withCompanyScore(newModelGraph, firstCompany.companyId, firstCompany.score + 5),
+      { storePath, now: new Date("2026-07-01T12:00:00.000Z") }
     );
+    const unmatchedRow = unmatched.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(unmatchedRow?.dod.baselineScore).toBeNull();
+    expect(unmatchedRow?.dod.benchmarkedAt).toBeNull();
+
+    recordBenchmarkMomentum(newModelGraph, {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const matched = applyStoredBenchmarkMomentum(
+      withCompanyScore(newModelGraph, firstCompany.companyId, firstCompany.score + 7),
+      { storePath, now: new Date("2026-07-02T12:00:00.000Z") }
+    );
+    const matchedRow = matched.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(readStore(storePath).daily).toHaveLength(2);
+    expect(matchedRow?.dod.scoreDelta).toBe(7);
+    expect(matchedRow?.dod.benchmarkedAt).toBe("2026-07-01T12:00:00.000Z");
+  });
+
+  it("preserves existing historical entries byte-for-value when appending", () => {
+    const { graph, storePath } = benchmarkFixture();
+    const legacySnapshot = {
+      recordedAt: "2026-06-30T12:00:00.000Z",
+      legacyMarker: "do-not-rewrite",
+      companies: [
+        {
+          companyId: graph.leaderboard[0]!.companyId,
+          companyName: graph.leaderboard[0]!.companyName,
+          score: 10,
+          rank: 99
+        }
+      ]
+    };
+    writeStore(storePath, {
+      version: 1,
+      batchSlug: graph.batch.slug,
+      updatedAt: legacySnapshot.recordedAt,
+      daily: [legacySnapshot],
+      weekly: []
+    });
+
+    recordBenchmarkMomentum(graph, {
+      storePath,
+      now: new Date("2026-07-01T12:00:00.000Z")
+    });
+    const store = readStore(storePath);
+
+    expect(store.daily[0]).toEqual(legacySnapshot);
+    expect(store.daily).toHaveLength(2);
+  });
+
+  it("normalizes corrupt stored ranks from score order without mutating the file", () => {
+    const { graph, storePath } = benchmarkFixture();
+    const [firstCompany, secondCompany, thirdCompany] = graph.leaderboard;
+    const snapshot = {
+      recordedAt: "2026-06-30T12:00:00.000Z",
+      scoringModelVersion: graph.scoringContext!.modelVersion,
+      inputGeneratedAt: graph.generatedAt,
+      companies: [
+        { companyId: firstCompany.companyId, companyName: firstCompany.companyName, score: 10, rank: 24 },
+        { companyId: secondCompany.companyId, companyName: secondCompany.companyName, score: 90, rank: 24 },
+        { companyId: thirdCompany.companyId, companyName: thirdCompany.companyName, score: 50, rank: 24 }
+      ]
+    };
+    writeStore(storePath, {
+      version: 1,
+      batchSlug: graph.batch.slug,
+      updatedAt: snapshot.recordedAt,
+      daily: [snapshot],
+      weekly: []
+    });
+    const before = fs.readFileSync(storePath, "utf8");
 
     const hydrated = applyStoredBenchmarkMomentum(graph, {
       storePath,
@@ -287,66 +261,89 @@ describe("score benchmarks", () => {
 
     expect(firstRow?.dod.baselineRank).toBe(3);
     expect(secondRow?.dod.baselineRank).toBe(1);
+    expect(fs.readFileSync(storePath, "utf8")).toBe(before);
   });
 
-  it("normalizes benchmark ranks before writing current snapshots", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const corruptGraph = {
-      ...graph,
-      leaderboard: graph.leaderboard.map((row) => ({ ...row, rank: 24 }))
-    };
-
-    ensureBenchmarkMomentum(corruptGraph, {
-      storePath,
-      now: new Date("2026-07-01T12:00:00.000Z")
-    });
-    const store = JSON.parse(fs.readFileSync(storePath, "utf8")) as {
-      daily: { companies: { rank: number }[] }[];
-    };
-
-    expect(store.daily[0]?.companies.slice(0, 3).map((company) => company.rank)).toEqual([1, 2, 3]);
-  });
-
-  it("ignores empty stored snapshots without falling back to older stale baselines", () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
-    const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
-    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
-    const firstCompany = graph.leaderboard[0]!;
-
-    fs.writeFileSync(
-      storePath,
-      JSON.stringify(
+  it("ignores malformed model metadata instead of treating it as an observation", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
+    writeStore(storePath, {
+      version: 1,
+      batchSlug: graph.batch.slug,
+      updatedAt: "2026-06-30T12:00:00.000Z",
+      daily: [
         {
-          version: 1,
-          batchSlug: "S26",
-          updatedAt: "2026-06-30T12:00:00.000Z",
-          daily: [
-            { recordedAt: "2026-06-29T12:00:00.000Z", companies: [{ companyId: firstCompany.companyId, companyName: firstCompany.companyName, score: firstCompany.score, rank: 1 }] },
-            { recordedAt: "2026-06-30T12:00:00.000Z", companies: [] }
-          ],
-          weekly: []
-        },
-        null,
-        2
-      ),
-      "utf8"
-    );
-
-    const hydrated = applyStoredBenchmarkMomentum(withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5), {
-      storePath,
-      now: new Date("2026-07-01T12:00:00.000Z")
+          recordedAt: "2026-06-30T12:00:00.000Z",
+          scoringModelVersion: graph.scoringContext!.modelVersion,
+          companies: [
+            {
+              companyId: firstCompany.companyId,
+              companyName: firstCompany.companyName,
+              score: firstCompany.score,
+              rank: 1
+            }
+          ]
+        }
+      ],
+      weekly: []
     });
+
+    const hydrated = applyStoredBenchmarkMomentum(
+      withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5),
+      { storePath, now: new Date("2026-07-01T12:00:00.000Z") }
+    );
     const row = hydrated.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
 
-    expect(row?.dod.scoreDelta).toBe(0);
-    expect(row?.dod.benchmarkedAt).toBe(localDayIso(2026, 5, 30));
+    expect(row?.dod.baselineScore).toBeNull();
+    expect(row?.dod.benchmarkedAt).toBeNull();
+  });
+
+  it("inherits canonical ranks and momentum without fabricating missing audience baselines", () => {
+    const { graph } = benchmarkFixture();
+    const companyRow = graph.leaderboard[2]!;
+    const companyNode = graph.nodes.find((node) => node.entityId === companyRow.companyId)!;
+    const localAudienceGraph: GraphResponse = {
+      ...graph,
+      nodes: [{ ...companyNode, score: 100, radius: 68 }],
+      leaderboard: [{ ...companyRow, rank: 1, score: 100 }],
+      fastestGaining: []
+    };
+    const inherited = inheritCanonicalCompanyScoring(localAudienceGraph, graph);
+    const canonicalMomentum = graph.fastestGaining.find((row) => row.companyId === companyRow.companyId);
+
+    expect(inherited.nodes[0]).toMatchObject({
+      score: companyNode.score,
+      radius: companyNode.radius,
+      scoreBreakdown: companyNode.scoreBreakdown
+    });
+    expect(inherited.leaderboard[0]).toMatchObject({
+      rank: companyRow.rank,
+      score: companyRow.score
+    });
+    expect(inherited.fastestGaining).toEqual([canonicalMomentum]);
+    expect(() => inheritCanonicalCompanyScoring(localAudienceGraph, {
+      ...graph,
+      fastestGaining: graph.fastestGaining.filter((row) => row.companyId !== companyRow.companyId)
+    })).toThrow(`Canonical graph is missing scoring surfaces for ${companyRow.companyId}.`);
   });
 });
 
-function localDayIso(year: number, monthIndex: number, day: number): string {
-  return new Date(year, monthIndex, day).toISOString();
+function benchmarkFixture() {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "yc-score-benchmarks-"));
+  const storePath = path.join(tempDir, "s2026-score-benchmarks.json");
+  const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+  return { graph, firstCompany: graph.leaderboard[0]!, storePath };
+}
+
+function readStore(storePath: string): {
+  daily: Array<Record<string, unknown> & { recordedAt: string }>;
+  weekly: Array<Record<string, unknown> & { recordedAt: string }>;
+} {
+  return JSON.parse(fs.readFileSync(storePath, "utf8"));
+}
+
+function writeStore(storePath: string, store: unknown): void {
+  fs.mkdirSync(path.dirname(storePath), { recursive: true });
+  fs.writeFileSync(storePath, `${JSON.stringify(store, null, 2)}\n`, "utf8");
 }
 
 function withCompanyScore(graph: GraphResponse, companyId: string, score: number): GraphResponse {
@@ -355,8 +352,14 @@ function withCompanyScore(graph: GraphResponse, companyId: string, score: number
     .sort((left, right) => right.score - left.score)
     .map((row, index) => ({ ...row, rank: index + 1 }));
 
+  return { ...graph, leaderboard };
+}
+
+function withModelVersion(graph: GraphResponse, modelVersion: string): GraphResponse {
   return {
     ...graph,
-    leaderboard
+    scoringContext: graph.scoringContext
+      ? { ...graph.scoringContext, modelVersion }
+      : undefined
   };
 }

@@ -21,9 +21,12 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
     );
   }
 
-  const topItems = dedupeEvidenceItems(
-    [...evidence].filter((item) => item.contributionScore > 0).sort((a, b) => b.contributionScore - a.contributionScore)
-  ).slice(0, 20);
+  const scoredItems = dedupeEvidenceItems(
+    [...evidence]
+      .filter(isScoredEvidence)
+      .sort((a, b) => b.contributionScore - a.contributionScore)
+  );
+  const topItems = scoredItems.slice(0, 20);
   const founderAccounts = node.founders.flatMap((founder) =>
     founder.socialAccounts.map((account) => ({ founderName: founder.name, account }))
   );
@@ -38,6 +41,10 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
           </div>
         </div>
       </header>
+
+      {node.entityType === "company" && (
+        <PlatformContributions node={node} />
+      )}
 
       {(node.founders.length > 0 || node.socialAccounts.length > 0) && (
         <section className="profile-context">
@@ -105,4 +112,49 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
       </section>
     </aside>
   );
+}
+
+function PlatformContributions({ node }: { node: GraphNode }) {
+  const platformContributions = [
+    ...(Array.isArray(node.scoreBreakdown?.weightedPlatforms) ? node.scoreBreakdown.weightedPlatforms : [])
+  ]
+    .filter((platform) => numberValue(platform?.contribution) !== null && platform.contribution > 0)
+    .sort((left, right) => right.contribution - left.contribution);
+
+  return (
+    <section className="score-platform-section" aria-labelledby={`score-platforms-${node.id}`}>
+      <h3 id={`score-platforms-${node.id}`}>Platform contributions</h3>
+      {platformContributions.length > 0 ? (
+        <ol className="score-platform-contributions">
+          {platformContributions.map((platform) => (
+            <li key={platform.platform}>
+              <PlatformIdentity platform={platform.platform} />
+              <span className="score-platform-contribution">
+                <strong>{formatScore(platform.contribution)} pts</strong>
+                <small>{formatItemCount(Math.max(0, Math.round(numberValue(platform.evidenceCount) ?? 0)))}</small>
+              </span>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="score-platform-empty">No positive contributions yet.</p>
+      )}
+    </section>
+  );
+}
+
+function isScoredEvidence(item: EvidenceItem): boolean {
+  return item.contributionScore > 0 && item.tractionStatus !== "unscored";
+}
+
+function numberValue(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function formatItemCount(count: number): string {
+  return `${count} ${count === 1 ? "item" : "items"}`;
+}
+
+function formatScore(score: number): string {
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(score);
 }

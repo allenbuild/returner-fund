@@ -18,7 +18,9 @@ describe("connector limitations", () => {
       "rss",
       "instagram",
       "x",
-      "linkedin"
+      "linkedin",
+      "tiktok",
+      "bluesky"
     ]);
   });
 
@@ -69,6 +71,20 @@ describe("connector limitations", () => {
         { limit: 5 }
       )
     ).resolves.toEqual([]);
+  });
+
+  it.each(["tiktok", "bluesky"] as const)("publishes explicit unavailable %s adapter limitations", (platform) => {
+    const limitations = createConnectorRegistry()[platform]?.explainLimitations();
+
+    expect(limitations).toMatchObject({
+      platform,
+      supportsMutation: false,
+      supportsProfileDiscovery: false,
+      supportsRecentPosts: false,
+      supportsMetrics: false
+    });
+    expect(limitations?.status).toMatch(/disabled|stub/);
+    expect(limitations?.notes.join(" ")).toMatch(/unscored/i);
   });
 });
 

@@ -11,7 +11,9 @@ export type Platform =
   | "web"
   | "reddit"
   | "bilibili"
-  | "xiaohongshu";
+  | "xiaohongshu"
+  | "tiktok"
+  | "bluesky";
 
 export type IngestRunStatus = "queued" | "running" | "completed" | "failed";
 export type ReviewState = "verified" | "needs_review" | "rejected";

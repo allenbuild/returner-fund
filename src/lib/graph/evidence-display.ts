@@ -9,7 +9,7 @@ export function evidenceDisplayText(item: EvidenceDisplaySource, fallback = "Unt
 }
 
 export function isGenericEvidenceLabel(value: string): boolean {
-  return /^.{1,80}\s(?:x|twitter|linkedin|instagram|youtube|reddit|product hunt)\s(?:post|video|reel|comment)$/i.test(
+  return /^.{1,80}\s(?:x|twitter|linkedin|instagram|youtube|reddit|product hunt|tiktok|bluesky)\s(?:post|video|reel|comment)$/i.test(
     value.trim()
   );
 }

@@ -6,6 +6,78 @@ import type { GraphResponse } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("insights tabs", () => {
+  it("exposes selected tabs and momentum periods to assistive technology", () => {
+    render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
+
+    const overviewTab = screen.getByRole("tab", { name: "Overview" });
+    const hottestTab = screen.getByRole("tab", { name: "Hottest" });
+    expect(overviewTab).toHaveAttribute("aria-selected", "true");
+    expect(overviewTab).toHaveAttribute("aria-controls", "insights-panel-overview");
+    expect(overviewTab).toHaveAttribute("tabindex", "0");
+    expect(hottestTab).toHaveAttribute("aria-selected", "false");
+    expect(hottestTab).toHaveAttribute("tabindex", "-1");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-overview");
+
+    fireEvent.keyDown(overviewTab, { key: "ArrowRight" });
+
+    expect(hottestTab).toHaveFocus();
+    expect(overviewTab).toHaveAttribute("aria-selected", "false");
+    expect(hottestTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-gaining");
+
+    const dayToggle = screen.getByRole("button", { name: "Day over day" });
+    const weekToggle = screen.getByRole("button", { name: "Week over week" });
+    expect(dayToggle).toHaveAttribute("aria-pressed", "true");
+    expect(weekToggle).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.click(weekToggle);
+
+    expect(dayToggle).toHaveAttribute("aria-pressed", "false");
+    expect(weekToggle).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("shows the active platform score scope or Top Voices audience", () => {
+    const graph = graphResponse();
+    graph.scoringContext = {
+      ...graph.scoringContext!,
+      scoreScope: "selected_platforms",
+      selectedPlatforms: ["github", "x"]
+    };
+    const { rerender } = render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+
+    expect(screen.getByLabelText("Active score scope: GitHub, X")).toHaveTextContent(
+      "Score scopeGitHub + X"
+    );
+
+    rerender(
+      <InsightsTabs
+        graph={{
+          ...graph,
+          selectedTopVoiceAudience: {
+            id: "yc_partners",
+            displayName: "YC Partners",
+            description: "Current YC partners and YC leadership.",
+            helperText: "Showing attention from current YC partners only.",
+            scoreLabel: "Top Voices score",
+            scoreDescription: "Current YC partners and YC leadership.",
+            active: true,
+            memberCount: 18
+          },
+          scoringContext: {
+            ...graph.scoringContext!,
+            scoreScope: "top_voice",
+            selectedPlatforms: []
+          }
+        }}
+        onSelectNode={vi.fn()}
+      />
+    );
+
+    expect(screen.getByLabelText("Active score audience: YC Partners")).toHaveTextContent(
+      "Score audienceYC Partners"
+    );
+  });
+
   it("sorts overview by rank or company and keeps contribution text compact", () => {
     const onSelectNode = vi.fn();
     render(<InsightsTabs graph={graphResponse()} onSelectNode={onSelectNode} />);
@@ -42,7 +114,7 @@ describe("insights tabs", () => {
     const onSelectNode = vi.fn();
     render(<InsightsTabs graph={graphResponse()} onSelectNode={onSelectNode} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Hottest" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
 
     expect(screen.getByRole("button", { name: "Day over day" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Week over week" })).toBeInTheDocument();
@@ -71,32 +143,47 @@ describe("insights tabs", () => {
       ...graph.fastestGaining[0]!,
       dod: {
         ...graph.fastestGaining[0]!.dod,
-        scoreDelta: 0,
-        percentDelta: 0,
-        rankDelta: 0,
         baselineScore: null,
-        baselineRank: null,
+        baselineRank: 14,
         benchmarkedAt: dodBenchmarkAt
       },
       wow: {
         ...graph.fastestGaining[0]!.wow,
-        scoreDelta: 0,
-        percentDelta: 0,
-        rankDelta: 0,
-        baselineScore: null,
+        baselineScore: 46,
         baselineRank: null,
         benchmarkedAt: wowBenchmarkAt
       }
     };
 
     render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: "Hottest" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
 
-    expect(screen.getByText(`Awaiting ${new Date(dodBenchmarkAt).toLocaleDateString()} snapshot`)).toBeInTheDocument();
+    const awaitingDod = screen.getByText(
+      `Awaiting ${new Date(dodBenchmarkAt).toLocaleDateString()} snapshot`
+    );
+    const dodCells = awaitingDod.closest("tr")?.querySelectorAll("td");
+    expect(awaitingDod).toBeInTheDocument();
+    expect(dodCells?.[2]).toHaveTextContent("Awaiting snapshot");
+    expect(dodCells?.[3]).toHaveTextContent("+3");
+    expect(
+      awaitingDod.closest("tr")?.querySelector(".momentum-stat-cell:last-child .momentum-value-compact")
+    ).toHaveTextContent(
+      `Awaiting ${new Date(dodBenchmarkAt).toLocaleDateString(undefined, {
+        month: "numeric",
+        day: "numeric"
+      })} snapshot`
+    );
+    expect(screen.queryByText(/^Pending/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Week over week" }));
 
-    expect(screen.getByText(`Awaiting ${new Date(wowBenchmarkAt).toLocaleDateString()} snapshot`)).toBeInTheDocument();
+    const awaitingWow = screen.getByText(
+      `Awaiting ${new Date(wowBenchmarkAt).toLocaleDateString()} snapshot`
+    );
+    const wowCells = awaitingWow.closest("tr")?.querySelectorAll("td");
+    expect(awaitingWow).toBeInTheDocument();
+    expect(wowCells?.[2]).toHaveTextContent("+9 pts (+18%)");
+    expect(wowCells?.[3]).toHaveTextContent("Awaiting snapshot");
   });
 
   it("breaks equal hottest score deltas by percentage growth", () => {
@@ -155,7 +242,7 @@ describe("insights tabs", () => {
     ];
 
     render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
-    fireEvent.click(screen.getByRole("button", { name: "Hottest" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
 
     const rows = screen.getAllByRole("row");
     expect(rows[1]).toHaveTextContent("Cova");
@@ -164,12 +251,52 @@ describe("insights tabs", () => {
     expect(rows[2]).toHaveTextContent("+1 pts (+1.3%)");
   });
 
-  it("shows an empty state when a Top Voices audience has no qualifying companies", () => {
+  it("keeps tied canonical ranks when a Top Voices subset is sorted by momentum", () => {
+    const graph = graphResponse();
+    graph.selectedTopVoiceAudience = {
+      id: "yc_partners",
+      displayName: "YC Partners",
+      description: "Current YC partners and YC leadership.",
+      helperText: "Showing attention from current YC partners only.",
+      scoreLabel: "Top Voices score",
+      scoreDescription: "Current YC partners and YC leadership.",
+      active: true,
+      memberCount: 18
+    };
+    const topVoiceRow = graph.fastestGaining[0]!;
+    graph.fastestGaining = [
+      {
+        ...topVoiceRow,
+        rank: 4,
+        companyId: "top-voice-a",
+        companyName: "Top Voice A",
+        dod: { ...topVoiceRow.dod, scoreDelta: 1 }
+      },
+      {
+        ...topVoiceRow,
+        rank: 4,
+        companyId: "top-voice-b",
+        companyName: "Top Voice B",
+        dod: { ...topVoiceRow.dod, scoreDelta: 2 }
+      }
+    ];
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
+
+    const rows = screen.getAllByRole("row").slice(1);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.querySelector("td")).toHaveTextContent("4");
+    expect(rows[1]?.querySelector("td")).toHaveTextContent("4");
+  });
+
+  it("shows an empty state in Overview and Hottest when a Top Voices audience has no qualifying companies", () => {
     render(
       <InsightsTabs
         graph={{
           ...graphResponse(),
           leaderboard: [],
+          fastestGaining: [],
           selectedTopVoiceAudience: {
             id: "yc_partners",
             displayName: "YC Partners",
@@ -185,7 +312,19 @@ describe("insights tabs", () => {
       />
     );
 
-    expect(screen.getByText("No companies have traction from this Top Voices audience yet.")).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("tabpanel")).getByText(
+        "No companies have traction from this Top Voices audience yet."
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
+
+    expect(
+      within(screen.getByRole("tabpanel")).getByText(
+        "No companies have traction from this Top Voices audience yet."
+      )
+    ).toBeInTheDocument();
   });
 
   it("carries company social accounts onto leaderboard rows", () => {
@@ -309,7 +448,7 @@ describe("insights tabs", () => {
     expect(row!.querySelector(".overview-post-thumbnail-fallback")).toBeNull();
   });
 
-  it("uses externally hosted native overview thumbnails before generated fallbacks", () => {
+  it("uses native overview thumbnails before fallbacks and resets failures for a new item", () => {
     const graph = graphResponse();
     graph.leaderboard[0] = {
       ...graph.leaderboard[0],
@@ -319,7 +458,8 @@ describe("insights tabs", () => {
         thumbnailSource: "x-media"
       }
     };
-    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    const onSelectNode = vi.fn();
+    const { rerender } = render(<InsightsTabs graph={graph} onSelectNode={onSelectNode} />);
 
     const row = screen.getAllByRole("row")[1];
     const nativeImg = row!.querySelector<HTMLImageElement>(".overview-post-thumbnail img");
@@ -330,6 +470,32 @@ describe("insights tabs", () => {
     expect(generatedImg?.getAttribute("src")).toMatch(/^data:image\/svg\+xml/);
     expect(decodeDataImage(generatedImg?.getAttribute("src"))).toContain(">X<");
     expect(row!.querySelector(".overview-post-thumbnail-fallback")).toBeNull();
+
+    rerender(
+      <InsightsTabs
+        graph={{
+          ...graph,
+          leaderboard: graph.leaderboard.map((entry, index) =>
+            index === 0
+              ? {
+                  ...entry,
+                  biggestContribution: {
+                    ...entry.biggestContribution!,
+                    id: "replacement-evidence"
+                  }
+                }
+              : entry
+          )
+        }}
+        onSelectNode={onSelectNode}
+      />
+    );
+
+    const replacementRow = screen.getAllByRole("row")[1];
+    expect(replacementRow!.querySelector(".overview-post-thumbnail img")).toHaveAttribute(
+      "src",
+      "https://pbs.twimg.com/media/expired.jpg"
+    );
   });
 
   it("renders only the evidence link in A16Z top-post cells", () => {
@@ -482,6 +648,15 @@ function graphResponse(): GraphResponse {
       }
     ],
     generatedAt: "2026-06-29T00:00:00.000Z",
+    scoringContext: {
+      modelId: "returner-traction",
+      modelVersion: "4.0.0",
+      modelName: "returner-traction-v4-canonical",
+      scoreScope: "all_platforms",
+      selectedPlatforms: [],
+      responseBuiltAt: "2026-06-29T00:00:00.000Z",
+      evidenceAsOf: "2026-06-29T00:00:00.000Z"
+    },
     mode: "official_snapshot"
   };
 }

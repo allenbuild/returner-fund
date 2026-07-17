@@ -1,6 +1,7 @@
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
 import { graphNodeMatchesSearchQuery } from "./search";
-import { aggregateBalancedTractionScore } from "./traction-scoring";
+import { withForwardCompatiblePlatformStatus } from "./platform-status";
+import { TRACTION_SCORING_CONFIG } from "./traction-scoring-config";
 import {
   matchEvidenceToTopVoice,
   resolveTopVoiceAudience,
@@ -24,6 +25,7 @@ import type {
   NeedsReviewItem,
   Platform,
   ReviewState,
+  ScoringContext,
   TopVoiceAudienceId,
   TopVoiceAudienceSummary,
   TopVoiceConnectionPreview,
@@ -35,6 +37,19 @@ const FOUNDER_RADIUS = { min: 4, max: 38 };
 const DEFAULT_SIMILARITY_THRESHOLD = 0.28;
 const MAX_SIMILARITY_EDGES = 140;
 const MAX_SIMILARITY_EDGES_PER_COMPANY = 2;
+const TOKEN_STOP_WORDS = new Set([
+  "and",
+  "the",
+  "for",
+  "with",
+  "that",
+  "from",
+  "into",
+  "teams",
+  "company",
+  "builds",
+  "gives"
+]);
 const INDUSTRY_COLORS: Record<string, string> = {
   b2b: "#F6CA94",
   industrials: "#F09EA7",
@@ -64,6 +79,7 @@ export function buildGraphResponse(
   filters: GraphFilters = {},
   dataset: DemoGraphDataset = yc2026GraphDataset
 ): GraphResponse {
+  const responseBuiltAt = new Date().toISOString();
   const batch = resolveBatch(filters.batchSlug, dataset);
   const selectedPlatforms = normalizePlatforms(filters.platforms);
   const selectedEdgeTypes = normalizeEdgeTypes(filters.edgeTypes);
@@ -87,15 +103,19 @@ export function buildGraphResponse(
         topVoiceAudience.members
       )
     : new Map<string, TopVoiceCompanyRollup>();
-  const batchCompanies = topVoiceMode
-    ? applyTopVoiceCompanyScores(baseBatchCompanies, topVoiceRollups, topVoiceAudience.summary)
-    : baseBatchCompanies;
   const graphEvidence = topVoiceMode
     ? [...topVoiceRollups.values()].flatMap((rollup) => rollup.evidence)
     : dataset.evidence;
+  const scopedEvidence = graphEvidence.filter((item) => evidenceMatchesPlatforms(item, selectedPlatforms));
+  const batchCompanies = topVoiceMode
+    ? applyTopVoiceCompanyMetadata(baseBatchCompanies, topVoiceRollups, topVoiceAudience.summary)
+    : baseBatchCompanies;
   const evidenceByEntity = indexEvidence(graphEvidence, selectedPlatforms);
+  const platformByEvidenceId = new Map(scopedEvidence.map((item) => [item.id, item.platform]));
 
-  const companyScores = batchCompanies.map((company) => company.totalScore);
+  const companyScores = baseBatchCompanies.map((company) => company.totalScore);
+  const canonicalLeaderboardRanks = rankCompanies(baseBatchCompanies, "totalScore");
+  const canonicalMomentum = buildFastestGaining(baseBatchCompanies);
   const foundersByCompany = groupFoundersByCompany(batchFounders);
 
   const companyNodes = batchCompanies.map((company) =>
@@ -108,7 +128,10 @@ export function buildGraphResponse(
       selectedGroupPartners,
       selectedBusinessModels,
       query,
-      selectedPlatforms
+      selectedPlatforms,
+      evidencePlatforms: new Set(
+        node.evidenceIds.map((evidenceId) => platformByEvidenceId.get(evidenceId)).filter((platform): platform is Platform => Boolean(platform))
+      )
     })
   );
 
@@ -134,7 +157,11 @@ export function buildGraphResponse(
   const visibleEvidenceEntityIds = new Set([...visibleCompanyIds, ...visibleFounderIds]);
   const visibleEvidence = graphEvidence
     .filter((item) => evidenceMatchesPlatforms(item, selectedPlatforms))
-    .filter((item) => visibleEvidenceEntityIds.has(item.entityId))
+    .filter((item) =>
+      item.attachedCompanyId
+        ? visibleCompanyIds.has(item.attachedCompanyId)
+        : visibleEvidenceEntityIds.has(item.entityId)
+    )
     .sort((a, b) => b.contributionScore - a.contributionScore);
 
   return {
@@ -142,8 +169,13 @@ export function buildGraphResponse(
     batches: dataset.batches,
     nodes,
     edges,
-    leaderboard: buildLeaderboard(visibleCompanies, visibleEvidence, foundersByCompany),
-    fastestGaining: buildFastestGaining(visibleCompanies),
+    leaderboard: buildLeaderboard(
+      visibleCompanies,
+      visibleEvidence,
+      foundersByCompany,
+      canonicalLeaderboardRanks
+    ),
+    fastestGaining: canonicalMomentum.filter((row) => visibleCompanyIds.has(row.companyId)),
     needsReview: [
       ...buildReviewItems(visibleCompanies, batchFounders, {
         visibleFounderIds,
@@ -155,10 +187,15 @@ export function buildGraphResponse(
       )
     ],
     evidence: visibleEvidence,
-    platformStatus: dataset.platformStatus,
+    platformStatus: withForwardCompatiblePlatformStatus(dataset.platformStatus),
     selectedTopVoiceAudience: topVoiceAudience.summary,
     topVoiceAudiences: topVoiceAudienceSummaries(),
-    generatedAt: new Date().toISOString(),
+    generatedAt: responseBuiltAt,
+    scoringContext: buildScoringContext({
+      responseBuiltAt,
+      companies: baseBatchCompanies,
+      evidence: evidenceForBatchEntities(dataset.evidence, baseBatchCompanies, batchFounders)
+    }),
     mode: dataset.mode ?? "demo"
   };
 }
@@ -175,11 +212,14 @@ export function buildGraphEdges(
 
   const similarityCandidates: GraphEdge[] = [];
   if (includeSimilarity) {
-    for (let i = 0; i < companies.length; i += 1) {
-      for (let j = i + 1; j < companies.length; j += 1) {
-        const source = companies[i];
-        const target = companies[j];
-        const similarity = scoreCompanySimilarity(source, target);
+    const similarityProfiles = companies.map(companySimilarityProfile);
+    for (let i = 0; i < similarityProfiles.length; i += 1) {
+      for (let j = i + 1; j < similarityProfiles.length; j += 1) {
+        const sourceProfile = similarityProfiles[i];
+        const targetProfile = similarityProfiles[j];
+        const source = sourceProfile.company;
+        const target = targetProfile.company;
+        const similarity = scoreCompanySimilarity(sourceProfile, targetProfile);
 
         if (similarity >= threshold) {
           similarityCandidates.push({
@@ -238,6 +278,65 @@ function normalizeStrings<T extends string>(items: T[] | undefined): T[] {
   return [...new Set(items?.filter(Boolean) ?? [])];
 }
 
+function buildScoringContext(input: {
+  responseBuiltAt: string;
+  companies: CompanyRecord[];
+  evidence: EvidenceItem[];
+}): ScoringContext {
+  return {
+    modelId: TRACTION_SCORING_CONFIG.modelId,
+    modelVersion: TRACTION_SCORING_CONFIG.version,
+    modelName: TRACTION_SCORING_CONFIG.name,
+    scoreScope: "all_platforms",
+    selectedPlatforms: [],
+    responseBuiltAt: input.responseBuiltAt,
+    evidenceAsOf: latestScoringEvidenceAsOf(input.companies, input.evidence)
+  };
+}
+
+function evidenceForBatchEntities(
+  evidence: EvidenceItem[],
+  companies: CompanyRecord[],
+  founders: FounderRecord[]
+): EvidenceItem[] {
+  const companyIds = new Set(companies.map((company) => company.id));
+  const entityIds = new Set([...companyIds, ...founders.map((founder) => founder.id)]);
+
+  return evidence.filter((item) =>
+    item.attachedCompanyId
+      ? companyIds.has(item.attachedCompanyId)
+      : entityIds.has(item.entityId)
+  );
+}
+
+function latestScoringEvidenceAsOf(companies: CompanyRecord[], evidence: EvidenceItem[]): string | null {
+  const timestamps = [
+    ...companies.map((company) => company.scoreBreakdown?.evidenceAsOf),
+    ...evidence
+      .filter(
+        (item) =>
+          item.contributionScore > 0 &&
+          (TRACTION_SCORING_CONFIG.platformWeights[item.platform] ?? 0) > 0
+      )
+      .flatMap((item) => [
+        item.metricsCheckedAt,
+        item.last_checked_at,
+        item.last_updated_at,
+        item.observedAt,
+        item.first_seen_at
+      ])
+  ];
+  const latestTime = Math.max(
+    0,
+    ...timestamps.map((value) => {
+      const time = value ? Date.parse(value) : Number.NaN;
+      return Number.isFinite(time) ? time : 0;
+    })
+  );
+
+  return latestTime > 0 ? new Date(latestTime).toISOString() : null;
+}
+
 function indexEvidence(evidence: EvidenceItem[], platforms: Platform[]) {
   const index = new Map<string, EvidenceItem[]>();
 
@@ -246,10 +345,15 @@ function indexEvidence(evidence: EvidenceItem[], platforms: Platform[]) {
       continue;
     }
 
-    const key = entityKey(item.entityType, item.entityId);
-    const current = index.get(key) ?? [];
-    current.push(item);
-    index.set(key, current);
+    const keys = new Set([
+      entityKey(item.entityType, item.entityId),
+      ...(item.attachedCompanyId ? [entityKey("company", item.attachedCompanyId)] : [])
+    ]);
+    for (const key of keys) {
+      const current = index.get(key) ?? [];
+      current.push(item);
+      index.set(key, current);
+    }
   }
 
   return index;
@@ -281,10 +385,10 @@ function companyToNode(
   const founderSummaries = founders.map((founder) => founderSummary(founder, evidenceByEntity));
   const companySocialAccounts = company.socialAccounts;
   const reviewStateCounts = countReviewStates(companySocialAccounts);
-  const evidenceIds = [
+  const evidenceIds = [...new Set([
     ...companyEvidence.map((item) => item.id),
     ...founderSummaries.flatMap((founder) => founder.evidenceIds)
-  ];
+  ])];
 
   return {
     id: nodeId("company", company.id),
@@ -342,6 +446,7 @@ function nodeMatchesFilters(
     selectedBusinessModels: BusinessModel[];
     query: string;
     selectedPlatforms: Platform[];
+    evidencePlatforms: Set<Platform>;
   }
 ): boolean {
   if (node.score < filters.minScore) {
@@ -371,7 +476,8 @@ function nodeMatchesFilters(
       ...Object.keys(node.platformScores),
       ...node.socialAccounts.map((account) => account.platform),
       ...node.founders.flatMap((founder) => Object.keys(founder.platformScores)),
-      ...node.founders.flatMap((founder) => founder.socialAccounts.map((account) => account.platform))
+      ...node.founders.flatMap((founder) => founder.socialAccounts.map((account) => account.platform)),
+      ...filters.evidencePlatforms
     ]);
     return filters.selectedPlatforms.some((platform) => nodePlatforms.has(platform));
   }
@@ -382,17 +488,20 @@ function nodeMatchesFilters(
 function buildLeaderboard(
   companies: CompanyRecord[],
   evidence: EvidenceItem[],
-  foundersByCompany: Map<string, FounderRecord[]>
+  foundersByCompany: Map<string, FounderRecord[]>,
+  canonicalRanks: Map<string, number> = rankCompanies(companies, "totalScore")
 ): LeaderboardRow[] {
   const evidenceByCompany = groupCompanyRollupEvidence(
     companies,
     evidence.filter((item) => item.contributionScore > 0)
   );
 
-  return [...companies]
-    .sort((a, b) => b.totalScore - a.totalScore)
-    .map((company, index) => ({
-      rank: index + 1,
+  const sortedCompanies = [...companies].sort(
+    (a, b) => b.totalScore - a.totalScore || a.name.localeCompare(b.name) || a.id.localeCompare(b.id)
+  );
+  return sortedCompanies.map((company, index) => {
+    return {
+      rank: canonicalRanks.get(company.id) ?? index + 1,
       companyId: company.id,
       companyName: company.name,
       score: company.totalScore,
@@ -407,7 +516,8 @@ function buildLeaderboard(
       topVoiceScore: company.topVoiceScore,
       topVoiceConnectionCount: company.topVoiceConnectionCount,
       topVoiceConnections: company.topVoiceConnections
-    }));
+    };
+  });
 }
 
 interface TopVoiceCompanyRollup {
@@ -462,13 +572,13 @@ function buildTopVoiceRollups(
       continue;
     }
 
-    const weightedEvidence = applyTopVoiceWeight(item, {
+    const topVoiceEvidence = annotateTopVoiceEvidence(item, {
       audienceId,
       member: match.member,
       matchedBy: match.matchedBy
     });
     const rollup = rollups.get(companyId) ?? { companyId, evidence: [], connections: [] };
-    rollup.evidence.push(weightedEvidence);
+    rollup.evidence.push(topVoiceEvidence);
     rollups.set(companyId, rollup);
 
     const connectionKey = `${companyId}:${match.member.personId}`;
@@ -483,13 +593,13 @@ function buildTopVoiceRollups(
       platforms: [],
       evidenceIds: []
     };
-    connection.contributionScore = round(connection.contributionScore + weightedEvidence.contributionScore);
+    connection.contributionScore = round(connection.contributionScore + topVoiceEvidence.contributionScore);
     connection.evidenceCount += 1;
-    connection.platforms = [...new Set([...connection.platforms, weightedEvidence.platform])];
-    connection.evidenceIds.push(weightedEvidence.id);
+    connection.platforms = [...new Set([...connection.platforms, topVoiceEvidence.platform])];
+    connection.evidenceIds.push(topVoiceEvidence.id);
     const currentTopEvidence = rollup.evidence.find((candidate) => candidate.id === connection.topEvidenceId);
-    if (!currentTopEvidence || weightedEvidence.contributionScore > currentTopEvidence.contributionScore) {
-      connection.topEvidenceId = weightedEvidence.id;
+    if (!currentTopEvidence || topVoiceEvidence.contributionScore > currentTopEvidence.contributionScore) {
+      connection.topEvidenceId = topVoiceEvidence.id;
     }
     connectionByCompanyAndMember.set(connectionKey, connection);
   }
@@ -537,7 +647,9 @@ function topVoiceRollupCacheKey(
     companies.length,
     evidence.length,
     evidenceSignature(evidence),
-    members.map((member) => member.personId).join(",")
+    members
+      .map((member) => [member.personId, member.displayName, member.category, member.weight].join("|"))
+      .join(",")
   ].join("::");
 }
 
@@ -553,11 +665,34 @@ function evidenceSignature(evidence: EvidenceItem[]): string {
         item.contributionScore,
         item.last_checked_at ?? "",
         item.last_updated_at ?? "",
-        item.rawVisibleText ? item.rawVisibleText.length : 0
+        normalizedAuthorIdentity(item.authorName, item.authorHandle),
+        contentSignature(item.title, item.text, item.rawVisibleText)
       ].join("|"))
       .sort()
       .join("::")
   );
+}
+
+function normalizedAuthorIdentity(authorName: string, authorHandle: string | null): string {
+  return JSON.stringify([
+    normalizeAuthorIdentityPart(authorName),
+    normalizeAuthorIdentityPart(authorHandle).replace(/\s+/g, "")
+  ]);
+}
+
+function normalizeAuthorIdentityPart(value: string | null | undefined): string {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/^@/, "")
+    .replace(/https?:\/\/(www\.)?/, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function contentSignature(...values: Array<string | null | undefined>): string {
+  return hashString(JSON.stringify(values.map((value) => value ?? "")));
 }
 
 function hashString(value: string): string {
@@ -568,7 +703,7 @@ function hashString(value: string): string {
   return Math.abs(hash).toString(36);
 }
 
-function applyTopVoiceWeight(
+function annotateTopVoiceEvidence(
   item: EvidenceItem,
   input: { audienceId: TopVoiceAudienceId; member: TopVoiceMember; matchedBy: string }
 ): EvidenceItem {
@@ -584,37 +719,21 @@ function applyTopVoiceWeight(
 
   return {
     ...item,
-    contributionScore: round(Math.min(100, item.contributionScore * input.member.weight)),
-    why: `${item.why} Top Voices matched ${input.member.displayName} by ${input.matchedBy} at ${input.member.weight}x weight.`,
+    why: `${item.why} Top Voices matched ${input.member.displayName} by ${input.matchedBy}.`,
     topVoice
   };
 }
 
-function applyTopVoiceCompanyScores(
+function applyTopVoiceCompanyMetadata(
   companies: CompanyRecord[],
   rollups: Map<string, TopVoiceCompanyRollup>,
   audience: TopVoiceAudienceSummary
 ): CompanyRecord[] {
   return companies.map((company) => {
     const rollup = rollups.get(company.id);
-    const scoreBreakdown = aggregateBalancedTractionScore(rollup?.evidence ?? []);
-    const topVoiceScore = Math.min(100, Math.max(0, Math.round(scoreBreakdown.totalScore)));
-    const topVoiceScoreBreakdown = {
-      ...scoreBreakdown,
-      totalScore: topVoiceScore,
-      explanation:
-        topVoiceScore > 0
-          ? `${scoreBreakdown.explanation} Filtered to ${audience.displayName}.`
-          : `No scored evidence from ${audience.displayName}.`
-    };
 
     return {
       ...company,
-      totalScore: topVoiceScore,
-      previousScore: topVoiceScore,
-      platformScores: topVoiceScoreBreakdown.platformScores,
-      scoreBreakdown: topVoiceScoreBreakdown,
-      topVoiceScore,
       topVoiceConnectionCount: rollup?.connections.length ?? 0,
       topVoiceConnections: rollup?.connections.slice(0, 8) ?? [],
       selectedTopVoiceAudience: audience
@@ -905,37 +1024,48 @@ function buildReviewItems(
 }
 
 function rankCompanies(companies: CompanyRecord[], field: "totalScore" | "previousScore") {
+  const ranked = [...companies].sort((a, b) => b[field] - a[field]);
+  let tiedRank = 0;
+  let previousScore: number | null = null;
+
   return new Map(
-    [...companies]
-      .sort((a, b) => b[field] - a[field])
-      .map((company, index) => [company.id, index + 1])
+    ranked.map((company, index) => {
+      if (previousScore === null || company[field] !== previousScore) {
+        tiedRank = index + 1;
+      }
+      previousScore = company[field];
+      return [company.id, tiedRank];
+    })
   );
 }
 
-function groupEvidenceByEntity(evidence: EvidenceItem[], entityType: "company" | "founder") {
-  const grouped = new Map<string, EvidenceItem[]>();
+function groupCompanyRollupEvidence(companies: CompanyRecord[], evidence: EvidenceItem[]): Map<string, EvidenceItem[]> {
+  const companiesById = new Map(companies.map((company) => [company.id, company]));
+  const grouped = new Map<string, EvidenceItem[]>(companies.map((company) => [company.id, []]));
+  const companyIdsByEntityId = new Map<string, Set<string>>();
 
-  for (const item of evidence.filter((candidate) => candidate.entityType === entityType)) {
-    const current = grouped.get(item.entityId) ?? [];
-    current.push(item);
-    current.sort((a, b) => b.contributionScore - a.contributionScore);
-    grouped.set(item.entityId, current);
+  for (const company of companiesById.values()) {
+    for (const entityId of new Set([company.id, ...company.founderIds])) {
+      const companyIds = companyIdsByEntityId.get(entityId) ?? new Set<string>();
+      companyIds.add(company.id);
+      companyIdsByEntityId.set(entityId, companyIds);
+    }
   }
 
-  return grouped;
-}
+  for (const item of evidence) {
+    const companyIds = item.attachedCompanyId
+      ? grouped.has(item.attachedCompanyId)
+        ? [item.attachedCompanyId]
+        : []
+      : companyIdsByEntityId.get(item.entityId) ?? [];
 
-function groupCompanyRollupEvidence(companies: CompanyRecord[], evidence: EvidenceItem[]): Map<string, EvidenceItem[]> {
-  const grouped = new Map<string, EvidenceItem[]>();
+    for (const companyId of companyIds) {
+      grouped.get(companyId)?.push(item);
+    }
+  }
 
-  for (const company of companies) {
-    const allowedEntityIds = new Set([company.id, ...company.founderIds]);
-    grouped.set(
-      company.id,
-      evidence
-        .filter((item) => allowedEntityIds.has(item.entityId))
-        .sort((a, b) => b.contributionScore - a.contributionScore)
-    );
+  for (const companyEvidence of grouped.values()) {
+    companyEvidence.sort((a, b) => b.contributionScore - a.contributionScore);
   }
 
   return grouped;
@@ -987,11 +1117,23 @@ function scorePercentile(score: number, peerScores: number[]): number {
   return (score - min) / (max - min);
 }
 
-function scoreCompanySimilarity(source: CompanyRecord, target: CompanyRecord): number {
-  const industrySimilarity = jaccard(source.industries, target.industries);
-  const sourceTokens = tokenize(`${source.tagline} ${source.description}`);
-  const targetTokens = tokenize(`${target.tagline} ${target.description}`);
-  const descriptionSimilarity = jaccard(sourceTokens, targetTokens);
+interface CompanySimilarityProfile {
+  company: CompanyRecord;
+  industryTokens: Set<string>;
+  descriptionTokens: Set<string>;
+}
+
+function companySimilarityProfile(company: CompanyRecord): CompanySimilarityProfile {
+  return {
+    company,
+    industryTokens: new Set(company.industries.map((industry) => industry.toLowerCase())),
+    descriptionTokens: tokenize(`${company.tagline} ${company.description}`)
+  };
+}
+
+function scoreCompanySimilarity(source: CompanySimilarityProfile, target: CompanySimilarityProfile): number {
+  const industrySimilarity = jaccard(source.industryTokens, target.industryTokens);
+  const descriptionSimilarity = jaccard(source.descriptionTokens, target.descriptionTokens);
 
   return round(industrySimilarity * 0.75 + descriptionSimilarity * 0.25);
 }
@@ -1055,35 +1197,26 @@ function buildGroupPartnerEdges(companies: CompanyRecord[]): GraphEdge[] {
   );
 }
 
-function jaccard(sourceValues: string[], targetValues: string[]): number {
-  const sourceSet = new Set(sourceValues.map((value) => value.toLowerCase()));
-  const targetSet = new Set(targetValues.map((value) => value.toLowerCase()));
-  const intersection = [...sourceSet].filter((value) => targetSet.has(value)).length;
-  const union = new Set([...sourceSet, ...targetSet]).size;
+function jaccard(sourceTokens: Set<string>, targetTokens: Set<string>): number {
+  let intersection = 0;
+  for (const token of sourceTokens) {
+    if (targetTokens.has(token)) {
+      intersection += 1;
+    }
+  }
+  const union = sourceTokens.size + targetTokens.size - intersection;
 
   return union ? intersection / union : 0;
 }
 
-function tokenize(text: string): string[] {
-  const stopWords = new Set([
-    "and",
-    "the",
-    "for",
-    "with",
-    "that",
-    "from",
-    "into",
-    "teams",
-    "company",
-    "builds",
-    "gives"
-  ]);
-
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .split(/\s+/)
-    .filter((token) => token.length > 2 && !stopWords.has(token));
+function tokenize(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter((token) => token.length > 2 && !TOKEN_STOP_WORDS.has(token))
+  );
 }
 
 function round(value: number): number {
