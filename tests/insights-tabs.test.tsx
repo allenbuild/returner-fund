@@ -36,7 +36,7 @@ describe("insights tabs", () => {
     expect(weekToggle).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("shows the active platform score scope or Top Voices audience", () => {
+  it("does not show a separate score scope or Top Voices audience strip", () => {
     const graph = graphResponse();
     graph.scoringContext = {
       ...graph.scoringContext!,
@@ -45,9 +45,7 @@ describe("insights tabs", () => {
     };
     const { rerender } = render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
 
-    expect(screen.getByLabelText("Active score scope: GitHub, X")).toHaveTextContent(
-      "Score scopeGitHub + X"
-    );
+    expect(screen.queryByText("Score scope")).not.toBeInTheDocument();
 
     rerender(
       <InsightsTabs
@@ -73,9 +71,8 @@ describe("insights tabs", () => {
       />
     );
 
-    expect(screen.getByLabelText("Active score audience: YC Partners")).toHaveTextContent(
-      "Score audienceYC Partners"
-    );
+    expect(screen.queryByText("Score audience")).not.toBeInTheDocument();
+    expect(screen.queryByText("YC Partners")).not.toBeInTheDocument();
   });
 
   it("sorts overview by rank or company and keeps contribution text compact", () => {

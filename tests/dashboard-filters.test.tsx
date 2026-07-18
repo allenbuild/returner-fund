@@ -16,8 +16,8 @@ const V4_MODEL_ID = "returner-traction";
 const V4_MODEL_VERSION = "4.0.0";
 
 vi.mock("@/components/CytoscapeGraph", () => ({
-  CytoscapeGraph: ({ nodes }: { nodes: GraphNode[] }) => (
-    <div data-testid="graph-canvas">
+  CytoscapeGraph: ({ nodes, focusedGroupPartners }: { nodes: GraphNode[]; focusedGroupPartners: string[] }) => (
+    <div data-testid="graph-canvas" data-focused-group-partners={focusedGroupPartners.join("|")}>
       {nodes.map((node) => (
         <span key={node.id}>{node.label}</span>
       ))}
@@ -107,12 +107,13 @@ describe("dashboard filters", () => {
 
     fireEvent.click(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i }));
     expect(within(groupPartnerGroup).getByRole("menuitemcheckbox", { name: /Partner A\s*\(2\)/i })).toBeInTheDocument();
-    const partnerBButton = within(groupPartnerGroup).getByRole("menuitemcheckbox", { name: /Partner B\s*\(1\)/i });
-    fireEvent.click(partnerBButton);
+    const partnerAButton = within(groupPartnerGroup).getByRole("menuitemcheckbox", { name: /Partner A\s*\(2\)/i });
+    fireEvent.click(partnerAButton);
 
     await waitFor(() => {
       expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B B")).not.toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-group-partners", "Partner A");
     });
   });
 

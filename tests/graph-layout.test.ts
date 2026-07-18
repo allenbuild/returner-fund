@@ -202,6 +202,26 @@ describe("graph layout", () => {
     expect(average(sameGroupDistances)).toBeLessThan(average(pairDistances) * 0.72);
   }, 20_000);
 
+  it("gives Spring group-partner clusters distinct centers", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const positions = buildClusterPositions(graph.nodes);
+    const centers = clusterCenters(graph.nodes, positions);
+
+    expect(centers.size).toBeGreaterThan(6);
+    const entries = [...centers.entries()];
+    for (let leftIndex = 0; leftIndex < entries.length; leftIndex += 1) {
+      for (let rightIndex = leftIndex + 1; rightIndex < entries.length; rightIndex += 1) {
+        const [leftName, left] = entries[leftIndex];
+        const [rightName, right] = entries[rightIndex];
+
+        expect(
+          Math.hypot(right.x - left.x, right.y - left.y),
+          `${leftName} and ${rightName} should not share a cluster center`
+        ).toBeGreaterThanOrEqual(150);
+      }
+    }
+  }, 20_000);
+
   it("returns to a non-overlapping full layout after a minimum-score filter cycle", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const filtered = applyClientGraphFilters(graph, {
@@ -226,6 +246,28 @@ describe("graph layout", () => {
 
 function average(values: number[]): number {
   return values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1);
+}
+
+function clusterCenters(
+  nodes: ReturnType<typeof buildGraphResponse>["nodes"],
+  positions: ReturnType<typeof buildClusterPositions>
+): Map<string, { x: number; y: number }> {
+  const sums = new Map<string, { x: number; y: number; count: number }>();
+
+  for (const node of nodes) {
+    const groupPartner = node.visual.groupRegion;
+    const position = positions.get(node.id);
+    if (!groupPartner || !position) continue;
+    const current = sums.get(groupPartner) ?? { x: 0, y: 0, count: 0 };
+    current.x += position.x;
+    current.y += position.y;
+    current.count += 1;
+    sums.set(groupPartner, current);
+  }
+
+  return new Map(
+    [...sums.entries()].map(([name, sum]) => [name, { x: sum.x / sum.count, y: sum.y / sum.count }])
+  );
 }
 
 function boxesOverlap(

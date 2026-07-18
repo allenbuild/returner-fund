@@ -55,7 +55,7 @@ export function buildClusterPositions(nodes: GraphNode[]): Map<string, GraphLayo
 
   const entries = [...clusters.entries()].sort(([, leftNodes], [, rightNodes]) => rightNodes.length - leftNodes.length);
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-  const clusterStep = Math.max(205, Math.min(300, 840 / Math.sqrt(Math.max(entries.length, 1))));
+  const clusterStep = Math.max(270, Math.min(380, 1_080 / Math.sqrt(Math.max(entries.length, 1))));
 
   entries.forEach(([, clusterNodes], clusterIndex) => {
     const clusterAngle = clusterIndex * goldenAngle - Math.PI / 2;

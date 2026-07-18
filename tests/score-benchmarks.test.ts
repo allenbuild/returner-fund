@@ -165,7 +165,7 @@ describe("score benchmarks", () => {
     expect(row?.dod.benchmarkedAt).toBe("2026-06-30T12:00:00.000Z");
   });
 
-  it("never compares scores from different or unknown scoring model versions", () => {
+  it("never compares scores from explicitly different scoring model versions", () => {
     const { graph, firstCompany, storePath } = benchmarkFixture();
     const oldModelGraph = withModelVersion(graph, "old-model");
     const newModelGraph = withModelVersion(graph, "new-model");
@@ -196,6 +196,36 @@ describe("score benchmarks", () => {
     expect(readStore(storePath).daily).toHaveLength(2);
     expect(matchedRow?.dod.scoreDelta).toBe(7);
     expect(matchedRow?.dod.benchmarkedAt).toBe("2026-07-01T12:00:00.000Z");
+  });
+
+  it("uses an observed unversioned baseline when no same-model migration snapshot exists", () => {
+    const { graph, firstCompany, storePath } = benchmarkFixture();
+    const legacySnapshot = {
+      recordedAt: "2026-06-30T12:00:00.000Z",
+      companies: graph.leaderboard.map((row) => ({
+        companyId: row.companyId,
+        companyName: row.companyName,
+        score: row.score,
+        rank: row.rank
+      }))
+    };
+    writeStore(storePath, {
+      version: 1,
+      batchSlug: graph.batch.slug,
+      updatedAt: legacySnapshot.recordedAt,
+      daily: [legacySnapshot],
+      weekly: []
+    });
+
+    const hydrated = applyStoredBenchmarkMomentum(
+      withCompanyScore(graph, firstCompany.companyId, firstCompany.score + 5),
+      { storePath, now: new Date("2026-07-01T12:00:00.000Z") }
+    );
+    const row = hydrated.fastestGaining.find((candidate) => candidate.companyId === firstCompany.companyId);
+
+    expect(row?.dod.baselineScore).toBe(firstCompany.score);
+    expect(row?.dod.scoreDelta).toBe(5);
+    expect(row?.dod.benchmarkedAt).toBe(legacySnapshot.recordedAt);
   });
 
   it("preserves existing historical entries byte-for-value when appending", () => {

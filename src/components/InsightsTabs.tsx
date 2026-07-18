@@ -149,7 +149,6 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
           role="tabpanel"
           aria-labelledby="insights-tab-overview"
         >
-          <ActiveScoreContext graph={graph} />
           <table className="overview-table">
             <thead>
               <tr>
@@ -246,7 +245,6 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
           role="tabpanel"
           aria-labelledby="insights-tab-gaining"
         >
-          <ActiveScoreContext graph={graph} />
           <table className="momentum-table">
             <thead>
               <tr>
@@ -327,59 +325,6 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
       )}
     </section>
   );
-}
-
-function ActiveScoreContext({ graph }: { graph: GraphResponse }) {
-  const context = activeScoreContext(graph);
-
-  return (
-    <div className="table-toolbar" aria-label={context.ariaLabel}>
-      <div className="score-filter-header">
-        <span>{context.term}</span>
-        <strong title={context.title}>{context.value}</strong>
-      </div>
-    </div>
-  );
-}
-
-function activeScoreContext(graph: GraphResponse): {
-  term: "Score scope" | "Score audience";
-  value: string;
-  title: string;
-  ariaLabel: string;
-} {
-  const scope =
-    graph.scoringContext?.scoreScope ??
-    (graph.selectedTopVoiceAudience.id === "off" ? "all_platforms" : "top_voice");
-
-  if (scope === "top_voice") {
-    const audience = graph.selectedTopVoiceAudience.displayName;
-    return {
-      term: "Score audience",
-      value: audience,
-      title: audience,
-      ariaLabel: `Active score audience: ${audience}`
-    };
-  }
-
-  if (scope === "selected_platforms") {
-    const platforms = (graph.scoringContext?.selectedPlatforms ?? []).map(formatPlatform);
-    const title = platforms.length ? platforms.join(", ") : "Selected platforms";
-    const value = platforms.length > 2 ? `${platforms.length} platforms` : platforms.join(" + ") || title;
-    return {
-      term: "Score scope",
-      value,
-      title,
-      ariaLabel: `Active score scope: ${title}`
-    };
-  }
-
-  return {
-    term: "Score scope",
-    value: "All platforms",
-    title: "All platforms",
-    ariaLabel: "Active score scope: All platforms"
-  };
 }
 
 function SortIcon({ active, direction }: { active: boolean; direction: SortDirection }) {
@@ -537,7 +482,7 @@ function formatRankDelta(delta: MomentumDelta): string {
 function formatBenchmark(delta: MomentumDelta): string {
   const benchmarkDate = formatBenchmarkDate(delta.benchmarkedAt);
   if (delta.baselineScore === null || delta.baselineRank === null) {
-    return benchmarkDate ? `Awaiting ${benchmarkDate} snapshot` : "Awaiting prior snapshot";
+    return benchmarkDate ? `Awaiting ${benchmarkDate} snapshot` : "Awaiting same-model snapshot";
   }
   return `${delta.baselineScore} pts / #${delta.baselineRank} on ${benchmarkDate ?? "prior snapshot"}`;
 }

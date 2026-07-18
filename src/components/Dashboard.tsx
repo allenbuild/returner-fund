@@ -456,10 +456,10 @@ export function Dashboard({
     () => ({
       platforms: selectedPlatforms,
       industries: selectedIndustries,
-      groupPartners: selectedGroupPartners,
+      groupPartners: [],
       minScore
     }),
-    [minScore, selectedGroupPartners, selectedIndustries, selectedPlatforms]
+    [minScore, selectedIndustries, selectedPlatforms]
   );
   const currentFiltersRef = useRef(currentFilters);
 
@@ -1003,7 +1003,7 @@ export function Dashboard({
             batchSlug,
             platforms: selectedPlatforms,
             industries: selectedIndustries,
-            groupPartners: selectedGroupPartners,
+            groupPartners: [],
             minScore,
             topVoices: topVoiceAudience
           })
@@ -1021,7 +1021,7 @@ export function Dashboard({
       const activeFilters = hasClientGraphFilters({
         platforms: selectedPlatforms,
         industries: selectedIndustries,
-        groupPartners: selectedGroupPartners,
+        groupPartners: [],
         minScore
       });
       invalidateGraphRequests();
@@ -1339,6 +1339,7 @@ export function Dashboard({
                 batch={graph.batch}
                 selectedNodeId={settledGraph ? activeSelectedNodeId : selectedNodeId}
                 focusRevision={graphFocusRevision}
+                focusedGroupPartners={selectedGroupPartners}
                 onSelectNode={selectNode}
               />
             ) : (

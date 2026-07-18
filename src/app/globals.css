@@ -2625,7 +2625,7 @@ td button {
   min-width: 30px;
   color: var(--overview-accent-text);
   font-size: 1.22rem;
-  font-weight: 800;
+  font-weight: 400;
   line-height: 1;
 }
 

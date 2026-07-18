@@ -22,6 +22,7 @@ interface CytoscapeGraphProps {
   batch: BatchSummary;
   selectedNodeId: string | null;
   focusRevision: number;
+  focusedGroupPartners: string[];
   onSelectNode: (nodeId: string) => void;
 }
 
@@ -104,6 +105,7 @@ export function CytoscapeGraph({
   edges,
   selectedNodeId,
   focusRevision,
+  focusedGroupPartners,
   onSelectNode
 }: CytoscapeGraphProps) {
   const cyRef = useRef<cytoscape.Core | null>(null);
@@ -117,6 +119,7 @@ export function CytoscapeGraph({
   const lastFitSignatureRef = useRef<string | null>(null);
   const suppressSelectedZoomUntilRef = useRef(0);
   const selectedNodeIdRef = useRef(selectedNodeId);
+  const lastGroupPartnerFocusRef = useRef<string | null>(null);
   const [decluttered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cyReadyRevision, setCyReadyRevision] = useState(0);
@@ -137,7 +140,35 @@ export function CytoscapeGraph({
         : edges,
     [decluttered, edges]
   );
+  const focusedGroupPartnerSet = useMemo(() => new Set(focusedGroupPartners), [focusedGroupPartners]);
+  const focusedNodeIds = useMemo(() => {
+    if (focusedGroupPartnerSet.size === 0) {
+      return new Set<string>();
+    }
 
+    const matchingCompanyIds = new Set(
+      nodes
+        .filter(
+          (node) =>
+            node.entityType === "company" &&
+            Boolean(node.groupPartner) &&
+            focusedGroupPartnerSet.has(node.groupPartner as string)
+        )
+        .map((node) => node.id)
+    );
+    const nodeEntityTypes = new Map(nodes.map((node) => [node.id, node.entityType]));
+    const associatedNodeIds = new Set(matchingCompanyIds);
+    for (const edge of edges) {
+      if (matchingCompanyIds.has(edge.source) && nodeEntityTypes.get(edge.target) !== "company") {
+        associatedNodeIds.add(edge.target);
+      }
+      if (matchingCompanyIds.has(edge.target) && nodeEntityTypes.get(edge.source) !== "company") {
+        associatedNodeIds.add(edge.source);
+      }
+    }
+    return associatedNodeIds;
+  }, [edges, focusedGroupPartnerSet, nodes]);
+  const groupPartnerFocusActive = focusedGroupPartnerSet.size > 0 && focusedNodeIds.size > 0;
   const layout = useMemo(
     () => ({
       name: "preset",
@@ -180,7 +211,9 @@ export function CytoscapeGraph({
             labelInside ? "label-inside" : "",
             `review-${node.review_state}`,
             decluttered && selectedNodeId !== node.id ? "decluttered" : "",
-            selectedNodeId === node.id ? "selected" : ""
+            selectedNodeId === node.id ? "selected" : "",
+            groupPartnerFocusActive && focusedNodeIds.has(node.id) ? "partner-focused" : "",
+            groupPartnerFocusActive && !focusedNodeIds.has(node.id) ? "partner-dimmed" : ""
           ]
             .filter(Boolean)
             .join(" ")
@@ -202,10 +235,20 @@ export function CytoscapeGraph({
                 ? Math.max(1.2, edge.weight * 2.4)
                 : Math.max(0.66, edge.weight * 0.86)
         },
-        classes: edge.edgeType
+        classes: [
+          edge.edgeType,
+          groupPartnerFocusActive && focusedNodeIds.has(edge.source) && focusedNodeIds.has(edge.target)
+            ? "partner-focused"
+            : "",
+          groupPartnerFocusActive && (!focusedNodeIds.has(edge.source) || !focusedNodeIds.has(edge.target))
+            ? "partner-dimmed"
+            : ""
+        ]
+          .filter(Boolean)
+          .join(" ")
       }))
     ],
-    [decluttered, nodes, positions, selectedNodeId, visibleEdges, labelPlacements]
+    [decluttered, focusedNodeIds, groupPartnerFocusActive, nodes, positions, selectedNodeId, visibleEdges, labelPlacements]
   );
 
   const industryLegend = useMemo(() => {
@@ -330,6 +373,40 @@ export function CytoscapeGraph({
       { duration: 240 }
     );
   }, [focusRevision]);
+
+  useEffect(() => {
+    const focusSignature = [...focusedGroupPartnerSet].sort().join("|");
+    if (lastGroupPartnerFocusRef.current === focusSignature) return;
+
+    let cancelled = false;
+    let timeoutId: number | null = null;
+    const applyFocus = () => {
+      if (cancelled) return;
+      const cy = cyRef.current;
+      if (!isUsableCy(cy)) return;
+      if (introAnimatingRef.current) {
+        timeoutId = window.setTimeout(applyFocus, 180);
+        return;
+      }
+
+      lastGroupPartnerFocusRef.current = focusSignature;
+      cy.stop(true);
+      suppressSelectedZoomUntilRef.current = performance.now() + 650;
+      const focused = cy.nodes(".partner-focused");
+      const target = focusSignature && focused.length ? focused : cy.nodes();
+      if (!target.length) return;
+      cy.animate(
+        { fit: { eles: target, padding: focusSignature ? 96 : Number(layout.padding) } },
+        { duration: 520, easing: "ease-in-out" }
+      );
+    };
+
+    timeoutId = window.setTimeout(applyFocus, 60);
+    return () => {
+      cancelled = true;
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+    };
+  }, [cyReadyRevision, focusedGroupPartnerSet, layout.padding]);
 
   useEffect(() => {
     return () => {
@@ -864,6 +941,24 @@ export function CytoscapeGraph({
             }
           },
           {
+            selector: "node.partner-focused",
+            style: {
+              opacity: 1,
+              "z-index": 700,
+              "transition-property": "opacity",
+              "transition-duration": "280ms"
+            }
+          },
+          {
+            selector: "node.partner-dimmed",
+            style: {
+              opacity: 0.16,
+              "z-index": 1,
+              "transition-property": "opacity",
+              "transition-duration": "280ms"
+            }
+          },
+          {
             selector: "node.label-inside.hovered, node.label-inside.selected",
             style: {
               "text-outline-width": 0,
@@ -901,6 +996,22 @@ export function CytoscapeGraph({
             style: {
               "line-style": "dotted",
               opacity: 0.56
+            }
+          },
+          {
+            selector: "edge.partner-focused",
+            style: {
+              opacity: 0.56,
+              "transition-property": "opacity",
+              "transition-duration": "280ms"
+            }
+          },
+          {
+            selector: "edge.partner-dimmed",
+            style: {
+              opacity: 0.05,
+              "transition-property": "opacity",
+              "transition-duration": "280ms"
             }
           }
         ]}

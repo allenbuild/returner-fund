@@ -273,12 +273,18 @@ function selectLatestBaselineOnCentralDay(
   scoringModelVersion: string | undefined
 ): BenchmarkSnapshot | null {
   const targetDayKey = offsetCentralDayKey(now, -daysBack);
-  return latestSnapshot(
-    snapshots.filter(
-      (snapshot) =>
-        centralDayKey(new Date(snapshot.recordedAt)) === targetDayKey &&
-        snapshotMatchesScoringModel(snapshot, scoringModelVersion)
-    )
+  const snapshotsOnTargetDay = snapshots.filter(
+    (snapshot) => centralDayKey(new Date(snapshot.recordedAt)) === targetDayKey
+  );
+  const sameModelSnapshot = latestSnapshot(
+    snapshotsOnTargetDay.filter((snapshot) => snapshotMatchesScoringModel(snapshot, scoringModelVersion))
+  );
+
+  // Benchmark history predates model metadata. Prefer an exact model match, but
+  // preserve those observed legacy baselines during the v4 migration. Explicitly
+  // versioned snapshots from another model remain ineligible.
+  return sameModelSnapshot ?? latestSnapshot(
+    snapshotsOnTargetDay.filter((snapshot) => snapshot.scoringModelVersion === undefined)
   );
 }
 
