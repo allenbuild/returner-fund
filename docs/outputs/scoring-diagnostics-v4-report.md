@@ -2,11 +2,11 @@
 
 - Frozen clock: `2026-07-17T12:00:00.000Z`
 - Production model: `returner-traction-v4-canonical` (`returner-traction` v4.0.0)
-- Git SHA: `4c902faca02f971a3008cd9f76e1a94d5b14d854`
-- Input envelope SHA-256: `78582133534fbc4f4fdc70370e6e5401b28e3492dd5d0c88be0ed73e66da6ae2`
-- Effective versioned scoring-input SHA-256: `03e432277ba4769cc4121311b8282d84edc3af135159046c27730358a45835e6`
+- Git SHA: `58b5d2b08b0d8666123d00c21247b001f17204ae`
+- Input envelope SHA-256: `fb08c1b43f66b8151941822ac99be45b2ae2c0136835150dc29c3a50188f5d25`
+- Effective versioned scoring-input SHA-256: `cda8378c7a3374a7ca52dedb56417533ee1e67e36fd5399f2948229778bbee1e`
 - Canonical config: 83 leaf parameters across scoring, calibration, and confidence; 8 role-labeled runtime source files.
-- Audit JSON SHA-256: `3cd06213e6a0e819d0f500632dbc32908399302b9bd8e4b2915395c03f739e72`
+- Audit JSON SHA-256: `4286d94a9a657fb91951ee4bac9d1bd9800f5a8d3b6c07c41933b6da2249fdf8`
 - Command: `npm run scoring:audit:v4`
 - Direct command: `node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs`
 - Safety: local snapshots only; `fetch` disabled; no API calls, benchmark writes, source edits, or user-data mutation.
@@ -29,9 +29,9 @@ The after view is a diagnostic simulation only. It does not update the productio
 
 | Cohort | Companies | Evidence before | Evidence after | Published mean | Diagnostic before mean | Diagnostic after mean | Rank changes | Max shift |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| S2026 | 197 | 3273 | 1980 | 36.5635 | 34.8477 | 34.8477 | 0 | 0 |
-| S26 | 83 | 548 | 364 | 33.5181 | 31.8675 | 31.8675 | 0 | 0 |
-| A16ZSR006 | 59 | 253 | 249 | 35.6271 | 33.2542 | 33.2542 | 0 | 0 |
+| S2026 | 197 | 3273 | 1980 | 39.6599 | 38.6193 | 38.6193 | 0 | 0 |
+| S26 | 83 | 548 | 364 | 38.8916 | 38.3735 | 38.3735 | 0 | 0 |
+| A16ZSR006 | 59 | 253 | 249 | 40.9492 | 39.7288 | 39.7288 | 0 | 0 |
 
 ## Diagnostic counts
 
@@ -46,40 +46,40 @@ The after view is a diagnostic simulation only. It does not update the productio
 | Cohort | Platform | Evidence B/A | Nonzero companies B/A | Mean score B/A | Score changes | Rank changes | Max score delta | Max rank shift |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | S2026 | bilibili | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
-| S2026 | github | 211/92 | 24/24 | 3.8528/3.8528 | 0 | 0 | 0 | 0 |
-| S2026 | hacker_news | 18/18 | 18/18 | 3.2995/3.2995 | 0 | 0 | 0 | 0 |
-| S2026 | instagram | 62/62 | 3/3 | 0.6244/0.6244 | 0 | 0 | 0 | 0 |
-| S2026 | linkedin | 136/101 | 79/79 | 12.8528/12.8528 | 0 | 0 | 0 | 0 |
-| S2026 | product_hunt | 5/2 | 1/1 | 0.2893/0.2893 | 0 | 0 | 0 | 0 |
-| S2026 | reddit | 1/1 | 1/1 | 0.1117/0.1117 | 0 | 0 | 0 | 0 |
-| S2026 | x | 1979/1628 | 143/143 | 26.8274/26.8274 | 0 | 0 | 0 | 0 |
-| S2026 | youtube | 82/76 | 63/63 | 5.3706/5.3706 | 0 | 0 | 0 | 0 |
+| S2026 | github | 211/92 | 24/24 | 5.1726/5.1726 | 0 | 0 | 0 | 0 |
+| S2026 | hacker_news | 18/18 | 18/18 | 4.6193/4.6193 | 0 | 0 | 0 | 0 |
+| S2026 | instagram | 62/62 | 3/3 | 0.8173/0.8173 | 0 | 0 | 0 | 0 |
+| S2026 | linkedin | 136/101 | 79/79 | 17.2183/17.2183 | 0 | 0 | 0 | 0 |
+| S2026 | product_hunt | 5/2 | 1/1 | 0.401/0.401 | 0 | 0 | 0 | 0 |
+| S2026 | reddit | 1/1 | 1/1 | 0.1574/0.1574 | 0 | 0 | 0 | 0 |
+| S2026 | x | 1979/1628 | 143/143 | 35.1574/35.1574 | 0 | 0 | 0 | 0 |
+| S2026 | youtube | 82/76 | 63/63 | 7.3756/7.3756 | 0 | 0 | 0 | 0 |
 | S26 | bilibili | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
-| S26 | github | 82/57 | 15/15 | 4.8313/4.8313 | 0 | 0 | 0 | 0 |
-| S26 | hacker_news | 4/3 | 3/3 | 1.3855/1.3855 | 0 | 0 | 0 | 0 |
+| S26 | github | 82/57 | 15/15 | 6.4819/6.4819 | 0 | 0 | 0 | 0 |
+| S26 | hacker_news | 4/3 | 3/3 | 1.9398/1.9398 | 0 | 0 | 0 | 0 |
 | S26 | instagram | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
-| S26 | linkedin | 143/66 | 45/45 | 19.8916/19.8916 | 0 | 0 | 0 | 0 |
-| S26 | product_hunt | 4/1 | 1/1 | 0.4699/0.4699 | 0 | 0 | 0 | 0 |
+| S26 | linkedin | 143/66 | 45/45 | 26.6988/26.6988 | 0 | 0 | 0 | 0 |
+| S26 | product_hunt | 4/1 | 1/1 | 0.6506/0.6506 | 0 | 0 | 0 | 0 |
 | S26 | reddit | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
-| S26 | x | 273/221 | 29/29 | 13.8916/13.8916 | 0 | 0 | 0 | 0 |
-| S26 | youtube | 16/16 | 9/9 | 1.9277/1.9277 | 0 | 0 | 0 | 0 |
+| S26 | x | 273/221 | 29/29 | 18.1928/18.1928 | 0 | 0 | 0 | 0 |
+| S26 | youtube | 16/16 | 9/9 | 2.6506/2.6506 | 0 | 0 | 0 | 0 |
 | A16ZSR006 | bilibili | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | github | 19/17 | 6/6 | 2.5763/2.5763 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | github | 19/17 | 6/6 | 3.4576/3.4576 | 0 | 0 | 0 | 0 |
 | A16ZSR006 | hacker_news | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | instagram | 68/68 | 16/16 | 7.6102/7.6102 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | linkedin | 63/63 | 35/35 | 21.7966/21.7966 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | product_hunt | 5/3 | 1/1 | 0.8475/0.8475 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | reddit | 10/10 | 7/7 | 2.1356/2.1356 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | x | 38/38 | 10/10 | 4.9153/4.9153 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | youtube | 50/50 | 12/12 | 5.2712/5.2712 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | instagram | 68/68 | 16/16 | 9.9492/9.9492 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | linkedin | 63/63 | 35/35 | 29.3051/29.3051 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | product_hunt | 5/3 | 1/1 | 1.1695/1.1695 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | reddit | 10/10 | 7/7 | 3/3 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | x | 38/38 | 10/10 | 6.4407/6.4407 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | youtube | 50/50 | 12/12 | 7.2373/7.2373 | 0 | 0 | 0 | 0 |
 
 ## Platform concentration
 
 | Cohort | Leading platform B/A | Leading share B/A | HHI B/A | Single-platform companies B/A | Median dominant share B/A |
 | --- | --- | ---: | ---: | ---: | ---: |
-| S2026 | x/x | 62.6%/62.6% | 0.4545/0.4545 | 37.71%/37.71% | 98.12%/98.12% |
-| S26 | linkedin/linkedin | 51.08%/51.08% | 0.3913/0.3913 | 60.29%/60.29% | 100%/100% |
-| A16ZSR006 | linkedin/linkedin | 62.83%/62.83% | 0.4266/0.4266 | 60%/60% | 100%/100% |
+| S2026 | x/x | 61.93%/61.93% | 0.4428/0.4428 | 37.71%/37.71% | 79.53%/79.53% |
+| S26 | linkedin/linkedin | 54.89%/54.89% | 0.4179/0.4179 | 60.29%/60.29% | 100%/100% |
+| A16ZSR006 | linkedin/linkedin | 60.09%/60.09% | 0.406/0.406 | 60%/60% | 100%/100% |
 
 ## Evidence outliers by platform
 
@@ -117,9 +117,9 @@ The after view is a diagnostic simulation only. It does not update the productio
 
 | Cohort | Monotonic tests | Company decreases | Reverse-order rank changes | +1% max rank shift | +24h max rank shift |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| S2026 | 221 | 0 | 0 | 6 | 0 |
-| S26 | 140 | 0 | 0 | 1 | 0 |
-| A16ZSR006 | 188 | 0 | 0 | 0 | 0 |
+| S2026 | 221 | 0 | 0 | 5 | 0 |
+| S26 | 140 | 0 | 0 | 2 | 0 |
+| A16ZSR006 | 188 | 0 | 0 | 1 | 0 |
 
 ## Largest cleanup rank changes
 
@@ -141,7 +141,7 @@ No score or rank changes.
 | --- | --- | --- |
 | versioned_runtime_parameter_hashes_complete | yes | {"category_hash_mismatch_count":0,"parameter_count":83,"parameter_mismatch_count":0} |
 | versioned_source_hashes_complete | yes | {"source_file_count":8,"source_mismatch_count":0} |
-| input_envelope_hash_consistent | yes | "78582133534fbc4f4fdc70370e6e5401b28e3492dd5d0c88be0ed73e66da6ae2" |
+| input_envelope_hash_consistent | yes | "fb08c1b43f66b8151941822ac99be45b2ae2c0136835150dc29c3a50188f5d25" |
 | required_cohort_coverage | yes | ["A16ZSR006","S2026","S26"] |
 | company_rankings_complete_unique_ordered_and_bounded | yes | 0 |
 | cleanup_row_accounting_exact | yes | 0 |

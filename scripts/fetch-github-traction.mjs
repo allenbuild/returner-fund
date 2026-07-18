@@ -466,6 +466,7 @@ function resolveBatchConfig(value) {
 
 function batchConfigs() {
   const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
+  const ycSpringSnapshotPath = join(root, "src", "lib", "yc", "spring-2026-companies.json");
   const a16zDatasetPath = join(root, "src", "lib", "graph", "a16z-speedrun-006-dataset.ts");
 
   return [
@@ -494,6 +495,32 @@ function batchConfigs() {
         "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
         "Only GitHub URLs explicitly listed on public YC Summer 2026 company profiles are scored by default.",
         "GitHub search discovery is available with --search, but is disabled by default because same-name repositories need review before scoring."
+      ]
+    },
+    {
+      slug: "S2026",
+      aliases: ["S2026", "P26", "YC_S2026", "YC_P26", "YC_SPRING_2026", "SPRING_2026"],
+      label: "YC Spring 2026 (P26)",
+      sourceLabel: "GitHub public API for official YC Spring 2026 GitHub links",
+      sourcePath: relativePath(ycSpringSnapshotPath),
+      outputPath: join(root, "src", "lib", "social", "github-traction.json"),
+      explicitDiscoverySource: "yc_profile",
+      explicitCompanyMatchReason: "GitHub URL explicitly listed on YC public company profile.",
+      explicitFounderMatchReason: "GitHub URL explicitly listed on YC public founder profile.",
+      websiteMatchReason: "GitHub URL linked from the official company website.",
+      searchMatchReason: "Conservative GitHub repository search match on company name, domain root, or homepage.",
+      defaultWebsiteDiscovery: false,
+      defaultSearchDiscovery: false,
+      loadSnapshot: async () => JSON.parse(await readFile(ycSpringSnapshotPath, "utf8")),
+      companyId: (company) => `company-${company.slug}`,
+      founderId: (company, founder) => `founder-${company.slug}-${slugify(founder.name)}-${founder.id}`,
+      companyProfileUrl: (company) => company.ycProfileUrl,
+      founderProfileUrl: (_company, founder) => founder.ycProfileUrl,
+      notes: [
+        "Read-only public GitHub API data.",
+        "GITHUB_TOKEN is optional and only increases API rate limits.",
+        "No GitHub mutations are performed.",
+        "Only GitHub URLs explicitly listed on public YC Spring 2026 profiles are scored by default."
       ]
     },
     {

@@ -455,11 +455,11 @@ export function Dashboard({
   const currentFilters = useMemo<ClientGraphFilters>(
     () => ({
       platforms: selectedPlatforms,
-      industries: selectedIndustries,
+      industries: [],
       groupPartners: [],
       minScore
     }),
-    [minScore, selectedIndustries, selectedPlatforms]
+    [minScore, selectedPlatforms]
   );
   const currentFiltersRef = useRef(currentFilters);
 
@@ -803,40 +803,54 @@ export function Dashboard({
   const scopedFilterMetadataGraph = graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
     ? filterMetadataGraph
     : null;
+  const mapGraph = useMemo(
+    () =>
+      scopedFilterMetadataGraph
+        ? applyClientGraphFilters(scopedFilterMetadataGraph, {
+            platforms: [],
+            industries: [],
+            groupPartners: [],
+            minScore
+          })
+        : graph,
+    [graph, minScore, scopedFilterMetadataGraph]
+  );
   const scopeSpecificFiltersDisabled = !settledGraph || !scopedFilterMetadataGraph;
 
   const activeSelectedNodeId = useMemo(() => {
-    if (!settledGraph) {
+    if (!mapGraph) {
       return null;
     }
-    if (settledGraph.nodes.some((node) => node.id === selectedNodeId)) {
+    if (mapGraph.nodes.some((node) => node.id === selectedNodeId)) {
       return selectedNodeId;
     }
-    return initialSelectedNodeId(settledGraph);
-  }, [selectedNodeId, settledGraph]);
+    return initialSelectedNodeId(mapGraph);
+  }, [mapGraph, selectedNodeId]);
 
   const selectedNode = useMemo(
-    () => settledGraph?.nodes.find((node) => node.id === activeSelectedNodeId) ?? null,
-    [activeSelectedNodeId, settledGraph]
+    () => settledGraph ? mapGraph?.nodes.find((node) => node.id === activeSelectedNodeId) ?? null : null,
+    [activeSelectedNodeId, mapGraph, settledGraph]
   );
 
   const selectedEvidence = useMemo(() => {
-    if (!settledGraph || !selectedNode) {
+    if (!mapGraph || !selectedNode) {
       return [];
     }
-    return selectedNodeEvidence(settledGraph, selectedNode).slice(0, 20);
-  }, [selectedNode, settledGraph]);
+    return selectedNodeEvidence(mapGraph, selectedNode)
+      .filter((item) => selectedPlatforms.length === 0 || selectedPlatforms.includes(item.platform))
+      .slice(0, 20);
+  }, [mapGraph, selectedNode, selectedPlatforms]);
 
   const searchResults = useMemo(
-    () => settledGraph
+    () => mapGraph
       ? searchGraphNodes(
-          settledGraph.nodes,
+          mapGraph.nodes,
           focusQuery,
           14,
-          new Map(settledGraph.leaderboard.map((row) => [row.companyId, row.rank]))
+          new Map(mapGraph.leaderboard.map((row) => [row.companyId, row.rank]))
         )
       : [],
-    [focusQuery, settledGraph]
+    [focusQuery, mapGraph]
   );
 
   const relatedNodes = useMemo(() => {
@@ -847,13 +861,13 @@ export function Dashboard({
   }, [selectedNode, settledGraph]);
 
   const selectNode = useCallback((nodeId: string) => {
-    if (!settledGraph?.nodes.some((node) => node.id === nodeId)) {
+    if (!mapGraph?.nodes.some((node) => node.id === nodeId)) {
       return;
     }
     setSelectedNodeId(nodeId);
     setHighlightedFounderId(null);
     setGraphFocusRevision((current) => current + 1);
-  }, [settledGraph]);
+  }, [mapGraph]);
 
   const selectRankedNode = useCallback(
     (nodeId: string) => {
@@ -866,14 +880,14 @@ export function Dashboard({
   );
 
   const selectSearchResult = useCallback((result: GraphSearchResult) => {
-    if (!settledGraph?.nodes.some((node) => node.id === result.companyNodeId)) {
+    if (!mapGraph?.nodes.some((node) => node.id === result.companyNodeId)) {
       return;
     }
     setSelectedNodeId(result.companyNodeId);
     setHighlightedFounderId(result.kind === "founder" ? result.id : null);
     setSearchOpen(false);
     setGraphFocusRevision((current) => current + 1);
-  }, [settledGraph]);
+  }, [mapGraph]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1002,7 +1016,7 @@ export function Dashboard({
             action,
             batchSlug,
             platforms: selectedPlatforms,
-            industries: selectedIndustries,
+            industries: [],
             groupPartners: [],
             minScore,
             topVoices: topVoiceAudience
@@ -1020,7 +1034,7 @@ export function Dashboard({
       }
       const activeFilters = hasClientGraphFilters({
         platforms: selectedPlatforms,
-        industries: selectedIndustries,
+        industries: [],
         groupPartners: [],
         minScore
       });
@@ -1088,8 +1102,8 @@ export function Dashboard({
     setMinScore((current) => (current === nextScore ? current : nextScore));
   }
 
-  const visibleCompanyCount = graph?.nodes.filter((node) => node.entityType === "company").length ?? 0;
-  const graphIsEmpty = Boolean(graph) && visibleCompanyCount === 0;
+  const visibleCompanyCount = mapGraph?.nodes.filter((node) => node.entityType === "company").length ?? 0;
+  const graphIsEmpty = Boolean(mapGraph) && visibleCompanyCount === 0;
   const activeClientFilters = hasClientGraphFilters(currentFilters);
   const graphEmptyTitle = activeClientFilters
     ? "No companies match the active filters."
@@ -1332,13 +1346,15 @@ export function Dashboard({
                 <strong>{graphEmptyTitle}</strong>
                 <span>{graphEmptyDetail}</span>
               </div>
-            ) : graph ? (
+            ) : mapGraph ? (
               <CytoscapeGraph
-                nodes={graph.nodes}
-                edges={graph.edges}
-                batch={graph.batch}
-                selectedNodeId={settledGraph ? activeSelectedNodeId : selectedNodeId}
+                nodes={mapGraph.nodes}
+                edges={mapGraph.edges}
+                batch={mapGraph.batch}
+                selectedNodeId={activeSelectedNodeId}
                 focusRevision={graphFocusRevision}
+                focusedPlatforms={selectedPlatforms}
+                focusedIndustries={selectedIndustries}
                 focusedGroupPartners={selectedGroupPartners}
                 onSelectNode={selectNode}
               />

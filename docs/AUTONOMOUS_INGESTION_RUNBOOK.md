@@ -1,0 +1,516 @@
+# Autonomous Ingestion Runbook
+
+## Operating assumptions
+
+This runbook operates the implementation described in `AUTONOMOUS_INGESTION_ARCHITECTURE.md`. It does not assert that migration 008 has been applied to production or that any scheduled production run has succeeded. Confirm deployment state before enabling the workflow.
+
+Use service-role credentials only in trusted server or CI environments. Never expose `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_INGESTION_SECRET`, `REFRESH_SECRET`, provider tokens, cookies, or browser profiles in client code, logs, commits, or workflow artifacts.
+
+Automated collectors may use public interfaces and explicitly authorized credentials only. A login wall, CAPTCHA, robots restriction, permission error, or blocked endpoint is a stop condition. Do not bypass access controls.
+
+## Deployment order
+
+1. Review and merge migration 008, runtime types/store, coordinator, collectors, workflow, diagnostics, and these documents as one compatible release.
+2. Back up the target database and confirm migrations 001 through 007 are present in order.
+3. Apply migration `008_autonomous_ingestion_runtime.sql` exactly once through the environment's normal migration mechanism.
+4. Verify new tables, functions, constraints, RLS, grants, and append-only triggers before starting a writer.
+5. Configure server-side application environment variables and deploy the application. This makes protected diagnostics available but does not start collection.
+6. Configure GitHub Actions secrets and repository permissions. Keep the schedule disabled until the manual canary succeeds.
+7. Run the local plan preflight. Compare task counts and terminal reasons with the reviewed release.
+8. Trigger one manual workflow run with a unique replay key and monitor it through import, publication validation, and commit.
+9. Verify Supabase rows, generated manifest hashes, the bot publication commit, and the application graph.
+10. Enable the scheduled workflow and observe both a morning and evening Central slot.
+
+Do not deploy the coordinator before migration 008. It calls runtime-lock RPCs and writes columns/tables that do not exist in migrations 001 through 007.
+
+The workflow pins Node.js `24.14.0`, installs with `npm ci`, needs GitHub `contents: write`, and pushes to the checked-out branch. Confirm repository workflow permissions and branch protections allow the bot publication commit, or replace direct push with an approved publication path before enabling the schedule.
+
+### Applying the migration
+
+The repository's `release:migrate:v4` command handles migrations 004 through 007 only. It does not apply migration 008.
+
+Prefer the production environment's established migration-history mechanism. If this repository is linked and managed by the Supabase CLI, inspect before applying:
+
+```bash
+supabase migration list
+supabase db push --dry-run
+supabase db push
+```
+
+If the environment intentionally uses `psql` rather than Supabase migration history, first prove 001 through 007 are present, then run:
+
+```bash
+psql "$DATABASE_URL" \
+  -v ON_ERROR_STOP=1 \
+  -f supabase/migrations/008_autonomous_ingestion_runtime.sql
+```
+
+Direct `psql` does not automatically update Supabase migration history. Do not mix mechanisms without reconciling that history. Migration 008 preserves legacy rows, but it is a forward migration, not a repeatedly runnable repair script.
+
+### Schema verification
+
+Run with a database administration connection:
+
+```sql
+select to_regclass('public.ingestion_runtime_locks') as runtime_locks,
+       to_regclass('public.ingestion_run_events') as run_events,
+       to_regclass('public.ingestion_checkpoints') as checkpoints,
+       to_regclass('public.provider_rate_limits') as rate_limits,
+       to_regclass('public.ingestion_dead_letters') as dead_letters,
+       to_regclass('public.ingestion_coverage_reports') as coverage_reports,
+       to_regclass('public.ingestion_artifact_manifests') as artifact_manifests;
+
+select proname
+from pg_proc
+where proname in (
+  'claim_ingestion_runtime_lock',
+  'renew_ingestion_runtime_lock',
+  'release_ingestion_runtime_lock',
+  'claim_ingestion_tasks',
+  'renew_ingestion_task_lease',
+  'requeue_expired_ingestion_tasks'
+)
+order by proname;
+
+select relname, relrowsecurity
+from pg_class
+where relname in (
+  'ingestion_runs', 'ingestion_runtime_locks', 'ingestion_tasks',
+  'metric_observations', 'ingestion_run_events', 'ingestion_checkpoints',
+  'provider_rate_limits', 'ingestion_dead_letters',
+  'ingestion_coverage_reports', 'ingestion_artifact_manifests'
+)
+order by relname;
+```
+
+All listed relations must exist and report RLS enabled. Also test with anon/authenticated credentials that operational reads fail; do not infer access isolation from migration text alone.
+
+## Environment and secrets
+
+### Required for the autonomous coordinator
+
+| Variable/input | Required where | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Coordinator and diagnostics server | Supabase project URL. Despite the name, it is paired with a server-only service key in these paths. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Coordinator and full diagnostics server | Service-role access to RLS-protected operational/evidence tables and runtime RPCs. |
+| `--idempotency-key` or `INGESTION_IDEMPOTENCY_KEY` | Coordinator | Stable run identity. The workflow passes the resolved Central slot or manual replay key as the CLI argument. |
+
+The GitHub workflow explicitly fails before collection when either Supabase secret is missing.
+
+### Required for production admin diagnostics
+
+Configure at least one:
+
+| Variable | Behavior |
+| --- | --- |
+| `ADMIN_INGESTION_SECRET` | Dedicated bearer/header secret for ingestion diagnostics. Preferred for least privilege. |
+| `REFRESH_SECRET` | Accepted as an alternative and also used by refresh/ingest routes. Broader reuse increases blast radius. |
+
+Without either secret, the production API returns `503`. Without the Supabase URL and service key, authorization can succeed but diagnostics report the data source unavailable.
+
+### Optional and active
+
+| Variable | Current use |
+| --- | --- |
+| `GITHUB_TOKEN` | Used by `fetch-github-traction.mjs` to raise GitHub API limits. GitHub Actions maps the automatic `github.token`; no separate repository secret is required for that mapping. |
+| `ARTIFACT_INGESTION_RUN_ID` or `INGESTION_RUN_ID` | Fallback run ID for the manifest writer when the CLI flag is omitted. |
+| `EVIDENCE_COLLECTED_AT`, `OLDEST_PLATFORM_REFRESH_AT`, `ARTIFACT_PUBLISHED_AT` | Optional manifest timestamp overrides. Normally values are derived or generated. |
+
+### Present but not active in the autonomous path
+
+The workflow passes `X_BEARER_TOKEN`, `EXA_API_KEY`, and Reddit client variables, but the current autonomous collector scripts do not consume them. Do not claim authenticated X, Exa, or Reddit operation merely because the secrets are configured.
+
+`INGESTION_ARTIFACT_BUCKET` is not used; artifacts are not uploaded to object storage. `INGESTION_GLOBAL_CONCURRENCY`, `INGESTION_REQUEST_TIMEOUT_MS`, and `INGESTION_MAX_ATTEMPTS` are not read by the current coordinator or collectors. `YOUTUBE_COOKIES_PATH`, `PLATFORM_COOKIES_PATH`, browser profile variables, and logged-in collector state are not used by this workflow.
+
+`OPENCLI_BIN` and `OPENCLI_MAIN` support separate tooling, not the current autonomous coordinator.
+
+## Preflight and canary
+
+Install exactly from the lockfile used by GitHub Actions:
+
+```bash
+npm ci
+```
+
+Run the side-effect-free plan without Supabase credentials:
+
+```bash
+npm run ingest:autonomous:plan
+```
+
+At the catalog state covered by the current tests, expect:
+
+```text
+3 batches
+1,029 entities
+13,377 expected tasks
+4,243 queued tasks
+9,134 pre-terminal tasks
+```
+
+Review `missingMappings`, `unsupported`, and every per-platform count. A plan is not a source-liveness check.
+
+Run focused release verification:
+
+```bash
+node --test \
+  tests/ingestion-schedule.node-test.mjs \
+  tests/autonomous-ingestion-workflow.node-test.mjs \
+  tests/autonomous-ingestion-plan.node-test.mjs \
+  tests/autonomous-ingestion-runner-contract.node-test.mjs \
+  tests/http-policy.test.mjs \
+  tests/durable-evidence-import.test.mjs \
+  tests/artifact-manifest.test.mjs
+
+npx vitest run \
+  tests/autonomous-ingestion-schema.test.ts \
+  tests/autonomous-ingestion-store.test.ts \
+  tests/account-inventory.test.ts \
+  tests/canonical-evidence.test.ts \
+  tests/ingestion-diagnostics.test.ts \
+  tests/api/admin-ingestion-route.test.ts \
+  tests/database-autonomous-types.test.ts
+
+npm run typecheck
+```
+
+These tests validate code and local artifacts. They do not verify production credentials, provider access, workflow permissions, migration application, or a live Supabase schema.
+
+### Manual canary
+
+Trigger a complete canary with a unique replay key:
+
+```bash
+gh workflow run autonomous-ingestion.yml \
+  -f replay_key="manual-$(date -u +%Y%m%dT%H%M%SZ)"
+
+gh run list --workflow autonomous-ingestion.yml --limit 5
+```
+
+Use the GitHub Actions UI if `gh` is unavailable. The workflow has a 90-minute job timeout. It starts all six collector processes in parallel. The coordinator validates and pushes the artifact commit before it finalizes the durable run.
+
+A local database-writing smoke mode exists:
+
+```bash
+node scripts/run-autonomous-ingestion.mjs \
+  --idempotency-key="smoke-$(date -u +%Y%m%dT%H%M%SZ)" \
+  --skip-network \
+  --skip-publish
+```
+
+This is not read-only. It synchronizes inventory, creates a run and tasks, marks queued tasks skipped, writes coverage, and completes the run. Use it only against an approved nonproduction database or when those production records are intentionally desired.
+
+## Schedule operations
+
+The intended Central schedule is exactly `06:17` and `18:17` every day.
+
+- During CDT, active UTC candidates are `11:17` and `23:17`.
+- During CST, active UTC candidates are `12:17` and `00:17` on the next UTC day for the prior Central evening.
+- The other two cron invocations exit as `inactive-dst-candidate`.
+- A candidate delayed by up to 11 hours is still admitted for replay; a still-later candidate fails and requires an explicit replay key.
+- GitHub concurrency is global to the workflow and does not cancel an in-progress run.
+
+Do not replace the four-cron resolver with fixed UTC assumptions. Verify DST behavior with `tests/ingestion-schedule.node-test.mjs` after any schedule edit.
+
+## Monitoring
+
+### GitHub Actions
+
+Watch these workflow stages in order:
+
+1. Resolve Central ingestion slot.
+2. Install dependencies for accepted candidates only.
+3. Run autonomous ingestion.
+4. Validate generated public artifacts.
+5. Publish refreshed public artifacts.
+
+An inactive DST candidate is a healthy no-op. A run that reports no public artifact changes is also valid when the database run completed and source state did not change.
+
+### Admin UI and API
+
+Open:
+
+```text
+/admin/ingestion
+```
+
+Enter the admin secret and use Summary, Runs, Tasks, Failures, and Artifacts. The secret remains in page memory and is sent as a bearer token.
+
+Direct API examples:
+
+```bash
+curl --fail-with-body \
+  -H "Authorization: Bearer $ADMIN_INGESTION_SECRET" \
+  "$APP_URL/api/admin/ingestion?view=summary"
+
+curl --fail-with-body \
+  -H "Authorization: Bearer $ADMIN_INGESTION_SECRET" \
+  "$APP_URL/api/admin/ingestion?view=tasks&runId=$RUN_ID&page=1&pageSize=100"
+```
+
+Responses are no-store. Query limits are `page` 1-10,000 and `pageSize` 1-100.
+
+The admin surface is incomplete: failures are legacy `source_failures`, artifacts are canonical evidence items, and summary pending tasks omit `retry_scheduled`. Use the database checks below for runtime leases, events, coverage, dead letters, provider state, and manifest records.
+
+### Database checks
+
+The queries below use the `psql` variable `run_id`. Invoke `psql` with `-v run_id="$RUN_ID"`, or replace `:'run_id'` with a safely quoted run UUID in the database console.
+
+Latest runs and heartbeat health:
+
+```sql
+select id, idempotency_key, status, started_at, heartbeat_at,
+       lease_owner, lease_expires_at, finished_at, stats_json
+from public.ingestion_runs
+order by started_at desc
+limit 20;
+```
+
+Treat a `running` row with an old heartbeat or expired lease as suspect. Check the global lock before intervening:
+
+```sql
+select lock_key, owner_id, heartbeat_at, lease_expires_at, metadata_json
+from public.ingestion_runtime_locks
+where lock_key = 'autonomous-ingestion';
+```
+
+Run events:
+
+```sql
+select occurred_at, severity, event_type, message, payload_json
+from public.ingestion_run_events
+where ingestion_run_id = :'run_id'
+order by occurred_at, id;
+```
+
+Task terminality and outcomes:
+
+```sql
+select status, platform, count(*)
+from public.ingestion_tasks
+where ingestion_run_id = :'run_id'
+group by status, platform
+order by platform, status;
+
+select count(*) as nonterminal
+from public.ingestion_tasks
+where ingestion_run_id = :'run_id'
+  and status not in (
+    'completed', 'needs_review', 'blocked_or_empty', 'skipped',
+    'failed', 'canceled', 'dead_lettered'
+  );
+```
+
+Coverage and importer counters:
+
+```sql
+select expected_count, attempted_count, succeeded_count,
+       failed_count, skipped_count, generated_at, report_json
+from public.ingestion_coverage_reports
+where ingestion_run_id = :'run_id'
+  and report_key = 'overall';
+```
+
+Open dead letters and provider blocks:
+
+```sql
+select id, ingestion_task_id, failure_kind, attempts,
+       dead_lettered_at, failure_message
+from public.ingestion_dead_letters
+where status = 'open'
+order by dead_lettered_at;
+
+select provider, scope_key, remaining, reset_at, blocked_until,
+       consecutive_failures, last_response_at
+from public.provider_rate_limits
+where blocked_until > now() or consecutive_failures > 0
+order by provider, scope_key;
+```
+
+The current coordinator does not populate provider-rate-limit state and does not route its collector failures to the DLQ. Empty results do not prove healthy HTTP behavior.
+
+Manifest record:
+
+```sql
+select artifact_key, artifact_type, storage_uri, byte_size, sha256, created_at
+from public.ingestion_artifact_manifests
+where ingestion_run_id = :'run_id'
+order by artifact_key;
+```
+
+## Success criteria
+
+A production run is successful only when all of the following are true:
+
+- The workflow accepted the intended Central slot or explicit replay key.
+- One run row exists for the idempotency key and ends in `completed`.
+- The runtime lock is released.
+- The overall coverage report has `nonTerminal = 0`.
+- Failed and skipped counts are reviewed and acceptable. `coveragePercentage = 100` alone is insufficient.
+- Durable importer counters have plausible `received`, `stored`, `readBack`, attribution, observation, and rejection values.
+- The production build, graph/benchmark publication, manifest write, and artifact validation completed.
+- The manifest run ID matches the ingestion run, and its SHA-256 matches the committed file.
+- The workflow pushed the expected publication commit, or explicitly reported no artifact changes.
+- The deployed graph/API reflects the intended publication after deployment catches up with the pushed commit.
+
+## Manual replay and backfill
+
+### Full replay
+
+Use `workflow_dispatch` with a new key to perform a full collection and durable import:
+
+```bash
+gh workflow run autonomous-ingestion.yml \
+  -f replay_key="incident-20260718-retry-1"
+```
+
+Reusing the key of a completed run is a no-op. Use a new key when a new observation and publication are intended. A failed key can be invoked again, but a fresh incident key gives clearer audit separation.
+
+### Backfill limits
+
+The coordinator has no batch, platform, company, date-range, or task-ID filter. A manual replay is a full three-batch plan. The durable importer is a library called by the coordinator; there is no checked-in standalone CLI that imports an arbitrary historical JSON file. There is also no completed database-to-graph read path.
+
+For a selective or historical backfill, first implement or review a dedicated tool that:
+
+- creates a distinct ingestion run;
+- hashes and records every input artifact;
+- uses the durable importer and existing canonicalization rules;
+- emits coverage and unresolved-attribution counters;
+- is idempotent at evidence, attribution, and observation keys;
+- performs a dry run before production writes.
+
+Do not edit canonical tables by hand as a substitute for attribution and metric validation.
+
+### DLQ replay limit
+
+Migration 008 and `AutonomousIngestionStore` can requeue expired leased tasks, but the current coordinator does not drain the fine-grained task queue. Changing a dead-letter row to `requeued` or a task to `retry_scheduled` will not make the current scheduled runner execute that task. Use a full replay with a new key or deploy a reviewed task worker before relying on DLQ requeue semantics.
+
+## Failure diagnosis
+
+### Workflow skips unexpectedly
+
+- Confirm `github.event_name` is `schedule` or `workflow_dispatch`.
+- Confirm scheduled cron is one of the four declared candidates.
+- Check resolver reason: `inactive-dst-candidate`, `outside-lateness-window`, `unrecognized-cron`, or `unsupported-event`.
+- For manual dispatch, ensure the replay key uses only letters, numbers, period, underscore, colon, and hyphen.
+
+### Missing table, column, or RPC
+
+Typical errors mention `claim_ingestion_runtime_lock`, `ingestion_run_events`, `stats_json`, or `ingestion_coverage_reports`. Stop the workflow and verify migration 008 application and schema cache. Do not patch around missing runtime objects in the coordinator.
+
+### Another coordinator owns the lease
+
+Inspect `ingestion_runtime_locks`, the owning workflow run, and the corresponding ingestion run heartbeat. Do not delete a nonexpired lock while its owner is active. GitHub concurrency cannot protect local or external invocations.
+
+If the lock is expired and no process is active, a new claim can replace it. Preserve the old run/events for diagnosis.
+
+### Heartbeat or release failure
+
+The coordinator renews every 60 seconds against a 20-minute lease. A heartbeat callback logs failure and sets a nonzero exit code but does not immediately abort all in-flight child processes. Inspect for concurrent work and do not start a replacement until the database lease is expired or the old process is confirmed stopped.
+
+### Collector timeout or failure
+
+- Broad-public child timeout: 55 minutes.
+- GitHub child timeout: 45 minutes.
+- Overall GitHub job timeout: 90 minutes.
+- Collectors run in parallel and settle independently.
+
+A failed child marks matching queued tasks `failed`; terminal failures do not by themselves block publication. Review failed/skipped counters and source-specific errors before accepting the run.
+
+If every collector fails before writing a readable snapshot, the durable importer rejects the run because it requires at least one snapshot. Partial available snapshots can still import.
+
+### Source blocked or login-walled
+
+Record the source as failed, skipped, blocked/empty, or needs review. Confirm that the autonomous workflow did not invoke logged-in collection. Do not add cookies, browser sessions, or bypass behavior to restore a metric without approved access and a separate security review.
+
+### Durable import failure
+
+Check the `evidence.imported` event if it exists and inspect errors for:
+
+- invalid or noncanonical source URLs;
+- evidence read-back mismatch after upsert;
+- unresolved catalog attribution;
+- missing migration 004 evidence tables or migration 008 append-only/grant changes;
+- service-role permission or schema-cache errors.
+
+Compatibility JSON may have been modified locally before the import failed. GitHub Actions will not reach the commit step, but local operators should inspect and discard only files created by their failed run, without overwriting concurrent work.
+
+### Nonterminal publication guard
+
+Query task states for the run. `queued`, `running`, and `retry_scheduled` are nonterminal. The coordinator will fail before build/publication when any remain. The current coordinator should normally reconcile every queued task directly; remaining rows indicate an interrupted or inconsistent reconciliation.
+
+### Build, benchmark, or artifact failure
+
+Run in this order:
+
+```bash
+npm run build
+npm run benchmarks:daily
+node scripts/write-artifact-manifest.mjs --ingestion-run-id="$RUN_ID"
+node scripts/write-artifact-manifest.mjs --validate --ingestion-run-id="$RUN_ID"
+npm run artifacts:validate
+```
+
+The manifest validator detects missing, changed, unreferenced, or invalid graph/benchmark JSON, hash/size mismatches, stale model references, stale watermarks, and run-ID mismatches. Do not publish by skipping validation.
+
+### Admin diagnostics unavailable
+
+- `503`: configure `ADMIN_INGESTION_SECRET` or `REFRESH_SECRET` on the server.
+- `401`: provide the exact bearer or `x-admin-ingestion-secret` value.
+- Authorized but unavailable source: configure the Supabase URL and service key on the server.
+- Local development fallback: use a loopback URL and leave `ADMIN_INGESTION_FILESYSTEM_FALLBACK` unset or not equal to `false`. Only allowlisted file metadata is exposed.
+
+## Rollback
+
+### Stop new writes
+
+Disable the workflow before application or data rollback:
+
+```bash
+gh workflow disable autonomous-ingestion.yml
+```
+
+Confirm no accepted workflow or local coordinator is running. Wait for lease expiry or confirm clean release before starting replacement work.
+
+### Application and publication rollback
+
+1. Deploy the last known-good application commit.
+2. Revert the specific bot publication commit with a normal reviewed `git revert <commit>`, then push through the normal release process.
+3. Re-run artifact validation on the reverted publication.
+4. Keep durable run, event, evidence, and observation history for audit.
+
+Because the application still reads social JSON, reverting only application code without restoring compatible JSON can produce inconsistent graph behavior.
+
+### Database rollback
+
+Migration 008 has no down migration. The preferred rollback is schema-forward: stop the new writer and deploy the prior application while leaving the additive runtime schema and durable history in place.
+
+Do not drop migration 008 objects casually. It adds append-only triggers to `metric_observations`, service-role-only grants, source-key uniqueness, task status values, and foreign-key-connected audit tables. A destructive rollback requires a tested backup restore or a separately reviewed reverse migration, with writers stopped and retained evidence exported first.
+
+Reverting a publication commit does not delete durable observations. If a run imported bad evidence, preserve the run and mark or supersede data through a reviewed correction process; do not update or delete append-only metric observations.
+
+### Re-enable
+
+After diagnosis and a manual canary:
+
+```bash
+gh workflow enable autonomous-ingestion.yml
+```
+
+Observe the next accepted Central slot and verify the complete success criteria.
+
+## JSON retirement operations
+
+Do not stop JSON writes yet. The application dataset imports `public-evidence-current.json` and the three GitHub traction JSON files, and publication builds graph snapshots from that path.
+
+Before switching reads to Supabase, require:
+
+- a repeatable historical backfill with input hashes and run IDs;
+- durable-to-JSON parity for canonical keys, attributions, raw observations, scores, rankings, and coverage;
+- a database-backed graph reader exercised in shadow mode;
+- alerting on parity and unresolved attribution regressions;
+- a reversible application control for the read switch;
+- at least one full retention window of twice-daily successful dual writes;
+- a tested rollback to a prior durable run.
+
+After the database read path is authoritative, continue generating JSON as compatibility output until all consumers are identified and migrated. Retire source JSON imports separately from public graph JSON publication; those are different responsibilities.

@@ -16,8 +16,23 @@ const V4_MODEL_ID = "returner-traction";
 const V4_MODEL_VERSION = "4.0.0";
 
 vi.mock("@/components/CytoscapeGraph", () => ({
-  CytoscapeGraph: ({ nodes, focusedGroupPartners }: { nodes: GraphNode[]; focusedGroupPartners: string[] }) => (
-    <div data-testid="graph-canvas" data-focused-group-partners={focusedGroupPartners.join("|")}>
+  CytoscapeGraph: ({
+    nodes,
+    focusedPlatforms,
+    focusedIndustries,
+    focusedGroupPartners
+  }: {
+    nodes: GraphNode[];
+    focusedPlatforms: Platform[];
+    focusedIndustries: string[];
+    focusedGroupPartners: string[];
+  }) => (
+    <div
+      data-testid="graph-canvas"
+      data-focused-platforms={focusedPlatforms.join("|")}
+      data-focused-industries={focusedIndustries.join("|")}
+      data-focused-group-partners={focusedGroupPartners.join("|")}
+    >
       {nodes.map((node) => (
         <span key={node.id}>{node.label}</span>
       ))}
@@ -101,19 +116,21 @@ describe("dashboard filters", () => {
         "aria-checked",
         "true"
       );
-      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B A")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B A")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B B")).toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-industries", "fintech");
     });
 
     fireEvent.click(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i }));
     expect(within(groupPartnerGroup).getByRole("menuitemcheckbox", { name: /Partner A\s*\(2\)/i })).toBeInTheDocument();
-    const partnerAButton = within(groupPartnerGroup).getByRole("menuitemcheckbox", { name: /Partner A\s*\(2\)/i });
-    fireEvent.click(partnerAButton);
+    const partnerBButton = within(groupPartnerGroup).getByRole("menuitemcheckbox", { name: /Partner B\s*\(1\)/i });
+    fireEvent.click(partnerBButton);
 
     await waitFor(() => {
-      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B B")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B B")).toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
-      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-group-partners", "Partner A");
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-group-partners", "Partner B");
     });
   });
 
@@ -659,7 +676,8 @@ describe("dashboard filters", () => {
       await vi.advanceTimersByTimeAsync(0);
     });
     expect(within(screen.getByTestId("graph-canvas")).getByText("Static X Only")).toBeInTheDocument();
-    expect(within(screen.getByTestId("graph-canvas")).queryByText("GitHub Only")).not.toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("GitHub Only")).toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-platforms", "x");
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
     expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
 
@@ -790,6 +808,7 @@ describe("dashboard filters", () => {
     fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /^X$/i }));
 
     expect(new URLSearchParams(window.location.search).get("platforms")).toBe("x");
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-platforms", "x");
 
     fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /all platforms/i }));
     expect(new URLSearchParams(window.location.search).has("platforms")).toBe(false);

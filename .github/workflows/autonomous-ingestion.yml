@@ -1,0 +1,71 @@
+name: Autonomous Ingestion
+
+on:
+  schedule:
+    # Chicago alternates between UTC-6 and UTC-5. The resolver admits only the
+    # candidate that is actually 06:17 or 18:17 Central on that calendar day.
+    - cron: "17 0 * * *"
+    - cron: "17 11 * * *"
+    - cron: "17 12 * * *"
+    - cron: "17 23 * * *"
+  workflow_dispatch:
+    inputs:
+      replay_key:
+        description: Stable idempotency key for this manual replay
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: autonomous-ingestion
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve Central ingestion slot
+        id: schedule
+        env:
+          GITHUB_EVENT_SCHEDULE: ${{ github.event.schedule }}
+          INGESTION_REPLAY_KEY: ${{ inputs.replay_key }}
+        run: node scripts/lib/ingestion-schedule.mjs
+
+      - name: Use Node.js
+        if: steps.schedule.outputs.should_run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.schedule.outputs.should_run == 'true'
+        timeout-minutes: 10
+        run: npm ci
+
+      - name: Run autonomous ingestion
+        if: steps.schedule.outputs.should_run == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+          INGESTION_IDEMPOTENCY_KEY: ${{ steps.schedule.outputs.slot_key }}
+        run: |
+          : "${NEXT_PUBLIC_SUPABASE_URL:?NEXT_PUBLIC_SUPABASE_URL secret is required}"
+          : "${SUPABASE_SERVICE_ROLE_KEY:?SUPABASE_SERVICE_ROLE_KEY secret is required}"
+          node scripts/run-autonomous-ingestion.mjs --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"
+
+      - name: Validate generated public artifacts
+        if: steps.schedule.outputs.should_run == 'true'
+        run: npm run artifacts:validate

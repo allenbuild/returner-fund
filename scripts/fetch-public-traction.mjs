@@ -1,11 +1,16 @@
 import * as cheerio from "cheerio";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 const root = process.cwd();
-const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
-const outputPath = join(root, "src", "lib", "social", "public-evidence-current.json");
-const checkpointPath = join(root, "work", "public-traction-checkpoint.json");
+const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
+const batchSnapshotPath = batchConfig.snapshotPath;
+const outputPath = resolvePathArg(
+  stringArg("--output") ?? join(root, "src", "lib", "social", "public-evidence-current.json")
+);
+const checkpointPath = resolvePathArg(
+  stringArg("--checkpoint") ?? join(root, "work", `public-traction-checkpoint-${batchConfig.slug.toLowerCase()}.json`)
+);
 const now = new Date().toISOString();
 const companyLimit = numberArg("--max-companies") ?? Number.POSITIVE_INFINITY;
 const companyFilter = stringArg("--company")?.toLowerCase();
@@ -20,12 +25,16 @@ const platformFilter = new Set(
 const requestDelayMs = numberArg("--delay-ms") ?? 450;
 const workerCount = numberArg("--workers") ?? 8;
 const forceRefresh = hasArg("--force");
+const freshForHours = Math.max(0, numberArg("--fresh-for-hours") ?? 12);
 const discoverMissingSocial = hasArg("--discover-missing-social") || platformFilter.size > 0;
 const discoveryAttemptsPath = join(root, "outputs", "discovery-attempts-current.json");
 const sourceDiscoveryPathsPath = join(root, "outputs", "source-discovery-paths-current.json");
 
-const ycSnapshot = JSON.parse(await readFile(ycSnapshotPath, "utf8"));
-const currentBatchContext = batchContextFromSnapshot(ycSnapshot);
+const batchSnapshot = normalizeBatchSnapshot(
+  JSON.parse(await readFile(batchSnapshotPath, "utf8")),
+  batchConfig
+);
+const currentBatchContext = batchContextFromSnapshot(batchSnapshot);
 const currentOutput = await readJson(outputPath, { evidence: [], needsReview: [], failures: [] });
 const currentDiscoveryAttempts = await readJson(discoveryAttemptsPath, []);
 const currentSourceDiscoveryPaths = await readJson(sourceDiscoveryPathsPath, []);
@@ -45,7 +54,7 @@ const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkp
 const failures = dedupeFailures([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
 const discoveryAttempts = dedupeDiscoveryAttempts([...(currentDiscoveryAttempts ?? []), ...(checkpoint.discoveryAttempts ?? [])]);
 const sourceDiscoveryPaths = dedupeById([...(currentSourceDiscoveryPaths ?? []), ...(checkpoint.sourceDiscoveryPaths ?? [])]);
-const companyBySlug = new Map(ycSnapshot.companies.map((company) => [company.slug, company]));
+const companyBySlug = new Map(batchSnapshot.companies.map((company) => [company.slug, company]));
 let checkpointWriteChain = Promise.resolve();
 const platformCooldowns = new Map();
 const INGEST_METRIC_WEIGHTS = {
@@ -89,7 +98,7 @@ const COMMON_DESCRIPTOR_TOKENS = new Set([
   "world"
 ]);
 
-const companies = ycSnapshot.companies
+const companies = batchSnapshot.companies
   .filter(
     (company) =>
       !companyFilter ||
@@ -105,6 +114,8 @@ await runTaskPlan(taskPlan, workerCount);
 const payload = {
   source: {
     label: "Public unauthenticated platform/page ingestion",
+    batchSlug: batchConfig.slug,
+    batchLabel: batchConfig.label,
     fetchedAt: now,
     companiesAttemptedThisRun: companies.length,
     checkpointFlushOnly: taskPlan.length === 0,
@@ -132,7 +143,7 @@ const payload = {
       "Read-only public requests only.",
       "No account login, cookies, private APIs, browser sessions, or mutations.",
       "Blocked platforms are logged per company and do not fail the batch.",
-      "YC profile text is not used as traction evidence.",
+      "Batch profile text is not used as traction evidence.",
       ...(taskPlan.length === 0
         ? ["This write flushed the existing checkpoint to the app snapshot without making network requests."]
         : [])
@@ -249,11 +260,13 @@ async function attempt(platform, key, company, fn) {
   if (!platformAllowed(platform)) return;
   const normalizedPlatform = normalizePlatformArg(platform);
   const attemptKey = `${platform}:${key}`;
-  if (!forceRefresh && attemptMap.get(attemptKey)?.status === "done") return;
-  if (forceRefresh) removeCompanyPlatformRows(company, normalizedPlatform);
+  if (!forceRefresh && isFreshCompletedAttempt(attemptMap.get(attemptKey))) return;
 
   try {
     const result = await fn();
+    if (hasValidatedReplacement(result)) {
+      removeCompanyPlatformRows(company, normalizedPlatform);
+    }
     addItems(result?.evidence ?? [], evidence);
     addItems(result?.needsReview ?? [], needsReview);
     addItems(result?.failures ?? [], failures);
@@ -338,6 +351,10 @@ function summarizeConnectorResult(result) {
   };
 }
 
+function hasValidatedReplacement(result) {
+  return (result?.evidence?.length ?? 0) > 0;
+}
+
 async function attemptSocialProfile(company, entity, entityType, platform) {
   const url = entity.socialLinks?.[platform];
   const entityId = entityIdFor(company, entity, entityType);
@@ -398,11 +415,11 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
             usefulResultCount: verifiedPosts.length,
             selectedUrl: verifiedPosts[0]?.sourceUrl ?? candidates[0].url,
             status: verifiedPosts.length ? "partial_success" : "needs_review",
-            failureReason: verifiedPosts.length ? null : "No YC-linked URL; public search candidates require review."
+            failureReason: verifiedPosts.length ? null : "No batch-linked URL; public search candidates require review."
           })
         );
       } else {
-        failures.push(failure(platform, company, null, "No public URL linked from YC."));
+        failures.push(failure(platform, company, null, "No mapped public URL in the batch catalog."));
         discoveryAttempts.push(
           discoveryAttempt({
             company,
@@ -413,7 +430,7 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
             usefulResultCount: 0,
             selectedUrl: null,
             status: "skipped",
-            failureReason: "No public URL linked from YC."
+            failureReason: "No mapped public URL in the batch catalog."
           })
         );
       }
@@ -428,7 +445,7 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
       company,
       platform,
       url,
-      `YC-linked ${platform} URL points to a different platform host and was not scored.`,
+      `Batch-linked ${platform} URL points to a different platform host and was not scored.`,
       entityType,
       entityId,
       name
@@ -453,11 +470,13 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
   }
 
   const key = `${platform}:${entityType}:${entity.id ?? entity.slug}:${url}`;
-  if (!forceRefresh && attemptMap.get(key)?.status === "done") return;
-  if (forceRefresh) removeCompanyPlatformRows(company, platform);
+  if (!forceRefresh && isFreshCompletedAttempt(attemptMap.get(key))) return;
 
   try {
     const result = await ingestSocialProfile(company, entity, entityType, platform, url);
+    if (hasValidatedReplacement(result)) {
+      removeEntityPlatformRows(company, entityId, entityType, platform, url);
+    }
     addItems(result.evidence, evidence);
     addItems(result.needsReview, needsReview);
     addItems(result.failures, failures);
@@ -479,7 +498,7 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
     attemptMap.set(key, { status: "done", checkedAt: now });
   } catch (error) {
     recordPlatformCooldownIfNeeded(platform, error);
-    failures.push(failure(platform, company, url, errorMessage(error), entityType, name));
+    failures.push(failure(platform, company, url, errorMessage(error), entityType, name, entityId));
     discoveryAttempts.push(
       discoveryAttempt({
         company,
@@ -540,7 +559,7 @@ async function ingestWebsite(company) {
         metrics: {},
         contributionScore: 0,
         review_state: "verified",
-        matchReason: "Official company website from YC public profile. Stored as context only; not scored as traction."
+        matchReason: "Official company website from the batch profile. Stored as context only; not scored as traction."
       })
     ],
     needsReview: discoveredSocial.map((item) =>
@@ -653,7 +672,7 @@ async function ingestHackerNews(company) {
 }
 
 async function ingestYouTube(company) {
-  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${company.name} YC startup`)}`;
+  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${company.name} ${currentBatchContext.label}`)}`;
   const response = await fetchPublic(url);
   const html = await response.text();
   const results = parseYouTubeResults(html)
@@ -830,7 +849,7 @@ function socialDiscoveryQueries(company, platform, entity = null) {
     (alias) => `"${company.name}" "${alias}" ${platformLabel}`
   );
   const baseQueries = [
-    `"${company.name}" "Y Combinator" ${platformLabel}`,
+    `"${company.name}" "${currentBatchContext.organization}" ${platformLabel}`,
     ...batchQueries,
     `"${company.name}" ${site}`,
     `"${company.name}" "startup" ${platformLabel}`
@@ -854,7 +873,7 @@ function socialDiscoveryQueries(company, platform, entity = null) {
       ...entityQueries,
       `"${company.name}" site:x.com status`,
       `"${company.name}" site:twitter.com status`,
-      `"${company.name}" "YC" "x.com" status`
+      `"${company.name}" "${currentBatchContext.organization}" "x.com" status`
     ];
   }
 
@@ -961,7 +980,7 @@ function productHuntVerification(company, link, page) {
   }
 
   if (founderNameMentioned(company, combined)) {
-    return { verified: true, reason: "title matched and a YC-listed founder name appeared on the Product Hunt page" };
+    return { verified: true, reason: "title matched and a batch-listed founder name appeared on the Product Hunt page" };
   }
 
   const tokenMatches = companyDescriptorTokenMatches(company, combined);
@@ -1033,7 +1052,7 @@ function escapeRegExp(value) {
 }
 
 async function ingestNewsWeb(company) {
-  const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(`${company.name} YC startup`)}`;
+  const url = `https://duckduckgo.com/html/?q=${encodeURIComponent(`${company.name} ${currentBatchContext.label}`)}`;
   const response = await fetchPublic(url);
   const html = await response.text();
   const $ = cheerio.load(html);
@@ -1077,7 +1096,7 @@ async function ingestNewsWeb(company) {
 }
 
 async function ingestReddit(company) {
-  const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(`${company.name} YC`)}&limit=5&raw_json=1`;
+  const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(`${company.name} ${currentBatchContext.organization}`)}&limit=5&raw_json=1`;
   try {
     const response = await fetchPublic(url, { accept: "application/json" });
     const data = await response.json();
@@ -1116,7 +1135,9 @@ async function ingestReddit(company) {
       )
     };
   } catch (error) {
-    const page = await fetchReader(`https://www.reddit.com/search/?q=${encodeURIComponent(`${company.name} YC`)}`).catch(() => null);
+    const page = await fetchReader(
+      `https://www.reddit.com/search/?q=${encodeURIComponent(`${company.name} ${currentBatchContext.organization}`)}`
+    ).catch(() => null);
     return {
       failures: [
         failure(
@@ -1138,7 +1159,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
           company,
           platform,
           url,
-          `YC-linked ${platform} profile was blocked/login-walled, so public post-search fallback was attempted.`,
+          `Batch-linked ${platform} profile was blocked/login-walled, so public post-search fallback was attempted.`,
           entity,
           entityType
         )
@@ -1146,7 +1167,17 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     return {
       evidence: fallback.evidence,
       needsReview: fallback.needsReview,
-      failures: [failure(platform, company, url, "Public page blocked or login-walled.", entityType, entityName(entity, entityType))],
+      failures: [
+        failure(
+          platform,
+          company,
+          url,
+          "Public page blocked or login-walled.",
+          entityType,
+          entityName(entity, entityType),
+          entityIdFor(company, entity, entityType)
+        )
+      ],
       sourceDiscoveryPaths: fallback.sourceDiscoveryPaths
     };
   }
@@ -1295,7 +1326,7 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
             company,
             platform,
             candidate.url,
-            `Public ${platform} post candidate did not clearly match company name/domain plus YC/startup context.`
+            `Public ${platform} post candidate did not clearly match company name/domain plus batch/startup context.`
           )
         ]
       };
@@ -1317,7 +1348,7 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
           metrics,
           contributionScore: scoreMetrics(platform, metrics),
           review_state: "verified",
-          matchReason: `Verified public ${platform} post candidate from search results; company/domain and YC/startup context matched visible text.`
+          matchReason: `Verified public ${platform} post candidate from search results; company/domain and batch/startup context matched visible text.`
         })
       ]
     };
@@ -1374,7 +1405,9 @@ function isStrongSearchSnippetPostMatch(company, text) {
   if (hasSpecificCompanyName) return true;
   if (companyDomainMentioned(company, text)) return true;
   const hasFounderMatch = founderNameMentioned(company, text);
-  const hasStartupContext = /\b(YC|Y Combinator|startup|founder|co[- ]?founder|launch|product|app|AI|open[- ]?source)\b/i.test(text);
+  const hasStartupContext =
+    currentBatchContext.contextPattern.test(text) ||
+    /\b(startup|founder|co[- ]?founder|launch|product|app|AI|open[- ]?source)\b/i.test(text);
   return hasFounderMatch && hasStartupContext;
 }
 
@@ -1474,13 +1507,22 @@ function sourceDiscoveryPath({
   };
 }
 
-function failure(platform, company, url, message, entityType = "company", entityNameValue = company.name) {
+function failure(
+  platform,
+  company,
+  url,
+  message,
+  entityType = "company",
+  entityNameValue = company.name,
+  entityIdValue = companyId(company)
+) {
   return {
     id: stableId(`failure:${platform}:${company.slug}:${entityType}:${url ?? "none"}:${message}`),
     platform,
     companySlug: company.slug,
     companyName: company.name,
     entityType,
+    entityId: entityIdValue,
     entityName: entityNameValue,
     sourceUrl: url,
     message,
@@ -1494,11 +1536,11 @@ function selectedResultUrl(result) {
 
 function defaultQueryFor(company, platform) {
   if (platform === "product_hunt") return `${company.name} Product Hunt`;
-  if (platform === "youtube") return `${company.name} YC startup YouTube`;
+  if (platform === "youtube") return `${company.name} ${currentBatchContext.label} YouTube`;
   if (platform === "hacker_news") return `"${company.name}" ${currentBatchContext.label}`;
-  if (platform === "reddit") return `${company.name} YC reddit`;
+  if (platform === "reddit") return `${company.name} ${currentBatchContext.organization} reddit`;
   if (platform === "rss") return `${company.name} blog RSS`;
-  if (platform === "web") return `${company.name} YC startup`;
+  if (platform === "web") return `${company.name} ${currentBatchContext.label}`;
   return `${company.name} ${platform}`;
 }
 
@@ -1547,7 +1589,7 @@ async function fetchPublic(url, options = {}) {
     return await fetch(url, {
       signal: controller.signal,
       headers: {
-        "User-Agent": "YCNetworkIntelligence/0.1 read-only public ingestion",
+        "User-Agent": "ReturnerNetworkIntelligence/0.2 read-only public ingestion",
         Accept: options.accept ?? "text/html,application/xhtml+xml,application/xml,text/plain,application/json;q=0.9,*/*;q=0.8"
       }
     });
@@ -1922,7 +1964,9 @@ function isStrongPublicMatch(company, text, sourceUrl) {
   if (!hasCompanyMatch && !hasFounderMatch) return false;
   if (sourceUrl && isCompanyDomain(company, sourceUrl)) return true;
   if (companyDomainMentioned(company, text)) return true;
-  const hasStartupContext = /\b(YC|Y Combinator|startup|founder|co[- ]?founder|launch|product)\b/i.test(text);
+  const hasStartupContext =
+    currentBatchContext.contextPattern.test(text) ||
+    /\b(startup|founder|co[- ]?founder|launch|product)\b/i.test(text);
   return hasCompanyMatch ? hasStartupContext : hasFounderMatch && hasStartupContext;
 }
 
@@ -2145,6 +2189,25 @@ function removeCompanyPlatformRows(company, platform) {
   );
 }
 
+function removeEntityPlatformRows(company, entityId, entityType, platform, profileUrl) {
+  const matchesEntity = (item) =>
+    item.companySlug === company.slug &&
+    normalizePlatformArg(item.platform ?? item.discovered_platform) === platform &&
+    item.entityType === entityType &&
+    item.entityId === entityId;
+
+  removeMatching(evidence, matchesEntity);
+  removeMatching(needsReview, matchesEntity);
+  removeMatching(
+    failures,
+    (item) =>
+      item.companySlug === company.slug &&
+      normalizePlatformArg(item.platform) === platform &&
+      item.entityType === entityType &&
+      item.sourceUrl === profileUrl
+  );
+}
+
 function removeMatching(items, predicate) {
   for (let index = items.length - 1; index >= 0; index -= 1) {
     if (predicate(items[index])) {
@@ -2158,24 +2221,95 @@ function batchContextFromSnapshot(snapshot) {
     `${snapshot?.source?.label ?? ""} ${snapshot?.source?.directoryUrl ?? ""} ${snapshot?.source?.algoliaFilter ?? ""}`
   );
   const decodedSourceText = decodeURIComponent(sourceText);
+  const isA16zSpeedrun006 = /a16z\s+Speedrun\s+006|A16ZSR006/i.test(decodedSourceText);
   const isSummer2026 = /\bSummer\s+2026\b/i.test(decodedSourceText) || /\bS26\b/i.test(decodedSourceText);
   const isSpring2026 = /\bSpring\s+2026\b/i.test(decodedSourceText) || /\bS2026\b|\bP26\b/i.test(decodedSourceText);
-  const searchAliases = isSummer2026
-    ? ["YC Summer 2026", "Summer 2026", "YC S26"]
-    : isSpring2026
-      ? ["YC Spring 2026", "Spring 2026", "YC S2026", "YC P26"]
-      : ["Y Combinator"];
-  const contextAliases = isSummer2026
-    ? ["YC Summer 2026", "Summer 2026", "YC S26", "S26"]
-    : isSpring2026
-      ? ["YC Spring 2026", "Spring 2026", "YC S2026", "S2026", "YC P26", "P26"]
-      : ["Y Combinator"];
+  const searchAliases = isA16zSpeedrun006
+    ? ["a16z Speedrun 006", "a16z Speedrun", "Speedrun 006"]
+    : isSummer2026
+      ? ["YC Summer 2026", "Summer 2026", "YC S26"]
+      : isSpring2026
+        ? ["YC Spring 2026", "Spring 2026", "YC S2026", "YC P26"]
+        : ["Y Combinator"];
+  const contextAliases = isA16zSpeedrun006
+    ? ["a16z Speedrun 006", "a16z Speedrun", "Speedrun 006", "A16ZSR006", "a16z"]
+    : isSummer2026
+      ? ["YC Summer 2026", "Summer 2026", "YC S26", "S26"]
+      : isSpring2026
+        ? ["YC Spring 2026", "Spring 2026", "YC S2026", "S2026", "YC P26", "P26"]
+        : ["Y Combinator"];
 
   return {
     label: searchAliases[0],
+    organization: isA16zSpeedrun006 ? "a16z" : "Y Combinator",
     searchAliases,
     contextPattern: aliasPattern(contextAliases)
   };
+}
+
+function normalizeBatchSnapshot(snapshot, config) {
+  if (Array.isArray(snapshot?.companies)) return snapshot;
+  if (!Array.isArray(snapshot?.nodes)) {
+    throw new Error(`${config.snapshotPath} does not contain companies or graph nodes.`);
+  }
+
+  const companies = snapshot.nodes
+    .filter((node) => node?.entityType === "company" && node.entityId && node.label)
+    .map((node) => ({
+      id: node.entityId,
+      objectID: node.entityId,
+      slug: batchCompanySlug(node),
+      name: node.label,
+      batch: config.label,
+      ycProfileUrl: node.sourceUrl ?? node.ycProfileUrl ?? null,
+      websiteUrl: node.websiteUrl ?? null,
+      tagline: node.tagline ?? "",
+      description: node.description ?? "",
+      industry: node.primaryIndustry ?? null,
+      industries: node.industries ?? [],
+      tags: node.industries ?? [],
+      groupPartner: node.groupPartner ?? null,
+      socialLinks: socialLinksFromAccounts(node.socialAccounts),
+      founders: (node.founders ?? []).map((founder) => ({
+        id: founder.id,
+        slug: founder.id,
+        name: founder.name,
+        ycProfileUrl: founder.ycProfileUrl ?? null,
+        websiteUrl: founder.websiteUrl ?? null,
+        socialLinks: socialLinksFromAccounts(founder.socialAccounts)
+      })),
+      sourceUrls: [node.sourceUrl ?? node.ycProfileUrl, node.websiteUrl].filter(Boolean)
+    }));
+
+  return {
+    source: {
+      label: `${config.label} public graph catalog`,
+      directoryUrl: "https://speedrun.a16z.com/",
+      batchSlug: config.slug,
+      fetchedAt: snapshot.generatedAt ?? null
+    },
+    companies
+  };
+}
+
+function batchCompanySlug(node) {
+  try {
+    const parts = new URL(node.sourceUrl ?? node.ycProfileUrl).pathname.split("/").filter(Boolean);
+    const companiesIndex = parts.indexOf("companies");
+    if (companiesIndex >= 0 && parts[companiesIndex + 1]) return parts[companiesIndex + 1];
+  } catch {
+    // Fall back to the stable graph entity ID below.
+  }
+  return String(node.entityId).replace(/^a16z-speedrun-006-/, "");
+}
+
+function socialLinksFromAccounts(accounts) {
+  const links = {};
+  for (const account of accounts ?? []) {
+    const platform = normalizePlatformArg(account?.platform);
+    if (platform && account?.url && !links[platform]) links[platform] = account.url;
+  }
+  return links;
 }
 
 function aliasPattern(aliases) {
@@ -2361,6 +2495,49 @@ function stringArg(name) {
 
 function hasArg(name) {
   return process.argv.includes(name);
+}
+
+function isFreshCompletedAttempt(attempt) {
+  if (attempt?.status !== "done" || !attempt.checkedAt) return false;
+  const checkedAt = Date.parse(attempt.checkedAt);
+  if (!Number.isFinite(checkedAt)) return false;
+  return Date.now() - checkedAt < freshForHours * 60 * 60 * 1000;
+}
+
+function resolvePathArg(value) {
+  return resolve(root, value);
+}
+
+function resolveBatchConfig(value) {
+  const normalized = String(value ?? "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "");
+
+  if (["S26", "YCS26", "YCSUMMER2026", "SUMMER2026"].includes(normalized)) {
+    return {
+      slug: "S26",
+      label: "YC Summer 2026 (S26)",
+      snapshotPath: join(root, "src", "lib", "yc", "summer-2026-companies.json")
+    };
+  }
+
+  if (["S2026", "P26", "YCS2026", "YCP26", "YCSPRING2026", "SPRING2026"].includes(normalized)) {
+    return {
+      slug: "S2026",
+      label: "YC Spring 2026 (P26)",
+      snapshotPath: join(root, "src", "lib", "yc", "spring-2026-companies.json")
+    };
+  }
+
+  if (["A16ZSR006", "A16ZSPEEDRUN006", "SPEEDRUN006"].includes(normalized)) {
+    return {
+      slug: "A16ZSR006",
+      label: "a16z Speedrun 006",
+      snapshotPath: join(root, "public", "graph", "a16zsr006.json")
+    };
+  }
+
+  throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026, A16ZSR006.`);
 }
 
 function errorMessage(error) {

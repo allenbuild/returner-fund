@@ -2227,7 +2227,7 @@ function renderMarkdownReport(payload, auditSha256) {
     ""
   );
 
-  return `${lines.join("\n")}\n`;
+  return lines.join("\n");
 }
 
 async function buildInputHashManifest() {

@@ -6,7 +6,7 @@ import type { ComponentType } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type cytoscape from "cytoscape";
 import { buildClusterPositions, buildLabelPlacements, labelMaxWidthForNode, labelSizeForNode } from "@/lib/graph/layout";
-import type { BatchSummary, EdgeType, GraphEdge, GraphNode } from "@/lib/graph/types";
+import type { BatchSummary, EdgeType, GraphEdge, GraphNode, Platform } from "@/lib/graph/types";
 
 const CytoscapeComponent = dynamic(
   () => import("react-cytoscapejs").then((module) => module.default),
@@ -22,6 +22,8 @@ interface CytoscapeGraphProps {
   batch: BatchSummary;
   selectedNodeId: string | null;
   focusRevision: number;
+  focusedPlatforms: Platform[];
+  focusedIndustries: string[];
   focusedGroupPartners: string[];
   onSelectNode: (nodeId: string) => void;
 }
@@ -64,6 +66,9 @@ function rememberGraphIntroPlayed() {
 }
 
 function targetNodeOpacity(node: cytoscape.NodeSingular): number {
+  if (node.hasClass("partner-dimmed")) {
+    return 0.16;
+  }
   if (node.hasClass("selected")) {
     return 1;
   }
@@ -77,6 +82,9 @@ function targetNodeOpacity(node: cytoscape.NodeSingular): number {
 }
 
 function targetEdgeOpacity(edge: cytoscape.EdgeSingular): number {
+  if (edge.hasClass("partner-dimmed")) {
+    return 0.05;
+  }
   if (edge.hasClass("industry_similarity")) {
     return 0.25;
   }
@@ -100,11 +108,24 @@ function isUsableCy(cy: cytoscape.Core | null): cy is cytoscape.Core {
   }
 }
 
+function nodeMatchesFocusedPlatforms(node: GraphNode, focusedPlatforms: Set<Platform>): boolean {
+  const nodePlatforms = new Set<Platform>([
+    ...(Object.keys(node.platformScores) as Platform[]),
+    ...node.socialAccounts.map((account) => account.platform),
+    ...node.founders.flatMap((founder) => Object.keys(founder.platformScores) as Platform[]),
+    ...node.founders.flatMap((founder) => founder.socialAccounts.map((account) => account.platform))
+  ]);
+
+  return [...focusedPlatforms].some((platform) => nodePlatforms.has(platform));
+}
+
 export function CytoscapeGraph({
   nodes,
   edges,
   selectedNodeId,
   focusRevision,
+  focusedPlatforms,
+  focusedIndustries,
   focusedGroupPartners,
   onSelectNode
 }: CytoscapeGraphProps) {
@@ -119,7 +140,7 @@ export function CytoscapeGraph({
   const lastFitSignatureRef = useRef<string | null>(null);
   const suppressSelectedZoomUntilRef = useRef(0);
   const selectedNodeIdRef = useRef(selectedNodeId);
-  const lastGroupPartnerFocusRef = useRef<string | null>(null);
+  const lastCategoryFocusRef = useRef<string | null>(null);
   const [decluttered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cyReadyRevision, setCyReadyRevision] = useState(0);
@@ -140,9 +161,11 @@ export function CytoscapeGraph({
         : edges,
     [decluttered, edges]
   );
+  const focusedIndustrySet = useMemo(() => new Set(focusedIndustries), [focusedIndustries]);
   const focusedGroupPartnerSet = useMemo(() => new Set(focusedGroupPartners), [focusedGroupPartners]);
+  const focusedPlatformSet = useMemo(() => new Set(focusedPlatforms), [focusedPlatforms]);
   const focusedNodeIds = useMemo(() => {
-    if (focusedGroupPartnerSet.size === 0) {
+    if (focusedIndustrySet.size === 0 && focusedGroupPartnerSet.size === 0 && focusedPlatformSet.size === 0) {
       return new Set<string>();
     }
 
@@ -151,8 +174,10 @@ export function CytoscapeGraph({
         .filter(
           (node) =>
             node.entityType === "company" &&
-            Boolean(node.groupPartner) &&
-            focusedGroupPartnerSet.has(node.groupPartner as string)
+            (focusedPlatformSet.size === 0 || nodeMatchesFocusedPlatforms(node, focusedPlatformSet)) &&
+            (focusedIndustrySet.size === 0 || focusedIndustrySet.has(node.primaryIndustry)) &&
+            (focusedGroupPartnerSet.size === 0 ||
+              (Boolean(node.groupPartner) && focusedGroupPartnerSet.has(node.groupPartner as string)))
         )
         .map((node) => node.id)
     );
@@ -167,8 +192,9 @@ export function CytoscapeGraph({
       }
     }
     return associatedNodeIds;
-  }, [edges, focusedGroupPartnerSet, nodes]);
-  const groupPartnerFocusActive = focusedGroupPartnerSet.size > 0 && focusedNodeIds.size > 0;
+  }, [edges, focusedGroupPartnerSet, focusedIndustrySet, focusedPlatformSet, nodes]);
+  const categoryFocusActive =
+    focusedPlatformSet.size > 0 || focusedIndustrySet.size > 0 || focusedGroupPartnerSet.size > 0;
   const layout = useMemo(
     () => ({
       name: "preset",
@@ -212,8 +238,8 @@ export function CytoscapeGraph({
             `review-${node.review_state}`,
             decluttered && selectedNodeId !== node.id ? "decluttered" : "",
             selectedNodeId === node.id ? "selected" : "",
-            groupPartnerFocusActive && focusedNodeIds.has(node.id) ? "partner-focused" : "",
-            groupPartnerFocusActive && !focusedNodeIds.has(node.id) ? "partner-dimmed" : ""
+            categoryFocusActive && focusedNodeIds.has(node.id) ? "partner-focused" : "",
+            categoryFocusActive && !focusedNodeIds.has(node.id) ? "partner-dimmed" : ""
           ]
             .filter(Boolean)
             .join(" ")
@@ -237,10 +263,10 @@ export function CytoscapeGraph({
         },
         classes: [
           edge.edgeType,
-          groupPartnerFocusActive && focusedNodeIds.has(edge.source) && focusedNodeIds.has(edge.target)
+          categoryFocusActive && focusedNodeIds.has(edge.source) && focusedNodeIds.has(edge.target)
             ? "partner-focused"
             : "",
-          groupPartnerFocusActive && (!focusedNodeIds.has(edge.source) || !focusedNodeIds.has(edge.target))
+          categoryFocusActive && (!focusedNodeIds.has(edge.source) || !focusedNodeIds.has(edge.target))
             ? "partner-dimmed"
             : ""
         ]
@@ -248,7 +274,7 @@ export function CytoscapeGraph({
           .join(" ")
       }))
     ],
-    [decluttered, focusedNodeIds, groupPartnerFocusActive, nodes, positions, selectedNodeId, visibleEdges, labelPlacements]
+    [categoryFocusActive, decluttered, focusedNodeIds, nodes, positions, selectedNodeId, visibleEdges, labelPlacements]
   );
 
   const industryLegend = useMemo(() => {
@@ -375,8 +401,12 @@ export function CytoscapeGraph({
   }, [focusRevision]);
 
   useEffect(() => {
-    const focusSignature = [...focusedGroupPartnerSet].sort().join("|");
-    if (lastGroupPartnerFocusRef.current === focusSignature) return;
+    const focusSignature = [
+      `platforms:${[...focusedPlatformSet].sort().join("|")}`,
+      `industries:${[...focusedIndustrySet].sort().join("|")}`,
+      `partners:${[...focusedGroupPartnerSet].sort().join("|")}`
+    ].join(";");
+    if (lastCategoryFocusRef.current === focusSignature) return;
 
     let cancelled = false;
     let timeoutId: number | null = null;
@@ -389,14 +419,16 @@ export function CytoscapeGraph({
         return;
       }
 
-      lastGroupPartnerFocusRef.current = focusSignature;
+      lastCategoryFocusRef.current = focusSignature;
       cy.stop(true);
       suppressSelectedZoomUntilRef.current = performance.now() + 650;
       const focused = cy.nodes(".partner-focused");
-      const target = focusSignature && focused.length ? focused : cy.nodes();
+      const hasCategoryFocus =
+        focusedPlatformSet.size > 0 || focusedIndustrySet.size > 0 || focusedGroupPartnerSet.size > 0;
+      const target = hasCategoryFocus && focused.length ? focused : cy.nodes();
       if (!target.length) return;
       cy.animate(
-        { fit: { eles: target, padding: focusSignature ? 96 : Number(layout.padding) } },
+        { fit: { eles: target, padding: hasCategoryFocus ? 96 : Number(layout.padding) } },
         { duration: 520, easing: "ease-in-out" }
       );
     };
@@ -406,7 +438,7 @@ export function CytoscapeGraph({
       cancelled = true;
       if (timeoutId !== null) window.clearTimeout(timeoutId);
     };
-  }, [cyReadyRevision, focusedGroupPartnerSet, layout.padding]);
+  }, [cyReadyRevision, focusedGroupPartnerSet, focusedIndustrySet, focusedPlatformSet, layout.padding]);
 
   useEffect(() => {
     return () => {

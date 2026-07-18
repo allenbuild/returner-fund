@@ -98,14 +98,19 @@ describe("NodePanel", () => {
       contributionRows.map((row) => row.querySelector(".platform-identity > span")?.textContent)
     ).toEqual(["GitHub", "X", "LinkedIn", "Instagram"]);
     [
-      ["12.4 pts", "7 items"],
-      ["8.2 pts", "6 items"],
-      ["5.6 pts", "3 items"],
-      ["3.1 pts", "2 items"]
+      ["34.7 pts", "7 items"],
+      ["22.9 pts", "6 items"],
+      ["15.7 pts", "3 items"],
+      ["8.7 pts", "2 items"]
     ].forEach(([points, count], index) => {
       expect(contributionRows[index]).toHaveTextContent(points);
       expect(contributionRows[index]).toHaveTextContent(count);
     });
+    const displayedTotal = contributionRows.reduce((sum, row) => {
+      const value = Number.parseFloat(row.querySelector("strong")?.textContent ?? "0");
+      return sum + value;
+    }, 0);
+    expect(displayedTotal).toBe(82);
     expect(within(section!).queryByText("YouTube")).not.toBeInTheDocument();
     expect(within(section!).queryByText("Reddit")).not.toBeInTheDocument();
 
