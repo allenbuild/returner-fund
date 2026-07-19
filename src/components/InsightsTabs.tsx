@@ -4,6 +4,7 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  Database,
   Eye,
   GitFork,
   Heart,
@@ -30,22 +31,24 @@ import type {
 } from "@/lib/graph/types";
 import { formatPlatform, PlatformIdentity, PlatformLogo } from "./PlatformLogo";
 
-type TabKey = "overview" | "gaining";
+type TabKey = "overview" | "gaining" | "stats";
 type MomentumPeriod = "dod" | "wow";
 type OverviewSortKey = "rank" | "company";
 type SortDirection = "asc" | "desc";
 
 interface InsightsTabsProps {
   graph: GraphResponse;
+  statsGraph?: GraphResponse;
   onSelectNode: (nodeId: string) => void;
 }
 
 const tabs: { key: TabKey; label: string; icon: typeof Trophy }[] = [
   { key: "overview", label: "Overview", icon: Trophy },
-  { key: "gaining", label: "Hottest", icon: TrendingUp }
+  { key: "gaining", label: "Hottest", icon: TrendingUp },
+  { key: "stats", label: "Stats", icon: Database }
 ];
 
-export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
+export function InsightsTabs({ graph, statsGraph = graph, onSelectNode }: InsightsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [momentumPeriod, setMomentumPeriod] = useState<MomentumPeriod>("dod");
   const [overviewSort, setOverviewSort] = useState<{ key: OverviewSortKey; direction: SortDirection }>({
@@ -60,6 +63,7 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
     () => [...graph.leaderboard].sort(overviewRowSort(overviewSort)),
     [graph.leaderboard, overviewSort]
   );
+  const databaseStats = useMemo(() => buildDatabaseStats(statsGraph), [statsGraph]);
 
   function toggleOverviewSort(key: OverviewSortKey) {
     setOverviewSort((current) => ({
@@ -323,8 +327,241 @@ export function InsightsTabs({ graph, onSelectNode }: InsightsTabsProps) {
           </table>
         </div>
       )}
+
+      {activeTab === "stats" && (
+        <div
+          className="tab-body stats-tab-body"
+          id="insights-panel-stats"
+          role="tabpanel"
+          aria-labelledby="insights-tab-stats"
+        >
+          <section className="stats-overview" aria-labelledby="database-stats-title">
+            <header className="stats-header">
+              <div>
+                <h2 id="database-stats-title">Database growth</h2>
+                <p>{statsGraph.batch.label}</p>
+              </div>
+              <span>Updated {formatStatsTimestamp(statsGraph.generatedAt)}</span>
+            </header>
+
+            <div className="stats-primary-grid">
+              <StatMetric label="Sources" value={databaseStats.sourceCount} detail={`${databaseStats.sourcesLast7Days} added in 7 days`} />
+              <StatMetric label="Companies" value={databaseStats.companyCount} detail={`${databaseStats.companyCoverage}% have sources`} />
+              <StatMetric label="Founders" value={databaseStats.founderCount} detail={`${databaseStats.founderCoverage}% have sources`} />
+              <StatMetric label="New today" value={databaseStats.sourcesToday} detail="sources first seen" />
+            </div>
+
+            <div className="stats-growth-grid" aria-label="Daily database growth over the last 14 days">
+              <DailyGrowthCard label="Sources added" points={databaseStats.dailyGrowth} field="sources" total={databaseStats.sourceCount} />
+              <DailyGrowthCard label="Companies discovered" points={databaseStats.dailyGrowth} field="companies" total={databaseStats.companyCount} />
+              <DailyGrowthCard label="Founders discovered" points={databaseStats.dailyGrowth} field="founders" total={databaseStats.founderCount} />
+            </div>
+
+            <dl className="stats-detail-grid">
+              <StatDetail label="Platforms represented" value={databaseStats.platformCount} />
+              <StatDetail label="Verified source links" value={`${databaseStats.verifiedLinkRate}%`} />
+              <StatDetail label="Sources per company" value={databaseStats.sourcesPerCompany.toFixed(1)} />
+              <StatDetail label="Needs review" value={databaseStats.needsReviewCount} />
+            </dl>
+          </section>
+        </div>
+      )}
     </section>
   );
+}
+
+type DailyGrowthField = "sources" | "companies" | "founders";
+
+interface DailyGrowthPoint {
+  dayKey: string;
+  label: string;
+  sources: number;
+  companies: number;
+  founders: number;
+}
+
+interface DatabaseStats {
+  sourceCount: number;
+  companyCount: number;
+  founderCount: number;
+  sourcesToday: number;
+  sourcesLast7Days: number;
+  companyCoverage: number;
+  founderCoverage: number;
+  platformCount: number;
+  verifiedLinkRate: number;
+  sourcesPerCompany: number;
+  needsReviewCount: number;
+  dailyGrowth: DailyGrowthPoint[];
+}
+
+function StatMetric({ label, value, detail }: { label: string; value: number; detail: string }) {
+  return (
+    <article className="stats-metric">
+      <span>{label}</span>
+      <strong>{value.toLocaleString()}</strong>
+      <small>{detail}</small>
+    </article>
+  );
+}
+
+function StatDetail({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{typeof value === "number" ? value.toLocaleString() : value}</dd>
+    </div>
+  );
+}
+
+function DailyGrowthCard({
+  label,
+  points,
+  field,
+  total
+}: {
+  label: string;
+  points: DailyGrowthPoint[];
+  field: DailyGrowthField;
+  total: number;
+}) {
+  const maximum = Math.max(1, ...points.map((point) => point[field]));
+  const periodTotal = points.reduce((sum, point) => sum + point[field], 0);
+
+  return (
+    <article className={`stats-growth-card stats-growth-${field}`}>
+      <header>
+        <div>
+          <span>{label}</span>
+          <strong>+{periodTotal.toLocaleString()}</strong>
+        </div>
+        <small>{total.toLocaleString()} total</small>
+      </header>
+      <div
+        className="stats-bars"
+        role="img"
+        aria-label={`${label} by day for the last 14 days. ${periodTotal.toLocaleString()} added.`}
+      >
+        {points.map((point) => {
+          const value = point[field];
+          return (
+            <span className="stats-bar-slot" key={point.dayKey} title={`${point.label}: ${value.toLocaleString()}`}>
+              <span className="stats-bar" style={{ height: `${Math.max(value > 0 ? 8 : 2, (value / maximum) * 100)}%` }} />
+            </span>
+          );
+        })}
+      </div>
+      <footer>
+        <span>{points[0]?.label}</span>
+        <span>{points.at(-1)?.label}</span>
+      </footer>
+    </article>
+  );
+}
+
+function buildDatabaseStats(graph: GraphResponse): DatabaseStats {
+  const companyNodes = graph.nodes.filter((node) => node.entityType === "company");
+  const companyIds = new Set(companyNodes.map((node) => node.entityId));
+  const founderIds = new Set(companyNodes.flatMap((node) => node.founders.map((founder) => founder.id)));
+  const companyFirstSeen = new Map<string, number>();
+  const founderFirstSeen = new Map<string, number>();
+  const sourceDates = graph.evidence
+    .map((item) => ({ item, timestamp: statsTimestamp(item.first_seen_at ?? item.observedAt ?? null) }))
+    .filter((entry): entry is { item: EvidenceItem; timestamp: number } => entry.timestamp !== null);
+
+  for (const { item, timestamp } of sourceDates) {
+    if (item.entityType === "company") {
+      setEarliest(companyFirstSeen, item.entityId, timestamp);
+    } else {
+      setEarliest(founderFirstSeen, item.entityId, timestamp);
+    }
+    if (item.attachedCompanyId) {
+      setEarliest(companyFirstSeen, item.attachedCompanyId, timestamp);
+    }
+  }
+
+  const generatedTimestamp = statsTimestamp(graph.generatedAt);
+  const latestSourceTimestamp = sourceDates.reduce((latest, entry) => Math.max(latest, entry.timestamp), 0);
+  const anchorTimestamp = generatedTimestamp ?? (latestSourceTimestamp || Date.now());
+  const anchorDate = startUtcDay(anchorTimestamp);
+  const dailyGrowth = Array.from({ length: 14 }, (_, index) => {
+    const date = new Date(anchorDate);
+    date.setUTCDate(anchorDate.getUTCDate() - (13 - index));
+    return {
+      dayKey: date.toISOString().slice(0, 10),
+      label: date.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" }),
+      sources: 0,
+      companies: 0,
+      founders: 0
+    } satisfies DailyGrowthPoint;
+  });
+  const pointsByDay = new Map(dailyGrowth.map((point) => [point.dayKey, point]));
+
+  for (const { timestamp } of sourceDates) {
+    const point = pointsByDay.get(dayKey(timestamp));
+    if (point) point.sources += 1;
+  }
+  for (const timestamp of companyFirstSeen.values()) {
+    const point = pointsByDay.get(dayKey(timestamp));
+    if (point) point.companies += 1;
+  }
+  for (const timestamp of founderFirstSeen.values()) {
+    const point = pointsByDay.get(dayKey(timestamp));
+    if (point) point.founders += 1;
+  }
+
+  const verifiedLinks = graph.evidence.filter((item) => item.linkStatus === "verified").length;
+  const platforms = new Set(graph.evidence.map((item) => item.platform));
+
+  return {
+    sourceCount: graph.evidence.length,
+    companyCount: companyIds.size,
+    founderCount: founderIds.size,
+    sourcesToday: dailyGrowth.at(-1)?.sources ?? 0,
+    sourcesLast7Days: dailyGrowth.slice(-7).reduce((sum, point) => sum + point.sources, 0),
+    companyCoverage: percentage(companyFirstSeen.size, companyIds.size),
+    founderCoverage: percentage(founderFirstSeen.size, founderIds.size),
+    platformCount: platforms.size,
+    verifiedLinkRate: percentage(verifiedLinks, graph.evidence.length),
+    sourcesPerCompany: companyIds.size ? graph.evidence.length / companyIds.size : 0,
+    needsReviewCount: graph.needsReview.length,
+    dailyGrowth
+  };
+}
+
+function statsTimestamp(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function setEarliest(target: Map<string, number>, id: string, timestamp: number) {
+  const current = target.get(id);
+  if (current === undefined || timestamp < current) target.set(id, timestamp);
+}
+
+function startUtcDay(timestamp: number): Date {
+  const date = new Date(timestamp);
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function dayKey(timestamp: number): string {
+  return new Date(timestamp).toISOString().slice(0, 10);
+}
+
+function percentage(numerator: number, denominator: number): number {
+  return denominator ? Math.round((numerator / denominator) * 100) : 0;
+}
+
+function formatStatsTimestamp(value: string): string {
+  const timestamp = statsTimestamp(value);
+  if (timestamp === null) return "recently";
+  return new Date(timestamp).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
 }
 
 function SortIcon({ active, direction }: { active: boolean; direction: SortDirection }) {

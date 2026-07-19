@@ -1,9 +1,12 @@
 import { Dashboard } from "@/components/Dashboard";
 import type { Metadata } from "next";
-import type { Platform } from "@/lib/graph/types";
+import { HomeDiscovery } from "@/components/seo/HomeDiscovery";
+import { findCohort, getCatalog, type PublicCohort } from "@/lib/seo/catalog";
+import { publicMetadata, SITE_NAME, truncateDescription } from "@/lib/seo/site";
+import type { Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
 
-const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
+const DEFAULT_BATCH_SLUG = "S2026";
 const queryPlatforms: Platform[] = [
   "github",
   "x",
@@ -26,27 +29,80 @@ interface PageProps {
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const params = (await searchParams) ?? {};
-  const batchSlug = singleQueryValue(params.batch);
+  const cohort = selectedCohort(singleQueryValue(params.batch));
+  const isQueryView = Object.values(params).some((value) => value !== undefined);
+  const description = truncateDescription(
+    `${cohort.label} startup traction map with ${cohort.companies.length} companies and ${cohort.evidenceCount.toLocaleString("en-US")} public evidence records.`
+  );
+
+  const metadata = publicMetadata({
+    title: isQueryView ? `${cohort.label} traction map | ${SITE_NAME}` : `Startup traction intelligence | ${SITE_NAME}`,
+    description: isQueryView ? description : "Explore public startup traction across accelerator cohorts, founders, industries, and social platforms.",
+    path: isQueryView ? `/cohorts/${cohort.slug}` : "/",
+    index: !isQueryView
+  });
 
   return {
-    title: batchSlug === A16Z_SPEEDRUN_BATCH_SLUG ? "a16z Network Map" : "YC Network Map"
+    ...metadata,
+    robots: {
+      index: !isQueryView,
+      follow: true,
+      googleBot: {
+        index: !isQueryView,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1
+      }
+    }
   };
 }
 
 export default async function Home({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
-  const batchSlug = singleQueryValue(params.batch);
+  const cohort = selectedCohort(singleQueryValue(params.batch));
   const platforms = parsePlatformList(singleQueryValue(params.platforms));
   const topVoices = normalizeTopVoiceAudienceId(singleQueryValue(params.topVoices));
 
   return (
-    <Dashboard
-      initialBatchSlug={batchSlug}
-      initialTopVoiceAudience={topVoices}
-      initialFilters={{ platforms }}
+    <HomeContent
+      selectedBatchSlug={cohort.batchSlug}
+      platforms={platforms}
+      topVoices={topVoices}
       manualRefreshEnabled={process.env.NODE_ENV !== "production"}
     />
   );
+}
+
+function HomeContent({
+  selectedBatchSlug,
+  platforms,
+  topVoices,
+  manualRefreshEnabled
+}: {
+  selectedBatchSlug: string;
+  platforms: Platform[];
+  topVoices: TopVoiceAudienceId;
+  manualRefreshEnabled: boolean;
+}) {
+  return (
+    <>
+      <Dashboard
+        initialBatchSlug={selectedBatchSlug}
+        initialTopVoiceAudience={topVoices}
+        initialFilters={{ platforms }}
+        manualRefreshEnabled={manualRefreshEnabled}
+      />
+      <HomeDiscovery selectedBatchSlug={selectedBatchSlug} />
+    </>
+  );
+}
+
+function selectedCohort(batchSlug: string | undefined): PublicCohort {
+  const catalog = getCatalog();
+  return findCohort(batchSlug ?? DEFAULT_BATCH_SLUG) ??
+    findCohort(DEFAULT_BATCH_SLUG) ??
+    catalog.cohorts[0];
 }
 
 function singleQueryValue(value: string | string[] | undefined): string | undefined {

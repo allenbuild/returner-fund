@@ -3,10 +3,12 @@
 import {
   Check,
   ChevronDown,
+  Copy,
   Filter,
   Palette,
   RefreshCw,
   Search,
+  Share2,
   Users
 } from "lucide-react";
 import Image from "next/image";
@@ -23,6 +25,7 @@ import { CytoscapeGraph } from "./CytoscapeGraph";
 import { InsightsTabs } from "./InsightsTabs";
 import { NodePanel } from "./NodePanel";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
+import { trackAnalyticsEvent, type AnalyticsEventPayloads } from "@/lib/analytics";
 import { applyClientGraphFilters, type ClientGraphFilters } from "@/lib/graph/client-filters";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
@@ -72,6 +75,8 @@ const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
 const STATIC_GRAPH_TIMEOUT_MS = 8_000;
 const API_GRAPH_TIMEOUT_MS = 20_000;
 const REFRESH_TIMEOUT_MS = 45_000;
+const BACKGROUND_REVALIDATION_DELAY_MS = 30_000;
+const SCOPE_TRANSITION_MINIMUM_MS = 450;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
 
@@ -307,6 +312,22 @@ function initialSelectedPlatforms(initialFilters: Partial<ClientGraphFilters> | 
   return normalizeInitialPlatforms(initialFilters?.platforms);
 }
 
+function normalizeInitialList(values: string[] | undefined): string[] {
+  return [...new Set((values ?? []).map((value) => value.trim()).filter(Boolean))];
+}
+
+function queryList(params: URLSearchParams, key: string): string[] {
+  return normalizeInitialList(params.get(key)?.split(",")).slice(0, 50);
+}
+
+function setUrlParameter(url: URL, key: string, value: string | null): void {
+  if (value) {
+    url.searchParams.set(key, value);
+  } else {
+    url.searchParams.delete(key);
+  }
+}
+
 function normalizeBatchSlug(value: string | null | undefined): string | null {
   const slug = String(value ?? "").trim();
   return defaultBatches.some((batch) => batch.slug === slug) ? slug : null;
@@ -427,8 +448,8 @@ export function Dashboard({
   );
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(initialGraph));
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(() => initialSelectedPlatforms(initialFilters));
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
-  const [selectedGroupPartners, setSelectedGroupPartners] = useState<string[]>([]);
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>(() => normalizeInitialList(initialFilters?.industries));
+  const [selectedGroupPartners, setSelectedGroupPartners] = useState<string[]>(() => normalizeInitialList(initialFilters?.groupPartners));
   const [minScore, setMinScore] = useState(initialFilters?.minScore ?? 0);
   const [minScoreDraft, setMinScoreDraft] = useState(initialFilters?.minScore ?? 0);
   const [graphFocusRevision, setGraphFocusRevision] = useState(0);
@@ -437,14 +458,18 @@ export function Dashboard({
   const [openFilterMenu, setOpenFilterMenu] = useState<FilterMenuId | null>(null);
   const [highlightedFounderId, setHighlightedFounderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(!initialGraph);
+  const [scopeTransitioning, setScopeTransitioning] = useState(false);
   const [actionLoading, setActionLoading] = useState<"ingest" | "refresh" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [refreshNotice, setRefreshNotice] = useState<string | null>(null);
+  const [urlStateHydrated, setUrlStateHydrated] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterBandRef = useRef<HTMLElement | null>(null);
   const dashboardGridRef = useRef<HTMLElement | null>(null);
   const graphRequestIdRef = useRef(0);
+  const scopeTransitionTimerRef = useRef<number | null>(null);
   const graphFetchSequenceRef = useRef(0);
   const latestGraphFetchIdRef = useRef<Map<string, number>>(new Map());
   const graphInFlightRef = useRef<Map<string, InFlightGraphRequest>>(new Map());
@@ -452,6 +477,7 @@ export function Dashboard({
   const activeActionAbortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef({ batchSlug, topVoiceAudience });
   const initialGraphHydratedRef = useRef(Boolean(initialGraph));
+  const lastSubmittedQueryRef = useRef("");
   const currentFilters = useMemo<ClientGraphFilters>(
     () => ({
       platforms: selectedPlatforms,
@@ -470,6 +496,30 @@ export function Dashboard({
   useEffect(() => {
     selectionRef.current = { batchSlug, topVoiceAudience };
   }, [batchSlug, topVoiceAudience]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("industries")) {
+        setSelectedIndustries(queryList(params, "industries"));
+      }
+      if (params.has("groupPartners")) {
+        setSelectedGroupPartners(queryList(params, "groupPartners"));
+      }
+      const urlMinScore = params.get("minScore");
+      if (urlMinScore !== null) {
+        const normalizedScore = clampScore(Number(urlMinScore) || 0);
+        setMinScore(normalizedScore);
+        setMinScoreDraft(normalizedScore);
+      }
+      const urlNodeId = params.get("node")?.trim();
+      if (urlNodeId) {
+        setSelectedNodeId(urlNodeId.slice(0, 300));
+      }
+      setUrlStateHydrated(true);
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   const rememberGraph = useCallback((payload: GraphResponse, source: GraphPayloadSource = "api") => {
     graphCacheRef.current.set(
@@ -514,6 +564,17 @@ export function Dashboard({
       currentSelection.topVoiceAudience === targetTopVoiceAudience
     ) {
       return;
+    }
+
+    if (currentSelection.batchSlug !== targetBatchSlug) {
+      if (scopeTransitionTimerRef.current !== null) {
+        window.clearTimeout(scopeTransitionTimerRef.current);
+      }
+      setScopeTransitioning(true);
+      scopeTransitionTimerRef.current = window.setTimeout(() => {
+        setScopeTransitioning(false);
+        scopeTransitionTimerRef.current = null;
+      }, SCOPE_TRANSITION_MINIMUM_MS);
     }
 
     abortGraphRequestsExcept(graphCacheKey(targetBatchSlug, targetTopVoiceAudience));
@@ -698,6 +759,9 @@ export function Dashboard({
 
   useEffect(() => {
     return () => {
+      if (scopeTransitionTimerRef.current !== null) {
+        window.clearTimeout(scopeTransitionTimerRef.current);
+      }
       invalidateGraphRequests();
       actionRequestIdRef.current += 1;
       activeActionAbortRef.current?.abort();
@@ -747,8 +811,10 @@ export function Dashboard({
       setLoading(false);
 
       if (cachedEntry?.source === "static") {
-        void fetchGraph({ background: true, forceApi: true, unfiltered: true });
-        return;
+        const timeoutId = window.setTimeout(() => {
+          void fetchGraph({ background: true, forceApi: true, unfiltered: true });
+        }, BACKGROUND_REVALIDATION_DELAY_MS);
+        return () => window.clearTimeout(timeoutId);
       }
 
       if (
@@ -760,7 +826,7 @@ export function Dashboard({
         initialGraphHydratedRef.current = false;
         const timeoutId = window.setTimeout(() => {
           void fetchGraph({ background: true, forceApi: true, unfiltered: true });
-        }, 1400);
+        }, BACKGROUND_REVALIDATION_DELAY_MS);
         return () => window.clearTimeout(timeoutId);
       }
       return;
@@ -771,25 +837,10 @@ export function Dashboard({
   }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, initialGraph, topVoiceAudience]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
     const url = new URL(window.location.href);
-    if (batchSlug === DEFAULT_BATCH_SLUG) {
-      url.searchParams.delete("batch");
-    } else {
-      url.searchParams.set("batch", batchSlug);
-    }
-    if (topVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE) {
-      url.searchParams.delete("topVoices");
-    } else {
-      url.searchParams.set("topVoices", topVoiceAudience);
-    }
-    if (selectedPlatforms.length === 0) {
-      url.searchParams.delete("platforms");
-    } else {
-      url.searchParams.set("platforms", selectedPlatforms.join(","));
-    }
+    setUrlParameter(url, "batch", batchSlug === DEFAULT_BATCH_SLUG ? null : batchSlug);
+    setUrlParameter(url, "topVoices", topVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? null : topVoiceAudience);
+    setUrlParameter(url, "platforms", selectedPlatforms.length ? selectedPlatforms.join(",") : null);
 
     const nextLocation = `${url.pathname}${url.search}${url.hash}`;
     const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -799,6 +850,7 @@ export function Dashboard({
   }, [batchSlug, selectedPlatforms, topVoiceAudience]);
 
   const settledGraph = graphMatchesSelection(graph, batchSlug, topVoiceAudience) ? graph : null;
+  const graphBusy = loading || scopeTransitioning;
   const graphScopeMismatch = graph !== null && settledGraph === null;
   const scopedFilterMetadataGraph = graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
     ? filterMetadataGraph
@@ -826,6 +878,35 @@ export function Dashboard({
     }
     return initialSelectedNodeId(mapGraph);
   }, [mapGraph, selectedNodeId]);
+
+  useEffect(() => {
+    if (!urlStateHydrated) {
+      return;
+    }
+    const url = new URL(window.location.href);
+    setUrlParameter(url, "batch", batchSlug === DEFAULT_BATCH_SLUG ? null : batchSlug);
+    setUrlParameter(url, "topVoices", topVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? null : topVoiceAudience);
+    setUrlParameter(url, "platforms", selectedPlatforms.length ? selectedPlatforms.join(",") : null);
+    setUrlParameter(url, "industries", selectedIndustries.length ? selectedIndustries.join(",") : null);
+    setUrlParameter(url, "groupPartners", selectedGroupPartners.length ? selectedGroupPartners.join(",") : null);
+    setUrlParameter(url, "minScore", minScore > 0 ? String(minScore) : null);
+    setUrlParameter(url, "node", activeSelectedNodeId);
+
+    const nextLocation = `${url.pathname}${url.search}${url.hash}`;
+    const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (nextLocation !== currentLocation) {
+      window.history.replaceState(window.history.state, "", nextLocation);
+    }
+  }, [
+    activeSelectedNodeId,
+    batchSlug,
+    minScore,
+    selectedGroupPartners,
+    selectedIndustries,
+    selectedPlatforms,
+    topVoiceAudience,
+    urlStateHydrated
+  ]);
 
   const selectedNode = useMemo(
     () => settledGraph ? mapGraph?.nodes.find((node) => node.id === activeSelectedNodeId) ?? null : null,
@@ -860,18 +941,23 @@ export function Dashboard({
     return [];
   }, [selectedNode, settledGraph]);
 
-  const selectNode = useCallback((nodeId: string) => {
-    if (!mapGraph?.nodes.some((node) => node.id === nodeId)) {
+  const selectNode = useCallback((nodeId: string, source: "graph" | "leaderboard" = "graph") => {
+    const node = mapGraph?.nodes.find((candidate) => candidate.id === nodeId);
+    if (!node) {
       return;
     }
     setSelectedNodeId(nodeId);
     setHighlightedFounderId(null);
     setGraphFocusRevision((current) => current + 1);
+    trackAnalyticsEvent("graph_node_opened", {
+      node_type: node.entityType,
+      source
+    });
   }, [mapGraph]);
 
   const selectRankedNode = useCallback(
     (nodeId: string) => {
-      selectNode(nodeId);
+      selectNode(nodeId, "leaderboard");
       window.requestAnimationFrame(() => {
         dashboardGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
@@ -879,15 +965,37 @@ export function Dashboard({
     [selectNode]
   );
 
-  const selectSearchResult = useCallback((result: GraphSearchResult) => {
-    if (!mapGraph?.nodes.some((node) => node.id === result.companyNodeId)) {
+  const submitSearchTelemetry = useCallback(() => {
+    const normalizedQuery = focusQuery.trim();
+    if (!normalizedQuery || lastSubmittedQueryRef.current === normalizedQuery) {
       return;
     }
+    lastSubmittedQueryRef.current = normalizedQuery;
+    trackAnalyticsEvent("search_submitted", {
+      result_count: searchResults.length,
+      has_results: searchResults.length > 0
+    });
+  }, [focusQuery, searchResults.length]);
+
+  const selectSearchResult = useCallback((result: GraphSearchResult) => {
+    const node = mapGraph?.nodes.find((candidate) => candidate.id === result.companyNodeId);
+    if (!node) {
+      return;
+    }
+    submitSearchTelemetry();
+    trackAnalyticsEvent("result_opened", {
+      result_type: result.kind,
+      position: Math.max(0, searchResults.findIndex((candidate) => candidate === result)) + 1
+    });
+    trackAnalyticsEvent("graph_node_opened", {
+      node_type: node.entityType,
+      source: "search"
+    });
     setSelectedNodeId(result.companyNodeId);
     setHighlightedFounderId(result.kind === "founder" ? result.id : null);
     setSearchOpen(false);
     setGraphFocusRevision((current) => current + 1);
-  }, [mapGraph]);
+  }, [mapGraph, searchResults, submitSearchTelemetry]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1077,29 +1185,88 @@ export function Dashboard({
   }
 
   function togglePlatform(platform: Platform) {
-    setSelectedPlatforms((current) =>
-      current.includes(platform)
-        ? current.filter((item) => item !== platform)
-        : [...current, platform]
-    );
+    const removing = selectedPlatforms.includes(platform);
+    const next = removing ? selectedPlatforms.filter((item) => item !== platform) : [...selectedPlatforms, platform];
+    setSelectedPlatforms(next);
+    trackFilterChange("platform", removing ? "removed" : "added", next.length);
   }
 
   function toggleIndustry(industry: string) {
-    setSelectedIndustries((current) =>
-      current.includes(industry) ? current.filter((item) => item !== industry) : [...current, industry]
-    );
+    const removing = selectedIndustries.includes(industry);
+    const next = removing ? selectedIndustries.filter((item) => item !== industry) : [...selectedIndustries, industry];
+    setSelectedIndustries(next);
+    trackFilterChange("industry", removing ? "removed" : "added", next.length);
   }
 
   function toggleGroupPartner(groupPartner: string) {
-    setSelectedGroupPartners((current) =>
-      current.includes(groupPartner) ? current.filter((item) => item !== groupPartner) : [...current, groupPartner]
-    );
+    const removing = selectedGroupPartners.includes(groupPartner);
+    const next = removing
+      ? selectedGroupPartners.filter((item) => item !== groupPartner)
+      : [...selectedGroupPartners, groupPartner];
+    setSelectedGroupPartners(next);
+    trackFilterChange("group_partner", removing ? "removed" : "added", next.length);
   }
 
   function commitMinScore(value: number) {
     const nextScore = clampScore(value);
     setMinScoreDraft(nextScore);
-    setMinScore((current) => (current === nextScore ? current : nextScore));
+    if (minScore !== nextScore) {
+      setMinScore(nextScore);
+      trackFilterChange("min_score", nextScore === 0 ? "cleared" : "set", nextScore === 0 ? 0 : 1);
+    }
+  }
+
+  function trackFilterChange(
+    filter: AnalyticsEventPayloads["filter_changed"]["filter"],
+    action: AnalyticsEventPayloads["filter_changed"]["action"],
+    selectionCount: number
+  ) {
+    trackAnalyticsEvent("filter_changed", { filter, action, selection_count: selectionCount });
+  }
+
+  function clearFilter(filter: "platform" | "industry" | "group_partner") {
+    const selectedCount = filter === "platform"
+      ? selectedPlatforms.length
+      : filter === "industry"
+        ? selectedIndustries.length
+        : selectedGroupPartners.length;
+    if (selectedCount > 0) {
+      trackFilterChange(filter, "cleared", 0);
+    }
+    if (filter === "platform") setSelectedPlatforms([]);
+    if (filter === "industry") setSelectedIndustries([]);
+    if (filter === "group_partner") setSelectedGroupPartners([]);
+  }
+
+  function shareEventContext() {
+    return {
+      included_filters: hasClientGraphFilters(currentFilters) || selectedIndustries.length > 0 || selectedGroupPartners.length > 0,
+      included_node: Boolean(activeSelectedNodeId)
+    };
+  }
+
+  async function copyViewLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setLinkCopied(true);
+      window.setTimeout(() => setLinkCopied(false), 2_000);
+      trackAnalyticsEvent("share_copied", { method: "clipboard", ...shareEventContext() });
+    } catch {
+      // Clipboard permissions can be denied; leave the dashboard unchanged.
+    }
+  }
+
+  async function shareView() {
+    if (typeof navigator.share !== "function") {
+      await copyViewLink();
+      return;
+    }
+    try {
+      await navigator.share({ title: brandTitle, url: window.location.href });
+      trackAnalyticsEvent("social_share", { method: "native", ...shareEventContext() });
+    } catch {
+      // Cancellation and platform share failures are intentionally not tracked.
+    }
   }
 
   const visibleCompanyCount = mapGraph?.nodes.filter((node) => node.entityType === "company").length ?? 0;
@@ -1146,22 +1313,38 @@ export function Dashboard({
         </div>
 
         <div className="focus-search">
-          <Search size={17} />
+          <Search size={17} aria-hidden="true" />
           <input
             ref={searchInputRef}
+            aria-autocomplete="list"
+            aria-controls="dashboard-search-results"
+            aria-expanded={searchOpen && Boolean(focusQuery.trim())}
+            aria-label="Search companies and founders"
+            role="combobox"
             value={focusQuery}
             onFocus={() => setSearchOpen(true)}
             onChange={(event) => {
               setFocusQuery(event.target.value);
               setSearchOpen(true);
             }}
-            placeholder="Jump to company or founder"
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                submitSearchTelemetry();
+              }
+            }}
+            placeholder="Search companies and founders"
           />
           <kbd>Ctrl K</kbd>
           {searchOpen && focusQuery.trim() && (
-            <div className="focus-search-results">
+            <div className="focus-search-results" id="dashboard-search-results" role="listbox">
               {searchResults.map((result) => (
-                <button type="button" key={`${result.kind}:${result.id}`} onClick={() => selectSearchResult(result)}>
+                <button
+                  type="button"
+                  key={`${result.kind}:${result.id}`}
+                  onClick={() => selectSearchResult(result)}
+                  role="option"
+                  aria-selected="false"
+                >
                   <span>{result.label}</span>
                   <small>{result.subtitle}</small>
                 </button>
@@ -1179,6 +1362,9 @@ export function Dashboard({
                 value={batchSlug}
                 onChange={(event) => {
                   const nextBatchSlug = event.target.value;
+                  if (nextBatchSlug !== batchSlug) {
+                    trackFilterChange("batch", "set", 1);
+                  }
                   transitionGraphScope(nextBatchSlug, topVoiceAudience);
                 }}
               >
@@ -1189,6 +1375,20 @@ export function Dashboard({
                 ))}
               </select>
             </label>
+          </div>
+
+          <div className="control-cluster control-cluster-actions">
+            <button type="button" onClick={() => void shareView()} title="Share view" aria-label="Share view">
+              <Share2 size={16} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => void copyViewLink()}
+              title={linkCopied ? "Link copied" : "Copy link"}
+              aria-label={linkCopied ? "Link copied" : "Copy link"}
+            >
+              {linkCopied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+            </button>
           </div>
 
           {manualRefreshEnabled && (
@@ -1218,7 +1418,7 @@ export function Dashboard({
           isOpen={openFilterMenu === "platform"}
           onOpenChange={(open) => setOpenFilterMenu(open ? "platform" : null)}
           onToggle={togglePlatform}
-          onClear={() => setSelectedPlatforms([])}
+          onClear={() => clearFilter("platform")}
         />
 
         <FilterDropdown
@@ -1232,7 +1432,7 @@ export function Dashboard({
           disabled={scopeSpecificFiltersDisabled}
           onOpenChange={(open) => setOpenFilterMenu(open ? "industry" : null)}
           onToggle={toggleIndustry}
-          onClear={() => setSelectedIndustries([])}
+          onClear={() => clearFilter("industry")}
         />
 
         <FilterDropdown
@@ -1246,7 +1446,7 @@ export function Dashboard({
           disabled={scopeSpecificFiltersDisabled}
           onOpenChange={(open) => setOpenFilterMenu(open ? "groupPartner" : null)}
           onToggle={toggleGroupPartner}
-          onClear={() => setSelectedGroupPartners([])}
+          onClear={() => clearFilter("group_partner")}
         />
 
         <SingleSelectFilterDropdown
@@ -1261,6 +1461,9 @@ export function Dashboard({
           onOpenChange={(open) => setOpenFilterMenu(open ? "topVoices" : null)}
           onSelect={(value) => {
             const nextTopVoiceAudience = normalizeTopVoiceAudienceId(value);
+            if (nextTopVoiceAudience !== topVoiceAudience) {
+              trackFilterChange("top_voices", nextTopVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? "cleared" : "set", nextTopVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? 0 : 1);
+            }
             transitionGraphScope(batchSlug, nextTopVoiceAudience);
             setOpenFilterMenu(null);
           }}
@@ -1306,6 +1509,9 @@ export function Dashboard({
               onClick={() => {
                 setMinScoreDraft(0);
                 setMinScore(0);
+                if (minScore !== 0) {
+                  trackFilterChange("min_score", "cleared", 0);
+                }
               }}
               disabled={minScoreDraft === 0 && minScore === 0}
             >
@@ -1318,7 +1524,7 @@ export function Dashboard({
       {((error && graph) || refreshError || refreshNotice) && (
         <section className="status-line" aria-live="polite">
           {error && graph && <span className="error-text">{error}</span>}
-          {error && graphScopeMismatch && !loading && (
+          {error && graphScopeMismatch && !graphBusy && (
             <button type="button" onClick={() => void fetchGraph({ unfiltered: true })}>
               <RefreshCw size={15} aria-hidden="true" />
               Retry selected graph
@@ -1329,12 +1535,12 @@ export function Dashboard({
         </section>
       )}
 
-      {graphScopeMismatch && loading && (
+      {graphScopeMismatch && graphBusy && (
         <div className="sr-only" role="status">
           Loading the selected graph. The previous graph remains visible, but its controls are unavailable.
         </div>
       )}
-      <div role="region" aria-label="Network map results" aria-busy={loading}>
+      <div role="region" aria-label="Network map results" aria-busy={graphBusy}>
         <section
           className="dashboard-grid"
           ref={dashboardGridRef}
@@ -1360,13 +1566,13 @@ export function Dashboard({
               />
             ) : (
               <div className="graph-empty-state">
-                <strong>{loading ? `Loading ${loadingMapLabel} map...` : "Graph unavailable"}</strong>
+                <strong>{graphBusy ? `Loading ${loadingMapLabel} map...` : "Graph unavailable"}</strong>
                 <span>
-                  {loading
+                  {graphBusy
                     ? "Fetching companies, traction evidence, filters, and graph links."
                     : error ?? "The selected graph could not be loaded."}
                 </span>
-                {!loading && error && (
+                {!graphBusy && error && (
                   <button type="button" onClick={() => void fetchGraph({ unfiltered: true })}>
                     <RefreshCw size={15} aria-hidden="true" />
                     Retry selected graph
@@ -1374,7 +1580,12 @@ export function Dashboard({
                 )}
               </div>
             )}
-            {loading && graph && <div className="overlay-status">Refreshing graph</div>}
+            {graphBusy && graph && (
+              <div className="overlay-status" role="status">
+                <RefreshCw size={14} className="spin" aria-hidden="true" />
+                Refreshing graph
+              </div>
+            )}
           </div>
           <NodePanel
             node={selectedNode}
@@ -1382,7 +1593,13 @@ export function Dashboard({
             evidence={selectedEvidence}
             highlightedFounderId={highlightedFounderId}
           />
-          {settledGraph && <InsightsTabs graph={settledGraph} onSelectNode={selectRankedNode} />}
+          {settledGraph && (
+            <InsightsTabs
+              graph={settledGraph}
+              statsGraph={scopedFilterMetadataGraph ?? settledGraph}
+              onSelectNode={selectRankedNode}
+            />
+          )}
         </section>
       </div>
     </main>

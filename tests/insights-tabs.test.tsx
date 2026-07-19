@@ -11,11 +11,14 @@ describe("insights tabs", () => {
 
     const overviewTab = screen.getByRole("tab", { name: "Overview" });
     const hottestTab = screen.getByRole("tab", { name: "Hottest" });
+    const statsTab = screen.getByRole("tab", { name: "Stats" });
     expect(overviewTab).toHaveAttribute("aria-selected", "true");
     expect(overviewTab).toHaveAttribute("aria-controls", "insights-panel-overview");
     expect(overviewTab).toHaveAttribute("tabindex", "0");
     expect(hottestTab).toHaveAttribute("aria-selected", "false");
     expect(hottestTab).toHaveAttribute("tabindex", "-1");
+    expect(statsTab).toHaveAttribute("aria-selected", "false");
+    expect(statsTab).toHaveAttribute("tabindex", "-1");
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-overview");
 
     fireEvent.keyDown(overviewTab, { key: "ArrowRight" });
@@ -34,6 +37,41 @@ describe("insights tabs", () => {
 
     expect(dayToggle).toHaveAttribute("aria-pressed", "false");
     expect(weekToggle).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.keyDown(hottestTab, { key: "ArrowRight" });
+
+    expect(statsTab).toHaveFocus();
+    expect(statsTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-stats");
+  });
+
+  it("shows database totals, ingestion growth charts, and source quality stats", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const companyCount = graph.nodes.filter((node) => node.entityType === "company").length;
+    const founderCount = new Set(
+      graph.nodes.flatMap((node) => node.founders.map((founder) => founder.id))
+    ).size;
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Stats" }));
+
+    expect(screen.getByRole("heading", { name: "Database growth" })).toBeInTheDocument();
+    expect(screen.getByText(graph.batch.label)).toBeInTheDocument();
+    expect(screen.getByText("Sources").closest(".stats-metric")).toHaveTextContent(
+      graph.evidence.length.toLocaleString()
+    );
+    expect(screen.getByText("Companies").closest(".stats-metric")).toHaveTextContent(
+      companyCount.toLocaleString()
+    );
+    expect(screen.getByText("Founders").closest(".stats-metric")).toHaveTextContent(
+      founderCount.toLocaleString()
+    );
+    expect(screen.getByRole("img", { name: /Sources added by day for the last 14 days/i })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /Companies discovered by day for the last 14 days/i })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /Founders discovered by day for the last 14 days/i })).toBeInTheDocument();
+    expect(screen.getByText("Verified source links")).toBeInTheDocument();
+    expect(screen.getByText("Sources per company")).toBeInTheDocument();
+    expect(screen.getByText("Needs review")).toBeInTheDocument();
   });
 
   it("does not show a separate score scope or Top Voices audience strip", () => {

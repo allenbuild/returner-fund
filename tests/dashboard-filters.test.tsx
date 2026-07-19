@@ -178,6 +178,10 @@ describe("dashboard filters", () => {
 
     expect(screen.queryByRole("button", { name: /refresh/i })).not.toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: /batch/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search companies and founders")).toHaveAttribute(
+      "aria-label",
+      "Search companies and founders"
+    );
   });
 
   it("keeps the batch selector visible with Spring, Summer, and Speedrun available", () => {
@@ -491,6 +495,10 @@ describe("dashboard filters", () => {
     expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
     fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
 
+    const resultsRegion = screen.getByRole("region", { name: "Network map results" });
+    expect(resultsRegion).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByText("Refreshing graph")).toBeInTheDocument();
+
     await act(async () => {
       await vi.advanceTimersByTimeAsync(0);
     });
@@ -500,9 +508,14 @@ describe("dashboard filters", () => {
     expect(
       fetchMock.mock.calls
         .some(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
-    ).toBe(true);
+    ).toBe(false);
+    expect(resultsRegion).toHaveAttribute("aria-busy", "true");
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(10_000);
+      await vi.advanceTimersByTimeAsync(450);
+    });
+    expect(resultsRegion).toHaveAttribute("aria-busy", "false");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
     });
     expect(
       fetchMock.mock.calls
@@ -646,6 +659,11 @@ describe("dashboard filters", () => {
     });
     expect(within(screen.getByTestId("graph-canvas")).getByText("Stale Snapshot")).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
     expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
 
     resolveApiGraph({ ok: true, json: async () => liveGraph });
@@ -679,10 +697,10 @@ describe("dashboard filters", () => {
     expect(within(screen.getByTestId("graph-canvas")).getByText("GitHub Only")).toBeInTheDocument();
     expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-platforms", "x");
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
-    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(true);
+    expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(10_000);
+      await vi.advanceTimersByTimeAsync(30_000);
     });
     expect(
       fetchMock.mock.calls.filter(([input]) => String(input) === "/api/graph?batch=S2026")
@@ -710,7 +728,7 @@ describe("dashboard filters", () => {
     expect(within(screen.getByTestId("graph-canvas")).getByText("Static First Paint")).toBeInTheDocument();
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(10_000);
+      await vi.advanceTimersByTimeAsync(30_000);
     });
     expect(within(screen.getByTestId("graph-canvas")).getByText("Static First Paint")).toBeInTheDocument();
     expect(
@@ -760,7 +778,7 @@ describe("dashboard filters", () => {
     expect(fetchMock).toHaveBeenCalledTimes(requestsAfterFirstLoad);
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(10_000);
+      await vi.advanceTimersByTimeAsync(30_000);
     });
     expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/api/graph"))).toHaveLength(1);
   });
@@ -822,7 +840,7 @@ describe("dashboard filters", () => {
     vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
 
     render(<Dashboard initialGraph={fullGraph} initialFilters={{ platforms: ["x"] }} />);
-    fireEvent.change(screen.getByPlaceholderText("Jump to company or founder"), {
+    fireEvent.change(screen.getByPlaceholderText("Search companies and founders"), {
       target: { value: "X Company" }
     });
 
@@ -842,7 +860,7 @@ describe("dashboard filters", () => {
     vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
 
     render(<Dashboard initialGraph={audienceGraph} initialTopVoiceAudience="yc_partners" />);
-    fireEvent.change(screen.getByPlaceholderText("Jump to company or founder"), {
+    fireEvent.change(screen.getByPlaceholderText("Search companies and founders"), {
       target: { value: "Partner Match" }
     });
 
@@ -1078,7 +1096,7 @@ describe("dashboard filters", () => {
 
     render(<Dashboard initialGraph={initialGraph} />);
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_400);
+      await vi.advanceTimersByTimeAsync(30_000);
     });
     expect(staleRequestSignal).toBeDefined();
     expect(staleRequestSignal?.aborted).toBe(false);

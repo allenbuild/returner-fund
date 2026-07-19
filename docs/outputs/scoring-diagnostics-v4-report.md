@@ -2,11 +2,11 @@
 
 - Frozen clock: `2026-07-17T12:00:00.000Z`
 - Production model: `returner-traction-v4-canonical` (`returner-traction` v4.0.0)
-- Git SHA: `58b5d2b08b0d8666123d00c21247b001f17204ae`
-- Input envelope SHA-256: `fb08c1b43f66b8151941822ac99be45b2ae2c0136835150dc29c3a50188f5d25`
+- Git SHA: `453bf4a12177821c146aedb2953659ce457bc188`
+- Input envelope SHA-256: `f0e785f0a40ab22c31a0ebc173fe14beddca098d75d70ca7a41f0e0f07ec3029`
 - Effective versioned scoring-input SHA-256: `cda8378c7a3374a7ca52dedb56417533ee1e67e36fd5399f2948229778bbee1e`
 - Canonical config: 83 leaf parameters across scoring, calibration, and confidence; 8 role-labeled runtime source files.
-- Audit JSON SHA-256: `4286d94a9a657fb91951ee4bac9d1bd9800f5a8d3b6c07c41933b6da2249fdf8`
+- Audit JSON SHA-256: `026bfa6fc7cb8f18469c7ea0b3fc2b57ed5363f24b85977498b48ea46fffd2b9`
 - Command: `npm run scoring:audit:v4`
 - Direct command: `node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs`
 - Safety: local snapshots only; `fetch` disabled; no API calls, benchmark writes, source edits, or user-data mutation.
@@ -141,7 +141,7 @@ No score or rank changes.
 | --- | --- | --- |
 | versioned_runtime_parameter_hashes_complete | yes | {"category_hash_mismatch_count":0,"parameter_count":83,"parameter_mismatch_count":0} |
 | versioned_source_hashes_complete | yes | {"source_file_count":8,"source_mismatch_count":0} |
-| input_envelope_hash_consistent | yes | "fb08c1b43f66b8151941822ac99be45b2ae2c0136835150dc29c3a50188f5d25" |
+| input_envelope_hash_consistent | yes | "f0e785f0a40ab22c31a0ebc173fe14beddca098d75d70ca7a41f0e0f07ec3029" |
 | required_cohort_coverage | yes | ["A16ZSR006","S2026","S26"] |
 | company_rankings_complete_unique_ordered_and_bounded | yes | 0 |
 | cleanup_row_accounting_exact | yes | 0 |
