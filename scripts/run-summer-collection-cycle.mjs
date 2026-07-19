@@ -5,7 +5,7 @@ import path from "node:path";
 const startedAt = new Date();
 const runId = `s26-collection-${startedAt.toISOString().replace(/[:.]/g, "-")}`;
 const durationMinutes = numberArg("--minutes") ?? 120;
-const maxCompanies = numberArg("--max-companies") ?? 83;
+const maxCompanies = numberArg("--max-companies") ?? 115;
 const workers = numberArg("--workers") ?? 8;
 const delayMs = numberArg("--delay-ms") ?? 900;
 const checkpointEveryMinutes = numberArg("--checkpoint-minutes") ?? 15;

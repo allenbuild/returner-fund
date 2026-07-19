@@ -5,11 +5,14 @@ import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
   AUTONOMOUS_BATCHES,
+  AUTONOMOUS_PROCESS_BUDGETS,
   buildAutonomousTaskPlan,
   loadAutonomousCatalogs,
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
-  summarizeTaskCoverage
+  normalizeAutonomousFailureEntityId,
+  summarizeTaskCoverage,
+  validateAutonomousCollectorSnapshot
 } from "./lib/autonomous-ingestion-plan.mjs";
 
 const root = process.cwd();
@@ -31,9 +34,7 @@ if (!idempotencyKey) {
 
 const url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const serviceKey = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
-if ((!url || !serviceKey) && !args.plan) {
-  throw new Error("NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required unless --plan is used.");
-}
+const durableStorageConfigured = Boolean(url && serviceKey);
 
 await mkdir(workRoot, { recursive: true });
 const catalogs = await loadAutonomousCatalogs(root);
@@ -46,10 +47,12 @@ if (args.plan) {
   process.exit(0);
 }
 
-const supabase = createClient(url, serviceKey, {
-  auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false },
-  global: { headers: { "X-Client-Info": "returner-autonomous-ingestion" } }
-});
+const supabase = durableStorageConfigured
+  ? createClient(url, serviceKey, {
+      auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false },
+      global: { headers: { "X-Client-Info": "returner-autonomous-ingestion" } }
+    })
+  : null;
 
 let runtimeLock = null;
 let run = null;
@@ -58,58 +61,112 @@ let hardFailure = null;
 let heartbeatFailure = null;
 
 try {
-  runtimeLock = await claimRuntimeLock();
-  if (!runtimeLock) {
-    throw new Error("Another ingestion coordinator owns the non-expired autonomous-ingestion lease.");
+  if (durableStorageConfigured) {
+    runtimeLock = await claimRuntimeLock();
+    if (!runtimeLock) {
+      throw new Error("Another ingestion coordinator owns the non-expired autonomous-ingestion lease.");
+    }
+    run = await getOrCreateRun();
+  } else {
+    const missing = [
+      !url ? "NEXT_PUBLIC_SUPABASE_URL" : null,
+      !serviceKey ? "SUPABASE_SERVICE_ROLE_KEY" : null
+    ].filter(Boolean);
+    console.warn(
+      `Durable Supabase import skipped because optional configuration is incomplete (${missing.join(", ")}). ` +
+      "File-backed collection and publication will continue."
+    );
   }
-  run = await getOrCreateRun();
-  if (run.status === "completed") {
+  if (run?.status === "completed") {
     console.log(`Ingestion ${idempotencyKey} already completed as run ${run.id}; replay is a no-op.`);
     process.exitCode = 0;
   } else {
-    heartbeatTimer = setInterval(() => void heartbeat().catch(failHeartbeat), 60_000);
-    heartbeatTimer.unref?.();
+    if (durableStorageConfigured) {
+      heartbeatTimer = setInterval(() => void heartbeat().catch(failHeartbeat), 60_000);
+      heartbeatTimer.unref?.();
+    }
     await event("run.started", "info", "Autonomous ingestion run started.", {
       workerId,
+      durability: durableStorageConfigured ? "supabase" : "file_backed",
       plannedCoverage,
       catalogs: catalogSummary(catalogs)
     });
 
-    const catalogState = await syncCatalogs(catalogs);
-    await enqueueTasks(plannedTasks, catalogState);
-    await event("inventory.completed", "info", "Canonical entity/account inventory and task plan persisted.", {
-      companies: catalogState.companyByBatchSourceKey.size,
-      founders: catalogState.founderBySourceKey.size,
-      accounts: catalogState.accountBySourceKey.size,
-      tasks: plannedTasks.length
-    });
+    const catalogState = durableStorageConfigured ? await syncCatalogs(catalogs) : null;
+    if (catalogState) {
+      await enqueueTasks(plannedTasks, catalogState);
+      await event("inventory.completed", "info", "Canonical entity/account inventory and task plan persisted.", {
+        companies: catalogState.companyByBatchSourceKey.size,
+        founders: catalogState.founderBySourceKey.size,
+        accounts: catalogState.accountBySourceKey.size,
+        tasks: plannedTasks.length
+      });
+    } else {
+      await event(
+        "inventory.skipped",
+        "warning",
+        "Durable inventory and task persistence were skipped; collection is using the validated file catalog.",
+        { reason: "supabase_not_configured" }
+      );
+    }
 
     const collectionResults = args.skipNetwork ? [] : await runCollectors();
     assertLeaseHealthy();
-    if (args.skipNetwork) {
+    if (args.skipNetwork && run) {
       await terminalizeQueuedTasks(run.id, "skipped", "network_collection_explicitly_skipped");
-    } else {
+    } else if (catalogState) {
       await reconcileCollectorTasks(collectionResults, catalogState);
     }
 
-    const publicSnapshots = await readAvailableSnapshots([...publicOutputs.values()]);
+    const successfulCollectorResults = collectionResults.filter((result) => result.ok);
+    const publicSnapshots = await readAvailableSnapshots(
+      successfulCollectorResults.filter((result) => result.kind === "public")
+    );
+    const githubSnapshots = await readAvailableSnapshots(
+      successfulCollectorResults.filter((result) => result.kind === "github")
+    );
+    const collectionCoverage = await summarizeCollectionCoverage(
+      plannedTasks,
+      collectionResults,
+      { skipNetwork: args.skipNetwork }
+    );
+    assertSuccessfulCollection(collectionResults, collectionCoverage);
     const previousPublicSnapshot = await readJson(
       join(root, "src", "lib", "social", "public-evidence-current.json"),
       null
     );
     const mergedPublicSnapshot = publicSnapshots.length > 0
-      ? mergePublicEvidenceSnapshots([previousPublicSnapshot, ...publicSnapshots].filter(Boolean))
+      ? mergePublicEvidenceSnapshots(
+          [previousPublicSnapshot, ...publicSnapshots].filter(Boolean),
+          { durableStorageConfigured }
+        )
       : null;
 
     const durableImport = await importDurableEvidence({
       publicSnapshots,
-      githubSnapshots: await readAvailableSnapshots([...githubOutputs.values()]),
+      githubSnapshots,
       catalogState
     });
-    await event("evidence.imported", "info", "Collected evidence was validated and imported into durable storage.", durableImport);
+    if (durableImport.status === "completed") {
+      await event(
+        "evidence.imported",
+        "info",
+        "Collected evidence was validated and imported into durable storage.",
+        durableImport
+      );
+    } else {
+      await event(
+        "evidence.import_skipped",
+        "warning",
+        "Durable evidence import was skipped; collected snapshots remain file-backed.",
+        durableImport
+      );
+    }
     assertLeaseHealthy();
 
-    const prePublishCoverage = await persistCoverage(catalogState, durableImport);
+    const prePublishCoverage = catalogState
+      ? await persistCoverage(catalogState, durableImport)
+      : { ...collectionCoverage, stageCounters: durableImport };
     if (prePublishCoverage.nonTerminal > 0) {
       throw new Error(`${prePublishCoverage.nonTerminal} ingestion tasks did not reach a terminal state.`);
     }
@@ -118,32 +175,65 @@ try {
     if (mergedPublicSnapshot) {
       await writeJsonAtomic(join(root, "src", "lib", "social", "public-evidence-current.json"), mergedPublicSnapshot);
     }
-    await publishGithubExports();
+    await publishGithubExports(githubSnapshots);
 
     if (!args.skipPublish) {
-      await runCommand("npm", ["run", "build"], { timeoutMs: 20 * 60_000, label: "production build" });
-      await runCommand("npm", ["run", "benchmarks:daily"], {
-        timeoutMs: 15 * 60_000,
-        label: "graph and benchmark publication",
-        env: { INGESTION_RUN_ID: run.id }
+      const publicationRunId = run?.id ?? `file:${idempotencyKey}`;
+      await runCommand("npm", ["run", "build"], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.productionBuildMs,
+        label: "production build"
       });
-      await runCommand(process.execPath, ["scripts/write-artifact-manifest.mjs", `--ingestion-run-id=${run.id}`], {
-        timeoutMs: 2 * 60_000,
+      await runCommand("npm", ["run", "benchmarks:daily"], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.benchmarkPublicationMs,
+        label: "graph and benchmark publication",
+        env: { INGESTION_RUN_ID: publicationRunId }
+      });
+      await runCommand(process.execPath, ["scripts/write-artifact-manifest.mjs", `--ingestion-run-id=${publicationRunId}`], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactManifestMs,
         label: "artifact manifest"
       });
-      await runCommand("npm", ["run", "artifacts:validate"], { timeoutMs: 10 * 60_000, label: "artifact validation" });
-      await persistArtifactManifest(run.id);
+      await runCommand("npm", ["run", "artifacts:validate"], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
+        label: "artifact validation"
+      });
+      if (run) {
+        await persistArtifactManifest(run.id);
+      } else {
+        await event(
+          "artifact_manifest.persistence_skipped",
+          "warning",
+          "Artifact manifest passed file validation but durable manifest persistence was skipped.",
+          { reason: "supabase_not_configured", publicationRunId }
+        );
+      }
       await publishRepositoryArtifacts();
     }
 
-    const finalCoverage = await persistCoverage(catalogState, durableImport);
-    await completeRun("completed", {
-      ...finalCoverage,
-      stageCounters: durableImport,
-      finishedAt: new Date().toISOString()
-    });
-    await event("run.completed", "info", "Autonomous ingestion completed with every task terminal.", finalCoverage);
-    console.log(JSON.stringify({ runId: run.id, status: "completed", coverage: finalCoverage, durableImport }, null, 2));
+    const finalCoverage = catalogState
+      ? await persistCoverage(catalogState, durableImport)
+      : prePublishCoverage;
+    if (run) {
+      await completeRun("completed", {
+        ...finalCoverage,
+        stageCounters: durableImport,
+        finishedAt: new Date().toISOString()
+      });
+      await event("run.completed", "info", "Autonomous ingestion completed with every task terminal.", finalCoverage);
+    } else {
+      await event(
+        "run.completed",
+        "info",
+        "File-backed autonomous ingestion completed; durable database completion was not recorded.",
+        finalCoverage
+      );
+    }
+    console.log(JSON.stringify({
+      runId: run?.id ?? null,
+      publicationRunId: run?.id ?? `file:${idempotencyKey}`,
+      status: "completed",
+      coverage: finalCoverage,
+      durableImport
+    }, null, 2));
   }
 } catch (error) {
   hardFailure = error;
@@ -264,6 +354,10 @@ async function getOrCreateRun() {
 }
 
 async function event(eventType, severity, message, payload = {}, eventKey = null) {
+  if (!supabase || !run?.id) {
+    console.log(`[${severity}] ${eventType}: ${message}`);
+    return;
+  }
   const { error } = await supabase.from("ingestion_run_events").insert({
     ingestion_run_id: run.id,
     event_key: eventKey,
@@ -399,17 +493,17 @@ async function enqueueTasks(tasks, catalogState) {
     platform: task.platform,
     status: task.status,
     checkpoint_key: task.checkpointKey,
-    max_attempts: 3,
+    max_attempts: AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts,
     priority: platformPriority(task.platform),
     terminal_at: task.status === "queued" ? null : now,
     terminal_reason: task.terminalReason,
     last_error_json: {},
     rate_limit_ms: platformDelay(task.platform)
   }));
-  for (const chunk of chunks(rows, 250)) {
-    const { error } = await supabase.from("ingestion_tasks").upsert(chunk, { onConflict: "checkpoint_key" });
+  await mapWithConcurrency(chunks(rows, 250), 4, async (taskRows) => {
+    const { error } = await supabase.from("ingestion_tasks").upsert(taskRows, { onConflict: "checkpoint_key" });
     check(error, "enqueue account/platform tasks");
-  }
+  });
 }
 
 async function runCollectors() {
@@ -430,13 +524,14 @@ async function runCollectors() {
           `--output=${publicOutputs.get(batchSlug)}`,
           `--checkpoint=${join(workRoot, `checkpoint-public-${batchSlug.toLowerCase()}.json`)}`
         ],
-        { timeoutMs: 55 * 60_000, label: `public ${batchSlug}` }
+        { timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, label: `public ${batchSlug}` }
       )
     })),
     ...AUTONOMOUS_BATCHES.map((batch) => ({
       kind: "github",
       batchSlug: batch.slug,
       outputPath: githubOutputs.get(batch.slug),
+      expectedSourcePath: batch.githubSourcePath,
       run: () => runCommand(
         process.execPath,
         [
@@ -445,7 +540,7 @@ async function runCollectors() {
           "--workers=8",
           `--output=${githubOutputs.get(batch.slug)}`
         ],
-        { timeoutMs: 45 * 60_000, label: `github ${batch.slug}` }
+        { timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.githubCollectorAttemptMs, label: `github ${batch.slug}` }
       )
     }))
   ];
@@ -459,7 +554,10 @@ async function runCollectors() {
       ...command,
       promise: undefined,
       ok: result.status === "fulfilled",
-      attempts: result.status === "fulfilled" ? result.value.attempts : 3,
+      attempts: result.status === "fulfilled"
+        ? result.value.attempts
+        : AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts,
+      successfulRows: result.status === "fulfilled" ? result.value.successfulRows : 0,
       error: result.status === "rejected" ? errorMessage(result.reason) : null
     });
   }
@@ -467,15 +565,25 @@ async function runCollectors() {
   return results;
 }
 
-async function runCollectorWithRetries(command, maxAttempts = 3) {
+async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts) {
   let lastError = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
+      const attemptStartedAt = Date.now();
       await command.run();
-      const snapshot = await readJson(command.outputPath, null);
+      const snapshot = await readCollectorSnapshot(command.outputPath, command.kind, {
+        batchSlug: command.batchSlug,
+        expectedSourcePath: command.expectedSourcePath,
+        notBefore: attemptStartedAt
+      });
+      if (!snapshot) throw new Error(`${command.kind} ${command.batchSlug} did not write a collector snapshot.`);
       const retryableFailures = retryableFailuresFromSnapshot(snapshot);
       if (retryableFailures.length === 0 || attempt === maxAttempts) {
-        return { attempts: attempt, retryableFailures: retryableFailures.length };
+        return {
+          attempts: attempt,
+          retryableFailures: retryableFailures.length,
+          successfulRows: successfulCollectorRowCount(snapshot, command.kind)
+        };
       }
       await event("collector.retry_scheduled", "warning", `${command.kind} ${command.batchSlug} has retryable failures.`, {
         attempt,
@@ -491,7 +599,10 @@ async function runCollectorWithRetries(command, maxAttempts = 3) {
         error: errorMessage(error)
       });
     }
-    await delay(Math.min(30_000, 1_000 * (2 ** (attempt - 1)) + Math.floor(Math.random() * 1_000)));
+    await delay(Math.min(
+      AUTONOMOUS_PROCESS_BUDGETS.collectorRetryDelayMaxMs,
+      1_000 * (2 ** (attempt - 1)) + Math.floor(Math.random() * 1_000)
+    ));
   }
   throw lastError ?? new Error(`${command.kind} ${command.batchSlug} exhausted retries.`);
 }
@@ -506,32 +617,46 @@ function retryableFailuresFromSnapshot(snapshot) {
   );
 }
 
+function successfulCollectorRowCount(snapshot, kind) {
+  if (kind === "github") {
+    return snapshot.accounts.filter((account) => account.fetched === true).length;
+  }
+  return snapshot.evidence.length + snapshot.needsReview.length;
+}
+
 async function reconcileCollectorTasks(results, catalogState) {
+  const updateGroups = new Map();
   for (const result of results) {
     const platforms = result.kind === "github"
       ? ["github"]
       : ["x", "instagram", "linkedin", "youtube", "product_hunt", "reddit", "hacker_news", "rss", "web"];
-    const snapshot = result.ok ? await readJson(result.outputPath, null) : null;
-    const failureKeys = failureKeysFromSnapshot(snapshot);
+    const snapshot = result.ok
+      ? await readCollectorSnapshot(result.outputPath, result.kind, result)
+      : null;
+    const failureKeys = failureKeysFromSnapshot(snapshot, result.batchSlug);
     for (const platform of platforms) {
       const tasks = await tasksFor(result.batchSlug, platform, catalogState);
-      for (const chunk of chunks(tasks, 100)) {
-        for (const task of chunk) {
-          const plannedTask = plannedTaskByCheckpointKey.get(task.checkpoint_key);
-          const key = plannedTask
-            ? collectorEntityKey(platform, plannedTask.entityType, plannedTask.entitySourceKey)
-            : collectorEntityKey(platform, task.entity_type, task.company_name);
-          const failed = !result.ok || failureKeys.has(key);
-          await finishTask(
-            task.id,
-            failed ? "failed" : "completed",
-            failed ? result.error ?? "collector_reported_failure" : "checked",
-            result.attempts
-          );
-        }
+      for (const task of tasks) {
+        const plannedTask = plannedTaskByCheckpointKey.get(task.checkpoint_key);
+        const key = plannedTask
+          ? collectorEntityKey(platform, plannedTask.entityType, plannedTask.entitySourceKey)
+          : collectorEntityKey(platform, task.entity_type, task.company_name);
+        const failed = !result.ok || failureKeys.has(key);
+        const status = failed ? "failed" : "completed";
+        const reason = failed ? result.error ?? "collector_reported_failure" : "checked";
+        const groupKey = JSON.stringify([status, reason, result.attempts]);
+        const group = updateGroups.get(groupKey) ?? { ids: [], status, reason, attempts: result.attempts };
+        group.ids.push(task.id);
+        updateGroups.set(groupKey, group);
       }
     }
   }
+  const updates = [...updateGroups.values()].flatMap((group) =>
+    chunks(group.ids, 100).map((ids) => ({ ...group, ids }))
+  );
+  await mapWithConcurrency(updates, 4, ({ ids, status, reason, attempts }) =>
+    finishTasks(ids, status, reason, attempts)
+  );
 }
 
 async function tasksFor(batchSlug, platform, catalogState) {
@@ -546,7 +671,8 @@ async function tasksFor(batchSlug, platform, catalogState) {
   return data ?? [];
 }
 
-async function finishTask(id, status, reason, attempts = 1) {
+async function finishTasks(ids, status, reason, attempts = 1) {
+  if (ids.length === 0) return;
   const terminalAt = new Date().toISOString();
   const { error } = await supabase
     .from("ingestion_tasks")
@@ -560,9 +686,9 @@ async function finishTask(id, status, reason, attempts = 1) {
       last_error: status === "failed" ? reason : null,
       last_error_json: status === "failed" ? { reason } : {}
     })
-    .eq("id", id)
+    .in("id", ids)
     .eq("status", "queued");
-  check(error, `finish ingestion task ${id}`);
+  check(error, `finish ${ids.length} ingestion tasks`);
 }
 
 async function terminalizeQueuedTasks(runId, status, reason) {
@@ -575,8 +701,21 @@ async function terminalizeQueuedTasks(runId, status, reason) {
 }
 
 async function importDurableEvidence({ publicSnapshots, githubSnapshots, catalogState }) {
+  if (!durableStorageConfigured) {
+    return {
+      status: "skipped",
+      configured: false,
+      reason: "supabase_not_configured",
+      received: publicSnapshots.length + githubSnapshots.length
+    };
+  }
+  if (!catalogState || !run?.id) {
+    throw new Error("Durable Supabase import is configured but its catalog or run state is unavailable.");
+  }
   if (publicSnapshots.length === 0 && githubSnapshots.length === 0) {
     return {
+      status: "completed",
+      configured: true,
       received: 0,
       rejected: 0,
       duplicates: 0,
@@ -594,7 +733,7 @@ async function importDurableEvidence({ publicSnapshots, githubSnapshots, catalog
     companyAliases[sourceKey.replace(/^company[:-]/, "")] = id;
     companyAliases[sourceKey.replace(/^a16z-speedrun-006[:-]/, "")] = id;
   }
-  return importer.importEvidenceSnapshots({
+  const result = await importer.importEvidenceSnapshots({
     client: supabase,
     ingestionRunId: run.id,
     publicSnapshots,
@@ -605,6 +744,70 @@ async function importDurableEvidence({ publicSnapshots, githubSnapshots, catalog
       founderByEntityId: Object.fromEntries(catalogState.founderBySourceKey)
     }
   });
+  return { status: "completed", configured: true, ...result };
+}
+
+async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwork }) {
+  const resultByCollector = new Map(
+    collectionResults.map((result) => [`${result.batchSlug}:${result.kind}`, result])
+  );
+  const failureKeysByCollector = new Map();
+  for (const result of collectionResults) {
+    const snapshot = result.ok
+      ? await readCollectorSnapshot(result.outputPath, result.kind, result)
+      : null;
+    failureKeysByCollector.set(
+      `${result.batchSlug}:${result.kind}`,
+      snapshot ? failureKeysFromSnapshot(snapshot, result.batchSlug) : new Set()
+    );
+  }
+
+  const report = {
+    expected: tasks.length,
+    attempted: 0,
+    succeeded: 0,
+    failed: 0,
+    skipped: 0,
+    nonTerminal: 0,
+    coveragePercentage: 0,
+    generatedAt: new Date().toISOString()
+  };
+  for (const task of tasks) {
+    if (task.status !== "queued" || skipNetwork) {
+      report.skipped += 1;
+      continue;
+    }
+    const kind = task.platform === "github" ? "github" : "public";
+    const collectorKey = `${task.batchSlug}:${kind}`;
+    const result = resultByCollector.get(collectorKey);
+    if (!result) {
+      report.nonTerminal += 1;
+      continue;
+    }
+    const entityKey = collectorEntityKey(task.platform, task.entityType, task.entitySourceKey);
+    if (!result.ok || failureKeysByCollector.get(collectorKey)?.has(entityKey)) {
+      report.failed += 1;
+    } else {
+      report.succeeded += 1;
+    }
+  }
+  report.attempted = report.expected - report.nonTerminal;
+  report.coveragePercentage = report.expected
+    ? Number((((report.expected - report.nonTerminal) / report.expected) * 100).toFixed(2))
+    : 100;
+  return report;
+}
+
+function assertSuccessfulCollection(collectionResults, coverage) {
+  if (collectionResults.length === 0 || !collectionResults.some((result) => result.ok)) {
+    throw new Error("No collector completed successfully; publication and run completion are prohibited.");
+  }
+  if (!collectionResults.some((result) => result.ok && result.successfulRows > 0)) {
+    throw new Error("Collector snapshots contained no successful rows; publication and run completion are prohibited.");
+  }
+  if (coverage.succeeded === 0) {
+    throw new Error("Every attempted collection task failed; publication and run completion are prohibited.");
+  }
 }
 
 async function persistCoverage(catalogState, stageCounters) {
@@ -665,16 +868,16 @@ async function persistArtifactManifest(runId) {
   check(error, "persist artifact manifest");
 }
 
-async function publishGithubExports() {
+async function publishGithubExports(snapshots) {
   const destinations = new Map([
     ["S2026", join(root, "src", "lib", "social", "github-traction.json")],
     ["S26", join(root, "src", "lib", "social", "github-traction-summer-2026.json")],
     ["A16ZSR006", join(root, "src", "lib", "social", "github-traction-a16z-speedrun-006.json")]
   ]);
-  for (const [batchSlug, sourcePath] of githubOutputs) {
-    const snapshot = await readJson(sourcePath, null);
-    if (!snapshot) continue;
+  for (const snapshot of snapshots) {
+    const batchSlug = snapshot.source.batchSlug;
     const destination = destinations.get(batchSlug);
+    if (!destination) throw new Error(`No GitHub publication destination is configured for ${batchSlug}.`);
     const previous = await readJson(destination, null);
     await writeJsonAtomic(destination, mergeGithubTractionSnapshots(previous, snapshot));
   }
@@ -692,11 +895,11 @@ async function publishRepositoryArtifacts() {
   }
 
   await runCommand("git", ["config", "user.name", "github-actions[bot]"], {
-    timeoutMs: 30_000,
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitConfigMs,
     label: "configure publication author"
   });
   await runCommand("git", ["config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], {
-    timeoutMs: 30_000,
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitConfigMs,
     label: "configure publication email"
   });
   await runCommand("git", [
@@ -707,10 +910,10 @@ async function publishRepositoryArtifacts() {
     "src/lib/social/github-traction.json",
     "src/lib/social/github-traction-summer-2026.json",
     "src/lib/social/github-traction-a16z-speedrun-006.json"
-  ], { timeoutMs: 60_000, label: "stage refreshed artifacts" });
+  ], { timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitStageMs, label: "stage refreshed artifacts" });
 
   const diff = await runCommand("git", ["diff", "--cached", "--quiet"], {
-    timeoutMs: 30_000,
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
     label: "check staged artifacts",
     allowedExitCodes: [0, 1]
   });
@@ -720,10 +923,13 @@ async function publishRepositoryArtifacts() {
   }
 
   await runCommand("git", ["commit", "-m", `Publish autonomous ingestion ${idempotencyKey}`], {
-    timeoutMs: 2 * 60_000,
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitCommitMs,
     label: "commit refreshed artifacts"
   });
-  await runCommand("git", ["push"], { timeoutMs: 5 * 60_000, label: "push refreshed artifacts" });
+  await runCommand("git", ["push"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
+    label: "push refreshed artifacts"
+  });
   await event("publication.completed", "info", "Refreshed artifacts were committed and pushed.", {
     idempotencyKey
   });
@@ -772,7 +978,17 @@ async function runCommand(command, commandArgs, { timeoutMs, label, env = {}, al
     });
     let stdout = "";
     let stderr = "";
-    const timer = setTimeout(() => child.kill("SIGTERM"), timeoutMs);
+    let timedOut = false;
+    let killTimer = null;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill("SIGTERM");
+      killTimer = setTimeout(
+        () => child.kill("SIGKILL"),
+        AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs
+      );
+      killTimer.unref?.();
+    }, timeoutMs);
     child.stdout.on("data", (chunk) => {
       stdout = tail(`${stdout}${chunk}`, 40_000);
       process.stdout.write(`[${label}] ${chunk}`);
@@ -783,11 +999,18 @@ async function runCommand(command, commandArgs, { timeoutMs, label, env = {}, al
     });
     child.once("error", (error) => {
       clearTimeout(timer);
+      if (killTimer) clearTimeout(killTimer);
       reject(error);
     });
     child.once("exit", async (code, signal) => {
       clearTimeout(timer);
-      const payload = { code, signal, stdout, stderr };
+      if (killTimer) clearTimeout(killTimer);
+      const payload = { code, signal, timedOut, timeoutMs, stdout, stderr };
+      if (timedOut) {
+        await event("command.failed", "error", `${label} timed out.`, payload).catch(() => {});
+        reject(new Error(`${label} timed out after ${timeoutMs}ms.`));
+        return;
+      }
       if (code !== null && allowedExitCodes.includes(code)) {
         if (heartbeatFailure) {
           reject(new Error(`Ingestion lease heartbeat failed while ${label} was running.`));
@@ -803,13 +1026,13 @@ async function runCommand(command, commandArgs, { timeoutMs, label, env = {}, al
   });
 }
 
-function failureKeysFromSnapshot(snapshot) {
+function failureKeysFromSnapshot(snapshot, batchSlug) {
   const keys = new Set();
   for (const failure of snapshot?.failures ?? []) {
     keys.add(collectorEntityKey(
       failure.platform,
       failure.entityType ?? "company",
-      failure.entityId ?? failure.companyName ?? failure.companySlug
+      normalizeAutonomousFailureEntityId(failure, { batchSlug })
     ));
   }
   for (const account of snapshot?.accounts ?? []) {
@@ -832,13 +1055,33 @@ function batchCompanyKey(batchSlug, sourceKey) {
   return `${batchSlug}\u0000${sourceKey}`;
 }
 
-async function readAvailableSnapshots(paths) {
+async function readAvailableSnapshots(results) {
   const values = [];
-  for (const path of paths) {
-    const value = await readJson(path, null);
+  for (const result of results) {
+    const value = await readCollectorSnapshot(result.outputPath, result.kind, result);
     if (value) values.push(value);
   }
   return values;
+}
+
+async function readCollectorSnapshot(path, kind, validation) {
+  let value;
+  try {
+    value = JSON.parse(await readFile(path, "utf8"));
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw new Error(`Invalid ${kind} collector snapshot at ${path}: ${errorMessage(error)}`);
+  }
+  try {
+    return validateAutonomousCollectorSnapshot(value, {
+      kind,
+      batchSlug: validation.batchSlug,
+      expectedSourcePath: validation.expectedSourcePath,
+      notBefore: validation.notBefore ?? null
+    });
+  } catch (error) {
+    throw new Error(`Invalid ${kind} collector snapshot at ${path}: ${errorMessage(error)}`);
+  }
 }
 
 async function writeJsonAtomic(path, value) {
@@ -930,6 +1173,20 @@ function chunks(values, size) {
   const result = [];
   for (let index = 0; index < values.length; index += size) result.push(values.slice(index, index + size));
   return result;
+}
+
+async function mapWithConcurrency(values, concurrency, mapper) {
+  let nextIndex = 0;
+  const workers = Array.from({ length: Math.min(concurrency, values.length) }, async () => {
+    while (nextIndex < values.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      await mapper(values[index], index);
+    }
+  });
+  const settled = await Promise.allSettled(workers);
+  const failure = settled.find((result) => result.status === "rejected");
+  if (failure) throw failure.reason;
 }
 
 function delay(milliseconds) {

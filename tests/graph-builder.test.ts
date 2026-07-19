@@ -425,7 +425,7 @@ describe("graph builder", () => {
     const bannedIdentityQualityField = ["con", "fidence"].join("");
 
     expect(graph.batch.label).toBe("YC Summer 2026 (S26)");
-    expect(graph.batch.companyCountExpected).toBe(83);
+    expect(graph.batch.companyCountExpected).toBe(115);
     expect(graph.nodes.every((node) => !(bannedIdentityQualityField in node))).toBe(true);
     expect(
       graph.nodes.every((node) =>

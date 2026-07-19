@@ -38,15 +38,16 @@ test("workflow gates work through the schedule helper and stable key", () => {
   assert.match(workflow, /--idempotency-key="\$INGESTION_IDEMPOTENCY_KEY"/);
 });
 
-test("autonomous runner is secret-guarded and owns validated publication", () => {
+test("autonomous runner receives optional durability secrets and owns validated publication", () => {
   const runnerStep = workflow.match(
     /- name: Run autonomous ingestion([\s\S]*?)(?=\n\s{6}- name:)/
   )?.[1];
   assert.ok(runnerStep, "missing autonomous ingestion step");
+  assert.match(runnerStep, /timeout-minutes:\s*95/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
-  assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
-  assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\?/);
+  assert.doesNotMatch(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
+  assert.doesNotMatch(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\?/);
   assert.match(runnerStep, /node scripts\/run-autonomous-ingestion\.mjs/);
 
   const validateIndex = workflow.indexOf("npm run artifacts:validate");
@@ -56,6 +57,19 @@ test("autonomous runner is secret-guarded and owns validated publication", () =>
   const pushIndex = runnerSource.indexOf("await publishRepositoryArtifacts()");
   const completionIndex = runnerSource.indexOf('await completeRun("completed"');
   assert.ok(pushIndex > -1 && completionIndex > pushIndex);
+});
+
+test("workflow step budgets leave setup and scheduling headroom", () => {
+  const jobTimeout = Number(workflow.match(/jobs:[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
+  const installTimeout = Number(workflow.match(/- name: Install dependencies[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
+  const runnerTimeout = Number(workflow.match(/- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
+  const validationTimeout = Number(workflow.match(/- name: Validate generated public artifacts[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
+
+  assert.equal(jobTimeout, 120);
+  assert.equal(installTimeout, 10);
+  assert.equal(runnerTimeout, 95);
+  assert.equal(validationTimeout, 5);
+  assert.ok(installTimeout + runnerTimeout + validationTimeout < jobTimeout);
 });
 
 test("workflow never invokes a logged-in collector", () => {

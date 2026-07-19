@@ -17,7 +17,7 @@ describe("instagram coverage debug report", () => {
       overrides: overridesSnapshot,
       snapshots: [publicEvidenceSnapshot, loggedInEvidenceSnapshot, targetedEvidenceSnapshot],
       discovery: {
-        companies_checked: 83,
+        companies_checked: 115,
         searched_with_opencli: false,
         searched_with_web: false,
         candidates: [],
@@ -25,14 +25,14 @@ describe("instagram coverage debug report", () => {
       }
     });
 
-    expect(report.companyCount).toBe(83);
+    expect(report.companyCount).toBe(115);
     expect(report.profiles.snapshotCompanyProfiles).toBe(0);
     expect(report.profiles.snapshotFounderProfiles).toBe(0);
     expect(report.profiles.verifiedCompanyOverrides).toBe(0);
     expect(report.evidence.rows).toBe(0);
     expect(report.evidence.companiesWithScoredEvidence).toBe(0);
     expect(report.feedCompanies).toEqual([]);
-    expect(report.missingCompanies).toHaveLength(83);
+    expect(report.missingCompanies).toHaveLength(115);
     expect(report.rootCause).toEqual(
       expect.arrayContaining([
         "The current YC snapshot has zero company-level Instagram profile URLs.",
@@ -46,7 +46,7 @@ describe("instagram coverage debug report", () => {
   it("does not leak old Spring Instagram companies into the Summer graph", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
-    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(83);
+    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(115);
     expect(graph.nodes.some((node) => ["HeyClicky", "Synphony", "ANORIA"].includes(node.label))).toBe(false);
     expect(graph.evidence.some((item) => item.platform === "instagram")).toBe(false);
     expect(graph.evidence.some((item) => item.attachedCompanyName === "HeyClicky")).toBe(false);
@@ -57,22 +57,20 @@ describe("instagram coverage debug report", () => {
     const platforms = new Set(graph.evidence.map((item) => item.platform));
     const githubRows = graph.evidence.filter((item) => item.platform === "github");
     const youtubeRows = graph.evidence.filter((item) => item.platform === "youtube");
-    const contextOnlyRows = graph.evidence.filter((item) => item.platform === "web" || item.platform === "rss");
     const githubCompanySlugs = new Set(githubRows.map((item) => item.attachedCompanyId?.replace(/^company-/, "")));
     const officialGithubSlugs = new Set(
       companiesSnapshot.companies.filter((company) => company.socialLinks.github).map((company) => company.slug)
     );
 
     expect(platforms).toEqual(
-      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "product_hunt", "web", "rss"])
+      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "product_hunt"])
     );
     expect(platforms.has("x")).toBe(true);
     expect(platforms.has("linkedin")).toBe(true);
     expect(platforms.has("instagram")).toBe(false);
     expect(youtubeRows.length).toBeGreaterThan(0);
-    expect(contextOnlyRows.every((item) => item.contributionScore === 0)).toBe(true);
-    expect(officialGithubSlugs.size).toBe(15);
-    expect(githubRows.length).toBeGreaterThan(15);
+    expect(officialGithubSlugs.size).toBe(21);
+    expect(githubRows.length).toBeGreaterThan(21);
     expect([...githubCompanySlugs].every(Boolean)).toBe(true);
   });
 });

@@ -8,11 +8,19 @@ describe("public SEO catalog", () => {
   it("builds stable, unique routes from the three canonical graph snapshots", () => {
     const catalog = getCatalog();
 
-    expect(catalog.companies).toHaveLength(339);
-    expect(catalog.founders).toHaveLength(690);
+    expect(catalog.companies).toHaveLength(371);
+    expect(catalog.founders).toHaveLength(753);
     expect(catalog.cohorts).toHaveLength(3);
     expect(new Set(catalog.companies.map((company) => company.slug)).size).toBe(catalog.companies.length);
     expect(new Set(catalog.founders.map((founder) => founder.slug)).size).toBe(catalog.founders.length);
+    expect(catalog.companies
+      .filter((company) => company.node.entityId === "company-textsidekick")
+      .map((company) => [company.node.batchSlug, company.slug]))
+      .toEqual([["S2026", "sidekick"], ["S26", "sidekick-2"]]);
+    expect(catalog.founders
+      .filter((founder) => founder.id === "founder-textsidekick-justin-so-3332767")
+      .map((founder) => [founder.company.node.batchSlug, founder.slug]))
+      .toEqual([["S2026", "justin-so"], ["S26", "justin-so-2"]]);
   });
 
   it("uses crawl-safe slugs and keeps graph links URL-backed", () => {

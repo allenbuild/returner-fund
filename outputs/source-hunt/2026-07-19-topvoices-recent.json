@@ -1,0 +1,251 @@
+{
+  "auditMetadata": {
+    "generatedAt": "2026-07-19T05:24:49Z",
+    "windowStart": "2026-07-05T00:00:00Z",
+    "windowEnd": "2026-07-19T05:24:49Z",
+    "scope": {
+      "batches": [
+        "S2026",
+        "S26",
+        "A16ZSR006"
+      ],
+      "audiences": [
+        "yc_partners",
+        "insiders"
+      ],
+      "peopleOnly": true,
+      "allowlistSource": "src/lib/social/top-voices.ts"
+    },
+    "acceptanceRule": "Native post or comment authored by an allowlisted individual, dated on or after 2026-07-05, with positive visible post-level metrics and authored text that directly names or tags a company or founder in one of the three local batch snapshots.",
+    "dedupeSources": [
+      "src/lib/social/targeted-evidence-current.json",
+      "src/lib/social/logged-in-evidence-current.json",
+      "src/lib/social/public-evidence-current.json",
+      "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "public/graph/s2026.json",
+      "public/graph/s26.json",
+      "public/graph/a16zsr006.json",
+      "outputs/source-hunt/*.json"
+    ],
+    "methods": {
+      "x": {
+        "allowlistedPeople": 68,
+        "allowlistedXHandles": 63,
+        "recentNativeStatusesEnumerated": 475,
+        "strictTextMatchCandidates": 11,
+        "postJsonFailures": 0,
+        "discoverySurface": "Public TwStalker profile timelines used only to enumerate native status IDs.",
+        "verificationSurface": "FxTwitter public post JSON used to verify native author, authored text, timestamp, reply identity, and visible metrics; accepted URLs remain native x.com URLs."
+      },
+      "linkedin": {
+        "focusedQueries": 2,
+        "accepted": 0,
+        "result": "No indexed native allowlisted-person post or comment in the date window passed the target-text and metric rules."
+      },
+      "youtube": {
+        "focusedQueries": 1,
+        "accepted": 0,
+        "result": "No indexed native allowlisted-person video or comment in the date window passed the rules."
+      },
+      "reddit": {
+        "focusedQueries": 1,
+        "accepted": 0,
+        "result": "No indexed native allowlisted-person post or comment in the date window passed the rules."
+      },
+      "other": {
+        "productHuntQueries": 1,
+        "hackerNewsQueries": 1,
+        "accepted": 0,
+        "result": "No indexed native allowlisted-person activity in the date window passed the rules."
+      }
+    }
+  },
+  "counts": {
+    "accepted": 2,
+    "duplicates": 2,
+    "rejected": 7,
+    "strictTextMatchCandidates": 11,
+    "blockers": 4
+  },
+  "duplicateCounts": {
+    "total": 2,
+    "canonicalEvidence": 1,
+    "sourceHuntOutput": 1
+  },
+  "rejectedCounts": {
+    "total": 7,
+    "ambiguousCommonLabelCollision": 7
+  },
+  "evidence": [
+    {
+      "id": "x-topvoice-recent-a16zsr006-company-oasis-andrew-chen-2078236768370147766",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-oasis",
+      "companyName": "Oasis",
+      "platform": "x",
+      "title": "Andrew Chen congratulates Oasis founder Stefano Fantini Delmanto",
+      "sourceUrl": "https://x.com/andrewchen/status/2078236768370147766",
+      "platformPostId": "2078236768370147766",
+      "text": "@stedelmanto Congrats!!!! Love the video and launch",
+      "rawVisibleText": "{\"source\":\"fxtwitter_public_post_json\",\"profile\":{\"name\":\"andrew chen\",\"username\":\"andrewchen\",\"url\":\"https://x.com/andrewchen\"},\"post\":{\"id\":\"2078236768370147766\",\"url\":\"https://x.com/andrewchen/status/2078236768370147766\",\"rawText\":\"@stedelmanto Congrats!!!! Love the video and launch\",\"created_at\":\"Fri Jul 17 21:53:52 +0000 2026\",\"authorName\":\"andrew chen\",\"authorHandle\":\"andrewchen\",\"replyingTo\":\"stedelmanto\",\"replyingToStatus\":\"2078180286441955781\"},\"counts\":{\"views\":837,\"likes\":5,\"comments\":1,\"replies\":1,\"reposts\":0,\"retweets\":0,\"quotes\":0,\"saves\":0},\"target\":{\"batch\":\"A16ZSR006\",\"companyName\":\"Oasis\",\"entityId\":\"a16z-speedrun-006-oasis\",\"founderId\":\"a16z-speedrun-006-oasis-founder-stefano-fantini-delmanto\",\"founderName\":\"Stefano Fantini Delmanto\",\"founderHandle\":\"stedelmanto\"},\"verification\":{\"checkedAt\":\"2026-07-19T05:24:49Z\",\"topVoiceAudience\":\"insiders\",\"topVoicePersonId\":\"andrew-chen\",\"topVoiceName\":\"Andrew Chen\",\"nativeAuthorVerified\":true,\"metricsVisible\":true,\"strictAuthoredTextMatch\":\"Native reply tags the locally verified Oasis founder handle @stedelmanto.\",\"dedupeStatus\":\"net_new\"},\"batchContext\":{\"batch\":\"A16ZSR006\",\"source\":\"public/graph/a16zsr006.json\"}}",
+      "postedAt": "2026-07-17T21:53:52.000Z",
+      "metrics": {
+        "views": 837,
+        "likes": 5,
+        "comments": 1,
+        "replies": 1,
+        "reposts": 0,
+        "retweets": 0,
+        "quotes": 0,
+        "saves": 0
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "Native X reply by allowlisted insider Andrew Chen directly tags verified A16ZSR006 Oasis founder Stefano Fantini Delmanto and has positive visible metrics.",
+      "first_seen_at": "2026-07-19T05:24:49Z",
+      "last_checked_at": "2026-07-19T05:24:49Z",
+      "last_updated_at": "2026-07-17T21:53:52.000Z",
+      "linkStatus": "verified",
+      "linkCheckedAt": "2026-07-19T05:24:49Z"
+    },
+    {
+      "id": "x-topvoice-recent-s26-company-litmus-build-jared-friedman-2078326722500681788",
+      "entityType": "company",
+      "entityId": "company-litmus-build",
+      "companyName": "Litmus",
+      "platform": "x",
+      "title": "Jared Friedman replies to Litmus founders Shaivi Rau and Elena Zhao",
+      "sourceUrl": "https://x.com/snowmaker/status/2078326722500681788",
+      "platformPostId": "2078326722500681788",
+      "text": "@ShaiviRau @ElenaxZhao Did you write that yourself?  You have amazing handwriting.",
+      "rawVisibleText": "{\"source\":\"fxtwitter_public_post_json\",\"profile\":{\"name\":\"Jared Friedman\",\"username\":\"snowmaker\",\"url\":\"https://x.com/snowmaker\"},\"post\":{\"id\":\"2078326722500681788\",\"url\":\"https://x.com/snowmaker/status/2078326722500681788\",\"rawText\":\"@ShaiviRau @ElenaxZhao Did you write that yourself?  You have amazing handwriting.\",\"created_at\":\"Sat Jul 18 03:51:18 +0000 2026\",\"authorName\":\"Jared Friedman\",\"authorHandle\":\"snowmaker\",\"replyingTo\":\"ShaiviRau\",\"replyingToStatus\":\"2078208355966099463\"},\"counts\":{\"views\":3193,\"likes\":8,\"comments\":3,\"replies\":3,\"reposts\":0,\"retweets\":0,\"quotes\":1,\"saves\":1},\"target\":{\"batch\":\"S26\",\"companyName\":\"Litmus\",\"entityId\":\"company-litmus-build\",\"founders\":[{\"founderId\":\"founder-litmus-build-shaivi-rau-1353649\",\"founderName\":\"Shaivi Rau\",\"founderHandle\":\"ShaiviRau\"},{\"founderId\":\"founder-litmus-build-elena-zhao-2315600\",\"founderName\":\"Elena Zhao\",\"founderHandle\":\"ElenaxZhao\"}]},\"verification\":{\"checkedAt\":\"2026-07-19T05:24:49Z\",\"topVoiceAudience\":\"yc_partners\",\"topVoicePersonId\":\"jared-friedman\",\"topVoiceName\":\"Jared Friedman\",\"nativeAuthorVerified\":true,\"metricsVisible\":true,\"strictAuthoredTextMatch\":\"Native reply tags both locally verified Litmus founder handles.\",\"dedupeStatus\":\"net_new\"},\"batchContext\":{\"batch\":\"S26\",\"source\":\"public/graph/s26.json\"}}",
+      "postedAt": "2026-07-18T03:51:18.000Z",
+      "metrics": {
+        "views": 3193,
+        "likes": 8,
+        "comments": 3,
+        "replies": 3,
+        "reposts": 0,
+        "retweets": 0,
+        "quotes": 1,
+        "saves": 1
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "Native X reply by allowlisted YC partner Jared Friedman directly tags both verified S26 Litmus founders and has positive visible metrics.",
+      "first_seen_at": "2026-07-19T05:24:49Z",
+      "last_checked_at": "2026-07-19T05:24:49Z",
+      "last_updated_at": "2026-07-18T03:51:18.000Z",
+      "linkStatus": "verified",
+      "linkCheckedAt": "2026-07-19T05:24:49Z"
+    }
+  ],
+  "duplicates": [
+    {
+      "audience": "yc_partners",
+      "batch": "S26",
+      "entityId": "company-inkbox",
+      "companyName": "Inkbox",
+      "person": "Tyler Bosmeny",
+      "sourceUrl": "https://x.com/bosmeny/status/2076459852113858684",
+      "platformPostId": "2076459852113858684",
+      "postedAt": "2026-07-13T00:13:02.000Z",
+      "metrics": {
+        "views": 191,
+        "likes": 4,
+        "replies": 1
+      },
+      "title": "Tyler Bosmeny replies to Inkbox founders",
+      "attribution": "Native authored text tags @inkbox_ai and three locally verified Inkbox founders.",
+      "reason": "Exact source URL and platform post ID already exist in src/lib/social/targeted-evidence-current.json."
+    },
+    {
+      "audience": "insiders",
+      "batch": "S2026",
+      "entityId": "company-openprose",
+      "companyName": "OpenProse",
+      "person": "Aaron Levie",
+      "sourceUrl": "https://x.com/levie/status/2078532524314329332",
+      "platformPostId": "2078532524314329332",
+      "postedAt": "2026-07-18T17:29:05.000Z",
+      "metrics": {
+        "views": 883,
+        "likes": 8,
+        "replies": 1,
+        "bookmarks": 1
+      },
+      "title": "Aaron Levie comments on OpenProse's inference business model",
+      "attribution": "Native authored text tags locally verified OpenProse founder @irl_danB.",
+      "reason": "Concurrent exact source URL and platform post ID already exist in outputs/source-hunt/2026-07-19-s2026-recent.json."
+    }
+  ],
+  "rejected": [
+    {
+      "person": "Emmett Shear",
+      "sourceUrl": "https://x.com/eshear/status/2075023458636116308",
+      "platformPostId": "2075023458636116308",
+      "matchedEntityId": "company-result",
+      "reason": "The word result is generic in this scientific reply; the text does not identify the S2026 company Result."
+    },
+    {
+      "person": "Rahul Vohra",
+      "sourceUrl": "https://x.com/rahulvohra/status/2077117938893734183",
+      "platformPostId": "2077117938893734183",
+      "matchedEntityId": "a16z-speedrun-006-auto",
+      "reason": "Auto refers to Superhuman's Auto Drafts feature, not the A16ZSR006 company Auto."
+    },
+    {
+      "person": "Aaron Levie",
+      "sourceUrl": "https://x.com/levie/status/2077526010753581156",
+      "platformPostId": "2077526010753581156",
+      "matchedEntityId": "company-modern",
+      "reason": "Modern is used as a generic adjective; the text does not identify the S2026 company Modern."
+    },
+    {
+      "person": "Brian Armstrong",
+      "sourceUrl": "https://x.com/brian_armstrong/status/2077764588955951464",
+      "platformPostId": "2077764588955951464",
+      "matchedEntityId": "company-instance",
+      "reason": "Instance is used as a generic phrase; the text does not identify the S26 company Instance."
+    },
+    {
+      "person": "Eric Migicovsky",
+      "sourceUrl": "https://x.com/ericmigi/status/2077810731035279675",
+      "platformPostId": "2077810731035279675",
+      "matchedEntityId": "company-instance",
+      "reason": "Jira instance is generic product terminology; the text does not identify the S26 company Instance."
+    },
+    {
+      "person": "Brian Armstrong",
+      "sourceUrl": "https://x.com/brian_armstrong/status/2078151508692984314",
+      "platformPostId": "2078151508692984314",
+      "matchedEntityId": "company-instance",
+      "reason": "For instance is a generic phrase; the text does not identify the S26 company Instance."
+    },
+    {
+      "person": "Aaron Levie",
+      "sourceUrl": "https://x.com/levie/status/2078708004250431895",
+      "platformPostId": "2078708004250431895",
+      "matchedEntityId": "company-instance",
+      "reason": "For instance is a generic phrase; the text does not identify the S26 company Instance."
+    }
+  ],
+  "blockers": [
+    {
+      "platform": "linkedin",
+      "detail": "Public indexed search did not expose qualifying recent native activity; logged-out search cannot fully enumerate comments, reaction counts, or all recent posts."
+    },
+    {
+      "platform": "youtube",
+      "detail": "Public indexed search returned no qualifying allowlisted-person native video or comment; comment authorship and metrics are not comprehensively searchable."
+    },
+    {
+      "platform": "reddit",
+      "detail": "Public indexed search returned no qualifying allowlisted-person native activity; account comment histories are not comprehensively indexed."
+    },
+    {
+      "platform": "product_hunt_hacker_news",
+      "detail": "Focused public searches returned no qualifying allowlisted-person native activity in the requested date window."
+    }
+  ]
+}

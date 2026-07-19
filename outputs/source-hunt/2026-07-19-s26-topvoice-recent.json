@@ -1,0 +1,71 @@
+{
+  "auditMetadata": {
+    "auditId": "s26-topvoice-recent-2026-07-19",
+    "generatedAt": "2026-07-19T05:52:06Z",
+    "batch": "Summer 2026",
+    "derivedFrom": "outputs/source-hunt/2026-07-19-topvoices-recent.json",
+    "sourceRowPlatformPostId": "2078326722500681788",
+    "sourceRowAuthorHandle": "snowmaker",
+    "allowlistSource": "src/lib/social/top-voices.ts",
+    "rosterSource": "src/lib/yc/summer-2026-companies.json",
+    "counts": {
+      "reviewed": 1,
+      "accepted": 1,
+      "rejected": 0
+    },
+    "normalizations": [
+      "current Summer 2026 company and founder roster IDs applied",
+      "top-level native author metadata added",
+      "duplicate X comments/retweets/saves aliases removed",
+      "zero-valued metrics omitted"
+    ],
+    "metricPolicy": {
+      "scoring": [
+        "views",
+        "likes",
+        "replies",
+        "reposts",
+        "quotes"
+      ],
+      "displayOnly": [
+        "bookmarks"
+      ]
+    }
+  },
+  "evidence": [
+    {
+      "id": "x-topvoice-recent-s26-company-litmus-hiring-jared-friedman-2078326722500681788",
+      "entityType": "company",
+      "entityId": "company-litmus-hiring",
+      "companyName": "Litmus",
+      "platform": "x",
+      "title": "Jared Friedman replies to Litmus founders Shaivi Rau and Elena Zhao",
+      "sourceUrl": "https://x.com/snowmaker/status/2078326722500681788",
+      "platformPostId": "2078326722500681788",
+      "authorName": "Jared Friedman",
+      "authorHandle": "snowmaker",
+      "accountId": "3587741",
+      "accountUrl": "https://x.com/snowmaker",
+      "accountType": "person",
+      "text": "@ShaiviRau @ElenaxZhao Did you write that yourself?  You have amazing handwriting.",
+      "rawVisibleText": "{\"source\":\"fxtwitter_public_post_json\",\"profile\":{\"name\":\"Jared Friedman\",\"username\":\"snowmaker\",\"id\":\"3587741\",\"url\":\"https://x.com/snowmaker\"},\"post\":{\"id\":\"2078326722500681788\",\"url\":\"https://x.com/snowmaker/status/2078326722500681788\",\"rawText\":\"@ShaiviRau @ElenaxZhao Did you write that yourself?  You have amazing handwriting.\",\"created_at\":\"Sat Jul 18 03:51:18 +0000 2026\",\"authorName\":\"Jared Friedman\",\"authorHandle\":\"snowmaker\",\"replyingTo\":\"ShaiviRau\",\"replyingToStatus\":\"2078208355966099463\"},\"counts\":{\"views\":3208,\"likes\":8,\"replies\":3,\"quotes\":1,\"bookmarks\":1},\"target\":{\"batch\":\"S26\",\"companyName\":\"Litmus\",\"entityId\":\"company-litmus-hiring\",\"founders\":[{\"founderId\":\"founder-litmus-hiring-shaivi-rau-1353649\",\"founderName\":\"Shaivi Rau\",\"founderHandle\":\"ShaiviRau\"},{\"founderId\":\"founder-litmus-hiring-elena-zhao-2315600\",\"founderName\":\"Elena Zhao\",\"founderHandle\":\"ElenaxZhao\"}]},\"verification\":{\"checkedAt\":\"2026-07-19T05:52:06Z\",\"topVoiceAudience\":\"yc_partners\",\"topVoicePersonId\":\"jared-friedman\",\"topVoiceName\":\"Jared Friedman\",\"nativeAuthorVerified\":true,\"metricsVisible\":true,\"strictAuthoredTextMatch\":\"Native reply text tags both current-roster Litmus founder handles.\",\"dedupeStatus\":\"net_new\"},\"batchContext\":{\"batch\":\"S26\",\"source\":\"src/lib/yc/summer-2026-companies.json\"}}",
+      "postedAt": "2026-07-18T03:51:18.000Z",
+      "metrics": {
+        "views": 3208,
+        "likes": 8,
+        "replies": 3,
+        "quotes": 1,
+        "bookmarks": 1
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "Native X reply by allowlisted YC partner Jared Friedman directly tags both current-roster Litmus founders and has positive visible post metrics.",
+      "first_seen_at": "2026-07-19T05:24:49Z",
+      "last_checked_at": "2026-07-19T05:52:06Z",
+      "last_updated_at": "2026-07-18T03:51:18.000Z",
+      "linkStatus": "verified",
+      "linkCheckedAt": "2026-07-19T05:52:06Z"
+    }
+  ],
+  "rejected": []
+}

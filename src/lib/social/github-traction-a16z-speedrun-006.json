@@ -4,14 +4,14 @@
     "batchSlug": "A16ZSR006",
     "batchLabel": "a16z Speedrun 006",
     "sourcePath": "src/lib/graph/a16z-speedrun-006-dataset.ts",
-    "fetchedAt": "2026-07-10T06:56:16.353Z",
-    "targetCount": 17,
-    "fetchedCount": 16,
+    "fetchedAt": "2026-07-19T06:29:30.365Z",
+    "targetCount": 18,
+    "fetchedCount": 17,
     "discovery": {
       "explicitTargetCount": 0,
-      "discoveredTargetCount": 20,
+      "discoveredTargetCount": 22,
       "websiteTargets": 2,
-      "searchTargets": 18,
+      "searchTargets": 20,
       "searchesUsed": 80,
       "searchFailures": []
     },
@@ -20,8 +20,10 @@
       "GITHUB_TOKEN is optional and only increases API rate limits; gh auth token can be exported before running.",
       "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
       "a16z Speedrun 006 profiles in the local graph dataset do not include explicit GitHub social links, so official company websites are scanned by default.",
-      "GitHub search discovery is available with --search for conservative same-domain or same-owner matches; use --no-website to disable official website discovery."
-    ]
+      "GitHub search discovery is available with --search for conservative same-domain or same-owner matches; use --no-website to disable official website discovery.",
+      "Validation excluded 1 new GitHub-search candidate whose company-to-repository attribution was not verified."
+    ],
+    "retainedLastGood": 0
   },
   "accounts": [
     {
@@ -43,7 +45,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/botallen",
         "bio": "",
-        "followers": 72,
+        "followers": 74,
         "following": 0,
         "publicRepos": 7,
         "publicGists": 0,
@@ -96,7 +98,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/modaic-ai",
         "bio": "The best way to build your data flywheel",
-        "followers": 19,
+        "followers": 20,
         "following": 0,
         "publicRepos": 18,
         "publicGists": 0,
@@ -124,7 +126,7 @@
           "openIssues": 0,
           "language": "TypeScript",
           "pushedAt": "2026-05-26T02:07:57Z",
-          "updatedAt": "2026-07-08T00:47:15Z",
+          "updatedAt": "2026-07-15T09:28:42Z",
           "createdAt": "2026-05-24T01:41:29Z",
           "score": 100
         }
@@ -149,7 +151,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/modaic-ai",
         "bio": "The best way to build your data flywheel",
-        "followers": 19,
+        "followers": 20,
         "following": 0,
         "publicRepos": 18,
         "publicGists": 0,
@@ -162,7 +164,7 @@
         "totalForks": 5,
         "totalWatchers": 60,
         "maxRepoScore": 89,
-        "profileScore": 89
+        "profileScore": 90
       },
       "repos": [
         {
@@ -202,7 +204,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/modaic-ai",
         "bio": "The best way to build your data flywheel",
-        "followers": 19,
+        "followers": 20,
         "following": 0,
         "publicRepos": 18,
         "publicGists": 0,
@@ -211,9 +213,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 26,
+        "totalStars": 27,
         "totalForks": 1,
-        "totalWatchers": 26,
+        "totalWatchers": 27,
         "maxRepoScore": 74,
         "profileScore": 79
       },
@@ -224,13 +226,13 @@
           "fullName": "modaic-ai/modaic",
           "description": "Python SDK for Modaic",
           "htmlUrl": "https://github.com/modaic-ai/modaic",
-          "stars": 26,
+          "stars": 27,
           "forks": 1,
-          "watchers": 26,
-          "openIssues": 10,
+          "watchers": 27,
+          "openIssues": 9,
           "language": "Python",
-          "pushedAt": "2026-06-23T00:31:30Z",
-          "updatedAt": "2026-06-25T08:17:25Z",
+          "pushedAt": "2026-07-19T04:50:48Z",
+          "updatedAt": "2026-07-19T04:51:14Z",
           "createdAt": "2025-07-19T15:00:39Z",
           "score": 74
         }
@@ -255,7 +257,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/modaic-ai",
         "bio": "The best way to build your data flywheel",
-        "followers": 19,
+        "followers": 20,
         "following": 0,
         "publicRepos": 18,
         "publicGists": 0,
@@ -264,11 +266,11 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 34,
+        "totalStars": 36,
         "totalForks": 2,
-        "totalWatchers": 34,
-        "maxRepoScore": 73,
-        "profileScore": 78
+        "totalWatchers": 36,
+        "maxRepoScore": 74,
+        "profileScore": 79
       },
       "repos": [
         {
@@ -277,15 +279,15 @@
           "fullName": "modaic-ai/gepa-rpc",
           "description": "Run GEPA on your favorite non-python libraries.",
           "htmlUrl": "https://github.com/modaic-ai/gepa-rpc",
-          "stars": 34,
+          "stars": 36,
           "forks": 2,
-          "watchers": 34,
+          "watchers": 36,
           "openIssues": 0,
           "language": "TypeScript",
           "pushedAt": "2026-01-22T21:12:03Z",
-          "updatedAt": "2026-07-07T09:47:02Z",
+          "updatedAt": "2026-07-14T20:36:46Z",
           "createdAt": "2025-12-24T07:28:29Z",
-          "score": 73
+          "score": 74
         }
       ]
     },
@@ -494,8 +496,8 @@
           "watchers": 0,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-24T05:35:09Z",
-          "updatedAt": "2026-06-24T05:35:14Z",
+          "pushedAt": "2026-07-17T20:29:54Z",
+          "updatedAt": "2026-07-17T20:30:00Z",
           "createdAt": "2026-05-07T01:59:35Z",
           "score": 8
         }
@@ -532,8 +534,8 @@
         "totalStars": 0,
         "totalForks": 0,
         "totalWatchers": 0,
-        "maxRepoScore": 8,
-        "profileScore": 7
+        "maxRepoScore": 3,
+        "profileScore": 3
       },
       "repos": [
         {
@@ -550,7 +552,7 @@
           "pushedAt": "2026-05-29T07:32:02Z",
           "updatedAt": "2026-05-29T07:32:06Z",
           "createdAt": "2026-05-27T08:33:32Z",
-          "score": 8
+          "score": 3
         }
       ]
     },
@@ -578,7 +580,7 @@
         "publicRepos": 1,
         "publicGists": 0,
         "createdAt": "2025-01-20T01:25:20Z",
-        "updatedAt": "2026-06-16T07:57:00Z"
+        "updatedAt": "2026-07-15T10:37:48Z"
       },
       "aggregate": {
         "repoCount": 1,

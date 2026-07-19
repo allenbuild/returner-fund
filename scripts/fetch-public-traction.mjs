@@ -27,13 +27,18 @@ const workerCount = numberArg("--workers") ?? 8;
 const forceRefresh = hasArg("--force");
 const freshForHours = Math.max(0, numberArg("--fresh-for-hours") ?? 12);
 const discoverMissingSocial = hasArg("--discover-missing-social") || platformFilter.size > 0;
-const discoveryAttemptsPath = join(root, "outputs", "discovery-attempts-current.json");
-const sourceDiscoveryPathsPath = join(root, "outputs", "source-discovery-paths-current.json");
+const discoveryAttemptsPath = resolvePathArg(
+  stringArg("--discovery-attempts") ?? join(root, "outputs", "discovery-attempts-current.json")
+);
+const sourceDiscoveryPathsPath = resolvePathArg(
+  stringArg("--source-discovery-paths") ?? join(root, "outputs", "source-discovery-paths-current.json")
+);
 
 const batchSnapshot = normalizeBatchSnapshot(
   JSON.parse(await readFile(batchSnapshotPath, "utf8")),
   batchConfig
 );
+const canonicalCompanyCatalog = await loadCanonicalCompanyCatalog(batchSnapshot, batchConfig);
 const currentBatchContext = batchContextFromSnapshot(batchSnapshot);
 const currentOutput = await readJson(outputPath, { evidence: [], needsReview: [], failures: [] });
 const currentDiscoveryAttempts = await readJson(discoveryAttemptsPath, []);
@@ -54,7 +59,7 @@ const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkp
 const failures = dedupeFailures([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
 const discoveryAttempts = dedupeDiscoveryAttempts([...(currentDiscoveryAttempts ?? []), ...(checkpoint.discoveryAttempts ?? [])]);
 const sourceDiscoveryPaths = dedupeById([...(currentSourceDiscoveryPaths ?? []), ...(checkpoint.sourceDiscoveryPaths ?? [])]);
-const companyBySlug = new Map(batchSnapshot.companies.map((company) => [company.slug, company]));
+const companyBySlug = new Map(canonicalCompanyCatalog.map((company) => [company.slug, company]));
 let checkpointWriteChain = Promise.resolve();
 const platformCooldowns = new Map();
 const INGEST_METRIC_WEIGHTS = {
@@ -110,6 +115,7 @@ const companies = batchSnapshot.companies
 
 const taskPlan = companies.flatMap(buildCompanyTasks);
 await runTaskPlan(taskPlan, workerCount);
+const normalizedOutputEvidence = normalizeEvidenceForStorage(evidence);
 
 const payload = {
   source: {
@@ -149,8 +155,8 @@ const payload = {
         : [])
     ]
   },
-  evidence: dedupeById(evidence).map(normalizeStoredEvidence).filter(Boolean),
-  needsReview: normalizeNeedsReviewItems(needsReview),
+  evidence: normalizedOutputEvidence.evidence,
+  needsReview: normalizeNeedsReviewItems([...needsReview, ...normalizedOutputEvidence.needsReview]),
   failures: dedupeFailures(failures)
 };
 
@@ -645,13 +651,16 @@ async function ingestHackerNews(company) {
   }
 
   return {
-    evidence: hits.map((hit) =>
-      evidenceItem({
+    evidence: hits.map((hit) => {
+      const nativeUrl = `https://news.ycombinator.com/item?id=${hit.objectID}`;
+      return evidenceItem({
         company,
         entityType: "company",
         entityId: companyId(company),
         platform: "hacker_news",
-        sourceUrl: hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`,
+        sourceUrl: nativeUrl,
+        submittedUrl: hit.url ?? null,
+        platformPostId: String(hit.objectID),
         title: hit.title || company.name,
         text: hit.title || company.name,
         rawVisibleText: JSON.stringify(hit),
@@ -666,8 +675,8 @@ async function ingestHackerNews(company) {
         }),
         review_state: "verified",
         matchReason: "Exact company-name match in public Hacker News Algolia result."
-      })
-    )
+      });
+    })
   };
 }
 
@@ -1421,6 +1430,8 @@ function evidenceItem(input) {
     platform: input.platform,
     title: sanitizePublicText(input.title),
     sourceUrl: input.sourceUrl,
+    ...(input.submittedUrl ? { submittedUrl: input.submittedUrl } : {}),
+    ...(input.authorHandle ? { authorHandle: input.authorHandle } : {}),
     platformPostId: input.platformPostId ?? platformPostIdFromUrl(input.platform, input.sourceUrl),
     text: sanitizePublicText(input.text).slice(0, 600),
     rawVisibleText: sanitizePublicText(input.rawVisibleText).slice(0, 6000),
@@ -1708,7 +1719,7 @@ function platformPostIdFromUrl(platform, rawUrl) {
     if (platform === "linkedin") {
       return (
         path.match(/\/feed\/update\/urn:li:activity:(\d+)/i)?.[1] ??
-        path.match(/\/posts\/([^/]+)/i)?.[1] ??
+        path.match(/\/posts\/[^/]*?activity-(\d+)(?:-|$)/i)?.[1] ??
         null
       );
     }
@@ -2292,6 +2303,38 @@ function normalizeBatchSnapshot(snapshot, config) {
   };
 }
 
+async function loadCanonicalCompanyCatalog(currentSnapshot, currentConfig) {
+  const descriptors = [
+    {
+      slug: "S2026",
+      label: "YC Spring 2026 (P26)",
+      snapshotPath: join(root, "src", "lib", "yc", "spring-2026-companies.json")
+    },
+    {
+      slug: "S26",
+      label: "YC Summer 2026 (S26)",
+      snapshotPath: join(root, "src", "lib", "yc", "summer-2026-companies.json")
+    },
+    {
+      slug: "A16ZSR006",
+      label: "a16z Speedrun 006",
+      snapshotPath: join(root, "public", "graph", "a16zsr006.json")
+    }
+  ];
+  const companies = [];
+
+  for (const descriptor of descriptors) {
+    if (descriptor.slug === currentConfig.slug) continue;
+    const snapshot = await readJson(descriptor.snapshotPath, null);
+    if (!snapshot) continue;
+    companies.push(...normalizeBatchSnapshot(snapshot, descriptor).companies);
+  }
+
+  // Current-batch records win when two cohorts reuse a company slug.
+  companies.push(...currentSnapshot.companies);
+  return [...new Map(companies.map((company) => [company.slug, company])).values()];
+}
+
 function batchCompanySlug(node) {
   try {
     const parts = new URL(node.sourceUrl ?? node.ycProfileUrl).pathname.split("/").filter(Boolean);
@@ -2368,36 +2411,52 @@ function isObsoleteInternalFailure(item) {
 }
 
 function normalizeStoredEvidence(item) {
-  if (item.platform === "web" || item.platform === "rss") {
-    return {
-      ...item,
-      contributionScore: 0,
-      matchReason:
-        item.platform === "rss"
-          ? "Public RSS/blog item stored as context. It is not scored without public engagement metrics."
-          : item.matchReason.replace(
-              /Low score because no public engagement metrics were available\./,
-              "Stored as context only because no public engagement metrics were available."
-            )
+  const platform = normalizePlatformArg(item.platform);
+  const company = companyBySlug.get(item.companySlug);
+  let normalized = { ...item, platform };
+
+  if (platform === "hacker_news") {
+    const metadata = parseRawJson(item.rawVisibleText);
+    const nativeId = String(
+      platformPostIdFromUrl("hacker_news", item.sourceUrl) ?? item.platformPostId ?? metadata?.objectID ?? ""
+    );
+    const submittedUrl = item.submittedUrl ?? metadata?.url ?? (!isNativeContentUrl("hacker_news", item.sourceUrl) ? item.sourceUrl : null);
+    if (/^\d+$/.test(nativeId)) {
+      normalized = {
+        ...normalized,
+        sourceUrl: `https://news.ycombinator.com/item?id=${nativeId}`,
+        platformPostId: nativeId,
+        ...(submittedUrl ? { submittedUrl } : {})
+      };
+    } else {
+      return null;
+    }
+  }
+
+  if (platform === "linkedin") {
+    normalized = {
+      ...normalized,
+      sourceUrl: canonicalProfileUrl(item.sourceUrl, platform),
+      platformPostId: platformPostIdFromUrl(platform, item.sourceUrl)
     };
   }
+
   if (["x", "linkedin", "instagram"].includes(item.platform)) {
     const isPostEvidence =
       /verified public .* (post|tweet|status|activity)/i.test(item.matchReason ?? "") ||
       /\/status\/\d+|\/feed\/update\/urn:li:activity:|\/posts\/|\/(p|reel|tv)\//i.test(item.sourceUrl ?? "");
     const metrics = isPostEvidence ? removeNullish(item.metrics ?? {}) : removeNullish(metricsFromPublicProfile(item.platform, item.rawVisibleText, item.title));
-    return {
-      ...item,
+    normalized = {
+      ...normalized,
       text: isPostEvidence ? item.text : socialProfileSummary(item.platform, item.rawVisibleText, item.title).slice(0, 600),
       metrics,
-      contributionScore: isPostEvidence ? scoreMetrics(item.platform, metrics) : 0,
+      authorHandle: socialPostAuthorHandle(item),
       matchReason: isPostEvidence
         ? item.matchReason
         : `Public ${item.platform} profile stored as identity context only. Profile followers are not counted as post traction.`
     };
   }
   if (item.platform === "product_hunt") {
-    const company = companyBySlug.get(item.companySlug);
     const verification = company
       ? productHuntVerification(
           company,
@@ -2406,27 +2465,204 @@ function normalizeStoredEvidence(item) {
         )
       : { verified: false };
     if (!company || !verification.verified) {
-      return null;
+      normalized = {
+        ...normalized,
+        matchReason: `${item.matchReason ?? "Public Product Hunt candidate."} Canonical write rejected product attribution.`
+      };
+    } else {
+      normalized = {
+        ...normalized,
+        matchReason: `Verified public Product Hunt page: ${verification.reason}.`
+      };
     }
-    const metrics = removeNullish(item.metrics ?? {});
-    return {
-      ...item,
-      metrics,
-      contributionScore: scoreMetrics("product_hunt", metrics),
-      matchReason: `Verified public Product Hunt page: ${verification.reason}.`
-    };
   }
-  return item;
+
+  const metrics = removeNullish(normalized.metrics ?? {});
+  const nativeContent = isNativeContentUrl(platform, normalized.sourceUrl);
+  const hasMetric = hasPositiveSupportedMetric(platform, metrics);
+  const exactAuthor = !["x", "instagram"].includes(platform) || exactAuthorMatchesCompany(normalized, company);
+  const eligible = nativeContent && hasMetric && exactAuthor;
+  const reason = !nativeContent
+    ? "Canonical write classified this URL as profile, search, context, or unsupported content."
+    : !hasMetric
+      ? "Canonical write found no positive supported visible traction metric."
+      : !exactAuthor
+        ? "Canonical write could not match the native post author to a mapped company or founder account."
+        : null;
+
+  return {
+    ...normalized,
+    metrics,
+    contributionScore: eligible ? scoreMetrics(platform, metrics) : 0,
+    review_state: eligible ? "verified" : "needs_review",
+    matchReason: reason ? `${normalized.matchReason ?? "Public evidence candidate."} ${reason}` : normalized.matchReason
+  };
+}
+
+function normalizeEvidenceForStorage(items) {
+  const normalizedCandidates = [];
+  const normalizationReview = [];
+  for (const item of dedupeById(items)) {
+    const normalized = normalizeStoredEvidence(item);
+    if (normalized) {
+      normalizedCandidates.push(normalized);
+      continue;
+    }
+    normalizationReview.push({
+      id: stableId(`review:normalization:${item.platform}:${item.entityId}:${item.sourceUrl}`),
+      entityType: item.entityType,
+      entityId: item.entityId,
+      entityName: item.companyName,
+      companySlug: item.companySlug,
+      companyName: item.companyName,
+      platform: item.platform,
+      candidateUrl: item.sourceUrl,
+      submittedUrl: item.submittedUrl ?? item.sourceUrl,
+      review_state: "needs_review",
+      matchReason: "Canonical write could not recover a native Hacker News item ID; submitted destination retained for manual review.",
+      first_seen_at: item.first_seen_at ?? now,
+      last_checked_at: now,
+      last_updated_at: item.last_updated_at ?? now
+    });
+  }
+
+  const normalizedEvidence = [];
+  const candidatesByNativeIdentity = new Map();
+  for (const item of normalizedCandidates) {
+    const identity = nativeEvidenceIdentity(item);
+    candidatesByNativeIdentity.set(identity, [...(candidatesByNativeIdentity.get(identity) ?? []), item]);
+  }
+
+  for (const [identity, candidates] of candidatesByNativeIdentity) {
+    if (candidates.length === 1) {
+      normalizedEvidence.push(candidates[0]);
+      continue;
+    }
+
+    const companySlugs = new Set(candidates.map((item) => item.companySlug).filter(Boolean));
+    if (companySlugs.size === 1) {
+      normalizedEvidence.push(
+        [...candidates].sort(
+          (left, right) =>
+            Number(right.contributionScore > 0) - Number(left.contributionScore > 0) ||
+            String(left.id).localeCompare(String(right.id))
+        )[0]
+      );
+      continue;
+    }
+
+    for (const item of candidates) {
+      normalizationReview.push({
+        ...item,
+        id: stableId(`review:ambiguous-native-identity:${identity}:${item.entityId}`),
+        candidateUrl: item.sourceUrl,
+        contributionScore: 0,
+        review_state: "needs_review",
+        matchReason: `${item.matchReason ?? "Public evidence candidate."} Canonical write found the same native post attached to multiple companies, so attribution is ambiguous.`
+      });
+    }
+  }
+  return { evidence: normalizedEvidence, needsReview: normalizationReview };
+}
+
+function nativeEvidenceIdentity(item) {
+  const platform = normalizePlatformArg(item.platform);
+  const nativeId = String(item.platformPostId ?? platformPostIdFromUrl(platform, item.sourceUrl) ?? "").trim();
+  if (nativeId) return `${platform}:${nativeId.toLowerCase()}`;
+  return `${platform}:url:${canonicalProfileUrl(item.sourceUrl, platform).toLowerCase()}`;
+}
+
+function parseRawJson(value) {
+  try {
+    return JSON.parse(value ?? "null");
+  } catch {
+    return null;
+  }
+}
+
+function hasPositiveSupportedMetric(platform, metrics) {
+  const weights = INGEST_METRIC_WEIGHTS[platform];
+  if (!weights) return false;
+  return Object.keys(weights).some((metric) => Number(metrics?.[metric]) > 0);
+}
+
+function isNativeContentUrl(platform, rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+    const path = url.pathname.replace(/\/$/, "");
+    if (platform === "x") return ["x.com", "twitter.com", "mobile.twitter.com"].includes(host) && /\/[^/]+\/status\/\d+$/i.test(path);
+    if (platform === "instagram") return (host === "instagram.com" || host.endsWith(".instagram.com")) && /^\/(?:p|reel|tv)\/[^/]+$/i.test(path);
+    if (platform === "linkedin") {
+      return (host === "linkedin.com" || host.endsWith(".linkedin.com")) &&
+        (/\/feed\/update\/urn:li:activity:\d+$/i.test(path) || /\/posts\/[^/]*?activity-\d+(?:-[^/]*)?$/i.test(path));
+    }
+    if (platform === "youtube") return (host === "youtube.com" || host.endsWith(".youtube.com")) &&
+      ((path === "/watch" && /^[\w-]{6,}$/.test(url.searchParams.get("v") ?? "")) || /^\/shorts\/[\w-]{6,}$/i.test(path));
+    if (platform === "product_hunt") return (host === "producthunt.com" || host.endsWith(".producthunt.com")) && /^\/(?:posts|products)\/[^/]+$/i.test(path);
+    if (platform === "hacker_news") return host === "news.ycombinator.com" && path === "/item" && /^\d+$/.test(url.searchParams.get("id") ?? "");
+    if (platform === "reddit") return (host === "reddit.com" || host.endsWith(".reddit.com")) && /\/comments\/[^/]+/i.test(path);
+    if (platform === "github") return host === "github.com" && path.split("/").filter(Boolean).length === 2;
+    if (platform === "bilibili") return host.endsWith("bilibili.com") && /\/video\/[^/]+/i.test(path);
+  } catch {
+    return false;
+  }
+  return false;
+}
+
+function exactAuthorMatchesCompany(item, company) {
+  if (!company) return false;
+  const authorHandle = normalizeSocialHandle(socialPostAuthorHandle(item));
+  if (!authorHandle) return false;
+  return knownCompanySocialHandles(company, item.platform).has(authorHandle);
+}
+
+function knownCompanySocialHandles(company, platform) {
+  const urls = [
+    company.socialLinks?.[platform],
+    ...(company.founders ?? []).map((founder) => founder.socialLinks?.[platform])
+  ].filter(Boolean);
+  return new Set(urls.map((url) => normalizeSocialHandle(socialProfileHandleFromUrl(url, platform))).filter(Boolean));
+}
+
+function socialPostAuthorHandle(item) {
+  if (item.authorHandle) return item.authorHandle;
+  if (item.platform === "x") return socialProfileHandleFromUrl(item.sourceUrl, "x");
+  if (item.platform === "instagram") {
+    const raw = String(item.rawVisibleText ?? "");
+    return (
+      raw.match(/Never miss a post from\s+([\w.]+)/i)?.[1] ??
+      raw.match(/\[([\w.]+)\]\(https?:\/\/(?:www\.)?instagram\.com\/\1\/?\)/i)?.[1] ??
+      null
+    );
+  }
+  return null;
+}
+
+function socialProfileHandleFromUrl(rawUrl, platform) {
+  try {
+    const path = new URL(rawUrl).pathname.split("/").filter(Boolean);
+    if (platform === "x") return path[0] ?? null;
+    if (platform === "instagram" && !["p", "reel", "tv"].includes(path[0]?.toLowerCase())) return path[0] ?? null;
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function normalizeSocialHandle(value) {
+  return String(value ?? "").replace(/^@/, "").trim().toLowerCase();
 }
 
 async function writeCheckpoint() {
   checkpointWriteChain = checkpointWriteChain.then(async () => {
+    const normalizedCheckpointEvidence = normalizeEvidenceForStorage(evidence);
     const checkpointPayload = {
       attempts: Object.fromEntries(
         [...attemptMap.entries()].filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
       ),
-      evidence: dedupeById(evidence).map(normalizeStoredEvidence).filter(Boolean),
-      needsReview: normalizeNeedsReviewItems(needsReview),
+      evidence: normalizedCheckpointEvidence.evidence,
+      needsReview: normalizeNeedsReviewItems([...needsReview, ...normalizedCheckpointEvidence.needsReview]),
       failures: dedupeFailures(failures),
       discoveryAttempts: dedupeDiscoveryAttempts(discoveryAttempts),
       sourceDiscoveryPaths: dedupeById(sourceDiscoveryPaths)

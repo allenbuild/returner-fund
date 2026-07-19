@@ -1,0 +1,215 @@
+{
+  "generatedAt": "2026-07-19T06:35:00.000Z",
+  "target": "src/lib/social/targeted-evidence-current.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-19-s2026-recent.json",
+    "outputs/source-hunt/2026-07-19-s2026-github-hn-recent.json",
+    "outputs/source-hunt/2026-07-19-s26-x-recent.json",
+    "outputs/source-hunt/2026-07-19-s26-linkedin-youtube-recent.json",
+    "outputs/source-hunt/2026-07-19-s26-topvoice-recent.json",
+    "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+    "outputs/source-hunt/2026-07-19-yc-instagram-recent.json"
+  ],
+  "before": 468,
+  "received": 405,
+  "accepted": 384,
+  "updated": 0,
+  "duplicates": 21,
+  "duplicateRows": [
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+      "row": 24,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/draftedai_what-if-your-floor-plan-changes-updated-a-activity-7484295905676787712-vL1R",
+      "platformPostId": "7484295905676787712",
+      "existingId": "linkedin-company-drafted-linkedin-com-posts-draftedai-what-if-your-floor-plan-changes-updated-a-activity-7484295905676787712-vl1r-what-if-your-floor-plan-changes-updated-a-3d-model",
+      "existingEntityId": "company-drafted"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+      "row": 31,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/draftedai_introducing-regenerate-in-drafted-traditionally-activity-7482842797893410816-J4j6",
+      "platformPostId": "7482842797893410816",
+      "existingId": "linkedin-founder-drafted-nicholas-donahue-308465-linkedin-com-posts-draftedai-introducing-regenerate-in-drafted-traditionally-activity-7482842797893410816-j4j6-regenerate-floor-pla",
+      "existingEntityId": "founder-drafted-nicholas-donahue-308465"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+      "row": 32,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/complir_espr-activity-7482805570400313362-Cxqo",
+      "platformPostId": "7482805570400313362",
+      "existingId": "linkedin-company-complir-linkedin-com-posts-complir-espr-activity-7482805570400313362-cxqo-espr-complir",
+      "existingEntityId": "company-complir"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+      "row": 34,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/general-instinct_new-blog-is-latent-all-you-need-for-world-action-activity-7481785311493136384-LT_C",
+      "platformPostId": "7481785311493136384",
+      "existingId": "linkedin-company-general-instinct-linkedin-com-posts-general-instinct-new-blog-is-latent-all-you-need-for-world-action-activity-7481785311493136384-lt-c-latent-space-for-world-acti",
+      "existingEntityId": "company-general-instinct"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+      "row": 37,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/cignara_we-are-excited-to-welcome-lance-gruner-to-activity-7481028913624739840-IauU",
+      "platformPostId": "7481028913624739840",
+      "existingId": "linkedin-company-cignara-linkedin-com-posts-cignara-we-are-excited-to-welcome-lance-gruner-to-activity-7481028913624739840-iauu-we-are-excited-to-welcome-lance-gruner-to-cignara-la",
+      "existingEntityId": "company-cignara"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+      "row": 38,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/arctic-health_the-dme-suppliers-guide-to-commercial-insurance-activity-7479951057700306944-zar_",
+      "platformPostId": "7479951057700306944",
+      "existingId": "linkedin-company-arctic-health-linkedin-com-posts-arctic-health-the-dme-suppliers-guide-to-commercial-insurance-activity-7479951057700306944-zar-one-of-the-biggest-misconceptions-w",
+      "existingEntityId": "company-arctic-health"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-github-hn-recent.json",
+      "row": 0,
+      "platform": "github",
+      "sourceUrl": "https://github.com/Korso-AI/Shepherd",
+      "platformPostId": "Korso-AI/Shepherd",
+      "existingId": null,
+      "existingEntityId": "company-korso"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-github-hn-recent.json",
+      "row": 1,
+      "platform": "github",
+      "sourceUrl": "https://github.com/farzaa/clicky-releases",
+      "platformPostId": "farzaa/clicky-releases",
+      "existingId": null,
+      "existingEntityId": "company-heyclicky"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-github-hn-recent.json",
+      "row": 2,
+      "platform": "github",
+      "sourceUrl": "https://github.com/tester-army/scout",
+      "platformPostId": "tester-army/scout",
+      "existingId": null,
+      "existingEntityId": "company-testerarmy"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s2026-github-hn-recent.json",
+      "row": 3,
+      "platform": "github",
+      "sourceUrl": "https://github.com/InsForge/insta-cli",
+      "platformPostId": "InsForge/insta-cli",
+      "existingId": null,
+      "existingEntityId": "company-insforge"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-linkedin-youtube-recent.json",
+      "row": 3,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/aidantiruvan_they-aint-believe-in-us-god-did-activity-7480757450569289728-OM1V",
+      "platformPostId": "7480757450569289728",
+      "existingId": "linkedin-founder-archal-noah-song-2561732-www-linkedin-com-feed-update-urn-li-activity-7480757450569289728-they-ain-t-believe-in-us-god-did-excited-to-announce-that-archal-is-backe",
+      "existingEntityId": "founder-archal-noah-song-2561732"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 12,
+      "platform": "github",
+      "sourceUrl": "https://github.com/rekursiv-ai/sagent",
+      "platformPostId": "rekursiv-ai/sagent",
+      "existingId": null,
+      "existingEntityId": "company-rekursivai"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 33,
+      "platform": "github",
+      "sourceUrl": "https://github.com/rekursiv-ai/configgle",
+      "platformPostId": "rekursiv-ai/configgle",
+      "existingId": null,
+      "existingEntityId": "company-rekursivai"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 34,
+      "platform": "github",
+      "sourceUrl": "https://github.com/rekursiv-ai/copybarista",
+      "platformPostId": "rekursiv-ai/copybarista",
+      "existingId": null,
+      "existingEntityId": "company-rekursivai"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 85,
+      "platform": "github",
+      "sourceUrl": "https://github.com/understudylabs/understudy-agent-tools",
+      "platformPostId": "understudylabs/understudy-agent-tools",
+      "existingId": null,
+      "existingEntityId": "company-understudy-labs"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 120,
+      "platform": "github",
+      "sourceUrl": "https://github.com/AlmanacCode/codealmanac",
+      "platformPostId": "AlmanacCode/codealmanac",
+      "existingId": null,
+      "existingEntityId": "company-almanac"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 129,
+      "platform": "github",
+      "sourceUrl": "https://github.com/nex-crm/homebrew-tap",
+      "platformPostId": "nex-crm/homebrew-tap",
+      "existingId": null,
+      "existingEntityId": "company-nex"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 141,
+      "platform": "github",
+      "sourceUrl": "https://github.com/AlmanacCode/Yoke",
+      "platformPostId": "AlmanacCode/Yoke",
+      "existingId": null,
+      "existingEntityId": "company-almanac"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 222,
+      "platform": "github",
+      "sourceUrl": "https://github.com/fabraix/playground",
+      "platformPostId": "fabraix/playground",
+      "existingId": null,
+      "existingEntityId": "company-fabraix"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 224,
+      "platform": "github",
+      "sourceUrl": "https://github.com/nex-crm/wuphf",
+      "platformPostId": "nex-crm/wuphf",
+      "existingId": null,
+      "existingEntityId": "company-nex"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json",
+      "row": 280,
+      "platform": "github",
+      "sourceUrl": "https://github.com/onecli/onecli",
+      "platformPostId": "onecli/onecli",
+      "existingId": null,
+      "existingEntityId": "company-onecli"
+    }
+  ],
+  "includedBatches": [],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 852
+}

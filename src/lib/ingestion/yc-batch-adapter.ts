@@ -13,7 +13,7 @@ import type {
   YcSearchResult
 } from "./types";
 
-export const YC_SUMMER_2026_EXPECTED_COMPANY_COUNT = 83;
+export const YC_SUMMER_2026_EXPECTED_COMPANY_COUNT = 115;
 
 interface YcBatchAdapterOptions {
   fetchImpl?: typeof fetch;

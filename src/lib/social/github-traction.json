@@ -1,24 +1,29 @@
 {
   "source": {
-    "label": "GitHub public API with website/search discovery",
-    "fetchedAt": "2026-06-28T03:03:16.422Z",
-    "targetCount": 43,
-    "fetchedCount": 42,
+    "label": "GitHub public API for official YC Spring 2026 GitHub links",
+    "fetchedAt": "2026-07-19T06:27:05.942Z",
+    "targetCount": 45,
+    "fetchedCount": 43,
     "discovery": {
       "explicitTargetCount": 6,
-      "discoveredTargetCount": 44,
-      "websiteTargets": 44,
+      "discoveredTargetCount": 45,
+      "websiteTargets": 45,
       "searchTargets": 0,
       "searchesUsed": 0,
       "searchFailures": []
     },
     "notes": [
       "Read-only public GitHub API data.",
-      "GITHUB_TOKEN is optional and only increases API rate limits; gh auth token can be exported before running.",
-      "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
-      "Discovery trusts YC-linked GitHub URLs and GitHub links from official company websites.",
-      "GitHub search discovery is available with --search, but is disabled by default because same-name repositories need review before scoring."
-    ]
+      "GITHUB_TOKEN is optional and only increases API rate limits.",
+      "No GitHub mutations are performed.",
+      "Only GitHub URLs explicitly listed on public YC Spring 2026 profiles are scored by default.",
+      "Retained 1 last-good account row after a failed refresh.",
+      "Validation excluded 6 fetched account-only targets with no visible non-fork repository rows; account existence is not traction."
+    ],
+    "batchSlug": "S2026",
+    "batchLabel": "YC Spring 2026 (P26)",
+    "sourcePath": "src/lib/yc/spring-2026-companies.json",
+    "retainedLastGood": 1
   },
   "accounts": [
     {
@@ -40,18 +45,18 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/InsForge",
         "bio": "The agent-native cloud infrastructure platform",
-        "followers": 168,
+        "followers": 180,
         "following": 0,
-        "publicRepos": 27,
+        "publicRepos": 29,
         "publicGists": 0,
         "createdAt": "2025-02-09T04:44:27Z",
         "updatedAt": "2026-05-28T16:37:15Z"
       },
       "aggregate": {
-        "repoCount": 25,
-        "totalStars": 12143,
-        "totalForks": 1121,
-        "totalWatchers": 12143,
+        "repoCount": 27,
+        "totalStars": 12527,
+        "totalForks": 1176,
+        "totalWatchers": 12527,
         "maxRepoScore": 100,
         "profileScore": 100
       },
@@ -62,13 +67,13 @@
           "fullName": "InsForge/InsForge",
           "description": "The all-in-one, open-source backend platform for agentic coding. InsForge gives your coding agent database, auth, storage, compute, hosting, and AI gateway to ship full-stack apps end-to-end.",
           "htmlUrl": "https://github.com/InsForge/InsForge",
-          "stars": 11992,
-          "forks": 1029,
-          "watchers": 11992,
-          "openIssues": 75,
+          "stars": 12362,
+          "forks": 1078,
+          "watchers": 12362,
+          "openIssues": 100,
           "language": "TypeScript",
-          "pushedAt": "2026-06-28T00:09:42Z",
-          "updatedAt": "2026-06-28T02:13:00Z",
+          "pushedAt": "2026-07-18T18:10:57Z",
+          "updatedAt": "2026-07-19T06:26:24Z",
           "createdAt": "2025-07-29T05:56:00Z",
           "score": 100
         },
@@ -78,15 +83,15 @@
           "fullName": "InsForge/insforge-mcp",
           "description": "",
           "htmlUrl": "https://github.com/InsForge/insforge-mcp",
-          "stars": 31,
+          "stars": 33,
           "forks": 14,
-          "watchers": 31,
+          "watchers": 33,
           "openIssues": 6,
           "language": "TypeScript",
           "pushedAt": "2026-06-09T19:33:18Z",
-          "updatedAt": "2026-06-27T19:23:13Z",
+          "updatedAt": "2026-07-09T09:03:49Z",
           "createdAt": "2025-07-10T06:14:59Z",
-          "score": 94
+          "score": 95
         },
         {
           "id": 1185822218,
@@ -94,15 +99,15 @@
           "fullName": "InsForge/insforge-templates",
           "description": "Full-stack templates built by InsForge",
           "htmlUrl": "https://github.com/InsForge/insforge-templates",
-          "stars": 43,
-          "forks": 6,
-          "watchers": 43,
+          "stars": 45,
+          "forks": 8,
+          "watchers": 45,
           "openIssues": 1,
           "language": "TypeScript",
           "pushedAt": "2026-06-15T21:07:34Z",
-          "updatedAt": "2026-06-27T19:25:00Z",
+          "updatedAt": "2026-07-09T09:03:55Z",
           "createdAt": "2026-03-19T01:19:27Z",
-          "score": 91
+          "score": 94
         },
         {
           "id": 1142855123,
@@ -110,15 +115,15 @@
           "fullName": "InsForge/insforge-skills",
           "description": "Agent Skills for InsForge",
           "htmlUrl": "https://github.com/InsForge/insforge-skills",
-          "stars": 28,
-          "forks": 11,
-          "watchers": 28,
+          "stars": 31,
+          "forks": 12,
+          "watchers": 31,
           "openIssues": 7,
           "language": null,
-          "pushedAt": "2026-06-28T00:12:32Z",
-          "updatedAt": "2026-06-27T23:49:18Z",
+          "pushedAt": "2026-07-16T14:55:29Z",
+          "updatedAt": "2026-07-16T14:56:36Z",
           "createdAt": "2026-01-26T23:39:30Z",
-          "score": 91
+          "score": 93
         },
         {
           "id": 1161109239,
@@ -126,15 +131,15 @@
           "fullName": "InsForge/CLI",
           "description": "InsForge CLI",
           "htmlUrl": "https://github.com/InsForge/CLI",
-          "stars": 15,
-          "forks": 16,
-          "watchers": 15,
-          "openIssues": 7,
+          "stars": 19,
+          "forks": 17,
+          "watchers": 19,
+          "openIssues": 10,
           "language": "TypeScript",
-          "pushedAt": "2026-06-27T23:49:49Z",
-          "updatedAt": "2026-06-27T23:45:06Z",
+          "pushedAt": "2026-07-16T14:14:56Z",
+          "updatedAt": "2026-07-16T14:16:35Z",
           "createdAt": "2026-02-18T18:39:02Z",
-          "score": 84
+          "score": 89
         },
         {
           "id": 1048105123,
@@ -142,15 +147,15 @@
           "fullName": "InsForge/InsForge-sdk-js",
           "description": "",
           "htmlUrl": "https://github.com/InsForge/InsForge-sdk-js",
-          "stars": 9,
-          "forks": 16,
-          "watchers": 9,
-          "openIssues": 10,
+          "stars": 10,
+          "forks": 18,
+          "watchers": 10,
+          "openIssues": 9,
           "language": "TypeScript",
-          "pushedAt": "2026-06-28T00:07:15Z",
-          "updatedAt": "2026-06-28T00:07:11Z",
+          "pushedAt": "2026-07-17T17:18:41Z",
+          "updatedAt": "2026-07-17T17:18:42Z",
           "createdAt": "2025-08-31T23:27:48Z",
-          "score": 76
+          "score": 79
         },
         {
           "id": 1084619821,
@@ -158,15 +163,15 @@
           "fullName": "InsForge/insforge-db",
           "description": "",
           "htmlUrl": "https://github.com/InsForge/insforge-db",
-          "stars": 7,
+          "stars": 9,
           "forks": 4,
-          "watchers": 7,
+          "watchers": 9,
           "openIssues": 1,
           "language": "C",
           "pushedAt": "2026-05-28T19:24:20Z",
-          "updatedAt": "2026-05-28T19:20:16Z",
+          "updatedAt": "2026-07-09T09:04:04Z",
           "createdAt": "2025-10-27T23:38:31Z",
-          "score": 59
+          "score": 58
         },
         {
           "id": 1124199139,
@@ -185,22 +190,6 @@
           "score": 52
         },
         {
-          "id": 1124850070,
-          "name": "insforge-swift",
-          "fullName": "InsForge/insforge-swift",
-          "description": "InsForge SDK for Swift.",
-          "htmlUrl": "https://github.com/InsForge/insforge-swift",
-          "stars": 2,
-          "forks": 8,
-          "watchers": 2,
-          "openIssues": 3,
-          "language": "Swift",
-          "pushedAt": "2026-03-23T02:31:46Z",
-          "updatedAt": "2026-03-30T05:58:58Z",
-          "createdAt": "2025-12-29T18:11:34Z",
-          "score": 44
-        },
-        {
           "id": 1127052076,
           "name": "insforge-kotlin",
           "fullName": "InsForge/insforge-kotlin",
@@ -209,12 +198,28 @@
           "stars": 2,
           "forks": 7,
           "watchers": 2,
-          "openIssues": 0,
+          "openIssues": 1,
           "language": "Kotlin",
-          "pushedAt": "2026-03-23T02:23:19Z",
-          "updatedAt": "2026-03-30T05:58:56Z",
+          "pushedAt": "2026-07-17T00:01:31Z",
+          "updatedAt": "2026-07-16T23:59:25Z",
           "createdAt": "2026-01-03T04:35:46Z",
-          "score": 40
+          "score": 46
+        },
+        {
+          "id": 1124850070,
+          "name": "insforge-swift",
+          "fullName": "InsForge/insforge-swift",
+          "description": "InsForge SDK for Swift.",
+          "htmlUrl": "https://github.com/InsForge/insforge-swift",
+          "stars": 1,
+          "forks": 8,
+          "watchers": 1,
+          "openIssues": 3,
+          "language": "Swift",
+          "pushedAt": "2026-07-17T17:16:14Z",
+          "updatedAt": "2026-07-16T23:56:23Z",
+          "createdAt": "2025-12-29T18:11:34Z",
+          "score": 42
         },
         {
           "id": 1030533901,
@@ -249,6 +254,38 @@
           "score": 26
         },
         {
+          "id": 1036353368,
+          "name": "insforge-standalone",
+          "fullName": "InsForge/insforge-standalone",
+          "description": "",
+          "htmlUrl": "https://github.com/InsForge/insforge-standalone",
+          "stars": 0,
+          "forks": 3,
+          "watchers": 0,
+          "openIssues": 2,
+          "language": "TypeScript",
+          "pushedAt": "2026-07-15T09:28:13Z",
+          "updatedAt": "2026-07-13T07:23:23Z",
+          "createdAt": "2025-08-12T00:34:16Z",
+          "score": 22
+        },
+        {
+          "id": 1283545871,
+          "name": "insta-cli",
+          "fullName": "InsForge/insta-cli",
+          "description": "",
+          "htmlUrl": "https://github.com/InsForge/insta-cli",
+          "stars": 1,
+          "forks": 0,
+          "watchers": 1,
+          "openIssues": 1,
+          "language": "TypeScript",
+          "pushedAt": "2026-07-17T22:44:30Z",
+          "updatedAt": "2026-07-17T22:44:35Z",
+          "createdAt": "2026-06-29T02:55:47Z",
+          "score": 21
+        },
+        {
           "id": 1164000427,
           "name": "cursor-plugin",
           "fullName": "InsForge/cursor-plugin",
@@ -265,20 +302,20 @@
           "score": 21
         },
         {
-          "id": 1036353368,
-          "name": "insforge-standalone",
-          "fullName": "InsForge/insforge-standalone",
-          "description": "",
-          "htmlUrl": "https://github.com/InsForge/insforge-standalone",
+          "id": 1194826456,
+          "name": "insforge-python",
+          "fullName": "InsForge/insforge-python",
+          "description": "The InsForge Python SDK, designed for server-side use.",
+          "htmlUrl": "https://github.com/InsForge/insforge-python",
           "stars": 0,
-          "forks": 3,
+          "forks": 2,
           "watchers": 0,
-          "openIssues": 0,
-          "language": "TypeScript",
-          "pushedAt": "2026-06-27T21:55:41Z",
-          "updatedAt": "2026-06-27T21:55:39Z",
-          "createdAt": "2025-08-12T00:34:16Z",
-          "score": 20
+          "openIssues": 1,
+          "language": "Python",
+          "pushedAt": "2026-07-16T23:59:50Z",
+          "updatedAt": "2026-07-16T23:59:51Z",
+          "createdAt": "2026-03-28T21:32:34Z",
+          "score": 19
         },
         {
           "id": 1032013742,
@@ -307,25 +344,9 @@
           "watchers": 0,
           "openIssues": 0,
           "language": "Go",
-          "pushedAt": "2026-05-30T03:06:09Z",
-          "updatedAt": "2026-05-30T03:06:14Z",
+          "pushedAt": "2026-07-17T17:16:06Z",
+          "updatedAt": "2026-07-17T17:16:03Z",
           "createdAt": "2026-03-28T21:51:32Z",
-          "score": 14
-        },
-        {
-          "id": 1194826456,
-          "name": "insforge-python",
-          "fullName": "InsForge/insforge-python",
-          "description": "The InsForge Python SDK, designed for server-side use.",
-          "htmlUrl": "https://github.com/InsForge/insforge-python",
-          "stars": 0,
-          "forks": 2,
-          "watchers": 0,
-          "openIssues": 1,
-          "language": "Python",
-          "pushedAt": "2026-03-30T17:57:49Z",
-          "updatedAt": "2026-03-30T17:57:54Z",
-          "createdAt": "2026-03-28T21:32:34Z",
           "score": 14
         },
         {
@@ -345,35 +366,19 @@
           "score": 12
         },
         {
-          "id": 1264251418,
-          "name": "insforge-flutter",
-          "fullName": "InsForge/insforge-flutter",
+          "id": 1283545599,
+          "name": "insta-skills",
+          "fullName": "InsForge/insta-skills",
           "description": "",
-          "htmlUrl": "https://github.com/InsForge/insforge-flutter",
+          "htmlUrl": "https://github.com/InsForge/insta-skills",
           "stars": 0,
           "forks": 0,
           "watchers": 0,
           "openIssues": 0,
-          "language": "Dart",
-          "pushedAt": "2026-06-09T21:00:58Z",
-          "updatedAt": "2026-06-09T21:01:18Z",
-          "createdAt": "2026-06-09T17:54:40Z",
-          "score": 8
-        },
-        {
-          "id": 1248572261,
-          "name": "insforge-agent-benchmark",
-          "fullName": "InsForge/insforge-agent-benchmark",
-          "description": "Local benchmark harness for comparing InsForge agent workflows",
-          "htmlUrl": "https://github.com/InsForge/insforge-agent-benchmark",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "TypeScript",
-          "pushedAt": "2026-06-22T21:13:18Z",
-          "updatedAt": "2026-06-08T18:21:01Z",
-          "createdAt": "2026-05-24T20:20:20Z",
+          "language": null,
+          "pushedAt": "2026-07-17T22:36:23Z",
+          "updatedAt": "2026-07-17T22:36:28Z",
+          "createdAt": "2026-06-29T02:55:20Z",
           "score": 8
         }
       ]
@@ -754,7 +759,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/different-ai",
         "bio": "Fun with LLMs",
-        "followers": 450,
+        "followers": 474,
         "following": 0,
         "publicRepos": 43,
         "publicGists": 0,
@@ -763,9 +768,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 16429,
-        "totalForks": 1660,
-        "totalWatchers": 16429,
+        "totalStars": 16975,
+        "totalForks": 1747,
+        "totalWatchers": 16975,
         "maxRepoScore": 100,
         "profileScore": 100
       },
@@ -774,15 +779,15 @@
           "id": 1133911335,
           "name": "openwork",
           "fullName": "different-ai/openwork",
-          "description": "An open-source alternative to Claude Cowork (powered by opencode)",
+          "description": "The open-source alternative to Claude Cowork (powered by opencode)",
           "htmlUrl": "https://github.com/different-ai/openwork",
-          "stars": 16429,
-          "forks": 1660,
-          "watchers": 16429,
-          "openIssues": 214,
+          "stars": 16975,
+          "forks": 1747,
+          "watchers": 16975,
+          "openIssues": 318,
           "language": "TypeScript",
-          "pushedAt": "2026-06-28T00:43:06Z",
-          "updatedAt": "2026-06-28T01:56:59Z",
+          "pushedAt": "2026-07-18T12:24:48Z",
+          "updatedAt": "2026-07-19T06:17:06Z",
           "createdAt": "2026-01-14T01:39:31Z",
           "score": 100
         }
@@ -807,18 +812,18 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/smol-machines",
         "bio": "Ship software faster with portable, executable, self contained virtual machines.",
-        "followers": 85,
+        "followers": 91,
         "following": 0,
-        "publicRepos": 7,
+        "publicRepos": 9,
         "publicGists": 0,
         "createdAt": "2025-12-18T23:20:27Z",
         "updatedAt": "2026-03-02T02:07:44Z"
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 3976,
-        "totalForks": 181,
-        "totalWatchers": 3976,
+        "totalStars": 4432,
+        "totalForks": 206,
+        "totalWatchers": 4432,
         "maxRepoScore": 100,
         "profileScore": 100
       },
@@ -827,15 +832,15 @@
           "id": 1119210021,
           "name": "smolvm",
           "fullName": "smol-machines/smolvm",
-          "description": "Tool to build & run portable, lightweight, self-contained virtual machines.",
+          "description": "Portable, lightweight, self-contained virtual machine.",
           "htmlUrl": "https://github.com/smol-machines/smolvm",
-          "stars": 3976,
-          "forks": 181,
-          "watchers": 3976,
-          "openIssues": 49,
+          "stars": 4432,
+          "forks": 206,
+          "watchers": 4432,
+          "openIssues": 50,
           "language": "Rust",
-          "pushedAt": "2026-06-28T02:41:18Z",
-          "updatedAt": "2026-06-28T02:31:41Z",
+          "pushedAt": "2026-07-19T04:34:24Z",
+          "updatedAt": "2026-07-19T02:36:42Z",
           "createdAt": "2025-12-18T23:25:15Z",
           "score": 100
         }
@@ -860,18 +865,18 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/containers",
         "bio": "Open Repository for Container Tools",
-        "followers": 6363,
+        "followers": 6406,
         "following": 0,
-        "publicRepos": 108,
+        "publicRepos": 107,
         "publicGists": 0,
         "createdAt": "2013-11-07T00:39:00Z",
         "updatedAt": "2026-06-20T11:48:45Z"
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 2409,
-        "totalForks": 215,
-        "totalWatchers": 2409,
+        "totalStars": 2495,
+        "totalForks": 230,
+        "totalWatchers": 2495,
         "maxRepoScore": 100,
         "profileScore": 100
       },
@@ -882,13 +887,13 @@
           "fullName": "libkrun/libkrun",
           "description": "A dynamic library providing Virtualization-based process isolation capabilities",
           "htmlUrl": "https://github.com/libkrun/libkrun",
-          "stars": 2409,
-          "forks": 215,
-          "watchers": 2409,
-          "openIssues": 87,
+          "stars": 2495,
+          "forks": 230,
+          "watchers": 2495,
+          "openIssues": 91,
           "language": "Rust",
-          "pushedAt": "2026-06-26T17:30:23Z",
-          "updatedAt": "2026-06-27T20:34:50Z",
+          "pushedAt": "2026-07-17T09:47:37Z",
+          "updatedAt": "2026-07-19T04:07:50Z",
           "createdAt": "2020-08-13T16:16:27Z",
           "score": 100
         }
@@ -913,7 +918,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/superset-sh",
         "bio": "Building for the AI Agent Era",
-        "followers": 133,
+        "followers": 139,
         "following": 0,
         "publicRepos": 7,
         "publicGists": 0,
@@ -922,9 +927,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 12138,
-        "totalForks": 1045,
-        "totalWatchers": 12138,
+        "totalStars": 12492,
+        "totalForks": 1090,
+        "totalWatchers": 12492,
         "maxRepoScore": 100,
         "profileScore": 100
       },
@@ -935,13 +940,13 @@
           "fullName": "superset-sh/superset",
           "description": "Code Editor for the AI Agents Era - Run an army of Claude Code, Codex, etc. on your machine",
           "htmlUrl": "https://github.com/superset-sh/superset",
-          "stars": 12138,
-          "forks": 1045,
-          "watchers": 12138,
-          "openIssues": 1405,
+          "stars": 12492,
+          "forks": 1090,
+          "watchers": 12492,
+          "openIssues": 362,
           "language": "TypeScript",
-          "pushedAt": "2026-06-27T18:31:32Z",
-          "updatedAt": "2026-06-28T02:40:55Z",
+          "pushedAt": "2026-07-19T06:13:38Z",
+          "updatedAt": "2026-07-19T06:01:39Z",
           "createdAt": "2025-10-21T09:16:51Z",
           "score": 100
         }
@@ -966,7 +971,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/ray-project",
         "bio": "",
-        "followers": 1785,
+        "followers": 1797,
         "following": 0,
         "publicRepos": 126,
         "publicGists": 0,
@@ -975,9 +980,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 43035,
-        "totalForks": 7739,
-        "totalWatchers": 43035,
+        "totalStars": 43279,
+        "totalForks": 7804,
+        "totalWatchers": 43279,
         "maxRepoScore": 100,
         "profileScore": 100
       },
@@ -988,13 +993,13 @@
           "fullName": "ray-project/ray",
           "description": "Ray is an AI compute engine. Ray consists of a core distributed runtime and a set of AI Libraries for accelerating ML workloads.",
           "htmlUrl": "https://github.com/ray-project/ray",
-          "stars": 43035,
-          "forks": 7739,
-          "watchers": 43035,
-          "openIssues": 3473,
+          "stars": 43279,
+          "forks": 7804,
+          "watchers": 43279,
+          "openIssues": 3478,
           "language": "Python",
-          "pushedAt": "2026-06-27T20:58:40Z",
-          "updatedAt": "2026-06-28T02:40:38Z",
+          "pushedAt": "2026-07-19T04:12:45Z",
+          "updatedAt": "2026-07-19T05:06:35Z",
           "createdAt": "2016-10-25T19:38:30Z",
           "score": 100
         }
@@ -1019,20 +1024,20 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/openprose",
         "bio": "A new kind of language for a new kind of computer",
-        "followers": 32,
+        "followers": 36,
         "following": 0,
         "publicRepos": 11,
         "publicGists": 0,
         "createdAt": "2026-01-02T20:31:07Z",
-        "updatedAt": "2026-06-25T16:03:11Z"
+        "updatedAt": "2026-07-01T21:49:59Z"
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 1577,
-        "totalForks": 122,
-        "totalWatchers": 1577,
+        "totalStars": 1638,
+        "totalForks": 130,
+        "totalWatchers": 1638,
         "maxRepoScore": 100,
-        "profileScore": 99
+        "profileScore": 100
       },
       "repos": [
         {
@@ -1041,13 +1046,13 @@
           "fullName": "openprose/prose",
           "description": "A new kind of language for a new kind of computer",
           "htmlUrl": "https://github.com/openprose/prose",
-          "stars": 1577,
-          "forks": 122,
-          "watchers": 1577,
-          "openIssues": 34,
+          "stars": 1638,
+          "forks": 130,
+          "watchers": 1638,
+          "openIssues": 37,
           "language": "TypeScript",
-          "pushedAt": "2026-06-27T15:58:23Z",
-          "updatedAt": "2026-06-28T00:37:37Z",
+          "pushedAt": "2026-07-17T22:58:32Z",
+          "updatedAt": "2026-07-19T03:25:49Z",
           "createdAt": "2026-01-03T07:12:10Z",
           "score": 100
         }
@@ -1081,9 +1086,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 1799,
-        "totalForks": 163,
-        "totalWatchers": 1799,
+        "totalStars": 1818,
+        "totalForks": 173,
+        "totalWatchers": 1818,
         "maxRepoScore": 100,
         "profileScore": 96
       },
@@ -1094,13 +1099,13 @@
           "fullName": "c15t/c15t",
           "description": "The Developer-First Cookie Banner",
           "htmlUrl": "https://github.com/c15t/c15t",
-          "stars": 1799,
-          "forks": 163,
-          "watchers": 1799,
-          "openIssues": 46,
+          "stars": 1818,
+          "forks": 173,
+          "watchers": 1818,
+          "openIssues": 35,
           "language": "TypeScript",
-          "pushedAt": "2026-06-26T08:46:52Z",
-          "updatedAt": "2026-06-26T14:01:39Z",
+          "pushedAt": "2026-07-09T17:10:17Z",
+          "updatedAt": "2026-07-18T12:38:46Z",
           "createdAt": "2025-01-13T12:41:52Z",
           "score": 100
         }
@@ -1127,16 +1132,16 @@
         "bio": "runtm is the open-source runtime + control plane for agent-built software: create, run, deploy, observe, and reuse apps with guardrails and speed.",
         "followers": 14,
         "following": 0,
-        "publicRepos": 3,
+        "publicRepos": 4,
         "publicGists": 0,
         "createdAt": "2025-12-15T22:15:52Z",
-        "updatedAt": "2026-03-19T19:55:08Z"
+        "updatedAt": "2026-07-09T23:48:55Z"
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 281,
-        "totalForks": 30,
-        "totalWatchers": 281,
+        "totalStars": 285,
+        "totalForks": 31,
+        "totalWatchers": 285,
         "maxRepoScore": 100,
         "profileScore": 92
       },
@@ -1147,13 +1152,13 @@
           "fullName": "runtm-ai/runtm",
           "description": "Open-source sandboxes where coding agents build and deploy. Spin up isolated environments where Claude Code, Cursor, and other agents code and deploy software.",
           "htmlUrl": "https://github.com/runtm-ai/runtm",
-          "stars": 281,
-          "forks": 30,
-          "watchers": 281,
-          "openIssues": 18,
+          "stars": 285,
+          "forks": 31,
+          "watchers": 285,
+          "openIssues": 20,
           "language": "Python",
-          "pushedAt": "2026-06-24T23:46:03Z",
-          "updatedAt": "2026-06-26T06:35:11Z",
+          "pushedAt": "2026-07-11T02:03:50Z",
+          "updatedAt": "2026-07-17T19:38:31Z",
           "createdAt": "2026-01-02T21:37:04Z",
           "score": 100
         }
@@ -1187,9 +1192,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 245,
+        "totalStars": 255,
         "totalForks": 32,
-        "totalWatchers": 245,
+        "totalWatchers": 255,
         "maxRepoScore": 100,
         "profileScore": 90
       },
@@ -1200,13 +1205,13 @@
           "fullName": "clawvisor/clawvisor",
           "description": "API gateway for purpose-based authorization for AI agents. Human approval for tasks, AI-native enforcement for agents.",
           "htmlUrl": "https://github.com/clawvisor/clawvisor",
-          "stars": 245,
+          "stars": 255,
           "forks": 32,
-          "watchers": 245,
-          "openIssues": 20,
+          "watchers": 255,
+          "openIssues": 24,
           "language": "Go",
-          "pushedAt": "2026-06-28T00:20:33Z",
-          "updatedAt": "2026-06-27T16:37:33Z",
+          "pushedAt": "2026-07-09T14:40:34Z",
+          "updatedAt": "2026-07-19T04:50:21Z",
           "createdAt": "2026-03-01T22:43:06Z",
           "score": 100
         }
@@ -1240,9 +1245,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 975,
-        "totalForks": 113,
-        "totalWatchers": 975,
+        "totalStars": 983,
+        "totalForks": 120,
+        "totalWatchers": 983,
         "maxRepoScore": 100,
         "profileScore": 87
       },
@@ -1253,13 +1258,13 @@
           "fullName": "voquill/voquill",
           "description": "Open source voice dictation technology",
           "htmlUrl": "https://github.com/voquill/voquill",
-          "stars": 975,
-          "forks": 113,
-          "watchers": 975,
-          "openIssues": 55,
+          "stars": 983,
+          "forks": 120,
+          "watchers": 983,
+          "openIssues": 54,
           "language": "TypeScript",
-          "pushedAt": "2026-06-05T01:32:40Z",
-          "updatedAt": "2026-06-27T12:33:13Z",
+          "pushedAt": "2026-07-13T17:54:06Z",
+          "updatedAt": "2026-07-18T11:55:52Z",
           "createdAt": "2025-09-23T00:51:58Z",
           "score": 100
         }
@@ -1284,18 +1289,18 @@
         "type": "User",
         "htmlUrl": "https://github.com/BinSquare",
         "bio": "All opinions and work are my own.\r\n\r\nSoftware Engineer.",
-        "followers": 133,
-        "following": 123,
-        "publicRepos": 53,
+        "followers": 136,
+        "following": 127,
+        "publicRepos": 58,
         "publicGists": 1,
         "createdAt": "2014-08-03T02:43:04Z",
-        "updatedAt": "2026-06-28T01:24:44Z"
+        "updatedAt": "2026-07-11T00:03:53Z"
       },
       "aggregate": {
         "repoCount": 32,
-        "totalStars": 458,
+        "totalStars": 460,
         "totalForks": 21,
-        "totalWatchers": 458,
+        "totalWatchers": 460,
         "maxRepoScore": 100,
         "profileScore": 86
       },
@@ -1328,7 +1333,7 @@
           "openIssues": 5,
           "language": "Go",
           "pushedAt": "2026-02-17T22:20:37Z",
-          "updatedAt": "2026-06-22T14:22:01Z",
+          "updatedAt": "2026-07-12T14:09:20Z",
           "createdAt": "2025-11-27T09:47:26Z",
           "score": 100
         },
@@ -1370,13 +1375,13 @@
           "fullName": "BinSquare/messpit",
           "description": "modern cross-platform memory scanner/editor",
           "htmlUrl": "https://github.com/BinSquare/messpit",
-          "stars": 3,
+          "stars": 4,
           "forks": 0,
-          "watchers": 3,
+          "watchers": 4,
           "openIssues": 0,
           "language": "Rust",
           "pushedAt": "2026-01-04T11:06:52Z",
-          "updatedAt": "2026-05-09T01:49:52Z",
+          "updatedAt": "2026-07-17T17:31:35Z",
           "createdAt": "2025-12-28T02:52:31Z",
           "score": 27
         },
@@ -1386,15 +1391,15 @@
           "fullName": "BinSquare/powermetrics-go",
           "description": "Go wrapper on MacOS powermetrics - get protected system info such as CPU and GPU freq, watt, utilization, etc.",
           "htmlUrl": "https://github.com/BinSquare/powermetrics-go",
-          "stars": 3,
+          "stars": 4,
           "forks": 0,
-          "watchers": 3,
+          "watchers": 4,
           "openIssues": 0,
           "language": "Go",
           "pushedAt": "2025-11-18T02:50:37Z",
-          "updatedAt": "2026-04-19T05:59:49Z",
+          "updatedAt": "2026-07-03T13:49:49Z",
           "createdAt": "2025-10-25T08:32:19Z",
-          "score": 24
+          "score": 27
         },
         {
           "id": 1110198069,
@@ -1445,22 +1450,6 @@
           "score": 16
         },
         {
-          "id": 1247331312,
-          "name": "svelte-code-tabs",
-          "fullName": "BinSquare/svelte-code-tabs",
-          "description": "",
-          "htmlUrl": "https://github.com/BinSquare/svelte-code-tabs",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "TypeScript",
-          "pushedAt": "2026-05-23T07:09:24Z",
-          "updatedAt": "2026-05-23T07:09:28Z",
-          "createdAt": "2026-05-23T07:09:22Z",
-          "score": 8
-        },
-        {
           "id": 53711025,
           "name": "gradient_theme_chrome",
           "fullName": "BinSquare/gradient_theme_chrome",
@@ -1491,6 +1480,22 @@
           "updatedAt": "2017-07-29T02:42:02Z",
           "createdAt": "2016-03-22T22:08:27Z",
           "score": 6
+        },
+        {
+          "id": 1247331312,
+          "name": "svelte-code-tabs",
+          "fullName": "BinSquare/svelte-code-tabs",
+          "description": "",
+          "htmlUrl": "https://github.com/BinSquare/svelte-code-tabs",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "TypeScript",
+          "pushedAt": "2026-05-23T07:09:24Z",
+          "updatedAt": "2026-05-23T07:09:28Z",
+          "createdAt": "2026-05-23T07:09:22Z",
+          "score": 3
         },
         {
           "id": 1163622427,
@@ -1641,7 +1646,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/MisoLabsAI",
         "bio": "Miso Labs makes the most emotive AI voice models",
-        "followers": 86,
+        "followers": 89,
         "following": 0,
         "publicRepos": 2,
         "publicGists": 0,
@@ -1650,9 +1655,9 @@
       },
       "aggregate": {
         "repoCount": 2,
-        "totalStars": 3024,
-        "totalForks": 303,
-        "totalWatchers": 3024,
+        "totalStars": 3135,
+        "totalForks": 320,
+        "totalWatchers": 3135,
         "maxRepoScore": 100,
         "profileScore": 71
       },
@@ -1663,13 +1668,13 @@
           "fullName": "MisoLabsAI/MisoTTS",
           "description": "Miso TTS is an 8 billion, highly emotive text-to-speech model",
           "htmlUrl": "https://github.com/MisoLabsAI/MisoTTS",
-          "stars": 3024,
-          "forks": 303,
-          "watchers": 3024,
+          "stars": 3135,
+          "forks": 320,
+          "watchers": 3135,
           "openIssues": 18,
           "language": "Python",
           "pushedAt": "2026-06-09T20:41:00Z",
-          "updatedAt": "2026-06-27T21:55:34Z",
+          "updatedAt": "2026-07-19T02:38:44Z",
           "createdAt": "2026-05-20T10:04:01Z",
           "score": 100
         },
@@ -1710,7 +1715,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/gradient-industrial-robotics",
         "bio": "",
-        "followers": 2,
+        "followers": 3,
         "following": 0,
         "publicRepos": 1,
         "publicGists": 0,
@@ -1723,7 +1728,7 @@
         "totalForks": 8,
         "totalWatchers": 23,
         "maxRepoScore": 78,
-        "profileScore": 64
+        "profileScore": 66
       },
       "repos": [
         {
@@ -1762,21 +1767,21 @@
         "name": "Ara",
         "type": "Organization",
         "htmlUrl": "https://github.com/Aradotso",
-        "bio": "The Autonomous Software Engineer",
-        "followers": 33,
+        "bio": "The Cloud Coding Agent",
+        "followers": 37,
         "following": 0,
-        "publicRepos": 17,
+        "publicRepos": 18,
         "publicGists": 0,
         "createdAt": "2026-02-04T22:51:11Z",
-        "updatedAt": "2026-06-14T02:08:38Z"
+        "updatedAt": "2026-07-17T23:57:30Z"
       },
       "aggregate": {
-        "repoCount": 17,
-        "totalStars": 68,
-        "totalForks": 16,
-        "totalWatchers": 68,
-        "maxRepoScore": 92,
-        "profileScore": 61
+        "repoCount": 18,
+        "totalStars": 98,
+        "totalForks": 21,
+        "totalWatchers": 98,
+        "maxRepoScore": 100,
+        "profileScore": 69
       },
       "repos": [
         {
@@ -1785,15 +1790,15 @@
           "fullName": "Aradotso/trending-skills",
           "description": "Trending Claude Code skills",
           "htmlUrl": "https://github.com/Aradotso/trending-skills",
-          "stars": 49,
-          "forks": 11,
-          "watchers": 49,
-          "openIssues": 0,
+          "stars": 66,
+          "forks": 13,
+          "watchers": 66,
+          "openIssues": 1,
           "language": null,
-          "pushedAt": "2026-05-05T08:35:11Z",
-          "updatedAt": "2026-06-27T01:13:42Z",
+          "pushedAt": "2026-07-09T21:19:42Z",
+          "updatedAt": "2026-07-18T14:51:00Z",
           "createdAt": "2026-05-05T08:35:07Z",
-          "score": 92
+          "score": 100
         },
         {
           "id": 1240725237,
@@ -1801,15 +1806,31 @@
           "fullName": "Aradotso/security-skills",
           "description": "Auto-generated agent skills from trending security & appsec repos, by ara.so",
           "htmlUrl": "https://github.com/Aradotso/security-skills",
+          "stars": 8,
+          "forks": 1,
+          "watchers": 8,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-16T23:50:52Z",
+          "updatedAt": "2026-07-17T14:26:37Z",
+          "createdAt": "2026-05-16T13:45:13Z",
+          "score": 52
+        },
+        {
+          "id": 1240724933,
+          "name": "mcp-skills",
+          "fullName": "Aradotso/mcp-skills",
+          "description": "Auto-generated agent skills from trending Model Context Protocol repos, by ara.so",
+          "htmlUrl": "https://github.com/Aradotso/mcp-skills",
           "stars": 4,
-          "forks": 0,
+          "forks": 1,
           "watchers": 4,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-27T09:01:25Z",
-          "updatedAt": "2026-06-27T09:01:28Z",
-          "createdAt": "2026-05-16T13:45:13Z",
-          "score": 35
+          "pushedAt": "2026-07-18T00:31:22Z",
+          "updatedAt": "2026-07-18T00:31:27Z",
+          "createdAt": "2026-05-16T13:44:50Z",
+          "score": 42
         },
         {
           "id": 1204382140,
@@ -1822,10 +1843,26 @@
           "watchers": 3,
           "openIssues": 2,
           "language": "Python",
-          "pushedAt": "2026-04-20T22:39:11Z",
+          "pushedAt": "2026-07-14T00:52:17Z",
           "updatedAt": "2026-05-08T17:41:22Z",
           "createdAt": "2026-04-08T00:46:39Z",
-          "score": 34
+          "score": 39
+        },
+        {
+          "id": 1240724860,
+          "name": "marketing-skills",
+          "fullName": "Aradotso/marketing-skills",
+          "description": "Auto-generated agent skills from trending marketing & growth repos, by ara.so",
+          "htmlUrl": "https://github.com/Aradotso/marketing-skills",
+          "stars": 4,
+          "forks": 0,
+          "watchers": 4,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-18T05:26:04Z",
+          "updatedAt": "2026-07-18T05:26:11Z",
+          "createdAt": "2026-05-16T13:44:44Z",
+          "score": 35
         },
         {
           "id": 1182722676,
@@ -1838,58 +1875,10 @@
           "watchers": 4,
           "openIssues": 0,
           "language": "Swift",
-          "pushedAt": "2026-05-08T04:26:18Z",
-          "updatedAt": "2026-06-21T07:41:06Z",
+          "pushedAt": "2026-07-12T10:14:09Z",
+          "updatedAt": "2026-07-07T09:12:14Z",
           "createdAt": "2026-03-15T22:10:18Z",
-          "score": 30
-        },
-        {
-          "id": 1240724860,
-          "name": "marketing-skills",
-          "fullName": "Aradotso/marketing-skills",
-          "description": "Auto-generated agent skills from trending marketing & growth repos, by ara.so",
-          "htmlUrl": "https://github.com/Aradotso/marketing-skills",
-          "stars": 2,
-          "forks": 0,
-          "watchers": 2,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-06-28T01:49:51Z",
-          "updatedAt": "2026-06-28T01:49:54Z",
-          "createdAt": "2026-05-16T13:44:44Z",
-          "score": 27
-        },
-        {
-          "id": 1240724933,
-          "name": "mcp-skills",
-          "fullName": "Aradotso/mcp-skills",
-          "description": "Auto-generated agent skills from trending Model Context Protocol repos, by ara.so",
-          "htmlUrl": "https://github.com/Aradotso/mcp-skills",
-          "stars": 2,
-          "forks": 0,
-          "watchers": 2,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-06-24T03:10:24Z",
-          "updatedAt": "2026-06-26T04:39:40Z",
-          "createdAt": "2026-05-16T13:44:50Z",
-          "score": 27
-        },
-        {
-          "id": 1240725078,
-          "name": "devtools-skills",
-          "fullName": "Aradotso/devtools-skills",
-          "description": "Auto-generated agent skills from trending developer tools repos, by ara.so",
-          "htmlUrl": "https://github.com/Aradotso/devtools-skills",
-          "stars": 2,
-          "forks": 0,
-          "watchers": 2,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-06-24T00:53:43Z",
-          "updatedAt": "2026-06-24T00:53:47Z",
-          "createdAt": "2026-05-16T13:45:01Z",
-          "score": 27
+          "score": 35
         },
         {
           "id": 1240725169,
@@ -1897,15 +1886,31 @@
           "fullName": "Aradotso/data-skills",
           "description": "Auto-generated agent skills from trending data engineering repos, by ara.so",
           "htmlUrl": "https://github.com/Aradotso/data-skills",
-          "stars": 1,
+          "stars": 2,
           "forks": 1,
-          "watchers": 1,
+          "watchers": 2,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-28T02:26:54Z",
-          "updatedAt": "2026-06-28T02:26:57Z",
+          "pushedAt": "2026-07-18T12:53:25Z",
+          "updatedAt": "2026-07-18T12:53:30Z",
           "createdAt": "2026-05-16T13:45:07Z",
-          "score": 26
+          "score": 33
+        },
+        {
+          "id": 1240725078,
+          "name": "devtools-skills",
+          "fullName": "Aradotso/devtools-skills",
+          "description": "Auto-generated agent skills from trending developer tools repos, by ara.so",
+          "htmlUrl": "https://github.com/Aradotso/devtools-skills",
+          "stars": 3,
+          "forks": 0,
+          "watchers": 3,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-15T10:37:44Z",
+          "updatedAt": "2026-07-15T15:57:40Z",
+          "createdAt": "2026-05-16T13:45:01Z",
+          "score": 32
         },
         {
           "id": 1240724802,
@@ -1913,15 +1918,63 @@
           "fullName": "Aradotso/hermes-skills",
           "description": "Auto-generated agent skills from trending Hermes / OpenClaw agent runtimes repos, by ara.so",
           "htmlUrl": "https://github.com/Aradotso/hermes-skills",
+          "stars": 2,
+          "forks": 0,
+          "watchers": 2,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-16T12:32:18Z",
+          "updatedAt": "2026-07-16T12:33:06Z",
+          "createdAt": "2026-05-16T13:44:38Z",
+          "score": 27
+        },
+        {
+          "id": 1240724653,
+          "name": "claude-code-skills",
+          "fullName": "Aradotso/claude-code-skills",
+          "description": "Auto-generated agent skills from trending Claude Code repos, by ara.so",
+          "htmlUrl": "https://github.com/Aradotso/claude-code-skills",
+          "stars": 1,
+          "forks": 1,
+          "watchers": 1,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-17T00:31:38Z",
+          "updatedAt": "2026-07-17T00:31:42Z",
+          "createdAt": "2026-05-16T13:44:27Z",
+          "score": 26
+        },
+        {
+          "id": 1240724595,
+          "name": "design-skills",
+          "fullName": "Aradotso/design-skills",
+          "description": "Auto-generated agent skills from trending design & UI repos, by ara.so",
+          "htmlUrl": "https://github.com/Aradotso/design-skills",
           "stars": 1,
           "forks": 0,
           "watchers": 1,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-24T04:54:11Z",
-          "updatedAt": "2026-06-24T04:54:15Z",
-          "createdAt": "2026-05-16T13:44:38Z",
+          "pushedAt": "2026-07-18T10:35:13Z",
+          "updatedAt": "2026-07-18T10:35:18Z",
+          "createdAt": "2026-05-16T13:44:21Z",
           "score": 20
+        },
+        {
+          "id": 1240724727,
+          "name": "codex-skills",
+          "fullName": "Aradotso/codex-skills",
+          "description": "Auto-generated agent skills from trending OpenAI Codex repos, by ara.so",
+          "htmlUrl": "https://github.com/Aradotso/codex-skills",
+          "stars": 0,
+          "forks": 1,
+          "watchers": 0,
+          "openIssues": 2,
+          "language": null,
+          "pushedAt": "2026-07-16T04:35:20Z",
+          "updatedAt": "2026-07-16T04:35:24Z",
+          "createdAt": "2026-05-16T13:44:33Z",
+          "score": 16
         },
         {
           "id": 1274945724,
@@ -1950,25 +2003,9 @@
           "watchers": 0,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-27T09:01:49Z",
-          "updatedAt": "2026-06-27T09:01:53Z",
+          "pushedAt": "2026-07-18T01:38:47Z",
+          "updatedAt": "2026-07-18T01:38:51Z",
           "createdAt": "2026-05-16T13:44:56Z",
-          "score": 14
-        },
-        {
-          "id": 1240724653,
-          "name": "claude-code-skills",
-          "fullName": "Aradotso/claude-code-skills",
-          "description": "Auto-generated agent skills from trending Claude Code repos, by ara.so",
-          "htmlUrl": "https://github.com/Aradotso/claude-code-skills",
-          "stars": 0,
-          "forks": 1,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-06-17T22:36:28Z",
-          "updatedAt": "2026-06-17T22:36:32Z",
-          "createdAt": "2026-05-16T13:44:27Z",
           "score": 14
         },
         {
@@ -1980,43 +2017,43 @@
           "stars": 0,
           "forks": 0,
           "watchers": 0,
-          "openIssues": 1,
+          "openIssues": 17,
           "language": null,
-          "pushedAt": "2026-06-19T09:40:39Z",
+          "pushedAt": "2026-07-10T11:13:14Z",
           "updatedAt": "2026-06-14T17:36:11Z",
           "createdAt": "2026-05-09T02:39:24Z",
-          "score": 9
+          "score": 12
         },
         {
-          "id": 1240724595,
-          "name": "design-skills",
-          "fullName": "Aradotso/design-skills",
-          "description": "Auto-generated agent skills from trending design & UI repos, by ara.so",
-          "htmlUrl": "https://github.com/Aradotso/design-skills",
+          "id": 1301974945,
+          "name": "ara-mcp",
+          "fullName": "Aradotso/ara-mcp",
+          "description": "",
+          "htmlUrl": "https://github.com/Aradotso/ara-mcp",
           "stars": 0,
           "forks": 0,
           "watchers": 0,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-27T00:35:07Z",
-          "updatedAt": "2026-06-27T00:35:11Z",
-          "createdAt": "2026-05-16T13:44:21Z",
+          "pushedAt": "2026-07-16T05:30:48Z",
+          "updatedAt": "2026-07-16T05:30:56Z",
+          "createdAt": "2026-07-15T19:30:50Z",
           "score": 8
         },
         {
-          "id": 1240724727,
-          "name": "codex-skills",
-          "fullName": "Aradotso/codex-skills",
-          "description": "Auto-generated agent skills from trending OpenAI Codex repos, by ara.so",
-          "htmlUrl": "https://github.com/Aradotso/codex-skills",
+          "id": 1210084138,
+          "name": "coshot",
+          "fullName": "Aradotso/coshot",
+          "description": "Native macOS overlay: ⌥Space → capture → OCR → Cerebras → paste. ~460KB, <1.5s.",
+          "htmlUrl": "https://github.com/Aradotso/coshot",
           "stars": 0,
           "forks": 0,
           "watchers": 0,
           "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-06-24T00:53:31Z",
-          "updatedAt": "2026-06-24T00:53:36Z",
-          "createdAt": "2026-05-16T13:44:33Z",
+          "language": "Swift",
+          "pushedAt": "2026-07-12T06:51:52Z",
+          "updatedAt": "2026-04-14T07:18:58Z",
+          "createdAt": "2026-04-14T04:24:35Z",
           "score": 8
         },
         {
@@ -2033,22 +2070,6 @@
           "pushedAt": "2026-04-26T00:56:20Z",
           "updatedAt": "2026-04-26T00:56:25Z",
           "createdAt": "2026-04-17T05:08:44Z",
-          "score": 3
-        },
-        {
-          "id": 1210084138,
-          "name": "coshot",
-          "fullName": "Aradotso/coshot",
-          "description": "Native macOS overlay: ⌥Space → capture → OCR → Cerebras → paste. ~460KB, <1.5s.",
-          "htmlUrl": "https://github.com/Aradotso/coshot",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Swift",
-          "pushedAt": "2026-04-15T07:21:35Z",
-          "updatedAt": "2026-04-14T07:18:58Z",
-          "createdAt": "2026-04-14T04:24:35Z",
           "score": 3
         }
       ]
@@ -2072,20 +2093,20 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/zenbu-labs",
         "bio": "",
-        "followers": 9,
+        "followers": 14,
         "following": 0,
-        "publicRepos": 6,
+        "publicRepos": 8,
         "publicGists": 0,
         "createdAt": "2026-04-17T00:00:19Z",
         "updatedAt": "2026-06-22T05:07:42Z"
       },
       "aggregate": {
-        "repoCount": 6,
-        "totalStars": 253,
-        "totalForks": 24,
-        "totalWatchers": 253,
+        "repoCount": 8,
+        "totalStars": 264,
+        "totalForks": 31,
+        "totalWatchers": 264,
         "maxRepoScore": 100,
-        "profileScore": 48
+        "profileScore": 52
       },
       "repos": [
         {
@@ -2094,13 +2115,13 @@
           "fullName": "zenbu-labs/zenbu.js",
           "description": "The framework for building hackable software",
           "htmlUrl": "https://github.com/zenbu-labs/zenbu.js",
-          "stars": 240,
-          "forks": 19,
-          "watchers": 240,
-          "openIssues": 21,
+          "stars": 251,
+          "forks": 26,
+          "watchers": 251,
+          "openIssues": 29,
           "language": "TypeScript",
           "pushedAt": "2026-06-28T02:25:57Z",
-          "updatedAt": "2026-06-28T02:26:00Z",
+          "updatedAt": "2026-07-17T16:05:51Z",
           "createdAt": "2026-04-17T00:01:06Z",
           "score": 100
         },
@@ -2131,10 +2152,42 @@
           "watchers": 1,
           "openIssues": 0,
           "language": "MDX",
-          "pushedAt": "2026-06-26T15:08:29Z",
-          "updatedAt": "2026-06-26T15:08:45Z",
+          "pushedAt": "2026-07-17T15:08:14Z",
+          "updatedAt": "2026-07-17T15:09:39Z",
           "createdAt": "2026-05-11T09:35:38Z",
           "score": 20
+        },
+        {
+          "id": 1304901093,
+          "name": "pixel-electron",
+          "fullName": "zenbu-labs/pixel-electron",
+          "description": "",
+          "htmlUrl": "https://github.com/zenbu-labs/pixel-electron",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "Shell",
+          "pushedAt": "2026-07-19T05:28:03Z",
+          "updatedAt": "2026-07-19T05:28:07Z",
+          "createdAt": "2026-07-18T12:47:29Z",
+          "score": 8
+        },
+        {
+          "id": 1304901117,
+          "name": "electron-releases",
+          "fullName": "zenbu-labs/electron-releases",
+          "description": "Prebuilt patched Electron binaries for the pixel terminal browser. Auto-synced with upstream Electron releases. Patches live in zenbu-labs/pixel-electron.",
+          "htmlUrl": "https://github.com/zenbu-labs/electron-releases",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-19T05:09:29Z",
+          "updatedAt": "2026-07-18T13:29:29Z",
+          "createdAt": "2026-07-18T12:47:32Z",
+          "score": 8
         },
         {
           "id": 1251784009,
@@ -2150,7 +2203,7 @@
           "pushedAt": "2026-05-27T23:40:29Z",
           "updatedAt": "2026-05-27T23:40:30Z",
           "createdAt": "2026-05-27T23:03:16Z",
-          "score": 8
+          "score": 3
         },
         {
           "id": 1235430083,
@@ -2246,12 +2299,12 @@
           "stars": 0,
           "forks": 0,
           "watchers": 0,
-          "openIssues": 1,
+          "openIssues": 2,
           "language": "MDX",
-          "pushedAt": "2026-06-10T23:50:18Z",
-          "updatedAt": "2026-06-10T23:50:19Z",
+          "pushedAt": "2026-07-16T19:21:47Z",
+          "updatedAt": "2026-07-13T18:55:23Z",
           "createdAt": "2026-01-21T11:48:01Z",
-          "score": 9
+          "score": 10
         }
       ]
     },
@@ -2276,18 +2329,18 @@
         "bio": "",
         "followers": 5,
         "following": 0,
-        "publicRepos": 28,
+        "publicRepos": 33,
         "publicGists": 0,
         "createdAt": "2025-08-12T17:50:12Z",
-        "updatedAt": "2026-06-15T11:34:24Z"
+        "updatedAt": "2026-07-15T13:01:26Z"
       },
       "aggregate": {
-        "repoCount": 19,
-        "totalStars": 21,
-        "totalForks": 8,
-        "totalWatchers": 21,
-        "maxRepoScore": 64,
-        "profileScore": 45
+        "repoCount": 21,
+        "totalStars": 22,
+        "totalForks": 9,
+        "totalWatchers": 22,
+        "maxRepoScore": 65,
+        "profileScore": 47
       },
       "repos": [
         {
@@ -2299,12 +2352,12 @@
           "stars": 9,
           "forks": 4,
           "watchers": 9,
-          "openIssues": 5,
+          "openIssues": 9,
           "language": "TypeScript",
-          "pushedAt": "2026-06-25T11:22:51Z",
-          "updatedAt": "2026-06-25T11:22:13Z",
+          "pushedAt": "2026-07-18T02:06:50Z",
+          "updatedAt": "2026-07-17T18:16:21Z",
           "createdAt": "2025-09-08T14:42:42Z",
-          "score": 64
+          "score": 65
         },
         {
           "id": 1059606085,
@@ -2349,10 +2402,42 @@
           "watchers": 1,
           "openIssues": 28,
           "language": "Swift",
-          "pushedAt": "2026-06-03T16:21:35Z",
-          "updatedAt": "2026-06-22T04:27:33Z",
+          "pushedAt": "2026-07-17T09:31:32Z",
+          "updatedAt": "2026-07-02T17:10:28Z",
           "createdAt": "2026-01-26T20:08:00Z",
           "score": 35
+        },
+        {
+          "id": 1204154625,
+          "name": "skills",
+          "fullName": "limrun-inc/skills",
+          "description": "",
+          "htmlUrl": "https://github.com/limrun-inc/skills",
+          "stars": 1,
+          "forks": 1,
+          "watchers": 1,
+          "openIssues": 0,
+          "language": "JavaScript",
+          "pushedAt": "2026-07-15T19:46:58Z",
+          "updatedAt": "2026-07-15T19:47:01Z",
+          "createdAt": "2026-04-07T18:36:43Z",
+          "score": 26
+        },
+        {
+          "id": 1052755130,
+          "name": "go-sdk",
+          "fullName": "limrun-inc/go-sdk",
+          "description": "The Go SDK to interact with Limrun APIs.",
+          "htmlUrl": "https://github.com/limrun-inc/go-sdk",
+          "stars": 0,
+          "forks": 2,
+          "watchers": 0,
+          "openIssues": 1,
+          "language": "Go",
+          "pushedAt": "2026-07-18T02:06:24Z",
+          "updatedAt": "2026-06-30T09:56:57Z",
+          "createdAt": "2025-09-08T13:59:15Z",
+          "score": 19
         },
         {
           "id": 1125816371,
@@ -2368,54 +2453,22 @@
           "pushedAt": "2026-01-09T08:29:09Z",
           "updatedAt": "2025-12-31T18:48:06Z",
           "createdAt": "2025-12-31T12:21:59Z",
-          "score": 15
+          "score": 12
         },
         {
-          "id": 1052755130,
-          "name": "go-sdk",
-          "fullName": "limrun-inc/go-sdk",
-          "description": "The Go SDK to interact with Limrun APIs.",
-          "htmlUrl": "https://github.com/limrun-inc/go-sdk",
-          "stars": 0,
-          "forks": 1,
-          "watchers": 0,
-          "openIssues": 1,
-          "language": "Go",
-          "pushedAt": "2026-06-18T08:36:40Z",
-          "updatedAt": "2026-02-18T15:18:59Z",
-          "createdAt": "2025-09-08T13:59:15Z",
-          "score": 15
-        },
-        {
-          "id": 1204154625,
-          "name": "skills",
-          "fullName": "limrun-inc/skills",
-          "description": "",
-          "htmlUrl": "https://github.com/limrun-inc/skills",
-          "stars": 0,
-          "forks": 1,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "JavaScript",
-          "pushedAt": "2026-06-25T14:21:25Z",
-          "updatedAt": "2026-06-25T14:22:07Z",
-          "createdAt": "2026-04-07T18:36:43Z",
-          "score": 14
-        },
-        {
-          "id": 1253748477,
-          "name": "sample-kotlin-minapi-33",
-          "fullName": "limrun-inc/sample-kotlin-minapi-33",
-          "description": "",
-          "htmlUrl": "https://github.com/limrun-inc/sample-kotlin-minapi-33",
+          "id": 1262780504,
+          "name": "sample-native-bazel-app",
+          "fullName": "limrun-inc/sample-native-bazel-app",
+          "description": "Multi-module Bazel iOS sample app (rules_apple/rules_swift, bzlmod) buildable from any environment via Limrun remote build execution",
+          "htmlUrl": "https://github.com/limrun-inc/sample-native-bazel-app",
           "stars": 0,
           "forks": 0,
           "watchers": 0,
-          "openIssues": 4,
-          "language": "Kotlin",
-          "pushedAt": "2026-05-29T20:03:13Z",
-          "updatedAt": "2026-05-29T19:40:27Z",
-          "createdAt": "2026-05-29T19:21:16Z",
+          "openIssues": 3,
+          "language": "Starlark",
+          "pushedAt": "2026-07-06T13:49:19Z",
+          "updatedAt": "2026-07-06T13:49:29Z",
+          "createdAt": "2026-06-08T10:08:27Z",
           "score": 10
         },
         {
@@ -2429,25 +2482,25 @@
           "watchers": 0,
           "openIssues": 1,
           "language": "Swift",
-          "pushedAt": "2026-06-26T18:47:52Z",
-          "updatedAt": "2026-06-26T17:50:01Z",
+          "pushedAt": "2026-07-06T12:31:41Z",
+          "updatedAt": "2026-07-06T12:31:47Z",
           "createdAt": "2026-06-26T14:56:41Z",
           "score": 9
         },
         {
-          "id": 1262780504,
-          "name": "sample-native-bazel-app",
-          "fullName": "limrun-inc/sample-native-bazel-app",
-          "description": "Multi-module Bazel iOS sample app (rules_apple/rules_swift, bzlmod) buildable from any environment via Limrun remote build execution",
-          "htmlUrl": "https://github.com/limrun-inc/sample-native-bazel-app",
+          "id": 1239141305,
+          "name": "sample-expo54-app",
+          "fullName": "limrun-inc/sample-expo54-app",
+          "description": "Sample Expo Go test app for demonstrating automated testing on Limrun remote iOS simulators.",
+          "htmlUrl": "https://github.com/limrun-inc/sample-expo54-app",
           "stars": 0,
           "forks": 0,
           "watchers": 0,
           "openIssues": 1,
-          "language": "Starlark",
-          "pushedAt": "2026-06-26T11:28:56Z",
-          "updatedAt": "2026-06-24T19:07:21Z",
-          "createdAt": "2026-06-08T10:08:27Z",
+          "language": "JavaScript",
+          "pushedAt": "2026-07-10T22:37:59Z",
+          "updatedAt": "2026-06-28T18:27:24Z",
+          "createdAt": "2026-05-14T19:59:08Z",
           "score": 9
         },
         {
@@ -2461,7 +2514,7 @@
           "watchers": 0,
           "openIssues": 1,
           "language": "Python",
-          "pushedAt": "2026-06-18T08:36:39Z",
+          "pushedAt": "2026-07-18T02:06:23Z",
           "updatedAt": "2026-04-13T17:40:12Z",
           "createdAt": "2025-09-08T21:28:20Z",
           "score": 9
@@ -2477,10 +2530,42 @@
           "watchers": 0,
           "openIssues": 1,
           "language": "Kotlin",
-          "pushedAt": "2026-06-18T08:36:53Z",
+          "pushedAt": "2026-07-18T02:06:34Z",
           "updatedAt": "2025-12-15T08:55:29Z",
           "createdAt": "2025-09-08T21:27:58Z",
           "score": 9
+        },
+        {
+          "id": 1290040062,
+          "name": "docs",
+          "fullName": "limrun-inc/docs",
+          "description": "Limrun public docs",
+          "htmlUrl": "https://github.com/limrun-inc/docs",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "MDX",
+          "pushedAt": "2026-07-15T08:53:09Z",
+          "updatedAt": "2026-07-15T08:53:20Z",
+          "createdAt": "2026-07-05T14:06:48Z",
+          "score": 8
+        },
+        {
+          "id": 1292455384,
+          "name": "sample-xcodegen-app",
+          "fullName": "limrun-inc/sample-xcodegen-app",
+          "description": "",
+          "htmlUrl": "https://github.com/limrun-inc/sample-xcodegen-app",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "Swift",
+          "pushedAt": "2026-07-10T14:55:29Z",
+          "updatedAt": "2026-07-10T14:56:21Z",
+          "createdAt": "2026-07-07T14:38:10Z",
+          "score": 8
         },
         {
           "id": 1199849538,
@@ -2493,10 +2578,58 @@
           "watchers": 0,
           "openIssues": 0,
           "language": "TypeScript",
-          "pushedAt": "2026-06-03T16:20:42Z",
-          "updatedAt": "2026-06-03T16:21:30Z",
+          "pushedAt": "2026-07-06T12:31:08Z",
+          "updatedAt": "2026-07-06T12:31:14Z",
           "createdAt": "2026-04-02T19:18:54Z",
           "score": 8
+        },
+        {
+          "id": 1248088057,
+          "name": "sample-expo55-app",
+          "fullName": "limrun-inc/sample-expo55-app",
+          "description": "",
+          "htmlUrl": "https://github.com/limrun-inc/sample-expo55-app",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "TypeScript",
+          "pushedAt": "2026-06-28T18:33:30Z",
+          "updatedAt": "2026-06-28T18:33:34Z",
+          "createdAt": "2026-05-24T07:06:39Z",
+          "score": 8
+        },
+        {
+          "id": 1248663687,
+          "name": "sample-expo56-app",
+          "fullName": "limrun-inc/sample-expo56-app",
+          "description": "",
+          "htmlUrl": "https://github.com/limrun-inc/sample-expo56-app",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "TypeScript",
+          "pushedAt": "2026-06-28T18:34:51Z",
+          "updatedAt": "2026-06-28T18:32:11Z",
+          "createdAt": "2026-05-24T23:36:55Z",
+          "score": 8
+        },
+        {
+          "id": 1253748477,
+          "name": "sample-kotlin-minapi-33",
+          "fullName": "limrun-inc/sample-kotlin-minapi-33",
+          "description": "",
+          "htmlUrl": "https://github.com/limrun-inc/sample-kotlin-minapi-33",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 4,
+          "language": "Kotlin",
+          "pushedAt": "2026-05-29T20:03:13Z",
+          "updatedAt": "2026-05-29T19:40:27Z",
+          "createdAt": "2026-05-29T19:21:16Z",
+          "score": 5
         },
         {
           "id": 1252756439,
@@ -2512,55 +2645,7 @@
           "pushedAt": "2026-05-28T22:16:53Z",
           "updatedAt": "2026-05-28T22:16:59Z",
           "createdAt": "2026-05-28T20:53:49Z",
-          "score": 8
-        },
-        {
-          "id": 1248663687,
-          "name": "sample-expo56-app",
-          "fullName": "limrun-inc/sample-expo56-app",
-          "description": "",
-          "htmlUrl": "https://github.com/limrun-inc/sample-expo56-app",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "TypeScript",
-          "pushedAt": "2026-05-25T19:54:18Z",
-          "updatedAt": "2026-05-25T19:54:22Z",
-          "createdAt": "2026-05-24T23:36:55Z",
-          "score": 8
-        },
-        {
-          "id": 1248088057,
-          "name": "sample-expo55-app",
-          "fullName": "limrun-inc/sample-expo55-app",
-          "description": "",
-          "htmlUrl": "https://github.com/limrun-inc/sample-expo55-app",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "TypeScript",
-          "pushedAt": "2026-05-25T19:53:39Z",
-          "updatedAt": "2026-05-25T19:53:42Z",
-          "createdAt": "2026-05-24T07:06:39Z",
-          "score": 8
-        },
-        {
-          "id": 1239141305,
-          "name": "sample-expo54-app",
-          "fullName": "limrun-inc/sample-expo54-app",
-          "description": "Sample Expo Go test app for demonstrating automated testing on Limrun remote iOS simulators.",
-          "htmlUrl": "https://github.com/limrun-inc/sample-expo54-app",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "JavaScript",
-          "pushedAt": "2026-05-25T19:52:56Z",
-          "updatedAt": "2026-05-25T19:53:00Z",
-          "createdAt": "2026-05-14T19:59:08Z",
-          "score": 8
+          "score": 3
         },
         {
           "id": 1203248788,
@@ -2576,22 +2661,6 @@
           "pushedAt": "2026-04-06T21:41:10Z",
           "updatedAt": "2026-04-06T21:41:14Z",
           "createdAt": "2026-04-06T21:41:08Z",
-          "score": 3
-        },
-        {
-          "id": 1172072894,
-          "name": "rust-ios-example",
-          "fullName": "limrun-inc/rust-ios-example",
-          "description": "",
-          "htmlUrl": "https://github.com/limrun-inc/rust-ios-example",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Rust",
-          "pushedAt": "2026-03-03T23:25:20Z",
-          "updatedAt": "2026-03-03T23:25:23Z",
-          "createdAt": "2026-03-03T23:10:46Z",
           "score": 3
         }
       ]
@@ -2615,7 +2684,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/AgentPhone-AI",
         "bio": "Phone Numbers for AI Agents",
-        "followers": 21,
+        "followers": 34,
         "following": 0,
         "publicRepos": 8,
         "publicGists": 0,
@@ -2624,11 +2693,11 @@
       },
       "aggregate": {
         "repoCount": 6,
-        "totalStars": 23,
-        "totalForks": 2,
-        "totalWatchers": 23,
-        "maxRepoScore": 69,
-        "profileScore": 43
+        "totalStars": 116,
+        "totalForks": 16,
+        "totalWatchers": 116,
+        "maxRepoScore": 100,
+        "profileScore": 53
       },
       "repos": [
         {
@@ -2637,15 +2706,15 @@
           "fullName": "AgentPhone-AI/agentphone-mcp",
           "description": "",
           "htmlUrl": "https://github.com/AgentPhone-AI/agentphone-mcp",
-          "stars": 19,
-          "forks": 2,
-          "watchers": 19,
-          "openIssues": 0,
+          "stars": 108,
+          "forks": 15,
+          "watchers": 108,
+          "openIssues": 1,
           "language": "TypeScript",
-          "pushedAt": "2026-06-26T21:34:28Z",
-          "updatedAt": "2026-06-26T21:34:33Z",
+          "pushedAt": "2026-07-03T10:13:11Z",
+          "updatedAt": "2026-07-15T18:34:57Z",
           "createdAt": "2026-02-26T06:02:53Z",
-          "score": 69
+          "score": 100
         },
         {
           "id": 1182634099,
@@ -2653,15 +2722,31 @@
           "fullName": "AgentPhone-AI/skills",
           "description": "AgentPhone plugin for Claude Code — phone calls, SMS, and voice for AI agents",
           "htmlUrl": "https://github.com/AgentPhone-AI/skills",
-          "stars": 4,
+          "stars": 7,
           "forks": 0,
-          "watchers": 4,
+          "watchers": 7,
           "openIssues": 0,
           "language": null,
           "pushedAt": "2026-06-23T00:36:51Z",
-          "updatedAt": "2026-06-23T00:36:53Z",
+          "updatedAt": "2026-07-09T22:36:46Z",
           "createdAt": "2026-03-15T19:22:42Z",
-          "score": 35
+          "score": 43
+        },
+        {
+          "id": 1219827616,
+          "name": "crewai-agentphone",
+          "fullName": "AgentPhone-AI/crewai-agentphone",
+          "description": "CrewAI integration for AgentPhone — telephony tools for AI agents",
+          "htmlUrl": "https://github.com/AgentPhone-AI/crewai-agentphone",
+          "stars": 1,
+          "forks": 1,
+          "watchers": 1,
+          "openIssues": 0,
+          "language": "Python",
+          "pushedAt": "2026-04-24T09:01:30Z",
+          "updatedAt": "2026-07-09T22:36:55Z",
+          "createdAt": "2026-04-24T09:00:50Z",
+          "score": 21
         },
         {
           "id": 1252556409,
@@ -2677,7 +2762,7 @@
           "pushedAt": "2026-05-28T16:43:04Z",
           "updatedAt": "2026-05-28T16:43:09Z",
           "createdAt": "2026-05-28T16:32:05Z",
-          "score": 8
+          "score": 3
         },
         {
           "id": 1249958991,
@@ -2693,22 +2778,6 @@
           "pushedAt": "2026-05-26T07:24:02Z",
           "updatedAt": "2026-05-26T07:24:06Z",
           "createdAt": "2026-05-26T07:16:20Z",
-          "score": 8
-        },
-        {
-          "id": 1219827616,
-          "name": "crewai-agentphone",
-          "fullName": "AgentPhone-AI/crewai-agentphone",
-          "description": "CrewAI integration for AgentPhone — telephony tools for AI agents",
-          "htmlUrl": "https://github.com/AgentPhone-AI/crewai-agentphone",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "Python",
-          "pushedAt": "2026-04-24T09:01:30Z",
-          "updatedAt": "2026-05-19T22:09:58Z",
-          "createdAt": "2026-04-24T09:00:50Z",
           "score": 3
         },
         {
@@ -2753,15 +2822,15 @@
         "publicRepos": 1,
         "publicGists": 0,
         "createdAt": "2025-08-02T08:14:55Z",
-        "updatedAt": "2026-06-01T23:04:33Z"
+        "updatedAt": "2026-07-01T22:01:50Z"
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 6,
+        "totalStars": 7,
         "totalForks": 0,
-        "totalWatchers": 6,
-        "maxRepoScore": 43,
-        "profileScore": 43
+        "totalWatchers": 7,
+        "maxRepoScore": 40,
+        "profileScore": 41
       },
       "repos": [
         {
@@ -2770,15 +2839,15 @@
           "fullName": "expanse-labs/wastage",
           "description": "One command to see how much compute your cluster wastes. SLURM & Kubernetes.",
           "htmlUrl": "https://github.com/expanse-labs/wastage",
-          "stars": 6,
+          "stars": 7,
           "forks": 0,
-          "watchers": 6,
+          "watchers": 7,
           "openIssues": 2,
           "language": "Shell",
           "pushedAt": "2026-05-22T22:52:20Z",
-          "updatedAt": "2026-06-02T19:04:49Z",
+          "updatedAt": "2026-07-10T19:57:24Z",
           "createdAt": "2026-04-04T03:50:48Z",
-          "score": 43
+          "score": 40
         }
       ]
     },
@@ -2803,18 +2872,18 @@
         "bio": "Start catching bugs in minutes",
         "followers": 15,
         "following": 0,
-        "publicRepos": 4,
+        "publicRepos": 5,
         "publicGists": 0,
         "createdAt": "2026-01-04T13:35:48Z",
-        "updatedAt": "2026-05-14T18:19:59Z"
+        "updatedAt": "2026-07-04T15:27:34Z"
       },
       "aggregate": {
-        "repoCount": 4,
-        "totalStars": 40,
+        "repoCount": 5,
+        "totalStars": 76,
         "totalForks": 0,
-        "totalWatchers": 40,
-        "maxRepoScore": 70,
-        "profileScore": 42
+        "totalWatchers": 76,
+        "maxRepoScore": 72,
+        "profileScore": 49
       },
       "repos": [
         {
@@ -2823,15 +2892,31 @@
           "fullName": "tester-army/cli",
           "description": "AI QA agent that clicks through your website like a real human.",
           "htmlUrl": "https://github.com/tester-army/cli",
-          "stars": 38,
+          "stars": 41,
           "forks": 0,
-          "watchers": 38,
+          "watchers": 41,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-27T14:59:28Z",
-          "updatedAt": "2026-06-27T14:59:29Z",
+          "pushedAt": "2026-07-16T15:24:31Z",
+          "updatedAt": "2026-07-18T20:51:20Z",
           "createdAt": "2026-02-13T22:18:03Z",
-          "score": 70
+          "score": 72
+        },
+        {
+          "id": 1300573378,
+          "name": "scout",
+          "fullName": "tester-army/scout",
+          "description": "Tools for testing APIs with AI agents",
+          "htmlUrl": "https://github.com/tester-army/scout",
+          "stars": 33,
+          "forks": 0,
+          "watchers": 33,
+          "openIssues": 0,
+          "language": "TypeScript",
+          "pushedAt": "2026-07-18T08:10:51Z",
+          "updatedAt": "2026-07-19T03:57:03Z",
+          "createdAt": "2026-07-14T14:10:46Z",
+          "score": 68
         },
         {
           "id": 1209710316,
@@ -2902,12 +2987,12 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/DripYCx26",
         "bio": "",
-        "followers": 9,
+        "followers": 10,
         "following": 0,
         "publicRepos": 7,
         "publicGists": 0,
         "createdAt": "2026-02-22T01:33:44Z",
-        "updatedAt": "2026-06-11T14:42:36Z"
+        "updatedAt": "2026-07-11T16:42:30Z"
       },
       "aggregate": {
         "repoCount": 7,
@@ -2915,7 +3000,7 @@
         "totalForks": 2,
         "totalWatchers": 24,
         "maxRepoScore": 68,
-        "profileScore": 37
+        "profileScore": 38
       },
       "repos": [
         {
@@ -3009,7 +3094,7 @@
           "watchers": 0,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-27T06:20:20Z",
+          "pushedAt": "2026-07-18T23:30:00Z",
           "updatedAt": "2026-05-06T21:43:41Z",
           "createdAt": "2026-05-06T21:38:21Z",
           "score": 8
@@ -3034,42 +3119,6 @@
     },
     {
       "entityType": "company",
-      "entityId": "company-smol-machines",
-      "companySlug": "smol-machines",
-      "companyName": "smol machines",
-      "name": "smol machines",
-      "sourceUrl": "https://smolmachines.com/",
-      "githubUrl": "https://github.com/smol-machines/libkrunfw",
-      "discoverySource": "official_website",
-      "matchReason": "GitHub URL linked from the official company website.",
-      "login": "smol-machines",
-      "repo": "libkrunfw",
-      "fetched": true,
-      "account": {
-        "login": "smol-machines",
-        "name": "smol machines",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/smol-machines",
-        "bio": "Ship software faster with portable, executable, self contained virtual machines.",
-        "followers": 85,
-        "following": 0,
-        "publicRepos": 7,
-        "publicGists": 0,
-        "createdAt": "2025-12-18T23:20:27Z",
-        "updatedAt": "2026-03-02T02:07:44Z"
-      },
-      "aggregate": {
-        "repoCount": 0,
-        "totalStars": 0,
-        "totalForks": 0,
-        "totalWatchers": 0,
-        "maxRepoScore": 0,
-        "profileScore": 35
-      },
-      "repos": []
-    },
-    {
-      "entityType": "company",
       "entityId": "company-minicor",
       "companySlug": "minicor",
       "companyName": "Minicor",
@@ -3087,20 +3136,20 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/laminar-run",
         "bio": "",
-        "followers": 12,
+        "followers": 13,
         "following": 0,
         "publicRepos": 7,
         "publicGists": 0,
         "createdAt": "2023-02-03T01:56:47Z",
-        "updatedAt": "2026-06-07T16:38:49Z"
+        "updatedAt": "2026-07-07T16:01:04Z"
       },
       "aggregate": {
         "repoCount": 6,
-        "totalStars": 8,
+        "totalStars": 10,
         "totalForks": 1,
-        "totalWatchers": 8,
-        "maxRepoScore": 34,
-        "profileScore": 34
+        "totalWatchers": 10,
+        "maxRepoScore": 37,
+        "profileScore": 35
       },
       "repos": [
         {
@@ -3109,15 +3158,15 @@
           "fullName": "laminar-run/hookmock",
           "description": "Mock webhooks locally.",
           "htmlUrl": "https://github.com/laminar-run/hookmock",
-          "stars": 4,
+          "stars": 5,
           "forks": 1,
-          "watchers": 4,
+          "watchers": 5,
           "openIssues": 0,
           "language": "JavaScript",
           "pushedAt": "2023-02-02T13:58:18Z",
-          "updatedAt": "2026-05-26T22:54:15Z",
+          "updatedAt": "2026-07-14T15:24:55Z",
           "createdAt": "2023-02-01T13:51:35Z",
-          "score": 34
+          "score": 37
         },
         {
           "id": 870290090,
@@ -3125,15 +3174,15 @@
           "fullName": "laminar-run/beautiful-mermaid",
           "description": "Simple React App for beautiful Mermaid Diagrams ",
           "htmlUrl": "https://github.com/laminar-run/beautiful-mermaid",
-          "stars": 3,
+          "stars": 4,
           "forks": 0,
-          "watchers": 3,
+          "watchers": 4,
           "openIssues": 0,
           "language": "JavaScript",
           "pushedAt": "2024-10-09T21:34:59Z",
-          "updatedAt": "2026-02-05T06:16:47Z",
+          "updatedAt": "2026-07-14T15:24:29Z",
           "createdAt": "2024-10-09T19:15:42Z",
-          "score": 24
+          "score": 27
         },
         {
           "id": 1187599024,
@@ -3165,7 +3214,7 @@
           "pushedAt": "2026-05-28T20:40:31Z",
           "updatedAt": "2026-05-28T20:40:36Z",
           "createdAt": "2026-05-28T19:34:12Z",
-          "score": 8
+          "score": 3
         },
         {
           "id": 618933122,
@@ -3220,7 +3269,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/9mothers",
         "bio": "Cost effective C-UAS. AI detection, tracking and defensive systems.",
-        "followers": 11,
+        "followers": 15,
         "following": 0,
         "publicRepos": 2,
         "publicGists": 0,
@@ -3229,11 +3278,11 @@
       },
       "aggregate": {
         "repoCount": 2,
-        "totalStars": 4,
-        "totalForks": 0,
-        "totalWatchers": 4,
-        "maxRepoScore": 35,
-        "profileScore": 33
+        "totalStars": 5,
+        "totalForks": 1,
+        "totalWatchers": 5,
+        "maxRepoScore": 45,
+        "profileScore": 38
       },
       "repos": [
         {
@@ -3242,15 +3291,15 @@
           "fullName": "9mothers/udptoxy",
           "description": "UDP proxy with toxiproxy-style chaos simulation (latency, jitter, packet loss, rate limits) and interactive TUI",
           "htmlUrl": "https://github.com/9mothers/udptoxy",
-          "stars": 4,
-          "forks": 0,
-          "watchers": 4,
+          "stars": 5,
+          "forks": 1,
+          "watchers": 5,
           "openIssues": 0,
           "language": "Rust",
-          "pushedAt": "2026-06-25T15:57:42Z",
-          "updatedAt": "2026-06-25T15:57:45Z",
+          "pushedAt": "2026-07-16T17:23:48Z",
+          "updatedAt": "2026-07-16T17:23:54Z",
           "createdAt": "2026-01-27T22:52:35Z",
-          "score": 35
+          "score": 45
         },
         {
           "id": 1142824087,
@@ -3289,7 +3338,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/trybloomai",
         "bio": "",
-        "followers": 9,
+        "followers": 10,
         "following": 0,
         "publicRepos": 2,
         "publicGists": 0,
@@ -3298,11 +3347,11 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 1,
+        "totalStars": 3,
         "totalForks": 0,
-        "totalWatchers": 1,
-        "maxRepoScore": 20,
-        "profileScore": 32
+        "totalWatchers": 3,
+        "maxRepoScore": 32,
+        "profileScore": 41
       },
       "repos": [
         {
@@ -3311,15 +3360,15 @@
           "fullName": "trybloomai/bloom-examples",
           "description": "Templates for connecting Bloom to real product workflows.",
           "htmlUrl": "https://github.com/trybloomai/bloom-examples",
-          "stars": 1,
+          "stars": 3,
           "forks": 0,
-          "watchers": 1,
+          "watchers": 3,
           "openIssues": 0,
           "language": "TypeScript",
           "pushedAt": "2026-06-12T02:40:18Z",
-          "updatedAt": "2026-06-12T02:40:21Z",
+          "updatedAt": "2026-07-04T20:25:29Z",
           "createdAt": "2026-06-05T22:14:37Z",
-          "score": 20
+          "score": 32
         }
       ]
     },
@@ -3342,37 +3391,37 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/primitivedotdev",
         "bio": "finally, email as a real developer primitive",
-        "followers": 3,
+        "followers": 4,
         "following": 0,
-        "publicRepos": 7,
+        "publicRepos": 9,
         "publicGists": 0,
         "createdAt": "2026-03-08T22:58:09Z",
-        "updatedAt": "2026-06-23T23:40:34Z"
+        "updatedAt": "2026-07-01T23:29:26Z"
       },
       "aggregate": {
-        "repoCount": 7,
+        "repoCount": 9,
         "totalStars": 9,
-        "totalForks": 2,
+        "totalForks": 3,
         "totalWatchers": 9,
-        "maxRepoScore": 41,
-        "profileScore": 31
+        "maxRepoScore": 46,
+        "profileScore": 33
       },
       "repos": [
         {
           "id": 1180243961,
           "name": "sdks",
           "fullName": "primitivedotdev/sdks",
-          "description": "The CLI & SDKs for primitive",
+          "description": "Official Node.js, Python, and Go SDKs plus the primitive CLI for Primitive — email infrastructure for AI agents. Generated from the OpenAPI spec.",
           "htmlUrl": "https://github.com/primitivedotdev/sdks",
           "stars": 3,
-          "forks": 2,
+          "forks": 3,
           "watchers": 3,
-          "openIssues": 0,
+          "openIssues": 2,
           "language": "TypeScript",
-          "pushedAt": "2026-06-28T02:42:53Z",
-          "updatedAt": "2026-06-28T02:42:56Z",
+          "pushedAt": "2026-07-18T23:21:53Z",
+          "updatedAt": "2026-07-18T23:21:55Z",
           "createdAt": "2026-03-12T21:08:50Z",
-          "score": 41
+          "score": 46
         },
         {
           "id": 1256360172,
@@ -3386,7 +3435,7 @@
           "openIssues": 0,
           "language": "TypeScript",
           "pushedAt": "2026-06-05T18:46:58Z",
-          "updatedAt": "2026-06-07T06:54:54Z",
+          "updatedAt": "2026-07-08T18:48:50Z",
           "createdAt": "2026-06-01T17:48:55Z",
           "score": 38
         },
@@ -3394,15 +3443,15 @@
           "id": 1255544605,
           "name": "skills",
           "fullName": "primitivedotdev/skills",
-          "description": "",
+          "description": "Agent skills for Primitive — primitive-chat (email another agent and wait for the reply) and primitive-inbox (a managed inbox that receives mail). Works with Claude Code, Codex, Cursor, and 50+ agents.",
           "htmlUrl": "https://github.com/primitivedotdev/skills",
           "stars": 1,
           "forks": 0,
           "watchers": 1,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-06-16T15:33:10Z",
-          "updatedAt": "2026-06-24T00:26:19Z",
+          "pushedAt": "2026-07-09T03:04:45Z",
+          "updatedAt": "2026-07-09T03:04:50Z",
           "createdAt": "2026-06-01T00:24:30Z",
           "score": 20
         },
@@ -3415,12 +3464,76 @@
           "stars": 0,
           "forks": 0,
           "watchers": 0,
-          "openIssues": 16,
+          "openIssues": 24,
           "language": "Ruby",
-          "pushedAt": "2026-06-27T23:05:21Z",
-          "updatedAt": "2026-06-22T05:10:01Z",
+          "pushedAt": "2026-07-17T00:31:09Z",
+          "updatedAt": "2026-07-17T00:31:13Z",
           "createdAt": "2026-05-25T22:11:41Z",
-          "score": 12
+          "score": 13
+        },
+        {
+          "id": 1294550387,
+          "name": ".github",
+          "fullName": "primitivedotdev/.github",
+          "description": "Primitive — email infrastructure for AI agents",
+          "htmlUrl": "https://github.com/primitivedotdev/.github",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-09T02:22:19Z",
+          "updatedAt": "2026-07-09T02:22:22Z",
+          "createdAt": "2026-07-09T02:22:04Z",
+          "score": 8
+        },
+        {
+          "id": 1260617255,
+          "name": "setup-primitive",
+          "fullName": "primitivedotdev/setup-primitive",
+          "description": "Set up the primitive.dev CLI in a GitHub Actions workflow",
+          "htmlUrl": "https://github.com/primitivedotdev/setup-primitive",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-06-05T17:29:39Z",
+          "updatedAt": "2026-07-08T18:48:51Z",
+          "createdAt": "2026-06-05T17:27:43Z",
+          "score": 8
+        },
+        {
+          "id": 1260617193,
+          "name": "send-email",
+          "fullName": "primitivedotdev/send-email",
+          "description": "GitHub Action to send email via Primitive (primitive.dev) — email infrastructure for AI agents — from a workflow.",
+          "htmlUrl": "https://github.com/primitivedotdev/send-email",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "TypeScript",
+          "pushedAt": "2026-06-05T20:36:09Z",
+          "updatedAt": "2026-07-08T18:48:49Z",
+          "createdAt": "2026-06-05T17:27:38Z",
+          "score": 8
+        },
+        {
+          "id": 1283346237,
+          "name": "codex-plugin",
+          "fullName": "primitivedotdev/codex-plugin",
+          "description": "Codex plugin for Primitive — email infrastructure for AI agents",
+          "htmlUrl": "https://github.com/primitivedotdev/codex-plugin",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-06-28T20:34:59Z",
+          "updatedAt": "2026-07-08T18:48:47Z",
+          "createdAt": "2026-06-28T20:34:56Z",
+          "score": 8
         },
         {
           "id": 1273684763,
@@ -3437,38 +3550,6 @@
           "updatedAt": "2026-06-18T19:11:58Z",
           "createdAt": "2026-06-18T19:11:58Z",
           "score": 8
-        },
-        {
-          "id": 1260617193,
-          "name": "send-email",
-          "fullName": "primitivedotdev/send-email",
-          "description": "Send email via primitive.dev from a GitHub Actions workflow",
-          "htmlUrl": "https://github.com/primitivedotdev/send-email",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": "TypeScript",
-          "pushedAt": "2026-06-05T20:36:09Z",
-          "updatedAt": "2026-06-05T20:36:09Z",
-          "createdAt": "2026-06-05T17:27:38Z",
-          "score": 8
-        },
-        {
-          "id": 1260617255,
-          "name": "setup-primitive",
-          "fullName": "primitivedotdev/setup-primitive",
-          "description": "Set up the primitive.dev CLI in a GitHub Actions workflow",
-          "htmlUrl": "https://github.com/primitivedotdev/setup-primitive",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-06-05T17:29:39Z",
-          "updatedAt": "2026-06-05T17:29:41Z",
-          "createdAt": "2026-06-05T17:27:43Z",
-          "score": 8
         }
       ]
     },
@@ -3479,10 +3560,10 @@
       "companyName": "Arga Labs",
       "name": "Arga Labs",
       "sourceUrl": "https://www.argalabs.com/",
-      "githubUrl": "https://github.com/argalabs",
+      "githubUrl": "https://github.com/ArgaLabs",
       "discoverySource": "official_website",
       "matchReason": "GitHub URL linked from the official company website.",
-      "login": "argalabs",
+      "login": "ArgaLabs",
       "repo": null,
       "fetched": true,
       "account": {
@@ -3496,7 +3577,7 @@
         "publicRepos": 10,
         "publicGists": 0,
         "createdAt": "2025-11-27T19:03:27Z",
-        "updatedAt": "2026-06-15T20:43:26Z"
+        "updatedAt": "2026-07-01T23:55:32Z"
       },
       "aggregate": {
         "repoCount": 10,
@@ -3504,7 +3585,7 @@
         "totalForks": 5,
         "totalWatchers": 9,
         "maxRepoScore": 48,
-        "profileScore": 29
+        "profileScore": 28
       },
       "repos": [
         {
@@ -3556,38 +3637,6 @@
           "score": 18
         },
         {
-          "id": 1202145956,
-          "name": "arga-python-sdk",
-          "fullName": "ArgaLabs/arga-python-sdk",
-          "description": "Python SDK for the Arga API",
-          "htmlUrl": "https://github.com/ArgaLabs/arga-python-sdk",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 2,
-          "language": "Python",
-          "pushedAt": "2026-05-27T18:55:02Z",
-          "updatedAt": "2026-05-27T18:12:11Z",
-          "createdAt": "2026-04-05T16:55:12Z",
-          "score": 10
-        },
-        {
-          "id": 1202145976,
-          "name": "arga-typescript-sdk",
-          "fullName": "ArgaLabs/arga-typescript-sdk",
-          "description": "TypeScript SDK for the Arga API",
-          "htmlUrl": "https://github.com/ArgaLabs/arga-typescript-sdk",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 1,
-          "language": "TypeScript",
-          "pushedAt": "2026-05-27T18:55:02Z",
-          "updatedAt": "2026-05-27T18:11:47Z",
-          "createdAt": "2026-04-05T16:55:14Z",
-          "score": 9
-        },
-        {
           "id": 1177487146,
           "name": "discord-twin",
           "fullName": "ArgaLabs/discord-twin",
@@ -3604,6 +3653,22 @@
           "score": 9
         },
         {
+          "id": 1202145956,
+          "name": "arga-python-sdk",
+          "fullName": "ArgaLabs/arga-python-sdk",
+          "description": "Python SDK for the Arga API",
+          "htmlUrl": "https://github.com/ArgaLabs/arga-python-sdk",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 2,
+          "language": "Python",
+          "pushedAt": "2026-05-27T18:55:02Z",
+          "updatedAt": "2026-05-27T18:12:11Z",
+          "createdAt": "2026-04-05T16:55:12Z",
+          "score": 5
+        },
+        {
           "id": 1180265119,
           "name": "returns_agent",
           "fullName": "ArgaLabs/returns_agent",
@@ -3618,6 +3683,22 @@
           "updatedAt": "2026-03-12T21:47:10Z",
           "createdAt": "2026-03-12T21:44:44Z",
           "score": 5
+        },
+        {
+          "id": 1202145976,
+          "name": "arga-typescript-sdk",
+          "fullName": "ArgaLabs/arga-typescript-sdk",
+          "description": "TypeScript SDK for the Arga API",
+          "htmlUrl": "https://github.com/ArgaLabs/arga-typescript-sdk",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 1,
+          "language": "TypeScript",
+          "pushedAt": "2026-05-27T18:55:02Z",
+          "updatedAt": "2026-05-27T18:11:47Z",
+          "createdAt": "2026-04-05T16:55:14Z",
+          "score": 4
         },
         {
           "id": 1177168550,
@@ -3688,12 +3769,12 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/runharbor",
         "bio": "",
-        "followers": 7,
+        "followers": 8,
         "following": 0,
         "publicRepos": 1,
         "publicGists": 0,
         "createdAt": "2025-05-04T17:50:00Z",
-        "updatedAt": "2026-04-22T18:09:43Z"
+        "updatedAt": "2026-06-30T21:32:39Z"
       },
       "aggregate": {
         "repoCount": 1,
@@ -3701,7 +3782,7 @@
         "totalForks": 0,
         "totalWatchers": 1,
         "maxRepoScore": 12,
-        "profileScore": 24
+        "profileScore": 25
       },
       "repos": [
         {
@@ -3741,12 +3822,12 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/SprintsAI",
         "bio": "",
-        "followers": 4,
+        "followers": 5,
         "following": 0,
         "publicRepos": 2,
         "publicGists": 0,
         "createdAt": "2025-12-08T18:05:15Z",
-        "updatedAt": "2026-06-01T21:43:09Z"
+        "updatedAt": "2026-07-01T20:13:56Z"
       },
       "aggregate": {
         "repoCount": 2,
@@ -3754,7 +3835,7 @@
         "totalForks": 0,
         "totalWatchers": 1,
         "maxRepoScore": 22,
-        "profileScore": 24
+        "profileScore": 25
       },
       "repos": [
         {
@@ -3766,10 +3847,10 @@
           "stars": 1,
           "forks": 0,
           "watchers": 1,
-          "openIssues": 4,
+          "openIssues": 5,
           "language": "JavaScript",
-          "pushedAt": "2026-06-27T08:42:55Z",
-          "updatedAt": "2026-06-23T23:07:33Z",
+          "pushedAt": "2026-07-17T10:06:21Z",
+          "updatedAt": "2026-07-17T10:07:22Z",
           "createdAt": "2026-02-10T05:39:49Z",
           "score": 22
         },
@@ -3822,8 +3903,8 @@
         "totalStars": 1,
         "totalForks": 2,
         "totalWatchers": 1,
-        "maxRepoScore": 30,
-        "profileScore": 23
+        "maxRepoScore": 25,
+        "profileScore": 22
       },
       "repos": [
         {
@@ -3840,7 +3921,7 @@
           "pushedAt": "2026-05-31T05:42:06Z",
           "updatedAt": "2026-05-31T05:42:09Z",
           "createdAt": "2026-05-04T21:53:36Z",
-          "score": 30
+          "score": 25
         },
         {
           "id": 1233301940,
@@ -3859,42 +3940,6 @@
           "score": 3
         }
       ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-hessian",
-      "companySlug": "hessian",
-      "companyName": "Hessian",
-      "name": "Hessian",
-      "sourceUrl": "https://hessian.sh",
-      "githubUrl": "https://github.com/hessianhq",
-      "discoverySource": "official_website",
-      "matchReason": "GitHub URL linked from the official company website.",
-      "login": "hessianhq",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "hessianhq",
-        "name": "Hessian",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/hessianhq",
-        "bio": "",
-        "followers": 10,
-        "following": 0,
-        "publicRepos": 1,
-        "publicGists": 0,
-        "createdAt": "2023-10-18T20:42:23Z",
-        "updatedAt": "2026-05-24T05:35:57Z"
-      },
-      "aggregate": {
-        "repoCount": 0,
-        "totalStars": 0,
-        "totalForks": 0,
-        "totalWatchers": 0,
-        "maxRepoScore": 0,
-        "profileScore": 18
-      },
-      "repos": []
     },
     {
       "entityType": "company",
@@ -3920,15 +3965,15 @@
         "publicRepos": 3,
         "publicGists": 0,
         "createdAt": "2025-10-17T12:07:36Z",
-        "updatedAt": "2026-06-15T22:00:39Z"
+        "updatedAt": "2026-07-01T23:28:02Z"
       },
       "aggregate": {
         "repoCount": 2,
-        "totalStars": 3,
+        "totalStars": 4,
         "totalForks": 0,
-        "totalWatchers": 3,
-        "maxRepoScore": 32,
-        "profileScore": 15
+        "totalWatchers": 4,
+        "maxRepoScore": 35,
+        "profileScore": 16
       },
       "repos": [
         {
@@ -3937,15 +3982,15 @@
           "fullName": "tolmohq/tolmo",
           "description": "",
           "htmlUrl": "https://github.com/tolmohq/tolmo",
-          "stars": 3,
+          "stars": 4,
           "forks": 0,
-          "watchers": 3,
+          "watchers": 4,
           "openIssues": 0,
           "language": "Shell",
-          "pushedAt": "2026-06-27T06:14:58Z",
-          "updatedAt": "2026-06-27T06:14:53Z",
+          "pushedAt": "2026-07-19T06:02:32Z",
+          "updatedAt": "2026-07-19T06:02:33Z",
           "createdAt": "2026-04-07T21:34:27Z",
-          "score": 32
+          "score": 35
         },
         {
           "id": 1205473188,
@@ -3984,19 +4029,19 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/LaminaAI",
         "bio": "Visual Infrastructure for AI Native Learning",
-        "followers": 2,
+        "followers": 3,
         "following": 0,
-        "publicRepos": 2,
+        "publicRepos": 3,
         "publicGists": 0,
         "createdAt": "2026-03-29T05:26:01Z",
-        "updatedAt": "2026-06-19T17:09:20Z"
+        "updatedAt": "2026-07-01T22:10:49Z"
       },
       "aggregate": {
         "repoCount": 1,
         "totalStars": 0,
         "totalForks": 0,
         "totalWatchers": 0,
-        "maxRepoScore": 8,
+        "maxRepoScore": 3,
         "profileScore": 15
       },
       "repos": [
@@ -4014,45 +4059,9 @@
           "pushedAt": "2026-05-25T08:33:52Z",
           "updatedAt": "2026-05-25T08:30:20Z",
           "createdAt": "2026-05-25T08:30:14Z",
-          "score": 8
+          "score": 3
         }
       ]
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-the-company-company",
-      "companySlug": "the-company-company",
-      "companyName": "The Company Company",
-      "name": "The Company Company",
-      "sourceUrl": "https://www.thecompany.company",
-      "githubUrl": "https://github.com/the-company-company",
-      "discoverySource": "official_website",
-      "matchReason": "GitHub URL linked from the official company website.",
-      "login": "the-company-company",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "the-company-company",
-        "name": "The Company Company",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/the-company-company",
-        "bio": "The Company that helps build companies.",
-        "followers": 6,
-        "following": 0,
-        "publicRepos": 0,
-        "publicGists": 0,
-        "createdAt": "2025-09-06T17:52:08Z",
-        "updatedAt": "2026-06-22T16:57:25Z"
-      },
-      "aggregate": {
-        "repoCount": 0,
-        "totalStars": 0,
-        "totalForks": 0,
-        "totalWatchers": 0,
-        "maxRepoScore": 0,
-        "profileScore": 14
-      },
-      "repos": []
     },
     {
       "entityType": "company",
@@ -4109,78 +4118,6 @@
     },
     {
       "entityType": "company",
-      "entityId": "company-raspire",
-      "companySlug": "raspire",
-      "companyName": "RASPIRE",
-      "name": "RASPIRE",
-      "sourceUrl": "https://raspire.com/",
-      "githubUrl": "https://github.com/RASPIRE-inc",
-      "discoverySource": "official_website",
-      "matchReason": "GitHub URL linked from the official company website.",
-      "login": "RASPIRE-inc",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "RASPIRE-inc",
-        "name": "RASPIRE, Inc.",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/RASPIRE-inc",
-        "bio": "",
-        "followers": 4,
-        "following": 0,
-        "publicRepos": 0,
-        "publicGists": 0,
-        "createdAt": "2025-02-19T11:13:10Z",
-        "updatedAt": "2025-02-19T13:19:08Z"
-      },
-      "aggregate": {
-        "repoCount": 0,
-        "totalStars": 0,
-        "totalForks": 0,
-        "totalWatchers": 0,
-        "maxRepoScore": 0,
-        "profileScore": 11
-      },
-      "repos": []
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-linzumi",
-      "companySlug": "linzumi",
-      "companyName": "Linzumi",
-      "name": "Linzumi",
-      "sourceUrl": "https://www.ycombinator.com/companies/linzumi",
-      "githubUrl": "https://github.com/linzumi/",
-      "discoverySource": "yc_profile",
-      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
-      "login": "linzumi",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "Linzumi",
-        "name": "linzumi",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/Linzumi",
-        "bio": "Grow your software thoughtfully",
-        "followers": 2,
-        "following": 0,
-        "publicRepos": 1,
-        "publicGists": 0,
-        "createdAt": "2025-12-08T22:46:47Z",
-        "updatedAt": "2026-05-25T17:21:33Z"
-      },
-      "aggregate": {
-        "repoCount": 0,
-        "totalStars": 0,
-        "totalForks": 0,
-        "totalWatchers": 0,
-        "maxRepoScore": 0,
-        "profileScore": 9
-      },
-      "repos": []
-    },
-    {
-      "entityType": "company",
       "entityId": "company-revnu",
       "companySlug": "revnu",
       "companyName": "Revnu",
@@ -4200,56 +4137,37 @@
         "bio": "Your AI growth hire - (YC P26)",
         "followers": 2,
         "following": 0,
-        "publicRepos": 0,
+        "publicRepos": 1,
         "publicGists": 0,
         "createdAt": "2026-01-10T15:59:40Z",
         "updatedAt": "2026-06-04T21:12:46Z"
       },
       "aggregate": {
-        "repoCount": 0,
+        "repoCount": 1,
         "totalStars": 0,
         "totalForks": 0,
         "totalWatchers": 0,
-        "maxRepoScore": 0,
-        "profileScore": 8
+        "maxRepoScore": 8,
+        "profileScore": 15
       },
-      "repos": []
-    },
-    {
-      "entityType": "company",
-      "entityId": "company-kinect",
-      "companySlug": "kinect",
-      "companyName": "Kinect",
-      "name": "Kinect",
-      "sourceUrl": "https://www.trykinect.ai/",
-      "githubUrl": "https://github.com/trykinect",
-      "discoverySource": "official_website",
-      "matchReason": "GitHub URL linked from the official company website.",
-      "login": "trykinect",
-      "repo": null,
-      "fetched": true,
-      "account": {
-        "login": "TryKinect",
-        "name": "Kinect",
-        "type": "Organization",
-        "htmlUrl": "https://github.com/TryKinect",
-        "bio": "Magic",
-        "followers": 1,
-        "following": 0,
-        "publicRepos": 0,
-        "publicGists": 0,
-        "createdAt": "2026-03-18T22:45:01Z",
-        "updatedAt": "2026-05-13T07:06:45Z"
-      },
-      "aggregate": {
-        "repoCount": 0,
-        "totalStars": 0,
-        "totalForks": 0,
-        "totalWatchers": 0,
-        "maxRepoScore": 0,
-        "profileScore": 5
-      },
-      "repos": []
+      "repos": [
+        {
+          "id": 1290072475,
+          "name": "revnu-new-tab",
+          "fullName": "revnu-app/revnu-new-tab",
+          "description": "Revnu New Tab — Chrome extension with rotating Revnu brand wallpapers, clock & search. By Revnu (https://revnu.com), AI growth agents for startups: AI that sells your software for you.",
+          "htmlUrl": "https://github.com/revnu-app/revnu-new-tab",
+          "stars": 0,
+          "forks": 0,
+          "watchers": 0,
+          "openIssues": 0,
+          "language": "HTML",
+          "pushedAt": "2026-07-05T21:14:19Z",
+          "updatedAt": "2026-07-05T21:12:14Z",
+          "createdAt": "2026-07-05T14:49:29Z",
+          "score": 8
+        }
+      ]
     },
     {
       "entityType": "company",
@@ -4318,6 +4236,112 @@
       "repo": null,
       "fetched": false,
       "error": "404 Not Found"
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-heyclicky",
+      "companySlug": "heyclicky",
+      "companyName": "HeyClicky",
+      "name": "HeyClicky",
+      "sourceUrl": "https://heyclicky.com/",
+      "githubUrl": "https://github.com/farzaa/clicky-releases",
+      "discoverySource": "official_website",
+      "matchReason": "GitHub URL linked from the official company website.",
+      "login": "farzaa",
+      "repo": "clicky-releases",
+      "fetched": true,
+      "account": {
+        "login": "farzaa",
+        "name": "farza",
+        "type": "User",
+        "htmlUrl": "https://github.com/farzaa",
+        "bio": "hey thats me.  hmu on twitter if you need me https://twitter.com/FarzaTV",
+        "followers": 1999,
+        "following": 13,
+        "publicRepos": 67,
+        "publicGists": 15,
+        "createdAt": "2015-11-02T15:41:32Z",
+        "updatedAt": "2026-04-13T20:52:54Z"
+      },
+      "aggregate": {
+        "repoCount": 1,
+        "totalStars": 14,
+        "totalForks": 1,
+        "totalWatchers": 14,
+        "maxRepoScore": 61,
+        "profileScore": 100
+      },
+      "repos": [
+        {
+          "id": 1210819531,
+          "name": "clicky-releases",
+          "fullName": "farzaa/clicky-releases",
+          "description": "Clicky auto-update releases (appcast + binaries)",
+          "htmlUrl": "https://github.com/farzaa/clicky-releases",
+          "stars": 14,
+          "forks": 1,
+          "watchers": 14,
+          "openIssues": 1,
+          "language": null,
+          "pushedAt": "2026-07-17T08:41:15Z",
+          "updatedAt": "2026-07-17T08:41:33Z",
+          "createdAt": "2026-04-14T19:39:04Z",
+          "score": 61
+        }
+      ]
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-korso",
+      "companySlug": "korso",
+      "companyName": "Korso",
+      "name": "Korso",
+      "sourceUrl": "https://korsoai.com/",
+      "githubUrl": "https://github.com/Korso-AI/Shepherd",
+      "discoverySource": "official_website",
+      "matchReason": "GitHub URL linked from the official company website.",
+      "login": "Korso-AI",
+      "repo": "Shepherd",
+      "fetched": true,
+      "account": {
+        "login": "Korso-AI",
+        "name": "Korso AI",
+        "type": "Organization",
+        "htmlUrl": "https://github.com/Korso-AI",
+        "bio": "",
+        "followers": 0,
+        "following": 0,
+        "publicRepos": 1,
+        "publicGists": 0,
+        "createdAt": "2026-02-26T14:57:02Z",
+        "updatedAt": "2026-07-01T20:35:03Z"
+      },
+      "aggregate": {
+        "repoCount": 1,
+        "totalStars": 6,
+        "totalForks": 0,
+        "totalWatchers": 6,
+        "maxRepoScore": 41,
+        "profileScore": 30
+      },
+      "repos": [
+        {
+          "id": 1291348346,
+          "name": "Shepherd",
+          "fullName": "Korso-AI/Shepherd",
+          "description": "Coordination layer for AI coding agents",
+          "htmlUrl": "https://github.com/Korso-AI/Shepherd",
+          "stars": 6,
+          "forks": 0,
+          "watchers": 6,
+          "openIssues": 0,
+          "language": "TypeScript",
+          "pushedAt": "2026-07-14T23:19:41Z",
+          "updatedAt": "2026-07-15T12:34:22Z",
+          "createdAt": "2026-07-06T18:09:39Z",
+          "score": 41
+        }
+      ]
     }
   ]
 }

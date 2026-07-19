@@ -1,0 +1,315 @@
+{
+  "source": {
+    "label": "A16ZSR006 recent strict source discovery",
+    "batchSlug": "A16ZSR006",
+    "generatedAt": "2026-07-19T05:24:57Z",
+    "windowStart": "2026-07-09T00:00:00Z",
+    "windowEnd": "2026-07-19T05:24:57Z",
+    "notes": [
+      "Read-only discovery except for this explicitly authorized final audit artifact.",
+      "Accepted rows require a native post, video, comment, pull request, or repository-activity URL; visible metrics; and direct company attribution through an official company or founder account.",
+      "Exact URL and platform object ID dedupe covered every current src/lib/social JSON, every public/graph JSON, and every outputs/source-hunt JSON artifact.",
+      "GitHub commit evidence follows the current corpus convention of retaining the latest qualifying commit per active repository instead of flooding the audit with every commit in the same repository."
+    ]
+  },
+  "evidence": [
+    {
+      "id": "youtube-a16zsr006-sun-phtvgy-hss0",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-sun",
+      "companyName": "SUN",
+      "companySlug": "sun",
+      "platform": "youtube",
+      "title": "SUN live stream",
+      "sourceUrl": "https://www.youtube.com/watch?v=pHTVgy_HSS0",
+      "platformPostId": "pHTVgy_HSS0",
+      "authorName": "The Startup Show",
+      "authorHandle": "getsunapp",
+      "accountUrl": "https://www.youtube.com/@getsunapp",
+      "text": "SUN published a native live video on its verified YouTube account.",
+      "rawVisibleText": "YouTube native watch page and channel feed show title SUN | LIVE, owner channel The Startup Show, publication time 2026-07-18T10:17:43Z, 3 views, and 1 like.",
+      "postedAt": "2026-07-18T10:17:43Z",
+      "metrics": {
+        "views": 3,
+        "likes": 1,
+        "metricSource": "YouTube native watch-page player metadata and official channel Atom feed."
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "The A16ZSR006 social-account inventory maps SUN to https://www.youtube.com/@getsunapp, and the native video is published by that exact account.",
+      "first_seen_at": "2026-07-19T05:24:57Z",
+      "last_checked_at": "2026-07-19T05:24:57Z",
+      "last_updated_at": "2026-07-18T10:17:43Z"
+    },
+    {
+      "id": "youtube-a16zsr006-sun-42esvpykijk",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-sun",
+      "companyName": "SUN",
+      "companySlug": "sun",
+      "platform": "youtube",
+      "title": "From construction engineer to Microsoft SWE to AI founder: Adalia Zhao",
+      "sourceUrl": "https://www.youtube.com/watch?v=42eSvpyKiJk",
+      "platformPostId": "42eSvpyKiJk",
+      "authorName": "The Startup Show",
+      "authorHandle": "getsunapp",
+      "accountUrl": "https://www.youtube.com/@getsunapp",
+      "text": "SUN published a native founder interview with Adalia Zhao on its verified YouTube account.",
+      "rawVisibleText": "YouTube native watch page and channel feed show the Adalia Zhao title, owner channel The Startup Show, publication time 2026-07-17T15:00:35Z, 71 views, and 6 likes.",
+      "postedAt": "2026-07-17T15:00:35Z",
+      "metrics": {
+        "views": 71,
+        "likes": 6,
+        "metricSource": "YouTube native watch-page player metadata and official channel Atom feed."
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "The A16ZSR006 social-account inventory maps SUN to https://www.youtube.com/@getsunapp, and the native video is published by that exact account.",
+      "first_seen_at": "2026-07-19T05:24:57Z",
+      "last_checked_at": "2026-07-19T05:24:57Z",
+      "last_updated_at": "2026-07-17T15:00:35Z"
+    },
+    {
+      "id": "youtube-a16zsr006-antihero-studios-hwki-vuxrmay",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-antihero-studios",
+      "companyName": "Antihero Studios",
+      "companySlug": "antihero-studios",
+      "platform": "youtube",
+      "title": "MISFITZ combos you'll love to pull off",
+      "sourceUrl": "https://www.youtube.com/watch?v=HwKIvuXrMaY",
+      "platformPostId": "HwKIvuXrMaY",
+      "authorName": "Antihero Studios",
+      "authorHandle": "Antihero_Studios",
+      "accountUrl": "https://www.youtube.com/@Antihero_Studios",
+      "text": "Antihero Studios published a native MISFITZ gameplay video showing character combos.",
+      "rawVisibleText": "YouTube native watch page and channel feed show title Combos you'll love to pull off, owner channel Antihero Studios, publication time 2026-07-16T13:00:09Z, 973 views, and 87 likes.",
+      "postedAt": "2026-07-16T13:00:09Z",
+      "metrics": {
+        "views": 973,
+        "likes": 87,
+        "metricSource": "YouTube native watch-page player metadata and official channel Atom feed."
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "The A16ZSR006 social-account inventory maps Antihero Studios to https://www.youtube.com/@Antihero_Studios; the native channel and video title directly identify the company and its MISFITZ game.",
+      "first_seen_at": "2026-07-19T05:24:57Z",
+      "last_checked_at": "2026-07-19T05:24:57Z",
+      "last_updated_at": "2026-07-16T13:00:09Z"
+    },
+    {
+      "id": "github-a16zsr006-modaic-commit-9df6b549c1b7",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-modaic",
+      "companyName": "Modaic",
+      "companySlug": "modaic",
+      "platform": "github",
+      "title": "Modaic README refresh",
+      "sourceUrl": "https://github.com/modaic-ai/modaic/commit/9df6b549c1b7fcc680f1f42f119ca50735e28624",
+      "platformPostId": "9df6b549c1b7fcc680f1f42f119ca50735e28624",
+      "authorName": "Fadeleke57",
+      "authorHandle": "Fadeleke57",
+      "accountUrl": "https://github.com/modaic-ai",
+      "text": "The official modaic-ai organization updated the Modaic SDK README.",
+      "rawVisibleText": "GitHub native commit page identifies modaic-ai/modaic, commit 9df6b549c1b7fcc680f1f42f119ca50735e28624, author Fadeleke57, committed time 2026-07-19T04:50:18Z, 1 addition, 50 deletions, 1 file changed, and 0 commit comments.",
+      "postedAt": "2026-07-19T04:50:18Z",
+      "metrics": {
+        "additions": 1,
+        "deletions": 50,
+        "total_changes": 51,
+        "files_changed": 1,
+        "comments": 0,
+        "metricSource": "GitHub native commit-page embedded diff data."
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "The commit is inside the verified official modaic-ai organization and its Modaic SDK repository; both the A16ZSR006 account inventory and canonical corpus attribute that organization to Modaic.",
+      "first_seen_at": "2026-07-19T05:24:57Z",
+      "last_checked_at": "2026-07-19T05:24:57Z",
+      "last_updated_at": "2026-07-19T04:50:18Z"
+    },
+    {
+      "id": "github-a16zsr006-quinn-commit-b6d3dab60287",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-quinn",
+      "companyName": "Quinn",
+      "companySlug": "quinn",
+      "platform": "github",
+      "title": "Quinn Anima landing-page README alignment",
+      "sourceUrl": "https://github.com/MeetQuinn/anima/commit/b6d3dab602878debf6dd045626b9a847ecadfec1",
+      "platformPostId": "b6d3dab602878debf6dd045626b9a847ecadfec1",
+      "authorName": "totoday",
+      "authorHandle": "totoday",
+      "accountUrl": "https://github.com/MeetQuinn",
+      "text": "The official MeetQuinn organization aligned the Anima README with its landing-page rework.",
+      "rawVisibleText": "GitHub native commit page identifies MeetQuinn/anima, commit b6d3dab602878debf6dd045626b9a847ecadfec1, author totoday, committed time 2026-07-18T11:59:40Z, 7 additions, 7 deletions, 1 file changed, and 0 commit comments.",
+      "postedAt": "2026-07-18T11:59:40Z",
+      "metrics": {
+        "additions": 7,
+        "deletions": 7,
+        "total_changes": 14,
+        "files_changed": 1,
+        "comments": 0,
+        "metricSource": "GitHub native commit-page embedded diff data."
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "The commit is inside the company-branded MeetQuinn organization; the repository uses the @meetquinn package scope and anima.meetquinn.ai domain, which the canonical A16ZSR006 evidence already verifies as Quinn first-party infrastructure.",
+      "first_seen_at": "2026-07-19T05:24:57Z",
+      "last_checked_at": "2026-07-19T05:24:57Z",
+      "last_updated_at": "2026-07-18T11:59:40Z"
+    },
+    {
+      "id": "github-a16zsr006-amdahl-commit-f80d7bf005e0",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-amdahl",
+      "companyName": "Amdahl",
+      "companySlug": "amdahl",
+      "platform": "github",
+      "title": "Amdahl agent-platform recipe merge",
+      "sourceUrl": "https://github.com/amdahlco/amdahl-cookbook/commit/f80d7bf005e05594558020cc696239742bb9b461",
+      "platformPostId": "f80d7bf005e05594558020cc696239742bb9b461",
+      "authorName": "sung29",
+      "authorHandle": "sung29",
+      "accountUrl": "https://github.com/amdahlco",
+      "text": "The official amdahlco organization merged expanded REST and MCP agent-platform recipes into the Amdahl cookbook.",
+      "rawVisibleText": "GitHub native commit page identifies amdahlco/amdahl-cookbook, commit f80d7bf005e05594558020cc696239742bb9b461, author sung29, committed time 2026-07-17T20:29:54Z, 100 additions, 1 deletion, 13 files changed, and 0 commit comments.",
+      "postedAt": "2026-07-17T20:29:54Z",
+      "metrics": {
+        "additions": 100,
+        "deletions": 1,
+        "total_changes": 101,
+        "files_changed": 13,
+        "comments": 0,
+        "metricSource": "GitHub native commit-page embedded diff data."
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "The commit is inside the verified official amdahlco organization and its Amdahl cookbook; the A16ZSR006 account inventory and canonical corpus both map that organization to Amdahl.",
+      "first_seen_at": "2026-07-19T05:24:57Z",
+      "last_checked_at": "2026-07-19T05:24:57Z",
+      "last_updated_at": "2026-07-17T20:29:54Z"
+    },
+    {
+      "id": "github-a16zsr006-modaic-pr-183",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-modaic",
+      "companyName": "Modaic",
+      "companySlug": "modaic",
+      "platform": "github",
+      "title": "Modaic arbiter options and range client docs",
+      "sourceUrl": "https://github.com/modaic-ai/modaic/pull/183",
+      "platformPostId": "modaic-ai/modaic#183",
+      "authorName": "Tyrin-Ian Todd",
+      "authorHandle": "TyTodd",
+      "accountUrl": "https://github.com/TyTodd",
+      "text": "Modaic founder Tyrin-Ian Todd's pull request added arbiter options, range client documentation, and updated Modaic skills before merging into the official Modaic SDK repository.",
+      "rawVisibleText": "GitHub native pull-request page and TyTodd's native public activity feed identify PR 183 in modaic-ai/modaic, title Feat/arbiter options range client docs, merged time 2026-07-17T13:45:39Z, and 3 commits.",
+      "postedAt": "2026-07-17T13:45:39Z",
+      "metrics": {
+        "commits": 3,
+        "metricSource": "GitHub native pull-request page and native GitHub public activity Atom feed."
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "matchReason": "The A16ZSR006 account inventory maps TyTodd to Modaic founder Tyrin-Ian Todd, and the pull request is in the verified official modaic-ai/modaic repository.",
+      "first_seen_at": "2026-07-19T05:24:57Z",
+      "last_checked_at": "2026-07-19T05:24:57Z",
+      "last_updated_at": "2026-07-17T13:45:39Z"
+    }
+  ],
+  "needsReview": [],
+  "audit": {
+    "batchSlug": "A16ZSR006",
+    "companyCount": 59,
+    "counts": {
+      "accepted": 7,
+      "duplicates": 1,
+      "rejected": 8,
+      "needsReview": 0,
+      "uniqueNativeCandidatesEvaluated": 16
+    },
+    "duplicateDetails": [
+      {
+        "platform": "youtube",
+        "sourceUrl": "https://www.youtube.com/watch?v=Chy4Uh_tPFU",
+        "platformPostId": "Chy4Uh_tPFU",
+        "reason": "Exact video ID already exists in src/lib/social/a16z-speedrun-006-social-evidence.json, public/graph/a16zsr006.json, outputs/source-hunt/search-ledger.json, and outputs/source-hunt/a16z-nonlinkedin-sol-ultra.json."
+      }
+    ],
+    "rejectionBreakdown": {
+      "noClearCompanyAttribution": 7,
+      "noVisibleMetrics": 1
+    },
+    "rejectedCandidateUrls": [
+      "https://github.com/stablyai/orca",
+      "https://github.com/TyTodd/open-knowledge/compare/0000000000...68a4bc694f",
+      "https://github.com/inkeep/open-knowledge/issues/617",
+      "https://github.com/meituan-longcat/WBench",
+      "https://github.com/TyTodd/open-knowledge",
+      "https://github.com/TyTodd/linkedin-mcp-server",
+      "https://github.com/stickerdaniel/linkedin-mcp-server/issues/578",
+      "https://amdahl.co/blog/living-knowledge-base"
+    ],
+    "dedupe": {
+      "method": "Normalized exact native URL plus canonical platform post ID, video ID, commit SHA, or pull-request ID.",
+      "scopes": [
+        "src/lib/social/*.json",
+        "public/graph/*.json",
+        "outputs/source-hunt/*.json"
+      ]
+    },
+    "platformCoverage": {
+      "x": {
+        "officialAccountUrls": 85,
+        "accepted": 0,
+        "notes": "All recorded official X handle/status paths were queried for the post-2026-07-15 gap after prior source-hunt coverage through July 15; public native-path search returned no exact post candidate and anonymous syndication was rate-limited."
+      },
+      "linkedin": {
+        "officialAccountUrls": 182,
+        "accepted": 0,
+        "notes": "All recorded official company/founder post-path handles were queried for the post-2026-07-15 gap after prior source-hunt coverage through July 15; no exact official-author native post candidate survived."
+      },
+      "youtube": {
+        "officialAccountUrls": 8,
+        "accepted": 3,
+        "duplicates": 1,
+        "notes": "Resolved every official handle to its native channel ID, read the official channel Atom feed, and verified candidates on native watch pages."
+      },
+      "reddit": {
+        "accepted": 0,
+        "notes": "Grouped company/founder native-result searches produced no exact recent official-author candidate; the unauthenticated Reddit JSON and RSS endpoints returned access blocks."
+      },
+      "instagram": {
+        "officialAccountUrls": 21,
+        "accepted": 0,
+        "notes": "All recorded official handles were queried for the post-2026-07-15 gap; no exact native post candidate was indexed. Direct public profile metadata failed with Instagram's deleted-schema response, so no unverified or profile-only row was accepted."
+      },
+      "github": {
+        "officialAccountUrls": 29,
+        "uniqueOfficialHandles": 27,
+        "repositoryFeedsChecked": 31,
+        "accepted": 4,
+        "rejected": 7,
+        "notes": "Checked native public account feeds and commit feeds for every GitHub repository already tied to A16ZSR006 in canonical or source-hunt artifacts; verified final rows on native commit or pull-request pages."
+      },
+      "product_hunt": {
+        "officialProductUrls": 3,
+        "accepted": 0,
+        "notes": "Checked the recorded Quanto, SUN, and Taxnova product paths and recent native launch search; no net-new launch or maker-comment row qualified."
+      },
+      "hacker_news": {
+        "accepted": 0,
+        "notes": "Queried the public HN Algolia story/comment index for all 59 company names from 2026-07-09 onward; no exact matching native item was returned."
+      },
+      "first_party_web": {
+        "companySitesChecked": 59,
+        "homepagesFetched": 58,
+        "feedSitesFound": 2,
+        "accepted": 0,
+        "rejected": 1,
+        "notes": "Amdahl's July 10 first-party article was net-new and attributable but had no visible engagement metric, so it was rejected under the strict rule. August's homepage did not fetch; no other first-party feed exposed a qualifying recent item."
+      }
+    }
+  }
+}

@@ -44,7 +44,7 @@ export function buildDemoGraph(request: IngestBatchRequest, generatedAt = new Da
     batch: {
       slug: batchSlug,
       label: batchLabel(batchSlug),
-      expectedCompanyCount: batchSlug === "S26" ? 83 : undefined,
+      expectedCompanyCount: batchSlug === "S26" ? 115 : undefined,
       observedCompanyCount: companies.length
     },
     nodes: companyNodes,

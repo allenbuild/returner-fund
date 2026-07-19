@@ -8,7 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     Math.max(...catalog.graphs.map((graph) => new Date(graph.generatedAt).getTime()))
   );
 
-  return [
+  const entries: MetadataRoute.Sitemap = [
     entry("/", "daily", 1, lastModified),
     entry("/cohorts", "weekly", 0.9, lastModified),
     entry("/companies", "weekly", 0.9, lastModified),
@@ -39,6 +39,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       .filter((partner) => partner.indexable)
       .map((partner) => entry(`/partners/${partner.slug}`, "weekly", 0.6, lastModified))
   ];
+
+  const seenUrls = new Set<string>();
+  return entries.filter((item) => {
+    if (seenUrls.has(item.url)) return false;
+    seenUrls.add(item.url);
+    return true;
+  });
 }
 
 function entry(

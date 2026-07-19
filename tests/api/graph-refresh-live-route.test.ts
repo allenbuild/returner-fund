@@ -9,8 +9,10 @@ import type { GraphResponse } from "@/lib/graph/types";
 import type { LiveEvidenceRecord, LiveSourceRefreshResult } from "@/lib/ingestion/live-source-refresh";
 
 const generatedSnapshotRoots: string[] = [];
-const FROZEN_ROUTE_NOW = "2026-07-16T20:50:00.000Z";
-const FROZEN_SNAPSHOT_GENERATED_AT = "2026-07-16T20:45:00.000Z";
+const FROZEN_ROUTE_NOW = "2026-07-20T20:50:00.000Z";
+const FROZEN_ROUTE_NOW_PLUS_ONE_MS = "2026-07-20T20:50:00.001Z";
+const FROZEN_SNAPSHOT_GENERATED_AT = "2026-07-20T20:45:00.000Z";
+const FROZEN_STALE_SNAPSHOT_GENERATED_AT = "2026-07-20T04:00:00.000Z";
 
 function jsonRequest(
   body: unknown,
@@ -521,7 +523,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
 
   it("returns a refresh summary proving newest live evidence was ingested and made visible", async () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-07-16T20:50:00.000Z"));
+    vi.setSystemTime(new Date(FROZEN_ROUTE_NOW));
     await mockV4GeneratedSnapshot("s26.json");
     const record = screenpipeRecord();
     vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => {
@@ -851,7 +853,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
 
   it("uses the matching fresh top-voice snapshot when no live evidence needs rebuilding", async () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-07-16T20:50:00.000Z"));
+    vi.setSystemTime(new Date(FROZEN_ROUTE_NOW));
     await mockV4GeneratedSnapshot("s26-insiders.json");
     vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => ({
       ...(await importOriginal<typeof import("@/lib/ingestion/live-source-refresh")>()),
@@ -1001,9 +1003,9 @@ describe("POST /api/graph/refresh live evidence validation", () => {
 
   it("rebuilds safely for missing, stale, legacy, incomplete, and invalid generated snapshots", async () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-07-16T20:50:00.000Z"));
+    vi.setSystemTime(new Date(FROZEN_ROUTE_NOW));
     const rebuiltGraph = withV4SnapshotContract(await graphFixture("s26-insiders.json"));
-    const staleGeneratedAt = "2026-07-16T04:00:00.000Z";
+    const staleGeneratedAt = FROZEN_STALE_SNAPSHOT_GENERATED_AT;
     const staleGraph: GraphResponse = {
       ...rebuiltGraph,
       generatedAt: staleGeneratedAt,
@@ -1196,14 +1198,14 @@ describe("POST /api/graph/refresh live evidence validation", () => {
           platform: "tiktok",
           reason: "adapter_not_wired",
           message: "TikTok real-time adapter is not wired.",
-          at: "2026-07-16T20:50:00.000Z"
+          at: FROZEN_ROUTE_NOW
         },
         {
           stage: "skipped",
           platform: "bluesky",
           reason: "adapter_not_wired",
           message: "Bluesky real-time adapter is not wired.",
-          at: "2026-07-16T20:50:00.001Z"
+          at: FROZEN_ROUTE_NOW_PLUS_ONE_MS
         }
       ],
       failureReasonCounts: { adapter_not_wired: 2 }

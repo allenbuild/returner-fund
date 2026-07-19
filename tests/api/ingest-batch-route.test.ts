@@ -43,7 +43,7 @@ describe("POST /api/ingest/batch", () => {
     expect(body.errors).toEqual([]);
     expect(body.graph.batch.slug).toBe("S26");
     expect(body.graph.batch.label).toBe("YC Summer 2026 (S26)");
-    expect(body.graph.batch.expectedCompanyCount).toBe(83);
+    expect(body.graph.batch.expectedCompanyCount).toBe(115);
     expect(body.graph.mode).toBe("demo");
     expect(body.graph.nodes.length).toBeGreaterThan(0);
     expect(body.graph.nodes.every((node: { type: string }) => node.type === "company")).toBe(true);
@@ -65,7 +65,7 @@ describe("POST /api/ingest/batch", () => {
     expect(body.graph.batch).toMatchObject({
       slug: "S26",
       label: "YC Summer 2026 (S26)",
-      expectedCompanyCount: 83
+      expectedCompanyCount: 115
     });
   });
 

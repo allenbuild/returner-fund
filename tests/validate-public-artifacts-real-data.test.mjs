@@ -10,7 +10,7 @@ import {
   collectGraphArtifactViolations
 } from "../scripts/validate-public-artifacts.mjs";
 
-const RESPONSE_BUILT_AT = "2026-07-17T04:00:00.000Z";
+const RESPONSE_BUILT_AT = new Date().toISOString();
 
 describe("public artifact validator against canonical v4 responses", () => {
   beforeAll(() => {

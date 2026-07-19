@@ -19,8 +19,8 @@ describe("YC Summer 2026 official snapshot", () => {
       {
         slug: "S26",
         label: "YC Summer 2026 (S26)",
-        companyCountExpected: 83,
-        companyCountObserved: 83
+        companyCountExpected: 115,
+        companyCountObserved: 115
       },
       {
         slug: "A16ZSR006",
@@ -58,14 +58,14 @@ describe("YC Summer 2026 official snapshot", () => {
     const founderNodes = graph.nodes.filter((node) => node.entityType === "founder");
 
     expect(graph.mode).toBe("official_snapshot");
-    expect(graph.batch.companyCountExpected).toBe(83);
-    expect(graph.batch.companyCountObserved).toBe(83);
-    expect(companyNodes).toHaveLength(83);
+    expect(graph.batch.companyCountExpected).toBe(115);
+    expect(graph.batch.companyCountObserved).toBe(115);
+    expect(companyNodes).toHaveLength(115);
     expect(founderNodes).toHaveLength(0);
-    expect(graph.leaderboard).toHaveLength(83);
+    expect(graph.leaderboard).toHaveLength(115);
     expect(graph.evidence.length).toBeGreaterThan(39);
     expect(new Set(graph.evidence.map((item) => item.platform))).toEqual(
-      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "product_hunt", "web", "rss"])
+      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "product_hunt"])
     );
     expect(graph.evidence.some((item) => item.platform === "github" && item.thumbnailUrl)).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "youtube" && item.attachedCompanyName === "Archal")).toBe(true);
@@ -78,6 +78,136 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(graph.evidence.some((item) => item.entityType === "founder")).toBe(true);
     expect(graph.needsReview.some((item) => item.candidateUrl === "https://www.producthunt.com/products/screen-studio")).toBe(false);
     expect(JSON.stringify(graph.evidence)).not.toContain("yc-public-directory");
+  }, 30_000);
+
+  it("preserves historical evidence across Summer 2026 company renames", () => {
+    const summer = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const spring = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const renames = [
+      {
+        oldSlug: "blueprints",
+        newSlug: "hoplite",
+        founderIds: [
+          "founder-hoplite-ryan-morrissey-2563241",
+          "founder-hoplite-bence-redmond-2614746"
+        ]
+      },
+      {
+        oldSlug: "bylaw",
+        newSlug: "definite",
+        founderIds: [
+          "founder-definite-mazin-al-ani-2947432",
+          "founder-definite-farhan-ur-rehman-1563459",
+          "founder-definite-gurshabd-singh-varaich-2947446"
+        ]
+      },
+      {
+        oldSlug: "litmus-build",
+        newSlug: "litmus-hiring",
+        founderIds: [
+          "founder-litmus-hiring-shaivi-rau-1353649",
+          "founder-litmus-hiring-elena-zhao-2315600"
+        ]
+      },
+      {
+        oldSlug: "perceptron-ml",
+        newSlug: "notyfi",
+        founderIds: [
+          "founder-notyfi-michael-marcotte-3087509",
+          "founder-notyfi-peyton-marcotte-3122328"
+        ]
+      }
+    ] as const;
+    const summerFounders = ycSpring2026GraphDataset.founders.filter((founder) => founder.batchSlug === "S26");
+    const summerEntityIds = [
+      ...summer.nodes.map((node) => node.entityId),
+      ...summerFounders.map((founder) => founder.id),
+      ...summer.evidence.flatMap((item) => [item.entityId, item.attachedCompanyId]),
+      ...summer.needsReview.map((item) => item.entityId)
+    ].filter(Boolean);
+
+    for (const rename of renames) {
+      expect(summer.nodes.some((node) => node.entityId === `company-${rename.newSlug}`)).toBe(true);
+      expect(summerFounders.map((founder) => founder.id)).toEqual(expect.arrayContaining([...rename.founderIds]));
+      expect(summerEntityIds.some((entityId) => entityId === `company-${rename.oldSlug}`)).toBe(false);
+      expect(summerEntityIds.some((entityId) => entityId?.startsWith(`founder-${rename.oldSlug}-`))).toBe(false);
+    }
+
+    const springEntityIds = [
+      ...spring.nodes.map((node) => node.entityId),
+      ...spring.evidence.flatMap((item) => [item.entityId, item.attachedCompanyId]),
+      ...spring.needsReview.map((item) => item.entityId)
+    ].filter(Boolean);
+    for (const rename of renames) {
+      expect(
+        springEntityIds.some(
+          (entityId) =>
+            entityId === `company-${rename.oldSlug}` ||
+            entityId === `company-${rename.newSlug}` ||
+            entityId?.startsWith(`founder-${rename.oldSlug}-`) ||
+            entityId?.startsWith(`founder-${rename.newSlug}-`)
+        )
+      ).toBe(false);
+    }
+
+    expect(
+      summer.evidence.find(
+        (item) => item.sourceUrl === "https://github.com/CarbonCopyInc/carboncopy-mcp"
+      )
+    ).toEqual(
+      expect.objectContaining({
+        entityId: "company-hoplite",
+        attachedCompanyId: "company-hoplite",
+        platform: "github",
+        review_state: "verified",
+        contributionScore: expect.any(Number)
+      })
+    );
+    expect(
+      summer.evidence.find(
+        (item) => item.sourceUrl === "https://github.com/CarbonCopyInc/carboncopy-mcp"
+      )?.contributionScore
+    ).toBeGreaterThan(0);
+
+    expect(
+      summer.evidence.find(
+        (item) => item.sourceUrl === "https://x.com/UseBylaw/status/2051128240303955982"
+      )
+    ).toEqual(
+      expect.objectContaining({
+        entityId: "company-definite",
+        attachedCompanyId: "company-definite",
+        platform: "x",
+        review_state: "verified",
+        contributionScore: expect.any(Number)
+      })
+    );
+    expect(
+      summer.evidence.find(
+        (item) => item.sourceUrl === "https://x.com/UseBylaw/status/2051128240303955982"
+      )?.contributionScore
+    ).toBeGreaterThan(0);
+
+    expect(summer.evidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "evidence-github-profile-company-definite",
+          entityId: "company-definite",
+          review_state: "verified"
+        }),
+        expect.objectContaining({
+          id: "evidence-github-repo-company-definite-usebylaw-python-sdk",
+          entityId: "company-definite",
+          review_state: "verified",
+          contributionScore: expect.any(Number)
+        })
+      ])
+    );
+    expect(
+      summer.evidence.find(
+        (item) => item.id === "evidence-github-repo-company-definite-usebylaw-python-sdk"
+      )?.contributionScore
+    ).toBeGreaterThan(0);
   }, 30_000);
 
   it("provides a thumbnail URL for every evidence item in YC and a16z batches", () => {

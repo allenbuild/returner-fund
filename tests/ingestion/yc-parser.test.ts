@@ -134,9 +134,9 @@ describe("YC batch parser", () => {
     expect(result.mode).toBe("fallback");
     expect(result.companies).toHaveLength(1);
     expect(result.companies[0].review_state).toBe("needs_review");
-    expect(result.expectedCompanyCount).toBe(83);
+    expect(result.expectedCompanyCount).toBe(115);
     expect(result.observedCompanyCount).toBe(1);
     expect(result.warnings.join(" ")).toContain("Fallback search results require review");
-    expect(result.warnings.join(" ")).toContain("Expected 83 companies for YC Summer 2026");
+    expect(result.warnings.join(" ")).toContain("Expected 115 companies for YC Summer 2026");
   });
 });

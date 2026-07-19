@@ -11,6 +11,7 @@ import { scoringEligibility } from "@/lib/graph/traction-scoring";
 import type { CompanyRecord, GraphNode, Platform, SocialAccountSummary } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import socialAccountSeedSnapshot from "@/lib/social/a16z-speedrun-006-social-accounts.json";
+import seededSocialEvidenceSnapshot from "@/lib/social/a16z-speedrun-006-social-evidence.json";
 
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
   "github",
@@ -26,6 +27,36 @@ const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS = new Set<Platform>(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST);
 const A16Z_SPEEDRUN_SOURCE_PREFIX = "https://speedrun.a16z.com/";
 const A16Z_REPRESENTATIVE_SOCIAL_SEED_COMPANIES = ["SUN", "ZeroDrift", "Acceler8", "Modaic", "Sentra"];
+const A16Z_SECOND_PASS_ARTIFACT_PATH = "outputs/source-hunt/2026-07-19-a16z-second-pass.json";
+const A16Z_SECOND_PASS_NATIVE_IDENTITIES = [
+  "instagram:Da9k4VbyCs8",
+  "instagram:Da9Upd2jDqN",
+  "instagram:Da9FP68vX_n",
+  "instagram:Da8DniaARMi",
+  "instagram:Da6ZEZvSOiJ",
+  "instagram:Da6PkazmxSj",
+  "instagram:Da6PULkj2OH",
+  "instagram:Da6NVouSjPN",
+  "instagram:Da5-2-DB_4L",
+  "instagram:Da5-KPTDnVJ",
+  "instagram:Da57Q5cBmsS",
+  "instagram:Da526dyv09U",
+  "x:2078180286441955781",
+  "instagram:Da5r6ONJJvs",
+  "instagram:Da5ng7iEaag",
+  "instagram:Da3IzIwAGDD",
+  "instagram:Da3twqGSBl6",
+  "instagram:Da3q_PqSmkm",
+  "instagram:Da3JzWVBJKQ",
+  "instagram:Da3JQ0njmn9",
+  "instagram:Da3JQo0lUgh",
+  "instagram:Da3JPClkfF4",
+  "instagram:Da3Im_6kdC3",
+  "instagram:Da3IjF5ALWH",
+  "instagram:Da2ss8zDD9W",
+  "instagram:Da1toCqARGL",
+  "instagram:Da1ZmfzymHv"
+] as const;
 const CREBIT_SCREENSHOT_POST_URL =
   "https://www.linkedin.com/posts/simmi-sen_crebit-founding-engineer-application-activity-7475266867537039360-QwfJ";
 const CREBIT_BACKED_BY_A16Z_POST_URL =
@@ -84,6 +115,12 @@ const EXTERNAL_TOP_VOICE_ATTENTION_CASES = [
     companyId: "a16z-speedrun-006-hotbox",
     targetFounderId: "a16z-speedrun-006-hotbox-founder-harpriya-bagri",
     sourceUrl: "https://x.com/andrewchen/status/2034761120188379267"
+  },
+  {
+    companyName: "Oasis",
+    companyId: "a16z-speedrun-006-oasis",
+    targetFounderId: "a16z-speedrun-006-oasis-founder-stefano-fantini-delmanto",
+    sourceUrl: "https://x.com/andrewchen/status/2078236768370147766"
   }
 ] as const;
 
@@ -105,6 +142,38 @@ interface A16zSocialSeedAccount {
   platform: Platform;
   url: string;
   handle?: string | null;
+}
+
+interface A16zSecondPassProvenance {
+  artifactPath: string;
+  candidateId: string;
+  profile: {
+    username: string;
+    url: string;
+    relationship?: "company" | "founder";
+  };
+  post: {
+    id: string;
+    shortcode?: string;
+    url: string;
+    authorHandle: string;
+  };
+  counts: Record<string, number>;
+  target: {
+    companyName: string;
+    founderName?: string | null;
+    entityId?: string;
+    founderId?: string;
+  };
+  verification: {
+    status: string;
+    nativeItem?: boolean;
+    nativeAuthorVerified?: boolean;
+    metricsVisible: boolean;
+    notProfileOrSearchPage: boolean;
+    ownerMatchesSeededAccount?: boolean;
+    dedupeStatus: string;
+  };
 }
 
 const a16zSocialSeedSnapshot = socialAccountSeedSnapshot as A16zSocialSeedSnapshot;
@@ -484,9 +553,11 @@ describe("a16z speedrun 006 dataset", () => {
       (item) => item.sourceUrl === "https://www.youtube.com/watch?v=RqS_WpgsPdY"
     );
 
-    expect(sunYouTubeEvidence).toHaveLength(14);
+    expect(sunYouTubeEvidence).toHaveLength(16);
     expect(sunYouTubeEvidence.map((item) => item.sourceUrl)).toEqual(
       expect.arrayContaining([
+        "https://www.youtube.com/watch?v=pHTVgy_HSS0",
+        "https://www.youtube.com/watch?v=42eSvpyKiJk",
         "https://www.youtube.com/watch?v=FTVKNZtv7-o",
         "https://www.youtube.com/watch?v=Qj6VFxD0Hbo",
         "https://www.youtube.com/watch?v=qHlEhqdAZxc",
@@ -509,6 +580,169 @@ describe("a16z speedrun 006 dataset", () => {
         metrics: expect.objectContaining({ views: 120 })
       })
     );
+  });
+
+  it("imports recent A16Z source-hunt rows once with exact native metrics and provenance", () => {
+    const recentRows = [
+      {
+        sourceUrl: "https://www.youtube.com/watch?v=pHTVgy_HSS0",
+        platformPostId: "pHTVgy_HSS0",
+        companyName: "SUN",
+        metrics: { views: 3, likes: 1 },
+        artifactPath: "outputs/source-hunt/2026-07-19-a16z-recent.json"
+      },
+      {
+        sourceUrl: "https://www.youtube.com/watch?v=42eSvpyKiJk",
+        platformPostId: "42eSvpyKiJk",
+        companyName: "SUN",
+        metrics: { views: 71, likes: 6 },
+        artifactPath: "outputs/source-hunt/2026-07-19-a16z-recent.json"
+      },
+      {
+        sourceUrl: "https://www.youtube.com/watch?v=HwKIvuXrMaY",
+        platformPostId: "HwKIvuXrMaY",
+        companyName: "Antihero Studios",
+        metrics: { views: 973, likes: 87 },
+        artifactPath: "outputs/source-hunt/2026-07-19-a16z-recent.json"
+      },
+      {
+        sourceUrl: "https://x.com/andrewchen/status/2078236768370147766",
+        platformPostId: "2078236768370147766",
+        companyName: "Oasis",
+        metrics: {
+          views: 837,
+          likes: 5,
+          comments: 1,
+          replies: 1,
+          reposts: 0,
+          retweets: 0,
+          quotes: 0,
+          saves: 0
+        },
+        artifactPath: "outputs/source-hunt/2026-07-19-topvoices-recent.json"
+      }
+    ] as const;
+
+    for (const recentRow of recentRows) {
+      const urlMatches = a16zSpeedrun006GraphDataset.evidence.filter(
+        (item) => item.sourceUrl === recentRow.sourceUrl
+      );
+      const nativeIdMatches = a16zSpeedrun006GraphDataset.evidence.filter(
+        (item) => item.platformPostId === recentRow.platformPostId
+      );
+      const item = urlMatches[0];
+
+      expect(urlMatches).toHaveLength(1);
+      expect(nativeIdMatches).toHaveLength(1);
+      expect(item).toEqual(
+        expect.objectContaining({
+          attachedCompanyName: recentRow.companyName,
+          platformPostId: recentRow.platformPostId,
+          metrics: expect.objectContaining(recentRow.metrics),
+          review_state: "verified"
+        })
+      );
+      expect(item?.contributionScore).toBeGreaterThan(0);
+      expect(scoringEligibility(item!)).toEqual({ eligible: true, reason: "eligible" });
+      expect(JSON.parse(item?.rawVisibleText ?? "")).toEqual(
+        expect.objectContaining({ artifactPath: recentRow.artifactPath })
+      );
+    }
+  });
+
+  it("strictly imports every accepted Jul 19 A16Z second-pass row once", () => {
+    const seededSnapshot = seededSocialEvidenceSnapshot as unknown as {
+      source: {
+        evidenceCount: number;
+        latestSourceHuntImport: {
+          artifactPath: string;
+          strictCandidatesEvaluated: number;
+          accepted: number;
+          rejected: number;
+          duplicates: number;
+          rejectedRowsWritten: number;
+          acceptedByPlatform: Record<string, number>;
+          rejectedRowsByPlatform: Record<string, number>;
+        };
+      };
+      evidence: unknown[];
+    };
+    const secondPassRows = a16zSpeedrun006GraphDataset.evidence.flatMap((item) => {
+      try {
+        const provenance = JSON.parse(item.rawVisibleText ?? "null") as A16zSecondPassProvenance | null;
+        return provenance?.artifactPath === A16Z_SECOND_PASS_ARTIFACT_PATH ? [{ item, provenance }] : [];
+      } catch {
+        return [];
+      }
+    });
+
+    expect(seededSnapshot.source.evidenceCount).toBe(seededSnapshot.evidence.length);
+    expect(seededSnapshot.source.latestSourceHuntImport).toEqual({
+      artifactPath: A16Z_SECOND_PASS_ARTIFACT_PATH,
+      strictCandidatesEvaluated: 34,
+      accepted: 27,
+      rejected: 4,
+      duplicates: 3,
+      rejectedRowsWritten: 7,
+      acceptedByPlatform: { instagram: 26, x: 1 },
+      rejectedRowsByPlatform: { instagram: 1, x: 1, youtube: 3, hacker_news: 1, reddit: 1 }
+    });
+    expect(secondPassRows).toHaveLength(27);
+    expect(secondPassRows.filter(({ item }) => item.platform === "instagram")).toHaveLength(26);
+    expect(secondPassRows.filter(({ item }) => item.platform === "x")).toHaveLength(1);
+    expect(secondPassRows.map(({ item }) => `${item.platform}:${item.platformPostId}`).sort()).toEqual(
+      [...A16Z_SECOND_PASS_NATIVE_IDENTITIES].sort()
+    );
+    expect(new Set(secondPassRows.map(({ item }) => item.sourceUrl)).size).toBe(secondPassRows.length);
+    expect(new Set(secondPassRows.map(({ item }) => `${item.platform}:${item.platformPostId}`)).size).toBe(
+      secondPassRows.length
+    );
+    expect(new Set(secondPassRows.map(({ provenance }) => provenance.candidateId)).size).toBe(secondPassRows.length);
+
+    for (const { item, provenance } of secondPassRows) {
+      const nativePostId = item.platform === "instagram" ? provenance.post.shortcode : provenance.post.id;
+      const expectedEntityType =
+        provenance.profile.relationship === "founder" || provenance.target.founderName ? "founder" : "company";
+      const expectedEntityId =
+        expectedEntityType === "founder"
+          ? provenance.target.founderId ?? provenance.target.entityId
+          : provenance.target.entityId;
+
+      expect(item).toEqual(
+        expect.objectContaining({
+          entityType: expectedEntityType,
+          entityId: expectedEntityId,
+          attachedCompanyName: provenance.target.companyName,
+          authorHandle: provenance.post.authorHandle,
+          platformPostId: nativePostId,
+          sourceUrl: provenance.post.url,
+          review_state: "verified",
+          metrics: expect.objectContaining(provenance.counts)
+        })
+      );
+      expect(item.accountUrl?.replace(/\/$/, "")).toBe(provenance.profile.url.replace(/\/$/, ""));
+      expect(item.authorHandle).toBe(provenance.profile.username);
+      expect(item.socialAccountId).toEqual(expect.any(String));
+      expect(provenance.verification).toEqual(
+        expect.objectContaining({
+          status: "accepted",
+          metricsVisible: true,
+          notProfileOrSearchPage: true,
+          dedupeStatus: "net_new"
+        })
+      );
+      expect(
+        provenance.verification.ownerMatchesSeededAccount ?? provenance.verification.nativeAuthorVerified
+      ).toBe(true);
+      expect(item.contributionScore).toBeGreaterThan(0);
+      expect(scoringEligibility(item)).toEqual({ eligible: true, reason: "eligible" });
+      expect(a16zSpeedrun006GraphDataset.evidence.filter((candidate) => candidate.sourceUrl === item.sourceUrl)).toHaveLength(1);
+      expect(
+        a16zSpeedrun006GraphDataset.evidence.filter(
+          (candidate) => candidate.platform === item.platform && candidate.platformPostId === item.platformPostId
+        )
+      ).toHaveLength(1);
+    }
   });
 
   it("scores seeded A16Z Instagram traction posts from native post URLs", () => {

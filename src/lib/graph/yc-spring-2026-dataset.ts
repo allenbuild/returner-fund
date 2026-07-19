@@ -216,6 +216,47 @@ export const YC_SUMMER_2026_BATCH_LABEL = "YC Summer 2026 (S26)";
 export const YC_SPRING_2026_BATCH_SLUG = "S2026";
 export const YC_SPRING_2026_BATCH_LABEL = "YC Spring 2026 (P26)";
 
+const SUMMER_COMPANY_SLUG_RENAMES = [
+  {
+    from: "blueprints",
+    to: "hoplite",
+    fromName: "Blueprints",
+    toName: "Hoplite",
+    historicalSocialLinks: { github: "https://github.com/CarbonCopyInc" }
+  },
+  {
+    from: "bylaw",
+    to: "definite",
+    fromName: "Bylaw",
+    toName: "Definite",
+    historicalSocialLinks: {
+      github: "https://github.com/UseBylaw",
+      linkedin: "https://www.linkedin.com/company/usebylaw",
+      x: "https://x.com/UseBylaw"
+    }
+  },
+  {
+    from: "litmus-build",
+    to: "litmus-hiring",
+    fromName: "Litmus Build",
+    toName: "Litmus",
+    historicalSocialLinks: {
+      linkedin: "https://www.linkedin.com/company/litmus-build",
+      x: "https://x.com/UseLitmus"
+    }
+  },
+  {
+    from: "perceptron-ml",
+    to: "notyfi",
+    fromName: "Perceptron ML",
+    toName: "Notyfi",
+    historicalSocialLinks: {
+      linkedin: "https://linkedin.com/company/perceptron-yc",
+      x: "https://x.com/PerceptronML"
+    }
+  }
+] as const;
+
 const GENERIC_SOCIAL_IDENTITIES = new Set([
   "about",
   "admin",
@@ -241,6 +282,8 @@ const publicSnapshot = publicEvidenceSnapshot as PublicEvidenceSnapshot;
 const loggedInSnapshot = loggedInEvidenceSnapshot as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as PublicEvidenceSnapshot;
 const verifiedSocialOverrides = verifiedSocialOverridesJson as Record<string, VerifiedSocialOverride>;
+const summerVerifiedFounderAliases = buildVerifiedFounderAliases(snapshot.companies);
+const springVerifiedFounderAliases = buildVerifiedFounderAliases(springSnapshot.companies);
 const attributionContext = buildAttributionContext(snapshot.companies.map(attributionCompanyProfile));
 const knownCompanyIds = new Set(snapshot.companies.map(companyId));
 const knownFounderIds = new Set(snapshot.companies.flatMap((company) => [
@@ -248,14 +291,7 @@ const knownFounderIds = new Set(snapshot.companies.flatMap((company) => [
   ...manualFounderOverrides(company).map((founder) => manualFounderId(company, founder))
 ]));
 const knownEntityIds = new Set([...knownCompanyIds, ...knownFounderIds]);
-const officialGithubUrlsByEntityId = new Map(
-  snapshot.companies.flatMap((company) => [
-    company.socialLinks.github ? [companyId(company), canonicalAccountUrl(company.socialLinks.github)] : null,
-    ...company.founders.map((founder) =>
-      founder.socialLinks.github ? [founderId(company, founder), canonicalAccountUrl(founder.socialLinks.github)] : null
-    )
-  ].filter((entry): entry is [string, string] => Boolean(entry)))
-);
+const officialGithubUrlsByEntityId = buildOfficialSummerGithubUrlsByEntityId();
 const allowedLoggedInPlatforms = new Set(["instagram", "x", "linkedin", "tiktok", "bluesky"]);
 const allowedLoggedInEvidence = loggedInSnapshot.evidence.filter((item) =>
   allowedLoggedInPlatforms.has(item.platform)
@@ -264,12 +300,16 @@ const allowedLoggedInNeedsReview = loggedInSnapshot.needsReview.filter((item) =>
   allowedLoggedInPlatforms.has(item.platform)
 );
 const rawPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEvidence, ...targetedSnapshot.evidence]
+  .map(canonicalizeRenamedSummerEntity)
+  .map((item) => canonicalizeVerifiedFounderEntity(item, summerVerifiedFounderAliases))
   .filter((item) => item.review_state === "verified")
   .filter(isKnownSummerEvidenceRecord)
   .filter(isAcceptedPublicEvidence)
   .map(publicEvidenceItem)
   .map((item) => applyAttributionGuard(item, attributionContext));
 const rawGithubEvidenceItems = githubSnapshot.accounts
+  .map(canonicalizeRenamedSummerEntity)
+  .map((account) => canonicalizeVerifiedFounderEntity(account, summerVerifiedFounderAliases))
   .filter(isKnownSummerGithubAccount)
   .flatMap(githubEvidence)
   .map((item) => applyAttributionGuard(item, attributionContext));
@@ -283,7 +323,11 @@ const publicNeedsReviewItems = [
   ...publicSnapshot.needsReview,
   ...allowedLoggedInNeedsReview,
   ...targetedSnapshot.needsReview
-].filter(isKnownSummerNeedsReviewRecord).map(publicNeedsReviewItem);
+]
+  .map(canonicalizeRenamedSummerEntity)
+  .map((item) => canonicalizeVerifiedFounderEntity(item, summerVerifiedFounderAliases))
+  .filter(isKnownSummerNeedsReviewRecord)
+  .map(publicNeedsReviewItem);
 const companyRecords = calibrateBatchCompanyScores(snapshot.companies.map(companyRecord));
 const founderRecordList = snapshot.companies.flatMap(founderRecords);
 const allEvidenceItems = resolveEvidenceSocialAccountIds(
@@ -396,11 +440,11 @@ export const yc2026GraphDataset: DemoGraphDataset = {
     ...springDataset.founders,
     ...a16zSpeedrun006GraphDataset.founders
   ],
-  evidence: [
+  evidence: dedupeEvidenceItems([
     ...ycSummer2026GraphDataset.evidence,
     ...springDataset.evidence,
     ...a16zSpeedrun006GraphDataset.evidence
-  ],
+  ]),
   needsReview: [
     ...(ycSummer2026GraphDataset.needsReview ?? []),
     ...(springDataset.needsReview ?? []),
@@ -423,6 +467,7 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
   ]));
   const springKnownEntityIds = new Set([...springKnownCompanyIds, ...springKnownFounderIds]);
   const springPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEvidence, ...targetedSnapshot.evidence]
+    .map((item) => canonicalizeVerifiedFounderEntity(item, springVerifiedFounderAliases))
     .filter((item) => item.review_state === "verified")
     .filter((item) => springKnownEntityIds.has(item.entityId))
     .filter((item) => !hasSummerBatchContext(evidenceBatchText(item)))
@@ -430,6 +475,7 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
     .map(publicEvidenceItem)
     .map((item) => applyAttributionGuard(item, springAttributionContext));
   const springGithubEvidenceItems = springGithubSnapshot.accounts
+    .map((account) => canonicalizeVerifiedFounderEntity(account, springVerifiedFounderAliases))
     .filter((account) => springKnownEntityIds.has(account.entityId))
     .flatMap((account) => githubEvidenceForSnapshot(account, springGithubSnapshot))
     .map((item) => applyAttributionGuard(item, springAttributionContext));
@@ -461,6 +507,7 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
     ...allowedLoggedInNeedsReview,
     ...targetedSnapshot.needsReview
   ]
+    .map((item) => canonicalizeVerifiedFounderEntity(item, springVerifiedFounderAliases))
     .filter((item) => springKnownEntityIds.has(item.entityId))
     .filter((item) => !hasSummerBatchContext(`${item.entityName} ${item.matchReason}`))
     .map(publicNeedsReviewItem);
@@ -541,6 +588,13 @@ function companyRecordForBatch(
   options: { batchSlug: string; evidenceByEntityId: Map<string, EvidenceItem[]> }
 ): CompanyRecord {
   const manualFounders = manualFounderOverrides(raw);
+  const founderAccountKeys = new Set(
+    [...raw.founders, ...(verifiedSocialOverrides[raw.slug]?.founders ?? [])].flatMap((founder) =>
+      (Object.entries(founder.socialLinks) as [keyof RawSocialLinks, string][])
+        .filter(([, url]) => Boolean(url))
+        .map(([platform, url]) => socialAccountKey(platform, url))
+    )
+  );
   const entityIds = [
     companyId(raw),
     ...raw.founders.map((founder) => founderId(raw, founder)),
@@ -561,7 +615,7 @@ function companyRecordForBatch(
       discoveredFromUrl: raw.websiteUrl ?? raw.ycProfileUrl,
       matchReason: `Verified social override for ${raw.name}; profile links back to the official company identity.`
     })
-  ]);
+  ]).filter((account) => !founderAccountKeys.has(socialAccountKey(account.platform, account.url)));
 
   return {
     id: companyId(raw),
@@ -606,12 +660,21 @@ function founderRecordsForBatch(
   const ycFounderRecords = raw.founders.map((founder) => {
     const entityEvidence = options.evidenceByEntityId.get(founderId(raw, founder)) ?? [];
     const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
-    const socialAccounts = socialAccountsFor(founder.socialLinks, {
-      entityType: "founder",
-      entityId: founderId(raw, founder),
-      discoveredFromUrl: raw.ycProfileUrl,
-      matchReason: "Linked from the founder block on the official public YC company profile."
-    });
+    const verifiedOverride = matchingVerifiedFounderOverride(raw, founder.name);
+    const socialAccounts = dedupeSocialAccounts([
+      ...socialAccountsFor(founder.socialLinks, {
+        entityType: "founder",
+        entityId: founderId(raw, founder),
+        discoveredFromUrl: raw.ycProfileUrl,
+        matchReason: "Linked from the founder block on the official public YC company profile."
+      }),
+      ...socialAccountsFor(verifiedOverride?.socialLinks ?? {}, {
+        entityType: "founder",
+        entityId: founderId(raw, founder),
+        discoveredFromUrl: verifiedOverride?.sourceUrl ?? raw.ycProfileUrl,
+        matchReason: verifiedOverride?.matchReason ?? "Verified founder social override."
+      })
+    ]);
 
     return {
       id: founderId(raw, founder),
@@ -1167,13 +1230,64 @@ function isKnownSummerEvidenceRecord(item: PublicEvidenceRecord): boolean {
   return knownEntityIds.has(item.entityId) && !hasStaleSpringBatchContext(evidenceBatchText(item));
 }
 
+function canonicalizeRenamedSummerEntity<
+  T extends { entityId: string; companySlug?: string; companyName?: string; entityName?: string }
+>(item: T): T {
+  let entityId = item.entityId;
+  let companySlug = item.companySlug;
+  let companyName = item.companyName;
+  let entityName = item.entityName;
+
+  for (const rename of SUMMER_COMPANY_SLUG_RENAMES) {
+    if (entityId === `company-${rename.from}`) entityId = `company-${rename.to}`;
+    if (entityId.startsWith(`founder-${rename.from}-`)) {
+      entityId = `founder-${rename.to}-${entityId.slice(`founder-${rename.from}-`.length)}`;
+    }
+    if (companySlug === rename.from) companySlug = rename.to;
+    if (companyName === rename.fromName) companyName = rename.toName;
+    if (entityName === rename.fromName) entityName = rename.toName;
+  }
+
+  return {
+    ...item,
+    entityId,
+    ...(companySlug === undefined ? {} : { companySlug }),
+    ...(companyName === undefined ? {} : { companyName }),
+    ...(entityName === undefined ? {} : { entityName })
+  };
+}
+
 function isKnownSummerNeedsReviewRecord(item: PublicNeedsReviewRecord): boolean {
   return knownEntityIds.has(item.entityId) && !hasStaleSpringBatchContext(`${item.entityName} ${item.matchReason}`);
 }
 
 function isKnownSummerGithubAccount(account: GithubAccount): boolean {
-  const officialGithubUrl = officialGithubUrlsByEntityId.get(account.entityId);
-  return Boolean(officialGithubUrl && canonicalAccountUrl(account.githubUrl) === officialGithubUrl);
+  const officialGithubUrls = officialGithubUrlsByEntityId.get(account.entityId);
+  return Boolean(officialGithubUrls?.has(canonicalAccountUrl(account.githubUrl)));
+}
+
+function buildOfficialSummerGithubUrlsByEntityId(): Map<string, Set<string>> {
+  const urlsByEntityId = new Map<string, Set<string>>();
+  const add = (entityId: string, rawUrl: string | undefined) => {
+    if (!rawUrl) return;
+    const canonicalUrl = canonicalAccountUrl(rawUrl);
+    urlsByEntityId.set(entityId, new Set([...(urlsByEntityId.get(entityId) ?? []), canonicalUrl]));
+  };
+
+  for (const company of snapshot.companies) {
+    add(companyId(company), company.socialLinks.github);
+    add(companyId(company), historicalSocialLinksForSummerCompany(company.slug).github);
+    for (const founder of company.founders) {
+      add(founderId(company, founder), founder.socialLinks.github);
+    }
+  }
+
+  return urlsByEntityId;
+}
+
+function historicalSocialLinksForSummerCompany(slug: string): RawSocialLinks {
+  const rename = SUMMER_COMPANY_SLUG_RENAMES.find((candidate) => candidate.to === slug);
+  return rename?.historicalSocialLinks ?? {};
 }
 
 function evidenceBatchText(item: PublicEvidenceRecord): string {
@@ -1387,6 +1501,7 @@ function attributionCompanyProfile(raw: RawCompany): AttributionCompanyProfile {
     websiteUrl: raw.websiteUrl,
     socialLinks: [
       ...attributionSocialLinks(raw.socialLinks),
+      ...attributionSocialLinks(historicalSocialLinksForSummerCompany(raw.slug)),
       ...attributionSocialLinks(verifiedSocialOverrides[raw.slug]?.companySocialLinks ?? {})
     ],
     founders: [
@@ -1621,7 +1736,47 @@ function socialAccountsFor(
 }
 
 function manualFounderOverrides(raw: RawCompany): VerifiedFounderOverride[] {
-  return verifiedSocialOverrides[raw.slug]?.founders ?? [];
+  const rosterFounderNames = new Set(raw.founders.map((founder) => slugify(founder.name)));
+  return (verifiedSocialOverrides[raw.slug]?.founders ?? []).filter(
+    (founder) => !rosterFounderNames.has(slugify(founder.name))
+  );
+}
+
+function matchingVerifiedFounderOverride(
+  raw: RawCompany,
+  founderName: string
+): VerifiedFounderOverride | undefined {
+  const canonicalName = slugify(founderName);
+  return (verifiedSocialOverrides[raw.slug]?.founders ?? []).find(
+    (founder) => slugify(founder.name) === canonicalName
+  );
+}
+
+function buildVerifiedFounderAliases(companies: RawCompany[]): Map<string, string> {
+  const aliases = new Map<string, string>();
+  for (const company of companies) {
+    const rosterFounderByName = new Map(
+      company.founders.map((founder) => [slugify(founder.name), founder])
+    );
+    for (const founderOverride of verifiedSocialOverrides[company.slug]?.founders ?? []) {
+      const rosterFounder = rosterFounderByName.get(slugify(founderOverride.name));
+      if (rosterFounder) {
+        aliases.set(
+          manualFounderId(company, founderOverride),
+          founderId(company, rosterFounder)
+        );
+      }
+    }
+  }
+  return aliases;
+}
+
+function canonicalizeVerifiedFounderEntity<T extends { entityId: string }>(
+  row: T,
+  aliases: Map<string, string>
+): T {
+  const canonicalEntityId = aliases.get(row.entityId);
+  return canonicalEntityId ? { ...row, entityId: canonicalEntityId } : row;
 }
 
 function manualFounderId(company: RawCompany, founder: VerifiedFounderOverride): string {
@@ -1632,11 +1787,15 @@ function dedupeSocialAccounts(accounts: SocialAccountSummary[]): SocialAccountSu
   return [
     ...new Map(
       accounts.map((account) => [
-        `${account.platform}:${canonicalAccountUrl(account.url)}`,
+        socialAccountKey(account.platform, account.url),
         account
       ])
     ).values()
   ];
+}
+
+function socialAccountKey(platform: string, rawUrl: string): string {
+  return `${platform}:${canonicalAccountUrl(rawUrl)}`;
 }
 
 function canonicalAccountUrl(rawUrl: string): string {

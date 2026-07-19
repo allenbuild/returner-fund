@@ -8,7 +8,7 @@ describe("public data debug instrumentation", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const tasks = buildWorkerTasks(graph);
 
-    expect(graph.nodes).toHaveLength(83);
+    expect(graph.nodes).toHaveLength(115);
     expect(graph.nodes.every((node) => node.entityType === "company")).toBe(true);
     expect(tasks).toHaveLength(graph.nodes.length * PUBLIC_CONNECTOR_PLATFORMS.length);
     expect(tasks.every((task) => task.checkpointKey.includes(task.companyId))).toBe(true);

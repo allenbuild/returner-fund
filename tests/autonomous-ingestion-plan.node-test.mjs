@@ -2,22 +2,26 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   AUTONOMOUS_PLATFORMS,
+  AUTONOMOUS_PROCESS_BUDGETS,
   buildAutonomousTaskPlan,
   loadAutonomousCatalogs,
+  maxAutonomousRunnerProcessBudgetMs,
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
-  summarizeTaskCoverage
+  normalizeAutonomousFailureEntityId,
+  summarizeTaskCoverage,
+  validateAutonomousCollectorSnapshot
 } from "../scripts/lib/autonomous-ingestion-plan.mjs";
 
 const repositoryRoot = process.cwd();
 
-describe("autonomous ingestion planning against the published catalogs", () => {
-  it("loads the exact company, founder, and account counts from every real graph", async () => {
+describe("autonomous ingestion planning against the collector catalogs", () => {
+  it("loads the exact company, founder, and account counts from every real catalog", async () => {
     const catalogs = await loadAutonomousCatalogs(repositoryRoot);
 
     assert.deepEqual(catalogs.map(summarizeCatalog), [
-      { slug: "S2026", companies: 197, founders: 397, accounts: 957 },
-      { slug: "S26", companies: 83, founders: 165, accounts: 402 },
+      { slug: "S2026", companies: 197, founders: 397, accounts: 948 },
+      { slug: "S26", companies: 115, founders: 228, accounts: 548 },
       { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
     ]);
   });
@@ -31,7 +35,7 @@ describe("autonomous ingestion planning against the published catalogs", () => {
       0
     );
 
-    assert.equal(expectedEntityCount, 1_029);
+    assert.equal(expectedEntityCount, 1_124);
     assert.deepEqual(first, second);
     assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length);
     assert.equal(new Set(first.map((task) => task.checkpointKey)).size, first.length);
@@ -59,10 +63,10 @@ describe("autonomous ingestion planning against the published catalogs", () => {
     const reasonCounts = countBy(tasks, (task) => task.terminalReason ?? "queued");
 
     assert.deepEqual(reasonCounts, {
-      collector_not_applicable_to_founder: 4_140,
-      collector_not_available: 3_087,
-      missing_account_mapping: 1_907,
-      queued: 4_243
+      collector_not_applicable_to_founder: 4_518,
+      collector_not_available: 3_372,
+      missing_account_mapping: 2_089,
+      queued: 4_633
     });
     assert.ok(tasks.filter((task) => task.status === "queued").every((task) => task.terminalReason === null));
     assert.ok(tasks.filter((task) => task.status !== "queued").every((task) => Boolean(task.terminalReason)));
@@ -75,15 +79,112 @@ describe("autonomous ingestion planning against the published catalogs", () => {
       missingMappings: coverage.missingMappings,
       unsupported: coverage.unsupported
     }, {
-      expected: 13_377,
-      queued: 4_243,
-      terminal: 9_134,
-      missingMappings: 1_907,
-      unsupported: 7_227
+      expected: 14_612,
+      queued: 4_633,
+      terminal: 9_979,
+      missingMappings: 2_089,
+      unsupported: 7_890
     });
     for (const platform of AUTONOMOUS_PLATFORMS) {
-      assert.equal(coverage.byPlatform[platform].expected, 1_029);
+      assert.equal(coverage.byPlatform[platform].expected, 1_124);
     }
+  });
+
+  it("keeps process retries, durable persistence, and lock-release headroom below the workflow timeout", () => {
+    const runnerTimeoutMs = 95 * 60_000;
+
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.durablePersistenceHeadroomMs, 25 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.lockReleaseHeadroomMs, 2 * 60_000);
+    assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeoutMs);
+  });
+});
+
+describe("autonomous collector snapshot validation", () => {
+  const fetchedAt = "2026-07-19T12:00:00.000Z";
+  const publicSnapshot = {
+    source: {
+      label: "Public unauthenticated platform/page ingestion",
+      batchSlug: "S26",
+      fetchedAt
+    },
+    evidence: [],
+    needsReview: [],
+    failures: [{ platform: "web", companySlug: "acme", entityId: "company-acme" }]
+  };
+  const githubSnapshot = {
+    source: {
+      label: "GitHub public API for official YC Summer 2026 GitHub links",
+      batchSlug: "S26",
+      sourcePath: "src/lib/yc/summer-2026-companies.json",
+      fetchedAt
+    },
+    accounts: [{ entityType: "company", entityId: "company-acme", fetched: true }]
+  };
+
+  it("accepts non-empty snapshots with exact batch and source metadata", () => {
+    assert.equal(
+      validateAutonomousCollectorSnapshot(publicSnapshot, { kind: "public", batchSlug: "S26" }),
+      publicSnapshot
+    );
+    assert.equal(validateAutonomousCollectorSnapshot(githubSnapshot, {
+      kind: "github",
+      batchSlug: "S26",
+      expectedSourcePath: "src/lib/yc/summer-2026-companies.json"
+    }), githubSnapshot);
+  });
+
+  it("rejects empty, stale, wrong-batch, and wrong-source snapshots", () => {
+    assert.throws(
+      () => validateAutonomousCollectorSnapshot(
+        { ...publicSnapshot, evidence: [], needsReview: [], failures: [] },
+        { kind: "public", batchSlug: "S26" }
+      ),
+      /collector output is empty/
+    );
+    assert.throws(
+      () => validateAutonomousCollectorSnapshot(publicSnapshot, { kind: "public", batchSlug: "S2026" }),
+      /expected batch S2026/
+    );
+    assert.throws(
+      () => validateAutonomousCollectorSnapshot(githubSnapshot, {
+        kind: "github",
+        batchSlug: "S26",
+        expectedSourcePath: "src/lib/yc/spring-2026-companies.json"
+      }),
+      /expected source path/
+    );
+    assert.throws(
+      () => validateAutonomousCollectorSnapshot(publicSnapshot, {
+        kind: "public",
+        batchSlug: "S26",
+        notBefore: Date.parse(fetchedAt) + 1
+      }),
+      /predates this collector attempt/
+    );
+  });
+});
+
+describe("autonomous collector failure identities", () => {
+  it("normalizes A16Z company and founder failures to task-plan entity IDs", () => {
+    assert.equal(normalizeAutonomousFailureEntityId({
+      entityType: "company",
+      entityId: "company-acceler8",
+      companySlug: "acceler8"
+    }, { batchSlug: "A16ZSR006" }), "a16z-speedrun-006-acceler8");
+    assert.equal(normalizeAutonomousFailureEntityId({
+      entityType: "founder",
+      entityId: "founder-acceler8-chinmay-chauhan-a16z-speedrun-006-acceler8-founder-chinmay-chauhan",
+      companySlug: "acceler8",
+      entityName: "Chinmay Chauhan"
+    }, { batchSlug: "A16ZSR006" }), "a16z-speedrun-006-acceler8-founder-chinmay-chauhan");
+  });
+
+  it("leaves other batch entity IDs unchanged", () => {
+    assert.equal(normalizeAutonomousFailureEntityId({
+      entityId: "company-acme",
+      companySlug: "acme"
+    }, { batchSlug: "S26" }), "company-acme");
   });
 });
 
@@ -156,6 +257,17 @@ describe("autonomous public evidence merge", () => {
       needsReview: ["new-review"],
       failures: ["new-failure"]
     }, "dedupe must compare the timestamp fields emitted by the public collector");
+  });
+
+  it("marks file-backed publication when durable Supabase import is not configured", () => {
+    const merged = mergePublicEvidenceSnapshots(
+      [{ source: { batchSlug: "S26" }, evidence: [], needsReview: [], failures: [] }],
+      { durableStorageConfigured: false }
+    );
+
+    assert.match(merged.source.notes.join(" "), /Durable Supabase import was skipped/);
+    assert.match(merged.source.notes.join(" "), /file-backed/);
+    assert.doesNotMatch(merged.source.notes.join(" "), /imported validated evidence/);
   });
 });
 

@@ -16,10 +16,7 @@ afterEach(async () => {
 
 describe("autonomous ingestion runner CLI", () => {
   it("prints a complete plan without Supabase credentials or side effects in the repository", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "autonomous-ingestion-plan-"));
-    temporaryRoots.push(root);
-    await mkdir(path.join(root, "public"), { recursive: true });
-    await symlink(path.join(repositoryRoot, "public", "graph"), path.join(root, "public", "graph"), "dir");
+    const root = await createRunnerRoot("autonomous-ingestion-plan-");
     const env = { ...process.env };
     delete env.NEXT_PUBLIC_SUPABASE_URL;
     delete env.SUPABASE_SERVICE_ROLE_KEY;
@@ -44,12 +41,30 @@ describe("autonomous ingestion runner CLI", () => {
     }, {
       idempotencyKey: "plan-contract",
       batches: [
-        { slug: "S2026", companies: 197, founders: 397, accounts: 957 },
-        { slug: "S26", companies: 83, founders: 165, accounts: 402 },
+        { slug: "S2026", companies: 197, founders: 397, accounts: 948 },
+        { slug: "S26", companies: 115, founders: 228, accounts: 548 },
         { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
       ],
-      coverage: { expected: 13_377, queued: 4_243, terminal: 9_134 }
+      coverage: { expected: 14_612, queued: 4_633, terminal: 9_979 }
     });
+  });
+
+  it("refuses to complete file-backed mode when collection was explicitly skipped", async () => {
+    const root = await createRunnerRoot("autonomous-ingestion-file-mode-");
+    const env = { ...process.env };
+    delete env.NEXT_PUBLIC_SUPABASE_URL;
+    delete env.SUPABASE_SERVICE_ROLE_KEY;
+
+    const result = spawnSync(
+      process.execPath,
+      [runnerPath, "--idempotency-key=file-contract", "--skip-network", "--skip-publish"],
+      { cwd: root, env, encoding: "utf8" }
+    );
+
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /Durable Supabase import skipped/);
+    assert.match(result.stderr, /No collector completed successfully/);
+    assert.doesNotMatch(result.stdout, /"status": "completed"/);
   });
 });
 
@@ -59,8 +74,17 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes('supabase.rpc("renew_ingestion_runtime_lock"'));
     assert.ok(runner.includes('supabase.rpc("release_ingestion_runtime_lock"'));
     assert.ok(runner.includes('supabase.rpc("finalize_completed_ingestion_run"'));
+    assert.ok(runner.indexOf("if (durableStorageConfigured)") < runner.indexOf("runtimeLock = await claimRuntimeLock()"));
     assert.ok(runner.indexOf("runtimeLock = await claimRuntimeLock()") < runner.indexOf("run = await getOrCreateRun()"));
     assert.match(runner, /finally\s*{[\s\S]*if \(runtimeLock\)[\s\S]*await releaseRuntimeLock\(\)/);
+  });
+
+  it("treats Supabase as optional and labels the skipped durability path", () => {
+    assert.ok(runner.includes("const durableStorageConfigured = Boolean(url && serviceKey)"));
+    assert.doesNotMatch(runner, /SUPABASE_SERVICE_ROLE_KEY are required/);
+    assert.ok(runner.includes('status: "skipped"'));
+    assert.ok(runner.includes('reason: "supabase_not_configured"'));
+    assert.ok(runner.includes('runId: run?.id ?? null'));
   });
 
   it("isolates work directories with a hash of the exact idempotency key", () => {
@@ -84,7 +108,46 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(collectors, /run:\s*\(\)\s*=>\s*runCommand\(/);
     assert.ok(collectors.includes("command.promise = runCollectorWithRetries(command)"));
     assert.ok(collectors.includes("await Promise.allSettled(commands.map((command) => command.promise))"));
+    assert.ok(collectors.includes("account.fetched === true"));
+    assert.ok(collectors.includes("snapshot.evidence.length + snapshot.needsReview.length"));
     assert.doesNotMatch(collectors, /run:\s*async\s*\(\)\s*=>\s*await runCommand\(/);
+  });
+
+  it("validates collector snapshot shape before merge or publication", () => {
+    const reader = section("async function readCollectorSnapshot", "async function writeJsonAtomic");
+
+    assert.ok(runner.includes("await readCollectorSnapshot(command.outputPath, command.kind, {"));
+    assert.ok(reader.includes("JSON.parse(await readFile"));
+    assert.ok(reader.includes("validateAutonomousCollectorSnapshot"));
+    assert.match(reader, /Invalid \$\{kind\} collector snapshot/);
+  });
+
+  it("blocks import, publication, and completion when no collection task succeeds", () => {
+    const guardIndex = runner.indexOf("assertSuccessfulCollection(collectionResults, collectionCoverage)");
+    const importIndex = runner.indexOf("const durableImport = await importDurableEvidence");
+    const publicationIndex = runner.indexOf("await publishGithubExports(githubSnapshots)");
+    const completionIndex = runner.indexOf('await completeRun("completed"');
+    const guard = section("function assertSuccessfulCollection", "async function persistCoverage");
+
+    assert.ok(guardIndex > -1 && guardIndex < importIndex);
+    assert.ok(publicationIndex > guardIndex);
+    assert.ok(completionIndex > publicationIndex);
+    assert.ok(guard.includes("collectionResults.some((result) => result.ok)"));
+    assert.ok(guard.includes("result.ok && result.successfulRows > 0"));
+    assert.ok(guard.includes("coverage.succeeded === 0"));
+  });
+
+  it("batches task persistence and reconciliation with bounded concurrency", () => {
+    const enqueue = section("async function enqueueTasks", "async function runCollectors");
+    const reconcile = section("async function reconcileCollectorTasks", "async function tasksFor");
+    const finish = section("async function finishTasks", "async function terminalizeQueuedTasks");
+    const concurrency = section("async function mapWithConcurrency", "function delay");
+
+    assert.ok(enqueue.includes("mapWithConcurrency(chunks(rows, 250), 4"));
+    assert.ok(reconcile.includes("mapWithConcurrency(updates, 4"));
+    assert.ok(finish.includes('.in("id", ids)'));
+    assert.ok(concurrency.includes("await Promise.allSettled(workers)"));
+    assert.doesNotMatch(reconcile, /await finishTask\(/);
   });
 
   it("guards publication on terminal state coverage across all run tasks", () => {
@@ -95,7 +158,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
         "public evidence snapshot",
         runner.indexOf('await writeJsonAtomic(join(root, "src", "lib", "social", "public-evidence-current.json")')
       ],
-      ["GitHub evidence exports", runner.indexOf("await publishGithubExports()")],
+      ["GitHub evidence exports", runner.indexOf("await publishGithubExports(githubSnapshots)")],
       ["production build", runner.indexOf('await runCommand("npm", ["run", "build"]')],
       ["graph and benchmark publication", runner.indexOf('await runCommand("npm", ["run", "benchmarks:daily"]')]
     ];
@@ -105,20 +168,20 @@ describe("autonomous ingestion runner static safety contracts", () => {
       'new Set(["completed", "needs_review", "blocked_or_empty", "skipped", "failed", "canceled", "dead_lettered"])'
     ));
     assert.ok(coverage.includes("!terminalStatuses.has(task.status)"));
-    assert.ok(guardIndex > runner.indexOf("const prePublishCoverage = await persistCoverage"));
+    assert.ok(guardIndex > runner.indexOf("const prePublishCoverage = catalogState"));
     for (const [label, publicationIndex] of publications) {
       assert.ok(publicationIndex > guardIndex, `${label} must occur after the all-task terminal guard`);
     }
   });
 
-  it("durably imports evidence before writing or rebuilding any publication artifact", () => {
+  it("resolves durable import or an explicit skip before writing or rebuilding any publication artifact", () => {
     const durableImportIndex = runner.indexOf("const durableImport = await importDurableEvidence");
     const publications = [
       [
         "public evidence snapshot",
         runner.indexOf('await writeJsonAtomic(join(root, "src", "lib", "social", "public-evidence-current.json")')
       ],
-      ["GitHub evidence exports", runner.indexOf("await publishGithubExports()")],
+      ["GitHub evidence exports", runner.indexOf("await publishGithubExports(githubSnapshots)")],
       ["production build", runner.indexOf('await runCommand("npm", ["run", "build"]')],
       ["graph and benchmark publication", runner.indexOf('await runCommand("npm", ["run", "benchmarks:daily"]')]
     ];
@@ -127,6 +190,15 @@ describe("autonomous ingestion runner static safety contracts", () => {
     for (const [label, publicationIndex] of publications) {
       assert.ok(publicationIndex > durableImportIndex, `${label} must occur after durable evidence import`);
     }
+  });
+
+  it("terminates timed-out subprocesses within a bounded grace period", () => {
+    const commandRunner = section("async function runCommand", "function failureKeysFromSnapshot");
+
+    assert.ok(commandRunner.includes('child.kill("SIGTERM")'));
+    assert.ok(commandRunner.includes('child.kill("SIGKILL")'));
+    assert.ok(commandRunner.includes("AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs"));
+    assert.ok(commandRunner.includes("if (timedOut)"));
   });
 
   it("writes, validates, and durably records the artifact manifest before completion", () => {
@@ -160,4 +232,14 @@ function section(start, end) {
   assert.ok(startIndex > -1);
   assert.ok(endIndex > startIndex);
   return runner.slice(startIndex, endIndex);
+}
+
+async function createRunnerRoot(prefix) {
+  const root = await mkdtemp(path.join(os.tmpdir(), prefix));
+  temporaryRoots.push(root);
+  await mkdir(path.join(root, "public"), { recursive: true });
+  await mkdir(path.join(root, "src", "lib"), { recursive: true });
+  await symlink(path.join(repositoryRoot, "public", "graph"), path.join(root, "public", "graph"), "dir");
+  await symlink(path.join(repositoryRoot, "src", "lib", "yc"), path.join(root, "src", "lib", "yc"), "dir");
+  return root;
 }

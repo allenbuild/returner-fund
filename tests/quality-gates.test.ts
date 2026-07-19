@@ -7,7 +7,7 @@ describe("quality gates", () => {
   const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
   it("keeps Summer 2026 graph publication-safe", () => {
-    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(83);
+    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(115);
     expect(graph.nodes.some((node) => node.entityType === "founder")).toBe(false);
   });
 

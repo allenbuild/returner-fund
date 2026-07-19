@@ -444,7 +444,7 @@ describe("YC traction scoring regressions", () => {
   it("surfaces Sol Ultra first-party source-hunt rows in the Summer graph", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
-    expectGraphEvidence(graph.evidence, "https://github.com/CarbonCopyInc/carboncopy-mcp", "Blueprints", "github");
+    expectGraphEvidence(graph.evidence, "https://github.com/CarbonCopyInc/carboncopy-mcp", "Hoplite", "github");
     expectGraphEvidence(graph.evidence, "https://www.youtube.com/watch?v=DfSQ8L7d0BM", "Control Seat", "youtube");
     expectGraphEvidence(
       graph.evidence,

@@ -2,10 +2,76 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 export const AUTONOMOUS_BATCHES = Object.freeze([
-  { slug: "S2026", label: "YC Spring 2026 (P26)", graphFile: "s2026.json" },
-  { slug: "S26", label: "YC Summer 2026 (S26)", graphFile: "s26.json" },
-  { slug: "A16ZSR006", label: "a16z Speedrun 006", graphFile: "a16zsr006.json" }
+  {
+    slug: "S2026",
+    label: "YC Spring 2026 (P26)",
+    graphFile: "s2026.json",
+    githubSourcePath: "src/lib/yc/spring-2026-companies.json"
+  },
+  {
+    slug: "S26",
+    label: "YC Summer 2026 (S26)",
+    graphFile: "s26.json",
+    catalogFile: "src/lib/yc/summer-2026-companies.json",
+    catalogFormat: "yc_snapshot",
+    expectedCompanyCount: 115,
+    githubSourcePath: "src/lib/yc/summer-2026-companies.json"
+  },
+  {
+    slug: "A16ZSR006",
+    label: "a16z Speedrun 006",
+    graphFile: "a16zsr006.json",
+    githubSourcePath: "src/lib/graph/a16z-speedrun-006-dataset.ts"
+  }
 ]);
+
+const MINUTE_MS = 60_000;
+
+export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
+  collectorAttempts: 2,
+  collectorRetryDelayMaxMs: 5_000,
+  publicCollectorAttemptMs: 18 * MINUTE_MS,
+  githubCollectorAttemptMs: 10 * MINUTE_MS,
+  productionBuildMs: 10 * MINUTE_MS,
+  benchmarkPublicationMs: 6 * MINUTE_MS,
+  artifactManifestMs: MINUTE_MS,
+  artifactValidationMs: 4 * MINUTE_MS,
+  gitConfigMs: 30_000,
+  gitStageMs: MINUTE_MS,
+  gitDiffMs: 30_000,
+  gitCommitMs: 2 * MINUTE_MS,
+  gitPushMs: 4 * MINUTE_MS,
+  processKillGraceMs: 5_000,
+  durablePersistenceHeadroomMs: 25 * MINUTE_MS,
+  lockReleaseHeadroomMs: 2 * MINUTE_MS
+});
+
+export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_BUDGETS) {
+  const collectorWindow =
+    budgets.collectorAttempts * Math.max(
+      budgets.publicCollectorAttemptMs,
+      budgets.githubCollectorAttemptMs
+    ) +
+    (budgets.collectorAttempts - 1) * budgets.collectorRetryDelayMaxMs +
+    budgets.collectorAttempts * budgets.processKillGraceMs;
+  const publicationWindow =
+    budgets.productionBuildMs +
+    budgets.benchmarkPublicationMs +
+    budgets.artifactManifestMs +
+    budgets.artifactValidationMs +
+    (2 * budgets.gitConfigMs) +
+    budgets.gitStageMs +
+    budgets.gitDiffMs +
+    budgets.gitCommitMs +
+    budgets.gitPushMs;
+  return (
+    collectorWindow +
+    publicationWindow +
+    budgets.processKillGraceMs +
+    budgets.durablePersistenceHeadroomMs +
+    budgets.lockReleaseHeadroomMs
+  );
+}
 
 export const AUTONOMOUS_PLATFORMS = Object.freeze([
   "github",
@@ -40,8 +106,27 @@ const EXPLICITLY_UNAVAILABLE = new Set(["bilibili", "tiktok", "bluesky"]);
 export async function loadAutonomousCatalogs(root) {
   return Promise.all(
     AUTONOMOUS_BATCHES.map(async (batch) => {
-      const path = join(root, "public", "graph", batch.graphFile);
-      const graph = JSON.parse(await readFile(path, "utf8"));
+      const path = batch.catalogFile
+        ? join(root, batch.catalogFile)
+        : join(root, "public", "graph", batch.graphFile);
+      const source = JSON.parse(await readFile(path, "utf8"));
+      if (batch.catalogFormat === "yc_snapshot") {
+        if (!Array.isArray(source.companies)) {
+          throw new Error(`${batch.catalogFile} does not contain a company array.`);
+        }
+        if (source.companies.length !== batch.expectedCompanyCount) {
+          throw new Error(
+            `${batch.catalogFile} contains ${source.companies.length} companies; expected ${batch.expectedCompanyCount}.`
+          );
+        }
+        return {
+          ...batch,
+          sourcePath: path,
+          generatedAt: source.source?.fetchedAt ?? null,
+          companies: source.companies.map((company) => normalizeYcCompany(company, batch))
+        };
+      }
+      const graph = source;
       if (!Array.isArray(graph.nodes)) {
         throw new Error(`${batch.graphFile} does not contain a graph node array.`);
       }
@@ -112,7 +197,87 @@ export function summarizeTaskCoverage(tasks) {
   return summary;
 }
 
-export function mergePublicEvidenceSnapshots(snapshots, { fetchedAt = new Date().toISOString() } = {}) {
+export function validateAutonomousCollectorSnapshot(
+  snapshot,
+  { kind, batchSlug, expectedSourcePath = null, notBefore = null }
+) {
+  if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) {
+    throw new Error(`Invalid ${kind} collector snapshot: expected an object.`);
+  }
+  if (!snapshot.source || typeof snapshot.source !== "object" || Array.isArray(snapshot.source)) {
+    throw new Error(`Invalid ${kind} collector snapshot: expected source metadata.`);
+  }
+  if (snapshot.source.batchSlug !== batchSlug) {
+    throw new Error(
+      `Invalid ${kind} collector snapshot: expected batch ${batchSlug}, received ${snapshot.source.batchSlug ?? "none"}.`
+    );
+  }
+  if (typeof snapshot.source.label !== "string" || !snapshot.source.label.trim()) {
+    throw new Error(`Invalid ${kind} collector snapshot: source label is required.`);
+  }
+  if (kind === "public" && snapshot.source.label !== "Public unauthenticated platform/page ingestion") {
+    throw new Error(`Invalid public collector snapshot: unexpected source label ${snapshot.source.label}.`);
+  }
+  if (kind === "github" && !snapshot.source.label.startsWith("GitHub public API")) {
+    throw new Error(`Invalid github collector snapshot: unexpected source label ${snapshot.source.label}.`);
+  }
+  if (expectedSourcePath && snapshot.source.sourcePath !== expectedSourcePath) {
+    throw new Error(
+      `Invalid ${kind} collector snapshot: expected source path ${expectedSourcePath}, received ${snapshot.source.sourcePath ?? "none"}.`
+    );
+  }
+  const fetchedAt = Date.parse(snapshot.source.fetchedAt);
+  if (!Number.isFinite(fetchedAt)) {
+    throw new Error(`Invalid ${kind} collector snapshot: source fetchedAt must be a valid timestamp.`);
+  }
+  if (notBefore !== null && fetchedAt < notBefore) {
+    throw new Error(`Invalid ${kind} collector snapshot: source fetchedAt predates this collector attempt.`);
+  }
+
+  const collections = kind === "github"
+    ? [["accounts", snapshot.accounts]]
+    : [
+        ["evidence", snapshot.evidence],
+        ["needsReview", snapshot.needsReview],
+        ["failures", snapshot.failures]
+      ];
+  for (const [name, rows] of collections) {
+    if (!Array.isArray(rows)) {
+      throw new Error(`Invalid ${kind} collector snapshot: expected a ${name} array.`);
+    }
+    if (rows.some((row) => !row || typeof row !== "object" || Array.isArray(row))) {
+      throw new Error(`Invalid ${kind} collector snapshot: ${name} must contain only objects.`);
+    }
+  }
+  if (collections.reduce((count, [, rows]) => count + rows.length, 0) === 0) {
+    throw new Error(`Invalid ${kind} collector snapshot: collector output is empty.`);
+  }
+  return snapshot;
+}
+
+export function normalizeAutonomousFailureEntityId(failure, { batchSlug }) {
+  const rawEntityId = failure?.entityId ?? failure?.companyName ?? failure?.companySlug;
+  if (batchSlug !== "A16ZSR006") return rawEntityId;
+
+  const companySlug = slugify(
+    failure?.companySlug ?? String(rawEntityId ?? "").replace(/^(?:company-|a16z-speedrun-006-)/, "")
+  );
+  if (!companySlug) return rawEntityId;
+  if ((failure?.entityType ?? "company") === "company") {
+    return `a16z-speedrun-006-${companySlug}`;
+  }
+
+  const planPrefix = `a16z-speedrun-006-${companySlug}-founder-`;
+  const embeddedPlanIdIndex = String(rawEntityId ?? "").indexOf(planPrefix);
+  if (embeddedPlanIdIndex >= 0) return String(rawEntityId).slice(embeddedPlanIdIndex);
+  const founderSlug = slugify(failure?.entityName);
+  return founderSlug ? `${planPrefix}${founderSlug}` : rawEntityId;
+}
+
+export function mergePublicEvidenceSnapshots(
+  snapshots,
+  { fetchedAt = new Date().toISOString(), durableStorageConfigured = true } = {}
+) {
   const evidence = dedupeRows(snapshots.flatMap((snapshot) => snapshot.evidence ?? []), evidenceKey);
   const needsReview = dedupeRows(
     snapshots.flatMap((snapshot) => snapshot.needsReview ?? []),
@@ -131,7 +296,9 @@ export function mergePublicEvidenceSnapshots(snapshots, { fetchedAt = new Date()
       needsReviewCount: needsReview.length,
       failureCount: failures.length,
       notes: [
-        "Generated export only; durable Supabase tables are the production ingestion source of truth.",
+        durableStorageConfigured
+          ? "Generated export only; this run also imported validated evidence into durable Supabase tables."
+          : "Durable Supabase import was skipped because complete optional credentials were not configured; this export is file-backed.",
         "Rows are deduplicated by native identity or canonical URL before publication."
       ]
     },
@@ -193,6 +360,80 @@ function normalizeCompanyNode(node, batch) {
       accounts: normalizeAccounts(founder.socialAccounts)
     }))
   };
+}
+
+function normalizeYcCompany(company, batch) {
+  if (!company?.slug || !company?.name) {
+    throw new Error(`${batch.catalogFile} contains a company without a slug and name.`);
+  }
+  const sourceKey = `company-${company.slug}`;
+  const profileUrl = company.ycProfileUrl ?? null;
+  return {
+    entityType: "company",
+    sourceKey,
+    name: company.name,
+    batchSlug: batch.slug,
+    profileUrl,
+    websiteUrl: company.websiteUrl ?? null,
+    tagline: company.tagline ?? null,
+    description: company.description ?? null,
+    groupPartner: company.groupPartner ?? null,
+    reviewState: "verified",
+    accounts: normalizeYcAccounts(company.socialLinks, {
+      entityType: "company",
+      entitySourceKey: sourceKey,
+      discoveredFromUrl: profileUrl
+    }),
+    founders: (company.founders ?? []).map((founder) => normalizeYcFounder(founder, company, batch))
+  };
+}
+
+function normalizeYcFounder(founder, company, batch) {
+  if (!founder?.id || !founder?.name) {
+    throw new Error(`${batch.catalogFile} contains a founder without an id and name for ${company.slug}.`);
+  }
+  const sourceKey = `founder-${company.slug}-${slugify(founder.name)}-${founder.id}`;
+  const profileUrl = founder.ycProfileUrl ?? company.ycProfileUrl ?? null;
+  return {
+    entityType: "founder",
+    sourceKey,
+    name: founder.name,
+    batchSlug: batch.slug,
+    companySourceKey: `company-${company.slug}`,
+    profileUrl: founder.ycProfileUrl ?? null,
+    websiteUrl: founder.websiteUrl ?? null,
+    reviewState: "verified",
+    accounts: normalizeYcAccounts(founder.socialLinks, {
+      entityType: "founder",
+      entitySourceKey: sourceKey,
+      discoveredFromUrl: profileUrl
+    })
+  };
+}
+
+function normalizeYcAccounts(links, { entityType, entitySourceKey, discoveredFromUrl }) {
+  return Object.entries(links ?? {})
+    .filter(([, url]) => typeof url === "string" && url.trim())
+    .map(([rawPlatform, url]) => {
+      const platform = normalizePlatform(rawPlatform);
+      if (!socialUrlMatchesPlatform(platform, url)) {
+        throw new Error(`Official YC ${platform} account URL does not match its platform: ${url}`);
+      }
+      const canonicalUrl = canonicalSocialAccountUrl(platform, url);
+      const handle = socialHandle(canonicalUrl);
+      if (!handle) throw new Error(`Official YC ${platform} account URL has no account identity: ${url}`);
+      return {
+        sourceKey: `acct:${entityType}:${entitySourceKey}:${platform}:${encodeURIComponent(canonicalUrl)}`,
+        platform,
+        handle,
+        url,
+        accountId: null,
+        reviewState: "verified",
+        verified: true,
+        discoveredFromUrl,
+        matchReason: "Linked from the official public YC profile."
+      };
+    });
 }
 
 function githubAccountKey(account) {
@@ -259,6 +500,63 @@ function normalizePlatform(platform) {
   if (platform === "twitter") return "x";
   if (platform === "website") return "web";
   return platform;
+}
+
+function canonicalSocialAccountUrl(platform, rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    const parts = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
+    const host = url.hostname.replace(/^www\./i, "").toLowerCase();
+    if (platform === "github" && host === "github.com") {
+      const handle = parts[0]?.toLowerCase() === "orgs" ? parts[1] : parts[0];
+      if (handle) return `https://github.com/${handle.toLowerCase().replace(/\.git$/i, "")}`;
+    }
+    if (platform === "linkedin" && (host === "linkedin.com" || host.endsWith(".linkedin.com"))) {
+      const markerIndex = parts.findIndex((part) => ["company", "in", "school"].includes(part.toLowerCase()));
+      const namespace = markerIndex >= 0 ? parts[markerIndex]?.toLowerCase() : null;
+      const handle = markerIndex >= 0 ? parts[markerIndex + 1] : null;
+      if (namespace && handle) return `https://linkedin.com/${namespace}/${handle.toLowerCase()}`;
+    }
+    if (platform === "x" && (host === "x.com" || host === "twitter.com")) {
+      const handle = parts[0]?.replace(/^@/, "");
+      if (handle) return `https://x.com/${handle.toLowerCase()}`;
+    }
+    url.hash = "";
+    url.search = "";
+    url.protocol = "https:";
+    url.hostname = host;
+    url.pathname = `/${parts.join("/")}`.replace(/\/$/, "");
+    return url.toString();
+  } catch {
+    return String(rawUrl).trim().toLowerCase();
+  }
+}
+
+function socialUrlMatchesPlatform(platform, rawUrl) {
+  try {
+    const host = new URL(rawUrl).hostname.replace(/^www\./i, "").toLowerCase();
+    if (platform === "github") return host === "github.com";
+    if (platform === "linkedin") return host === "linkedin.com" || host.endsWith(".linkedin.com");
+    if (platform === "x") return host === "x.com" || host === "twitter.com";
+    if (platform === "instagram") return host === "instagram.com";
+    if (platform === "tiktok") return host === "tiktok.com" || host === "m.tiktok.com";
+    if (platform === "bluesky") return host === "bsky.app";
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function socialHandle(url) {
+  try {
+    return new URL(url).pathname.split("/").filter(Boolean).at(-1) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function slugify(value) {
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 function evidenceKey(row) {

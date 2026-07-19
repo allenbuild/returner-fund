@@ -1,7 +1,7 @@
 {
   "version": 1,
   "batchSlug": "S26",
-  "updatedAt": "2026-07-19T07:29:44.858Z",
+  "updatedAt": "2026-07-19T07:24:55.739Z",
   "daily": [
     {
       "recordedAt": "2026-07-06T05:00:00.000Z",
@@ -7052,14 +7052,14 @@
       ]
     },
     {
-      "recordedAt": "2026-07-19T07:29:44.858Z",
+      "recordedAt": "2026-07-19T07:24:55.739Z",
       "scoringModelVersion": "4.0.0",
-      "inputGeneratedAt": "2026-07-19T07:29:40.848Z",
+      "inputGeneratedAt": "2026-07-19T07:24:53.717Z",
       "companies": [
         {
           "companyId": "company-noril1",
           "companyName": "Nori",
-          "score": 77,
+          "score": 76,
           "rank": 1
         },
         {
@@ -7069,490 +7069,682 @@
           "rank": 2
         },
         {
-          "companyId": "company-agentcard",
-          "companyName": "Agentcard",
-          "score": 73,
+          "companyId": "company-alloovium",
+          "companyName": "Alloovium",
+          "score": 74,
           "rank": 3
         },
         {
-          "companyId": "company-alloovium",
-          "companyName": "Alloovium",
+          "companyId": "company-agentcard",
+          "companyName": "Agentcard",
           "score": 73,
-          "rank": 3
+          "rank": 4
+        },
+        {
+          "companyId": "company-onecli",
+          "companyName": "OneCLI",
+          "score": 73,
+          "rank": 4
         },
         {
           "companyId": "company-6thsense",
           "companyName": "6thSense",
           "score": 71,
-          "rank": 5
+          "rank": 6
         },
         {
           "companyId": "company-markov",
           "companyName": "Markov",
           "score": 70,
-          "rank": 6
+          "rank": 7
         },
         {
-          "companyId": "company-contextdev",
-          "companyName": "Context.dev",
+          "companyId": "company-fabraix",
+          "companyName": "Fabraix",
           "score": 69,
-          "rank": 7
+          "rank": 8
         },
         {
           "companyId": "company-nebula-security",
           "companyName": "Nebula Security",
           "score": 69,
-          "rank": 7
-        },
-        {
-          "companyId": "company-whitespace",
-          "companyName": "Whitespace",
-          "score": 66,
-          "rank": 9
-        },
-        {
-          "companyId": "company-zomma",
-          "companyName": "Zomma",
-          "score": 66,
-          "rank": 9
+          "rank": 8
         },
         {
           "companyId": "company-greypoint-industries",
           "companyName": "Greypoint Industries",
-          "score": 64,
-          "rank": 11
+          "score": 65,
+          "rank": 10
         },
         {
           "companyId": "company-rex-inc",
           "companyName": "Rex",
-          "score": 64,
-          "rank": 11
+          "score": 65,
+          "rank": 10
         },
         {
           "companyId": "company-screenpipe",
           "companyName": "screenpipe",
-          "score": 64,
-          "rank": 11
+          "score": 65,
+          "rank": 10
         },
         {
-          "companyId": "company-shepherd-3",
-          "companyName": "Shepherd",
-          "score": 63,
-          "rank": 14
+          "companyId": "company-zomma",
+          "companyName": "Zomma",
+          "score": 65,
+          "rank": 10
         },
         {
           "companyId": "company-archal",
           "companyName": "Archal",
-          "score": 62,
-          "rank": 15
+          "score": 63,
+          "rank": 14
         },
         {
           "companyId": "company-codag",
           "companyName": "Codag",
-          "score": 62,
-          "rank": 15
+          "score": 63,
+          "rank": 14
+        },
+        {
+          "companyId": "company-litmus-hiring",
+          "companyName": "Litmus",
+          "score": 63,
+          "rank": 14
         },
         {
           "companyId": "company-flowmanual",
           "companyName": "FlowManual",
-          "score": 60,
+          "score": 61,
           "rank": 17
         },
         {
           "companyId": "company-molagri",
           "companyName": "Molagri",
-          "score": 60,
+          "score": 61,
+          "rank": 17
+        },
+        {
+          "companyId": "company-provenmetal",
+          "companyName": "ProvenMetal",
+          "score": 61,
           "rank": 17
         },
         {
           "companyId": "company-verdant",
           "companyName": "Verdant",
-          "score": 60,
+          "score": 61,
           "rank": 17
+        },
+        {
+          "companyId": "company-contextdev",
+          "companyName": "Context.dev",
+          "score": 60,
+          "rank": 21
+        },
+        {
+          "companyId": "company-mireye",
+          "companyName": "Mireye",
+          "score": 60,
+          "rank": 21
+        },
+        {
+          "companyId": "company-notyfi",
+          "companyName": "Notyfi",
+          "score": 60,
+          "rank": 21
         },
         {
           "companyId": "company-machine0",
           "companyName": "machine0",
           "score": 58,
-          "rank": 20
+          "rank": 24
         },
         {
           "companyId": "company-parasma",
           "companyName": "Parasma",
           "score": 58,
-          "rank": 20
+          "rank": 24
         },
         {
           "companyId": "company-bloomy",
           "companyName": "Bloomy",
-          "score": 56,
-          "rank": 22
+          "score": 57,
+          "rank": 26
         },
         {
-          "companyId": "company-denta",
-          "companyName": "Denta",
-          "score": 56,
-          "rank": 22
+          "companyId": "company-illume-labs",
+          "companyName": "Illume Labs",
+          "score": 57,
+          "rank": 26
         },
         {
           "companyId": "company-operon",
           "companyName": "Operon",
-          "score": 56,
-          "rank": 22
+          "score": 57,
+          "rank": 26
+        },
+        {
+          "companyId": "company-pango",
+          "companyName": "Pango",
+          "score": 57,
+          "rank": 26
+        },
+        {
+          "companyId": "company-shepherd-3",
+          "companyName": "Shepherd",
+          "score": 57,
+          "rank": 26
         },
         {
           "companyId": "company-touchmark",
           "companyName": "Touchmark",
-          "score": 56,
-          "rank": 22
+          "score": 57,
+          "rank": 26
+        },
+        {
+          "companyId": "company-whitespace",
+          "companyName": "Whitespace",
+          "score": 57,
+          "rank": 26
         },
         {
           "companyId": "company-instance",
           "companyName": "Instance",
           "score": 55,
-          "rank": 26
+          "rank": 33
         },
         {
           "companyId": "company-lato",
           "companyName": "LATO",
           "score": 55,
-          "rank": 26
-        },
-        {
-          "companyId": "company-cova",
-          "companyName": "Cova",
-          "score": 53,
-          "rank": 28
-        },
-        {
-          "companyId": "company-pango",
-          "companyName": "Pango",
-          "score": 53,
-          "rank": 28
+          "rank": 33
         },
         {
           "companyId": "company-atlas-discovery",
           "companyName": "Atlas Discovery",
-          "score": 52,
-          "rank": 30
-        },
-        {
-          "companyId": "company-coasty",
-          "companyName": "Coasty",
-          "score": 51,
-          "rank": 31
-        },
-        {
-          "companyId": "company-litmus-build",
-          "companyName": "Litmus",
-          "score": 51,
-          "rank": 31
-        },
-        {
-          "companyId": "company-osmaura",
-          "companyName": "Osmaura",
-          "score": 51,
-          "rank": 31
-        },
-        {
-          "companyId": "company-tsenta",
-          "companyName": "Tsenta",
-          "score": 51,
-          "rank": 31
-        },
-        {
-          "companyId": "company-experiential-labs",
-          "companyName": "Experiential Labs",
-          "score": 49,
+          "score": 54,
           "rank": 35
+        },
+        {
+          "companyId": "company-cova",
+          "companyName": "Cova",
+          "score": 54,
+          "rank": 35
+        },
+        {
+          "companyId": "company-conifer",
+          "companyName": "Conifer",
+          "score": 53,
+          "rank": 37
+        },
+        {
+          "companyId": "company-osseus",
+          "companyName": "Osseus",
+          "score": 52,
+          "rank": 38
+        },
+        {
+          "companyId": "company-almanac",
+          "companyName": "Almanac",
+          "score": 50,
+          "rank": 39
         },
         {
           "companyId": "company-openrelay",
           "companyName": "OpenRelay",
-          "score": 49,
-          "rank": 35
+          "score": 50,
+          "rank": 39
+        },
+        {
+          "companyId": "company-osmaura",
+          "companyName": "Osmaura",
+          "score": 50,
+          "rank": 39
+        },
+        {
+          "companyId": "company-rational",
+          "companyName": "Rational",
+          "score": 50,
+          "rank": 39
         },
         {
           "companyId": "company-rise-reforming",
           "companyName": "Rise Reforming",
-          "score": 49,
-          "rank": 35
+          "score": 50,
+          "rank": 39
         },
         {
           "companyId": "company-dialogus",
           "companyName": "Dialogus",
-          "score": 47,
-          "rank": 38
+          "score": 48,
+          "rank": 44
         },
         {
           "companyId": "company-edviro",
           "companyName": "Edviro",
-          "score": 47,
-          "rank": 38
+          "score": 48,
+          "rank": 44
         },
         {
           "companyId": "company-hop-aero",
           "companyName": "Hop Aero",
-          "score": 47,
-          "rank": 38
+          "score": 48,
+          "rank": 44
         },
         {
           "companyId": "company-hyperprobe",
           "companyName": "HyperProbe",
-          "score": 47,
-          "rank": 38
+          "score": 48,
+          "rank": 44
         },
         {
           "companyId": "company-poth-labs",
           "companyName": "Poth Labs",
+          "score": 48,
+          "rank": 44
+        },
+        {
+          "companyId": "company-experiential-labs",
+          "companyName": "Experiential Labs",
+          "score": 47,
+          "rank": 49
+        },
+        {
+          "companyId": "company-hoplite",
+          "companyName": "Hoplite",
           "score": 46,
-          "rank": 42
+          "rank": 50
+        },
+        {
+          "companyId": "company-tsenta",
+          "companyName": "Tsenta",
+          "score": 46,
+          "rank": 50
+        },
+        {
+          "companyId": "company-belvedir",
+          "companyName": "Belvedir",
+          "score": 45,
+          "rank": 52
         },
         {
           "companyId": "company-83-sciences",
           "companyName": "83 Sciences",
           "score": 43,
-          "rank": 43
+          "rank": 53
         },
         {
-          "companyId": "company-blueprints",
-          "companyName": "Blueprints",
-          "score": 42,
-          "rank": 44
+          "companyId": "company-amulet",
+          "companyName": "Amulet",
+          "score": 43,
+          "rank": 53
+        },
+        {
+          "companyId": "company-coasty",
+          "companyName": "Coasty",
+          "score": 43,
+          "rank": 53
         },
         {
           "companyId": "company-guild",
           "companyName": "GUILD",
-          "score": 42,
-          "rank": 44
-        },
-        {
-          "companyId": "company-conifer",
-          "companyName": "Conifer",
-          "score": 40,
-          "rank": 46
-        },
-        {
-          "companyId": "company-trope",
-          "companyName": "Trope",
-          "score": 40,
-          "rank": 46
+          "score": 43,
+          "rank": 53
         },
         {
           "companyId": "company-inkbox",
           "companyName": "Inkbox",
-          "score": 38,
-          "rank": 48
+          "score": 43,
+          "rank": 53
         },
         {
-          "companyId": "company-talentpluto",
-          "companyName": "Talentpluto",
+          "companyId": "company-trope",
+          "companyName": "Trope",
+          "score": 42,
+          "rank": 58
+        },
+        {
+          "companyId": "company-denta",
+          "companyName": "Denta",
+          "score": 41,
+          "rank": 59
+        },
+        {
+          "companyId": "company-definite",
+          "companyName": "Definite",
+          "score": 40,
+          "rank": 60
+        },
+        {
+          "companyId": "company-hardware-intelligence",
+          "companyName": "hardware intelligence",
+          "score": 40,
+          "rank": 60
+        },
+        {
+          "companyId": "company-assemble",
+          "companyName": "Assemble",
           "score": 38,
-          "rank": 48
+          "rank": 62
+        },
+        {
+          "companyId": "company-instaplay",
+          "companyName": "Instaplay",
+          "score": 38,
+          "rank": 62
         },
         {
           "companyId": "company-petrarch",
           "companyName": "Petrarch",
-          "score": 36,
-          "rank": 50
-        },
-        {
-          "companyId": "company-prized",
-          "companyName": "Prized",
-          "score": 35,
-          "rank": 51
+          "score": 38,
+          "rank": 62
         },
         {
           "companyId": "company-trustai",
           "companyName": "TrustAI",
-          "score": 35,
-          "rank": 51
+          "score": 38,
+          "rank": 62
         },
         {
-          "companyId": "company-cosmic-robotics",
-          "companyName": "Cosmic Robotics",
-          "score": 33,
-          "rank": 53
+          "companyId": "company-ooak-data",
+          "companyName": "Ooak Data",
+          "score": 36,
+          "rank": 66
+        },
+        {
+          "companyId": "company-talentpluto",
+          "companyName": "Pluto",
+          "score": 36,
+          "rank": 66
+        },
+        {
+          "companyId": "company-prized",
+          "companyName": "Prized",
+          "score": 36,
+          "rank": 66
+        },
+        {
+          "companyId": "company-rekursivai",
+          "companyName": "rekursiv.ai",
+          "score": 36,
+          "rank": 66
+        },
+        {
+          "companyId": "company-nex",
+          "companyName": "Nex",
+          "score": 34,
+          "rank": 70
+        },
+        {
+          "companyId": "company-understudy-labs",
+          "companyName": "Understudy Labs",
+          "score": 34,
+          "rank": 70
         },
         {
           "companyId": "company-salem-robotics-inc",
           "companyName": "Salem Robotics Inc",
           "score": 33,
-          "rank": 53
+          "rank": 72
+        },
+        {
+          "companyId": "company-speko",
+          "companyName": "Speko",
+          "score": 33,
+          "rank": 72
+        },
+        {
+          "companyId": "company-cosmic-robotics",
+          "companyName": "Cosmic Robotics",
+          "score": 32,
+          "rank": 74
         },
         {
           "companyId": "company-risklytics",
           "companyName": "Risklytics",
-          "score": 31,
-          "rank": 55
+          "score": 32,
+          "rank": 74
         },
         {
-          "companyId": "company-amulet",
-          "companyName": "Amulet",
-          "score": 30,
-          "rank": 56
+          "companyId": "company-aktoria-robotics",
+          "companyName": "Aktoria Robotics",
+          "score": 31,
+          "rank": 76
         },
         {
           "companyId": "company-rindler",
           "companyName": "Rindler",
           "score": 30,
-          "rank": 56
+          "rank": 77
         },
         {
           "companyId": "company-robocurve",
           "companyName": "Robocurve",
-          "score": 29,
-          "rank": 58
-        },
-        {
-          "companyId": "company-mireye",
-          "companyName": "Mireye",
           "score": 28,
-          "rank": 59
+          "rank": 78
         },
         {
           "companyId": "company-cerenovus",
           "companyName": "Cerenovus",
           "score": 27,
-          "rank": 60
+          "rank": 79
+        },
+        {
+          "companyId": "company-daqstra",
+          "companyName": "Daqstra",
+          "score": 27,
+          "rank": 79
         },
         {
           "companyId": "company-realpact",
           "companyName": "RealPact",
-          "score": 25,
-          "rank": 61
+          "score": 26,
+          "rank": 81
+        },
+        {
+          "companyId": "company-skymerse",
+          "companyName": "Skymerse",
+          "score": 24,
+          "rank": 82
         },
         {
           "companyId": "company-opentrade",
           "companyName": "OpenTrade",
-          "score": 21,
-          "rank": 62
-        },
-        {
-          "companyId": "company-speko",
-          "companyName": "Speko",
-          "score": 21,
-          "rank": 62
-        },
-        {
-          "companyId": "company-bylaw",
-          "companyName": "Bylaw",
-          "score": 18,
-          "rank": 64
+          "score": 22,
+          "rank": 83
         },
         {
           "companyId": "company-care-gp",
           "companyName": "Care GP",
-          "score": 17,
-          "rank": 65
+          "score": 19,
+          "rank": 84
         },
         {
           "companyId": "company-withasync",
           "companyName": "Async",
+          "score": 16,
+          "rank": 85
+        },
+        {
+          "companyId": "company-palette-2",
+          "companyName": "Palette",
+          "score": 16,
+          "rank": 85
+        },
+        {
+          "companyId": "company-baud",
+          "companyName": "Baud",
           "score": 14,
-          "rank": 66
+          "rank": 87
         },
         {
           "companyId": "company-control-seat",
           "companyName": "Control Seat",
-          "score": 12,
-          "rank": 67
+          "score": 13,
+          "rank": 88
+        },
+        {
+          "companyId": "company-billow-ai-labs",
+          "companyName": "Billow AI Labs",
+          "score": 10,
+          "rank": 89
         },
         {
           "companyId": "company-glen",
           "companyName": "Glen",
           "score": 9,
-          "rank": 68
+          "rank": 90
+        },
+        {
+          "companyId": "company-axelrod",
+          "companyName": "Axelrod",
+          "score": 7,
+          "rank": 91
+        },
+        {
+          "companyId": "company-alkera-ai",
+          "companyName": "Alkera AI",
+          "score": 0,
+          "rank": 92
+        },
+        {
+          "companyId": "company-bizmark",
+          "companyName": "Bizmark",
+          "score": 0,
+          "rank": 92
+        },
+        {
+          "companyId": "company-donkey",
+          "companyName": "Donkey",
+          "score": 0,
+          "rank": 92
+        },
+        {
+          "companyId": "company-earendil-robotics",
+          "companyName": "Earendil Robotics",
+          "score": 0,
+          "rank": 92
         },
         {
           "companyId": "company-ekpa",
           "companyName": "Ekpa",
           "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-floracene",
           "companyName": "Floracene",
           "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-florin",
           "companyName": "Florin",
           "score": 0,
-          "rank": 69
+          "rank": 92
+        },
+        {
+          "companyId": "company-manufacturingintelligence",
+          "companyName": "HERA",
+          "score": 0,
+          "rank": 92
         },
         {
           "companyId": "company-insurf",
           "companyName": "Insurf",
           "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-isengard-industries-inc",
           "companyName": "Isengard Industries Inc",
           "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-justinian",
           "companyName": "Justinian",
           "score": 0,
-          "rank": 69
+          "rank": 92
+        },
+        {
+          "companyId": "company-kebra",
+          "companyName": "Kebra",
+          "score": 0,
+          "rank": 92
         },
         {
           "companyId": "company-lemonlime",
           "companyName": "LemonLime",
           "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-levocred-ai",
           "companyName": "Levocred AI",
           "score": 0,
-          "rank": 69
+          "rank": 92
+        },
+        {
+          "companyId": "company-libra-robotics",
+          "companyName": "Libra Robotics",
+          "score": 0,
+          "rank": 92
         },
         {
           "companyId": "company-os3",
           "companyName": "OS3",
           "score": 0,
-          "rank": 69
-        },
-        {
-          "companyId": "company-perceptron-ml",
-          "companyName": "Perceptron ML",
-          "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-praxis-ai-2",
           "companyName": "Praxis AI",
           "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-prescience-inc",
           "companyName": "Prescience, Inc.",
           "score": 0,
-          "rank": 69
+          "rank": 92
+        },
+        {
+          "companyId": "company-rapidfolio",
+          "companyName": "Rapidfolio",
+          "score": 0,
+          "rank": 92
+        },
+        {
+          "companyId": "company-textsidekick",
+          "companyName": "Sidekick",
+          "score": 0,
+          "rank": 92
+        },
+        {
+          "companyId": "company-subvysion",
+          "companyName": "SubVysion",
+          "score": 0,
+          "rank": 92
         },
         {
           "companyId": "company-torus",
           "companyName": "Torus",
           "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-truffle",
           "companyName": "Truffle",
           "score": 0,
-          "rank": 69
+          "rank": 92
         },
         {
           "companyId": "company-vestris",
           "companyName": "Vestris",
           "score": 0,
-          "rank": 69
+          "rank": 92
         }
       ]
     }

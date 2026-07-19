@@ -1,0 +1,517 @@
+{
+  "auditMetadata": {
+    "auditId": "s26-linkedin-youtube-recent-2026-07-19",
+    "generatedAt": "2026-07-19T05:52:06Z",
+    "batch": "Summer 2026",
+    "cutoffInclusive": "2026-07-05T00:00:00Z",
+    "rosterSource": "src/lib/yc/summer-2026-companies.json",
+    "localRosterCompanies": 83,
+    "platforms": [
+      "linkedin",
+      "youtube"
+    ],
+    "acceptanceRule": "Native LinkedIn post or YouTube video with positive visible post-level metrics, native body text, and native author or channel metadata attributable to an exact company or founder in the local Summer 2026 roster.",
+    "counts": {
+      "candidateRowsReviewed": 20,
+      "accepted": 20,
+      "rejected": 0,
+      "acceptedLinkedIn": 17,
+      "acceptedYouTube": 3,
+      "rejectedLinkedIn": 0,
+      "rejectedYouTube": 0,
+      "offRosterSearchExclusions": 7
+    },
+    "verificationSurfaces": {
+      "linkedin": "Public native post JSON-LD: SocialMediaPosting author/articleBody or VideoObject creator/description.",
+      "youtube": "Public native watch-page ytInitialPlayerResponse and visible likeCount data."
+    },
+    "metricPolicy": {
+      "zeroValuesOmitted": true,
+      "youtubeCommentsOmittedWithoutNativeCount": true
+    },
+    "offRosterExclusions": [
+      {
+        "companyName": "Donkey",
+        "rowCount": 1
+      },
+      {
+        "companyName": "hardware intelligence",
+        "rowCount": 1
+      },
+      {
+        "companyName": "HERA",
+        "rowCount": 3
+      },
+      {
+        "companyName": "Almanac",
+        "rowCount": 1
+      },
+      {
+        "companyName": "OneCLI",
+        "rowCount": 1
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "id": "linkedin-s26-company-83-sciences-7482544303827730432",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-83-sciences",
+      "companyName": "83 Sciences",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/83sciences%2Eai_were-hiring-a-founding-ai-engineer-activity-7482544303827730432-rnK0",
+      "platformPostId": "7482544303827730432",
+      "authorName": "83 Sciences",
+      "authorHandle": "83sciences.ai",
+      "accountUrl": "https://www.linkedin.com/company/83sciences.ai",
+      "accountType": "organization",
+      "postedAt": "2026-07-13T21:19:40.965Z",
+      "metrics": {
+        "reactions": 4
+      },
+      "review_state": "verified",
+      "title": "83 Sciences is hiring a Founding AI Engineer",
+      "rawVisibleText": "🙋‍♀️ We're hiring a Founding AI Engineer at 83 Sciences! If you can envision yourself in this role, please fill out this form: https://lnkd.in/gCTq6-Yw \n\nThe role:\nThe Founding AI Engineer will help design insight and discovery extraction models and ship tools for scientists. You’ll own the architecture and build the ML stack alongside our Chief Science Officer and work directly with the founders.\n\nWhat you'll do:\n- Ship enterprise-ready products across our platform: data capture, structured experimental records, querying, and analysis tools\n- Build our AI systems: multimodal pipelines (vision models for handwritten notebook pages and drawn structures, speech-to-text at the bench), agents that reason over a lab's full experimental history, and models that predict outcomes and propose optimized process conditions\n- Work directly with research partners; watch scientists use what you built, then improve it\n- Help shape model architecture, data pipelines, and technical direction as an early team member\n- Build the data engine that turns messy experimental data (synthesis notes, PXRD, characterization) into training-grade datasets\n\nWhat we're looking for:\n- 1+ years of experience managing technical projects at startups and team members or big companies / research labs (e.g., FAIR Chemistry, Google DeepMind, Microsoft Research, OpenAI, Anthropic Lila Sciences, MIT/Stanford/Berkeley/CMU/UToronto AI-for-science groups, or similar)\n- Deep in at least two of: geometric deep learning (E(3)/SE(3)-equivariant GNNs), generative models (diffusion, flow matching), ML interatomic potentials\n- A track record of shipping enterprise-ready products to real users, end to end, with FDE / customer facing technical experience a plus\n- Comfort across the stack: you can get a feature all the way out the door & bias toward speed and ownership in a small, fast-moving team\n\nLogistics: NYC in-person (negotiable for the right person). US work authorization required.\n\nNice to have: model architecture/fine-tuning experience; background in chemistry, materials science, or scientific tooling; familiarity with scientific data (spectra, diffraction patterns, instrument output), A first-author or major-contributor paper in ML-for-science, geometric ML, molecular/crystal generation, scientific agents, interatomic potentials, synthesis planning, or active learning.",
+      "matchReason": "Native LinkedIn JSON-LD identifies the official 83 Sciences account, full authored body, publication timestamp, and post metrics; company-83-sciences is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-company-alloovium-7482525019336564738",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-alloovium",
+      "companyName": "Alloovium",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/alloovium_today-we-launched-alloovium-yc-s26-on-activity-7482525019336564738---k1",
+      "platformPostId": "7482525019336564738",
+      "authorName": "Alloovium (YC S26)",
+      "authorHandle": "alloovium",
+      "accountUrl": "https://www.linkedin.com/company/alloovium",
+      "accountType": "organization",
+      "postedAt": "2026-07-13T20:03:03.170Z",
+      "metrics": {
+        "reactions": 122,
+        "comments": 13
+      },
+      "review_state": "verified",
+      "title": "Alloovium launches its project-documentation platform",
+      "rawVisibleText": "Today, we launched Alloovium (YC S26) on Y Combinator.\n\nOn major projects, documents aren't a neat pile, they're a web. One change on site means five documents to amend, and nobody catches the missed one until an auditor, regulator, or client's lawyer does.\n\nAlloovium (YC S26) is the unifying layer. It reads everything a project produces from the tools teams already use, and turns it into cited answers and the documentation that moves the job forward. Every answer cites its exact source sentence. A human signs off on anything AI-drafted.\n\nWe're already live on projects in Australia and with YC's backing, we're expanding into the US through our Innovation Partner Program.\n\nOur ask: construction is structurally viral, so one head contractor exposes us to ~50 other contractors a year. If you know head contractors, GCs, or ENR Top 400 firms in the US/North America, a warm intro goes a long way.\n\nzander@alloovium.com\nhttps://lnkd.in/gv2k_BKx \n\n📹 The Next Something - Polo, Michael, Roman",
+      "matchReason": "Native LinkedIn VideoObject JSON-LD identifies the official Alloovium creator account, full description, publication timestamp, and post metrics; company-alloovium is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-founder-amulet-nithik-bala-3489066-7480072151677730816",
+      "batch": "Summer 2026",
+      "entityType": "founder",
+      "entityId": "founder-amulet-nithik-bala-3489066",
+      "companyName": "Amulet",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/nithikb_excited-to-announce-that-ill-be-joining-activity-7480072151677730816-Dfjo",
+      "platformPostId": "7480072151677730816",
+      "authorName": "Nithik B.",
+      "authorHandle": "nithikb",
+      "accountUrl": "https://www.linkedin.com/in/nithikb",
+      "accountType": "person",
+      "postedAt": "2026-07-07T01:36:13.964Z",
+      "metrics": {
+        "reactions": 369,
+        "comments": 100
+      },
+      "review_state": "verified",
+      "title": "Nithik Bala announces Amulet and joins YC S26",
+      "rawVisibleText": "Excited to announce that I'll be joining Y Combinator this summer to build Amulet!\n\nVarun and I are building agents for post-sales teams, empowering businesses to deliver the best possible customer experience.\n\nIf you are an account manager, or work in customer success, I'd love to chat! And if you know someone who fits that criteria, I'd love a warm intro! \n\nAnd of course, I have to give a huge thanks to my mentors at Meta, friends and family, and everyone who's supported me in my career thus far.\n\nWe'll be posting a lot going forward, so stay tuned :)",
+      "matchReason": "Native LinkedIn JSON-LD identifies Nithik B.'s account, full authored body naming Amulet, publication timestamp, and post metrics; the roster maps that account to founder-amulet-nithik-bala-3489066."
+    },
+    {
+      "id": "linkedin-s26-founder-archal-aidan-tiruvan-2037605-7480757450569289728",
+      "batch": "Summer 2026",
+      "entityType": "founder",
+      "entityId": "founder-archal-aidan-tiruvan-2037605",
+      "companyName": "Archal",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/aidantiruvan_they-aint-believe-in-us-god-did-activity-7480757450569289728-OM1V",
+      "platformPostId": "7480757450569289728",
+      "authorName": "Aidan Tiruvan",
+      "authorHandle": "aidantiruvan",
+      "accountUrl": "https://www.linkedin.com/in/aidantiruvan",
+      "accountType": "person",
+      "postedAt": "2026-07-08T22:59:21.945Z",
+      "metrics": {
+        "reactions": 232,
+        "comments": 51
+      },
+      "review_state": "verified",
+      "title": "Aidan Tiruvan announces Archal is backed by YC",
+      "rawVisibleText": "They ain't believe in us... GOD DID 🗣️🗣️ ‼️ \n\nExcited to announce that Archal is backed by Y Combinator!\n\nNoah and I used to laugh at headlines of AI agents breaking production databases. Now we're working on making sure that never happens. Agents in the modern day can interact with production databases, payment systems, and high-risk workflows.\n\nWe're building Archal based off of the obvious assumption that these agents should be tested\n\nIf you're building an agent that takes real actions against external services, DM me! We can get you set up in under 5 minutes.\n\nTELL EM BRING OUT THE LOBSTER 🦞",
+      "matchReason": "Native LinkedIn JSON-LD identifies Aidan Tiruvan's account, full authored body naming Archal, publication timestamp, and post metrics; the roster maps that account to founder-archal-aidan-tiruvan-2037605."
+    },
+    {
+      "id": "linkedin-s26-company-coasty-7483606786168496128",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companyName": "Coasty",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/coastyai_were-officially-on-osworld-our-latest-activity-7483606786168496128-5CEs",
+      "platformPostId": "7483606786168496128",
+      "authorName": "Coasty (YC S26)",
+      "authorHandle": "coastyai",
+      "accountUrl": "https://www.linkedin.com/company/coastyai",
+      "accountType": "organization",
+      "postedAt": "2026-07-16T19:41:36.494Z",
+      "metrics": {
+        "reactions": 3
+      },
+      "review_state": "verified",
+      "title": "Coasty reports an 85.6 percent OSWorld result",
+      "rawVisibleText": "We're officially on OSWorld!! Our latest agent actually hits 85.6% but if you the repo for those results, DM us.",
+      "matchReason": "Native LinkedIn JSON-LD identifies the official Coasty account, authored body, publication timestamp, and post metrics; company-coasty is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-company-coasty-7482525054623248384",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companyName": "Coasty",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/coastyai_automate-healthcare-workflows-with-coasty-activity-7482525054623248384-mRCF",
+      "platformPostId": "7482525054623248384",
+      "authorName": "Coasty (YC S26)",
+      "authorHandle": "coastyai",
+      "accountUrl": "https://www.linkedin.com/company/coastyai",
+      "accountType": "organization",
+      "postedAt": "2026-07-13T20:03:11.587Z",
+      "metrics": {
+        "reactions": 2
+      },
+      "review_state": "verified",
+      "title": "Coasty demonstrates healthcare workflow automation",
+      "rawVisibleText": "Automate healthcare workflows with Coasty, so you can save more lives and spend more money on patients.",
+      "matchReason": "Native LinkedIn VideoObject JSON-LD identifies the official Coasty creator account, description, publication timestamp, and post metrics; company-coasty is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-company-coasty-7482219660348858368",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companyName": "Coasty",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/coastyai_stuck-manually-processing-claims-activity-7482219660348858368-z_eN",
+      "platformPostId": "7482219660348858368",
+      "authorName": "Coasty (YC S26)",
+      "authorHandle": "coastyai",
+      "accountUrl": "https://www.linkedin.com/company/coastyai",
+      "accountType": "organization",
+      "postedAt": "2026-07-12T23:49:39.922Z",
+      "metrics": {
+        "reactions": 13,
+        "comments": 2
+      },
+      "review_state": "verified",
+      "title": "Coasty demonstrates claims-processing automation",
+      "rawVisibleText": "Stuck Manually Processing Claims?",
+      "matchReason": "Native LinkedIn VideoObject JSON-LD identifies the official Coasty creator account, description, publication timestamp, and post metrics; company-coasty is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-company-coasty-7481402549502115840",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companyName": "Coasty",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/coastyai_coasty-helps-developers-kill-rpa-activity-7481402549502115840-l7vy",
+      "platformPostId": "7481402549502115840",
+      "authorName": "Coasty (YC S26)",
+      "authorHandle": "coastyai",
+      "accountUrl": "https://www.linkedin.com/company/coastyai",
+      "accountType": "organization",
+      "postedAt": "2026-07-10T17:42:45.518Z",
+      "metrics": {
+        "reactions": 3,
+        "comments": 3
+      },
+      "review_state": "verified",
+      "title": "Coasty positions computer-use agents as an RPA replacement",
+      "rawVisibleText": "Coasty Helps Developers Kill RPA.",
+      "matchReason": "Native LinkedIn VideoObject JSON-LD identifies the official Coasty creator account, description, publication timestamp, and post metrics; company-coasty is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-company-coasty-7481191839551680512",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companyName": "Coasty",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/coastyai_coasty-ycs26-startup-activity-7481191839551680512-gY7w",
+      "platformPostId": "7481191839551680512",
+      "authorName": "Coasty (YC S26)",
+      "authorHandle": "coastyai",
+      "accountUrl": "https://www.linkedin.com/company/coastyai",
+      "accountType": "organization",
+      "postedAt": "2026-07-10T03:45:28.352Z",
+      "metrics": {
+        "reactions": 4
+      },
+      "review_state": "verified",
+      "title": "Coasty introduces its YC S26 company",
+      "rawVisibleText": "Excited to share what we've been building at Coasty! \n\nCoachy is transforming the way teams collaborate and communicate. We're passionate about building tools that make work more meaningful and efficient.\n\nStay tuned for more updates as we continue to grow and innovate!\n\n#Coasty #YCS26 #Startup #Innovation",
+      "matchReason": "Native LinkedIn JSON-LD identifies the official Coasty account, full authored body, publication timestamp, and post metrics; company-coasty is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-company-coasty-7481125309808017408",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companyName": "Coasty",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/coastyai_coasty-solves-wordle-audit-trail-https-activity-7481125309808017408-B2uc",
+      "platformPostId": "7481125309808017408",
+      "authorName": "Coasty (YC S26)",
+      "authorHandle": "coastyai",
+      "accountUrl": "https://www.linkedin.com/company/coastyai",
+      "accountType": "organization",
+      "postedAt": "2026-07-09T23:21:06.420Z",
+      "metrics": {
+        "reactions": 8
+      },
+      "review_state": "verified",
+      "title": "Coasty solves Wordle with an auditable computer-use agent",
+      "rawVisibleText": "Coasty solves Wordle!\n\nAudit Trail: https://lnkd.in/gEWT2cH2",
+      "matchReason": "Native LinkedIn VideoObject JSON-LD identifies the official Coasty creator account, description, publication timestamp, and post metrics; company-coasty is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-company-coasty-7480998697632165888",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companyName": "Coasty",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/coastyai_coasty-computer-using-agents-on-secure-cloud-activity-7480998697632165888-QKxx",
+      "platformPostId": "7480998697632165888",
+      "authorName": "Coasty (YC S26)",
+      "authorHandle": "coastyai",
+      "accountUrl": "https://www.linkedin.com/company/coastyai",
+      "accountType": "organization",
+      "postedAt": "2026-07-09T14:57:59.734Z",
+      "metrics": {
+        "reactions": 8,
+        "comments": 1
+      },
+      "review_state": "verified",
+      "title": "Coasty launches its computer-use agent on Product Hunt",
+      "rawVisibleText": "Live on ProductHunt! Coasty: A Computer-Use-Agent that runs legacy software like a human https://lnkd.in/gMZQqJ9V via @producthunt",
+      "matchReason": "Native LinkedIn JSON-LD identifies the official Coasty account, authored body, publication timestamp, and post metrics; company-coasty is in the current Summer 2026 roster."
+    },
+    {
+      "id": "linkedin-s26-founder-contextdev-yahia-bakour-2538368-7483314885703933952",
+      "batch": "Summer 2026",
+      "entityType": "founder",
+      "entityId": "founder-contextdev-yahia-bakour-2538368",
+      "companyName": "Context.dev",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yahia-bakour_new-case-study-unlocked-this-one-has-activity-7483314885703933952-nv25",
+      "platformPostId": "7483314885703933952",
+      "authorName": "Yahia Bakour",
+      "authorHandle": "yahia-bakour",
+      "accountUrl": "https://www.linkedin.com/in/yahia-bakour",
+      "accountType": "person",
+      "postedAt": "2026-07-16T00:21:41.997Z",
+      "metrics": {
+        "reactions": 18,
+        "comments": 3
+      },
+      "review_state": "verified",
+      "title": "Gooseworks uses Context.dev to build automated brand kits",
+      "rawVisibleText": "New case study unlocked 🪿\n\nThis one has a cool logo too.\n\nGooseworks (YC W23) uses Context.dev (YC S26) to automatically build a complete brand kit for every company that signs up.\n\nAs soon as a new customer joins, Gooseworks (YC W23) runs multiple of our APIs in parallel:\n\n• Brand API for logos and identity data\n• Styleguide API for colors, typography, and visual rules\n• Markdown API for positioning, products, and brand voice\n\nThe result is a shared source of truth that every GooseWorks agent can use before creating an ad, writing content, or launching a campaign.\n\n> No asking customers to upload logos.\n> No manual color picking.\n> No long questionnaire.\n\nTheir agents understand each company from the very first task.",
+      "matchReason": "Native LinkedIn JSON-LD identifies Yahia Bakour's account, full authored body naming Context.dev, publication timestamp, and post metrics; the roster maps that account to founder-contextdev-yahia-bakour-2538368."
+    },
+    {
+      "id": "linkedin-s26-founder-contextdev-yahia-bakour-2538368-7483314592819912704",
+      "batch": "Summer 2026",
+      "entityType": "founder",
+      "entityId": "founder-contextdev-yahia-bakour-2538368",
+      "companyName": "Context.dev",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yahia-bakour_pretty-insane-that-we-can-ship-something-activity-7483314592819912704-jNqg",
+      "platformPostId": "7483314592819912704",
+      "authorName": "Yahia Bakour",
+      "authorHandle": "yahia-bakour",
+      "accountUrl": "https://www.linkedin.com/in/yahia-bakour",
+      "accountType": "person",
+      "postedAt": "2026-07-16T00:20:32.170Z",
+      "metrics": {
+        "reactions": 40,
+        "comments": 2
+      },
+      "review_state": "verified",
+      "title": "Context.dev records more than 2,000 monitor runs in 24 hours",
+      "rawVisibleText": "Pretty insane that we can ship something new and have customers adopt it as part of their infrastructure before we even announce it.\n\nThe Monitors rollout is going well.\n\nMore than 2,000 monitor runs in the past 24 hours.\n\nCustomers are already using it to build an entirely new class of product features around automatically pushing changes from across the web to their agents.\n\nVery early, but this is exactly the kind of usage we hoped to see just a few days in.",
+      "matchReason": "Native LinkedIn JSON-LD identifies Yahia Bakour's account, full authored body, publication timestamp, and post metrics; the roster maps that account to founder-contextdev-yahia-bakour-2538368."
+    },
+    {
+      "id": "linkedin-s26-founder-contextdev-yahia-bakour-2538368-7482178962270543873",
+      "batch": "Summer 2026",
+      "entityType": "founder",
+      "entityId": "founder-contextdev-yahia-bakour-2538368",
+      "companyName": "Context.dev",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yahia-bakour_the-amount-of-engineering-time-spent-parsing-activity-7482178962270543873-cpsx",
+      "platformPostId": "7482178962270543873",
+      "authorName": "Yahia Bakour",
+      "authorHandle": "yahia-bakour",
+      "accountUrl": "https://www.linkedin.com/in/yahia-bakour",
+      "accountType": "person",
+      "postedAt": "2026-07-12T21:07:56.743Z",
+      "metrics": {
+        "reactions": 43,
+        "comments": 4
+      },
+      "review_state": "verified",
+      "title": "Context.dev launches file parsing to Markdown",
+      "rawVisibleText": "The amount of engineering time spent parsing files is honestly kind of ridiculous.\n\nEvery product eventually needs to deal with PDFs, Word documents, PowerPoints, spreadsheets, HTML, images, source code, CSVs... and every format comes with its own parser, quirks, and edge cases.\n\nSo we built Parse.\n\nYou send us the raw file bytes, and we return clean, token-optimized Markdown that's ready for LLMs or your application.\n\nIt supports:\n• PDFs\n• Microsoft Office documents (Word, Excel, PowerPoint)\n• Images (with OCR)\n• HTML & XML\n• CSV, JSON, YAML\n• Source code\n• Markdown, plain text, and dozens of other formats\n\nOCR is built in for scanned documents and images, hyperlinks are preserved, PDF page ranges are supported, and the output is designed to be as compact and model-friendly as possible.\n\nNo more maintaining a collection of file parsers just to get text into your application.\n\nJust send bytes, get Markdown.\n\nIf this is interesting to you, let's chat.",
+      "matchReason": "Native LinkedIn JSON-LD identifies Yahia Bakour's account, full authored body, publication timestamp, and post metrics; the roster maps that account to founder-contextdev-yahia-bakour-2538368."
+    },
+    {
+      "id": "linkedin-s26-founder-contextdev-yahia-bakour-2538368-7481201350693982208",
+      "batch": "Summer 2026",
+      "entityType": "founder",
+      "entityId": "founder-contextdev-yahia-bakour-2538368",
+      "companyName": "Context.dev",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yahia-bakour_today-were-introducing-monitors-activity-7481201350693982208-feMx",
+      "platformPostId": "7481201350693982208",
+      "authorName": "Yahia Bakour",
+      "authorHandle": "yahia-bakour",
+      "accountUrl": "https://www.linkedin.com/in/yahia-bakour",
+      "accountType": "person",
+      "postedAt": "2026-07-10T04:23:15.978Z",
+      "metrics": {
+        "reactions": 47,
+        "comments": 10
+      },
+      "review_state": "verified",
+      "title": "Context.dev introduces API-first website monitors",
+      "rawVisibleText": "Today we're introducing Monitors 🕵️‍♂️\n\nMost website monitoring products are built for humans to click around in a dashboard.\n\nWe built Monitors for developers building agentic products.\n\nIf your application needs to create and manage monitors on behalf of thousands of customers, you can now do it entirely through an API.\n\nA few things it's designed for:\n\n• Create and manage 10,000+ monitors programmatically\n• Multi-tenant SaaS applications\n• Webhook-based notifications when websites change\n• Infrastructure you can embed directly into your own product\n\nThe goal with Context.dev (YC S26) has always been to provide web infrastructure, not just another dashboard.\n\nSomeone integrated it the moment we shipped it, 6 hours before this announcement, to wake up agents in their products when something interesting happens on the part of the web they care about.\n\nIf you're building products that depend on websites staying up-to-date, we'd love to hear what you're building.",
+      "matchReason": "Native LinkedIn JSON-LD identifies Yahia Bakour's account, full authored body naming Context.dev, publication timestamp, and post metrics; the roster maps that account to founder-contextdev-yahia-bakour-2538368."
+    },
+    {
+      "id": "linkedin-s26-company-talentpluto-7481453793478402048",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-talentpluto",
+      "companyName": "Pluto",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/talentpluto-inc_activity-7481453793478402048-E39H",
+      "platformPostId": "7481453793478402048",
+      "authorName": "talentpluto",
+      "authorHandle": "talentpluto-inc",
+      "accountUrl": "https://www.linkedin.com/company/talentpluto-inc",
+      "accountType": "organization",
+      "postedAt": "2026-07-10T21:06:23.041Z",
+      "metrics": {
+        "reactions": 72,
+        "comments": 8
+      },
+      "review_state": "verified",
+      "title": "Pluto YC episode 4 focuses on building the team",
+      "rawVisibleText": "the only way to win is to have a small group of people who are willing to sacrifice everything\n\nthe best part of startups is building a team. extremely grateful for ours\n\nto the gents who sacrifice everything\n\nep. 4 talentpluto @ YC",
+      "matchReason": "Native LinkedIn VideoObject JSON-LD attributes this row to the talentpluto company account, not Sahil Seth; company-talentpluto is the current roster entity and its display label is Pluto."
+    },
+    {
+      "id": "linkedin-s26-company-talentpluto-7480745309896220673",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-talentpluto",
+      "companyName": "Pluto",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/talentpluto-inc_activity-7480745309896220673-i03H",
+      "platformPostId": "7480745309896220673",
+      "authorName": "talentpluto",
+      "authorHandle": "talentpluto-inc",
+      "accountUrl": "https://www.linkedin.com/company/talentpluto-inc",
+      "accountType": "organization",
+      "postedAt": "2026-07-08T22:11:07.399Z",
+      "metrics": {
+        "reactions": 79,
+        "comments": 10
+      },
+      "review_state": "verified",
+      "title": "Pluto YC episode 3 thanks its early believers",
+      "rawVisibleText": "when we started building talentpluto, I didn't know if anyone would care\n\nyou build in the dark for a long time and just trust that the thing you're making matters\n\nnext week we launch. but without our first believers, who knows\n\nso we decided to do something special for the ones that took a bet (see the BTS of the work that went into it)\n\nep. 3 - talentpluto @ yc",
+      "matchReason": "Native LinkedIn VideoObject JSON-LD attributes this row to the talentpluto company account, not Sahil Seth; company-talentpluto is the current roster entity and its display label is Pluto."
+    },
+    {
+      "id": "youtube-s26-company-screenpipe-b8wNUQatLRA",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-screenpipe",
+      "companyName": "screenpipe",
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=b8wNUQatLRA",
+      "platformPostId": "b8wNUQatLRA",
+      "authorName": "screenpipe",
+      "authorHandle": "screen_pipe",
+      "channelId": "UCwjkpAsb70_mENKvy7hT5bw",
+      "channelUrl": "https://www.youtube.com/channel/UCwjkpAsb70_mENKvy7hT5bw",
+      "accountUrl": "https://www.youtube.com/@screen_pipe",
+      "accountType": "channel",
+      "postedAt": "2026-07-16T17:27:25.000Z",
+      "metrics": {
+        "views": 57
+      },
+      "review_state": "verified",
+      "title": "introducing screenpipe (YC S26): Record how you work and turn that into agents",
+      "rawVisibleText": "open source. mac, windows, linux.\n\ntry it → https://screenpipe.com/?utm_source=youtube&utm_medium=video&utm_campaign=product_demos&utm_content=dev_mcp\n\n#ai #mcp #github #opensource #memory",
+      "matchReason": "Native YouTube watch-page data identifies the screenpipe channel, channel ID, video title and description, publication timestamp, and positive view count; company-screenpipe is in the current Summer 2026 roster."
+    },
+    {
+      "id": "youtube-s26-company-talentpluto-gMuOogxpSo4",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-talentpluto",
+      "companyName": "Pluto",
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=gMuOogxpSo4",
+      "platformPostId": "gMuOogxpSo4",
+      "authorName": "Pluto @ Talentpluto",
+      "authorHandle": "Talentpluto",
+      "channelId": "UCoWVfzKaSLDRk8i8kQ8J_Zg",
+      "channelUrl": "https://www.youtube.com/channel/UCoWVfzKaSLDRk8i8kQ8J_Zg",
+      "accountUrl": "https://www.youtube.com/@Talentpluto",
+      "accountType": "channel",
+      "postedAt": "2026-07-16T16:30:06.000Z",
+      "metrics": {
+        "views": 87,
+        "likes": 3
+      },
+      "review_state": "verified",
+      "title": "Your career needs an agent (Pluto YC S26)",
+      "rawVisibleText": "Launching Pluto (YC) - an AI voice agent that helps professionals get discovered.\n\nPluto learns your story in 10 minutes, makes you discoverable to AI agents, and connects you with the right people.\n\n18K+ people. 100+ companies.\n\nYour career needs an agent.",
+      "matchReason": "Native YouTube watch-page data identifies the Pluto @ Talentpluto channel, channel ID, video title and description, publication timestamp, and positive view and like counts; company-talentpluto is the current roster entity and its display label is Pluto."
+    },
+    {
+      "id": "youtube-s26-company-denta-NbZh9ZDBKIk",
+      "batch": "Summer 2026",
+      "entityType": "company",
+      "entityId": "company-denta",
+      "companyName": "Denta",
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=NbZh9ZDBKIk",
+      "platformPostId": "NbZh9ZDBKIk",
+      "authorName": "Denta Inc",
+      "authorHandle": "DentaInc",
+      "channelId": "UC3RxCrS5zRUTCt3ECBa3hlA",
+      "channelUrl": "https://www.youtube.com/channel/UC3RxCrS5zRUTCt3ECBa3hlA",
+      "accountUrl": "https://www.youtube.com/@DentaInc",
+      "accountType": "channel",
+      "postedAt": "2026-07-08T16:13:33.000Z",
+      "metrics": {
+        "views": 239
+      },
+      "review_state": "verified",
+      "title": "The dental practice that runs itself | Denta (YC S26)",
+      "rawVisibleText": "trydenta.com\n\nAutomating the dental economy.",
+      "matchReason": "Native YouTube watch-page data identifies the Denta Inc channel, channel ID, video title and description, publication timestamp, and positive view count; company-denta is in the current Summer 2026 roster."
+    }
+  ],
+  "rejected": []
+}

@@ -1,0 +1,355 @@
+{
+  "source": {
+    "label": "Strict net-new YC Spring 2026 GitHub and Hacker News evidence",
+    "checkedAt": "2026-07-19T05:54:01Z",
+    "criteria": "GitHub rows require a native public repository page, repository-owner metadata, a visible positive metric, and a public first-party company link. Hacker News rows require a native Firebase item, its native Firebase user record, and an exact founder/company record in the public YC Spring 2026 catalog."
+  },
+  "evidence": [
+    {
+      "entityType": "company",
+      "entityId": "company-korso",
+      "companyName": "Korso",
+      "platform": "github",
+      "sourceUrl": "https://github.com/Korso-AI/Shepherd",
+      "platformPostId": "Korso-AI/Shepherd",
+      "authorName": "Korso-AI",
+      "authorHandle": "Korso-AI",
+      "account": {
+        "id": "264192088",
+        "login": "Korso-AI",
+        "url": "https://github.com/Korso-AI"
+      },
+      "repository": {
+        "id": "1291348346",
+        "fullName": "Korso-AI/Shepherd",
+        "url": "https://github.com/Korso-AI/Shepherd",
+        "ownerLogin": "Korso-AI",
+        "ownerUrl": "https://github.com/Korso-AI",
+        "createdAt": "2026-07-06T18:09:39.000Z",
+        "commitFeedUrl": "https://github.com/Korso-AI/Shepherd/commits/main.atom",
+        "latestCommitAt": "2026-07-14T23:19:41Z",
+        "latestCommitSha": "836b0535868025348e39adc93e7762f21369ff54",
+        "latestCommitUrl": "https://github.com/Korso-AI/Shepherd/commit/836b0535868025348e39adc93e7762f21369ff54",
+        "isPublic": true,
+        "isFork": false
+      },
+      "companyProvenance": {
+        "officialWebsite": "https://korsoai.com/",
+        "nativeGithubLink": "https://github.com/Korso-AI/Shepherd"
+      },
+      "postedAt": "2026-07-14",
+      "title": "Korso-AI/Shepherd: Coordination layer for AI coding agents",
+      "rawVisibleText": "Coordination layer for AI coding agents. Contribute to Korso-AI/Shepherd development by creating an account on GitHub.",
+      "metrics": { "stars": 6, "forks": 0, "issues": 0 },
+      "review_state": "verified",
+      "matchReason": "The native GitHub page identifies repository 1291348346 under owner Korso-AI, and Korso's official website links this exact repository."
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-heyclicky",
+      "companyName": "HeyClicky",
+      "platform": "github",
+      "sourceUrl": "https://github.com/farzaa/clicky-releases",
+      "platformPostId": "farzaa/clicky-releases",
+      "authorName": "farzaa",
+      "authorHandle": "farzaa",
+      "account": {
+        "id": "15614124",
+        "login": "farzaa",
+        "url": "https://github.com/farzaa"
+      },
+      "repository": {
+        "id": "1210819531",
+        "fullName": "farzaa/clicky-releases",
+        "url": "https://github.com/farzaa/clicky-releases",
+        "ownerLogin": "farzaa",
+        "ownerUrl": "https://github.com/farzaa",
+        "createdAt": "2026-04-14T19:39:04.000Z",
+        "commitFeedUrl": "https://github.com/farzaa/clicky-releases/commits/main.atom",
+        "latestCommitAt": "2026-07-17T08:41:14Z",
+        "latestCommitSha": "ec90ba3f60f29b2a1554f2342d93cf939cf0d927",
+        "latestCommitUrl": "https://github.com/farzaa/clicky-releases/commit/ec90ba3f60f29b2a1554f2342d93cf939cf0d927",
+        "isPublic": true,
+        "isFork": false
+      },
+      "companyProvenance": {
+        "officialWebsite": "https://heyclicky.com/",
+        "nativeGithubLink": "https://github.com/farzaa/clicky-releases/releases/latest/download/HeyClicky.dmg"
+      },
+      "postedAt": "2026-07-17",
+      "title": "farzaa/clicky-releases: Clicky desktop release channel",
+      "rawVisibleText": "Clicky auto-update releases (appcast + binaries). Contribute to farzaa/clicky-releases development by creating an account on GitHub.",
+      "metrics": { "stars": 14, "forks": 1, "issues": 1 },
+      "review_state": "verified",
+      "matchReason": "The native GitHub page identifies repository 1210819531 under owner farzaa, and HeyClicky's official website downloads the app from this repository's latest release."
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-testerarmy",
+      "companyName": "TesterArmy",
+      "platform": "github",
+      "sourceUrl": "https://github.com/tester-army/scout",
+      "platformPostId": "tester-army/scout",
+      "authorName": "tester-army",
+      "authorHandle": "tester-army",
+      "account": {
+        "id": "252887899",
+        "login": "tester-army",
+        "url": "https://github.com/tester-army"
+      },
+      "repository": {
+        "id": "1300573378",
+        "fullName": "tester-army/scout",
+        "url": "https://github.com/tester-army/scout",
+        "ownerLogin": "tester-army",
+        "ownerUrl": "https://github.com/tester-army",
+        "createdAt": "2026-07-14T14:10:46.000Z",
+        "commitFeedUrl": "https://github.com/tester-army/scout/commits/main.atom",
+        "latestCommitAt": "2026-07-18T08:10:49Z",
+        "latestCommitSha": "2f0afd29682ff4215b9229361463e7738ba78aa4",
+        "latestCommitUrl": "https://github.com/tester-army/scout/commit/2f0afd29682ff4215b9229361463e7738ba78aa4",
+        "isPublic": true,
+        "isFork": false
+      },
+      "companyProvenance": {
+        "officialWebsite": "https://tester.army/",
+        "nativeGithubLink": "https://github.com/tester-army"
+      },
+      "postedAt": "2026-07-18",
+      "title": "tester-army/scout: AI-agent API testing tools",
+      "rawVisibleText": "Tools for testing APIs with AI agents. Contribute to tester-army/scout development by creating an account on GitHub.",
+      "metrics": { "stars": 33, "forks": 0, "issues": 0 },
+      "review_state": "verified",
+      "matchReason": "The native GitHub page identifies repository 1300573378 under owner tester-army, and TesterArmy's official website links that GitHub organization."
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-insforge",
+      "companyName": "InsForge",
+      "platform": "github",
+      "sourceUrl": "https://github.com/InsForge/insta-cli",
+      "platformPostId": "InsForge/insta-cli",
+      "authorName": "InsForge",
+      "authorHandle": "InsForge",
+      "account": {
+        "id": "198419463",
+        "login": "InsForge",
+        "url": "https://github.com/InsForge"
+      },
+      "repository": {
+        "id": "1283545871",
+        "fullName": "InsForge/insta-cli",
+        "url": "https://github.com/InsForge/insta-cli",
+        "ownerLogin": "InsForge",
+        "ownerUrl": "https://github.com/InsForge",
+        "createdAt": "2026-06-29T02:55:47.000Z",
+        "commitFeedUrl": "https://github.com/InsForge/insta-cli/commits/main.atom",
+        "latestCommitAt": "2026-07-17T22:44:30Z",
+        "latestCommitSha": "257311d3ebe342350f67b539202cadab7f0ada75",
+        "latestCommitUrl": "https://github.com/InsForge/insta-cli/commit/257311d3ebe342350f67b539202cadab7f0ada75",
+        "isPublic": true,
+        "isFork": false
+      },
+      "companyProvenance": {
+        "officialWebsite": "https://insforge.dev/",
+        "nativeGithubLink": "https://github.com/InsForge"
+      },
+      "postedAt": "2026-07-17",
+      "title": "InsForge/insta-cli: InsForge CLI",
+      "rawVisibleText": "Contribute to InsForge/insta-cli development by creating an account on GitHub.",
+      "metrics": { "stars": 1, "forks": 0, "issues": 0 },
+      "review_state": "verified",
+      "matchReason": "The native GitHub page identifies repository 1283545871 under owner InsForge, and InsForge's official website links that GitHub organization."
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-smol-machines-binbin-he-1655532",
+      "companyName": "smol machines",
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48911633",
+      "platformPostId": "48911633",
+      "authorName": "BinBin He",
+      "authorHandle": "binsquare",
+      "account": {
+        "handle": "binsquare",
+        "url": "https://news.ycombinator.com/user?id=binsquare",
+        "apiUrl": "https://hacker-news.firebaseio.com/v0/user/binsquare.json",
+        "about": "working on smolmachines.com",
+        "karma": 937
+      },
+      "nativeItem": {
+        "id": 48911633,
+        "apiUrl": "https://hacker-news.firebaseio.com/v0/item/48911633.json",
+        "author": "binsquare",
+        "type": "story",
+        "title": "Smol Machines: Kubernetes-in-a-Microvm",
+        "url": "https://smolmachines.com/engineering/kubernetes-in-a-microvm",
+        "score": 3,
+        "descendants": 2
+      },
+      "catalogProvenance": {
+        "batchSlug": "S2026",
+        "batchLabel": "YC Spring 2026 (P26)",
+        "companyId": "company-smol-machines",
+        "companyName": "smol machines",
+        "companyUrl": "https://www.ycombinator.com/companies/smol-machines",
+        "founderId": "founder-smol-machines-binbin-he-1655532",
+        "founderName": "BinBin He",
+        "founderUrl": "https://www.ycombinator.com/people/binbin-he"
+      },
+      "postedAt": "2026-07-14T19:10:11Z",
+      "title": "Smol Machines: Kubernetes-in-a-Microvm",
+      "rawVisibleText": "Smol Machines: Kubernetes-in-a-Microvm",
+      "metrics": { "upvotes": 3, "comments": 2 },
+      "review_state": "verified",
+      "matchReason": "HN Firebase attributes item 48911633 to binsquare; the native user bio says 'working on smolmachines.com'; the public YC Spring 2026 catalog identifies BinBin He as the founder of smol machines."
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+      "companyName": "Interfaze",
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/item?id=47825407",
+      "platformPostId": "47825407",
+      "authorName": "Yoeven D Khemlani",
+      "authorHandle": "yoeven",
+      "account": {
+        "handle": "yoeven",
+        "url": "https://news.ycombinator.com/user?id=yoeven",
+        "apiUrl": "https://hacker-news.firebaseio.com/v0/user/yoeven.json",
+        "about": "Building interfaze.ai - The AI model built for deterministic developer tasks",
+        "karma": 231
+      },
+      "nativeItem": {
+        "id": 47825407,
+        "apiUrl": "https://hacker-news.firebaseio.com/v0/item/47825407.json",
+        "author": "yoeven",
+        "type": "story",
+        "title": "CNNs + VLM outperforms pure VLMs on OCR",
+        "url": "https://interfaze.ai/blog/cnn-plus-vlm-more-than-vlm",
+        "score": 3,
+        "descendants": 0
+      },
+      "catalogProvenance": {
+        "batchSlug": "S2026",
+        "batchLabel": "YC Spring 2026 (P26)",
+        "companyId": "company-interfaze",
+        "companyName": "Interfaze",
+        "companyUrl": "https://www.ycombinator.com/companies/interfaze",
+        "founderId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "founderName": "Yoeven D Khemlani",
+        "founderUrl": "https://www.ycombinator.com/people/yoeven-d-khemlani"
+      },
+      "postedAt": "2026-04-19T16:19:15Z",
+      "title": "CNNs + VLM outperforms pure VLMs on OCR",
+      "rawVisibleText": "CNNs + VLM outperforms pure VLMs on OCR",
+      "metrics": { "upvotes": 3, "comments": 0 },
+      "review_state": "verified",
+      "matchReason": "HN Firebase attributes item 47825407 to yoeven; the native user bio identifies interfaze.ai; the public YC Spring 2026 catalog identifies Yoeven D Khemlani as an Interfaze founder."
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-interfaze-harsha-vardhan-khurdula-2229538",
+      "companyName": "Interfaze",
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/item?id=47603506",
+      "platformPostId": "47603506",
+      "authorName": "Harsha Vardhan Khurdula",
+      "authorHandle": "khurdula",
+      "account": {
+        "handle": "khurdula",
+        "url": "https://news.ycombinator.com/user?id=khurdula",
+        "apiUrl": "https://hacker-news.firebaseio.com/v0/user/khurdula.json",
+        "about": "Building interfaze.ai",
+        "karma": 27
+      },
+      "nativeItem": {
+        "id": 47603506,
+        "apiUrl": "https://hacker-news.firebaseio.com/v0/item/47603506.json",
+        "author": "khurdula",
+        "type": "story",
+        "title": "Show HN: A new model architecture because transformers are not enough",
+        "url": "https://interfaze.ai",
+        "score": 3,
+        "descendants": 2
+      },
+      "catalogProvenance": {
+        "batchSlug": "S2026",
+        "batchLabel": "YC Spring 2026 (P26)",
+        "companyId": "company-interfaze",
+        "companyName": "Interfaze",
+        "companyUrl": "https://www.ycombinator.com/companies/interfaze",
+        "founderId": "founder-interfaze-harsha-vardhan-khurdula-2229538",
+        "founderName": "Harsha Vardhan Khurdula",
+        "founderUrl": "https://www.ycombinator.com/people/harsha-vardhan-khurdula"
+      },
+      "postedAt": "2026-04-01T17:00:07Z",
+      "title": "Show HN: A new model architecture because transformers are not enough",
+      "rawVisibleText": "Most AI products are built around the same idea.\n\nTake a giant model. Add a prompt and hope it does the whole job. The AI equivalent of spray-n-pray.",
+      "metrics": { "upvotes": 3, "comments": 2 },
+      "review_state": "verified",
+      "matchReason": "HN Firebase attributes item 47603506 to khurdula; the native user bio says 'Building interfaze.ai'; the public YC Spring 2026 catalog identifies Harsha Vardhan Khurdula as an Interfaze founder."
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-superset-avi-peltz-230159",
+      "companyName": "Superset",
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/item?id=46368739",
+      "platformPostId": "46368739",
+      "authorName": "Avi Peltz",
+      "authorHandle": "avipeltz",
+      "account": {
+        "handle": "avipeltz",
+        "url": "https://news.ycombinator.com/user?id=avipeltz",
+        "apiUrl": "https://hacker-news.firebaseio.com/v0/user/avipeltz.json",
+        "about": "cofounder of Superset(X26) and Adam(W25)",
+        "karma": 95
+      },
+      "nativeItem": {
+        "id": 46368739,
+        "apiUrl": "https://hacker-news.firebaseio.com/v0/item/46368739.json",
+        "author": "avipeltz",
+        "type": "story",
+        "title": "Show HN: Superset – Terminal to run 10 parallel coding agents",
+        "url": "https://superset.sh/",
+        "score": 96,
+        "descendants": 90
+      },
+      "catalogProvenance": {
+        "batchSlug": "S2026",
+        "batchLabel": "YC Spring 2026 (P26)",
+        "companyId": "company-superset",
+        "companyName": "Superset",
+        "companyUrl": "https://www.ycombinator.com/companies/superset",
+        "founderId": "founder-superset-avi-peltz-230159",
+        "founderName": "Avi Peltz",
+        "founderUrl": "https://www.ycombinator.com/people/avi-peltz"
+      },
+      "postedAt": "2025-12-23T19:52:30Z",
+      "title": "Show HN: Superset – Terminal to run 10 parallel coding agents",
+      "rawVisibleText": "Hey HN, we’re Avi, Kiet, and Satya. We’re building Superset, an open-source terminal made for managing a bunch of coding agents (Claude Code, Codex, etc) in parallel.",
+      "metrics": { "upvotes": 96, "comments": 90 },
+      "review_state": "verified",
+      "matchReason": "HN Firebase attributes item 46368739 to avipeltz and the native user bio identifies Superset(X26); independently, the public YC catalog identifies Superset and Avi Peltz in Spring 2026 (P26). Both native labels are preserved without rewriting either one."
+    }
+  ],
+  "audit": {
+    "candidatePool": 9,
+    "acceptedCandidates": 8,
+    "rejectedCandidates": 1,
+    "acceptedByPlatform": { "github": 4, "hacker_news": 4 },
+    "rejections": [
+      {
+        "platform": "hacker_news",
+        "platformPostId": "45374184",
+        "sourceUrl": "https://news.ycombinator.com/item?id=45374184",
+        "nativeAuthor": "tonychang430",
+        "nativeUserAbout": "A Naive Philosopher\nCo-founder @ InsForge",
+        "nativeTitle": "Show HN: InsForge AI, Open-Source Alternative to Supabase (YC S20)",
+        "reason": "Rejected: the native HN item explicitly says YC S20, which conflicts with the Spring 2026 catalog context required for this artifact. The row is not relabeled or asserted as Spring 2026 evidence."
+      }
+    ],
+    "notes": "The unsupported GitHub watchers field was removed. Repository owner and repository IDs come from native public GitHub pages; company links come from first-party websites. HN item and user fields come from the official Firebase API, while Spring 2026 company/founder provenance is preserved separately from the public YC catalog."
+  }
+}

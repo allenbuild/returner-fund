@@ -1,0 +1,536 @@
+{
+  "source": {
+    "label": "Strict Instagram-only YC Spring 2026 and Summer 2026 source hunt",
+    "checkedAt": "2026-07-19T06:28:06Z",
+    "cutoffInclusive": "2026-07-05T00:00:00Z",
+    "platform": "instagram",
+    "batches": [
+      "Spring 2026",
+      "Summer 2026"
+    ],
+    "criteria": "Accept only native Instagram post, reel, or TV permalinks on or after the cutoff with an exact case-sensitive shortcode, a native owner linked to an official YC roster company or founder, an exact native publish timestamp, and at least one positive native post metric. Profiles, searches, generic pages, third parties, inferred metrics, canonical duplicates, and rows without visible traction are excluded.",
+    "nativeEvidenceSources": [
+      "Instagram public username feed JSON with X-IG-App-ID 936619743392459",
+      "Instagram public oEmbed JSON",
+      "Official public Y Combinator company pages",
+      "Official company websites linked from the YC rosters",
+      "Public web search results restricted to post-level Instagram URLs"
+    ],
+    "ownershipBoundary": "Only outputs/source-hunt/2026-07-19-yc-instagram-recent.json was written by this pass."
+  },
+  "evidence": [
+    {
+      "entityType": "founder",
+      "entityId": "founder-saudara-ai-jennifer-prasetyo-2970229",
+      "companyName": "Saudara AI",
+      "companySlug": "saudara-ai",
+      "platform": "instagram",
+      "sourceUrl": "https://www.instagram.com/reel/DaqJmcEtzCx/",
+      "platformPostId": "DaqJmcEtzCx",
+      "authorName": "Jennifer Prasetyo",
+      "authorHandle": "jenandtech",
+      "account": {
+        "name": "Jennifer Prasetyo",
+        "handle": "jenandtech",
+        "platformUserId": "76894425567",
+        "url": "https://www.instagram.com/jenandtech/",
+        "isVerified": true
+      },
+      "postedAt": "2026-07-11T16:22:18Z",
+      "title": "Saudara AI on the cash-flow gap in global sourcing",
+      "text": "💸 The biggest problem in global sourcing isn't the factories. It's cash flow.\nBrands need payment terms so they can sell inventory before cash leaves the business. 🏭 Factories need deposits upfront to buy raw materials, pay workers, and carry the production risk.\nBoth sides are right. ✅ And that mismatch is one of the hidden reasons the best sourcing agents are worth so much.\nBecause the great ones don't just find factories. They bridge trust, financing, and payment timing between both sides. 🤝\n🤖 This is where AI gets powerful. Faster buyer underwriting, smarter risk prediction, stronger supplier reliability signals, and financing decisions that actually make sense. Better terms for brands, more confidence for factories.\nThat's the sourcing infrastructure we're building at Saudara. Faster, smarter, and easier for everyone involved. 🚀\n💬 Have you ever hit a cash flow mismatch when sourcing or paying suppliers? Drop a comment and tell me how you handled it.\nStarting a brand or sourcing products globally? Start with Saudara. Link in bio. 🔗\n#GlobalSourcing #SupplyChain #EcommerceBusiness #StartupJourney #AIinBusiness",
+      "rawVisibleText": "💸 The biggest problem in global sourcing isn't the factories. It's cash flow.\nBrands need payment terms so they can sell inventory before cash leaves the business. 🏭 Factories need deposits upfront to buy raw materials, pay workers, and carry the production risk.\nBoth sides are right. ✅ And that mismatch is one of the hidden reasons the best sourcing agents are worth so much.\nBecause the great ones don't just find factories. They bridge trust, financing, and payment timing between both sides. 🤝\n🤖 This is where AI gets powerful. Faster buyer underwriting, smarter risk prediction, stronger supplier reliability signals, and financing decisions that actually make sense. Better terms for brands, more confidence for factories.\nThat's the sourcing infrastructure we're building at Saudara. Faster, smarter, and easier for everyone involved. 🚀\n💬 Have you ever hit a cash flow mismatch when sourcing or paying suppliers? Drop a comment and tell me how you handled it.\nStarting a brand or sourcing products globally? Start with Saudara. Link in bio. 🔗\n#GlobalSourcing #SupplyChain #EcommerceBusiness #StartupJourney #AIinBusiness",
+      "metrics": {
+        "views": 5134,
+        "likes": 155,
+        "comments": 6
+      },
+      "contributionScore": 1,
+      "review_state": "verified",
+      "linkStatus": "verified",
+      "matchReason": "The official YC Saudara AI page lists Jennifer Prasetyo as co-founder and links @jenandtech; Instagram oEmbed and the native feed identify the exact same author/user ID and expose the exact shortcode, timestamp, caption, and positive counters.",
+      "first_seen_at": "2026-07-19T06:26:38Z",
+      "last_checked_at": "2026-07-19T06:26:38Z",
+      "last_updated_at": "2026-07-11T16:22:18Z",
+      "provenance": {
+        "rosterProof": {
+          "localRosterPath": "src/lib/yc/spring-2026-companies.json",
+          "batch": "Spring 2026",
+          "companyYcId": "31481",
+          "companyYcProfileUrl": "https://www.ycombinator.com/companies/saudara-ai",
+          "companyWebsiteUrl": "https://saudara.ai",
+          "founderYcId": "2970229",
+          "founderName": "Jennifer Prasetyo",
+          "founderYcProfileUrl": "https://www.ycombinator.com/people/jennifer-prasetyo",
+          "officialPageStatement": "The YC company page identifies Jennifer Prasetyo as Co-Founder and CTO and links @jenandtech to https://www.instagram.com/jenandtech/.",
+          "exactNameMatch": true,
+          "officialInstagramLinkMatch": true
+        },
+        "nativeOEmbedProof": {
+          "provider": "Instagram oEmbed",
+          "endpoint": "https://www.instagram.com/api/v1/oembed/?url=https%3A%2F%2Fwww.instagram.com%2Freel%2FDaqJmcEtzCx%2F",
+          "requestedUrl": "https://www.instagram.com/reel/DaqJmcEtzCx/",
+          "authorNameRaw": "jenandtech",
+          "authorUrlRaw": "https://www.instagram.com/jenandtech",
+          "authorIdRaw": 76894425567,
+          "mediaIdRaw": "3939003047991521457_76894425567",
+          "providerNameRaw": "Instagram",
+          "typeRaw": "rich"
+        },
+        "nativeFeedProof": {
+          "provider": "Instagram username feed",
+          "endpoint": "https://www.instagram.com/api/v1/feed/user/jenandtech/username/?count=24",
+          "requestHeader": "X-IG-App-ID: 936619743392459",
+          "profileRaw": {
+            "pk": "76894425567",
+            "username": "jenandtech",
+            "full_name": "Jennifer Prasetyo",
+            "is_verified": true
+          },
+          "postRaw": {
+            "id": "3939003047991521457_76894425567",
+            "pk": "3939003047991521457",
+            "code": "DaqJmcEtzCx",
+            "taken_at": 1783786938,
+            "taken_at_iso": "2026-07-11T16:22:18Z",
+            "media_type": 2,
+            "product_type": "clips",
+            "like_count": 155,
+            "comment_count": 6,
+            "play_count": 5134,
+            "view_count": null,
+            "owner_pk": "76894425567",
+            "owner_username": "jenandtech",
+            "owner_full_name": "Jennifer Prasetyo"
+          }
+        },
+        "verification": {
+          "nativeItem": true,
+          "notProfileSearchOrGenericPage": true,
+          "caseSensitiveShortcodePreserved": true,
+          "exactPublishTimestamp": true,
+          "visiblePositiveMetrics": true,
+          "ownerMatchesOfficialRosterLink": true,
+          "canonicalUrlMissingFromDedupCorpus": true,
+          "platformPostIdMissingFromDedupCorpus": true,
+          "checkedAt": "2026-07-19T06:26:38Z"
+        }
+      }
+    }
+  ],
+  "audit": {
+    "counts": {
+      "candidateLeadsReviewed": 21,
+      "accepted": 1,
+      "rejected": 11,
+      "duplicates": 9
+    },
+    "batchCounts": {
+      "S2026": {
+        "batchLabel": "Spring 2026",
+        "rosterCompanies": 197,
+        "candidateLeadsReviewed": 19,
+        "accepted": 1,
+        "rejected": 9,
+        "duplicates": 9
+      },
+      "S26": {
+        "batchLabel": "Summer 2026",
+        "rosterCompanies": 115,
+        "candidateLeadsReviewed": 2,
+        "accepted": 0,
+        "rejected": 2,
+        "duplicates": 0
+      }
+    },
+    "searchActivity": {
+      "officialYcCompanyPagesScanned": 312,
+      "s26DeltaCompanyWebsitesScanned": 36,
+      "publicWebSearchQueries": 20,
+      "knownHandleNativeFeedsQueried": 16,
+      "youArtNativeFeedPagesScannedThroughCutoff": 32,
+      "youArtFeedRecordsInspected": 384,
+      "nativeAccountSearchAttempts": 1,
+      "nativeAccountSearchHttpStatus": 401,
+      "dedupeJsonFilesScanned": 86,
+      "dedupeUniqueInstagramPostIds": 210
+    },
+    "accountInventory": {
+      "S2026": {
+        "verifiedCompanyHandlesQueried": [
+          "anoria.inc",
+          "chert_hq",
+          "_heyclicky",
+          "instaagent.ai",
+          "misolabsai",
+          "napkinmath.club",
+          "pavoot_com",
+          "playabl_ai",
+          "pops.fyi",
+          "saudara.ai",
+          "synphonyco",
+          "usetrellis",
+          "youart_studio"
+        ],
+        "rosterLinkedFounderHandlesQueried": [
+          "farza954",
+          "jenandtech",
+          "is.a.business"
+        ],
+        "notes": "Official YC pages independently linked Napkin Math, Playabl.ai, Jennifer Prasetyo/@jenandtech, and native founder posts for HeyClicky and Zolvo. Existing official-website source chains supplied the rest of the known company handles. YouArt pagination reached before the cutoff and yielded no in-window post whose native owner was @youart_studio."
+      },
+      "S26": {
+        "verifiedCompanyHandlesQueried": [],
+        "rosterLinkedFounderHandlesQueried": [],
+        "notes": "The current S26 roster contains no Instagram URLs. None of 115 official YC company pages or 36 newly present company websites exposed a non-YC Instagram ownership link, and post-level public web searches yielded only third-party coverage."
+      }
+    },
+    "accepted": [
+      {
+        "batch": "S2026",
+        "entityId": "founder-saudara-ai-jennifer-prasetyo-2970229",
+        "sourceUrl": "https://www.instagram.com/reel/DaqJmcEtzCx/",
+        "platformPostId": "DaqJmcEtzCx",
+        "reason": "Net-new canonical native reel with exact roster-linked founder ownership, timestamp, and positive counters."
+      }
+    ],
+    "duplicates": [
+      {
+        "batch": "S2026",
+        "entityId": "company-heyclicky",
+        "sourceUrl": "https://www.instagram.com/reel/Da3Ll6GBU0E/",
+        "platformPostId": "Da3Ll6GBU0E",
+        "postedAt": "2026-07-16T17:30:05Z",
+        "metricsObserved": {
+          "views": 9939,
+          "likes": 344,
+          "comments": 10
+        },
+        "nativeOwner": "_heyclicky",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "founder-heyclicky-farza-majeed-manual-farza-majeed",
+        "sourceUrl": "https://www.instagram.com/reel/DayUBNASjcO/",
+        "platformPostId": "DayUBNASjcO",
+        "postedAt": "2026-07-14T20:09:14Z",
+        "metricsObserved": {
+          "views": 50422,
+          "likes": 2482,
+          "comments": 97
+        },
+        "nativeOwner": "farza954",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "founder-heyclicky-farza-majeed-manual-farza-majeed",
+        "sourceUrl": "https://www.instagram.com/reel/Dai6_tWykGy/",
+        "platformPostId": "Dai6_tWykGy",
+        "postedAt": "2026-07-08T20:42:52Z",
+        "metricsObserved": {
+          "views": 45659,
+          "likes": 2230,
+          "comments": 76
+        },
+        "nativeOwner": "farza954",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-synphony",
+        "sourceUrl": "https://www.instagram.com/reel/Da6Muh6SSN5/",
+        "platformPostId": "Da6Muh6SSN5",
+        "postedAt": "2026-07-17T21:39:09Z",
+        "metricsObserved": {
+          "views": 1946,
+          "likes": 35,
+          "comments": 0
+        },
+        "nativeOwner": "synphonyco",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-synphony",
+        "sourceUrl": "https://www.instagram.com/reel/Da1XsFkqMeo/",
+        "platformPostId": "Da1XsFkqMeo",
+        "postedAt": "2026-07-16T00:39:29Z",
+        "metricsObserved": {
+          "views": 4689,
+          "likes": 101,
+          "comments": 0
+        },
+        "nativeOwner": "synphonyco",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-synphony",
+        "sourceUrl": "https://www.instagram.com/reel/DaooTzxqB33/",
+        "platformPostId": "DaooTzxqB33",
+        "postedAt": "2026-07-11T01:55:30Z",
+        "metricsObserved": {
+          "views": 6119,
+          "likes": 224,
+          "comments": 1
+        },
+        "nativeOwner": "synphonyco",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-synphony",
+        "sourceUrl": "https://www.instagram.com/reel/DalKBfbhVZC/",
+        "platformPostId": "DalKBfbhVZC",
+        "postedAt": "2026-07-09T14:33:49Z",
+        "metricsObserved": {
+          "views": 29985,
+          "likes": 333,
+          "comments": 2
+        },
+        "nativeOwner": "synphonyco",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-synphony",
+        "sourceUrl": "https://www.instagram.com/reel/Daf2F3jqTuh/",
+        "platformPostId": "Daf2F3jqTuh",
+        "postedAt": "2026-07-07T16:01:20Z",
+        "metricsObserved": {
+          "views": 11567,
+          "likes": 143,
+          "comments": 8
+        },
+        "nativeOwner": "synphonyco",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-synphony",
+        "sourceUrl": "https://www.instagram.com/reel/DabgefOvS9P/",
+        "platformPostId": "DabgefOvS9P",
+        "postedAt": "2026-07-05T23:35:16Z",
+        "metricsObserved": {
+          "views": 2442,
+          "likes": 59,
+          "comments": 4
+        },
+        "nativeOwner": "synphonyco",
+        "existingLocation": "outputs/source-hunt/2026-07-19-s2026-recent.json",
+        "dedupeReason": "Exact case-sensitive shortcode already exists in the canonical evidence corpus."
+      }
+    ],
+    "rejected": [
+      {
+        "batch": "S2026",
+        "entityId": "founder-saudara-ai-jennifer-prasetyo-2970229",
+        "sourceUrl": "https://www.instagram.com/reel/DXvlr5dOecC/",
+        "platformPostId": "DXvlr5dOecC",
+        "postedAtNative": "2026-04-30T05:30:34Z",
+        "metricsObserved": {
+          "views": 16915,
+          "likes": 435,
+          "comments": 16
+        },
+        "nativeOwner": "jenandtech",
+        "reasonCodes": [
+          "date_before_cutoff",
+          "local_timestamp_conflict"
+        ],
+        "reason": "The native feed proves an April 30 publish date, before the cutoff. A pre-existing targeted row labels the same shortcode July 15, so that local date was not trusted or reused."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "founder-zolvo-isabela-rodriguez-3096630",
+        "sourceUrl": "https://www.instagram.com/reel/DVzOY3hkQ_H/",
+        "platformPostId": "DVzOY3hkQ_H",
+        "postedAtNative": "2026-03-12T22:00:00Z",
+        "metricsObserved": {
+          "views": 67320,
+          "likes": 2493,
+          "comments": 243
+        },
+        "nativeOwner": "is.a.business",
+        "reasonCodes": [
+          "date_before_cutoff"
+        ],
+        "reason": "The official YC Zolvo page links this native founder reel, and oEmbed/feed ownership is exact, but the native publish date is before the cutoff."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-anoria",
+        "sourceUrl": "https://www.instagram.com/reel/DX9tbrKyGFJ/",
+        "platformPostId": "DX9tbrKyGFJ",
+        "postedAtNative": "2026-05-05T17:00:18Z",
+        "metricsObserved": {
+          "views": 57101,
+          "likes": 841,
+          "comments": 405
+        },
+        "nativeOwner": "anoria.inc",
+        "reasonCodes": [
+          "date_before_cutoff"
+        ],
+        "reason": "Official first-party account and visible metrics, but the only native item is before the cutoff."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-instaagent",
+        "sourceUrl": "https://www.instagram.com/p/DY04qzkGyuF/",
+        "platformPostId": "DY04qzkGyuF",
+        "postedAtNative": "2026-05-27T03:03:50Z",
+        "metricsObserved": {
+          "likes": 9,
+          "comments": 0
+        },
+        "nativeOwner": "instaagent.ai",
+        "reasonCodes": [
+          "date_before_cutoff"
+        ],
+        "reason": "Official first-party account and visible metrics, but the newest native item is before the cutoff."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-napkin-math",
+        "sourceUrl": "https://www.instagram.com/reel/DZ3SxkcsRTM/",
+        "platformPostId": "DZ3SxkcsRTM",
+        "postedAtNative": "2026-06-21T22:02:21Z",
+        "metricsObserved": {
+          "views": 463,
+          "likes": 11,
+          "comments": 1
+        },
+        "nativeOwner": "napkinmath.club",
+        "reasonCodes": [
+          "date_before_cutoff"
+        ],
+        "reason": "Official YC-linked account and visible metrics, but the newest first-party native item is before the cutoff."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-youart",
+        "sourceUrl": "https://www.instagram.com/p/DaLbkgvsL2q/",
+        "platformPostId": "DaLbkgvsL2q",
+        "postedAtNative": "2026-06-29T17:46:16Z",
+        "metricsObserved": {
+          "likes": 85,
+          "comments": 16
+        },
+        "nativeOwner": "youart_studio",
+        "reasonCodes": [
+          "date_before_cutoff"
+        ],
+        "reason": "The native owner exactly matches the official website-linked account, but the item is before the cutoff. Thirty-two feed pages reached past the cutoff without another @youart_studio-owned item."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-youart",
+        "sourceUrl": "https://www.instagram.com/reel/Da8VIvtBtWY/",
+        "platformPostId": "Da8VIvtBtWY",
+        "postedAtNative": "2026-07-18T17:32:36Z",
+        "metricsObserved": {
+          "views": 1370,
+          "likes": 26,
+          "comments": 3
+        },
+        "nativeOwner": "youart.official",
+        "reasonCodes": [
+          "owner_not_roster_linked"
+        ],
+        "reason": "The in-window reel appears in the @youart_studio feed, but the native owner is @youart.official; no official YC or company-site link proved that second handle."
+      },
+      {
+        "batch": "S2026",
+        "entityId": "company-youart",
+        "sourceUrl": "https://www.instagram.com/p/DasgbCVyEuZ/",
+        "platformPostId": "DasgbCVyEuZ",
+        "postedAtNative": "2026-07-12T14:03:34Z",
+        "metricsObserved": {
+          "likes": 3,
+          "comments": 118
+        },
+        "nativeOwner": "yaoyo.tv",
+        "reasonCodes": [
+          "third_party_owner"
+        ],
+        "reason": "The in-window collaborative post appears in the official profile feed, but native ownership belongs to third-party @yaoyo.tv."
+      },
+      {
+        "batch": "S2026",
+        "entityId": null,
+        "sourceUrl": "https://www.instagram.com/reel/DZqePspv-z6/",
+        "platformPostId": "DZqePspv-z6",
+        "postedAtNative": null,
+        "metricsObserved": {},
+        "nativeOwner": "zauey.talks",
+        "reasonCodes": [
+          "third_party_owner",
+          "no_visible_positive_metrics",
+          "no_roster_entity_attribution"
+        ],
+        "reason": "Public search and Instagram oEmbed identify a third-party batch-analysis author; no official roster author or visible post counters were available."
+      },
+      {
+        "batch": "S26",
+        "entityId": "founder-6thsense-james-baek-3429291",
+        "sourceUrl": "https://www.instagram.com/reel/DY7Myxco8Ca/",
+        "platformPostId": "DY7Myxco8Ca",
+        "postedAtNative": null,
+        "metricsObserved": {},
+        "nativeOwner": "brycent",
+        "reasonCodes": [
+          "third_party_owner",
+          "no_visible_positive_metrics"
+        ],
+        "reason": "The reel discusses roster founder James Baek, but Instagram oEmbed identifies third-party @brycent as the native author and exposes no post counters."
+      },
+      {
+        "batch": "S26",
+        "entityId": "founder-6thsense-james-baek-3429291",
+        "sourceUrl": "https://www.instagram.com/reel/DUj8vWLjCo3/",
+        "platformPostId": "DUj8vWLjCo3",
+        "postedAtNative": null,
+        "metricsObserved": {},
+        "nativeOwner": "malaika_mathias",
+        "reasonCodes": [
+          "third_party_owner",
+          "no_visible_positive_metrics"
+        ],
+        "reason": "The reel mentions the roster founder, but Instagram oEmbed identifies third-party @malaika_mathias as the native author and exposes no post counters."
+      }
+    ],
+    "blockers": {
+      "loginWallsRemain": true,
+      "loginWallIsOnlyRemainingBlocker": false,
+      "knownHandlePostVerificationBlockedByLogin": false,
+      "details": [
+        {
+          "batch": "S2026",
+          "code": "known_handle_verification_public",
+          "detail": "Known company and founder handles could be verified through public native feed and oEmbed endpoints without login."
+        },
+        {
+          "batch": "S26",
+          "code": "unknown_handle_discovery_login_wall",
+          "detail": "Instagram native account search returned HTTP 401 for the public query 'Aktoria Robotics'. The current roster has no Instagram inventory, official YC/company pages yielded no ownership links, and public web search yielded only third-party posts, so login-gated native account discovery remains a blocker for exhaustive S26 coverage."
+        },
+        {
+          "batch": "S26",
+          "code": "no_official_inventory_or_public_leads",
+          "detail": "The lack of roster-linked handles and strict public post leads is an independent blocker; a login alone would not make third-party or unattributed rows acceptable."
+        }
+      ]
+    }
+  }
+}

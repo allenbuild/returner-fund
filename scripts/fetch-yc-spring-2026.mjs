@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 const DEFAULT_BATCH_NAME = "Summer 2026";
 const DIRECTORY_URL_BASE = "https://www.ycombinator.com/companies";
 const ALGOLIA_QUERIES_URL = "https://45BWZJ1SGC-dsn.algolia.net/1/indexes/*/queries";
-const EXPECTED_COUNT = 83;
+const EXPECTED_COUNT = 115;
 const DEFAULT_OUT_PATH = "src/lib/yc/summer-2026-companies.json";
 const CONCURRENCY = 6;
 

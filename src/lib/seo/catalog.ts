@@ -76,11 +76,11 @@ export function getCatalog(): Catalog {
       .map((node) => ({ graph, node }))
   );
   const companySlugs = uniqueSlugs(companyCandidates.map(({ node }) => ({ key: node.entityId, value: node.label })));
-  const companies = companyCandidates.map(({ graph, node }) => {
+  const companies = companyCandidates.map(({ graph, node }, index) => {
     const evidenceIds = new Set(node.evidenceIds);
     const evidence = graph.evidence.filter((item) => evidenceIds.has(item.id));
     return {
-      slug: companySlugs.get(node.entityId) ?? slugify(node.label),
+      slug: companySlugs[index] ?? slugify(node.label),
       node,
       graph,
       evidence,
@@ -93,11 +93,11 @@ export function getCatalog(): Catalog {
     company.node.founders.map((founder) => ({ company, founder }))
   );
   const founderSlugs = uniqueSlugs(founderCandidates.map(({ founder }) => ({ key: founder.id, value: founder.name })));
-  const founders = founderCandidates.map(({ company, founder }) => {
+  const founders = founderCandidates.map(({ company, founder }, index) => {
     const evidenceIds = new Set(founder.evidenceIds);
     const evidence = company.graph.evidence.filter((item) => evidenceIds.has(item.id));
     return {
-      slug: founderSlugs.get(founder.id) ?? slugify(founder.name),
+      slug: founderSlugs[index] ?? slugify(founder.name),
       id: founder.id,
       name: founder.name,
       company,
@@ -215,18 +215,34 @@ function readGraph(filename: string): GraphResponse {
   return JSON.parse(readFileSync(join(process.cwd(), "public", "graph", filename), "utf8")) as GraphResponse;
 }
 
-function uniqueSlugs(items: { key: string; value: string }[]): Map<string, string> {
-  const grouped = new Map<string, { key: string; value: string }[]>();
-  for (const item of items) {
+function uniqueSlugs(items: { key: string; value: string }[]): string[] {
+  const grouped = new Map<string, { key: string; index: number }[]>();
+  items.forEach((item, index) => {
     const base = slugify(item.value);
-    grouped.set(base, [...(grouped.get(base) ?? []), item]);
+    grouped.set(base, [...(grouped.get(base) ?? []), { key: item.key, index }]);
+  });
+
+  const slugs = new Array<string>(items.length);
+  const used = new Set(grouped.keys());
+  const groups = [...grouped.entries()].sort(([left], [right]) => left.localeCompare(right));
+
+  for (const [base, matches] of groups) {
+    const [canonical, ...duplicates] = matches.sort(
+      (left, right) => left.key.localeCompare(right.key) || left.index - right.index
+    );
+    if (!canonical) continue;
+
+    slugs[canonical.index] = base;
+    let suffix = 2;
+    for (const duplicate of duplicates) {
+      while (used.has(`${base}-${suffix}`)) suffix += 1;
+      const slug = `${base}-${suffix}`;
+      slugs[duplicate.index] = slug;
+      used.add(slug);
+      suffix += 1;
+    }
   }
-  const slugs = new Map<string, string>();
-  for (const [base, matches] of grouped) {
-    matches
-      .sort((left, right) => left.key.localeCompare(right.key))
-      .forEach((item, index) => slugs.set(item.key, index === 0 ? base : `${base}-${index + 1}`));
-  }
+
   return slugs;
 }
 

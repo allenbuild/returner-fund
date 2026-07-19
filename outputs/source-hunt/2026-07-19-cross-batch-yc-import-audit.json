@@ -1,0 +1,177 @@
+{
+  "generatedAt": "2026-07-19T06:35:00.000Z",
+  "target": "src/lib/social/targeted-evidence-current.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json"
+  ],
+  "before": 852,
+  "received": 190,
+  "accepted": 168,
+  "updated": 0,
+  "duplicates": 0,
+  "duplicateRows": [],
+  "includedBatches": [
+    "S2026",
+    "S26"
+  ],
+  "skipped": 22,
+  "skippedRows": [
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 168,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=DMDH6_oc7-8"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 169,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=Fu4Knl2KQrc"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 170,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=NYMsXEe4FDI"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 171,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=Ua4IJCXZGew"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 172,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=bGuTmcp9rrA"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 173,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=efWkGWsbxMY"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 174,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=gd153joYujY"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 175,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=m0o-MPhy0TE"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 176,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=myqtWGb-aBA"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 177,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=-dfCRZtcX3s"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 178,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=3QmVzY8nG-g"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 179,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=9MWN3tKkIFI"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 180,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=QkUHiEiKed0"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 181,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=SMFZHQjOz00"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 182,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=bHYffyARHUI"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 183,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=ebXlUlBbxpA"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 184,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=fuWGyuwcEg8"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 185,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=iEFAG3kQ4h4"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 186,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=vPVjZqWqB04"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 187,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=C184YrL0iXQ"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 188,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=TDI0VejwE7g"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json",
+      "row": 189,
+      "batch": "A16ZSR006",
+      "platform": "youtube",
+      "sourceUrl": "https://youtube.com/watch?v=cMlaLs7BvnA"
+    }
+  ],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 1020
+}
