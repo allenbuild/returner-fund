@@ -21,7 +21,7 @@
       "src/lib/scoring/traction-config.ts#TRACTION_SCORING_CONFIG",
       "src/lib/scoring/traction-config.ts#normalizeMetricsForScoring"
     ],
-    "git_sha": "453bf4a12177821c146aedb2953659ce457bc188",
+    "git_sha": null,
     "node_version": "v24.14.0",
     "command": "npm run scoring:audit:v4",
     "direct_command": "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs",
@@ -40,7 +40,7 @@
     "input_hashes": {
       "scope": "graph, scoring, social, and YC local input envelope plus profiler runtime files; canonical runtime values and effective scoring/calibration/confidence sources are hashed separately",
       "file_count": 52,
-      "combined_sha256": "f0e785f0a40ab22c31a0ebc173fe14beddca098d75d70ca7a41f0e0f07ec3029",
+      "combined_sha256": "e92be6bec78035de60c6d572604be90a8cd32f89026d04d2aa702f3ca4dfb8f8",
       "files": [
         {
           "path": "package.json",
@@ -54,8 +54,8 @@
         },
         {
           "path": "scripts/run-scoring-diagnostics-v4.mjs",
-          "bytes": 103243,
-          "sha256": "e889b1bb4fb359a9f0d98dc4afd028a6272ad744a585c894604490ca79963661"
+          "bytes": 103470,
+          "sha256": "f2353a7343d030c5baa5038093bf182c9e29637a1ac7708205dfb658d4253609"
         },
         {
           "path": "src/lib/graph/a16z-speedrun-006-dataset.ts",
@@ -306485,8 +306485,8 @@
       {
         "id": "input_envelope_hash_consistent",
         "passed": true,
-        "expected": "f0e785f0a40ab22c31a0ebc173fe14beddca098d75d70ca7a41f0e0f07ec3029",
-        "observed": "f0e785f0a40ab22c31a0ebc173fe14beddca098d75d70ca7a41f0e0f07ec3029"
+        "expected": "e92be6bec78035de60c6d572604be90a8cd32f89026d04d2aa702f3ca4dfb8f8",
+        "observed": "e92be6bec78035de60c6d572604be90a8cd32f89026d04d2aa702f3ca4dfb8f8"
       },
       {
         "id": "required_cohort_coverage",

@@ -18,6 +18,7 @@ const PORTABLE_COMMAND =
   "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs";
 const PACKAGE_COMMAND = "npm run scoring:audit:v4";
 const COMPATIBILITY_SHIMS = await detectCompatibilityShims();
+const EXECUTION_GIT_SHA = readGitSha();
 
 assertValidClock(FROZEN_CLOCK);
 freezeClock(FROZEN_CLOCK);
@@ -152,7 +153,9 @@ const audit = {
       "src/lib/scoring/traction-config.ts#TRACTION_SCORING_CONFIG",
       "src/lib/scoring/traction-config.ts#normalizeMetricsForScoring"
     ],
-    git_sha: readGitSha(),
+    // The executing commit is logged to stdout below. Embedding it here would
+    // make a checked-in artifact stale as soon as its regeneration is committed.
+    git_sha: null,
     node_version: process.version,
     command: PACKAGE_COMMAND,
     direct_command: PORTABLE_COMMAND,
@@ -214,7 +217,7 @@ console.log(
       model_version: audit.metadata.production_model_version,
       model_name: audit.metadata.production_model_name,
       frozen_clock: audit.metadata.frozen_clock,
-      git_sha: audit.metadata.git_sha,
+      git_sha: EXECUTION_GIT_SHA,
       audit_sha256: auditSha256,
       outputs: [relativePath(AUDIT_WRITE_PATH), relativePath(REPORT_WRITE_PATH)],
       summary: audit.global_summary
@@ -2045,7 +2048,7 @@ function renderMarkdownReport(payload, auditSha256) {
     "",
     `- Frozen clock: \`${payload.metadata.frozen_clock}\``,
     `- Production model: \`${payload.metadata.production_model_name}\` (\`${payload.metadata.production_model_id}\` v${payload.metadata.production_model_version})`,
-    `- Git SHA: \`${payload.metadata.git_sha ?? "unavailable"}\``,
+    "- Git SHA: excluded from deterministic artifacts; the runtime command logs the executing revision.",
     `- Input envelope SHA-256: \`${payload.metadata.input_hashes.combined_sha256}\``,
     `- Effective versioned scoring-input SHA-256: \`${payload.metadata.input_hashes.versioned_scoring_inputs.combined_sha256}\``,
     `- Canonical config: ${payload.metadata.input_hashes.versioned_scoring_inputs.parameter_count} leaf parameters across scoring, calibration, and confidence; ${payload.metadata.input_hashes.versioned_scoring_inputs.source_file_count} role-labeled runtime source files.`,
