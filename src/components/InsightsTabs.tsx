@@ -16,7 +16,13 @@ import {
   Trophy,
   Users
 } from "lucide-react";
-import { useMemo, useState, type KeyboardEvent } from "react";
+import {
+  useId,
+  useMemo,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent as ReactPointerEvent
+} from "react";
 import {
   generatedEvidenceThumbnailDataUri,
   generatedEvidenceThumbnailUrl
@@ -352,17 +358,11 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode }: Insigh
             </div>
 
             <div className="stats-growth-grid" aria-label="Daily database growth over the last 14 days">
-              <DailyGrowthCard label="Sources added" points={databaseStats.dailyGrowth} field="sources" total={databaseStats.sourceCount} />
-              <DailyGrowthCard label="Companies discovered" points={databaseStats.dailyGrowth} field="companies" total={databaseStats.companyCount} />
-              <DailyGrowthCard label="Founders discovered" points={databaseStats.dailyGrowth} field="founders" total={databaseStats.founderCount} />
+              <SplineTotalCard label="Total sources" points={databaseStats.dailyGrowth} field="sources" total={databaseStats.sourceCount} />
+              <SplineTotalCard label="Total companies" points={databaseStats.dailyGrowth} field="companies" total={databaseStats.companyCount} />
+              <SplineTotalCard label="Total founders" points={databaseStats.dailyGrowth} field="founders" total={databaseStats.founderCount} />
             </div>
 
-            <dl className="stats-detail-grid">
-              <StatDetail label="Platforms represented" value={databaseStats.platformCount} />
-              <StatDetail label="Verified source links" value={`${databaseStats.verifiedLinkRate}%`} />
-              <StatDetail label="Sources per company" value={databaseStats.sourcesPerCompany.toFixed(1)} />
-              <StatDetail label="Needs review" value={databaseStats.needsReviewCount} />
-            </dl>
           </section>
         </div>
       )}
@@ -388,10 +388,6 @@ interface DatabaseStats {
   sourcesLast7Days: number;
   companyCoverage: number;
   founderCoverage: number;
-  platformCount: number;
-  verifiedLinkRate: number;
-  sourcesPerCompany: number;
-  needsReviewCount: number;
   dailyGrowth: DailyGrowthPoint[];
 }
 
@@ -405,16 +401,15 @@ function StatMetric({ label, value, detail }: { label: string; value: number; de
   );
 }
 
-function StatDetail({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div>
-      <dt>{label}</dt>
-      <dd>{typeof value === "number" ? value.toLocaleString() : value}</dd>
-    </div>
-  );
+interface TotalGrowthPoint extends DailyGrowthPoint {
+  value: number;
 }
 
-function DailyGrowthCard({
+const SPLINE_WIDTH = 320;
+const SPLINE_HEIGHT = 118;
+const SPLINE_PADDING = 8;
+
+function SplineTotalCard({
   label,
   points,
   field,
@@ -425,38 +420,128 @@ function DailyGrowthCard({
   field: DailyGrowthField;
   total: number;
 }) {
-  const maximum = Math.max(1, ...points.map((point) => point[field]));
-  const periodTotal = points.reduce((sum, point) => sum + point[field], 0);
+  const gradientId = useId().replaceAll(":", "");
+  const totals = useMemo(() => cumulativeTotals(points, field, total), [field, points, total]);
+  const [activeIndex, setActiveIndex] = useState(() => Math.max(0, totals.length - 1));
+  const selectedIndex = Math.min(activeIndex, Math.max(0, totals.length - 1));
+  const selected = totals[selectedIndex] ?? null;
+  const values = totals.map((point) => point.value);
+  const minimum = Math.min(...values, total);
+  const maximum = Math.max(...values, total);
+  const range = Math.max(1, maximum - minimum);
+  const coordinates = totals.map((point, index) => ({
+    x: totals.length <= 1 ? SPLINE_WIDTH / 2 : (index / (totals.length - 1)) * SPLINE_WIDTH,
+    y: SPLINE_PADDING + ((maximum - point.value) / range) * (SPLINE_HEIGHT - SPLINE_PADDING * 2)
+  }));
+  const selectedCoordinate = coordinates[selectedIndex] ?? { x: 0, y: SPLINE_HEIGHT };
+  const linePath = splinePath(coordinates);
+  const areaPath = linePath
+    ? `${linePath} L ${coordinates.at(-1)?.x ?? 0} ${SPLINE_HEIGHT} L ${coordinates[0]?.x ?? 0} ${SPLINE_HEIGHT} Z`
+    : "";
+
+  function selectFromPointer(event: ReactPointerEvent<SVGSVGElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if (!bounds.width || totals.length <= 1) return;
+    const ratio = Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width));
+    setActiveIndex(Math.round(ratio * (totals.length - 1)));
+  }
+
+  function handlePointerDown(event: ReactPointerEvent<SVGSVGElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    selectFromPointer(event);
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<SVGSVGElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) selectFromPointer(event);
+  }
+
+  function handleKeyDown(event: KeyboardEvent<SVGSVGElement>) {
+    let nextIndex = selectedIndex;
+    if (event.key === "ArrowLeft") nextIndex -= 1;
+    else if (event.key === "ArrowRight") nextIndex += 1;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = totals.length - 1;
+    else return;
+    event.preventDefault();
+    setActiveIndex(Math.min(totals.length - 1, Math.max(0, nextIndex)));
+  }
 
   return (
     <article className={`stats-growth-card stats-growth-${field}`}>
       <header>
         <div>
           <span>{label}</span>
-          <strong>+{periodTotal.toLocaleString()}</strong>
+          <strong>{(selected?.value ?? total).toLocaleString()}</strong>
         </div>
-        <small>{total.toLocaleString()} total</small>
+        <small>{selected?.label ?? "Current"}</small>
       </header>
-      <div
-        className="stats-bars"
-        role="img"
-        aria-label={`${label} by day for the last 14 days. ${periodTotal.toLocaleString()} added.`}
+      <svg
+        className="stats-spline"
+        viewBox={`0 0 ${SPLINE_WIDTH} ${SPLINE_HEIGHT}`}
+        preserveAspectRatio="none"
+        role="slider"
+        tabIndex={0}
+        aria-label={`${label} by day for the last 14 days`}
+        aria-valuemin={minimum}
+        aria-valuemax={maximum}
+        aria-valuenow={selected?.value ?? total}
+        aria-valuetext={`${selected?.label ?? "Current"}: ${(selected?.value ?? total).toLocaleString()}`}
+        onKeyDown={handleKeyDown}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={(event) => event.currentTarget.releasePointerCapture(event.pointerId)}
+        onPointerCancel={(event) => event.currentTarget.releasePointerCapture(event.pointerId)}
       >
-        {points.map((point) => {
-          const value = point[field];
-          return (
-            <span className="stats-bar-slot" key={point.dayKey} title={`${point.label}: ${value.toLocaleString()}`}>
-              <span className="stats-bar" style={{ height: `${Math.max(value > 0 ? 8 : 2, (value / maximum) * 100)}%` }} />
-            </span>
-          );
-        })}
-      </div>
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path className="stats-spline-area" d={areaPath} fill={`url(#${gradientId})`} />
+        <path className="stats-spline-line" d={linePath} />
+        <line
+          className="stats-spline-guide"
+          x1={selectedCoordinate.x}
+          x2={selectedCoordinate.x}
+          y1={0}
+          y2={SPLINE_HEIGHT}
+        />
+        <circle className="stats-spline-point" cx={selectedCoordinate.x} cy={selectedCoordinate.y} r={5} />
+      </svg>
       <footer>
-        <span>{points[0]?.label}</span>
-        <span>{points.at(-1)?.label}</span>
+        <span>{totals[0]?.label}</span>
+        <span>{totals.at(-1)?.label}</span>
       </footer>
     </article>
   );
+}
+
+function cumulativeTotals(
+  points: DailyGrowthPoint[],
+  field: DailyGrowthField,
+  total: number
+): TotalGrowthPoint[] {
+  const periodChange = points.reduce((sum, point) => sum + point[field], 0);
+  let runningTotal = Math.max(0, total - periodChange);
+  return points.map((point) => {
+    runningTotal += point[field];
+    return { ...point, value: runningTotal };
+  });
+}
+
+function splinePath(points: { x: number; y: number }[]): string {
+  if (!points.length) return "";
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const current = points[index];
+    const next = points[index + 1];
+    const midpointX = current.x + (next.x - current.x) / 2;
+    path += ` C ${midpointX} ${current.y}, ${midpointX} ${next.y}, ${next.x} ${next.y}`;
+  }
+  return path;
 }
 
 function buildDatabaseStats(graph: GraphResponse): DatabaseStats {
@@ -510,9 +595,6 @@ function buildDatabaseStats(graph: GraphResponse): DatabaseStats {
     if (point) point.founders += 1;
   }
 
-  const verifiedLinks = graph.evidence.filter((item) => item.linkStatus === "verified").length;
-  const platforms = new Set(graph.evidence.map((item) => item.platform));
-
   return {
     sourceCount: graph.evidence.length,
     companyCount: companyIds.size,
@@ -521,10 +603,6 @@ function buildDatabaseStats(graph: GraphResponse): DatabaseStats {
     sourcesLast7Days: dailyGrowth.slice(-7).reduce((sum, point) => sum + point.sources, 0),
     companyCoverage: percentage(companyFirstSeen.size, companyIds.size),
     founderCoverage: percentage(founderFirstSeen.size, founderIds.size),
-    platformCount: platforms.size,
-    verifiedLinkRate: percentage(verifiedLinks, graph.evidence.length),
-    sourcesPerCompany: companyIds.size ? graph.evidence.length / companyIds.size : 0,
-    needsReviewCount: graph.needsReview.length,
     dailyGrowth
   };
 }

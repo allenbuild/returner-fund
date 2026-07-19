@@ -45,7 +45,7 @@ describe("insights tabs", () => {
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-stats");
   });
 
-  it("shows database totals, ingestion growth charts, and source quality stats", () => {
+  it("shows database totals and ingestion growth charts without the quality summary row", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
     const companyCount = graph.nodes.filter((node) => node.entityType === "company").length;
     const founderCount = new Set(
@@ -66,12 +66,22 @@ describe("insights tabs", () => {
     expect(screen.getByText("Founders").closest(".stats-metric")).toHaveTextContent(
       founderCount.toLocaleString()
     );
-    expect(screen.getByRole("img", { name: /Sources added by day for the last 14 days/i })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /Companies discovered by day for the last 14 days/i })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /Founders discovered by day for the last 14 days/i })).toBeInTheDocument();
-    expect(screen.getByText("Verified source links")).toBeInTheDocument();
-    expect(screen.getByText("Sources per company")).toBeInTheDocument();
-    expect(screen.getByText("Needs review")).toBeInTheDocument();
+    const sourceSpline = screen.getByRole("slider", { name: /Total sources by day for the last 14 days/i });
+    expect(sourceSpline).toHaveAttribute("aria-valuenow", graph.evidence.length.toString());
+    expect(screen.getByRole("slider", { name: /Total companies by day for the last 14 days/i })).toHaveAttribute(
+      "aria-valuenow",
+      companyCount.toString()
+    );
+    expect(screen.getByRole("slider", { name: /Total founders by day for the last 14 days/i })).toHaveAttribute(
+      "aria-valuenow",
+      founderCount.toString()
+    );
+    fireEvent.keyDown(sourceSpline, { key: "Home" });
+    expect(sourceSpline.getAttribute("aria-valuetext")).toMatch(/^[A-Z][a-z]{2} \d{1,2}: [\d,]+$/);
+    expect(screen.queryByText("Platforms represented")).not.toBeInTheDocument();
+    expect(screen.queryByText("Verified source links")).not.toBeInTheDocument();
+    expect(screen.queryByText("Sources per company")).not.toBeInTheDocument();
+    expect(screen.queryByText("Needs review")).not.toBeInTheDocument();
   });
 
   it("does not show a separate score scope or Top Voices audience strip", () => {

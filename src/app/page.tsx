@@ -1,6 +1,6 @@
 import { Dashboard } from "@/components/Dashboard";
 import type { Metadata } from "next";
-import { HomeDiscovery } from "@/components/seo/HomeDiscovery";
+import { HomeStructuredData } from "@/components/seo/HomeDiscovery";
 import { findCohort, getCatalog, type PublicCohort } from "@/lib/seo/catalog";
 import { publicMetadata, SITE_NAME, truncateDescription } from "@/lib/seo/site";
 import type { Platform, TopVoiceAudienceId } from "@/lib/graph/types";
@@ -93,7 +93,7 @@ function HomeContent({
         initialFilters={{ platforms }}
         manualRefreshEnabled={manualRefreshEnabled}
       />
-      <HomeDiscovery selectedBatchSlug={selectedBatchSlug} />
+      <HomeStructuredData />
     </>
   );
 }

@@ -2393,8 +2393,7 @@ progress::-webkit-progress-value {
   margin-top: 4px;
 }
 
-.stats-primary-grid,
-.stats-detail-grid {
+.stats-primary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
@@ -2480,13 +2479,13 @@ progress::-webkit-progress-value {
   font-weight: 600;
 }
 
-.stats-bars {
-  display: grid;
-  grid-template-columns: repeat(14, minmax(3px, 1fr));
-  align-items: end;
-  gap: 4px;
+.stats-spline {
+  width: 100%;
   height: 118px;
-  padding-top: 8px;
+  overflow: visible;
+  color: var(--accent);
+  cursor: ew-resize;
+  touch-action: none;
   border-bottom: 1px solid var(--neutral-200);
   background: repeating-linear-gradient(
     to bottom,
@@ -2495,57 +2494,42 @@ progress::-webkit-progress-value {
   );
 }
 
-.stats-bar-slot {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 100%;
+.stats-spline:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
-.stats-bar {
-  width: min(100%, 16px);
-  min-height: 2px;
-  border-radius: 3px 3px 0 0;
-  background: var(--accent);
-  transition: opacity 140ms ease;
+.stats-spline-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
-.stats-growth-companies .stats-bar {
-  background: #2563eb;
+.stats-spline-guide {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
 }
 
-.stats-growth-founders .stats-bar {
-  background: #0f766e;
+.stats-spline-point {
+  fill: #ffffff;
+  stroke: currentColor;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
 }
 
-.stats-bar-slot:hover .stats-bar {
-  opacity: 0.7;
+.stats-growth-companies .stats-spline {
+  color: #2563eb;
 }
 
-.stats-detail-grid {
-  margin: 0;
-}
-
-.stats-detail-grid > div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border-top: 1px solid var(--neutral-200);
-}
-
-.stats-detail-grid dt {
-  color: var(--muted);
-  font-size: 0.76rem;
-  font-weight: 600;
-}
-
-.stats-detail-grid dd {
-  margin: 0;
-  color: var(--neutral-900);
-  font-size: 0.9rem;
-  font-weight: 700;
+.stats-growth-founders .stats-spline {
+  color: #0f766e;
 }
 
 .table-toolbar {
@@ -3817,8 +3801,7 @@ td button {
     gap: 6px;
   }
 
-  .stats-primary-grid,
-  .stats-detail-grid {
+  .stats-primary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -4112,10 +4095,6 @@ td button {
 @media (max-width: 480px) {
   .dashboard-grid {
     --map-panel-height: min(60vh, 540px);
-  }
-
-  .stats-detail-grid {
-    grid-template-columns: 1fr;
   }
 
   .stats-metric {
