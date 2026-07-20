@@ -279,7 +279,7 @@ describe("YC traction scoring regressions", () => {
     );
     expectGraphEvidence(
       summerGraph.evidence,
-      "https://www.linkedin.com/posts/risereforming_were-joining-y-combinators-s26-batch-thank-activity-7462887812569243649-BVMe",
+      "https://linkedin.com/posts/risereforming_were-joining-y-combinators-s26-batch-thank-activity-7462887812569243649-BVMe",
       "Rise Reforming",
       "linkedin"
     );

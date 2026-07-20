@@ -25,7 +25,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Verified post-level public evidence from search query \"HeyClicky linkedin from discovered public source path\".",
     "review_state": "verified",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-stage-duckduckgo-com-html-q-22stage-22-20site-3ainstagram-com-instagram-com-stage",
@@ -39,7 +39,7 @@
     "discovered_entity_name": "Stage",
     "match_reason": "Found from public search query \"Stage instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-06-29T08:09:38.644Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-stage-duckduckgo-com-html-q-22stage-22-20site-3ainstagram-com-instagram-com-thestageuk",
@@ -53,7 +53,7 @@
     "discovered_entity_name": "Stage",
     "match_reason": "Found from public search query \"Stage instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-06-29T08:09:38.644Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-archal-www-archal-ai-x-com-archal-labs",
@@ -81,7 +81,7 @@
     "discovered_entity_name": "Atlas Discovery",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-baud-baudlabs-ai-linkedin-com-company-baud-labs-ai",
@@ -95,7 +95,7 @@
     "discovered_entity_name": "Baud",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T08:23:20.911Z"
   },
   {
     "id": "path-blueprints-useblueprints-ai-x-com-carboncopyinc",
@@ -137,7 +137,7 @@
     "discovered_entity_name": "Coasty",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-conifer-www-conifer-build-x-com-coniferbuild",
@@ -151,7 +151,7 @@
     "discovered_entity_name": "Conifer",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-contextdev-context-dev-x-com-getcontextdev",
@@ -165,7 +165,7 @@
     "discovered_entity_name": "Context.dev",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-control-seat-www-controlseat-com-x-com-control-seat",
@@ -177,9 +177,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Control Seat",
-    "match_reason": "Found from public search query \"Control Seat x from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-control-seat-www-controlseat-com-instagram-com-controlseat",
@@ -191,9 +191,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Control Seat",
-    "match_reason": "Found from public search query \"Control Seat instagram from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-cosmic-robotics-www-cosmicrobotics-com-x-com-cosmic-robotics",
@@ -207,7 +207,7 @@
     "discovered_entity_name": "Cosmic Robotics",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-glen-www-tryglen-com-linkedin-com-company-tryglen",
@@ -221,7 +221,7 @@
     "discovered_entity_name": "Glen",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-glen-www-tryglen-com-x-com-try-glen",
@@ -235,7 +235,7 @@
     "discovered_entity_name": "Glen",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-instance-tryinstance-app-linkedin-com-company-tryinstance",
@@ -277,7 +277,7 @@
     "discovered_entity_name": "Justinian",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-lato-www-latolabs-io-linkedin-com-in-tymeks",
@@ -291,7 +291,7 @@
     "discovered_entity_name": "LATO",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-lato-www-latolabs-io-linkedin-com-in-chutien",
@@ -305,7 +305,7 @@
     "discovered_entity_name": "LATO",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-lato-www-latolabs-io-linkedin-com-company-latoio",
@@ -319,7 +319,7 @@
     "discovered_entity_name": "LATO",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-levocred-ai-levocred-com-linkedin-com-in-jonathandibenedetto",
@@ -333,7 +333,7 @@
     "discovered_entity_name": "Levocred AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-levocred-ai-levocred-com-linkedin-com-company-levocred-ai",
@@ -347,7 +347,7 @@
     "discovered_entity_name": "Levocred AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-machine0-machine0-io-x-com-machine-0",
@@ -361,7 +361,7 @@
     "discovered_entity_name": "machine0",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-markov-www-markovstudios-com-x-com-devvmandal-status-2043722227791872259",
@@ -375,7 +375,7 @@
     "discovered_entity_name": "Markov",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-nebula-security-nebusec-ai-x-com-nebusecurity",
@@ -389,7 +389,7 @@
     "discovered_entity_name": "Nebula Security",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-noril1-norirobotics-com-linkedin-com-company-norirobotics",
@@ -403,7 +403,7 @@
     "discovered_entity_name": "Nori",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-noril1-norirobotics-com-x-com-norirobotics",
@@ -417,7 +417,7 @@
     "discovered_entity_name": "Nori",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-operon-operonsolutions-com-en-linkedin-com-company-operonsolutions",
@@ -431,7 +431,7 @@
     "discovered_entity_name": "Operon",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-pango-pango-ai-linkedin-com-company-pangoai",
@@ -445,7 +445,7 @@
     "discovered_entity_name": "Pango",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-parasma-parasma-com-linkedin-com-company-parasma",
@@ -459,7 +459,7 @@
     "discovered_entity_name": "Parasma",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-parasma-parasma-com-x-com-parasmaai",
@@ -473,7 +473,7 @@
     "discovered_entity_name": "Parasma",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-perceptron-ml-perceptronml-com-linkedin-com-in-peytonmarcotte",
@@ -543,7 +543,7 @@
     "discovered_entity_name": "Prescience, Inc.",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-prescience-inc-www-getprescience-com-x-com-getprescience",
@@ -557,7 +557,7 @@
     "discovered_entity_name": "Prescience, Inc.",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-rex-inc-www-rex-inc-linkedin-com-company-rex-ai-inc",
@@ -571,7 +571,7 @@
     "discovered_entity_name": "Rex",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-rex-inc-www-rex-inc-x-com-rexdotinc",
@@ -585,7 +585,7 @@
     "discovered_entity_name": "Rex",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-rise-reforming-rise-reforming-com-home-linkedin-com-posts-were-joining-y-combinators-s26-batch-thank-share-7462887811168325632-tm99",
@@ -599,7 +599,7 @@
     "discovered_entity_name": "Rise Reforming",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-rise-reforming-rise-reforming-com-home-linkedin-com-posts-alexisohanian-thrilled-to-announce-our-2025-776-foundation-activity-7345937006784356353-nbue",
@@ -613,7 +613,7 @@
     "discovered_entity_name": "Rise Reforming",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-screenpipe-screenpipe-com-linkedin-com-company-screenpipe",
@@ -627,7 +627,7 @@
     "discovered_entity_name": "screenpipe",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-screenpipe-screenpipe-com-x-com-screenpipe",
@@ -641,7 +641,7 @@
     "discovered_entity_name": "screenpipe",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-shepherd-3-askshepherd-ai-linkedin-com-company-shepherdai",
@@ -655,7 +655,7 @@
     "discovered_entity_name": "Shepherd",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-speko-speko-ai-x-com-beknabdik",
@@ -689,43 +689,43 @@
     "id": "path-talentpluto-talentpluto-com-linkedin-com-company-talentpluto-inc",
     "company_id": "company-talentpluto",
     "company_slug": "talentpluto",
-    "company_name": "Pluto",
+    "company_name": "Talentpluto",
     "source_url": "https://talentpluto.com",
     "discovered_url": "https://linkedin.com/company/talentpluto-inc",
     "discovered_platform": "linkedin",
     "discovered_entity_type": "company",
-    "discovered_entity_name": "Pluto",
+    "discovered_entity_name": "Talentpluto",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-talentpluto-talentpluto-com-instagram-com-talentpluto",
     "company_id": "company-talentpluto",
     "company_slug": "talentpluto",
-    "company_name": "Pluto",
+    "company_name": "Talentpluto",
     "source_url": "https://talentpluto.com",
     "discovered_url": "https://instagram.com/talentpluto_",
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
-    "discovered_entity_name": "Pluto",
-    "match_reason": "Found from public search query \"Pluto instagram from discovered public source path\".",
+    "discovered_entity_name": "Talentpluto",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-talentpluto-talentpluto-com-x-com-talentpluto",
     "company_id": "company-talentpluto",
     "company_slug": "talentpluto",
-    "company_name": "Pluto",
+    "company_name": "Talentpluto",
     "source_url": "https://talentpluto.com",
     "discovered_url": "https://x.com/talentpluto",
     "discovered_platform": "x",
     "discovered_entity_type": "company",
-    "discovered_entity_name": "Pluto",
+    "discovered_entity_name": "Talentpluto",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-trope-trope-ai-linkedin-com-company-tropeai",
@@ -739,7 +739,7 @@
     "discovered_entity_name": "Trope",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-trope-trope-ai-x-com-trope-ai",
@@ -753,7 +753,7 @@
     "discovered_entity_name": "Trope",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-tsenta-tsenta-com-linkedin-com-company-tsenta",
@@ -767,7 +767,7 @@
     "discovered_entity_name": "Tsenta",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-verdant-www-verdantapp-com-linkedin-com-in-aidan-c-ng",
@@ -781,7 +781,7 @@
     "discovered_entity_name": "Verdant",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-verdant-www-verdantapp-com-linkedin-com-in-jason-yi1",
@@ -795,7 +795,7 @@
     "discovered_entity_name": "Verdant",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-verdant-www-verdantapp-com-linkedin-com-company-verdantapp",
@@ -809,7 +809,7 @@
     "discovered_entity_name": "Verdant",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-vestris-vestris-ai-linkedin-com-company-vestrisai",
@@ -823,7 +823,7 @@
     "discovered_entity_name": "Vestris",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-whitespace-whitespacehq-ai-linkedin-com-in-alexytung",
@@ -837,7 +837,7 @@
     "discovered_entity_name": "Whitespace",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-zomma-zommalabs-com-linkedin-com-company-zomma",
@@ -851,7 +851,7 @@
     "discovered_entity_name": "Zomma",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-zomma-zommalabs-com-x-com-zommalabs",
@@ -865,7 +865,7 @@
     "discovered_entity_name": "Zomma",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-83-sciences-83sciences-ai-linkedin-com-company-83sciences-ai",
@@ -907,7 +907,7 @@
     "discovered_entity_name": "Agnost AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-agnost-ai-agnost-ai-linkedin-com-company-agnostai",
@@ -921,7 +921,7 @@
     "discovered_entity_name": "Agnost AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-archal-www-archal-ai-linkedin-com-company-archal-labs",
@@ -949,7 +949,7 @@
     "discovered_entity_name": "Async",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-atlas-discovery-atlasdiscovery-bio-linkedin-com-company-atlas-discovery",
@@ -963,7 +963,7 @@
     "discovered_entity_name": "Atlas Discovery",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-blueprints-useblueprints-ai-linkedin-com-company-carboncopyinc",
@@ -1019,7 +1019,7 @@
     "discovered_entity_name": "Care GP",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-care-gp-caregp-com-au-youtube-com-caregp-aus",
@@ -1033,7 +1033,7 @@
     "discovered_entity_name": "Care GP",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-care-gp-caregp-com-au-linkedin-com-company-caregp",
@@ -1047,7 +1047,7 @@
     "discovered_entity_name": "Care GP",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-coasty-coasty-ai-linkedin-com-company-coastyai",
@@ -1061,7 +1061,7 @@
     "discovered_entity_name": "Coasty",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-coasty-coasty-ai-youtube-com-coastyai",
@@ -1075,7 +1075,7 @@
     "discovered_entity_name": "Coasty",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-conifer-www-conifer-build-linkedin-com-company-coniferbuild",
@@ -1089,7 +1089,7 @@
     "discovered_entity_name": "Conifer",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-contextdev-context-dev-linkedin-com-company-contextdev",
@@ -1103,7 +1103,7 @@
     "discovered_entity_name": "Context.dev",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-control-seat-www-controlseat-com-linkedin-com-company-control-seat",
@@ -1117,7 +1117,7 @@
     "discovered_entity_name": "Control Seat",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-control-seat-www-controlseat-com-youtube-com-control-seat",
@@ -1131,7 +1131,7 @@
     "discovered_entity_name": "Control Seat",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-cosmic-robotics-www-cosmicrobotics-com-linkedin-com-company-cosmic-robotics",
@@ -1145,7 +1145,7 @@
     "discovered_entity_name": "Cosmic Robotics",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-cosmic-robotics-www-cosmicrobotics-com-youtube-com-cosmicrobotics",
@@ -1159,7 +1159,7 @@
     "discovered_entity_name": "Cosmic Robotics",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-cova-cova-care-linkedin-com-company-cova-home-care-about",
@@ -1173,7 +1173,7 @@
     "discovered_entity_name": "Cova",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-parasma-parasma-com-youtube-com-watch",
@@ -1187,7 +1187,7 @@
     "discovered_entity_name": "Parasma",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-parasma-parasma-com-youtube-com-parasmaai",
@@ -1201,7 +1201,7 @@
     "discovered_entity_name": "Parasma",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-salem-robotics-inc-salemroboticsinc-com-youtu-be-rn0oicqhv8w",
@@ -1215,7 +1215,7 @@
     "discovered_entity_name": "Salem Robotics Inc",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-screenpipe-screenpipe-com-reddit-com-r-screen-pipe",
@@ -1229,7 +1229,7 @@
     "discovered_entity_name": "screenpipe",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-screenpipe-screenpipe-com-youtube-com-screen-pipe",
@@ -1243,7 +1243,7 @@
     "discovered_entity_name": "screenpipe",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T00:15:16.602Z"
+    "created_at": "2026-07-09T17:31:59.583Z"
   },
   {
     "id": "path-9-mothers-corporation-9mothers-com-linkedin-com-company-9-mothers",
@@ -1257,7 +1257,7 @@
     "discovered_entity_name": "9 Mothers",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-9-mothers-corporation-9mothers-com-x-com-9mothers",
@@ -1271,7 +1271,7 @@
     "discovered_entity_name": "9 Mothers",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-agentphone-agentphone-ai-x-com-agentphonehq",
@@ -1285,7 +1285,7 @@
     "discovered_entity_name": "AgentPhone",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-aice-aicepower-com-linkedin-com-company-aice-power",
@@ -1299,7 +1299,7 @@
     "discovered_entity_name": "AICE",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-allowance-useallowance-com-x-com-useallowance",
@@ -1313,7 +1313,7 @@
     "discovered_entity_name": "Allowance",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-allowance-useallowance-com-linkedin-com-company-useallowance",
@@ -1327,7 +1327,7 @@
     "discovered_entity_name": "Allowance",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-allowance-useallowance-com-instagram-com-useallowance",
@@ -1341,7 +1341,7 @@
     "discovered_entity_name": "Allowance",
     "match_reason": "Found from public search query \"Allowance instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-amboras-amboras-com-instagram-com-amboras-ai",
@@ -1355,7 +1355,7 @@
     "discovered_entity_name": "Amboras",
     "match_reason": "Found from public search query \"Amboras instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-amboras-amboras-com-linkedin-com-company-ecomcoder",
@@ -1369,7 +1369,7 @@
     "discovered_entity_name": "Amboras",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-amboras-amboras-com-x-com-amboras-inc",
@@ -1381,9 +1381,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Amboras",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Amboras x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-andustry-andustry-com-linkedin-com-company-andustry-ai",
@@ -1397,7 +1397,7 @@
     "discovered_entity_name": "Andustry",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-andustry-andustry-com-x-com-andustry-hq",
@@ -1411,7 +1411,7 @@
     "discovered_entity_name": "Andustry",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-anoria-www-anoria-com-instagram-com-anoria-inc",
@@ -1425,7 +1425,7 @@
     "discovered_entity_name": "ANORIA",
     "match_reason": "Found from public search query \"ANORIA instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-anoria-www-anoria-com-x-com-michaelblhssn",
@@ -1439,7 +1439,7 @@
     "discovered_entity_name": "ANORIA",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-anoria-www-anoria-com-youtube-com-anoria-inc",
@@ -1453,7 +1453,7 @@
     "discovered_entity_name": "ANORIA",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-apollo-atomics-inc-apolloatomics-com-linkedin-com-in-aahalimi",
@@ -1467,7 +1467,7 @@
     "discovered_entity_name": "Apollo Atomics, Inc.",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-apollo-atomics-inc-apolloatomics-com-linkedin-com-in-drewwalkerrr",
@@ -1481,7 +1481,7 @@
     "discovered_entity_name": "Apollo Atomics, Inc.",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-apollo-atomics-inc-apolloatomics-com-linkedin-com-company-apollo-atomics",
@@ -1495,7 +1495,7 @@
     "discovered_entity_name": "Apollo Atomics, Inc.",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-aquashield-aquashieldai-com-linkedin-com-company-aquashieldinc",
@@ -1509,7 +1509,7 @@
     "discovered_entity_name": "AquaShield",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-archer-archermoney-com-x-com-archer-money",
@@ -1523,7 +1523,7 @@
     "discovered_entity_name": "Archer",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-archer-archermoney-com-linkedin-com-company-archermoney",
@@ -1537,7 +1537,7 @@
     "discovered_entity_name": "Archer",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-arctic-health-arctic-health-linkedin-com-company-arctic-health",
@@ -1551,7 +1551,7 @@
     "discovered_entity_name": "Arctic Health",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-arden-ardentech-ai-linkedin-com-company-ardeninc",
@@ -1565,7 +1565,7 @@
     "discovered_entity_name": "Arden",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-ardent-tryardent-com-x-com-ardentai",
@@ -1579,7 +1579,7 @@
     "discovered_entity_name": "Ardent",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-ardent-tryardent-com-linkedin-com-company-ardent-db",
@@ -1593,7 +1593,7 @@
     "discovered_entity_name": "Ardent",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-arga-labs-www-argalabs-com-linkedin-com-company-arga-labs",
@@ -1607,7 +1607,7 @@
     "discovered_entity_name": "Arga Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-arga-labs-www-argalabs-com-x-com-argalabs",
@@ -1621,7 +1621,7 @@
     "discovered_entity_name": "Arga Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-9-mothers-corporation-duckduckgo-com-html-q-229-20mothers-22-20-22y-20combinator-22-20instagram-instagram-com-p-dzvv-fmj2mw",
@@ -1633,9 +1633,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "9 Mothers",
-    "match_reason": "Verified post-level public evidence from search query \"\"9 Mothers\" \"Y Combinator\" Instagram\".",
+    "match_reason": "Verified post-level public evidence from search query \"9 Mothers instagram from discovered public source path\".",
     "review_state": "verified",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-9-mothers-corporation-duckduckgo-com-html-q-229-20mothers-22-20-22y-20combinator-22-20instagram-instagram-com-p-dzxoph5gmlm",
@@ -1647,9 +1647,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "9 Mothers",
-    "match_reason": "Found from public search query \"\"9 Mothers\" \"Y Combinator\" Instagram\".",
+    "match_reason": "Found from public search query \"9 Mothers instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-arzana-www-arzana-com-linkedin-com-company-arzana-ai",
@@ -1663,7 +1663,7 @@
     "discovered_entity_name": "Arzana",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-arzana-www-arzana-com-instagram-com-arzana-automation",
@@ -1677,7 +1677,7 @@
     "discovered_entity_name": "Arzana",
     "match_reason": "Found from public search query \"Arzana instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-arzana-www-arzana-com-youtube-com-arzana-automation",
@@ -1691,7 +1691,7 @@
     "discovered_entity_name": "Arzana",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-asendia-ai-asendia-ai-youtu-be-8pdquklre6o",
@@ -1705,7 +1705,7 @@
     "discovered_entity_name": "Asendia AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-aseon-labs-www-aseonlabs-com-youtube-com-watch",
@@ -1719,7 +1719,7 @@
     "discovered_entity_name": "Aseon Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-aseon-labs-www-aseonlabs-com-x-com-aseonlabs",
@@ -1733,7 +1733,7 @@
     "discovered_entity_name": "Aseon Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-aseon-labs-www-aseonlabs-com-linkedin-com-company-aseon-labs",
@@ -1747,7 +1747,7 @@
     "discovered_entity_name": "Aseon Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-asterlab-www-asterlab-ai-x-com-asterailabs",
@@ -1761,7 +1761,7 @@
     "discovered_entity_name": "Aster",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-atrisa-refortif-ai-linkedin-com-company-112140930",
@@ -1775,7 +1775,7 @@
     "discovered_entity_name": "Atrisa",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-atrisa-refortif-ai-youtube-com-atrisaai",
@@ -1789,7 +1789,7 @@
     "discovered_entity_name": "Atrisa",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-autostep-autostep-ai-linkedin-com-companies-autostep-ai",
@@ -1803,7 +1803,7 @@
     "discovered_entity_name": "Autostep",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-autostep-autostep-ai-x-com-aidan-pratt",
@@ -1817,7 +1817,7 @@
     "discovered_entity_name": "Autostep",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-autostep-autostep-ai-linkedin-com-posts-palantir-technologies-the-next-generational-company-will-be-powered-activity-7363198927963099138-iihb",
@@ -1831,7 +1831,7 @@
     "discovered_entity_name": "Autostep",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-auxos-www-useauxos-com-linkedin-com-company-auxos",
@@ -1845,7 +1845,7 @@
     "discovered_entity_name": "Auxos",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-avea-robotics-www-avearobotics-com-producthunt-com-products-sentinel-10-reviews-new",
@@ -1859,7 +1859,7 @@
     "discovered_entity_name": "Avea Robotics",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-avea-robotics-www-avearobotics-com-x-com-avearobotics",
@@ -1873,7 +1873,7 @@
     "discovered_entity_name": "Avea Robotics",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-avea-robotics-www-avearobotics-com-linkedin-com-company-avea-robotics",
@@ -1887,7 +1887,7 @@
     "discovered_entity_name": "Avea Robotics",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-biostack-platforms-www-getbiostack-com-x-com-getbiostack",
@@ -1899,9 +1899,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "BioStack Platforms",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"BioStack Platforms x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-trybloom-trybloom-ai-x-com-rincidium-status-1995946528343818656",
@@ -1915,7 +1915,7 @@
     "discovered_entity_name": "Bloom",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-callab-ai-callab-ai-x-com-callab-ai",
@@ -1929,7 +1929,7 @@
     "discovered_entity_name": "Callab AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-callab-ai-callab-ai-linkedin-com-company-104352862",
@@ -1943,7 +1943,7 @@
     "discovered_entity_name": "Callab AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-callab-ai-callab-ai-youtube-com-callabai",
@@ -1957,7 +1957,7 @@
     "discovered_entity_name": "Callab AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-characterquilt-characterquilt-com-linkedin-com-company-characterquilt",
@@ -1971,7 +1971,7 @@
     "discovered_entity_name": "CharacterQuilt",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-characterquilt-characterquilt-com-x-com-characterquilt",
@@ -1983,9 +1983,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "CharacterQuilt",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"CharacterQuilt x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-chert-www-trychert-com-linkedin-com-company-trychert",
@@ -1999,7 +1999,7 @@
     "discovered_entity_name": "Chert",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-chert-www-trychert-com-x-com-cherthq",
@@ -2013,7 +2013,7 @@
     "discovered_entity_name": "Chert",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-chert-www-trychert-com-instagram-com-chert-hq",
@@ -2027,7 +2027,7 @@
     "discovered_entity_name": "Chert",
     "match_reason": "Found from public search query \"Chert instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-cignara-cignara-com-linkedin-com-company-cignara",
@@ -2041,7 +2041,7 @@
     "discovered_entity_name": "Cignara",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-cignara-cignara-com-x-com-cignara-ai",
@@ -2053,9 +2053,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Cignara",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Cignara x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-clara-2-askclara-com-linkedin-com-in-emmaludwick",
@@ -2069,7 +2069,7 @@
     "discovered_entity_name": "Clara",
     "match_reason": "Found from public search query \"Clara linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-clara-2-askclara-com-linkedin-com-in-greysteil",
@@ -2083,7 +2083,7 @@
     "discovered_entity_name": "Clara",
     "match_reason": "Found from public search query \"Clara linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-clara-2-askclara-com-x-com-askclarahealth",
@@ -2095,9 +2095,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Clara",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Clara x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-complir-complir-io-linkedin-com-company-complir",
@@ -2111,7 +2111,7 @@
     "discovered_entity_name": "Complir",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-dayjob-www-getdayjob-ai-linkedin-com-in-georgepos",
@@ -2125,7 +2125,7 @@
     "discovered_entity_name": "Dayjob",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-dayjob-www-getdayjob-ai-linkedin-com-in-frederic-fooks",
@@ -2139,7 +2139,7 @@
     "discovered_entity_name": "Dayjob",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-dayjob-www-getdayjob-ai-linkedin-com-in-joetwalton",
@@ -2153,7 +2153,7 @@
     "discovered_entity_name": "Dayjob",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-deep-interactions-deepinteractions-ai-linkedin-com-company-deep-interactions",
@@ -2167,7 +2167,7 @@
     "discovered_entity_name": "Deep Interactions",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-dispatch-dispatch-space-linkedin-com-company-dispatch-space",
@@ -2181,7 +2181,7 @@
     "discovered_entity_name": "Dispatch",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-dispatch-dispatch-space-x-com-dispatchspace",
@@ -2193,9 +2193,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Dispatch",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Dispatch x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-drippay-usedrip-ai-x-com-drippaygmi",
@@ -2209,7 +2209,7 @@
     "discovered_entity_name": "Drip",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-drippay-usedrip-ai-linkedin-com-company-joindrip",
@@ -2223,7 +2223,7 @@
     "discovered_entity_name": "Drip",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-enjamb-labs-www-enjamb-ai-linkedin-com-company-enjamb",
@@ -2237,7 +2237,7 @@
     "discovered_entity_name": "Enjamb Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-expanse-expanse-sh-youtube-com-expanse-labs",
@@ -2251,7 +2251,7 @@
     "discovered_entity_name": "Expanse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-foaster-foaster-ai-linkedin-com-company-foaster-ai",
@@ -2265,7 +2265,7 @@
     "discovered_entity_name": "Foaster",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-foaster-foaster-ai-x-com-foaster-ai",
@@ -2279,7 +2279,7 @@
     "discovered_entity_name": "Foaster",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-fuchsia-getfuchsia-ai-linkedin-com-company-getfuchsia",
@@ -2293,7 +2293,7 @@
     "discovered_entity_name": "Fuchsia",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-gojiberry-ai-www-gojiberry-ai-x-com-gojiberryai",
@@ -2305,9 +2305,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Gojiberry AI",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Gojiberry AI x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-gojiberry-ai-www-gojiberry-ai-producthunt-com-products-gojiberry",
@@ -2321,7 +2321,7 @@
     "discovered_entity_name": "Gojiberry AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-runharbor-runharbor-com-x-com-runharbor",
@@ -2335,7 +2335,7 @@
     "discovered_entity_name": "Harbor",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-runharbor-runharbor-com-linkedin-com-company-runharbor",
@@ -2349,7 +2349,7 @@
     "discovered_entity_name": "Harbor",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hessian-hessian-sh-linkedin-com-in-bao-thai-nguyen",
@@ -2363,7 +2363,7 @@
     "discovered_entity_name": "Hessian",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hessian-hessian-sh-linkedin-com-in-jamesdsmith99",
@@ -2377,7 +2377,7 @@
     "discovered_entity_name": "Hessian",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hessian-hessian-sh-linkedin-com-in-thomasedw",
@@ -2391,7 +2391,7 @@
     "discovered_entity_name": "Hessian",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hessian-hessian-sh-linkedin-com-company-hessianhq",
@@ -2405,7 +2405,7 @@
     "discovered_entity_name": "Hessian",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hevn-inc-gethevn-com-x-com-hevn-finance",
@@ -2419,7 +2419,7 @@
     "discovered_entity_name": "HEVN, inc",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hexa-www-hexaagents-com-linkedin-com-company-hexaagents",
@@ -2433,7 +2433,7 @@
     "discovered_entity_name": "Hexa",
     "match_reason": "Found from public search query \"Hexa linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-farzatv",
@@ -2447,7 +2447,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-gdb-status-2060955146952077653",
@@ -2461,7 +2461,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-shpigford-status-2048709008836420092",
@@ -2475,7 +2475,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-4xiom-status-2060889823989129367",
@@ -2489,7 +2489,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-iamwilliamwang-status-2041323236378775885",
@@ -2503,7 +2503,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-lennysan-status-2048867586964885516",
@@ -2517,7 +2517,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-0xbelabbaa-status-2060919564758884476",
@@ -2531,7 +2531,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-aaron-epstein-status-2066992416578785574",
@@ -2545,7 +2545,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-putrikarunian-status-2041316715024519494",
@@ -2559,7 +2559,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-sharifshameem-status-2048290920349446396",
@@ -2573,7 +2573,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-instagram-com-heyclicky",
@@ -2587,7 +2587,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found from public search query \"HeyClicky instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-heyclicky-heyclicky-com-x-com-heyclicky",
@@ -2601,7 +2601,7 @@
     "discovered_entity_name": "HeyClicky",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hub-hub-xyz-linkedin-com-feed-update-urn-li-activity-7472309496556474368",
@@ -2615,7 +2615,7 @@
     "discovered_entity_name": "Hub",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hub-hub-xyz-x-com-hubxyz",
@@ -2629,7 +2629,7 @@
     "discovered_entity_name": "Hub",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-hub-hub-xyz-linkedin-com-company-104221584",
@@ -2643,7 +2643,7 @@
     "discovered_entity_name": "Hub",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-humwork-humwork-ai-x-com-humworkai",
@@ -2657,7 +2657,7 @@
     "discovered_entity_name": "Humwork",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-humwork-humwork-ai-linkedin-com-company-humwork",
@@ -2671,7 +2671,7 @@
     "discovered_entity_name": "Humwork",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-incandor-www-incandor-com-linkedin-com-in-matthew-yekell",
@@ -2685,7 +2685,7 @@
     "discovered_entity_name": "Incandor",
     "match_reason": "Found from public search query \"Incandor linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-incandor-www-incandor-com-linkedin-com-in-luc-rosenzweig",
@@ -2699,7 +2699,7 @@
     "discovered_entity_name": "Incandor",
     "match_reason": "Found from public search query \"Incandor linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-infera-www-infera-bio-youtube-com-watch",
@@ -2713,7 +2713,7 @@
     "discovered_entity_name": "Infera",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-awokoyad-status-2045784162842394768",
@@ -2727,7 +2727,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-insforge",
@@ -2741,7 +2741,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-wahedsikder-status-2044711605804663089",
@@ -2755,7 +2755,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-zhubzyz-status-2051174424712249687",
@@ -2769,7 +2769,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-posthog",
@@ -2783,7 +2783,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-knuceles-status-2056443091889131557",
@@ -2797,7 +2797,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-tryhermeshq",
@@ -2811,7 +2811,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-prakharsingh74-status-2048044436723282214",
@@ -2825,7 +2825,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-elijahmuraoka-status-2056441851456925870",
@@ -2839,7 +2839,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-gurxdesign-status-2045740678450446347",
@@ -2853,7 +2853,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-insforge-insforge-dev-x-com-madebyabhinav-status-2045035141932937367",
@@ -2867,7 +2867,7 @@
     "discovered_entity_name": "InsForge",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-instaagent-instaagent-com-linkedin-com-company-112974856",
@@ -2881,7 +2881,7 @@
     "discovered_entity_name": "InstaAgent",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-instaagent-instaagent-com-x-com-instaagentai",
@@ -2895,7 +2895,7 @@
     "discovered_entity_name": "InstaAgent",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-instaagent-instaagent-com-instagram-com-instaagent-ai",
@@ -2909,7 +2909,7 @@
     "discovered_entity_name": "InstaAgent",
     "match_reason": "Found from public search query \"InstaAgent instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-intelligence-factory-intelligence-factory-com-linkedin-com-company-intelligence-factory",
@@ -2923,7 +2923,7 @@
     "discovered_entity_name": "Intelligence Factory",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-interfaze-interfaze-ai-x-com-interfaze-ai",
@@ -2937,7 +2937,7 @@
     "discovered_entity_name": "Interfaze",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-interfaze-interfaze-ai-linkedin-com-company-interfaze-ai",
@@ -2951,7 +2951,7 @@
     "discovered_entity_name": "Interfaze",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-inth-inth-com-x-com-inth",
@@ -2965,7 +2965,7 @@
     "discovered_entity_name": "Inth",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-inth-inth-com-linkedin-com-company-inth",
@@ -2979,7 +2979,7 @@
     "discovered_entity_name": "Inth",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-keyframe-labs-keyframelabs-com-linkedin-com-company-keyframe-labs-inc",
@@ -2993,7 +2993,7 @@
     "discovered_entity_name": "Keyframe Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-keyframe-labs-keyframelabs-com-x-com-keyframelabs",
@@ -3007,7 +3007,7 @@
     "discovered_entity_name": "Keyframe Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-kimpton-ai-kimpton-ai-x-com-kimptonai",
@@ -3021,7 +3021,7 @@
     "discovered_entity_name": "Kimpton AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-kimpton-ai-kimpton-ai-linkedin-com-showcase-kimpton-ai",
@@ -3035,7 +3035,7 @@
     "discovered_entity_name": "Kimpton AI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-kinect-www-trykinect-ai-x-com-trykinect",
@@ -3049,7 +3049,7 @@
     "discovered_entity_name": "Kinect",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-kinect-www-trykinect-ai-linkedin-com-company-trykinect",
@@ -3063,7 +3063,7 @@
     "discovered_entity_name": "Kinect",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-klaimee-www-klaimee-ai-linkedin-com-in-ines-boutemadja",
@@ -3077,7 +3077,7 @@
     "discovered_entity_name": "Klaimee",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-klaimee-www-klaimee-ai-linkedin-com-in-julien-catonnet",
@@ -3091,7 +3091,7 @@
     "discovered_entity_name": "Klaimee",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-klaimee-www-klaimee-ai-linkedin-com-company-klaimee",
@@ -3105,7 +3105,7 @@
     "discovered_entity_name": "Klaimee",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-kuli-kuli-one-linkedin-com-company-kuliai",
@@ -3119,7 +3119,7 @@
     "discovered_entity_name": "Kuli",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-lab0-lab0-ai-linkedin-com-in-lakshyagupta831",
@@ -3133,7 +3133,7 @@
     "discovered_entity_name": "Lab0",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-lab0-lab0-ai-linkedin-com-in-sujaysriv",
@@ -3147,7 +3147,7 @@
     "discovered_entity_name": "Lab0",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-lab0-lab0-ai-linkedin-com-in-onkar-borade",
@@ -3161,7 +3161,7 @@
     "discovered_entity_name": "Lab0",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-lightsprint-lightsprint-ai-x-com-lightsprintai",
@@ -3175,7 +3175,7 @@
     "discovered_entity_name": "Lightsprint",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-lightsprint-lightsprint-ai-linkedin-com-company-lightsprint",
@@ -3189,7 +3189,7 @@
     "discovered_entity_name": "Lightsprint",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-limrun-lim-run-x-com-limrun",
@@ -3203,7 +3203,7 @@
     "discovered_entity_name": "Limrun",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-lumius-www-lumius-imaging-com-linkedin-com-company-lumius-imaging",
@@ -3215,9 +3215,9 @@
     "discovered_platform": "linkedin",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Lumius",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Lumius linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-manicule-manicule-dev-x-com-manicule",
@@ -3231,7 +3231,7 @@
     "discovered_entity_name": "Manicule",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-manicule-manicule-dev-linkedin-com-company-manicule",
@@ -3245,7 +3245,7 @@
     "discovered_entity_name": "Manicule",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-matforge-matforge-ai-linkedin-com-in-akashramdas",
@@ -3257,9 +3257,9 @@
     "discovered_platform": "linkedin",
     "discovered_entity_type": "company",
     "discovered_entity_name": "matforge",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"matforge linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-matforge-matforge-ai-linkedin-com-in-advaith-sridhar",
@@ -3271,9 +3271,9 @@
     "discovered_platform": "linkedin",
     "discovered_entity_type": "company",
     "discovered_entity_name": "matforge",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"matforge linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-memoir-www-trymemoir-ai-youtube-com-watch",
@@ -3287,7 +3287,7 @@
     "discovered_entity_name": "Memoir",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-memory-store-memory-store-x-com-memorydotstore",
@@ -3301,7 +3301,7 @@
     "discovered_entity_name": "Memory Store",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-memory-store-memory-store-linkedin-com-company-memorystore",
@@ -3315,7 +3315,7 @@
     "discovered_entity_name": "Memory Store",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-minicor-minicor-com-linkedin-com-company-laminar-run",
@@ -3329,7 +3329,7 @@
     "discovered_entity_name": "Minicor",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-minicor-minicor-com-x-com-laminar-run",
@@ -3343,7 +3343,7 @@
     "discovered_entity_name": "Minicor",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-miso-labs-misolabs-ai-x-com-misolabsai",
@@ -3357,7 +3357,7 @@
     "discovered_entity_name": "Miso Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-miso-labs-misolabs-ai-linkedin-com-company-miso-labs",
@@ -3371,7 +3371,7 @@
     "discovered_entity_name": "Miso Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-mount-mount-insure-linkedin-com-company-mountyc26-posts",
@@ -3385,7 +3385,7 @@
     "discovered_entity_name": "Mount",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-napkin-math-napkinmath-club-instagram-com-napkinmath-club",
@@ -3399,7 +3399,7 @@
     "discovered_entity_name": "Napkin Math",
     "match_reason": "Found from public search query \"Napkin Math instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-oddpool-www-oddpool-com-x-com-oddpool-alerts",
@@ -3411,9 +3411,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Oddpool",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Oddpool x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-ontora-ontora-com-linkedin-com-company-ontora",
@@ -3427,7 +3427,7 @@
     "discovered_entity_name": "Ontora",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-ontora-ontora-com-x-com-ontoratech",
@@ -3441,7 +3441,7 @@
     "discovered_entity_name": "Ontora",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-hvent90-status-2007953139467759819",
@@ -3455,7 +3455,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-cocolitron-status-2007971358832226535",
@@ -3469,7 +3469,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-nichtsalsdavid-status-2009982074472812912",
@@ -3483,7 +3483,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-robbwinkle-status-2009258213145718961",
@@ -3497,7 +3497,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-rvtond-status-2009016370436964437",
@@ -3511,7 +3511,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-max-takeoff-status-2009768315896365533",
@@ -3525,7 +3525,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-zeroshotnothing-status-2010519952910954805",
@@ -3539,7 +3539,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-tangledcircuit-status-2008763560965619718",
@@ -3553,7 +3553,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-voidserf-status-2009812602197811447",
@@ -3567,7 +3567,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-gonzalo-nunez-status-2010885236662682106",
@@ -3581,7 +3581,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openprose-prose-md-x-com-rvtond-status-2009016373016711186",
@@ -3595,7 +3595,7 @@
     "discovered_entity_name": "OpenProse",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-panacea-withpanacea-com-x-com-panacea-bio",
@@ -3607,9 +3607,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Panacea",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Panacea x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-panacea-withpanacea-com-linkedin-com-company-panacea-bio",
@@ -3623,7 +3623,7 @@
     "discovered_entity_name": "Panacea",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-useparrot-www-useparrot-com-linkedin-com-company-parrot",
@@ -3637,7 +3637,7 @@
     "discovered_entity_name": "Parrot",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-useparrot-www-useparrot-com-x-com-parrot",
@@ -3649,9 +3649,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Parrot",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Parrot x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-pavoot-pavoot-com-linkedin-com-company-pavoot",
@@ -3665,7 +3665,7 @@
     "discovered_entity_name": "Pavoot",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-pavoot-pavoot-com-instagram-com-pavoot-com",
@@ -3679,7 +3679,7 @@
     "discovered_entity_name": "Pavoot",
     "match_reason": "Found from public search query \"Pavoot instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-pavoot-pavoot-com-youtube-com-pavoot-com",
@@ -3693,7 +3693,7 @@
     "discovered_entity_name": "Pavoot",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-pentagon-pentagon-run-x-com-runpentagon",
@@ -3707,7 +3707,7 @@
     "discovered_entity_name": "Pentagon",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-playablai-playabl-ai-x-com-playabl-ai",
@@ -3721,7 +3721,7 @@
     "discovered_entity_name": "Playabl.ai",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-playablai-playabl-ai-linkedin-com-company-playablai",
@@ -3735,7 +3735,7 @@
     "discovered_entity_name": "Playabl.ai",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-playablai-playabl-ai-instagram-com-playabl-ai",
@@ -3749,7 +3749,7 @@
     "discovered_entity_name": "Playabl.ai",
     "match_reason": "Found from public search query \"Playabl.ai instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-playablai-playabl-ai-youtube-com-playabl-ai",
@@ -3763,7 +3763,7 @@
     "discovered_entity_name": "Playabl.ai",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-pops-pops-fyi-x-com-pops-fyi",
@@ -3777,7 +3777,7 @@
     "discovered_entity_name": "Pops",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-pops-pops-fyi-instagram-com-pops-fyi",
@@ -3791,7 +3791,7 @@
     "discovered_entity_name": "Pops",
     "match_reason": "Found from public search query \"Pops instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-pops-pops-fyi-youtube-com-pops-fyi",
@@ -3805,7 +3805,7 @@
     "discovered_entity_name": "Pops",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-projectx-www-projectx-cloud-in-linkedin-com-company-projectx-cloud",
@@ -3819,7 +3819,7 @@
     "discovered_entity_name": "ProjectX",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-projectx-www-projectx-cloud-x-com-projectx-cloud",
@@ -3833,7 +3833,7 @@
     "discovered_entity_name": "ProjectX",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-projectx-www-projectx-cloud-instagram-com-projectx-cloud",
@@ -3847,7 +3847,7 @@
     "discovered_entity_name": "ProjectX",
     "match_reason": "Found from public search query \"ProjectX instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-raspire-raspire-com-linkedin-com-company-raspire",
@@ -3861,7 +3861,7 @@
     "discovered_entity_name": "RASPIRE",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-raspire-raspire-com-x-com-raspire",
@@ -3875,7 +3875,7 @@
     "discovered_entity_name": "RASPIRE",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-regbase-regbase-com-linkedin-com-in-natalie-aresta-katz-a60a0416a",
@@ -3889,7 +3889,7 @@
     "discovered_entity_name": "Regbase",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-regbase-regbase-com-linkedin-com-in-ethan-shea",
@@ -3903,7 +3903,7 @@
     "discovered_entity_name": "Regbase",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-regbase-regbase-com-linkedin-com-in-isiah-godoy-17287a167",
@@ -3917,7 +3917,7 @@
     "discovered_entity_name": "Regbase",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-regbase-regbase-com-linkedin-com-company-regbase",
@@ -3931,7 +3931,7 @@
     "discovered_entity_name": "Regbase",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-regbase-regbase-com-x-com-theregbase",
@@ -3945,7 +3945,7 @@
     "discovered_entity_name": "Regbase",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-replicas-tryreplicas-com-producthunt-com-products-replicas",
@@ -3959,7 +3959,7 @@
     "discovered_entity_name": "Replicas",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-replicas-tryreplicas-com-x-com-connortbot-status-2032151022345601109",
@@ -3973,7 +3973,7 @@
     "discovered_entity_name": "Replicas",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-replicas-tryreplicas-com-x-com-tryreplicas",
@@ -3987,7 +3987,7 @@
     "discovered_entity_name": "Replicas",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-replicas-tryreplicas-com-linkedin-com-company-replicas",
@@ -4001,7 +4001,7 @@
     "discovered_entity_name": "Replicas",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-revnu-revnu-com-x-com-revnu-app",
@@ -4015,7 +4015,7 @@
     "discovered_entity_name": "Revnu",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-revnu-revnu-com-linkedin-com-company-revnu-app",
@@ -4029,7 +4029,7 @@
     "discovered_entity_name": "Revnu",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-river-markets-www-rivermarkets-com-x-com-river-markets",
@@ -4043,7 +4043,7 @@
     "discovered_entity_name": "River Markets",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-runtime-www-runtm-com-x-com-gustrigos",
@@ -4057,7 +4057,7 @@
     "discovered_entity_name": "Runtime",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-saffron-www-trysaffron-ai-linkedin-com-company-trysaffron",
@@ -4071,7 +4071,7 @@
     "discovered_entity_name": "Saffron",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-saffron-www-trysaffron-ai-x-com-trysaffron",
@@ -4085,7 +4085,7 @@
     "discovered_entity_name": "Saffron",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-sazabi-www-sazabi-com-linkedin-com-company-sazabi",
@@ -4099,7 +4099,7 @@
     "discovered_entity_name": "Sazabi",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-sazabi-www-sazabi-com-x-com-sazabi",
@@ -4113,7 +4113,7 @@
     "discovered_entity_name": "Sazabi",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-scope-tryscope-app-x-com-tryscope-app",
@@ -4127,7 +4127,7 @@
     "discovered_entity_name": "Scope",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-scope-tryscope-app-linkedin-com-company-tryscope",
@@ -4141,7 +4141,7 @@
     "discovered_entity_name": "Scope",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-sherpa-www-withsherpa-ai-linkedin-com-company-withsherpa",
@@ -4155,7 +4155,7 @@
     "discovered_entity_name": "Sherpa",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-sherpa-www-withsherpa-ai-x-com-with-sherpa",
@@ -4169,7 +4169,7 @@
     "discovered_entity_name": "Sherpa",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-silmaril-silmaril-dev-linkedin-com-company-silmarilsecurity",
@@ -4183,7 +4183,7 @@
     "discovered_entity_name": "Silmaril",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-smol-machines-smolmachines-com-x-com-binsquares",
@@ -4195,9 +4195,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "smol machines",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"smol machines x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-abhiaiyer-status-2013782002332283180",
@@ -4211,7 +4211,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-zachdive-status-2014038312508424597",
@@ -4225,7 +4225,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-chasemcdou-status-2013458004977373643",
@@ -4239,7 +4239,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-vladzima-status-2032306550073610246",
@@ -4253,7 +4253,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-chrislaupama-status-2011148329443607037",
@@ -4267,7 +4267,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-ericclemmons-status-2013413118467056004",
@@ -4281,7 +4281,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-leosreal-status-2027306293858586745",
@@ -4295,7 +4295,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-eliasstravik-status-2020580091449708978",
@@ -4309,7 +4309,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-gregpr07-status-2013038355630432742",
@@ -4323,7 +4323,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-fcoury-status-2010477904472281220",
@@ -4337,7 +4337,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-ivenvd-status-2011738469610242559",
@@ -4351,7 +4351,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-superset-www-superset-sh-x-com-superset-sh",
@@ -4365,7 +4365,7 @@
     "discovered_entity_name": "Superset",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-surtr-defense-systems-surtrdefense-com-linkedin-com-in-anshul-ahluwalia-17658264",
@@ -4379,7 +4379,7 @@
     "discovered_entity_name": "Surtr Defense Systems",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-surtr-defense-systems-surtrdefense-com-linkedin-com-in-camfiore",
@@ -4393,7 +4393,7 @@
     "discovered_entity_name": "Surtr Defense Systems",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-surtr-defense-systems-surtrdefense-com-linkedin-com-company-112736097",
@@ -4407,7 +4407,7 @@
     "discovered_entity_name": "Surtr Defense Systems",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-surtr-defense-systems-surtrdefense-com-x-com-surtrdefense",
@@ -4421,7 +4421,7 @@
     "discovered_entity_name": "Surtr Defense Systems",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-synphony-www-synphony-co-instagram-com-synphonyco",
@@ -4433,9 +4433,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Synphony",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Synphony instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-synphony-www-synphony-co-linkedin-com-company-synphonyco",
@@ -4449,7 +4449,7 @@
     "discovered_entity_name": "Synphony",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-synphony-www-synphony-co-x-com-im-sean-wu",
@@ -4463,7 +4463,7 @@
     "discovered_entity_name": "Synphony",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-taiga-taigabilling-com-linkedin-com-company-taigaai",
@@ -4477,7 +4477,7 @@
     "discovered_entity_name": "Taiga",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-taiga-taigabilling-com-x-com-taigabilling",
@@ -4491,7 +4491,7 @@
     "discovered_entity_name": "Taiga",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-tasklet-2-tasklet-ai-linkedin-com-company-taskletai",
@@ -4505,7 +4505,7 @@
     "discovered_entity_name": "Tasklet",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-tasklet-2-tasklet-ai-x-com-taskletai",
@@ -4519,7 +4519,7 @@
     "discovered_entity_name": "Tasklet",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-testerarmy-tester-army-x-com-testerarmy",
@@ -4533,7 +4533,7 @@
     "discovered_entity_name": "TesterArmy",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-testerarmy-tester-army-linkedin-com-company-testerarmy",
@@ -4547,7 +4547,7 @@
     "discovered_entity_name": "TesterArmy",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-the-company-company-www-thecompany-company-x-com-thecompanyai",
@@ -4561,7 +4561,7 @@
     "discovered_entity_name": "The Company Company",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-the-company-company-www-thecompany-company-linkedin-com-company-the-company-company",
@@ -4575,7 +4575,7 @@
     "discovered_entity_name": "The Company Company",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-tolmo-www-tolmo-com-x-com-tolmohq",
@@ -4589,7 +4589,7 @@
     "discovered_entity_name": "Tolmo",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-tolmo-www-tolmo-com-linkedin-com-company-131804405",
@@ -4603,7 +4603,7 @@
     "discovered_entity_name": "Tolmo",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-trellistech-trellistech-com-linkedin-com-company-trellis-str",
@@ -4617,7 +4617,7 @@
     "discovered_entity_name": "Trellis",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-trellistech-trellistech-com-x-com-usetrellis",
@@ -4629,9 +4629,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Trellis",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Trellis x from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-trellistech-trellistech-com-instagram-com-usetrellis",
@@ -4643,9 +4643,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Trellis",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Trellis instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-twolabs-www-twolabs-ai-linkedin-com-company-twolabsai",
@@ -4659,7 +4659,7 @@
     "discovered_entity_name": "Twolabs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-walter-www-walter-one-x-com-walterindustry",
@@ -4673,7 +4673,7 @@
     "discovered_entity_name": "Walter",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-walter-www-walter-one-linkedin-com-company-waltertechnologies",
@@ -4687,7 +4687,7 @@
     "discovered_entity_name": "Walter",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-wato-www-watolabs-com-x-com-watolabs",
@@ -4701,7 +4701,7 @@
     "discovered_entity_name": "Wato",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-wato-www-watolabs-com-linkedin-com-company-watoinc",
@@ -4715,7 +4715,7 @@
     "discovered_entity_name": "Wato",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-withai-withai-co-linkedin-com-in-imj-mcinnis",
@@ -4729,7 +4729,7 @@
     "discovered_entity_name": "WithAI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-withai-withai-co-linkedin-com-in-ben-finch-3a82471b5",
@@ -4743,7 +4743,7 @@
     "discovered_entity_name": "WithAI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-withai-withai-co-x-com-withai-inc",
@@ -4757,7 +4757,7 @@
     "discovered_entity_name": "WithAI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-withai-withai-co-linkedin-com-company-withai-inc-posts",
@@ -4771,7 +4771,7 @@
     "discovered_entity_name": "WithAI",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-youart-youart-ai-x-com-youartstudio",
@@ -4785,7 +4785,7 @@
     "discovered_entity_name": "YouArt",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-youart-youart-ai-instagram-com-youart-studio",
@@ -4797,9 +4797,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "YouArt",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"YouArt instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-youart-youart-ai-youtube-com-youart-studio",
@@ -4813,7 +4813,7 @@
     "discovered_entity_name": "YouArt",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-zibra-labs-zibralabs-ai-linkedin-com-blog-engineering-graph-systems-liquid-the-soul-of-a-new-graph-database-part-1",
@@ -4825,9 +4825,9 @@
     "discovered_platform": "linkedin",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Zibra Labs",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Zibra Labs linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-zibra-labs-zibralabs-ai-engineering-linkedin-com-teams-data-data-infrastructure-storage-infra-espresso",
@@ -4839,9 +4839,9 @@
     "discovered_platform": "linkedin",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Zibra Labs",
-    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "match_reason": "Found from public search query \"Zibra Labs linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-zibra-labs-zibralabs-ai-youtube-com-watch",
@@ -4855,7 +4855,7 @@
     "discovered_entity_name": "Zibra Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-zibra-labs-zibralabs-ai-youtu-be-wvt0gksw56w",
@@ -4869,7 +4869,7 @@
     "discovered_entity_name": "Zibra Labs",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-openwork-duckduckgo-com-html-q-22openwork-22-20site-3ainstagram-com-instagram-com-openwork",
@@ -4881,9 +4881,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OpenWork",
-    "match_reason": "Found from public search query \"\"OpenWork\" site:instagram.com\".",
+    "match_reason": "Found from public search query \"OpenWork instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-openwork-duckduckgo-com-html-q-22openwork-22-20site-3ainstagram-com-instagram-com-openwork-sns",
@@ -4895,9 +4895,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OpenWork",
-    "match_reason": "Found from public search query \"\"OpenWork\" site:instagram.com\".",
+    "match_reason": "Found from public search query \"OpenWork instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-openwork-duckduckgo-com-html-q-22openwork-22-20site-3ainstagram-com-instagram-com-openworkjobs",
@@ -4909,9 +4909,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OpenWork",
-    "match_reason": "Found from public search query \"\"OpenWork\" site:instagram.com\".",
+    "match_reason": "Found from public search query \"OpenWork instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-openwork-duckduckgo-com-html-q-22openwork-22-20site-3ainstagram-com-instagram-com-openworkfoundation",
@@ -4923,9 +4923,9 @@
     "discovered_platform": "instagram",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OpenWork",
-    "match_reason": "Found from public search query \"\"OpenWork\" site:instagram.com\".",
+    "match_reason": "Found from public search query \"OpenWork instagram from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-19T05:06:43.513Z"
+    "created_at": "2026-07-20T01:40:58.253Z"
   },
   {
     "id": "path-antihero-studios-antiherostudios-com-youtube-com-antihero-studios",
@@ -6057,9 +6057,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Alkera AI",
-    "match_reason": "Found from public search query \"Alkera AI x from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-amulet-amulet-so-linkedin-com-in-nithikb",
@@ -6199,7 +6199,7 @@
     "discovered_entity_name": "Bizmark",
     "match_reason": "Found from public search query \"Bizmark linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T01:02:02.797Z"
   },
   {
     "id": "path-definite-www-usedefinite-com-linkedin-com-company-usedefinite",
@@ -6339,7 +6339,7 @@
     "discovered_entity_name": "Libra Robotics",
     "match_reason": "Found from public search query \"Libra Robotics linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T01:02:02.797Z"
   },
   {
     "id": "path-libra-robotics-www-librabots-com-linkedin-com-company-librabots",
@@ -6353,7 +6353,7 @@
     "discovered_entity_name": "Libra Robotics",
     "match_reason": "Found from public search query \"Libra Robotics linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T01:02:02.797Z"
   },
   {
     "id": "path-libra-robotics-www-librabots-com-youtube-com-librarobotics",
@@ -6435,9 +6435,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OneCLI",
-    "match_reason": "Verified post-level public evidence from search query \"OneCLI x from discovered public source path\".",
-    "review_state": "verified",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "review_state": "needs_review",
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-onecli-onecli-sh-x-com-ns123abc-status-2025975943529931240",
@@ -6449,9 +6449,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OneCLI",
-    "match_reason": "Found from public search query \"OneCLI x from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-onecli-onecli-sh-x-com-rauchg-status-2029356560494018956",
@@ -6463,9 +6463,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OneCLI",
-    "match_reason": "Found from public search query \"OneCLI x from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-onecli-onecli-sh-x-com-steipete-status-2024602502755143922",
@@ -6477,9 +6477,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OneCLI",
-    "match_reason": "Found from public search query \"OneCLI x from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-onecli-onecli-sh-x-com-kdaigle-status-2026775005489713155",
@@ -6491,9 +6491,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OneCLI",
-    "match_reason": "Found from public search query \"OneCLI x from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-onecli-onecli-sh-x-com-jonathanfishner",
@@ -6505,9 +6505,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "OneCLI",
-    "match_reason": "Found from public search query \"OneCLI x from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-onecli-onecli-sh-linkedin-com-company-onecli",
@@ -6521,7 +6521,7 @@
     "discovered_entity_name": "OneCLI",
     "match_reason": "Found from public search query \"OneCLI linkedin from discovered public source path\".",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T01:02:02.797Z"
   },
   {
     "id": "path-osseus-osseus-ai-linkedin-com-company-osseus-intelligence",
@@ -6659,9 +6659,9 @@
     "discovered_platform": "x",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Speko",
-    "match_reason": "Found from public search query \"Speko x from discovered public source path\".",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
-    "created_at": "2026-07-20T01:40:58.253Z"
+    "created_at": "2026-07-20T00:15:16.602Z"
   },
   {
     "id": "path-speko-speko-ai-utm-source-ycombinator-utm-medium-profile-linkedin-com-company-speko-ai",
@@ -6701,6 +6701,20 @@
     "discovered_platform": "linkedin",
     "discovered_entity_type": "company",
     "discovered_entity_name": "Skymerse",
+    "match_reason": "Found as an outbound social/profile link on the official public company website.",
+    "review_state": "needs_review",
+    "created_at": "2026-07-20T00:15:16.602Z"
+  },
+  {
+    "id": "path-trellistech-trellistech-com-youtube-com-usetrellis",
+    "company_id": "company-trellistech",
+    "company_slug": "trellistech",
+    "company_name": "Trellis",
+    "source_url": "https://trellistech.com",
+    "discovered_url": "https://youtube.com/@usetrellis",
+    "discovered_platform": "youtube",
+    "discovered_entity_type": "company",
+    "discovered_entity_name": "Trellis",
     "match_reason": "Found as an outbound social/profile link on the official public company website.",
     "review_state": "needs_review",
     "created_at": "2026-07-20T00:15:16.602Z"

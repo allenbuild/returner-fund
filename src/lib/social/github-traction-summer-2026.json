@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "GitHub public API for official YC Summer 2026 GitHub links",
-    "fetchedAt": "2026-07-20T01:37:02.923Z",
+    "fetchedAt": "2026-07-20T02:01:09.691Z",
     "targetCount": 21,
     "fetchedCount": 20,
     "discovery": {
@@ -54,9 +54,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 115,
+        "totalStars": 116,
         "totalForks": 24,
-        "totalWatchers": 115,
+        "totalWatchers": 116,
         "maxRepoScore": 100,
         "profileScore": 97
       },
@@ -67,13 +67,13 @@
           "fullName": "coasty-ai/open-cowork",
           "description": "Open-source alternative to Claude Co-Work built by Claude Mythos 5. with BYOK",
           "htmlUrl": "https://github.com/coasty-ai/open-cowork",
-          "stars": 115,
+          "stars": 116,
           "forks": 24,
-          "watchers": 115,
+          "watchers": 116,
           "openIssues": 0,
           "language": "TypeScript",
           "pushedAt": "2026-06-14T19:20:35Z",
-          "updatedAt": "2026-07-19T17:46:00Z",
+          "updatedAt": "2026-07-20T01:27:03Z",
           "createdAt": "2026-06-11T19:55:21Z",
           "score": 100
         }
@@ -107,9 +107,9 @@
       },
       "aggregate": {
         "repoCount": 12,
-        "totalStars": 20624,
+        "totalStars": 20627,
         "totalForks": 2043,
-        "totalWatchers": 20624,
+        "totalWatchers": 20627,
         "maxRepoScore": 100,
         "profileScore": 95
       },
@@ -120,13 +120,13 @@
           "fullName": "screenpipe/screenpipe",
           "description": "YC (S26) | Record your screen 24/7 and plug into your agents. Local, private, secure. Connect to OpenClaw, Hermes agent and 100+ apps",
           "htmlUrl": "https://github.com/screenpipe/screenpipe",
-          "stars": 20314,
+          "stars": 20317,
           "forks": 1997,
-          "watchers": 20314,
-          "openIssues": 87,
+          "watchers": 20317,
+          "openIssues": 88,
           "language": "Rust",
           "pushedAt": "2026-07-19T15:48:13Z",
-          "updatedAt": "2026-07-20T00:40:51Z",
+          "updatedAt": "2026-07-20T01:40:20Z",
           "createdAt": "2024-06-19T13:23:56Z",
           "score": 100
         },
@@ -423,7 +423,7 @@
           "watchers": 93,
           "openIssues": 51,
           "language": "Python",
-          "pushedAt": "2026-07-20T00:35:10Z",
+          "pushedAt": "2026-07-20T01:29:00Z",
           "updatedAt": "2026-07-19T21:31:04Z",
           "createdAt": "2026-06-24T22:40:57Z",
           "score": 100
@@ -559,9 +559,9 @@
       },
       "aggregate": {
         "repoCount": 11,
-        "totalStars": 104,
+        "totalStars": 105,
         "totalForks": 27,
-        "totalWatchers": 104,
+        "totalWatchers": 105,
         "maxRepoScore": 88,
         "profileScore": 77
       },
@@ -572,13 +572,13 @@
           "fullName": "inkbox-ai/hermes-agent-plugin",
           "description": "Inkbox platform plugin for Hermes Agent",
           "htmlUrl": "https://github.com/inkbox-ai/hermes-agent-plugin",
-          "stars": 27,
+          "stars": 28,
           "forks": 8,
-          "watchers": 27,
+          "watchers": 28,
           "openIssues": 7,
           "language": "Python",
           "pushedAt": "2026-07-19T23:36:37Z",
-          "updatedAt": "2026-07-18T04:45:13Z",
+          "updatedAt": "2026-07-20T01:09:30Z",
           "createdAt": "2026-06-01T20:17:31Z",
           "score": 88
         },
