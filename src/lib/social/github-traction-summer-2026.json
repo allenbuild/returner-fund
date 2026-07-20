@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "GitHub public API for official YC Summer 2026 GitHub links",
-    "fetchedAt": "2026-07-20T02:01:09.691Z",
+    "fetchedAt": "2026-07-20T13:30:56.495Z",
     "targetCount": 21,
     "fetchedCount": 20,
     "discovery": {
@@ -54,9 +54,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 116,
+        "totalStars": 117,
         "totalForks": 24,
-        "totalWatchers": 116,
+        "totalWatchers": 117,
         "maxRepoScore": 100,
         "profileScore": 97
       },
@@ -67,13 +67,13 @@
           "fullName": "coasty-ai/open-cowork",
           "description": "Open-source alternative to Claude Co-Work built by Claude Mythos 5. with BYOK",
           "htmlUrl": "https://github.com/coasty-ai/open-cowork",
-          "stars": 116,
+          "stars": 117,
           "forks": 24,
-          "watchers": 116,
+          "watchers": 117,
           "openIssues": 0,
           "language": "TypeScript",
           "pushedAt": "2026-06-14T19:20:35Z",
-          "updatedAt": "2026-07-20T01:27:03Z",
+          "updatedAt": "2026-07-20T03:21:11Z",
           "createdAt": "2026-06-11T19:55:21Z",
           "score": 100
         }
@@ -107,9 +107,9 @@
       },
       "aggregate": {
         "repoCount": 12,
-        "totalStars": 20627,
-        "totalForks": 2043,
-        "totalWatchers": 20627,
+        "totalStars": 20640,
+        "totalForks": 2049,
+        "totalWatchers": 20640,
         "maxRepoScore": 100,
         "profileScore": 95
       },
@@ -120,13 +120,13 @@
           "fullName": "screenpipe/screenpipe",
           "description": "YC (S26) | Record your screen 24/7 and plug into your agents. Local, private, secure. Connect to OpenClaw, Hermes agent and 100+ apps",
           "htmlUrl": "https://github.com/screenpipe/screenpipe",
-          "stars": 20317,
-          "forks": 1997,
-          "watchers": 20317,
-          "openIssues": 88,
+          "stars": 20329,
+          "forks": 2003,
+          "watchers": 20329,
+          "openIssues": 91,
           "language": "Rust",
           "pushedAt": "2026-07-19T15:48:13Z",
-          "updatedAt": "2026-07-20T01:40:20Z",
+          "updatedAt": "2026-07-20T12:55:10Z",
           "createdAt": "2024-06-19T13:23:56Z",
           "score": 100
         },
@@ -184,13 +184,13 @@
           "fullName": "screenpipe/screenleak",
           "description": "Multi-modal benchmark for measuring sensitive-information redaction in human recording data",
           "htmlUrl": "https://github.com/screenpipe/screenleak",
-          "stars": 21,
+          "stars": 22,
           "forks": 0,
-          "watchers": 21,
+          "watchers": 22,
           "openIssues": 0,
           "language": "Python",
           "pushedAt": "2026-06-06T00:21:58Z",
-          "updatedAt": "2026-07-15T09:13:47Z",
+          "updatedAt": "2026-07-20T12:16:34Z",
           "createdAt": "2026-05-11T16:56:33Z",
           "score": 61
         },
@@ -327,7 +327,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/NebuSec",
         "bio": "",
-        "followers": 121,
+        "followers": 122,
         "following": 0,
         "publicRepos": 2,
         "publicGists": 0,
@@ -336,9 +336,9 @@
       },
       "aggregate": {
         "repoCount": 2,
-        "totalStars": 1061,
-        "totalForks": 307,
-        "totalWatchers": 1061,
+        "totalStars": 1070,
+        "totalForks": 309,
+        "totalWatchers": 1070,
         "maxRepoScore": 100,
         "profileScore": 86
       },
@@ -349,13 +349,13 @@
           "fullName": "NebuSec/CyberMeowfia",
           "description": "PoCs and exploits for CVEs discovered by VEGA. ",
           "htmlUrl": "https://github.com/NebuSec/CyberMeowfia",
-          "stars": 1057,
-          "forks": 306,
-          "watchers": 1057,
-          "openIssues": 44,
+          "stars": 1066,
+          "forks": 308,
+          "watchers": 1066,
+          "openIssues": 45,
           "language": "C",
           "pushedAt": "2026-07-19T07:04:09Z",
-          "updatedAt": "2026-07-20T00:41:48Z",
+          "updatedAt": "2026-07-20T12:50:26Z",
           "createdAt": "2026-07-01T08:55:52Z",
           "score": 100
         },
@@ -405,9 +405,9 @@
       },
       "aggregate": {
         "repoCount": 3,
-        "totalStars": 160,
+        "totalStars": 161,
         "totalForks": 17,
-        "totalWatchers": 160,
+        "totalWatchers": 161,
         "maxRepoScore": 100,
         "profileScore": 79
       },
@@ -418,13 +418,13 @@
           "fullName": "experientiallabs/world-model-harness",
           "description": "World-model-as-a-harness for simulating AI agent environments",
           "htmlUrl": "https://github.com/experientiallabs/world-model-harness",
-          "stars": 93,
+          "stars": 94,
           "forks": 12,
-          "watchers": 93,
-          "openIssues": 51,
+          "watchers": 94,
+          "openIssues": 68,
           "language": "Python",
-          "pushedAt": "2026-07-20T01:29:00Z",
-          "updatedAt": "2026-07-19T21:31:04Z",
+          "pushedAt": "2026-07-20T12:28:36Z",
+          "updatedAt": "2026-07-20T03:32:47Z",
           "createdAt": "2026-06-24T22:40:57Z",
           "score": 100
         },
@@ -575,10 +575,10 @@
           "stars": 28,
           "forks": 8,
           "watchers": 28,
-          "openIssues": 7,
+          "openIssues": 6,
           "language": "Python",
-          "pushedAt": "2026-07-19T23:36:37Z",
-          "updatedAt": "2026-07-20T01:09:30Z",
+          "pushedAt": "2026-07-20T07:28:39Z",
+          "updatedAt": "2026-07-20T07:29:18Z",
           "createdAt": "2026-06-01T20:17:31Z",
           "score": 88
         },
@@ -593,8 +593,8 @@
           "watchers": 31,
           "openIssues": 6,
           "language": "TypeScript",
-          "pushedAt": "2026-07-19T23:22:02Z",
-          "updatedAt": "2026-07-19T08:44:35Z",
+          "pushedAt": "2026-07-20T06:51:25Z",
+          "updatedAt": "2026-07-20T06:50:31Z",
           "createdAt": "2026-03-16T18:42:20Z",
           "score": 87
         },
@@ -623,12 +623,12 @@
           "stars": 7,
           "forks": 3,
           "watchers": 7,
-          "openIssues": 3,
+          "openIssues": 2,
           "language": "Python",
-          "pushedAt": "2026-07-18T01:59:07Z",
-          "updatedAt": "2026-07-15T18:49:30Z",
+          "pushedAt": "2026-07-20T07:11:05Z",
+          "updatedAt": "2026-07-20T07:12:06Z",
           "createdAt": "2026-06-12T23:09:22Z",
-          "score": 58
+          "score": 57
         },
         {
           "id": 1245030362,
@@ -639,10 +639,10 @@
           "stars": 6,
           "forks": 2,
           "watchers": 6,
-          "openIssues": 4,
+          "openIssues": 3,
           "language": "TypeScript",
-          "pushedAt": "2026-07-19T23:36:38Z",
-          "updatedAt": "2026-07-17T23:50:24Z",
+          "pushedAt": "2026-07-20T07:28:48Z",
+          "updatedAt": "2026-07-20T07:29:31Z",
           "createdAt": "2026-05-20T20:56:01Z",
           "score": 53
         },
@@ -671,12 +671,12 @@
           "stars": 3,
           "forks": 2,
           "watchers": 3,
-          "openIssues": 3,
+          "openIssues": 2,
           "language": "Python",
-          "pushedAt": "2026-07-19T23:36:38Z",
-          "updatedAt": "2026-07-17T20:44:32Z",
+          "pushedAt": "2026-07-20T07:32:30Z",
+          "updatedAt": "2026-07-20T07:32:06Z",
           "createdAt": "2026-06-17T19:44:01Z",
-          "score": 44
+          "score": 43
         },
         {
           "id": 1294768650,
@@ -687,12 +687,12 @@
           "stars": 3,
           "forks": 1,
           "watchers": 3,
-          "openIssues": 1,
+          "openIssues": 0,
           "language": "TypeScript",
-          "pushedAt": "2026-07-19T23:36:37Z",
-          "updatedAt": "2026-07-16T07:10:01Z",
+          "pushedAt": "2026-07-20T07:32:27Z",
+          "updatedAt": "2026-07-20T07:32:01Z",
           "createdAt": "2026-07-09T06:52:38Z",
-          "score": 39
+          "score": 38
         },
         {
           "id": 1300120498,
@@ -772,10 +772,10 @@
       },
       "aggregate": {
         "repoCount": 11,
-        "totalStars": 14,
+        "totalStars": 15,
         "totalForks": 15,
-        "totalWatchers": 14,
-        "maxRepoScore": 67,
+        "totalWatchers": 15,
+        "maxRepoScore": 68,
         "profileScore": 52
       },
       "repos": [
@@ -785,15 +785,15 @@
           "fullName": "robocurve/inspect-robots",
           "description": "Evaluation framework for VLA / physical-AI models: define a benchmark once, run any policy on any robot or sim. (The Inspect AI for robotics.)",
           "htmlUrl": "https://github.com/robocurve/inspect-robots",
-          "stars": 8,
+          "stars": 9,
           "forks": 6,
-          "watchers": 8,
+          "watchers": 9,
           "openIssues": 11,
           "language": "Python",
           "pushedAt": "2026-07-19T02:01:14Z",
-          "updatedAt": "2026-07-19T17:09:49Z",
+          "updatedAt": "2026-07-20T08:24:32Z",
           "createdAt": "2026-06-26T06:55:29Z",
-          "score": 67
+          "score": 68
         },
         {
           "id": 1282042008,
@@ -836,7 +836,7 @@
           "stars": 1,
           "forks": 3,
           "watchers": 1,
-          "openIssues": 4,
+          "openIssues": 5,
           "language": "Python",
           "pushedAt": "2026-07-17T07:25:16Z",
           "updatedAt": "2026-07-17T07:25:31Z",
@@ -1633,9 +1633,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 2526,
+        "totalStars": 2528,
         "totalForks": 144,
-        "totalWatchers": 2526,
+        "totalWatchers": 2528,
         "maxRepoScore": 100,
         "profileScore": 98
       },
@@ -1646,13 +1646,13 @@
           "fullName": "onecli/onecli",
           "description": "Open-source credential gateway with a built-in vault. give your AI agents access to services without exposing keys.",
           "htmlUrl": "https://github.com/onecli/onecli",
-          "stars": 2526,
+          "stars": 2528,
           "forks": 144,
-          "watchers": 2526,
-          "openIssues": 89,
+          "watchers": 2528,
+          "openIssues": 90,
           "language": "TypeScript",
           "pushedAt": "2026-07-12T16:47:45Z",
-          "updatedAt": "2026-07-19T22:25:33Z",
+          "updatedAt": "2026-07-20T12:30:54Z",
           "createdAt": "2026-03-08T10:38:52Z",
           "score": 100
         }
@@ -1687,7 +1687,7 @@
       "aggregate": {
         "repoCount": 4,
         "totalStars": 1243,
-        "totalForks": 99,
+        "totalForks": 100,
         "totalWatchers": 1243,
         "maxRepoScore": 100,
         "profileScore": 59
@@ -1700,12 +1700,12 @@
           "description": "YC S26 | WUPHF by Nex.ai lets you spin up your personal office of AI teammates who collaborate over shared context. Supports Claude Code, Codex, OpenClaw, OpenCode, local LLMs.",
           "htmlUrl": "https://github.com/nex-crm/wuphf",
           "stars": 1214,
-          "forks": 94,
+          "forks": 95,
           "watchers": 1214,
-          "openIssues": 40,
+          "openIssues": 41,
           "language": "Go",
           "pushedAt": "2026-07-14T01:19:10Z",
-          "updatedAt": "2026-07-19T11:56:50Z",
+          "updatedAt": "2026-07-20T08:18:47Z",
           "createdAt": "2026-03-25T13:27:01Z",
           "score": 100
         },
@@ -1875,7 +1875,7 @@
         "totalStars": 41,
         "totalForks": 1,
         "totalWatchers": 41,
-        "maxRepoScore": 67,
+        "maxRepoScore": 66,
         "profileScore": 50
       },
       "repos": [
@@ -1888,12 +1888,12 @@
           "stars": 19,
           "forks": 1,
           "watchers": 19,
-          "openIssues": 2,
+          "openIssues": 1,
           "language": "Python",
-          "pushedAt": "2026-07-19T16:13:32Z",
-          "updatedAt": "2026-07-19T04:08:12Z",
+          "pushedAt": "2026-07-20T04:34:00Z",
+          "updatedAt": "2026-07-20T04:34:06Z",
           "createdAt": "2026-05-05T16:09:51Z",
-          "score": 67
+          "score": 66
         },
         {
           "id": 1148189320,
@@ -1973,11 +1973,11 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 6,
+        "totalStars": 7,
         "totalForks": 3,
-        "totalWatchers": 6,
-        "maxRepoScore": 57,
-        "profileScore": 50
+        "totalWatchers": 7,
+        "maxRepoScore": 59,
+        "profileScore": 52
       },
       "repos": [
         {
@@ -1986,15 +1986,15 @@
           "fullName": "understudylabs/understudy-agent-tools",
           "description": "Public MIT-licensed Understudy agent tools and skill library",
           "htmlUrl": "https://github.com/understudylabs/understudy-agent-tools",
-          "stars": 6,
+          "stars": 7,
           "forks": 3,
-          "watchers": 6,
+          "watchers": 7,
           "openIssues": 10,
           "language": "TypeScript",
           "pushedAt": "2026-07-19T22:27:17Z",
-          "updatedAt": "2026-07-19T17:24:54Z",
+          "updatedAt": "2026-07-20T09:14:22Z",
           "createdAt": "2026-06-03T19:01:17Z",
-          "score": 57
+          "score": 59
         }
       ]
     },
@@ -2026,9 +2026,9 @@
       },
       "aggregate": {
         "repoCount": 4,
-        "totalStars": 498,
+        "totalStars": 499,
         "totalForks": 45,
-        "totalWatchers": 498,
+        "totalWatchers": 499,
         "maxRepoScore": 100,
         "profileScore": 41
       },
@@ -2039,13 +2039,13 @@
           "fullName": "AlmanacCode/codealmanac",
           "description": "A codebase wiki for AI coding agents. Captures what the code can't say: decisions, flows, invariants, gotchas.",
           "htmlUrl": "https://github.com/AlmanacCode/codealmanac",
-          "stars": 495,
+          "stars": 496,
           "forks": 43,
-          "watchers": 495,
+          "watchers": 496,
           "openIssues": 23,
           "language": "TypeScript",
           "pushedAt": "2026-07-17T06:19:10Z",
-          "updatedAt": "2026-07-19T07:55:44Z",
+          "updatedAt": "2026-07-20T01:54:35Z",
           "createdAt": "2026-04-16T05:31:42Z",
           "score": 100
         },

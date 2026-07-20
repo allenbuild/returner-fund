@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "GitHub public API for official YC Spring 2026 GitHub links",
-    "fetchedAt": "2026-07-20T02:01:09.690Z",
+    "fetchedAt": "2026-07-20T13:30:56.493Z",
     "targetCount": 6,
     "fetchedCount": 6,
     "discovery": {
@@ -1775,9 +1775,9 @@
       },
       "aggregate": {
         "repoCount": 18,
-        "totalStars": 98,
+        "totalStars": 99,
         "totalForks": 21,
-        "totalWatchers": 98,
+        "totalWatchers": 99,
         "maxRepoScore": 100,
         "profileScore": 69
       },
@@ -1847,6 +1847,22 @@
           "score": 39
         },
         {
+          "id": 1240725169,
+          "name": "data-skills",
+          "fullName": "Aradotso/data-skills",
+          "description": "Auto-generated agent skills from trending data engineering repos, by ara.so",
+          "htmlUrl": "https://github.com/Aradotso/data-skills",
+          "stars": 3,
+          "forks": 1,
+          "watchers": 3,
+          "openIssues": 0,
+          "language": null,
+          "pushedAt": "2026-07-18T12:53:25Z",
+          "updatedAt": "2026-07-20T05:12:27Z",
+          "createdAt": "2026-05-16T13:45:07Z",
+          "score": 38
+        },
+        {
           "id": 1240724860,
           "name": "marketing-skills",
           "fullName": "Aradotso/marketing-skills",
@@ -1877,22 +1893,6 @@
           "updatedAt": "2026-07-07T09:12:14Z",
           "createdAt": "2026-03-15T22:10:18Z",
           "score": 35
-        },
-        {
-          "id": 1240725169,
-          "name": "data-skills",
-          "fullName": "Aradotso/data-skills",
-          "description": "Auto-generated agent skills from trending data engineering repos, by ara.so",
-          "htmlUrl": "https://github.com/Aradotso/data-skills",
-          "stars": 2,
-          "forks": 1,
-          "watchers": 2,
-          "openIssues": 0,
-          "language": null,
-          "pushedAt": "2026-07-18T12:53:25Z",
-          "updatedAt": "2026-07-18T12:53:30Z",
-          "createdAt": "2026-05-16T13:45:07Z",
-          "score": 33
         },
         {
           "id": 1240725078,
@@ -2104,7 +2104,7 @@
         "totalForks": 31,
         "totalWatchers": 264,
         "maxRepoScore": 100,
-        "profileScore": 52
+        "profileScore": 51
       },
       "repos": [
         {
@@ -2137,7 +2137,7 @@
           "pushedAt": "2026-06-05T04:07:32Z",
           "updatedAt": "2026-06-19T21:46:39Z",
           "createdAt": "2026-05-22T23:40:32Z",
-          "score": 70
+          "score": 65
         },
         {
           "id": 1235398958,
@@ -3076,7 +3076,7 @@
           "watchers": 0,
           "openIssues": 0,
           "language": "Ruby",
-          "pushedAt": "2026-06-21T04:52:45Z",
+          "pushedAt": "2026-07-20T04:25:52Z",
           "updatedAt": "2026-06-21T04:52:49Z",
           "createdAt": "2026-05-06T21:38:23Z",
           "score": 8
@@ -3092,7 +3092,7 @@
           "watchers": 0,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-07-19T10:58:40Z",
+          "pushedAt": "2026-07-20T11:17:16Z",
           "updatedAt": "2026-05-06T21:43:41Z",
           "createdAt": "2026-05-06T21:38:21Z",
           "score": 8
@@ -3985,8 +3985,8 @@
           "watchers": 4,
           "openIssues": 0,
           "language": "Shell",
-          "pushedAt": "2026-07-19T06:02:32Z",
-          "updatedAt": "2026-07-19T06:02:33Z",
+          "pushedAt": "2026-07-20T06:05:20Z",
+          "updatedAt": "2026-07-20T06:05:19Z",
           "createdAt": "2026-04-07T21:34:27Z",
           "score": 35
         },
