@@ -11,6 +11,40 @@ import {
 } from "@/lib/graph/yc-spring-2026-dataset";
 import type { SocialAccountSummary } from "@/lib/graph/types";
 
+const EXPLICIT_S2026_HACKER_NEWS_POST_IDS = [
+  "46868675",
+  "47950283",
+  "45449787",
+  "45291644",
+  "45968265",
+  "43880813",
+  "45505190",
+  "45929327",
+  "46852255",
+  "45118425",
+  "45090966",
+  "46906052",
+  "46675614",
+  "45773036",
+  "45529555",
+  "48674312",
+  "47169764",
+  "45534173",
+  "48672548",
+  "48677220",
+  "46898157",
+  "46889163"
+] as const;
+
+const VERIFIED_S26_LINKEDIN_POST_IDS = [
+  "7478115276312428544",
+  "7473272593333166082",
+  "7482811226582867968",
+  "7474910574120787968",
+  "7481966021390647296",
+  "7476759966184488960"
+] as const;
+
 describe("YC Summer 2026 official snapshot", () => {
   it("uses explicit batch provenance to isolate evidence for entities shared by Spring and Summer", () => {
     const sharedCompanyId = "company-textsidekick";
@@ -99,6 +133,64 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(scoringEligibility(evidence[0]!)).toEqual({ eligible: true, reason: "eligible" });
     expect(earendil?.score).toBeGreaterThan(0);
     expect(graph.evidence.some((item) => item.platformPostId === "7478895855991775232")).toBe(false);
+  });
+
+  it("accepts explicitly S2026-scoped native Hacker News rows without requiring batch prose", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const expectedIds = [...EXPLICIT_S2026_HACKER_NEWS_POST_IDS].sort();
+    const evidence = graph.evidence.filter((item) =>
+      EXPLICIT_S2026_HACKER_NEWS_POST_IDS.includes(
+        item.platformPostId as (typeof EXPLICIT_S2026_HACKER_NEWS_POST_IDS)[number]
+      )
+    );
+
+    expect(evidence.map((item) => item.platformPostId).sort()).toEqual(expectedIds);
+    expect(evidence.every((item) => item.platform === "hacker_news")).toBe(true);
+    expect(
+      evidence.map((item) => ({
+        platformPostId: item.platformPostId,
+        eligibility: scoringEligibility(item)
+      }))
+    ).toEqual(
+      expect.arrayContaining(
+        expectedIds.map((platformPostId) => ({
+          platformPostId,
+          eligibility: { eligible: true, reason: "eligible" }
+        }))
+      )
+    );
+  });
+
+  it("accepts final verified S26 LinkedIn attribution receipts but not the Earendil listicle", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const expectedIds = [...VERIFIED_S26_LINKEDIN_POST_IDS].sort();
+    const evidence = graph.evidence.filter((item) =>
+      VERIFIED_S26_LINKEDIN_POST_IDS.includes(
+        item.platformPostId as (typeof VERIFIED_S26_LINKEDIN_POST_IDS)[number]
+      )
+    );
+
+    expect(evidence.map((item) => item.platformPostId).sort()).toEqual(expectedIds);
+    expect(evidence.every((item) => item.platform === "linkedin")).toBe(true);
+    expect(evidence.every((item) => scoringEligibility(item).eligible)).toBe(true);
+    expect(graph.evidence.some((item) => item.platformPostId === "7478895855991775232")).toBe(false);
+  });
+
+  it("accepts the targeted Libra Robotics post from exact native company-author proof", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const evidence = graph.evidence.filter((item) => item.platformPostId === "7482265767493779456");
+
+    expect(evidence).toHaveLength(1);
+    expect(evidence[0]).toEqual(expect.objectContaining({
+      entityType: "company",
+      entityId: "company-libra-robotics",
+      platform: "linkedin",
+      authorName: "Libra Robotics",
+      authorHandle: "librabots",
+      metrics: { reactions: 11, comments: 3 },
+      review_state: "verified"
+    }));
+    expect(scoringEligibility(evidence[0]!)).toEqual({ eligible: true, reason: "eligible" });
   });
 
   it("does not classify native posts as comments from engagement-counter prose", () => {
@@ -390,12 +482,17 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(profileRows.every((item) => item.contributionScore === 0)).toBe(true);
     expect(
       profileRows
-        .filter((item) => item.entityId === "company-smol-machines")
+        .filter(
+          (item) =>
+            item.entityType === "founder" &&
+            item.entityId === "founder-smol-machines-binbin-he-1655532" &&
+            item.attachedCompanyId === "company-smol-machines"
+        )
         .map((item) => item.id)
         .sort()
     ).toEqual([
-      "evidence-github-profile-company-smol-machines-containers",
-      "evidence-github-profile-company-smol-machines-smol-machines"
+      "evidence-github-profile-founder-smol-machines-binbin-he-1655532-containers",
+      "evidence-github-profile-founder-smol-machines-binbin-he-1655532-smol-machines"
     ]);
 
     const summer = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);

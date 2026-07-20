@@ -8,20 +8,20 @@ export const STRICT_METRIC_SOURCE_FILES = Object.freeze({
 });
 
 export const STRICT_METRIC_INPUT_SHA256 = Object.freeze({
-  "src/lib/social/public-evidence-current.json": "e17ae962cd0da5db29b9bbd9d7fe3d409a5396e8ab5b7aa202ac5a1b38196d16",
-  "src/lib/social/logged-in-evidence-current.json": "269a2ae743d5df52921726d3fefaef44f3ad8ebda59389ec5faf1a555ee734b9",
-  [STRICT_METRIC_SOURCE_FILES.targeted]: "f0ea272ff51359124da86a65c26a254e83bd6a33103f3db4d94be787836ef461",
-  [STRICT_METRIC_SOURCE_FILES.a16z]: "52d478ca7c3662cae7fad30235e75a04e46e991901e4c7fcefa920c8c8814d71",
-  "public/graph/s2026.json": "17ac092622e9f801320ac6401c74d2d00b7e4d89b108d58de569ec0aa71e8285",
-  "public/graph/s26.json": "c8fd0c76429088900bd342ef2871f52d1635e38805f1cc88e9df92851b2a5180",
-  "public/graph/a16zsr006.json": "9264fb166cdac49e59672b30160c161bab0a8d0ec68cdd2a49912cb119d8390f"
+  "src/lib/social/public-evidence-current.json": "8b236b76fe209ae51e0a2689dcb43acbf279d7d791139b5469528d1251ef168f",
+  "src/lib/social/logged-in-evidence-current.json": "5cf7b80c986ee5821f22cabe87de5f5cf5446991a2d03df1944ac498c25eb0fc",
+  [STRICT_METRIC_SOURCE_FILES.targeted]: "52dd61695f30e84563f3cb02c2548368d54f4d3ee904385ad6e4097db8fa4360",
+  [STRICT_METRIC_SOURCE_FILES.a16z]: "423681da6acfb9ae62470169be4dd54a7c776f6904c990db8a54a1663cee56b6",
+  "public/graph/s2026.json": "c6210bb4ff4477b883f2eeffcf3bcb0ce14ada2f6b2dd61675fc626330768a2b",
+  "public/graph/s26.json": "9f1223546ede10df63cc3b469066b11e89290a08ca4cb55640e205b3d499a04c",
+  "public/graph/a16zsr006.json": "b694139baf8e093b48b6bd6f5dd6d596cb875a81ec2b7d185c8e44208be765c3"
 });
 
 // These semantic hashes normalize only the explicitly allowlisted metadata
 // moves and aliases. They remain identical before and after remediation while
 // detecting any other source drift, including changes to non-target rows.
 export const STRICT_METRIC_NORMALIZED_SOURCE_SHA256 = Object.freeze({
-  [STRICT_METRIC_SOURCE_FILES.targeted]: "48040de3bdcb22f865353ae3ebfc6958285515ec24d18d71cf223f009a2413b6",
+  [STRICT_METRIC_SOURCE_FILES.targeted]: "b48bc57a588f372d97726a4a512447684f9ae841d973464f2e5eedd20358a3db",
   [STRICT_METRIC_SOURCE_FILES.a16z]: "95cbe838485a89bb09b03ea1f6e73f298b4b5879c4ae7dce352ab15f2213e507"
 });
 

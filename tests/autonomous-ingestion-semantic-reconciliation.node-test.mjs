@@ -384,7 +384,16 @@ describe("autonomous ingestion semantic attribution contracts", () => {
           sourceUrl: "https://x.com/beta_founder/status/2100000000000000005",
           platformPostId: "2100000000000000005"
         }
-      ]
+      ],
+      needsReview: [{
+        ...base,
+        id: "newer-generic-review-for-unmatched-founder",
+        entityType: "founder",
+        entityId: "founder-acme-robotics-alex-example",
+        candidateUrl: "https://x.com/ext_reporter/status/2100000000000000002",
+        last_checked_at: "2030-01-01T00:00:00.000Z",
+        review_state: "needs_review"
+      }]
     }], { resolveNativeAuthor });
 
     assert.deepEqual(
@@ -424,6 +433,76 @@ describe("autonomous ingestion semantic attribution contracts", () => {
       merged.attributionReconciliationLedger.find((row) => row.platformPostId === "2100000000000000004")?.disposition,
       "reattributed"
     );
+
+    const replayed = mergePublicEvidenceSnapshots([merged], { resolveNativeAuthor });
+    assert.deepEqual(replayed.evidence, merged.evidence);
+    assert.deepEqual(replayed.needsReview, merged.needsReview);
+    assert.equal(
+      JSON.stringify(replayed.needsReview),
+      JSON.stringify(merged.needsReview),
+      "review payload serialization must not drift when carried rows replace fresh quarantines"
+    );
+    assert.deepEqual(
+      replayed.attributionReconciliationLedger,
+      merged.attributionReconciliationLedger
+    );
+  });
+
+  it("appends a conflicting cohort note only once across public sanitizer replay", () => {
+    const company = {
+      sourceKey: "company-acme-robotics",
+      name: "Acme Robotics",
+      slug: "acme-robotics",
+      websiteUrl: "https://acmerobotics.example",
+      tagline: "Warehouse robots for manufacturers",
+      description: "Autonomous warehouse robotics",
+      accounts: [],
+      founders: []
+    };
+    const resolution = {
+      status: "matched",
+      reason: "native_author_maps_to_unique_canonical_owner",
+      author: { platform: "x", key: "acme-robotics" },
+      owner: {
+        batchSlug: "S26",
+        entityType: "company",
+        entityId: "company-acme-robotics",
+        entityName: "Acme Robotics",
+        companySlug: "acme-robotics",
+        companyName: "Acme Robotics",
+        companyEntityId: "company-acme-robotics"
+      },
+      company,
+      founder: null
+    };
+    const resolveNativeAuthor = () => resolution;
+    resolveNativeAuthor.companyForRow = () => ({ ...resolution.owner, company });
+    const input = {
+      id: "conflicting-cohort-note",
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: "company-acme-robotics",
+      companySlug: "acme-robotics",
+      companyName: "Acme Robotics",
+      platform: "x",
+      sourceUrl: "https://x.com/acme_robotics/status/2100000000000000099",
+      platformPostId: "2100000000000000099",
+      title: "Acme Robotics (YC P26) warehouse robotics update",
+      text: "Acme Robotics (YC P26) builds autonomous warehouse robots for manufacturers at acmerobotics.example.",
+      metrics: { views: 100 },
+      review_state: "verified",
+      matchReason: "Verified native company post."
+    };
+
+    const first = mergePublicEvidenceSnapshots([{ source: { batchSlug: "S26" }, evidence: [input] }], {
+      resolveNativeAuthor
+    });
+    const second = mergePublicEvidenceSnapshots([first], { resolveNativeAuthor });
+    const note = "Third-party title cohort label conflicts with the canonical catalog";
+
+    assert.equal(first.evidence.length, 1);
+    assert.equal(first.evidence[0].matchReason.split(note).length - 1, 1);
+    assert.deepEqual(second.evidence, first.evidence);
   });
 
   it("suppresses a quarantine only for the exact accepted attribution target", () => {
@@ -587,6 +666,288 @@ describe("autonomous ingestion semantic attribution contracts", () => {
         `durable catalog must resolve ${target.entityType} ${target.entityId}`
       );
     }
+  });
+
+  it("replaces a content-dropped reattribution with one quarantine for the original stale target", async () => {
+    const catalogs = await loadAutonomousCatalogs(root);
+    const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
+    const resolveNativeAuthor = buildAutonomousPublicNativeAuthorResolver(catalogs);
+    const body = "screenpipe | YC S26 lets you record how you use your computer, and Louis Beaumont founded the company to make desktop context available for useful personal AI workflows.";
+    const staleRow = {
+      id: "wrong-lane-rekursiv-screenpipe-content-duplicate",
+      entityType: "founder",
+      entityId: "founder-rekursivai-dan-kondratyuk-3527564",
+      entityName: "Dan Kondratyuk",
+      companySlug: "rekursivai",
+      companyName: "rekursiv.ai",
+      platform: "linkedin",
+      sourceUrl: "https://linkedin.com/posts/y-combinator_screenpipe-yc-s26-lets-you-record-how-you-activity-7482811226582867968-zym2",
+      platformPostId: "7482811226582867968",
+      attributionMode: "subject",
+      attributionVersion: PUBLIC_EVIDENCE_ATTRIBUTION_VERSION,
+      attributionProvenance: "verified_linkedin_primary_body_v3",
+      title: body,
+      text: body,
+      postedAt: "2026-07-01T12:00:00.000Z",
+      metrics: { reactions: 3 },
+      review_state: "verified"
+    };
+    const canonicalReference = {
+      id: "canonical-screenpipe-content",
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: "company-screenpipe",
+      companySlug: "screenpipe",
+      companyName: "screenpipe",
+      platform: "linkedin",
+      sourceUrl: "https://linkedin.com/posts/y-combinator_screenpipe-context-for-ai-activity-7482811226582867999-abcd",
+      platformPostId: "7482811226582867999",
+      text: body,
+      postedAt: "2026-07-01T12:00:00.000Z"
+    };
+
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: [staleRow]
+    }], {
+      resolveBatchSlug,
+      resolveNativeAuthor,
+      contentIdentityReferenceRows: [canonicalReference]
+    });
+
+    assert.equal(merged.evidence.length, 0);
+    assert.equal(merged.needsReview.length, 1);
+    assert.deepEqual(merged.needsReview[0].quarantineReasons, [
+      "same_platform_author_substantive_body"
+    ]);
+    assert.equal(merged.attributionReconciliationLedger.length, 1);
+    assert.deepEqual(merged.attributionReconciliationLedger[0], {
+      platform: "linkedin",
+      sourceUrl: staleRow.sourceUrl,
+      platformPostId: staleRow.platformPostId,
+      disposition: "quarantined",
+      reason: "same_platform_author_substantive_body",
+      staleAttribution: {
+        batchSlug: "S26",
+        entityType: "founder",
+        entityId: "founder-rekursivai-dan-kondratyuk-3527564",
+        companySlug: "rekursivai",
+        companyName: "rekursiv.ai"
+      }
+    });
+  });
+
+  it("quarantines a later exact same-author substantive-body post without collapsing other authors", () => {
+    const body = "Super proud of my mom launching her new startup with gift-ready items delivered every month, solving the recurring problem of finding unique gifts before an upcoming event.";
+    const row = ({ id, postId, handle = "nalingupta01", postedAt = "2024-12-05T06:00:00.000Z" }) => ({
+      id,
+      entityType: "founder",
+      entityId: "founder-cignara-nalin-gupta-78606",
+      entityName: "Nalin Gupta",
+      companySlug: "cignara",
+      companyName: "Cignara",
+      platform: "x",
+      sourceUrl: `https://x.com/${handle}/status/${postId}`,
+      platformPostId: postId,
+      title: `${handle} X post`,
+      text: body,
+      rawVisibleText: JSON.stringify({ author: handle, name: "Nalin Gupta", text: body }),
+      postedAt,
+      metrics: { views: postId === "1864872376540033181" ? 223 : 168, likes: 5 },
+      review_state: "verified"
+    });
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: [
+        row({ id: "canonical-nalin", postId: "1864872376540033181" }),
+        row({ id: "duplicate-nalin", postId: "1864872432437453114" }),
+        row({ id: "distinct-account", postId: "1864872500000000000", handle: "another_nalin" }),
+        row({
+          id: "later-repost",
+          postId: "1864872600000000000",
+          postedAt: "2024-12-06T06:00:00.000Z"
+        })
+      ]
+    }]);
+
+    assert.deepEqual(
+      merged.evidence.map((candidate) => candidate.id).sort(),
+      ["canonical-nalin", "distinct-account", "later-repost"]
+    );
+    assert.equal(merged.needsReview.length, 1);
+    assert.equal(merged.needsReview[0].sourceEvidenceId, "duplicate-nalin");
+    assert.deepEqual(
+      merged.needsReview[0].quarantineReasons,
+      ["same_platform_author_substantive_body"]
+    );
+    assert.deepEqual(
+      merged.attributionReconciliationLedger.map((entry) => ({
+        platformPostId: entry.platformPostId,
+        disposition: entry.disposition,
+        reason: entry.reason,
+        staleBatch: entry.staleAttribution.batchSlug,
+        staleEntityId: entry.staleAttribution.entityId
+      })),
+      [{
+        platformPostId: "1864872432437453114",
+        disposition: "quarantined",
+        reason: "same_platform_author_substantive_body",
+        staleBatch: "S2026",
+        staleEntityId: "founder-cignara-nalin-gupta-78606"
+      }]
+    );
+  });
+
+  it("dedupes a native candidate against a legacy profile fragment using exact plain-text author fallback", () => {
+    const body = "I have never been this excited about anything. Technology is moving fast enough to rewrite how people work, what a small team can pull off, and who gets to build at all.";
+    const reference = {
+      id: "legacy-daniela-profile-fragment",
+      batchSlug: "S2026",
+      entityType: "founder",
+      entityId: "founder-lemonlime-daniela-mu-oz-3671976",
+      companySlug: "lemonlime",
+      companyName: "LemonLime",
+      platform: "linkedin",
+      sourceUrl: "https://www.linkedin.com/in/danielamunoz12/recent-activity/all/#post-3",
+      platformPostId: null,
+      text: body,
+      rawVisibleText: `Feed post number 3 Daniela Muñoz Daniela Muñoz Follow ${body}`,
+      postedAt: null
+    };
+    const candidate = {
+      id: "native-daniela-candidate",
+      entityType: "founder",
+      entityId: "founder-lemonlime-daniela-mu-oz-3671976",
+      companySlug: "lemonlime",
+      companyName: "LemonLime",
+      platform: "linkedin",
+      sourceUrl: "https://www.linkedin.com/posts/activity-7477466387674816515-885Q",
+      platformPostId: "7477466387674816515",
+      authorName: "Daniela Muñoz",
+      text: body,
+      postedAt: "2026-06-29T21:01:51.402Z",
+      metrics: { reactions: 70, comments: 14 },
+      review_state: "verified"
+    };
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: [candidate]
+    }], { contentIdentityReferenceRows: [reference] });
+
+    assert.equal(merged.evidence.length, 0);
+    assert.equal(merged.needsReview.length, 1);
+    assert.deepEqual(merged.needsReview[0].quarantineReasons, [
+      "same_platform_author_substantive_body"
+    ]);
+    assert.deepEqual(merged.needsReview[0].duplicateEvidenceIdentity.duplicateOf, {
+      id: "legacy-daniela-profile-fragment",
+      sourceUrl: reference.sourceUrl,
+      platformPostId: null
+    });
+    assert.match(
+      merged.needsReview[0].duplicateEvidenceIdentity.contentBodySha256,
+      /^[0-9a-f]{64}$/
+    );
+    assert.equal(merged.attributionReconciliationLedger.length, 1);
+    assert.equal(merged.attributionReconciliationLedger[0].platformPostId, "7477466387674816515");
+  });
+
+  it("quarantines generic YouTube channel-brand collisions without rejecting distinctive or cohort-qualified brands", async () => {
+    const resolveNativeAuthor = buildAutonomousPublicNativeAuthorResolver(
+      await loadAutonomousCatalogs(root)
+    );
+    const row = ({
+      id,
+      batchSlug,
+      entityId,
+      companySlug,
+      companyName,
+      platformPostId,
+      title,
+      channelName
+    }) => ({
+      id,
+      batchSlug,
+      entityType: "company",
+      entityId,
+      companySlug,
+      companyName,
+      platform: "youtube",
+      platformPostId,
+      sourceUrl: `https://youtube.com/watch?v=${platformPostId}`,
+      youtubeChannelId: `channel-${platformPostId}`,
+      youtubeChannelUrl: `https://youtube.com/@${channelName.replace(/[^a-z0-9]+/gi, "")}`,
+      youtubeChannelName: channelName,
+      title,
+      text: title,
+      rawVisibleText: `${title} 100 views ${channelName}`,
+      metrics: { views: 100 },
+      review_state: "verified",
+      matchReason: "Public YouTube search result passed semantic attribution with persisted native channel identity.",
+      attributionVersion: PUBLIC_EVIDENCE_ATTRIBUTION_VERSION
+    });
+    const candidates = [
+      row({
+        id: "generic-university-collision",
+        batchSlug: "S2026",
+        entityId: "company-arden",
+        companySlug: "arden",
+        companyName: "Arden",
+        platformPostId: "university1",
+        title: "Arden University graduation ceremony",
+        channelName: "Arden University"
+      }),
+      row({
+        id: "generic-short-brand-collision",
+        batchSlug: "S26",
+        entityId: "company-manufacturingintelligence",
+        companySlug: "manufacturingintelligence",
+        companyName: "HERA",
+        platformPostId: "shortbrand1",
+        title: "Hera, your AI motion designer",
+        channelName: "Hera"
+      }),
+      row({
+        id: "distinctive-brand",
+        batchSlug: "S2026",
+        entityId: "company-sazabi",
+        companySlug: "sazabi",
+        companyName: "Sazabi",
+        platformPostId: "distinctive1",
+        title: "Introducing Sazabi",
+        channelName: "Sazabi"
+      }),
+      row({
+        id: "cohort-qualified-brand",
+        batchSlug: "S2026",
+        entityId: "company-arlo-industries",
+        companySlug: "arlo-industries",
+        companyName: "Arlo Industries",
+        platformPostId: "cohortmark1",
+        title: "Arlo Industries (YC P26) launch",
+        channelName: "Arlo Industries"
+      })
+    ];
+
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: candidates
+    }], { resolveNativeAuthor });
+
+    assert.deepEqual(
+      merged.evidence.map((candidate) => candidate.id).sort(),
+      ["cohort-qualified-brand", "distinctive-brand"]
+    );
+    assert.deepEqual(
+      merged.needsReview.map((candidate) => [
+        candidate.sourceEvidenceId,
+        candidate.quarantineReasons
+      ]).sort(),
+      [
+        ["generic-short-brand-collision", ["generic_youtube_channel_brand_only_without_production_entity_signal"]],
+        ["generic-university-collision", ["generic_youtube_channel_brand_only_without_production_entity_signal"]]
+      ]
+    );
   });
 
   it("replays the authoritative 77-row audit as exactly 64 accepted and 13 quarantined", async () => {

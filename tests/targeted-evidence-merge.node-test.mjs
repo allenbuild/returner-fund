@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { describe, it } from "node:test";
 import {
+  buildCanonicalTargetedAttributionResolver,
   buildLegacyPublicEvidenceBatchResolver,
   loadAutonomousCatalogs
 } from "../scripts/lib/autonomous-ingestion-plan.mjs";
@@ -174,6 +175,325 @@ describe("targeted Top Voice evidence publication merge", () => {
     );
   });
 
+  it("carries reconciliation state across a second replay and lets reattribution replace an exact stale-target quarantine", () => {
+    const postId = "CarbonCopyInc/carboncopy-mcp";
+    const legacy = legacyGitHubRow({
+      id: "legacy-blueprints",
+      entityId: "company-blueprints",
+      postId,
+      sourceUrl: "https://github.com/CarbonCopyInc/carboncopy-mcp"
+    });
+    const staleTargetQuarantine = {
+      platform: "linkedin",
+      sourceUrl: legacy.sourceUrl,
+      platformPostId: postId,
+      disposition: "quarantined",
+      reason: "legacy_review",
+      staleAttribution: {
+        batchSlug: "S26",
+        entityType: "company",
+        entityId: "company-blueprints",
+        attributionType: "subject"
+      }
+    };
+    const unrelatedPriorDirective = {
+      platform: "linkedin",
+      sourceUrl: "https://linkedin.com/posts/example_activity-7469000000000000001-fixture",
+      platformPostId: "7469000000000000001",
+      disposition: "quarantined",
+      reason: "prior_verified_quarantine",
+      staleAttribution: {
+        batchSlug: "S2026",
+        entityType: "company",
+        entityId: "company-unrelated",
+        attributionType: "subject"
+      }
+    };
+    const priorReview = {
+      id: "prior-review",
+      batchSlug: "S2026",
+      entityType: "company",
+      entityId: "company-unrelated",
+      platform: "linkedin",
+      platformPostId: unrelatedPriorDirective.platformPostId,
+      candidateUrl: unrelatedPriorDirective.sourceUrl,
+      review_state: "needs_review",
+      attributionReconciliationDirective: unrelatedPriorDirective
+    };
+    const first = mergeTargetedEvidenceSnapshots(
+      [{
+        ...snapshot([legacy], [priorReview]),
+        attributionReconciliationLedger: [staleTargetQuarantine]
+      }],
+      snapshot([]),
+      { mergedAt: CHECKED_AT }
+    );
+    const replacement = first.attributionReconciliationLedger.find((row) => row.platformPostId === postId);
+
+    assert.equal(first.evidence[0].entityId, "company-hoplite");
+    assert.equal(replacement.disposition, "reattributed");
+    assert.equal(replacement.staleAttribution.entityId, "company-blueprints");
+    assert.equal(replacement.replacementAttribution.entityId, "company-hoplite");
+    assert.ok(first.attributionReconciliationLedger.some((row) =>
+      row.platformPostId === unrelatedPriorDirective.platformPostId &&
+      row.reason === unrelatedPriorDirective.reason
+    ));
+
+    const second = mergeTargetedEvidenceSnapshots([first], snapshot([]), { mergedAt: CHECKED_AT });
+    assert.deepEqual(second.evidence, first.evidence);
+    assert.deepEqual(second.needsReview, first.needsReview);
+    assert.deepEqual(second.attributionReconciliationLedger, first.attributionReconciliationLedger);
+  });
+
+  it("applies only the four versioned native-post historical attribution overrides", () => {
+    const rows = [
+      legacyGitHubRow({
+        id: "blueprints-carboncopy-mcp",
+        entityId: "company-blueprints",
+        postId: "CarbonCopyInc/carboncopy-mcp",
+        sourceUrl: "https://github.com/CarbonCopyInc/carboncopy-mcp"
+      }),
+      legacyGitHubRow({
+        id: "bylaw-typescript-sdk",
+        entityId: "company-bylaw",
+        postId: "UseBylaw/typescript-sdk",
+        sourceUrl: "https://github.com/UseBylaw/typescript-sdk"
+      }),
+      legacyLinkedInRow({
+        id: "vestris-aahil-company-copy",
+        batchSlug: "S26",
+        entityId: "company-vestris",
+        postId: "7467251847137939459",
+        text: "Aahil Valliani describes founding Vestris with Joshua Tang for real-estate closing automation."
+      }),
+      legacyLinkedInRow({
+        id: "vestris-joshua-company-copy",
+        batchSlug: "S26",
+        entityId: "company-vestris",
+        postId: "7467271346683801600",
+        text: "Joshua Tang describes founding Vestris with Aahil Valliani for real-estate closing automation."
+      }),
+      legacyGitHubRow({
+        id: "blueprints-near-miss",
+        entityId: "company-blueprints",
+        postId: "CarbonCopyInc/docs",
+        sourceUrl: "https://github.com/CarbonCopyInc/docs"
+      })
+    ];
+
+    const merged = mergeTargetedEvidenceSnapshots([snapshot(rows)], snapshot([]), { mergedAt: CHECKED_AT });
+    const byId = new Map(merged.evidence.map((row) => [row.id, row]));
+
+    assert.equal(byId.get("blueprints-carboncopy-mcp").entityId, "company-hoplite");
+    assert.equal(byId.get("bylaw-typescript-sdk").entityId, "company-definite");
+    assert.deepEqual(
+      [
+        byId.get("vestris-aahil-company-copy").entityType,
+        byId.get("vestris-aahil-company-copy").entityId,
+        byId.get("vestris-aahil-company-copy").attachedCompanyId
+      ],
+      ["founder", "founder-vestris-aahil-valliani-verified-aahil-valliani", "company-vestris"]
+    );
+    assert.deepEqual(
+      [
+        byId.get("vestris-joshua-company-copy").entityType,
+        byId.get("vestris-joshua-company-copy").entityId,
+        byId.get("vestris-joshua-company-copy").attachedCompanyId
+      ],
+      ["founder", "founder-vestris-joshua-tang-verified-joshua-tang", "company-vestris"]
+    );
+    assert.equal(byId.get("blueprints-near-miss").entityId, "company-blueprints");
+    assert.equal(merged.attributionReconciliationLedger.filter((row) => row.disposition === "reattributed").length, 4);
+  });
+
+  it("repairs the eight legacy-unscoped, stale-ID, and stale-display-name closure rows without broad founder matching", async () => {
+    const catalogs = await loadAutonomousCatalogs(process.cwd());
+    const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
+    const resolveEntityAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
+    const validateEntityAttribution = canonicalTargetedValidator(catalogs);
+    const unscoped = (row) => {
+      const { batchSlug: _batchSlug, ...rest } = row;
+      return rest;
+    };
+    const rows = [
+      unscoped(legacyGitHubRow({
+        id: "github-sol-ultra-s26-company-blueprints-carboncopyinc-carboncopyinc-carboncopy-mcp",
+        entityId: "company-blueprints",
+        postId: "CarbonCopyInc/carboncopy-mcp",
+        sourceUrl: "https://github.com/CarbonCopyInc/carboncopy-mcp"
+      })),
+      unscoped(legacyGitHubRow({
+        id: "github-source-hunt-company-bylaw-usebylaw-typescript-sdk",
+        entityId: "company-bylaw",
+        postId: "UseBylaw/typescript-sdk",
+        sourceUrl: "https://github.com/UseBylaw/typescript-sdk"
+      })),
+      {
+        ...legacyLinkedInRow({
+          id: "codag-first",
+          batchSlug: "S26",
+          entityType: "founder",
+          entityId: "founder-codag-michael-zhou-verified-michael-zhou",
+          postId: "7425169865281261568",
+          text: "Michael Zhou explains why enterprise AI needs Codag log compression for reliable agent infrastructure."
+        }),
+        companyName: "Codag",
+        sourceUrl: "https://www.linkedin.com/posts/mzxzhou_40-billion-was-spent-on-enterprise-ai-last-activity-7425169865281261568-_KK-"
+      },
+      {
+        ...legacyLinkedInRow({
+          id: "codag-second",
+          batchSlug: "S26",
+          entityType: "founder",
+          entityId: "founder-codag-michael-zhou-verified-michael-zhou",
+          postId: "7464365183025717248",
+          text: "Michael Zhou announces joining Y Combinator S26 to build Codag log compression for production AI agents."
+        }),
+        companyName: "Codag",
+        sourceUrl: "https://www.linkedin.com/posts/mzxzhou_i-got-into-y-combinator-s26-the-past-6-activity-7464365183025717248-QEeY"
+      },
+      {
+        ...legacyLinkedInRow({
+          id: "litmus-founder",
+          batchSlug: "S26",
+          entityType: "founder",
+          entityId: "founder-litmus-build-elena-zhao-2315600",
+          postId: "7426814091199119360",
+          text: "Elena Zhao announces that Litmus is headed to Y Combinator for the summer batch to improve technical hiring."
+        }),
+        companyName: "Litmus",
+        sourceUrl: "https://www.linkedin.com/posts/elena-zhao-015353217_were-headed-to-y-combinator-this-summer-activity-7426814091199119360-4mJT"
+      },
+      {
+        ...legacyLinkedInRow({
+          id: "litmus-company",
+          batchSlug: "S26",
+          entityId: "company-litmus-build",
+          postId: "7465792243405131776",
+          text: "Jared Friedman highlights Litmus and its approach to evaluating engineers through realistic async work trials."
+        }),
+        companyName: "Litmus",
+        sourceUrl: "https://www.linkedin.com/posts/jaredfriedman_in-the-ai-coding-world-technical-interviews-activity-7465792243405131776-frhF"
+      },
+      trustedRow({
+        id: "talentpluto-company",
+        batchSlug: "S26",
+        entityId: "company-talentpluto",
+        companyName: "Talentpluto",
+        postId: "2029965304814608489"
+      }),
+      trustedRow({
+        id: "talentpluto-founder",
+        batchSlug: "S26",
+        entityType: "founder",
+        entityId: "founder-talentpluto-tony-xavier-1155860",
+        companyName: "Talentpluto",
+        postId: "2069493865808286106"
+      })
+    ];
+    const options = {
+      mergedAt: CHECKED_AT,
+      resolveBatchSlug,
+      resolveEntityAttribution,
+      validateEntityAttribution
+    };
+
+    const merged = mergeTargetedEvidenceSnapshots([snapshot(rows)], snapshot([]), options);
+    const byId = new Map(merged.evidence.map((row) => [row.id, row]));
+
+    assert.equal(merged.evidence.length, 8);
+    assert.equal(merged.source.targetedMergeAudit.quarantinedRows, 0);
+    assert.equal(byId.get(rows[0].id).entityId, "company-hoplite");
+    assert.equal(byId.get(rows[1].id).entityId, "company-definite");
+    assert.equal(byId.get("codag-first").entityId, "founder-codag-michael-zhou-2706494");
+    assert.equal(byId.get("codag-second").entityId, "founder-codag-michael-zhou-2706494");
+    assert.equal(byId.get("litmus-founder").entityId, "founder-litmus-hiring-elena-zhao-2315600");
+    assert.equal(byId.get("litmus-company").entityId, "company-litmus-hiring");
+    assert.deepEqual(
+      [byId.get("talentpluto-company").entityId, byId.get("talentpluto-company").companyName],
+      ["company-talentpluto", "Pluto"]
+    );
+    assert.deepEqual(
+      [byId.get("talentpluto-founder").entityId, byId.get("talentpluto-founder").companyName],
+      ["founder-talentpluto-tony-xavier-1155860", "Pluto"]
+    );
+    assert.equal(merged.attributionReconciliationLedger.length, 6);
+    assert.ok(merged.attributionReconciliationLedger.every((row) => row.disposition === "reattributed"));
+
+    const replayed = mergeTargetedEvidenceSnapshots([merged], snapshot([]), options);
+    assert.deepEqual(replayed.evidence, merged.evidence);
+    assert.deepEqual(replayed.attributionReconciliationLedger, merged.attributionReconciliationLedger);
+  });
+
+  it("rejects a known cross-company identity conflict and disagreeing strong founder author signals", async () => {
+    const catalogs = await loadAutonomousCatalogs(process.cwd());
+    const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
+    const resolveEntityAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
+    const validateEntityAttribution = canonicalTargetedValidator(catalogs);
+    const knownCompanyConflict = {
+      ...legacyLinkedInRow({
+        id: "known-company-conflict",
+        batchSlug: "S26",
+        entityId: "company-codag",
+        postId: "7490000000000000001",
+        text: "This fixture has an exact Codag entity ID but structured Litmus company identity fields."
+      }),
+      companyName: "Litmus",
+      companySlug: "litmus-hiring",
+      sourceUrl: "https://www.linkedin.com/posts/jaredfriedman_fixture-activity-7490000000000000001-abcd"
+    };
+    const strongAuthorConflict = {
+      ...legacyLinkedInRow({
+        id: "strong-founder-author-conflict",
+        batchSlug: "S26",
+        entityType: "founder",
+        entityId: "founder-codag-michael-zhou-verified-michael-zhou",
+        postId: "7490000000000000002",
+        text: "This fixture claims Codag founder attribution while its native and raw strong author identities disagree."
+      }),
+      companyName: "Codag",
+      sourceUrl: "https://www.linkedin.com/posts/mzxzhou_fixture-activity-7490000000000000002-abcd",
+      rawVisibleText: JSON.stringify({
+        profile: {
+          username: "different-founder",
+          url: "https://www.linkedin.com/in/different-founder"
+        },
+        post: {
+          id: "7490000000000000002",
+          authorHandle: "different-founder"
+        }
+      })
+    };
+
+    const merged = mergeTargetedEvidenceSnapshots(
+      [snapshot([knownCompanyConflict, strongAuthorConflict])],
+      snapshot([]),
+      {
+        mergedAt: CHECKED_AT,
+        resolveBatchSlug,
+        resolveEntityAttribution,
+        validateEntityAttribution
+      }
+    );
+
+    assert.equal(merged.evidence.length, 0);
+    assert.deepEqual(
+      new Map(merged.needsReview.map((row) => [row.sourceEvidenceId, row.quarantineReasons])),
+      new Map([
+        ["known-company-conflict", ["canonical_targeted_entity_company_identity_conflict"]],
+        ["strong-founder-author-conflict", ["canonical_targeted_conflicting_strong_author_identity"]]
+      ])
+    );
+    assert.deepEqual(
+      new Set(merged.attributionReconciliationLedger.map((row) => row.reason)),
+      new Set([
+        "canonical_targeted_entity_company_identity_conflict",
+        "canonical_targeted_conflicting_strong_author_identity"
+      ])
+    );
+    assert.ok(merged.attributionReconciliationLedger.every((row) => row.disposition === "quarantined"));
+  });
+
   it("retires exactly the 46 canonical Taro list-entry targets with durable target-scoped directives", async () => {
     const canonical = JSON.parse(await readFile("src/lib/social/targeted-evidence-current.json", "utf8"));
     const catalogs = await loadAutonomousCatalogs(process.cwd());
@@ -194,11 +514,27 @@ describe("targeted Top Voice evidence publication merge", () => {
       listPostIds.has(row.platformPostId)
     );
 
-    assert.equal(canonical.evidence.filter((row) => listPostIds.has(row.platformPostId)).length, 46);
+    assert.equal(canonical.evidence.filter((row) => listPostIds.has(row.platformPostId)).length, 0);
+    assert.equal(
+      canonical.needsReview.filter((row) => listPostIds.has(row.platformPostId)).length,
+      46
+    );
+    assert.equal(
+      canonical.attributionReconciliationLedger.filter((row) =>
+        listPostIds.has(row.platformPostId)
+      ).length,
+      46
+    );
     assert.equal(merged.evidence.filter((row) => listPostIds.has(row.platformPostId)).length, 0);
     assert.equal(reviews.length, 46);
     assert.equal(ledger.length, 46);
     assert.equal(merged.evidence.length, 1032);
+    assert.deepEqual(merged.evidence, canonical.evidence);
+    assert.deepEqual(merged.needsReview, canonical.needsReview);
+    assert.deepEqual(
+      merged.attributionReconciliationLedger,
+      canonical.attributionReconciliationLedger
+    );
     assert.ok(merged.evidence.every((row) => ["S2026", "S26", "A16ZSR006"].includes(row.batchSlug)));
     assert.deepEqual(
       Object.fromEntries([...listPostIds].map((postId) => [
@@ -308,5 +644,41 @@ function legacyLinkedInRow({
     linkStatus: "verified",
     first_seen_at: CHECKED_AT,
     last_checked_at: CHECKED_AT
+  };
+}
+
+function legacyGitHubRow({ id, entityId, postId, sourceUrl }) {
+  return {
+    id,
+    batchSlug: "S26",
+    entityType: "company",
+    entityId,
+    companyName: entityId,
+    platform: "github",
+    sourceUrl,
+    platformPostId: postId,
+    title: postId,
+    text: postId,
+    metrics: { stars: 1 },
+    review_state: "verified",
+    linkStatus: "verified",
+    first_seen_at: CHECKED_AT,
+    last_checked_at: CHECKED_AT
+  };
+}
+
+function canonicalTargetedValidator(catalogs) {
+  return (row, batchSlug) => {
+    const catalog = catalogs.find((candidate) => candidate.slug === batchSlug);
+    if (!catalog) return false;
+    const entityType = String(row?.entityType ?? row?.entity_type ?? "").toLowerCase();
+    const entityId = String(row?.entityId ?? row?.entity_id ?? "");
+    const companyName = String(row?.companyName ?? row?.company_name ?? "").trim().toLowerCase();
+    return catalog.companies.some((company) => {
+      if (companyName !== String(company.name).trim().toLowerCase()) return false;
+      return entityType === "company"
+        ? entityId === company.sourceKey
+        : company.founders.some((founder) => founder.sourceKey === entityId);
+    });
   };
 }

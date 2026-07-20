@@ -3,6 +3,7 @@ import { readFile, rename, writeFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
 import {
   publicationTimesCompatible,
+  sourceAuthorsCompatible,
   sourceContentIdentity
 } from "./lib/source-content-identity.mjs";
 
@@ -436,6 +437,7 @@ function findDuplicate(row, entityId) {
   for (const physicalKey of incomingContentIdentity.keys) {
     const contentKey = attributedIdentityKey(physicalKey, entityId);
     for (const indexed of rowsByContent.get(contentKey) ?? []) {
+      if (!sourceAuthorsCompatible(incomingContentIdentity, indexed.contentIdentity)) continue;
       if (!publicationTimesCompatible(incomingContentIdentity, indexed.contentIdentity)) continue;
       return {
         row: indexed.row,

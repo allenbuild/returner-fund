@@ -8,6 +8,7 @@ import {
   AUTONOMOUS_PROCESS_BUDGETS,
   autonomousCollectorRetryableFailures,
   buildAutonomousPublicNativeAuthorResolver,
+  buildCanonicalTargetedAttributionResolver,
   buildLegacyPublicEvidenceBatchResolver,
   buildAutonomousTaskPlan,
   classifyAutonomousCollectorTaskOutcome,
@@ -61,6 +62,7 @@ const durableStorageConfigured = Boolean(url && serviceKey);
 await mkdir(workRoot, { recursive: true });
 const catalogs = await loadAutonomousCatalogs(root);
 const resolvePublicNativeAuthor = buildAutonomousPublicNativeAuthorResolver(catalogs);
+const resolveCanonicalTargetedAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
 const resolveLegacyPublicEvidenceBatch = buildLegacyPublicEvidenceBatchResolver(catalogs);
 const plannedTasks = buildAutonomousTaskPlan(catalogs, { runKey: idempotencyKey });
 const plannedTaskByCheckpointKey = new Map(plannedTasks.map((task) => [task.checkpointKey, task]));
@@ -161,7 +163,9 @@ try {
       { skipNetwork: args.skipNetwork }
     );
     assertSuccessfulCollection(collectionResults, collectionCoverage);
-    validateMappedAutonomousCoverage(collectionCoverage);
+    validateMappedAutonomousCoverage(collectionCoverage, {
+      allowTerminalFailures: args.skipPublish
+    });
     assertSuccessfulTopVoiceRefresh(topVoiceRefresh);
     const publicationRunId = run?.id ?? `file:${idempotencyKey}`;
     if (!args.skipPublish) await synchronizePublicationBase();
@@ -175,8 +179,16 @@ try {
     // One sanitized publication plan is computed after synchronizing the base.
     // This exact plan drives both durable persistence and the file publication,
     // so raw collector rows can never reach Supabase ahead of semantic merge.
-    publicationInputs.sanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(publicSnapshots);
     publicationInputs.sanitizedTargetedSnapshot = await prepareSanitizedTargetedSnapshot(topVoiceRefresh);
+    const contentIdentityReferenceRows = await readCanonicalContentIdentityReferenceRows(
+      publicationInputs.sanitizedTargetedSnapshot
+    );
+    publicationInputs.loggedInAttributionReconciliationLedger =
+      await readCanonicalLoggedInAttributionReconciliationLedger();
+    publicationInputs.sanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
+      publicSnapshots,
+      { contentIdentityReferenceRows }
+    );
     const sanitizedEvidenceSnapshots = [
       publicationInputs.sanitizedPublicSnapshot,
       publicationInputs.sanitizedTargetedSnapshot
@@ -187,7 +199,8 @@ try {
       catalogState,
       attributionReconciliationLedger: combineAttributionReconciliationLedgers(
         publicationInputs.sanitizedPublicSnapshot?.attributionReconciliationLedger,
-        publicationInputs.sanitizedTargetedSnapshot?.attributionReconciliationLedger
+        publicationInputs.sanitizedTargetedSnapshot?.attributionReconciliationLedger,
+        publicationInputs.loggedInAttributionReconciliationLedger
       )
     });
     assertDurableAttributionCompleteness(durableImport);
@@ -709,7 +722,10 @@ async function prepareBatchDiscoveryState() {
   }));
 }
 
-async function prepareSanitizedPublicSnapshot(publicSnapshots, { baseRef = null } = {}) {
+async function prepareSanitizedPublicSnapshot(
+  publicSnapshots,
+  { baseRef = null, contentIdentityReferenceRows = [] } = {}
+) {
   if (publicSnapshots.length === 0) return null;
   const publicEvidencePath = "src/lib/social/public-evidence-current.json";
   const basePublicSnapshot = baseRef ? await readJsonFromGitRef(baseRef, publicEvidencePath, null) : null;
@@ -722,8 +738,73 @@ async function prepareSanitizedPublicSnapshot(publicSnapshots, { baseRef = null 
     {
       durableStorageConfigured,
       resolveBatchSlug: resolveLegacyPublicEvidenceBatch,
-      resolveNativeAuthor: resolvePublicNativeAuthor
+      resolveNativeAuthor: resolvePublicNativeAuthor,
+      contentIdentityReferenceRows
     }
+  );
+}
+
+async function readCanonicalContentIdentityReferenceRows(targetedSnapshot, { baseRef = null } = {}) {
+  const evidencePaths = [
+    "src/lib/social/logged-in-evidence-current.json",
+    "src/lib/social/a16z-speedrun-006-social-evidence.json"
+  ];
+  const githubPaths = [
+    "src/lib/social/github-traction.json",
+    "src/lib/social/github-traction-summer-2026.json",
+    "src/lib/social/github-traction-a16z-speedrun-006.json"
+  ];
+  const currentSnapshots = await Promise.all([
+    ...evidencePaths.map((path) => readRequiredCanonicalJson(
+      join(root, path),
+      `Canonical content-identity evidence ${path}`
+    )),
+    ...githubPaths.map((path) => readRequiredCanonicalJson(
+      join(root, path),
+      `Canonical content-identity GitHub evidence ${path}`
+    ))
+  ]);
+  const baseSnapshots = baseRef
+    ? await Promise.all([...evidencePaths, ...githubPaths].map((path) =>
+        readJsonFromGitRef(baseRef, path, null)
+      ))
+    : [];
+  const all = [targetedSnapshot, ...currentSnapshots, ...baseSnapshots].filter(Boolean);
+  return all.flatMap((snapshot) => [
+    ...(snapshot.evidence ?? []),
+    ...canonicalGithubContentIdentityRows(snapshot)
+  ]);
+}
+
+async function readCanonicalLoggedInAttributionReconciliationLedger({ baseRef = null } = {}) {
+  const loggedInEvidencePath = "src/lib/social/logged-in-evidence-current.json";
+  const current = await readRequiredCanonicalJson(
+    join(root, loggedInEvidencePath),
+    "Canonical logged-in attribution reconciliation ledger"
+  );
+  const base = baseRef ? await readJsonFromGitRef(baseRef, loggedInEvidencePath, null) : null;
+  return combineAttributionReconciliationLedgers(
+    base?.attributionReconciliationLedger,
+    current.attributionReconciliationLedger
+  );
+}
+
+function canonicalGithubContentIdentityRows(snapshot) {
+  return (snapshot?.accounts ?? []).flatMap((account) =>
+    (account?.repos ?? []).map((repository) => ({
+      batchSlug: snapshot?.source?.batchSlug ?? account?.batchSlug ?? null,
+      entityType: account?.entityType ?? "company",
+      entityId: account?.entityId,
+      companySlug: account?.companySlug,
+      companyName: account?.companyName,
+      platform: "github",
+      sourceUrl: repository?.htmlUrl,
+      platformPostId: repository?.fullName,
+      accountUrl: account?.account?.htmlUrl ?? account?.githubUrl,
+      authorHandle: account?.account?.login ?? account?.login,
+      text: repository?.description,
+      postedAt: repository?.createdAt
+    }))
   );
 }
 
@@ -738,6 +819,7 @@ async function prepareSanitizedTargetedSnapshot(topVoiceRefresh, { baseRef = nul
     topVoiceRefresh.isolatedEvidence.snapshot,
     {
       resolveBatchSlug: resolveLegacyPublicEvidenceBatch,
+      resolveEntityAttribution: resolveCanonicalTargetedAttribution,
       validateEntityAttribution: isCanonicalBatchEntityAttribution
     }
   );
@@ -1663,13 +1745,22 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       throw error;
     }
     await assertNoPublicationConflicts();
-    const rebasedSanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
-      publicationInputs.publicSnapshots,
-      { baseRef: `origin/${branch}` }
-    );
     const rebasedSanitizedTargetedSnapshot = await prepareSanitizedTargetedSnapshot(
       publicationInputs.topVoiceRefresh,
       { baseRef: `origin/${branch}` }
+    );
+    const rebasedContentIdentityReferenceRows = await readCanonicalContentIdentityReferenceRows(
+      rebasedSanitizedTargetedSnapshot,
+      { baseRef: `origin/${branch}` }
+    );
+    const rebasedLoggedInAttributionReconciliationLedger =
+      await readCanonicalLoggedInAttributionReconciliationLedger({ baseRef: `origin/${branch}` });
+    const rebasedSanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
+      publicationInputs.publicSnapshots,
+      {
+        baseRef: `origin/${branch}`,
+        contentIdentityReferenceRows: rebasedContentIdentityReferenceRows
+      }
     );
     const rebasedPublicationInputs = {
       ...publicationInputs,
@@ -1685,7 +1776,8 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       catalogState: publicationInputs.catalogState,
       attributionReconciliationLedger: combineAttributionReconciliationLedgers(
         rebasedSanitizedPublicSnapshot?.attributionReconciliationLedger,
-        rebasedSanitizedTargetedSnapshot?.attributionReconciliationLedger
+        rebasedSanitizedTargetedSnapshot?.attributionReconciliationLedger,
+        rebasedLoggedInAttributionReconciliationLedger
       )
     });
     assertDurableAttributionCompleteness(retryDurableImport);

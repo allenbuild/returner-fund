@@ -25,6 +25,27 @@ const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
   "bilibili"
 ];
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS = new Set<Platform>(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST);
+const VERIFIED_A16Z_PUBLIC_LINKEDIN_POST_IDS = [
+  "7476259158577823745",
+  "7480710003088322560",
+  "7450341503069024256",
+  "7444455393604415488",
+  "7480996517286137856",
+  "7472736874155991040",
+  "7466251490651963392",
+  "7476287464685551616",
+  "7468013650528649216",
+  "7425230486341496832",
+  "7450282483335680000",
+  "7470111035979616256",
+  "7482797408117161984",
+  "7480985080459431937",
+  "7447710509266653185",
+  "7447392633389232128",
+  "7469697124788604930",
+  "7467216325732372480",
+  "7480259461429878785"
+] as const;
 const A16Z_SPEEDRUN_SOURCE_PREFIX = "https://speedrun.a16z.com/";
 const A16Z_REPRESENTATIVE_SOCIAL_SEED_COMPANIES = ["SUN", "ZeroDrift", "Acceler8", "Modaic", "Sentra"];
 const A16Z_SECOND_PASS_ARTIFACT_PATH = "outputs/source-hunt/2026-07-19-a16z-second-pass.json";
@@ -269,6 +290,23 @@ describe("a16z speedrun 006 dataset", () => {
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("product_hunt")).toBe(true);
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("hacker_news")).toBe(true);
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("bilibili")).toBe(true);
+  });
+
+  it("loads every explicitly attributed canonical A16Z LinkedIn post once", () => {
+    const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
+    const expectedIds = [...VERIFIED_A16Z_PUBLIC_LINKEDIN_POST_IDS].sort();
+    const evidence = graph.evidence.filter((item) =>
+      VERIFIED_A16Z_PUBLIC_LINKEDIN_POST_IDS.includes(
+        item.platformPostId as (typeof VERIFIED_A16Z_PUBLIC_LINKEDIN_POST_IDS)[number]
+      )
+    );
+
+    expect(evidence.map((item) => item.platformPostId).sort()).toEqual(expectedIds);
+    expect(new Set(evidence.map((item) => item.platformPostId)).size).toBe(expectedIds.length);
+    expect(evidence.every((item) => item.platform === "linkedin")).toBe(true);
+    expect(evidence.every((item) => item.entityId.startsWith("a16z-speedrun-006-"))).toBe(true);
+    expect(evidence.every((item) => item.entityId === item.attachedCompanyId)).toBe(true);
+    expect(evidence.every((item) => scoringEligibility(item).eligible)).toBe(true);
   });
 
   it("scores Quanto only from the exact founder post, not its Product Hunt product profile", () => {

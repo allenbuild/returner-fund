@@ -21,16 +21,43 @@ export function sourceContentIdentity(input) {
 
   const bodySha256 = createHash("sha256").update(body).digest("hex");
   const publication = normalizePublicationTime(input?.publishedAt ?? input?.postedAt ?? input?.timestamp);
+  const strongAuthorIdentities = authorIdentities.filter((identity) =>
+    identity.startsWith("handle:") || identity.startsWith("account:")
+  );
+  const matchingAuthorIdentities = authorIdentities;
   return {
     platform,
     authorIdentities,
+    matchingAuthorIdentities,
+    authorIdentityStrength: strongAuthorIdentities.length > 0 ? "native_account" : "display_name_fallback",
     body,
     bodySha256,
     publishedAt: publication?.timestamp ?? null,
     publishedOn: publication?.day ?? null,
     publicationPrecision: publication?.precision ?? null,
-    keys: authorIdentities.map((authorIdentity) => JSON.stringify([platform, authorIdentity, body]))
+    keys: matchingAuthorIdentities.map((authorIdentity) =>
+      JSON.stringify([platform, authorIdentity, body])
+    )
   };
+}
+
+/**
+ * Strong native identities dominate only when both sides expose one. If a
+ * legacy source has only a display name, an exact name remains a permissible
+ * fallback; two distinct known accounts can never match by name alone.
+ */
+export function sourceAuthorsCompatible(left, right) {
+  const strong = (identity) => (identity?.authorIdentities ?? []).filter((value) =>
+    value.startsWith("handle:") || value.startsWith("account:")
+  );
+  const leftStrong = strong(left);
+  const rightStrong = strong(right);
+  if (leftStrong.length > 0 && rightStrong.length > 0) {
+    return leftStrong.some((value) => rightStrong.includes(value));
+  }
+  const leftNames = (left?.authorIdentities ?? []).filter((value) => value.startsWith("name:"));
+  const rightNames = (right?.authorIdentities ?? []).filter((value) => value.startsWith("name:"));
+  return leftNames.some((value) => rightNames.includes(value));
 }
 
 /**

@@ -7,7 +7,7 @@
     "allowlistedRows": 164,
     "targetedRows": 30,
     "a16zRows": 134,
-    "canonicalFilesRemediated": 2,
+    "canonicalFilesRemediated": 1,
     "canonicalFilesWrittenThisRun": 0,
     "publicGraphSnapshotsWritten": 0,
     "publicEvidenceWritten": false,
@@ -85,17 +85,17 @@
   "fingerprints": {
     "canonicalFiles": {
       "src/lib/social/targeted-evidence-current.json": {
-        "expectedOriginalSha256": "f0ea272ff51359124da86a65c26a254e83bd6a33103f3db4d94be787836ef461",
+        "expectedOriginalSha256": "52dd61695f30e84563f3cb02c2548368d54f4d3ee904385ad6e4097db8fa4360",
         "preWriteSha256": null,
-        "predictedRemediatedSha256": "17613c38ed0c9e80341e490ec78f10652fdeee199c03068fc6f0b3ce21379f6a",
-        "currentSha256": "17613c38ed0c9e80341e490ec78f10652fdeee199c03068fc6f0b3ce21379f6a",
-        "normalizedSemanticSha256": "48040de3bdcb22f865353ae3ebfc6958285515ec24d18d71cf223f009a2413b6",
-        "rowGuardSha256": "d48095902687ea856437f8e038b6f46d27437939ffb9fcdd2202118311b68202",
+        "predictedRemediatedSha256": "a7262188b5f31ba02c886d7174ca074b462ed0fc77102ac1a4a1596af0a09863",
+        "currentSha256": "a7262188b5f31ba02c886d7174ca074b462ed0fc77102ac1a4a1596af0a09863",
+        "normalizedSemanticSha256": "b48bc57a588f372d97726a4a512447684f9ae841d973464f2e5eedd20358a3db",
+        "rowGuardSha256": "78f32f5040adce199671ff9a12923915bf9c60590035313806211666eefdb323",
         "allowlistedRows": 30,
         "changedRows": 0
       },
       "src/lib/social/a16z-speedrun-006-social-evidence.json": {
-        "expectedOriginalSha256": "52d478ca7c3662cae7fad30235e75a04e46e991901e4c7fcefa920c8c8814d71",
+        "expectedOriginalSha256": "423681da6acfb9ae62470169be4dd54a7c776f6904c990db8a54a1663cee56b6",
         "preWriteSha256": null,
         "predictedRemediatedSha256": "423681da6acfb9ae62470169be4dd54a7c776f6904c990db8a54a1663cee56b6",
         "currentSha256": "423681da6acfb9ae62470169be4dd54a7c776f6904c990db8a54a1663cee56b6",
@@ -106,11 +106,11 @@
       }
     },
     "readOnlyInputs": {
-      "src/lib/social/public-evidence-current.json": "e17ae962cd0da5db29b9bbd9d7fe3d409a5396e8ab5b7aa202ac5a1b38196d16",
-      "src/lib/social/logged-in-evidence-current.json": "269a2ae743d5df52921726d3fefaef44f3ad8ebda59389ec5faf1a555ee734b9",
-      "public/graph/s2026.json": "17ac092622e9f801320ac6401c74d2d00b7e4d89b108d58de569ec0aa71e8285",
-      "public/graph/s26.json": "c8fd0c76429088900bd342ef2871f52d1635e38805f1cc88e9df92851b2a5180",
-      "public/graph/a16zsr006.json": "9264fb166cdac49e59672b30160c161bab0a8d0ec68cdd2a49912cb119d8390f"
+      "src/lib/social/public-evidence-current.json": "8b236b76fe209ae51e0a2689dcb43acbf279d7d791139b5469528d1251ef168f",
+      "src/lib/social/logged-in-evidence-current.json": "5cf7b80c986ee5821f22cabe87de5f5cf5446991a2d03df1944ac498c25eb0fc",
+      "public/graph/s2026.json": "c6210bb4ff4477b883f2eeffcf3bcb0ce14ada2f6b2dd61675fc626330768a2b",
+      "public/graph/s26.json": "9f1223546ede10df63cc3b469066b11e89290a08ca4cb55640e205b3d499a04c",
+      "public/graph/a16zsr006.json": "b694139baf8e093b48b6bd6f5dd6d596cb875a81ec2b7d185c8e44208be765c3"
     }
   }
 }

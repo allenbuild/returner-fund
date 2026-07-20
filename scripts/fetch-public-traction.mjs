@@ -9,6 +9,10 @@ import {
 } from "./lib/social-native-identity.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
 import {
+  extractLinkedInParentPostMetrics,
+  isLinkedInPublicReaderPayload
+} from "./lib/linkedin-parent-metrics.mjs";
+import {
   assessPublicEvidenceAttribution,
   assessLinkedInPrimaryPostBody,
   containsExactTokenSequence,
@@ -2133,7 +2137,12 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
       };
     }
 
-    const metrics = metricsFromPublicPost(platform, page.text);
+    const metrics = metricsFromPublicPost(platform, page.text, {
+      linkedinReader: platform === "linkedin",
+      linkedinPostId: platform === "linkedin"
+        ? platformPostIdFromUrl(platform, candidate.url)
+        : null
+    });
     return {
       evidence: [
         evidenceItem({
@@ -2708,7 +2717,7 @@ function metricsFromPublicProfile(platform, text, title = "") {
   return {};
 }
 
-function metricsFromPublicPost(platform, text) {
+function metricsFromPublicPost(platform, text, { linkedinReader = false, linkedinPostId = null } = {}) {
   if (platform === "x") {
     return removeNullish({
       views: parseNearbyMetric(text, "Views", /([\d,.]+[KMB]?)\s+Views?/i),
@@ -2727,20 +2736,46 @@ function metricsFromPublicPost(platform, text) {
     });
   }
   if (platform === "linkedin") {
-    return removeNullish({
-      views: parseNearbyMetric(text, "views", /([\d,.]+[KMB]?)\s+views?/i),
-      reactions: parseNearbyMetric(text, "reactions", /([\d,.]+[KMB]?)\s+(?:reactions?|likes?)/i),
-      comments: parseNearbyMetric(text, "comments", /([\d,.]+[KMB]?)\s+comments?/i),
-      reposts: parseNearbyMetric(text, "reposts", /([\d,.]+[KMB]?)\s+reposts?/i)
-    });
+    if (linkedinReader) {
+      const receipt = extractLinkedInParentPostMetrics({
+        rawVisibleText: text,
+        expectedPostId: linkedinPostId
+      });
+      return receipt.status === "verified" ? receipt.metrics : {};
+    }
+    // Search-result snippets can surface a comment teaser and its counters.
+    // Without the native reader's bounded parent footer, no LinkedIn metric is
+    // accepted as post-level evidence.
+    return {};
   }
   return {};
 }
 
-function sanitizeStoredPostMetrics(platform, metrics, rawVisibleText) {
+function sanitizeStoredPostMetrics(
+  platform,
+  metrics,
+  rawVisibleText,
+  sourceUrl = null,
+  suppliedParentReceipt = null
+) {
   if (platform !== "linkedin") return metrics;
 
   const sanitized = { ...metrics };
+  const expectedPostId = platformPostIdFromUrl("linkedin", sourceUrl);
+  const parentReceipt = suppliedParentReceipt ?? extractLinkedInParentPostMetrics({
+    rawVisibleText,
+    expectedPostId
+  });
+  if (parentReceipt.status === "verified" || isLinkedInPublicReaderPayload(rawVisibleText)) {
+    // LinkedIn's public reader renders the parent's reaction aggregate as an
+    // unlabeled image-stack link immediately before its labelled comment
+    // count. Only a structurally verified parent action-bar footer may repair
+    // these fields; comment replies below it may each contain `1 Reaction`.
+    for (const metric of ["views", "likes", "reactions", "comments", "reposts", "shares"]) {
+      delete sanitized[metric];
+    }
+    if (parentReceipt.status === "verified") Object.assign(sanitized, parentReceipt.metrics);
+  }
   const comments = Number(sanitized.comments);
   if (
     Number.isFinite(comments) &&
@@ -3894,10 +3929,22 @@ function normalizeStoredEvidence(item) {
     }
   }
 
+  const linkedInParentMetricReceipt = platform === "linkedin"
+    ? extractLinkedInParentPostMetrics({
+        rawVisibleText: normalized.rawVisibleText,
+        expectedPostId: platformPostIdFromUrl(platform, normalized.sourceUrl)
+      })
+    : null;
+  const persistLinkedInParentMetricReceipt = platform === "linkedin" && (
+    isLinkedInPublicReaderPayload(normalized.rawVisibleText) ||
+    linkedInParentMetricReceipt?.source === "structured_native_receipt"
+  );
   const metrics = sanitizeStoredPostMetrics(
     platform,
     removeNullish(normalized.metrics ?? {}),
-    normalized.rawVisibleText
+    normalized.rawVisibleText,
+    normalized.sourceUrl,
+    linkedInParentMetricReceipt
   );
   const nativeContent = isNativeContentUrl(platform, normalized.sourceUrl);
   const hasMetric = hasPositiveSupportedMetric(platform, metrics);
@@ -3937,6 +3984,15 @@ function normalizeStoredEvidence(item) {
   return {
     ...normalized,
     metrics,
+    ...(persistLinkedInParentMetricReceipt
+      ? {
+          linkedinParentMetricReceipt: {
+            status: linkedInParentMetricReceipt.status,
+            source: linkedInParentMetricReceipt.source,
+            reason: linkedInParentMetricReceipt.reason
+          }
+        }
+      : {}),
     attributionVersion: Math.max(Number(normalized.attributionVersion ?? 0), PUBLIC_ATTRIBUTION_VERSION),
     attributionStatus: eligible ? "verified" : "needs_review",
     attributionMode: resolvedAttributionMode,
@@ -4279,13 +4335,11 @@ async function readJson(path, fallback) {
   }
 }
 
-function batchScopedRows(rows, snapshot, batchSlug) {
+function batchScopedRows(rows, _snapshot, batchSlug) {
   if (!Array.isArray(rows)) return [];
-  const companySlugs = new Set((snapshot?.companies ?? []).map((company) => company.slug));
   return rows.filter((row) => {
     const rowBatch = row?.batch_slug ?? row?.batchSlug;
-    if (rowBatch) return rowBatch === batchSlug;
-    return companySlugs.has(row?.company_slug ?? row?.companySlug);
+    return Boolean(rowBatch) && rowBatch === batchSlug;
   });
 }
 

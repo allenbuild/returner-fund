@@ -91,6 +91,13 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes('runId: run?.id ?? null'));
   });
 
+  it("opts into terminal mapped failures only for skip-publish runs", () => {
+    assert.match(
+      runner,
+      /validateMappedAutonomousCoverage\(collectionCoverage,\s*{\s*allowTerminalFailures: args\.skipPublish\s*}\s*\)/
+    );
+  });
+
   it("isolates work directories with a hash of the exact idempotency key", () => {
     const safePath = section("function safePathSegment", "function chunks");
     assert.ok(safePath.includes('createHash("sha256")'));
@@ -98,9 +105,26 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("never invokes a collector that depends on a logged-in browser session", () => {
-    assert.doesNotMatch(runner, /fetch-logged-in-social-traction|ingest:logged-social|logged[-_ ]?in/i);
-    assert.ok(runner.includes('"scripts/fetch-public-traction.mjs"'));
-    assert.ok(runner.includes('"scripts/fetch-github-traction.mjs"'));
+    const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
+    assert.doesNotMatch(collectors, /fetch-logged-in-social-traction|ingest:logged-social|logged[-_ ]?in/i);
+    assert.ok(collectors.includes('"scripts/fetch-public-traction.mjs"'));
+    assert.ok(collectors.includes('"scripts/fetch-github-traction.mjs"'));
+  });
+
+  it("carries the batch-resolved logged-in quarantine ledger into initial and rebased durable imports", () => {
+    const ledgerRead = section(
+      "async function readCanonicalLoggedInAttributionReconciliationLedger",
+      "function canonicalGithubContentIdentityRows"
+    );
+    assert.ok(ledgerRead.includes('"src/lib/social/logged-in-evidence-current.json"'));
+    assert.ok(ledgerRead.includes("base?.attributionReconciliationLedger"));
+    assert.ok(ledgerRead.includes("current.attributionReconciliationLedger"));
+    assert.ok(runner.includes("publicationInputs.loggedInAttributionReconciliationLedger"));
+    assert.ok(runner.includes("rebasedLoggedInAttributionReconciliationLedger"));
+    assert.ok(
+      runner.indexOf("publicationInputs.loggedInAttributionReconciliationLedger") <
+      runner.indexOf("const durableImport = await importDurableEvidence")
+    );
   });
 
   it("starts public batches in parallel and rate-limits exhaustive GitHub batches through one queue", () => {

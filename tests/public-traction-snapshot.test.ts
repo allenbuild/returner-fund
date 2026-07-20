@@ -57,22 +57,40 @@ describe("public traction snapshot", () => {
     expect(repeatedUrls).toEqual([]);
   });
 
-  it("stores web and RSS context without letting metadata affect traction scores", () => {
-    const contextOnly = publicEvidence.evidence.filter((item) => item.platform === "web" || item.platform === "rss");
-    expect(contextOnly.length).toBeGreaterThan(0);
-    expect(contextOnly.every((item) => item.contributionScore === 0)).toBe(true);
+  it("quarantines web and RSS context instead of publishing it as traction evidence", () => {
+    const publishedContext = publicEvidence.evidence.filter(
+      (item) => item.platform === "web" || item.platform === "rss"
+    );
+    const quarantinedContext = publicEvidence.needsReview.filter(
+      (item) => item.platform === "web" || item.platform === "rss"
+    );
+
+    expect(publishedContext).toEqual([]);
+    expect(quarantinedContext.length).toBeGreaterThan(0);
+    expect(quarantinedContext.every((item) => item.review_state === "needs_review")).toBe(true);
+    expect(
+      quarantinedContext.some((item) =>
+        /unsupported_platform:(?:web|rss)/i.test(item.reason ?? item.matchReason ?? "")
+      )
+    ).toBe(true);
   });
 
   it("does not score social profile pages as post traction", () => {
-    const socialProfiles = publicEvidence.evidence.filter(
+    const publishedSocialProfiles = publicEvidence.evidence.filter(
       (item) =>
         ["x", "linkedin", "instagram"].includes(item.platform) &&
-        /profile stored as identity context only/i.test(item.matchReason ?? "")
+        /identity context only/i.test(item.matchReason ?? "")
+    );
+    const quarantinedSocialProfiles = publicEvidence.needsReview.filter(
+      (item) =>
+        ["x", "linkedin", "instagram"].includes(item.platform) &&
+        /identity context only/i.test(item.matchReason ?? "")
     );
 
-    expect(socialProfiles.length).toBeGreaterThan(0);
-    expect(socialProfiles.every((item) => item.contributionScore === 0)).toBe(true);
-    expect(socialProfiles.every((item) => item.review_state === "needs_review")).toBe(true);
+    expect(publishedSocialProfiles).toEqual([]);
+    expect(quarantinedSocialProfiles.length).toBeGreaterThan(0);
+    expect(quarantinedSocialProfiles.every((item) => (item.contributionScore ?? 0) === 0)).toBe(true);
+    expect(quarantinedSocialProfiles.every((item) => item.review_state === "needs_review")).toBe(true);
   });
 
   it("keeps every positive row native, verified, and backed by a supported visible metric", () => {

@@ -2,6 +2,61 @@ import { isListOrRoundupAttributionContext } from "./public-evidence-attribution
 
 const VALID_BATCH_SLUGS = new Set(["S2026", "S26", "A16ZSR006"]);
 const TOP_VOICE_X_METRICS = new Set(["views", "likes", "replies", "reposts", "quotes", "saves"]);
+export const TARGETED_HISTORICAL_ATTRIBUTION_RECONCILIATIONS_V1 = Object.freeze([
+  historicalReconciliation({
+    platform: "github",
+    platformPostId: "CarbonCopyInc/carboncopy-mcp",
+    staleEntityId: "company-blueprints",
+    replacementEntityId: "company-hoplite",
+    replacementCompanySlug: "hoplite",
+    replacementCompanyName: "Hoplite",
+    reason: "targeted_historical_reconciliation_v1:blueprints_to_hoplite"
+  }),
+  historicalReconciliation({
+    platform: "github",
+    platformPostId: "UseBylaw/typescript-sdk",
+    staleEntityId: "company-bylaw",
+    replacementEntityId: "company-definite",
+    replacementCompanySlug: "definite",
+    replacementCompanyName: "Definite",
+    reason: "targeted_historical_reconciliation_v1:bylaw_to_definite"
+  }),
+  historicalReconciliation({
+    platform: "linkedin",
+    platformPostId: "7467251847137939459",
+    staleEntityId: "company-vestris",
+    replacementEntityType: "founder",
+    replacementEntityId: "founder-vestris-aahil-valliani-verified-aahil-valliani",
+    replacementEntityName: "Aahil Valliani",
+    replacementCompanySlug: "vestris",
+    replacementCompanyName: "Vestris",
+    replacementAttachedCompanyId: "company-vestris",
+    reason: "targeted_historical_reconciliation_v1:vestris_company_to_aahil_valliani"
+  }),
+  historicalReconciliation({
+    platform: "linkedin",
+    platformPostId: "7467271346683801600",
+    staleEntityId: "company-vestris",
+    replacementEntityType: "founder",
+    replacementEntityId: "founder-vestris-joshua-tang-verified-joshua-tang",
+    replacementEntityName: "Joshua Tang",
+    replacementCompanySlug: "vestris",
+    replacementCompanyName: "Vestris",
+    replacementAttachedCompanyId: "company-vestris",
+    reason: "targeted_historical_reconciliation_v1:vestris_company_to_joshua_tang"
+  })
+]);
+
+const TARGETED_HISTORICAL_ATTRIBUTION_BY_KEY = new Map(
+  TARGETED_HISTORICAL_ATTRIBUTION_RECONCILIATIONS_V1.map((entry) => [
+    historicalReconciliationKey(entry),
+    entry
+  ])
+);
+const TARGETED_HISTORICAL_ATTRIBUTION_BY_UNSCOPED_KEY = uniqueHistoricalReconciliationIndex(
+  TARGETED_HISTORICAL_ATTRIBUTION_RECONCILIATIONS_V1,
+  historicalReconciliationUnscopedKey
+);
 
 /**
  * Merge rebased repository state, pre-rebase local state, and the isolated
@@ -12,7 +67,12 @@ const TOP_VOICE_X_METRICS = new Set(["views", "likes", "replies", "reposts", "qu
 export function mergeTargetedEvidenceSnapshots(
   existingSnapshots,
   isolatedRunSnapshot,
-  { resolveBatchSlug = null, validateEntityAttribution = null, mergedAt = new Date().toISOString() } = {}
+  {
+    resolveBatchSlug = null,
+    resolveEntityAttribution = null,
+    validateEntityAttribution = null,
+    mergedAt = new Date().toISOString()
+  } = {}
 ) {
   const existing = (existingSnapshots ?? []).filter(isSnapshot);
   if (!isSnapshot(isolatedRunSnapshot)) {
@@ -21,22 +81,39 @@ export function mergeTargetedEvidenceSnapshots(
 
   const evidenceByKey = new Map();
   const quarantines = [];
+  const reattributions = [];
   let duplicateRows = 0;
   let acceptedRunRows = 0;
 
   const accept = (row, { strictRun = false, ordinal = 0 } = {}) => {
-    const batchSlug = resolveBatchSlug ? resolveBatchSlug(row) : explicitBatchSlug(row);
-    const scopedRow = withTargetedBatch(row, batchSlug);
+    const staleBatchSlug = resolveBatchSlug ? resolveBatchSlug(row) : explicitBatchSlug(row);
+    const reconciliation = targetedHistoricalAttributionReconciliation(row, staleBatchSlug);
+    const historicalCandidateRow = reconciliation
+      ? applyTargetedHistoricalAttributionReconciliation(row, reconciliation)
+      : row;
+    const historicalBatchSlug = resolveBatchSlug
+      ? resolveBatchSlug(historicalCandidateRow)
+      : explicitBatchSlug(historicalCandidateRow);
+    const entityResolution = typeof resolveEntityAttribution === "function"
+      ? resolveEntityAttribution(historicalCandidateRow, historicalBatchSlug)
+      : null;
+    const candidateRow = entityResolution?.rejected
+      ? historicalCandidateRow
+      : entityResolution?.row ?? historicalCandidateRow;
+    const batchSlug = resolveBatchSlug ? resolveBatchSlug(candidateRow) : explicitBatchSlug(candidateRow);
+    const scopedRow = withTargetedBatch(candidateRow, batchSlug);
     const identity = physicalPostIdentity(scopedRow);
-    const reasons = strictRun
-      ? validateIsolatedTopVoiceRow(
-          scopedRow,
-          batchSlug,
-          identity,
-          resolveBatchSlug,
-          validateEntityAttribution
-        )
-      : validateLegacyTargetedRow(scopedRow, batchSlug, identity, validateEntityAttribution);
+    const reasons = entityResolution?.rejected
+      ? [entityResolution.reason]
+      : strictRun
+        ? validateIsolatedTopVoiceRow(
+            scopedRow,
+            batchSlug,
+            identity,
+            resolveBatchSlug,
+            validateEntityAttribution
+          )
+        : validateLegacyTargetedRow(scopedRow, batchSlug, identity, validateEntityAttribution);
 
     if (reasons.length > 0) {
       quarantines.push(quarantineRow(scopedRow, batchSlug, reasons, ordinal));
@@ -51,6 +128,16 @@ export function mergeTargetedEvidenceSnapshots(
       duplicateRows += 1;
       evidenceByKey.set(key, fresherEvidence(previous, scopedRow));
     }
+    if (reconciliation) {
+      reattributions.push(targetedHistoricalReconciliationDirective(row, scopedRow, reconciliation));
+    } else if (entityResolution?.changedTarget) {
+      reattributions.push(targetedCanonicalReconciliationDirective(
+        row,
+        scopedRow,
+        staleBatchSlug,
+        entityResolution.reason
+      ));
+    }
     if (strictRun) acceptedRunRows += 1;
   };
 
@@ -62,14 +149,21 @@ export function mergeTargetedEvidenceSnapshots(
     accept(row, { strictRun: true, ordinal: ordinal++ });
   }
 
-  const uniqueQuarantines = dedupeReviewRows(quarantines, resolveBatchSlug);
-  const attributionReconciliationLedger = targetedAttributionReconciliationLedger(uniqueQuarantines);
   const existingReviews = existing.flatMap((snapshot) => snapshot.needsReview ?? []);
   const runReviews = isolatedRunSnapshot.needsReview ?? [];
+  const uniqueQuarantines = dedupeReviewRows(quarantines, resolveBatchSlug);
   const needsReview = dedupeReviewRows(
     [...existingReviews, ...runReviews, ...uniqueQuarantines],
     resolveBatchSlug
   );
+  const attributionReconciliationLedger = targetedAttributionReconciliationLedger([
+    ...existing.flatMap((snapshot) => snapshot.attributionReconciliationLedger ?? []),
+    ...(isolatedRunSnapshot.attributionReconciliationLedger ?? []),
+    ...existingReviews.map((row) => row.attributionReconciliationDirective),
+    ...runReviews.map((row) => row.attributionReconciliationDirective),
+    ...uniqueQuarantines.map((row) => row.attributionReconciliationDirective),
+    ...reattributions
+  ]);
   const evidence = [...evidenceByKey.values()].sort(compareEvidence);
   const reasonCounts = countQuarantineReasons(uniqueQuarantines);
   const allSnapshots = [...existing, isolatedRunSnapshot];
@@ -92,6 +186,9 @@ export function mergeTargetedEvidenceSnapshots(
         acceptedRunRows,
         duplicateRows,
         quarantinedRows: uniqueQuarantines.length,
+        canonicalReattributedRows: attributionReconciliationLedger.filter(
+          (row) => row.disposition === "reattributed"
+        ).length,
         quarantineReasonCounts: reasonCounts,
         attributionReconciliationCount: attributionReconciliationLedger.length,
         outputEvidenceRows: evidence.length,
@@ -176,6 +273,178 @@ function legacyTargetedAttributionReasons(row, batchSlug) {
   return isListOrRoundupAttributionContext(batchSlug, targetedAttributionText(row))
     ? ["third_party_cohort_roundup_list_entry_only"]
     : [];
+}
+
+function historicalReconciliation({
+  platform,
+  platformPostId,
+  staleEntityId,
+  replacementEntityId,
+  replacementEntityType = "company",
+  replacementEntityName = null,
+  replacementCompanySlug,
+  replacementCompanyName,
+  replacementAttachedCompanyId = replacementEntityId,
+  reason
+}) {
+  return Object.freeze({
+    version: 1,
+    platform,
+    platformPostId,
+    staleAttribution: Object.freeze({
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: staleEntityId
+    }),
+    replacementAttribution: Object.freeze({
+      batchSlug: "S26",
+      entityType: replacementEntityType,
+      entityId: replacementEntityId,
+      entityName: replacementEntityName,
+      companySlug: replacementCompanySlug,
+      companyName: replacementCompanyName,
+      attachedCompanyId: replacementAttachedCompanyId
+    }),
+    reason
+  });
+}
+
+function targetedHistoricalAttributionReconciliation(row, batchSlug) {
+  const nativePostId = exactHistoricalNativePostId(row);
+  if (!nativePostId) return null;
+  const partial = {
+    platform: String(row?.platform ?? "").toLowerCase(),
+    platformPostId: nativePostId,
+    staleAttribution: {
+      batchSlug,
+      entityType: row?.entityType ?? row?.entity_type ?? "company",
+      entityId: row?.entityId ?? row?.entity_id
+    }
+  };
+  return (batchSlug
+    ? TARGETED_HISTORICAL_ATTRIBUTION_BY_KEY.get(historicalReconciliationKey(partial))
+    : TARGETED_HISTORICAL_ATTRIBUTION_BY_UNSCOPED_KEY.get(
+        historicalReconciliationUnscopedKey(partial)
+      )) ?? null;
+}
+
+function historicalReconciliationKey(entry) {
+  const stale = entry.staleAttribution;
+  return [
+    String(entry.platform ?? "").toLowerCase(),
+    String(entry.platformPostId ?? "").toLowerCase(),
+    stale?.batchSlug ?? "",
+    stale?.entityType ?? "",
+    stale?.entityId ?? ""
+  ].join(":");
+}
+
+function historicalReconciliationUnscopedKey(entry) {
+  const stale = entry.staleAttribution;
+  return [
+    String(entry.platform ?? "").toLowerCase(),
+    String(entry.platformPostId ?? "").toLowerCase(),
+    stale?.entityType ?? "",
+    stale?.entityId ?? ""
+  ].join(":");
+}
+
+function uniqueHistoricalReconciliationIndex(entries, keyFor) {
+  const index = new Map();
+  const ambiguous = new Set();
+  for (const entry of entries) {
+    const key = keyFor(entry);
+    if (index.has(key)) ambiguous.add(key);
+    else index.set(key, entry);
+  }
+  for (const key of ambiguous) index.delete(key);
+  return index;
+}
+
+function exactHistoricalNativePostId(row) {
+  const platform = String(row?.platform ?? "").toLowerCase();
+  const explicit = normalizePostId(row?.platformPostId ?? row?.platform_post_id);
+  const native = nativePostIdentity(platform, row?.sourceUrl ?? row?.source_url)?.postId ??
+    (platform === "github" ? nativeGithubRepositoryIdentity(row?.sourceUrl ?? row?.source_url) : null);
+  if (!native || (explicit && explicit.toLowerCase() !== native.toLowerCase())) return null;
+  return native;
+}
+
+function nativeGithubRepositoryIdentity(rawUrl) {
+  try {
+    const url = new URL(String(rawUrl ?? ""));
+    if (url.hostname.replace(/^www\./, "").toLowerCase() !== "github.com") return null;
+    return decodeURIComponent(url.pathname).replace(/^\/+|\/+$/g, "").match(/^([^/]+\/[^/]+)$/)?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function applyTargetedHistoricalAttributionReconciliation(row, reconciliation) {
+  const replacement = reconciliation.replacementAttribution;
+  return {
+    ...row,
+    batchSlug: replacement.batchSlug,
+    entityType: replacement.entityType,
+    entityId: replacement.entityId,
+    ...(replacement.entityName ? { entityName: replacement.entityName } : {}),
+    companySlug: replacement.companySlug,
+    companyName: replacement.companyName,
+    attachedCompanyId: replacement.attachedCompanyId,
+    previousAttribution: {
+      batchSlug: reconciliation.staleAttribution.batchSlug,
+      entityType: reconciliation.staleAttribution.entityType,
+      entityId: row?.entityId ?? row?.entity_id,
+      companySlug: row?.companySlug ?? row?.company_slug ?? null,
+      companyName: row?.companyName ?? row?.company_name ?? null
+    },
+    attributionReconciliationReason: reconciliation.reason
+  };
+}
+
+function targetedHistoricalReconciliationDirective(originalRow, replacementRow, reconciliation) {
+  const identity = physicalPostIdentity(originalRow);
+  return {
+    platform: String(originalRow?.platform ?? "").toLowerCase(),
+    sourceUrl: canonicalUrl(originalRow?.sourceUrl ?? originalRow?.source_url),
+    platformPostId: identity.value,
+    disposition: "reattributed",
+    reason: reconciliation.reason,
+    staleAttribution: {
+      ...reconciliation.staleAttribution,
+      entityId: originalRow?.entityId ?? originalRow?.entity_id,
+      attributionType: originalRow?.attributionType ?? originalRow?.attribution_type ?? "subject"
+    },
+    replacementAttribution: {
+      batchSlug: reconciliation.replacementAttribution.batchSlug,
+      entityType: reconciliation.replacementAttribution.entityType,
+      entityId: replacementRow.entityId,
+      attributionType: replacementRow?.attributionType ?? replacementRow?.attribution_type ?? "subject"
+    }
+  };
+}
+
+function targetedCanonicalReconciliationDirective(originalRow, replacementRow, staleBatchSlug, reason) {
+  const identity = physicalPostIdentity(originalRow);
+  return {
+    platform: String(originalRow?.platform ?? "").toLowerCase(),
+    sourceUrl: canonicalUrl(originalRow?.sourceUrl ?? originalRow?.source_url),
+    platformPostId: identity.value,
+    disposition: "reattributed",
+    reason,
+    staleAttribution: {
+      batchSlug: staleBatchSlug,
+      entityType: originalRow?.entityType ?? originalRow?.entity_type ?? "company",
+      entityId: originalRow?.entityId ?? originalRow?.entity_id,
+      attributionType: originalRow?.attributionType ?? originalRow?.attribution_type ?? "subject"
+    },
+    replacementAttribution: {
+      batchSlug: replacementRow.batchSlug,
+      entityType: replacementRow.entityType,
+      entityId: replacementRow.entityId,
+      attributionType: replacementRow?.attributionType ?? replacementRow?.attribution_type ?? "subject"
+    }
+  };
 }
 
 function targetedAttributionText(row) {
@@ -279,21 +548,24 @@ function quarantineRow(row, batchSlug, reasons, ordinal) {
   };
 }
 
-function targetedAttributionReconciliationLedger(quarantines) {
+function targetedAttributionReconciliationLedger(directives) {
   const byKey = new Map();
-  for (const row of quarantines) {
-    const directive = row?.attributionReconciliationDirective;
-    if (!directive) continue;
+  for (const directive of directives) {
+    if (!directive || typeof directive !== "object") continue;
     const stale = directive.staleAttribution;
+    if (!stale || typeof stale !== "object") continue;
     const key = [
-      directive.platform,
-      directive.platformPostId,
-      stale.batchSlug,
-      stale.entityType,
-      stale.entityId,
-      stale.attributionType
+      String(directive.platform ?? "").toLowerCase(),
+      normalizePostId(directive.platformPostId) ?? canonicalUrl(directive.sourceUrl) ?? "unknown-post",
+      stale.batchSlug ?? "legacy-unscoped",
+      stale.entityType ?? "unknown-entity-type",
+      stale.entityId ?? "unknown-entity",
+      stale.attributionType ?? "subject"
     ].join(":");
-    if (!byKey.has(key)) byKey.set(key, directive);
+    const previous = byKey.get(key);
+    if (!previous || reconciliationDispositionRank(directive) > reconciliationDispositionRank(previous)) {
+      byKey.set(key, directive);
+    }
   }
   return [...byKey.values()].sort((left, right) =>
     String(left.platform).localeCompare(String(right.platform)) ||
@@ -301,6 +573,10 @@ function targetedAttributionReconciliationLedger(quarantines) {
     String(left.staleAttribution?.batchSlug).localeCompare(String(right.staleAttribution?.batchSlug)) ||
     String(left.staleAttribution?.entityId).localeCompare(String(right.staleAttribution?.entityId))
   );
+}
+
+function reconciliationDispositionRank(directive) {
+  return directive?.disposition === "reattributed" ? 2 : directive?.disposition === "quarantined" ? 1 : 0;
 }
 
 function fresherEvidence(left, right) {

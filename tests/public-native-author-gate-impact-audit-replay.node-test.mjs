@@ -44,9 +44,12 @@ describe("public native-author gate-impact artifact replay", () => {
     );
     assert.equal(
       validSubjects.filter((record) =>
+        !replay.reviewByCanonicalId.get(record.canonicalRowId)?.quarantineReasons?.includes(
+          "semantic_attribution:list_or_roundup_without_target_specific_owner_anchor"
+        ) &&
         record.subjectAssessment.proposedSubjectAttribution.entityType === "company"
       ).length,
-      35
+      34
     );
     assert.equal(
       validSubjects.filter((record) =>
@@ -55,16 +58,18 @@ describe("public native-author gate-impact artifact replay", () => {
       6
     );
 
-    assert.deepEqual(
-      validSubjects
-        .filter((record) => !replay.acceptedByCanonicalId.has(record.canonicalRowId))
-        .map((record) => record.physicalId)
-        .sort(),
-      [],
-      "every oracle-valid subject should be accepted"
+    const structuredRoundupOverrides = validSubjects.filter((record) =>
+      replay.reviewByCanonicalId.get(record.canonicalRowId)?.quarantineReasons?.includes(
+        "semantic_attribution:list_or_roundup_without_target_specific_owner_anchor"
+      )
     );
+    assert.deepEqual(structuredRoundupOverrides.map((record) => record.physicalId), [
+      "7478895855991775232"
+    ]);
 
-    for (const expected of validSubjects) {
+    for (const expected of validSubjects.filter((record) =>
+      !structuredRoundupOverrides.includes(record)
+    )) {
       const accepted = replay.acceptedByCanonicalId.get(expected.canonicalRowId);
       assert(accepted, `${expected.physicalIdentity} should remain accepted as a subject`);
       const proposed = expected.subjectAssessment.proposedSubjectAttribution;
@@ -155,13 +160,13 @@ describe("public native-author gate-impact artifact replay", () => {
 
   it("rejects related-post chrome, a conflicting suffix, and cross-company ambiguity", async () => {
     const replay = await replayPromise;
-    const nineFives = replay.canonicalById.get(
+    const nineFives = replay.candidateByCanonicalId.get(
       replay.auditByPhysicalId.get("7483487916195729409").canonicalRowId
     );
-    const enjamb = replay.canonicalById.get(
+    const enjamb = replay.candidateByCanonicalId.get(
       replay.auditByPhysicalId.get("7450398541010616320").canonicalRowId
     );
-    const callabFounder = replay.canonicalById.get(
+    const callabFounder = replay.candidateByCanonicalId.get(
       replay.auditByPhysicalId.get("7450604868651732992").canonicalRowId
     );
     const relatedOnly = syntheticLinkedInRow(nineFives, {
@@ -202,6 +207,80 @@ describe("public native-author gate-impact artifact replay", () => {
       [relatedOnly.id, conflictingSuffix.id, ambiguousCrossCompany.id].sort()
     );
   });
+
+  it("quarantines the frozen dense LinkedIn company roundup while retaining focused third-party subjects on replay", async () => {
+    const replay = await replayPromise;
+    const roundupId = "7478895855991775232";
+    const focusedThirdPartyId = "7459281446504120320";
+    const roundupRecord = replay.auditByPhysicalId.get(roundupId);
+    const focusedRecord = replay.auditByPhysicalId.get(focusedThirdPartyId);
+    const review = replay.reviewByCanonicalId.get(roundupRecord.canonicalRowId);
+
+    assert.equal(replay.acceptedByCanonicalId.has(roundupRecord.canonicalRowId), false);
+    assert.deepEqual(review.quarantineReasons, [
+      "semantic_attribution:list_or_roundup_without_target_specific_owner_anchor"
+    ]);
+    assert.equal(review.review_state, "needs_review");
+    assert.ok(replay.merged.attributionReconciliationLedger.some((entry) =>
+      entry.platform === "linkedin" &&
+      entry.platformPostId === roundupId &&
+      entry.disposition === "quarantined" &&
+      entry.reason === "semantic_attribution:list_or_roundup_without_target_specific_owner_anchor"
+    ));
+    assert.ok(
+      replay.acceptedByCanonicalId.has(focusedRecord.canonicalRowId),
+      "a focused third-party post about one company must remain accepted"
+    );
+
+    const replayed = mergePublicEvidenceSnapshots([replay.merged], {
+      fetchedAt: "2026-07-20T00:00:00.000Z",
+      resolveNativeAuthor: replay.resolveNativeAuthor
+    });
+    assert.deepEqual(replayed.evidence, replay.merged.evidence);
+    assert.deepEqual(replayed.needsReview, replay.merged.needsReview);
+    assert.deepEqual(
+      replayed.attributionReconciliationLedger,
+      replay.merged.attributionReconciliationLedger
+    );
+  });
+
+  it("does not let dense cohort markers confined to a comment quarantine a focused third-party subject", async () => {
+    const replay = await replayPromise;
+    const focusedRecord = replay.auditByPhysicalId.get("7459281446504120320");
+    const focused = replay.candidateByCanonicalId.get(focusedRecord.canonicalRowId);
+    const commentOnlyRoundup = syntheticLinkedInRow(focused, {
+      id: "linkedin-focused-subject-with-dense-comment",
+      platformPostId: "7999999999999999904",
+      primaryBody: "Armature (YC P26) released one focused product update.",
+      afterBoundary: ""
+    });
+    commentOnlyRoundup.rawVisibleText = commentOnlyRoundup.rawVisibleText.replace(
+      "[Like](https://linkedin.com/signup)",
+      [
+        "[Report this comment](https://linkedin.com/uas/login?guestReportContentType=COMMENT)",
+        "COMMENT ONLY: Datost (YC P26) OpenWork (YC P26) Enjamb Labs (YC P26) Nine Fives (YC P26)",
+        "[Like](https://linkedin.com/signup)"
+      ].join(" ")
+    );
+
+    const assessment = assessLinkedInPrimaryPostBody(commentOnlyRoundup);
+    assert.equal(assessment.verified, true);
+    assert.equal(assessment.text, "Armature (YC P26) released one focused product update.");
+
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlugs: ["S2026"] },
+      evidence: [commentOnlyRoundup],
+      needsReview: [],
+      failures: []
+    }], {
+      fetchedAt: "2026-07-20T00:00:00.000Z",
+      resolveNativeAuthor: replay.resolveNativeAuthor
+    });
+
+    assert.deepEqual(merged.evidence.map((row) => row.id), [commentOnlyRoundup.id]);
+    assert.equal(merged.needsReview.length, 0);
+    assert.equal(merged.attributionReconciliationLedger.length, 0);
+  });
 });
 
 async function replayUnresolvedAuthorAudit() {
@@ -212,16 +291,34 @@ async function replayUnresolvedAuthorAudit() {
   ]);
   const canonicalById = new Map(
     [...(canonical.evidence ?? []), ...(canonical.needsReview ?? [])]
-      .map((row) => [row.id, row])
+      .flatMap((row) => [
+        [row.id, row],
+        ...(row.sourceEvidenceId ? [[row.sourceEvidenceId, row]] : [])
+      ])
   );
   const auditRecords = audit.records.filter((record) => record.action === "review");
   assert.equal(auditRecords.length, 105);
   const rows = auditRecords.map((record) => {
     const canonicalRow = canonicalById.get(record.canonicalRowId);
     assert(canonicalRow, `Missing canonical fixture ${record.canonicalRowId}`);
+    const {
+      attributionReconciliationDirective: _attributionReconciliationDirective,
+      candidateUrl: _candidateUrl,
+      duplicateEvidenceIdentity: _duplicateEvidenceIdentity,
+      quarantineReasons: _quarantineReasons,
+      sourceEvidenceId: _sourceEvidenceId,
+      ...candidate
+    } = canonicalRow;
     return {
-      ...canonicalRow,
+      ...candidate,
+      id: record.canonicalRowId,
       batchSlug: record.currentAttribution.batchSlug,
+      entityType: record.currentAttribution.entityType,
+      entityId: record.currentAttribution.entityId,
+      entityName: record.currentAttribution.entityName,
+      companySlug: record.currentAttribution.companySlug,
+      companyName: record.currentAttribution.companyName,
+      review_state: "verified",
       attributionMode: "subject"
     };
   });
@@ -239,6 +336,7 @@ async function replayUnresolvedAuthorAudit() {
   return {
     auditRecords,
     auditByPhysicalId: new Map(auditRecords.map((record) => [record.physicalId, record])),
+    candidateByCanonicalId: new Map(rows.map((row) => [row.id, row])),
     canonicalById,
     resolveNativeAuthor,
     merged,

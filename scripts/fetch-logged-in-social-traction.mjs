@@ -6,6 +6,11 @@ import {
   linkedinPostMatchesAccount
 } from "./lib/social-native-identity.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
+import { finalizeLoggedInEvidenceContent } from "./lib/logged-in-evidence-content-dedupe.mjs";
+import {
+  buildLegacyPublicEvidenceBatchResolver,
+  loadAutonomousCatalogs
+} from "./lib/autonomous-ingestion-plan.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -50,12 +55,30 @@ const verifiedSocialOverrides = await readRequiredCanonicalJson(
   verifiedSocialOverridesPath,
   "Verified social overrides"
 );
+const resolveLegacyLoggedInEvidenceBatch = buildLegacyPublicEvidenceBatchResolver(
+  await loadAutonomousCatalogs(root)
+);
 const checkpoint = await readJson(checkpointPath, { attempts: {}, evidence: [], failures: [], needsReview: [] });
 const currentOutput = await readJson(outputPath, { evidence: [], failures: [], needsReview: [] });
 const attemptMap = new Map(Object.entries(checkpoint.attempts ?? {}));
-const evidence = dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.evidence ?? [])]);
+const initialContentDedupe = finalizeLoggedInEvidenceContent(
+  dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.evidence ?? [])]),
+  {
+    defaultBatchSlug: batchConfig.slug,
+    resolveBatchSlug: resolveLegacyLoggedInEvidenceBatch,
+    existingNeedsReview: [...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])],
+    existingAttributionReconciliationLedger: [
+      ...(currentOutput.attributionReconciliationLedger ?? []),
+      ...(checkpoint.attributionReconciliationLedger ?? [])
+    ]
+  }
+);
+const evidence = initialContentDedupe.evidence;
 const failures = dedupeById([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
-const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])]);
+const needsReview = dedupeById([
+  ...initialContentDedupe.needsReview
+]);
+const attributionReconciliationLedger = initialContentDedupe.attributionReconciliationLedger;
 
 const targetCompanies = ycSnapshot.companies.filter(
   (company) =>
@@ -123,6 +146,12 @@ await runWorkerPool(targets, workers, async (target, workerIndex) => {
 });
 
 const payloadFailures = dedupeById(failures).filter((item) => !isObsoleteToolFailure(item.message));
+const contentDedupe = finalizeLoggedInEvidenceContent(dedupeById(evidence), {
+  defaultBatchSlug: batchConfig.slug,
+  resolveBatchSlug: resolveLegacyLoggedInEvidenceBatch,
+  existingNeedsReview: needsReview,
+  existingAttributionReconciliationLedger: attributionReconciliationLedger
+});
 const payload = {
   source: {
     label: "Opt-in logged-in browser social post ingestion",
@@ -140,9 +169,10 @@ const payload = {
       "Each target is checkpointed independently; blocked or timed-out profiles are logged and do not stop the batch."
     ]
   },
-  evidence: sanitizeStoredRows(dedupeById(evidence)).sort((a, b) => b.contributionScore - a.contributionScore),
+  evidence: sanitizeStoredRows(contentDedupe.evidence).sort((a, b) => b.contributionScore - a.contributionScore),
   failures: sanitizeStoredRows(payloadFailures),
-  needsReview: sanitizeStoredRows(dedupeById(needsReview))
+  needsReview: sanitizeStoredRows(contentDedupe.needsReview),
+  attributionReconciliationLedger: contentDedupe.attributionReconciliationLedger
 };
 
 await writeJson(outputPath, payload);
@@ -1243,11 +1273,18 @@ function instagramPostIdFromUrl(url) {
 }
 
 async function writeCheckpoint() {
+  const contentDedupe = finalizeLoggedInEvidenceContent(dedupeById(evidence), {
+    defaultBatchSlug: batchConfig.slug,
+    resolveBatchSlug: resolveLegacyLoggedInEvidenceBatch,
+    existingNeedsReview: needsReview,
+    existingAttributionReconciliationLedger: attributionReconciliationLedger
+  });
   const snapshot = {
     attempts: Object.fromEntries(attemptMap),
-    evidence: sanitizeStoredRows(dedupeById(evidence)),
+    evidence: sanitizeStoredRows(contentDedupe.evidence),
     failures: sanitizeStoredRows(dedupeById(failures)),
-    needsReview: sanitizeStoredRows(dedupeById(needsReview))
+    needsReview: sanitizeStoredRows(contentDedupe.needsReview),
+    attributionReconciliationLedger: contentDedupe.attributionReconciliationLedger
   };
   checkpointWriteChain = checkpointWriteChain.catch(() => undefined).then(() => writeJson(checkpointPath, snapshot));
   await checkpointWriteChain;

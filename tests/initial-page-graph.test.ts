@@ -165,13 +165,24 @@ describe("initial page graph", () => {
     expect(filteredRow).toBeDefined();
     expect(xFiltered.evidence.every((item) => item.platform === "x")).toBe(true);
     expect(xFiltered.evidence.map((item) => item.id)).toContain("synthetic-insider-x-evidence");
-    expect(filteredNode.evidenceIds).toEqual(["synthetic-insider-x-evidence"]);
-    expect(filteredRow.biggestContribution?.id).toBe("synthetic-insider-x-evidence");
+    expect(filteredNode.evidenceIds).toEqual([
+      "x-topvoice-company-adialante-paulg-status-2062737380516524209",
+      "x-topvoice-s2026-company-adialante-mathilde-collin-2054663559867703432",
+      "synthetic-insider-x-evidence"
+    ]);
+    expect(filteredRow.biggestContribution?.id).toBe(
+      "x-topvoice-company-adialante-paulg-status-2062737380516524209"
+    );
     expect(filteredNode.topPlatform).toBe("x");
     expect(filteredRow.topPlatform).toBe("x");
     expect(filteredNode.score).toBe(originalNode.score);
     expect(filteredRow.score).toBe(originalRow.score);
     expect(filteredNode.radius).toBe(originalNode.radius);
-    expect(originalRow.biggestContribution?.platform).toBe("linkedin");
+    expect(originalRow.biggestContribution).toEqual(
+      expect.objectContaining({
+        id: "x-topvoice-company-adialante-paulg-status-2062737380516524209",
+        platform: "x"
+      })
+    );
   });
 });

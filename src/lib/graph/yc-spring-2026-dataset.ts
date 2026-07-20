@@ -27,13 +27,15 @@ import {
   canonicalPostKey,
   dedupeEvidenceForScoring,
   dedupeEvidenceItems,
-  hasEvidenceIdentityConflict
+  hasEvidenceIdentityConflict,
+  nativeEvidenceIdentityFromUrl
 } from "./dedupe";
 import { evidenceDisplayText } from "./evidence-display";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
 import {
   applyAttributionGuard,
   buildAttributionContext,
+  type AttributionContext,
   type AttributionCompanyProfile,
   type AttributionSocialLink
 } from "./evidence-attribution";
@@ -202,6 +204,9 @@ interface PublicEvidenceRecord {
   metrics: EvidenceMetrics;
   contributionScore: number;
   review_state: "verified" | "needs_review" | "rejected";
+  attributionVersion?: number;
+  attributionStatus?: string;
+  attributionSignals?: string[];
   matchReason: string;
   first_seen_at: string;
   last_checked_at: string;
@@ -340,8 +345,7 @@ const rawPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEv
   .filter((item) => item.review_state === "verified")
   .filter(isKnownSummerEvidenceRecord)
   .filter(isAcceptedPublicEvidence)
-  .map(publicEvidenceItem)
-  .map((item) => applyAttributionGuard(item, attributionContext));
+  .map((item) => publicEvidenceItemWithAttributionGuard(item, attributionContext, snapshot.companies));
 const rawGithubEvidenceItems = githubSnapshot.accounts
   .map(canonicalizeRenamedSummerEntity)
   .map((account) => canonicalizeVerifiedFounderEntity(account, summerVerifiedFounderAliases))
@@ -519,8 +523,7 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
       !hasSummerBatchContext(evidenceBatchText(item))
     ))
     .filter((item) => springPublicEvidenceAccepted(item))
-    .map(publicEvidenceItem)
-    .map((item) => applyAttributionGuard(item, springAttributionContext));
+    .map((item) => publicEvidenceItemWithAttributionGuard(item, springAttributionContext, springSnapshot.companies));
   const springGithubEvidenceItems = springGithubSnapshot.accounts
     .map((account) => canonicalizeVerifiedFounderEntity(account, springVerifiedFounderAliases))
     .filter((account) => springKnownEntityIds.has(account.entityId))
@@ -723,7 +726,11 @@ function springPublicEvidenceAccepted(item: PublicEvidenceRecord): boolean {
     return true;
   }
 
-  return isNativeHackerNewsItemUrl(item.sourceUrl) && hasSpringBatchContext(evidenceBatchText(item));
+  return acceptedNativeHackerNewsEvidence(
+    item,
+    YC_SPRING_2026_BATCH_SLUG,
+    hasSpringBatchContext(evidenceBatchText(item))
+  );
 }
 
 function companyRecord(raw: RawCompany): CompanyRecord {
@@ -1092,6 +1099,24 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
           ? "needs_review"
           : item.review_state
   });
+}
+
+function publicEvidenceItemWithAttributionGuard(
+  item: PublicEvidenceRecord,
+  context: AttributionContext,
+  companies: RawCompany[]
+): EvidenceItem {
+  const evidence = publicEvidenceItem(item);
+  const company = companies.find((candidate) => companyId(candidate) === item.entityId);
+
+  if (
+    shouldTrustCanonicalAttributionReceiptAtGraphBoundary(item) ||
+    (company && linkedInNativeCompanyAuthorMatchesKnownEntity(item, company))
+  ) {
+    return evidence;
+  }
+
+  return applyAttributionGuard(evidence, context);
 }
 
 function attachedCompanyIdForPublicEvidence(item: PublicEvidenceRecord): string {
@@ -1510,19 +1535,77 @@ function isAcceptedPublicEvidence(item: PublicEvidenceRecord): boolean {
   }
 
   if (item.platform === "linkedin") {
-    return (
-      isLoggedInLinkedInActivityEvidence(item) ||
-      linkedInPostAuthorMatchesKnownEntity(item) ||
-      isKnownTopVoiceAccountUrl(item.platform, item.sourceUrl) ||
-      isKnownTopVoiceNativeIdentity(item.platform, item.rawVisibleText)
-    );
+    return hasVerifiedSemanticAttributionReceipt(item) || isAcceptedLinkedInEvidenceWithoutSemanticReceipt(item);
   }
 
   if (item.platform !== "hacker_news") {
     return true;
   }
 
-  return isNativeHackerNewsItemUrl(item.sourceUrl) && hasSummerBatchContext(evidenceBatchText(item));
+  return acceptedNativeHackerNewsEvidence(
+    item,
+    YC_SUMMER_2026_BATCH_SLUG,
+    hasSummerBatchContext(evidenceBatchText(item))
+  );
+}
+
+function acceptedNativeHackerNewsEvidence(
+  item: PublicEvidenceRecord,
+  expectedBatchSlug: string,
+  legacyContextMatch: boolean
+): boolean {
+  if (!isNativeHackerNewsItemUrl(item.sourceUrl)) {
+    return false;
+  }
+
+  const explicitBatchSlug = String(item.batchSlug ?? item.batch_slug ?? "").trim();
+  return explicitBatchSlug
+    ? explicitBatchSlug.toUpperCase() === expectedBatchSlug.toUpperCase()
+    : legacyContextMatch;
+}
+
+function hasVerifiedSemanticAttributionReceipt(item: PublicEvidenceRecord): boolean {
+  return (
+    item.review_state === "verified" &&
+    Number(item.attributionVersion ?? 0) >= 3 &&
+    item.attributionStatus === "verified" &&
+    (item.attributionSignals?.length ?? 0) > 0
+  );
+}
+
+function shouldTrustCanonicalAttributionReceiptAtGraphBoundary(item: PublicEvidenceRecord): boolean {
+  if (!hasVerifiedSemanticAttributionReceipt(item)) {
+    return false;
+  }
+
+  if (item.platform === "linkedin") {
+    const explicitBatchSlug = String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase();
+    return (
+      explicitBatchSlug === YC_SUMMER_2026_BATCH_SLUG &&
+      !isAcceptedLinkedInEvidenceWithoutSemanticReceipt(item)
+    );
+  }
+
+  if (item.platform === "hacker_news") {
+    const explicitBatchSlug = String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase();
+    if (explicitBatchSlug === YC_SPRING_2026_BATCH_SLUG) {
+      return !hasSpringBatchContext(evidenceBatchText(item));
+    }
+    if (explicitBatchSlug === YC_SUMMER_2026_BATCH_SLUG) {
+      return !hasSummerBatchContext(evidenceBatchText(item));
+    }
+  }
+
+  return false;
+}
+
+function isAcceptedLinkedInEvidenceWithoutSemanticReceipt(item: PublicEvidenceRecord): boolean {
+  return (
+    isLoggedInLinkedInActivityEvidence(item) ||
+    linkedInPostAuthorMatchesKnownEntity(item) ||
+    isKnownTopVoiceAccountUrl(item.platform, item.sourceUrl) ||
+    isKnownTopVoiceNativeIdentity(item.platform, item.rawVisibleText)
+  );
 }
 
 function isNativeHackerNewsItemUrl(rawUrl: string | null | undefined): boolean {
@@ -1587,6 +1670,10 @@ function linkedInPostAuthorMatchesKnownEntity(item: PublicEvidenceRecord): boole
 }
 
 function linkedInNativeAuthorMatchesKnownEntity(item: PublicEvidenceRecord, company: RawCompany): boolean {
+  if (linkedInNativeCompanyAuthorMatchesKnownEntity(item, company)) {
+    return true;
+  }
+
   const nativeAuthor = nativeAuthorFromRawVisibleText(item.rawVisibleText);
   const authorName = normalizeSearchText(nativeAuthor.name ?? item.authorName ?? "");
   if (!authorName) {
@@ -1603,6 +1690,34 @@ function linkedInNativeAuthorMatchesKnownEntity(item: PublicEvidenceRecord, comp
   }
 
   return linkedinEvidenceMentionsCompanyOrFounder(item, company);
+}
+
+function linkedInNativeCompanyAuthorMatchesKnownEntity(
+  item: PublicEvidenceRecord,
+  company: RawCompany
+): boolean {
+  if (
+    item.platform !== "linkedin" ||
+    item.entityType !== "company" ||
+    item.entityId !== companyId(company)
+  ) {
+    return false;
+  }
+
+  const nativePostId = nativeEvidenceIdentityFromUrl("linkedin", item.sourceUrl);
+  if (!nativePostId || (item.platformPostId && item.platformPostId !== nativePostId)) {
+    return false;
+  }
+
+  const nativeAuthor = nativeAuthorFromRawVisibleText(item.rawVisibleText);
+  const authorName = normalizeSearchText(nativeAuthor.name ?? item.authorName ?? "");
+  if (!authorName || authorName !== normalizeSearchText(company.name)) {
+    return false;
+  }
+
+  const sourceAuthorHandle = linkedInAuthorHandleFromPostUrl(item.sourceUrl);
+  const declaredAuthorHandle = normalizeHandle(item.authorHandle ?? nativeAuthor.handle ?? undefined);
+  return !sourceAuthorHandle || !declaredAuthorHandle || sourceAuthorHandle === declaredAuthorHandle;
 }
 
 function linkedinEvidenceMentionsCompanyOrFounder(item: PublicEvidenceRecord, company: RawCompany): boolean {

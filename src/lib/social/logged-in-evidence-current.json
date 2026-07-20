@@ -63132,39 +63132,6 @@
       "mediaUrl": "https://pbs.twimg.com/amplify_video_thumb/2066935975109148672/img/mZ6u22co-qgsl1jQ.jpg"
     },
     {
-      "id": "x-founder-cignara-nalin-gupta-78606-x-com-nalingupta01-status-1864872432437453114-super-proud-of-my-mom-beena-gupta-launching-her-new-startup-buzzbox-gift-ready-items-delivered-to-",
-      "entityType": "founder",
-      "entityId": "founder-cignara-nalin-gupta-78606",
-      "companySlug": "cignara",
-      "companyName": "Cignara",
-      "platform": "x",
-      "title": "nalingupta01 X post",
-      "sourceUrl": "https://x.com/nalingupta01/status/1864872432437453114",
-      "platformPostId": "1864872432437453114",
-      "text": "Super proud of my mom Beena Gupta launching her new startup - BuzzBox: Gift-ready items delivered to your doorstep every month. Have you ever felt miserable because you forgot to buy a gift for an upcoming event, or can’t find something which is unique, gift-worthy? Never go to Show more",
-      "rawVisibleText": "{\"author\":\"nalingupta01\",\"created_at\":\"Dec 5, 2024\",\"has_media\":true,\"id\":\"1864872432437453114\",\"is_retweet\":false,\"likes\":1,\"media_urls\":[\"https://pbs.twimg.com/profile_images/1405952696490680321/_IhCLafC_normal.jpg\",\"https://pbs.twimg.com/media/GeFbahYaUAASBzp?format=jpg&name=small\"],\"name\":\"Nalin Gupta\",\"rawText\":\"Nalin Gupta\\n@nalingupta01\\n·\\nDec 5, 2024\\nSuper proud of my mom Beena Gupta launching her new startup - BuzzBox: Gift-ready items delivered to your doorstep every month.\\n\\nHave you ever felt miserable because you forgot to buy a gift for an upcoming event, or can’t find something which is unique, gift-worthy?\\n\\nNever go to\\nShow more\\n1\\n168\",\"replies\":0,\"retweets\":0,\"text\":\"Super proud of my mom Beena Gupta launching her new startup - BuzzBox: Gift-ready items delivered to your doorstep every month.\\nHave you ever felt miserable because you forgot to buy a gift for an upcoming event, or can’t find something which is unique, gift-worthy?\\nNever go to\\nShow more\",\"url\":\"https://x.com/nalingupta01/status/1864872432437453114\",\"views\":168}",
-      "postedAt": "2024-12-05T06:00:00.000Z",
-      "metrics": {
-        "likes": 1,
-        "reposts": 0,
-        "comments": 0,
-        "views": 168
-      },
-      "mediaUrls": [
-        "https://pbs.twimg.com/profile_images/1405952696490680321/_IhCLafC_normal.jpg",
-        "https://pbs.twimg.com/media/GeFbahYaUAASBzp?format=jpg&name=small"
-      ],
-      "contributionScore": 28,
-      "review_state": "verified",
-      "matchReason": "Opt-in read-only X browser timeline scrape for @nalingupta01; metrics came from visible aria-label post controls.",
-      "first_seen_at": "2026-06-28T18:35:38.976Z",
-      "last_checked_at": "2026-06-28T18:35:38.976Z",
-      "last_updated_at": "2024-12-05T06:00:00.000Z",
-      "thumbnailUrl": "https://pbs.twimg.com/media/GeFbahYaUAASBzp?format=jpg&name=small",
-      "thumbnailSource": "x-media",
-      "mediaUrl": "https://pbs.twimg.com/media/GeFbahYaUAASBzp?format=jpg&name=small"
-    },
-    {
       "id": "x-founder-clara-2-george-favvas-78929-x-com-georgefavvas-status-2066674399714144460-come-meet-the-askclarahealth-team-tomorrow-at-demo-day-we-ll-be-out-behind-the-atrium-quote-aksh",
       "entityType": "founder",
       "entityId": "founder-clara-2-george-favvas-78929",
@@ -84903,5 +84870,58 @@
       "checkedAt": "2026-07-09T17:58:46.209Z"
     }
   ],
-  "needsReview": []
+  "needsReview": [
+    {
+      "id": "content-duplicate-x-founder-cignara-nalin-gupta-78606-x-com-nalingupta01-status-1864872432437453114-super-proud-of-my-mom-beena-gupta-launching-her-new-startup-buzzbox-gift-ready-items-delivered-to-",
+      "batchSlug": "S2026",
+      "entityType": "founder",
+      "entityId": "founder-cignara-nalin-gupta-78606",
+      "entityName": "Cignara",
+      "companySlug": "cignara",
+      "companyName": "Cignara",
+      "platform": "x",
+      "platformPostId": "1864872432437453114",
+      "candidateUrl": "https://x.com/nalingupta01/status/1864872432437453114",
+      "sourceEvidenceId": "x-founder-cignara-nalin-gupta-78606-x-com-nalingupta01-status-1864872432437453114-super-proud-of-my-mom-beena-gupta-launching-her-new-startup-buzzbox-gift-ready-items-delivered-to-",
+      "review_state": "needs_review",
+      "quarantineReasons": [
+        "same_platform_author_substantive_body"
+      ],
+      "duplicateEvidenceIdentity": {
+        "duplicateOfId": "x-founder-cignara-nalin-gupta-78606-x-com-nalingupta01-status-1864872376540033181-super-proud-of-my-mom-beena-gupta-launching-her-new-startup-buzzbox-gift-ready-items-delivered-to-",
+        "duplicateOfSourceUrl": "https://x.com/nalingupta01/status/1864872376540033181",
+        "duplicateOfPlatformPostId": "1864872376540033181",
+        "contentBodySha256": "ce7acc042c9459aaff961724662de0012ad94b8d3fb9ed9a38c68f319d807e33"
+      },
+      "matchReason": "Quarantined during logged-in evidence finalization: same_platform_author_substantive_body.",
+      "attributionReconciliationDirective": {
+        "platform": "x",
+        "sourceUrl": "https://x.com/nalingupta01/status/1864872432437453114",
+        "platformPostId": "1864872432437453114",
+        "disposition": "quarantined",
+        "reason": "same_platform_author_substantive_body",
+        "staleAttribution": {
+          "batchSlug": "S2026",
+          "entityType": "founder",
+          "entityId": "founder-cignara-nalin-gupta-78606",
+          "attributionType": "subject"
+        }
+      }
+    }
+  ],
+  "attributionReconciliationLedger": [
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/nalingupta01/status/1864872432437453114",
+      "platformPostId": "1864872432437453114",
+      "disposition": "quarantined",
+      "reason": "same_platform_author_substantive_body",
+      "staleAttribution": {
+        "batchSlug": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-cignara-nalin-gupta-78606",
+        "attributionType": "subject"
+      }
+    }
+  ]
 }

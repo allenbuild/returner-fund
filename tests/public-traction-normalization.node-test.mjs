@@ -853,8 +853,10 @@ test("readable LinkedIn profiles with zero posts fall back to founder-first disc
   const preload = join(directory, "mock-fetch.mjs");
   const goodPost = "https://www.linkedin.com/posts/russellhowardsmith_counter-drone-activity-7999999999999999991-good";
   const wrongAuthorPost = "https://www.linkedin.com/posts/someone-else_counter-drone-activity-7999999999999999992-bad";
+  const snippetOnlyPost = "https://www.linkedin.com/posts/russellhowardsmith_counter-drone-activity-7999999999999999994-snippet";
   const canonicalGoodPost = goodPost.replace("www.linkedin.com", "linkedin.com");
   const canonicalWrongAuthorPost = wrongAuthorPost.replace("www.linkedin.com", "linkedin.com");
+  const canonicalSnippetOnlyPost = snippetOnlyPost.replace("www.linkedin.com", "linkedin.com");
 
   await Promise.all([
     writeFile(output, `${JSON.stringify({ source: {}, evidence: [], needsReview: [], failures: [] }, null, 2)}\n`),
@@ -864,6 +866,7 @@ test("readable LinkedIn profiles with zero posts fall back to founder-first disc
     writeFile(preload, `
 const goodPost = ${JSON.stringify(goodPost)};
 const wrongAuthorPost = ${JSON.stringify(wrongAuthorPost)};
+const snippetOnlyPost = ${JSON.stringify(snippetOnlyPost)};
 const response = (body) => new Response(body, { status: 200, headers: { "content-type": "text/html" } });
 globalThis.fetch = async (input) => {
   const rawUrl = String(input);
@@ -873,13 +876,17 @@ globalThis.fetch = async (input) => {
     return response(\`<html><body>
       <div class="result"><h2 class="result__title"><a class="result__a" href="\${goodPost}">Russell Smith at 9 Mothers</a></h2><div class="result__snippet">9 Mothers founder startup update with 20 reactions</div></div>
       <div class="result"><h2 class="result__title"><a class="result__a" href="\${wrongAuthorPost}">Russell Smith and 9 Mothers</a></h2><div class="result__snippet">9 Mothers founder startup update with 20 reactions</div></div>
+      <div class="result"><h2 class="result__title"><a class="result__a" href="\${snippetOnlyPost}">Russell Smith at 9 Mothers</a></h2><div class="result__snippet">9 Mothers founder startup update with 999 reactions</div></div>
     </body></html>\`);
   }
   if (rawUrl.includes("7999999999999999991")) {
-    return response("Title: Russell Smith update | LinkedIn\\nRussell Smith at 9 Mothers shares a startup update. 20 reactions 2 comments");
+    return response(["Title: Russell Smith update | LinkedIn", "URL Source: " + goodPost, "Markdown Content:", "# Russell Smith's Post", "[Report this post](https://linkedin.com/guest?guestReportContentType=POST)", "Russell Smith at 9 Mothers shares a startup update.", "[![Image 1](https://static.licdn.com/a) 20](https://linkedin.com/signup)[2 Comments](https://linkedin.com/signup)", "[Like](https://linkedin.com/signup)[Comment](https://linkedin.com/signup) Share"].join("\\n"));
   }
   if (rawUrl.includes("7999999999999999992")) {
-    return response("Title: Someone Else mentions 9 Mothers | LinkedIn\\nSomeone Else shares a 9 Mothers startup update. 20 reactions 2 comments");
+    return response(["Title: Someone Else mentions 9 Mothers | LinkedIn", "URL Source: " + wrongAuthorPost, "Markdown Content:", "# Someone Else's Post", "[Report this post](https://linkedin.com/guest?guestReportContentType=POST)", "Someone Else shares a 9 Mothers startup update.", "[![Image 1](https://static.licdn.com/a) 20](https://linkedin.com/signup)[2 Comments](https://linkedin.com/signup)", "[Like](https://linkedin.com/signup)[Comment](https://linkedin.com/signup) Share"].join("\\n"));
+  }
+  if (rawUrl.includes("7999999999999999994")) {
+    return response("Target URL returned error 403: Access denied. To continue, log in.");
   }
   if (rawUrl.includes("linkedin.com/in/russellhowardsmith")) {
     return response("Title: Russell Smith | LinkedIn\\nRussell Smith is a founder at 9 Mothers. No native activity links are visible here.");
@@ -923,9 +930,13 @@ globalThis.fetch = async (input) => {
   assert.deepEqual(nativeFounderPosts.map((row) => row.sourceUrl), [canonicalGoodPost]);
   assert.equal(nativeFounderPosts[0].authorHandle, "russellhowardsmith");
   assert.ok(nativeFounderPosts[0].contributionScore > 0);
-  const wrongAuthorReview = normalized.needsReview.find((row) => row.candidateUrl === canonicalWrongAuthorPost);
-  assert.equal(wrongAuthorReview.entityId, founderId);
-  assert.match(wrongAuthorReview.matchReason, /exact verified founder author identity is required/i);
+  const wrongAuthorReviews = normalized.needsReview.filter(
+    (row) => row.candidateUrl === canonicalWrongAuthorPost
+  );
+  assert.ok(wrongAuthorReviews.some((row) => /semantic attribution/i.test(row.matchReason)));
+  assert.equal(normalized.evidence.some((row) => row.sourceUrl === canonicalWrongAuthorPost), false);
+  assert.equal(normalized.evidence.some((row) => row.sourceUrl === canonicalSnippetOnlyPost), false);
+  assert.ok(normalized.needsReview.some((row) => row.candidateUrl === canonicalSnippetOnlyPost));
   assert.ok(
     paths.some(
       (row) =>
@@ -987,6 +998,7 @@ globalThis.fetch = async (input) => {
       "[Stamatis Floratos](https://www.linkedin.com/in/stamatis-floratos-535b19244)",
       "[Report this post](https://www.linkedin.com/uas/login?guestReportContentType=POST)",
       "Stamatis Floratos shares an Eden Robotics (YC P26) founder update. 20 reactions 2 comments",
+      "[![Image 1](https://static.licdn.com/a) 20](https://linkedin.com/signup)[2 Comments](https://linkedin.com/signup)",
       "[Like](https://www.linkedin.com/login)[Comment](https://www.linkedin.com/login) Share",
       "## More Relevant Posts",
       "Unrelated footer content"
@@ -1123,6 +1135,27 @@ test("checkpoint flush canonicalizes native IDs, eligibility, and exact social a
     },
     {
       ...base,
+      id: "linkedin-parent-engagement-fixture",
+      platform: "linkedin",
+      sourceUrl: "https://www.linkedin.com/posts/russellhowardsmith_counter-drone-activity-7475000000000000003-good",
+      platformPostId: "7475000000000000003",
+      rawVisibleText: [
+        "URL Source: https://www.linkedin.com/posts/russellhowardsmith_counter-drone-activity-7475000000000000003-good",
+        "# Russell Smith's Post",
+        "[Report this post](https://linkedin.com/guest?guestReportContentType=POST)",
+        "Counter-drone systems from 9 Mothers (YC P26).",
+        "[![Image 1](https://static.licdn.com/reaction-a)![Image 2](https://static.licdn.com/reaction-b) 236](https://linkedin.com/signup)",
+        "[24 Comments](https://linkedin.com/signup)",
+        "[Like](https://linkedin.com/signup) [Comment](https://linkedin.com/signup) Share",
+        "[Report this comment](https://linkedin.com/guest?guestReportContentType=COMMENT)",
+        "Helpful reply 1 Reaction",
+        "Another reply 1 Reaction"
+      ].join(" "),
+      metrics: { reactions: 1, comments: 24 },
+      contributionScore: 1
+    },
+    {
+      ...base,
       id: "founder-linkedin-author-match",
       entityType: "founder",
       entityId: "founder-9-mothers-corporation-russell-smith-1373",
@@ -1201,6 +1234,7 @@ test("checkpoint flush canonicalizes native IDs, eligibility, and exact social a
   const thirdParty = reviewById.get("third-party-instagram-fixture");
   const emptyMetrics = reviewById.get("empty-youtube-fixture");
   const hallucinatedLinkedInComments = reviewById.get("linkedin-hallucinated-comments-fixture");
+  const linkedInParentEngagement = byId.get("linkedin-parent-engagement-fixture");
   const matchingFounderLinkedIn = byId.get("founder-linkedin-author-match");
   const mismatchingFounderLinkedIn = reviewById.get("founder-linkedin-author-mismatch");
 
@@ -1225,6 +1259,9 @@ test("checkpoint flush canonicalizes native IDs, eligibility, and exact social a
   assert.equal(hallucinatedLinkedInComments.contributionScore, 0);
   assert.equal(hallucinatedLinkedInComments.review_state, "needs_review");
   assert.match(hallucinatedLinkedInComments.matchReason, /no positive supported visible traction metric/i);
+  assert.deepEqual(linkedInParentEngagement.metrics, { reactions: 236, comments: 24 });
+  assert.ok(linkedInParentEngagement.contributionScore > 0);
+  assert.equal(linkedInParentEngagement.review_state, "verified");
   assert.equal(matchingFounderLinkedIn.authorHandle, "russellhowardsmith");
   assert.ok(matchingFounderLinkedIn.contributionScore > 0);
   assert.equal(matchingFounderLinkedIn.review_state, "verified");

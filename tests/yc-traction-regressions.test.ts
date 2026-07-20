@@ -10,9 +10,10 @@ import {
 import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import type { EvidenceItem, Platform } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 
 describe("YC traction scoring regressions", () => {
-  it("scores Eden from verified founder posts and preserves its multi-company Top Voice mention", () => {
+  it("scores Eden from verified founder posts while quarantining the cohort roundup", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
     const eden = graph.nodes.find((node) => node.entityType === "company" && node.entityId === "company-eden-robotics");
 
@@ -24,12 +25,25 @@ describe("YC traction scoring regressions", () => {
     expect(postIds(evidence)).toEqual(
       expect.arrayContaining([
         "7473766659829223424",
-        "2059649954520736030",
-        "7471229920451629056"
+        "2059649954520736030"
       ])
     );
+    expect(postIds(evidence)).not.toContain("7471229920451629056");
     expect(evidence.every((item) => item.contributionScore > 0)).toBe(true);
     expect(new Set(evidence.map((item) => `${item.platform}:${item.platformPostId}`)).size).toBe(evidence.length);
+
+    expect(
+      targetedEvidenceSnapshot.needsReview.find(
+        (item) =>
+          item.platformPostId === "7471229920451629056" &&
+          item.entityId === "company-eden-robotics"
+      )
+    ).toEqual(
+      expect.objectContaining({
+        review_state: "needs_review",
+        quarantineReasons: expect.arrayContaining(["third_party_cohort_roundup_list_entry_only"])
+      })
+    );
 
     const founderAccounts = eden!.founders.flatMap((founder) => founder.socialAccounts);
     expect(founderAccounts).toEqual(
@@ -48,12 +62,7 @@ describe("YC traction scoring regressions", () => {
       { batchSlug: "S2026", topVoices: "insiders" },
       ycSpring2026GraphDataset
     );
-    expectTopVoiceEvidence(
-      insiderGraph.evidence,
-      "7471229920451629056",
-      "Taro Fukuyama",
-      "Eden Robotics"
-    );
+    expect(insiderGraph.evidence.some((item) => item.platformPostId === "7471229920451629056")).toBe(false);
   });
 
   it("reports platform coverage for the selected YC batch", () => {
@@ -460,18 +469,26 @@ describe("YC traction scoring regressions", () => {
       "Molagri",
       "linkedin"
     );
-    expectGraphEvidence(
-      summerGraph.evidence,
-      "https://www.linkedin.com/posts/anderson-chen-2b6941216_excited-to-announce-operon-yc-s26-has-raised-activity-7478586962652655616-vNXc",
-      "Operon",
-      "linkedin"
+    const operonPost = summerGraph.evidence.find(
+      (item) => item.platformPostId === "7478586962652655616"
     );
-    expectGraphEvidence(
-      summerGraph.evidence,
-      "https://www.linkedin.com/posts/merlinkafka_we-just-moved-to-san-francisco-for-y-combinator-activity-7475606763560632320-5161",
-      "Rex",
-      "linkedin"
+    expect(operonPost).toEqual(
+      expect.objectContaining({
+        platform: "linkedin",
+        attachedCompanyId: "company-operon"
+      })
     );
+    expect(operonPost?.contributionScore).toBeGreaterThan(0);
+    const rexPost = summerGraph.evidence.find(
+      (item) => item.platformPostId === "7475606763560632320"
+    );
+    expect(rexPost).toEqual(
+      expect.objectContaining({
+        platform: "linkedin",
+        attachedCompanyId: "company-rex-inc"
+      })
+    );
+    expect(rexPost?.contributionScore).toBeGreaterThan(0);
     expectGraphEvidence(
       summerGraph.evidence,
       "https://www.linkedin.com/posts/sudhish-swain_excited-to-officially-launch-petrarch-yc-activity-7482470659839950848-GeT7",

@@ -482,7 +482,8 @@ function evidenceMetadata(candidate, canonical, reasons, tractionEligible, detai
     source_name: candidate.sourceName,
     source_label: candidate.sourceLabel,
     batch_slug: nonBlank(
-      row?.batchSlug ?? row?.batch_slug ?? candidate.source?.batchSlug ?? candidate.source?.batch_slug
+      candidate.row?.batchSlug ?? candidate.row?.batch_slug ??
+        candidate.source?.batchSlug ?? candidate.source?.batch_slug
     ),
     source_url: canonical.sourceUrl || null,
     observed_at: candidate.observedAt,

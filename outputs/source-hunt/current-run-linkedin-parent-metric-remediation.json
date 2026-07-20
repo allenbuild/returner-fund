@@ -1,0 +1,4733 @@
+{
+  "schemaVersion": 1,
+  "runKey": "source-hunt-2026-07-20-comprehensive-v1",
+  "generatedAt": "2026-07-20",
+  "scope": "Accepted public LinkedIn native post rows across S2026, S26, and A16ZSR006",
+  "canonicalFile": "src/lib/social/public-evidence-current.json",
+  "beforeSha256": "8ca5df135251c8c8803aa36b7f141cf822cf99803072839b12d8fa65c0ca2dc3",
+  "finalSha256": "8b236b76fe209ae51e0a2689dcb43acbf279d7d791139b5469528d1251ef168f",
+  "counts": {
+    "beforeAcceptedLinkedIn": 212,
+    "retained": 5,
+    "rewritten": 204,
+    "quarantined": 3,
+    "afterAcceptedLinkedIn": 209,
+    "publicEvidenceBefore": 299,
+    "publicEvidenceAfter": 296,
+    "publicNeedsReviewBefore": 4201,
+    "publicNeedsReviewAfter": 4204
+  },
+  "byBatch": {
+    "S2026": {
+      "before": 158,
+      "retained": 3,
+      "rewritten": 152,
+      "quarantined": 3,
+      "after": 155
+    },
+    "S26": {
+      "before": 35,
+      "retained": 2,
+      "rewritten": 33,
+      "quarantined": 0,
+      "after": 35
+    },
+    "A16ZSR006": {
+      "before": 19,
+      "retained": 0,
+      "rewritten": 19,
+      "quarantined": 0,
+      "after": 19
+    }
+  },
+  "extractionShapes": {
+    "linkedin_structured_native_receipt_verified": 1,
+    "linkedin_parent_icon_aggregate_and_comments": 186,
+    "linkedin_parent_action_footer_comments_only": 3,
+    "linkedin_parent_action_footer_reactions_only": 19,
+    "linkedin_parent_engagement_footer_unproven": 3
+  },
+  "quarantines": [
+    {
+      "id": "linkedin-company-aseon-labs-linkedin-com-posts-aseon-labs-home-the-av-fleet-brief-activity-7479231833855938562-pkxv-mike-murphy-puts-it-better-than-we-could",
+      "batchSlug": "S2026",
+      "companySlug": "aseon-labs",
+      "platformPostId": "7479231833855938562",
+      "sourceUrl": "https://linkedin.com/posts/aseon-labs_home-the-av-fleet-brief-activity-7479231833855938562-pkXV",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "quarantined",
+      "newMetrics": {},
+      "extraction": {
+        "status": "unproven",
+        "source": null,
+        "reason": "linkedin_parent_engagement_footer_unproven"
+      },
+      "quarantineReasons": [
+        "linkedin_parent_engagement_footer_unproven",
+        "no_visible_positive_scoring_metrics"
+      ]
+    },
+    {
+      "id": "linkedin-company-reasonblocks-linkedin-com-posts-reason-blocks-what-y-combinators-latest-batch-reveals-activity-7468381344557867008-xmc8-reasonblocks-yc-p26-just-got-featured-in-fo",
+      "batchSlug": "S2026",
+      "companySlug": "reasonblocks",
+      "platformPostId": "7468381344557867008",
+      "sourceUrl": "https://linkedin.com/posts/reason-blocks_what-y-combinators-latest-batch-reveals-activity-7468381344557867008-XMc8",
+      "oldMetrics": {
+        "comments": 67
+      },
+      "disposition": "quarantined",
+      "newMetrics": {},
+      "extraction": {
+        "status": "unproven",
+        "source": null,
+        "reason": "linkedin_parent_engagement_footer_unproven"
+      },
+      "quarantineReasons": [
+        "linkedin_parent_engagement_footer_unproven",
+        "no_visible_positive_scoring_metrics"
+      ]
+    },
+    {
+      "id": "linkedin-company-projectx-linkedin-com-posts-projectx-cloud-we-are-super-happy-to-announce-that-we-just-activity-7363382267576008704-rzdo-we-are-super-happy-to-announce-that-we-jus",
+      "batchSlug": "S2026",
+      "companySlug": "projectx",
+      "platformPostId": "7363382267576008704",
+      "sourceUrl": "https://linkedin.com/posts/projectx-cloud_we-are-super-happy-to-announce-that-we-just-activity-7363382267576008704-rzdO",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 6
+      },
+      "disposition": "quarantined",
+      "newMetrics": {},
+      "extraction": {
+        "status": "unproven",
+        "source": null,
+        "reason": "linkedin_parent_engagement_footer_unproven"
+      },
+      "quarantineReasons": [
+        "linkedin_parent_engagement_footer_unproven",
+        "no_visible_positive_scoring_metrics"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "id": "web-company-hexa-www-linkedin-com-posts-ishaan-makkar-manufacturing-distribution-ycombinator-activity-7452780945771966465-23w1-hexa-yc-p26-backed-by-y-combinator-linkedin",
+      "batchSlug": "S2026",
+      "companySlug": "hexa",
+      "platformPostId": "7452780945771966465",
+      "sourceUrl": "https://linkedin.com/posts/ishaan-makkar_manufacturing-distribution-ycombinator-activity-7452780945771966465-23W1",
+      "oldMetrics": {
+        "reactions": 282,
+        "comments": 62
+      },
+      "disposition": "retained",
+      "newMetrics": {
+        "reactions": 282,
+        "comments": 62
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "structured_native_receipt",
+        "reason": "linkedin_structured_native_receipt_verified"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-bloomy-alex-southmayd-3410278-linkedin-com-posts-y-combinator-bloomy-yc-s26-is-helping-kids-learn-faster-activity-7478115276312428544-kaqt-bloomy-closes-learning-g",
+      "batchSlug": "S26",
+      "companySlug": "bloomy",
+      "platformPostId": "7478115276312428544",
+      "sourceUrl": "https://linkedin.com/posts/y-combinator_bloomy-yc-s26-is-helping-kids-learn-faster-activity-7478115276312428544-kAQt",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 183
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 1161,
+        "comments": 183
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-contextdev-yahia-bakour-2538368-linkedin-com-posts-aidantiruvan-they-aint-believe-in-us-god-did-activity-7480757450569289728-om1v-they-ain-t-believe-in-us-god-did-",
+      "batchSlug": "S26",
+      "companySlug": "archal",
+      "platformPostId": "7480757450569289728",
+      "sourceUrl": "https://linkedin.com/posts/aidantiruvan_they-aint-believe-in-us-god-did-activity-7480757450569289728-OM1V",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 45
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 169,
+        "comments": 45
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-care-gp-melvin-chen-1162884-linkedin-com-posts-melvinchen-ycombinator-healthcareai-healthtech-activity-7470676175162482688-fbnx-a-huge-milestone-for-the-team-at-ca",
+      "batchSlug": "S26",
+      "companySlug": "care-gp",
+      "platformPostId": "7470676175162482688",
+      "sourceUrl": "https://linkedin.com/posts/melvinchen_ycombinator-healthcareai-healthtech-activity-7470676175162482688-fBNx",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 13
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 134,
+        "comments": 13
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-care-gp-melvin-chen-1162884-linkedin-com-posts-melvinchen-here-goes-nothing-y-combinator-activity-7475140632794214401-4emd-here-goes-nothing-y-combinator",
+      "batchSlug": "S26",
+      "companySlug": "care-gp",
+      "platformPostId": "7475140632794214401",
+      "sourceUrl": "https://linkedin.com/posts/melvinchen_here-goes-nothing-y-combinator-activity-7475140632794214401-4EMd",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 7
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "comments": 7
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_comments_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-bloomy-alex-southmayd-3410278-linkedin-com-posts-alex-southmayd-imagine-every-child-having-a-tutor-who-knows-activity-7477783017600614400-gjnv-bloomy-for-families-",
+      "batchSlug": "S26",
+      "companySlug": "bloomy",
+      "platformPostId": "7477783017600614400",
+      "sourceUrl": "https://linkedin.com/posts/alex-southmayd_imagine-every-child-having-a-tutor-who-knows-activity-7477783017600614400-GJNv",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 38,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-care-gp-melvin-chen-1162884-linkedin-com-posts-melvinchen-hiring-softwareengineer-foundingteam-activity-7478343534211956736-rtat-we-re-hiring-a-senior-software-eng",
+      "batchSlug": "S26",
+      "companySlug": "care-gp",
+      "platformPostId": "7478343534211956736",
+      "sourceUrl": "https://linkedin.com/posts/melvinchen_hiring-softwareengineer-foundingteam-activity-7478343534211956736-rTAt",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 25,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-alchemize-samuel-fu-2993764-linkedin-com-posts-geourg-kivijian-this-isnt-a-bird-its-ornadyne-yc-p26-activity-7481084434042052608-4fsg-this-isn-t-a-bird-it-s-ornady",
+      "batchSlug": "S2026",
+      "companySlug": "ornadyne",
+      "platformPostId": "7481084434042052608",
+      "sourceUrl": "https://linkedin.com/posts/geourg-kivijian_this-isnt-a-bird-its-ornadyne-yc-p26-activity-7481084434042052608-4fsG",
+      "oldMetrics": {
+        "reactions": 46,
+        "comments": 104
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 867,
+        "comments": 104
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-chert-linkedin-com-posts-activity-7458288693695627264-rihw-ycombinator-ycp26-startup-ian-fong-133-comments",
+      "batchSlug": "S2026",
+      "companySlug": "chert",
+      "platformPostId": "7458288693695627264",
+      "sourceUrl": "https://linkedin.com/posts/activity-7458288693695627264-RIhW",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 133
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 482,
+        "comments": 133
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-chert-linkedin-com-posts-activity-7458290873081176064-sleu-i-m-happy-to-share-that-chert-yc-p26-is-now-backed-by-y-combinator",
+      "batchSlug": "S2026",
+      "companySlug": "chert",
+      "platformPostId": "7458290873081176064",
+      "sourceUrl": "https://linkedin.com/posts/activity-7458290873081176064-SlEu",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 122
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 443,
+        "comments": 122
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-auxos-kerry-lu-1443780-linkedin-com-posts-kerry-lu-auxos-yc-p26-has-an-investment-offer-from-activity-7465094246392369153-sdcr-auxos-yc-p26-has-an-investment-offer",
+      "batchSlug": "S2026",
+      "companySlug": "auxos",
+      "platformPostId": "7465094246392369153",
+      "sourceUrl": "https://linkedin.com/posts/kerry-lu_auxos-yc-p26-has-an-investment-offer-from-activity-7465094246392369153-sdCr",
+      "oldMetrics": {
+        "reactions": 5,
+        "comments": 44
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 81,
+        "comments": 44
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-enjamb-labs-linkedin-com-posts-activity-7450398541010616320-ij7g-excited-to-share-enjamb-yc-p26-is-joining-y-combinator-we-re-building-claude-co-work-for-collabora",
+      "batchSlug": "S2026",
+      "companySlug": "enjamb-labs",
+      "platformPostId": "7450398541010616320",
+      "sourceUrl": "https://linkedin.com/posts/activity-7450398541010616320-iJ7G",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 46
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 224,
+        "comments": 46
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-arctic-health-raghav-mehrish-3272652-linkedin-com-posts-y-combinator-arctic-health-yc-p26-is-the-full-service-activity-7465054145717190656-t8z0-arctic-health-simpl",
+      "batchSlug": "S2026",
+      "companySlug": "arctic-health",
+      "platformPostId": "7465054145717190656",
+      "sourceUrl": "https://linkedin.com/posts/y-combinator_arctic-health-yc-p26-is-the-full-service-activity-7465054145717190656-t8Z0",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 36
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 271,
+        "comments": 36
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-auxos-linkedin-com-posts-activity-7468040105195290625-gi-b-happy-to-say-my-co-founder-jerry-wu-got-a-late-birthday-present-with-2x-revenue-growth-in-the-past-2-wee",
+      "batchSlug": "S2026",
+      "companySlug": "auxos",
+      "platformPostId": "7468040105195290625",
+      "sourceUrl": "https://linkedin.com/posts/activity-7468040105195290625-gI_b",
+      "oldMetrics": {
+        "reactions": 15,
+        "comments": 21
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 140,
+        "comments": 21
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-aice-gregoire-chomette-3424825-linkedin-com-posts-gregoirechomette-were-in-y-combinator-we-had-six-figures-activity-7462915996023001088-l0ku-we-re-in-y-combinator-",
+      "batchSlug": "S2026",
+      "companySlug": "aice",
+      "platformPostId": "7462915996023001088",
+      "sourceUrl": "https://linkedin.com/posts/gregoirechomette_were-in-y-combinator-we-had-six-figures-activity-7462915996023001088-l0ku",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 34
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 483,
+        "comments": 34
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-expanse-ismaeel-bashir-3381342-linkedin-com-posts-jeremcoh-a-month-already-since-p26-demo-day-and-today-activity-7483634831608705024-i9ss-a-month-already-since-p26",
+      "batchSlug": "S2026",
+      "companySlug": "kelai",
+      "platformPostId": "7483634831608705024",
+      "sourceUrl": "https://linkedin.com/posts/jeremcoh_a-month-already-since-p26-demo-day-and-today-activity-7483634831608705024-I9sS",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 33
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 93,
+        "comments": 33
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-complir-linkedin-com-posts-complir-omnibus-iv-activity-7477353312653119488-gqn8-omnibus-iv-complir",
+      "batchSlug": "S2026",
+      "companySlug": "complir",
+      "platformPostId": "7477353312653119488",
+      "sourceUrl": "https://linkedin.com/posts/complir_omnibus-iv-activity-7477353312653119488-GQN8",
+      "oldMetrics": {
+        "comments": 30
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 22
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-foaster-linkedin-com-posts-activity-7473373962052214784-zwcm-yc-spring-2026-batch-is-officially-over-yesterday-we-got-to-show-what-we-ve-been-building-for-the-last",
+      "batchSlug": "S2026",
+      "companySlug": "foaster",
+      "platformPostId": "7473373962052214784",
+      "sourceUrl": "https://linkedin.com/posts/activity-7473373962052214784-ZWcm",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 24
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 201,
+        "comments": 24
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-foaster-linkedin-com-posts-activity-7472286027450265600-r-fg-foaster-ai-building-human-relevance-in-the-ai-era-rapha-l-dabadie-posted-on-the-topic-linkedin",
+      "batchSlug": "S2026",
+      "companySlug": "foaster",
+      "platformPostId": "7472286027450265600",
+      "sourceUrl": "https://linkedin.com/posts/activity-7472286027450265600-R-fG",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 25
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 170,
+        "comments": 25
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-dispatch-andrew-mello-3229201-linkedin-com-posts-andrew-mello-payton-case-and-i-have-left-our-jobs-to-start-activity-7444881399754682368-lhrl-dispatch-co-founders-",
+      "batchSlug": "S2026",
+      "companySlug": "dispatch",
+      "platformPostId": "7444881399754682368",
+      "sourceUrl": "https://linkedin.com/posts/andrew-mello_payton-case-and-i-have-left-our-jobs-to-start-activity-7444881399754682368-lHrl",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 26
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 267,
+        "comments": 26
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-auxos-kerry-lu-1443780-linkedin-com-posts-kerry-lu-y-combinator-always-says-to-do-things-that-activity-7463995729615736832-xpfj-y-combinator-always-says-to-do-thin",
+      "batchSlug": "S2026",
+      "companySlug": "auxos",
+      "platformPostId": "7463995729615736832",
+      "sourceUrl": "https://linkedin.com/posts/kerry-lu_y-combinator-always-says-to-do-things-that-activity-7463995729615736832-xpFj",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 20
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 168,
+        "comments": 20
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-finaldose-linkedin-com-posts-activity-7483591151694864384-vrd7-i-m-excited-to-share-that-i-m-interning-at-finaldose-yc-p26-as-a-software-engineer-intern",
+      "batchSlug": "S2026",
+      "companySlug": "finaldose",
+      "platformPostId": "7483591151694864384",
+      "sourceUrl": "https://linkedin.com/posts/activity-7483591151694864384-vRD7",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 16
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 119,
+        "comments": 16
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-hessian-bao-nguyen-1814065-linkedin-com-posts-segrove-so-happy-to-launch-i-truly-want-to-to-make-activity-7475241289299456000-ymav-so-happy-to-launch-i-truly-want-",
+      "batchSlug": "S2026",
+      "companySlug": "linzumi",
+      "platformPostId": "7475241289299456000",
+      "sourceUrl": "https://linkedin.com/posts/segrove_so-happy-to-launch-i-truly-want-to-to-make-activity-7475241289299456000-Ymav",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 16
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 76,
+        "comments": 16
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-instaagent-linkedin-com-posts-activity-7459795422660702208-54lx-honored-to-share-that-instaagent-ranked-in-the-top-3-of-our-pod-top-10-for-the-yc-product-showcase",
+      "batchSlug": "S2026",
+      "companySlug": "instaagent",
+      "platformPostId": "7459795422660702208",
+      "sourceUrl": "https://linkedin.com/posts/activity-7459795422660702208-54lx",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 15
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 153,
+        "comments": 15
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-interfaze-linkedin-com-posts-activity-7482943159396880384-fj3p-interfaze-yc-p26-x-andco-wipe-your-phone-screen-btw-it-s-a-bit-dusty-dennis-chen-14-comments",
+      "batchSlug": "S2026",
+      "companySlug": "interfaze",
+      "platformPostId": "7482943159396880384",
+      "sourceUrl": "https://linkedin.com/posts/activity-7482943159396880384-FJ3P",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 14
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 37,
+        "comments": 14
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-cohesion-linkedin-com-posts-activity-7465765482378395652-htm3-what-s-your-moat",
+      "batchSlug": "S2026",
+      "companySlug": "cohesion",
+      "platformPostId": "7465765482378395652",
+      "sourceUrl": "https://linkedin.com/posts/activity-7465765482378395652-htM3",
+      "oldMetrics": {
+        "reactions": 6,
+        "comments": 8
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 80,
+        "comments": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-arctic-health-linkedin-com-posts-arctic-health-the-dme-suppliers-guide-to-commercial-insurance-activity-7479951057700306944-zar-one-of-the-biggest-misconceptions-w",
+      "batchSlug": "S2026",
+      "companySlug": "arctic-health",
+      "platformPostId": "7479951057700306944",
+      "sourceUrl": "https://linkedin.com/posts/arctic-health_the-dme-suppliers-guide-to-commercial-insurance-activity-7479951057700306944-zar_",
+      "oldMetrics": {
+        "reactions": 13
+      },
+      "disposition": "retained",
+      "newMetrics": {
+        "reactions": 13
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-cignara-linkedin-com-posts-cignara-we-are-excited-to-welcome-lance-gruner-to-activity-7481028913624739840-iauu-we-are-excited-to-welcome-lance-gruner-to-cignara-la",
+      "batchSlug": "S2026",
+      "companySlug": "cignara",
+      "platformPostId": "7481028913624739840",
+      "sourceUrl": "https://linkedin.com/posts/cignara_we-are-excited-to-welcome-lance-gruner-to-activity-7481028913624739840-IauU",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 11
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 47,
+        "comments": 11
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-cohesion-matthew-mcbrien-1346140-linkedin-com-posts-matthew-mcbrien-784b32116-my-face-when-someone-asks-me-if-i-had-fun-activity-7473785881707864064-ch1x-my-face-w",
+      "batchSlug": "S2026",
+      "companySlug": "cohesion",
+      "platformPostId": "7473785881707864064",
+      "sourceUrl": "https://linkedin.com/posts/matthew-mcbrien-784b32116_my-face-when-someone-asks-me-if-i-had-fun-activity-7473785881707864064-CH1X",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 10
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 117,
+        "comments": 10
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-arga-labs-linkedin-com-posts-arga-labs-proud-to-share-that-arga-labs-was-featured-activity-7474287763513630722-7rhz-proud-to-share-that-arga-labs-was-featured-as-o",
+      "batchSlug": "S2026",
+      "companySlug": "arga-labs",
+      "platformPostId": "7474287763513630722",
+      "sourceUrl": "https://linkedin.com/posts/arga-labs_proud-to-share-that-arga-labs-was-featured-activity-7474287763513630722-7rhZ",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 9
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 69,
+        "comments": 9
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-aseon-labs-linkedin-com-posts-aseon-labs-robotaxis-drive-miles-just-to-get-cleaned-activity-7476304824456663040-e8wi-av-fleet-infrastructure-startup-raises-10m-in-",
+      "batchSlug": "S2026",
+      "companySlug": "aseon-labs",
+      "platformPostId": "7476304824456663040",
+      "sourceUrl": "https://linkedin.com/posts/aseon-labs_robotaxis-drive-miles-just-to-get-cleaned-activity-7476304824456663040-E8wI",
+      "oldMetrics": {
+        "comments": 10
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 45
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-cignara-linkedin-com-posts-cignara-ycombinator-agenticai-customerexperience-activity-7472044875039801345-6tf5-ycombinator-agenticai-customerexperience-customersupp",
+      "batchSlug": "S2026",
+      "companySlug": "cignara",
+      "platformPostId": "7472044875039801345",
+      "sourceUrl": "https://linkedin.com/posts/cignara_ycombinator-agenticai-customerexperience-activity-7472044875039801345-6TF5",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 6
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 53,
+        "comments": 6
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-foaster-linkedin-com-posts-activity-7463566571341447168-q9-g-after-meeting-with-150-companies-in-the-last-2-months-the-reason-ai-transformations-fail-is-clear-comp",
+      "batchSlug": "S2026",
+      "companySlug": "foaster",
+      "platformPostId": "7463566571341447168",
+      "sourceUrl": "https://linkedin.com/posts/activity-7463566571341447168-q9_g",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 8
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 68,
+        "comments": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-dispatch-payton-case-564908-linkedin-com-posts-paytoncase-were-on-the-front-page-of-payload-dispatch-activity-7445131301151633408-jk0-we-re-on-the-front-page-of-pa",
+      "batchSlug": "S2026",
+      "companySlug": "dispatch",
+      "platformPostId": "7445131301151633408",
+      "sourceUrl": "https://linkedin.com/posts/paytoncase_were-on-the-front-page-of-payload-dispatch-activity-7445131301151633408-jk0-",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 9
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 178,
+        "comments": 9
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-armature-linkedin-com-posts-activity-7459281446504120320-vl97-i-bet-theodore-and-armature-yc-p26-will-be-one-of-the-most-oversubscribed-companies-at-the-next-y-com",
+      "batchSlug": "S2026",
+      "companySlug": "armature",
+      "platformPostId": "7459281446504120320",
+      "sourceUrl": "https://linkedin.com/posts/activity-7459281446504120320-Vl97",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 8
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 101,
+        "comments": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-apollo-atomics-inc-linkedin-com-posts-apollo-atomics-the-next-generation-of-nuclear-wont-be-built-activity-7465493085486133248-a66r-the-next-generation-of-nuclear-",
+      "batchSlug": "S2026",
+      "companySlug": "apollo-atomics-inc",
+      "platformPostId": "7465493085486133248",
+      "sourceUrl": "https://linkedin.com/posts/apollo-atomics_the-next-generation-of-nuclear-wont-be-built-activity-7465493085486133248-a66r",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 7
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 49,
+        "comments": 7
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-clawvisor-eric-levine-18959-linkedin-com-posts-poloumali-everyones-agent-horror-story-starts-the-activity-7479282016958472193-95hf-everyone-s-agent-horror-story-st",
+      "batchSlug": "S2026",
+      "companySlug": "clawvisor",
+      "platformPostId": "7479282016958472193",
+      "sourceUrl": "https://linkedin.com/posts/poloumali_everyones-agent-horror-story-starts-the-activity-7479282016958472193-95HF",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 43,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-hessian-bao-nguyen-1814065-linkedin-com-posts-bao-thai-nguyen-launching-hessian-yc-p26-to-get-you-ai-native-activity-7463704243183505408-zu-z-launching-hessian-yc-",
+      "batchSlug": "S2026",
+      "companySlug": "hessian",
+      "platformPostId": "7463704243183505408",
+      "sourceUrl": "https://linkedin.com/posts/bao-thai-nguyen_launching-hessian-yc-p26-to-get-you-ai-native-activity-7463704243183505408-zu-Z",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 7
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 45,
+        "comments": 7
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-flowscope-linkedin-com-posts-activity-7474800915925975040-v21x-we-attended-y-combinator-demo-day-where-two-of-our-the-atlantic-fellowship-founders-crushed-it",
+      "batchSlug": "S2026",
+      "companySlug": "flowscope",
+      "platformPostId": "7474800915925975040",
+      "sourceUrl": "https://linkedin.com/posts/activity-7474800915925975040-v21X",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 6
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 86,
+        "comments": 6
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-hyper-4-linkedin-com-posts-heyhyperai-officially-yc-alumni-heyhyperai-activity-7474587745101766656-g-pr-officially-yc-alumni-heyhyper-ai-hyper",
+      "batchSlug": "S2026",
+      "companySlug": "hyper-4",
+      "platformPostId": "7474587745101766656",
+      "sourceUrl": "https://linkedin.com/posts/heyhyperai_officially-yc-alumni-heyhyperai-activity-7474587745101766656-g_PR",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 50,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-hyper-4-linkedin-com-posts-heyhyperai-ycdemodaymerch-activity-7476423900617187328-03ec-ycdemodaymerch-hyper",
+      "batchSlug": "S2026",
+      "companySlug": "hyper-4",
+      "platformPostId": "7476423900617187328",
+      "sourceUrl": "https://linkedin.com/posts/heyhyperai_ycdemodaymerch-activity-7476423900617187328-03Ec",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 6
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 16,
+        "comments": 6
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-interfaze-linkedin-com-posts-activity-7481498686498430976-mpv0-i-m-hosting-a-dinner-with-rho-and-interfaze-yc-p26-seed-series-b-ctos-hoes-heads-of-engineering-buss",
+      "batchSlug": "S2026",
+      "companySlug": "interfaze",
+      "platformPostId": "7481498686498430976",
+      "sourceUrl": "https://linkedin.com/posts/activity-7481498686498430976-mpv0",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 6
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 62,
+        "comments": 6
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-asendia-ai-badis-zormati-2096458-linkedin-com-posts-fchishtie-rob-snyder-the-legend-wrote-a-book-highly-activity-7481346325960192001-8av9-rob-snyder-the-legend-wro",
+      "batchSlug": "S2026",
+      "companySlug": "minicor",
+      "platformPostId": "7481346325960192001",
+      "sourceUrl": "https://linkedin.com/posts/fchishtie_rob-snyder-the-legend-wrote-a-book-highly-activity-7481346325960192001-8AV9",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 54,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-clawvisor-eric-levine-18959-linkedin-com-posts-levineericj-us-companies-are-realizing-that-chinese-ai-activity-7483170868706058240-ayhl-i-m-not-surprised-that-us-c",
+      "batchSlug": "S2026",
+      "companySlug": "clawvisor",
+      "platformPostId": "7483170868706058240",
+      "sourceUrl": "https://linkedin.com/posts/levineericj_us-companies-are-realizing-that-chinese-ai-activity-7483170868706058240-ayHl",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 6
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 37,
+        "comments": 6
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-avea-robotics-linkedin-com-posts-avea-robotics-check-out-our-latest-release-for-sentinel-activity-7472345808667836416-nkkg-check-out-our-latest-release-for-sentine",
+      "batchSlug": "S2026",
+      "companySlug": "avea-robotics",
+      "platformPostId": "7472345808667836416",
+      "sourceUrl": "https://linkedin.com/posts/avea-robotics_check-out-our-latest-release-for-sentinel-activity-7472345808667836416-nkKG",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 26,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-datost-linkedin-com-posts-activity-7465578603263660032-b8d5-1-day-at-cursor-s-office-7-days-later-1-customer-closed-3-in-active-pipeline-that-s-the-entire-roi-of-c",
+      "batchSlug": "S2026",
+      "companySlug": "datost",
+      "platformPostId": "7465578603263660032",
+      "sourceUrl": "https://linkedin.com/posts/activity-7465578603263660032-B8d5",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 67,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-arctic-health-raghav-mehrish-3272652-linkedin-com-posts-arctic-health-credentialing-and-contracting-are-the-foundation-activity-7450999896985272320-npb2-maximize-h",
+      "batchSlug": "S2026",
+      "companySlug": "arctic-health",
+      "platformPostId": "7450999896985272320",
+      "sourceUrl": "https://linkedin.com/posts/arctic-health_credentialing-and-contracting-are-the-foundation-activity-7450999896985272320-NPb2",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 23,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-aseon-labs-dan-keene-2699748-linkedin-com-posts-dancbkeene-so-were-building-aseon-labs-pods-in-space-activity-7483591083881594881-6jwa-aseon-labs-featured-by-chedd",
+      "batchSlug": "S2026",
+      "companySlug": "aseon-labs",
+      "platformPostId": "7483591083881594881",
+      "sourceUrl": "https://linkedin.com/posts/dancbkeene_so-were-building-aseon-labs-pods-in-space-activity-7483591083881594881-6jWa",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 37,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-auxos-linkedin-com-posts-activity-7466165464872960000-ig0i-75k-to-interview-15-customers-25k-to-run-a-10-question-survey-20k-for-an-off-the-shelf-report-yesterday-",
+      "batchSlug": "S2026",
+      "companySlug": "auxos",
+      "platformPostId": "7466165464872960000",
+      "sourceUrl": "https://linkedin.com/posts/activity-7466165464872960000-IG0I",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 60,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-deep-interactions-linkedin-com-posts-activity-7480183417154920448-v0oa-80-of-ai-pilots-fail-to-make-it-to-production-james-neilson-posted-on-the-topic-linkedin",
+      "batchSlug": "S2026",
+      "companySlug": "deep-interactions",
+      "platformPostId": "7480183417154920448",
+      "sourceUrl": "https://linkedin.com/posts/activity-7480183417154920448-v0oA",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 8,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-hub-linkedin-com-posts-hub-xyz-ai-datainfrastructure-enterpriseai-activity-7481319206584557568-nlzi-frontier-models-capped-at-80-accuracy-smaller-model-outperforms",
+      "batchSlug": "S2026",
+      "companySlug": "hub",
+      "platformPostId": "7481319206584557568",
+      "sourceUrl": "https://linkedin.com/posts/hub-xyz_ai-datainfrastructure-enterpriseai-activity-7481319206584557568-nlZI",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 6,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-andustry-linkedin-com-posts-activity-7470179308897062913-bysa-timeline-of-working-with-our-latest-inbound-customer-96-hours-from-inbound-to-part-delivered-thursday",
+      "batchSlug": "S2026",
+      "companySlug": "andustry",
+      "platformPostId": "7470179308897062913",
+      "sourceUrl": "https://linkedin.com/posts/activity-7470179308897062913-BYSa",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 125,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-arctic-health-linkedin-com-posts-arctic-health-ai-will-modernize-credentialing-but-not-activity-7456050921798569984-tzw-ai-will-modernize-credentialing-but-not-ove",
+      "batchSlug": "S2026",
+      "companySlug": "arctic-health",
+      "platformPostId": "7456050921798569984",
+      "sourceUrl": "https://linkedin.com/posts/arctic-health_ai-will-modernize-credentialing-but-not-activity-7456050921798569984-TzW_",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 33,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-avea-robotics-linkedin-com-posts-avea-robotics-physicalai-robotics-teleoperation-activity-7460388418347274240-m9ma-physicalai-robotics-teleoperation-avea-robotics-",
+      "batchSlug": "S2026",
+      "companySlug": "avea-robotics",
+      "platformPostId": "7460388418347274240",
+      "sourceUrl": "https://linkedin.com/posts/avea-robotics_physicalai-robotics-teleoperation-activity-7460388418347274240-M9MA",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 32,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-bentolabs-ai-linkedin-com-posts-activity-7472186741601361920-e0or-bentolabs-ai-introduces-issues-for-production-problem-tracking-bentolabs-ai-yc-p26-posted-on-the-",
+      "batchSlug": "S2026",
+      "companySlug": "bentolabs-ai",
+      "platformPostId": "7472186741601361920",
+      "sourceUrl": "https://linkedin.com/posts/activity-7472186741601361920-E0or",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 73,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-runharbor-linkedin-com-posts-runharbor-harbor-yc-p26s-first-team-offsite-and-activity-7477423568109105152-ohxe-harbor-yc-p26-s-first-team-offsite-and-birthday-bash",
+      "batchSlug": "S2026",
+      "companySlug": "runharbor",
+      "platformPostId": "7477423568109105152",
+      "sourceUrl": "https://linkedin.com/posts/runharbor_harbor-yc-p26s-first-team-offsite-and-activity-7477423568109105152-ohxe",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 50,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-cohesion-matthew-mcbrien-1346140-linkedin-com-posts-matthew-mcbrien-784b32116-heard-from-paul-graham-and-jessica-livingston-activity-7468158542626246656-zwme-yc-fo",
+      "batchSlug": "S2026",
+      "companySlug": "cohesion",
+      "platformPostId": "7468158542626246656",
+      "sourceUrl": "https://linkedin.com/posts/matthew-mcbrien-784b32116_heard-from-paul-graham-and-jessica-livingston-activity-7468158542626246656-ZwmE",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 43,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-arctic-health-linkedin-com-posts-arctic-health-arctic-health-is-fixing-credentialing-now-activity-7465089740480970752-nghx-arctic-health-is-fixing-credentialing-no",
+      "batchSlug": "S2026",
+      "companySlug": "arctic-health",
+      "platformPostId": "7465089740480970752",
+      "sourceUrl": "https://linkedin.com/posts/arctic-health_arctic-health-is-fixing-credentialing-now-activity-7465089740480970752-ngHx",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 10,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-insforge-linkedin-com-posts-insforge-our-insforge-launch-week-2-hackathon-is-officially-activity-7477810339363901440-i5er-insforge-launch-week-2-hackathon-winners-",
+      "batchSlug": "S2026",
+      "companySlug": "insforge",
+      "platformPostId": "7477810339363901440",
+      "sourceUrl": "https://linkedin.com/posts/insforge_our-insforge-launch-week-2-hackathon-is-officially-activity-7477810339363901440-I5er",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 32,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-callab-ai-chehir-dhaouadi-1992756-linkedin-com-posts-haithemkchaou-when-we-started-building-callab-ai-yc-p26-activity-7465638335319863296-4lzn-when-we-started-buil",
+      "batchSlug": "S2026",
+      "companySlug": "callab-ai",
+      "platformPostId": "7465638335319863296",
+      "sourceUrl": "https://linkedin.com/posts/haithemkchaou_when-we-started-building-callab-ai-yc-p26-activity-7465638335319863296-4LZN",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 216,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-drafted-nicholas-donahue-308465-linkedin-com-posts-draftedai-introducing-regenerate-in-drafted-traditionally-activity-7482842797893410816-j4j6-regenerate-floor-pla",
+      "batchSlug": "S2026",
+      "companySlug": "drafted",
+      "platformPostId": "7482842797893410816",
+      "sourceUrl": "https://linkedin.com/posts/draftedai_introducing-regenerate-in-drafted-traditionally-activity-7482842797893410816-J4j6",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 17,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-drafted-nicholas-donahue-308465-linkedin-com-posts-nicholas-donahue-0b77b7128-when-generating-your-dream-home-often-there-activity-7482852793544757249-ivxq-when-ge",
+      "batchSlug": "S2026",
+      "companySlug": "drafted",
+      "platformPostId": "7482852793544757249",
+      "sourceUrl": "https://linkedin.com/posts/nicholas-donahue-0b77b7128_when-generating-your-dream-home-often-there-activity-7482852793544757249-iVXQ",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 12,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-cignara-linkedin-com-posts-cignara-ccwvegas-customerexperience-contactcenter-activity-7473459169916911616-svuw-we-re-heading-to-ccw-las-vegas",
+      "batchSlug": "S2026",
+      "companySlug": "cignara",
+      "platformPostId": "7473459169916911616",
+      "sourceUrl": "https://linkedin.com/posts/cignara_ccwvegas-customerexperience-contactcenter-activity-7473459169916911616-SVuw",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_comments_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-dayjob-linkedin-com-posts-dayjob-ai-dayjob-in-numbers-activity-7472994482108571648-jzqf-dayjob-hq-ai-planning-success-with-fred-fooks-dayjob-posted-on-the-topic-li",
+      "batchSlug": "S2026",
+      "companySlug": "dayjob",
+      "platformPostId": "7472994482108571648",
+      "sourceUrl": "https://linkedin.com/posts/dayjob-ai_dayjob-in-numbers-activity-7472994482108571648-Jzqf",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 38,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-drafted-linkedin-com-posts-draftedai-what-if-your-floor-plan-changes-updated-a-activity-7484295905676787712-vl1r-what-if-your-floor-plan-changes-updated-a-3d-model",
+      "batchSlug": "S2026",
+      "companySlug": "drafted",
+      "platformPostId": "7484295905676787712",
+      "sourceUrl": "https://linkedin.com/posts/draftedai_what-if-your-floor-plan-changes-updated-a-activity-7484295905676787712-vL1R",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 9,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-hub-linkedin-com-posts-hub-xyz-he-fed-his-dog-he-washed-the-dishes-activity-7481384251100278784-ouxf-bruno-s-sunday-tasks-on-hub-app-hub-posted-on-the-topic-linked",
+      "batchSlug": "S2026",
+      "companySlug": "hub",
+      "platformPostId": "7481384251100278784",
+      "sourceUrl": "https://linkedin.com/posts/hub-xyz_he-fed-his-dog-he-washed-the-dishes-activity-7481384251100278784-ouxF",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 2,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-hyper-4-linkedin-com-posts-heyhyperai-connect-your-tools-sync-your-context-let-activity-7472392864895815680-fjib-connect-your-tools-sync-your-context-let-hyper-do-",
+      "batchSlug": "S2026",
+      "companySlug": "hyper-4",
+      "platformPostId": "7472392864895815680",
+      "sourceUrl": "https://linkedin.com/posts/heyhyperai_connect-your-tools-sync-your-context-let-activity-7472392864895815680-fJIB",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 4,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-inloop-robotics-linkedin-com-posts-inlooprobotics-nvidiainception-activity-7447312267320291328-fx2k-nvidiainception-inloop-robotics-yc-p26",
+      "batchSlug": "S2026",
+      "companySlug": "inloop-robotics",
+      "platformPostId": "7447312267320291328",
+      "sourceUrl": "https://linkedin.com/posts/inlooprobotics_nvidiainception-activity-7447312267320291328-Fx2k",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 72,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-insforge-linkedin-com-posts-insforge-insforge-observability-and-backend-advisor-activity-7482812202215907328-pf2r-insforge-observability-and-advisor-now-live-in-ev",
+      "batchSlug": "S2026",
+      "companySlug": "insforge",
+      "platformPostId": "7482812202215907328",
+      "sourceUrl": "https://linkedin.com/posts/insforge_insforge-observability-and-backend-advisor-activity-7482812202215907328-pF2r",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 12,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-instaagent-linkedin-com-posts-instaagent-ycp26-ycombinator-startupjourney-activity-7455778621056778240-gnkn-ycp26-ycombinator-startupjourney-marketinginnovation-in",
+      "batchSlug": "S2026",
+      "companySlug": "instaagent",
+      "platformPostId": "7455778621056778240",
+      "sourceUrl": "https://linkedin.com/posts/instaagent_ycp26-ycombinator-startupjourney-activity-7455778621056778240-gnkn",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 14,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-runharbor-linkedin-com-posts-runharbor-motilitycount-aps-launched-their-clinical-activity-7440503239441182720-uqvv-motilitycount-aps-launched-their-clinical-study-",
+      "batchSlug": "S2026",
+      "companySlug": "runharbor",
+      "platformPostId": "7440503239441182720",
+      "sourceUrl": "https://linkedin.com/posts/runharbor_motilitycount-aps-launched-their-clinical-activity-7440503239441182720-UqVV",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 33,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-cohesion-matthew-mcbrien-1346140-linkedin-com-posts-matthew-mcbrien-784b32116-just-cut-our-monthly-llm-cost-by-40-some-activity-7469821155315470336-nole-cut-llm-co",
+      "batchSlug": "S2026",
+      "companySlug": "cohesion",
+      "platformPostId": "7469821155315470336",
+      "sourceUrl": "https://linkedin.com/posts/matthew-mcbrien-784b32116_just-cut-our-monthly-llm-cost-by-40-some-activity-7469821155315470336-noLe",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 34,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-dispatch-payton-case-564908-linkedin-com-posts-paytoncase-thanks-for-hosting-david-j-phillips-activity-7466140468217552898-xb-r-thanks-for-hosting-david-j-phillips",
+      "batchSlug": "S2026",
+      "companySlug": "dispatch",
+      "platformPostId": "7466140468217552898",
+      "sourceUrl": "https://linkedin.com/posts/paytoncase_thanks-for-hosting-david-j-phillips-activity-7466140468217552898-xB-r",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 70,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-aseon-labs-linkedin-com-posts-aseon-labs-home-the-av-fleet-brief-activity-7479231833855938562-pkxv-mike-murphy-puts-it-better-than-we-could",
+      "batchSlug": "S2026",
+      "companySlug": "aseon-labs",
+      "platformPostId": "7479231833855938562",
+      "sourceUrl": "https://linkedin.com/posts/aseon-labs_home-the-av-fleet-brief-activity-7479231833855938562-pkXV",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "quarantined",
+      "newMetrics": {},
+      "extraction": {
+        "status": "unproven",
+        "source": null,
+        "reason": "linkedin_parent_engagement_footer_unproven"
+      },
+      "quarantineReasons": [
+        "linkedin_parent_engagement_footer_unproven",
+        "no_visible_positive_scoring_metrics"
+      ]
+    },
+    {
+      "id": "linkedin-company-bentolabs-ai-linkedin-com-posts-bentolabs-ai-harness-engineering-the-underrated-discipline-activity-7471415687144701952-c9[redacted-public-token]",
+      "batchSlug": "S2026",
+      "companySlug": "bentolabs-ai",
+      "platformPostId": "7471415687144701952",
+      "sourceUrl": "https://linkedin.com/posts/bentolabs-ai_harness-engineering-the-underrated-discipline-activity-7471415687144701952-c9Sk",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 36
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-complir-linkedin-com-posts-complir-espr-activity-7482805570400313362-cxqo-espr-complir",
+      "batchSlug": "S2026",
+      "companySlug": "complir",
+      "platformPostId": "7482805570400313362",
+      "sourceUrl": "https://linkedin.com/posts/complir_espr-activity-7482805570400313362-Cxqo",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 23
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-datost-linkedin-com-posts-activity-7465824279167860736-baii-cursor-s-growth-team-shares-internal-outbound-toolkit-for-founders-maceo-cardinale-kwik-posted-on-the-t",
+      "batchSlug": "S2026",
+      "companySlug": "datost",
+      "platformPostId": "7465824279167860736",
+      "sourceUrl": "https://linkedin.com/posts/activity-7465824279167860736-baIi",
+      "oldMetrics": {
+        "reactions": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 63,
+        "comments": 32
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-foresight-linkedin-com-posts-foresight-ai-inc-were-officially-live-with-yc-foresight-activity-7460749101836427266-vr0v-foresight-launches-ai-powered-consumer-testi",
+      "batchSlug": "S2026",
+      "companySlug": "foresight",
+      "platformPostId": "7460749101836427266",
+      "sourceUrl": "https://linkedin.com/posts/foresight-ai-inc_were-officially-live-with-yc-foresight-activity-7460749101836427266-vr0v",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-inloop-robotics-linkedin-com-posts-inlooprobotics-packaging-kitting-and-box-assembly-have-activity-7445503569065308160-eeq1-packaging-kitting-and-box-assembly-have",
+      "batchSlug": "S2026",
+      "companySlug": "inloop-robotics",
+      "platformPostId": "7445503569065308160",
+      "sourceUrl": "https://linkedin.com/posts/inlooprobotics_packaging-kitting-and-box-assembly-have-activity-7445503569065308160-eeq1",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 63,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-intelligence-factory-linkedin-com-posts-activity-7458563618201141249-g9tq-we-re-excited-to-be-hosting-our-second-comma-capital-deeptech-robotics-nyc-meetup-next-we",
+      "batchSlug": "S2026",
+      "companySlug": "intelligence-factory",
+      "platformPostId": "7458563618201141249",
+      "sourceUrl": "https://linkedin.com/posts/activity-7458563618201141249-G9tQ",
+      "oldMetrics": {
+        "reactions": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 71,
+        "comments": 51
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-inth-linkedin-com-posts-inth-when-ai-agents-are-writing-and-deploying-activity-7473706241232355328-vfyb-who-handles-compliance-with-ai-code-deployment-inth-yc-p26-",
+      "batchSlug": "S2026",
+      "companySlug": "inth",
+      "platformPostId": "7473706241232355328",
+      "sourceUrl": "https://linkedin.com/posts/inth_when-ai-agents-are-writing-and-deploying-activity-7473706241232355328-vFyb",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-callab-ai-chehir-dhaouadi-1992756-linkedin-com-posts-y-combinator-datost-yc-p26-is-the-most-accurate-ai-data-activity-7450604868651732992-xnra-datost-ai-data-analy",
+      "batchSlug": "S2026",
+      "companySlug": "datost",
+      "platformPostId": "7450604868651732992",
+      "sourceUrl": "https://linkedin.com/posts/y-combinator_datost-yc-p26-is-the-most-accurate-ai-data-activity-7450604868651732992-xNRa",
+      "oldMetrics": {
+        "comments": 247
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 535,
+        "comments": 247
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-kinect-linkedin-com-posts-activity-7465767628763086848-orm0-kinect-is-turning-a-5-add-to-cart-rate-into-25-by-showing-every-visitor-a-different-website-here-s-how-",
+      "batchSlug": "S2026",
+      "companySlug": "kinect",
+      "platformPostId": "7465767628763086848",
+      "sourceUrl": "https://linkedin.com/posts/activity-7465767628763086848-Orm0",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 42
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 205,
+        "comments": 42
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-earendil-robotics-linkedin-com-posts-activity-7442570736751374336-jdct-earendil-robotics-at-dprte-farnborough-26-introducing-our-ivas-solution-come-visit-us-at-the",
+      "batchSlug": "S26",
+      "companySlug": "earendil-robotics",
+      "platformPostId": "7442570736751374336",
+      "sourceUrl": "https://linkedin.com/posts/activity-7442570736751374336-JDcT",
+      "oldMetrics": {
+        "reactions": 30,
+        "comments": 2
+      },
+      "disposition": "retained",
+      "newMetrics": {
+        "reactions": 30,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-openrelay-jaden-wang-1876109-linkedin-com-posts-prashant182-openrelay-distributed-gpu-cloud-for-production-activity-7482193253954400256-dwg0-i-am-joining-y-combina",
+      "batchSlug": "S26",
+      "companySlug": "openrelay",
+      "platformPostId": "7482193253954400256",
+      "sourceUrl": "https://linkedin.com/posts/prashant182_openrelay-distributed-gpu-cloud-for-production-activity-7482193253954400256-DwG0",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 27
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 226,
+        "comments": 27
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-fuchsia-linkedin-com-posts-activity-7463020379238871041-ae0h-so-so-grateful-for-these-people",
+      "batchSlug": "S2026",
+      "companySlug": "fuchsia",
+      "platformPostId": "7463020379238871041",
+      "sourceUrl": "https://linkedin.com/posts/activity-7463020379238871041-Ae0h",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 21
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 122,
+        "comments": 21
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-kinect-linkedin-com-posts-activity-7466287106865164288-fwcr-this-yc-startup-just-got-shopify-stores-to-double-their-conversion-rate",
+      "batchSlug": "S2026",
+      "companySlug": "kinect",
+      "platformPostId": "7466287106865164288",
+      "sourceUrl": "https://linkedin.com/posts/activity-7466287106865164288-FWcr",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 17
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 210,
+        "comments": 17
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-coalition-systems-linkedin-com-posts-activity-7476259158577823745-smuy-excited-to-be-starting-a-new-position-as-chief-strategy-officer-for-coalition-systems-we-are",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "coalition-systems",
+      "platformPostId": "7476259158577823745",
+      "sourceUrl": "https://linkedin.com/posts/activity-7476259158577823745-smUY",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 11
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 78,
+        "comments": 11
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-inkbox-ray-liao-778892-linkedin-com-posts-jordan-zietz-theres-10-days-left-to-apply-to-yc-if-activity-7483969268389400576-lgz6-there-s-10-days-left-to-apply-to-yc-",
+      "batchSlug": "S26",
+      "companySlug": "lemonlime",
+      "platformPostId": "7483969268389400576",
+      "sourceUrl": "https://linkedin.com/posts/jordan-zietz_theres-10-days-left-to-apply-to-yc-if-activity-7483969268389400576-lgz6",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 10
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 58,
+        "comments": 10
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-kinect-kratik-agrawal-565942-linkedin-com-posts-kratikagrawal-i-go-into-every-sales-call-onboarding-call-activity-7466178963837505537-qxph-i-go-into-every-sales-ca",
+      "batchSlug": "S2026",
+      "companySlug": "kinect",
+      "platformPostId": "7466178963837505537",
+      "sourceUrl": "https://linkedin.com/posts/kratikagrawal_i-go-into-every-sales-call-onboarding-call-activity-7466178963837505537-qXpH",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 10
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 66,
+        "comments": 10
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-auto-linkedin-com-posts-activity-7480710003088322560-hvvq-auto-is-launching-our-first-creator-sprint-this-is-your-chance-to-get-paid-and-learn-by-working-at-a-top-",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "auto",
+      "platformPostId": "7480710003088322560",
+      "sourceUrl": "https://linkedin.com/posts/activity-7480710003088322560-Hvvq",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 8
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 47,
+        "comments": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-crebit-linkedin-com-posts-activity-7450341503069024256-91qq-applications-are-now-open-for-the-crebit-summer-internship-program-2026",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "crebit",
+      "platformPostId": "7450341503069024256",
+      "sourceUrl": "https://linkedin.com/posts/activity-7450341503069024256-91qQ",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 7
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 111,
+        "comments": 7
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-coalition-systems-linkedin-com-posts-activity-7444455393604415488-bf64-the-national-security-ecosystem-has-no-shared-coordination-layer",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "coalition-systems",
+      "platformPostId": "7444455393604415488",
+      "sourceUrl": "https://linkedin.com/posts/activity-7444455393604415488-BF64",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 47,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-emanate-linkedin-com-posts-emanateai-vice-chairman-of-gerdau-guilherme-gerdau-activity-7480996517286137856-td8u-gerdau-s-ai-driven-steel-production-boosts-us-reind",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "emanate",
+      "platformPostId": "7480996517286137856",
+      "sourceUrl": "https://linkedin.com/posts/emanateai_vice-chairman-of-gerdau-guilherme-gerdau-activity-7480996517286137856-tD8U",
+      "oldMetrics": {
+        "comments": 7
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 6
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-general-instinct-linkedin-com-posts-general-instinct-we-ran-a-122b-llm-on-8-gb-vram-and-it-beats-activity-7468018958919438336-4fot-we-ran-a-122b-llm-on-8-gb-vram-a",
+      "batchSlug": "S2026",
+      "companySlug": "general-instinct",
+      "platformPostId": "7468018958919438336",
+      "sourceUrl": "https://linkedin.com/posts/general-instinct_we-ran-a-122b-llm-on-8-gb-vram-and-it-beats-activity-7468018958919438336-4fot",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 38,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-general-instinct-linkedin-com-posts-activity-7481770360556650496-vgpc-general-instinct-yc-p26-will-be-speaking-at-saturday-robotics-on-july-18-about-is-latent-all-",
+      "batchSlug": "S2026",
+      "companySlug": "general-instinct",
+      "platformPostId": "7481770360556650496",
+      "sourceUrl": "https://linkedin.com/posts/activity-7481770360556650496-VGPc",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_comments_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-belong-linkedin-com-posts-belongrewards-seed-round-closed-now-its-time-to-execute-activity-7472736874155991040-63bt-seed-round-closed",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "belong",
+      "platformPostId": "7472736874155991040",
+      "sourceUrl": "https://linkedin.com/posts/belongrewards_seed-round-closed-now-its-time-to-execute-activity-7472736874155991040-63bT",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 7,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-cascade-linkedin-com-posts-use-cascade-were-hiring-activity-7466251490651963392-axuv-we-re-hiring",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "cascade",
+      "platformPostId": "7466251490651963392",
+      "sourceUrl": "https://linkedin.com/posts/use-cascade_were-hiring-activity-7466251490651963392-Axuv",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 6,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-general-instinct-linkedin-com-posts-general-instinct-new-blog-is-latent-all-you-need-for-world-action-activity-7481785311493136384-lt-c-latent-space-for-world-acti",
+      "batchSlug": "S2026",
+      "companySlug": "general-instinct",
+      "platformPostId": "7481785311493136384",
+      "sourceUrl": "https://linkedin.com/posts/general-instinct_new-blog-is-latent-all-you-need-for-world-action-activity-7481785311493136384-LT_C",
+      "oldMetrics": {
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 17
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-onecli-guy-ben-aharon-1935982-linkedin-com-posts-jonathanfishner-you-gave-me-tool-use-what-do-you-expect-activity-7468956240715542528-i67c-guardrails-outside-the-a",
+      "batchSlug": "S26",
+      "companySlug": "onecli",
+      "platformPostId": "7468956240715542528",
+      "sourceUrl": "https://linkedin.com/posts/jonathanfishner_you-gave-me-tool-use-what-do-you-expect-activity-7468956240715542528-i67C",
+      "oldMetrics": {
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 18
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-emanate-linkedin-com-posts-emanateai-kevin-dempsey-president-and-ceo-of-the-american-activity-7476287464685551616-li09-kevin-dempsey-on-american-steel-industry-lea",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "emanate",
+      "platformPostId": "7476287464685551616",
+      "sourceUrl": "https://linkedin.com/posts/emanateai_kevin-dempsey-president-and-ceo-of-the-american-activity-7476287464685551616-li09",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 31
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-sentra-linkedin-com-posts-sentra-app-we-just-built-something-that-can-cut-agent-activity-7468013650528649216-cjte-cutting-agent-token-usage-by-90-with-semantic-fil",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "sentra",
+      "platformPostId": "7468013650528649216",
+      "sourceUrl": "https://linkedin.com/posts/sentra-app_we-just-built-something-that-can-cut-agent-activity-7468013650528649216-CjTe",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 26,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-operon-linkedin-com-posts-activity-7478586962652655616-sncg-the-world-s-most-mission-critical-infrastructure-still-runs-on-decades-of-messy-data-operon-changes-tha",
+      "batchSlug": "S26",
+      "companySlug": "operon",
+      "platformPostId": "7478586962652655616",
+      "sourceUrl": "https://linkedin.com/posts/activity-7478586962652655616-SNCG",
+      "oldMetrics": {
+        "reactions": 236,
+        "comments": 24
+      },
+      "disposition": "retained",
+      "newMetrics": {
+        "reactions": 236,
+        "comments": 24
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-sparta-linkedin-com-posts-activity-7425230486341496832-os9c-excited-to-share-sparta-has-been-selected-to-be-part-of-a16z-speedrun",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "sparta",
+      "platformPostId": "7425230486341496832",
+      "sourceUrl": "https://linkedin.com/posts/activity-7425230486341496832-Os9c",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 234
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 445,
+        "comments": 234
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-rex-inc-linkedin-com-posts-activity-7475606763560632320-l7fq-we-just-moved-to-san-francisco-for-y-combinator-s26-excited-to-continue-building-rex-amongst-some-incr",
+      "batchSlug": "S26",
+      "companySlug": "rex-inc",
+      "platformPostId": "7475606763560632320",
+      "sourceUrl": "https://linkedin.com/posts/activity-7475606763560632320-L7Fq",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 175
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 464,
+        "comments": 175
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-pango-linkedin-com-posts-activity-7473272593333166082-cdkd-from-the-bottom-of-my-heart-i-want-to-take-my-chance-to-thank-absolutely-nobody",
+      "batchSlug": "S26",
+      "companySlug": "pango",
+      "platformPostId": "7473272593333166082",
+      "sourceUrl": "https://linkedin.com/posts/activity-7473272593333166082-CdKd",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 160
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 750,
+        "comments": 160
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-sparta-linkedin-com-posts-activity-7450282483335680000-bg5f-demo-day-was-a-blur-in-the-best-way-possible-in-12-weeks-we-went-from-an-idea-to-sharing-sparta-with-1-",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "sparta",
+      "platformPostId": "7450282483335680000",
+      "sourceUrl": "https://linkedin.com/posts/activity-7450282483335680000-bg5F",
+      "oldMetrics": {
+        "reactions": 6,
+        "comments": 80
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 268,
+        "comments": 80
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-rekursivai-dan-kondratyuk-3527564-linkedin-com-posts-y-combinator-screenpipe-yc-s26-lets-you-record-how-you-activity-7482811226582867968-zym2-yc-s26-screenpipe-rec",
+      "batchSlug": "S26",
+      "companySlug": "screenpipe",
+      "platformPostId": "7482811226582867968",
+      "sourceUrl": "https://linkedin.com/posts/y-combinator_screenpipe-yc-s26-lets-you-record-how-you-activity-7482811226582867968-zym2",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 78
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 427,
+        "comments": 78
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-rise-reforming-linkedin-com-posts-risereforming-were-joining-y-combinators-s26-batch-thank-activity-7462887812569243649-bvme-we-re-joining-y-combinator-s-s26-batch",
+      "batchSlug": "S26",
+      "companySlug": "rise-reforming",
+      "platformPostId": "7462887812569243649",
+      "sourceUrl": "https://linkedin.com/posts/risereforming_were-joining-y-combinators-s26-batch-thank-activity-7462887812569243649-BVMe",
+      "oldMetrics": {
+        "reactions": 7,
+        "comments": 66
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 240,
+        "comments": 66
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-smart-bricks-linkedin-com-posts-activity-7470111035979616256-wyex-canneslions-canneslions2026-ai-startups-entrepreneurship-proptech-realestate-smartbricks-mohamed-",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "smart-bricks",
+      "platformPostId": "7470111035979616256",
+      "sourceUrl": "https://linkedin.com/posts/activity-7470111035979616256-wyEX",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 32
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 299,
+        "comments": 32
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-realpact-linkedin-com-posts-activity-7474910574120787968-cwhw-4-months-ago-i-left-northeastern-university-to-bet-on-realpact-yc-s26",
+      "batchSlug": "S26",
+      "companySlug": "realpact",
+      "platformPostId": "7474910574120787968",
+      "sourceUrl": "https://linkedin.com/posts/activity-7474910574120787968-CwHW",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 26
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 209,
+        "comments": 26
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-realpact-linkedin-com-posts-activity-7474911468765855744-vikb-onward-and-upward-realpact-yc-s26-pre-seed-backed-by-y-combinator-erik-peterson-23-comments",
+      "batchSlug": "S26",
+      "companySlug": "realpact",
+      "platformPostId": "7474911468765855744",
+      "sourceUrl": "https://linkedin.com/posts/activity-7474911468765855744-vikB",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 23
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 95,
+        "comments": 23
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-pango-linkedin-com-posts-pangoai-today-pango-is-joining-the-y-combinator-activity-7473278012369707009-2skm-today-pango-is-joining-the-y-combinator-s26-batch-great-",
+      "batchSlug": "S26",
+      "companySlug": "pango",
+      "platformPostId": "7473278012369707009",
+      "sourceUrl": "https://linkedin.com/posts/pangoai_today-pango-is-joining-the-y-combinator-activity-7473278012369707009-2SKm",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 20
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 225,
+        "comments": 20
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-rekursivai-dan-kondratyuk-3527564-linkedin-com-posts-advaith-sridhar-yc-demoday-ai4science-activity-7474532005708197888-9ir-yc-demoday-ai4science-advaith-sridhar-2",
+      "batchSlug": "S2026",
+      "companySlug": "matforge",
+      "platformPostId": "7474532005708197888",
+      "sourceUrl": "https://linkedin.com/posts/advaith-sridhar_yc-demoday-ai4science-activity-7474532005708197888-_9IR",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 20
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 332,
+        "comments": 20
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-rekursivai-joshua-dillon-3527624-linkedin-com-posts-dankondratyuk-rekursivai-activity-7465785520959262720-brn7-rekursiv-ai-co-founder-on-automating-ml-research-dan",
+      "batchSlug": "S26",
+      "companySlug": "rekursivai",
+      "platformPostId": "7465785520959262720",
+      "sourceUrl": "https://linkedin.com/posts/dankondratyuk_rekursivai-activity-7465785520959262720-bRn7",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 19
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 132,
+        "comments": 19
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-zerodrift-linkedin-com-posts-activity-7482797408117161984-2ucs-we-re-thrilled-to-welcome-corey-hobbs-to-zerodrift-as-our-founding-principal-product-manager-corey-j",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "zerodrift",
+      "platformPostId": "7482797408117161984",
+      "sourceUrl": "https://linkedin.com/posts/activity-7482797408117161984-2ucs",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 15
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 129,
+        "comments": 15
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-petrarch-linkedin-com-posts-petrarchinc-today-petrarch-is-introducing-our-constellation-activity-7475299890949177345-okv0-today-petrarch-is-introducing-our-constel",
+      "batchSlug": "S26",
+      "companySlug": "petrarch",
+      "platformPostId": "7475299890949177345",
+      "sourceUrl": "https://linkedin.com/posts/petrarchinc_today-petrarch-is-introducing-our-constellation-activity-7475299890949177345-OKV0",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 10
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 86,
+        "comments": 10
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-variantnow-linkedin-com-posts-variantnow-barak-avraham-has-joined-variant-as-our-founding-activity-7480985080459431937-tdpm-barak-avraham-has-joined-variant-as-our",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "variantnow",
+      "platformPostId": "7480985080459431937",
+      "sourceUrl": "https://linkedin.com/posts/variantnow_barak-avraham-has-joined-variant-as-our-founding-activity-7480985080459431937-tdPm",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 12
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 99,
+        "comments": 12
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-realpact-linkedin-com-posts-realpact-y-combinator-hq-activity-7478917639008886784-carw-y-combinator-hq-realpact-yc-s26",
+      "batchSlug": "S26",
+      "companySlug": "realpact",
+      "platformPostId": "7478917639008886784",
+      "sourceUrl": "https://linkedin.com/posts/realpact_y-combinator-hq-activity-7478917639008886784-cARw",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 8
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 124,
+        "comments": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-osmaura-kali-abeje-2718831-linkedin-com-posts-tselote-we-spent-the-last-two-months-negotiating-activity-7482293696571539456-awrv-we-spent-the-last-two-months-negot",
+      "batchSlug": "S26",
+      "companySlug": "osmaura",
+      "platformPostId": "7482293696571539456",
+      "sourceUrl": "https://linkedin.com/posts/tselote_we-spent-the-last-two-months-negotiating-activity-7482293696571539456-AwRv",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 8
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 149,
+        "comments": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-syncere-linkedin-com-posts-bysyncere-introducing-lume-a-lamp-that-does-your-chores-activity-7447710509266653185-jsiw-introducing-lume-a-lamp-that-does-your-chores-",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "syncere",
+      "platformPostId": "7447710509266653185",
+      "sourceUrl": "https://linkedin.com/posts/bysyncere_introducing-lume-a-lamp-that-does-your-chores-activity-7447710509266653185-jsiW",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 82,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-sun-linkedin-com-posts-activity-7447392633389232128-q5br-a-lot-of-people-see-speedrun-as-deck-demo-done",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "sun",
+      "platformPostId": "7447392633389232128",
+      "sourceUrl": "https://linkedin.com/posts/activity-7447392633389232128-q5bR",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 50,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-rex-inc-linkedin-com-posts-rex-ai-inc-were-excited-to-announce-rex-to-the-world-activity-7455036796402483200-hmuu-we-re-excited-to-announce-rex-to-the-world-and-we",
+      "batchSlug": "S26",
+      "companySlug": "rex-inc",
+      "platformPostId": "7455036796402483200",
+      "sourceUrl": "https://linkedin.com/posts/rex-ai-inc_were-excited-to-announce-rex-to-the-world-activity-7455036796402483200-hmUu",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 13,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-smart-bricks-linkedin-com-posts-activity-7469697124788604930-qh5p-from-expand-north-star-to-5m-raised",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "smart-bricks",
+      "platformPostId": "7469697124788604930",
+      "sourceUrl": "https://linkedin.com/posts/activity-7469697124788604930-Qh5P",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 49,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-smart-bricks-linkedin-com-posts-smart-bricks-googlecloud-googleforstartups-deepmind-activity-7467216325732372480-1je4-smart-bricks-featured-in-google-for-startups-",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "smart-bricks",
+      "platformPostId": "7467216325732372480",
+      "sourceUrl": "https://linkedin.com/posts/smart-bricks_googlecloud-googleforstartups-deepmind-activity-7467216325732372480-1je4",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 126,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-variantnow-linkedin-com-posts-variantnow-it-was-such-a-long-process-based-on-a-hunch-activity-7480259461429878785-mivg-from-hunch-to-data-driven-design-at-teri-jon",
+      "batchSlug": "A16ZSR006",
+      "companySlug": "variantnow",
+      "platformPostId": "7480259461429878785",
+      "sourceUrl": "https://linkedin.com/posts/variantnow_it-was-such-a-long-process-based-on-a-hunch-activity-7480259461429878785-mivG",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 10,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-rex-inc-linkedin-com-posts-rex-ai-inc-londontechweek-ai-nvidia-activity-7470120145068371968-pb5t-rex-joins-nvidia-adopt-100-launch-initiative-with-deloitte-rex-yc-",
+      "batchSlug": "S26",
+      "companySlug": "rex-inc",
+      "platformPostId": "7470120145068371968",
+      "sourceUrl": "https://linkedin.com/posts/rex-ai-inc_londontechweek-ai-nvidia-activity-7470120145068371968-PB5t",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 10
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-osmaura-kali-abeje-2718831-linkedin-com-posts-kali-abeje-legaltech-lawfirmgrowth-litigation-activity-7481966021390647296-0uls-timing-is-everything-in-litigation-id",
+      "batchSlug": "S26",
+      "companySlug": "osmaura",
+      "platformPostId": "7481966021390647296",
+      "sourceUrl": "https://linkedin.com/posts/kali-abeje_legaltech-lawfirmgrowth-litigation-activity-7481966021390647296-0ULS",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 14
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-manicule-linkedin-com-posts-activity-7439306128536199168-i-3n-we-just-got-into-y-combinator-got-500k-and-i-m-moving-to-sf",
+      "batchSlug": "S2026",
+      "companySlug": "manicule",
+      "platformPostId": "7439306128536199168",
+      "sourceUrl": "https://linkedin.com/posts/activity-7439306128536199168-I_3n",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 120
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 967,
+        "comments": 120
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-manicule-linkedin-com-posts-activity-7439306120919351296-rp0k-we-are-joining-y-combinator",
+      "batchSlug": "S2026",
+      "companySlug": "manicule",
+      "platformPostId": "7439306120919351296",
+      "sourceUrl": "https://linkedin.com/posts/activity-7439306120919351296-Rp0k",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 82
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 565,
+        "comments": 82
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-light-anchor-linkedin-com-posts-light-anchor-turns-out-solving-tough-business-problems-activity-7445742393250930688-tahw-turns-out-solving-tough-business-problems-",
+      "batchSlug": "S2026",
+      "companySlug": "light-anchor",
+      "platformPostId": "7445742393250930688",
+      "sourceUrl": "https://linkedin.com/posts/light-anchor_turns-out-solving-tough-business-problems-activity-7445742393250930688-tAhW",
+      "oldMetrics": {
+        "reactions": 18,
+        "comments": 11
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 206,
+        "comments": 11
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-klarify-linkedin-com-posts-activity-7471593922473959425-lqtp-we-keep-saying-there-aren-t-enough-therapists",
+      "batchSlug": "S2026",
+      "companySlug": "klarify",
+      "platformPostId": "7471593922473959425",
+      "sourceUrl": "https://linkedin.com/posts/activity-7471593922473959425-LqtP",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 23
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 34,
+        "comments": 23
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-kugelaudio-linkedin-com-posts-activity-7477752630140710912-aekv-i-m-hiring",
+      "batchSlug": "S2026",
+      "companySlug": "kugelaudio",
+      "platformPostId": "7477752630140710912",
+      "sourceUrl": "https://linkedin.com/posts/activity-7477752630140710912-AekV",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 21
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 166,
+        "comments": 21
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-kuli-linkedin-com-posts-activity-7459580298016727040-5gnl-they-grow-up-so-fast",
+      "batchSlug": "S2026",
+      "companySlug": "kuli",
+      "platformPostId": "7459580298016727040",
+      "sourceUrl": "https://linkedin.com/posts/activity-7459580298016727040-5GNl",
+      "oldMetrics": {
+        "reactions": 6,
+        "comments": 13
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 401,
+        "comments": 13
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-kinro-pierre-alexandre-kamienny-2043734-linkedin-com-posts-pakamienny-at-y-combinator-demo-day-we-ended-our-pitch-activity-7474842401677701120-cl1-at-y-combinator-",
+      "batchSlug": "S2026",
+      "companySlug": "kinro",
+      "platformPostId": "7474842401677701120",
+      "sourceUrl": "https://linkedin.com/posts/pakamienny_at-y-combinator-demo-day-we-ended-our-pitch-activity-7474842401677701120-cL1_",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 18
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 153,
+        "comments": 18
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-kugelaudio-linkedin-com-posts-activity-7452243633787023360-4e3g-we-re-excited-to-share-that-kugelaudio-has-joined-y-combinator-we-re-building-a-sovereign-foundatio",
+      "batchSlug": "S2026",
+      "companySlug": "kugelaudio",
+      "platformPostId": "7452243633787023360",
+      "sourceUrl": "https://linkedin.com/posts/activity-7452243633787023360-4E3g",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 12
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 163,
+        "comments": 12
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-arzana-linkedin-com-posts-arzana-ai-hiring-industrialai-manufacturingai-activity-7430656839413051392-rnig-our-crew-just-got-bigger-badder-and-whole-lot-smarter",
+      "batchSlug": "S2026",
+      "companySlug": "arzana",
+      "platformPostId": "7430656839413051392",
+      "sourceUrl": "https://linkedin.com/posts/arzana-ai_hiring-industrialai-manufacturingai-activity-7430656839413051392-RNIG",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 31,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-lightsprint-linkedin-com-posts-lightsprint-claude-fable-5-and-sonnet-5-by-anthropic-activity-7478422841101737985-zphz-claude-fable-5-and-sonnet-5-by-anthropic-are-",
+      "batchSlug": "S2026",
+      "companySlug": "lightsprint",
+      "platformPostId": "7478422841101737985",
+      "sourceUrl": "https://linkedin.com/posts/lightsprint_claude-fable-5-and-sonnet-5-by-anthropic-activity-7478422841101737985-zPHZ",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 45,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-madrone-linkedin-com-posts-activity-7482686863074545666-egam-every-watt-a-data-center-spends-cooling-itself-is-a-watt-it-cannot-sell-as-compute",
+      "batchSlug": "S2026",
+      "companySlug": "madrone",
+      "platformPostId": "7482686863074545666",
+      "sourceUrl": "https://linkedin.com/posts/activity-7482686863074545666-EGAM",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 25,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-kugelaudio-linkedin-com-posts-activity-7483491410575552513-tcu7-wie-klein-kann-ein-ai-lab-bleiben-wenn-es-gegen-milliardenschwere-konkurrenz-antritt",
+      "batchSlug": "S2026",
+      "companySlug": "kugelaudio",
+      "platformPostId": "7483491410575552513",
+      "sourceUrl": "https://linkedin.com/posts/activity-7483491410575552513-TCU7",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 38,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-manicule-linkedin-com-posts-manicule-at-manicule-agents-and-humans-work-together-activity-7439317350119706625-d0xs-at-manicule-agents-and-humans-work-together-to-b",
+      "batchSlug": "S2026",
+      "companySlug": "manicule",
+      "platformPostId": "7439317350119706625",
+      "sourceUrl": "https://linkedin.com/posts/manicule_at-manicule-agents-and-humans-work-together-activity-7439317350119706625-D0xS",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 25,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-klaimee-linkedin-com-posts-klaimee-klaimee-yc-p26-has-been-featured-in-forbes-activity-7468348389727035392-o-yd-klaimee-featured-in-forbes-y-combinator-batch-updat",
+      "batchSlug": "S2026",
+      "companySlug": "klaimee",
+      "platformPostId": "7468348389727035392",
+      "sourceUrl": "https://linkedin.com/posts/klaimee_klaimee-yc-p26-has-been-featured-in-forbes-activity-7468348389727035392-o-YD",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 14,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-lightsprint-linkedin-com-posts-lightsprint-excited-to-work-with-the-team-founders-activity-7483546674024517632-4w4a-excited-to-work-with-the-team-founders-capital-",
+      "batchSlug": "S2026",
+      "companySlug": "lightsprint",
+      "platformPostId": "7483546674024517632",
+      "sourceUrl": "https://linkedin.com/posts/lightsprint_excited-to-work-with-the-team-founders-activity-7483546674024517632-4w4A",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 8,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-arzana-linkedin-com-posts-arzana-ai-arzana-activity-7457160768153899009-bw-o-arzana-arzana-yc-p26",
+      "batchSlug": "S2026",
+      "companySlug": "arzana",
+      "platformPostId": "7457160768153899009",
+      "sourceUrl": "https://linkedin.com/posts/arzana-ai_arzana-activity-7457160768153899009-bW_o",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 9,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-linzumi-linkedin-com-posts-linzumi-linzumi-a-chat-where-every-channel-ships-activity-7405040006714523648-8ktm-linzumi-a-chat-where-every-channel-ships-code-linzumi",
+      "batchSlug": "S2026",
+      "companySlug": "linzumi",
+      "platformPostId": "7405040006714523648",
+      "sourceUrl": "https://linkedin.com/posts/linzumi_linzumi-a-chat-where-every-channel-ships-activity-7405040006714523648-8kTm",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 3,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-kinro-pierre-alexandre-kamienny-2043734-linkedin-com-posts-pakamienny-super-excited-to-welcome-robert-earl-martin-activity-7482973263124598784-cmxh-super-excited-t",
+      "batchSlug": "S2026",
+      "companySlug": "kinro",
+      "platformPostId": "7482973263124598784",
+      "sourceUrl": "https://linkedin.com/posts/pakamienny_super-excited-to-welcome-robert-earl-martin-activity-7482973263124598784-cmXH",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 15,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-raspire-linkedin-com-posts-activity-7448807180209692672-eymf-raspire-yc-p26-is-joining-y-combinator-hassan-mostafa-and-i-spent-years-breaking-and-fixing-apps-for-b",
+      "batchSlug": "S2026",
+      "companySlug": "raspire",
+      "platformPostId": "7448807180209692672",
+      "sourceUrl": "https://linkedin.com/posts/activity-7448807180209692672-eyMf",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 105
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 756,
+        "comments": 105
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-ornadyne-linkedin-com-posts-activity-7467632882224906240-qll3-winning-y-combinator-s-product-showcase-put-us-on-the-101",
+      "batchSlug": "S2026",
+      "companySlug": "ornadyne",
+      "platformPostId": "7467632882224906240",
+      "sourceUrl": "https://linkedin.com/posts/activity-7467632882224906240-qLL3",
+      "oldMetrics": {
+        "reactions": 8,
+        "comments": 82
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 617,
+        "comments": 82
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-raspire-linkedin-com-posts-activity-7448807214867324928-yxez-raspire-yc-p26-is-joining-y-combinator",
+      "batchSlug": "S2026",
+      "companySlug": "raspire",
+      "platformPostId": "7448807214867324928",
+      "sourceUrl": "https://linkedin.com/posts/activity-7448807214867324928-yxeZ",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 81
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 804,
+        "comments": 81
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-reasonblocks-linkedin-com-posts-reason-blocks-what-y-combinators-latest-batch-reveals-activity-7468381344557867008-xmc8-reasonblocks-yc-p26-just-got-featured-in-fo",
+      "batchSlug": "S2026",
+      "companySlug": "reasonblocks",
+      "platformPostId": "7468381344557867008",
+      "sourceUrl": "https://linkedin.com/posts/reason-blocks_what-y-combinators-latest-batch-reveals-activity-7468381344557867008-XMc8",
+      "oldMetrics": {
+        "comments": 67
+      },
+      "disposition": "quarantined",
+      "newMetrics": {},
+      "extraction": {
+        "status": "unproven",
+        "source": null,
+        "reason": "linkedin_parent_engagement_footer_unproven"
+      },
+      "quarantineReasons": [
+        "linkedin_parent_engagement_footer_unproven",
+        "no_visible_positive_scoring_metrics"
+      ]
+    },
+    {
+      "id": "linkedin-company-playablai-linkedin-com-posts-activity-7472297147800068097-tjuq-y-combinator-s-demo-day-is-1-day-away",
+      "batchSlug": "S2026",
+      "companySlug": "playablai",
+      "platformPostId": "7472297147800068097",
+      "sourceUrl": "https://linkedin.com/posts/activity-7472297147800068097-TjuQ",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 44
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 328,
+        "comments": 44
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-useparrot-linkedin-com-posts-activity-7442586191310430208-z3zf-super-excited-to-announce-that-phillip-baek-and-i-will-be-joining-y-combinator-for-the-spring-2026-b",
+      "batchSlug": "S2026",
+      "companySlug": "useparrot",
+      "platformPostId": "7442586191310430208",
+      "sourceUrl": "https://linkedin.com/posts/activity-7442586191310430208-z3zf",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 36
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 183,
+        "comments": 36
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-perfectbit-inc-peter-vajda-45070-linkedin-com-posts-y-combinator-perfectbit-creates-high-quality-training-activity-7460796099386171393-ncnp-perfectbit-creates-high",
+      "batchSlug": "S2026",
+      "companySlug": "perfectbit-inc",
+      "platformPostId": "7460796099386171393",
+      "sourceUrl": "https://linkedin.com/posts/y-combinator_perfectbit-creates-high-quality-training-activity-7460796099386171393-nCNP",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 32
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 236,
+        "comments": 32
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-prototypingio-revanth-bodepudi-3328377-linkedin-com-posts-revanth279-im-looking-for-a-few-exceptional-people-activity-7476391315551825920-mlaf-i-m-looking-for-a-fe",
+      "batchSlug": "S2026",
+      "companySlug": "prototypingio",
+      "platformPostId": "7476391315551825920",
+      "sourceUrl": "https://linkedin.com/posts/revanth279_im-looking-for-a-few-exceptional-people-activity-7476391315551825920-MLAf",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 27
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 255,
+        "comments": 27
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-ontora-linkedin-com-posts-activity-7473894244567523328-atue-demo-day-done-everyone-asks-me-how-was-it-it-was-a-1-min-pitch-to-summarize-2-5-months-of-work-we-launc",
+      "batchSlug": "S2026",
+      "companySlug": "ontora",
+      "platformPostId": "7473894244567523328",
+      "sourceUrl": "https://linkedin.com/posts/activity-7473894244567523328-AtUe",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 24
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 326,
+        "comments": 24
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-torus-marcus-lima-554410-linkedin-com-posts-marcus-lima-144974101-im-building-something-new-i-previously-activity-7483609420854128640-8kgy-i-m-building-something-n",
+      "batchSlug": "S26",
+      "companySlug": "torus",
+      "platformPostId": "7483609420854128640",
+      "sourceUrl": "https://linkedin.com/posts/marcus-lima-144974101_im-building-something-new-i-previously-activity-7483609420854128640-8kgY",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 25
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 280,
+        "comments": 25
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-playablai-linkedin-com-posts-activity-7475543425455448065-q6dt-playabl-ai-yc-p26-is-days-away-from-1-000-000-monthly-active-users",
+      "batchSlug": "S2026",
+      "companySlug": "playablai",
+      "platformPostId": "7475543425455448065",
+      "sourceUrl": "https://linkedin.com/posts/activity-7475543425455448065-Q6dt",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 22
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 230,
+        "comments": 22
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-prototypingio-revanth-bodepudi-3328377-linkedin-com-posts-revanth279-y-combinator-demo-day-grateful-for-all-activity-7475552082557648896-3nyx-y-combinator-demo-day",
+      "batchSlug": "S2026",
+      "companySlug": "prototypingio",
+      "platformPostId": "7475552082557648896",
+      "sourceUrl": "https://linkedin.com/posts/revanth279_y-combinator-demo-day-grateful-for-all-activity-7475552082557648896-3nYx",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 14
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 287,
+        "comments": 14
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-pairio-linkedin-com-posts-activity-7467644275837673472-ohen-nothing-s-more-energizing-than-seeing-pairio-yc-p26-being-used-live-on-the-shop-floor",
+      "batchSlug": "S2026",
+      "companySlug": "pairio",
+      "platformPostId": "7467644275837673472",
+      "sourceUrl": "https://linkedin.com/posts/activity-7467644275837673472-OHEn",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 14
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 207,
+        "comments": 14
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-projectx-rounak-adhikary-2936820-linkedin-com-posts-rounakadhikary-fundraising-is-activity-7470194668329369600-btv-fundraising-is-rounak-adhikary-13-comments",
+      "batchSlug": "S2026",
+      "companySlug": "projectx",
+      "platformPostId": "7470194668329369600",
+      "sourceUrl": "https://linkedin.com/posts/rounakadhikary_fundraising-is-activity-7470194668329369600-_btV",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 13
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 165,
+        "comments": 13
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-tryprism-linkedin-com-posts-activity-7458842055390375936-udlw-prism-hire-the-best-candidates-not-just-the-available-product-hunt-theo-kitsberg-11-comments",
+      "batchSlug": "S2026",
+      "companySlug": "tryprism",
+      "platformPostId": "7458842055390375936",
+      "sourceUrl": "https://linkedin.com/posts/activity-7458842055390375936-Udlw",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 11
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 55,
+        "comments": 11
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-torus-rahul-thayil-1208048-linkedin-com-posts-rahul-thayil-im-building-something-new-too-i-made-activity-7483642308958289921-dvsc-i-m-building-something-new-too",
+      "batchSlug": "S26",
+      "companySlug": "torus",
+      "platformPostId": "7483642308958289921",
+      "sourceUrl": "https://linkedin.com/posts/rahul-thayil_im-building-something-new-too-i-made-activity-7483642308958289921-DvSc",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 11
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 122,
+        "comments": 11
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-ontora-linkedin-com-posts-activity-7471577144117256192-vd02-a-dash-to-silicon-valley-episode-3-when-the-right-person-sees-the-shortcut-that-is-how-leon-iwanowitsch",
+      "batchSlug": "S2026",
+      "companySlug": "ontora",
+      "platformPostId": "7471577144117256192",
+      "sourceUrl": "https://linkedin.com/posts/activity-7471577144117256192-vd02",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 9
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 104,
+        "comments": 9
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-pavoot-linkedin-com-posts-activity-7482540113210720256-o8go-pavoot-agent-learns-from-events-for-better-strategy-ana-yoon-faria-de-lima-posted-on-the-topic-linkedin",
+      "batchSlug": "S2026",
+      "companySlug": "pavoot",
+      "platformPostId": "7482540113210720256",
+      "sourceUrl": "https://linkedin.com/posts/activity-7482540113210720256-O8GO",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 9
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 101,
+        "comments": 9
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-tryprism-linkedin-com-posts-activity-7465771254139101184-vbax-we-re-hiring-two-recruiters-at-prism-one-founding-one-junior",
+      "batchSlug": "S2026",
+      "companySlug": "tryprism",
+      "platformPostId": "7465771254139101184",
+      "sourceUrl": "https://linkedin.com/posts/activity-7465771254139101184-Vbax",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 10
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 85,
+        "comments": 10
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-pavoot-linkedin-com-posts-activity-7482840916014284801-ehn-the-best-event-you-can-run-puts-your-customers-and-your-dream-prospects-in-the-same-room",
+      "batchSlug": "S2026",
+      "companySlug": "pavoot",
+      "platformPostId": "7482840916014284801",
+      "sourceUrl": "https://linkedin.com/posts/activity-7482840916014284801-EHn-",
+      "oldMetrics": {
+        "reactions": 6,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 39,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-projectx-rounak-adhikary-2936820-linkedin-com-posts-rounakadhikary-cool-gig-for-robotics-engineersfounders-activity-7475784559096225793-9452-cool-gig-for-robotics-",
+      "batchSlug": "S2026",
+      "companySlug": "projectx",
+      "platformPostId": "7475784559096225793",
+      "sourceUrl": "https://linkedin.com/posts/rounakadhikary_cool-gig-for-robotics-engineersfounders-activity-7475784559096225793-9452",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 9
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 50,
+        "comments": 9
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-reasonblocks-linkedin-com-posts-reason-blocks-reasonblocks-activity-7447459083332411392-iqux-reasonblocks-reasonblocks-yc-p26",
+      "batchSlug": "S2026",
+      "companySlug": "reasonblocks",
+      "platformPostId": "7447459083332411392",
+      "sourceUrl": "https://linkedin.com/posts/reason-blocks_reasonblocks-activity-7447459083332411392-iQux",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 8
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 87,
+        "comments": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-torus-marcus-lima-554410-linkedin-com-posts-marcus-lima-144974101-it-was-a-pleasure-to-sit-down-with-alex-dewar-activity-7379191535092940800-gki7-conversation-with",
+      "batchSlug": "S26",
+      "companySlug": "torus",
+      "platformPostId": "7379191535092940800",
+      "sourceUrl": "https://linkedin.com/posts/marcus-lima-144974101_it-was-a-pleasure-to-sit-down-with-alex-dewar-activity-7379191535092940800-GKI7",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 8
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 60,
+        "comments": 8
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-pairio-linkedin-com-posts-activity-7468747829197348864-mubg-ai-drives-manufacturing-productivity-10x-with-nox-metals-and-pairio-matthias-wolf-posted-on-the-topic-l",
+      "batchSlug": "S2026",
+      "companySlug": "pairio",
+      "platformPostId": "7468747829197348864",
+      "sourceUrl": "https://linkedin.com/posts/activity-7468747829197348864-MUBg",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 7
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 156,
+        "comments": 7
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-tsenta-linkedin-com-posts-activity-7476759966184488960-tjev-tsenta-s-new-networking-feature-is-now-live-find-recruiters-for-jobs-that-you-ve-applied-to-along-with-",
+      "batchSlug": "S26",
+      "companySlug": "tsenta",
+      "platformPostId": "7476759966184488960",
+      "sourceUrl": "https://linkedin.com/posts/activity-7476759966184488960-tjEV",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 7
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 86,
+        "comments": 7
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-projectx-linkedin-com-posts-projectx-cloud-we-are-super-happy-to-announce-that-we-just-activity-7363382267576008704-rzdo-we-are-super-happy-to-announce-that-we-jus",
+      "batchSlug": "S2026",
+      "companySlug": "projectx",
+      "platformPostId": "7363382267576008704",
+      "sourceUrl": "https://linkedin.com/posts/projectx-cloud_we-are-super-happy-to-announce-that-we-just-activity-7363382267576008704-rzdO",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 6
+      },
+      "disposition": "quarantined",
+      "newMetrics": {},
+      "extraction": {
+        "status": "unproven",
+        "source": null,
+        "reason": "linkedin_parent_engagement_footer_unproven"
+      },
+      "quarantineReasons": [
+        "linkedin_parent_engagement_footer_unproven",
+        "no_visible_positive_scoring_metrics"
+      ]
+    },
+    {
+      "id": "linkedin-founder-projectx-rounak-adhikary-2936820-linkedin-com-posts-rounakadhikary-run-hundreds-of-apps-and-agents-side-by-side-activity-7470595103376723969-j-dg-run-hundreds-of-a",
+      "batchSlug": "S2026",
+      "companySlug": "projectx",
+      "platformPostId": "7470595103376723969",
+      "sourceUrl": "https://linkedin.com/posts/rounakadhikary_run-hundreds-of-apps-and-agents-side-by-side-activity-7470595103376723969-j_dg",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 6
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 101,
+        "comments": 6
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-pavoot-linkedin-com-posts-activity-7483949181435457537-lnsr-there-are-three-sides-to-every-chess-tournament-the-player-the-spectator-and-the-organizer-i-have-been-",
+      "batchSlug": "S2026",
+      "companySlug": "pavoot",
+      "platformPostId": "7483949181435457537",
+      "sourceUrl": "https://linkedin.com/posts/activity-7483949181435457537-LNsr",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 50,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-playablai-linkedin-com-posts-activity-7480266887700897792-f3cs-65x-in-six-weeks-past-7-million-plays",
+      "batchSlug": "S2026",
+      "companySlug": "playablai",
+      "platformPostId": "7480266887700897792",
+      "sourceUrl": "https://linkedin.com/posts/activity-7480266887700897792-F3cS",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 4
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 61,
+        "comments": 4
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-openwork-linkedin-com-posts-activity-7452506477870682113-ev8-infron-integrates-with-openwork-for-ai-workflows-infron-posted-on-the-topic-linkedin",
+      "batchSlug": "S2026",
+      "companySlug": "openwork",
+      "platformPostId": "7452506477870682113",
+      "sourceUrl": "https://linkedin.com/posts/activity-7452506477870682113-ev8-",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 9,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-pentagon-edgar-pavlovsky-402484-linkedin-com-posts-barrett-williams-79a63876-weve-been-cooking-on-pentagon-yc-p26-multiplayer-activity-7477356233977405440-jznx-pen",
+      "batchSlug": "S2026",
+      "companySlug": "pentagon",
+      "platformPostId": "7477356233977405440",
+      "sourceUrl": "https://linkedin.com/posts/barrett-williams-79a63876_weve-been-cooking-on-pentagon-yc-p26-multiplayer-activity-7477356233977405440-JZNX",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 13,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-panacea-linkedin-com-posts-panacea-bio-two-million-people-die-every-year-from-cancers-activity-7482811206714699776-qnaz-two-million-people-die-every-year-from-canc",
+      "batchSlug": "S2026",
+      "companySlug": "panacea",
+      "platformPostId": "7482811206714699776",
+      "sourceUrl": "https://linkedin.com/posts/panacea-bio_two-million-people-die-every-year-from-cancers-activity-7482811206714699776-QNaz",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 20,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-primitive-linkedin-com-posts-primitivedotdev-agents-have-no-way-to-find-each-other-and-activity-7476020423370113024-yusj-agents-have-no-way-to-find-each-other-and-",
+      "batchSlug": "S2026",
+      "companySlug": "primitive",
+      "platformPostId": "7476020423370113024",
+      "sourceUrl": "https://linkedin.com/posts/primitivedotdev_agents-have-no-way-to-find-each-other-and-activity-7476020423370113024-YuSJ",
+      "oldMetrics": {
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-primitive-linkedin-com-posts-primitivedotdev-launch-05-custom-routes-for-inbound-email-activity-7476366646471852032-djaw-custom-email-routing-with-regex-and-wildca",
+      "batchSlug": "S2026",
+      "companySlug": "primitive",
+      "platformPostId": "7476366646471852032",
+      "sourceUrl": "https://linkedin.com/posts/primitivedotdev_launch-05-custom-routes-for-inbound-email-activity-7476366646471852032-djAW",
+      "oldMetrics": {
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-zomma-linkedin-com-posts-zomma-nytechweek-activity-7468372946131120128-kxpp-nytechweek-zomma-yc-s26",
+      "batchSlug": "S26",
+      "companySlug": "zomma",
+      "platformPostId": "7468372946131120128",
+      "sourceUrl": "https://linkedin.com/posts/zomma_nytechweek-activity-7468372946131120128-kXPP",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 41,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-pentagon-edgar-pavlovsky-402484-linkedin-com-posts-edgarpavlovsky-weve-been-cooking-really-hard-on-pentagon-activity-7475985961965965315-xt2x-pentagon-studio-s-mul",
+      "batchSlug": "S2026",
+      "companySlug": "pentagon",
+      "platformPostId": "7475985961965965315",
+      "sourceUrl": "https://linkedin.com/posts/edgarpavlovsky_weve-been-cooking-really-hard-on-pentagon-activity-7475985961965965315-xt2x",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 14,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-torus-marcus-lima-554410-linkedin-com-posts-marcus-lima-144974101-incredible-effort-from-rahul-thayil-and-orion-activity-7397146669747970049-eldc-incredible-effort",
+      "batchSlug": "S26",
+      "companySlug": "torus",
+      "platformPostId": "7397146669747970049",
+      "sourceUrl": "https://linkedin.com/posts/marcus-lima-144974101_incredible-effort-from-rahul-thayil-and-orion-activity-7397146669747970049-ELDC",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 23,
+        "comments": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-nine-fives-linkedin-com-posts-activity-7482841419670319104-pl5c-happy-to-announce-that-nine-fives-yc-p26-is-hiring",
+      "batchSlug": "S2026",
+      "companySlug": "nine-fives",
+      "platformPostId": "7482841419670319104",
+      "sourceUrl": "https://linkedin.com/posts/activity-7482841419670319104-PL5C",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 20,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-openwork-linkedin-com-posts-openwork-software-for-enterprises-value-creation-means-getting-activity-7452475735891517440-e6bd-maximizing-ai-value-in-enterprises-ope",
+      "batchSlug": "S2026",
+      "companySlug": "openwork",
+      "platformPostId": "7452475735891517440",
+      "sourceUrl": "https://linkedin.com/posts/openwork-software_for-enterprises-value-creation-means-getting-activity-7452475735891517440-E6bD",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 6,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-ornadyne-linkedin-com-posts-ornadyne-activity-7457468104596545536-qdrd-ornadyne-yc-p26",
+      "batchSlug": "S2026",
+      "companySlug": "ornadyne",
+      "platformPostId": "7457468104596545536",
+      "sourceUrl": "https://linkedin.com/posts/ornadyne_activity-7457468104596545536-QdRd",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 21,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-pops-linkedin-com-posts-trypops-hello-everyone-activity-7462940631544410112-zlit-hello-everyone-pops",
+      "batchSlug": "S2026",
+      "companySlug": "pops",
+      "platformPostId": "7462940631544410112",
+      "sourceUrl": "https://linkedin.com/posts/trypops_hello-everyone-activity-7462940631544410112-ZLit",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 14,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-qomplement-linkedin-com-posts-qomplement-stop-moving-your-data-by-hand-activity-7465454296696954880-ctnw-automate-manual-tasks-with-qomplement-qomplement-posted-on",
+      "batchSlug": "S2026",
+      "companySlug": "qomplement",
+      "platformPostId": "7465454296696954880",
+      "sourceUrl": "https://linkedin.com/posts/qomplement_stop-moving-your-data-by-hand-activity-7465454296696954880-CTNW",
+      "oldMetrics": {
+        "comments": 2
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 9
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-raspire-linkedin-com-posts-raspire-raspire-shield2-cybersecurity-activity-7467277461832151040-tngm-raspire-shield2-cybersecurity-appsecurity-mobilesecurity-raspire",
+      "batchSlug": "S2026",
+      "companySlug": "raspire",
+      "platformPostId": "7467277461832151040",
+      "sourceUrl": "https://linkedin.com/posts/raspire_raspire-shield2-cybersecurity-activity-7467277461832151040-TNgM",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 99,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-salem-robotics-inc-linkedin-com-posts-salem-robotics-launch-video-activity-7477937140048486400-yeux-launch-video-salem-robotics-yc-s26",
+      "batchSlug": "S26",
+      "companySlug": "salem-robotics-inc",
+      "platformPostId": "7477937140048486400",
+      "sourceUrl": "https://linkedin.com/posts/salem-robotics_launch-video-activity-7477937140048486400-yEUX",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 5,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-screenpipe-linkedin-com-posts-screenpipe-screenpipe-weekly-change-log-is-here-we-activity-7466111136879284224-gtct-screenpipe-weekly-change-log-is-here-we-spent-8b",
+      "batchSlug": "S26",
+      "companySlug": "screenpipe",
+      "platformPostId": "7466111136879284224",
+      "sourceUrl": "https://linkedin.com/posts/screenpipe_screenpipe-weekly-change-log-is-here-we-activity-7466111136879284224-GtcT",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 18,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-zomma-linkedin-com-posts-zomma-nytechweek-activity-7471254452700631040-fvy7-nytechweek-zomma-yc-s26",
+      "batchSlug": "S26",
+      "companySlug": "zomma",
+      "platformPostId": "7471254452700631040",
+      "sourceUrl": "https://linkedin.com/posts/zomma_nytechweek-activity-7471254452700631040-fVY7",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 23,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-nine-fives-linkedin-com-posts-activity-7483487916195729409-xtvs-easier-rf-test-equipment-setup-with-nine-fives-automation-shivangi-kharoo-posted-on-the-topic-linke",
+      "batchSlug": "S2026",
+      "companySlug": "nine-fives",
+      "platformPostId": "7483487916195729409",
+      "sourceUrl": "https://linkedin.com/posts/activity-7483487916195729409-xTVS",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-openwork-linkedin-com-posts-openwork-software-ai-isnt-replacing-programming-but-it-has-activity-7447048575118827520-fsac-ai-changes-what-a-10x-engineer-looks-like-",
+      "batchSlug": "S2026",
+      "companySlug": "openwork",
+      "platformPostId": "7447048575118827520",
+      "sourceUrl": "https://linkedin.com/posts/openwork-software_ai-isnt-replacing-programming-but-it-has-activity-7447048575118827520-FsAc",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 2
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-tsenta-linkedin-com-posts-tsenta-are-you-spending-10-hours-applying-to-jobs-activity-7483238888216363008-qb-f-are-you-spending-10-hours-applying-to-jobs-and-still-",
+      "batchSlug": "S26",
+      "companySlug": "tsenta",
+      "platformPostId": "7483238888216363008",
+      "sourceUrl": "https://linkedin.com/posts/tsenta_are-you-spending-10-hours-applying-to-jobs-activity-7483238888216363008-qB_f",
+      "oldMetrics": {
+        "reactions": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 48,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-prototypingio-revanth-bodepudi-3328377-linkedin-com-posts-revanth279-over-the-last-few-months-ive-spoken-with-activity-7462570229144031232-dgtp-us-hardware-manufac",
+      "batchSlug": "S2026",
+      "companySlug": "prototypingio",
+      "platformPostId": "7462570229144031232",
+      "sourceUrl": "https://linkedin.com/posts/revanth279_over-the-last-few-months-ive-spoken-with-activity-7462570229144031232-dGTP",
+      "oldMetrics": {
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 32
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_action_footer_reactions_only"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-twolabs-linkedin-com-posts-twolabsai-episode-1-sardors-birthday-to-build-activity-7469549672336896000-cmzw-testing-robots-in-human-moments-sardor-s-birthday-demo-t",
+      "batchSlug": "S2026",
+      "companySlug": "twolabs",
+      "platformPostId": "7469549672336896000",
+      "sourceUrl": "https://linkedin.com/posts/twolabsai_episode-1-sardors-birthday-to-build-activity-7469549672336896000-cMZW",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 31
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 433,
+        "comments": 31
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-standard-signal-michael-royzen-984097-linkedin-com-posts-y-combinator-walls-of-text-are-so-2022-on-phind-every-activity-7402097809476550656-lo84-walls-of-text-are-",
+      "batchSlug": "S2026",
+      "companySlug": "standard-signal",
+      "platformPostId": "7402097809476550656",
+      "sourceUrl": "https://linkedin.com/posts/y-combinator_walls-of-text-are-so-2022-on-phind-every-activity-7402097809476550656-Lo84",
+      "oldMetrics": {
+        "reactions": 9,
+        "comments": 23
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 197,
+        "comments": 23
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-trellistech-linkedin-com-posts-activity-7477375450755821568-rnvf-3-intense-months-grinding-in-sf-with-my-new-trellis-yc-p26-fam-just-wrapped-but-to-be-honest-it-s-",
+      "batchSlug": "S2026",
+      "companySlug": "trellistech",
+      "platformPostId": "7477375450755821568",
+      "sourceUrl": "https://linkedin.com/posts/activity-7477375450755821568-RNVF",
+      "oldMetrics": {
+        "reactions": 4,
+        "comments": 18
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 119,
+        "comments": 18
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-stage-linkedin-com-posts-stagereview-introducing-stage-a-modern-code-review-platform-activity-7455674358871760896-nkgz-introducing-stage-a-modern-code-review-platf",
+      "batchSlug": "S2026",
+      "companySlug": "stage",
+      "platformPostId": "7455674358871760896",
+      "sourceUrl": "https://linkedin.com/posts/stagereview_introducing-stage-a-modern-code-review-platform-activity-7455674358871760896-nKGz",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 12
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 39,
+        "comments": 12
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-heyclicky-linkedin-com-posts-prabhathsrinivas-your-scrappy-projects-might-get-you-into-activity-7454205484951273472-thfg-your-scrappy-projects-might-get-you-into-y",
+      "batchSlug": "S2026",
+      "companySlug": "heyclicky",
+      "platformPostId": "7454205484951273472",
+      "sourceUrl": "https://linkedin.com/posts/prabhathsrinivas_your-scrappy-projects-might-get-you-into-activity-7454205484951273472-ThFG",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 9
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 29,
+        "comments": 9
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-userlens-ankur-dahama-3403717-linkedin-com-posts-ankurdahama-finland-seems-to-be-on-downwards-slope-in-activity-7477571339004841984-lv6g-finland-seems-to-be-on-dow",
+      "batchSlug": "S2026",
+      "companySlug": "userlens",
+      "platformPostId": "7477571339004841984",
+      "sourceUrl": "https://linkedin.com/posts/ankurdahama_finland-seems-to-be-on-downwards-slope-in-activity-7477571339004841984-lV6G",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 7
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 21,
+        "comments": 7
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-trellistech-linkedin-com-posts-activity-7474868847947427841-g5sb-150-listings",
+      "batchSlug": "S2026",
+      "companySlug": "trellistech",
+      "platformPostId": "7474868847947427841",
+      "sourceUrl": "https://linkedin.com/posts/activity-7474868847947427841-G5SB",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 5
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 58,
+        "comments": 5
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-walter-linkedin-com-posts-activity-7472291767053283328-e8mg-vor-zehn-jahren-dauerte-ein-pitch-am-y-combinator-demo-day-25-minuten",
+      "batchSlug": "S2026",
+      "companySlug": "walter",
+      "platformPostId": "7472291767053283328",
+      "sourceUrl": "https://linkedin.com/posts/activity-7472291767053283328-e8MG",
+      "oldMetrics": {
+        "reactions": 2,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 113,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-superset-linkedin-com-posts-activity-7467996262546481152-sx7o-big-thanks-to-vercel-for-featuring-superset",
+      "batchSlug": "S2026",
+      "companySlug": "superset",
+      "platformPostId": "7467996262546481152",
+      "sourceUrl": "https://linkedin.com/posts/activity-7467996262546481152-Sx7o",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 3
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 45,
+        "comments": 3
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-tolmo-linkedin-com-posts-tolmohq-fable-5-wrote-a-windows-kernel-in-38-minutes-activity-7474894696465453056-e6gw-everyone-s-using-fable-5-to-try-to-out-code-rocksta",
+      "batchSlug": "S2026",
+      "companySlug": "tolmo",
+      "platformPostId": "7474894696465453056",
+      "sourceUrl": "https://linkedin.com/posts/tolmohq_fable-5-wrote-a-windows-kernel-in-38-minutes-activity-7474894696465453056-e6gw",
+      "oldMetrics": {
+        "reactions": 3,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 4,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-mochatrade-linkedin-com-posts-mochatrade-casecompetition-marketmakers-financecompetition-activity-7483741627988094977-8o-i-we-re-excited-to-announce-market-makers-",
+      "batchSlug": "S2026",
+      "companySlug": "mochatrade",
+      "platformPostId": "7483741627988094977",
+      "sourceUrl": "https://linkedin.com/posts/mochatrade_casecompetition-marketmakers-financecompetition-activity-7483741627988094977-8O-i",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 13,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-mochatrade-linkedin-com-posts-mochatrade-usstocks-personalfinance-tax-activity-7483377434709352448-o4ge-tcs-on-us-stocks-the-wait-not-the-wall-mochatrade-yc-p26-po",
+      "batchSlug": "S2026",
+      "companySlug": "mochatrade",
+      "platformPostId": "7483377434709352448",
+      "sourceUrl": "https://linkedin.com/posts/mochatrade_usstocks-personalfinance-tax-activity-7483377434709352448-O4GE",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "retained",
+      "newMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-stage-linkedin-com-posts-stagereview-stage-cli-demo-activity-7458197859486564352-tpw-introducing-stage-cli-for-ai-generated-changes-stage-yc-p26-posted-on-the-topi",
+      "batchSlug": "S2026",
+      "companySlug": "stage",
+      "platformPostId": "7458197859486564352",
+      "sourceUrl": "https://linkedin.com/posts/stagereview_stage-cli-demo-activity-7458197859486564352--TpW",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 21,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-superset-linkedin-com-posts-activity-7473321109875073024-2gk2-my-top-3-ai-tools-and-i-bet-one-of-them-is-the-next-60b-acquisition-1-codex-claude-code-2-wispr-flow-",
+      "batchSlug": "S2026",
+      "companySlug": "superset",
+      "platformPostId": "7473321109875073024",
+      "sourceUrl": "https://linkedin.com/posts/activity-7473321109875073024-2gk2",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 41,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-company-walter-linkedin-com-posts-activity-7469730959563599873-xyjo-ich-hatte-die-m-glichkeit-mit-christian-byza-im-omr-silicon-valley-update-ber-mich-und-das-startup-walt",
+      "batchSlug": "S2026",
+      "companySlug": "walter",
+      "platformPostId": "7469730959563599873",
+      "sourceUrl": "https://linkedin.com/posts/activity-7469730959563599873-Xyjo",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 62,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    },
+    {
+      "id": "linkedin-founder-surtr-defense-systems-cameron-fiore-3421205-linkedin-com-posts-deoarlo-airdefence-activity-7476445733739446274-z2tt-detecting-threats-before-they-reach-defended-as",
+      "batchSlug": "S2026",
+      "companySlug": "arlo-industries",
+      "platformPostId": "7476445733739446274",
+      "sourceUrl": "https://linkedin.com/posts/deoarlo_airdefence-activity-7476445733739446274-Z2Tt",
+      "oldMetrics": {
+        "reactions": 1,
+        "comments": 1
+      },
+      "disposition": "rewritten",
+      "newMetrics": {
+        "reactions": 13,
+        "comments": 1
+      },
+      "extraction": {
+        "status": "verified",
+        "source": "public_reader_parent_footer",
+        "reason": "linkedin_parent_icon_aggregate_and_comments"
+      },
+      "quarantineReasons": []
+    }
+  ]
+}

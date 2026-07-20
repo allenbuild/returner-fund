@@ -489,7 +489,7 @@ describe("autonomous collector and publication gates", () => {
     );
   });
 
-  it("accepts explicitly classified mapped debt but rejects failed or unattempted mappings", () => {
+  it("accepts terminal mapped failures only through complete explicit opt-in accounting", () => {
     const classified = {
       mappedExpected: 4,
       mappedSucceeded: 1,
@@ -499,12 +499,31 @@ describe("autonomous collector and publication gates", () => {
       mappedNonTerminal: 0
     };
     assert.equal(validateMappedAutonomousCoverage(classified), classified);
+    const terminalFailure = {
+      ...classified,
+      mappedBlockedOrEmpty: 1,
+      mappedFailed: 1
+    };
     assert.throws(
-      () => validateMappedAutonomousCoverage({ ...classified, mappedBlockedOrEmpty: 1, mappedFailed: 1 }),
+      () => validateMappedAutonomousCoverage(terminalFailure),
+      /Mapped collector coverage was incomplete/
+    );
+    assert.equal(
+      validateMappedAutonomousCoverage(terminalFailure, { allowTerminalFailures: true }),
+      terminalFailure
+    );
+    assert.throws(
+      () => validateMappedAutonomousCoverage(
+        { ...terminalFailure, mappedBlockedOrEmpty: 0 },
+        { allowTerminalFailures: true }
+      ),
       /Mapped collector coverage was incomplete/
     );
     assert.throws(
-      () => validateMappedAutonomousCoverage({ ...classified, mappedBlockedOrEmpty: 1, mappedNonTerminal: 1 }),
+      () => validateMappedAutonomousCoverage(
+        { ...terminalFailure, mappedNonTerminal: 1 },
+        { allowTerminalFailures: true }
+      ),
       /Mapped collector coverage was incomplete/
     );
   });
@@ -1243,6 +1262,180 @@ describe("autonomous public evidence merge", () => {
       ["company-9-mothers-corporation", "company-eden-robotics"]
     );
     assert.equal(merged.evidence.some((row) => row.stale), false);
+  });
+
+  it("quarantines a repeated physical post within one company rollup and replays idempotently", () => {
+    const platformPostId = "2070898557645660388";
+    const sourceUrl = `https://x.com/rhs/status/${platformPostId}`;
+    const nativeAuthorResolution = {
+      status: "matched",
+      owner: {
+        batchSlug: "S2026",
+        entityType: "founder",
+        entityId: "founder-9-mothers-russell-smith",
+        companySlug: "9-mothers"
+      }
+    };
+    const base = {
+      companySlug: "9-mothers",
+      companyName: "9 Mothers",
+      platform: "x",
+      platformPostId,
+      sourceUrl,
+      metrics: { views: 7900 },
+      review_state: "verified",
+      nativeAuthorResolution
+    };
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S2026" },
+      evidence: [
+        {
+          ...base,
+          id: "company-subject-copy",
+          entityType: "company",
+          entityId: "company-9-mothers",
+          attributionMode: "subject"
+        },
+        {
+          ...base,
+          id: "founder-native-copy",
+          entityType: "founder",
+          entityId: "founder-9-mothers-russell-smith",
+          attributionMode: "account_owner"
+        }
+      ],
+      needsReview: [],
+      failures: []
+    }], { fetchedAt: "2026-07-20T00:00:00.000Z" });
+
+    assert.deepEqual(merged.evidence.map((row) => row.id), ["founder-native-copy"]);
+    assert.equal(merged.source.duplicatePhysicalEvidenceCount, 1);
+    const duplicate = merged.needsReview.find((row) => row.sourceEvidenceId === "company-subject-copy");
+    assert.deepEqual(duplicate.quarantineReasons, ["same_rollup_physical_post_identity"]);
+    assert.equal(duplicate.duplicateEvidenceIdentity.duplicateOf.id, "founder-native-copy");
+    assert.ok(merged.attributionReconciliationLedger.some((entry) =>
+      entry.platform === "x" &&
+      entry.platformPostId === platformPostId &&
+      entry.disposition === "quarantined" &&
+      entry.staleAttribution.entityId === "company-9-mothers"
+    ));
+
+    const replayed = mergePublicEvidenceSnapshots([merged], {
+      fetchedAt: "2026-07-20T00:00:00.000Z"
+    });
+    assert.deepEqual(replayed.evidence, merged.evidence);
+    assert.deepEqual(replayed.needsReview, merged.needsReview);
+    assert.deepEqual(
+      replayed.attributionReconciliationLedger,
+      merged.attributionReconciliationLedger
+    );
+    assert.equal(replayed.source.duplicatePhysicalEvidenceCount, 0);
+  });
+
+  it("treats a refreshed observation for the same attribution as an update, not a physical duplicate", () => {
+    const base = {
+      entityType: "company",
+      entityId: "company-acme",
+      companySlug: "acme",
+      companyName: "Acme",
+      platform: "x",
+      platformPostId: "42",
+      sourceUrl: "https://x.com/acme/status/42",
+      review_state: "verified"
+    };
+    const merged = mergePublicEvidenceSnapshots([
+      {
+        source: { batchSlug: "S26" },
+        evidence: [{
+          ...base,
+          id: "fresh",
+          metrics: { views: 20 },
+          last_checked_at: "2026-07-20T12:00:00.000Z"
+        }]
+      },
+      {
+        source: { batchSlug: "S26" },
+        evidence: [{
+          ...base,
+          id: "previous",
+          sourceUrl: "https://twitter.com/acme/status/42?utm_source=previous",
+          metrics: { views: 10 },
+          last_checked_at: "2026-07-19T12:00:00.000Z"
+        }]
+      }
+    ]);
+
+    assert.deepEqual(merged.evidence.map((row) => row.id), ["fresh"]);
+    assert.equal(merged.source.duplicatePhysicalEvidenceCount, 0);
+    assert.equal(
+      merged.needsReview.some((row) => row.quarantineReasons?.includes("same_rollup_physical_post_identity")),
+      false
+    );
+  });
+
+  it("selects the same rollup attribution regardless of snapshot row order", () => {
+    const row = (entityId) => ({
+      id: "shared-collector-id",
+      entityType: "founder",
+      entityId,
+      companySlug: "acme",
+      companyName: "Acme",
+      platform: "x",
+      platformPostId: "43",
+      sourceUrl: "https://x.com/thirdparty/status/43",
+      metrics: { views: 10 },
+      review_state: "verified",
+      attributionMode: "subject"
+    });
+    const merge = (evidence) => mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S26" },
+      evidence
+    }]);
+    const forward = merge([row("founder-acme-a"), row("founder-acme-b")]);
+    const reversed = merge([row("founder-acme-b"), row("founder-acme-a")]);
+
+    assert.deepEqual(forward.evidence.map((item) => item.entityId), ["founder-acme-a"]);
+    assert.deepEqual(reversed.evidence.map((item) => item.entityId), ["founder-acme-a"]);
+    assert.deepEqual(
+      forward.needsReview.map((item) => item.entityId),
+      reversed.needsReview.map((item) => item.entityId)
+    );
+  });
+
+  it("deduplicates stale company review aliases by canonical batch rollup", () => {
+    const candidateUrl = "https://producthunt.com/products/panorama";
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "A16ZSR006" },
+      needsReview: [
+        {
+          id: "newer-stale-alias",
+          entityType: "company",
+          entityId: "company-panorama",
+          companySlug: "panorama",
+          companyName: "Panorama",
+          platform: "product_hunt",
+          candidateUrl,
+          review_state: "needs_review",
+          last_checked_at: "2026-07-20T13:00:00.000Z"
+        },
+        {
+          id: "older-canonical-owner",
+          entityType: "company",
+          entityId: "a16z-speedrun-006-panorama",
+          companySlug: "panorama",
+          companyName: "Panorama",
+          platform: "product_hunt",
+          candidateUrl,
+          review_state: "needs_review",
+          last_checked_at: "2026-07-20T12:00:00.000Z"
+        }
+      ]
+    }]);
+
+    assert.deepEqual(
+      merged.needsReview.map((row) => [row.id, row.entityId, row.candidateUrl]),
+      [["older-canonical-owner", "a16z-speedrun-006-panorama", candidateUrl]]
+    );
   });
 
   it("deduplicates X, LinkedIn, and YouTube URL aliases while preserving the newest observation", () => {

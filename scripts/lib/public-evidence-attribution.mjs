@@ -254,6 +254,7 @@ export function assessLinkedInPrimaryPostBody(row) {
 
   const bodyStart = reportMatch.index + reportMatch[0].length;
   const boundaryPatterns = [
+    /\[Report this comment\]\([^)]*guestReportContentType=COMMENT[^)]*\)/gi,
     /\[(?:Like|Comment)\]\(/gi,
     /\[\d[\d,]*\s+Comments?\]\(/gi,
     /\bLike\s+Comment\s+Share\b/gi,
@@ -302,7 +303,9 @@ export function organizationQualifiedBatchMarkerCount(batchSlug, text) {
 
 export function isListOrRoundupAttributionContext(batchSlug, text) {
   const value = String(text ?? "");
-  if (organizationQualifiedBatchMarkerCount(batchSlug, value) >= 8) return true;
+  const qualifiedBatchMarkers = organizationQualifiedBatchMarkerMatches(batchSlug, value);
+  if (qualifiedBatchMarkers.length >= 8) return true;
+  if (isDenseQualifiedCompanyEnumeration(value, qualifiedBatchMarkers)) return true;
   const plusEntryCount = value.match(/^\s*\+\s+(?=\S)/gmu)?.length ?? 0;
   const bulletCount = value.match(/^\s*(?:⏺(?:️)?|🔹|▪(?:️)?|▫(?:️)?|◦|•)\s*(?=\S)/gmu)?.length ?? 0;
   const numberedEntryCount = value.match(/^\s*\d{1,2}[.)]\s+(?=\S)/gm)?.length ?? 0;
@@ -324,6 +327,30 @@ export function isListOrRoundupAttributionContext(batchSlug, text) {
     /\bcompanies\b[^\n.!?]{0,140}\b(?:recommend(?:ed)?|keep(?:ing)?\s+an\s+eye\s+on)\b/i
   ].some((pattern) => pattern.test(value));
   return structuredEntryCount >= 4 && explicitCompanyListFraming;
+}
+
+function organizationQualifiedBatchMarkerMatches(batchSlug, text) {
+  const value = String(text ?? "");
+  const pattern = batchSlug === "S2026"
+    ? /(?:\bYC\s*(?:P26|S2026|Spring\s+2026)\b|\bY\s*Combinator\s*(?:P26|S2026|Spring\s+2026)\b)/gi
+    : batchSlug === "S26"
+      ? /(?:\bYC\s*(?:S26|Summer\s+2026)\b|\bY\s*Combinator\s*(?:S26|Summer\s+2026)\b)/gi
+      : batchSlug === "A16ZSR006"
+        ? /(?:\ba16z\s+Speedrun(?:\s+006)?\b|\bA16ZSR006\b)/gi
+        : null;
+  return pattern ? [...value.matchAll(pattern)] : [];
+}
+
+function isDenseQualifiedCompanyEnumeration(text, markers) {
+  if ((markers?.length ?? 0) < 4) return false;
+  const first = markers[0];
+  const last = markers.at(-1);
+  const span = String(text ?? "").slice(first.index, last.index + last[0].length);
+  const words = span.match(/[\p{L}\p{N}]+/gu) ?? [];
+  // Four or more cohort-qualified names packed this tightly are structured
+  // list entries, not target-specific subject evidence. Substantive comparisons
+  // remain eligible because their prose separates the qualified mentions.
+  return words.length <= markers.length * 8;
 }
 
 export function hasDistinctiveCatalogPhrase(company, text) {
@@ -503,10 +530,23 @@ export function applyResolvedNativeAuthor(row, resolution) {
   if (resolution?.status !== "matched" || !resolution.owner) return { ...row };
   const owner = resolution.owner;
   const oldAttribution = publicAttribution(row);
-  const changed =
+  const changedNow =
     String(oldAttribution.batchSlug ?? "") !== String(owner.batchSlug) ||
     String(oldAttribution.entityType ?? "company") !== String(owner.entityType) ||
     String(oldAttribution.entityId ?? "") !== String(owner.entityId);
+  const priorResolution = row?.nativeAuthorResolution;
+  const samePriorOwner = priorResolution?.status === "matched" &&
+    String(priorResolution.owner?.batchSlug ?? "") === String(owner.batchSlug) &&
+    String(priorResolution.owner?.entityType ?? "") === String(owner.entityType) &&
+    String(priorResolution.owner?.entityId ?? "") === String(owner.entityId);
+  const priorChanged = samePriorOwner && priorResolution?.changed === true;
+  const changed = changedNow || priorChanged;
+  const previousAttribution = priorChanged && priorResolution?.previousAttribution
+    ? priorResolution.previousAttribution
+    : oldAttribution;
+  const reassignmentNote = changedNow
+    ? `Canonical native-author resolution reassigned this physical post from ${oldAttribution.batchSlug ?? "unscoped"}/${oldAttribution.entityType ?? "company"}/${oldAttribution.entityId ?? "unknown"} to ${owner.batchSlug}/${owner.entityType}/${owner.entityId}.`
+    : null;
   return {
     ...row,
     batchSlug: owner.batchSlug,
@@ -520,19 +560,29 @@ export function applyResolvedNativeAuthor(row, resolution) {
       author: resolution.author,
       owner,
       changed,
-      ...(changed ? { previousAttribution: oldAttribution } : {})
+      ...(changed ? { previousAttribution } : {})
     },
     attributionVersion: Math.max(2, Number(row?.attributionVersion ?? 0)),
     attributionStatus: "verified_native_author",
     attributionMode: "account_owner",
     attributionSignals: [...new Set([...(row?.attributionSignals ?? []), "unique_native_author"])].sort(),
-    ...(changed
+    ...(changedNow
       ? {
           sourceEvidenceId: row?.sourceEvidenceId ?? row?.id ?? null,
-          matchReason: `${row?.matchReason ?? "Public evidence candidate."} Canonical native-author resolution reassigned this physical post from ${oldAttribution.batchSlug ?? "unscoped"}/${oldAttribution.entityType ?? "company"}/${oldAttribution.entityId ?? "unknown"} to ${owner.batchSlug}/${owner.entityType}/${owner.entityId}.`
+          matchReason: appendReasonOnce(
+            row?.matchReason ?? "Public evidence candidate.",
+            reassignmentNote
+          )
         }
       : {})
   };
+}
+
+function appendReasonOnce(reason, note) {
+  const base = String(reason ?? "").trim();
+  const addition = String(note ?? "").trim();
+  if (!addition || base.includes(addition)) return base;
+  return `${base}${base ? " " : ""}${addition}`;
 }
 
 export function publicAttribution(row) {

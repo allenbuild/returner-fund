@@ -147,8 +147,12 @@ interface PublicEvidenceSnapshot {
 
 type PublicEvidenceRecord = Omit<EvidenceItem, "postedAt"> & {
   postedAt?: string | null;
+  batchSlug?: string;
+  batch_slug?: string;
   companySlug?: string;
   companyName?: string;
+  attributionVersion?: number;
+  attributionStatus?: string;
 };
 
 interface PublicSocialEvidenceAttachment {
@@ -938,7 +942,10 @@ function speedrunFounderUrl(companySlug: string, name: string): string {
 
 function buildSpeedrunEvidenceItems(): A16zSpeedrun006EvidenceItem[] {
   const githubEvidence = githubSnapshot.accounts.filter(isHighConfidenceGithubAccount).flatMap(githubEvidenceForAccount);
-  const publicEvidence = PUBLIC_SOCIAL_EVIDENCE_ATTACHMENTS.flatMap(publicEvidenceItemFromAttachment);
+  const publicEvidence = [
+    ...publicSnapshot.evidence.flatMap(publicEvidenceItemFromCanonicalAttribution),
+    ...PUBLIC_SOCIAL_EVIDENCE_ATTACHMENTS.flatMap(publicEvidenceItemFromAttachment)
+  ];
   const seededSocialEvidence = seededSocialSnapshot.evidence.flatMap(seededSocialEvidenceItem);
 
   return normalizeEvidenceScores(
@@ -1025,7 +1032,47 @@ function githubEvidenceForAccount(account: GithubTractionAccount): EvidenceItem[
 
 function publicEvidenceItemFromAttachment(attachment: PublicSocialEvidenceAttachment): EvidenceItem[] {
   const source = publicSnapshot.evidence.find((item) => item.sourceUrl === attachment.sourceUrl);
-  if (!source || !SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(source.platform)) return [];
+  return source ? publicEvidenceItemFromSource(source, attachment) : [];
+}
+
+function publicEvidenceItemFromCanonicalAttribution(source: PublicEvidenceRecord): EvidenceItem[] {
+  const explicitBatchSlug = String(source.batchSlug ?? source.batch_slug ?? "").trim().toUpperCase();
+  if (
+    explicitBatchSlug !== A16Z_SPEEDRUN_006_BATCH_SLUG ||
+    source.review_state !== "verified" ||
+    Number(source.attributionVersion ?? 0) < 3 ||
+    source.attributionStatus !== "verified" ||
+    source.entityType !== "company" ||
+    source.linkStatus === "invalid" ||
+    source.linkStatus === "blocked"
+  ) {
+    return [];
+  }
+
+  const companySlug = slugify(source.companySlug ?? "");
+  const profile = speedrun006Profiles.find((candidate) => slugify(candidate.name) === companySlug);
+  const nativePostId = nativeEvidenceIdentityFromUrl(source.platform, source.sourceUrl);
+  if (
+    !profile ||
+    !nativePostId ||
+    (source.platformPostId && source.platformPostId.toLowerCase() !== nativePostId.toLowerCase())
+  ) {
+    return [];
+  }
+
+  return publicEvidenceItemFromSource(source, {
+    sourceUrl: source.sourceUrl,
+    companySlug,
+    companyName: profile.name,
+    matchReason: source.matchReason ?? "Verified canonical public attribution for a16z speedrun 006."
+  });
+}
+
+function publicEvidenceItemFromSource(
+  source: PublicEvidenceRecord,
+  attachment: PublicSocialEvidenceAttachment
+): EvidenceItem[] {
+  if (!SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(source.platform)) return [];
 
   const companyId = companyIdFromSlug(attachment.companySlug);
   const normalizedAccount = normalizeNativeAccountRoot(source.platform, source.accountUrl ?? null);
@@ -1052,7 +1099,7 @@ function publicEvidenceItemFromAttachment(attachment: PublicSocialEvidenceAttach
       last_updated_at: source.last_updated_at ?? publicSnapshot.source.fetchedAt,
       why: isLinkedInActivityFragment
         ? "Stored as context only. LinkedIn profile activity fragments lack a stable native post identity and are not counted as post-level traction."
-        : `${source.why} Reattached to ${attachment.companyName} because the public post explicitly names the company and a16z speedrun.`,
+        : `${source.why ?? source.matchReason ?? "Verified public native evidence."} Reattached to ${attachment.companyName} from explicit a16z speedrun attribution.`,
       attachedCompanyId: companyId,
       attachedCompanyName: attachment.companyName,
       socialAccountId: null,

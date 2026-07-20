@@ -2,6 +2,11 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { readRequiredCanonicalJson } from "./canonical-json.mjs";
 import {
+  publicationTimesCompatible,
+  sourceAuthorsCompatible,
+  sourceContentIdentity
+} from "./source-content-identity.mjs";
+import {
   applyResolvedNativeAuthor,
   assessPublicEvidenceAttribution,
   buildPublicNativeAuthorResolver,
@@ -193,6 +198,254 @@ export function buildAutonomousPublicNativeAuthorResolver(catalogs) {
   return buildPublicNativeAuthorResolver(catalogs);
 }
 
+export function buildCanonicalTargetedAttributionResolver(catalogs) {
+  const nativeAuthorResolver = buildPublicNativeAuthorResolver(catalogs);
+  const exactTargets = new Map();
+  const companiesByBatchName = new Map();
+  const companiesByBatchStructuredIdentity = new Map();
+  for (const catalog of catalogs ?? []) {
+    for (const company of catalog.companies ?? []) {
+      const companyTarget = { catalog, company, founder: null };
+      exactTargets.set(
+        targetedCatalogEntityKey(catalog.slug, "company", company.sourceKey),
+        companyTarget
+      );
+      const nameKey = `${catalog.slug}:${normalizedCatalogBatchAlias(company.name)}`;
+      companiesByBatchName.set(nameKey, [
+        ...(companiesByBatchName.get(nameKey) ?? []),
+        companyTarget
+      ]);
+      for (const identity of [company.name, autonomousCompanySlug(company)]) {
+        indexTargetedCompanyIdentity(
+          companiesByBatchStructuredIdentity,
+          catalog.slug,
+          identity,
+          companyTarget
+        );
+      }
+      for (const founder of company.founders ?? []) {
+        exactTargets.set(
+          targetedCatalogEntityKey(catalog.slug, "founder", founder.sourceKey),
+          { catalog, company, founder }
+        );
+      }
+    }
+  }
+
+  return (row, batchSlug) => {
+    if (!batchSlug) return null;
+    const entityType = String(row?.entityType ?? row?.entity_type ?? "").toLowerCase();
+    const entityId = row?.entityId ?? row?.entity_id;
+    if (entityType === "founder") {
+      const strongAuthorSignals = targetedStrongAuthorSignals(row);
+      if (strongAuthorSignals.length > 1) {
+        return {
+          rejected: true,
+          reason: "canonical_targeted_conflicting_strong_author_identity",
+          strongAuthorSignals
+        };
+      }
+    }
+    const exact = exactTargets.get(targetedCatalogEntityKey(batchSlug, entityType, entityId));
+    if (exact) {
+      const companyConflict = targetedStructuredCompanyConflict(
+        row,
+        batchSlug,
+        exact.company.sourceKey,
+        companiesByBatchStructuredIdentity
+      );
+      if (companyConflict) {
+        return {
+          rejected: true,
+          reason: "canonical_targeted_entity_company_identity_conflict",
+          companyConflict
+        };
+      }
+      return canonicalTargetedAttributionResolution(row, exact, "canonical_targeted_exact_entity_id");
+    }
+
+    if (entityType === "founder") {
+      const nativeResolution = nativeAuthorResolver({ ...row, batchSlug });
+      if (
+        nativeResolution.status !== "matched" ||
+        nativeResolution.owner?.batchSlug !== batchSlug ||
+        nativeResolution.owner?.entityType !== "founder"
+      ) return null;
+      const target = exactTargets.get(targetedCatalogEntityKey(
+        batchSlug,
+        "founder",
+        nativeResolution.owner.entityId
+      ));
+      return target
+        ? canonicalTargetedAttributionResolution(
+            row,
+            target,
+            "canonical_targeted_unique_native_founder"
+          )
+        : null;
+    }
+
+    if (entityType === "company") {
+      const companyName = normalizedCatalogBatchAlias(row?.companyName ?? row?.company_name);
+      const matches = companiesByBatchName.get(`${batchSlug}:${companyName}`) ?? [];
+      return matches.length === 1
+        ? canonicalTargetedAttributionResolution(
+            row,
+            matches[0],
+            "canonical_targeted_unique_batch_company_name"
+          )
+        : null;
+    }
+    return null;
+  };
+}
+
+function indexTargetedCompanyIdentity(index, batchSlug, identity, target) {
+  const normalized = normalizedCatalogBatchAlias(identity);
+  if (!normalized) return;
+  const key = `${batchSlug}:${normalized}`;
+  const targets = index.get(key) ?? [];
+  if (!targets.some((candidate) => candidate.company.sourceKey === target.company.sourceKey)) {
+    index.set(key, [...targets, target]);
+  }
+}
+
+function targetedStructuredCompanyConflict(row, batchSlug, exactCompanyId, index) {
+  for (const [field, value] of [
+    ["companyName", row?.companyName ?? row?.company_name],
+    ["companySlug", row?.companySlug ?? row?.company_slug]
+  ]) {
+    const normalized = normalizedCatalogBatchAlias(value);
+    if (!normalized) continue;
+    const matches = index.get(`${batchSlug}:${normalized}`) ?? [];
+    if (matches.length === 1 && matches[0].company.sourceKey !== exactCompanyId) {
+      return {
+        field,
+        value,
+        resolvedCompanyId: matches[0].company.sourceKey,
+        exactEntityCompanyId: exactCompanyId
+      };
+    }
+  }
+  return null;
+}
+
+function targetedStrongAuthorSignals(row) {
+  const platform = normalizePlatform(row?.platform);
+  const raw = parseTargetedRawObject(row?.rawVisibleText);
+  const handles = new Set();
+  const addHandle = (value) => {
+    const handle = normalizeTargetedAuthorHandle(value);
+    if (handle) handles.add(handle);
+  };
+  const addUrl = (value) => addHandle(targetedAuthorHandleFromUrl(platform, value));
+  addUrl(row?.sourceUrl ?? row?.source_url ?? row?.canonicalUrl ?? row?.url);
+  for (const value of [
+    row?.authorHandle,
+    row?.author_handle,
+    row?.account?.handle,
+    row?.account?.username,
+    raw?.profile?.username,
+    raw?.profile?.handle,
+    raw?.post?.authorHandle,
+    raw?.post?.author_handle,
+    raw?.post?.author?.handle,
+    raw?.post?.author?.username,
+    raw?.post?.author?.screen_name,
+    raw?.author?.handle,
+    raw?.author?.username,
+    raw?.author?.screen_name,
+    typeof raw?.author === "string" ? raw.author : null
+  ]) addHandle(value);
+  for (const value of [
+    row?.authorUrl,
+    row?.author_url,
+    row?.accountUrl,
+    row?.account_url,
+    raw?.profile?.url,
+    raw?.post?.authorUrl,
+    raw?.post?.author?.url,
+    raw?.author?.url
+  ]) addUrl(value);
+  return [...handles].sort();
+}
+
+function targetedAuthorHandleFromUrl(platform, rawUrl) {
+  try {
+    const url = new URL(String(rawUrl ?? ""));
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+    const parts = decodeURIComponent(url.pathname).split("/").filter(Boolean);
+    if (platform === "x" && ["x.com", "twitter.com", "mobile.twitter.com"].includes(host)) {
+      return parts[0]?.toLowerCase() === "i" ? null : parts[0] ?? null;
+    }
+    if (platform === "linkedin" && (host === "linkedin.com" || host.endsWith(".linkedin.com"))) {
+      if (parts[0]?.toLowerCase() === "posts" && parts[1]) {
+        return parts[1].match(/^(.+?)_(?:.*?activity-\d+|activity-\d+)/i)?.[1] ?? null;
+      }
+      if (["in", "company"].includes(parts[0]?.toLowerCase()) && parts[1]) return parts[1];
+    }
+    if (platform === "instagram" && (host === "instagram.com" || host.endsWith(".instagram.com"))) {
+      if (parts[0] && !["p", "reel", "reels", "tv"].includes(parts[0].toLowerCase())) return parts[0];
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeTargetedAuthorHandle(value) {
+  return String(value ?? "").normalize("NFKC").trim().replace(/^@/, "").toLowerCase() || null;
+}
+
+function parseTargetedRawObject(value) {
+  if (value && typeof value === "object" && !Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(String(value ?? ""));
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function targetedCatalogEntityKey(batchSlug, entityType, entityId) {
+  return `${batchSlug ?? ""}:${entityType ?? ""}:${entityId ?? ""}`;
+}
+
+function canonicalTargetedAttributionResolution(row, { catalog, company, founder }, reason) {
+  const entityType = founder ? "founder" : "company";
+  const entityId = founder?.sourceKey ?? company.sourceKey;
+  const currentBatch = row?.batchSlug ?? row?.batch_slug ?? catalog.slug;
+  const currentType = row?.entityType ?? row?.entity_type ?? "company";
+  const currentId = row?.entityId ?? row?.entity_id;
+  const changedTarget = currentBatch !== catalog.slug || currentType !== entityType || currentId !== entityId;
+  return {
+    changedTarget,
+    reason,
+    row: {
+      ...row,
+      batchSlug: catalog.slug,
+      entityType,
+      entityId,
+      entityName: founder?.name ?? company.name,
+      companySlug: autonomousCompanySlug(company),
+      companyName: company.name,
+      attachedCompanyId: company.sourceKey,
+      ...(changedTarget
+        ? {
+            previousAttribution: {
+              batchSlug: currentBatch,
+              entityType: currentType,
+              entityId: currentId,
+              companySlug: row?.companySlug ?? row?.company_slug ?? null,
+              companyName: row?.companyName ?? row?.company_name ?? null
+            },
+            attributionReconciliationReason: reason
+          }
+        : {})
+    }
+  };
+}
+
 export function buildLegacyPublicEvidenceBatchResolver(catalogs) {
   const companyBatchesByAlias = new Map();
   const founderBatchesByAlias = new Map();
@@ -377,7 +630,10 @@ export function validateAutonomousCollectorMatrix(results, batches = AUTONOMOUS_
   return results;
 }
 
-export function validateMappedAutonomousCoverage(coverage) {
+export function validateMappedAutonomousCoverage(
+  coverage,
+  { allowTerminalFailures = false } = {}
+) {
   const expected = coverage?.mappedExpected ?? 0;
   const succeeded = coverage?.mappedSucceeded ?? 0;
   const needsReview = coverage?.mappedNeedsReview ?? 0;
@@ -385,7 +641,8 @@ export function validateMappedAutonomousCoverage(coverage) {
   const failed = coverage?.mappedFailed ?? 0;
   const nonTerminal = coverage?.mappedNonTerminal ?? 0;
   const classified = succeeded + needsReview + blockedOrEmpty;
-  if (classified !== expected || failed || nonTerminal) {
+  const terminallyAccounted = classified + (allowTerminalFailures ? failed : 0);
+  if (terminallyAccounted !== expected || (!allowTerminalFailures && failed) || nonTerminal) {
     throw new Error(
       "Mapped collector coverage was incomplete: " +
       `${classified}/${expected} classified (${succeeded} with native evidence), ${needsReview} need review, ` +
@@ -864,18 +1121,25 @@ export function mergePublicEvidenceSnapshots(
     fetchedAt = new Date().toISOString(),
     durableStorageConfigured = true,
     resolveBatchSlug = null,
-    resolveNativeAuthor = null
+    resolveNativeAuthor = null,
+    contentIdentityReferenceRows = []
   } = {}
 ) {
   const acceptedEvidence = [];
   const quarantinedEvidence = [];
   const reconciliationCandidates = [];
+  const acceptedOrigins = new Map();
   for (const snapshot of snapshots) {
+    reconciliationCandidates.push(...(snapshot.attributionReconciliationLedger ?? []));
     for (const sourceRow of snapshot.evidence ?? []) {
       const originalRow = withSnapshotRowBatch(sourceRow, snapshot, resolveBatchSlug);
-      const nativeAuthorResolution = typeof resolveNativeAuthor === "function"
+      const freshNativeAuthorResolution = typeof resolveNativeAuthor === "function"
         ? resolveNativeAuthor(originalRow)
         : null;
+      const nativeAuthorResolution = replayStableNativeAuthorResolution(
+        originalRow,
+        freshNativeAuthorResolution
+      );
       const nativeResolutionRow = nativeAuthorResolution
         ? { ...originalRow, nativeAuthorResolution }
         : originalRow;
@@ -899,6 +1163,10 @@ export function mergePublicEvidenceSnapshots(
       });
       if (validation.ok) {
         acceptedEvidence.push(validation.row);
+        acceptedOrigins.set(reconciliationPhysicalAttributionIdentity(
+          reconciliationPhysicalIdentity(validation.row),
+          publicAttribution(validation.row)
+        ), originalRow);
         if (!samePublicAttribution(publicAttribution(originalRow), publicAttribution(validation.row))) {
           reconciliationCandidates.push(reconciliationCandidate(
             originalRow,
@@ -924,16 +1192,71 @@ export function mergePublicEvidenceSnapshots(
     for (const sourceReviewRow of snapshot.needsReview ?? []) {
       const reviewRow = withSnapshotReviewBatch(sourceReviewRow, snapshot, resolveBatchSlug);
       const directive = reviewRow?.attributionReconciliationDirective;
-      if (directive?.disposition !== "quarantined") continue;
-      reconciliationCandidates.push(explicitQuarantineReconciliationCandidate(reviewRow, directive));
+      if (!directive) continue;
+      reconciliationCandidates.push(explicitReviewReconciliationCandidate(reviewRow, directive));
     }
   }
-  const evidence = dedupeRows(acceptedEvidence, evidenceKey);
+  const contentReconciliation = reconcileMergedPublicContentIdentities(
+    acceptedEvidence,
+    contentIdentityReferenceRows,
+    resolveBatchSlug
+  );
+  // Refreshes and URL aliases for one exact attribution are ordinary updates,
+  // not review-worthy duplicates. Collapse those first, then prevent only a
+  // distinct company/founder attribution in the same company rollup from
+  // scoring the same physical post twice.
+  const attributionDedupedEvidence = dedupeRows(contentReconciliation.evidence, evidenceKey);
+  const physicalRollupReconciliation = reconcileMergedPublicRollupPhysicalIdentities(
+    attributionDedupedEvidence
+  );
+  const duplicateEvidence = [
+    ...contentReconciliation.duplicates,
+    ...physicalRollupReconciliation.duplicates
+  ];
+  const duplicateReplacementTargets = new Set();
+  for (const duplicate of duplicateEvidence) {
+    const duplicateTarget = reconciliationPhysicalAttributionIdentity(
+      reconciliationPhysicalIdentity(duplicate.row),
+      publicAttribution(duplicate.row)
+    );
+    if (duplicateTarget) duplicateReplacementTargets.add(duplicateTarget);
+    quarantinedEvidence.push(quarantinedPublicEvidence(
+      duplicate.row,
+      [duplicate.reason],
+      {
+        duplicateOf: {
+          id: duplicate.duplicateOf?.id ?? null,
+          sourceUrl: duplicate.duplicateOf?.sourceUrl ?? null,
+          platformPostId: duplicate.duplicateOf?.platformPostId ?? null
+        },
+        contentBodySha256: duplicate.contentIdentity?.bodySha256 ?? null
+      }
+    ));
+    if ([
+      "same_platform_author_substantive_body",
+      "same_rollup_physical_post_identity"
+    ].includes(duplicate.reason)) {
+      const originalRow = acceptedOrigins.get(duplicateTarget) ?? duplicate.row;
+      reconciliationCandidates.push(reconciliationCandidate(
+        originalRow,
+        null,
+        "quarantined",
+        duplicate.reason
+      ));
+    }
+  }
+  const evidence = physicalRollupReconciliation.evidence;
   const attributionReconciliationLedger = finalizeAttributionReconciliationLedger(
-    reconciliationCandidates,
+    reconciliationCandidates.filter((candidate) =>
+      candidate?.disposition !== "reattributed" ||
+      !duplicateReplacementTargets.has(reconciliationPhysicalAttributionIdentity(
+        reconciliationPhysicalIdentity(candidate),
+        candidate.replacementAttribution
+      ))
+    ),
     evidence
   );
-  const needsReview = dedupeRows(
+  const needsReview = dedupeReviewRows(
     [
       ...snapshots.flatMap((snapshot) =>
         (snapshot.needsReview ?? []).map((row) => withSnapshotReviewBatch(row, snapshot, resolveBatchSlug))
@@ -941,7 +1264,7 @@ export function mergePublicEvidenceSnapshots(
       ...quarantinedEvidence
     ],
     reviewEvidenceKey
-  );
+  ).map(stableJsonObjectKeyOrder);
   const failures = dedupeRows(
     snapshots.flatMap((snapshot) =>
       (snapshot.failures ?? []).map((row) => withSnapshotRowBatch(row, snapshot, resolveBatchSlug))
@@ -964,6 +1287,10 @@ export function mergePublicEvidenceSnapshots(
       evidenceCount: evidence.length,
       needsReviewCount: needsReview.length,
       quarantinedEvidenceCount: quarantinedEvidence.length,
+      duplicateContentEvidenceCount: contentReconciliation.duplicates.filter(
+        (row) => row.reason === "same_platform_author_substantive_body"
+      ).length,
+      duplicatePhysicalEvidenceCount: physicalRollupReconciliation.duplicates.length,
       attributionReconciliationCount: attributionReconciliationLedger.length,
       failureCount: failures.length,
       discoveryAttemptCount: discoveryAttempts.length,
@@ -1471,12 +1798,284 @@ function evidenceKey(row) {
   return `${rowBatchScope(row)}:${entityId}:${platform}:post:${physicalIdentity.urlId ?? physicalIdentity.explicitId}`;
 }
 
+function reconcileMergedPublicContentIdentities(rows, referenceRows, resolveBatchSlug) {
+  const referenceIndex = new Map();
+  const acceptedIndex = new Map();
+  const evidence = [];
+  const duplicates = [];
+
+  for (const sourceRow of referenceRows ?? []) {
+    const row = scopedContentIdentityRow(sourceRow, resolveBatchSlug);
+    const contentIdentity = mergedPublicSourceContentIdentity(row);
+    if (!contentIdentity) continue;
+    indexMergedContentIdentity(referenceIndex, row, contentIdentity);
+  }
+
+  for (const sourceRow of [...rows].sort(compareMergedContentPreference)) {
+    const row = scopedContentIdentityRow(sourceRow, resolveBatchSlug);
+    const contentIdentity = mergedPublicSourceContentIdentity(row);
+    if (!contentIdentity) {
+      evidence.push(row);
+      continue;
+    }
+    const scope = mergedContentAttributionScope(row);
+    const physicalIdentity = reconciliationPhysicalIdentity(row);
+    let duplicate = null;
+    for (const contentKey of contentIdentity.keys) {
+      const key = `${scope}:${contentKey}`;
+      const candidates = [
+        ...(referenceIndex.get(key) ?? []),
+        ...(acceptedIndex.get(key) ?? [])
+      ];
+      duplicate = candidates.find((candidate) =>
+        sourceAuthorsCompatible(contentIdentity, candidate.contentIdentity) &&
+        publicationTimesCompatible(contentIdentity, candidate.contentIdentity) &&
+        candidate.physicalIdentity !== physicalIdentity
+      ) ?? null;
+      if (duplicate) break;
+    }
+    if (duplicate) {
+      duplicates.push({
+        row,
+        reason: "same_platform_author_substantive_body",
+        duplicateOf: duplicate.row,
+        contentIdentity
+      });
+      continue;
+    }
+    evidence.push(row);
+    indexMergedContentIdentity(acceptedIndex, row, contentIdentity);
+  }
+  return { evidence, duplicates };
+}
+
+function reconcileMergedPublicRollupPhysicalIdentities(rows) {
+  const retainedByIdentity = new Map();
+  const evidence = [];
+  const duplicates = [];
+
+  for (const row of rows) {
+    const key = mergedPublicRollupPhysicalIdentity(row);
+    if (!key) {
+      evidence.push(row);
+      continue;
+    }
+    const retained = retainedByIdentity.get(key);
+    if (!retained) {
+      retainedByIdentity.set(key, { row, index: evidence.length });
+      evidence.push(row);
+      continue;
+    }
+
+    const rowWins = compareMergedRollupPhysicalPreference(row, retained.row) < 0;
+    const winner = rowWins ? row : retained.row;
+    const duplicate = rowWins ? retained.row : row;
+    if (rowWins) {
+      evidence[retained.index] = row;
+      retainedByIdentity.set(key, { row, index: retained.index });
+    }
+    duplicates.push({
+      row: duplicate,
+      reason: "same_rollup_physical_post_identity",
+      duplicateOf: winner,
+      contentIdentity: mergedPublicSourceContentIdentity(duplicate)
+    });
+  }
+
+  return { evidence, duplicates };
+}
+
+function mergedPublicRollupPhysicalIdentity(row) {
+  const physicalIdentity = reconciliationPhysicalIdentity(row);
+  const companyRollup = row?.companySlug ?? row?.company_slug ??
+    row?.nativeAuthorResolution?.owner?.companySlug ?? null;
+  if (!physicalIdentity || !companyRollup) return null;
+  return [
+    rowBatchScope(row),
+    String(companyRollup).trim().toLowerCase(),
+    physicalIdentity
+  ].join(":");
+}
+
+function compareMergedRollupPhysicalPreference(left, right) {
+  const ownerOrder = mergedNativeOwnerMatchScore(right) - mergedNativeOwnerMatchScore(left);
+  if (ownerOrder) return ownerOrder;
+  const modeOrder = mergedAttributionModeScore(right) - mergedAttributionModeScore(left);
+  if (modeOrder) return modeOrder;
+  const entityOrder = mergedRollupEntityScore(right) - mergedRollupEntityScore(left);
+  if (entityOrder) return entityOrder;
+  const timestampOrder = rowTimestamp(right) - rowTimestamp(left);
+  if (timestampOrder) return timestampOrder;
+  const metricOrder = mergedVisibleMetricTotal(right?.metrics) - mergedVisibleMetricTotal(left?.metrics);
+  if (metricOrder) return metricOrder;
+  const leftAttribution = `${left?.entityType ?? left?.entity_type ?? "company"}:${left?.entityId ?? left?.entity_id ?? ""}`;
+  const rightAttribution = `${right?.entityType ?? right?.entity_type ?? "company"}:${right?.entityId ?? right?.entity_id ?? ""}`;
+  const attributionOrder = leftAttribution.localeCompare(rightAttribution);
+  if (attributionOrder) return attributionOrder;
+  const urlOrder = String(canonicalUrl(left?.sourceUrl ?? left?.canonicalUrl ?? left?.url) ?? "")
+    .localeCompare(String(canonicalUrl(right?.sourceUrl ?? right?.canonicalUrl ?? right?.url) ?? ""));
+  return urlOrder || String(left?.id ?? "").localeCompare(String(right?.id ?? ""));
+}
+
+function mergedNativeOwnerMatchScore(row) {
+  const resolution = row?.nativeAuthorResolution;
+  const owner = resolution?.owner;
+  return resolution?.status === "matched" &&
+    String(owner?.batchSlug ?? "").toUpperCase() === rowBatchScope(row) &&
+    String(owner?.entityType ?? "company") === String(row?.entityType ?? row?.entity_type ?? "company") &&
+    String(owner?.entityId ?? "") === String(row?.entityId ?? row?.entity_id ?? "")
+    ? 1
+    : 0;
+}
+
+function mergedAttributionModeScore(row) {
+  return ["account_owner", "native_author"].includes(
+    String(row?.attributionMode ?? row?.attribution_mode ?? "").toLowerCase()
+  ) ? 1 : 0;
+}
+
+function mergedRollupEntityScore(row) {
+  return String(row?.entityType ?? row?.entity_type ?? "company") === "company" ? 1 : 0;
+}
+
+function scopedContentIdentityRow(row, resolveBatchSlug) {
+  if (typeof resolveBatchSlug !== "function") return row;
+  return withCanonicalRowBatch(row, resolveBatchSlug(row));
+}
+
+function mergedContentAttributionScope(row) {
+  return [
+    rowBatchScope(row),
+    row?.entityType ?? row?.entity_type ?? "company",
+    row?.entityId ?? row?.entity_id ?? "unknown-entity"
+  ].join(":");
+}
+
+function mergedPublicSourceContentIdentity(row) {
+  const raw = parseMergedVisiblePayload(row?.rawVisibleText);
+  const rawAuthor = mergedVisibleAuthor(row?.rawVisibleText, raw);
+  return sourceContentIdentity({
+    platform: normalizePlatform(row?.platform),
+    authorName: row?.authorName ?? row?.voiceName ?? raw?.post?.authorName ??
+      raw?.profile?.name ?? raw?.name ?? raw?.author?.name ?? rawAuthor.name,
+    authorHandle: row?.authorHandle ?? raw?.post?.authorHandle ?? raw?.profile?.username ??
+      raw?.author?.handle ?? raw?.author?.username ?? raw?.author?.screen_name ??
+      (typeof raw?.author === "string" ? raw.author : null) ?? rawAuthor.handle,
+    authorUrl: row?.authorUrl ?? raw?.profile?.url ?? raw?.author?.url,
+    accountUrl: row?.accountUrl,
+    sourceUrl: row?.sourceUrl ?? row?.canonicalUrl ?? row?.url,
+    fallbackAuthorName: row?.entityName ?? row?.companyName,
+    body: row?.text ?? row?.content ?? row?.body,
+    postedAt: row?.postedAt ?? row?.publishedAt
+  });
+}
+
+function mergedVisibleAuthor(rawValue, parsed) {
+  if (parsed) {
+    return {
+      name: parsed?.post?.authorName ?? parsed?.post?.name ?? parsed?.profile?.name ??
+        parsed?.name ?? parsed?.author?.name ?? null,
+      handle: parsed?.post?.authorHandle ?? parsed?.post?.username ?? parsed?.profile?.username ??
+        parsed?.author?.handle ?? parsed?.author?.username ?? parsed?.author?.screen_name ??
+        (typeof parsed?.author === "string" ? parsed.author : null)
+    };
+  }
+  const text = String(rawValue ?? "").normalize("NFKC");
+  const linkedInFeed = text.match(/\bFeed\s+post\s+number\s+\d+\s+(.{2,80}?)\s+\1\s+Follow\b/i);
+  const xHeader = text.match(/^\s*([^\n@]{2,80})\s*\n\s*@([A-Za-z0-9_]{1,30})\b/m);
+  return {
+    name: linkedInFeed?.[1]?.trim() ?? xHeader?.[1]?.trim() ?? null,
+    handle: xHeader?.[2] ?? null
+  };
+}
+
+function parseMergedVisiblePayload(value) {
+  if (value && typeof value === "object" && !Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(String(value ?? ""));
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function indexMergedContentIdentity(index, row, contentIdentity) {
+  const scope = mergedContentAttributionScope(row);
+  const indexed = {
+    row,
+    contentIdentity,
+    physicalIdentity: reconciliationPhysicalIdentity(row)
+  };
+  for (const contentKey of contentIdentity.keys) {
+    const key = `${scope}:${contentKey}`;
+    index.set(key, [...(index.get(key) ?? []), indexed]);
+  }
+}
+
+function compareMergedContentPreference(left, right) {
+  const leftPlatform = normalizePlatform(left?.platform);
+  const rightPlatform = normalizePlatform(right?.platform);
+  const leftId = String(left?.platformPostId ?? "");
+  const rightId = String(right?.platformPostId ?? "");
+  if (leftPlatform === "x" && rightPlatform === "x" && /^\d+$/.test(leftId) && /^\d+$/.test(rightId)) {
+    const idOrder = BigInt(leftId) < BigInt(rightId) ? -1 : BigInt(leftId) > BigInt(rightId) ? 1 : 0;
+    if (idOrder) return idOrder;
+  }
+  const leftFirstSeen = Date.parse(left?.first_seen_at ?? "");
+  const rightFirstSeen = Date.parse(right?.first_seen_at ?? "");
+  if (Number.isFinite(leftFirstSeen) !== Number.isFinite(rightFirstSeen)) {
+    return Number.isFinite(leftFirstSeen) ? -1 : 1;
+  }
+  if (Number.isFinite(leftFirstSeen) && leftFirstSeen !== rightFirstSeen) {
+    return leftFirstSeen - rightFirstSeen;
+  }
+  const metricOrder = mergedVisibleMetricTotal(right?.metrics) - mergedVisibleMetricTotal(left?.metrics);
+  return metricOrder || String(left?.id ?? leftId).localeCompare(String(right?.id ?? rightId));
+}
+
+function mergedVisibleMetricTotal(metrics) {
+  return Object.values(metrics ?? {}).reduce(
+    (total, value) => total + (typeof value === "number" && Number.isFinite(value) && value > 0 ? value : 0),
+    0
+  );
+}
+
+function replayStableNativeAuthorResolution(row, resolution) {
+  if (!resolution || resolution.status !== "matched") return resolution;
+  const prior = row?.nativeAuthorResolution;
+  const sameOwner = prior?.status === "matched" &&
+    String(prior.owner?.batchSlug ?? "") === String(resolution.owner?.batchSlug ?? "") &&
+    String(prior.owner?.entityType ?? "") === String(resolution.owner?.entityType ?? "") &&
+    String(prior.owner?.entityId ?? "") === String(resolution.owner?.entityId ?? "");
+  if (!sameOwner || prior.changed !== true) return resolution;
+  return {
+    ...resolution,
+    changed: true,
+    ...(prior.previousAttribution
+      ? { previousAttribution: prior.previousAttribution }
+      : {})
+  };
+}
+
 function reviewEvidenceKey(row) {
   const platform = normalizePlatform(row.platform ?? "other");
-  const entityId = evidenceEntityAttribution(row);
+  const entityType = row?.entityType ?? row?.entity_type ?? "company";
+  const companySlug = row?.companySlug ?? row?.company_slug;
+  const entityId = entityType === "company" && companySlug
+    ? `company-rollup:${String(companySlug).toLowerCase()}:${reviewReasonIdentity(row)}`
+    : evidenceEntityAttribution(row);
   const candidate = canonicalUrl(row.candidateUrl ?? row.sourceUrl ?? row.canonicalUrl ?? row.url) ??
     row.platformPostId ?? row.platform_post_id ?? row.platformObjectId ?? row.nativeId ?? row.id ?? row.title;
   return `${rowBatchScope(row)}:${entityId}:${platform}:${candidate ?? "unknown-review"}`;
+}
+
+function reviewReasonIdentity(row) {
+  return JSON.stringify([
+    [...(row?.quarantineReasons ?? [])].sort(),
+    row?.attributionReconciliationDirective?.disposition ?? null,
+    row?.attributionReconciliationDirective?.reason ?? null,
+    String(row?.matchReason ?? "").replace(/\s+/g, " ").trim()
+  ]);
 }
 
 function evidenceEntityAttribution(row) {
@@ -1507,26 +2106,34 @@ function reconciliationCandidate(originalRow, replacementRow, disposition, reaso
   };
 }
 
-function explicitQuarantineReconciliationCandidate(reviewRow, directive) {
+function explicitReviewReconciliationCandidate(reviewRow, directive) {
   const platform = normalizePlatform(directive?.platform ?? reviewRow?.platform ?? "");
   const sourceUrl = canonicalUrl(directive?.sourceUrl ?? reviewRow?.sourceUrl ?? reviewRow?.candidateUrl);
   const identity = mergedPublicEvidenceIdentity(platform, {
     sourceUrl,
     platformPostId: directive?.platformPostId ?? reviewRow?.platformPostId
   });
-  if (!identity.urlId || identity.conflict || !directive?.reason) return null;
+  if (
+    !identity.urlId ||
+    identity.conflict ||
+    !directive?.reason ||
+    !["quarantined", "reattributed"].includes(directive.disposition)
+  ) return null;
   return {
     platform,
     sourceUrl,
     platformPostId: identity.urlId,
-    disposition: "quarantined",
+    disposition: directive.disposition,
     reason: directive.reason,
     staleAttribution: {
       ...publicAttribution(reviewRow),
       ...(directive.staleAttribution ?? {}),
       batchSlug: directive.staleAttribution?.batchSlug ??
         reviewRow.batchSlug ?? reviewRow.batch_slug ?? null
-    }
+    },
+    ...(directive.disposition === "reattributed" && directive.replacementAttribution
+      ? { replacementAttribution: directive.replacementAttribution }
+      : {})
   };
 }
 
@@ -1537,10 +2144,17 @@ function finalizeAttributionReconciliationLedger(candidates, acceptedEvidence) {
       publicAttribution(row)
     )).filter(Boolean)
   );
+  const viableCandidates = candidates.filter(Boolean).filter((candidate) =>
+    candidate.disposition !== "reattributed" ||
+    acceptedAttributionTargets.has(reconciliationPhysicalAttributionIdentity(
+      reconciliationPhysicalIdentity(candidate),
+      candidate.replacementAttribution
+    ))
+  );
   const ledger = [];
   const seen = new Set();
   const reattributedStaleTargets = new Set(
-    candidates
+    viableCandidates
       .filter((candidate) => candidate?.disposition === "reattributed")
       .map((candidate) => reconciliationPhysicalAttributionIdentity(
         reconciliationPhysicalIdentity(candidate),
@@ -1548,7 +2162,7 @@ function finalizeAttributionReconciliationLedger(candidates, acceptedEvidence) {
       ))
       .filter(Boolean)
   );
-  for (const candidate of candidates.filter(Boolean)) {
+  for (const candidate of viableCandidates) {
     const physicalIdentity = reconciliationPhysicalIdentity(candidate);
     // A stale generic-search row may be present beside a newly refreshed and
     // accepted receipt for the exact same physical post. The accepted row wins;
@@ -1629,6 +2243,11 @@ function validateMergedPublicEvidence(
   if (metricValidation.unsupported.length > 0) {
     reasons.push(`unsupported_metrics:${metricValidation.unsupported.join(",")}`);
   }
+  if (platform === "linkedin" && row?.linkedinParentMetricReceipt?.status === "unproven") {
+    reasons.push(
+      row.linkedinParentMetricReceipt.reason ?? "linkedin_parent_engagement_not_structurally_verified"
+    );
+  }
   if (!metricValidation.hasPositiveScoringMetric) reasons.push("no_visible_positive_scoring_metrics");
 
   let semanticAttribution = null;
@@ -1648,6 +2267,10 @@ function validateMergedPublicEvidence(
       reasons.push(`semantic_attribution:${semanticAttribution.reason}`);
       attributionFailure = true;
       reconciliationEligible ||= mergedSemanticAttributionCertainRejection(semanticAttribution);
+    } else if (genericYoutubeChannelBrandOnlyWithoutProductionEntitySignal(row, semanticAttribution)) {
+      reasons.push("generic_youtube_channel_brand_only_without_production_entity_signal");
+      attributionFailure = true;
+      reconciliationEligible = true;
     }
   }
 
@@ -1674,7 +2297,10 @@ function validateMergedPublicEvidence(
             attributionMode: mergedPublicAttributionMode(row),
             attributionSignals: semanticAttribution.signals,
             attributionDescriptorMatches: semanticAttribution.descriptorMatches,
-            matchReason: `${row.matchReason ?? "Verified public evidence."}${conflictingBatchNote}`
+            matchReason: appendPublicReasonOnce(
+              row.matchReason ?? "Verified public evidence.",
+              conflictingBatchNote
+            )
           }
         : {})
     },
@@ -1864,8 +2490,10 @@ function mergedFounderToCompanySubjectReassignment(row, resolveNativeAuthor, nat
   }
   resolvedCompanyRow = {
     ...resolvedCompanyRow,
-    matchReason: `${row.matchReason ?? "Verified public evidence."} ` +
+    matchReason: appendPublicReasonOnce(
+      row.matchReason ?? "Verified public evidence.",
       `Assigned founder was not established by the primary post; unique exact company evidence reassigned this physical post to company ${resolvedCompanyRow.companyName}.`
+    )
   };
   return {
     row: resolvedCompanyRow,
@@ -1912,6 +2540,13 @@ function mergedAssignedFounderNameMentioned(row, company, nativeAuthorResolution
   if (name.split(/\s+/).filter(Boolean).length < 2) return false;
   if (containsExactTokenSequence(publicEvidenceAttributionText(row), name)) return true;
   return String(nativeAuthorResolution?.author?.key ?? "").toLowerCase() === slugify(name);
+}
+
+function appendPublicReasonOnce(reason, note) {
+  const base = String(reason ?? "").trim();
+  const addition = String(note ?? "").trim();
+  if (!addition || base.includes(addition)) return base;
+  return `${base}${base ? " " : ""}${addition}`;
 }
 
 function mergedCompanyBrandMatchesChannel(companyName, channelName) {
@@ -2009,16 +2644,36 @@ function validGenericYouTubeAttributionReceipt(row) {
     Boolean(row?.youtubeChannelId || row?.youtubeChannelUrl);
 }
 
+function genericYoutubeChannelBrandOnlyWithoutProductionEntitySignal(row, assessment) {
+  if (!isGenericSearchYouTubeRow(row)) return false;
+  if (assessment?.expectedBatch || (assessment?.descriptorMatches?.length ?? 0) > 0) return false;
+  if (
+    assessment?.signals?.length !== 1 ||
+    assessment.signals[0] !== "native_channel_brand"
+  ) {
+    return false;
+  }
+
+  const companyTokens = String(row?.companyName ?? "").toLowerCase().match(/[a-z0-9]+/g) ?? [];
+  const shortSingleTokenBrand = companyTokens.length === 1 && companyTokens[0].length <= 4;
+  const channelName = String(row?.youtubeChannelName ?? "");
+  const unrelatedInstitutionalQualifier = companyTokens.length === 1 &&
+    containsExactTokenSequence(channelName, row?.companyName) &&
+    /\b(?:academy|association|bank|college|foundation|hospital|institute|school|university)\b/i.test(channelName);
+  return shortSingleTokenBrand || unrelatedInstitutionalQualifier;
+}
+
 function mergedSemanticAttributionCertainRejection(assessment) {
   if (assessment?.verified) return false;
   if (assessment?.reason === "company_name_token_boundary_mismatch") return true;
+  if (assessment?.reason === "list_or_roundup_without_target_specific_owner_anchor") return true;
   if (assessment?.reason === "collision_prone_name_without_independent_anchor") {
     return !assessment.expectedBatch;
   }
   return false;
 }
 
-function quarantinedPublicEvidence(row, reasons) {
+function quarantinedPublicEvidence(row, reasons, metadata = null) {
   const sourceId = row.id ?? `${evidenceEntityAttribution(row)}-${row.platform ?? "unknown"}`;
   return {
     ...row,
@@ -2027,7 +2682,8 @@ function quarantinedPublicEvidence(row, reasons) {
     candidateUrl: row.sourceUrl ?? row.canonicalUrl ?? row.url ?? null,
     review_state: "needs_review",
     quarantineReasons: reasons,
-    matchReason: `Quarantined during public evidence merge: ${reasons.join("; ")}.`
+    matchReason: `Quarantined during public evidence merge: ${reasons.join("; ")}.`,
+    ...(metadata ? { duplicateEvidenceIdentity: metadata } : {})
   };
 }
 
@@ -2243,6 +2899,59 @@ function dedupeRows(rows, keyForRow) {
     }
   }
   return [...byKey.values()];
+}
+
+function dedupeReviewRows(rows, keyForRow) {
+  const byKey = new Map();
+  for (const row of rows) {
+    const key = keyForRow(row);
+    const previous = byKey.get(key);
+    if (!previous) {
+      byKey.set(key, row);
+      continue;
+    }
+    const previousHasExactQuarantine = Array.isArray(previous?.quarantineReasons) &&
+      previous.quarantineReasons.length > 0;
+    const rowHasExactQuarantine = Array.isArray(row?.quarantineReasons) &&
+      row.quarantineReasons.length > 0;
+    const previousCanonicalAttribution = canonicalReviewAttributionScore(previous);
+    const rowCanonicalAttribution = canonicalReviewAttributionScore(row);
+    const rowWins = rowHasExactQuarantine !== previousHasExactQuarantine
+      ? rowHasExactQuarantine
+      : rowCanonicalAttribution !== previousCanonicalAttribution
+        ? rowCanonicalAttribution > previousCanonicalAttribution
+        : rowTimestamp(row) >= rowTimestamp(previous);
+    const selected = rowWins ? row : previous;
+    const alternate = rowWins ? previous : row;
+    byKey.set(key, {
+      ...selected,
+      ...(!selected.attributionReconciliationDirective && alternate.attributionReconciliationDirective
+        ? { attributionReconciliationDirective: alternate.attributionReconciliationDirective }
+        : {})
+    });
+  }
+  return [...byKey.values()];
+}
+
+function canonicalReviewAttributionScore(row) {
+  if ((row?.entityType ?? row?.entity_type ?? "company") !== "company") return 0;
+  const companySlug = String(row?.companySlug ?? row?.company_slug ?? "").toLowerCase();
+  const entityId = String(row?.entityId ?? row?.entity_id ?? "").toLowerCase();
+  if (!companySlug || !entityId) return 0;
+  const expected = rowBatchScope(row) === "A16ZSR006"
+    ? `a16z-speedrun-006-${companySlug}`
+    : `company-${companySlug}`;
+  return entityId === expected ? 1 : 0;
+}
+
+function stableJsonObjectKeyOrder(value) {
+  if (Array.isArray(value)) return value.map(stableJsonObjectKeyOrder);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.keys(value)
+      .sort((left, right) => left.localeCompare(right))
+      .map((key) => [key, stableJsonObjectKeyOrder(value[key])])
+  );
 }
 
 function rowTimestamp(row) {
