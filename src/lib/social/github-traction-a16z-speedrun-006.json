@@ -4,15 +4,15 @@
     "batchSlug": "A16ZSR006",
     "batchLabel": "a16z Speedrun 006",
     "sourcePath": "src/lib/graph/a16z-speedrun-006-dataset.ts",
-    "fetchedAt": "2026-07-19T06:29:30.365Z",
-    "targetCount": 18,
-    "fetchedCount": 17,
+    "fetchedAt": "2026-07-20T01:37:02.923Z",
+    "targetCount": 2,
+    "fetchedCount": 1,
     "discovery": {
       "explicitTargetCount": 0,
-      "discoveredTargetCount": 22,
+      "discoveredTargetCount": 2,
       "websiteTargets": 2,
-      "searchTargets": 20,
-      "searchesUsed": 80,
+      "searchTargets": 0,
+      "searchesUsed": 0,
       "searchFailures": []
     },
     "notes": [
@@ -21,9 +21,9 @@
       "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
       "a16z Speedrun 006 profiles in the local graph dataset do not include explicit GitHub social links, so official company websites are scanned by default.",
       "GitHub search discovery is available with --search for conservative same-domain or same-owner matches; use --no-website to disable official website discovery.",
-      "Validation excluded 1 new GitHub-search candidate whose company-to-repository attribution was not verified."
+      "Retained 1 last-good account rows after failed refreshes."
     ],
-    "retainedLastGood": 0
+    "retainedLastGood": 1
   },
   "accounts": [
     {

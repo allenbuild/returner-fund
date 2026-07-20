@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "GitHub public API for official YC Summer 2026 GitHub links",
-    "fetchedAt": "2026-07-19T06:27:12.726Z",
+    "fetchedAt": "2026-07-20T01:37:02.923Z",
     "targetCount": 21,
     "fetchedCount": 20,
     "discovery": {
@@ -18,13 +18,12 @@
       "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
       "Only GitHub URLs explicitly listed on public YC Summer 2026 company profiles are scored by default.",
       "GitHub search discovery is available with --search, but is disabled by default because same-name repositories need review before scoring.",
-      "Validation excluded 2 fetched account-only targets with no visible non-fork repository rows; account existence is not traction.",
-      "Retained 1 repository-backed historical account row used by the current Bylaw-to-Definite rename mapping."
+      "Retained 1 last-good account rows after failed refreshes."
     ],
     "batchSlug": "S26",
     "batchLabel": "YC Summer 2026 (S26)",
     "sourcePath": "src/lib/yc/summer-2026-companies.json",
-    "retainedLastGood": 0
+    "retainedLastGood": 1
   },
   "accounts": [
     {
@@ -46,7 +45,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/coasty-ai",
         "bio": "Open Source Large Scale LLM Frontier Research seeing \"impossible\" as \"not yet solved.\"",
-        "followers": 25,
+        "followers": 26,
         "following": 0,
         "publicRepos": 5,
         "publicGists": 0,
@@ -55,11 +54,11 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 114,
+        "totalStars": 115,
         "totalForks": 24,
-        "totalWatchers": 114,
+        "totalWatchers": 115,
         "maxRepoScore": 100,
-        "profileScore": 96
+        "profileScore": 97
       },
       "repos": [
         {
@@ -68,13 +67,13 @@
           "fullName": "coasty-ai/open-cowork",
           "description": "Open-source alternative to Claude Co-Work built by Claude Mythos 5. with BYOK",
           "htmlUrl": "https://github.com/coasty-ai/open-cowork",
-          "stars": 114,
+          "stars": 115,
           "forks": 24,
-          "watchers": 114,
+          "watchers": 115,
           "openIssues": 0,
           "language": "TypeScript",
           "pushedAt": "2026-06-14T19:20:35Z",
-          "updatedAt": "2026-07-16T19:23:14Z",
+          "updatedAt": "2026-07-19T17:46:00Z",
           "createdAt": "2026-06-11T19:55:21Z",
           "score": 100
         }
@@ -108,9 +107,9 @@
       },
       "aggregate": {
         "repoCount": 12,
-        "totalStars": 20602,
-        "totalForks": 2040,
-        "totalWatchers": 20602,
+        "totalStars": 20624,
+        "totalForks": 2043,
+        "totalWatchers": 20624,
         "maxRepoScore": 100,
         "profileScore": 95
       },
@@ -121,13 +120,13 @@
           "fullName": "screenpipe/screenpipe",
           "description": "YC (S26) | Record your screen 24/7 and plug into your agents. Local, private, secure. Connect to OpenClaw, Hermes agent and 100+ apps",
           "htmlUrl": "https://github.com/screenpipe/screenpipe",
-          "stars": 20294,
-          "forks": 1994,
-          "watchers": 20294,
-          "openIssues": 81,
+          "stars": 20314,
+          "forks": 1997,
+          "watchers": 20314,
+          "openIssues": 87,
           "language": "Rust",
-          "pushedAt": "2026-07-19T03:45:23Z",
-          "updatedAt": "2026-07-19T06:00:53Z",
+          "pushedAt": "2026-07-19T15:48:13Z",
+          "updatedAt": "2026-07-20T00:40:51Z",
           "createdAt": "2024-06-19T13:23:56Z",
           "score": 100
         },
@@ -153,15 +152,15 @@
           "fullName": "screenpipe/audiopipe",
           "description": "Fast cross-platform speech-to-text inference on consumer device in Rust. MLX, DirectML, Metal, Vulkan.",
           "htmlUrl": "https://github.com/screenpipe/audiopipe",
-          "stars": 28,
+          "stars": 29,
           "forks": 9,
-          "watchers": 28,
+          "watchers": 29,
           "openIssues": 3,
           "language": "Rust",
           "pushedAt": "2026-07-10T17:35:32Z",
-          "updatedAt": "2026-07-18T18:07:33Z",
+          "updatedAt": "2026-07-20T00:41:38Z",
           "createdAt": "2026-02-27T18:32:39Z",
-          "score": 88
+          "score": 89
         },
         {
           "id": 1143661691,
@@ -244,6 +243,22 @@
           "score": 40
         },
         {
+          "id": 1242997202,
+          "name": "screenpipe-sdk-swift",
+          "fullName": "screenpipe/screenpipe-sdk-swift",
+          "description": "Swift Package Manager distribution of the Screenpipe SDK (source-available, enterprise-licensed). Mirrors ee/sdk from screenpipe/screenpipe.",
+          "htmlUrl": "https://github.com/screenpipe/screenpipe-sdk-swift",
+          "stars": 1,
+          "forks": 0,
+          "watchers": 1,
+          "openIssues": 1,
+          "language": "Swift",
+          "pushedAt": "2026-07-18T20:18:12Z",
+          "updatedAt": "2026-07-20T00:42:47Z",
+          "createdAt": "2026-05-19T00:44:10Z",
+          "score": 21
+        },
+        {
           "id": 1233360043,
           "name": "opf-rs",
           "fullName": "screenpipe/opf-rs",
@@ -290,22 +305,6 @@
           "updatedAt": "2026-06-18T01:21:32Z",
           "createdAt": "2026-03-05T19:56:05Z",
           "score": 9
-        },
-        {
-          "id": 1242997202,
-          "name": "screenpipe-sdk-swift",
-          "fullName": "screenpipe/screenpipe-sdk-swift",
-          "description": "Swift Package Manager distribution of the Screenpipe SDK (source-available, enterprise-licensed). Mirrors ee/sdk from screenpipe/screenpipe.",
-          "htmlUrl": "https://github.com/screenpipe/screenpipe-sdk-swift",
-          "stars": 0,
-          "forks": 0,
-          "watchers": 0,
-          "openIssues": 1,
-          "language": "Swift",
-          "pushedAt": "2026-07-18T20:18:12Z",
-          "updatedAt": "2026-06-05T16:51:38Z",
-          "createdAt": "2026-05-19T00:44:10Z",
-          "score": 9
         }
       ]
     },
@@ -337,9 +336,9 @@
       },
       "aggregate": {
         "repoCount": 2,
-        "totalStars": 1046,
-        "totalForks": 305,
-        "totalWatchers": 1046,
+        "totalStars": 1061,
+        "totalForks": 307,
+        "totalWatchers": 1061,
         "maxRepoScore": 100,
         "profileScore": 86
       },
@@ -350,13 +349,13 @@
           "fullName": "NebuSec/CyberMeowfia",
           "description": "PoCs and exploits for CVEs discovered by VEGA. ",
           "htmlUrl": "https://github.com/NebuSec/CyberMeowfia",
-          "stars": 1042,
-          "forks": 304,
-          "watchers": 1042,
+          "stars": 1057,
+          "forks": 306,
+          "watchers": 1057,
           "openIssues": 44,
           "language": "C",
-          "pushedAt": "2026-07-19T04:54:15Z",
-          "updatedAt": "2026-07-19T04:54:18Z",
+          "pushedAt": "2026-07-19T07:04:09Z",
+          "updatedAt": "2026-07-20T00:41:48Z",
           "createdAt": "2026-07-01T08:55:52Z",
           "score": 100
         },
@@ -406,9 +405,9 @@
       },
       "aggregate": {
         "repoCount": 3,
-        "totalStars": 157,
-        "totalForks": 16,
-        "totalWatchers": 157,
+        "totalStars": 160,
+        "totalForks": 17,
+        "totalWatchers": 160,
         "maxRepoScore": 100,
         "profileScore": 79
       },
@@ -419,13 +418,13 @@
           "fullName": "experientiallabs/world-model-harness",
           "description": "World-model-as-a-harness for simulating AI agent environments",
           "htmlUrl": "https://github.com/experientiallabs/world-model-harness",
-          "stars": 90,
-          "forks": 11,
-          "watchers": 90,
-          "openIssues": 29,
+          "stars": 93,
+          "forks": 12,
+          "watchers": 93,
+          "openIssues": 51,
           "language": "Python",
-          "pushedAt": "2026-07-19T06:21:22Z",
-          "updatedAt": "2026-07-18T09:11:16Z",
+          "pushedAt": "2026-07-20T00:35:10Z",
+          "updatedAt": "2026-07-19T21:31:04Z",
           "createdAt": "2026-06-24T22:40:57Z",
           "score": 100
         },
@@ -482,7 +481,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/ConiferKit",
         "bio": "Own your workspace",
-        "followers": 59,
+        "followers": 60,
         "following": 0,
         "publicRepos": 2,
         "publicGists": 0,
@@ -491,9 +490,9 @@
       },
       "aggregate": {
         "repoCount": 2,
-        "totalStars": 309,
+        "totalStars": 310,
         "totalForks": 12,
-        "totalWatchers": 309,
+        "totalWatchers": 310,
         "maxRepoScore": 100,
         "profileScore": 69
       },
@@ -504,13 +503,13 @@
           "fullName": "ConiferKit/sage",
           "description": "",
           "htmlUrl": "https://github.com/ConiferKit/sage",
-          "stars": 309,
+          "stars": 310,
           "forks": 12,
-          "watchers": 309,
+          "watchers": 310,
           "openIssues": 2,
           "language": "Shell",
           "pushedAt": "2026-07-16T13:13:07Z",
-          "updatedAt": "2026-07-19T05:56:49Z",
+          "updatedAt": "2026-07-19T10:52:47Z",
           "createdAt": "2026-06-01T23:51:01Z",
           "score": 100
         },
@@ -560,9 +559,9 @@
       },
       "aggregate": {
         "repoCount": 11,
-        "totalStars": 103,
+        "totalStars": 104,
         "totalForks": 27,
-        "totalWatchers": 103,
+        "totalWatchers": 104,
         "maxRepoScore": 88,
         "profileScore": 77
       },
@@ -578,7 +577,7 @@
           "watchers": 27,
           "openIssues": 7,
           "language": "Python",
-          "pushedAt": "2026-07-18T01:59:07Z",
+          "pushedAt": "2026-07-19T23:36:37Z",
           "updatedAt": "2026-07-18T04:45:13Z",
           "createdAt": "2026-06-01T20:17:31Z",
           "score": 88
@@ -589,13 +588,13 @@
           "fullName": "inkbox-ai/inkbox",
           "description": "SDK, skills, and examples for Inkbox: give AI agents a persistent identity with email, phone number, and internet address",
           "htmlUrl": "https://github.com/inkbox-ai/inkbox",
-          "stars": 30,
+          "stars": 31,
           "forks": 6,
-          "watchers": 30,
-          "openIssues": 5,
+          "watchers": 31,
+          "openIssues": 6,
           "language": "TypeScript",
-          "pushedAt": "2026-07-18T20:13:28Z",
-          "updatedAt": "2026-07-18T20:13:29Z",
+          "pushedAt": "2026-07-19T23:22:02Z",
+          "updatedAt": "2026-07-19T08:44:35Z",
           "createdAt": "2026-03-16T18:42:20Z",
           "score": 87
         },
@@ -642,7 +641,7 @@
           "watchers": 6,
           "openIssues": 4,
           "language": "TypeScript",
-          "pushedAt": "2026-07-18T01:59:07Z",
+          "pushedAt": "2026-07-19T23:36:38Z",
           "updatedAt": "2026-07-17T23:50:24Z",
           "createdAt": "2026-05-20T20:56:01Z",
           "score": 53
@@ -674,7 +673,7 @@
           "watchers": 3,
           "openIssues": 3,
           "language": "Python",
-          "pushedAt": "2026-07-18T01:59:07Z",
+          "pushedAt": "2026-07-19T23:36:38Z",
           "updatedAt": "2026-07-17T20:44:32Z",
           "createdAt": "2026-06-17T19:44:01Z",
           "score": 44
@@ -690,7 +689,7 @@
           "watchers": 3,
           "openIssues": 1,
           "language": "TypeScript",
-          "pushedAt": "2026-07-18T01:59:07Z",
+          "pushedAt": "2026-07-19T23:36:37Z",
           "updatedAt": "2026-07-16T07:10:01Z",
           "createdAt": "2026-07-09T06:52:38Z",
           "score": 39
@@ -764,7 +763,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/robocurve",
         "bio": "",
-        "followers": 13,
+        "followers": 14,
         "following": 0,
         "publicRepos": 11,
         "publicGists": 0,
@@ -773,11 +772,11 @@
       },
       "aggregate": {
         "repoCount": 11,
-        "totalStars": 13,
-        "totalForks": 14,
-        "totalWatchers": 13,
-        "maxRepoScore": 63,
-        "profileScore": 51
+        "totalStars": 14,
+        "totalForks": 15,
+        "totalWatchers": 14,
+        "maxRepoScore": 67,
+        "profileScore": 52
       },
       "repos": [
         {
@@ -786,15 +785,15 @@
           "fullName": "robocurve/inspect-robots",
           "description": "Evaluation framework for VLA / physical-AI models: define a benchmark once, run any policy on any robot or sim. (The Inspect AI for robotics.)",
           "htmlUrl": "https://github.com/robocurve/inspect-robots",
-          "stars": 7,
-          "forks": 5,
-          "watchers": 7,
-          "openIssues": 10,
+          "stars": 8,
+          "forks": 6,
+          "watchers": 8,
+          "openIssues": 11,
           "language": "Python",
           "pushedAt": "2026-07-19T02:01:14Z",
-          "updatedAt": "2026-07-19T02:00:17Z",
+          "updatedAt": "2026-07-19T17:09:49Z",
           "createdAt": "2026-06-26T06:55:29Z",
-          "score": 63
+          "score": 67
         },
         {
           "id": 1282042008,
@@ -1634,9 +1633,9 @@
       },
       "aggregate": {
         "repoCount": 1,
-        "totalStars": 2519,
-        "totalForks": 143,
-        "totalWatchers": 2519,
+        "totalStars": 2526,
+        "totalForks": 144,
+        "totalWatchers": 2526,
         "maxRepoScore": 100,
         "profileScore": 98
       },
@@ -1647,13 +1646,13 @@
           "fullName": "onecli/onecli",
           "description": "Open-source credential gateway with a built-in vault. give your AI agents access to services without exposing keys.",
           "htmlUrl": "https://github.com/onecli/onecli",
-          "stars": 2519,
-          "forks": 143,
-          "watchers": 2519,
-          "openIssues": 86,
+          "stars": 2526,
+          "forks": 144,
+          "watchers": 2526,
+          "openIssues": 89,
           "language": "TypeScript",
           "pushedAt": "2026-07-12T16:47:45Z",
-          "updatedAt": "2026-07-19T01:34:32Z",
+          "updatedAt": "2026-07-19T22:25:33Z",
           "createdAt": "2026-03-08T10:38:52Z",
           "score": 100
         }
@@ -1687,9 +1686,9 @@
       },
       "aggregate": {
         "repoCount": 4,
-        "totalStars": 1242,
+        "totalStars": 1243,
         "totalForks": 99,
-        "totalWatchers": 1242,
+        "totalWatchers": 1243,
         "maxRepoScore": 100,
         "profileScore": 59
       },
@@ -1700,13 +1699,13 @@
           "fullName": "nex-crm/wuphf",
           "description": "YC S26 | WUPHF by Nex.ai lets you spin up your personal office of AI teammates who collaborate over shared context. Supports Claude Code, Codex, OpenClaw, OpenCode, local LLMs.",
           "htmlUrl": "https://github.com/nex-crm/wuphf",
-          "stars": 1213,
+          "stars": 1214,
           "forks": 94,
-          "watchers": 1213,
+          "watchers": 1214,
           "openIssues": 40,
           "language": "Go",
           "pushedAt": "2026-07-14T01:19:10Z",
-          "updatedAt": "2026-07-16T23:42:54Z",
+          "updatedAt": "2026-07-19T11:56:50Z",
           "createdAt": "2026-03-25T13:27:01Z",
           "score": 100
         },
@@ -1891,7 +1890,7 @@
           "watchers": 19,
           "openIssues": 2,
           "language": "Python",
-          "pushedAt": "2026-07-19T05:20:02Z",
+          "pushedAt": "2026-07-19T16:13:32Z",
           "updatedAt": "2026-07-19T04:08:12Z",
           "createdAt": "2026-05-05T16:09:51Z",
           "score": 67
@@ -1990,10 +1989,10 @@
           "stars": 6,
           "forks": 3,
           "watchers": 6,
-          "openIssues": 8,
+          "openIssues": 10,
           "language": "TypeScript",
-          "pushedAt": "2026-07-17T22:41:55Z",
-          "updatedAt": "2026-07-19T04:22:45Z",
+          "pushedAt": "2026-07-19T22:27:17Z",
+          "updatedAt": "2026-07-19T17:24:54Z",
           "createdAt": "2026-06-03T19:01:17Z",
           "score": 57
         }
@@ -2027,9 +2026,9 @@
       },
       "aggregate": {
         "repoCount": 4,
-        "totalStars": 497,
-        "totalForks": 44,
-        "totalWatchers": 497,
+        "totalStars": 498,
+        "totalForks": 45,
+        "totalWatchers": 498,
         "maxRepoScore": 100,
         "profileScore": 41
       },
@@ -2040,13 +2039,13 @@
           "fullName": "AlmanacCode/codealmanac",
           "description": "A codebase wiki for AI coding agents. Captures what the code can't say: decisions, flows, invariants, gotchas.",
           "htmlUrl": "https://github.com/AlmanacCode/codealmanac",
-          "stars": 494,
-          "forks": 42,
-          "watchers": 494,
-          "openIssues": 21,
+          "stars": 495,
+          "forks": 43,
+          "watchers": 495,
+          "openIssues": 23,
           "language": "TypeScript",
           "pushedAt": "2026-07-17T06:19:10Z",
-          "updatedAt": "2026-07-19T04:18:46Z",
+          "updatedAt": "2026-07-19T07:55:44Z",
           "createdAt": "2026-04-16T05:31:42Z",
           "score": 100
         },
@@ -2253,6 +2252,42 @@
           "score": 35
         }
       ]
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-provenmetal",
+      "companySlug": "provenmetal",
+      "companyName": "ProvenMetal",
+      "name": "ProvenMetal",
+      "sourceUrl": "https://www.ycombinator.com/companies/provenmetal",
+      "githubUrl": "https://github.com/orgs/proven-metal",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "proven-metal",
+      "repo": null,
+      "fetched": true,
+      "account": {
+        "login": "proven-metal",
+        "name": null,
+        "type": "Organization",
+        "htmlUrl": "https://github.com/proven-metal",
+        "bio": "",
+        "followers": 1,
+        "following": 0,
+        "publicRepos": 0,
+        "publicGists": 0,
+        "createdAt": "2026-06-14T04:04:48Z",
+        "updatedAt": "2026-06-14T04:05:51Z"
+      },
+      "aggregate": {
+        "repoCount": 0,
+        "totalStars": 0,
+        "totalForks": 0,
+        "totalWatchers": 0,
+        "maxRepoScore": 0,
+        "profileScore": 5
+      },
+      "repos": []
     }
   ]
 }

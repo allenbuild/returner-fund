@@ -100,7 +100,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("starts every public and GitHub batch before awaiting them as one parallel settlement", () => {
-    const collectors = section("async function runCollectors()", "async function reconcileCollectorTasks");
+    const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
+    const successfulRows = section("function successfulCollectorRowCount", "async function reconcileCollectorTasks");
 
     assert.equal((collectors.match(/AUTONOMOUS_BATCHES\.map/g) ?? []).length, 2);
     assert.ok(collectors.includes('kind: "public"'));
@@ -108,9 +109,25 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(collectors, /run:\s*\(\)\s*=>\s*runCommand\(/);
     assert.ok(collectors.includes("command.promise = runCollectorWithRetries(command)"));
     assert.ok(collectors.includes("await Promise.allSettled(commands.map((command) => command.promise))"));
-    assert.ok(collectors.includes("account.fetched === true"));
-    assert.ok(collectors.includes("snapshot.evidence.length + snapshot.needsReview.length"));
+    assert.ok(successfulRows.includes("account.fetched === true"));
+    assert.ok(successfulRows.includes("snapshot.evidence.length + snapshot.needsReview.length"));
     assert.doesNotMatch(collectors, /run:\s*async\s*\(\)\s*=>\s*await runCommand\(/);
+  });
+
+  it("runs Insider and YC Partner discovery concurrently with every batch collector", () => {
+    const parallelStart = runner.indexOf("await Promise.all([runCollectors(), runTopVoiceCollector()])");
+    const topVoiceCollector = section("async function runTopVoiceCollector", "async function runCollectorWithRetries");
+
+    assert.ok(parallelStart > -1);
+    assert.ok(topVoiceCollector.includes('"--audiences=insiders,yc_partners"'));
+    assert.ok(topVoiceCollector.includes('"--x-concurrency=16"'));
+    assert.ok(topVoiceCollector.includes('"--max-posts-per-target=20"'));
+    assert.ok(topVoiceCollector.includes('"--max-top-voice-x-targets=250"'));
+    assert.ok(topVoiceCollector.includes('"--deadline-minutes=10"'));
+    assert.ok(topVoiceCollector.includes('"scripts/run-top-voice-ingestion.mjs"'));
+    assert.ok(runner.includes("assertSuccessfulTopVoiceRefresh(topVoiceRefresh)"));
+    assert.ok(runner.includes('receipt.status !== "completed"'));
+    assert.ok(runner.includes('(result.networkRequests ?? 0) <= 0'));
   });
 
   it("validates collector snapshot shape before merge or publication", () => {
@@ -159,8 +176,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
         runner.indexOf('await writeJsonAtomic(join(root, "src", "lib", "social", "public-evidence-current.json")')
       ],
       ["GitHub evidence exports", runner.indexOf("await publishGithubExports(githubSnapshots)")],
-      ["production build", runner.indexOf('await runCommand("npm", ["run", "build"]')],
-      ["graph and benchmark publication", runner.indexOf('await runCommand("npm", ["run", "benchmarks:daily"]')]
+      ["production build", runner.indexOf('await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"]')],
+      ["graph and benchmark publication", runner.indexOf('await runCommand(process.execPath, ["scripts/update-daily-benchmarks.mjs"]')]
     ];
 
     assert.ok(coverage.includes('.eq("ingestion_run_id", run.id)'));
@@ -182,8 +199,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
         runner.indexOf('await writeJsonAtomic(join(root, "src", "lib", "social", "public-evidence-current.json")')
       ],
       ["GitHub evidence exports", runner.indexOf("await publishGithubExports(githubSnapshots)")],
-      ["production build", runner.indexOf('await runCommand("npm", ["run", "build"]')],
-      ["graph and benchmark publication", runner.indexOf('await runCommand("npm", ["run", "benchmarks:daily"]')]
+      ["production build", runner.indexOf('await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"]')],
+      ["graph and benchmark publication", runner.indexOf('await runCommand(process.execPath, ["scripts/update-daily-benchmarks.mjs"]')]
     ];
 
     assert.ok(durableImportIndex > -1);
@@ -203,7 +220,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("writes, validates, and durably records the artifact manifest before completion", () => {
     const writeIndex = runner.indexOf('"scripts/write-artifact-manifest.mjs"');
-    const validateIndex = runner.indexOf('["run", "artifacts:validate"]');
+    const validateIndex = runner.indexOf('["scripts/validate-public-artifacts.mjs"]');
     const persistIndex = runner.indexOf("await persistArtifactManifest(run.id)");
     const completionIndex = runner.indexOf('await completeRun("completed"');
     const manifestPersistence = section("async function persistArtifactManifest", "async function completeRun");
@@ -223,6 +240,11 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const completionIndex = runner.indexOf('await completeRun("completed"');
     assert.ok(pushIndex > -1);
     assert.ok(completionIndex > pushIndex);
+  });
+
+  it("publishes newly discovered raw Top Voice evidence with the generated graphs", () => {
+    const publication = section("async function publishRepositoryArtifacts", "async function completeRun");
+    assert.ok(publication.includes('"src/lib/social/targeted-evidence-current.json"'));
   });
 });
 

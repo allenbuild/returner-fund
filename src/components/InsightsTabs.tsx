@@ -19,6 +19,7 @@ import {
 import {
   useId,
   useMemo,
+  useRef,
   useState,
   type KeyboardEvent,
   type PointerEvent as ReactPointerEvent
@@ -422,8 +423,10 @@ function SplineTotalCard({
 }) {
   const gradientId = useId().replaceAll(":", "");
   const totals = useMemo(() => cumulativeTotals(points, field, total), [field, points, total]);
-  const [activeIndex, setActiveIndex] = useState(() => Math.max(0, totals.length - 1));
-  const selectedIndex = Math.min(activeIndex, Math.max(0, totals.length - 1));
+  const dragPointerId = useRef<number | null>(null);
+  const [activePosition, setActivePosition] = useState(() => Math.max(0, totals.length - 1));
+  const clampedPosition = Math.min(activePosition, Math.max(0, totals.length - 1));
+  const selectedIndex = Math.round(clampedPosition);
   const selected = totals[selectedIndex] ?? null;
   const values = totals.map((point) => point.value);
   const minimum = Math.min(...values, total);
@@ -433,7 +436,7 @@ function SplineTotalCard({
     x: totals.length <= 1 ? SPLINE_WIDTH / 2 : (index / (totals.length - 1)) * SPLINE_WIDTH,
     y: SPLINE_PADDING + ((maximum - point.value) / range) * (SPLINE_HEIGHT - SPLINE_PADDING * 2)
   }));
-  const selectedCoordinate = coordinates[selectedIndex] ?? { x: 0, y: SPLINE_HEIGHT };
+  const selectedCoordinate = splinePointAtPosition(coordinates, clampedPosition);
   const linePath = splinePath(coordinates);
   const areaPath = linePath
     ? `${linePath} L ${coordinates.at(-1)?.x ?? 0} ${SPLINE_HEIGHT} L ${coordinates[0]?.x ?? 0} ${SPLINE_HEIGHT} Z`
@@ -443,16 +446,25 @@ function SplineTotalCard({
     const bounds = event.currentTarget.getBoundingClientRect();
     if (!bounds.width || totals.length <= 1) return;
     const ratio = Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width));
-    setActiveIndex(Math.round(ratio * (totals.length - 1)));
+    setActivePosition(ratio * (totals.length - 1));
   }
 
   function handlePointerDown(event: ReactPointerEvent<SVGSVGElement>) {
+    dragPointerId.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
     selectFromPointer(event);
   }
 
   function handlePointerMove(event: ReactPointerEvent<SVGSVGElement>) {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) selectFromPointer(event);
+    if (dragPointerId.current === event.pointerId) selectFromPointer(event);
+  }
+
+  function finishPointerDrag(event: ReactPointerEvent<SVGSVGElement>) {
+    if (dragPointerId.current !== event.pointerId) return;
+    dragPointerId.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   }
 
   function handleKeyDown(event: KeyboardEvent<SVGSVGElement>) {
@@ -463,7 +475,7 @@ function SplineTotalCard({
     else if (event.key === "End") nextIndex = totals.length - 1;
     else return;
     event.preventDefault();
-    setActiveIndex(Math.min(totals.length - 1, Math.max(0, nextIndex)));
+    setActivePosition(Math.min(totals.length - 1, Math.max(0, nextIndex)));
   }
 
   return (
@@ -489,8 +501,11 @@ function SplineTotalCard({
         onKeyDown={handleKeyDown}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
-        onPointerUp={(event) => event.currentTarget.releasePointerCapture(event.pointerId)}
-        onPointerCancel={(event) => event.currentTarget.releasePointerCapture(event.pointerId)}
+        onPointerUp={finishPointerDrag}
+        onPointerCancel={finishPointerDrag}
+        onLostPointerCapture={() => {
+          dragPointerId.current = null;
+        }}
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -542,6 +557,47 @@ function splinePath(points: { x: number; y: number }[]): string {
     path += ` C ${midpointX} ${current.y}, ${midpointX} ${next.y}, ${next.x} ${next.y}`;
   }
   return path;
+}
+
+function splinePointAtPosition(
+  points: { x: number; y: number }[],
+  position: number
+): { x: number; y: number } {
+  if (!points.length) return { x: 0, y: SPLINE_HEIGHT };
+  if (points.length === 1) return points[0];
+
+  const clampedPosition = Math.min(Math.max(position, 0), points.length - 1);
+  const segmentIndex = Math.min(Math.floor(clampedPosition), points.length - 2);
+  const segmentProgress = clampedPosition - segmentIndex;
+  const current = points[segmentIndex];
+  const next = points[segmentIndex + 1];
+  const midpointX = current.x + (next.x - current.x) / 2;
+  const targetX = current.x + (next.x - current.x) * segmentProgress;
+  let lowerT = 0;
+  let upperT = 1;
+
+  for (let iteration = 0; iteration < 12; iteration += 1) {
+    const candidateT = (lowerT + upperT) / 2;
+    const candidateX = cubicBezier(current.x, midpointX, midpointX, next.x, candidateT);
+    if (candidateX < targetX) lowerT = candidateT;
+    else upperT = candidateT;
+  }
+
+  const t = (lowerT + upperT) / 2;
+  return {
+    x: cubicBezier(current.x, midpointX, midpointX, next.x, t),
+    y: cubicBezier(current.y, current.y, next.y, next.y, t)
+  };
+}
+
+function cubicBezier(start: number, controlA: number, controlB: number, end: number, t: number): number {
+  const inverseT = 1 - t;
+  return (
+    inverseT ** 3 * start +
+    3 * inverseT ** 2 * t * controlA +
+    3 * inverseT * t ** 2 * controlB +
+    t ** 3 * end
+  );
 }
 
 function buildDatabaseStats(graph: GraphResponse): DatabaseStats {

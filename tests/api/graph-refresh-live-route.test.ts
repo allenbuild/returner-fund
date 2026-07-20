@@ -1004,7 +1004,16 @@ describe("POST /api/graph/refresh live evidence validation", () => {
   it("rebuilds safely for missing, stale, legacy, incomplete, and invalid generated snapshots", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(FROZEN_ROUTE_NOW));
-    const rebuiltGraph = withV4SnapshotContract(await graphFixture("s26-insiders.json"));
+    const [baseGraph, insiderIdentityGraph] = await Promise.all([
+      graphFixture("s2026-insiders.json"),
+      graphFixture("s26-insiders.json")
+    ]);
+    const rebuiltGraph = withV4SnapshotContract({
+      ...baseGraph,
+      batch: insiderIdentityGraph.batch,
+      selectedTopVoiceAudience: insiderIdentityGraph.selectedTopVoiceAudience,
+      nodes: baseGraph.nodes.map((node) => ({ ...node, batchSlug: "S26" }))
+    });
     const staleGeneratedAt = FROZEN_STALE_SNAPSHOT_GENERATED_AT;
     const staleGraph: GraphResponse = {
       ...rebuiltGraph,

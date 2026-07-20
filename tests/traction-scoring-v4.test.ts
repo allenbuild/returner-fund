@@ -554,7 +554,26 @@ describe("traction scoring v4 invariants", () => {
     expect(lowPositive.absoluteScore).toBeGreaterThan(0);
     expect(positiveRows).toHaveLength(2);
     expect(positiveRows.every((company) => company.totalScore >= 1)).toBe(true);
+    expect(positiveRows.map((company) => company.totalScore).sort((a, b) => a - b)).toEqual([1, 100]);
     expect(positiveRows.every((company) => company.scoreBreakdown?.calibration.method === "tie_aware_percentile_blend")).toBe(true);
+  });
+
+  it("calibrates a selected batch against the shared global cohort", () => {
+    const low = scoreCohort([evidence("global-low", "x", { likes: 1 })]).aggregate;
+    const middle = scoreCohort([evidence("global-middle", "x", { views: 50_000, likes: 250 })]).aggregate;
+    const high = aggregateBalancedTractionScore(
+      SUPPORTED_PLATFORMS.flatMap((platform) => perfectPlatformRows(platform, "global-high"))
+    );
+    const cohort = [
+      calibrationCompany("global-low", low),
+      calibrationCompany("global-middle", middle),
+      calibrationCompany("global-high", high)
+    ];
+    const [calibratedMiddle] = calibrateBatchCompanyScores([cohort[1]!], cohort);
+
+    expect(calibratedMiddle?.totalScore).toBeGreaterThan(1);
+    expect(calibratedMiddle?.totalScore).toBeLessThan(100);
+    expect(calibratedMiddle?.scoreBreakdown?.calibration.cohortSize).toBe(3);
   });
 
   it("does not let legacy companies without canonical breakdowns distort calibration", () => {

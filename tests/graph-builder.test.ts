@@ -732,6 +732,60 @@ describe("graph builder", () => {
     expect(graph.evidence.find((item) => item.id === "evidence-garry-retweet-json")).toBeUndefined();
   });
 
+  it("does not treat a secondary X mention as a direct founder reply", () => {
+    const dataset = topVoiceDataset();
+    dataset.companies = [
+      makeCompany({
+        id: "company-indirect-reply",
+        name: "Indirect Reply",
+        founderIds: ["founder-indirect-reply"]
+      })
+    ];
+    dataset.founders = [
+      makeFounder({
+        id: "founder-indirect-reply",
+        name: "Ivy Founder",
+        companyIds: ["company-indirect-reply"],
+        socialAccounts: [
+          {
+            id: "acct-ivy-founder-x",
+            platform: "x",
+            handle: "ivy_founder",
+            url: "https://x.com/ivy_founder",
+            review_state: "verified",
+            discoveredFromUrl: "https://example.com/ivy-founder",
+            matchReason: "Test founder account."
+          }
+        ]
+      })
+    ];
+    dataset.evidence = [
+      makeEvidence({
+        id: "evidence-indirect-reply",
+        entityId: "company-indirect-reply",
+        authorName: "Sam Altman",
+        authorHandle: "sama",
+        sourceUrl: "https://x.com/sama/status/11",
+        title: "Sam Altman X reply to Indirect Reply founder Ivy Founder",
+        text: "Sam Altman replied to @ivy_founder about Indirect Reply.",
+        rawVisibleText: JSON.stringify({
+          post: {
+            authorName: "Sam Altman",
+            authorHandle: "sama",
+            rawText: "@thread_author @ivy_founder This is incorrect.",
+            replying_to: "thread_author",
+            mentions: ["thread_author", "ivy_founder"]
+          }
+        })
+      })
+    ];
+
+    const graph = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, dataset);
+
+    expect(graph.leaderboard).toEqual([]);
+    expect(graph.evidence).toEqual([]);
+  });
+
   it("does not match Top Voice identity from spoofed social hosts", () => {
     const dataset = topVoiceDataset();
     dataset.companies = [

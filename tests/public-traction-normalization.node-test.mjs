@@ -88,6 +88,16 @@ test("checkpoint flush canonicalizes native IDs, eligibility, and exact social a
     },
     {
       ...base,
+      id: "linkedin-hallucinated-comments-fixture",
+      platform: "linkedin",
+      sourceUrl: "https://www.linkedin.com/posts/arctic-health_activity-7479951057700306944-test",
+      platformPostId: "7479951057700306944",
+      rawVisibleText: "The native post visibly shows 13 reactions. Like Comment Share",
+      metrics: { comments: 47_000 },
+      contributionScore: 100
+    },
+    {
+      ...base,
       id: "ambiguous-linkedin-first",
       platform: "linkedin",
       sourceUrl: "https://www.linkedin.com/posts/example_activity-7475000000000000000-test",
@@ -136,6 +146,7 @@ test("checkpoint flush canonicalizes native IDs, eligibility, and exact social a
   const mappedFounder = byId.get("mapped-founder-x-fixture");
   const thirdParty = byId.get("third-party-instagram-fixture");
   const emptyMetrics = byId.get("empty-youtube-fixture");
+  const hallucinatedLinkedInComments = byId.get("linkedin-hallucinated-comments-fixture");
 
   assert.equal(hackerNews.sourceUrl, "https://news.ycombinator.com/item?id=44770001");
   assert.equal(hackerNews.submittedUrl, "https://9mothers.com/launch");
@@ -154,6 +165,10 @@ test("checkpoint flush canonicalizes native IDs, eligibility, and exact social a
   assert.equal(emptyMetrics.contributionScore, 0);
   assert.equal(emptyMetrics.review_state, "needs_review");
   assert.match(emptyMetrics.matchReason, /no positive supported visible traction metric/i);
+  assert.deepEqual(hallucinatedLinkedInComments.metrics, {});
+  assert.equal(hallucinatedLinkedInComments.contributionScore, 0);
+  assert.equal(hallucinatedLinkedInComments.review_state, "needs_review");
+  assert.match(hallucinatedLinkedInComments.matchReason, /no positive supported visible traction metric/i);
   assert.equal(byId.has("hn-unrecoverable-fixture"), false);
   assert.equal(byId.has("ambiguous-linkedin-first"), false);
   assert.equal(byId.has("ambiguous-linkedin-second"), false);

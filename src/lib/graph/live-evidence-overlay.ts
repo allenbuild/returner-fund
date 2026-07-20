@@ -30,6 +30,7 @@ export interface LiveEvidenceOverlayResult {
 interface LiveEvidenceOverlayOptions {
   selectedPlatforms?: Platform[];
   topVoices?: TopVoiceAudienceId;
+  calibrationCohort?: CompanyRecord[];
 }
 
 export function overlayLiveEvidenceOnGraph(
@@ -98,7 +99,8 @@ export function overlayLiveEvidenceOnGraph(
     evidence,
     companyIdByEntityId,
     liveEvidence,
-    selectedPlatforms
+    selectedPlatforms,
+    options.calibrationCohort
   );
 
   return {
@@ -470,7 +472,8 @@ function rebuildGraphScoreSurfaces(
   evidence: EvidenceItem[],
   companyIdByEntityId: Map<string, string>,
   liveEvidence: EvidenceItem[],
-  selectedPlatforms: Platform[]
+  selectedPlatforms: Platform[],
+  calibrationCohort?: CompanyRecord[]
 ): GraphResponse {
   const evidenceByCompanyId = new Map<string, EvidenceItem[]>();
   for (const item of evidence) {
@@ -489,7 +492,10 @@ function rebuildGraphScoreSurfaces(
     });
   const scoredCompanies =
     overlayScoreScope(graph, selectedPlatforms) === "all_platforms"
-      ? calibrateBatchCompanyScores(absoluteCompanies)
+      ? calibrateBatchCompanyScores(
+          absoluteCompanies,
+          calibrationCohort ?? absoluteCompanies
+        )
       : absoluteCompanies;
   const scoredCompanyById = new Map(scoredCompanies.map((company) => [company.id, company]));
 

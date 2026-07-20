@@ -42,6 +42,7 @@
     "x:thumbnails:batch": "node scripts/backfill-evidence-thumbnails.mjs --platform=x --validate-x --missing-only --max-rows=100",
     "ingest:public": "node scripts/run-public-ingest.mjs",
     "ingest:autonomous": "node scripts/run-autonomous-ingestion.mjs",
+    "ingest:top-voices": "node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs scripts/run-top-voice-ingestion.mjs",
     "ingest:autonomous:plan": "node scripts/run-autonomous-ingestion.mjs --plan --idempotency-key=local-plan",
     "artifacts:manifest": "node scripts/write-artifact-manifest.mjs",
     "ingest:s26:company": "node scripts/fetch-public-traction.mjs --social=company",

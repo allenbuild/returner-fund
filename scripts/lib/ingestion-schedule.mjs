@@ -4,12 +4,12 @@ import { pathToFileURL } from "node:url";
 
 export const CENTRAL_TIME_ZONE = "America/Chicago";
 export const INGESTION_UTC_CRON_CANDIDATES = Object.freeze([
-  "17 0 * * *",
-  "17 11 * * *",
-  "17 12 * * *",
-  "17 23 * * *"
+  "0 0 * * *",
+  "0 11 * * *",
+  "0 12 * * *",
+  "0 23 * * *"
 ]);
-export const INGESTION_CENTRAL_SLOTS = Object.freeze(["06:17", "18:17"]);
+export const INGESTION_CENTRAL_SLOTS = Object.freeze(["06:00", "18:00"]);
 export const DEFAULT_LATENESS_WINDOW_MINUTES = 11 * 60;
 
 const CENTRAL_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -25,8 +25,11 @@ const CENTRAL_FORMATTER = new Intl.DateTimeFormat("en-US", {
   hourCycle: "h23"
 });
 
-const CRON_HOUR = new Map(
-  INGESTION_UTC_CRON_CANDIDATES.map((cron) => [cron, Number(cron.split(" ")[1])])
+const CRON_TIME = new Map(
+  INGESTION_UTC_CRON_CANDIDATES.map((cron) => {
+    const [minute, hour] = cron.split(" ").map(Number);
+    return [cron, { hour, minute }];
+  })
 );
 const REPLAY_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 
@@ -56,12 +59,12 @@ export function resolveScheduledIngestion({
   assertValidDate(now);
   assertValidLatenessWindow(latenessWindowMinutes);
 
-  const utcHour = CRON_HOUR.get(schedule);
-  if (utcHour === undefined) {
+  const utcTime = CRON_TIME.get(schedule);
+  if (utcTime === undefined) {
     return rejectedDecision("unrecognized-cron");
   }
 
-  const scheduledAt = nearestPriorCronOccurrence(now, utcHour);
+  const scheduledAt = nearestPriorCronOccurrence(now, utcTime);
   const latenessMinutes = (now.getTime() - scheduledAt.getTime()) / 60_000;
   if (latenessMinutes > latenessWindowMinutes) {
     return rejectedDecision("outside-lateness-window", {
@@ -161,13 +164,13 @@ export function main(env = process.env) {
   return decision;
 }
 
-function nearestPriorCronOccurrence(now, utcHour) {
+function nearestPriorCronOccurrence(now, { hour, minute }) {
   const candidate = new Date(Date.UTC(
     now.getUTCFullYear(),
     now.getUTCMonth(),
     now.getUTCDate(),
-    utcHour,
-    17
+    hour,
+    minute
   ));
   if (candidate.getTime() > now.getTime()) {
     candidate.setUTCDate(candidate.getUTCDate() - 1);

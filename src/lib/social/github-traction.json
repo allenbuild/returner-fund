@@ -1,13 +1,13 @@
 {
   "source": {
     "label": "GitHub public API for official YC Spring 2026 GitHub links",
-    "fetchedAt": "2026-07-19T06:27:05.942Z",
-    "targetCount": 45,
-    "fetchedCount": 43,
+    "fetchedAt": "2026-07-20T01:37:02.921Z",
+    "targetCount": 6,
+    "fetchedCount": 6,
     "discovery": {
       "explicitTargetCount": 6,
-      "discoveredTargetCount": 45,
-      "websiteTargets": 45,
+      "discoveredTargetCount": 0,
+      "websiteTargets": 0,
       "searchTargets": 0,
       "searchesUsed": 0,
       "searchFailures": []
@@ -16,14 +16,12 @@
       "Read-only public GitHub API data.",
       "GITHUB_TOKEN is optional and only increases API rate limits.",
       "No GitHub mutations are performed.",
-      "Only GitHub URLs explicitly listed on public YC Spring 2026 profiles are scored by default.",
-      "Retained 1 last-good account row after a failed refresh.",
-      "Validation excluded 6 fetched account-only targets with no visible non-fork repository rows; account existence is not traction."
+      "Only GitHub URLs explicitly listed on public YC Spring 2026 profiles are scored by default."
     ],
     "batchSlug": "S2026",
     "batchLabel": "YC Spring 2026 (P26)",
     "sourcePath": "src/lib/yc/spring-2026-companies.json",
-    "retainedLastGood": 1
+    "retainedLastGood": 0
   },
   "accounts": [
     {
@@ -3094,7 +3092,7 @@
           "watchers": 0,
           "openIssues": 0,
           "language": null,
-          "pushedAt": "2026-07-18T23:30:00Z",
+          "pushedAt": "2026-07-19T10:58:40Z",
           "updatedAt": "2026-05-06T21:43:41Z",
           "createdAt": "2026-05-06T21:38:21Z",
           "score": 8
@@ -4342,6 +4340,42 @@
           "score": 41
         }
       ]
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-linzumi",
+      "companySlug": "linzumi",
+      "companyName": "Linzumi",
+      "name": "Linzumi",
+      "sourceUrl": "https://www.ycombinator.com/companies/linzumi",
+      "githubUrl": "https://github.com/linzumi/",
+      "discoverySource": "yc_profile",
+      "matchReason": "GitHub URL explicitly listed on YC public company profile.",
+      "login": "linzumi",
+      "repo": null,
+      "fetched": true,
+      "account": {
+        "login": "Linzumi",
+        "name": "linzumi",
+        "type": "Organization",
+        "htmlUrl": "https://github.com/Linzumi",
+        "bio": "Grow your software thoughtfully",
+        "followers": 2,
+        "following": 0,
+        "publicRepos": 1,
+        "publicGists": 0,
+        "createdAt": "2025-12-08T22:46:47Z",
+        "updatedAt": "2026-05-25T17:21:33Z"
+      },
+      "aggregate": {
+        "repoCount": 0,
+        "totalStars": 0,
+        "totalForks": 0,
+        "totalWatchers": 0,
+        "maxRepoScore": 0,
+        "profileScore": 9
+      },
+      "repos": []
     }
   ]
 }

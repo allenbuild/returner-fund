@@ -1089,7 +1089,15 @@ async function resolveGraph(
       const overlayRecords = topVoices === "off"
         ? liveEvidenceNotCapturedBySnapshot(snapshot.graph, liveEvidenceRecords)
         : liveEvidenceRecords;
-      const overlay = overlayLiveEvidenceOnGraph(snapshot.graph, overlayRecords, { topVoices });
+      const calibrationCohort = overlayRecords.length > 0 && topVoices === "off"
+        ? (await import("@/lib/graph/yc-spring-2026-dataset")).yc2026GraphDataset.companies.filter(
+            (company) => company.batchSlug === batchSlug
+          )
+        : undefined;
+      const overlay = overlayLiveEvidenceOnGraph(snapshot.graph, overlayRecords, {
+        topVoices,
+        calibrationCohort
+      });
       if (topVoices === "off" || overlayRecords.length === 0) {
         return { overlay, source: "generated_public_snapshot" };
       }
@@ -1125,12 +1133,16 @@ async function resolveGraph(
   if (canonicalSnapshot.graph) {
     const overlayRecords = liveEvidenceNotCapturedBySnapshot(canonicalSnapshot.graph, liveEvidenceRecords);
     liveBaseOverlay = overlayLiveEvidenceOnGraph(canonicalSnapshot.graph, overlayRecords, {
-      topVoices: "off"
+      topVoices: "off",
+      calibrationCohort: dataset.companies.filter((company) => company.batchSlug === batchSlug)
     });
     canonicalGraph = liveBaseOverlay.graph;
   } else {
     const baseGraph = graphBuilder.buildGraphResponse({ batchSlug, topVoices: "off" }, dataset);
-    liveBaseOverlay = overlayLiveEvidenceOnGraph(baseGraph, liveEvidenceRecords, { topVoices: "off" });
+    liveBaseOverlay = overlayLiveEvidenceOnGraph(baseGraph, liveEvidenceRecords, {
+      topVoices: "off",
+      calibrationCohort: dataset.companies.filter((company) => company.batchSlug === batchSlug)
+    });
     canonicalGraph = liveBaseOverlay.graph;
     try {
       const benchmarkRows = ensureBenchmarkMomentum(canonicalGraph).graph.fastestGaining;
@@ -1155,7 +1167,10 @@ async function resolveGraph(
           ...liveBaseOverlay,
           graph: graphWithBenchmarks
         }
-      : overlayLiveEvidenceOnGraph(graphWithBenchmarks, liveEvidenceRecords, { topVoices }),
+      : overlayLiveEvidenceOnGraph(graphWithBenchmarks, liveEvidenceRecords, {
+          topVoices,
+          calibrationCohort: dataset.companies.filter((company) => company.batchSlug === batchSlug)
+        }),
     source: "rebuild",
     fallbackReason: fallbackReason ?? "missing_or_unreadable"
   };

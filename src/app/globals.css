@@ -2496,6 +2496,8 @@ progress::-webkit-progress-value {
   color: var(--stats-source);
   cursor: default;
   touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
   border-bottom: 1px solid var(--neutral-200);
   background: repeating-linear-gradient(
     to bottom,
@@ -2504,10 +2506,12 @@ progress::-webkit-progress-value {
   );
 }
 
-.stats-spline:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 4px;
-  border-radius: 4px;
+.stats-spline:focus {
+  outline: none;
+}
+
+.stats-spline:focus-visible .stats-spline-point {
+  stroke-width: 4;
 }
 
 .stats-spline-line {

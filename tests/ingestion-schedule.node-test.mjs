@@ -23,7 +23,7 @@ test("four UTC candidates resolve to exactly two stable Central slots every cale
         utcDay.getUTCMonth(),
         utcDay.getUTCDate(),
         utcHour,
-        37
+        20
       ));
       const decision = resolveScheduledIngestion({ schedule: cron, now });
       if (!decision.accepted) continue;
@@ -37,19 +37,19 @@ test("four UTC candidates resolve to exactly two stable Central slots every cale
   for (let day = new Date("2026-01-01T12:00:00.000Z"); day <= new Date("2026-12-31T12:00:00.000Z"); day.setUTCDate(day.getUTCDate() + 1)) {
     const dayKey = day.toISOString().slice(0, 10);
     const decisions = acceptedByCentralDay.get(dayKey) ?? [];
-    assert.deepEqual(decisions.map((decision) => decision.centralTime).sort(), ["06:17", "18:17"]);
+    assert.deepEqual(decisions.map((decision) => decision.centralTime).sort(), ["06:00", "18:00"]);
     assert.equal(new Set(decisions.map((decision) => decision.slotKey)).size, 2);
   }
 });
 
 test("selects the correct UTC candidates on both sides of DST transitions", () => {
   const cases = [
-    ["2026-03-07T12:27:00.000Z", "17 12 * * *", "central-2026-03-07-0617"],
-    ["2026-03-07T00:27:00.000Z", "17 0 * * *", "central-2026-03-06-1817"],
-    ["2026-03-08T11:27:00.000Z", "17 11 * * *", "central-2026-03-08-0617"],
-    ["2026-03-08T23:27:00.000Z", "17 23 * * *", "central-2026-03-08-1817"],
-    ["2026-11-01T12:27:00.000Z", "17 12 * * *", "central-2026-11-01-0617"],
-    ["2026-11-02T00:27:00.000Z", "17 0 * * *", "central-2026-11-01-1817"]
+    ["2026-03-07T12:10:00.000Z", "0 12 * * *", "central-2026-03-07-0600"],
+    ["2026-03-07T00:10:00.000Z", "0 0 * * *", "central-2026-03-06-1800"],
+    ["2026-03-08T11:10:00.000Z", "0 11 * * *", "central-2026-03-08-0600"],
+    ["2026-03-08T23:10:00.000Z", "0 23 * * *", "central-2026-03-08-1800"],
+    ["2026-11-01T12:10:00.000Z", "0 12 * * *", "central-2026-11-01-0600"],
+    ["2026-11-02T00:10:00.000Z", "0 0 * * *", "central-2026-11-01-1800"]
   ];
 
   for (const [now, cron, slotKey] of cases) {
@@ -60,46 +60,46 @@ test("selects the correct UTC candidates on both sides of DST transitions", () =
 });
 
 test("rejects inactive DST candidates and candidates outside the lateness window", () => {
-  for (const cron of ["17 0 * * *", "17 12 * * *"]) {
+  for (const cron of ["0 0 * * *", "0 12 * * *"]) {
     const utcHour = Number(cron.split(" ")[1]);
     const decision = resolveScheduledIngestion({
       schedule: cron,
-      now: new Date(Date.UTC(2026, 6, 18, utcHour, 27))
+      now: new Date(Date.UTC(2026, 6, 18, utcHour, 10))
     });
     assert.equal(decision.accepted, false);
     assert.equal(decision.reason, "inactive-dst-candidate");
   }
 
   const late = resolveScheduledIngestion({
-    schedule: "17 11 * * *",
-    now: new Date(`2026-07-18T${String(11 + Math.floor(DEFAULT_LATENESS_WINDOW_MINUTES / 60)).padStart(2, "0")}:48:00.000Z`)
+    schedule: "0 11 * * *",
+    now: new Date(`2026-07-18T${String(11 + Math.floor(DEFAULT_LATENESS_WINDOW_MINUTES / 60)).padStart(2, "0")}:31:00.000Z`)
   });
   assert.equal(late.accepted, false);
   assert.equal(late.reason, "outside-lateness-window");
-  assert.equal(resolveScheduledIngestion({ schedule: "17 6 * * *" }).accepted, false);
+  assert.equal(resolveScheduledIngestion({ schedule: "0 6 * * *" }).accepted, false);
 });
 
-test("anchors a delayed 23:17 candidate to the prior UTC day", () => {
+test("anchors a delayed 23:00 candidate to the prior UTC day", () => {
   const decision = resolveScheduledIngestion({
-    schedule: "17 23 * * *",
+    schedule: "0 23 * * *",
     now: new Date("2026-07-19T00:02:00.000Z")
   });
 
   assert.equal(decision.accepted, true);
-  assert.equal(decision.scheduledAt, "2026-07-18T23:17:00.000Z");
-  assert.equal(decision.slotKey, "central-2026-07-18-1817");
-  assert.equal(decision.latenessMinutes, 45);
+  assert.equal(decision.scheduledAt, "2026-07-18T23:00:00.000Z");
+  assert.equal(decision.slotKey, "central-2026-07-18-1800");
+  assert.equal(decision.latenessMinutes, 62);
 });
 
 test("manual dispatch requires and preserves an explicit replay key", () => {
-  assert.equal(resolveManualReplay(" central-2026-07-18-0617 ").slotKey, "central-2026-07-18-0617");
+  assert.equal(resolveManualReplay(" central-2026-07-18-0600 ").slotKey, "central-2026-07-18-0600");
   assert.equal(resolveManualReplay("incident:retry_2").slotKey, "incident:retry_2");
   assert.throws(() => resolveManualReplay(""), /Manual replay key/);
   assert.throws(() => resolveManualReplay("has spaces"), /Manual replay key/);
 
   const decision = resolveIngestionSchedule({
     eventName: "workflow_dispatch",
-    replayKey: "central-2026-07-18-1817"
+    replayKey: "central-2026-07-18-1800"
   });
   assert.equal(decision.accepted, true);
   assert.equal(decision.trigger, "manual-replay");

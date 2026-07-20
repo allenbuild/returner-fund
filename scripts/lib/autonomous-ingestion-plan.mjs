@@ -28,10 +28,11 @@ export const AUTONOMOUS_BATCHES = Object.freeze([
 const MINUTE_MS = 60_000;
 
 export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
-  collectorAttempts: 2,
+  collectorAttempts: 1,
   collectorRetryDelayMaxMs: 5_000,
-  publicCollectorAttemptMs: 18 * MINUTE_MS,
+  publicCollectorAttemptMs: 65 * MINUTE_MS,
   githubCollectorAttemptMs: 10 * MINUTE_MS,
+  topVoiceCollectorMs: 22 * MINUTE_MS,
   productionBuildMs: 10 * MINUTE_MS,
   benchmarkPublicationMs: 6 * MINUTE_MS,
   artifactManifestMs: MINUTE_MS,
@@ -47,13 +48,17 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
 });
 
 export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_BUDGETS) {
-  const collectorWindow =
+  const retriedCollectorWindow =
     budgets.collectorAttempts * Math.max(
       budgets.publicCollectorAttemptMs,
       budgets.githubCollectorAttemptMs
     ) +
     (budgets.collectorAttempts - 1) * budgets.collectorRetryDelayMaxMs +
     budgets.collectorAttempts * budgets.processKillGraceMs;
+  const collectorWindow = Math.max(
+    retriedCollectorWindow,
+    budgets.topVoiceCollectorMs + budgets.processKillGraceMs
+  );
   const publicationWindow =
     budgets.productionBuildMs +
     budgets.benchmarkPublicationMs +

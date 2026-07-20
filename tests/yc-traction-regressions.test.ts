@@ -70,6 +70,15 @@ describe("YC traction scoring regressions", () => {
     expect(greyPops?.attachedCompanyName).toBe("Pops");
   });
 
+  it("rejects the Parker Conrad reply that targeted someone other than the Context.dev founder", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26", topVoices: "insiders" }, ycSpring2026GraphDataset);
+
+    expect(graph.evidence.some(
+      (item) => item.sourceUrl === "https://x.com/parkerconrad/status/2069810389022343466"
+    )).toBe(false);
+    expect(graph.evidence.some((item) => item.platformPostId === "2069810389022343466")).toBe(false);
+  });
+
   it("surfaces source-hunt top voice rows across Spring and Summer filtered modes", () => {
     const springPartners = buildGraphResponse({ batchSlug: "S2026", topVoices: "yc_partners" }, ycSpring2026GraphDataset);
     const springInsiders = buildGraphResponse({ batchSlug: "S2026", topVoices: "insiders" }, ycSpring2026GraphDataset);
@@ -483,12 +492,15 @@ describe("YC traction scoring regressions", () => {
     expect(careGp?.scoreBreakdown?.weightedPlatforms[0]?.evidenceCount).toBeGreaterThanOrEqual(1);
   });
 
-  it("records the same absolute-preserving calibration for S2026, S26, and A16Z", () => {
+  it("uses the full positive score range independently in S2026, S26, and A16Z", () => {
     for (const batchSlug of ["S2026", "S26", "A16ZSR006"]) {
       const companies = ycSpring2026GraphDataset.companies.filter((company) => company.batchSlug === batchSlug);
       const positiveCompanies = companies.filter((company) => (company.scoreBreakdown?.absoluteScore ?? 0) > 0);
+      const positiveScores = positiveCompanies.map((company) => company.totalScore);
 
       expect(positiveCompanies.length).toBeGreaterThan(0);
+      expect(Math.min(...positiveScores)).toBe(1);
+      expect(Math.max(...positiveScores)).toBe(100);
       for (const company of positiveCompanies) {
         expect(company.totalScore).toBeGreaterThan(0);
         expect(company.scoreBreakdown?.calibration).toEqual(
@@ -501,6 +513,12 @@ describe("YC traction scoring regressions", () => {
         expect(company.scoreBreakdown?.calibration.percentile).toBeGreaterThan(0);
       }
     }
+
+    expect(
+      ycSpring2026GraphDataset.companies
+        .filter((company) => (company.scoreBreakdown?.absoluteScore ?? 0) === 0)
+        .every((company) => company.totalScore === 0)
+    ).toBe(true);
   });
 
   it("dedupes physical posts across company and founder rollups before aggregation", () => {

@@ -1437,6 +1437,58 @@ describe("live source refresh", () => {
     }
   });
 
+  it("does not attribute a Top Voice post from a bare founder-name collision", async () => {
+    const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-founder-name-collision-"));
+    const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
+    const stageLogPath = join(tempDir, "stage-log.json");
+    await writeFile(
+      targetedEvidencePath,
+      JSON.stringify({ source: { fetchedAt: "2026-07-14T00:00:00.000Z" }, evidence: [], needsReview: [] })
+    );
+
+    const postId = "2077000000000000456";
+    const fetchImpl = async (input: RequestInfo | URL) => {
+      if (String(input) === `https://api.fxtwitter.com/sama/status/${postId}`) {
+        return Response.json({
+          code: 200,
+          tweet: {
+            url: `https://x.com/sama/status/${postId}`,
+            id: postId,
+            text: "Frank Lee won the analytics competition using Claude.",
+            created_timestamp: 1784043000,
+            replies: 24,
+            retweets: 38,
+            likes: 127,
+            views: 75636,
+            author: { screen_name: "sama", name: "Sam Altman", url: "https://x.com/sama" }
+          }
+        });
+      }
+      return new Response("not found", { status: 404 });
+    };
+
+    try {
+      const result = await runLiveSourceRefresh({
+        rootDir: process.cwd(),
+        batchSlug: "S26",
+        platforms: ["x"],
+        topVoices: "insiders",
+        maxTopVoiceXTargets: 0,
+        xRequestTimeoutMs: 500,
+        xSourceUrls: [`https://x.com/sama/status/${postId}`],
+        targetedEvidencePath,
+        stageLogPath,
+        now: new Date("2026-07-14T17:20:00.000Z"),
+        fetchImpl
+      });
+
+      expect(result.acceptedEvidence).toHaveLength(0);
+      expect(result.failureReasonCounts.top_voice_post_missing_company_mention).toBe(1);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("ingests an explicit top-voice X status URL when it is native and mentions a selected-batch company", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-direct-top-voice-"));
     const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");

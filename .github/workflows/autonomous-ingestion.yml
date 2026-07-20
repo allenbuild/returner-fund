@@ -3,11 +3,11 @@ name: Autonomous Ingestion
 on:
   schedule:
     # Chicago alternates between UTC-6 and UTC-5. The resolver admits only the
-    # candidate that is actually 06:17 or 18:17 Central on that calendar day.
-    - cron: "17 0 * * *"
-    - cron: "17 11 * * *"
-    - cron: "17 12 * * *"
-    - cron: "17 23 * * *"
+    # candidate that is actually 06:00 or 18:00 Central on that calendar day.
+    - cron: "0 0 * * *"
+    - cron: "0 11 * * *"
+    - cron: "0 12 * * *"
+    - cron: "0 23 * * *"
   workflow_dispatch:
     inputs:
       replay_key:
@@ -25,7 +25,7 @@ concurrency:
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
 
       - name: Run autonomous ingestion
         if: steps.schedule.outputs.should_run == 'true'
-        timeout-minutes: 95
+        timeout-minutes: 155
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

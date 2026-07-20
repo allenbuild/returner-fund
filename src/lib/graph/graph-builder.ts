@@ -746,8 +746,70 @@ function isEligibleTopVoiceEvidence(item: EvidenceItem, company: CompanyRecord, 
     hasPostLevelUrl(item) &&
     hasVisibleMetrics(item) &&
     !isRepostLikeTopVoiceEvidence(item) &&
+    hasValidClaimedDirectReplyTarget(item, company, founders) &&
     topVoiceEvidenceMentionsTarget(item, company, founders)
   );
+}
+
+function hasValidClaimedDirectReplyTarget(
+  item: EvidenceItem,
+  company: CompanyRecord,
+  founders: FounderRecord[]
+): boolean {
+  if (item.platform !== "x") {
+    return true;
+  }
+
+  const claimText = [item.title, item.text].filter(Boolean).join(" ");
+  if (!/\b(?:reply|replied|responded)\s+(?:directly\s+)?to\b/i.test(claimText)) {
+    return true;
+  }
+
+  const replyTarget = xReplyTarget(item.rawVisibleText);
+  if (!replyTarget) {
+    return true;
+  }
+
+  const targetHandles = new Set(
+    [
+      ...company.socialAccounts,
+      ...founders.flatMap((founder) => founder.socialAccounts)
+    ]
+      .filter((account) => account.platform === "x")
+      .map((account) => normalizeSocialHandle(account.handle))
+      .filter(Boolean)
+  );
+
+  return targetHandles.has(normalizeSocialHandle(replyTarget));
+}
+
+function xReplyTarget(rawVisibleText: string | undefined): string | null {
+  if (!rawVisibleText?.trim().startsWith("{")) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    const post = recordValue(parsed.post) ?? parsed;
+    for (const key of ["replying_to", "replyingTo", "in_reply_to_screen_name"]) {
+      if (typeof post[key] === "string" && post[key].trim()) {
+        return post[key].trim();
+      }
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function normalizeSocialHandle(value: string | null | undefined): string {
+  return String(value ?? "")
+    .trim()
+    .replace(/^https?:\/\/(?:www\.)?(?:x\.com|twitter\.com)\//i, "")
+    .replace(/^@/, "")
+    .split(/[/?#]/, 1)[0]
+    .toLowerCase();
 }
 
 function isRepostLikeTopVoiceEvidence(item: EvidenceItem): boolean {

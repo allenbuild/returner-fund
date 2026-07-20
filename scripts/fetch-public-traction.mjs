@@ -1879,6 +1879,44 @@ function metricsFromPublicPost(platform, text) {
   return {};
 }
 
+function sanitizeStoredPostMetrics(platform, metrics, rawVisibleText) {
+  if (platform !== "linkedin") return metrics;
+
+  const sanitized = { ...metrics };
+  const comments = Number(sanitized.comments);
+  if (
+    Number.isFinite(comments) &&
+    comments >= 1_000 &&
+    !hasExplicitVisibleMetric(rawVisibleText, comments, "comments?")
+  ) {
+    delete sanitized.comments;
+  }
+  return sanitized;
+}
+
+function hasExplicitVisibleMetric(text, value, labelPattern) {
+  if (typeof text !== "string" || !text.trim() || !Number.isFinite(value)) return false;
+  const forms = new Set([
+    String(value),
+    Number(value).toLocaleString("en-US"),
+    compactMetricValue(value)
+  ]);
+  return [...forms].some((form) =>
+    new RegExp(`${escapeRegExp(form)}\\s+${labelPattern}`, "i").test(text)
+  );
+}
+
+function compactMetricValue(value) {
+  if (value >= 1_000_000_000) return `${trimMetricDecimal(value / 1_000_000_000)}B`;
+  if (value >= 1_000_000) return `${trimMetricDecimal(value / 1_000_000)}M`;
+  if (value >= 1_000) return `${trimMetricDecimal(value / 1_000)}K`;
+  return String(value);
+}
+
+function trimMetricDecimal(value) {
+  return value.toFixed(value >= 10 || Number.isInteger(value) ? 0 : 1).replace(/\.0$/, "");
+}
+
 function scoreMetrics(platform, metrics) {
   const weights = INGEST_METRIC_WEIGHTS[platform] ?? INGEST_METRIC_WEIGHTS.x;
   const raw = Object.entries(metrics ?? {}).reduce((sum, [metric, rawValue]) => {
@@ -2477,7 +2515,11 @@ function normalizeStoredEvidence(item) {
     }
   }
 
-  const metrics = removeNullish(normalized.metrics ?? {});
+  const metrics = sanitizeStoredPostMetrics(
+    platform,
+    removeNullish(normalized.metrics ?? {}),
+    normalized.rawVisibleText
+  );
   const nativeContent = isNativeContentUrl(platform, normalized.sourceUrl);
   const hasMetric = hasPositiveSupportedMetric(platform, metrics);
   const exactAuthor = !["x", "instagram"].includes(platform) || exactAuthorMatchesCompany(normalized, company);

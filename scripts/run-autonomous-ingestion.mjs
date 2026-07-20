@@ -27,6 +27,7 @@ const publicOutputs = new Map(
 const githubOutputs = new Map(
   AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(workRoot, `github-${batch.slug.toLowerCase()}.json`)])
 );
+const topVoiceOutput = join(workRoot, "top-voice-refresh.json");
 
 if (!idempotencyKey) {
   throw new Error("--idempotency-key or INGESTION_IDEMPOTENCY_KEY is required.");
@@ -110,7 +111,9 @@ try {
       );
     }
 
-    const collectionResults = args.skipNetwork ? [] : await runCollectors();
+    const [collectionResults, topVoiceRefresh] = args.skipNetwork
+      ? [[], null]
+      : await Promise.all([runCollectors(), runTopVoiceCollector()]);
     assertLeaseHealthy();
     if (args.skipNetwork && run) {
       await terminalizeQueuedTasks(run.id, "skipped", "network_collection_explicitly_skipped");
@@ -131,6 +134,7 @@ try {
       { skipNetwork: args.skipNetwork }
     );
     assertSuccessfulCollection(collectionResults, collectionCoverage);
+    assertSuccessfulTopVoiceRefresh(topVoiceRefresh);
     const previousPublicSnapshot = await readJson(
       join(root, "src", "lib", "social", "public-evidence-current.json"),
       null
@@ -179,11 +183,11 @@ try {
 
     if (!args.skipPublish) {
       const publicationRunId = run?.id ?? `file:${idempotencyKey}`;
-      await runCommand("npm", ["run", "build"], {
+      await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"], {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.productionBuildMs,
         label: "production build"
       });
-      await runCommand("npm", ["run", "benchmarks:daily"], {
+      await runCommand(process.execPath, ["scripts/update-daily-benchmarks.mjs"], {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.benchmarkPublicationMs,
         label: "graph and benchmark publication",
         env: { INGESTION_RUN_ID: publicationRunId }
@@ -192,7 +196,7 @@ try {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactManifestMs,
         label: "artifact manifest"
       });
-      await runCommand("npm", ["run", "artifacts:validate"], {
+      await runCommand(process.execPath, ["scripts/validate-public-artifacts.mjs"], {
         timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
         label: "artifact validation"
       });
@@ -224,7 +228,7 @@ try {
         "run.completed",
         "info",
         "File-backed autonomous ingestion completed; durable database completion was not recorded.",
-        finalCoverage
+        { ...finalCoverage, topVoiceRefresh }
       );
     }
     console.log(JSON.stringify({
@@ -232,7 +236,8 @@ try {
       publicationRunId: run?.id ?? `file:${idempotencyKey}`,
       status: "completed",
       coverage: finalCoverage,
-      durableImport
+      durableImport,
+      topVoiceRefresh
     }, null, 2));
   }
 } catch (error) {
@@ -565,6 +570,44 @@ async function runCollectors() {
   return results;
 }
 
+async function runTopVoiceCollector() {
+  await event(
+    "top_voice_collection.started",
+    "info",
+    "Insider and YC Partner discovery started alongside the batch collectors.",
+    { audiences: ["insiders", "yc_partners"], batches: AUTONOMOUS_BATCHES.map((batch) => batch.slug) }
+  );
+  await runCommand(
+    process.execPath,
+    [
+      "--experimental-strip-types",
+      "--loader",
+      "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
+      "scripts/run-top-voice-ingestion.mjs",
+      `--output=${topVoiceOutput}`,
+      `--batches=${AUTONOMOUS_BATCHES.map((batch) => batch.slug).join(",")}`,
+      "--audiences=insiders,yc_partners",
+      "--x-concurrency=16",
+      "--max-posts-per-target=20",
+      "--max-top-voice-x-targets=250",
+      "--max-network-requests=2500",
+      "--deadline-minutes=10"
+    ],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.topVoiceCollectorMs,
+      label: "Top Voice X discovery"
+    }
+  );
+  const receipt = await readJson(topVoiceOutput, null);
+  await event(
+    "top_voice_collection.finished",
+    "info",
+    "Insider and YC Partner discovery reached a terminal state.",
+    receipt ?? {}
+  );
+  return receipt;
+}
+
 async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts) {
   let lastError = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -810,6 +853,22 @@ function assertSuccessfulCollection(collectionResults, coverage) {
   }
 }
 
+function assertSuccessfulTopVoiceRefresh(receipt) {
+  if (!receipt || receipt.status !== "completed") {
+    throw new Error("Top Voice discovery did not complete every requested audience.");
+  }
+  const audiences = new Map((receipt.audiences ?? []).map((result) => [result.audience, result]));
+  if (!audiences.has("insiders") || !audiences.has("yc_partners")) {
+    throw new Error("Top Voice discovery did not scan both Insiders and YC Partners.");
+  }
+  for (const audience of ["insiders", "yc_partners"]) {
+    const result = audiences.get(audience);
+    if (result?.status !== "completed" || (result.targetsLoaded ?? 0) <= 0 || (result.networkRequests ?? 0) <= 0) {
+      throw new Error(`Top Voice discovery did not fully inspect the curated ${audience} audience.`);
+    }
+  }
+}
+
 async function persistCoverage(catalogState, stageCounters) {
   const { data: tasks, error } = await supabase
     .from("ingestion_tasks")
@@ -907,6 +966,7 @@ async function publishRepositoryArtifacts() {
     "public/graph",
     "outputs/benchmarks",
     "src/lib/social/public-evidence-current.json",
+    "src/lib/social/targeted-evidence-current.json",
     "src/lib/social/github-traction.json",
     "src/lib/social/github-traction-summer-2026.json",
     "src/lib/social/github-traction-a16z-speedrun-006.json"

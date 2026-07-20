@@ -91,9 +91,10 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
   });
 
   it("keeps process retries, durable persistence, and lock-release headroom below the workflow timeout", () => {
-    const runnerTimeoutMs = 95 * 60_000;
+    const runnerTimeoutMs = 155 * 60_000;
 
-    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 1);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 65 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.durablePersistenceHeadroomMs, 25 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.lockReleaseHeadroomMs, 2 * 60_000);
     assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeoutMs);

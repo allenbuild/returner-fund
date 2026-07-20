@@ -352,6 +352,43 @@ export function collectCanonicalGraphSetViolations(entries) {
     );
   }
 
+  for (const [key, entry] of graphByBatchAndAudience.entries()) {
+    if (!key.endsWith(":off") || !isRecord(entry.graph)) continue;
+    const companyNodes = (Array.isArray(entry.graph.nodes) ? entry.graph.nodes : []).filter(
+      (node) => node?.entityType === "company"
+    );
+    const positiveCompanyNodes = companyNodes.filter(
+      (node) => isFiniteNumber(node?.scoreBreakdown?.absoluteScore) && node.scoreBreakdown.absoluteScore > 0
+    );
+    const expectedCohortSize = positiveCompanyNodes.length;
+
+    for (const node of companyNodes) {
+      const calibration = node?.scoreBreakdown?.calibration;
+      if (!isRecord(calibration)) continue;
+      if (calibration.cohortSize !== expectedCohortSize) {
+        violations.push(
+          `canonical graph ${formatValue(entry.graph.batch?.slug)}: node ${formatValue(node.entityId)} calibration.cohortSize must be ${expectedCohortSize}`
+        );
+      }
+    }
+    if (positiveCompanyNodes.length > 1) {
+      const positiveScores = positiveCompanyNodes.map((node) => node.score);
+      if (Math.min(...positiveScores) !== 1 || Math.max(...positiveScores) !== 100) {
+        violations.push(
+          `canonical graph ${formatValue(entry.graph.batch?.slug)}: positive company scores must span the full 1-100 range`
+        );
+      }
+    }
+    const zeroEvidenceNodes = companyNodes.filter(
+      (node) => Number(node?.scoreBreakdown?.absoluteScore) === 0
+    );
+    if (zeroEvidenceNodes.some((node) => node.score !== 0)) {
+      violations.push(
+        `canonical graph ${formatValue(entry.graph.batch?.slug)}: companies without scored evidence must remain at 0`
+      );
+    }
+  }
+
   return violations;
 }
 

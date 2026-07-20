@@ -205,7 +205,10 @@ interface CompanyMatchTarget {
   companyName: string;
   companySlug: string;
   companyWebsiteUrl: string | null;
-  terms: string[];
+  phraseTerms: string[];
+  distinctiveTerms: string[];
+  xHandles: string[];
+  domains: string[];
 }
 
 interface FxTweet {
@@ -339,13 +342,25 @@ const VERIFIED_SOCIAL_OVERRIDES_PATH = join("src", "lib", "social", "verified-so
 const STAGE_LOG_PATH = join("outputs", "ingestion-refresh-stage-log-current.json");
 const LIVE_EVIDENCE_RECORD_CACHE_LIMIT = 8;
 const AMBIGUOUS_TOP_VOICE_MATCH_TERMS = new Set([
+  "alike",
+  "auto",
   "bloom",
   "drafted",
+  "foresight",
   "harbor",
+  "hedge",
   "hub",
+  "hyper",
+  "modern",
   "mount",
+  "palette",
+  "pentagon",
   "pops",
-  "stage"
+  "rational",
+  "result",
+  "scope",
+  "stage",
+  "thomas"
 ]);
 const topVoiceXMissCache = new Map<string, { expiresAt: number; reason: string; checkedAt: string }>();
 const liveEvidenceRecordsCache = new Map<string, { mtimeMs: number; size: number; records: LiveEvidenceRecord[] }>();
@@ -904,18 +919,18 @@ async function loadA16zCompanyMatchTargets(
   const snapshot = await readA16zSocialAccountSnapshot(rootDir, log);
   return (snapshot.companies ?? []).map((company) => {
     const companySlug = slugify(company.companySlug ?? company.companyName);
-    const terms = [
-      company.companyName,
-      companySlug,
-      ...Object.values(company.accounts ?? []).map((account) => genericHandleFromUrl(account.url) ?? account.handle ?? null),
-      ...(company.founders ?? []).map((founder) => founder.name),
+    const names = [company.companyName, companySlug];
+    const xHandles = [
+      ...(company.accounts ?? [])
+        .filter((account) => account.platform === "x")
+        .map((account) => genericHandleFromUrl(account.url) ?? account.handle ?? null),
       ...(company.founders ?? []).flatMap((founder) =>
-        (founder.accounts ?? []).map((account) => genericHandleFromUrl(account.url) ?? account.handle ?? null)
+        (founder.accounts ?? [])
+          .filter((account) => account.platform === "x")
+          .map((account) => genericHandleFromUrl(account.url) ?? account.handle ?? null)
       )
-    ]
-      .filter((value): value is string => Boolean(value))
-      .map(normalizeSearchText)
-      .filter((term) => term.length >= 4 && !isAmbiguousTopVoiceMatchTerm(term));
+    ];
+    const matchTerms = strictCompanyMatchTerms(names, xHandles, []);
 
     return {
       batchSlug: "A16ZSR006",
@@ -923,7 +938,7 @@ async function loadA16zCompanyMatchTargets(
       companyName: company.companyName,
       companySlug,
       companyWebsiteUrl: null,
-      terms: [...new Set(terms)]
+      ...matchTerms
     };
   });
 }
@@ -1133,17 +1148,12 @@ async function loadCompanyMatchTargets(
 }
 
 function companyMatchTargetFor(batchSlug: string, company: RawCompany): CompanyMatchTarget {
-  const terms = [
-    company.name,
-    company.slug,
-    company.websiteUrl ? domainToken(company.websiteUrl) : null,
-    ...Object.values(company.socialLinks ?? {}).map(genericHandleFromUrl),
-    ...(company.founders ?? []).map((founder) => founder.name),
-    ...(company.founders ?? []).flatMap((founder) => Object.values(founder.socialLinks ?? {}).map(genericHandleFromUrl))
-  ]
-    .filter((value): value is string => Boolean(value))
-    .map(normalizeSearchText)
-    .filter((term) => term.length >= 4 && !isAmbiguousTopVoiceMatchTerm(term));
+  const names = [company.name, company.slug];
+  const xHandles = [
+    genericHandleFromUrl(company.socialLinks?.x),
+    ...(company.founders ?? []).map((founder) => genericHandleFromUrl(founder.socialLinks?.x))
+  ];
+  const domains = company.websiteUrl ? [domainToken(company.websiteUrl)] : [];
 
   return {
     batchSlug,
@@ -1151,8 +1161,38 @@ function companyMatchTargetFor(batchSlug: string, company: RawCompany): CompanyM
     companyName: company.name,
     companySlug: company.slug,
     companyWebsiteUrl: company.websiteUrl ?? null,
-    terms: [...new Set(terms)]
+    ...strictCompanyMatchTerms(names, xHandles, domains)
   };
+}
+
+function strictCompanyMatchTerms(
+  rawNames: Array<string | null | undefined>,
+  rawHandles: Array<string | null | undefined>,
+  rawDomains: Array<string | null | undefined>
+): Pick<CompanyMatchTarget, "phraseTerms" | "distinctiveTerms" | "xHandles" | "domains"> {
+  const names = rawNames.filter((value): value is string => Boolean(value));
+  const normalizedNames = names.map((value) => ({ raw: value, normalized: normalizeSearchText(value) }));
+  return {
+    phraseTerms: [...new Set(normalizedNames
+      .map(({ normalized }) => normalized)
+      .filter((term) => term.length >= 4 && term.includes(" ") && !isAmbiguousTopVoiceMatchTerm(term)))],
+    distinctiveTerms: [...new Set(normalizedNames
+      .filter(({ raw, normalized }) => isDistinctiveSingleWordBrand(raw, normalized))
+      .map(({ normalized }) => normalized))],
+    xHandles: [...new Set(rawHandles
+      .map(normalizeHandle)
+      .filter((handle) => handle.length >= 2))],
+    domains: [...new Set(rawDomains
+      .filter((value): value is string => Boolean(value))
+      .map((value) => value.toLowerCase()))]
+  };
+}
+
+function isDistinctiveSingleWordBrand(raw: string, normalized: string): boolean {
+  if (!normalized || normalized.includes(" ") || isAmbiguousTopVoiceMatchTerm(normalized)) {
+    return false;
+  }
+  return normalized.length >= 10 || /[a-z][A-Z]|[A-Z][a-z]+[A-Z]|[0-9.]/.test(raw);
 }
 
 function loadTopVoiceXTargets(audienceId: TopVoiceAudienceId, batchSlugs: string[]): TopVoiceXTarget[] {
@@ -1995,12 +2035,23 @@ function xTweetMetrics(tweet: FxTweet): EvidenceMetrics {
 }
 
 function matchTopVoiceTweetToCompanies(tweet: FxTweet, targets: CompanyMatchTarget[]): CompanyMatchTarget[] {
-  const haystack = normalizeSearchText(String(tweet.text ?? ""));
+  const rawText = String(tweet.text ?? "");
+  const haystack = normalizeSearchText(rawText);
   if (!haystack) {
     return [];
   }
 
-  return targets.filter((target) => target.terms.some((term) => containsSearchTerm(haystack, term)));
+  const lowercaseText = rawText.toLowerCase();
+  return targets.filter((target) =>
+    target.phraseTerms.some((term) => containsSearchTerm(haystack, term)) ||
+    target.distinctiveTerms.some((term) => containsSearchTerm(haystack, term)) ||
+    target.xHandles.some((handle) => containsExplicitXHandle(lowercaseText, handle)) ||
+    target.domains.some((domain) => lowercaseText.includes(domain))
+  );
+}
+
+function containsExplicitXHandle(lowercaseText: string, handle: string): boolean {
+  return new RegExp(`(^|[^a-z0-9_])@${escapeRegExp(handle)}($|[^a-z0-9_])`, "i").test(lowercaseText);
 }
 
 function validateXEvidenceRecord(
@@ -3023,7 +3074,7 @@ function rawHandleFallback(value: string | null | undefined): string | null {
 
 function domainToken(rawUrl: string): string | null {
   try {
-    return new URL(rawUrl).hostname.replace(/^www\./, "").split(".")[0] ?? null;
+    return new URL(rawUrl).hostname.replace(/^www\./, "").toLowerCase() || null;
   } catch {
     return null;
   }

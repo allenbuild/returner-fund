@@ -205,9 +205,9 @@ describe("a16z speedrun 006 dataset", () => {
     ]);
     const byId = new Map(calibrated.map((company) => [company.id, company]));
 
-    expect(byId.get("low-a")?.totalScore).toBe(14);
-    expect(byId.get("low-b")?.totalScore).toBe(14);
-    expect(byId.get("high")?.totalScore).toBe(81);
+    expect(byId.get("low-a")?.totalScore).toBe(1);
+    expect(byId.get("low-b")?.totalScore).toBe(1);
+    expect(byId.get("high")?.totalScore).toBe(100);
     expect(byId.get("none")?.totalScore).toBe(0);
     expect(byId.get("low-a")?.scoreBreakdown).toEqual(
       expect.objectContaining({
