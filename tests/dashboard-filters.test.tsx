@@ -261,7 +261,7 @@ describe("dashboard filters", () => {
       expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/graph/s2026-yc-partners.json"))).toBe(true);
     });
     const staticCall = fetchMock.mock.calls.find(([input]) => String(input).includes("/graph/s2026-yc-partners.json"));
-    expect(staticCall?.[1]).toMatchObject({ cache: "force-cache" });
+    expect(staticCall?.[1]).toMatchObject({ cache: "no-store" });
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes("s2026-insiders.json"))).toBe(false);
     expect(window.location.search).toContain("topVoices=yc_partners");
   });

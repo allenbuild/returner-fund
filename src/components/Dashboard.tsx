@@ -70,7 +70,7 @@ const defaultBatches = [
 ];
 const DEFAULT_BATCH_SLUG = "S2026";
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
-const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-16-fast-snapshot-loading";
+const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-19-metric-integrity";
 const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
 const STATIC_GRAPH_TIMEOUT_MS = 8_000;
 const API_GRAPH_TIMEOUT_MS = 20_000;
@@ -132,7 +132,7 @@ async function fetchGraphPayloadWithStaticSnapshot(
   if (staticSnapshotUrl) {
     try {
       const staticPayload = await fetchGraphPayload(staticSnapshotUrl, 2, {
-        cache: "force-cache",
+        cache: "no-store",
         timeoutMs: STATIC_GRAPH_TIMEOUT_MS,
         signal: options.signal
       });

@@ -108,4 +108,14 @@ describe("public traction snapshot", () => {
     expect(sourceUrls).not.toContain("https://www.youtube.com/watch?v=bSG9wUYaHWU");
     expect(sourceUrls).not.toContain("https://www.youtube.com/watch?v=UUrd9WCQKtc");
   });
+
+  it("keeps the Arctic Health LinkedIn metrics tied to the native post", () => {
+    const row = publicEvidence.evidence.find(
+      (item) => item.platform === "linkedin" && item.platformPostId === "7479951057700306944"
+    );
+
+    expect(row).toBeDefined();
+    expect(row?.metrics).toEqual({ reactions: 13 });
+    expect(row?.metrics).not.toHaveProperty("comments");
+  });
 });
