@@ -187,7 +187,11 @@ export function buildGraphResponse(
       )
     ],
     evidence: visibleEvidence,
-    platformStatus: withForwardCompatiblePlatformStatus(dataset.platformStatus),
+    platformStatus: withForwardCompatiblePlatformStatus(
+      dataset.platformStatus.filter(
+        (status) => !status.batchSlugs?.length || status.batchSlugs.includes(batch.slug)
+      )
+    ),
     selectedTopVoiceAudience: topVoiceAudience.summary,
     topVoiceAudiences: topVoiceAudienceSummaries(),
     generatedAt: responseBuiltAt,

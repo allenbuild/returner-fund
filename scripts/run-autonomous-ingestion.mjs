@@ -7,10 +7,12 @@ import {
   AUTONOMOUS_BATCHES,
   AUTONOMOUS_PROCESS_BUDGETS,
   buildAutonomousTaskPlan,
+  classifyAutonomousCollectorTaskOutcome,
+  countSuccessfulAutonomousCollectorRows,
+  indexAutonomousCollectorTaskOutcomes,
   loadAutonomousCatalogs,
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
-  normalizeAutonomousFailureEntityId,
   summarizeTaskCoverage,
   validateAutonomousCollectorSnapshot
 } from "./lib/autonomous-ingestion-plan.mjs";
@@ -661,10 +663,7 @@ function retryableFailuresFromSnapshot(snapshot) {
 }
 
 function successfulCollectorRowCount(snapshot, kind) {
-  if (kind === "github") {
-    return snapshot.accounts.filter((account) => account.fetched === true).length;
-  }
-  return snapshot.evidence.length + snapshot.needsReview.length;
+  return countSuccessfulAutonomousCollectorRows(snapshot, kind);
 }
 
 async function reconcileCollectorTasks(results, catalogState) {
@@ -676,17 +675,24 @@ async function reconcileCollectorTasks(results, catalogState) {
     const snapshot = result.ok
       ? await readCollectorSnapshot(result.outputPath, result.kind, result)
       : null;
-    const failureKeys = failureKeysFromSnapshot(snapshot, result.batchSlug);
+    const outcomeIndex = result.ok
+      ? indexAutonomousCollectorTaskOutcomes(snapshot, {
+          kind: result.kind,
+          batchSlug: result.batchSlug
+        })
+      : null;
     for (const platform of platforms) {
       const tasks = await tasksFor(result.batchSlug, platform, catalogState);
       for (const task of tasks) {
         const plannedTask = plannedTaskByCheckpointKey.get(task.checkpoint_key);
-        const key = plannedTask
-          ? collectorEntityKey(platform, plannedTask.entityType, plannedTask.entitySourceKey)
-          : collectorEntityKey(platform, task.entity_type, task.company_name);
-        const failed = !result.ok || failureKeys.has(key);
-        const status = failed ? "failed" : "completed";
-        const reason = failed ? result.error ?? "collector_reported_failure" : "checked";
+        const outcome = classifyAutonomousCollectorTaskOutcome(outcomeIndex, {
+          platform,
+          entityType: plannedTask?.entityType ?? task.entity_type,
+          entityId: plannedTask?.entitySourceKey ?? task.company_name,
+          collectorOk: result.ok,
+          collectorError: result.error
+        });
+        const { status, reason } = outcome;
         const groupKey = JSON.stringify([status, reason, result.attempts]);
         const group = updateGroups.get(groupKey) ?? { ids: [], status, reason, attempts: result.attempts };
         group.ids.push(task.id);
@@ -794,14 +800,19 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
   const resultByCollector = new Map(
     collectionResults.map((result) => [`${result.batchSlug}:${result.kind}`, result])
   );
-  const failureKeysByCollector = new Map();
+  const outcomeIndexByCollector = new Map();
   for (const result of collectionResults) {
     const snapshot = result.ok
       ? await readCollectorSnapshot(result.outputPath, result.kind, result)
       : null;
-    failureKeysByCollector.set(
+    outcomeIndexByCollector.set(
       `${result.batchSlug}:${result.kind}`,
-      snapshot ? failureKeysFromSnapshot(snapshot, result.batchSlug) : new Set()
+      snapshot
+        ? indexAutonomousCollectorTaskOutcomes(snapshot, {
+            kind: result.kind,
+            batchSlug: result.batchSlug
+          })
+        : null
     );
   }
 
@@ -809,6 +820,8 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
     expected: tasks.length,
     attempted: 0,
     succeeded: 0,
+    needsReview: 0,
+    blockedOrEmpty: 0,
     failed: 0,
     skipped: 0,
     nonTerminal: 0,
@@ -816,8 +829,15 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
     generatedAt: new Date().toISOString()
   };
   for (const task of tasks) {
-    if (task.status !== "queued" || skipNetwork) {
+    if (skipNetwork) {
       report.skipped += 1;
+      continue;
+    }
+    if (task.status !== "queued") {
+      if (task.status === "needs_review") report.needsReview += 1;
+      else if (task.status === "blocked_or_empty") report.blockedOrEmpty += 1;
+      else if (task.status === "failed") report.failed += 1;
+      else report.skipped += 1;
       continue;
     }
     const kind = task.platform === "github" ? "github" : "public";
@@ -827,12 +847,20 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
       report.nonTerminal += 1;
       continue;
     }
-    const entityKey = collectorEntityKey(task.platform, task.entityType, task.entitySourceKey);
-    if (!result.ok || failureKeysByCollector.get(collectorKey)?.has(entityKey)) {
-      report.failed += 1;
-    } else {
-      report.succeeded += 1;
-    }
+    const outcome = classifyAutonomousCollectorTaskOutcome(
+      outcomeIndexByCollector.get(collectorKey),
+      {
+        platform: task.platform,
+        entityType: task.entityType,
+        entityId: task.entitySourceKey,
+        collectorOk: result.ok,
+        collectorError: result.error
+      }
+    );
+    if (outcome.status === "completed") report.succeeded += 1;
+    else if (outcome.status === "needs_review") report.needsReview += 1;
+    else if (outcome.status === "blocked_or_empty") report.blockedOrEmpty += 1;
+    else report.failed += 1;
   }
   report.attempted = report.expected - report.nonTerminal;
   report.coveragePercentage = report.expected
@@ -876,12 +904,17 @@ async function persistCoverage(catalogState, stageCounters) {
     .eq("ingestion_run_id", run.id);
   check(error, "read terminal coverage");
   const terminalStatuses = new Set(["completed", "needs_review", "blocked_or_empty", "skipped", "failed", "canceled", "dead_lettered"]);
+  const needsReview = (tasks ?? []).filter((task) => task.status === "needs_review").length;
+  const blockedOrEmpty = (tasks ?? []).filter((task) => task.status === "blocked_or_empty").length;
+  const skipped = (tasks ?? []).filter((task) => task.status === "skipped").length;
   const report = {
     expected: tasks?.length ?? 0,
     attempted: (tasks ?? []).filter((task) => task.status !== "queued").length,
     succeeded: (tasks ?? []).filter((task) => task.status === "completed").length,
+    needsReview,
+    blockedOrEmpty,
     failed: (tasks ?? []).filter((task) => ["failed", "dead_lettered"].includes(task.status)).length,
-    skipped: (tasks ?? []).filter((task) => ["skipped", "needs_review", "blocked_or_empty"].includes(task.status)).length,
+    skipped,
     nonTerminal: (tasks ?? []).filter((task) => !terminalStatuses.has(task.status)).length,
     coveragePercentage: tasks?.length
       ? Number((((tasks.length - (tasks ?? []).filter((task) => !terminalStatuses.has(task.status)).length) / tasks.length) * 100).toFixed(2))
@@ -897,7 +930,7 @@ async function persistCoverage(catalogState, stageCounters) {
       attempted_count: report.attempted,
       succeeded_count: report.succeeded,
       failed_count: report.failed,
-      skipped_count: report.skipped,
+      skipped_count: report.skipped + report.needsReview + report.blockedOrEmpty,
       report_json: report
     },
     { onConflict: "ingestion_run_id,report_key" }
@@ -1086,31 +1119,6 @@ async function runCommand(command, commandArgs, { timeoutMs, label, env = {}, al
   });
 }
 
-function failureKeysFromSnapshot(snapshot, batchSlug) {
-  const keys = new Set();
-  for (const failure of snapshot?.failures ?? []) {
-    keys.add(collectorEntityKey(
-      failure.platform,
-      failure.entityType ?? "company",
-      normalizeAutonomousFailureEntityId(failure, { batchSlug })
-    ));
-  }
-  for (const account of snapshot?.accounts ?? []) {
-    if (account.fetched === false) {
-      keys.add(collectorEntityKey(
-        "github",
-        account.entityType ?? "company",
-        account.entityId ?? account.companyName ?? account.companySlug
-      ));
-    }
-  }
-  return keys;
-}
-
-function collectorEntityKey(platform, entityType, entityId) {
-  return `${normalizePlatform(platform)}:${entityType}:${normalizeName(entityId)}`;
-}
-
 function batchCompanyKey(batchSlug, sourceKey) {
   return `${batchSlug}\u0000${sourceKey}`;
 }
@@ -1177,14 +1185,6 @@ function check(error, operation) {
 
 function normalizeReviewState(value) {
   return ["verified", "needs_review", "rejected"].includes(value) ? value : "needs_review";
-}
-
-function normalizePlatform(value) {
-  return value === "twitter" ? "x" : value === "website" ? "web" : value;
-}
-
-function normalizeName(value) {
-  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
 function platformPriority(platform) {

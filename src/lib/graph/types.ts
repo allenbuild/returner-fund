@@ -346,6 +346,7 @@ export interface PlatformStatus {
   status: "working" | "public_only" | "needs_config" | "disabled" | "risky";
   authMethod: string;
   notes: string;
+  batchSlugs?: string[];
 }
 
 export interface TopVoiceMember {

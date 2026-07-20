@@ -1,14 +1,21 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const apiUrl = process.env.GRAPH_API_URL ?? "http://127.0.0.1:3001/api/graph?batch=S26&includeNonScoring=1";
+const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S2026");
+const apiUrl = process.env.GRAPH_API_URL ?? `http://127.0.0.1:3001/api/graph?batch=${batchConfig.slug}&includeNonScoring=1`;
 const graph = await fetchJson(apiUrl);
-const liveCheckpoint = summarizeLiveCheckpoint(await readJson(path.join("work", "public-traction-checkpoint.json"), null));
+const liveCheckpoint = summarizeLiveCheckpoint(await readJson(
+  path.join("work", `public-traction-checkpoint-${batchConfig.slug.toLowerCase()}.json`),
+  null
+));
 const loggedInSocial = summarizeLoggedInSocial(await readJson(path.join("src", "lib", "social", "logged-in-evidence-current.json"), null));
-const loggedInCheckpoint = await readJson(path.join("work", "logged-in-social-checkpoint.json"), null);
-const ycSnapshot = await readJson(path.join("src", "lib", "yc", "summer-2026-companies.json"), null);
+const loggedInCheckpoint = await readJson(path.join(
+  "work",
+  batchConfig.slug === "S26" ? "logged-in-social-checkpoint.json" : `logged-in-social-checkpoint-${batchConfig.slug.toLowerCase()}.json`
+), null);
+const ycSnapshot = await readJson(batchConfig.snapshotPath, null);
 const verifiedSocialOverrides = await readJson(path.join("src", "lib", "social", "verified-social-overrides.json"), {});
-const xTargetCoverage = summarizeXTargetCoverage(ycSnapshot, verifiedSocialOverrides, loggedInCheckpoint);
+const xTargetCoverage = summarizeXTargetCoverage(ycSnapshot, verifiedSocialOverrides, loggedInCheckpoint, batchConfig.slug);
 const instagramDiscovery = await readJson(path.join("outputs", "instagram-discovery-candidates.json"), null);
 const platforms = ["github", "x", "linkedin", "instagram", "product_hunt", "youtube", "rss", "web", "reddit", "hacker_news", "bilibili"];
 const evidenceById = new Map(graph.evidence.map((item) => [item.id, item]));
@@ -63,6 +70,7 @@ const missingByPlatform = platforms
 
 const report = {
   generated_at: new Date().toISOString(),
+  batch_slug: batchConfig.slug,
   api_url: apiUrl,
   company_count: graph.nodes.length,
   evidence_count: graph.evidence.length,
@@ -91,7 +99,7 @@ const report = {
     .slice(0, 25)
 };
 
-const outputPath = path.join("outputs", "coverage-debug-s2026.json");
+const outputPath = path.join("outputs", `coverage-debug-${batchConfig.slug.toLowerCase()}.json`);
 await fs.mkdir("outputs", { recursive: true });
 await fs.writeFile(outputPath, JSON.stringify(report, null, 2));
 await updateCoverageDocs(report);
@@ -148,9 +156,9 @@ function summarizeLoggedInSocial(snapshot) {
   };
 }
 
-function summarizeXTargetCoverage(snapshot, overrides, checkpoint) {
+function summarizeXTargetCoverage(snapshot, overrides, checkpoint, batchSlug) {
   if (!snapshot || !checkpoint) return null;
-  const targets = collectXTargets(snapshot.companies ?? [], overrides ?? {});
+  const targets = collectXTargets(snapshot.companies ?? [], overrides ?? {}, batchSlug);
   const attempts = checkpoint.attempts ?? {};
   const evidence = checkpoint.evidence ?? [];
   const evidenceCompanies = new Set(evidence.filter((row) => row.platform === "x").map((row) => row.companySlug).filter(Boolean));
@@ -196,38 +204,42 @@ function summarizeXTargetCoverage(snapshot, overrides, checkpoint) {
   };
 }
 
-function collectXTargets(companies, overrides) {
+function collectXTargets(companies, overrides, batchSlug) {
   const targets = [];
   for (const company of companies) {
-    if (company.socialLinks?.x) {
-      targets.push(xTarget(company, company, "company", company.socialLinks.x, companyId(company)));
+    const override = overrides[company.slug] ?? {};
+    const companyX = override.companySocialLinks?.x ?? company.socialLinks?.x;
+    if (companyX) {
+      targets.push(xTarget(company, company, "company", companyX, companyId(company), batchSlug));
     }
     for (const founder of company.founders ?? []) {
-      if (founder.socialLinks?.x) {
-        targets.push(xTarget(company, founder, "founder", founder.socialLinks.x, founderId(company, founder)));
+      const verifiedFounder = (override.founders ?? []).find(
+        (candidate) => String(candidate.id) === String(founder.id) || slugify(candidate.name) === slugify(founder.name)
+      );
+      const founderX = verifiedFounder?.socialLinks?.x ?? founder.socialLinks?.x;
+      if (founderX) {
+        targets.push(xTarget(company, verifiedFounder ?? founder, "founder", founderX, founderId(company, founder), batchSlug));
       }
     }
-    const override = overrides[company.slug] ?? {};
-    if (override.companySocialLinks?.x) {
-      targets.push(xTarget(company, company, "company", override.companySocialLinks.x, companyId(company)));
-    }
+    const rosterFounderKeys = new Set((company.founders ?? []).flatMap((founder) => [String(founder.id), slugify(founder.name)]));
     for (const founder of override.founders ?? []) {
+      if (rosterFounderKeys.has(String(founder.id)) || rosterFounderKeys.has(slugify(founder.name))) continue;
       if (founder.socialLinks?.x) {
-        targets.push(xTarget(company, founder, "founder", founder.socialLinks.x, manualFounderId(company, founder)));
+        targets.push(xTarget(company, founder, "founder", founder.socialLinks.x, manualFounderId(company, founder), batchSlug));
       }
     }
   }
   return [...new Map(targets.map((target) => [target.key, target])).values()];
 }
 
-function xTarget(company, entity, entityType, url, entityId) {
+function xTarget(company, entity, entityType, url, entityId, batchSlug) {
   return {
     companySlug: company.slug,
     companyName: company.name,
     entityType,
     entityName: entityType === "company" ? company.name : entity.name,
     url,
-    key: `x:${entityId}:${url}`
+    key: `${batchSlug}:x:${entityId}:${url}`
   };
 }
 
@@ -258,12 +270,29 @@ function slugify(value) {
     .replace(/^-|-$/g, "");
 }
 
+function resolveBatchConfig(value) {
+  const normalized = String(value ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (["S26", "YCS26", "SUMMER2026", "YCSUMMER2026"].includes(normalized)) {
+    return { slug: "S26", snapshotPath: path.join("src", "lib", "yc", "summer-2026-companies.json") };
+  }
+  if (["S2026", "P26", "YCS2026", "YCP26", "SPRING2026", "YCSPRING2026"].includes(normalized)) {
+    return { slug: "S2026", snapshotPath: path.join("src", "lib", "yc", "spring-2026-companies.json") };
+  }
+  throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026.`);
+}
+
+function stringArg(name) {
+  return process.argv.find((arg) => arg.startsWith(`${name}=`))?.split("=").slice(1).join("=");
+}
+
 async function updateCoverageDocs(report) {
+  const reportSlug = String(report.batch_slug ?? "S2026").toLowerCase();
   const lines = [
     "# Coverage Report",
     "",
     "## Latest Snapshot",
     "",
+    `- Batch: ${report.batch_slug}.`,
     `- Generated at: ${report.generated_at}.`,
     `- Graph nodes: ${report.company_count} company nodes.`,
     "- Founder graph nodes: 0.",
@@ -302,7 +331,7 @@ async function updateCoverageDocs(report) {
     ...(report.x_target_coverage
       ? [
           `- Known X targets: ${report.x_target_coverage.known_x_targets}.`,
-          `- Companies with known X targets: ${report.x_target_coverage.companies_with_known_x_targets}/197.`,
+          `- Companies with known X targets: ${report.x_target_coverage.companies_with_known_x_targets}/${report.company_count}.`,
           `- Attempted X targets: ${report.x_target_coverage.attempted_targets}.`,
           `- Not yet attempted X targets: ${report.x_target_coverage.not_attempted_targets}.`,
           `- Zero-post X targets: ${report.x_target_coverage.zero_post_targets}.`,
@@ -341,9 +370,8 @@ async function updateCoverageDocs(report) {
     "",
     "## Reports",
     "",
-    "- Coverage JSON: `outputs/coverage-debug-s2026.json`",
-    "- Worker JSON: `outputs/workers-debug-s2026.json`",
-    "- Duplicate JSON: `outputs/duplicates-debug-s2026.json`",
+    `- Coverage JSON: \`outputs/coverage-debug-${reportSlug}.json\``,
+    "- Worker and duplicate reports are generated separately and retain the batch selected by their own command.",
     ""
   ];
   await fs.writeFile(path.join("docs", "COVERAGE_REPORT.md"), lines.join("\n"));

@@ -37,6 +37,8 @@ const auditPath = stringArg("--audit-output");
 const dryRun = process.argv.includes("--dry-run");
 const writeMode = process.argv.includes("--write");
 const strict = process.argv.includes("--strict");
+const appendOnly = process.argv.includes("--append-only");
+const refreshGenerated = process.argv.includes("--refresh-generated");
 const inputPaths = valueArgs("--input").map((value) => resolve(root, value));
 const observedAt = validTimestamp(stringArg("--observed-at"));
 const includedBatches = new Set(
@@ -62,13 +64,19 @@ const rowsByUrl = new Map();
 
 for (const row of externalRows) {
   const normalized = normalizedIdentity(row);
-  if (normalized.identity) rowsByIdentity.set(normalized.identity, row);
-  if (normalized.urlIdentity) rowsByUrl.set(normalized.urlIdentity, row);
+  const entityId = canonicalEntityId(row, entitiesById, targetKind);
+  const identityKey = attributedIdentityKey(normalized.identity, entityId);
+  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId);
+  if (identityKey) rowsByIdentity.set(identityKey, row);
+  if (urlKey) rowsByUrl.set(urlKey, row);
 }
 for (const row of existingRows) {
   const normalized = normalizedIdentity(row);
-  if (normalized.identity) rowsByIdentity.set(normalized.identity, row);
-  if (normalized.urlIdentity) rowsByUrl.set(normalized.urlIdentity, row);
+  const entityId = canonicalEntityId(row, entitiesById, targetKind);
+  const identityKey = attributedIdentityKey(normalized.identity, entityId);
+  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId);
+  if (identityKey) rowsByIdentity.set(identityKey, row);
+  if (urlKey) rowsByUrl.set(urlKey, row);
 }
 
 const audit = {
@@ -89,7 +97,14 @@ const audit = {
 };
 
 for (const [inputIndex, input] of inputs.entries()) {
-  const rows = Array.isArray(input) ? input : Array.isArray(input.evidence) ? input.evidence : [];
+  const acceptedEnvelope = !Array.isArray(input) && Array.isArray(input.accepted);
+  const rows = Array.isArray(input)
+    ? input
+    : Array.isArray(input.evidence)
+      ? input.evidence
+      : acceptedEnvelope
+        ? input.accepted.map((row) => ({ ...row, review_state: row.review_state ?? "verified" }))
+        : [];
   for (const [rowIndex, row] of rows.entries()) {
     audit.received += 1;
     if (includedBatches.size > 0) {
@@ -124,7 +139,9 @@ for (const [inputIndex, input] of inputs.entries()) {
       continue;
     }
 
-    const existing = rowsByIdentity.get(result.identity) ?? rowsByUrl.get(result.urlIdentity);
+    const identityKey = attributedIdentityKey(result.identity, result.entityId);
+    const urlKey = attributedIdentityKey(result.urlIdentity, result.entityId);
+    const existing = rowsByIdentity.get(identityKey) ?? rowsByUrl.get(urlKey);
     if (existing) {
       audit.duplicates += 1;
       audit.duplicateRows.push({
@@ -149,26 +166,33 @@ for (const [inputIndex, input] of inputs.entries()) {
           sourceUrl: result.row.sourceUrl,
           reasons: ["attribution_conflict"]
         });
-      } else if (shouldReplaceObservation(existing, result.row)) {
+      } else if (
+        !appendOnly &&
+        (refreshGenerated
+          ? cleanString(existing.id) === cleanString(result.row.id)
+          : shouldReplaceObservation(existing, result.row))
+      ) {
         if (targetKind === "yc") {
-          result.row.first_seen_at = existing.first_seen_at ?? result.row.first_seen_at;
+          result.row.first_seen_at = refreshGenerated
+            ? earliestTimestamp(existing.first_seen_at, result.row.first_seen_at)
+            : existing.first_seen_at ?? result.row.first_seen_at;
         }
         existingRows[index] = result.row;
-        rowsByIdentity.set(result.identity, result.row);
-        rowsByUrl.set(result.urlIdentity, result.row);
+        rowsByIdentity.set(identityKey, result.row);
+        rowsByUrl.set(urlKey, result.row);
         audit.updated += 1;
       }
       continue;
     }
 
     existingRows.push(result.row);
-    rowsByIdentity.set(result.identity, result.row);
-    rowsByUrl.set(result.urlIdentity, result.row);
+    rowsByIdentity.set(identityKey, result.row);
+    rowsByUrl.set(urlKey, result.row);
     audit.accepted += 1;
   }
 }
 
-target.evidence = existingRows.sort(compareEvidence);
+target.evidence = appendOnly ? existingRows : existingRows.sort(compareEvidence);
 target.source = target.source && typeof target.source === "object" ? target.source : {};
 if (targetKind === "a16z") {
   target.source.generatedAt = observedAt;
@@ -212,12 +236,15 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
   const suppliedPostId = cleanString(row?.platformPostId ?? row?.nativeId);
   const metricResult = normalizeMetrics(platform, row?.metrics);
   const metrics = metricResult.metrics;
-  const entityId = cleanString(row?.entityId);
+  const inferredAttribution = resolveInputAttribution(row, entitiesById, targetKind);
+  const entityId = cleanString(row?.entityId) ?? inferredAttribution?.entityId ?? null;
   const entity = entityId ? entitiesById.get(entityId) : null;
+  const entityType = cleanString(row?.entityType) ?? inferredAttribution?.entityType ?? null;
   const postedAt = validTimestamp(row?.postedAt ?? row?.publishedAt);
-  const rawAuthor = authorFromRawVisibleText(row?.rawVisibleText);
-  const authorName = cleanString(row?.authorName) ?? rawAuthor.name;
-  const matchReason = cleanString(row?.matchReason);
+  const rawVisibleText = serializedVisibleText(row?.rawVisibleText);
+  const rawAuthor = authorFromRawVisibleText(rawVisibleText);
+  const authorName = cleanString(row?.authorName ?? row?.voiceName) ?? rawAuthor.name;
+  const matchReason = cleanString(row?.matchReason ?? row?.evidenceReason ?? row?.verificationNotes);
   const reasons = [];
 
   if (!platform) reasons.push("unsupported_platform");
@@ -230,11 +257,11 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
   if (metricResult.unsupported.length > 0) reasons.push(`unsupported_metrics:${metricResult.unsupported.join(",")}`);
   if (row?.review_state !== "verified") reasons.push("not_verified");
   if (["invalid", "blocked"].includes(row?.linkStatus)) reasons.push("invalid_link");
-  if (!entityId || !["company", "founder"].includes(row?.entityType)) {
+  if (!entityId || !["company", "founder"].includes(entityType)) {
     reasons.push("missing_attribution");
   }
   if (entityId && !entity) reasons.push("unknown_entity");
-  if (entity && row.entityType !== entity.entityType) reasons.push("entity_type_conflict");
+  if (entity && entityType !== entity.entityType) reasons.push("entity_type_conflict");
 
   if (targetKind === "a16z" && entity) {
     if (cleanString(row.companySlug) && slugify(row.companySlug) !== entity.companySlug) {
@@ -295,7 +322,7 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
       ...(cleanString(row.thumbnailUrl) ? { thumbnailUrl: cleanString(row.thumbnailUrl) } : {}),
       ...(cleanString(row.thumbnailSource) ? { thumbnailSource: cleanString(row.thumbnailSource) } : {}),
       metrics,
-      rawVisibleText: cleanString(row.rawVisibleText) ?? JSON.stringify({
+      rawVisibleText: rawVisibleText ?? JSON.stringify({
         source: "strict_source_hunt",
         metrics,
         verification: matchReason
@@ -317,9 +344,9 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
   const normalized = {
     ...row,
     id,
-    entityType: row.entityType,
+    entityType,
     entityId,
-    companyName: cleanString(row.companyName) ?? cleanString(row.entityName) ?? entityId,
+    companyName: cleanString(row.companyName ?? row.company) ?? cleanString(row.entityName) ?? entity?.companyName ?? entityId,
     platform,
     title,
     sourceUrl,
@@ -327,10 +354,10 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
     authorName,
     authorHandle: cleanString(row.authorHandle) ?? rawAuthor.handle,
     text: cleanString(row.text) ?? title,
-    rawVisibleText: cleanString(row.rawVisibleText) ?? JSON.stringify({
+    rawVisibleText: rawVisibleText ?? JSON.stringify({
       source: "strict_source_hunt",
       metrics,
-      verification: cleanString(row.matchReason) ?? "Native activity URL with visible positive metrics."
+      verification: matchReason ?? "Native activity URL with visible positive metrics."
     }),
     postedAt,
     metrics,
@@ -360,6 +387,32 @@ function normalizedIdentity(row) {
     identity: platform && platformPostId ? `${platform}:post:${identityPostId(platform, platformPostId)}` : null,
     urlIdentity: platform && sourceUrl ? `${platform}:url:${sourceUrl.toLowerCase()}` : null
   };
+}
+
+function attributedIdentityKey(physicalIdentity, entityId) {
+  return physicalIdentity && entityId ? `${entityId}:${physicalIdentity}` : null;
+}
+
+function resolveInputAttribution(row, entitiesById, targetKind) {
+  const supplied = cleanString(row?.entityId);
+  if (supplied) {
+    const entity = entitiesById.get(supplied);
+    return entity ? { entityId: supplied, entityType: entity.entityType } : null;
+  }
+  if (targetKind !== "yc") return null;
+
+  const companyName = cleanString(row?.companyName ?? row?.company);
+  if (!companyName) return null;
+  const matches = [...entitiesById.entries()].filter(([, entity]) =>
+    entity.entityType === "company" && slugify(entity.companyName) === slugify(companyName)
+  );
+  if (matches.length !== 1) return null;
+  return { entityId: matches[0][0], entityType: "company" };
+}
+
+function serializedVisibleText(value) {
+  if (value && typeof value === "object") return JSON.stringify(value);
+  return cleanString(value);
 }
 
 function nativeIdentity(platform, sourceUrl) {
@@ -550,6 +603,14 @@ function validTimestamp(value) {
   return Number.isNaN(date.getTime()) ? null : text;
 }
 
+function earliestTimestamp(...values) {
+  const valid = values
+    .map((value) => validTimestamp(value))
+    .filter(Boolean)
+    .sort((left, right) => Date.parse(left) - Date.parse(right));
+  return valid[0] ?? null;
+}
+
 function finiteNumber(value) {
   const number = typeof value === "string" ? Number(value.replace(/,/g, "")) : Number(value);
   return Number.isFinite(number) ? number : null;
@@ -594,16 +655,31 @@ async function knownYcEntities() {
   for (const snapshot of snapshots) {
     for (const company of snapshot.companies ?? []) {
       currentCompanySlugs.add(company.slug);
-      entities.set(`company-${company.slug}`, { entityType: "company" });
+      entities.set(`company-${company.slug}`, {
+        entityType: "company",
+        companyName: company.name,
+        companySlug: company.slug
+      });
       for (const founder of company.founders ?? []) {
-        entities.set(`founder-${company.slug}-${slugify(founder.name)}-${founder.id}`, { entityType: "founder" });
+        entities.set(`founder-${company.slug}-${slugify(founder.name)}-${founder.id}`, {
+          entityType: "founder",
+          companyName: company.name,
+          companySlug: company.slug,
+          founderName: founder.name
+        });
       }
     }
   }
   for (const row of target.evidence ?? []) {
     const entityId = cleanString(row.entityId);
     if (entityId && entityBelongsToCurrentCompany(entityId, currentCompanySlugs)) {
-      entities.set(entityId, { entityType: row.entityType });
+      const existing = entities.get(entityId);
+      entities.set(entityId, {
+        entityType: row.entityType,
+        companyName: row.companyName ?? existing?.companyName,
+        companySlug: row.companySlug ?? existing?.companySlug,
+        founderName: existing?.founderName
+      });
     }
   }
   return entities;

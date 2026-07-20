@@ -986,7 +986,10 @@ function validateEvidence(evidence, nodes, expectedAudience, artifactPath, viola
     }
     const identity = identities.urlId ?? identities.explicitId;
     if (identity) {
-      const key = `${item.platform}:${identity}`;
+      // Display evidence is entity-scoped: a single list/recommendation post may
+      // legitimately support every company it explicitly names. Physical dedupe
+      // still happens inside each company score rollup.
+      const key = `${item.entityId ?? "unknown-entity"}:${item.platform}:${identity}`;
       const existing = nativeIdentities.get(key);
       if (existing) {
         violations.push(

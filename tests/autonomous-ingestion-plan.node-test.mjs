@@ -4,6 +4,9 @@ import {
   AUTONOMOUS_PLATFORMS,
   AUTONOMOUS_PROCESS_BUDGETS,
   buildAutonomousTaskPlan,
+  classifyAutonomousCollectorTaskOutcome,
+  countSuccessfulAutonomousCollectorRows,
+  indexAutonomousCollectorTaskOutcomes,
   loadAutonomousCatalogs,
   maxAutonomousRunnerProcessBudgetMs,
   mergeGithubTractionSnapshots,
@@ -20,7 +23,7 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     const catalogs = await loadAutonomousCatalogs(repositoryRoot);
 
     assert.deepEqual(catalogs.map(summarizeCatalog), [
-      { slug: "S2026", companies: 197, founders: 397, accounts: 948 },
+      { slug: "S2026", companies: 197, founders: 397, accounts: 950 },
       { slug: "S26", companies: 115, founders: 228, accounts: 548 },
       { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
     ]);
@@ -166,6 +169,150 @@ describe("autonomous collector snapshot validation", () => {
   });
 });
 
+describe("autonomous collector task accounting", () => {
+  it("does not count review candidates or failures as successful public output", () => {
+    assert.equal(countSuccessfulAutonomousCollectorRows({
+      evidence: [
+        { id: "evidence-1", review_state: "verified" },
+        { id: "quarantined-1", review_state: "needs_review" }
+      ],
+      needsReview: [{ id: "review-1" }, { id: "review-2" }],
+      failures: [{ id: "failure-1" }]
+    }, "public"), 1);
+    assert.equal(countSuccessfulAutonomousCollectorRows({
+      evidence: [],
+      needsReview: [{ id: "review-only" }],
+      failures: []
+    }, "public"), 0);
+    assert.equal(countSuccessfulAutonomousCollectorRows({
+      evidence: [{ id: "quarantined-only", review_state: "needs_review" }],
+      needsReview: [],
+      failures: []
+    }, "public"), 0);
+    assert.equal(countSuccessfulAutonomousCollectorRows({
+      accounts: [{ fetched: true }, { fetched: false }, { fetched: true }]
+    }, "github"), 2);
+  });
+
+  it("classifies evidence, review-only, failure-only, and empty public tasks distinctly", () => {
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [{
+        platform: "x",
+        entityType: "company",
+        entityId: "company-has-evidence",
+        review_state: "verified"
+      }, {
+        platform: "web",
+        entityType: "company",
+        entityId: "company-quarantined-evidence",
+        review_state: "needs_review",
+        matchReason: "Context row requires review."
+      }],
+      needsReview: [{
+        platform: "linkedin",
+        entityType: "founder",
+        entityId: "founder-review-only",
+        matchReason: "Identity needs confirmation."
+      }],
+      failures: [{
+        platform: "youtube",
+        entityType: "company",
+        entityId: "company-failed",
+        message: "Collector was blocked."
+      }]
+    }, { kind: "public", batchSlug: "S26" });
+
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-has-evidence"
+    }), { status: "completed", reason: "collector_evidence_collected" });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "web",
+      entityType: "company",
+      entityId: "company-quarantined-evidence"
+    }), { status: "needs_review", reason: "collector_needs_review" });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "linkedin",
+      entityType: "founder",
+      entityId: "founder-review-only"
+    }), { status: "needs_review", reason: "collector_needs_review" });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "youtube",
+      entityType: "company",
+      entityId: "company-failed"
+    }), { status: "failed", reason: "collector_reported_failure" });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "reddit",
+      entityType: "company",
+      entityId: "company-empty"
+    }), { status: "blocked_or_empty", reason: "collector_returned_no_entity_rows" });
+  });
+
+  it("prefers validated evidence over review and failure rows for the same task", () => {
+    const task = {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-mixed"
+    };
+    const row = { ...task };
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [row],
+      needsReview: [{ ...row, matchReason: "Secondary candidate needs review." }],
+      failures: [{ ...row, message: "One fallback source failed." }]
+    }, { kind: "public", batchSlug: "S26" });
+
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, task), {
+      status: "completed",
+      reason: "collector_evidence_collected"
+    });
+  });
+
+  it("normalizes A16Z collector IDs and marks missing or failed GitHub accounts accurately", () => {
+    const index = indexAutonomousCollectorTaskOutcomes({
+      accounts: [
+        {
+          entityType: "company",
+          entityId: "company-acceler8",
+          companySlug: "acceler8",
+          fetched: true
+        },
+        {
+          entityType: "founder",
+          entityId: "founder-acceler8-trisha-pathak-a16z-speedrun-006-acceler8-founder-trisha-pathak",
+          companySlug: "acceler8",
+          entityName: "Trisha Pathak",
+          fetched: false,
+          error: "GitHub API unavailable."
+        }
+      ]
+    }, { kind: "github", batchSlug: "A16ZSR006" });
+
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "github",
+      entityType: "company",
+      entityId: "a16z-speedrun-006-acceler8"
+    }).status, "completed");
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "github",
+      entityType: "founder",
+      entityId: "a16z-speedrun-006-acceler8-founder-trisha-pathak"
+    }), { status: "failed", reason: "collector_reported_failure" });
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "github",
+      entityType: "company",
+      entityId: "a16z-speedrun-006-no-account"
+    }).status, "blocked_or_empty");
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(null, {
+      platform: "github",
+      entityType: "company",
+      entityId: "a16z-speedrun-006-no-account",
+      collectorOk: false,
+      collectorError: "Process exited 1."
+    }), { status: "failed", reason: "Process exited 1." });
+  });
+});
+
 describe("autonomous collector failure identities", () => {
   it("normalizes A16Z company and founder failures to task-plan entity IDs", () => {
     assert.equal(normalizeAutonomousFailureEntityId({
@@ -190,6 +337,48 @@ describe("autonomous collector failure identities", () => {
 });
 
 describe("autonomous public evidence merge", () => {
+  it("retains a native multi-company post once for each distinct entity attribution", () => {
+    const sourceUrl = "https://www.linkedin.com/posts/test_activity-7999999999999999999-fixture";
+    const merged = mergePublicEvidenceSnapshots([
+      {
+        source: { batchSlug: "S2026" },
+        evidence: [
+          {
+            entityId: "company-eden-robotics",
+            platform: "linkedin",
+            nativeId: "7999999999999999999",
+            sourceUrl,
+            last_checked_at: "2026-07-20T12:00:00.000Z"
+          },
+          {
+            entityId: "company-9-mothers-corporation",
+            platform: "linkedin",
+            nativeId: "7999999999999999999",
+            sourceUrl,
+            last_checked_at: "2026-07-20T12:00:00.000Z"
+          },
+          {
+            entityId: "company-eden-robotics",
+            platform: "linkedin",
+            nativeId: "7999999999999999999",
+            sourceUrl,
+            last_checked_at: "2026-07-19T12:00:00.000Z",
+            stale: true
+          }
+        ],
+        needsReview: [],
+        failures: []
+      }
+    ]);
+
+    assert.equal(merged.evidence.length, 2);
+    assert.deepEqual(
+      merged.evidence.map((row) => row.entityId).sort(),
+      ["company-9-mothers-corporation", "company-eden-robotics"]
+    );
+    assert.equal(merged.evidence.some((row) => row.stale), false);
+  });
+
   it("deduplicates evidence and review/failure rows while preserving the newest observation", () => {
     const newer = {
       source: { batchSlug: "S26" },

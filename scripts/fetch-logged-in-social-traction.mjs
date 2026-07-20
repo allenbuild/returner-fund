@@ -3,9 +3,16 @@ import { dirname, join } from "node:path";
 import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
 
 const root = process.cwd();
-const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
+const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
+const ycSnapshotPath = batchConfig.snapshotPath;
 const outputPath = join(root, "src", "lib", "social", "logged-in-evidence-current.json");
-const checkpointPath = join(root, "work", "logged-in-social-checkpoint.json");
+const checkpointPath = join(
+  root,
+  "work",
+  batchConfig.slug === "S26"
+    ? "logged-in-social-checkpoint.json"
+    : `logged-in-social-checkpoint-${batchConfig.slug.toLowerCase()}.json`
+);
 const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
 const now = new Date().toISOString();
 const targetLimit = numberArg("--max-targets") ?? Number.POSITIVE_INFINITY;
@@ -24,6 +31,7 @@ const allowXAdapterFallback = booleanArg("--allow-x-adapter-fallback");
 const finalizeOnly = booleanArg("--finalize-only");
 const retryEmpty = booleanArg("--retry-empty");
 const allowLinkedIn = platformFilter.has("linkedin") && booleanArg("--allow-linkedin");
+const planOnly = booleanArg("--plan");
 const openCliFormatArgs = ["-f", "json", "--site-session", "persistent"];
 const instagramTractionCutoffMs = Date.parse("2025-01-01T00:00:00.000Z");
 let writeSequence = 0;
@@ -40,6 +48,26 @@ const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkp
 
 const targets = finalizeOnly ? [] : collectTargets(ycSnapshot.companies).slice(0, targetLimit);
 console.log(`Logged-in social targets: ${targets.length} (${workers} workers, up to ${postLimit} posts each, ${scrollPasses} scroll passes).`);
+
+if (planOnly) {
+  console.log(JSON.stringify({
+    batchSlug: batchConfig.slug,
+    snapshotPath: ycSnapshotPath,
+    targets: targets.map((target) => ({
+      batchSlug: target.batchSlug,
+      companySlug: target.companySlug,
+      companyName: target.companyName,
+      entityType: target.entityType,
+      entityId: target.entityId,
+      entityName: target.name,
+      platform: target.platform,
+      accountUrl: target.url,
+      activityUrl: target.platform === "linkedin" ? linkedInActivityUrl(target.url) : target.url,
+      checkpointKey: attemptKeyFor(target)
+    }))
+  }, null, 2));
+  process.exit(0);
+}
 
 await runWorkerPool(targets, workers, async (target, workerIndex) => {
   const attemptKey = attemptKeyFor(target);
@@ -74,6 +102,7 @@ const payloadFailures = dedupeById(failures).filter((item) => !isObsoleteToolFai
 const payload = {
   source: {
     label: "Opt-in logged-in browser social post ingestion",
+    batchSlug: batchConfig.slug,
     fetchedAt: now,
     targetCount: targets.length,
     fetchedCount: targets.filter((target) => attemptMap.get(attemptKeyFor(target))?.status === "done").length,
@@ -104,27 +133,57 @@ function collectTargets(companies) {
       continue;
     }
     if (entityFilter !== "founder") {
-      if (allowLinkedIn && company.socialLinks?.linkedin) {
-        targets.push(targetFor(company, company, "company", "linkedin", company.socialLinks.linkedin));
+      const companySocialLinks = {
+        ...(company.socialLinks ?? {}),
+        ...(verifiedSocialOverrides[company.slug]?.companySocialLinks ?? verifiedSocialOverrides[company.slug]?.company ?? {})
+      };
+      if (allowLinkedIn && companySocialLinks.linkedin) {
+        targets.push(targetFor(company, company, "company", "linkedin", companySocialLinks.linkedin));
       }
-      if (platformFilter.has("x") && company.socialLinks?.x) {
-        targets.push(targetFor(company, company, "company", "x", company.socialLinks.x));
+      if (platformFilter.has("x") && companySocialLinks.x) {
+        targets.push(targetFor(company, company, "company", "x", companySocialLinks.x));
       }
-      if (platformFilter.has("instagram") && company.socialLinks?.instagram) {
-        targets.push(targetFor(company, company, "company", "instagram", company.socialLinks.instagram));
+      if (platformFilter.has("instagram") && companySocialLinks.instagram) {
+        targets.push(targetFor(company, company, "company", "instagram", companySocialLinks.instagram));
       }
     }
 
     if (entityFilter !== "company") {
       for (const founder of company.founders ?? []) {
-        if (allowLinkedIn && founder.socialLinks?.linkedin) {
-          targets.push(targetFor(company, founder, "founder", "linkedin", founder.socialLinks.linkedin));
+        const verifiedFounder = (verifiedSocialOverrides[company.slug]?.founders ?? []).find(
+          (candidate) => String(candidate.id) === String(founder.id) || slugify(candidate.name) === slugify(founder.name)
+        );
+        const founderSocialLinks = {
+          ...(founder.socialLinks ?? {}),
+          ...(verifiedFounder?.socialLinks ?? {})
+        };
+        const targetFounder = verifiedFounder ? { ...founder, ...verifiedFounder, socialLinks: founderSocialLinks } : founder;
+        if (allowLinkedIn && founderSocialLinks.linkedin) {
+          targets.push(targetFor(
+            company,
+            verifiedFounder?.socialLinks?.linkedin ? targetFounder : founder,
+            "founder",
+            "linkedin",
+            founderSocialLinks.linkedin
+          ));
         }
-        if (platformFilter.has("x") && founder.socialLinks?.x) {
-          targets.push(targetFor(company, founder, "founder", "x", founder.socialLinks.x));
+        if (platformFilter.has("x") && founderSocialLinks.x) {
+          targets.push(targetFor(
+            company,
+            verifiedFounder?.socialLinks?.x ? targetFounder : founder,
+            "founder",
+            "x",
+            founderSocialLinks.x
+          ));
         }
-        if (platformFilter.has("instagram") && founder.socialLinks?.instagram) {
-          targets.push(targetFor(company, founder, "founder", "instagram", founder.socialLinks.instagram));
+        if (platformFilter.has("instagram") && founderSocialLinks.instagram) {
+          targets.push(targetFor(
+            company,
+            verifiedFounder?.socialLinks?.instagram ? targetFounder : founder,
+            "founder",
+            "instagram",
+            founderSocialLinks.instagram
+          ));
         }
       }
     }
@@ -139,6 +198,8 @@ function targetFor(company, entity, entityType, platform, url) {
   return {
     platform,
     url,
+    batchSlug: batchConfig.slug,
+    batch: company.batch,
     companySlug: company.slug,
     companyName: company.name,
     companyWebsiteUrl: company.websiteUrl,
@@ -157,6 +218,7 @@ function manualTargetsForCompany(company) {
   if (entityFilter !== "founder") {
     for (const [platform, url] of Object.entries(override.companySocialLinks ?? override.company ?? {})) {
       if (platformFilter.has(platform)) {
+        if (platform === "linkedin" && !allowLinkedIn) continue;
         if (platform === "instagram" && !instagramOverrideIsVerifiedForIngestion(override)) {
           continue;
         }
@@ -180,9 +242,10 @@ function manualTargetsForCompany(company) {
 
   if (entityFilter !== "company") {
     for (const founder of override.founders ?? []) {
-      for (const platform of ["instagram", "x"]) {
+      for (const platform of ["instagram", "x", "linkedin"]) {
         const url = founder.socialLinks?.[platform] ?? founder[platform];
         if (url && platformFilter.has(platform)) {
+          if (platform === "linkedin" && !allowLinkedIn) continue;
           if (platform === "instagram" && !instagramMatchReasonIsVerifiedForIngestion(founder.matchReason)) {
             continue;
           }
@@ -227,16 +290,19 @@ async function fetchLinkedInPosts(target, workerIndex) {
   const raw = await runOpenCli(["browser", session, "eval", linkedInExtractJs()], { timeoutMs: perTargetTimeoutMs });
   const posts = parseJsonOutput(raw)
     .filter((post) => !isLinkedInRepost(post, target.name))
+    .filter((post) => linkedinPostIdFromUrl(post.url))
     .slice(0, postLimit);
   if (!posts.length) {
     return { evidence: [], failures: [failure(target, "No original visible LinkedIn posts found on activity page.", activityUrl)], needsReview: [] };
   }
 
   return {
-    evidence: posts.map((post, index) =>
+    evidence: posts.map((post) =>
       socialEvidenceItem({
         target,
-        sourceUrl: post.url || `${activityUrl}#post-${index + 1}`,
+        sourceUrl: post.url,
+        platformPostId: linkedinPostIdFromUrl(post.url),
+        accountUrl: target.url,
         title: `${target.name} LinkedIn post`,
         text: post.body || post.rawText || `${target.name} LinkedIn post`,
         rawVisibleText: post.rawText || post.body || "",
@@ -579,6 +645,11 @@ function linkedInActivityUrl(url) {
   return null;
 }
 
+function linkedinPostIdFromUrl(url) {
+  const value = String(url ?? "");
+  return value.match(/(?:urn:li:activity:|activity-)(\d{10,})/i)?.[1] ?? null;
+}
+
 function xHandleFromUrl(url) {
   try {
     const parsed = new URL(url);
@@ -617,12 +688,15 @@ function socialEvidenceItem(input) {
     id: stableId(`${input.target.platform}:${input.target.entityId}:${input.sourceUrl}:${input.text}`),
     entityType: input.target.entityType,
     entityId: input.target.entityId,
+    batch: input.target.batch,
+    batchSlug: input.target.batchSlug,
     companySlug: input.target.companySlug,
     companyName: input.target.companyName,
     platform: input.target.platform,
     title: sanitizePublicText(input.title),
     sourceUrl: input.sourceUrl,
     platformPostId: input.platformPostId ?? null,
+    accountUrl: input.accountUrl ?? input.target.url,
     text: sanitizePublicText(textValue).slice(0, 900),
     rawVisibleText: rawVisibleText.slice(0, 8000),
     postedAt: input.postedAt ?? null,
@@ -677,6 +751,8 @@ function failure(target, message, sourceUrl = target.url) {
     companyName: target.companyName,
     entityType: target.entityType,
     entityName: target.name,
+    batch: target.batch,
+    batchSlug: target.batchSlug,
     sourceUrl,
     message,
     checkedAt: now
@@ -1079,7 +1155,7 @@ function isEmptyValue(value) {
 }
 
 function attemptKeyFor(target) {
-  return `${target.platform}:${target.entityId}:${target.url}`;
+  return `${target.batchSlug}:${target.platform}:${target.entityId}:${target.url}`;
 }
 
 function isObsoleteToolFailure(message) {
@@ -1106,6 +1182,26 @@ function stringArg(name) {
 
 function booleanArg(name) {
   return process.argv.includes(name);
+}
+
+function resolveBatchConfig(value) {
+  const normalized = String(value ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+  if (["S26", "YCS26", "SUMMER2026", "YCSUMMER2026"].includes(normalized)) {
+    return {
+      slug: "S26",
+      snapshotPath: join(root, "src", "lib", "yc", "summer-2026-companies.json")
+    };
+  }
+  if (["S2026", "P26", "YCS2026", "YCP26", "SPRING2026", "YCSPRING2026"].includes(normalized)) {
+    return {
+      slug: "S2026",
+      snapshotPath: join(root, "src", "lib", "yc", "spring-2026-companies.json")
+    };
+  }
+  throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026.`);
 }
 
 function errorMessage(error) {
@@ -1357,6 +1453,26 @@ function linkedInExtractJs() {
     if (!href) return null;
     try { return new URL(href, location.origin).toString(); } catch { return href || null; }
   };
+  const nativePostUrl = (card) => {
+    const href = Array.from(card.querySelectorAll("a[href]"))
+      .map((link) => absolute(link.getAttribute("href")))
+      .find((value) => /\/feed\/update\/urn:li:activity:\d+|\/posts\/[^?#]*activity-\d+/i.test(value || ""));
+    if (href) {
+      try {
+        const parsed = new URL(href);
+        parsed.search = "";
+        parsed.hash = "";
+        return parsed.toString();
+      } catch { return href; }
+    }
+    const urnNodes = [card, ...Array.from(card.querySelectorAll("[data-urn], [data-id], [data-activity-urn]"))];
+    for (const node of urnNodes) {
+      const values = [node.getAttribute?.("data-urn"), node.getAttribute?.("data-id"), node.getAttribute?.("data-activity-urn")];
+      const activityId = values.join(" ").match(/urn:li:activity:(\d{10,})/i)?.[1];
+      if (activityId) return "https://www.linkedin.com/feed/update/urn:li:activity:" + activityId + "/";
+    }
+    return null;
+  };
   const metricFrom = (card, word) => {
     const buttons = Array.from(card.querySelectorAll("button[aria-label], a[aria-label]"));
     for (const button of buttons) {
@@ -1397,7 +1513,7 @@ function linkedInExtractJs() {
   };
   const exactCards = Array.from(document.querySelectorAll(".scaffold-finite-scroll__content > ul > li, ul.display-flex.flex-wrap.list-style-none.justify-center > li"))
     .filter((card) => /Feed post number|Visible to anyone|reactions?|comments?|reposts?/i.test(card.innerText || ""));
-  const linkCards = Array.from(document.querySelectorAll("a[href*='/feed/update/urn:li:activity:']"))
+  const linkCards = Array.from(document.querySelectorAll("a[href*='/feed/update/urn:li:activity:'], a[href*='/posts/'][href*='activity-']"))
     .map((link) => {
       let card = link.closest("li") || link.closest("article") || link.closest(".relative.artdeco-card") || link.parentElement;
       for (let depth = 0; depth < 4 && card && !/reactions?|comments?|reposts?|Feed post number/i.test(card.innerText || ""); depth += 1) {
@@ -1415,8 +1531,7 @@ function linkedInExtractJs() {
   const cards = (exactCards.length ? exactCards : fallbackCards).slice(0, 40);
   const seen = new Set();
   return cards.map((card, index) => {
-    const links = Array.from(card.querySelectorAll("a[href*='/feed/update/urn:li:activity:']"));
-    const updateUrl = absolute(links[0]?.getAttribute("href")) || null;
+    const updateUrl = nativePostUrl(card);
     const rawText = card.innerText || "";
     const body = bestBodyFromCard(card, rawText);
     const key = updateUrl || body.slice(0, 120) || String(index);
@@ -1433,6 +1548,6 @@ function linkedInExtractJs() {
       impressions: metricFrom(card, "impressions?"),
       mediaUrls: Array.from(card.querySelectorAll("img[src]")).map((img) => img.src).filter((src) => /media\\.licdn\\.com/i.test(src)).slice(0, 4)
     };
-  }).filter((post) => post && clean(post.body).length > 20);
+  }).filter((post) => post && post.url && clean(post.body).length > 20);
 })()`;
 }

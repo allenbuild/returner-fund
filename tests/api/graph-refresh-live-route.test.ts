@@ -1015,10 +1015,37 @@ describe("POST /api/graph/refresh live evidence validation", () => {
       nodes: baseGraph.nodes.map((node) => ({ ...node, batchSlug: "S26" }))
     });
     const staleGeneratedAt = FROZEN_STALE_SNAPSHOT_GENERATED_AT;
+    const capAtStaleGeneration = (value: string | null | undefined) =>
+      value && Date.parse(value) > Date.parse(staleGeneratedAt) ? staleGeneratedAt : value;
     const staleGraph: GraphResponse = {
       ...rebuiltGraph,
       generatedAt: staleGeneratedAt,
-      scoringContext: { ...rebuiltGraph.scoringContext!, responseBuiltAt: staleGeneratedAt }
+      nodes: rebuiltGraph.nodes.map((node) => ({
+        ...node,
+        scoreBreakdown: node.scoreBreakdown
+          ? { ...node.scoreBreakdown, evidenceAsOf: null }
+          : node.scoreBreakdown
+      })),
+      evidence: rebuiltGraph.evidence.map((item) => ({
+        ...item,
+        postedAt: capAtStaleGeneration(item.postedAt) ?? item.postedAt,
+        observedAt: capAtStaleGeneration(item.observedAt),
+        metricsCheckedAt: capAtStaleGeneration(item.metricsCheckedAt),
+        linkCheckedAt: capAtStaleGeneration(item.linkCheckedAt),
+        first_seen_at: capAtStaleGeneration(item.first_seen_at) ?? undefined,
+        last_checked_at: capAtStaleGeneration(item.last_checked_at) ?? undefined,
+        last_updated_at: capAtStaleGeneration(item.last_updated_at) ?? undefined
+      })),
+      fastestGaining: rebuiltGraph.fastestGaining.map((row) => ({
+        ...row,
+        dod: { ...row.dod, benchmarkedAt: null },
+        wow: { ...row.wow, benchmarkedAt: null }
+      })),
+      scoringContext: {
+        ...rebuiltGraph.scoringContext!,
+        responseBuiltAt: staleGeneratedAt,
+        evidenceAsOf: null
+      }
     };
     const legacyGraph = structuredClone(rebuiltGraph);
     legacyGraph.scoringContext!.modelId = "traction-score";

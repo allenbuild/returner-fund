@@ -162,6 +162,8 @@ interface PublicEvidenceRecord {
   title: string;
   sourceUrl: string;
   platformPostId?: string | null;
+  authorName?: string | null;
+  authorHandle?: string | null;
   text: string;
   thumbnailUrl?: string | null;
   thumbnailSource?: string | null;
@@ -353,30 +355,35 @@ export const ycSummer2026GraphDataset: DemoGraphDataset = {
   platformStatus: [
     {
       platform: "web",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "disabled",
       authMethod: "Not counted",
       notes: "YC/web metadata is used only for names and official links. It contributes 0 traction score."
     },
     {
       platform: "github",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: rawGithubEvidenceItems.length > 0 ? "working" : "needs_config",
       authMethod: "Read-only public GitHub API",
       notes: `Measured ${rawGithubEvidenceItems.length} Summer 2026 GitHub evidence rows from public API data. Old Spring 2026 account snapshots are ignored unless the account matches a Summer company or founder official YC link.`
     },
     {
       platform: "x",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "public_only",
       authMethod: "Official YC profile links and verified public evidence only",
       notes: `Found ${officialSocialLinkCounts.x.company} company and ${officialSocialLinkCounts.x.founder} founder X URLs on official Summer 2026 YC profiles, but ${summerEvidenceCounts.x ?? 0} scored Summer X post rows are currently available. Anonymous public reads were blocked, and Spring/P26 evidence is filtered out.`
     },
     {
       platform: "linkedin",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: summerEvidenceCounts.linkedin ? "working" : "public_only",
       authMethod: "Opt-in authenticated browser session plus public profile discovery",
       notes: `Found ${officialSocialLinkCounts.linkedin.company} company and ${officialSocialLinkCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles. ${summerEvidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available; prior Spring rows remain excluded.`
     },
     {
       platform: "instagram",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "public_only",
       authMethod: "Official YC profile links and verified public evidence only",
       notes:
@@ -384,36 +391,42 @@ export const ycSummer2026GraphDataset: DemoGraphDataset = {
     },
     {
       platform: "rss",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "working",
       authMethod: "Public feed fetch",
       notes: "Public RSS/Atom feeds are discovered from company websites and fetched read-only."
     },
     {
       platform: "youtube",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "working",
       authMethod: "Public YouTube search/metadata pages",
       notes: `Public YouTube results are attempted without login. ${summerEvidenceCounts.youtube ?? 0} verified Summer 2026 YouTube row currently scores.`
     },
     {
       platform: "product_hunt",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "public_only",
       authMethod: "Public Product Hunt pages/search through Reader fallback",
       notes: "Product Hunt is attempted publicly. Unclear matches are sent to needs_review; blocks are logged."
     },
     {
       platform: "reddit",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "public_only",
       authMethod: "Unauthenticated public Reddit pages/JSON where accessible",
       notes: "Reddit often blocks unauthenticated scraping from this network; failures are logged per company."
     },
     {
       platform: "hacker_news",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "working",
       authMethod: "Public Hacker News Algolia API",
       notes: "HN stories are matched conservatively and scored with public points/comments."
     },
     {
       platform: "bilibili",
+      batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: "needs_config",
       authMethod: "Public search and explicit subtitle setup",
       notes: "Not used by the YC snapshot unless a public Bilibili URL is discovered."
@@ -451,6 +464,7 @@ export const yc2026GraphDataset: DemoGraphDataset = {
     ...(a16zSpeedrun006GraphDataset.needsReview ?? [])
   ],
   platformStatus: [
+    ...springDataset.platformStatus,
     ...ycSummer2026GraphDataset.platformStatus,
     ...a16zSpeedrun006GraphDataset.platformStatus
   ]
@@ -511,6 +525,11 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
     .filter((item) => springKnownEntityIds.has(item.entityId))
     .filter((item) => !hasSummerBatchContext(`${item.entityName} ${item.matchReason}`))
     .map(publicNeedsReviewItem);
+  const springPlatformStatus = spring2026PlatformStatus({
+    companies: springSnapshot.companies,
+    evidence: unresolvedSpringEvidenceItems,
+    githubEvidenceCount: springGithubEvidenceItems.length
+  });
 
   return {
     mode: "official_snapshot",
@@ -526,8 +545,102 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
     founders: springFounders,
     evidence: springEvidenceItems,
     needsReview: springNeedsReviewItems,
-    platformStatus: ycSummer2026GraphDataset.platformStatus
+    platformStatus: springPlatformStatus
   };
+}
+
+function spring2026PlatformStatus({
+  companies,
+  evidence,
+  githubEvidenceCount
+}: {
+  companies: RawCompany[];
+  evidence: EvidenceItem[];
+  githubEvidenceCount: number;
+}): DemoGraphDataset["platformStatus"] {
+  const officialLinks = countOfficialSocialLinks(companies);
+  const evidenceCounts = countEvidenceByPlatform(evidence);
+  const batchSlugs = [YC_SPRING_2026_BATCH_SLUG];
+
+  return [
+    {
+      platform: "web",
+      batchSlugs,
+      status: "disabled",
+      authMethod: "Not counted",
+      notes: "YC/web metadata is used only for names and official links. It contributes 0 traction score."
+    },
+    {
+      platform: "github",
+      batchSlugs,
+      status: githubEvidenceCount > 0 ? "working" : "needs_config",
+      authMethod: "Read-only public GitHub API",
+      notes: `Measured ${githubEvidenceCount} Spring 2026 GitHub evidence rows from official YC-linked public accounts.`
+    },
+    {
+      platform: "x",
+      batchSlugs,
+      status: evidenceCounts.x ? "working" : "public_only",
+      authMethod: "Official YC profile links and verified public evidence only",
+      notes: `Found ${officialLinks.x.company} company and ${officialLinks.x.founder} founder X URLs on official Spring 2026 YC profiles. ${evidenceCounts.x ?? 0} scored Spring X post rows are currently available.`
+    },
+    {
+      platform: "linkedin",
+      batchSlugs,
+      status: evidenceCounts.linkedin ? "working" : "public_only",
+      authMethod: "Opt-in authenticated browser session plus public profile discovery",
+      notes: `Found ${officialLinks.linkedin.company} company and ${officialLinks.linkedin.founder} founder LinkedIn URLs on official Spring 2026 YC profiles. ${evidenceCounts.linkedin ?? 0} scored Spring LinkedIn post rows are currently available.`
+    },
+    {
+      platform: "instagram",
+      batchSlugs,
+      status: evidenceCounts.instagram ? "working" : "public_only",
+      authMethod: "Official YC profile links and verified public evidence only",
+      notes: `Found ${officialLinks.instagram.company} company and ${officialLinks.instagram.founder} founder Instagram URLs on official Spring 2026 YC profiles. ${evidenceCounts.instagram ?? 0} scored Spring Instagram post rows are currently available.`
+    },
+    {
+      platform: "rss",
+      batchSlugs,
+      status: "working",
+      authMethod: "Public feed fetch",
+      notes: "Public RSS/Atom feeds are discovered from company websites and fetched read-only."
+    },
+    {
+      platform: "youtube",
+      batchSlugs,
+      status: "working",
+      authMethod: "Public YouTube search/metadata pages",
+      notes: `Public YouTube results are attempted without login. ${evidenceCounts.youtube ?? 0} verified Spring 2026 YouTube rows currently score.`
+    },
+    {
+      platform: "product_hunt",
+      batchSlugs,
+      status: "public_only",
+      authMethod: "Public Product Hunt pages/search through Reader fallback",
+      notes: "Product Hunt is attempted publicly. Unclear matches are sent to needs_review; blocks are logged."
+    },
+    {
+      platform: "reddit",
+      batchSlugs,
+      status: "public_only",
+      authMethod: "Unauthenticated public Reddit pages/JSON where accessible",
+      notes: "Reddit often blocks unauthenticated scraping from this network; failures are logged per company."
+    },
+    {
+      platform: "hacker_news",
+      batchSlugs,
+      status: "working",
+      authMethod: "Public Hacker News Algolia API",
+      notes: "HN stories are matched conservatively and scored with public points/comments."
+    },
+    {
+      platform: "bilibili",
+      batchSlugs,
+      status: "needs_config",
+      authMethod: "Public search and explicit subtitle setup",
+      notes: "Not used by the YC snapshot unless a public Bilibili URL is discovered."
+    }
+  ];
 }
 
 function countOfficialSocialLinks(companies: RawCompany[]) {
@@ -602,14 +715,15 @@ function companyRecordForBatch(
   ];
   const entityEvidence = entityIds.flatMap((entityId) => options.evidenceByEntityId.get(entityId) ?? []);
   const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
+  const verifiedCompanyLinks = verifiedSocialOverrides[raw.slug]?.companySocialLinks ?? {};
   const socialAccounts = dedupeSocialAccounts([
-    ...socialAccountsFor(raw.socialLinks, {
+    ...socialAccountsFor(socialLinksWithoutOverrides(raw.socialLinks, verifiedCompanyLinks), {
       entityType: "company",
       entityId: companyId(raw),
       discoveredFromUrl: raw.ycProfileUrl,
       matchReason: "Linked from the official public YC company profile."
     }),
-    ...socialAccountsFor(verifiedSocialOverrides[raw.slug]?.companySocialLinks ?? {}, {
+    ...socialAccountsFor(verifiedCompanyLinks, {
       entityType: "company",
       entityId: companyId(raw),
       discoveredFromUrl: raw.websiteUrl ?? raw.ycProfileUrl,
@@ -662,7 +776,7 @@ function founderRecordsForBatch(
     const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
     const verifiedOverride = matchingVerifiedFounderOverride(raw, founder.name);
     const socialAccounts = dedupeSocialAccounts([
-      ...socialAccountsFor(founder.socialLinks, {
+      ...socialAccountsFor(socialLinksWithoutOverrides(founder.socialLinks, verifiedOverride?.socialLinks ?? {}), {
         entityType: "founder",
         entityId: founderId(raw, founder),
         discoveredFromUrl: raw.ycProfileUrl,
@@ -877,8 +991,8 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     entityType: item.entityType,
     entityId: item.entityId,
     platform: item.platform,
-    authorName: nativeAuthor.name ?? item.title ?? item.companyName,
-    authorHandle: nativeAuthor.handle,
+    authorName: nativeAuthor.name ?? item.authorName ?? item.title ?? item.companyName,
+    authorHandle: nativeAuthor.handle ?? item.authorHandle ?? null,
     postedAt: item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     publishedAtPrecision: item.postedAt ? publicationTimestampPrecision(item.postedAt) : "unknown",
     observedAt: item.first_seen_at ?? item.last_checked_at ?? publicSnapshot.source.fetchedAt,
@@ -1505,11 +1619,17 @@ function attributionCompanyProfile(raw: RawCompany): AttributionCompanyProfile {
       ...attributionSocialLinks(verifiedSocialOverrides[raw.slug]?.companySocialLinks ?? {})
     ],
     founders: [
-      ...raw.founders.map((founder) => ({
-        id: founderId(raw, founder),
-        name: founder.name,
-        socialLinks: attributionSocialLinks(founder.socialLinks)
-      })),
+      ...raw.founders.map((founder) => {
+        const verifiedOverride = matchingVerifiedFounderOverride(raw, founder.name);
+        return {
+          id: founderId(raw, founder),
+          name: founder.name,
+          socialLinks: attributionSocialLinks({
+            ...founder.socialLinks,
+            ...(verifiedOverride?.socialLinks ?? {})
+          })
+        };
+      }),
       ...manualFounders.map((founder) => ({
         id: manualFounderId(raw, founder),
         name: founder.name,
@@ -1792,6 +1912,12 @@ function dedupeSocialAccounts(accounts: SocialAccountSummary[]): SocialAccountSu
       ])
     ).values()
   ];
+}
+
+function socialLinksWithoutOverrides(base: RawSocialLinks, overrides: RawSocialLinks): RawSocialLinks {
+  return Object.fromEntries(
+    Object.entries(base).filter(([platform]) => !overrides[platform as keyof RawSocialLinks])
+  ) as RawSocialLinks;
 }
 
 function socialAccountKey(platform: string, rawUrl: string): string {

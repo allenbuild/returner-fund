@@ -33,11 +33,18 @@ const discoveryAttemptsPath = resolvePathArg(
 const sourceDiscoveryPathsPath = resolvePathArg(
   stringArg("--source-discovery-paths") ?? join(root, "outputs", "source-discovery-paths-current.json")
 );
+const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
+const planOnly = hasArg("--plan");
 
-const batchSnapshot = normalizeBatchSnapshot(
+const verifiedSocialOverrides = await readJson(verifiedSocialOverridesPath, {});
+const normalizedBatchSnapshot = normalizeBatchSnapshot(
   JSON.parse(await readFile(batchSnapshotPath, "utf8")),
   batchConfig
 );
+const batchSnapshot = {
+  ...normalizedBatchSnapshot,
+  companies: mergeVerifiedSocialOverrides(normalizedBatchSnapshot.companies, verifiedSocialOverrides)
+};
 const canonicalCompanyCatalog = await loadCanonicalCompanyCatalog(batchSnapshot, batchConfig);
 const currentBatchContext = batchContextFromSnapshot(batchSnapshot);
 const currentOutput = await readJson(outputPath, { evidence: [], needsReview: [], failures: [] });
@@ -112,6 +119,15 @@ const companies = batchSnapshot.companies
       company.name.toLowerCase().includes(companyFilter)
   )
   .slice(0, companyLimit);
+
+if (planOnly) {
+  console.log(JSON.stringify({
+    batchSlug: batchConfig.slug,
+    snapshotPath: batchSnapshotPath,
+    socialTargets: publicSocialCollectionTargets(companies)
+  }, null, 2));
+  process.exit(0);
+}
 
 const taskPlan = companies.flatMap(buildCompanyTasks);
 await runTaskPlan(taskPlan, workerCount);
@@ -189,6 +205,32 @@ function buildCompanyTasks(company) {
   }
 
   return tasks.filter(Boolean);
+}
+
+function publicSocialCollectionTargets(targetCompanies) {
+  const targets = [];
+  for (const company of targetCompanies) {
+    const entities = socialMode === "all"
+      ? [[company, "company"], ...(company.founders ?? []).map((founder) => [founder, "founder"])]
+      : socialMode === "company"
+        ? [[company, "company"]]
+        : [];
+    for (const [entity, entityType] of entities) {
+      for (const platform of ["x", "linkedin", "instagram"]) {
+        if (!platformAllowed(platform) || !entity.socialLinks?.[platform]) continue;
+        targets.push({
+          companySlug: company.slug,
+          companyName: company.name,
+          entityType,
+          entityId: entityIdFor(company, entity, entityType),
+          entityName: entityName(entity, entityType),
+          platform,
+          accountUrl: entity.socialLinks[platform]
+        });
+      }
+    }
+  }
+  return targets;
 }
 
 function connectorTask(platform, key, company, fn) {
@@ -825,24 +867,26 @@ async function discoverSocialCandidates(company, platform, entity = null) {
     }
   }
 
-  return [
-    ...new Map(
-      candidates
-        .filter((candidate) => !isLowValueSocialUrl(candidate.url, platform))
-        .map((candidate) => [candidate.url, candidate])
-    ).values()
-  ].slice(0, 5);
+  return firstSocialCandidatePerUrl(
+    candidates.filter((candidate) => !isLowValueSocialUrl(candidate.url, platform))
+  ).slice(0, 5);
 }
 
 function dedupeSocialCandidates(candidates) {
-  return [
-    ...new Map(
-      candidates
-        .filter((candidate) => candidate?.url)
-        .filter((candidate) => !isLowValueSocialUrl(candidate.url, platformFromUrl(candidate.url)))
-        .map((candidate) => [candidate.url, candidate])
-    ).values()
-  ].slice(0, 8);
+  return firstSocialCandidatePerUrl(
+    candidates
+      .filter((candidate) => candidate?.url)
+      .filter((candidate) => !isLowValueSocialUrl(candidate.url, platformFromUrl(candidate.url)))
+  ).slice(0, 8);
+}
+
+function firstSocialCandidatePerUrl(candidates) {
+  const seen = new Set();
+  return candidates.filter((candidate) => {
+    if (seen.has(candidate.url)) return false;
+    seen.add(candidate.url);
+    return true;
+  });
 }
 
 function socialDiscoveryQueries(company, platform, entity = null) {
@@ -868,8 +912,8 @@ function socialDiscoveryQueries(company, platform, entity = null) {
 
   if (platform === "instagram") {
     return [
-      ...baseQueries,
       ...entityQueries,
+      ...baseQueries,
       `"${company.name}" site:instagram.com/reel`,
       `"${company.name}" site:instagram.com/p`,
       `"${company.name}" "Instagram photos and videos"`
@@ -878,15 +922,15 @@ function socialDiscoveryQueries(company, platform, entity = null) {
 
   if (platform === "x") {
     return [
-      ...baseQueries,
       ...entityQueries,
+      ...baseQueries,
       `"${company.name}" site:x.com status`,
       `"${company.name}" site:twitter.com status`,
       `"${company.name}" "${currentBatchContext.organization}" "x.com" status`
     ];
   }
 
-  return [...baseQueries, ...entityQueries];
+  return [...entityQueries, ...baseQueries];
 }
 
 function socialEntityQueries(company, platform, entity, platformLabel) {
@@ -895,20 +939,43 @@ function socialEntityQueries(company, platform, entity, platformLabel) {
     return [];
   }
 
-  const queries = [
-    `"${entityNameValue}" "${company.name}" ${platformLabel}`,
-    `"${entityNameValue}" "${company.name}" site:${platform === "x" ? "x.com" : platform === "instagram" ? "instagram.com" : "linkedin.com"}`
-  ];
-
-  if (platform === "x") {
-    queries.push(`"${entityNameValue}" "${company.name}" site:x.com status`);
+  const entityNames = [...new Set([
+    entityNameValue,
+    socialProfileNameAlias(entity?.socialLinks?.[platform], platform)
+  ].filter(Boolean))];
+  const queries = [];
+  for (const entityName of entityNames) {
+    if (platform === "linkedin") {
+      queries.push(`"${entityName}" "${company.name}" site:linkedin.com/posts`);
+    }
+    queries.push(`"${entityName}" "${company.name}" ${platformLabel}`);
+    queries.push(
+      `"${entityName}" "${company.name}" site:${platform === "x" ? "x.com" : platform === "instagram" ? "instagram.com" : "linkedin.com"}`
+    );
+    if (platform === "x") {
+      queries.push(`"${entityName}" "${company.name}" site:x.com status`);
+    }
+    if (platform === "instagram") {
+      queries.push(`"${entityName}" "${company.name}" site:instagram.com/reel`);
+      queries.push(`"${entityName}" "${company.name}" site:instagram.com/p`);
+    }
   }
-  if (platform === "instagram") {
-    queries.push(`"${entityNameValue}" "${company.name}" site:instagram.com/reel`);
-    queries.push(`"${entityNameValue}" "${company.name}" site:instagram.com/p`);
-  }
 
-  return queries;
+  return [...new Set(queries)];
+}
+
+function socialProfileNameAlias(rawUrl, platform) {
+  if (!rawUrl || platform !== "linkedin") return null;
+  try {
+    const parts = new URL(rawUrl).pathname.split("/").filter(Boolean);
+    if (parts[0]?.toLowerCase() !== "in" || !parts[1]) return null;
+    const words = decodeURIComponent(parts[1])
+      .split(/[-_]+/)
+      .filter((word) => /^[a-z]+$/i.test(word));
+    return words.length >= 2 ? words.join(" ") : null;
+  } catch {
+    return null;
+  }
 }
 
 function isLowValueSocialUrl(url, platform) {
@@ -1192,7 +1259,15 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
   }
 
   const name = entityName(entity, entityType);
-  const verified = isCompanyMatch({ name, websiteUrl: company.websiteUrl }, page.text) || page.title.toLowerCase().includes(name.toLowerCase());
+  const linkedInProfileAlias = socialProfileNameAlias(url, platform);
+  const visibleProfileIdentity = cleanText(`${page.title}\n${page.text}`).toLowerCase();
+  const verified =
+    isCompanyMatch({ name, websiteUrl: company.websiteUrl }, page.text) ||
+    page.title.toLowerCase().includes(name.toLowerCase()) ||
+    Boolean(
+      linkedInProfileAlias &&
+      visibleProfileIdentity.includes(linkedInProfileAlias.toLowerCase())
+    );
   const metrics = metricsFromPublicProfile(platform, page.text, page.title);
 
   if (!verified) {
@@ -1218,7 +1293,23 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     postResults.push(await verifyPublicSocialPostCandidate(company, platform, candidate));
   }
   const postEvidence = postResults.flatMap((result) => result.evidence ?? []);
-  const postNeedsReview = postResults.flatMap((result) => result.needsReview ?? []);
+  const attributedPosts = attributePostEvidenceToEntity(company, entity, entityType, platform, postEvidence);
+  const zeroPostFallback =
+    platform === "linkedin" && attributedPosts.evidence.length === 0 && discoverMissingSocial
+      ? await discoverAndVerifyPublicSocialPosts(
+          company,
+          platform,
+          url,
+          "Batch-linked LinkedIn profile was readable but exposed no verified native posts, so public post-search fallback was attempted.",
+          entity,
+          entityType
+        )
+      : { evidence: [], needsReview: [], sourceDiscoveryPaths: [] };
+  const postNeedsReview = [
+    ...postResults.flatMap((result) => result.needsReview ?? []),
+    ...attributedPosts.needsReview,
+    ...zeroPostFallback.needsReview
+  ];
 
   return {
     evidence: [
@@ -1236,15 +1327,12 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
         review_state: "verified",
         matchReason: `Verified public ${platform} profile readable without login. Stored as identity context only; profile followers are not counted as post traction.`
       }),
-      ...postEvidence.map((item) => ({
-        ...item,
-        id: stableId(`${item.platform}:${entityIdFor(company, entity, entityType)}:${item.sourceUrl}:${item.title}`),
-        entityType,
-        entityId: entityIdFor(company, entity, entityType)
-      }))
+      ...attributedPosts.evidence,
+      ...zeroPostFallback.evidence
     ],
     needsReview: postNeedsReview,
-    failures: []
+    failures: [],
+    sourceDiscoveryPaths: zeroPostFallback.sourceDiscoveryPaths
   };
 }
 
@@ -1256,20 +1344,12 @@ async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, 
     postResults.push(await verifyPublicSocialPostCandidate(company, platform, candidate));
   }
   const postEvidence = postResults.flatMap((result) => result.evidence ?? []);
-  const attributedPostEvidence = postEvidence.map((item) =>
-    entityType === "founder"
-      ? {
-          ...item,
-          id: stableId(`${item.platform}:${entityIdFor(company, entity, entityType)}:${item.sourceUrl}:${item.title}`),
-          entityType: "founder",
-          entityId: entityIdFor(company, entity, entityType)
-        }
-      : item
-  );
-  const verifiedPostUrls = new Set(postEvidence.map((item) => item.sourceUrl));
+  const attributedPosts = attributePostEvidenceToEntity(company, entity, entityType, platform, postEvidence);
+  const verifiedPostUrls = new Set(attributedPosts.evidence.map((item) => item.sourceUrl));
   const postNeedsReview = postResults.flatMap((result) => result.needsReview ?? []);
   const reviewItems = [
     ...postNeedsReview,
+    ...attributedPosts.needsReview,
     ...candidates
       .filter((candidate) => !postCandidates.some((postCandidate) => postCandidate.url === candidate.url))
       .slice(0, 3)
@@ -1284,7 +1364,7 @@ async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, 
   ];
 
   return {
-    evidence: attributedPostEvidence,
+    evidence: attributedPosts.evidence,
     needsReview: reviewItems,
     sourceDiscoveryPaths: candidates.map((candidate) =>
       sourceDiscoveryPath({
@@ -1301,6 +1381,116 @@ async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, 
       })
     )
   };
+}
+
+function attributePostEvidenceToEntity(company, entity, entityType, platform, items) {
+  const attributed = [];
+  const needsReviewItems = [];
+  const targetEntityId = entityIdFor(company, entity, entityType);
+
+  for (const item of items) {
+    if (entityType === "founder" && platform === "linkedin") {
+      const authorValidation = linkedInFounderAuthorValidation(entity, item);
+      if (!authorValidation.verified) {
+        needsReviewItems.push(
+          reviewCandidate(
+            company,
+            platform,
+            item.sourceUrl,
+            `LinkedIn native post was not attributed to ${entity.name}: ${authorValidation.reason}. Exact verified founder author identity is required before founder remapping.`,
+            entityType,
+            targetEntityId,
+            entity.name
+          )
+        );
+        continue;
+      }
+      attributed.push({
+        ...item,
+        id: stableId(`${item.platform}:${targetEntityId}:${item.sourceUrl}:${item.title}`),
+        entityType,
+        entityId: targetEntityId,
+        authorHandle: authorValidation.authorSlug,
+        matchReason: `${item.matchReason} Native LinkedIn author matched the founder's verified profile slug.`
+      });
+      continue;
+    }
+
+    attributed.push(
+      entityType === "founder"
+        ? {
+            ...item,
+            id: stableId(`${item.platform}:${targetEntityId}:${item.sourceUrl}:${item.title}`),
+            entityType,
+            entityId: targetEntityId
+          }
+        : item
+    );
+  }
+
+  return { evidence: attributed, needsReview: needsReviewItems };
+}
+
+function linkedInFounderAuthorValidation(founder, item) {
+  const profileSlug = linkedInProfileSlug(founder?.socialLinks?.linkedin);
+  if (!profileSlug) {
+    return {
+      verified: false,
+      authorSlug: null,
+      reason: "the requested founder has no verified LinkedIn profile slug"
+    };
+  }
+
+  const nativeAuthorSlug = linkedInNativePostAuthorSlug(item?.sourceUrl);
+  if (nativeAuthorSlug) {
+    return nativeAuthorSlug === profileSlug
+      ? { verified: true, authorSlug: nativeAuthorSlug, reason: "native post author slug matched" }
+      : {
+          verified: false,
+          authorSlug: nativeAuthorSlug,
+          reason: `native post author slug "${nativeAuthorSlug}" did not match verified profile slug "${profileSlug}"`
+        };
+  }
+
+  const visibleText = String(item?.rawVisibleText ?? "").slice(0, 2_000);
+  const visibleProfileSlugs = new Set(
+    [...visibleText.matchAll(/https?:\/\/(?:[a-z]+\.)?linkedin\.com\/in\/([^/?#)\s]+)/gi)]
+      .map((match) => normalizeLinkedInSlug(match[1]))
+      .filter(Boolean)
+  );
+  if (visibleProfileSlugs.has(profileSlug)) {
+    return { verified: true, authorSlug: profileSlug, reason: "visible post author profile link matched" };
+  }
+
+  return {
+    verified: false,
+    authorSlug: null,
+    reason: `native post did not expose the verified profile slug "${profileSlug}" as its author`
+  };
+}
+
+function linkedInProfileSlug(rawUrl) {
+  try {
+    const parts = new URL(rawUrl).pathname.split("/").filter(Boolean);
+    return parts[0]?.toLowerCase() === "in" ? normalizeLinkedInSlug(parts[1]) : null;
+  } catch {
+    return null;
+  }
+}
+
+function linkedInNativePostAuthorSlug(rawUrl) {
+  try {
+    const parts = new URL(rawUrl).pathname.split("/").filter(Boolean);
+    if (parts[0]?.toLowerCase() !== "posts" || !parts[1]) return null;
+    const authorSlug = decodeURIComponent(parts[1]).match(/^(.+?)_(?:.*?activity-\d+|activity-\d+)/i)?.[1];
+    return normalizeLinkedInSlug(authorSlug);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeLinkedInSlug(value) {
+  return String(value ?? "").trim().replace(/^@/, "").replace(/\/$/, "").toLowerCase() || null;
 }
 
 async function verifyPublicSocialPostCandidate(company, platform, candidate) {
@@ -2129,7 +2319,7 @@ function isSocialPostUrl(url, platform) {
 }
 
 function isBlocked(text) {
-  return /captcha|blocked by network security|target url returned error 403|forbidden|access denied|temporarily blocked|unusual traffic|enable javascript to continue|to continue, log in/i.test(text);
+  return /captcha|blocked by network security|target url returned error 403|forbidden|access denied|temporarily blocked|unusual traffic|enable javascript to continue|to continue, log in|sign up\s*\|\s*linkedin|agree\s*&\s*join|join linkedin/i.test(text);
 }
 
 function isThirdPartyMention(company, sourceUrl) {
@@ -2341,6 +2531,51 @@ function normalizeBatchSnapshot(snapshot, config) {
   };
 }
 
+function mergeVerifiedSocialOverrides(companies, overrides) {
+  return companies.map((company) => {
+    const override = overrides?.[company.slug];
+    if (!override) return company;
+
+    const overrideCompanyLinks = override.companySocialLinks ?? override.company ?? {};
+    const unmatchedOverrideFounders = [...(override.founders ?? [])];
+    const founders = (company.founders ?? []).map((founder) => {
+      const overrideIndex = unmatchedOverrideFounders.findIndex(
+        (candidate) =>
+          String(candidate.id ?? "") === String(founder.id ?? "") ||
+          slugify(candidate.name ?? "") === slugify(founder.name ?? "")
+      );
+      if (overrideIndex < 0) return founder;
+      const [founderOverride] = unmatchedOverrideFounders.splice(overrideIndex, 1);
+      return {
+        ...founder,
+        ...founderOverride,
+        socialLinks: {
+          ...(founder.socialLinks ?? {}),
+          ...(founderOverride.socialLinks ?? {})
+        }
+      };
+    });
+
+    for (const founderOverride of unmatchedOverrideFounders) {
+      if (!founderOverride?.id || !founderOverride?.name) continue;
+      founders.push({
+        ...founderOverride,
+        socialLinks: { ...(founderOverride.socialLinks ?? {}) }
+      });
+    }
+
+    return {
+      ...company,
+      ...(override.matchReason ? { matchReason: override.matchReason } : {}),
+      socialLinks: {
+        ...(company.socialLinks ?? {}),
+        ...overrideCompanyLinks
+      },
+      founders
+    };
+  });
+}
+
 async function loadCanonicalCompanyCatalog(currentSnapshot, currentConfig) {
   const descriptors = [
     {
@@ -2365,7 +2600,12 @@ async function loadCanonicalCompanyCatalog(currentSnapshot, currentConfig) {
     if (descriptor.slug === currentConfig.slug) continue;
     const snapshot = await readJson(descriptor.snapshotPath, null);
     if (!snapshot) continue;
-    companies.push(...normalizeBatchSnapshot(snapshot, descriptor).companies);
+    companies.push(
+      ...mergeVerifiedSocialOverrides(
+        normalizeBatchSnapshot(snapshot, descriptor).companies,
+        verifiedSocialOverrides
+      )
+    );
   }
 
   // Current-batch records win when two cohorts reuse a company slug.
@@ -2522,7 +2762,10 @@ function normalizeStoredEvidence(item) {
   );
   const nativeContent = isNativeContentUrl(platform, normalized.sourceUrl);
   const hasMetric = hasPositiveSupportedMetric(platform, metrics);
-  const exactAuthor = !["x", "instagram"].includes(platform) || exactAuthorMatchesCompany(normalized, company);
+  const exactAuthor =
+    platform === "linkedin" && normalized.entityType === "founder"
+      ? exactLinkedInFounderAuthorMatches(normalized, company)
+      : !["x", "instagram"].includes(platform) || exactAuthorMatchesCompany(normalized, company);
   const eligible = nativeContent && hasMetric && exactAuthor;
   const reason = !nativeContent
     ? "Canonical write classified this URL as profile, search, context, or unsupported content."
@@ -2659,6 +2902,14 @@ function exactAuthorMatchesCompany(item, company) {
   return knownCompanySocialHandles(company, item.platform).has(authorHandle);
 }
 
+function exactLinkedInFounderAuthorMatches(item, company) {
+  if (!company) return false;
+  const founder = (company.founders ?? []).find(
+    (candidate) => entityIdFor(company, candidate, "founder") === item.entityId
+  );
+  return founder ? linkedInFounderAuthorValidation(founder, item).verified : false;
+}
+
 function knownCompanySocialHandles(company, platform) {
   const urls = [
     company.socialLinks?.[platform],
@@ -2670,6 +2921,7 @@ function knownCompanySocialHandles(company, platform) {
 function socialPostAuthorHandle(item) {
   if (item.authorHandle) return item.authorHandle;
   if (item.platform === "x") return socialProfileHandleFromUrl(item.sourceUrl, "x");
+  if (item.platform === "linkedin") return linkedInNativePostAuthorSlug(item.sourceUrl);
   if (item.platform === "instagram") {
     const raw = String(item.rawVisibleText ?? "");
     return (

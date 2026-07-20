@@ -187,7 +187,23 @@
     ]
   },
   "eden-robotics": {
-    "matchReason": "Web Instagram search found exact company/domain handle match for Eden Robotics; query=\"\"Eden Robotics\" site:instagram.com\".",
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/eden-ai-robotics",
+      "x": "https://x.com/thefinalcompany"
+    },
+    "founders": [
+      {
+        "id": "1956825",
+        "name": "Stamatios Floratos",
+        "sourceUrl": "https://www.ycombinator.com/companies/eden-robotics",
+        "socialLinks": {
+          "linkedin": "https://www.linkedin.com/in/stamatis-floratos-535b19244",
+          "x": "https://x.com/cybermetheus"
+        },
+        "matchReason": "The official YC Eden profile directly links this LinkedIn profile; native LinkedIn and X post metadata identify the author as Stamatis Floratos and explicitly describe Eden Robotics / Eden-1."
+      }
+    ],
+    "matchReason": "The official Eden website links the Eden AI Robotics LinkedIn company page and @thefinalcompany X account; the company pages identify Eden Robotics, edenrobotics.ai, and YC P26.",
     "rejectedInstagram": [
       {
         "url": "https://www.instagram.com/eden_robotics/",

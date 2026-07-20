@@ -12,6 +12,62 @@ import type { EvidenceItem, Platform } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("YC traction scoring regressions", () => {
+  it("scores Eden from verified founder posts and preserves its multi-company Top Voice mention", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const eden = graph.nodes.find((node) => node.entityType === "company" && node.entityId === "company-eden-robotics");
+
+    expect(eden).toBeTruthy();
+    expect(eden?.score).toBeGreaterThan(0);
+    expect(["linkedin", "x"]).toContain(eden?.topPlatform);
+
+    const evidence = selectedNodeEvidence(graph, eden!);
+    expect(postIds(evidence)).toEqual(
+      expect.arrayContaining([
+        "7473766659829223424",
+        "2059649954520736030",
+        "7471229920451629056"
+      ])
+    );
+    expect(evidence.every((item) => item.contributionScore > 0)).toBe(true);
+    expect(new Set(evidence.map((item) => `${item.platform}:${item.platformPostId}`)).size).toBe(evidence.length);
+
+    const founderAccounts = eden!.founders.flatMap((founder) => founder.socialAccounts);
+    expect(founderAccounts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ platform: "x", handle: "cybermetheus", review_state: "verified" }),
+        expect.objectContaining({
+          platform: "linkedin",
+          handle: "stamatis-floratos-535b19244",
+          review_state: "verified"
+        })
+      ])
+    );
+    expect(founderAccounts.some((account) => /StamatisTWIY/i.test(account.url))).toBe(false);
+
+    const insiderGraph = buildGraphResponse(
+      { batchSlug: "S2026", topVoices: "insiders" },
+      ycSpring2026GraphDataset
+    );
+    expectTopVoiceEvidence(
+      insiderGraph.evidence,
+      "7471229920451629056",
+      "Taro Fukuyama",
+      "Eden Robotics"
+    );
+  });
+
+  it("reports platform coverage for the selected YC batch", () => {
+    const springGraph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const summerGraph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const springLinkedIn = springGraph.platformStatus.find((status) => status.platform === "linkedin");
+    const summerLinkedIn = summerGraph.platformStatus.find((status) => status.platform === "linkedin");
+
+    expect(springLinkedIn?.notes).toContain("Spring 2026");
+    expect(springLinkedIn?.notes).not.toContain("Summer 2026");
+    expect(summerLinkedIn?.notes).toContain("Summer 2026");
+    expect(summerLinkedIn?.notes).not.toContain("Spring rows are currently available");
+  });
+
   it("does not carry old Spring evidence into Conifer's selected company feed", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const conifer = graph.nodes.find((node) => node.entityType === "company" && node.label === "Conifer");
@@ -818,7 +874,10 @@ function expectTopVoiceEvidence(
   topVoiceName: string,
   companyName: string
 ): void {
-  const item = items.find((candidate) => candidate.platformPostId === platformPostId);
+  const item = items.find(
+    (candidate) =>
+      candidate.platformPostId === platformPostId && candidate.attachedCompanyName === companyName
+  );
 
   expect(item).toEqual(
     expect.objectContaining({

@@ -41,7 +41,7 @@ describe("autonomous ingestion runner CLI", () => {
     }, {
       idempotencyKey: "plan-contract",
       batches: [
-        { slug: "S2026", companies: 197, founders: 397, accounts: 948 },
+        { slug: "S2026", companies: 197, founders: 397, accounts: 950 },
         { slug: "S26", companies: 115, founders: 228, accounts: 548 },
         { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
       ],
@@ -109,8 +109,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(collectors, /run:\s*\(\)\s*=>\s*runCommand\(/);
     assert.ok(collectors.includes("command.promise = runCollectorWithRetries(command)"));
     assert.ok(collectors.includes("await Promise.allSettled(commands.map((command) => command.promise))"));
-    assert.ok(successfulRows.includes("account.fetched === true"));
-    assert.ok(successfulRows.includes("snapshot.evidence.length + snapshot.needsReview.length"));
+    assert.ok(successfulRows.includes("countSuccessfulAutonomousCollectorRows(snapshot, kind)"));
+    assert.doesNotMatch(successfulRows, /needsReview/);
     assert.doesNotMatch(collectors, /run:\s*async\s*\(\)\s*=>\s*await runCommand\(/);
   });
 
@@ -162,6 +162,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(enqueue.includes("mapWithConcurrency(chunks(rows, 250), 4"));
     assert.ok(reconcile.includes("mapWithConcurrency(updates, 4"));
+    assert.ok(reconcile.includes("indexAutonomousCollectorTaskOutcomes"));
+    assert.ok(reconcile.includes("classifyAutonomousCollectorTaskOutcome"));
+    assert.doesNotMatch(reconcile, /failed \? "failed" : "completed"/);
     assert.ok(finish.includes('.in("id", ids)'));
     assert.ok(concurrency.includes("await Promise.allSettled(workers)"));
     assert.doesNotMatch(reconcile, /await finishTask\(/);
@@ -210,7 +213,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("terminates timed-out subprocesses within a bounded grace period", () => {
-    const commandRunner = section("async function runCommand", "function failureKeysFromSnapshot");
+    const commandRunner = section("async function runCommand", "function batchCompanyKey");
 
     assert.ok(commandRunner.includes('child.kill("SIGTERM")'));
     assert.ok(commandRunner.includes('child.kill("SIGKILL")'));

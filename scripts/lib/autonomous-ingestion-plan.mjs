@@ -260,6 +260,92 @@ export function validateAutonomousCollectorSnapshot(
   return snapshot;
 }
 
+export function countSuccessfulAutonomousCollectorRows(snapshot, kind) {
+  if (kind === "github") {
+    return (snapshot?.accounts ?? []).filter((account) => account.fetched === true).length;
+  }
+  return (snapshot?.evidence ?? []).filter(isSuccessfulPublicEvidenceRow).length;
+}
+
+export function indexAutonomousCollectorTaskOutcomes(snapshot, { kind, batchSlug }) {
+  const outcomes = new Map();
+  const record = (row, platform, status, reason) => {
+    const entityType = row?.entityType ?? "company";
+    const rawEntityId = row?.entityId ?? row?.attachedCompanyId ?? row?.companySlug ?? row?.companyName;
+    const entityId = normalizeAutonomousFailureEntityId(
+      { ...row, entityType, entityId: rawEntityId },
+      { batchSlug }
+    );
+    if (!entityId) return;
+    const key = autonomousCollectorEntityKey(platform, entityType, entityId);
+    const candidate = { status, reason };
+    const previous = outcomes.get(key);
+    if (!previous || collectorOutcomePriority(candidate.status) > collectorOutcomePriority(previous.status)) {
+      outcomes.set(key, candidate);
+    }
+  };
+
+  if (kind === "github") {
+    for (const account of snapshot?.accounts ?? []) {
+      record(
+        account,
+        "github",
+        account.fetched === true ? "completed" : "failed",
+        account.fetched === true
+          ? "collector_account_fetched"
+          : "collector_reported_failure"
+      );
+    }
+    return outcomes;
+  }
+
+  for (const evidence of snapshot?.evidence ?? []) {
+    const successful = isSuccessfulPublicEvidenceRow(evidence);
+    record(
+      evidence,
+      evidence.platform,
+      successful ? "completed" : "needs_review",
+      successful
+        ? "collector_evidence_collected"
+        : "collector_needs_review"
+    );
+  }
+  for (const review of snapshot?.needsReview ?? []) {
+    record(
+      review,
+      review.platform,
+      "needs_review",
+      "collector_needs_review"
+    );
+  }
+  for (const failure of snapshot?.failures ?? []) {
+    record(
+      failure,
+      failure.platform,
+      "failed",
+      "collector_reported_failure"
+    );
+  }
+  return outcomes;
+}
+
+export function classifyAutonomousCollectorTaskOutcome(
+  outcomeIndex,
+  { platform, entityType, entityId, collectorOk = true, collectorError = null }
+) {
+  if (!collectorOk) {
+    return { status: "failed", reason: collectorError ?? "collector_process_failed" };
+  }
+  return outcomeIndex?.get(autonomousCollectorEntityKey(platform, entityType, entityId)) ?? {
+    status: "blocked_or_empty",
+    reason: "collector_returned_no_entity_rows"
+  };
+}
+
+export function autonomousCollectorEntityKey(platform, entityType, entityId) {
+  return `${normalizePlatform(platform)}:${entityType ?? "company"}:${normalizeIdentity(entityId)}`;
+}
+
 export function normalizeAutonomousFailureEntityId(failure, { batchSlug }) {
   const rawEntityId = failure?.entityId ?? failure?.companyName ?? failure?.companySlug;
   if (batchSlug !== "A16ZSR006") return rawEntityId;
@@ -304,7 +390,7 @@ export function mergePublicEvidenceSnapshots(
         durableStorageConfigured
           ? "Generated export only; this run also imported validated evidence into durable Supabase tables."
           : "Durable Supabase import was skipped because complete optional credentials were not configured; this export is file-backed.",
-        "Rows are deduplicated by native identity or canonical URL before publication."
+        "Rows are deduplicated by entity attribution plus native identity or canonical URL before publication."
       ]
     },
     evidence,
@@ -507,6 +593,18 @@ function normalizePlatform(platform) {
   return platform;
 }
 
+function normalizeIdentity(value) {
+  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function collectorOutcomePriority(status) {
+  return ({ failed: 1, needs_review: 2, completed: 3 })[status] ?? 0;
+}
+
+function isSuccessfulPublicEvidenceRow(row) {
+  return !["needs_review", "rejected"].includes(row?.review_state);
+}
+
 function canonicalSocialAccountUrl(platform, rawUrl) {
   try {
     const url = new URL(rawUrl);
@@ -566,11 +664,12 @@ function slugify(value) {
 
 function evidenceKey(row) {
   const platform = normalizePlatform(row.platform ?? "other");
+  const entityId = row.entityId ?? row.attachedCompanyId ?? row.companySlug ?? row.companyName ?? "unknown-entity";
   const nativeId = row.platformObjectId ?? row.platform_post_id ?? row.nativeId;
-  if (nativeId) return `${platform}:id:${nativeId}`;
+  if (nativeId) return `${entityId}:${platform}:id:${nativeId}`;
   const url = canonicalUrl(row.sourceUrl ?? row.canonicalUrl ?? row.url);
-  if (url) return `${platform}:url:${url}`;
-  return row.id ?? `${platform}:${row.companySlug}:${row.title ?? row.text ?? "unknown"}`;
+  if (url) return `${entityId}:${platform}:url:${url}`;
+  return row.id ?? `${entityId}:${platform}:${row.title ?? row.text ?? "unknown"}`;
 }
 
 function canonicalUrl(value) {

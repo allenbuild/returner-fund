@@ -119,8 +119,13 @@ test("detects duplicate native posts across URL aliases and explicit identity co
   graph.nodes[0].evidenceIds.push(duplicate.id);
 
   const duplicated = collectGraphArtifactViolations(graph, descriptor).join("\n");
-  assert.match(duplicated, /duplicate native identity x:/);
+  assert.match(duplicated, /duplicate native identity .*:x:/);
 
+  duplicate.entityId = "company-distinct-attribution";
+  const distinctAttribution = collectGraphArtifactViolations(graph, descriptor).join("\n");
+  assert.doesNotMatch(distinctAttribution, /duplicate native identity/);
+
+  duplicate.entityId = original.entityId;
   duplicate.platformPostId = "999999999999999999";
   const conflicted = collectGraphArtifactViolations(graph, descriptor).join("\n");
   assert.match(conflicted, /conflicting x native identities/);
