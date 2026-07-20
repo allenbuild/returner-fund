@@ -352,10 +352,10 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode }: Insigh
             </header>
 
             <div className="stats-primary-grid">
-              <StatMetric label="Sources" value={databaseStats.sourceCount} detail={`${databaseStats.sourcesLast7Days} added in 7 days`} />
-              <StatMetric label="Companies" value={databaseStats.companyCount} detail={`${databaseStats.companyCoverage}% have sources`} />
-              <StatMetric label="Founders" value={databaseStats.founderCount} detail={`${databaseStats.founderCoverage}% have sources`} />
-              <StatMetric label="New today" value={databaseStats.sourcesToday} detail="sources first seen" />
+              <StatMetric tone="source" label="Sources" value={databaseStats.sourceCount} detail={`${databaseStats.sourcesLast7Days} added in 7 days`} />
+              <StatMetric tone="company" label="Companies" value={databaseStats.companyCount} detail={`${databaseStats.companyCoverage}% have sources`} />
+              <StatMetric tone="founder" label="Founders" value={databaseStats.founderCount} detail={`${databaseStats.founderCoverage}% have sources`} />
+              <StatMetric tone="source" label="New today" value={databaseStats.sourcesToday} detail="sources first seen" />
             </div>
 
             <div className="stats-growth-grid" aria-label="Daily database growth over the last 14 days">
@@ -392,9 +392,19 @@ interface DatabaseStats {
   dailyGrowth: DailyGrowthPoint[];
 }
 
-function StatMetric({ label, value, detail }: { label: string; value: number; detail: string }) {
+function StatMetric({
+  label,
+  value,
+  detail,
+  tone
+}: {
+  label: string;
+  value: number;
+  detail: string;
+  tone: "source" | "company" | "founder";
+}) {
   return (
-    <article className="stats-metric">
+    <article className={`stats-metric stats-metric-${tone}`}>
       <span>{label}</span>
       <strong>{value.toLocaleString()}</strong>
       <small>{detail}</small>

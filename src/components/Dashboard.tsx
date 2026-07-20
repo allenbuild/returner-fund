@@ -28,6 +28,7 @@ import { formatPlatform, PlatformLogo } from "./PlatformLogo";
 import { trackAnalyticsEvent, type AnalyticsEventPayloads } from "@/lib/analytics";
 import { applyClientGraphFilters, type ClientGraphFilters } from "@/lib/graph/client-filters";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
+import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
 import { validateStaticGraphSnapshotContract } from "@/lib/graph/static-graph-snapshot-contract.mjs";
 import {
@@ -919,7 +920,7 @@ export function Dashboard({
     }
     return selectedNodeEvidence(mapGraph, selectedNode)
       .filter((item) => selectedPlatforms.length === 0 || selectedPlatforms.includes(item.platform))
-      .slice(0, 20);
+      .slice(0, TOP_POSTS_LIMIT);
   }, [mapGraph, selectedNode, selectedPlatforms]);
 
   const searchResults = useMemo(

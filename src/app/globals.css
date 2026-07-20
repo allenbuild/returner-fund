@@ -30,10 +30,19 @@
   --overview-score-bg: var(--accent);
   --overview-score-ink: #ffffff;
   --overview-hover-text: #3366cc;
-  --stats-source: var(--accent);
-  --stats-company: var(--walnut);
-  --stats-founder: var(--neutral-900);
-  --stats-label: var(--walnut);
+  --stats-source: #ff6600;
+  --stats-company: #c4470a;
+  --stats-founder: #e98a00;
+  --stats-source-text: #b83f00;
+  --stats-company-text: #963407;
+  --stats-founder-text: #8a4c00;
+  --stats-source-soft: rgba(255, 102, 0, 0.08);
+  --stats-company-soft: rgba(196, 71, 10, 0.075);
+  --stats-founder-soft: rgba(233, 138, 0, 0.09);
+  --stats-source-border: rgba(255, 102, 0, 0.24);
+  --stats-company-border: rgba(196, 71, 10, 0.22);
+  --stats-founder-border: rgba(233, 138, 0, 0.24);
+  --stats-label: var(--accent);
   --stats-muted: #7a5034;
   --brand-stripe: linear-gradient(90deg, #ff6600 0%, #ff7a24 54%, #ffb27a 100%);
   --filter-fill: #f7f6f3;
@@ -144,10 +153,19 @@ a {
   --overview-score-bg: #38b6ff;
   --overview-score-ink: #ffffff;
   --overview-hover-text: #372f9f;
-  --stats-source: #38b6ff;
+  --stats-source: #159fe5;
   --stats-company: #6557e8;
-  --stats-founder: #17141f;
-  --stats-label: #17141f;
+  --stats-founder: #a04acb;
+  --stats-source-text: #0878b8;
+  --stats-company-text: #4f46c7;
+  --stats-founder-text: #7b319e;
+  --stats-source-soft: rgba(56, 182, 255, 0.09);
+  --stats-company-soft: rgba(101, 87, 232, 0.08);
+  --stats-founder-soft: rgba(160, 74, 203, 0.085);
+  --stats-source-border: rgba(56, 182, 255, 0.28);
+  --stats-company-border: rgba(101, 87, 232, 0.24);
+  --stats-founder-border: rgba(160, 74, 203, 0.25);
+  --stats-label: #0878b8;
   --stats-muted: #5c5a60;
   --filter-fill: #ffffff;
   --filter-fill-active: #ffffff;
@@ -2370,6 +2388,7 @@ progress::-webkit-progress-value {
 
 .stats-tab-body {
   padding: 22px;
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.045), transparent 190px);
   overflow: visible;
 }
 
@@ -2383,18 +2402,25 @@ progress::-webkit-progress-value {
   align-items: flex-end;
   justify-content: space-between;
   gap: 18px;
+  padding-left: 14px;
+  border-left: 4px solid var(--stats-source);
 }
 
 .stats-header h2 {
-  color: var(--neutral-900);
+  color: var(--stats-source-text);
   font-size: 1.28rem;
   font-weight: 700;
   letter-spacing: 0;
 }
 
-.stats-header p,
+.stats-header p {
+  color: var(--stats-company-text);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .stats-header > span {
-  color: var(--stats-muted);
+  color: var(--stats-founder-text);
   font-size: 0.78rem;
   font-weight: 600;
 }
@@ -2410,16 +2436,35 @@ progress::-webkit-progress-value {
 }
 
 .stats-metric {
+  --stats-metric-color: var(--stats-source-text);
+  --stats-metric-line: var(--stats-source);
+  --stats-metric-soft: var(--stats-source-soft);
+  --stats-metric-border: var(--stats-source-border);
   display: grid;
   min-height: 106px;
   padding: 16px;
-  border: 1px solid var(--neutral-200);
+  border: 1px solid var(--stats-metric-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: linear-gradient(135deg, var(--stats-metric-soft), #ffffff 70%);
+  box-shadow: inset 0 3px 0 var(--stats-metric-line);
+}
+
+.stats-metric-company {
+  --stats-metric-color: var(--stats-company-text);
+  --stats-metric-line: var(--stats-company);
+  --stats-metric-soft: var(--stats-company-soft);
+  --stats-metric-border: var(--stats-company-border);
+}
+
+.stats-metric-founder {
+  --stats-metric-color: var(--stats-founder-text);
+  --stats-metric-line: var(--stats-founder);
+  --stats-metric-soft: var(--stats-founder-soft);
+  --stats-metric-border: var(--stats-founder-border);
 }
 
 .stats-metric > span {
-  color: var(--stats-label);
+  color: var(--stats-metric-color);
   font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -2427,7 +2472,7 @@ progress::-webkit-progress-value {
 
 .stats-metric strong {
   align-self: end;
-  color: var(--neutral-900);
+  color: var(--stats-metric-color);
   font-size: 1.62rem;
   font-weight: 700;
   line-height: 1;
@@ -2435,7 +2480,7 @@ progress::-webkit-progress-value {
 
 .stats-metric small {
   align-self: end;
-  color: var(--stats-muted);
+  color: var(--stats-metric-color);
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -2447,14 +2492,19 @@ progress::-webkit-progress-value {
 }
 
 .stats-growth-card {
+  --stats-series-color: var(--stats-source);
+  --stats-series-text: var(--stats-source-text);
+  --stats-series-soft: var(--stats-source-soft);
+  --stats-series-border: var(--stats-source-border);
   display: grid;
   grid-template-rows: auto 118px auto;
   gap: 12px;
   min-width: 0;
   padding: 16px;
-  border: 1px solid var(--neutral-200);
+  border: 1px solid var(--stats-series-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: linear-gradient(180deg, var(--stats-series-soft), #ffffff 52%);
+  box-shadow: inset 0 3px 0 var(--stats-series-color);
 }
 
 .stats-growth-card header,
@@ -2471,20 +2521,20 @@ progress::-webkit-progress-value {
 }
 
 .stats-growth-card header span {
-  color: var(--stats-label);
+  color: var(--stats-series-text);
   font-size: 0.82rem;
   font-weight: 700;
 }
 
 .stats-growth-card header strong {
-  color: var(--neutral-900);
+  color: var(--stats-series-text);
   font-size: 1.18rem;
   font-weight: 700;
 }
 
 .stats-growth-card header small,
 .stats-growth-card footer {
-  color: var(--stats-muted);
+  color: var(--stats-series-text);
   font-size: 0.7rem;
   font-weight: 600;
 }
@@ -2493,7 +2543,7 @@ progress::-webkit-progress-value {
   width: 100%;
   height: 118px;
   overflow: visible;
-  color: var(--stats-source);
+  color: var(--stats-series-color);
   cursor: default;
   touch-action: none;
   user-select: none;
@@ -2538,12 +2588,18 @@ progress::-webkit-progress-value {
   vector-effect: non-scaling-stroke;
 }
 
-.stats-growth-companies .stats-spline {
-  color: var(--stats-company);
+.stats-growth-companies {
+  --stats-series-color: var(--stats-company);
+  --stats-series-text: var(--stats-company-text);
+  --stats-series-soft: var(--stats-company-soft);
+  --stats-series-border: var(--stats-company-border);
 }
 
-.stats-growth-founders .stats-spline {
-  color: var(--stats-founder);
+.stats-growth-founders {
+  --stats-series-color: var(--stats-founder);
+  --stats-series-text: var(--stats-founder-text);
+  --stats-series-soft: var(--stats-founder-soft);
+  --stats-series-border: var(--stats-founder-border);
 }
 
 .table-toolbar {

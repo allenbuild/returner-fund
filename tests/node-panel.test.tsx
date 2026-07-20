@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { NodePanel } from "@/components/NodePanel";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
+import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
@@ -198,11 +199,39 @@ describe("NodePanel", () => {
     );
 
     const topPosts = screen.getByRole("heading", { name: "Top Posts" }).closest("section");
-    expect(within(topPosts!).getByText("1/20")).toBeInTheDocument();
+    expect(within(topPosts!).getByText("1/50")).toBeInTheDocument();
     expect(screen.queryByText("Unscored evidence should stay out of Top Posts")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Platform contributions" }).closest("section")).toHaveTextContent(
       "No positive contributions yet."
     );
+  });
+
+  it("renders up to 50 scored Top Posts", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
+    const node = graph.nodes.find((item) => item.label === "Conifer");
+    const scoredEvidence = node
+      ? selectedNodeEvidence(graph, node).find((item) => item.contributionScore > 0)
+      : undefined;
+
+    expect(node).toBeDefined();
+    expect(scoredEvidence).toBeDefined();
+
+    const evidence = Array.from({ length: TOP_POSTS_LIMIT + 5 }, (_, index): EvidenceItem => ({
+      ...scoredEvidence!,
+      id: `synthetic-scored-${index}`,
+      title: `Synthetic scored post ${index}`,
+      text: `Synthetic scored post ${index}`,
+      contributionScore: 100 - index,
+      sourceUrl: `https://example.com/synthetic-scored-${index}`,
+      platformPostId: `synthetic-scored-${index}`
+    }));
+
+    render(<NodePanel node={node!} relatedNodes={[]} evidence={evidence} />);
+
+    const topPosts = screen.getByRole("heading", { name: "Top Posts" }).closest("section");
+    expect(within(topPosts!).getByText("50/50")).toBeInTheDocument();
+    expect(topPosts!.querySelectorAll(".top-post-card")).toHaveLength(TOP_POSTS_LIMIT);
+    expect(within(topPosts!).queryByText("Synthetic scored post 50")).not.toBeInTheDocument();
   });
 
   it("does not restore the old Top Voices panel for a selected score audience", () => {

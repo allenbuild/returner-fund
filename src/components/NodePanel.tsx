@@ -1,6 +1,7 @@
 "use client";
 
 import { dedupeEvidenceItems } from "@/lib/graph/dedupe";
+import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
 import { EvidenceMediaCard } from "./EvidenceMediaCard";
 import { PlatformIdentity } from "./PlatformLogo";
@@ -26,7 +27,7 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
       .filter(isScoredEvidence)
       .sort((a, b) => b.contributionScore - a.contributionScore)
   );
-  const topItems = scoredItems.slice(0, 20);
+  const topItems = scoredItems.slice(0, TOP_POSTS_LIMIT);
   const founderAccounts = node.founders.flatMap((founder) =>
     founder.socialAccounts.map((account) => ({ founderName: founder.name, account }))
   );
@@ -101,7 +102,7 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
       <section className="top-contribution-section">
         <div className="section-title-row">
           <h3>Top Posts</h3>
-          <span>{topItems.length}/20</span>
+          <span>{topItems.length}/{TOP_POSTS_LIMIT}</span>
         </div>
         <div className="top-post-list">
           {topItems.map((item, index) => (
