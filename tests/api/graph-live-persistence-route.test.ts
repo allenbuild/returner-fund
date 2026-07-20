@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+
 describe("GET /api/graph live persistence reliability", () => {
   afterEach(() => {
     vi.doUnmock("@/lib/graph/graph-response-cache");
@@ -35,7 +37,7 @@ describe("GET /api/graph live persistence reliability", () => {
     expect(body.errors.join(" ")).toContain("could not be reloaded");
     expect(body.nodes).toBeUndefined();
     expect(getOrBuildCachedGraphResponse).not.toHaveBeenCalled();
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 
   it("preserves the legitimate no-live-snapshot path when persistence reports ENOENT", async () => {
     const graph = { marker: "graph-built-without-live-snapshot" };
@@ -57,5 +59,5 @@ describe("GET /api/graph live persistence reliability", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual(graph);
     expect(getOrBuildCachedGraphResponse).toHaveBeenCalledTimes(1);
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 });

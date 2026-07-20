@@ -40,14 +40,14 @@ Where sources disagree, this report uses this precedence order:
 | [`SCORING_MODEL.md`](SCORING_MODEL.md) | Detailed formula narrative | Current description of the canonical v4 formula, all-platform company score, visibility filters, provenance, and known limitations. |
 | [`SCORING_V4_AUDIT.md`](SCORING_V4_AUDIT.md) | Code-conformance and v3 retirement audit | Accurate for the reviewed core, but point-in-time for generated-artifact freshness and later compatibility/source/persistence additions. |
 | [`SCORING_EXPERIMENTS.md`](SCORING_EXPERIMENTS.md) | Checked-in candidate summary | Generated from the current checked-in experiment artifact at its frozen clock; descriptive engineering evidence on local unlabeled snapshots. |
-| [`outputs/scoring-diagnostics-v4-report.md`](outputs/scoring-diagnostics-v4-report.md) | Checked-in human-readable diagnostics | Current rendering of the checked-in audit; SHA-256 `ea106d3ea5fbdc09901e3ea068b048a1a29aae3287c59ac34149edb433e7be92`. |
-| [`outputs/scoring-diagnostics-v4-audit.json`](outputs/scoring-diagnostics-v4-audit.json) | Full diagnostic evidence | SHA-256 `3cd06213e6a0e819d0f500632dbc32908399302b9bd8e4b2915395c03f739e72`. Frozen clock `2026-07-17T12:00:00.000Z`. |
+| [`outputs/scoring-diagnostics-v4-report.md`](outputs/scoring-diagnostics-v4-report.md) | Checked-in human-readable diagnostics | Current rendering of the checked-in audit; SHA-256 `e70062c98ddf19db6723e29098016819646a0999679b7b5fa4ba1259e8b35114`. |
+| [`outputs/scoring-diagnostics-v4-audit.json`](outputs/scoring-diagnostics-v4-audit.json) | Full diagnostic evidence | SHA-256 `15ebc273d209022a7fb9a59829dbaa197ef11b1cebed440bf590c0c23b4b9177`. Frozen clock `2026-07-17T12:00:00.000Z`. |
 | [`outputs/scoring-experiments-v4.md`](outputs/scoring-experiments-v4.md) | Checked-in human-readable candidate comparison | Current rendering of the checked-in experiment; SHA-256 `5758bc9eacbb2ea2d2d79f22b2ad7eb9d55a1f10c1c61c9fee0c1a0051d105d8`. |
 | [`outputs/scoring-experiments-v4.json`](outputs/scoring-experiments-v4.json) | Full candidate and company evidence | SHA-256 `16bd3e64027c962af3650252a94032de5beb9ab7fe4640e488b9051772e11ff4`. Frozen clock `2026-07-16T12:00:00.000Z`. |
 | [`EVIDENCE_ATTRIBUTION_AUDIT.md`](EVIDENCE_ATTRIBUTION_AUDIT.md) | Attribution review snapshot | Older point-in-time audit, generated `2026-06-29`; useful for known attribution risks, not proof of current counts. |
 | [`COVERAGE_REPORT.md`](COVERAGE_REPORT.md) | Source coverage snapshot | Point-in-time S2026 source inventory generated `2026-07-16T00:24:31.860Z`; source-access statements are historical observations, not live checks made for this report. |
 
-The diagnostic and experiment artifacts record Git `4c902faca02f971a3008cd9f76e1a94d5b14d854`, while the repository has a reviewed dirty working tree. Their embedded source manifests and artifact hashes identify the frozen runs. The final local release checks below were run after implementation stopped changing; they do not prove deployment or external-source liveness.
+The diagnostic artifact deliberately stores `git_sha: null` so committing a regenerated artifact does not immediately invalidate byte reproduction; its complete input and source manifests bind the frozen run instead. The older experiment artifact records Git `4c902faca02f971a3008cd9f76e1a94d5b14d854`. Their embedded manifests and artifact hashes identify their respective runs. The final local release checks below were run after implementation stopped changing; they do not prove deployment or external-source liveness.
 
 | File | SHA-256 recorded and rechecked |
 | --- | --- |
@@ -64,7 +64,7 @@ The diagnostic and experiment artifacts record Git `4c902faca02f971a3008cd9f76e1
 | `src/lib/graph/live-evidence-overlay.ts` | `37d649382184f2951fd103cc13a232efa7ae771118ab887ec14316771981128b` |
 | `src/lib/graph/static-graph-snapshot-contract.mjs` | `b10177cb8116b015f346f7ab1c0af8f159ea2f7086a87bfe844f4ca73f8901d6` |
 
-The current diagnostic records input-envelope SHA-256 `78582133534fbc4f4fdc70370e6e5401b28e3492dd5d0c88be0ed73e66da6ae2`, 83 canonical parameters, eight role-labeled runtime source files, and combined versioned-scoring-input SHA-256 `03e432277ba4769cc4121311b8282d84edc3af135159046c27730358a45835e6`. It reports `13/13` invariants passing before artifact writes. The experiment records production-config hash `adfce3cd311a6fd658f76406679e2ad536ef56163b3cc18da879afc19645cf28`, dataset hash `dee12b50325b8a494d2b457bb5f2c01b69b30957eac238e6f09b992805abe474`, no config mutation, and six source hashes. These are frozen local byte-provenance facts only; they do not prove settled-worktree parity, deployment, database persistence, publication, browser behavior, or external-source liveness.
+The current diagnostic records input-envelope SHA-256 `0c2595d3c061037ffe6480cfbe624f5bfb2aa1de5a70e3e5c11d294dddd66ac5`, 83 canonical parameters, eight role-labeled runtime source files, and combined versioned-scoring-input SHA-256 `3bc4182861dfb6a08ff4c219a197ecffcc0a1431715d43c2a75e1713ad3f933d`. It reports `13/13` invariants passing before artifact writes. The experiment records production-config hash `adfce3cd311a6fd658f76406679e2ad536ef56163b3cc18da879afc19645cf28`, dataset hash `dee12b50325b8a494d2b457bb5f2c01b69b30957eac238e6f09b992805abe474`, no config mutation, and six source hashes. These are frozen local byte-provenance facts only; they do not prove deployment, database persistence, browser behavior, or external-source liveness.
 
 ## 3. Actual architecture
 
@@ -794,7 +794,7 @@ node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-lo
 
 The runner freezes time, disables `fetch`, reads local snapshots, and refuses writes outside the two documented diagnostic paths.
 
-The current audit JSON has SHA-256 `3cd06213e6a0e819d0f500632dbc32908399302b9bd8e4b2915395c03f739e72`; its report has SHA-256 `ea106d3ea5fbdc09901e3ea068b048a1a29aae3287c59ac34149edb433e7be92`. At frozen clock `2026-07-17T12:00:00.000Z`, it records 339 companies, 4,074 rows, 1,481 rejects, 0 upstream-enabled rejects, 0 profile/search/non-native scored rows, 60 scored publication-date gaps, 0 scored metric gaps, 0 monotonicity failures, and 0 cleanup rank changes. It passes `13/13` invariants. Regeneration remains a writing operation and should be run only when intentionally updating both diagnostic outputs.
+The current audit JSON has SHA-256 `15ebc273d209022a7fb9a59829dbaa197ef11b1cebed440bf590c0c23b4b9177`; its report has SHA-256 `e70062c98ddf19db6723e29098016819646a0999679b7b5fa4ba1259e8b35114`. At frozen clock `2026-07-17T12:00:00.000Z`, it records 371 companies, 4,095 rows, 859 rejects, 0 upstream-enabled rejects, 0 profile/search/non-native scored rows, 242 scored publication-date gaps, 0 scored metric gaps, 0 monotonicity failures, and 0 cleanup rank changes. It passes `13/13` invariants. Regeneration remains a writing operation and should be run only when intentionally updating both diagnostic outputs.
 
 ### 13.3 Regenerate candidate experiments
 

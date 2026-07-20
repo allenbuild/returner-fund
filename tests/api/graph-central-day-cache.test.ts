@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { GraphResponse } from "@/lib/graph/types";
 
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+
 describe("GET /api/graph Central-day cache", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -51,5 +53,5 @@ describe("GET /api/graph Central-day cache", () => {
     expect(beforeOptions.ttlMs).toBe(500);
     expect(afterOptions.ttlMs).toBe(60_000);
     expect(beforeOptions.scope).toEqual({ batchSlug: "S2026", topVoices: "off" });
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 });

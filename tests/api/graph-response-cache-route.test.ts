@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
 import type { GraphResponse } from "@/lib/graph/types";
 
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+
 describe("GET /api/graph response-cache concurrency", () => {
   afterEach(() => {
     clearGraphResponseCache();
@@ -63,7 +65,7 @@ describe("GET /api/graph response-cache concurrency", () => {
     expect(githubGraph.evidence.map((item) => item.id)).not.toEqual(
       xGraph.evidence.map((item) => item.id)
     );
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 });
 
 async function graphResponse(

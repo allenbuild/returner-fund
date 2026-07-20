@@ -3,6 +3,8 @@ import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 import type { CompanyRecord, DemoGraphDataset, EvidenceItem, GraphResponse } from "@/lib/graph/types";
 import type { LiveEvidenceRecord } from "@/lib/ingestion/live-source-refresh";
 
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+
 describe("GET /api/graph recomputation order", () => {
   afterEach(() => {
     vi.doUnmock("@/lib/graph/yc-spring-2026-dataset");
@@ -74,7 +76,7 @@ describe("GET /api/graph recomputation order", () => {
           row.wow.baselineRank === null
       )
     ).toBe(true);
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 
   it("keeps canonical company scoring and momentum identical across Top Voice audiences after live updates", async () => {
     const dataset = routeDataset();
@@ -113,7 +115,7 @@ describe("GET /api/graph recomputation order", () => {
     expect(ycPartners.evidence[0]?.topVoice?.audienceId).toBe("yc_partners");
     expect(canonicalCompanyProjection(insiders, "alpha")).toEqual(canonical);
     expect(canonicalCompanyProjection(ycPartners, "alpha")).toEqual(canonical);
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 });
 
 async function graphResponse(

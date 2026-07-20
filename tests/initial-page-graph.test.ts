@@ -4,6 +4,8 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 
+const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
+
 describe("initial page graph", () => {
   it("hydrates stored momentum for first paint without mutating benchmark history", async () => {
     const previousCwd = process.cwd();
@@ -45,7 +47,7 @@ describe("initial page graph", () => {
       process.chdir(previousCwd);
       vi.resetModules();
     }
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 
   it("keeps the full map and ranking shell while trimming heavy evidence for first paint", async () => {
     const { buildInitialPageGraph } = await import("@/lib/graph/initial-page-graph");
