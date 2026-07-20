@@ -1,6 +1,26 @@
 import * as cheerio from "cheerio";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+import {
+  linkedinAccountSlugFromUrl,
+  linkedinNativeAuthorSlugFromPayload,
+  linkedinNativeAuthorSlugFromUrl,
+  linkedinPostIdFromUrl
+} from "./lib/social-native-identity.mjs";
+import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
+import {
+  assessPublicEvidenceAttribution,
+  assessLinkedInPrimaryPostBody,
+  containsExactTokenSequence,
+  extractLinkedInPrimaryPostText,
+  hasDistinctiveCatalogPhrase,
+  isCollisionProneCompanyName,
+  isListOrRoundupAttributionContext,
+  organizationQualifiedBatchMarker,
+  organizationQualifiedBatchMarkerCount,
+  PUBLIC_EVIDENCE_ATTRIBUTION_VERSION,
+  publicEvidenceAttributionText
+} from "./lib/public-evidence-attribution.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -24,19 +44,36 @@ const platformFilter = new Set(
 );
 const requestDelayMs = numberArg("--delay-ms") ?? 450;
 const workerCount = numberArg("--workers") ?? 8;
+const MAX_LINKEDIN_WORKERS = 4;
+const linkedinWorkerCount = Math.max(
+  1,
+  Math.min(MAX_LINKEDIN_WORKERS, Math.floor(numberArg("--linkedin-workers") ?? 1))
+);
+const MAX_INSTAGRAM_WORKERS = 8;
+const instagramWorkerCount = Math.max(
+  1,
+  Math.min(MAX_INSTAGRAM_WORKERS, Math.floor(numberArg("--instagram-workers") ?? 2))
+);
 const forceRefresh = hasArg("--force");
 const freshForHours = Math.max(0, numberArg("--fresh-for-hours") ?? 12);
 const discoverMissingSocial = hasArg("--discover-missing-social") || platformFilter.size > 0;
 const discoveryAttemptsPath = resolvePathArg(
-  stringArg("--discovery-attempts") ?? join(root, "outputs", "discovery-attempts-current.json")
+  stringArg("--discovery-attempts") ??
+    join(root, "outputs", `discovery-attempts-${batchConfig.slug.toLowerCase()}.json`)
 );
 const sourceDiscoveryPathsPath = resolvePathArg(
-  stringArg("--source-discovery-paths") ?? join(root, "outputs", "source-discovery-paths-current.json")
+  stringArg("--source-discovery-paths") ??
+    join(root, "outputs", `source-discovery-paths-${batchConfig.slug.toLowerCase()}.json`)
 );
 const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
+const canonicalPublicEvidencePath = join(root, "src", "lib", "social", "public-evidence-current.json");
 const planOnly = hasArg("--plan");
+const PUBLIC_ATTRIBUTION_VERSION = PUBLIC_EVIDENCE_ATTRIBUTION_VERSION;
 
-const verifiedSocialOverrides = await readJson(verifiedSocialOverridesPath, {});
+const verifiedSocialOverrides = await readRequiredCanonicalJson(
+  verifiedSocialOverridesPath,
+  "Verified social overrides"
+);
 const normalizedBatchSnapshot = normalizeBatchSnapshot(
   JSON.parse(await readFile(batchSnapshotPath, "utf8")),
   batchConfig
@@ -45,9 +82,21 @@ const batchSnapshot = {
   ...normalizedBatchSnapshot,
   companies: mergeVerifiedSocialOverrides(normalizedBatchSnapshot.companies, verifiedSocialOverrides)
 };
+const companySlugByEntityId = new Map(
+  batchSnapshot.companies.flatMap((company) => [
+    [companyId(company), company.slug],
+    ...(company.founders ?? []).map((founder) => [
+      entityIdFor(company, founder, "founder"),
+      company.slug
+    ])
+  ])
+);
 const canonicalCompanyCatalog = await loadCanonicalCompanyCatalog(batchSnapshot, batchConfig);
 const currentBatchContext = batchContextFromSnapshot(batchSnapshot);
 const currentOutput = await readJson(outputPath, { evidence: [], needsReview: [], failures: [] });
+const previousMergedOutput = outputPath === canonicalPublicEvidencePath
+  ? null
+  : await readJson(canonicalPublicEvidencePath, null);
 const currentDiscoveryAttempts = await readJson(discoveryAttemptsPath, []);
 const currentSourceDiscoveryPaths = await readJson(sourceDiscoveryPathsPath, []);
 const checkpoint = await readJson(checkpointPath, {
@@ -59,14 +108,27 @@ const checkpoint = await readJson(checkpointPath, {
   sourceDiscoveryPaths: []
 });
 const attemptMap = new Map(
-  Object.entries(checkpoint.attempts ?? {}).filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
+  Object.entries(checkpoint.attempts ?? {})
+    .filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
+    .map(([key, attempt]) => [key, withAttemptBatchScope(attempt)])
 );
 const evidence = dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.evidence ?? [])]);
 const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])]);
 const failures = dedupeFailures([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
-const discoveryAttempts = dedupeDiscoveryAttempts([...(currentDiscoveryAttempts ?? []), ...(checkpoint.discoveryAttempts ?? [])]);
-const sourceDiscoveryPaths = dedupeById([...(currentSourceDiscoveryPaths ?? []), ...(checkpoint.sourceDiscoveryPaths ?? [])]);
+const discoveryAttempts = dedupeDiscoveryAttempts([
+  ...batchScopedRows(previousMergedOutput?.discoveryAttempts, normalizedBatchSnapshot, batchConfig.slug),
+  ...batchScopedRows(currentOutput.discoveryAttempts, normalizedBatchSnapshot, batchConfig.slug),
+  ...(currentDiscoveryAttempts ?? []),
+  ...(checkpoint.discoveryAttempts ?? [])
+]);
+const sourceDiscoveryPaths = dedupeById([
+  ...batchScopedRows(previousMergedOutput?.sourceDiscoveryPaths, normalizedBatchSnapshot, batchConfig.slug),
+  ...batchScopedRows(currentOutput.sourceDiscoveryPaths, normalizedBatchSnapshot, batchConfig.slug),
+  ...(currentSourceDiscoveryPaths ?? []),
+  ...(checkpoint.sourceDiscoveryPaths ?? [])
+]);
 const companyBySlug = new Map(canonicalCompanyCatalog.map((company) => [company.slug, company]));
+const currentBatchNativeOwnerIndex = buildNativeOwnerIndex(batchSnapshot.companies);
 let checkpointWriteChain = Promise.resolve();
 const platformCooldowns = new Map();
 const INGEST_METRIC_WEIGHTS = {
@@ -109,6 +171,22 @@ const COMMON_DESCRIPTOR_TOKENS = new Set([
   "with",
   "world"
 ]);
+const ATTRIBUTION_DESCRIPTOR_STOP_WORDS = new Set([
+  "about", "agent", "agents", "and", "are", "build", "building", "built", "companies",
+  "company", "for", "from", "into", "its", "our", "platform", "product", "products",
+  "that", "the", "their", "they", "this", "through", "using", "with", "your"
+]);
+const DISCOVERABLE_SOCIAL_PLATFORMS = Object.freeze(["x", "linkedin", "instagram"]);
+const MAPPED_ACCOUNT_PLATFORMS = Object.freeze([
+  ...DISCOVERABLE_SOCIAL_PLATFORMS,
+  "youtube",
+  "product_hunt"
+]);
+// Keep explicit attribution demotions independently from the mutable evidence
+// arrays. Successful replacement collection removes prior platform rows, but
+// must never erase a target-specific durable retirement directive.
+const carriedAttributionReconciliationReviews = normalizeEvidenceForStorage(evidence).needsReview
+  .filter((row) => row.attributionReconciliationDirective);
 
 const companies = batchSnapshot.companies
   .filter(
@@ -121,11 +199,21 @@ const companies = batchSnapshot.companies
   .slice(0, companyLimit);
 
 if (planOnly) {
-  console.log(JSON.stringify({
+  const socialTargets = publicSocialCollectionTargets(companies);
+  const planPayload = JSON.stringify({
     batchSlug: batchConfig.slug,
     snapshotPath: batchSnapshotPath,
-    socialTargets: publicSocialCollectionTargets(companies)
-  }, null, 2));
+    checkpointPath,
+    companyCount: companies.length,
+    founderCount: companies.reduce((count, company) => count + (company.founders?.length ?? 0), 0),
+    laneConcurrency: {
+      linkedin: Math.max(1, Math.min(workerCount, platformConcurrency("linkedin"))),
+      instagram: Math.max(1, Math.min(workerCount, platformConcurrency("instagram")))
+    },
+    socialCoverage: publicSocialCoverage(companies, socialTargets),
+    socialTargets
+  }, null, 2);
+  await writeStdout(`${planPayload}\n`);
   process.exit(0);
 }
 
@@ -149,6 +237,10 @@ const payload = {
     taskCountThisRun: taskPlan.length,
     checkpointAttemptCount: attemptMap.size,
     workerCount,
+    laneConcurrency: {
+      linkedin: Math.max(1, Math.min(workerCount, platformConcurrency("linkedin"))),
+      instagram: Math.max(1, Math.min(workerCount, platformConcurrency("instagram")))
+    },
     forcedRefresh: forceRefresh,
     platformsAttempted: [
       "x",
@@ -171,9 +263,18 @@ const payload = {
         : [])
     ]
   },
+  attempts: Object.fromEntries(
+    [...attemptMap.entries()].filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
+  ),
   evidence: normalizedOutputEvidence.evidence,
-  needsReview: normalizeNeedsReviewItems([...needsReview, ...normalizedOutputEvidence.needsReview]),
-  failures: dedupeFailures(failures)
+  needsReview: normalizeNeedsReviewItems([
+    ...needsReview,
+    ...carriedAttributionReconciliationReviews,
+    ...normalizedOutputEvidence.needsReview
+  ]),
+  failures: dedupeFailures(failures),
+  discoveryAttempts: dedupeDiscoveryAttempts(discoveryAttempts),
+  sourceDiscoveryPaths: dedupeById(sourceDiscoveryPaths)
 };
 
 await writeJson(outputPath, payload);
@@ -185,12 +286,14 @@ console.log(
 );
 
 function buildCompanyTasks(company) {
+  const hasMappedYouTube = socialAccountUrls(company, "youtube").length > 0;
+  const hasMappedProductHunt = socialAccountUrls(company, "product_hunt").length > 0;
   const tasks = [
     connectorTask("website", company.slug, company, () => ingestWebsite(company)),
     connectorTask("rss", company.slug, company, () => ingestRss(company)),
     connectorTask("hacker_news", company.slug, company, () => ingestHackerNews(company)),
-    connectorTask("youtube", company.slug, company, () => ingestYouTube(company)),
-    connectorTask("product_hunt", company.slug, company, () => ingestProductHunt(company)),
+    hasMappedYouTube ? null : connectorTask("youtube", company.slug, company, () => ingestYouTube(company)),
+    hasMappedProductHunt ? null : connectorTask("product_hunt", company.slug, company, () => ingestProductHunt(company)),
     connectorTask("news_web", company.slug, company, () => ingestNewsWeb(company)),
     connectorTask("reddit", company.slug, company, () => ingestReddit(company))
   ];
@@ -216,42 +319,115 @@ function publicSocialCollectionTargets(targetCompanies) {
         ? [[company, "company"]]
         : [];
     for (const [entity, entityType] of entities) {
-      for (const platform of ["x", "linkedin", "instagram"]) {
-        if (!platformAllowed(platform) || !entity.socialLinks?.[platform]) continue;
-        targets.push({
-          companySlug: company.slug,
-          companyName: company.name,
-          entityType,
-          entityId: entityIdFor(company, entity, entityType),
-          entityName: entityName(entity, entityType),
-          platform,
-          accountUrl: entity.socialLinks[platform]
-        });
+      for (const platform of MAPPED_ACCOUNT_PLATFORMS) {
+        if (!platformAllowed(platform)) continue;
+        for (const accountUrl of socialAccountUrls(entity, platform)) {
+          targets.push({
+            companySlug: company.slug,
+            companyName: company.name,
+            entityType,
+            entityId: entityIdFor(company, entity, entityType),
+            entityName: entityName(entity, entityType),
+            platform,
+            accountUrl
+          });
+        }
       }
     }
   }
   return targets;
 }
 
+function publicSocialCoverage(targetCompanies, plannedTargets) {
+  const targetsByIdentity = new Map();
+  for (const target of plannedTargets) {
+    const key = `${target.entityId}:${target.platform}`;
+    targetsByIdentity.set(key, [...(targetsByIdentity.get(key) ?? []), target]);
+  }
+  const coverage = [];
+  for (const company of targetCompanies) {
+    const entities = socialMode === "all"
+      ? [[company, "company"], ...(company.founders ?? []).map((founder) => [founder, "founder"])]
+      : socialMode === "company"
+        ? [[company, "company"]]
+        : [];
+    for (const [entity, entityType] of entities) {
+      const entityId = entityIdFor(company, entity, entityType);
+      for (const platform of MAPPED_ACCOUNT_PLATFORMS) {
+        const targets = targetsByIdentity.get(`${entityId}:${platform}`) ?? [];
+        const rows = targets.length ? targets : [null];
+        for (const target of rows) coverage.push({
+          batchSlug: batchConfig.slug,
+          companySlug: company.slug,
+          companyName: company.name,
+          entityType,
+          entityId,
+          entityName: entityName(entity, entityType),
+          platform,
+          accountUrl: target?.accountUrl ?? null,
+          status: !platformAllowed(platform)
+            ? "platform_filtered"
+            : target
+              ? "mapped_target"
+              : DISCOVERABLE_SOCIAL_PLATFORMS.includes(platform) && discoverMissingSocial
+                ? "discovery_target"
+                : entityType === "company"
+                  ? "generic_search_target"
+                  : "not_applicable"
+        });
+      }
+    }
+  }
+  return coverage;
+}
+
 function connectorTask(platform, key, company, fn) {
   if (!platformAllowed(platform)) return null;
+  const normalizedPlatform = normalizePlatformArg(platform);
   return {
-    lane: normalizePlatformArg(platform),
+    lane: normalizedPlatform,
     company,
-    label: `${normalizePlatformArg(platform)}:${company.slug}`,
+    label: `${normalizedPlatform}:${company.slug}`,
+    terminalIdentity: {
+      attemptKey: `${platform}:${key}`,
+      platform: normalizedPlatform,
+      companySlug: company.slug,
+      entityType: "company",
+      entityId: companyId(company),
+      name: company.name,
+      accountUrl: null
+    },
     run: () => attempt(platform, key, company, fn)
   };
 }
 
 function socialTasksForEntity(company, entity, entityType) {
-  return ["x", "linkedin", "instagram"]
-    .filter((platform) => platformAllowed(platform))
-    .map((platform) => ({
-      lane: platform,
-      company,
-      label: `${platform}:${company.slug}:${entityType}:${entity.id ?? entity.slug}`,
-      run: () => attemptSocialProfile(company, entity, entityType, platform)
-    }));
+  return MAPPED_ACCOUNT_PLATFORMS.flatMap((platform) => {
+    if (!platformAllowed(platform)) return [];
+    const accountUrls = socialAccountUrls(entity, platform);
+    if (!accountUrls.length && !DISCOVERABLE_SOCIAL_PLATFORMS.includes(platform)) return [];
+    // Exactly one URL-less task preserves recurring discovery for unmapped owners.
+    return (accountUrls.length ? accountUrls : [null]).map((accountUrl) => {
+      const entityId = entityIdFor(company, entity, entityType);
+      return {
+        lane: platform,
+        company,
+        label: `${platform}:${company.slug}:${entityType}:${entity.id ?? entity.slug}:${accountUrl ?? "discovery"}`,
+        terminalIdentity: {
+          attemptKey: accountUrl
+            ? `${platform}:${entityType}:${entityId}:${accountUrl}`
+            : `${platform}:${entityType}:${entityId}:missing-url`,
+          platform,
+          companySlug: company.slug,
+          entityType,
+          entityId,
+          name: entityName(entity, entityType),
+          accountUrl
+        },
+        run: () => attemptSocialProfile(company, entity, entityType, platform, accountUrl)
+      };
+    });
+  });
 }
 
 async function runTaskPlan(tasks, maxWorkers) {
@@ -275,14 +451,31 @@ async function runLane(lane, tasks, limit) {
       console.log(`[${lane}/worker-${workerIndex + 1}] ${task.label}`);
       const cooldown = platformCooldowns.get(lane);
       if (cooldown && cooldown.until > Date.now()) {
-        failures.push(
-          failure(
-            lane,
-            task.company,
-            null,
-            `Platform cooldown active until ${new Date(cooldown.until).toISOString()}: ${cooldown.reason}`
-          )
-        );
+        const message = `Platform cooldown active until ${new Date(cooldown.until).toISOString()}: ${cooldown.reason}`;
+        const identity = task.terminalIdentity;
+        failures.push(identity
+          ? {
+              ...failure(
+                lane,
+                task.company,
+                identity.accountUrl,
+                message,
+                identity.entityType,
+                identity.name,
+                identity.entityId
+              ),
+              accountUrl: identity.accountUrl
+            }
+          : failure(lane, task.company, null, message));
+        if (identity) {
+          attemptMap.set(identity.attemptKey, socialAttemptRecord({
+            status: "failed",
+            checkedAt: now,
+            error: message,
+            outcomeStatus: "blocked_or_empty",
+            outcomeReason: "collector_checked_blocked_or_empty"
+          }, identity));
+        }
         await writeCheckpoint();
         continue;
       }
@@ -293,9 +486,9 @@ async function runLane(lane, tasks, limit) {
 }
 
 function platformConcurrency(lane) {
-  if (lane === "instagram") return 2;
+  if (lane === "instagram") return instagramWorkerCount;
   if (lane === "x") return 2;
-  if (lane === "linkedin") return 1;
+  if (lane === "linkedin") return linkedinWorkerCount;
   if (lane === "reddit") return 2;
   if (lane === "product_hunt") return 2;
   if (lane === "youtube") return 3;
@@ -333,7 +526,19 @@ async function attempt(platform, key, company, fn) {
         failureReason: attemptSummary.failureReason
       })
     );
-    attemptMap.set(attemptKey, { status: "done", checkedAt: now });
+    attemptMap.set(attemptKey, socialAttemptRecord({
+      status: "done",
+      checkedAt: now,
+      outcomeStatus: collectorOutcomeStatus(attemptSummary),
+      outcomeReason: collectorOutcomeReason(attemptSummary)
+    }, {
+      platform: normalizedPlatform,
+      companySlug: company.slug,
+      entityType: "company",
+      entityId: companyId(company),
+      name: company.name,
+      accountUrl: null
+    }));
   } catch (error) {
     recordPlatformCooldownIfNeeded(normalizedPlatform, error);
     failures.push(failure(normalizedPlatform, company, null, errorMessage(error)));
@@ -350,7 +555,23 @@ async function attempt(platform, key, company, fn) {
         failureReason: errorMessage(error)
       })
     );
-    attemptMap.set(attemptKey, { status: "failed", checkedAt: now, error: errorMessage(error) });
+    const message = errorMessage(error);
+    attemptMap.set(attemptKey, socialAttemptRecord({
+      status: "failed",
+      checkedAt: now,
+      error: message,
+      outcomeStatus: expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
+      outcomeReason: expectedAccessOrEmptyMessage(message)
+        ? "collector_checked_blocked_or_empty"
+        : "collector_reported_failure"
+    }, {
+      platform: normalizedPlatform,
+      companySlug: company.slug,
+      entityType: "company",
+      entityId: companyId(company),
+      name: company.name,
+      accountUrl: null
+    }));
   }
 
   await writeCheckpoint();
@@ -403,88 +624,124 @@ function hasValidatedReplacement(result) {
   return (result?.evidence?.length ?? 0) > 0;
 }
 
-async function attemptSocialProfile(company, entity, entityType, platform) {
-  const url = entity.socialLinks?.[platform];
+async function attemptSocialProfile(company, entity, entityType, platform, accountUrl) {
+  const url = accountUrl ?? null;
   const entityId = entityIdFor(company, entity, entityType);
   const name = entityName(entity, entityType);
+  const key = url
+    ? `${platform}:${entityType}:${entityId}:${url}`
+    : `${platform}:${entityType}:${entityId}:missing-url`;
+  if (!forceRefresh && isFreshCompletedAttempt(attemptMap.get(key))) return;
 
   if (!url) {
-    if (entityType === "company") {
-      const discoveredPathCandidates = discoveredSocialCandidatesFromPaths(company, platform);
-      const searchCandidates = discoverMissingSocial ? await discoverSocialCandidates(company, platform) : [];
-      const candidates = dedupeSocialCandidates([...discoveredPathCandidates, ...searchCandidates]);
-      if (candidates.length) {
-        const verifiedPostResults = [];
-        const postCandidates = candidates.filter((candidate) => isSocialPostUrl(candidate.url, platform)).slice(0, 2);
-        for (const candidate of postCandidates) {
-          verifiedPostResults.push(await verifyPublicSocialPostCandidate(company, platform, candidate));
-        }
-        const verifiedPosts = verifiedPostResults.flatMap((result) => result.evidence ?? []);
-        const verifiedPostUrls = new Set(verifiedPosts.map((item) => item.sourceUrl));
-        const reviewItems = [
-          ...verifiedPostResults.flatMap((result) => result.needsReview ?? []),
-          ...candidates
-            .filter((candidate) => !verifiedPostUrls.has(candidate.url) && !postCandidates.some((postCandidate) => postCandidate.url === candidate.url))
-            .map((candidate) =>
-              reviewCandidate(
-                company,
-                platform,
-                candidate.url,
-                `Public search discovered this ${platform} candidate; profile/post verification is required before scoring.`
-              )
-            )
-        ];
-        addItems(verifiedPosts, evidence);
-        addItems(reviewItems, needsReview);
-        addItems(
-          candidates.map((candidate) =>
-            sourceDiscoveryPath({
-              company,
-              sourceUrl: candidate.searchUrl,
-              discoveredUrl: candidate.url,
-              discoveredPlatform: platform,
-              discoveredEntityType: "company",
-              discoveredEntityName: company.name,
-              matchReason: verifiedPostUrls.has(candidate.url)
-                ? `Verified post-level public evidence from search query "${candidate.query}".`
-                : `Found from public search query "${candidate.query}".`,
-              reviewState: verifiedPostUrls.has(candidate.url) ? "verified" : "needs_review"
-            })
-          ),
-          sourceDiscoveryPaths
-        );
-        discoveryAttempts.push(
-          discoveryAttempt({
-            company,
-            platform,
-            query: candidates[0].query,
-            source: "public_search_missing_social",
-            resultCount: candidates.length,
-            usefulResultCount: verifiedPosts.length,
-            selectedUrl: verifiedPosts[0]?.sourceUrl ?? candidates[0].url,
-            status: verifiedPosts.length ? "partial_success" : "needs_review",
-            failureReason: verifiedPosts.length ? null : "No batch-linked URL; public search candidates require review."
-          })
-        );
-      } else {
-        failures.push(failure(platform, company, null, "No mapped public URL in the batch catalog."));
-        discoveryAttempts.push(
-          discoveryAttempt({
-            company,
-            platform,
-            query: `${company.name} ${platform}`,
-            source: "yc_profile_social_links",
-            resultCount: 0,
-            usefulResultCount: 0,
-            selectedUrl: null,
-            status: "skipped",
-            failureReason: "No mapped public URL in the batch catalog."
-          })
-        );
+    const discoveredPathCandidates = discoveredSocialCandidatesFromPaths(
+      company,
+      platform,
+      entity,
+      entityType
+    );
+    const searchCandidates = discoverMissingSocial
+      ? await discoverSocialCandidates(company, platform, entityType === "founder" ? entity : null)
+      : [];
+    const candidates = dedupeSocialCandidates([...discoveredPathCandidates, ...searchCandidates]);
+    if (candidates.length) {
+      const verifiedPostResults = [];
+      const postCandidates = candidates.filter((candidate) => isSocialPostUrl(candidate.url, platform)).slice(0, 2);
+      for (const candidate of postCandidates) {
+        verifiedPostResults.push(await verifyPublicSocialPostCandidate(company, platform, candidate));
       }
-      await writeCheckpoint();
-      await delay(requestDelayMs);
+      const rawVerifiedPosts = verifiedPostResults.flatMap((result) => result.evidence ?? []);
+      const attributedPosts = attributePostEvidenceToEntity(
+        company,
+        entity,
+        entityType,
+        platform,
+        rawVerifiedPosts
+      );
+      const verifiedPosts = attributedPosts.evidence;
+      const verifiedPostUrls = new Set(verifiedPosts.map((item) => item.sourceUrl));
+      const reviewItems = [
+        ...verifiedPostResults.flatMap((result) => result.needsReview ?? []),
+        ...attributedPosts.needsReview,
+        ...candidates
+          .filter((candidate) => !verifiedPostUrls.has(candidate.url) && !postCandidates.some((postCandidate) => postCandidate.url === candidate.url))
+          .map((candidate) =>
+            reviewCandidate(
+              company,
+              platform,
+              candidate.url,
+              `Public search discovered this ${platform} candidate; profile/post verification is required before scoring.`,
+              entityType,
+              entityId,
+              name
+            )
+          )
+      ];
+      addItems(verifiedPosts, evidence);
+      addItems(reviewItems, needsReview);
+      addItems(
+        candidates.map((candidate) =>
+          sourceDiscoveryPath({
+            company,
+            sourceUrl: candidate.searchUrl,
+            discoveredUrl: candidate.url,
+            discoveredPlatform: platform,
+            discoveredEntityType: entityType,
+            discoveredEntityId: entityId,
+            discoveredEntityName: name,
+            matchReason: verifiedPostUrls.has(candidate.url)
+              ? `Verified post-level public evidence from search query "${candidate.query}".`
+              : `Found from public search query "${candidate.query}".`,
+            reviewState: verifiedPostUrls.has(candidate.url) ? "verified" : "needs_review"
+          })
+        ),
+        sourceDiscoveryPaths
+      );
+      discoveryAttempts.push(
+        discoveryAttempt({
+          company,
+          entityType,
+          entityId,
+          entityName: name,
+          platform,
+          query: candidates[0].query,
+          source: "public_search_missing_social",
+          resultCount: candidates.length,
+          usefulResultCount: verifiedPosts.length,
+          selectedUrl: verifiedPosts[0]?.sourceUrl ?? candidates[0].url,
+          status: verifiedPosts.length ? "partial_success" : "needs_review",
+          failureReason: verifiedPosts.length ? null : "No batch-linked URL; public search candidates require review."
+        })
+      );
+    } else {
+      const missingMessage = `No mapped public ${platform} URL for ${entityType} ${name}; public discovery returned no candidates.`;
+      failures.push(failure(platform, company, null, missingMessage, entityType, name, entityId));
+      discoveryAttempts.push(
+        discoveryAttempt({
+          company,
+          entityType,
+          entityId,
+          entityName: name,
+          platform,
+          query: `${name} ${company.name} ${platform}`,
+          source: discoverMissingSocial ? "public_search_missing_social" : "catalog_social_links",
+          resultCount: 0,
+          usefulResultCount: 0,
+          selectedUrl: null,
+          status: "failed",
+          failureReason: missingMessage
+        })
+      );
     }
+    attemptMap.set(key, socialAttemptRecord({
+      status: "done",
+      checkedAt: now,
+      count: candidates.length,
+      outcomeStatus: candidates.length ? "needs_review" : "blocked_or_empty",
+      outcomeReason: candidates.length ? "collector_needs_review" : "collector_checked_blocked_or_empty"
+    }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: null }));
+    await writeCheckpoint();
+    await delay(requestDelayMs);
     return;
   }
 
@@ -502,6 +759,9 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
     discoveryAttempts.push(
       discoveryAttempt({
         company,
+        entityType,
+        entityId,
+        entityName: name,
         platform,
         query: `${name} ${company.name} ${platform}`,
         source: "yc_profile_social_links",
@@ -512,16 +772,22 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
         failureReason: candidate.matchReason
       })
     );
+    attemptMap.set(key, socialAttemptRecord({
+      status: "done",
+      checkedAt: now,
+      outcomeStatus: "needs_review",
+      outcomeReason: "collector_needs_review"
+    }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
     await writeCheckpoint();
     await delay(requestDelayMs);
     return;
   }
 
-  const key = `${platform}:${entityType}:${entity.id ?? entity.slug}:${url}`;
-  if (!forceRefresh && isFreshCompletedAttempt(attemptMap.get(key))) return;
-
   try {
-    const result = await ingestSocialProfile(company, entity, entityType, platform, url);
+    const result = annotateSocialResultAccount(
+      await ingestMappedAccount(company, entity, entityType, platform, url),
+      url
+    );
     if (hasValidatedReplacement(result)) {
       removeEntityPlatformRows(company, entityId, entityType, platform, url);
     }
@@ -533,6 +799,9 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
     discoveryAttempts.push(
       discoveryAttempt({
         company,
+        entityType,
+        entityId,
+        entityName: name,
         platform,
         query: `${name} ${company.name} ${platform}`,
         source: "yc_profile_social_links",
@@ -543,13 +812,24 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
         failureReason: attemptSummary.failureReason
       })
     );
-    attemptMap.set(key, { status: "done", checkedAt: now });
+    attemptMap.set(key, socialAttemptRecord({
+      status: "done",
+      checkedAt: now,
+      outcomeStatus: collectorOutcomeStatus(attemptSummary),
+      outcomeReason: collectorOutcomeReason(attemptSummary)
+    }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   } catch (error) {
     recordPlatformCooldownIfNeeded(platform, error);
-    failures.push(failure(platform, company, url, errorMessage(error), entityType, name, entityId));
+    failures.push({
+      ...failure(platform, company, url, errorMessage(error), entityType, name, entityId),
+      accountUrl: url
+    });
     discoveryAttempts.push(
       discoveryAttempt({
         company,
+        entityType,
+        entityId,
+        entityName: name,
         platform,
         query: `${name} ${company.name} ${platform}`,
         source: "yc_profile_social_links",
@@ -560,20 +840,130 @@ async function attemptSocialProfile(company, entity, entityType, platform) {
         failureReason: errorMessage(error)
       })
     );
-    attemptMap.set(key, { status: "failed", checkedAt: now, error: errorMessage(error) });
+    const message = errorMessage(error);
+    attemptMap.set(key, socialAttemptRecord({
+      status: "failed",
+      checkedAt: now,
+      error: message,
+      outcomeStatus: expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
+      outcomeReason: expectedAccessOrEmptyMessage(message)
+        ? "collector_checked_blocked_or_empty"
+        : "collector_reported_failure"
+    }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   }
 
   await writeCheckpoint();
   await delay(requestDelayMs);
 }
 
-function discoveredSocialCandidatesFromPaths(company, platform) {
+async function ingestMappedAccount(company, entity, entityType, platform, url) {
+  if (platform === "youtube") {
+    return ingestMappedYouTubeAccount(company, entity, entityType, url);
+  }
+  if (platform === "product_hunt") {
+    return ingestMappedProductHuntAccount(company, entity, entityType, url);
+  }
+  return ingestSocialProfile(company, entity, entityType, platform, url);
+}
+
+function annotateSocialResultAccount(result, accountUrl) {
+  const annotate = (row) => ({ ...row, accountUrl });
+  return {
+    ...result,
+    evidence: (result?.evidence ?? []).map(annotate),
+    needsReview: (result?.needsReview ?? []).map(annotate),
+    failures: (result?.failures ?? []).map(annotate)
+  };
+}
+
+function socialAttemptRecord(attempt, { platform, companySlug, entityType, entityId, name, accountUrl }) {
+  const resolvedCompanySlug = companySlug ?? companySlugByEntityId.get(entityId);
+  return {
+    ...attempt,
+    attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+    batchSlug: batchConfig.slug,
+    platform,
+    ...(resolvedCompanySlug ? { companySlug: resolvedCompanySlug } : {}),
+    entityType,
+    entityId,
+    entityName: name,
+    accountUrl
+  };
+}
+
+function withAttemptBatchScope(attempt) {
+  if (
+    !attempt ||
+    typeof attempt !== "object" ||
+    Array.isArray(attempt) ||
+    !attempt.platform ||
+    !attempt.entityType ||
+    !attempt.entityId
+  ) {
+    return attempt;
+  }
+  const companySlug = attempt.companySlug ?? companySlugByEntityId.get(attempt.entityId);
+  if (attempt.batchSlug && (!companySlug || attempt.companySlug === companySlug)) {
+    return attempt;
+  }
+  return {
+    ...attempt,
+    batchSlug: attempt.batchSlug ?? batchConfig.slug,
+    ...(companySlug ? { companySlug } : {})
+  };
+}
+
+function collectorOutcomeStatus(summary) {
+  if (["success", "partial_success"].includes(summary.status)) return "completed";
+  if (summary.status === "needs_review") return "needs_review";
+  if (summary.status === "failed" && !expectedAccessOrEmptyMessage(summary.failureReason)) return "failed";
+  return "blocked_or_empty";
+}
+
+function collectorOutcomeReason(summary) {
+  const status = collectorOutcomeStatus(summary);
+  if (status === "completed") return "collector_evidence_collected";
+  if (status === "needs_review") return "collector_needs_review";
+  if (status === "failed") return "collector_reported_failure";
+  return "collector_checked_blocked_or_empty";
+}
+
+function expectedAccessOrEmptyMessage(value) {
+  const message = String(value ?? "").toLowerCase();
+  if (/(?:\b404\b|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url)/i.test(message)) {
+    return false;
+  }
+  return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required)/i.test(message);
+}
+
+function discoveredSocialCandidatesFromPaths(company, platform, entity = company, entityType = "company") {
+  const targetEntityId = entityIdFor(company, entity, entityType);
+  const founderLinkedInSlug = entityType === "founder" && platform === "linkedin"
+    ? linkedInProfileSlug(entity.socialLinks?.linkedin)
+    : null;
   return sourceDiscoveryPaths
     .filter((item) => item.company_slug === company.slug)
     .filter((item) => item.discovered_platform === platform)
+    .filter((item) => {
+      const discoveredEntityType = item.discovered_entity_type ?? "company";
+      if (discoveredEntityType === entityType) {
+        if (entityType === "company") return true;
+        if (item.discovered_entity_id) return item.discovered_entity_id === targetEntityId;
+        return slugify(item.discovered_entity_name ?? "") === slugify(entity.name ?? "");
+      }
+
+      // A company-profile pass may expose a founder-authored native LinkedIn post before
+      // the founder profile pass runs. Reuse it only when the URL itself proves the exact
+      // verified founder author slug; company association or name similarity is insufficient.
+      return Boolean(
+        founderLinkedInSlug &&
+        discoveredEntityType === "company" &&
+        linkedInNativePostAuthorSlug(item.discovered_url) === founderLinkedInSlug
+      );
+    })
     .filter((item) => urlMatchesPlatform(item.discovered_url, platform))
     .map((item) => ({
-      query: `${company.name} ${platform} from discovered public source path`,
+      query: `${entityName(entity, entityType)} ${company.name} ${platform} from discovered public source path`,
       searchUrl: item.source_url,
       title: item.discovered_entity_name || company.name,
       snippet: item.match_reason,
@@ -726,17 +1116,60 @@ async function ingestYouTube(company) {
   const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${company.name} ${currentBatchContext.label}`)}`;
   const response = await fetchPublic(url);
   const html = await response.text();
-  const results = parseYouTubeResults(html)
-    .filter((item) => isStrongPublicMatch(company, `${item.title} ${item.description}`, ""))
-    .slice(0, 3);
+  const candidates = parseYouTubeResults(html)
+    .filter((item) => isPotentialCompanyMention(company, `${item.title} ${item.description}`))
+    .slice(0, 12);
+  const enrichedResults = await Promise.all(candidates.map(enrichYouTubeNativeChannel));
+  const assessedResults = enrichedResults.map((video) => ({
+    video,
+    attribution: publicEvidenceAttributionAssessment(company, {
+      platform: "youtube",
+      sourceUrl: `https://www.youtube.com/watch?v=${video.videoId}`,
+      title: video.title,
+      text: video.description,
+      rawVisibleText: video.raw,
+      youtubeChannelId: video.youtubeChannelId,
+      youtubeChannelUrl: video.youtubeChannelUrl,
+      youtubeChannelName: video.youtubeChannelName
+    })
+  }));
 
-  if (!results.length) {
+  if (!assessedResults.length) {
     return { failures: [failure("youtube", company, url, "No verified public YouTube result match.")] };
   }
 
+  const verifiedResults = assessedResults
+    .filter(({ video, attribution }) => attribution.verified && (video.youtubeChannelId || video.youtubeChannelUrl))
+    .slice(0, 3);
+  const needsReviewItems = assessedResults
+    .filter(({ video, attribution }) => !attribution.verified || (!video.youtubeChannelId && !video.youtubeChannelUrl))
+    .map(({ video, attribution }) => ({
+      ...reviewCandidate(
+        company,
+        "youtube",
+        `https://www.youtube.com/watch?v=${video.videoId}`,
+        !attribution.verified
+          ? `Semantic YouTube attribution rejected: ${attribution.reason}.`
+          : "Native YouTube video candidate lacked a persisted native channel ID or URL; attribution was not accepted."
+      ),
+      title: sanitizePublicText(video.title),
+      text: truncatePublicText(video.description || video.title, 600),
+      rawVisibleText: truncatePublicText(video.raw, 6000),
+      platformPostId: video.videoId,
+      metrics: removeNullish({ views: video.views }),
+      youtubeChannelId: video.youtubeChannelId ?? null,
+      youtubeChannelUrl: video.youtubeChannelUrl ?? null,
+      youtubeChannelName: video.youtubeChannelName ?? null,
+      attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+      attributionStatus: "needs_review",
+      attributionSignals: attribution.signals,
+      attributionDescriptorMatches: attribution.descriptorMatches,
+      semanticAttributionReason: attribution.reason
+    }));
+
   return {
-    evidence: results.map((video) =>
-      evidenceItem({
+    evidence: verifiedResults.map(({ video, attribution }) => {
+      return evidenceItem({
         company,
         entityType: "company",
         entityId: companyId(company),
@@ -750,9 +1183,127 @@ async function ingestYouTube(company) {
         },
         contributionScore: scoreMetrics("youtube", { views: video.views }),
         review_state: "verified",
-        matchReason: "Exact company-name match in public YouTube search result."
-      })
-    )
+        matchReason: `Public YouTube search result passed semantic attribution (${attribution.reason}) with persisted native channel identity.`,
+        youtubeChannelId: video.youtubeChannelId,
+        youtubeChannelUrl: video.youtubeChannelUrl,
+        youtubeChannelName: video.youtubeChannelName,
+        attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+        attributionStatus: "verified",
+        attributionSignals: attribution.signals,
+        attributionDescriptorMatches: attribution.descriptorMatches
+      });
+    }),
+    needsReview: needsReviewItems
+  };
+}
+
+function isPotentialCompanyMention(company, text) {
+  if (isCompanyMatch(company, text)) return true;
+  const compactCompany = String(company?.name ?? "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+  const compactText = String(text ?? "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+  return compactCompany.length >= 3 && compactText.includes(compactCompany);
+}
+
+async function enrichYouTubeNativeChannel(video) {
+  if (video.youtubeChannelId || video.youtubeChannelUrl) return video;
+  try {
+    const videoUrl = `https://www.youtube.com/watch?v=${video.videoId}`;
+    const response = await fetchPublic(
+      `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`,
+      { accept: "application/json" }
+    );
+    const payload = await response.json();
+    return {
+      ...video,
+      youtubeChannelName: cleanText(payload.author_name ?? "") || null,
+      youtubeChannelUrl: canonicalYouTubeChannelUrl(payload.author_url),
+      raw: cleanText(`${video.raw} ${payload.author_name ?? ""} ${payload.author_url ?? ""}`)
+    };
+  } catch {
+    return video;
+  }
+}
+
+function canonicalYouTubeChannelUrl(value) {
+  try {
+    const url = new URL(value);
+    if (url.hostname.replace(/^www\./, "").toLowerCase() !== "youtube.com") return null;
+    url.hostname = "youtube.com";
+    url.search = "";
+    url.hash = "";
+    url.pathname = url.pathname.replace(/\/$/, "");
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+async function ingestMappedYouTubeAccount(company, entity, entityType, accountUrl) {
+  const videosUrl = `${canonicalProfileUrl(accountUrl, "youtube").replace(/\/$/, "")}/videos`;
+  const response = await fetchPublic(videosUrl);
+  const html = await response.text();
+  const videos = parseYouTubeResults(html).slice(0, 5);
+  const entityId = entityIdFor(company, entity, entityType);
+  const name = entityName(entity, entityType);
+  if (!videos.length) {
+    return {
+      failures: [failure(
+        "youtube",
+        company,
+        accountUrl,
+        "No visible native YouTube videos were exposed on the mapped account.",
+        entityType,
+        name,
+        entityId
+      )]
+    };
+  }
+  return {
+    evidence: videos.map((video) => evidenceItem({
+      company,
+      entityType,
+      entityId,
+      platform: "youtube",
+      sourceUrl: `https://www.youtube.com/watch?v=${video.videoId}`,
+      platformPostId: video.videoId,
+      title: video.title,
+      text: video.description || video.title,
+      rawVisibleText: video.raw,
+      metrics: { views: video.views },
+      contributionScore: scoreMetrics("youtube", { views: video.views }),
+      review_state: "verified",
+      matchReason: `Native video listed directly on the verified mapped YouTube account for ${name}.`
+    }))
+  };
+}
+
+async function ingestMappedProductHuntAccount(company, entity, entityType, accountUrl) {
+  const result = await verifyProductHuntLink(company, { url: accountUrl, text: company.name });
+  const entityId = entityIdFor(company, entity, entityType);
+  const name = entityName(entity, entityType);
+  if (result.evidence) {
+    return {
+      evidence: [{
+        ...result.evidence,
+        entityType,
+        entityId,
+        entityName: name,
+        matchReason: `${result.evidence.matchReason} Verified mapped account owner: ${name}.`
+      }]
+    };
+  }
+  const reason = result.needsReview?.reason ??
+    "The verified mapped Product Hunt URL did not expose enough public page detail for native scoring.";
+  return {
+    needsReview: [reviewCandidate(
+      company,
+      "product_hunt",
+      accountUrl,
+      reason,
+      entityType,
+      entityId,
+      name
+    )]
   };
 }
 
@@ -1337,7 +1888,13 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
 }
 
 async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, matchReasonPrefix, entity = company, entityType = "company") {
-  const candidates = await discoverSocialCandidates(company, platform, entityType === "founder" ? entity : null);
+  const pathCandidates = discoveredSocialCandidatesFromPaths(company, platform, entity, entityType);
+  const searchCandidates = await discoverSocialCandidates(
+    company,
+    platform,
+    entityType === "founder" ? entity : null
+  );
+  const candidates = dedupeSocialCandidates([...pathCandidates, ...searchCandidates]);
   const postCandidates = candidates.filter((candidate) => isSocialPostUrl(candidate.url, platform)).slice(0, 3);
   const postResults = [];
   for (const candidate of postCandidates) {
@@ -1373,6 +1930,7 @@ async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, 
         discoveredUrl: candidate.url,
         discoveredPlatform: platform,
         discoveredEntityType: entityType,
+        discoveredEntityId: entityIdFor(company, entity, entityType),
         discoveredEntityName: entityName(entity, entityType),
         matchReason: verifiedPostUrls.has(candidate.url)
           ? `${matchReasonPrefix} Verified post-level evidence from public search query "${candidate.query}".`
@@ -1472,21 +2030,14 @@ function linkedInFounderAuthorValidation(founder, item) {
 function linkedInProfileSlug(rawUrl) {
   try {
     const parts = new URL(rawUrl).pathname.split("/").filter(Boolean);
-    return parts[0]?.toLowerCase() === "in" ? normalizeLinkedInSlug(parts[1]) : null;
+    return parts[0]?.toLowerCase() === "in" ? linkedinAccountSlugFromUrl(rawUrl) : null;
   } catch {
     return null;
   }
 }
 
 function linkedInNativePostAuthorSlug(rawUrl) {
-  try {
-    const parts = new URL(rawUrl).pathname.split("/").filter(Boolean);
-    if (parts[0]?.toLowerCase() !== "posts" || !parts[1]) return null;
-    const authorSlug = decodeURIComponent(parts[1]).match(/^(.+?)_(?:.*?activity-\d+|activity-\d+)/i)?.[1];
-    return normalizeLinkedInSlug(authorSlug);
-  } catch {
-    return null;
-  }
+  return linkedinNativeAuthorSlugFromUrl(rawUrl);
 }
 
 function normalizeLinkedInSlug(value) {
@@ -1514,7 +2065,57 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
       };
     }
 
-    if (!isStrongPublicMatch(company, combined, candidate.url)) {
+    const linkedInBody = platform === "linkedin"
+      ? assessLinkedInPrimaryPostBody({
+          sourceUrl: candidate.url,
+          platformPostId: platformPostIdFromUrl(platform, candidate.url),
+          rawVisibleText: page.text
+        })
+      : null;
+    if (linkedInBody && !linkedInBody.verified) {
+      const fallback = evidenceFromSearchSnippet(
+        company,
+        platform,
+        candidate,
+        `Primary reader body was unavailable (${linkedInBody.reason})`
+      );
+      if (fallback) return { evidence: [fallback] };
+      return {
+        needsReview: [
+          reviewCandidate(
+            company,
+            platform,
+            candidate.url,
+            `Public ${platform} post primary body was unavailable and the independent native search snippet did not pass strict attribution (${linkedInBody.reason}).`
+          )
+        ]
+      };
+    }
+    const safeCandidateText = platform === "linkedin"
+      ? linkedInBody.text
+      : combined;
+    const candidateAttribution = {
+      entityType: "company",
+      entityId: companyId(company),
+      companySlug: company.slug,
+      platform,
+      sourceUrl: candidate.url,
+      // A complete primary body takes precedence over search-result author and
+      // AI-summary chrome. The display title is restored only after semantic
+      // verification succeeds.
+      title: platform === "linkedin" ? "" : page.title || candidate.title || company.name,
+      text: linkedInBody?.text ?? safeCandidateText,
+      rawVisibleText: page.text
+    };
+    candidateAttribution.nativeAuthorResolution = resolveCurrentBatchNativeOwner(candidateAttribution);
+    const semanticAttribution = platform === "linkedin"
+      ? publicEvidenceAttributionAssessment(company, candidateAttribution)
+      : null;
+    const strongMatch = semanticAttribution
+      ? semanticAttribution.verified
+      : isStrongPublicMatch(company, combined, candidate.url);
+
+    if (!strongMatch) {
       const fallback = evidenceFromSearchSnippet(company, platform, candidate, "Reader page did not expose enough matching context");
       if (fallback) {
         return { evidence: [fallback] };
@@ -1525,7 +2126,8 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
             company,
             platform,
             candidate.url,
-            `Public ${platform} post candidate did not clearly match company name/domain plus batch/startup context.`
+            `Public ${platform} post candidate did not pass semantic attribution: ${semanticAttribution?.reason ?? "company identity anchors were insufficient"}` +
+              `${linkedInBody ? `; ${linkedInBody.reason}` : ""}.`
           )
         ]
       };
@@ -1541,13 +2143,26 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
           platform,
           sourceUrl: canonicalProfileUrl(candidate.url, platform),
           title: page.title || candidate.title || company.name,
-          text: firstUsefulText(page.text) || candidate.snippet || candidate.title || company.name,
+          text: linkedInBody?.text ??
+            firstUsefulText(platform === "linkedin" ? safeCandidateText : page.text) ??
+            candidate.snippet ?? candidate.title ?? company.name,
           rawVisibleText: page.text,
+          attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+          attributionStatus: "verified",
+          attributionProvenance: platform === "linkedin"
+            ? "verified_linkedin_primary_body_v3"
+            : "verified_public_reader_v3",
+          attributionSignals: semanticAttribution?.signals,
+          attributionDescriptorMatches: semanticAttribution?.descriptorMatches,
+          linkedinPrimaryPostBodyStatus: linkedInBody?.verified ? "verified" : "unavailable",
+          linkedinPrimaryPostBodyReason: linkedInBody?.reason,
           postedAt: parsePublicPostDate(page.text),
           metrics,
           contributionScore: scoreMetrics(platform, metrics),
           review_state: "verified",
-          matchReason: `Verified public ${platform} post candidate from search results; company/domain and batch/startup context matched visible text.`
+          matchReason: `Verified public ${platform} post candidate from search results; semantic company attribution passed` +
+            `${semanticAttribution ? ` (${semanticAttribution.reason})` : ""}` +
+            `${linkedInBody ? `; ${linkedInBody.reason}` : ""}.`
         })
       ]
     };
@@ -1579,7 +2194,19 @@ function evidenceFromSearchSnippet(company, platform, candidate, reason) {
   if (!snippetText) return null;
   const metrics = metricsFromPublicPost(platform, snippetText);
   if (!Object.values(metrics).some((value) => Number(value) > 0)) return null;
-  if (!isStrongSearchSnippetPostMatch(company, snippetText)) return null;
+  const candidateAttribution = {
+    entityType: "company",
+    entityId: companyId(company),
+    companySlug: company.slug,
+    platform,
+    sourceUrl: candidate.url,
+    title: candidate.title || "",
+    text: candidate.snippet || "",
+    rawVisibleText: ""
+  };
+  candidateAttribution.nativeAuthorResolution = resolveCurrentBatchNativeOwner(candidateAttribution);
+  const semanticAttribution = publicEvidenceAttributionAssessment(company, candidateAttribution);
+  if (!semanticAttribution.verified) return null;
 
   return evidenceItem({
     company,
@@ -1590,6 +2217,11 @@ function evidenceFromSearchSnippet(company, platform, candidate, reason) {
     title: candidate.title || company.name,
     text: firstUsefulText(snippetText) || candidate.title || company.name,
     rawVisibleText: snippetText,
+    attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+    attributionStatus: "verified",
+    attributionProvenance: "strict_native_search_snippet_v3",
+    attributionSignals: semanticAttribution.signals,
+    attributionDescriptorMatches: semanticAttribution.descriptorMatches,
     postedAt: parsePublicPostDate(snippetText),
     metrics,
     contributionScore: scoreMetrics(platform, metrics),
@@ -1622,9 +2254,23 @@ function evidenceItem(input) {
     sourceUrl: input.sourceUrl,
     ...(input.submittedUrl ? { submittedUrl: input.submittedUrl } : {}),
     ...(input.authorHandle ? { authorHandle: input.authorHandle } : {}),
+    ...(input.youtubeChannelId ? { youtubeChannelId: input.youtubeChannelId } : {}),
+    ...(input.youtubeChannelUrl ? { youtubeChannelUrl: input.youtubeChannelUrl } : {}),
+    ...(input.youtubeChannelName ? { youtubeChannelName: input.youtubeChannelName } : {}),
+    ...(input.attributionVersion ? { attributionVersion: input.attributionVersion } : {}),
+    ...(input.attributionStatus ? { attributionStatus: input.attributionStatus } : {}),
+    ...(input.attributionProvenance ? { attributionProvenance: input.attributionProvenance } : {}),
+    ...(input.attributionSignals ? { attributionSignals: input.attributionSignals } : {}),
+    ...(input.attributionDescriptorMatches ? { attributionDescriptorMatches: input.attributionDescriptorMatches } : {}),
+    ...(input.linkedinPrimaryPostBodyStatus
+      ? { linkedinPrimaryPostBodyStatus: input.linkedinPrimaryPostBodyStatus }
+      : {}),
+    ...(input.linkedinPrimaryPostBodyReason
+      ? { linkedinPrimaryPostBodyReason: input.linkedinPrimaryPostBodyReason }
+      : {}),
     platformPostId: input.platformPostId ?? platformPostIdFromUrl(input.platform, input.sourceUrl),
-    text: sanitizePublicText(input.text).slice(0, 600),
-    rawVisibleText: sanitizePublicText(input.rawVisibleText).slice(0, 6000),
+    text: truncatePublicText(input.text, 600),
+    rawVisibleText: truncatePublicText(input.rawVisibleText, 6000),
     postedAt: input.postedAt ?? null,
     metrics: removeNullish(input.metrics ?? {}),
     contributionScore: input.contributionScore ?? 0,
@@ -1656,6 +2302,9 @@ function reviewCandidate(company, platform, url, reason, entityType = "company",
 
 function discoveryAttempt({
   company,
+  entityType = "company",
+  entityId = companyId(company),
+  entityName = company.name,
   platform,
   query,
   source,
@@ -1666,7 +2315,11 @@ function discoveryAttempt({
   failureReason = null
 }) {
   return {
-    id: stableId(`discovery:${company.slug}:${platform}:${source}:${query}:${selectedUrl ?? "none"}:${status}`),
+    id: stableId(`discovery:${batchConfig.slug}:${entityId}:${platform}:${source}:${query}:${selectedUrl ?? "none"}:${status}`),
+    entityType,
+    entityId,
+    entityName,
+    batch_slug: batchConfig.slug,
     company_id: companyId(company),
     company_slug: company.slug,
     company_name: company.name,
@@ -1688,19 +2341,22 @@ function sourceDiscoveryPath({
   discoveredUrl,
   discoveredPlatform,
   discoveredEntityType,
+  discoveredEntityId,
   discoveredEntityName,
   matchReason,
   reviewState
 }) {
   return {
-    id: stableId(`path:${company.slug}:${sourceUrl}:${discoveredUrl}`),
+    id: stableId(`path:${batchConfig.slug}:${discoveredEntityId ?? companyId(company)}:${sourceUrl}:${discoveredUrl}`),
     company_id: companyId(company),
+    batch_slug: batchConfig.slug,
     company_slug: company.slug,
     company_name: company.name,
     source_url: sourceUrl,
     discovered_url: discoveredUrl,
     discovered_platform: discoveredPlatform,
     discovered_entity_type: discoveredEntityType,
+    discovered_entity_id: discoveredEntityId ?? companyId(company),
     discovered_entity_name: discoveredEntityName,
     match_reason: matchReason,
     review_state: reviewState,
@@ -1718,7 +2374,7 @@ function failure(
   entityIdValue = companyId(company)
 ) {
   return {
-    id: stableId(`failure:${platform}:${company.slug}:${entityType}:${url ?? "none"}:${message}`),
+    id: stableId(`failure:${platform}:${company.slug}:${entityType}:${entityIdValue}:${url ?? "none"}:${message}`),
     platform,
     companySlug: company.slug,
     companyName: company.name,
@@ -1808,7 +2464,7 @@ function throwIfPlatformCooldown(response, text) {
   const until = untilText ? new Date(untilText).valueOf() : Date.now() + 30 * 60_000;
   const error = new Error(`Platform cooldown from reader: HTTP ${response.status}; blocked until ${new Date(until).toISOString()}.`);
   error.platformCooldownUntil = Number.isFinite(until) ? until : Date.now() + 30 * 60_000;
-  error.platformCooldownReason = sanitizePublicText(text).slice(0, 260);
+  error.platformCooldownReason = truncatePublicText(text, 260);
   throw error;
 }
 
@@ -1906,13 +2562,7 @@ function platformPostIdFromUrl(platform, rawUrl) {
     const path = url.pathname.replace(/\/$/, "");
     if (platform === "x") return path.match(/\/status\/(\d+)/i)?.[1] ?? null;
     if (platform === "instagram") return path.match(/^\/(?:p|reel|tv)\/([^/]+)/i)?.[1] ?? null;
-    if (platform === "linkedin") {
-      return (
-        path.match(/\/feed\/update\/urn:li:activity:(\d+)/i)?.[1] ??
-        path.match(/\/posts\/[^/]*?activity-(\d+)(?:-|$)/i)?.[1] ??
-        null
-      );
-    }
+    if (platform === "linkedin") return linkedinPostIdFromUrl(rawUrl);
     if (platform === "youtube") return url.searchParams.get("v") ?? path.match(/\/shorts\/([^/]+)/i)?.[1] ?? null;
     if (platform === "product_hunt") {
       return path.match(/\/posts\/([^/]+)/i)?.[1] ?? path.match(/\/products\/([^/]+)/i)?.[1] ?? null;
@@ -1964,12 +2614,30 @@ function parseYouTubeResults(html) {
     const windowText = html.slice(match.index, match.index + 2500);
     const viewsText = (windowText.match(/"viewCountText":\{"simpleText":"([^"]+)"/) ?? [])[1] ?? "";
     const description = (windowText.match(/"descriptionSnippet":\{"runs":\[\{"text":"([^"]+)"/) ?? [])[1] ?? "";
+    const youtubeChannelName = decodeJsonText(
+      (windowText.match(/"ownerText":\{"runs":\[\{"text":"([^"]+)"/) ?? [])[1] ?? ""
+    ) || null;
+    const youtubeChannelId =
+      (windowText.match(/"browseEndpoint":\{"browseId":"(UC[\w-]+)"/) ?? [])[1] ?? null;
+    const channelBaseUrl = decodeJsonText(
+      (windowText.match(/"canonicalBaseUrl":"([^"]+)"/) ?? [])[1] ?? ""
+    );
+    const youtubeChannelUrl = canonicalYouTubeChannelUrl(
+      channelBaseUrl
+        ? `https://www.youtube.com${channelBaseUrl}`
+        : youtubeChannelId
+          ? `https://www.youtube.com/channel/${youtubeChannelId}`
+          : null
+    );
     results.push({
       videoId,
       title: decodeJsonText(match[2]),
       description: decodeJsonText(description),
       views: parseCompactNumber(viewsText),
-      raw: cleanText(`${decodeJsonText(match[2])} ${decodeJsonText(description)} ${viewsText}`)
+      youtubeChannelName,
+      youtubeChannelId,
+      youtubeChannelUrl,
+      raw: cleanText(`${decodeJsonText(match[2])} ${decodeJsonText(description)} ${viewsText} ${youtubeChannelName ?? ""} ${youtubeChannelUrl ?? ""}`)
     });
   }
   return results;
@@ -2183,30 +2851,94 @@ function profileHandleIndex(text, handle) {
 
 function isCompanyMatch(company, text) {
   const lower = cleanText(text).toLowerCase();
-  const name = company.name.toLowerCase();
-  if (name.length <= 3) {
-    return lower.includes(`${name} `) || lower.includes(` ${name}`) || lower.includes(`${name}.`);
+  if (containsExactTokenSequence(lower, company.name)) return true;
+  const slugPhrase = String(company.slug ?? "").replace(/[-_]+/g, " ");
+  if (slugPhrase && slugPhrase !== String(company.name ?? "").toLowerCase() && containsExactTokenSequence(lower, slugPhrase)) {
+    return true;
   }
-  if (lower.includes(name)) return true;
-  const normalizedText = normalizeIdentifier(lower);
-  const companyNameToken = normalizeIdentifier(company.name);
-  const companySlugToken = normalizeIdentifier(company.slug ?? "");
-  if (companyNameToken.length >= 6 && normalizedText.includes(companyNameToken)) return true;
-  if (companySlugToken.length >= 6 && normalizedText.includes(companySlugToken)) return true;
   const host = hostFromUrl(company.websiteUrl);
   return Boolean(host && lower.includes(host));
 }
 
 function isStrongPublicMatch(company, text, sourceUrl) {
-  const hasCompanyMatch = isCompanyMatch(company, text);
-  const hasFounderMatch = founderNameMentioned(company, text);
-  if (!hasCompanyMatch && !hasFounderMatch) return false;
-  if (sourceUrl && isCompanyDomain(company, sourceUrl)) return true;
-  if (companyDomainMentioned(company, text)) return true;
-  const hasStartupContext =
-    currentBatchContext.contextPattern.test(text) ||
-    /\b(startup|founder|co[- ]?founder|launch|product)\b/i.test(text);
-  return hasCompanyMatch ? hasStartupContext : hasFounderMatch && hasStartupContext;
+  return publicEvidenceAttributionAssessment(company, { text, sourceUrl }).verified;
+}
+
+function publicEvidenceAttributionAssessment(company, item) {
+  const text = publicEvidenceAttributionText(item);
+  const signals = [];
+  if (
+    [item?.sourceUrl, item?.submittedUrl].filter(Boolean).some((url) => isCompanyDomain(company, url)) ||
+    companyDomainMentioned(company, text)
+  ) {
+    signals.push("company_domain");
+  }
+  if (hasDistinctiveCatalogPhrase(company, text)) signals.push("catalog_distinctive_phrase");
+  if (isListOrRoundupAttributionContext(batchConfig.slug, text)) {
+    signals.push("batch_list_only");
+  }
+  // Native search-result titles append the author after a pipe.  Keep that
+  // exact full-name signal only as corroboration; the shared assessment still
+  // requires an exact company mention in cleaned subject text.
+  const rosterFounderMatches = matchingRosterFounderNames(company, `${text}\n${item?.title ?? ""}`);
+  if (rosterFounderMatches.length > 0) {
+    signals.push("roster_founder");
+  }
+  if (rosterFounderMatches.length >= 2) signals.push("multiple_roster_founders");
+  if (
+    (item?.entityType ?? "company") === "founder" &&
+    assignedFounderNameMentioned(item, company, item?.nativeAuthorResolution)
+  ) {
+    signals.push("founder_subject_exact_identity");
+  }
+  if (mappedAccountMatchesEntity(company, item)) signals.push("mapped_official_account");
+  if (
+    item?.nativeAuthorResolution?.status === "matched" &&
+    item.nativeAuthorResolution.owner?.entityType === (item.entityType ?? "company") &&
+    item.nativeAuthorResolution.owner?.entityId === item.entityId
+  ) {
+    signals.push("unique_native_author");
+  }
+  if (
+    item?.nativeAuthorResolution?.status === "matched" &&
+    item.nativeAuthorResolution.owner?.companySlug === company.slug &&
+    containsExactTokenSequence(text, company.name)
+  ) {
+    signals.push("same_company_native_author_subject");
+  }
+  const channelName = String(item?.youtubeChannelName ?? "");
+  if (
+    channelName &&
+    companyBrandMatchesNativeChannel(company.name, channelName) &&
+    (!isCollisionProneCompanyName(company.name) ||
+      organizationQualifiedBatchMarker(batchConfig.slug, `${text}\n${channelName}`))
+  ) {
+    signals.push("native_channel_brand");
+  }
+  if (
+    channelName &&
+    (company.founders ?? []).some((founder) => {
+      const name = String(founder.name ?? "").trim();
+      return name.split(/\s+/).filter(Boolean).length >= 2 && containsExactTokenSequence(channelName, name);
+    })
+  ) {
+    signals.push("native_channel_roster_founder");
+  }
+  return assessPublicEvidenceAttribution({
+    batchSlug: batchConfig.slug,
+    companyName: company.name,
+    text,
+    signals,
+    descriptorMatches: matchingCompanyDescriptorTerms(company, text)
+  });
+}
+
+function companyBrandMatchesNativeChannel(companyName, channelName) {
+  if (containsExactTokenSequence(channelName, companyName)) return true;
+  const tokens = String(companyName ?? "").normalize("NFKC").match(/[\p{L}\p{N}]+/gu) ?? [];
+  const genericSuffixes = new Set(["ai", "app", "inc", "labs", "technologies", "technology"]);
+  if (tokens.length < 2 || !genericSuffixes.has(tokens.at(-1).toLowerCase())) return false;
+  return containsExactTokenSequence(channelName, tokens.slice(0, -1).join(" "));
 }
 
 function isCurrentBatchHackerNewsHit(text) {
@@ -2236,22 +2968,59 @@ function companyDomainMentioned(company, text) {
 }
 
 function founderNameMentioned(company, text) {
-  const lower = cleanText(text).toLowerCase();
-  return (company.founders ?? []).some((founder) => {
-    const name = String(founder.name ?? "").toLowerCase().trim();
+  return matchingRosterFounderNames(company, text).length > 0;
+}
+
+function matchingRosterFounderNames(company, text) {
+  return (company.founders ?? []).filter((founder) => {
+    const name = String(founder.name ?? "")
+      .replace(/\s*\([^)]*\)\s*$/, "")
+      .trim();
     if (!name) return false;
     const parts = name.split(/\s+/).filter(Boolean);
-    if (parts.length >= 2 && lower.includes(name)) return true;
-    return false;
-  });
+    return parts.length >= 2 && containsExactTokenSequence(text, name);
+  }).map((founder) => founder.name);
+}
+
+function mappedAccountMatchesEntity(company, item) {
+  const platform = normalizePlatformArg(item?.platform);
+  const accountUrls = [item?.accountUrl, item?.youtubeChannelUrl].filter(Boolean);
+  if (!platform || accountUrls.length === 0) return false;
+  let owner = company;
+  if ((item.entityType ?? "company") === "founder") {
+    owner = (company.founders ?? []).find(
+      (founder) => entityIdFor(company, founder, "founder") === item.entityId
+    );
+  }
+  if (!owner) return false;
+  const targetKeys = new Set(accountUrls.map((url) => socialAccountKey(platform, url)).filter(Boolean));
+  return socialAccountUrls(owner, platform).some((url) => targetKeys.has(socialAccountKey(platform, url)));
+}
+
+function matchingCompanyDescriptorTerms(company, text) {
+  const candidateTokens = new Set(attributionTokens(text));
+  const companyTokens = new Set(attributionTokens(company.name));
+  return [...new Set(attributionTokens(`${company.tagline ?? ""} ${company.description ?? ""}`))]
+    .filter((token) => !companyTokens.has(token))
+    .filter((token) => !ATTRIBUTION_DESCRIPTOR_STOP_WORDS.has(token))
+    .filter((token) => candidateTokens.has(token));
+}
+
+function attributionTokens(value) {
+  return String(value ?? "").toLowerCase().match(/[a-z0-9]+/g)?.filter((token) => token.length >= 2) ?? [];
 }
 
 function companyId(company) {
-  return `company-${company.slug}`;
+  const catalogId = String(company.entityId ?? company.id ?? "");
+  return /^a16z-speedrun-006-/i.test(catalogId) ? catalogId : `company-${company.slug}`;
 }
 
 function entityIdFor(company, entity, entityType) {
-  return entityType === "company" ? companyId(company) : `founder-${company.slug}-${slugify(entity.name)}-${entity.id}`;
+  if (entityType === "company") return companyId(company);
+  const catalogId = String(entity.entityId ?? entity.id ?? "");
+  return /^a16z-speedrun-006-.+-founder-/i.test(catalogId)
+    ? catalogId
+    : `founder-${company.slug}-${slugify(entity.name)}-${entity.id}`;
 }
 
 function entityName(entity, entityType) {
@@ -2353,6 +3122,8 @@ function urlMatchesPlatform(url, platform) {
     if (platform === "x") return host === "x.com" || host === "twitter.com";
     if (platform === "linkedin") return host === "linkedin.com" || host.endsWith(".linkedin.com");
     if (platform === "instagram") return host === "instagram.com" || host.endsWith(".instagram.com");
+    if (platform === "youtube") return host === "youtube.com" || host.endsWith(".youtube.com") || host === "youtu.be";
+    if (platform === "product_hunt") return host === "producthunt.com" || host.endsWith(".producthunt.com");
     return true;
   } catch {
     return false;
@@ -2365,6 +3136,48 @@ function cleanText(value) {
 
 function sanitizePublicText(value) {
   return redactTokenLikeStrings(cleanText(value));
+}
+
+function truncatePublicText(value, maxCodeUnits) {
+  const text = sanitizePublicText(value);
+  let end = Math.min(text.length, maxCodeUnits);
+  if (
+    end > 0 &&
+    end < text.length &&
+    isHighSurrogate(text.charCodeAt(end - 1)) &&
+    isLowSurrogate(text.charCodeAt(end))
+  ) {
+    end -= 1;
+  }
+  return replaceUnpairedUtf16Surrogates(text.slice(0, end));
+}
+
+function replaceUnpairedUtf16Surrogates(value) {
+  const text = String(value ?? "");
+  let output = "";
+  let segmentStart = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    const codeUnit = text.charCodeAt(index);
+    if (isHighSurrogate(codeUnit)) {
+      if (isLowSurrogate(text.charCodeAt(index + 1))) {
+        index += 1;
+        continue;
+      }
+    } else if (!isLowSurrogate(codeUnit)) {
+      continue;
+    }
+    output += `${text.slice(segmentStart, index)}\uFFFD`;
+    segmentStart = index + 1;
+  }
+  return segmentStart === 0 ? text : output + text.slice(segmentStart);
+}
+
+function isHighSurrogate(codeUnit) {
+  return codeUnit >= 0xD800 && codeUnit <= 0xDBFF;
+}
+
+function isLowSurrogate(codeUnit) {
+  return codeUnit >= 0xDC00 && codeUnit <= 0xDFFF;
 }
 
 function decodeJsonText(value) {
@@ -2433,7 +3246,8 @@ function removeEntityPlatformRows(company, entityId, entityType, platform, profi
     item.companySlug === company.slug &&
     normalizePlatformArg(item.platform ?? item.discovered_platform) === platform &&
     item.entityType === entityType &&
-    item.entityId === entityId;
+    item.entityId === entityId &&
+    (!item.accountUrl || socialAccountKey(platform, item.accountUrl) === socialAccountKey(platform, profileUrl));
 
   removeMatching(evidence, matchesEntity);
   removeMatching(needsReview, matchesEntity);
@@ -2443,7 +3257,10 @@ function removeEntityPlatformRows(company, entityId, entityType, platform, profi
       item.companySlug === company.slug &&
       normalizePlatformArg(item.platform) === platform &&
       item.entityType === entityType &&
-      item.sourceUrl === profileUrl
+      item.entityId === entityId &&
+      (item.accountUrl
+        ? socialAccountKey(platform, item.accountUrl) === socialAccountKey(platform, profileUrl)
+        : item.sourceUrl === profileUrl)
   );
 }
 
@@ -2487,7 +3304,15 @@ function batchContextFromSnapshot(snapshot) {
 }
 
 function normalizeBatchSnapshot(snapshot, config) {
-  if (Array.isArray(snapshot?.companies)) return snapshot;
+  if (Array.isArray(snapshot?.companies)) {
+    return {
+      ...snapshot,
+      companies: snapshot.companies.map((company) => ({
+        ...normalizeSnapshotOwnerLinks(company),
+        founders: (company.founders ?? []).map(normalizeSnapshotOwnerLinks)
+      }))
+    };
+  }
   if (!Array.isArray(snapshot?.nodes)) {
     throw new Error(`${config.snapshotPath} does not contain companies or graph nodes.`);
   }
@@ -2509,13 +3334,15 @@ function normalizeBatchSnapshot(snapshot, config) {
       tags: node.industries ?? [],
       groupPartner: node.groupPartner ?? null,
       socialLinks: socialLinksFromAccounts(node.socialAccounts),
+      socialAccounts: socialAccountsFromAccounts(node.socialAccounts),
       founders: (node.founders ?? []).map((founder) => ({
         id: founder.id,
         slug: founder.id,
         name: founder.name,
         ycProfileUrl: founder.ycProfileUrl ?? null,
         websiteUrl: founder.websiteUrl ?? null,
-        socialLinks: socialLinksFromAccounts(founder.socialAccounts)
+        socialLinks: socialLinksFromAccounts(founder.socialAccounts),
+        socialAccounts: socialAccountsFromAccounts(founder.socialAccounts)
       })),
       sourceUrls: [node.sourceUrl ?? node.ycProfileUrl, node.websiteUrl].filter(Boolean)
     }));
@@ -2528,6 +3355,22 @@ function normalizeBatchSnapshot(snapshot, config) {
       fetchedAt: snapshot.generatedAt ?? null
     },
     companies
+  };
+}
+
+function normalizeSnapshotOwnerLinks(owner) {
+  const accounts = [];
+  const links = {};
+  for (const [declaredPlatform, url] of Object.entries(owner?.socialLinks ?? {})) {
+    if (typeof url !== "string" || !url.trim()) continue;
+    const platform = platformFromUrl(url) ?? normalizePlatformArg(declaredPlatform);
+    accounts.push({ platform, url });
+    if (!links[platform]) links[platform] = url;
+  }
+  return {
+    ...owner,
+    socialLinks: links,
+    socialAccounts: mergeVerifiedOwnerSocialAccounts(owner?.socialAccounts, {}, links, {})
   };
 }
 
@@ -2549,10 +3392,19 @@ function mergeVerifiedSocialOverrides(companies, overrides) {
       return {
         ...founder,
         ...founderOverride,
-        socialLinks: {
-          ...(founder.socialLinks ?? {}),
-          ...(founderOverride.socialLinks ?? {})
-        }
+        id: founder.id,
+        ...(founder.entityId ? { entityId: founder.entityId } : {}),
+        socialLinks: mergeVerifiedOwnerSocialLinks(
+          founder.socialLinks,
+          founderOverride.socialLinks,
+          founderOverride
+        ),
+        socialAccounts: mergeVerifiedOwnerSocialAccounts(
+          founder.socialAccounts,
+          founder.socialLinks,
+          founderOverride.socialLinks,
+          founderOverride
+        )
       };
     });
 
@@ -2560,20 +3412,83 @@ function mergeVerifiedSocialOverrides(companies, overrides) {
       if (!founderOverride?.id || !founderOverride?.name) continue;
       founders.push({
         ...founderOverride,
-        socialLinks: { ...(founderOverride.socialLinks ?? {}) }
+        socialLinks: mergeVerifiedOwnerSocialLinks({}, founderOverride.socialLinks, founderOverride),
+        socialAccounts: mergeVerifiedOwnerSocialAccounts(
+          [],
+          {},
+          founderOverride.socialLinks,
+          founderOverride
+        )
       });
     }
 
     return {
       ...company,
       ...(override.matchReason ? { matchReason: override.matchReason } : {}),
-      socialLinks: {
-        ...(company.socialLinks ?? {}),
-        ...overrideCompanyLinks
-      },
+      socialLinks: mergeVerifiedOwnerSocialLinks(company.socialLinks, overrideCompanyLinks, override),
+      socialAccounts: mergeVerifiedOwnerSocialAccounts(
+        company.socialAccounts,
+        company.socialLinks,
+        overrideCompanyLinks,
+        override
+      ),
       founders
     };
   });
+}
+
+function mergeVerifiedOwnerSocialLinks(baseLinks = {}, positiveLinks = {}, ownerOverride = {}) {
+  const retiredKeys = new Set(
+    retiredOwnerSocialAccounts(ownerOverride)
+      .map(({ platform, url }) => `${normalizePlatformArg(platform)}:${canonicalProfileUrl(url, normalizePlatformArg(platform)).toLowerCase()}`)
+  );
+  return {
+    ...Object.fromEntries(
+      Object.entries(baseLinks ?? {}).filter(([platform, url]) =>
+        !retiredKeys.has(
+          `${normalizePlatformArg(platform)}:${canonicalProfileUrl(url, normalizePlatformArg(platform)).toLowerCase()}`
+        )
+      )
+    ),
+    ...(positiveLinks ?? {})
+  };
+}
+
+function mergeVerifiedOwnerSocialAccounts(baseAccounts = [], baseLinks = {}, positiveLinks = {}, ownerOverride = {}) {
+  const retiredKeys = new Set(
+    retiredOwnerSocialAccounts(ownerOverride)
+      .map(({ platform, url }) => socialAccountKey(platform, url))
+      .filter(Boolean)
+  );
+  const accounts = [
+    ...(baseAccounts ?? []),
+    ...Object.entries(baseLinks ?? {}).map(([platform, url]) => ({ platform, url })),
+    ...Object.entries(positiveLinks ?? {}).map(([platform, url]) => ({ platform, url }))
+  ];
+  const byIdentity = new Map();
+  for (const account of accounts) {
+    const platform = normalizePlatformArg(account?.platform);
+    const key = socialAccountKey(platform, account?.url);
+    if (!key || retiredKeys.has(key)) continue;
+    byIdentity.set(key, { ...account, platform, url: account.url });
+  }
+  return [...byIdentity.values()];
+}
+
+function retiredOwnerSocialAccounts(ownerOverride) {
+  const records = [];
+  for (const [key, value] of Object.entries(ownerOverride ?? {})) {
+    const match = key.match(/^rejected([A-Z].*)$/);
+    if (!match || !Array.isArray(value)) continue;
+    const platform = normalizePlatformArg(
+      match[1].replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase()
+    );
+    for (const record of value) if (record?.url) records.push({ ...record, platform });
+  }
+  for (const record of ownerOverride?.retiredAccounts ?? []) {
+    if (record?.platform && record?.url) records.push(record);
+  }
+  return records;
 }
 
 async function loadCanonicalCompanyCatalog(currentSnapshot, currentConfig) {
@@ -2627,10 +3542,156 @@ function batchCompanySlug(node) {
 function socialLinksFromAccounts(accounts) {
   const links = {};
   for (const account of accounts ?? []) {
+    if (account?.review_state && account.review_state !== "verified") continue;
     const platform = normalizePlatformArg(account?.platform);
     if (platform && account?.url && !links[platform]) links[platform] = account.url;
   }
   return links;
+}
+
+function socialAccountsFromAccounts(accounts) {
+  return (accounts ?? [])
+    .filter((account) => !account?.review_state || account.review_state === "verified")
+    .filter((account) => normalizePlatformArg(account?.platform) && account?.url)
+    .map((account) => ({
+      ...account,
+      platform: normalizePlatformArg(account.platform),
+      url: account.url
+    }));
+}
+
+function socialAccountUrls(entity, platform) {
+  const urls = [
+    ...(entity?.socialAccounts ?? [])
+      .filter((account) => normalizePlatformArg(account?.platform) === platform)
+      .map((account) => account.url),
+    entity?.socialLinks?.[platform]
+  ].filter(Boolean);
+  return [...new Map(urls.map((url) => [socialAccountKey(platform, url), url])).values()];
+}
+
+function socialAccountKey(platform, url) {
+  if (!platform || typeof url !== "string" || !url.trim()) return null;
+  return `${normalizePlatformArg(platform)}:${canonicalProfileUrl(url, normalizePlatformArg(platform)).toLowerCase()}`;
+}
+
+function buildNativeOwnerIndex(companies) {
+  const index = new Map();
+  const addOwner = (company, entity, entityType) => {
+    const owner = {
+      company,
+      batchSlug: batchConfig.slug,
+      companySlug: company.slug,
+      companyName: company.name,
+      entityType,
+      entityId: entityIdFor(company, entity, entityType),
+      entityName: entityName(entity, entityType)
+    };
+    for (const platform of ["x", "linkedin", "instagram"]) {
+      for (const url of socialAccountUrls(entity, platform)) {
+        const identity = nativeAccountIdentity(platform, url);
+        if (!identity) continue;
+        const key = `${platform}:${identity}`;
+        index.set(key, [...(index.get(key) ?? []), owner]);
+      }
+    }
+  };
+  for (const company of companies ?? []) {
+    addOwner(company, company, "company");
+    for (const founder of company.founders ?? []) addOwner(company, founder, "founder");
+  }
+  return index;
+}
+
+function resolveCurrentBatchNativeOwner(item) {
+  const platform = normalizePlatformArg(item?.platform);
+  if (!["x", "linkedin", "instagram"].includes(platform)) {
+    return { status: "unavailable", reason: "platform_has_no_roster_native_author_resolution" };
+  }
+  const identity = nativePostAuthorIdentity(item, platform);
+  if (!identity) {
+    return { status: "unavailable", reason: "native_author_identity_unavailable" };
+  }
+  const candidates = [...new Map(
+    (currentBatchNativeOwnerIndex.get(`${platform}:${identity}`) ?? []).map((owner) => [
+      `${owner.entityType}:${owner.entityId}`,
+      owner
+    ])
+  ).values()];
+  if (candidates.length === 0) {
+    return { status: "unmatched", reason: "native_author_not_in_current_batch_roster", author: { platform, key: identity } };
+  }
+  if (candidates.length > 1) {
+    return {
+      status: "ambiguous",
+      reason: "native_author_maps_to_multiple_current_batch_owners",
+      author: { platform, key: identity },
+      candidates: candidates.map(({ company, ...owner }) => owner)
+    };
+  }
+  return {
+    status: "matched",
+    reason: "native_author_maps_to_unique_current_batch_owner",
+    author: { platform, key: identity },
+    owner: candidates[0]
+  };
+}
+
+function nativeAccountIdentity(platform, rawUrl) {
+  if (platform === "linkedin") return linkedinAccountSlugFromUrl(rawUrl);
+  return normalizeSocialHandle(socialProfileHandleFromUrl(rawUrl, platform)) || null;
+}
+
+function nativePostAuthorIdentity(item, platform) {
+  if (platform === "linkedin") {
+    return [
+      linkedinNativeAuthorSlugFromUrl(item?.sourceUrl),
+      linkedinNativeAuthorSlugFromPayload(item?.rawVisibleText),
+      linkedinAccountSlugFromUrl(item?.authorHandle),
+      normalizeSocialHandle(item?.authorHandle),
+      item?.accountUrl ? linkedinAccountSlugFromUrl(item.accountUrl) : null
+    ].find(Boolean) ?? null;
+  }
+  if (platform === "x") {
+    return normalizeSocialHandle(socialProfileHandleFromUrl(item?.sourceUrl, "x") ?? item?.authorHandle) ||
+      (item?.accountUrl ? nativeAccountIdentity(platform, item.accountUrl) : null);
+  }
+  return normalizeSocialHandle(item?.authorHandle) ||
+    (item?.accountUrl ? nativeAccountIdentity(platform, item.accountUrl) : null);
+}
+
+function applyCurrentBatchNativeOwner(item, resolution) {
+  if (resolution?.status !== "matched") return { ...item, nativeAuthorResolution: resolution };
+  const { company, ...owner } = resolution.owner;
+  const changed =
+    String(item.entityType ?? "company") !== owner.entityType ||
+    String(item.entityId ?? "") !== owner.entityId ||
+    String(item.companySlug ?? "") !== owner.companySlug;
+  return {
+    ...item,
+    id: item.id,
+    ...(changed ? { sourceEvidenceId: item.sourceEvidenceId ?? item.id ?? null } : {}),
+    entityType: owner.entityType,
+    entityId: owner.entityId,
+    entityName: owner.entityName,
+    companySlug: owner.companySlug,
+    companyName: owner.companyName,
+    attributionVersion: Math.max(PUBLIC_ATTRIBUTION_VERSION, Number(item.attributionVersion ?? 0)),
+    attributionStatus: "verified_native_author",
+    attributionMode: "account_owner",
+    attributionSignals: [...new Set([...(item.attributionSignals ?? []), "unique_native_author"])].sort(),
+    nativeAuthorResolution: {
+      status: "matched",
+      author: resolution.author,
+      owner,
+      changed
+    },
+    ...(changed
+      ? {
+          matchReason: `${item.matchReason ?? "Public evidence candidate."} Exact native author reassigned this physical post to ${owner.entityType} ${owner.entityName}.`
+        }
+      : {})
+  };
 }
 
 function aliasPattern(aliases) {
@@ -2651,9 +3712,41 @@ function dedupeById(items) {
 }
 
 function dedupeFailures(items) {
-  return dedupeById(items)
-    .filter((item) => !isObsoleteInternalFailure(item))
-    .sort((a, b) => a.platform.localeCompare(b.platform) || a.companyName.localeCompare(b.companyName));
+  const bySemanticIdentity = new Map();
+  for (const item of items.filter((candidate) => !isObsoleteInternalFailure(candidate))) {
+    const key = failureSemanticIdentity(item);
+    const previous = bySemanticIdentity.get(key);
+    if (!previous || checkedAtMillis(item) >= checkedAtMillis(previous)) {
+      bySemanticIdentity.set(key, item);
+    }
+  }
+  return [...bySemanticIdentity.values()].sort(
+    (a, b) =>
+      String(a.platform ?? "").localeCompare(String(b.platform ?? "")) ||
+      String(a.companyName ?? "").localeCompare(String(b.companyName ?? "")) ||
+      String(a.entityId ?? "").localeCompare(String(b.entityId ?? ""))
+  );
+}
+
+function failureSemanticIdentity(item) {
+  const platform = normalizePlatformArg(item?.platform);
+  const rawAccountUrl = item?.accountUrl ?? item?.sourceUrl ?? "";
+  const accountIdentity = rawAccountUrl
+    ? socialAccountKey(platform, rawAccountUrl) ?? String(rawAccountUrl).trim().toLowerCase()
+    : "";
+  return JSON.stringify([
+    platform,
+    item?.companySlug ?? "",
+    item?.entityType ?? "company",
+    item?.entityId ?? "",
+    accountIdentity,
+    item?.message ?? item?.failure_reason ?? item?.error ?? ""
+  ]);
+}
+
+function checkedAtMillis(item) {
+  const value = Date.parse(item?.checkedAt ?? item?.last_checked_at ?? "");
+  return Number.isFinite(value) ? value : 0;
 }
 
 function dedupeDiscoveryAttempts(items) {
@@ -2690,8 +3783,54 @@ function isObsoleteInternalFailure(item) {
 
 function normalizeStoredEvidence(item) {
   const platform = normalizePlatformArg(item.platform);
-  const company = companyBySlug.get(item.companySlug);
-  let normalized = { ...item, platform };
+  const staleAttribution = {
+    batchSlug: item.batchSlug ?? batchConfig.slug,
+    entityType: item.entityType ?? "company",
+    entityId: item.entityId,
+    companySlug: item.companySlug,
+    companyName: item.companyName
+  };
+  const nativeAuthorResolution = resolveCurrentBatchNativeOwner({ ...item, platform });
+  const originalCompany = companyBySlug.get(item.companySlug);
+  const attributionMode = publicAttributionMode(item);
+  const originalSubjectVerified = currentSubjectAttributionVerified(
+    { ...item, platform },
+    originalCompany,
+    nativeAuthorResolution
+  );
+  const mayRepairFounderSubject = originalCompany &&
+    attributionMode === "subject" &&
+    (item?.entityType ?? "company") === "founder" &&
+    !originalSubjectVerified;
+  const companySubjectResolution = mayRepairFounderSubject
+    ? resolveCurrentBatchCompanySubject(item, originalCompany, platform, nativeAuthorResolution)
+    : null;
+  const companySubjectCandidate = companySubjectResolution?.row ?? null;
+  const shouldReassignToCompanySubject = Boolean(companySubjectCandidate);
+  const shouldReassignToNativeOwner =
+    nativeAuthorResolution.status === "matched" &&
+    !shouldReassignToCompanySubject &&
+    (
+      attributionMode !== "subject" ||
+      !originalSubjectVerified
+    );
+  let normalized = shouldReassignToNativeOwner
+    ? applyCurrentBatchNativeOwner({ ...item, platform }, nativeAuthorResolution)
+    : shouldReassignToCompanySubject
+      ? {
+          ...companySubjectCandidate,
+          attributionMode: "subject",
+          previousAttribution: staleAttribution,
+          matchReason: `${item.matchReason ?? "Verified public evidence."} ` +
+            `Assigned founder was not established by the primary post; unique exact company evidence reassigned this physical post to company ${companySubjectResolution.company.name}.`
+        }
+      : { ...item, platform, nativeAuthorResolution };
+  const resolvedAttributionMode = shouldReassignToNativeOwner
+    ? "account_owner"
+    : shouldReassignToCompanySubject
+      ? "subject"
+      : attributionMode;
+  const company = companyBySlug.get(normalized.companySlug);
 
   if (platform === "hacker_news") {
     const metadata = parseRawJson(item.rawVisibleText);
@@ -2719,7 +3858,7 @@ function normalizeStoredEvidence(item) {
     };
   }
 
-  if (["x", "linkedin", "instagram"].includes(item.platform)) {
+  if (["x", "linkedin", "instagram"].includes(platform)) {
     const isPostEvidence =
       /verified public .* (post|tweet|status|activity)/i.test(item.matchReason ?? "") ||
       /\/status\/\d+|\/feed\/update\/urn:li:activity:|\/posts\/|\/(p|reel|tv)\//i.test(item.sourceUrl ?? "");
@@ -2728,10 +3867,10 @@ function normalizeStoredEvidence(item) {
       ...normalized,
       text: isPostEvidence ? item.text : socialProfileSummary(item.platform, item.rawVisibleText, item.title).slice(0, 600),
       metrics,
-      authorHandle: socialPostAuthorHandle(item),
+      authorHandle: socialPostAuthorHandle(normalized),
       matchReason: isPostEvidence
-        ? item.matchReason
-        : `Public ${item.platform} profile stored as identity context only. Profile followers are not counted as post traction.`
+        ? normalized.matchReason
+        : `Public ${platform} profile stored as identity context only. Profile followers are not counted as post traction.`
     };
   }
   if (item.platform === "product_hunt") {
@@ -2762,26 +3901,187 @@ function normalizeStoredEvidence(item) {
   );
   const nativeContent = isNativeContentUrl(platform, normalized.sourceUrl);
   const hasMetric = hasPositiveSupportedMetric(platform, metrics);
-  const exactAuthor =
-    platform === "linkedin" && normalized.entityType === "founder"
-      ? exactLinkedInFounderAuthorMatches(normalized, company)
-      : !["x", "instagram"].includes(platform) || exactAuthorMatchesCompany(normalized, company);
-  const eligible = nativeContent && hasMetric && exactAuthor;
+  const exactAuthor = publicAttributionOwnershipValid(
+    normalized,
+    company,
+    resolvedAttributionMode
+  );
+  const semanticAttribution = company
+    ? publicEvidenceAttributionAssessment(company, normalized)
+    : { verified: false, reason: "canonical_company_attribution_unresolved", signals: [], descriptorMatches: [] };
+  const youtubeReceiptValid = !isGenericSearchYouTube(normalized) || (
+    Number(normalized.attributionVersion ?? 0) >= PUBLIC_ATTRIBUTION_VERSION &&
+    Boolean(normalized.youtubeChannelId || normalized.youtubeChannelUrl)
+  );
+  const eligible = nativeContent && hasMetric && exactAuthor && semanticAttribution.verified && youtubeReceiptValid;
+  const attributionDemotion =
+    item.review_state === "verified" &&
+    nativeContent &&
+    hasMetric &&
+    (
+      !exactAuthor ||
+      semanticAttributionCertainRejection(semanticAttribution)
+    );
   const reason = !nativeContent
     ? "Canonical write classified this URL as profile, search, context, or unsupported content."
     : !hasMetric
       ? "Canonical write found no positive supported visible traction metric."
       : !exactAuthor
         ? "Canonical write could not match the native post author to a mapped company or founder account."
-        : null;
+        : !youtubeReceiptValid
+          ? "Canonical write rejected a generic-search YouTube row without attribution receipt v2 and persisted native channel identity."
+          : !semanticAttribution.verified
+            ? `Canonical write rejected semantic company attribution: ${semanticAttribution.reason}.`
+            : null;
 
   return {
     ...normalized,
     metrics,
+    attributionVersion: Math.max(Number(normalized.attributionVersion ?? 0), PUBLIC_ATTRIBUTION_VERSION),
+    attributionStatus: eligible ? "verified" : "needs_review",
+    attributionMode: resolvedAttributionMode,
+    attributionSignals: semanticAttribution.signals,
+    attributionDescriptorMatches: semanticAttribution.descriptorMatches,
     contributionScore: eligible ? scoreMetrics(platform, metrics) : 0,
     review_state: eligible ? "verified" : "needs_review",
+    ...(attributionDemotion
+      ? {
+          attributionReconciliationDirective: {
+            platform,
+            sourceUrl: normalized.sourceUrl,
+            platformPostId: normalized.platformPostId ?? platformPostIdFromUrl(platform, normalized.sourceUrl),
+            disposition: "quarantined",
+            reason: semanticAttributionCertainRejection(semanticAttribution)
+              ? `semantic_attribution:${semanticAttribution.reason}`
+              : !exactAuthor
+                ? "native_author_attribution_unresolved"
+                : "generic_youtube_missing_attribution_v2_native_channel_receipt",
+            staleAttribution
+          }
+        }
+      : {}),
     matchReason: reason ? `${normalized.matchReason ?? "Public evidence candidate."} ${reason}` : normalized.matchReason
   };
+}
+
+function nativeAuthorMatchesCanonicalAttribution(item) {
+  const resolution = item?.nativeAuthorResolution;
+  if (resolution?.status === "ambiguous") return false;
+  if (resolution?.status === "matched") {
+    return resolution.owner?.entityType === (item.entityType ?? "company") &&
+      resolution.owner?.entityId === item.entityId &&
+      resolution.owner?.companySlug === item.companySlug;
+  }
+  return false;
+}
+
+function publicAttributionMode(item) {
+  const explicit = String(item?.attributionMode ?? item?.attributionType ?? "").trim().toLowerCase();
+  if (["author", "account_owner", "owner"].includes(explicit)) return "account_owner";
+  if (explicit === "subject") return "subject";
+  return item?.accountUrl ? "account_owner" : "subject";
+}
+
+function currentSubjectAttributionVerified(item, company, nativeAuthorResolution) {
+  if (!company) return false;
+  if ((item?.entityType ?? "company") === "founder") {
+    if (nativeAuthorResolution?.status === "matched" &&
+      nativeAuthorResolution.owner?.entityType === "founder" &&
+      nativeAuthorResolution.owner?.entityId === item.entityId) {
+      return true;
+    }
+    return assignedFounderNameMentioned(item, company, nativeAuthorResolution);
+  }
+  if (
+    nativeAuthorResolution?.status === "matched" &&
+    nativeAuthorResolution.owner?.companySlug === company.slug &&
+    containsExactTokenSequence(publicEvidenceAttributionText(item), company.name)
+  ) {
+    return true;
+  }
+  return publicEvidenceAttributionAssessment(company, item).verified;
+}
+
+function resolveCurrentBatchCompanySubject(item, originalCompany, platform, nativeAuthorResolution) {
+  const rowFor = (company) => ({
+    ...item,
+    platform,
+    entityType: "company",
+    entityId: companyId(company),
+    companySlug: company.slug,
+    companyName: company.name,
+    nativeAuthorResolution
+  });
+  const currentRow = rowFor(originalCompany);
+  const currentAssessment = publicEvidenceAttributionAssessment(originalCompany, currentRow);
+  if (currentAssessment.verified) {
+    return { row: currentRow, company: originalCompany, assessment: currentAssessment };
+  }
+
+  const matches = [];
+  const seen = new Set();
+  for (const candidateCompany of canonicalCompanyCatalog) {
+    const candidateId = companyId(candidateCompany);
+    if (seen.has(candidateId)) continue;
+    seen.add(candidateId);
+    const candidateRow = rowFor(candidateCompany);
+    const assessment = publicEvidenceAttributionAssessment(candidateCompany, candidateRow);
+    if (
+      assessment.verified &&
+      assessment.companySubjectNameMatch &&
+      assessment.expectedBatch &&
+      !assessment.signals.includes("batch_list_only")
+    ) {
+      matches.push({ row: candidateRow, company: candidateCompany, assessment });
+    }
+  }
+  return matches.length === 1 && matches[0].assessment.signals.includes("roster_founder")
+    ? matches[0]
+    : null;
+}
+
+function publicAttributionOwnershipValid(item, company, attributionMode) {
+  const platform = normalizePlatformArg(item?.platform);
+  if (!["x", "linkedin", "instagram"].includes(platform)) return true;
+  if (attributionMode === "account_owner") {
+    return nativeAuthorMatchesCanonicalAttribution(item) ||
+      (item?.nativeAuthorResolution?.status === "unavailable" && mappedAccountMatchesEntity(company, item));
+  }
+  if ((item?.entityType ?? "company") === "founder") {
+    return nativeAuthorMatchesCanonicalAttribution(item) ||
+      assignedFounderNameMentioned(item, company, item?.nativeAuthorResolution);
+  }
+  // Company-subject evidence may be authored by a third party; exact semantic
+  // company attribution is enforced independently below.
+  return true;
+}
+
+function assignedFounderNameMentioned(item, company, nativeAuthorResolution = item?.nativeAuthorResolution) {
+  const founder = (company?.founders ?? []).find(
+    (candidate) => entityIdFor(company, candidate, "founder") === item?.entityId
+  );
+  const name = String(founder?.name ?? "").trim();
+  if (name.split(/\s+/).filter(Boolean).length < 2) return false;
+  if (containsExactTokenSequence(publicEvidenceAttributionText(item), name)) return true;
+  return String(nativeAuthorResolution?.author?.key ?? "").toLowerCase() === slugify(name);
+}
+
+function semanticAttributionCertainRejection(assessment) {
+  if (assessment?.verified) return false;
+  if (assessment?.reason === "company_name_token_boundary_mismatch") return true;
+  if (assessment?.reason === "collision_prone_name_without_independent_anchor") {
+    // A matching organization-qualified cohort + launch may become verifiable
+    // once its native channel receipt is refreshed (for example Walter P26).
+    return !assessment.expectedBatch;
+  }
+  return false;
+}
+
+function isGenericSearchYouTube(item) {
+  if (normalizePlatformArg(item?.platform) !== "youtube") return false;
+  return !item?.accountUrl && /(?:public\s+youtube\s+search|generic[_ -]?search|youtube\s+search\s+result)/i.test(
+    String(item?.matchReason ?? "")
+  );
 }
 
 function normalizeEvidenceForStorage(items) {
@@ -2812,42 +4112,40 @@ function normalizeEvidenceForStorage(items) {
   }
 
   const normalizedEvidence = [];
-  const candidatesByNativeIdentity = new Map();
+  const candidatesByOwnerNativeIdentity = new Map();
   for (const item of normalizedCandidates) {
-    const identity = nativeEvidenceIdentity(item);
-    candidatesByNativeIdentity.set(identity, [...(candidatesByNativeIdentity.get(identity) ?? []), item]);
+    const identity = `${item.entityType ?? "company"}:${item.entityId}:${nativeEvidenceIdentity(item)}`;
+    candidatesByOwnerNativeIdentity.set(
+      identity,
+      [...(candidatesByOwnerNativeIdentity.get(identity) ?? []), item]
+    );
   }
 
-  for (const [identity, candidates] of candidatesByNativeIdentity) {
-    if (candidates.length === 1) {
-      normalizedEvidence.push(candidates[0]);
-      continue;
-    }
-
-    const companySlugs = new Set(candidates.map((item) => item.companySlug).filter(Boolean));
-    if (companySlugs.size === 1) {
-      normalizedEvidence.push(
-        [...candidates].sort(
-          (left, right) =>
-            Number(right.contributionScore > 0) - Number(left.contributionScore > 0) ||
-            String(left.id).localeCompare(String(right.id))
-        )[0]
-      );
-      continue;
-    }
-
-    for (const item of candidates) {
-      normalizationReview.push({
-        ...item,
-        id: stableId(`review:ambiguous-native-identity:${identity}:${item.entityId}`),
-        candidateUrl: item.sourceUrl,
-        contributionScore: 0,
-        review_state: "needs_review",
-        matchReason: `${item.matchReason ?? "Public evidence candidate."} Canonical write found the same native post attached to multiple companies, so attribution is ambiguous.`
-      });
-    }
+  for (const candidates of candidatesByOwnerNativeIdentity.values()) {
+    appendNormalizedEvidenceCandidate(
+      [...candidates].sort(
+        (left, right) =>
+          Number(right.contributionScore > 0) - Number(left.contributionScore > 0) ||
+          String(left.id).localeCompare(String(right.id))
+      )[0],
+      normalizedEvidence,
+      normalizationReview
+    );
   }
   return { evidence: normalizedEvidence, needsReview: normalizationReview };
+}
+
+function appendNormalizedEvidenceCandidate(item, normalizedEvidence, normalizationReview) {
+  if (item.review_state === "needs_review" || Number(item.contributionScore ?? 0) <= 0) {
+    normalizationReview.push({
+      ...item,
+      candidateUrl: item.candidateUrl ?? item.sourceUrl,
+      contributionScore: 0,
+      review_state: "needs_review"
+    });
+    return;
+  }
+  normalizedEvidence.push(item);
 }
 
 function nativeEvidenceIdentity(item) {
@@ -2921,7 +4219,10 @@ function knownCompanySocialHandles(company, platform) {
 function socialPostAuthorHandle(item) {
   if (item.authorHandle) return item.authorHandle;
   if (item.platform === "x") return socialProfileHandleFromUrl(item.sourceUrl, "x");
-  if (item.platform === "linkedin") return linkedInNativePostAuthorSlug(item.sourceUrl);
+  if (item.platform === "linkedin") {
+    return linkedInNativePostAuthorSlug(item.sourceUrl) ??
+      linkedinNativeAuthorSlugFromPayload(item.rawVisibleText);
+  }
   if (item.platform === "instagram") {
     const raw = String(item.rawVisibleText ?? "");
     return (
@@ -2956,7 +4257,11 @@ async function writeCheckpoint() {
         [...attemptMap.entries()].filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
       ),
       evidence: normalizedCheckpointEvidence.evidence,
-      needsReview: normalizeNeedsReviewItems([...needsReview, ...normalizedCheckpointEvidence.needsReview]),
+      needsReview: normalizeNeedsReviewItems([
+        ...needsReview,
+        ...carriedAttributionReconciliationReviews,
+        ...normalizedCheckpointEvidence.needsReview
+      ]),
       failures: dedupeFailures(failures),
       discoveryAttempts: dedupeDiscoveryAttempts(discoveryAttempts),
       sourceDiscoveryPaths: dedupeById(sourceDiscoveryPaths)
@@ -2972,6 +4277,16 @@ async function readJson(path, fallback) {
   } catch {
     return fallback;
   }
+}
+
+function batchScopedRows(rows, snapshot, batchSlug) {
+  if (!Array.isArray(rows)) return [];
+  const companySlugs = new Set((snapshot?.companies ?? []).map((company) => company.slug));
+  return rows.filter((row) => {
+    const rowBatch = row?.batch_slug ?? row?.batchSlug;
+    if (rowBatch) return rowBatch === batchSlug;
+    return companySlugs.has(row?.company_slug ?? row?.companySlug);
+  });
 }
 
 async function writeJson(path, value) {
@@ -2991,8 +4306,26 @@ async function writeJson(path, value) {
   }
 }
 
+function writeStdout(value) {
+  return new Promise((resolve, reject) => {
+    process.stdout.write(value, (error) => error ? reject(error) : resolve());
+  });
+}
+
 function serializeJson(value) {
-  return redactTokenLikeStrings(JSON.stringify(value, null, 2));
+  return redactTokenLikeStrings(JSON.stringify(withWellFormedJsonStrings(value), null, 2));
+}
+
+function withWellFormedJsonStrings(value) {
+  if (typeof value === "string") return replaceUnpairedUtf16Surrogates(value);
+  if (Array.isArray(value)) return value.map(withWellFormedJsonStrings);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [
+      replaceUnpairedUtf16Surrogates(key),
+      withWellFormedJsonStrings(item)
+    ])
+  );
 }
 
 function redactTokenLikeStrings(value) {
@@ -3029,6 +4362,23 @@ function hasArg(name) {
 
 function isFreshCompletedAttempt(attempt) {
   if (attempt?.status !== "done" || !attempt.checkedAt) return false;
+  if (
+    attempt.batchSlug !== batchConfig.slug ||
+    !attempt.platform ||
+    !["company", "founder"].includes(attempt.entityType) ||
+    !attempt.entityId ||
+    !["completed", "needs_review", "blocked_or_empty"].includes(attempt.outcomeStatus) ||
+    !String(attempt.outcomeReason ?? "").trim()
+  ) {
+    return false;
+  }
+  const staleAttributionVersion = Number(attempt.attributionVersion ?? 0) < PUBLIC_ATTRIBUTION_VERSION;
+  if (attempt.platform === "linkedin" && staleAttributionVersion) {
+    return false;
+  }
+  if (attempt.platform === "youtube" && !attempt.accountUrl && staleAttributionVersion) {
+    return false;
+  }
   const checkedAt = Date.parse(attempt.checkedAt);
   if (!Number.isFinite(checkedAt)) return false;
   return Date.now() - checkedAt < freshForHours * 60 * 60 * 1000;

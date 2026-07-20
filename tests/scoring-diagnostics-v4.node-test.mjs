@@ -34,10 +34,15 @@ const REPORT_PATH = path.join(
   "outputs",
   "scoring-diagnostics-v4-report.md"
 );
+// This audit deliberately loads and rescans every scored row in all three cohorts.
+// GitHub's shared runners take roughly twice as long as a warm local run, so keep a
+// bounded three-minute watchdog instead of the previous 55-second flaky threshold.
+const DIAGNOSTICS_TIMEOUT_MS = 180_000;
+const TEST_TIMEOUT_MS = DIAGNOSTICS_TIMEOUT_MS + 15_000;
 
 test(
   "scoring diagnostics v4 regenerates byte-for-byte and records the full contract",
-  { timeout: 60_000 },
+  { timeout: TEST_TIMEOUT_MS },
   (t) => {
     const before = readArtifacts();
     const outputPaths = temporaryOutputPaths(t);
@@ -94,7 +99,7 @@ test(
 
 test(
   "scoring diagnostics v4 exits nonzero and preserves artifacts on an input-hash violation",
-  { timeout: 30_000 },
+  { timeout: TEST_TIMEOUT_MS },
   (t) => {
     const before = readArtifacts();
     const outputPaths = temporaryOutputPaths(t);
@@ -129,7 +134,7 @@ function runDiagnostics(outputPaths, extraArguments = []) {
     {
       cwd: REPOSITORY_ROOT,
       encoding: "utf8",
-      timeout: 55_000
+      timeout: DIAGNOSTICS_TIMEOUT_MS
     }
   );
 }

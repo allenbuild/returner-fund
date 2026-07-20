@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-20T15:14:19Z",
+  "status": "canonical_duplicate_confirmed_daily_autonomous_guard_gap",
+  "sourceFile": "src/lib/social/logged-in-evidence-current.json",
+  "batchSlug": "S2026",
+  "entity": {
+    "entityType": "founder",
+    "entityId": "founder-cignara-nalin-gupta-78606",
+    "companyName": "Cignara",
+    "authorName": "Nalin Gupta",
+    "authorHandle": "nalingupta01"
+  },
+  "decision": {
+    "reasonCode": "same_platform_author_substantive_body",
+    "retainPlatformPostId": "1864872376540033181",
+    "quarantinePlatformPostId": "1864872432437453114",
+    "rationale": "Both rows have the exact same platform, attributed founder, native author, normalized substantive body, stored publication instant, and media asset. The retained observation has stronger visible metrics (223 views and 5 likes versus 168 views and 1 like).",
+    "canonicalQuarantineMechanics": [
+      "Keep native X object 1864872376540033181 as the sole verified scoring row for this content identity.",
+      "Remove native X object 1864872432437453114 from accepted canonical evidence and record it in the run duplicate ledger with reason same_platform_author_substantive_body and a pointer to the retained row.",
+      "Do not merge metric maxima across the two native objects and do not rewrite the retained native URL or ID.",
+      "On future discovery, quarantine any same-platform, same-attributed-entity, exact-author, exact-substantive-body observation whose publication time is compatible under sourceContentIdentity/publicationTimesCompatible, even when its native post ID differs.",
+      "Preserve valid multi-entity attribution only when the physical post itself substantively supports every attributed entity; content identity remains entity-scoped at import time."
+    ]
+  },
+  "identityProof": {
+    "bodySha256": "ce7acc042c9459aaff961724662de0012ad94b8d3fb9ed9a38c68f319d807e33",
+    "normalizedAuthorIdentities": [
+      "account:x.com/nalingupta01",
+      "handle:nalingupta01",
+      "name:nalin gupta"
+    ],
+    "storedPublicationTimesCompatible": true,
+    "storedPostedAt": "2024-12-05T06:00:00.000Z",
+    "nativeSnowflakeInstants": {
+      "1864872376540033181": "2024-12-06T03:19:56.877Z",
+      "1864872432437453114": "2024-12-06T03:20:10.204Z",
+      "separationMilliseconds": 13327
+    },
+    "exactText": "Super proud of my mom Beena Gupta launching her new startup - BuzzBox: Gift-ready items delivered to your doorstep every month. Have you ever felt miserable because you forgot to buy a gift for an upcoming event, or can’t find something which is unique, gift-worthy? Never go to Show more",
+    "exactMediaUrls": [
+      "https://pbs.twimg.com/profile_images/1405952696490680321/_IhCLafC_normal.jpg",
+      "https://pbs.twimg.com/media/GeFbahYaUAASBzp?format=jpg&name=small"
+    ]
+  },
+  "rows": [
+    {
+      "disposition": "retain",
+      "jsonPointerAtAuditTime": "/evidence/1616",
+      "id": "x-founder-cignara-nalin-gupta-78606-x-com-nalingupta01-status-1864872376540033181-super-proud-of-my-mom-beena-gupta-launching-her-new-startup-buzzbox-gift-ready-items-delivered-to-",
+      "sourceUrl": "https://x.com/nalingupta01/status/1864872376540033181",
+      "platformPostId": "1864872376540033181",
+      "postedAt": "2024-12-05T06:00:00.000Z",
+      "rawCreatedAt": "Dec 5, 2024",
+      "metrics": {
+        "likes": 5,
+        "reposts": 0,
+        "views": 223
+      },
+      "review_state": "verified",
+      "matchReason": "Opt-in read-only X browser timeline scrape for @nalingupta01; metrics came from visible aria-label post controls."
+    },
+    {
+      "disposition": "duplicate_quarantine",
+      "jsonPointerAtAuditTime": "/evidence/1962",
+      "id": "x-founder-cignara-nalin-gupta-78606-x-com-nalingupta01-status-1864872432437453114-super-proud-of-my-mom-beena-gupta-launching-her-new-startup-buzzbox-gift-ready-items-delivered-to-",
+      "sourceUrl": "https://x.com/nalingupta01/status/1864872432437453114",
+      "platformPostId": "1864872432437453114",
+      "postedAt": "2024-12-05T06:00:00.000Z",
+      "rawCreatedAt": "Dec 5, 2024",
+      "metrics": {
+        "likes": 1,
+        "reposts": 0,
+        "comments": 0,
+        "views": 168
+      },
+      "review_state": "verified",
+      "matchReason": "Opt-in read-only X browser timeline scrape for @nalingupta01; metrics came from visible aria-label post controls."
+    }
+  ],
+  "scopeAudit": {
+    "combinedLoadedDatasetEvidenceRows": 4149,
+    "crossNativeExactContentPairCount": 1,
+    "pairIsOnlyCrossNativeExactContentPair": true,
+    "sameAttributionCanonicalPostDuplicateGroups": 0,
+    "duplicateEvidenceIdGroups": 0
+  },
+  "guardValidation": {
+    "manualSourceHuntImporter": {
+      "status": "pass",
+      "implementation": [
+        "scripts/import-source-hunt-evidence.mjs indexes a16z-speedrun-006-social-evidence.json, public-evidence-current.json, logged-in-evidence-current.json, targeted-evidence-current.json, and all three GitHub evidence snapshots before import.",
+        "It compares sourceContentIdentity keys within attributed entity scope and uses publicationTimesCompatible.",
+        "It records differing-native-ID matches as same_platform_author_substantive_body, increments duplicates, accepts zero rows for the duplicate, and intentionally does not refresh or merge that observation."
+      ],
+      "focusedTestCommand": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node --test --test-name-pattern='dedupes Daniela|exact-content guard' tests/import-source-hunt-evidence.node-test.mjs",
+      "focusedTestResult": {
+        "exitCode": 0,
+        "tests": 6,
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    "twiceDailyAutonomousIngestion": {
+      "status": "gap_at_audit_time",
+      "implementationEvidence": [
+        "scripts/lib/autonomous-ingestion-plan.mjs evidenceKey deduplicates accepted rows by batch, entity attribution, platform, and URL-derived or explicit native post ID.",
+        "scripts/lib/durable-evidence-import.mjs groups durable evidence by the platform-native canonical key.",
+        "Neither path applies sourceContentIdentity/publicationTimesCompatible across differing native post IDs at the time of this audit."
+      ],
+      "requiredFix": [
+        "Apply entity-scoped sourceContentIdentity/publicationTimesCompatible dedupe to accepted public rows before merged export publication.",
+        "Choose the retained observation deterministically without metric-max merging, quarantine the duplicate with exact reason same_platform_author_substantive_body, and include a reconciliation directive when a stale durable attribution already exists.",
+        "Add autonomous plan and runner regression tests proving a second native ID with the same exact author/body/time cannot be republished by either daily run, while different authors, near-miss bodies, different known publication times, and valid multi-entity attribution remain distinct."
+      ]
+    }
+  },
+  "canonicalMutationByThisAudit": false,
+  "publicSnapshotsRegeneratedByThisAudit": false
+}

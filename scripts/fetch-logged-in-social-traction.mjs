@@ -1,6 +1,11 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
+import {
+  linkedinPostIdFromUrl,
+  linkedinPostMatchesAccount
+} from "./lib/social-native-identity.mjs";
+import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -37,8 +42,14 @@ const instagramTractionCutoffMs = Date.parse("2025-01-01T00:00:00.000Z");
 let writeSequence = 0;
 let checkpointWriteChain = Promise.resolve();
 
-const ycSnapshot = JSON.parse(await readFile(ycSnapshotPath, "utf8"));
-const verifiedSocialOverrides = await readJson(verifiedSocialOverridesPath, {});
+const ycSnapshot = normalizeCollectorSnapshot(
+  JSON.parse(await readFile(ycSnapshotPath, "utf8")),
+  batchConfig
+);
+const verifiedSocialOverrides = await readRequiredCanonicalJson(
+  verifiedSocialOverridesPath,
+  "Verified social overrides"
+);
 const checkpoint = await readJson(checkpointPath, { attempts: {}, evidence: [], failures: [], needsReview: [] });
 const currentOutput = await readJson(outputPath, { evidence: [], failures: [], needsReview: [] });
 const attemptMap = new Map(Object.entries(checkpoint.attempts ?? {}));
@@ -46,13 +57,25 @@ const evidence = dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.e
 const failures = dedupeById([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
 const needsReview = dedupeById([...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])]);
 
-const targets = finalizeOnly ? [] : collectTargets(ycSnapshot.companies).slice(0, targetLimit);
+const targetCompanies = ycSnapshot.companies.filter(
+  (company) =>
+    !companyFilter ||
+    company.name.toLowerCase().includes(companyFilter) ||
+    company.slug.toLowerCase() === companyFilter
+);
+const targets = finalizeOnly ? [] : collectTargets(targetCompanies).slice(0, targetLimit);
 console.log(`Logged-in social targets: ${targets.length} (${workers} workers, up to ${postLimit} posts each, ${scrollPasses} scroll passes).`);
 
 if (planOnly) {
-  console.log(JSON.stringify({
+  const coverage = socialTargetCoverage(targetCompanies, targets);
+  const planPayload = JSON.stringify({
     batchSlug: batchConfig.slug,
     snapshotPath: ycSnapshotPath,
+    checkpointPath,
+    catalogCompanyCount: ycSnapshot.companies.length,
+    companyCount: new Set(coverage.filter((row) => row.entityType === "company").map((row) => row.entityId)).size,
+    founderCount: new Set(coverage.filter((row) => row.entityType === "founder").map((row) => row.entityId)).size,
+    coverage,
     targets: targets.map((target) => ({
       batchSlug: target.batchSlug,
       companySlug: target.companySlug,
@@ -65,7 +88,8 @@ if (planOnly) {
       activityUrl: target.platform === "linkedin" ? linkedInActivityUrl(target.url) : target.url,
       checkpointKey: attemptKeyFor(target)
     }))
-  }, null, 2));
+  }, null, 2);
+  await writeStdout(`${planPayload}\n`);
   process.exit(0);
 }
 
@@ -125,6 +149,75 @@ await writeJson(outputPath, payload);
 await writeCheckpoint();
 console.log(`Wrote ${payload.evidence.length} logged-in post evidence items, ${payload.failures.length} failures.`);
 
+function normalizeCollectorSnapshot(snapshot, config) {
+  if (Array.isArray(snapshot?.companies)) return snapshot;
+  if (!Array.isArray(snapshot?.nodes)) {
+    throw new Error(`${config.snapshotPath} does not contain companies or graph nodes.`);
+  }
+
+  return {
+    source: {
+      label: `${config.label} graph collector catalog`,
+      fetchedAt: snapshot.generatedAt ?? null
+    },
+    companies: snapshot.nodes
+      .filter((node) => node?.entityType === "company" && node.entityId && node.label)
+      .map((node) => ({
+        id: node.entityId,
+        entityId: node.entityId,
+        objectID: node.entityId,
+        slug: collectorCompanySlug(node),
+        name: node.label,
+        batch: config.label,
+        ycProfileUrl: node.sourceUrl ?? node.ycProfileUrl ?? null,
+        websiteUrl: node.websiteUrl ?? null,
+        socialLinks: socialLinksFromGraphAccounts(node.socialAccounts),
+        socialAccounts: socialAccountsFromGraphAccounts(node.socialAccounts),
+        founders: (node.founders ?? []).map((founder) => ({
+          id: founder.id,
+          entityId: founder.id,
+          name: founder.name,
+          ycProfileUrl: founder.ycProfileUrl ?? null,
+          socialLinks: socialLinksFromGraphAccounts(founder.socialAccounts),
+          socialAccounts: socialAccountsFromGraphAccounts(founder.socialAccounts)
+        }))
+      }))
+  };
+}
+
+function collectorCompanySlug(node) {
+  try {
+    const parts = new URL(node.sourceUrl ?? node.ycProfileUrl).pathname.split("/").filter(Boolean);
+    const companiesIndex = parts.indexOf("companies");
+    if (companiesIndex >= 0 && parts[companiesIndex + 1]) return parts[companiesIndex + 1];
+  } catch {
+    // Fall back to the graph entity ID.
+  }
+  return String(node.entityId).replace(/^a16z-speedrun-006-/, "");
+}
+
+function socialLinksFromGraphAccounts(accounts) {
+  const links = {};
+  for (const account of accounts ?? []) {
+    if (account?.review_state && account.review_state !== "verified") continue;
+    const platform = account?.platform === "twitter" ? "x" : account?.platform;
+    if (["x", "linkedin", "instagram"].includes(platform) && account?.url && !links[platform]) {
+      links[platform] = account.url;
+    }
+  }
+  return links;
+}
+
+function socialAccountsFromGraphAccounts(accounts) {
+  return (accounts ?? [])
+    .filter((account) => !account?.review_state || account.review_state === "verified")
+    .map((account) => ({
+      platform: socialPlatformForUrl(account?.platform, account?.url),
+      url: account?.url
+    }))
+    .filter((account) => ["x", "linkedin", "instagram"].includes(account.platform) && account.url);
+}
+
 function collectTargets(companies) {
   const targets = [];
 
@@ -133,18 +226,22 @@ function collectTargets(companies) {
       continue;
     }
     if (entityFilter !== "founder") {
-      const companySocialLinks = {
-        ...(company.socialLinks ?? {}),
-        ...(verifiedSocialOverrides[company.slug]?.companySocialLinks ?? verifiedSocialOverrides[company.slug]?.company ?? {})
-      };
-      if (allowLinkedIn && companySocialLinks.linkedin) {
-        targets.push(targetFor(company, company, "company", "linkedin", companySocialLinks.linkedin));
-      }
-      if (platformFilter.has("x") && companySocialLinks.x) {
-        targets.push(targetFor(company, company, "company", "x", companySocialLinks.x));
-      }
-      if (platformFilter.has("instagram") && companySocialLinks.instagram) {
-        targets.push(targetFor(company, company, "company", "instagram", companySocialLinks.instagram));
+      const companyOverride = verifiedSocialOverrides[company.slug] ?? {};
+      const companyAccounts = verifiedOwnerSocialAccounts(
+        company,
+        companyOverride.companySocialLinks ?? companyOverride.company,
+        companyOverride
+      );
+      for (const account of companyAccounts) {
+        if (!platformFilter.has(account.platform)) continue;
+        if (account.platform === "linkedin" && !allowLinkedIn) continue;
+        targets.push(targetFor(
+          company,
+          { ...company, matchReason: companyOverride.matchReason ?? company.matchReason },
+          "company",
+          account.platform,
+          account.url
+        ));
       }
     }
 
@@ -153,36 +250,30 @@ function collectTargets(companies) {
         const verifiedFounder = (verifiedSocialOverrides[company.slug]?.founders ?? []).find(
           (candidate) => String(candidate.id) === String(founder.id) || slugify(candidate.name) === slugify(founder.name)
         );
-        const founderSocialLinks = {
-          ...(founder.socialLinks ?? {}),
-          ...(verifiedFounder?.socialLinks ?? {})
-        };
-        const targetFounder = verifiedFounder ? { ...founder, ...verifiedFounder, socialLinks: founderSocialLinks } : founder;
-        if (allowLinkedIn && founderSocialLinks.linkedin) {
+        const founderAccounts = verifiedOwnerSocialAccounts(
+          founder,
+          verifiedFounder?.socialLinks,
+          verifiedFounder
+        );
+        const targetFounder = verifiedFounder
+          ? {
+              ...founder,
+              ...verifiedFounder,
+              id: founder.id,
+              ...(founder.entityId ? { entityId: founder.entityId } : {}),
+              socialLinks: Object.fromEntries(founderAccounts.map((account) => [account.platform, account.url])),
+              socialAccounts: founderAccounts
+            }
+          : founder;
+        for (const account of founderAccounts) {
+          if (!platformFilter.has(account.platform)) continue;
+          if (account.platform === "linkedin" && !allowLinkedIn) continue;
           targets.push(targetFor(
             company,
-            verifiedFounder?.socialLinks?.linkedin ? targetFounder : founder,
+            verifiedFounder ? targetFounder : founder,
             "founder",
-            "linkedin",
-            founderSocialLinks.linkedin
-          ));
-        }
-        if (platformFilter.has("x") && founderSocialLinks.x) {
-          targets.push(targetFor(
-            company,
-            verifiedFounder?.socialLinks?.x ? targetFounder : founder,
-            "founder",
-            "x",
-            founderSocialLinks.x
-          ));
-        }
-        if (platformFilter.has("instagram") && founderSocialLinks.instagram) {
-          targets.push(targetFor(
-            company,
-            verifiedFounder?.socialLinks?.instagram ? targetFounder : founder,
-            "founder",
-            "instagram",
-            founderSocialLinks.instagram
+            account.platform,
+            account.url
           ));
         }
       }
@@ -192,6 +283,135 @@ function collectTargets(companies) {
   }
 
   return dedupeTargets(targets.filter((target) => target.url));
+}
+
+function verifiedOwnerSocialAccounts(owner = {}, positiveLinks = {}, ownerOverride = {}) {
+  const retiredKeys = new Set(
+    retiredOwnerSocialAccounts(ownerOverride)
+      .map(({ platform, url }) => {
+        const normalizedPlatform = socialPlatformForUrl(platform, url);
+        return `${normalizedPlatform}:${normalizeComparableUrl(url)}`;
+      })
+  );
+  const candidates = [
+    ...(owner.socialAccounts ?? []).map((account) => ({
+      platform: socialPlatformForUrl(account?.platform, account?.url),
+      url: account?.url
+    })),
+    ...Object.entries(owner.socialLinks ?? {}).map(([platform, url]) => ({
+      platform: socialPlatformForUrl(platform, url),
+      url
+    })),
+    ...Object.entries(positiveLinks ?? {}).map(([platform, url]) => ({
+      platform: socialPlatformForUrl(platform, url),
+      url
+    }))
+  ]
+    .filter((account) => ["x", "linkedin", "instagram"].includes(account.platform) && account.url)
+    .filter((account) => !retiredKeys.has(`${account.platform}:${normalizeComparableUrl(account.url)}`));
+  return [
+    ...new Map(
+      candidates.map((account) => [
+        `${account.platform}:${normalizeComparableUrl(account.url)}`,
+        account
+      ])
+    ).values()
+  ];
+}
+
+function retiredOwnerSocialAccounts(ownerOverride) {
+  const records = [];
+  for (const [key, value] of Object.entries(ownerOverride ?? {})) {
+    const match = key.match(/^rejected([A-Z].*)$/);
+    if (!match || !Array.isArray(value)) continue;
+    const platform = normalizePlatform(
+      match[1].replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase()
+    );
+    for (const record of value) if (record?.url) records.push({ ...record, platform });
+  }
+  for (const record of ownerOverride?.retiredAccounts ?? []) {
+    if (record?.platform && record?.url) records.push(record);
+  }
+  return records;
+}
+
+function normalizePlatform(value) {
+  const platform = String(value ?? "").toLowerCase();
+  return platform === "twitter" ? "x" : platform;
+}
+
+function socialPlatformForUrl(declaredPlatform, url) {
+  for (const platform of ["x", "linkedin", "instagram"]) {
+    if (urlMatchesPlatform(url, platform)) return platform;
+  }
+  return normalizePlatform(declaredPlatform);
+}
+
+function socialTargetCoverage(companies, plannedTargets) {
+  const targetsByIdentity = new Map();
+  for (const target of plannedTargets) {
+    const key = `${target.entityId}:${target.platform}`;
+    targetsByIdentity.set(key, [...(targetsByIdentity.get(key) ?? []), target]);
+  }
+  const coverage = [];
+  const entityIdentities = new Set();
+
+  for (const company of companies) {
+    const entities = [];
+    if (entityFilter !== "founder") entities.push([company, "company"]);
+    if (entityFilter !== "company") {
+      entities.push(...(company.founders ?? []).map((founder) => [founder, "founder"]));
+    }
+    for (const [entity, entityType] of entities) {
+      const entityId = collectorEntityId(company, entity, entityType);
+      entityIdentities.add(entityId);
+      for (const platform of ["x", "linkedin", "instagram"]) {
+        const targets = targetsByIdentity.get(`${entityId}:${platform}`) ?? [];
+        for (const target of targets.length ? targets : [null]) {
+          coverage.push({
+            batchSlug: batchConfig.slug,
+            companySlug: company.slug,
+            companyName: company.name,
+            entityType,
+            entityId,
+            entityName: entityType === "company" ? company.name : entity.name,
+            platform,
+            accountUrl: target?.url ?? null,
+            status: !platformFilter.has(platform)
+              ? "platform_filtered"
+              : platform === "linkedin" && !allowLinkedIn
+                ? "linkedin_opt_in_required"
+                : target
+                  ? "mapped_target"
+                  : "no_verified_account"
+          });
+        }
+      }
+    }
+  }
+
+  for (const target of plannedTargets) {
+    if (entityIdentities.has(target.entityId)) continue;
+    for (const platform of ["x", "linkedin", "instagram"]) {
+      const matchingTargets = targetsByIdentity.get(`${target.entityId}:${platform}`) ?? [];
+      for (const matchingTarget of matchingTargets.length ? matchingTargets : [null]) {
+        coverage.push({
+          batchSlug: batchConfig.slug,
+          companySlug: target.companySlug,
+          companyName: target.companyName,
+          entityType: target.entityType,
+          entityId: target.entityId,
+          entityName: target.name,
+          platform,
+          accountUrl: matchingTarget?.url ?? null,
+          status: matchingTarget ? "mapped_target" : "no_verified_account"
+        });
+      }
+    }
+    entityIdentities.add(target.entityId);
+  }
+
+  return coverage;
 }
 
 function targetFor(company, entity, entityType, platform, url) {
@@ -204,7 +424,7 @@ function targetFor(company, entity, entityType, platform, url) {
     companyName: company.name,
     companyWebsiteUrl: company.websiteUrl,
     entityType,
-    entityId: entityType === "company" ? companyId(company) : `founder-${company.slug}-${slugify(entity.name)}-${entity.id}`,
+    entityId: collectorEntityId(company, entity, entityType),
     name: entityType === "company" ? company.name : entity.name,
     matchReason: entity.matchReason ?? null
   };
@@ -241,7 +461,24 @@ function manualTargetsForCompany(company) {
   }
 
   if (entityFilter !== "company") {
-    for (const founder of override.founders ?? []) {
+    for (const founderOverride of override.founders ?? []) {
+      const catalogFounder = (company.founders ?? []).find(
+        (candidate) =>
+          String(candidate.id) === String(founderOverride.id) ||
+          slugify(candidate.name) === slugify(founderOverride.name)
+      );
+      const founder = catalogFounder
+        ? {
+            ...catalogFounder,
+            ...founderOverride,
+            id: catalogFounder.id,
+            ...(catalogFounder.entityId ? { entityId: catalogFounder.entityId } : {}),
+            socialLinks: {
+              ...(catalogFounder.socialLinks ?? {}),
+              ...(founderOverride.socialLinks ?? {})
+            }
+          }
+        : founderOverride;
       for (const platform of ["instagram", "x", "linkedin"]) {
         const url = founder.socialLinks?.[platform] ?? founder[platform];
         if (url && platformFilter.has(platform)) {
@@ -290,7 +527,7 @@ async function fetchLinkedInPosts(target, workerIndex) {
   const raw = await runOpenCli(["browser", session, "eval", linkedInExtractJs()], { timeoutMs: perTargetTimeoutMs });
   const posts = parseJsonOutput(raw)
     .filter((post) => !isLinkedInRepost(post, target.name))
-    .filter((post) => linkedinPostIdFromUrl(post.url))
+    .filter((post) => linkedinPostMatchesAccount(post.url, target.url))
     .slice(0, postLimit);
   if (!posts.length) {
     return { evidence: [], failures: [failure(target, "No original visible LinkedIn posts found on activity page.", activityUrl)], needsReview: [] };
@@ -643,11 +880,6 @@ function linkedInActivityUrl(url) {
     return null;
   }
   return null;
-}
-
-function linkedinPostIdFromUrl(url) {
-  const value = String(url ?? "");
-  return value.match(/(?:urn:li:activity:|activity-)(\d{10,})/i)?.[1] ?? null;
 }
 
 function xHandleFromUrl(url) {
@@ -1040,6 +1272,12 @@ async function writeJson(path, value) {
   await rename(tempPath, path);
 }
 
+function writeStdout(value) {
+  return new Promise((resolve, reject) => {
+    process.stdout.write(value, (error) => error ? reject(error) : resolve());
+  });
+}
+
 function serializeJson(value) {
   return redactTokenLikeStrings(JSON.stringify(value, null, 2));
 }
@@ -1097,7 +1335,16 @@ function slugify(value) {
 }
 
 function companyId(company) {
-  return `company-${company.slug}`;
+  const catalogId = String(company.entityId ?? company.id ?? "");
+  return /^a16z-speedrun-006-/i.test(catalogId) ? catalogId : `company-${company.slug}`;
+}
+
+function collectorEntityId(company, entity, entityType) {
+  if (entityType === "company") return companyId(company);
+  const catalogId = String(entity.entityId ?? entity.id ?? "");
+  return /^a16z-speedrun-006-.+-founder-/i.test(catalogId)
+    ? catalogId
+    : `founder-${company.slug}-${slugify(entity.name)}-${entity.id}`;
 }
 
 function addItems(items = [], target) {
@@ -1192,16 +1439,25 @@ function resolveBatchConfig(value) {
   if (["S26", "YCS26", "SUMMER2026", "YCSUMMER2026"].includes(normalized)) {
     return {
       slug: "S26",
+      label: "YC Summer 2026 (S26)",
       snapshotPath: join(root, "src", "lib", "yc", "summer-2026-companies.json")
     };
   }
   if (["S2026", "P26", "YCS2026", "YCP26", "SPRING2026", "YCSPRING2026"].includes(normalized)) {
     return {
       slug: "S2026",
+      label: "YC Spring 2026 (P26)",
       snapshotPath: join(root, "src", "lib", "yc", "spring-2026-companies.json")
     };
   }
-  throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026.`);
+  if (["A16ZSR006", "A16ZSPEEDRUN006", "SPEEDRUN006"].includes(normalized)) {
+    return {
+      slug: "A16ZSR006",
+      label: "a16z Speedrun 006",
+      snapshotPath: join(root, "public", "graph", "a16zsr006.json")
+    };
+  }
+  throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026, A16ZSR006.`);
 }
 
 function errorMessage(error) {

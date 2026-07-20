@@ -9,8 +9,8 @@ The decision is to retain the implemented v4 combination:
 - `85%` platform-anchored absolute evidence score plus `15%` same-platform midrank.
 - `75%` durable signal plus `25%` recency-sensitive momentum.
 - Descending platform evidence slots of `82/8/5/3/2` over at most five physical posts.
-- `70%` strongest platform plus `30%` fixed-weight cross-platform diversification.
-- For full-batch company records only, `82%` absolute company score plus `18%` positive-cohort tie-aware percentile.
+- `100%` normalized configured-weight aggregation over platforms with eligible evidence; missing platforms do not penalize the company.
+- For full-batch company records only, `82%` absolute company score plus `18%` positive-cohort tie-aware percentile, followed by a positive-cohort 1–100 stretch.
 - Confidence, limitations, attribution state, canonical score provenance, and evidence time reported separately from the traction score.
 
 This is an engineering selection, not an outcome model. No labeled outcome, investment return, survival, revenue, fundraising, or follow-on dataset is present. Consequently this report does **not** claim predictive validation, statistical calibration to an outcome, causal validity, optimal weights, or investment performance. A `72` is a deterministic traction index, not a `72%` probability.
@@ -102,7 +102,7 @@ flowchart LR
 | Config and metric aliases | [`traction-config.ts`](../src/lib/scoring/traction-config.ts) | Single canonical model identity and all score, calibration, and confidence parameters. |
 | Config validation | [`traction-config.ts`](../src/lib/scoring/traction-config.ts), [`traction-config-validation.test.ts`](../tests/traction-config-validation.test.ts) | Import-time rejection of non-finite/negative weights, unnormalized blends/slots, missing scored-platform references/metrics, nonmonotone slots, and invalid confidence thresholds. |
 | Evidence/entity scoring | [`traction-scoring.ts`](../src/lib/graph/traction-scoring.ts) | Eligibility, absolute/midrank blend, recency, platform slots, cross-platform blend, confidence, limitations. |
-| Company calibration | [`batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts), [`percentiles.ts`](../src/lib/scoring/percentiles.ts) | Positive-company tie-aware percentile blend. Founder scores are not calibrated here. |
+| Company calibration | [`batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts), [`percentiles.ts`](../src/lib/scoring/percentiles.ts) | Positive-company tie-aware percentile blend followed by a 1–100 positive-cohort stretch. Founder scores are not calibrated here. |
 | Graph filtering | [`graph-builder.ts`](../src/lib/graph/graph-builder.ts), [`client-filters.ts`](../src/lib/graph/client-filters.ts) | Preserves one canonical all-platform company score while platform and Top Voice controls narrow visible companies, evidence, and related metadata. |
 | Material live changes | [`live-evidence-overlay.ts`](../src/lib/graph/live-evidence-overlay.ts) | Merges visible evidence, renormalizes, reaggregates, and recalibrates visible companies. |
 | Manual source refresh | [`live-source-refresh.ts`](../src/lib/ingestion/live-source-refresh.ts) | The implemented live path is X-specific and writes a validated local snapshot; other listed platforms are skipped. |
@@ -366,18 +366,18 @@ For fixed evidence scores, adding a nonnegative row or increasing a row cannot l
 
 ### 6.5 Cross-platform absolute score
 
-Let `S=max(P_p)` and let missing platforms contribute zero to the fixed-weight diversified term:
+Let `A` be the sum of configured weights for platforms with eligible evidence. The canonical V4 configuration sets `strongestPlatformWeight=0` and `diversifiedPlatformWeight=1`, so the current executable formula is:
 
 ```text
-D = sum(w_p * P_p)
-U = round(clamp(0.70*S + 0.30*D, 0, 100))
+D = sum(w_p * P_p) / A
+U = round(clamp(D, 0, 100))
 ```
 
-The strongest native signal cannot be averaged away, while corroborating platforms can increase the score. Platform weights are not donated to present sources.
+Only platforms with eligible evidence enter `A`. Missing platforms therefore do not lower the score, and configured weight is normalized across the available set. This section supersedes the earlier draft blend that described `70%` strongest-platform plus `30%` fixed-weight diversification; that blend is not the canonical `4.0.0` runtime or registered migration.
 
 When platform scores tie for `S`, `topPlatform` selects the higher configured platform weight and then lexicographically smaller platform ID. The displayed weighted-platform list sorts by contribution, score, configured weight, and platform ID. These tie rules change ordering only, not the numeric formula.
 
-`weightedAvailableScore` remains a compatibility diagnostic that re-normalizes over present platforms. `coverageFactor` is the derived ratio `U / weightedAvailableScore` when possible. It is not a v4 multiplier and may exceed `1`.
+`weightedAvailableScore` is the same available-platform normalized average before integer rounding. `coverageFactor` is the derived ratio `U / weightedAvailableScore` when possible. It is not a v4 multiplier and may sit just above or below `1` because `U` is rounded.
 
 ### 6.6 Company batch calibration
 
@@ -385,10 +385,11 @@ Full-batch dataset builders calibrate positive **company** scores, not founders.
 
 ```text
 percentile(U) = (count(peer < U) + 0.5 * count(peer = U)) / positive_cohort_size
-C = round(clamp(0.82*U + 0.18*100*percentile(U), 1, 100))
+B = 0.82*U + 0.18*100*percentile(U)
+C = round(1 + 99*(B - min_positive_B)/(max_positive_B - min_positive_B))
 ```
 
-Zero absolute scores remain zero and do not enter the cohort. Ties receive equal percentiles and calibrated totals. Every breakdown records method, cohort size, percentile, and input absolute score.
+The final line applies when the positive-cohort blended range is nonzero; a degenerate tied cohort uses `round(clamp(B, 1, 100))`. Zero absolute scores remain zero and do not enter the cohort. Ties receive equal percentiles and calibrated totals. Every breakdown records method, cohort size, percentile, and input absolute score.
 
 ### 6.7 Canonical score and visibility filters
 
@@ -445,7 +446,7 @@ The level uses the unrounded value:
 | Missing physical observation time and no explicit `asOf` | Normalization clock falls back to Unix epoch; this is deterministic but can make later posts look age zero after clamping. |
 | Missing/unchecked link status | Can score; reduces verified-link completeness and adds a limitation. |
 | Missing runtime review state | Can score for compatibility; persisted v4 writers should not rely on this. |
-| Missing platform | Contributes zero to diversification; weight is not redistributed. |
+| Missing platform | Excluded from the available-platform numerator and weight denominator; does not penalize the entity. |
 | No eligible evidence | Absolute and total score `0`, confidence `0`, explicit limitation. |
 | Supported native evidence on unmodeled TikTok/Bluesky | Retained as `unscored`, not interpreted as zero traction. |
 
@@ -686,7 +687,7 @@ None of these database application or persistence actions is demonstrated by the
 ### 12.1 Rollout sequence
 
 1. **Freeze:** pin code, canonical config, cohort inputs, `asOf`, and source hashes. A Git SHA alone is insufficient for a dirty tree.
-2. **Offline conformance:** from a settled worktree, run `npm run check:release`, diagnostics, and experiments; review every source/artifact hash and generated diff. The equivalent component gates passed in the final local run: lint, typecheck, the complete test suite, production builds, release operations, experiment parity, diagnostic reproducibility, artifact tests, artifact validation, served API checks, and rendered browser checks.
+2. **Offline conformance:** from a settled worktree, run `npm run check:release`, diagnostics, and experiments; review every source/artifact hash and generated diff. In the present shared worktree, lint, typecheck, the complete 86-file test suite, the production build, release operations, experiment parity, public-content tests, served API checks, and rendered browser checks pass. Diagnostic reproducibility still detects changed evidence bytes, and the new manifest gate rejects the stale public manifest. Those two artifact-lineage checks remain release failures until the actively changing evidence set is settled and atomically republished.
 3. **Schema:** apply migrations 001-007 in order in a non-production environment; verify constraints, indexes, RLS/access behavior, legacy reads, and the exact migration-007 model row.
 4. **Publication contract:** reject every static or dynamic response missing v4 model identity, canonical `all_platforms`/empty-platform scoring context, absolute/calibrated semantics, confidence, and input time. Regenerate all nine static graph variants atomically.
 5. **Shadow run:** score frozen inputs without replacing production surfaces. Compare absolute and calibrated totals, ties, zero rows, confidence, evidence counts, and canonical context.
@@ -728,10 +729,10 @@ This is a release-surface inventory, not an ownership or approval assertion. Bef
 
 | Workflow or command | Trigger | What it does | Current release status |
 | --- | --- | --- | --- |
-| `npm run check:release` | Local or `Public Artifact Validation` on pull request, push, or manual dispatch | Runs lint, typecheck, full test/build check, release-ops tests, experiment parity, diagnostic tests, artifact tests, and artifact validation | Equivalent component commands passed locally; the exact wrapper was not invoked. |
+| `npm run check:release` | Local or `Public Artifact Validation` on pull request, push, or manual dispatch | Runs lint, typecheck, full test/build check, V5/research validation, release-ops tests, experiment parity, diagnostic tests, artifact tests, content validation, and manifest validation | **FAIL in the active shared evidence state:** the full suite passes, but the evidence-hash diagnostic and public-manifest validation reject drift. |
 | `Daily Score Benchmarks` | Central-midnight schedule or manual dispatch | Installs, tests the benchmark updater, builds, regenerates nine graph snapshots and three histories, validates, then commits/pushes only the declared artifact set | Equivalent publisher path completed locally; no commit or push was performed. |
 | `npm run release:migrate:v4` | Explicit operator command | Plans or applies migrations 004-007 | Dry-run by default; no database apply claimed. |
-| `npm run release:publish:v4` | Explicit operator command | Plans or regenerates and validates nine graph snapshots plus three histories | Published locally with reviewed dirty-artifact override; all 12 outputs validated. |
+| `npm run release:publish:v4` | Explicit operator command | Plans or regenerates and validates nine graph snapshots plus three histories | Not run in this V5/product pass. The content validator accepts the current 12 outputs, but their checked-in manifest is stale; publication must wait for the evidence owner to settle the canonical inputs. |
 | `npm run release:rollback:v4` | Explicit operator command | Plans or performs read-only lineage inspection before an external application rollback | Dry-run by default; it does not switch application behavior or delete data. |
 
 ### 12.5 Operator semantics

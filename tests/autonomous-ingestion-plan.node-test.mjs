@@ -1,8 +1,14 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { describe, it } from "node:test";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
+  AUTONOMOUS_BATCHES,
   AUTONOMOUS_PLATFORMS,
   AUTONOMOUS_PROCESS_BUDGETS,
+  autonomousCollectorRetryableFailures,
   buildAutonomousTaskPlan,
   classifyAutonomousCollectorTaskOutcome,
   countSuccessfulAutonomousCollectorRows,
@@ -12,24 +18,326 @@ import {
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
   normalizeAutonomousFailureEntityId,
+  summarizeAutonomousCollectorTerminalTaskCoverage,
   summarizeTaskCoverage,
-  validateAutonomousCollectorSnapshot
+  validateAutonomousCatalogRoster,
+  validateAutonomousCollectorMatrix,
+  validateAutonomousCollectorReferentialIntegrity,
+  validateAutonomousCollectorSnapshot,
+  validateAutonomousTerminalCoverage,
+  validateMappedAutonomousCoverage
 } from "../scripts/lib/autonomous-ingestion-plan.mjs";
+import { readRequiredCanonicalJson } from "../scripts/lib/canonical-json.mjs";
 
 const repositoryRoot = process.cwd();
 
 describe("autonomous ingestion planning against the collector catalogs", () => {
+  it("fails closed when required canonical override JSON is absent or malformed", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-required-canonical-json-"));
+    const path = join(directory, "verified-social-overrides.json");
+
+    await assert.rejects(
+      readRequiredCanonicalJson(path, "Verified social overrides"),
+      /Verified social overrides could not be read.*verified-social-overrides\.json/
+    );
+    await writeFile(path, "{ malformed\n");
+    await assert.rejects(
+      readRequiredCanonicalJson(path, "Verified social overrides"),
+      /Verified social overrides is malformed.*verified-social-overrides\.json/
+    );
+    await writeFile(path, '{"eden-robotics":{"founders":[]}}\n');
+    assert.deepEqual(
+      await readRequiredCanonicalJson(path, "Verified social overrides"),
+      { "eden-robotics": { founders: [] } }
+    );
+
+    for (const collectorPath of [
+      "scripts/fetch-public-traction.mjs",
+      "scripts/fetch-github-traction.mjs",
+      "scripts/fetch-logged-in-social-traction.mjs"
+    ]) {
+      const source = await readFile(join(repositoryRoot, collectorPath), "utf8");
+      assert.match(source, /readRequiredCanonicalJson\([\s\S]*verifiedSocialOverridesPath/);
+    }
+  });
+
   it("loads the exact company, founder, and account counts from every real catalog", async () => {
     const catalogs = await loadAutonomousCatalogs(repositoryRoot);
 
     assert.deepEqual(catalogs.map(summarizeCatalog), [
-      { slug: "S2026", companies: 197, founders: 397, accounts: 950 },
-      { slug: "S26", companies: 115, founders: 228, accounts: 548 },
-      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
+      { slug: "S2026", companies: 197, founders: 397, accounts: 959 },
+      { slug: "S26", companies: 115, founders: 230, accounts: 551 },
+      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 327 }
     ]);
   });
 
-  it("deterministically covers every company and founder on every platform exactly once", async () => {
+  it("fails closed when the A16Z graph drops an owner from the independent 59/128 roster", async () => {
+    const catalogs = await loadAutonomousCatalogs(repositoryRoot);
+    const a16z = catalogs.find((catalog) => catalog.slug === "A16ZSR006");
+    const batch = AUTONOMOUS_BATCHES.find((candidate) => candidate.slug === "A16ZSR006");
+    const roster = JSON.parse(await readFile(
+      new URL("../src/lib/social/a16z-speedrun-006-social-accounts.json", import.meta.url),
+      "utf8"
+    ));
+    assert.equal(validateAutonomousCatalogRoster(a16z.companies, roster, batch), a16z.companies);
+    assert.throws(
+      () => validateAutonomousCatalogRoster(a16z.companies.slice(1), roster, batch),
+      /graph roster drifted/
+    );
+    const withoutFounder = a16z.companies.map((company, index) =>
+      index === 0 ? { ...company, founders: company.founders.slice(1) } : company
+    );
+    assert.throws(
+      () => validateAutonomousCatalogRoster(withoutFounder, roster, batch),
+      /graph roster drifted/
+    );
+  });
+
+  it("merges verified overrides by entity owner without globally collapsing shared URLs", async () => {
+    const summer = (await loadAutonomousCatalogs(repositoryRoot)).find((catalog) => catalog.slug === "S26");
+    const entities = summer.companies.flatMap((company) => [company, ...company.founders]);
+    const ownerMappings = entities.flatMap((entity) =>
+      entity.accounts.map((account) => ({
+        key: `${entity.sourceKey}:${account.platform}:${account.url.toLowerCase().replace(/\/$/, "")}`,
+        entity,
+        account
+      }))
+    );
+    assert.equal(new Set(ownerMappings.map((mapping) => mapping.key)).size, ownerMappings.length);
+
+    const codag = summer.companies.find((company) => company.sourceKey === "company-codag");
+    const michael = codag.founders.find((founder) => founder.name === "Michael Zhou");
+    assert.ok(codag.accounts.some((account) => account.platform === "github" && /codag-megalith/i.test(account.url)));
+    assert.ok(michael.accounts.some((account) => account.platform === "github" && /michaelzixizhou/i.test(account.url)));
+    assert.equal(michael.sourceKey, "founder-codag-michael-zhou-2706494");
+
+    const vestris = summer.companies.find((company) => company.sourceKey === "company-vestris");
+    assert.deepEqual(
+      vestris.founders.map((founder) => founder.name).sort(),
+      ["Aahil Valliani", "Joshua Tang"]
+    );
+    assert.deepEqual(
+      vestris.founders.map((founder) => founder.sourceKey).sort(),
+      [
+        "founder-vestris-aahil-valliani-verified-aahil-valliani",
+        "founder-vestris-joshua-tang-verified-joshua-tang"
+      ]
+    );
+    assert.ok(vestris.founders.every((founder) =>
+      founder.accounts.some((account) => account.platform === "linkedin")
+    ));
+
+    const sharedHyperparticle = ownerMappings.filter(
+      (mapping) => mapping.account.platform === "x" && /x\.com\/hyperparticle\/?$/i.test(mapping.account.url)
+    );
+    assert.equal(sharedHyperparticle.length, 2);
+    assert.equal(new Set(sharedHyperparticle.map((mapping) => mapping.entity.sourceKey)).size, 2);
+  });
+
+  it("retires dead owner mappings while retaining replacement URLs and audit history", async () => {
+    const catalogs = await loadAutonomousCatalogs(repositoryRoot);
+    const summer = catalogs.find((catalog) => catalog.slug === "S26");
+    const spring = catalogs.find((catalog) => catalog.slug === "S2026");
+    const a16z = catalogs.find((catalog) => catalog.slug === "A16ZSR006");
+    const openRelay = summer.companies.find((company) => company.sourceKey === "company-openrelay");
+    const playabl = spring.companies.find((company) => company.sourceKey === "company-playablai");
+    const amdahl = a16z.companies.find((company) => company.sourceKey === "a16z-speedrun-006-amdahl");
+
+    assert.equal(openRelay.accounts.some((account) => /github\.com\/openrelayinc\/openrelay/i.test(account.url)), false);
+    assert.equal(playabl.accounts.some((account) => /instagram\.com\/playabl_ai/i.test(account.url)), false);
+    assert.deepEqual(
+      amdahl.accounts.filter((account) => account.platform === "github").map((account) => account.url),
+      ["https://github.com/amdahlco"]
+    );
+
+    const tasks = buildAutonomousTaskPlan(catalogs, { runKey: "retired-mapping-contract" });
+    const openRelayGithub = tasks.find(
+      (task) => task.entitySourceKey === openRelay.sourceKey && task.platform === "github"
+    );
+    const amdahlGithub = tasks.find(
+      (task) => task.entitySourceKey === amdahl.sourceKey && task.platform === "github"
+    );
+    assert.equal(openRelayGithub.account, null);
+    assert.equal(openRelayGithub.status, "queued");
+    assert.equal(openRelayGithub.terminalReason, null);
+    assert.equal(amdahlGithub.account.url, "https://github.com/amdahlco");
+
+    const overrides = JSON.parse(await readFile(
+      new URL("../src/lib/social/verified-social-overrides.json", import.meta.url),
+      "utf8"
+    ));
+    for (const [slug, field] of [
+      ["openrelay", "rejectedGithub"],
+      ["amdahl", "rejectedGithub"],
+      ["playablai", "rejectedInstagram"]
+    ]) {
+      assert.ok(overrides[slug][field][0].url);
+      assert.ok(overrides[slug][field][0].reason);
+      assert.ok(overrides[slug][field][0].rejectedAt);
+    }
+  });
+
+  it("feeds the same retired and replacement mappings into the GitHub collector plan", () => {
+    const summer = githubCollectorPlan("S26");
+    const a16z = githubCollectorPlan("A16ZSR006");
+
+    assert.equal(
+      summer.targets.some((target) => /github\.com\/openrelayinc\/openrelay/i.test(target.githubUrl)),
+      false
+    );
+    assert.ok(summer.targets.some(
+      (target) => target.entityId === "company-codag" && /github\.com\/codag-megalith/i.test(target.githubUrl)
+    ));
+    assert.ok(summer.targets.some(
+      (target) =>
+        target.entityId === "founder-codag-michael-zhou-2706494" &&
+        /github\.com\/michaelzixizhou/i.test(target.githubUrl)
+    ));
+    assert.deepEqual(
+      a16z.targets.filter((target) => target.entityId === "a16z-speedrun-006-amdahl").map((target) => target.githubUrl),
+      ["https://github.com/amdahlco"]
+    );
+  });
+
+  it("keeps every cohort GitHub collector plan in exact parity with canonical owner mappings", async () => {
+    const catalogs = await loadAutonomousCatalogs(repositoryRoot);
+    for (const catalog of catalogs) {
+      const expected = catalog.companies.flatMap((company) =>
+        [company, ...company.founders].flatMap((entity) =>
+          entity.accounts
+            .filter((account) => account.platform === "github")
+            .map((account) => `${entity.sourceKey}:${account.url.toLowerCase().replace(/\/$/, "")}`)
+        )
+      ).sort();
+      const actual = githubCollectorPlan(catalog.slug).targets.map(
+        (target) => `${target.entityId}:${target.githubUrl.toLowerCase().replace(/\/$/, "")}`
+      ).sort();
+      assert.deepEqual(actual, expected, `${catalog.slug} GitHub collector plan drifted from canonical mappings`);
+    }
+    assert.equal(githubCollectorPlan("A16ZSR006").targets.length, 28);
+  });
+
+  it("records checked-empty GitHub discovery only after fetching each owner's official profile", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-github-owner-attempts-"));
+    const output = join(directory, "github.json");
+    const preload = join(directory, "mock-fetch.mjs");
+    await writeFile(
+      preload,
+      "globalThis.fetch = async () => new Response('<html><body>No GitHub link</body></html>', { status: 200 });\n"
+    );
+    execFileSync(process.execPath, [
+      "scripts/fetch-github-traction.mjs",
+      "--batch=A16ZSR006",
+      "--max-companies=1",
+      "--no-website",
+      "--no-search",
+      `--output=${output}`
+    ], {
+      cwd: repositoryRoot,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+      },
+      stdio: "pipe"
+    });
+    const snapshot = JSON.parse(await readFile(output, "utf8"));
+    const attempts = Object.values(snapshot.attempts);
+    assert.equal(attempts.length, 3);
+    assert.ok(attempts.every((attempt) => attempt.checkedSources.length === 1));
+    assert.ok(attempts.every((attempt) => attempt.checkedSources[0].status === "checked_empty"));
+    const index = indexAutonomousCollectorTaskOutcomes(snapshot, {
+      kind: "github",
+      batchSlug: "A16ZSR006"
+    });
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "github",
+      entityType: "company",
+      entityId: "a16z-speedrun-006-acceler8"
+    }).status, "blocked_or_empty");
+  });
+
+  it("fails closed when every official GitHub discovery source is rate limited", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-github-owner-rate-limit-"));
+    const output = join(directory, "github.json");
+    const preload = join(directory, "mock-fetch.mjs");
+    await writeFile(
+      preload,
+      "globalThis.fetch = async () => new Response('rate limited', { status: 429, statusText: 'Too Many Requests' });\n"
+    );
+    execFileSync(process.execPath, [
+      "scripts/fetch-github-traction.mjs",
+      "--batch=A16ZSR006",
+      "--max-companies=1",
+      "--no-website",
+      "--no-search",
+      `--output=${output}`
+    ], {
+      cwd: repositoryRoot,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+      },
+      stdio: "pipe"
+    });
+
+    const snapshot = JSON.parse(await readFile(output, "utf8"));
+    assert.equal(snapshot.source.discovery.sourceChecks.length, 3);
+    assert.ok(snapshot.source.discovery.sourceChecks.every((check) => check.status === "failed"));
+    assert.ok(snapshot.source.discovery.sourceChecks.every((check) =>
+      check.error.includes(check.sourceUrl) && /429 Too Many Requests/.test(check.error)
+    ));
+    assert.ok(Object.values(snapshot.attempts).every((attempt) => attempt.outcomeStatus === "failed"));
+    assert.ok(Object.values(snapshot.attempts).every((attempt) => attempt.successfulSourceCheckCount === 0));
+
+    const index = indexAutonomousCollectorTaskOutcomes(snapshot, {
+      kind: "github",
+      batchSlug: "A16ZSR006"
+    });
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "github",
+      entityType: "company",
+      entityId: "a16z-speedrun-006-acceler8"
+    }).status, "failed");
+  });
+
+  it("uses a verified founder source when no standalone accelerator profile exists", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "returner-github-founder-source-"));
+    const output = join(directory, "github.json");
+    const preload = join(directory, "mock-fetch.mjs");
+    await writeFile(
+      preload,
+      "globalThis.fetch = async () => new Response('<html><body>No GitHub link</body></html>', { status: 200 });\n"
+    );
+    execFileSync(process.execPath, [
+      "scripts/fetch-github-traction.mjs",
+      "--batch=S2026",
+      "--max-companies=73",
+      "--no-website",
+      "--no-search",
+      `--output=${output}`
+    ], {
+      cwd: repositoryRoot,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+      },
+      stdio: "pipe"
+    });
+    const snapshot = JSON.parse(await readFile(output, "utf8"));
+    const attempt = snapshot.attempts[
+      "founder:founder-heyclicky-farza-majeed-manual-farza-majeed"
+    ];
+    assert.equal(attempt.profileUrl, "https://www.instagram.com/farza954/");
+    assert.deepEqual(attempt.checkedSources, [{
+      sourceKind: "official_profile",
+      sourceUrl: "https://www.instagram.com/farza954/",
+      status: "checked_empty",
+      error: null
+    }]);
+    assert.equal(attempt.outcomeStatus, "blocked_or_empty");
+  });
+
+  it("deterministically covers every owner/platform and every canonical account independently", async () => {
     const catalogs = await loadAutonomousCatalogs(repositoryRoot);
     const first = buildAutonomousTaskPlan(catalogs, { runKey: "catalog-contract" });
     const second = buildAutonomousTaskPlan([...catalogs].reverse(), { runKey: "catalog-contract" });
@@ -38,9 +346,19 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
       0
     );
 
-    assert.equal(expectedEntityCount, 1_124);
+    assert.equal(expectedEntityCount, 1_126);
     assert.deepEqual(first, second);
-    assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length);
+    const canonicalAccountCount = catalogs.reduce(
+      (count, catalog) => count + catalog.companies.reduce(
+        (batchCount, company) => batchCount + company.accounts.length +
+          company.founders.reduce((founderCount, founder) => founderCount + founder.accounts.length, 0),
+        0
+      ),
+      0
+    );
+    assert.equal(canonicalAccountCount, 1_837);
+    assert.equal(first.filter((task) => task.account).length, canonicalAccountCount);
+    assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length + 4);
     assert.equal(new Set(first.map((task) => task.checkpointKey)).size, first.length);
     assert.deepEqual(first.map((task) => task.checkpointKey),
       [...first.map((task) => task.checkpointKey)].sort((left, right) => left.localeCompare(right))
@@ -55,7 +373,30 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     }
     assert.equal(platformsByEntity.size, expectedEntityCount);
     for (const platforms of platformsByEntity.values()) {
-      assert.deepEqual(platforms.sort(), [...AUTONOMOUS_PLATFORMS].sort());
+      assert.deepEqual([...new Set(platforms)].sort(), [...AUTONOMOUS_PLATFORMS].sort());
+    }
+
+    const multiplyMapped = first.filter((task) => [
+      "founder-eden-robotics-stamatios-floratos-1956825",
+      "a16z-speedrun-006-antihero-studios",
+      "a16z-speedrun-006-quinn",
+      "a16z-speedrun-006-smart-bricks"
+    ].includes(task.entitySourceKey) && task.account);
+    for (const [entitySourceKey, platform, expectedUrls] of [
+      ["founder-eden-robotics-stamatios-floratos-1956825", "x", ["cybermetheus", "StamatisTWIY"]],
+      ["a16z-speedrun-006-antihero-studios", "linkedin", ["antihero-studios", "antiherostudios-games"]],
+      ["a16z-speedrun-006-quinn", "linkedin", ["meetquinn", "meetquinnai"]],
+      ["a16z-speedrun-006-smart-bricks", "instagram", ["smartbricks_invest", "smartbricks.invest"]]
+    ]) {
+      const tasks = multiplyMapped.filter(
+        (task) => task.entitySourceKey === entitySourceKey && task.platform === platform
+      );
+      assert.equal(tasks.length, 2);
+      assert.deepEqual(
+        tasks.map((task) => task.account.url.split("/").filter(Boolean).at(-1)).sort(),
+        expectedUrls.sort()
+      );
+      assert.equal(new Set(tasks.map((task) => task.checkpointKey)).size, 2);
     }
   });
 
@@ -66,10 +407,9 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     const reasonCounts = countBy(tasks, (task) => task.terminalReason ?? "queued");
 
     assert.deepEqual(reasonCounts, {
-      collector_not_applicable_to_founder: 4_518,
-      collector_not_available: 3_372,
-      missing_account_mapping: 2_089,
-      queued: 4_633
+      collector_not_applicable_to_founder: 4_529,
+      collector_not_available: 3_378,
+      queued: 6_735
     });
     assert.ok(tasks.filter((task) => task.status === "queued").every((task) => task.terminalReason === null));
     assert.ok(tasks.filter((task) => task.status !== "queued").every((task) => Boolean(task.terminalReason)));
@@ -79,28 +419,110 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
       expected: coverage.expected,
       queued: coverage.queued,
       terminal: coverage.terminal,
+      mapped: coverage.mapped,
+      mappedQueued: coverage.mappedQueued,
       missingMappings: coverage.missingMappings,
       unsupported: coverage.unsupported
     }, {
-      expected: 14_612,
-      queued: 4_633,
-      terminal: 9_979,
-      missingMappings: 2_089,
-      unsupported: 7_890
+      expected: 14_642,
+      queued: 6_735,
+      terminal: 7_907,
+      mapped: 1_837,
+      mappedQueued: 1_837,
+      missingMappings: 1_070,
+      unsupported: 7_907
     });
-    for (const platform of AUTONOMOUS_PLATFORMS) {
-      assert.equal(coverage.byPlatform[platform].expected, 1_124);
-    }
+    assert.deepEqual(
+      Object.fromEntries(AUTONOMOUS_PLATFORMS.map((platform) => [platform, coverage.byPlatform[platform].expected])),
+      Object.fromEntries(AUTONOMOUS_PLATFORMS.map((platform) => [
+        platform,
+        1_126 + ({ x: 1, linkedin: 2, instagram: 1 }[platform] ?? 0)
+      ]))
+    );
   });
 
   it("keeps process retries, durable persistence, and lock-release headroom below the workflow timeout", () => {
-    const runnerTimeoutMs = 155 * 60_000;
+    const runnerTimeoutMs = 260 * 60_000;
 
-    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 1);
-    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 65 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 90 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.durablePersistenceHeadroomMs, 25 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.lockReleaseHeadroomMs, 2 * 60_000);
     assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeoutMs);
+  });
+
+  it("queues unresolved discoverable founder targets again under every new run key", async () => {
+    const catalogs = await loadAutonomousCatalogs(repositoryRoot);
+    const first = buildAutonomousTaskPlan(catalogs, { runKey: "central-2026-07-20-0600" });
+    const next = buildAutonomousTaskPlan(catalogs, { runKey: "central-2026-07-20-1800" });
+    const unresolved = first.find(
+      (task) => task.entityType === "founder" && task.platform === "linkedin" && !task.account
+    );
+    const retry = next.find(
+      (task) =>
+        task.batchSlug === unresolved.batchSlug &&
+        task.entitySourceKey === unresolved.entitySourceKey &&
+        task.platform === unresolved.platform
+    );
+
+    assert.equal(unresolved.status, "queued");
+    assert.equal(retry.status, "queued");
+    assert.notEqual(retry.checkpointKey, unresolved.checkpointKey);
+  });
+});
+
+describe("autonomous collector and publication gates", () => {
+  const completeMatrix = ["S2026", "S26", "A16ZSR006"].flatMap((batchSlug) => [
+    { batchSlug, kind: "public" },
+    { batchSlug, kind: "github" }
+  ]);
+
+  it("requires one public and one GitHub collector result for every cohort", () => {
+    assert.equal(validateAutonomousCollectorMatrix(completeMatrix), completeMatrix);
+    assert.throws(
+      () => validateAutonomousCollectorMatrix(completeMatrix.slice(1)),
+      /Collector matrix was incomplete/
+    );
+    assert.throws(
+      () => validateAutonomousCollectorMatrix([...completeMatrix, completeMatrix[0]]),
+      /Collector matrix was incomplete/
+    );
+  });
+
+  it("accepts explicitly classified mapped debt but rejects failed or unattempted mappings", () => {
+    const classified = {
+      mappedExpected: 4,
+      mappedSucceeded: 1,
+      mappedNeedsReview: 1,
+      mappedBlockedOrEmpty: 2,
+      mappedFailed: 0,
+      mappedNonTerminal: 0
+    };
+    assert.equal(validateMappedAutonomousCoverage(classified), classified);
+    assert.throws(
+      () => validateMappedAutonomousCoverage({ ...classified, mappedBlockedOrEmpty: 1, mappedFailed: 1 }),
+      /Mapped collector coverage was incomplete/
+    );
+    assert.throws(
+      () => validateMappedAutonomousCoverage({ ...classified, mappedBlockedOrEmpty: 1, mappedNonTerminal: 1 }),
+      /Mapped collector coverage was incomplete/
+    );
+  });
+
+  it("requires every planned task to exist and be terminal before publication", () => {
+    const coverage = { expected: 14_616, nonTerminal: 0 };
+    assert.equal(
+      validateAutonomousTerminalCoverage(coverage, { expectedTaskCount: 14_616 }),
+      coverage
+    );
+    assert.throws(
+      () => validateAutonomousTerminalCoverage({ expected: 14_615, nonTerminal: 0 }, { expectedTaskCount: 14_616 }),
+      /covered 14615\/14616 planned tasks/
+    );
+    assert.throws(
+      () => validateAutonomousTerminalCoverage({ expected: 14_616, nonTerminal: 1 }, { expectedTaskCount: 14_616 }),
+      /did not reach a terminal state/
+    );
   });
 });
 
@@ -167,13 +589,280 @@ describe("autonomous collector snapshot validation", () => {
       /predates this collector attempt/
     );
   });
+
+  it("rejects collector rows whose exact entity IDs are outside the selected cohort", async () => {
+    const catalog = (await loadAutonomousCatalogs(repositoryRoot)).find(
+      (candidate) => candidate.slug === "A16ZSR006"
+    );
+    const company = catalog.companies.find(
+      (candidate) => candidate.sourceKey === "a16z-speedrun-006-acceler8"
+    );
+    const founder = company.founders[0];
+    const valid = {
+      source: {
+        label: "Public unauthenticated platform/page ingestion",
+        batchSlug: "A16ZSR006",
+        fetchedAt
+      },
+      evidence: [{
+        platform: "linkedin",
+        entityType: "founder",
+        entityId: founder.sourceKey,
+        sourceUrl: "https://linkedin.com/posts/example_activity-7999999999999999999-test"
+      }],
+      needsReview: [{
+        platform: "web",
+        entityType: "company",
+        entityId: company.sourceKey,
+        candidateUrl: company.websiteUrl
+      }],
+      failures: []
+    };
+
+    assert.equal(validateAutonomousCollectorReferentialIntegrity(valid, {
+      kind: "public",
+      batchSlug: "A16ZSR006",
+      catalog
+    }), valid);
+    assert.throws(
+      () => validateAutonomousCollectorReferentialIntegrity({
+        ...valid,
+        needsReview: [{
+          ...valid.needsReview[0],
+          entityId: "company-acceler8"
+        }]
+      }, {
+        kind: "public",
+        batchSlug: "A16ZSR006",
+        catalog
+      }),
+      /do not resolve to exact A16ZSR006 catalog entity IDs/
+    );
+    assert.throws(
+      () => validateAutonomousCollectorReferentialIntegrity({
+        ...valid,
+        evidence: [{
+          ...valid.evidence[0],
+          entityId: `founder-acceler8-${founder.name.toLowerCase().replace(/\s+/g, "-")}`
+        }]
+      }, {
+        kind: "public",
+        batchSlug: "A16ZSR006",
+        catalog
+      }),
+      /do not resolve to exact A16ZSR006 catalog entity IDs/
+    );
+    assert.throws(
+      () => validateAutonomousCollectorReferentialIntegrity({
+        ...valid,
+        evidence: [{
+          ...valid.evidence[0],
+          attachedCompanyId: "company-acceler8"
+        }]
+      }, {
+        kind: "public",
+        batchSlug: "A16ZSR006",
+        catalog
+      }),
+      /attachedCompanyId/
+    );
+  });
 });
 
 describe("autonomous collector task accounting", () => {
+  it("suppresses only deterministic profile 404 retries with a successful alternate terminal source path", () => {
+    const snapshot = {
+      failures: [{ message: "Public endpoint network timeout." }],
+      accounts: [{ fetched: false, error: "socket hang up" }],
+      attempts: {
+        alternate: {
+          entityType: "founder",
+          entityId: "founder-alternate",
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_official_sources_checked_empty_or_blocked"
+        },
+        allSourceFailure: {
+          entityType: "founder",
+          entityId: "founder-all-source-failure",
+          outcomeStatus: "failed",
+          outcomeReason: "collector_returned_no_owner_source_attempt"
+        },
+        nonterminal: {
+          entityType: "founder",
+          entityId: "founder-nonterminal",
+          outcomeStatus: "running",
+          outcomeReason: null
+        }
+      },
+      source: {
+        discovery: {
+          searchFailures: [{ error: "HTTP 503 unavailable" }],
+          sourceChecks: [{
+            entityType: "founder",
+            entityId: "founder-alternate",
+            sourceKind: "official_profile",
+            status: "failed",
+            error: "Official source fetch failed: 404 Not Found"
+          }, {
+            entityType: "founder",
+            entityId: "founder-alternate",
+            sourceKind: "official_website",
+            status: "checked_empty",
+            error: null
+          }, {
+            entityType: "founder",
+            entityId: "founder-all-source-failure",
+            sourceKind: "official_profile",
+            status: "failed",
+            error: "Official source fetch failed: 404 Not Found"
+          }, {
+            entityType: "founder",
+            entityId: "founder-nonterminal",
+            sourceKind: "official_profile",
+            status: "failed",
+            error: "Official source fetch failed: 404 Not Found"
+          }, {
+            entityType: "founder",
+            entityId: "founder-nonterminal",
+            sourceKind: "official_website",
+            status: "found_candidates",
+            error: null
+          }, {
+            entityType: "company",
+            entityId: "company-transport",
+            sourceKind: "official_profile",
+            status: "failed",
+            error: "fetch failed: ECONNRESET"
+          }, {
+            entityType: "company",
+            entityId: "company-rate-limit",
+            sourceKind: "official_website",
+            status: "failed",
+            error: "HTTP 429 rate limit"
+          }]
+        }
+      }
+    };
+
+    const failures = autonomousCollectorRetryableFailures(snapshot);
+    assert.equal(failures.length, 7);
+    assert.equal(failures.filter((failure) => /404 Not Found/.test(failure)).length, 2);
+    assert.ok(failures.includes("fetch failed: ECONNRESET"));
+    assert.ok(failures.includes("HTTP 429 rate limit"));
+    assert.ok(failures.includes("HTTP 503 unavailable"));
+    assert.ok(failures.includes("Public endpoint network timeout."));
+    assert.ok(failures.includes("socket hang up"));
+  });
+
+  it("requires explicit terminal outcomes for every planned GitHub and public task", () => {
+    const githubTasks = [{
+      batchSlug: "S26",
+      status: "queued",
+      platform: "github",
+      entityType: "company",
+      entitySourceKey: "company-acme",
+      account: { url: "https://github.com/acme" }
+    }, {
+      batchSlug: "S26",
+      status: "queued",
+      platform: "github",
+      entityType: "founder",
+      entitySourceKey: "founder-acme-ada",
+      account: null
+    }];
+    const githubSnapshot = {
+      accounts: [{
+        entityType: "company",
+        entityId: "company-acme",
+        githubUrl: "https://github.com/acme",
+        fetched: false,
+        error: "404 Not Found"
+      }],
+      attempts: {
+        founder: {
+          entityType: "founder",
+          entityId: "founder-acme-ada",
+          outcomeStatus: "failed",
+          outcomeReason: "collector_returned_no_owner_source_attempt"
+        }
+      }
+    };
+    const githubCoverage = summarizeAutonomousCollectorTerminalTaskCoverage(githubSnapshot, {
+      kind: "github",
+      batchSlug: "S26",
+      tasks: githubTasks
+    });
+    assert.equal(githubCoverage.expected, 2);
+    assert.equal(githubCoverage.terminal, 2);
+    assert.equal(githubCoverage.byStatus.failed, 2);
+
+    const publicTasks = [{
+      batchSlug: "S26",
+      status: "queued",
+      platform: "linkedin",
+      entityType: "founder",
+      entitySourceKey: "founder-acme-ada",
+      account: { url: "https://linkedin.com/in/ada" }
+    }, {
+      batchSlug: "S26",
+      status: "queued",
+      platform: "x",
+      entityType: "company",
+      entitySourceKey: "company-acme",
+      account: null
+    }];
+    const publicSnapshot = {
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: {
+        linkedin: {
+          platform: "linkedin",
+          entityType: "founder",
+          entityId: "founder-acme-ada",
+          accountUrl: "https://linkedin.com/in/ada",
+          outcomeStatus: "failed",
+          outcomeReason: "collector_reported_failure",
+          error: "Reader transport timed out."
+        },
+        x: {
+          platform: "x",
+          entityType: "company",
+          entityId: "company-acme",
+          accountUrl: null,
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_checked_blocked_or_empty"
+        }
+      }
+    };
+    const publicCoverage = summarizeAutonomousCollectorTerminalTaskCoverage(publicSnapshot, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks: [...githubTasks, ...publicTasks]
+    });
+    assert.equal(publicCoverage.expected, 2);
+    assert.equal(publicCoverage.terminal, 2);
+    assert.equal(publicCoverage.nonTerminal, 0);
+
+    publicSnapshot.attempts.x.outcomeStatus = "running";
+    publicSnapshot.attempts.x.outcomeReason = null;
+    const partialCoverage = summarizeAutonomousCollectorTerminalTaskCoverage(publicSnapshot, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks: publicTasks
+    });
+    assert.equal(partialCoverage.terminal, 1);
+    assert.equal(partialCoverage.nonTerminal, 1);
+    assert.equal(
+      partialCoverage.nonTerminalTaskSamples[0].reason,
+      "collector_returned_no_entity_attempt"
+    );
+  });
+
   it("does not count review candidates or failures as successful public output", () => {
     assert.equal(countSuccessfulAutonomousCollectorRows({
       evidence: [
-        { id: "evidence-1", review_state: "verified" },
+        { id: "evidence-1", review_state: "verified", nativeId: "post-1" },
         { id: "quarantined-1", review_state: "needs_review" }
       ],
       needsReview: [{ id: "review-1" }, { id: "review-2" }],
@@ -190,6 +879,16 @@ describe("autonomous collector task accounting", () => {
       failures: []
     }, "public"), 0);
     assert.equal(countSuccessfulAutonomousCollectorRows({
+      evidence: [{
+        id: "profile-only",
+        platform: "x",
+        sourceUrl: "https://x.com/acme",
+        review_state: "verified"
+      }],
+      needsReview: [],
+      failures: []
+    }, "public"), 0);
+    assert.equal(countSuccessfulAutonomousCollectorRows({
       accounts: [{ fetched: true }, { fetched: false }, { fetched: true }]
     }, "github"), 2);
   });
@@ -200,13 +899,20 @@ describe("autonomous collector task accounting", () => {
         platform: "x",
         entityType: "company",
         entityId: "company-has-evidence",
-        review_state: "verified"
+        review_state: "verified",
+        nativeId: "status-42"
       }, {
         platform: "web",
         entityType: "company",
         entityId: "company-quarantined-evidence",
         review_state: "needs_review",
         matchReason: "Context row requires review."
+      }, {
+        platform: "x",
+        entityType: "company",
+        entityId: "company-profile-only",
+        sourceUrl: "https://x.com/profileonly",
+        review_state: "verified"
       }],
       needsReview: [{
         platform: "linkedin",
@@ -219,6 +925,26 @@ describe("autonomous collector task accounting", () => {
         entityType: "company",
         entityId: "company-failed",
         message: "Collector was blocked."
+      }, {
+        platform: "youtube",
+        entityType: "company",
+        entityId: "company-youtube-empty",
+        message: "No visible native YouTube videos were exposed on the mapped account."
+      }, {
+        platform: "x",
+        entityType: "company",
+        entityId: "company-invalid-mapping",
+        message: "Invalid URL mapping: host did not match x.com."
+      }, {
+        platform: "linkedin",
+        entityType: "company",
+        entityId: "company-login-wall",
+        message: "LinkedIn login wall blocked the public page."
+      }, {
+        platform: "reddit",
+        entityType: "company",
+        entityId: "company-rate-blocked",
+        message: "Public endpoint rate limited the request (429)."
       }]
     }, { kind: "public", batchSlug: "S26" });
 
@@ -233,6 +959,11 @@ describe("autonomous collector task accounting", () => {
       entityId: "company-quarantined-evidence"
     }), { status: "needs_review", reason: "collector_needs_review" });
     assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-profile-only"
+    }), { status: "blocked_or_empty", reason: "collector_context_only" });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
       platform: "linkedin",
       entityType: "founder",
       entityId: "founder-review-only"
@@ -241,12 +972,32 @@ describe("autonomous collector task accounting", () => {
       platform: "youtube",
       entityType: "company",
       entityId: "company-failed"
+    }), { status: "blocked_or_empty", reason: "collector_checked_blocked_or_empty" });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "youtube",
+      entityType: "company",
+      entityId: "company-youtube-empty"
+    }), { status: "blocked_or_empty", reason: "collector_checked_blocked_or_empty" });
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "x",
+      entityType: "company",
+      entityId: "company-invalid-mapping"
     }), { status: "failed", reason: "collector_reported_failure" });
+    for (const [platform, entityId] of [
+      ["linkedin", "company-login-wall"],
+      ["reddit", "company-rate-blocked"]
+    ]) {
+      assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+        platform,
+        entityType: "company",
+        entityId
+      }).status, "blocked_or_empty");
+    }
     assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
       platform: "reddit",
       entityType: "company",
       entityId: "company-empty"
-    }), { status: "blocked_or_empty", reason: "collector_returned_no_entity_rows" });
+    }), { status: "failed", reason: "collector_returned_no_entity_attempt" });
   });
 
   it("prefers validated evidence over review and failure rows for the same task", () => {
@@ -255,7 +1006,7 @@ describe("autonomous collector task accounting", () => {
       entityType: "company",
       entityId: "company-mixed"
     };
-    const row = { ...task };
+    const row = { ...task, nativeId: "status-42" };
     const index = indexAutonomousCollectorTaskOutcomes({
       evidence: [row],
       needsReview: [{ ...row, matchReason: "Secondary candidate needs review." }],
@@ -266,6 +1017,51 @@ describe("autonomous collector task accounting", () => {
       status: "completed",
       reason: "collector_evidence_collected"
     });
+  });
+
+  it("keeps outcomes isolated for multiple accounts owned by the same entity and platform", () => {
+    const entity = {
+      platform: "x",
+      entityType: "founder",
+      entityId: "founder-eden-robotics-stamatios-floratos-1956825"
+    };
+    const index = indexAutonomousCollectorTaskOutcomes({
+      evidence: [{
+        ...entity,
+        accountUrl: "https://x.com/cybermetheus",
+        sourceUrl: "https://x.com/cybermetheus/status/42",
+        nativeId: "42",
+        review_state: "verified"
+      }],
+      needsReview: [],
+      failures: [],
+      attempts: {
+        primary: {
+          ...entity,
+          accountUrl: "https://x.com/cybermetheus",
+          status: "done",
+          outcomeStatus: "completed",
+          outcomeReason: "collector_evidence_collected"
+        },
+        alias: {
+          ...entity,
+          accountUrl: "https://x.com/StamatisTWIY",
+          status: "done",
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_checked_blocked_or_empty"
+        }
+      }
+    }, { kind: "public", batchSlug: "S2026" });
+
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      ...entity,
+      accountUrl: "https://x.com/cybermetheus"
+    }).status, "completed");
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      ...entity,
+      accountUrl: "https://x.com/StamatisTWIY"
+    }).status, "blocked_or_empty");
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, entity).status, "completed");
   });
 
   it("normalizes A16Z collector IDs and marks missing or failed GitHub accounts accurately", () => {
@@ -302,7 +1098,7 @@ describe("autonomous collector task accounting", () => {
       platform: "github",
       entityType: "company",
       entityId: "a16z-speedrun-006-no-account"
-    }).status, "blocked_or_empty");
+    }).status, "failed");
     assert.deepEqual(classifyAutonomousCollectorTaskOutcome(null, {
       platform: "github",
       entityType: "company",
@@ -310,6 +1106,65 @@ describe("autonomous collector task accounting", () => {
       collectorOk: false,
       collectorError: "Process exited 1."
     }), { status: "failed", reason: "Process exited 1." });
+  });
+
+  it("does not let one GitHub account outcome satisfy another account for the same owner", () => {
+    const index = indexAutonomousCollectorTaskOutcomes({
+      accounts: [{
+        entityType: "company",
+        entityId: "company-acme",
+        githubUrl: "https://github.com/acme/working",
+        fetched: true
+      }, {
+        entityType: "company",
+        entityId: "company-acme",
+        githubUrl: "https://github.com/acme-archive",
+        fetched: false,
+        error: "GitHub API unavailable."
+      }]
+    }, { kind: "github", batchSlug: "S26" });
+
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "github",
+      entityType: "company",
+      entityId: "company-acme",
+      accountUrl: "https://github.com/acme/working"
+    }).status, "completed");
+    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "github",
+      entityType: "company",
+      entityId: "company-acme",
+      accountUrl: "https://github.com/acme-archive"
+    }).status, "failed");
+  });
+
+  it("preserves an exact A16Z missing-URL founder receipt as terminal", () => {
+    const entityId = "a16z-speedrun-006-loops-ai-founder-ilker-zorluoglu";
+    const index = indexAutonomousCollectorTaskOutcomes({
+      attempts: {
+        "x:founder:a16z-speedrun-006-loops-ai-founder-ilker-zorluoglu:missing-url": {
+          batchSlug: "A16ZSR006",
+          platform: "x",
+          entityType: "founder",
+          entityId,
+          entityName: "Ilker Zorluoglu",
+          accountUrl: null,
+          status: "done",
+          outcomeStatus: "blocked_or_empty",
+          outcomeReason: "collector_checked_blocked_or_empty"
+        }
+      }
+    }, { kind: "public", batchSlug: "A16ZSR006", explicitTerminalOnly: true });
+
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
+      platform: "x",
+      entityType: "founder",
+      entityId,
+      accountUrl: null
+    }), {
+      status: "blocked_or_empty",
+      reason: "collector_checked_blocked_or_empty"
+    });
   });
 });
 
@@ -326,6 +1181,11 @@ describe("autonomous collector failure identities", () => {
       companySlug: "acceler8",
       entityName: "Chinmay Chauhan"
     }, { batchSlug: "A16ZSR006" }), "a16z-speedrun-006-acceler8-founder-chinmay-chauhan");
+    assert.equal(normalizeAutonomousFailureEntityId({
+      entityType: "founder",
+      entityId: "a16z-speedrun-006-loops-ai-founder-ilker-zorluoglu",
+      entityName: "Ilker Zorluoglu"
+    }, { batchSlug: "A16ZSR006" }), "a16z-speedrun-006-loops-ai-founder-ilker-zorluoglu");
   });
 
   it("leaves other batch entity IDs unchanged", () => {
@@ -348,6 +1208,8 @@ describe("autonomous public evidence merge", () => {
             platform: "linkedin",
             nativeId: "7999999999999999999",
             sourceUrl,
+            metrics: { reactions: 2 },
+            review_state: "verified",
             last_checked_at: "2026-07-20T12:00:00.000Z"
           },
           {
@@ -355,6 +1217,8 @@ describe("autonomous public evidence merge", () => {
             platform: "linkedin",
             nativeId: "7999999999999999999",
             sourceUrl,
+            metrics: { reactions: 2 },
+            review_state: "verified",
             last_checked_at: "2026-07-20T12:00:00.000Z"
           },
           {
@@ -362,6 +1226,8 @@ describe("autonomous public evidence merge", () => {
             platform: "linkedin",
             nativeId: "7999999999999999999",
             sourceUrl,
+            metrics: { reactions: 1 },
+            review_state: "verified",
             last_checked_at: "2026-07-19T12:00:00.000Z",
             stale: true
           }
@@ -379,42 +1245,76 @@ describe("autonomous public evidence merge", () => {
     assert.equal(merged.evidence.some((row) => row.stale), false);
   });
 
-  it("deduplicates evidence and review/failure rows while preserving the newest observation", () => {
+  it("deduplicates X, LinkedIn, and YouTube URL aliases while preserving the newest observation", () => {
     const newer = {
       source: { batchSlug: "S26" },
       evidence: [
         {
+          entityId: "company-acme",
           platform: "x",
           sourceUrl: "https://x.com/acme/status/42/",
+          platformPostId: "42",
+          metrics: { views: 20 },
+          review_state: "verified",
           last_checked_at: "2026-07-18T14:00:00.000Z",
-          marker: "new-canonical-url"
+          marker: "new-x"
         },
         {
-          platform: "github",
-          platformObjectId: "repo-7",
-          sourceUrl: "https://github.com/acme/new-location",
+          entityId: "company-acme",
+          platform: "linkedin",
+          platformPostId: "7999999999999999999",
+          sourceUrl: "https://www.linkedin.com/feed/update/urn:li:activity:7999999999999999999",
+          metrics: { reactions: 3 },
+          review_state: "verified",
           last_checked_at: "2026-07-18T13:00:00.000Z",
-          marker: "new-native-id"
+          marker: "new-linkedin"
+        },
+        {
+          entityId: "company-acme",
+          platform: "youtube",
+          platformPostId: "abcDEF123",
+          sourceUrl: "https://www.youtube.com/watch?v=abcDEF123",
+          metrics: { views: 40 },
+          review_state: "verified",
+          last_checked_at: "2026-07-18T12:00:00.000Z",
+          marker: "new-youtube"
         }
       ],
       needsReview: [{ id: "review-1", last_checked_at: "2026-07-18T12:00:00.000Z", marker: "new-review" }],
       failures: [{ id: "failure-1", checkedAt: "2026-07-18T11:00:00.000Z", marker: "new-failure" }]
     };
     const older = {
-      source: { batchSlug: "S2026" },
+      source: { batchSlug: "S26" },
       evidence: [
         {
+          entityId: "company-acme",
           platform: "twitter",
           sourceUrl: "https://www.twitter.com/acme/status/42?utm_source=old#fragment",
+          nativeId: "42",
+          metrics: { views: 10 },
+          review_state: "verified",
           last_checked_at: "2026-07-17T14:00:00.000Z",
-          marker: "old-canonical-url"
+          marker: "old-x"
         },
         {
-          platform: "github",
-          platformObjectId: "repo-7",
-          sourceUrl: "https://github.com/acme/old-location",
+          entityId: "company-acme",
+          platform: "linkedin",
+          nativeId: "7999999999999999999",
+          sourceUrl: "https://www.linkedin.com/posts/acme_activity-7999999999999999999-fixture",
+          metrics: { reactions: 1 },
+          review_state: "verified",
           last_checked_at: "2026-07-17T13:00:00.000Z",
-          marker: "old-native-id"
+          marker: "old-linkedin"
+        },
+        {
+          entityId: "company-acme",
+          platform: "youtube",
+          nativeId: "abcDEF123",
+          sourceUrl: "https://youtu.be/abcDEF123?si=old",
+          metrics: { views: 30 },
+          review_state: "verified",
+          last_checked_at: "2026-07-17T12:00:00.000Z",
+          marker: "old-youtube"
         }
       ],
       needsReview: [{ id: "review-1", last_checked_at: "2026-07-17T12:00:00.000Z", marker: "old-review" }],
@@ -433,20 +1333,97 @@ describe("autonomous public evidence merge", () => {
       failureCount: merged.source.failureCount
     }, {
       fetchedAt: "2026-07-18T15:00:00.000Z",
-      batchSlugs: ["S26", "S2026"],
-      evidenceCount: 2,
+      batchSlugs: ["S26"],
+      evidenceCount: 3,
       needsReviewCount: 1,
       failureCount: 1
     });
     assert.deepEqual({
       evidence: merged.evidence.map((row) => row.marker).sort(),
-      needsReview: merged.needsReview.map((row) => row.marker),
-      failures: merged.failures.map((row) => row.marker)
+      needsReview: merged.needsReview.map((row) => row.marker).sort(),
+      failures: merged.failures.map((row) => row.marker).sort()
     }, {
-      evidence: ["new-canonical-url", "new-native-id"],
+      evidence: ["new-linkedin", "new-x", "new-youtube"],
       needsReview: ["new-review"],
       failures: ["new-failure"]
-    }, "dedupe must compare the timestamp fields emitted by the public collector");
+    }, "dedupe must compare platform-native physical identities and collector timestamps");
+  });
+
+  it("deduplicates native aliases within a batch but never collapses the same post across batches", () => {
+    const row = {
+      entityId: "company-textsidekick",
+      platform: "x",
+      sourceUrl: "https://x.com/textsidekick/status/123456",
+      platformPostId: "123456",
+      metrics: { views: 7 },
+      review_state: "verified"
+    };
+    const merged = mergePublicEvidenceSnapshots([
+      {
+        source: { batchSlug: "S26" },
+        evidence: [
+          { ...row, sourceUrl: "https://twitter.com/textsidekick/status/123456?utm_source=a", marker: "summer-old", last_checked_at: "2026-07-19T00:00:00.000Z" },
+          { ...row, marker: "summer-new", last_checked_at: "2026-07-20T00:00:00.000Z" }
+        ]
+      },
+      {
+        source: { batchSlug: "S2026" },
+        evidence: [{ ...row, marker: "spring", last_checked_at: "2026-07-20T00:00:00.000Z" }]
+      }
+    ]);
+
+    assert.equal(merged.evidence.length, 2);
+    assert.deepEqual(
+      merged.evidence.map((item) => [item.batchSlug, item.marker]).sort(),
+      [["S2026", "spring"], ["S26", "summer-new"]]
+    );
+  });
+
+  it("resolves uniquely attributable legacy rows and quarantines ambiguous cross-batch owners", () => {
+    const resolveBatchSlug = (row) => row.entityId === "company-unique-spring" ? "S2026" : null;
+    const base = {
+      platform: "x",
+      metrics: { views: 1 },
+      review_state: "verified"
+    };
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlugs: ["S2026", "S26"] },
+      evidence: [
+        { ...base, id: "unique", entityId: "company-unique-spring", sourceUrl: "https://x.com/unique/status/200" },
+        { ...base, id: "ambiguous", entityId: "company-textsidekick", sourceUrl: "https://x.com/textsidekick/status/201" }
+      ]
+    }], { resolveBatchSlug });
+
+    assert.deepEqual(merged.evidence.map((row) => [row.id, row.batchSlug]), [["unique", "S2026"]]);
+    const ambiguous = merged.needsReview.find((row) => row.sourceEvidenceId === "ambiguous");
+    assert.ok(ambiguous.quarantineReasons.includes("missing_or_ambiguous_batch_scope"));
+  });
+
+  it("quarantines identity conflicts, non-native URLs, unsupported platforms, and metricless rows", () => {
+    const base = {
+      entityId: "company-acme",
+      platform: "x",
+      metrics: { views: 1 },
+      review_state: "verified"
+    };
+    const merged = mergePublicEvidenceSnapshots([{
+      source: { batchSlug: "S26" },
+      evidence: [
+        { ...base, id: "conflict", sourceUrl: "https://x.com/acme/status/100", platformPostId: "101" },
+        { ...base, id: "profile", sourceUrl: "https://x.com/acme" },
+        { ...base, id: "web", platform: "web", sourceUrl: "https://acme.example", metrics: {} },
+        { ...base, id: "metricless", sourceUrl: "https://x.com/acme/status/102", metrics: {} },
+        { ...base, id: "accepted", sourceUrl: "https://x.com/acme/status/103", platformPostId: "103" }
+      ]
+    }]);
+
+    assert.deepEqual(merged.evidence.map((row) => row.id), ["accepted"]);
+    assert.equal(merged.source.quarantinedEvidenceCount, 4);
+    const reasons = new Map(merged.needsReview.map((row) => [row.sourceEvidenceId, row.quarantineReasons]));
+    assert.ok(reasons.get("conflict").some((reason) => reason.startsWith("native_id_conflict:")));
+    assert.ok(reasons.get("profile").includes("not_native_activity_url"));
+    assert.ok(reasons.get("web").includes("unsupported_platform:web"));
+    assert.ok(reasons.get("metricless").includes("no_visible_positive_scoring_metrics"));
   });
 
   it("marks file-backed publication when durable Supabase import is not configured", () => {
@@ -484,7 +1461,61 @@ describe("autonomous GitHub evidence merge", () => {
     assert.equal(merged.source.retainedLastGood, 1);
     assert.deepEqual(merged.accounts.map((row) => row.marker).sort(), ["good", "new"]);
   });
+
+  it("prunes confirmed retired GitHub rows without dropping last-good active failures", () => {
+    const previous = {
+      source: { batchSlug: "A16ZSR006" },
+      accounts: [{
+        entityType: "company",
+        entityId: "a16z-speedrun-006-amdahl",
+        githubUrl: "https://github.com/amdahl-ai",
+        login: "amdahl-ai",
+        repo: null,
+        fetched: true,
+        marker: "retired"
+      }, {
+        entityType: "company",
+        entityId: "a16z-speedrun-006-amdahl",
+        githubUrl: "https://github.com/amdahlco",
+        login: "amdahlco",
+        repo: null,
+        fetched: true,
+        marker: "last-good-active"
+      }]
+    };
+    const fresh = {
+      source: {
+        batchSlug: "A16ZSR006",
+        retiredAccountMappings: [{
+          entityType: "company",
+          entityId: "a16z-speedrun-006-amdahl",
+          url: "https://github.com/amdahl-ai"
+        }]
+      },
+      accounts: [{
+        entityType: "company",
+        entityId: "a16z-speedrun-006-amdahl",
+        githubUrl: "https://github.com/amdahlco",
+        login: "amdahlco",
+        repo: null,
+        fetched: false,
+        marker: "fresh-failure"
+      }]
+    };
+    const merged = mergeGithubTractionSnapshots(previous, fresh);
+    assert.equal(merged.source.prunedRetired, 1);
+    assert.equal(merged.source.retainedLastGood, 1);
+    assert.deepEqual(merged.accounts.map((row) => row.marker), ["last-good-active"]);
+  });
 });
+
+function githubCollectorPlan(batchSlug) {
+  return JSON.parse(execFileSync(
+    process.execPath,
+    ["scripts/fetch-github-traction.mjs", `--batch=${batchSlug}`, "--plan"],
+    { cwd: repositoryRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }
+  ));
+}
 
 function summarizeCatalog(catalog) {
   return {

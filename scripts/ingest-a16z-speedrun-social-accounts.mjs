@@ -136,7 +136,6 @@ const SPEEDRUN_COMPANIES = [
 
 const SOCIAL_ACCOUNTS = [
   { companyName: "Acceler8", url: "https://www.linkedin.com/company/theacceler8" },
-  { companyName: "Amdahl", url: "https://github.com/amdahl-ai" },
   { companyName: "Amdahl", url: "https://github.com/amdahlco" },
   { companyName: "Amdahl", url: "https://www.linkedin.com/company/amdahl-ai" },
   { companyName: "Amdahl", url: "https://x.com/amdahl_ai" },

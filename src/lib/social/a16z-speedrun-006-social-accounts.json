@@ -223,10 +223,11 @@
           "platform": "github",
           "url": "https://github.com/amdahl-ai",
           "handle": "amdahl-ai",
-          "verifiedFrom": "agent_verified_native_account",
+          "verifiedFrom": "github_public_api_identity_guard",
           "evidenceUrl": "https://github.com/amdahl-ai",
-          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
-          "review_state": "verified"
+          "matchReason": "GitHub account returns 404 and is retired from the Amdahl owner inventory.",
+          "review_state": "rejected",
+          "rejectedAt": "2026-07-20T00:00:00.000Z"
         },
         {
           "platform": "github",

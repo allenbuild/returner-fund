@@ -176,6 +176,27 @@ interface A16zSecondPassProvenance {
   };
 }
 
+function canonicalSecondPassMetrics(platform: Platform, counts: Record<string, number>): Record<string, number> {
+  const metrics = { ...counts };
+  if (metrics.plays !== undefined) {
+    metrics.views = Math.max(metrics.views ?? 0, metrics.plays);
+    delete metrics.plays;
+  }
+  if (metrics.retweets !== undefined) {
+    metrics.reposts = Math.max(metrics.reposts ?? 0, metrics.retweets);
+    delete metrics.retweets;
+  }
+  if (platform === "x" && metrics.comments !== undefined) {
+    metrics.replies = Math.max(metrics.replies ?? 0, metrics.comments);
+    delete metrics.comments;
+  }
+  if (platform === "x" && metrics.saves !== undefined) {
+    metrics.bookmarks = Math.max(metrics.bookmarks ?? 0, metrics.saves);
+    delete metrics.saves;
+  }
+  return metrics;
+}
+
 const a16zSocialSeedSnapshot = socialAccountSeedSnapshot as A16zSocialSeedSnapshot;
 
 describe("a16z speedrun 006 dataset", () => {
@@ -248,6 +269,35 @@ describe("a16z speedrun 006 dataset", () => {
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("product_hunt")).toBe(true);
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("hacker_news")).toBe(true);
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("bilibili")).toBe(true);
+  });
+
+  it("scores Quanto only from the exact founder post, not its Product Hunt product profile", () => {
+    const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
+    const productProfile = graph.evidence.find(
+      (item) => item.sourceUrl === "https://www.producthunt.com/products/quanto"
+    );
+    const founderPost = graph.evidence.find(
+      (item) => item.platformPostId === "7453449486699290624"
+    );
+    const quanto = graph.nodes.find(
+      (node) => node.entityType === "company" && node.entityId === "a16z-speedrun-006-quanto"
+    );
+
+    expect(productProfile).toEqual(expect.objectContaining({
+      platform: "product_hunt",
+      contributionScore: 0
+    }));
+    expect(productProfile?.why).toContain("not_native_evidence");
+    expect(scoringEligibility(productProfile!)).toEqual({ eligible: false, reason: "upstream_excluded" });
+    expect(founderPost).toEqual(expect.objectContaining({
+      entityType: "founder",
+      entityId: "a16z-speedrun-006-quanto-founder-anderson-petergeorge",
+      platform: "linkedin",
+      accountUrl: "https://www.linkedin.com/in/andersonpetergeorge",
+      metrics: { reactions: 70, comments: 18 }
+    }));
+    expect(scoringEligibility(founderPost!)).toEqual({ eligible: true, reason: "eligible" });
+    expect(quanto?.score).toBeGreaterThan(0);
   });
 
   it("links founders to Speedrun company profiles without using Speedrun URLs as social accounts", () => {
@@ -717,7 +767,7 @@ describe("a16z speedrun 006 dataset", () => {
           platformPostId: nativePostId,
           sourceUrl: provenance.post.url,
           review_state: "verified",
-          metrics: expect.objectContaining(provenance.counts)
+          metrics: expect.objectContaining(canonicalSecondPassMetrics(item.platform, provenance.counts))
         })
       );
       expect(item.accountUrl?.replace(/\/$/, "")).toBe(provenance.profile.url.replace(/\/$/, ""));

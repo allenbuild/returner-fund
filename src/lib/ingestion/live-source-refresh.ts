@@ -35,6 +35,8 @@ export interface LiveRefreshStageLog {
 
 export interface LiveEvidenceRecord {
   id: string;
+  batchSlug?: string;
+  batch_slug?: string;
   entityType: "company" | "founder";
   entityId: string;
   companyName: string;
@@ -787,12 +789,15 @@ async function loadXTargets(
   log: (entry: Omit<LiveRefreshStageLog, "at">) => void
 ): Promise<XTarget[]> {
   const targets: XTarget[] = [];
-  const snapshots = await Promise.all([
-    readBatchSnapshot(join(rootDir, "src", "lib", "yc", "summer-2026-companies.json"), "S26", log),
-    readBatchSnapshot(join(rootDir, "src", "lib", "yc", "spring-2026-companies.json"), "S2026", log)
-  ]);
-  const verifiedSocialOverrides = await readVerifiedSocialOverrides(rootDir, log);
   const selectedBatchSlugs = new Set(batchSlugs);
+  const ycSnapshotSpecs = [
+    { path: join(rootDir, "src", "lib", "yc", "summer-2026-companies.json"), slug: "S26" },
+    { path: join(rootDir, "src", "lib", "yc", "spring-2026-companies.json"), slug: "S2026" }
+  ].filter(({ slug }) => selectedBatchSlugs.has(slug));
+  const snapshots = await Promise.all(
+    ycSnapshotSpecs.map(({ path, slug }) => readBatchSnapshot(path, slug, log))
+  );
+  const verifiedSocialOverrides = await readVerifiedSocialOverrides(rootDir, log);
 
   for (const { slug, snapshot } of snapshots) {
     if (!selectedBatchSlugs.has(slug)) {
@@ -840,13 +845,16 @@ async function readVerifiedSocialOverrides(
       VerifiedSocialOverride
     >;
   } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown error";
     log({
       stage: "failed",
       platform: "all",
       reason: "verified_social_overrides_read_failed",
-      message: `Could not read verified social overrides: ${error instanceof Error ? error.message : "unknown error"}.`
+      message: `Could not read verified social overrides: ${message}.`
     });
-    return {};
+    throw new Error(
+      `Required canonical verified social overrides could not be read at ${join(rootDir, VERIFIED_SOCIAL_OVERRIDES_PATH)}: ${message}`
+    );
   }
 }
 
@@ -859,13 +867,14 @@ async function readBatchSnapshot(
     const snapshot = JSON.parse(await readFile(path, "utf8")) as RawSnapshot;
     return { slug, snapshot };
   } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown error";
     log({
       stage: "failed",
       platform: "all",
       reason: "batch_snapshot_read_failed",
-      message: `Could not read ${slug} batch snapshot: ${error instanceof Error ? error.message : "unknown error"}.`
+      message: `Could not read ${slug} batch snapshot: ${message}.`
     });
-    return { slug, snapshot: { companies: [] } };
+    throw new Error(`Required canonical ${slug} batch snapshot could not be read at ${path}: ${message}`);
   }
 }
 
@@ -878,13 +887,14 @@ async function readA16zSocialAccountSnapshot(
     const snapshot = JSON.parse(await readFile(snapshotPath, "utf8")) as A16zSocialAccountSnapshot;
     return { companies: Array.isArray(snapshot.companies) ? snapshot.companies : [] };
   } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown error";
     log({
       stage: "failed",
       platform: "all",
       reason: "a16z_social_account_snapshot_read_failed",
-      message: `Could not read A16Z social account snapshot: ${error instanceof Error ? error.message : "unknown error"}.`
+      message: `Could not read A16Z social account snapshot: ${message}.`
     });
-    return { companies: [] };
+    throw new Error(`Required canonical A16Z social account snapshot could not be read at ${snapshotPath}: ${message}`);
   }
 }
 
@@ -1125,11 +1135,14 @@ async function loadCompanyMatchTargets(
   log: (entry: Omit<LiveRefreshStageLog, "at">) => void
 ): Promise<CompanyMatchTarget[]> {
   const targets: CompanyMatchTarget[] = [];
-  const snapshots = await Promise.all([
-    readBatchSnapshot(join(rootDir, "src", "lib", "yc", "summer-2026-companies.json"), "S26", log),
-    readBatchSnapshot(join(rootDir, "src", "lib", "yc", "spring-2026-companies.json"), "S2026", log)
-  ]);
   const selectedBatchSlugs = new Set(batchSlugs);
+  const ycSnapshotSpecs = [
+    { path: join(rootDir, "src", "lib", "yc", "summer-2026-companies.json"), slug: "S26" },
+    { path: join(rootDir, "src", "lib", "yc", "spring-2026-companies.json"), slug: "S2026" }
+  ].filter(({ slug }) => selectedBatchSlugs.has(slug));
+  const snapshots = await Promise.all(
+    ycSnapshotSpecs.map(({ path, slug }) => readBatchSnapshot(path, slug, log))
+  );
 
   for (const { slug, snapshot } of snapshots) {
     if (!selectedBatchSlugs.has(slug)) {
@@ -1930,6 +1943,7 @@ function xTweetToEvidenceRecord(
 
   return {
     id: `live-x-${target.entityType}-${slugify(target.companyName)}-${postId}`,
+    batchSlug: target.batchSlug,
     entityType: target.entityType,
     entityId: target.entityId,
     companyName: target.companyName,
@@ -1995,6 +2009,7 @@ function topVoiceTweetToEvidenceRecord(
 
   return {
     id: `live-x-top-voice-${target.member.personId}-${slugify(match.companyName)}-${postId}`,
+    batchSlug: match.batchSlug,
     entityType: "company",
     entityId: match.entityId,
     companyName: match.companyName,
@@ -2870,7 +2885,28 @@ function evidenceFreshness(item: LiveEvidenceRecord): number {
 }
 
 function evidenceKey(item: LiveEvidenceRecord): string {
-  return `${item.entityId}:${item.platform}:${item.platformPostId ?? item.sourceUrl}`;
+  const batchSlug = item.batchSlug ?? item.batch_slug ?? liveEvidenceBatchSlug(item) ?? "legacy-unscoped";
+  const explicitPostId = String(item.platformPostId ?? "").trim();
+  const nativeXReference = item.platform === "x" ? parseNativeXStatusReference(item.sourceUrl) : null;
+  const physicalIdentity = nativeXReference && explicitPostId && nativeXReference.postId !== explicitPostId
+    ? `identity-conflict:${nativeXReference.postId}:${explicitPostId}:${item.id}`
+    : nativeXReference?.postId
+      ?? explicitPostId
+      ?? canonicalEvidenceUrl(item.sourceUrl);
+  return `${batchSlug}:${item.entityType}:${item.entityId}:${item.platform}:${physicalIdentity}`;
+}
+
+function canonicalEvidenceUrl(rawUrl: string): string {
+  try {
+    const url = new URL(rawUrl);
+    url.hash = "";
+    url.search = "";
+    url.hostname = url.hostname.replace(/^www\./, "").toLowerCase();
+    url.pathname = url.pathname.replace(/\/+$/, "") || "/";
+    return url.toString();
+  } catch {
+    return rawUrl.trim();
+  }
 }
 
 function batchSlugExpansion(batchSlug: string | undefined): string[] {

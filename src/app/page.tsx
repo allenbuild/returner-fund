@@ -5,6 +5,8 @@ import { findCohort, getCatalog, type PublicCohort } from "@/lib/seo/catalog";
 import { publicMetadata, SITE_NAME, truncateDescription } from "@/lib/seo/site";
 import type { Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
+import { COMPANY_VERTICALS, isCompanyVertical, type CompanyVertical } from "@/lib/graph/company-verticals";
+import { POST_TOPIC_SLUGS, isPostTopic, type PostTopic } from "@/lib/graph/post-topics";
 
 const DEFAULT_BATCH_SLUG = "S2026";
 const queryPlatforms: Platform[] = [
@@ -62,12 +64,16 @@ export default async function Home({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {};
   const cohort = selectedCohort(singleQueryValue(params.batch));
   const platforms = parsePlatformList(singleQueryValue(params.platforms));
+  const topics = parseTopicList(singleQueryValue(params.topics));
+  const verticals = parseVerticalList(singleQueryValue(params.verticals));
   const topVoices = normalizeTopVoiceAudienceId(singleQueryValue(params.topVoices));
 
   return (
     <HomeContent
       selectedBatchSlug={cohort.batchSlug}
       platforms={platforms}
+      topics={topics}
+      verticals={verticals}
       topVoices={topVoices}
       manualRefreshEnabled={process.env.NODE_ENV !== "production"}
     />
@@ -77,11 +83,15 @@ export default async function Home({ searchParams }: PageProps) {
 function HomeContent({
   selectedBatchSlug,
   platforms,
+  topics,
+  verticals,
   topVoices,
   manualRefreshEnabled
 }: {
   selectedBatchSlug: string;
   platforms: Platform[];
+  topics: PostTopic[];
+  verticals: CompanyVertical[];
   topVoices: TopVoiceAudienceId;
   manualRefreshEnabled: boolean;
 }) {
@@ -90,7 +100,7 @@ function HomeContent({
       <Dashboard
         initialBatchSlug={selectedBatchSlug}
         initialTopVoiceAudience={topVoices}
-        initialFilters={{ platforms }}
+        initialFilters={{ platforms, topics, verticals }}
         manualRefreshEnabled={manualRefreshEnabled}
       />
       <HomeStructuredData />
@@ -116,4 +126,14 @@ function parsePlatformList(value: string | undefined): Platform[] {
 
   const allowed = new Set(queryPlatforms);
   return [...new Set(value.split(",").map((item) => item.trim()).filter((item): item is Platform => allowed.has(item as Platform)))];
+}
+
+function parseTopicList(value: string | undefined): PostTopic[] {
+  const selected = new Set((value ?? "").split(",").map((item) => item.trim()).filter(isPostTopic));
+  return POST_TOPIC_SLUGS.filter((topic) => selected.has(topic));
+}
+
+function parseVerticalList(value: string | undefined): CompanyVertical[] {
+  const selected = new Set((value ?? "").split(",").map((item) => item.trim()).filter(isCompanyVertical));
+  return COMPANY_VERTICALS.map(({ slug }) => slug).filter((vertical) => selected.has(vertical));
 }

@@ -1,0 +1,109 @@
+{
+  "companyAggregation": {
+    "reason": "No registered entity-level future-outcome target is present. Post probabilities are not manually pooled into a company score.",
+    "status": "unsupported"
+  },
+  "displayName": "V5 future high-performance forecast",
+  "featureSchemaVersion": "scoring-v5-features-v3",
+  "limitations": [
+    "The acceptance gate did not pass; this artifact must not replace the v4 production baseline.",
+    "Predictive associations are not causal estimates of company quality or investment outcomes.",
+    "Per-prediction uncertainty intervals are unsupported; bootstrap intervals cover held-out aggregate performance only.",
+    "Company aggregation remains unsupported until an entity-level future-outcome dataset is registered.",
+    "Unscored platforms: x, linkedin, instagram, github, product_hunt, youtube, reddit, hacker_news, bilibili, tiktok, bluesky, rss, web."
+  ],
+  "modelId": "traction-post-forecast-v5",
+  "platformModels": {},
+  "schemaVersion": "scoring-v5-model-artifact-v2",
+  "selectionProtocol": "Frozen finite grid; validation NDCG@50 descending, validation log loss ascending, complexity ascending, stable candidate id; Platt calibration on validation only; final test opened after selection. The pre-registered one-standard-error refinement is not implemented, so acceptance is blocked.",
+  "splitHash": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "status": "rejected_insufficient_data",
+  "supportedPlatforms": [],
+  "target": {
+    "description": "Probability that a physical native object exceeds its platform training-set 80th-percentile log counter growth at the registered future horizon, using only values available at t0.",
+    "id": "returner-post-performance-v5-prereg-2026-07-20",
+    "observationRule": "features_at_or_before_observation_time",
+    "outcome": "binary_high_performance_at_horizon",
+    "platformTargets": {
+      "bilibili": {
+        "horizonHours": 168,
+        "targetMetric": "views",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 12
+      },
+      "github": {
+        "horizonHours": 672,
+        "targetMetric": "stars",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 24
+      },
+      "hacker_news": {
+        "horizonHours": 168,
+        "targetMetric": "points",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 12
+      },
+      "instagram": {
+        "horizonHours": 168,
+        "targetMetric": "plays",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 12
+      },
+      "linkedin": {
+        "horizonHours": 168,
+        "targetMetric": "impressions",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 12
+      },
+      "product_hunt": {
+        "horizonHours": 168,
+        "targetMetric": "upvotes",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 12
+      },
+      "reddit": {
+        "horizonHours": 168,
+        "targetMetric": "upvotes",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 12
+      },
+      "x": {
+        "horizonHours": 168,
+        "targetMetric": "views",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 12
+      },
+      "youtube": {
+        "horizonHours": 168,
+        "targetMetric": "views",
+        "thresholdQuantile": 0.8,
+        "toleranceHours": 12
+      }
+    },
+    "thresholdDefinition": "For each platform, use the deterministic nearest-rank 80th percentile of training-only log1p native-counter growth; apply strict greater-than to training, validation, and test."
+  },
+  "trainedAt": "2026-07-20T00:00:00.000Z",
+  "trainingDataHash": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "trainingManifestHash": "10e52cd8f32ef6ef0aac762b0a8d35af3ae164df8ad71a9036c81fbac3347e0a",
+  "trainingPlatformGrowthThresholds": {},
+  "uncertainty": {
+    "method": "fixed_seed_paired_bootstrap_evaluation_only",
+    "perPredictionIntervals": false
+  },
+  "unsupportedPlatforms": [
+    "x",
+    "linkedin",
+    "instagram",
+    "github",
+    "product_hunt",
+    "youtube",
+    "reddit",
+    "hacker_news",
+    "bilibili",
+    "tiktok",
+    "bluesky",
+    "rss",
+    "web"
+  ],
+  "version": "5.0.0-research"
+}

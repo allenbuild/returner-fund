@@ -7,13 +7,20 @@ import {
   inheritCanonicalCompanyScoring
 } from "@/lib/graph/benchmarks";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
+import {
+  COMPANY_VERTICALS,
+  isCompanyVertical,
+  type CompanyVertical
+} from "@/lib/graph/company-verticals";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
+import { enrichGraphTaxonomies } from "@/lib/graph/graph-taxonomies";
 import {
   getOrBuildCachedGraphResponse,
   type GraphResponseCacheScope
 } from "@/lib/graph/graph-response-cache";
 import { datasetWithLiveEvidence, liveEvidenceCacheVersion } from "@/lib/graph/live-evidence-dataset";
 import { overlayLiveEvidenceOnGraph } from "@/lib/graph/live-evidence-overlay";
+import { POST_TOPIC_SLUGS, isPostTopic, type PostTopic } from "@/lib/graph/post-topics";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
 import { loadLiveEvidenceRecords } from "@/lib/ingestion/live-source-refresh";
@@ -89,6 +96,28 @@ const businessModelListSchema = commaSeparatedValuesSchema.pipe(
     .max(businessModels.length)
     .refine((values) => new Set(values).size === values.length, { message: "Values must be unique." })
 );
+const postTopicSchema = z.custom<PostTopic>(
+  (value) => typeof value === "string" && isPostTopic(value),
+  { message: `Must be one of: ${POST_TOPIC_SLUGS.join(", ")}.` }
+);
+const companyVerticalSchema = z.custom<CompanyVertical>(
+  (value) => typeof value === "string" && isCompanyVertical(value),
+  { message: `Must be one of: ${COMPANY_VERTICALS.map(({ slug }) => slug).join(", ")}.` }
+);
+const topicListSchema = commaSeparatedValuesSchema.pipe(
+  z
+    .array(postTopicSchema)
+    .min(1)
+    .max(POST_TOPIC_SLUGS.length)
+    .refine((values) => new Set(values).size === values.length, { message: "Values must be unique." })
+);
+const verticalListSchema = commaSeparatedValuesSchema.pipe(
+  z
+    .array(companyVerticalSchema)
+    .min(1)
+    .max(COMPANY_VERTICALS.length)
+    .refine((values) => new Set(values).size === values.length, { message: "Values must be unique." })
+);
 const looseListSchema = commaSeparatedValuesSchema.pipe(
   z
     .array(z.string().min(1).max(120))
@@ -119,14 +148,15 @@ const graphQuerySchema = z.object({
   minScore: minScoreSchema.optional(),
   industries: looseListSchema.optional(),
   groupPartners: looseListSchema.optional(),
+  topics: topicListSchema.optional(),
+  verticals: verticalListSchema.optional(),
   businessModels: businessModelListSchema.optional(),
   q: z.string().trim().min(1).max(200).optional(),
   topVoices: z.enum(topVoiceAudiences).default("off"),
   includeRaw: booleanQuerySchema.default(false),
   includeNonScoring: booleanQuerySchema.default(false),
   includeWhy: booleanQuerySchema.default(false)
-});
-const graphQueryParameterNames = Object.keys(graphQuerySchema.shape);
+}).strict();
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
@@ -148,6 +178,8 @@ export async function GET(request: Request) {
     minScore: query.minScore,
     industries: query.industries,
     groupPartners: query.groupPartners,
+    topics: query.topics,
+    verticals: query.verticals,
     businessModels: query.businessModels,
     query: query.q,
     topVoices: query.topVoices
@@ -208,10 +240,12 @@ export async function GET(request: Request) {
             ),
             canonicalGraph
           );
-      const filteredGraph = applyClientGraphFilters(graphForAudience, {
+      const filteredGraph = applyClientGraphFilters(enrichGraphTaxonomies(graphForAudience), {
         platforms: filters.platforms ?? [],
         industries: filters.industries ?? [],
         groupPartners: filters.groupPartners ?? [],
+        topics: filters.topics ?? [],
+        verticals: filters.verticals ?? [],
         minScore: filters.minScore ?? 0,
         businessModels: filters.businessModels ?? [],
         edgeTypes: filters.edgeTypes ?? [],
@@ -268,7 +302,7 @@ function isMissingLiveEvidenceSnapshotError(error: unknown): boolean {
 
 function graphQueryInput(params: URLSearchParams): Record<string, unknown> {
   const input: Record<string, unknown> = {};
-  for (const name of graphQueryParameterNames) {
+  for (const name of new Set(params.keys())) {
     const values = params.getAll(name);
     if (values.length === 1) {
       input[name] = values[0];

@@ -7,6 +7,11 @@ describe("GET /api/graph query validation", () => {
     ["empty platforms", "platforms=", "platforms.0"],
     ["businessModels", "businessModels=b2b,subscription", "businessModels.1"],
     ["empty businessModels", "businessModels=", "businessModels.0"],
+    ["topics", "topics=traction,viral-magic", "topics.1"],
+    ["empty topics", "topics=", "topics.0"],
+    ["verticals", "verticals=ai-agents,moon-mining", "verticals.1"],
+    ["empty verticals", "verticals=", "verticals.0"],
+    ["unknown query parameter", "madeUpFilter=value", "query"],
     ["edgeTypes", "edgeTypes=founder_of,follows", "edgeTypes.1"],
     ["empty edgeTypes", "edgeTypes=", "edgeTypes.0"],
     ["topVoices", "topVoices=everyone", "topVoices"],
@@ -22,7 +27,9 @@ describe("GET /api/graph query validation", () => {
     ["empty industry list member", "industries=fintech,,consumer", "industries.1"],
     ["empty group-partner list member", "groupPartners=Partner%20A,", "groupPartners.1"],
     ["blank search query", "q=%20%20", "q"],
-    ["repeated typed parameter", "platforms=github&platforms=x", "platforms"]
+    ["repeated typed parameter", "platforms=github&platforms=x", "platforms"],
+    ["repeated topic parameter", "topics=traction&topics=hiring", "topics"],
+    ["repeated vertical parameter", "verticals=fintech&verticals=payments", "verticals"]
   ])("returns a structured 400 for invalid %s values", async (_name, search, errorPath) => {
     const response = await GET(new Request(`http://localhost/api/graph?${search}`));
     const body = await response.json();
@@ -38,6 +45,18 @@ describe("GET /api/graph query validation", () => {
     expect(body.error.details).toEqual(
       expect.arrayContaining([expect.objectContaining({ path: errorPath })])
     );
+  });
+
+  it("accepts canonical Topic and Vertical slugs", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/graph?batch=S2026&topics=traction&verticals=ai-agents")
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.evidence.every((item: { topics?: string[] }) => item.topics?.includes("traction"))).toBe(true);
+    expect(body.nodes.filter((node: { entityType: string }) => node.entityType === "company").every(
+      (node: { verticals?: string[] }) => node.verticals?.includes("ai-agents")
+    )).toBe(true);
   });
 
   it("preserves absent parameters and accepts explicit false boolean values", async () => {

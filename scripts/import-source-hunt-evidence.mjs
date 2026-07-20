@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import { readFile, rename, writeFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
+import {
+  publicationTimesCompatible,
+  sourceContentIdentity
+} from "./lib/source-content-identity.mjs";
 
 const DISPLAY_METRICS = {
   github: new Set(["stars", "forks", "recent_commits_30d", "issues", "watchers", "subscribers"]),
@@ -61,22 +65,14 @@ const existingRows = Array.isArray(target.evidence) ? target.evidence : [];
 const externalRows = await existingExternalEvidence(externalEvidenceRoot);
 const rowsByIdentity = new Map();
 const rowsByUrl = new Map();
+const rowsByContent = new Map();
+const sourceByRow = new WeakMap();
 
-for (const row of externalRows) {
-  const normalized = normalizedIdentity(row);
-  const entityId = canonicalEntityId(row, entitiesById, targetKind);
-  const identityKey = attributedIdentityKey(normalized.identity, entityId);
-  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId);
-  if (identityKey) rowsByIdentity.set(identityKey, row);
-  if (urlKey) rowsByUrl.set(urlKey, row);
+for (const entry of externalRows) {
+  indexEvidenceRow(entry.row, entry.source);
 }
-for (const row of existingRows) {
-  const normalized = normalizedIdentity(row);
-  const entityId = canonicalEntityId(row, entitiesById, targetKind);
-  const identityKey = attributedIdentityKey(normalized.identity, entityId);
-  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId);
-  if (identityKey) rowsByIdentity.set(identityKey, row);
-  if (urlKey) rowsByUrl.set(urlKey, row);
+for (const [index, row] of existingRows.entries()) {
+  indexEvidenceRow(row, `${relativePath(targetPath)}#evidence[${index}]`);
 }
 
 const audit = {
@@ -139,10 +135,9 @@ for (const [inputIndex, input] of inputs.entries()) {
       continue;
     }
 
-    const identityKey = attributedIdentityKey(result.identity, result.entityId);
-    const urlKey = attributedIdentityKey(result.urlIdentity, result.entityId);
-    const existing = rowsByIdentity.get(identityKey) ?? rowsByUrl.get(urlKey);
-    if (existing) {
+    const duplicate = findDuplicate(result.row, result.entityId);
+    if (duplicate) {
+      const existing = duplicate.row;
       audit.duplicates += 1;
       audit.duplicateRows.push({
         input: relativePath(inputPaths[inputIndex]),
@@ -150,8 +145,20 @@ for (const [inputIndex, input] of inputs.entries()) {
         platform: result.row.platform,
         sourceUrl: result.row.sourceUrl,
         platformPostId: result.row.platformPostId,
+        duplicateReason: duplicate.reason,
+        existingSource: sourceByRow.get(existing) ?? null,
         existingId: cleanString(existing.id),
-        existingEntityId: canonicalEntityId(existing, entitiesById, targetKind)
+        existingEntityId: canonicalEntityId(existing, entitiesById, targetKind),
+        existingSourceUrl: canonicalUrl(existing.sourceUrl ?? existing.url ?? existing.canonicalUrl),
+        ...(duplicate.contentIdentity
+          ? {
+              contentBodySha256: duplicate.contentIdentity.bodySha256,
+              incomingPublishedAt: duplicate.incomingContentIdentity.publishedAt,
+              incomingPublicationPrecision: duplicate.incomingContentIdentity.publicationPrecision,
+              existingPublishedAt: duplicate.contentIdentity.publishedAt,
+              existingPublicationPrecision: duplicate.contentIdentity.publicationPrecision
+            }
+          : {})
       });
       const index = existingRows.indexOf(existing);
       if (index < 0) {
@@ -167,6 +174,7 @@ for (const [inputIndex, input] of inputs.entries()) {
           reasons: ["attribution_conflict"]
         });
       } else if (
+        duplicate.reason !== "same_platform_author_substantive_body" &&
         !appendOnly &&
         (refreshGenerated
           ? cleanString(existing.id) === cleanString(result.row.id)
@@ -178,16 +186,18 @@ for (const [inputIndex, input] of inputs.entries()) {
             : existing.first_seen_at ?? result.row.first_seen_at;
         }
         existingRows[index] = result.row;
-        rowsByIdentity.set(identityKey, result.row);
-        rowsByUrl.set(urlKey, result.row);
+        indexEvidenceRow(result.row, `${relativePath(targetPath)}#evidence[${index}]`);
         audit.updated += 1;
       }
       continue;
     }
 
+    const index = existingRows.length;
     existingRows.push(result.row);
-    rowsByIdentity.set(identityKey, result.row);
-    rowsByUrl.set(urlKey, result.row);
+    indexEvidenceRow(
+      result.row,
+      `${relativePath(inputPaths[inputIndex])}#row[${rowIndex}] -> ${relativePath(targetPath)}#evidence[${index}]`
+    );
     audit.accepted += 1;
   }
 }
@@ -243,7 +253,7 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
   const postedAt = validTimestamp(row?.postedAt ?? row?.publishedAt);
   const rawVisibleText = serializedVisibleText(row?.rawVisibleText);
   const rawAuthor = authorFromRawVisibleText(rawVisibleText);
-  const authorName = cleanString(row?.authorName ?? row?.voiceName) ?? rawAuthor.name;
+  const authorName = cleanString(row?.authorName ?? row?.voiceName ?? row?.author?.name) ?? rawAuthor.name;
   const matchReason = cleanString(row?.matchReason ?? row?.evidenceReason ?? row?.verificationNotes);
   const reasons = [];
 
@@ -296,7 +306,8 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
   }
 
   const platformPostId = native.postId;
-  const title = cleanString(row.title) ?? cleanString(row.text) ?? `${displayPlatform(platform)} activity`;
+  const title = cleanString(row.title ?? row.text ?? row.content ?? row.body) ?? `${displayPlatform(platform)} activity`;
+  const text = cleanString(row.text ?? row.content ?? row.body) ?? title;
   const checkedAt = observedAt;
   const id = cleanString(row.id) ?? stableId(`${platform}:${platformPostId}:${entityId}`);
   if (targetKind === "a16z") {
@@ -310,10 +321,10 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
       platformPostId,
       accountUrl: canonicalUrl(row.accountUrl),
       authorName,
-      authorHandle: cleanString(row.authorHandle) ?? rawAuthor.handle,
+      authorHandle: cleanString(row.authorHandle ?? row?.author?.handle ?? row?.author?.username) ?? rawAuthor.handle,
       postedAt,
       title,
-      text: cleanString(row.text) ?? title,
+      text,
       mediaType: normalizeMediaType(row.mediaType, platform, sourceUrl),
       ...(cleanString(row.mediaUrl) ? { mediaUrl: cleanString(row.mediaUrl) } : {}),
       ...(Array.isArray(row.mediaUrls)
@@ -352,8 +363,8 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
     sourceUrl,
     platformPostId,
     authorName,
-    authorHandle: cleanString(row.authorHandle) ?? rawAuthor.handle,
-    text: cleanString(row.text) ?? title,
+    authorHandle: cleanString(row.authorHandle ?? row?.author?.handle ?? row?.author?.username) ?? rawAuthor.handle,
+    text,
     rawVisibleText: rawVisibleText ?? JSON.stringify({
       source: "strict_source_hunt",
       metrics,
@@ -387,6 +398,70 @@ function normalizedIdentity(row) {
     identity: platform && platformPostId ? `${platform}:post:${identityPostId(platform, platformPostId)}` : null,
     urlIdentity: platform && sourceUrl ? `${platform}:url:${sourceUrl.toLowerCase()}` : null
   };
+}
+
+function indexEvidenceRow(row, source) {
+  if (!row || typeof row !== "object") return;
+  sourceByRow.set(row, source);
+  const normalized = normalizedIdentity(row);
+  const entityId = canonicalEntityId(row, entitiesById, targetKind);
+  const identityKey = attributedIdentityKey(normalized.identity, entityId);
+  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId);
+  if (identityKey) rowsByIdentity.set(identityKey, row);
+  if (urlKey) rowsByUrl.set(urlKey, row);
+
+  const contentIdentity = evidenceContentIdentity(row, entityId);
+  if (!contentIdentity) return;
+  for (const physicalKey of contentIdentity.keys) {
+    const contentKey = attributedIdentityKey(physicalKey, entityId);
+    if (!contentKey) continue;
+    const indexed = rowsByContent.get(contentKey) ?? [];
+    indexed.push({ row, contentIdentity });
+    rowsByContent.set(contentKey, indexed);
+  }
+}
+
+function findDuplicate(row, entityId) {
+  const normalized = normalizedIdentity(row);
+  const identityKey = attributedIdentityKey(normalized.identity, entityId);
+  const identityMatch = identityKey ? rowsByIdentity.get(identityKey) : null;
+  if (identityMatch) return { row: identityMatch, reason: "same_platform_post_id" };
+
+  const urlKey = attributedIdentityKey(normalized.urlIdentity, entityId);
+  const urlMatch = urlKey ? rowsByUrl.get(urlKey) : null;
+  if (urlMatch) return { row: urlMatch, reason: "same_canonical_source_url" };
+
+  const incomingContentIdentity = evidenceContentIdentity(row, entityId);
+  if (!incomingContentIdentity) return null;
+  for (const physicalKey of incomingContentIdentity.keys) {
+    const contentKey = attributedIdentityKey(physicalKey, entityId);
+    for (const indexed of rowsByContent.get(contentKey) ?? []) {
+      if (!publicationTimesCompatible(incomingContentIdentity, indexed.contentIdentity)) continue;
+      return {
+        row: indexed.row,
+        reason: "same_platform_author_substantive_body",
+        contentIdentity: indexed.contentIdentity,
+        incomingContentIdentity
+      };
+    }
+  }
+  return null;
+}
+
+function evidenceContentIdentity(row, entityId) {
+  const entity = entityId ? entitiesById.get(entityId) : null;
+  const rawAuthor = authorFromRawVisibleText(serializedVisibleText(row?.rawVisibleText));
+  return sourceContentIdentity({
+    platform: normalizePlatform(row?.platform) ?? row?.platform,
+    authorName: cleanString(row?.authorName ?? row?.voiceName ?? row?.author?.name) ?? rawAuthor.name,
+    authorHandle: cleanString(row?.authorHandle ?? row?.author?.handle ?? row?.author?.username) ?? rawAuthor.handle,
+    authorUrl: cleanString(row?.authorUrl ?? row?.author?.url),
+    accountUrl: cleanString(row?.accountUrl),
+    sourceUrl: canonicalUrl(row?.sourceUrl ?? row?.url ?? row?.canonicalUrl),
+    fallbackAuthorName: entity?.founderName ?? entity?.companyName,
+    body: cleanString(row?.text ?? row?.content ?? row?.body),
+    postedAt: validTimestamp(row?.postedAt ?? row?.publishedAt)
+  });
 }
 
 function attributedIdentityKey(physicalIdentity, entityId) {
@@ -741,28 +816,37 @@ async function existingExternalEvidence(snapshotRoot) {
     "src/lib/social/github-traction-a16z-speedrun-006.json"
   ];
   const [evidenceSnapshots, githubSnapshots] = await Promise.all([
-    Promise.all(evidencePaths.map((path) => readJson(resolve(snapshotRoot, path)))),
-    Promise.all(githubPaths.map((path) => readJson(resolve(snapshotRoot, path))))
+    Promise.all(evidencePaths.map(async (path) => ({ path, snapshot: await readJson(resolve(snapshotRoot, path)) }))),
+    Promise.all(githubPaths.map(async (path) => ({ path, snapshot: await readJson(resolve(snapshotRoot, path)) })))
   ]);
   return [
-    ...evidenceSnapshots.flatMap((snapshot) => Array.isArray(snapshot.evidence) ? snapshot.evidence : []),
-    ...githubSnapshots.flatMap(githubRepositoryEvidence)
+    ...evidenceSnapshots.flatMap(({ path, snapshot }) =>
+      Array.isArray(snapshot.evidence)
+        ? snapshot.evidence.map((row, index) => ({ row, source: `${path}#evidence[${index}]` }))
+        : []
+    ),
+    ...githubSnapshots.flatMap(({ path, snapshot }) => githubRepositoryEvidence(snapshot, path))
   ];
 }
 
-function githubRepositoryEvidence(snapshot) {
-  return (snapshot.accounts ?? []).flatMap((account) => (account.repos ?? []).flatMap((repo) => {
-    const fullName = cleanString(repo.fullName);
-    const sourceUrl = canonicalUrl(repo.htmlUrl ?? (fullName ? `https://github.com/${fullName}` : null));
-    if (!sourceUrl || !fullName) return [];
-    return [{
-      entityType: account.entityType,
-      entityId: account.entityId,
-      platform: "github",
-      sourceUrl,
-      platformPostId: fullName
-    }];
-  }));
+function githubRepositoryEvidence(snapshot, sourcePath) {
+  return (snapshot.accounts ?? []).flatMap((account, accountIndex) =>
+    (account.repos ?? []).flatMap((repo, repoIndex) => {
+      const fullName = cleanString(repo.fullName);
+      const sourceUrl = canonicalUrl(repo.htmlUrl ?? (fullName ? `https://github.com/${fullName}` : null));
+      if (!sourceUrl || !fullName) return [];
+      return [{
+        row: {
+          entityType: account.entityType,
+          entityId: account.entityId,
+          platform: "github",
+          sourceUrl,
+          platformPostId: fullName
+        },
+        source: `${sourcePath}#accounts[${accountIndex}].repos[${repoIndex}]`
+      }];
+    })
+  );
 }
 
 function slugify(value) {

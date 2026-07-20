@@ -37,10 +37,20 @@ const TRACTION_PLATFORMS = new Set([
   "instagram", "linkedin", "bilibili"
 ]);
 const DERIVED_METRICS = new Set(["score", "profile_score", "contribution_score", "max_repo_score"]);
+const ATTRIBUTION_TYPES = new Set(["subject", "author", "mention", "account_owner", "founder_rollup", "other"]);
+const RECONCILIATION_DISPOSITIONS = new Set(["reattributed", "quarantined"]);
+const ATTRIBUTION_READ_COLUMNS = [
+  "id", "evidence_id", "entity_type", "company_id", "founder_id", "batch_id",
+  "attribution_type", "is_primary", "score_eligible", "review_state", "risk_level",
+  "match_reason", "source_url", "reviewed_at", "metadata_json"
+].join(",");
 
 /**
  * Imports public collector and GitHub collector snapshots into the durable evidence tables.
  * Rejected context rows are retained in evidence_items, but never produce metric observations.
+ * `attributionReconciliationLedger`, when present, is an explicit fail-closed list of stale
+ * batch/entity targets to retire. Reattribution entries must name a replacement that is also
+ * present in the sanitized snapshots; omission alone never retires durable attribution.
  */
 export async function importDurableEvidence(options) {
   if (!options || typeof options !== "object") throw new TypeError("Import options are required.");
@@ -60,6 +70,11 @@ export async function importDurableEvidence(options) {
     candidatesFromSnapshot(snapshot, snapshotIndex, now)
   );
   const normalized = candidates.map(normalizeCandidate);
+  const reconciliationLedger = normalizeAttributionReconciliationLedger(
+    options.attributionReconciliationLedger,
+    catalogMaps
+  );
+  assertReconciliationCandidates(reconciliationLedger.entries, normalized, catalogMaps);
   const counters = {
     received: normalized.length,
     rejected: normalized.filter((item) => !item.tractionEligible).length,
@@ -101,8 +116,14 @@ export async function importDurableEvidence(options) {
   const evidenceIds = new Map(
     evidenceReadBack.map((row) => [`${row.platform}\u0000${row.canonical_key}`, row.id])
   );
+  const reconciliationEvidence = await resolveReconciliationEvidenceIds({
+    client,
+    entries: reconciliationLedger.entries,
+    evidenceIds
+  });
   const attributionRows = [];
   const observationRows = [];
+  const attributionRejections = [];
   let unresolvedAttributions = 0;
 
   for (const group of groups.values()) {
@@ -110,26 +131,55 @@ export async function importDurableEvidence(options) {
     if (!evidenceId) throw new Error(`Missing read-back id for ${group.items[0].key}.`);
 
     for (const item of group.items) {
+      let attribution = null;
       if (item.verified) {
-        const attribution = attributionRow(item, evidenceId, catalogMaps);
+        attribution = attributionRow(item, evidenceId, catalogMaps);
         if (attribution) attributionRows.push(attribution);
         else unresolvedAttributions += 1;
       }
       if (item.tractionEligible) {
-        observationRows.push(...metricRows(item, evidenceId, ingestionRunId));
+        if (attribution) {
+          observationRows.push(...metricRows(item, evidenceId, ingestionRunId));
+        } else {
+          if (!item.verified) unresolvedAttributions += 1;
+          item.reasons = uniqueStrings([...item.reasons, "unresolved_attribution"]);
+          attributionRejections.push(rejectionSummary(item));
+          counters.rejected += 1;
+        }
       }
     }
   }
 
+  if (options.requireCompleteAttribution === true && unresolvedAttributions > 0) {
+    throw new Error(
+      `Durable evidence import rejected ${unresolvedAttributions} unresolved_attribution row(s); ` +
+      "metric observations were not written."
+    );
+  }
+
   const uniqueAttributions = uniqueRows(attributionRows, (row) =>
-    `${row.evidence_id}:${row.entity_type}:${row.company_id ?? row.founder_id}:${row.attribution_type}`
+    `${row.evidence_id}:${row.entity_type}:${row.company_id ?? row.founder_id}:${row.attribution_type}:${row.batch_id ?? "legacy"}`
   );
+  const reconciliation = await retireEnumeratedAttributions({
+    client,
+    entries: reconciliationLedger.entries,
+    generatedAttributions: uniqueAttributions.rows,
+    now,
+    evidenceResolution: reconciliationEvidence,
+    received: reconciliationLedger.received
+  });
   if (uniqueAttributions.rows.length > 0) {
     const response = await client
       .from("evidence_attributions")
       .upsert(uniqueAttributions.rows, { onConflict: "id" });
     checkedResponse(response, "upsert evidence_attributions");
   }
+
+  await assertAttributionReconciliationReadBack({
+    client,
+    entries: reconciliationLedger.entries,
+    generatedAttributions: uniqueAttributions.rows
+  });
 
   const uniqueObservations = uniqueRows(observationRows, (row) =>
     `${row.evidence_id}:${row.metric_name}:${row.source_name}:${row.observed_at}`
@@ -153,7 +203,8 @@ export async function importDurableEvidence(options) {
       stored: uniqueObservations.rows.length,
       duplicates: uniqueObservations.duplicates
     },
-    rejections: unstorableRejections
+    attributionReconciliation: reconciliation,
+    rejections: [...unstorableRejections, ...attributionRejections]
   };
 }
 
@@ -410,6 +461,9 @@ function baseNormalized(candidate, row, platform, canonical, reasons, tractionEl
     metrics,
     observedAt: candidate.observedAt,
     sourceName: candidate.sourceName,
+    batchSlug: nonBlank(
+      row?.batchSlug ?? row?.batch_slug ?? candidate.source?.batchSlug ?? candidate.source?.batch_slug
+    ),
     sourceUrl: canonical.canonicalUrl,
     evidenceRow: null,
     key: null,
@@ -427,6 +481,9 @@ function evidenceMetadata(candidate, canonical, reasons, tractionEligible, detai
     source_kind: candidate.kind,
     source_name: candidate.sourceName,
     source_label: candidate.sourceLabel,
+    batch_slug: nonBlank(
+      row?.batchSlug ?? row?.batch_slug ?? candidate.source?.batchSlug ?? candidate.source?.batch_slug
+    ),
     source_url: canonical.sourceUrl || null,
     observed_at: candidate.observedAt,
     url_classification: canonical.classification,
@@ -437,18 +494,476 @@ function evidenceMetadata(candidate, canonical, reasons, tractionEligible, detai
   });
 }
 
-function attributionRow(item, evidenceId, catalogMaps) {
-  const targetId = resolveCatalogId(catalogMaps, item.entityType, item.entityKeys);
+function normalizeAttributionReconciliationLedger(value, catalogMaps) {
+  if (value == null) return { received: 0, entries: [] };
+  if (!Array.isArray(value)) {
+    throw new TypeError("attributionReconciliationLedger must be an array.");
+  }
+  const entries = value.map((entry, index) =>
+    normalizeAttributionReconciliationEntry(entry, index, catalogMaps)
+  );
+  const seen = new Set();
+  for (const entry of entries) {
+    const key = `${entry.key}:${reconciliationTargetKey(entry.staleAttribution)}`;
+    if (seen.has(key)) {
+      throw new Error(
+        `attributionReconciliationLedger entry ${entry.ordinal} duplicates an earlier stale attribution directive.`
+      );
+    }
+    seen.add(key);
+  }
+  return { received: value.length, entries };
+}
+
+function normalizeAttributionReconciliationEntry(entry, index, catalogMaps) {
+  const ordinal = index + 1;
+  if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+    throw new TypeError(`attributionReconciliationLedger entry ${ordinal} must be an object.`);
+  }
+  const platform = normalizePlatform(entry.platform);
+  const sourceUrl = firstString(entry.sourceUrl, entry.canonicalUrl, entry.url);
+  const canonical = canonicalizeUrl(platform, sourceUrl);
+  if (canonical.classification !== "native_object" || !canonical.nativeId || !canonical.canonicalUrl) {
+    throw new Error(
+      `attributionReconciliationLedger entry ${ordinal} must identify a platform-native physical item.`
+    );
+  }
+  const suppliedNativeId = normalizeSuppliedNativeId(
+    platform,
+    entry.platformPostId ?? entry.platformObjectId ?? entry.nativeId
+  );
+  if ((entry.platformPostId != null || entry.platformObjectId != null || entry.nativeId != null) && !suppliedNativeId) {
+    throw new Error(`attributionReconciliationLedger entry ${ordinal} has an invalid explicit native id.`);
+  }
+  if (suppliedNativeId && suppliedNativeId !== canonical.nativeId) {
+    throw new Error(
+      `attributionReconciliationLedger entry ${ordinal} has a native id conflict: ` +
+      `url=${canonical.nativeId}; explicit=${suppliedNativeId}.`
+    );
+  }
+  const evidenceKind = evidenceKindFor(platform, canonical.objectType, canonical.classification);
+  const canonicalKeyValue = canonicalKey(platform, evidenceKind, canonical.nativeId, canonical.canonicalUrl);
+  if (!canonicalKeyValue) {
+    throw new Error(`attributionReconciliationLedger entry ${ordinal} has no canonical physical key.`);
+  }
+  const disposition = nonBlank(entry.disposition)?.toLowerCase();
+  if (!RECONCILIATION_DISPOSITIONS.has(disposition)) {
+    throw new Error(
+      `attributionReconciliationLedger entry ${ordinal} disposition must be reattributed or quarantined.`
+    );
+  }
+  const reason = nonBlank(entry.reason);
+  if (!reason) throw new Error(`attributionReconciliationLedger entry ${ordinal} requires a reason.`);
+  const staleAttribution = normalizeReconciliationTarget(
+    entry.staleAttribution,
+    `entry ${ordinal} staleAttribution`,
+    catalogMaps
+  );
+  const replacementAttribution = entry.replacementAttribution == null
+    ? null
+    : normalizeReconciliationTarget(
+        entry.replacementAttribution,
+        `entry ${ordinal} replacementAttribution`,
+        catalogMaps
+      );
+  if (disposition === "reattributed" && !replacementAttribution) {
+    throw new Error(
+      `attributionReconciliationLedger entry ${ordinal} reattributed disposition requires replacementAttribution.`
+    );
+  }
+  if (disposition === "quarantined" && replacementAttribution) {
+    throw new Error(
+      `attributionReconciliationLedger entry ${ordinal} quarantined disposition cannot have replacementAttribution.`
+    );
+  }
+  if (replacementAttribution && sameReconciliationTarget(staleAttribution, replacementAttribution)) {
+    throw new Error(
+      `attributionReconciliationLedger entry ${ordinal} replacementAttribution equals staleAttribution.`
+    );
+  }
+  return {
+    ordinal,
+    platform,
+    sourceUrl: canonical.canonicalUrl,
+    nativeId: canonical.nativeId,
+    canonicalKey: canonicalKeyValue,
+    key: `${platform}\u0000${canonicalKeyValue}`,
+    disposition,
+    reason,
+    staleAttribution,
+    replacementAttribution,
+    evidenceId: null,
+    replacementAttributionId: null
+  };
+}
+
+function normalizeReconciliationTarget(value, label, catalogMaps) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError(`attributionReconciliationLedger ${label} must be an object.`);
+  }
+  const entityType = normalizedEntityType(value.entityType ?? value.entity_type);
+  const entityId = nonBlank(value.entityId ?? value.entity_id);
+  const batchSlug = nonBlank(value.batchSlug ?? value.batch_slug);
+  const attributionType = nonBlank(value.attributionType ?? value.attribution_type ?? "subject")?.toLowerCase();
+  if (!entityType) throw new Error(`attributionReconciliationLedger ${label} has an invalid entityType.`);
+  if (!entityId) throw new Error(`attributionReconciliationLedger ${label} requires entityId.`);
+  if (!batchSlug) throw new Error(`attributionReconciliationLedger ${label} requires batchSlug.`);
+  if (!ATTRIBUTION_TYPES.has(attributionType)) {
+    throw new Error(`attributionReconciliationLedger ${label} has an invalid attributionType.`);
+  }
+  const targetId = resolveCatalogId(catalogMaps, entityType, [entityId], batchSlug);
+  if (!targetId) {
+    throw new Error(
+      `attributionReconciliationLedger ${label} did not resolve entity ${entityId} in batch ${batchSlug}.`
+    );
+  }
+  const batchId = resolveBatchId(catalogMaps, batchSlug);
+  if (!batchId) {
+    throw new Error(`attributionReconciliationLedger ${label} did not resolve batch ${batchSlug}.`);
+  }
+  const founderBatchCount = entityType === "founder"
+    ? Number(catalogValue(catalogMaps.founderBatchCountById, targetId) ?? 1)
+    : 1;
+  return {
+    batchSlug,
+    batchId,
+    entityType,
+    entityId,
+    targetId,
+    targetColumn: entityType === "company" ? "company_id" : "founder_id",
+    attributionType,
+    legacyNullBatchSafe: entityType === "company" || founderBatchCount <= 1
+  };
+}
+
+function reconciliationTargetKey(target) {
+  return [
+    target.batchId,
+    target.entityType,
+    target.targetId,
+    target.attributionType
+  ].join(":");
+}
+
+function sameReconciliationTarget(left, right) {
+  return reconciliationTargetKey(left) === reconciliationTargetKey(right);
+}
+
+function assertReconciliationCandidates(entries, normalized, catalogMaps) {
+  if (entries.length === 0) return;
+  const generatedTargets = normalized.flatMap((item) => {
+    if (!item.verified || !item.key) return [];
+    const target = resolvedAttributionTarget(item, catalogMaps);
+    return target ? [{ item, target }] : [];
+  });
+  for (const entry of entries) {
+    const physicalTargets = generatedTargets.filter(({ item }) => item.key === entry.key);
+    if (physicalTargets.some(({ target }) => sameReconciliationTarget(target, entry.staleAttribution))) {
+      throw new Error(
+        `attributionReconciliationLedger entry ${entry.ordinal} stale attribution is still present in sanitized snapshots.`
+      );
+    }
+    if (
+      entry.replacementAttribution &&
+      !physicalTargets.some(({ target }) => sameReconciliationTarget(target, entry.replacementAttribution))
+    ) {
+      throw new Error(
+        `attributionReconciliationLedger entry ${entry.ordinal} replacement attribution is absent from sanitized snapshots.`
+      );
+    }
+  }
+}
+
+async function resolveReconciliationEvidenceIds({ client, entries, evidenceIds }) {
+  if (entries.length === 0) return { resolved: 0, missing: 0 };
+  for (const entry of entries) entry.evidenceId = evidenceIds.get(entry.key) ?? null;
+  const missingKeys = [...new Set(
+    entries.filter((entry) => !entry.evidenceId).map((entry) => entry.canonicalKey)
+  )];
+  if (missingKeys.length > 0) {
+    const response = await client
+      .from("evidence_items")
+      .select("id,platform,canonical_key")
+      .in("canonical_key", missingKeys);
+    const rows = checkedRows(response, "read reconciliation evidence_items");
+    for (const row of rows) {
+      const key = `${normalizePlatform(row.platform)}\u0000${row.canonical_key}`;
+      if (evidenceIds.has(key) && evidenceIds.get(key) !== row.id) {
+        throw new Error(`read reconciliation evidence_items: conflicting ids for ${row.canonical_key}.`);
+      }
+      if (nonBlank(row.id)) evidenceIds.set(key, row.id);
+    }
+    for (const entry of entries) entry.evidenceId ??= evidenceIds.get(entry.key) ?? null;
+  }
+  for (const entry of entries) {
+    if (entry.replacementAttribution && !entry.evidenceId) {
+      throw new Error(
+        `attributionReconciliationLedger entry ${entry.ordinal} replacement has no durable evidence item.`
+      );
+    }
+  }
+  return {
+    resolved: entries.filter((entry) => entry.evidenceId).length,
+    missing: entries.filter((entry) => !entry.evidenceId).length
+  };
+}
+
+async function retireEnumeratedAttributions({
+  client,
+  entries,
+  generatedAttributions,
+  now,
+  evidenceResolution,
+  received
+}) {
+  const summary = {
+    received,
+    unique: entries.length,
+    evidenceResolved: evidenceResolution.resolved,
+    evidenceMissing: evidenceResolution.missing,
+    retired: 0,
+    alreadyRetired: 0,
+    staleNotFound: 0,
+    legacyNullRetired: 0,
+    legacyAmbiguousInactive: 0,
+    replacementsExpected: entries.filter((entry) => entry.replacementAttribution).length
+  };
+  if (entries.length === 0) return summary;
+
+  for (const entry of entries) {
+    if (!entry.replacementAttribution) continue;
+    const replacement = generatedAttributions.find((row) =>
+      row.evidence_id === entry.evidenceId && attributionMatchesTarget(row, entry.replacementAttribution)
+    );
+    if (!replacement) {
+      throw new Error(
+        `attributionReconciliationLedger entry ${entry.ordinal} generated no exact replacement attribution.`
+      );
+    }
+    entry.replacementAttributionId = replacement.id;
+  }
+
+  const evidenceIdValues = [...new Set(entries.map((entry) => entry.evidenceId).filter(Boolean))];
+  let existing = [];
+  if (evidenceIdValues.length > 0) {
+    const response = await client
+      .from("evidence_attributions")
+      .select(ATTRIBUTION_READ_COLUMNS)
+      .in("evidence_id", evidenceIdValues);
+    existing = checkedRows(response, "read existing evidence_attributions for reconciliation");
+  }
+
+  for (const entry of entries) {
+    if (!entry.evidenceId) {
+      summary.staleNotFound += 1;
+      continue;
+    }
+    const staleRows = existing.filter((row) =>
+      row.evidence_id === entry.evidenceId && staleAttributionMatchesTarget(row, entry.staleAttribution)
+    );
+    if (staleRows.length === 0) {
+      summary.staleNotFound += 1;
+      continue;
+    }
+    for (const stale of staleRows) {
+      if (stale.batch_id == null && !entry.staleAttribution.legacyNullBatchSafe) {
+        if (stale.score_eligible !== false) {
+          throw new Error(
+            `attributionReconciliationLedger entry ${entry.ordinal} found an active legacy null-batch ` +
+            "shared-founder attribution; exact cohort retirement is ambiguous."
+          );
+        }
+        summary.legacyAmbiguousInactive += 1;
+        continue;
+      }
+      if (isCompletedReconciliation(stale, entry)) {
+        summary.alreadyRetired += 1;
+        continue;
+      }
+      const update = retiredAttributionUpdate(stale, entry, now);
+      const response = await client
+        .from("evidence_attributions")
+        .update(update)
+        .eq("id", stale.id)
+        .select(ATTRIBUTION_READ_COLUMNS);
+      const updated = checkedRows(response, `retire evidence_attribution ${stale.id}`);
+      if (updated.length !== 1 || updated[0].id !== stale.id || !isCompletedReconciliation(updated[0], entry)) {
+        throw new Error(`retire evidence_attribution ${stale.id}: exact read-back assertion failed.`);
+      }
+      summary.retired += 1;
+      if (stale.batch_id == null) summary.legacyNullRetired += 1;
+    }
+  }
+  return summary;
+}
+
+function retiredAttributionUpdate(stale, entry, now) {
+  const previousReconciliation = stale.metadata_json?.attribution_reconciliation;
+  const retiredAt = validTimestamp(previousReconciliation?.retired_at) ?? now;
+  return {
+    is_primary: false,
+    score_eligible: false,
+    review_state: "rejected",
+    risk_level: "high",
+    match_reason: `Retired by explicit ${entry.disposition} reconciliation: ${entry.reason}`,
+    reviewed_at: now,
+    metadata_json: cleanJson({
+      ...(stale.metadata_json ?? {}),
+      attribution_reconciliation: {
+        schema_version: 1,
+        disposition: entry.disposition,
+        reason: entry.reason,
+        retired_at: retiredAt,
+        stale: reconciliationTargetMetadata(entry.staleAttribution),
+        replacement: entry.replacementAttribution
+          ? {
+              ...reconciliationTargetMetadata(entry.replacementAttribution),
+              attribution_id: entry.replacementAttributionId
+            }
+          : null
+      }
+    })
+  };
+}
+
+function reconciliationTargetMetadata(target) {
+  return {
+    batch_slug: target.batchSlug,
+    batch_id: target.batchId,
+    entity_type: target.entityType,
+    entity_id: target.entityId,
+    target_id: target.targetId,
+    attribution_type: target.attributionType
+  };
+}
+
+function isCompletedReconciliation(row, entry) {
+  const metadata = row?.metadata_json?.attribution_reconciliation;
+  return Boolean(
+    row?.is_primary === false &&
+    row?.score_eligible === false &&
+    row?.review_state === "rejected" &&
+    row?.risk_level === "high" &&
+    metadata?.schema_version === 1 &&
+    metadata?.disposition === entry.disposition &&
+    metadata?.reason === entry.reason &&
+    reconciliationMetadataMatchesTarget(metadata?.stale, entry.staleAttribution) &&
+    (
+      entry.replacementAttribution
+        ? reconciliationMetadataMatchesTarget(metadata?.replacement, entry.replacementAttribution)
+        : metadata?.replacement == null
+    ) &&
+    (metadata?.replacement?.attribution_id ?? null) === (entry.replacementAttributionId ?? null)
+  );
+}
+
+function reconciliationMetadataMatchesTarget(metadata, target) {
+  return Boolean(
+    metadata?.batch_slug === target.batchSlug &&
+    metadata?.batch_id === target.batchId &&
+    metadata?.entity_type === target.entityType &&
+    metadata?.entity_id === target.entityId &&
+    metadata?.target_id === target.targetId &&
+    metadata?.attribution_type === target.attributionType
+  );
+}
+
+async function assertAttributionReconciliationReadBack({ client, entries, generatedAttributions }) {
+  const evidenceIds = [...new Set(entries.map((entry) => entry.evidenceId).filter(Boolean))];
+  if (evidenceIds.length === 0) return;
+  const response = await client
+    .from("evidence_attributions")
+    .select(ATTRIBUTION_READ_COLUMNS)
+    .in("evidence_id", evidenceIds);
+  const rows = checkedRows(response, "read back reconciled evidence_attributions");
+  for (const entry of entries) {
+    if (!entry.evidenceId) continue;
+    const staleRows = rows.filter((row) =>
+      row.evidence_id === entry.evidenceId && staleAttributionMatchesTarget(row, entry.staleAttribution)
+    );
+    if (staleRows.some((row) => {
+      if (row.batch_id == null && !entry.staleAttribution.legacyNullBatchSafe) {
+        return row.score_eligible !== false;
+      }
+      return !isCompletedReconciliation(row, entry);
+    })) {
+      throw new Error(
+        `attributionReconciliationLedger entry ${entry.ordinal} left a stale attribution active or unverified.`
+      );
+    }
+    if (entry.replacementAttribution) {
+      const expected = generatedAttributions.find((row) => row.id === entry.replacementAttributionId);
+      const replacement = rows.find((row) => row.id === entry.replacementAttributionId);
+      if (
+        !expected ||
+        !replacement ||
+        !attributionMatchesTarget(replacement, entry.replacementAttribution) ||
+        replacement.review_state !== "verified" ||
+        replacement.risk_level !== "low" ||
+        replacement.score_eligible !== expected.score_eligible
+      ) {
+        throw new Error(
+          `attributionReconciliationLedger entry ${entry.ordinal} replacement read-back assertion failed.`
+        );
+      }
+    }
+  }
+}
+
+function attributionMatchesTarget(row, target) {
+  return Boolean(
+    row?.entity_type === target.entityType &&
+    row?.batch_id === target.batchId &&
+    row?.[target.targetColumn] === target.targetId &&
+    row?.attribution_type === target.attributionType
+  );
+}
+
+function staleAttributionMatchesTarget(row, target) {
+  return Boolean(
+    row?.entity_type === target.entityType &&
+    (row?.batch_id === target.batchId || row?.batch_id == null) &&
+    row?.[target.targetColumn] === target.targetId &&
+    row?.attribution_type === target.attributionType
+  );
+}
+
+function resolvedAttributionTarget(item, catalogMaps) {
+  const targetId = resolveCatalogId(catalogMaps, item.entityType, item.entityKeys, item.batchSlug);
   if (!targetId || !item.entityType) return null;
-  const targetColumn = item.entityType === "company" ? "company_id" : "founder_id";
-  const identity = `${evidenceId}:${item.entityType}:${targetId}:${item.attributionType}`;
+  const batchId = resolveBatchId(catalogMaps, item.batchSlug);
+  if (item.batchSlug && hasBatchCatalog(catalogMaps) && !batchId) return null;
+  return {
+    batchSlug: item.batchSlug,
+    batchId,
+    entityType: item.entityType,
+    entityId: nonBlank(item.row?.entityId) ?? nonBlank(item.entityKeys[0]) ?? targetId,
+    targetId,
+    targetColumn: item.entityType === "company" ? "company_id" : "founder_id",
+    attributionType: item.attributionType
+  };
+}
+
+function attributionRow(item, evidenceId, catalogMaps) {
+  const target = resolvedAttributionTarget(item, catalogMaps);
+  if (!target) return null;
+  const founderBatchCount = Number(catalogValue(catalogMaps.founderBatchCountById, target.targetId) ?? 1);
+  const sharedFounderBatch = item.entityType === "founder" && founderBatchCount > 1
+    ? item.batchSlug ?? "legacy"
+    : null;
+  // Company ids are already cohort-specific, and single-cohort founder ids can
+  // retain the pre-migration UUID. Only a founder shared across cohorts needs
+  // a distinct attribution UUID per batch.
+  const baseIdentity = `${evidenceId}:${item.entityType}:${target.targetId}:${item.attributionType}`;
+  const identity = sharedFounderBatch ? `${baseIdentity}:${sharedFounderBatch}` : baseIdentity;
   return {
     id: stableUuid(identity),
     evidence_id: evidenceId,
     entity_type: item.entityType,
     company_id: null,
     founder_id: null,
-    [targetColumn]: targetId,
+    batch_id: target.batchId,
+    [target.targetColumn]: target.targetId,
     attribution_type: item.attributionType,
     is_primary: false,
     score_eligible: item.tractionEligible,
@@ -460,6 +975,7 @@ function attributionRow(item, evidenceId, catalogMaps) {
     metadata_json: cleanJson({
       imported_by: "durable_evidence_import",
       source_kind: item.candidate.kind,
+      batch_slug: item.batchSlug,
       rejection_reasons: item.reasons
     })
   };
@@ -478,13 +994,42 @@ function metricRows(item, evidenceId, ingestionRunId) {
     is_estimated: false,
     metadata_json: cleanJson({
       imported_by: "durable_evidence_import",
-      source_kind: item.candidate.kind
+      source_kind: item.candidate.kind,
+      batch_slug: item.batchSlug
     })
   }));
 }
 
-function resolveCatalogId(catalogMaps, entityType, keys) {
+function resolveCatalogId(catalogMaps, entityType, keys, batchSlug = null) {
   if (!entityType) return null;
+  const batchCollections = entityType === "company"
+    ? [
+        catalogMaps.companyByBatchEntityId,
+        catalogMaps.companiesByBatchEntityId,
+        catalogMaps.companyIdsByBatchEntityId,
+        catalogMaps.companyByBatchSlug,
+        catalogMaps.companiesByBatchSlug,
+        catalogMaps.companyIdsByBatchSlug
+      ]
+    : [
+        catalogMaps.founderByBatchEntityId,
+        catalogMaps.foundersByBatchEntityId,
+        catalogMaps.founderIdsByBatchEntityId
+      ];
+  if (batchSlug && batchCollections.some(Boolean)) {
+    for (const collection of batchCollections) {
+      for (const rawKey of keys) {
+        const key = nonBlank(rawKey);
+        if (!key) continue;
+        const value = batchCatalogValue(collection, batchSlug, key);
+        const id = catalogId(value, entityType);
+        if (id) return id;
+      }
+    }
+    // A batch-aware caller must never silently attribute an unresolved row to
+    // an identically named entity from another cohort.
+    return null;
+  }
   const collections = entityType === "company"
     ? [
         catalogMaps.companies,
@@ -515,6 +1060,32 @@ function resolveCatalogId(catalogMaps, entityType, keys) {
     }
   }
   return null;
+}
+
+function resolveBatchId(catalogMaps, batchSlug) {
+  const slug = nonBlank(batchSlug);
+  if (!slug) return null;
+  for (const collection of [catalogMaps.batchBySlug, catalogMaps.batchesBySlug, catalogMaps.batchIdsBySlug]) {
+    const id = catalogId(catalogValue(collection, slug), "batch");
+    if (id) return id;
+  }
+  return null;
+}
+
+function hasBatchCatalog(catalogMaps) {
+  return Boolean(catalogMaps.batchBySlug || catalogMaps.batchesBySlug || catalogMaps.batchIdsBySlug);
+}
+
+function batchCatalogValue(collection, batchSlug, key) {
+  if (!collection) return null;
+  const nested = catalogValue(collection, batchSlug);
+  const nestedValue = catalogValue(nested, key);
+  if (nestedValue != null) return nestedValue;
+  return catalogValue(collection, batchCatalogKey(batchSlug, key));
+}
+
+function batchCatalogKey(batchSlug, key) {
+  return `${batchSlug}\u0000${key}`;
 }
 
 function catalogValue(collection, key) {
@@ -748,6 +1319,12 @@ function mergeEvidenceRows(target, source, duplicateCount) {
   target.metadata_json = cleanJson({
     ...target.metadata_json,
     duplicate_count: duplicateCount,
+    batch_slugs: uniqueStrings([
+      ...(target.metadata_json.batch_slugs ?? []),
+      target.metadata_json.batch_slug,
+      ...(source.metadata_json.batch_slugs ?? []),
+      source.metadata_json.batch_slug
+    ]),
     rejection_reasons: uniqueStrings([
       ...(target.metadata_json.rejection_reasons ?? []),
       ...(source.metadata_json.rejection_reasons ?? [])

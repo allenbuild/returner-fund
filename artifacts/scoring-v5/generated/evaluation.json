@@ -1,0 +1,12 @@
+{
+  "bootstrapReplicates": 10000,
+  "bootstrapSeed": 20260720,
+  "gateDecision": "reject",
+  "gateReasons": [
+    "No platform has compatible rows with both outcome classes in every frozen split."
+  ],
+  "platformResults": {},
+  "schemaVersion": "scoring-v5-evaluation-v1",
+  "status": "rejected_insufficient_data",
+  "testWasUsedForSelection": false
+}

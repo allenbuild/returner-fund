@@ -40,9 +40,9 @@ Compatibility-only paths were also checked: [`src/lib/graph/build.ts`](../src/li
 | Evidence normalization | `85%` absolute log reference plus `15%` same-platform tie-aware midrank over eligible physical rows | Implemented; the percentile sample and implicit clock use physically deduplicated eligible winners, while one output is emitted per input row |
 | Recency | `75%` durable floor plus `25%` platform-half-life momentum | Implemented; missing dates use fixed momentum `0.45` |
 | Platform aggregation | Fixed descending slots `82/8/5/3/2` over the strongest five unique rows | Implemented and monotone for fixed evidence scores |
-| Cross-platform aggregation | `70%` strongest platform plus `30%` fixed-weight diversified score | Implemented and monotone for fixed platform scores |
+| Cross-platform aggregation | Normalized configured-weight average over platforms with eligible evidence (`strongestPlatformWeight=0`, `diversifiedPlatformWeight=1`) | Implemented and monotone in each included platform score; missing platforms do not penalize the entity |
 | Confidence | Separate evidence-depth, breadth, date, and link-completeness heuristic | Implemented; does not alter score |
-| Company calibration | Shared `82%` absolute plus `18%` tie-aware positive-cohort percentile from canonical config | Implemented in `batch-calibration.ts` and called by A16Z/YC dataset assembly; not part of the aggregate scorer |
+| Company calibration | Shared `82%` absolute plus `18%` tie-aware positive-cohort percentile, followed by a positive-cohort 1–100 stretch | Implemented in `batch-calibration.ts` and called by A16Z/YC dataset assembly; not part of the aggregate scorer |
 | Platform and Top Voice filters | Restrict visible companies, evidence, review items, and graph metadata while preserving canonical all-platform company scores and ranks | Implemented in graph assembly and `applyClientGraphFilters`; Top Voice weights are provenance metadata, not score multipliers |
 | Live overlay | Exact effective-evidence replays are no-ops; material changes preserve fresh lower/zero corrections, renormalize merged canonical evidence, reaggregate the canonical company set, and run shared calibration before filters | Implemented; company radii, leaderboard, momentum, and scoring context are rebuilt, while standalone founder graph-node totals/radii remain unchanged |
 | Provenance | Model identity, canonical all-platform scope, evidence time, calibration, confidence, limitations | Implemented on canonical graph responses and refreshed after material live overlays |
@@ -87,7 +87,7 @@ LinkedIn comments and profile-activity fragments remain visible context with zer
 
 ### Canonical score and visibility filters
 
-The A16Z and YC dataset builders import `calibrateBatchCompanyScores` from the shared `src/lib/scoring/batch-calibration.ts`. Full all-platform company records therefore carry tie-aware batch calibration when their absolute score is positive. Founder records are not calibrated.
+The A16Z and YC dataset builders import `calibrateBatchCompanyScores` from the shared `src/lib/scoring/batch-calibration.ts`. Full all-platform company records therefore carry tie-aware batch calibration when their absolute score is positive: the configured 82/18 blend is calculated first, then the positive cohort's blended values are stretched across 1–100 (with a bounded blend fallback when the cohort is degenerate). Founder records are not calibrated.
 
 Graph assembly computes canonical leaderboard ranks from those full-batch company records before applying platform, industry, group, score, query, or Top Voice visibility. Platform filtering narrows visible companies and evidence but preserves each source node's score, previous score, radius, rank, momentum, top-platform metadata, platform-score map, and score breakdown.
 
@@ -135,7 +135,7 @@ V4 uses fixed descending slots with missing slots treated as zero. For fixed evi
 
 V3 re-normalized configured platform weights over whichever platforms were present, then applied a narrow breadth factor from `0.85` to `1`. A strong single-platform company could therefore inherit almost the whole available-weight average, while a strong signal could also be diluted by weaker present platforms.
 
-V4 gives the strongest platform a stable `70%` role and uses the fixed, non-renormalized platform weights for the remaining `30%`. Missing platforms contribute zero to diversification, while additional strong platforms increase the score.
+V4 uses the normalized configured-weight average over platforms with eligible evidence. The canonical configuration gives the separate strongest-platform term zero weight and the diversified term full weight. Missing platforms are excluded from the available-weight denominator, so they do not penalize the entity; adding another platform changes the available-platform weighted average.
 
 ### Provenance and uncertainty were underspecified
 

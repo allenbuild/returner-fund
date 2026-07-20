@@ -1,4 +1,4 @@
-import { mkdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { runLiveSourceRefresh } from "../src/lib/ingestion/live-source-refresh.ts";
 
@@ -8,6 +8,10 @@ const DEFAULT_AUDIENCES = Object.freeze(["insiders", "yc_partners"]);
 const args = parseArgs(process.argv.slice(2));
 const rootDir = process.cwd();
 const outputPath = resolve(rootDir, args.output ?? "work/autonomous-ingestion/top-voice-refresh.json");
+const isolatedEvidencePath = resolve(
+  dirname(outputPath),
+  `top-voice-targeted-evidence-${process.pid}-${Date.now()}.json`
+);
 const batchSlugs = csv(args.batches, DEFAULT_BATCHES);
 const audiences = csv(args.audiences, DEFAULT_AUDIENCES);
 const xConcurrency = positiveInteger(args.xConcurrency, 16);
@@ -30,6 +34,7 @@ for (const audience of audiences) {
     platforms: ["x"],
     topVoices: audience,
     write: true,
+    targetedEvidencePath: isolatedEvidencePath,
     xConcurrency,
     maxPostsPerTarget,
     maxTopVoiceXTargets,
@@ -60,12 +65,20 @@ if (audienceResults.some((result) => result.targetsLoaded === 0)) {
   throw new Error("Top Voice discovery loaded zero curated targets for at least one audience.");
 }
 
+const isolatedEvidenceSnapshot = await readIsolatedEvidenceSnapshot(isolatedEvidencePath);
+
 const receipt = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   status: audienceResults.every((result) => result.status === "completed") ? "completed" : "partial",
   generatedAt,
   batches: batchSlugs,
   audiences: audienceResults,
+  isolatedEvidence: {
+    path: isolatedEvidencePath,
+    evidenceCount: isolatedEvidenceSnapshot.evidence.length,
+    needsReviewCount: isolatedEvidenceSnapshot.needsReview.length,
+    snapshot: isolatedEvidenceSnapshot
+  },
   totals: {
     targetsLoaded: sum(audienceResults, "targetsLoaded"),
     networkRequests: sum(audienceResults, "networkRequests"),
@@ -111,4 +124,25 @@ async function writeJsonAtomic(path, value) {
   const temporaryPath = `${path}.${process.pid}.tmp`;
   await writeFile(temporaryPath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
   await rename(temporaryPath, path);
+}
+
+async function readIsolatedEvidenceSnapshot(path) {
+  let snapshot;
+  try {
+    snapshot = JSON.parse(await readFile(path, "utf8"));
+  } catch (error) {
+    throw new Error(
+      `Top Voice isolated evidence artifact could not be read at ${path}: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+  if (!snapshot || typeof snapshot !== "object" || !Array.isArray(snapshot.evidence)) {
+    throw new Error(`Top Voice isolated evidence artifact at ${path} is missing its evidence array.`);
+  }
+  if (snapshot.needsReview !== undefined && !Array.isArray(snapshot.needsReview)) {
+    throw new Error(`Top Voice isolated evidence artifact at ${path} has an invalid needsReview value.`);
+  }
+  return {
+    ...snapshot,
+    needsReview: snapshot.needsReview ?? []
+  };
 }

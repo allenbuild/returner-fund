@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "remediation": "strict-metric-source-only",
+  "allowlistArtifact": "outputs/source-hunt/strict-metric-remediation-2026-07-20.md",
+  "mode": "strict-validation",
+  "scope": {
+    "allowlistedRows": 164,
+    "targetedRows": 30,
+    "a16zRows": 134,
+    "canonicalFilesRemediated": 2,
+    "canonicalFilesWrittenThisRun": 0,
+    "publicGraphSnapshotsWritten": 0,
+    "publicEvidenceWritten": false,
+    "auditArtifactWritten": true
+  },
+  "validation": {
+    "nativeIdentityMatches": 164,
+    "attributionAndRosterMatches": 164,
+    "uniqueCanonicalPhysicalIdentities": 164,
+    "exactSupportedMetricGuards": 164,
+    "rowsWithPositiveSupportedMetric": 164,
+    "metriclessRows": 0,
+    "strictIdempotent": true
+  },
+  "result": {
+    "retainedRows": 164,
+    "quarantinedRows": 0,
+    "metadataFieldsPreserved": 167,
+    "metadataMovesByCanonicalSourceKey": {
+      "network": 3,
+      "sizeKb": 3,
+      "lastActivityAt": 11,
+      "commits": 1,
+      "authorFollowers": 19,
+      "metricSource": 119,
+      "language": 9,
+      "repository_size_kb": 2
+    },
+    "documentedAliasOccurrencesNormalized": 83,
+    "documentedAliasCounts": {
+      "openIssues": 24,
+      "open_issues": 15,
+      "linkedin:likes": 19,
+      "plays": 24,
+      "retweets": 1,
+      "points": 0,
+      "x:comments": 0,
+      "x:saves": 0
+    },
+    "pendingMetadataMoves": 0,
+    "pendingAliasNormalizations": 0,
+    "pendingChangedRows": 0
+  },
+  "sourceVsGraphDiscrepancies": [
+    {
+      "kind": "metadata_key",
+      "allowlistRows": [
+        34,
+        57,
+        69,
+        70
+      ],
+      "canonicalFile": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "graphMetricKey": "followers",
+      "canonicalMetricKey": "language",
+      "canonicalDestination": "sourceMetadata.repositoryLanguage",
+      "action": "Preserve and move the canonical language value; do not synthesize or delete a nonexistent followers value."
+    },
+    {
+      "kind": "metric_value",
+      "allowlistRows": [
+        69
+      ],
+      "canonicalFile": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "physicalIdentity": "github:modaic-ai/modaic",
+      "graphValue": {
+        "issues": 9
+      },
+      "canonicalValue": {
+        "issues": 10
+      },
+      "action": "Retain the canonical maximum across openIssues, open_issues, and issues; do not back-propagate the stale graph value."
+    }
+  ],
+  "fingerprints": {
+    "canonicalFiles": {
+      "src/lib/social/targeted-evidence-current.json": {
+        "expectedOriginalSha256": "f0ea272ff51359124da86a65c26a254e83bd6a33103f3db4d94be787836ef461",
+        "preWriteSha256": null,
+        "predictedRemediatedSha256": "17613c38ed0c9e80341e490ec78f10652fdeee199c03068fc6f0b3ce21379f6a",
+        "currentSha256": "17613c38ed0c9e80341e490ec78f10652fdeee199c03068fc6f0b3ce21379f6a",
+        "normalizedSemanticSha256": "48040de3bdcb22f865353ae3ebfc6958285515ec24d18d71cf223f009a2413b6",
+        "rowGuardSha256": "d48095902687ea856437f8e038b6f46d27437939ffb9fcdd2202118311b68202",
+        "allowlistedRows": 30,
+        "changedRows": 0
+      },
+      "src/lib/social/a16z-speedrun-006-social-evidence.json": {
+        "expectedOriginalSha256": "52d478ca7c3662cae7fad30235e75a04e46e991901e4c7fcefa920c8c8814d71",
+        "preWriteSha256": null,
+        "predictedRemediatedSha256": "423681da6acfb9ae62470169be4dd54a7c776f6904c990db8a54a1663cee56b6",
+        "currentSha256": "423681da6acfb9ae62470169be4dd54a7c776f6904c990db8a54a1663cee56b6",
+        "normalizedSemanticSha256": "95cbe838485a89bb09b03ea1f6e73f298b4b5879c4ae7dce352ab15f2213e507",
+        "rowGuardSha256": "d1c466c3f915991809e8322c00726f9c6740ebe804efddcf1708f19b9da431b4",
+        "allowlistedRows": 134,
+        "changedRows": 0
+      }
+    },
+    "readOnlyInputs": {
+      "src/lib/social/public-evidence-current.json": "e17ae962cd0da5db29b9bbd9d7fe3d409a5396e8ab5b7aa202ac5a1b38196d16",
+      "src/lib/social/logged-in-evidence-current.json": "269a2ae743d5df52921726d3fefaef44f3ad8ebda59389ec5faf1a555ee734b9",
+      "public/graph/s2026.json": "17ac092622e9f801320ac6401c74d2d00b7e4d89b108d58de569ec0aa71e8285",
+      "public/graph/s26.json": "c8fd0c76429088900bd342ef2871f52d1635e38805f1cc88e9df92851b2a5180",
+      "public/graph/a16zsr006.json": "9264fb166cdac49e59672b30160c161bab0a8d0ec68cdd2a49912cb119d8390f"
+    }
+  }
+}

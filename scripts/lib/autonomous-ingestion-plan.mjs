@@ -1,11 +1,30 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { readRequiredCanonicalJson } from "./canonical-json.mjs";
+import {
+  applyResolvedNativeAuthor,
+  assessPublicEvidenceAttribution,
+  buildPublicNativeAuthorResolver,
+  containsExactTokenSequence,
+  hasDistinctiveCatalogPhrase,
+  isCollisionProneCompanyName,
+  isListOrRoundupAttributionContext,
+  organizationQualifiedBatchMarker,
+  organizationQualifiedBatchMarkerCount,
+  PUBLIC_EVIDENCE_ATTRIBUTION_VERSION,
+  publicAttribution,
+  publicEvidenceAttributionText
+} from "./public-evidence-attribution.mjs";
 
 export const AUTONOMOUS_BATCHES = Object.freeze([
   {
     slug: "S2026",
     label: "YC Spring 2026 (P26)",
     graphFile: "s2026.json",
+    catalogFile: "src/lib/yc/spring-2026-companies.json",
+    catalogFormat: "yc_snapshot",
+    expectedCompanyCount: 197,
+    expectedFounderCount: 397,
     githubSourcePath: "src/lib/yc/spring-2026-companies.json"
   },
   {
@@ -15,12 +34,16 @@ export const AUTONOMOUS_BATCHES = Object.freeze([
     catalogFile: "src/lib/yc/summer-2026-companies.json",
     catalogFormat: "yc_snapshot",
     expectedCompanyCount: 115,
+    expectedFounderCount: 230,
     githubSourcePath: "src/lib/yc/summer-2026-companies.json"
   },
   {
     slug: "A16ZSR006",
     label: "a16z Speedrun 006",
     graphFile: "a16zsr006.json",
+    expectedCompanyCount: 59,
+    expectedFounderCount: 128,
+    rosterFile: "src/lib/social/a16z-speedrun-006-social-accounts.json",
     githubSourcePath: "src/lib/graph/a16z-speedrun-006-dataset.ts"
   }
 ]);
@@ -28,10 +51,10 @@ export const AUTONOMOUS_BATCHES = Object.freeze([
 const MINUTE_MS = 60_000;
 
 export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
-  collectorAttempts: 1,
+  collectorAttempts: 2,
   collectorRetryDelayMaxMs: 5_000,
-  publicCollectorAttemptMs: 65 * MINUTE_MS,
-  githubCollectorAttemptMs: 10 * MINUTE_MS,
+  publicCollectorAttemptMs: 90 * MINUTE_MS,
+  githubCollectorAttemptMs: 20 * MINUTE_MS,
   topVoiceCollectorMs: 22 * MINUTE_MS,
   productionBuildMs: 10 * MINUTE_MS,
   benchmarkPublicationMs: 6 * MINUTE_MS,
@@ -109,7 +132,11 @@ const FOUNDER_SOCIAL_PLATFORMS = new Set(["github", "x", "instagram", "linkedin"
 const EXPLICITLY_UNAVAILABLE = new Set(["bilibili", "tiktok", "bluesky"]);
 
 export async function loadAutonomousCatalogs(root) {
-  return Promise.all(
+  const verifiedSocialOverrides = await readRequiredCanonicalJson(
+    join(root, "src", "lib", "social", "verified-social-overrides.json"),
+    "Verified social overrides"
+  );
+  const catalogs = await Promise.all(
     AUTONOMOUS_BATCHES.map(async (batch) => {
       const path = batch.catalogFile
         ? join(root, batch.catalogFile)
@@ -124,11 +151,12 @@ export async function loadAutonomousCatalogs(root) {
             `${batch.catalogFile} contains ${source.companies.length} companies; expected ${batch.expectedCompanyCount}.`
           );
         }
+        const companies = source.companies.map((company) => normalizeYcCompany(company, batch));
         return {
           ...batch,
           sourcePath: path,
           generatedAt: source.source?.fetchedAt ?? null,
-          companies: source.companies.map((company) => normalizeYcCompany(company, batch))
+          companies
         };
       }
       const graph = source;
@@ -138,6 +166,10 @@ export async function loadAutonomousCatalogs(root) {
       const companies = graph.nodes
         .filter((node) => node?.entityType === "company" && node.entityId && node.label)
         .map((node) => normalizeCompanyNode(node, batch));
+      if (batch.rosterFile) {
+        const roster = JSON.parse(await readFile(join(root, batch.rosterFile), "utf8"));
+        validateAutonomousCatalogRoster(companies, roster, batch);
+      }
       return {
         ...batch,
         sourcePath: path,
@@ -146,6 +178,127 @@ export async function loadAutonomousCatalogs(root) {
       };
     })
   );
+  return catalogs.map((catalog) => {
+    const companies = mergeVerifiedOverridesIntoCatalog(
+      catalog.companies,
+      verifiedSocialOverrides,
+      catalog
+    );
+    validateFixedCatalogCounts(companies, catalog, catalog.catalogFile ?? catalog.graphFile);
+    return { ...catalog, companies };
+  });
+}
+
+export function buildAutonomousPublicNativeAuthorResolver(catalogs) {
+  return buildPublicNativeAuthorResolver(catalogs);
+}
+
+export function buildLegacyPublicEvidenceBatchResolver(catalogs) {
+  const companyBatchesByAlias = new Map();
+  const founderBatchesByAlias = new Map();
+  const addAlias = (index, alias, batchSlug) => {
+    const key = normalizedCatalogBatchAlias(alias);
+    if (!key) return;
+    const matches = index.get(key) ?? new Set();
+    matches.add(batchSlug);
+    index.set(key, matches);
+  };
+  for (const catalog of catalogs) {
+    for (const company of catalog.companies) {
+      for (const alias of [company.sourceKey, autonomousCompanySlug(company), company.name]) {
+        addAlias(companyBatchesByAlias, alias, catalog.slug);
+      }
+      for (const founder of company.founders) {
+        for (const alias of [founder.sourceKey, founder.name]) {
+          addAlias(founderBatchesByAlias, alias, catalog.slug);
+        }
+      }
+    }
+  }
+  return (row) => {
+    const explicit = row?.batchSlug ?? row?.batch_slug;
+    const validExplicit = explicit && catalogs.some((catalog) => catalog.slug === explicit)
+      ? explicit
+      : null;
+    const entityType = String(row?.entityType ?? row?.entity_type ?? "").toLowerCase();
+    const constraintSets = [];
+    const entityAlias = row?.entityId ?? row?.entity_id;
+    if (entityAlias) {
+      const entityMatches = (entityType === "founder" ? founderBatchesByAlias : companyBatchesByAlias)
+        .get(normalizedCatalogBatchAlias(entityAlias));
+      if (entityMatches) constraintSets.push(entityMatches);
+    }
+    for (const companyAlias of [
+      row?.companySlug ?? row?.company_slug,
+      row?.companyName ?? row?.company_name
+    ]) {
+      const companyMatches = companyBatchesByAlias.get(normalizedCatalogBatchAlias(companyAlias));
+      if (companyMatches) constraintSets.push(companyMatches);
+    }
+    if (constraintSets.length === 0) return validExplicit;
+    const matches = new Set(constraintSets[0]);
+    for (const constraint of constraintSets.slice(1)) {
+      for (const batchSlug of matches) {
+        if (!constraint.has(batchSlug)) matches.delete(batchSlug);
+      }
+    }
+    if (validExplicit && matches.has(validExplicit)) return validExplicit;
+    if (matches.size === 1) return [...matches][0];
+    return null;
+  };
+}
+
+function normalizedCatalogBatchAlias(value) {
+  return String(value ?? "").trim().toLowerCase() || null;
+}
+
+export function validateAutonomousCatalogRoster(companies, roster, batch) {
+  if (!Array.isArray(roster?.companies)) {
+    throw new Error(`${batch.rosterFile ?? batch.slug} does not contain an independent company roster.`);
+  }
+  if (roster.companies.length !== batch.expectedCompanyCount) {
+    throw new Error(
+      `${batch.rosterFile ?? batch.slug} contains ${roster.companies.length} companies; expected ${batch.expectedCompanyCount}.`
+    );
+  }
+  const rosterFounderCount = roster.companies.reduce(
+    (count, company) => count + (company.founders?.length ?? 0),
+    0
+  );
+  if (rosterFounderCount !== batch.expectedFounderCount) {
+    throw new Error(
+      `${batch.rosterFile ?? batch.slug} contains ${rosterFounderCount} founders; expected ${batch.expectedFounderCount}.`
+    );
+  }
+  const graphCompanies = new Set(companies.map((company) => autonomousCompanySlug(company)));
+  const rosterCompanies = new Set(roster.companies.map((company) => company.companySlug));
+  const graphFounders = new Set(companies.flatMap((company) =>
+    company.founders.map((founder) => `${autonomousCompanySlug(company)}:${normalizeIdentity(founder.name)}`)
+  ));
+  const rosterFounders = new Set(roster.companies.flatMap((company) =>
+    (company.founders ?? []).map((founder) => `${company.companySlug}:${normalizeIdentity(founder.name)}`)
+  ));
+  const missingCompanies = [...rosterCompanies].filter((key) => !graphCompanies.has(key));
+  const extraCompanies = [...graphCompanies].filter((key) => !rosterCompanies.has(key));
+  const missingFounders = [...rosterFounders].filter((key) => !graphFounders.has(key));
+  const extraFounders = [...graphFounders].filter((key) => !rosterFounders.has(key));
+  if (missingCompanies.length || extraCompanies.length || missingFounders.length || extraFounders.length) {
+    throw new Error(
+      `${batch.slug} graph roster drifted from ${batch.rosterFile ?? "the independent roster"}: ` +
+      JSON.stringify({ missingCompanies, extraCompanies, missingFounders, extraFounders })
+    );
+  }
+  return companies;
+}
+
+function validateFixedCatalogCounts(companies, batch, sourcePath) {
+  if (companies.length !== batch.expectedCompanyCount) {
+    throw new Error(`${sourcePath} contains ${companies.length} companies; expected ${batch.expectedCompanyCount}.`);
+  }
+  const founderCount = companies.reduce((count, company) => count + company.founders.length, 0);
+  if (founderCount !== batch.expectedFounderCount) {
+    throw new Error(`${sourcePath} contains ${founderCount} founders; expected ${batch.expectedFounderCount}.`);
+  }
 }
 
 export function buildAutonomousTaskPlan(catalogs, { runKey }) {
@@ -153,11 +306,11 @@ export function buildAutonomousTaskPlan(catalogs, { runKey }) {
   for (const batch of catalogs) {
     for (const company of batch.companies) {
       for (const platform of AUTONOMOUS_PLATFORMS) {
-        tasks.push(taskForEntity({ runKey, batch, company, entity: company, platform }));
+        tasks.push(...tasksForEntity({ runKey, batch, company, entity: company, platform }));
       }
       for (const founder of company.founders) {
         for (const platform of AUTONOMOUS_PLATFORMS) {
-          tasks.push(taskForEntity({ runKey, batch, company, entity: founder, platform }));
+          tasks.push(...tasksForEntity({ runKey, batch, company, entity: founder, platform }));
         }
       }
     }
@@ -170,6 +323,8 @@ export function summarizeTaskCoverage(tasks) {
     expected: tasks.length,
     queued: 0,
     terminal: 0,
+    mapped: 0,
+    mappedQueued: 0,
     missingMappings: 0,
     unsupported: 0,
     byPlatform: {}
@@ -190,7 +345,11 @@ export function summarizeTaskCoverage(tasks) {
       summary.terminal += 1;
       platform.terminal += 1;
     }
-    if (task.terminalReason === "missing_account_mapping") {
+    if (task.account) {
+      summary.mapped += 1;
+      if (task.status === "queued") summary.mappedQueued += 1;
+    }
+    if (task.platform === "github" && !task.account) {
       summary.missingMappings += 1;
       platform.missingMappings += 1;
     }
@@ -200,6 +359,52 @@ export function summarizeTaskCoverage(tasks) {
     }
   }
   return summary;
+}
+
+export function validateAutonomousCollectorMatrix(results, batches = AUTONOMOUS_BATCHES) {
+  const expected = batches.flatMap((batch) => [
+    `${batch.slug}:public`,
+    `${batch.slug}:github`
+  ]).sort();
+  const actual = (results ?? [])
+    .map((result) => `${result?.batchSlug}:${result?.kind}`)
+    .sort();
+  if (actual.length !== new Set(actual).size || actual.join("\n") !== expected.join("\n")) {
+    throw new Error(
+      `Collector matrix was incomplete: expected ${expected.join(", ")}; received ${actual.join(", ") || "none"}.`
+    );
+  }
+  return results;
+}
+
+export function validateMappedAutonomousCoverage(coverage) {
+  const expected = coverage?.mappedExpected ?? 0;
+  const succeeded = coverage?.mappedSucceeded ?? 0;
+  const needsReview = coverage?.mappedNeedsReview ?? 0;
+  const blockedOrEmpty = coverage?.mappedBlockedOrEmpty ?? 0;
+  const failed = coverage?.mappedFailed ?? 0;
+  const nonTerminal = coverage?.mappedNonTerminal ?? 0;
+  const classified = succeeded + needsReview + blockedOrEmpty;
+  if (classified !== expected || failed || nonTerminal) {
+    throw new Error(
+      "Mapped collector coverage was incomplete: " +
+      `${classified}/${expected} classified (${succeeded} with native evidence), ${needsReview} need review, ` +
+      `${blockedOrEmpty} blocked or empty, ${failed} failed, ${nonTerminal} nonterminal.`
+    );
+  }
+  return coverage;
+}
+
+export function validateAutonomousTerminalCoverage(coverage, { expectedTaskCount }) {
+  if ((coverage?.expected ?? 0) !== expectedTaskCount) {
+    throw new Error(
+      `Task reconciliation covered ${coverage?.expected ?? 0}/${expectedTaskCount} planned tasks.`
+    );
+  }
+  if ((coverage?.nonTerminal ?? 0) > 0) {
+    throw new Error(`${coverage.nonTerminal} ingestion tasks did not reach a terminal state.`);
+  }
+  return coverage;
 }
 
 export function validateAutonomousCollectorSnapshot(
@@ -260,6 +465,70 @@ export function validateAutonomousCollectorSnapshot(
   return snapshot;
 }
 
+export function validateAutonomousCollectorReferentialIntegrity(
+  snapshot,
+  { kind, batchSlug, catalog }
+) {
+  if (!catalog || catalog.slug !== batchSlug) {
+    throw new Error(`Collector referential-integrity validation requires the ${batchSlug} catalog.`);
+  }
+  const companies = new Set(catalog.companies.map((company) => company.sourceKey));
+  const founders = new Set(
+    catalog.companies.flatMap((company) => company.founders.map((founder) => founder.sourceKey))
+  );
+  const collections = kind === "github"
+    ? [
+        ["accounts", snapshot.accounts ?? []],
+        ["attempts", Object.values(snapshot.attempts ?? {})]
+      ]
+    : [
+        ["evidence", snapshot.evidence ?? []],
+        ["needsReview", snapshot.needsReview ?? []],
+        ["failures", snapshot.failures ?? []]
+      ];
+  const invalid = [];
+
+  for (const [collection, rows] of collections) {
+    for (const row of rows) {
+      const entityType = row.entityType ?? row.entity_type ?? "company";
+      const entityId = row.entityId ?? row.entity_id ?? row.attachedCompanyId ?? null;
+      const known = entityType === "founder" ? founders : companies;
+      if (!entityId || !known.has(entityId)) {
+        invalid.push({
+          collection,
+          field: "entityId",
+          entityType,
+          entityId,
+          companySlug: row.companySlug ?? row.company_slug ?? null,
+          platform: row.platform ?? null,
+          url: row.sourceUrl ?? row.candidateUrl ?? row.githubUrl ?? row.url ?? null
+        });
+      }
+      const attachedCompanyId = row.attachedCompanyId ?? row.attached_company_id ?? null;
+      if (attachedCompanyId && !companies.has(attachedCompanyId)) {
+        invalid.push({
+          collection,
+          field: "attachedCompanyId",
+          entityType,
+          entityId,
+          attachedCompanyId,
+          companySlug: row.companySlug ?? row.company_slug ?? null,
+          platform: row.platform ?? null,
+          url: row.sourceUrl ?? row.candidateUrl ?? row.githubUrl ?? row.url ?? null
+        });
+      }
+    }
+  }
+
+  if (invalid.length) {
+    throw new Error(
+      `Invalid ${kind} collector snapshot: ${invalid.length} rows do not resolve to exact ${batchSlug} catalog entity IDs. ` +
+      JSON.stringify(invalid.slice(0, 20))
+    );
+  }
+  return snapshot;
+}
+
 export function countSuccessfulAutonomousCollectorRows(snapshot, kind) {
   if (kind === "github") {
     return (snapshot?.accounts ?? []).filter((account) => account.fetched === true).length;
@@ -267,9 +536,116 @@ export function countSuccessfulAutonomousCollectorRows(snapshot, kind) {
   return (snapshot?.evidence ?? []).filter(isSuccessfulPublicEvidenceRow).length;
 }
 
-export function indexAutonomousCollectorTaskOutcomes(snapshot, { kind, batchSlug }) {
+const TERMINAL_COLLECTOR_OUTCOME_STATUSES = new Set([
+  "completed",
+  "needs_review",
+  "blocked_or_empty",
+  "failed"
+]);
+const SUCCESSFUL_SOURCE_CHECK_STATUSES = new Set(["checked_empty", "found_candidates"]);
+const MISSING_COLLECTOR_OUTCOME_REASONS = new Set([
+  "collector_returned_no_account_attempt",
+  "collector_returned_no_entity_attempt"
+]);
+const RETRYABLE_COLLECTOR_FAILURE_PATTERN =
+  /(?:rate.?limit|secondary.?limit|\b403\b|forbidden|\b429\b|\b5\d\d\b|timeout|timed out|network|fetch failed|econn|socket|temporar|unavailable)/i;
+
+export function autonomousCollectorRetryableFailures(snapshot) {
+  const sourceChecks = snapshot?.source?.discovery?.sourceChecks ?? [];
+  const attemptsByOwner = new Map(
+    Object.values(snapshot?.attempts ?? {})
+      .map((attempt) => [collectorOwnerKey(attempt), attempt])
+      .filter(([key]) => Boolean(key))
+  );
+  const sourceChecksByOwner = new Map();
+  for (const check of sourceChecks) {
+    const key = collectorOwnerKey(check);
+    if (!key) continue;
+    sourceChecksByOwner.set(key, [...(sourceChecksByOwner.get(key) ?? []), check]);
+  }
+
+  const sourceCheckFailures = sourceChecks
+    .filter((check) => check.status === "failed")
+    .filter((check) => !suppressDeterministicProfileNotFoundRetry(
+      check,
+      attemptsByOwner.get(collectorOwnerKey(check)),
+      sourceChecksByOwner.get(collectorOwnerKey(check)) ?? []
+    ))
+    .map((check) => check.error);
+  const messages = [
+    ...(snapshot?.failures ?? []).map((failure) => failure.message),
+    ...(snapshot?.accounts ?? []).filter((account) => account.fetched === false).map((account) => account.error),
+    ...(snapshot?.source?.discovery?.searchFailures ?? []).map((failure) => failure.error ?? failure.message),
+    ...sourceCheckFailures
+  ];
+  return messages.filter((message) => RETRYABLE_COLLECTOR_FAILURE_PATTERN.test(String(message ?? "")));
+}
+
+export function summarizeAutonomousCollectorTerminalTaskCoverage(
+  snapshot,
+  { kind, batchSlug, tasks }
+) {
+  const relevantTasks = (tasks ?? []).filter((task) =>
+    task?.batchSlug === batchSlug &&
+    task?.status === "queued" &&
+    (kind === "github" ? task.platform === "github" : task.platform !== "github")
+  );
+  const outcomeIndex = indexAutonomousCollectorTaskOutcomes(snapshot, {
+    kind,
+    batchSlug,
+    explicitTerminalOnly: true
+  });
+  const summary = {
+    expected: relevantTasks.length,
+    terminal: 0,
+    nonTerminal: 0,
+    byStatus: {
+      completed: 0,
+      needs_review: 0,
+      blocked_or_empty: 0,
+      failed: 0
+    },
+    nonTerminalTaskSamples: []
+  };
+
+  for (const task of relevantTasks) {
+    const outcome = classifyAutonomousCollectorTaskOutcome(outcomeIndex, {
+      platform: task.platform,
+      entityType: task.entityType,
+      entityId: task.entitySourceKey,
+      accountUrl: task.account?.url ?? null
+    });
+    const reason = nonEmptyCollectorReason(outcome.reason);
+    const isExplicitTerminal =
+      TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(outcome.status) &&
+      Boolean(reason) &&
+      !MISSING_COLLECTOR_OUTCOME_REASONS.has(reason);
+    if (isExplicitTerminal) {
+      summary.terminal += 1;
+      summary.byStatus[outcome.status] += 1;
+      continue;
+    }
+    summary.nonTerminal += 1;
+    if (summary.nonTerminalTaskSamples.length < 20) {
+      summary.nonTerminalTaskSamples.push({
+        platform: task.platform,
+        entityType: task.entityType,
+        entityId: task.entitySourceKey,
+        accountUrl: task.account?.url ?? null,
+        status: outcome.status,
+        reason: outcome.reason
+      });
+    }
+  }
+  return summary;
+}
+
+export function indexAutonomousCollectorTaskOutcomes(
+  snapshot,
+  { kind, batchSlug, explicitTerminalOnly = false }
+) {
   const outcomes = new Map();
-  const record = (row, platform, status, reason) => {
+  const record = (row, platform, status, reason, accountUrl = null) => {
     const entityType = row?.entityType ?? "company";
     const rawEntityId = row?.entityId ?? row?.attachedCompanyId ?? row?.companySlug ?? row?.companyName;
     const entityId = normalizeAutonomousFailureEntityId(
@@ -277,23 +653,57 @@ export function indexAutonomousCollectorTaskOutcomes(snapshot, { kind, batchSlug
       { batchSlug }
     );
     if (!entityId) return;
-    const key = autonomousCollectorEntityKey(platform, entityType, entityId);
     const candidate = { status, reason };
-    const previous = outcomes.get(key);
-    if (!previous || collectorOutcomePriority(candidate.status) > collectorOutcomePriority(previous.status)) {
-      outcomes.set(key, candidate);
+    const keys = [autonomousCollectorEntityKey(platform, entityType, entityId)];
+    const resolvedAccountUrl = accountUrl ?? row?.accountUrl ?? row?.account_url ?? null;
+    if (resolvedAccountUrl) {
+      keys.push(autonomousCollectorAccountKey(platform, entityType, entityId, resolvedAccountUrl));
+    }
+    for (const key of keys) {
+      const previous = outcomes.get(key);
+      if (!previous || collectorOutcomePriority(candidate.status) > collectorOutcomePriority(previous.status)) {
+        outcomes.set(key, candidate);
+      }
     }
   };
 
   if (kind === "github") {
     for (const account of snapshot?.accounts ?? []) {
+      const exactFailureReason = nonEmptyCollectorReason(account.error);
+      if (
+        explicitTerminalOnly &&
+        account.fetched !== true &&
+        (account.fetched !== false || !exactFailureReason)
+      ) {
+        continue;
+      }
       record(
         account,
         "github",
         account.fetched === true ? "completed" : "failed",
         account.fetched === true
           ? "collector_account_fetched"
-          : "collector_reported_failure"
+          : explicitTerminalOnly
+            ? exactFailureReason
+            : "collector_reported_failure",
+        account.githubUrl ?? account.url ?? null
+      );
+    }
+    for (const attempt of Object.values(snapshot?.attempts ?? {})) {
+      if (!attempt?.entityId) continue;
+      const terminalStatus = TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
+        ? attempt.outcomeStatus
+        : null;
+      const exactReason = nonEmptyCollectorReason(attempt.error ?? attempt.outcomeReason);
+      if (explicitTerminalOnly && (!terminalStatus || !exactReason)) continue;
+      const status = terminalStatus ?? "failed";
+      record(
+        attempt,
+        "github",
+        status,
+        explicitTerminalOnly
+          ? exactReason
+          : attempt.outcomeReason ?? "collector_owner_discovery_attempted"
       );
     }
     return outcomes;
@@ -301,13 +711,16 @@ export function indexAutonomousCollectorTaskOutcomes(snapshot, { kind, batchSlug
 
   for (const evidence of snapshot?.evidence ?? []) {
     const successful = isSuccessfulPublicEvidenceRow(evidence);
+    const needsReview = ["needs_review", "rejected"].includes(evidence?.review_state);
     record(
       evidence,
       evidence.platform,
-      successful ? "completed" : "needs_review",
+      successful ? "completed" : needsReview ? "needs_review" : "blocked_or_empty",
       successful
         ? "collector_evidence_collected"
-        : "collector_needs_review"
+        : needsReview
+          ? "collector_needs_review"
+          : "collector_context_only"
     );
   }
   for (const review of snapshot?.needsReview ?? []) {
@@ -319,11 +732,40 @@ export function indexAutonomousCollectorTaskOutcomes(snapshot, { kind, batchSlug
     );
   }
   for (const failure of snapshot?.failures ?? []) {
+    const exactFailureReason = nonEmptyCollectorReason(failure.message ?? failure.error);
+    if (explicitTerminalOnly && !exactFailureReason) continue;
+    const expectedEmpty = isExpectedPublicAccessOrEmptyFailure(failure);
     record(
       failure,
       failure.platform,
-      "failed",
-      "collector_reported_failure"
+      expectedEmpty ? "blocked_or_empty" : "failed",
+      explicitTerminalOnly
+        ? exactFailureReason
+        : expectedEmpty
+          ? "collector_checked_blocked_or_empty"
+          : "collector_reported_failure"
+    );
+  }
+  for (const attempt of Object.values(snapshot?.attempts ?? {})) {
+    if (!attempt?.entityId || !attempt?.platform || (!explicitTerminalOnly && !attempt?.accountUrl)) continue;
+    const terminalStatus = TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
+      ? attempt.outcomeStatus
+      : null;
+    const exactReason = nonEmptyCollectorReason(attempt.error ?? attempt.outcomeReason);
+    if (explicitTerminalOnly && (!terminalStatus || !exactReason)) continue;
+    const status = terminalStatus ?? (attempt.status === "failed"
+      ? (isExpectedPublicAccessOrEmptyFailure(attempt) ? "blocked_or_empty" : "failed")
+      : "blocked_or_empty");
+    record(
+      attempt,
+      attempt.platform,
+      status,
+      explicitTerminalOnly
+        ? exactReason
+        : attempt.outcomeReason ?? (status === "failed"
+          ? "collector_reported_failure"
+          : "collector_account_attempted"),
+      attempt.accountUrl
     );
   }
   return outcomes;
@@ -331,14 +773,25 @@ export function indexAutonomousCollectorTaskOutcomes(snapshot, { kind, batchSlug
 
 export function classifyAutonomousCollectorTaskOutcome(
   outcomeIndex,
-  { platform, entityType, entityId, collectorOk = true, collectorError = null }
+  { platform, entityType, entityId, accountUrl = null, collectorOk = true, collectorError = null }
 ) {
   if (!collectorOk) {
     return { status: "failed", reason: collectorError ?? "collector_process_failed" };
   }
-  return outcomeIndex?.get(autonomousCollectorEntityKey(platform, entityType, entityId)) ?? {
-    status: "blocked_or_empty",
-    reason: "collector_returned_no_entity_rows"
+  const key = accountUrl
+    ? autonomousCollectorAccountKey(platform, entityType, entityId, accountUrl)
+    : autonomousCollectorEntityKey(platform, entityType, entityId);
+  const outcome = outcomeIndex?.get(key);
+  if (outcome) return outcome;
+  if (accountUrl) {
+    return {
+      status: "failed",
+      reason: "collector_returned_no_account_attempt"
+    };
+  }
+  return {
+    status: "failed",
+    reason: "collector_returned_no_entity_attempt"
   };
 }
 
@@ -346,9 +799,49 @@ export function autonomousCollectorEntityKey(platform, entityType, entityId) {
   return `${normalizePlatform(platform)}:${entityType ?? "company"}:${normalizeIdentity(entityId)}`;
 }
 
+export function autonomousCollectorAccountKey(platform, entityType, entityId, accountUrl) {
+  const normalizedPlatform = normalizePlatform(platform);
+  return `${autonomousCollectorEntityKey(normalizedPlatform, entityType, entityId)}:account:${canonicalSocialAccountUrl(normalizedPlatform, accountUrl).toLowerCase()}`;
+}
+
+function collectorOwnerKey(row) {
+  const entityId = String(row?.entityId ?? "").trim();
+  if (!entityId) return null;
+  return `${row?.entityType ?? "company"}:${entityId}`;
+}
+
+function nonEmptyCollectorReason(value) {
+  const reason = String(value ?? "").trim();
+  return reason || null;
+}
+
+function suppressDeterministicProfileNotFoundRetry(check, attempt, ownerSourceChecks) {
+  if (check?.sourceKind !== "official_profile") return false;
+  if (!/(?:\b404\b|not found)/i.test(String(check?.error ?? ""))) return false;
+  if (
+    !TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt?.outcomeStatus) ||
+    !nonEmptyCollectorReason(attempt?.outcomeReason)
+  ) {
+    return false;
+  }
+  return ownerSourceChecks.some((candidate) =>
+    candidate !== check &&
+    candidate?.sourceKind !== check.sourceKind &&
+    SUCCESSFUL_SOURCE_CHECK_STATUSES.has(candidate?.status)
+  );
+}
+
 export function normalizeAutonomousFailureEntityId(failure, { batchSlug }) {
   const rawEntityId = failure?.entityId ?? failure?.companyName ?? failure?.companySlug;
   if (batchSlug !== "A16ZSR006") return rawEntityId;
+
+  // Public collector receipts already use the canonical A16Z task-plan IDs. Do
+  // not reinterpret a canonical founder ID as a company slug when a legacy row
+  // omits companySlug; doing so duplicates the whole ID inside the founder ID.
+  const canonicalEntityId = String(rawEntityId ?? "").trim();
+  if (/^a16z-speedrun-006-[a-z0-9][a-z0-9-]*$/.test(canonicalEntityId)) {
+    return canonicalEntityId;
+  }
 
   const companySlug = slugify(
     failure?.companySlug ?? String(rawEntityId ?? "").replace(/^(?:company-|a16z-speedrun-006-)/, "")
@@ -367,41 +860,148 @@ export function normalizeAutonomousFailureEntityId(failure, { batchSlug }) {
 
 export function mergePublicEvidenceSnapshots(
   snapshots,
-  { fetchedAt = new Date().toISOString(), durableStorageConfigured = true } = {}
+  {
+    fetchedAt = new Date().toISOString(),
+    durableStorageConfigured = true,
+    resolveBatchSlug = null,
+    resolveNativeAuthor = null
+  } = {}
 ) {
-  const evidence = dedupeRows(snapshots.flatMap((snapshot) => snapshot.evidence ?? []), evidenceKey);
+  const acceptedEvidence = [];
+  const quarantinedEvidence = [];
+  const reconciliationCandidates = [];
+  for (const snapshot of snapshots) {
+    for (const sourceRow of snapshot.evidence ?? []) {
+      const originalRow = withSnapshotRowBatch(sourceRow, snapshot, resolveBatchSlug);
+      const nativeAuthorResolution = typeof resolveNativeAuthor === "function"
+        ? resolveNativeAuthor(originalRow)
+        : null;
+      const nativeResolutionRow = nativeAuthorResolution
+        ? { ...originalRow, nativeAuthorResolution }
+        : originalRow;
+      const companySubjectReassignment = typeof resolveNativeAuthor === "function"
+        ? mergedFounderToCompanySubjectReassignment(
+            nativeResolutionRow,
+            resolveNativeAuthor,
+            nativeAuthorResolution
+          )
+        : null;
+      const shouldReassign = !companySubjectReassignment &&
+        nativeAuthorResolution?.status === "matched" &&
+        shouldReassignMergedPublicRow(originalRow, resolveNativeAuthor, nativeAuthorResolution);
+      const nativeResolvedRow = shouldReassign
+        ? applyResolvedNativeAuthor(originalRow, nativeAuthorResolution)
+        : nativeResolutionRow;
+      const row = companySubjectReassignment?.row ?? nativeResolvedRow;
+      const validation = validateMergedPublicEvidence(row, {
+        resolveNativeAuthor,
+        nativeAuthorResolution
+      });
+      if (validation.ok) {
+        acceptedEvidence.push(validation.row);
+        if (!samePublicAttribution(publicAttribution(originalRow), publicAttribution(validation.row))) {
+          reconciliationCandidates.push(reconciliationCandidate(
+            originalRow,
+            validation.row,
+            "reattributed",
+            companySubjectReassignment?.reason ??
+              nativeAuthorResolution?.reason ??
+              "canonical_native_author_reassignment"
+          ));
+        }
+      } else {
+        quarantinedEvidence.push(quarantinedPublicEvidence(row, validation.reasons));
+        if (validation.reconciliationEligible) {
+          reconciliationCandidates.push(reconciliationCandidate(
+            originalRow,
+            null,
+            "quarantined",
+            validation.reasons.join(";")
+          ));
+        }
+      }
+    }
+    for (const sourceReviewRow of snapshot.needsReview ?? []) {
+      const reviewRow = withSnapshotReviewBatch(sourceReviewRow, snapshot, resolveBatchSlug);
+      const directive = reviewRow?.attributionReconciliationDirective;
+      if (directive?.disposition !== "quarantined") continue;
+      reconciliationCandidates.push(explicitQuarantineReconciliationCandidate(reviewRow, directive));
+    }
+  }
+  const evidence = dedupeRows(acceptedEvidence, evidenceKey);
+  const attributionReconciliationLedger = finalizeAttributionReconciliationLedger(
+    reconciliationCandidates,
+    evidence
+  );
   const needsReview = dedupeRows(
-    snapshots.flatMap((snapshot) => snapshot.needsReview ?? []),
-    (row) => row.id ?? `${row.platform}:${row.companySlug}:${row.candidateUrl ?? row.sourceUrl ?? row.title}`
+    [
+      ...snapshots.flatMap((snapshot) =>
+        (snapshot.needsReview ?? []).map((row) => withSnapshotReviewBatch(row, snapshot, resolveBatchSlug))
+      ),
+      ...quarantinedEvidence
+    ],
+    reviewEvidenceKey
   );
   const failures = dedupeRows(
-    snapshots.flatMap((snapshot) => snapshot.failures ?? []),
-    (row) => row.id ?? `${row.platform}:${row.companySlug}:${row.sourceUrl ?? ""}:${row.message ?? ""}`
+    snapshots.flatMap((snapshot) =>
+      (snapshot.failures ?? []).map((row) => withSnapshotRowBatch(row, snapshot, resolveBatchSlug))
+    ),
+    (row) => `${rowBatchScope(row)}:${row.id ?? `${row.platform}:${row.companySlug}:${row.sourceUrl ?? ""}:${row.message ?? ""}`}`
+  );
+  const discoveryAttempts = dedupeRows(
+    snapshots.flatMap((snapshot) => snapshot.discoveryAttempts ?? []),
+    (row) => row.id ?? `${row.batch_slug ?? row.batchSlug}:${row.entityId}:${row.platform}:${row.query}:${row.selected_url ?? ""}`
+  );
+  const sourceDiscoveryPaths = dedupeRows(
+    snapshots.flatMap((snapshot) => snapshot.sourceDiscoveryPaths ?? []),
+    (row) => row.id ?? `${row.batch_slug ?? row.batchSlug}:${row.discovered_entity_id}:${row.source_url}:${row.discovered_url}`
   );
   return {
     source: {
       label: "Autonomous public ingestion merged export",
       fetchedAt,
-      batchSlugs: snapshots.map((snapshot) => snapshot.source?.batchSlug).filter(Boolean),
+      batchSlugs: [...new Set(snapshots.flatMap(snapshotBatchSlugs))],
       evidenceCount: evidence.length,
       needsReviewCount: needsReview.length,
+      quarantinedEvidenceCount: quarantinedEvidence.length,
+      attributionReconciliationCount: attributionReconciliationLedger.length,
       failureCount: failures.length,
+      discoveryAttemptCount: discoveryAttempts.length,
+      sourceDiscoveryPathCount: sourceDiscoveryPaths.length,
       notes: [
         durableStorageConfigured
           ? "Generated export only; this run also imported validated evidence into durable Supabase tables."
           : "Durable Supabase import was skipped because complete optional credentials were not configured; this export is file-backed.",
-        "Rows are deduplicated by entity attribution plus native identity or canonical URL before publication."
+        "Accepted rows are batch-scoped and deduplicated by entity attribution plus strict platform-native physical post identity before publication.",
+        "Unsupported, non-native, metricless, unverified, invalid-link, and identity-conflicting rows are preserved in needsReview with exact quarantine reasons."
       ]
     },
     evidence,
+    attributionReconciliationLedger,
     needsReview,
-    failures
+    failures,
+    discoveryAttempts,
+    sourceDiscoveryPaths
   };
 }
 
 export function mergeGithubTractionSnapshots(previous, fresh, { fetchedAt = new Date().toISOString() } = {}) {
   const accounts = new Map();
-  for (const account of previous?.accounts ?? []) accounts.set(githubAccountKey(account), account);
+  const retiredMappingKeys = new Set(
+    (fresh?.source?.retiredAccountMappings ?? []).map(githubOwnerMappingKey)
+  );
+  let prunedRetired = 0;
+  for (const account of previous?.accounts ?? []) {
+    if (retiredMappingKeys.has(githubOwnerMappingKey({
+      entityType: account.entityType,
+      entityId: account.entityId ?? account.companySlug ?? account.companyName,
+      url: account.githubUrl ?? account.url
+    }))) {
+      prunedRetired += 1;
+      continue;
+    }
+    accounts.set(githubAccountKey(account), account);
+  }
   let retainedLastGood = 0;
   for (const account of fresh?.accounts ?? []) {
     const key = githubAccountKey(account);
@@ -417,13 +1017,23 @@ export function mergeGithubTractionSnapshots(previous, fresh, { fetchedAt = new 
       ...(fresh?.source ?? {}),
       fetchedAt,
       retainedLastGood,
+      prunedRetired,
       notes: [
         ...(fresh?.source?.notes ?? []),
+        ...(prunedRetired ? [`Pruned ${prunedRetired} confirmed retired GitHub account rows.`] : []),
         ...(retainedLastGood ? [`Retained ${retainedLastGood} last-good account rows after failed refreshes.`] : [])
       ]
     },
     accounts: [...accounts.values()]
   };
+}
+
+function githubOwnerMappingKey(mapping) {
+  return [
+    mapping?.entityType ?? "company",
+    mapping?.entityId ?? "unknown",
+    canonicalSocialAccountUrl("github", mapping?.url).toLowerCase()
+  ].join(":");
 }
 
 function normalizeCompanyNode(node, batch) {
@@ -502,18 +1112,162 @@ function normalizeYcFounder(founder, company, batch) {
   };
 }
 
+function mergeVerifiedOverridesIntoCatalog(companies, overrides, batch) {
+  return companies.map((company) => {
+    const companySlug = autonomousCompanySlug(company);
+    const override = overrides?.[companySlug];
+    if (!override) return company;
+
+    const companyLinks = override.companySocialLinks ?? override.company ?? {};
+    const unmatchedFounderOverrides = [...(override.founders ?? [])];
+    const founders = company.founders.map((founder) => {
+      const overrideIndex = unmatchedFounderOverrides.findIndex(
+        (candidate) =>
+          founder.sourceKey.endsWith(`-${candidate.id}`) ||
+          slugify(founder.name) === slugify(candidate.name)
+      );
+      if (overrideIndex < 0) return founder;
+      const [founderOverride] = unmatchedFounderOverrides.splice(overrideIndex, 1);
+      return {
+        ...founder,
+        profileUrl: founderOverride.ycProfileUrl ?? founder.profileUrl,
+        accounts: mergeOwnerAccounts(founder, founderOverride.socialLinks ?? {}, {
+          discoveredFromUrl: founderOverride.sourceUrl ?? founderOverride.ycProfileUrl ?? founder.profileUrl,
+          matchReason: founderOverride.matchReason ?? override.matchReason
+        }, retiredOwnerAccounts(founderOverride))
+      };
+    });
+
+    for (const founderOverride of unmatchedFounderOverrides) {
+      if (!founderOverride?.id || !founderOverride?.name) continue;
+      const sourceKey = batch.slug === "A16ZSR006" && /^a16z-speedrun-006-.+-founder-/i.test(founderOverride.id)
+        ? founderOverride.id
+        : `founder-${companySlug}-${slugify(founderOverride.name)}-${founderOverride.id}`;
+      const founder = {
+        entityType: "founder",
+        sourceKey,
+        name: founderOverride.name,
+        batchSlug: batch.slug,
+        companySourceKey: company.sourceKey,
+        profileUrl: founderOverride.ycProfileUrl ?? null,
+        websiteUrl: founderOverride.websiteUrl ?? null,
+        reviewState: "verified",
+        accounts: []
+      };
+      founders.push({
+        ...founder,
+        accounts: mergeOwnerAccounts(founder, founderOverride.socialLinks ?? {}, {
+          discoveredFromUrl: founderOverride.sourceUrl ?? founderOverride.ycProfileUrl ?? company.profileUrl,
+          matchReason: founderOverride.matchReason ?? override.matchReason
+        }, retiredOwnerAccounts(founderOverride))
+      });
+    }
+
+    return {
+      ...company,
+      accounts: mergeOwnerAccounts(company, companyLinks, {
+        discoveredFromUrl: override.sourceUrl ?? company.profileUrl,
+        matchReason: override.matchReason
+      }, retiredOwnerAccounts(override)),
+      founders
+    };
+  });
+}
+
+function mergeOwnerAccounts(entity, overrideLinks, { discoveredFromUrl, matchReason }, retiredAccounts = []) {
+  const retiredKeys = new Set(
+    retiredAccounts.map(({ platform, url }) => ownerAccountCanonicalKey(platform, url)).filter(Boolean)
+  );
+  const byOwnerIdentity = new Map(
+    (entity.accounts ?? [])
+      .filter((account) => !retiredKeys.has(ownerAccountCanonicalKey(account.platform, account.url)))
+      .map((account) => [
+        `${account.platform}:${canonicalSocialAccountUrl(account.platform, account.url)}`,
+        account
+      ])
+  );
+  for (const [rawPlatform, rawUrl] of Object.entries(overrideLinks ?? {})) {
+    if (typeof rawUrl !== "string" || !rawUrl.trim()) continue;
+    const platform = normalizePlatform(rawPlatform);
+    if (!socialUrlMatchesPlatform(platform, rawUrl)) {
+      throw new Error(`Verified ${platform} override URL does not match its platform: ${rawUrl}`);
+    }
+    const canonicalUrl = canonicalSocialAccountUrl(platform, rawUrl);
+    const handle = socialHandle(canonicalUrl);
+    if (!handle) throw new Error(`Verified ${platform} override URL has no account identity: ${rawUrl}`);
+    byOwnerIdentity.set(`${platform}:${canonicalUrl}`, {
+      sourceKey: `acct:${entity.entityType}:${entity.sourceKey}:${platform}:${encodeURIComponent(canonicalUrl)}`,
+      platform,
+      handle,
+      url: rawUrl,
+      accountId: null,
+      reviewState: "verified",
+      verified: true,
+      discoveredFromUrl: discoveredFromUrl ?? null,
+      matchReason: matchReason ?? "Verified social override for this exact entity owner.",
+      overridePriority: 1
+    });
+  }
+  return [...byOwnerIdentity.values()].sort(
+    (left, right) =>
+      Number(right.overridePriority ?? 0) - Number(left.overridePriority ?? 0) ||
+      left.platform.localeCompare(right.platform) ||
+      canonicalSocialAccountUrl(left.platform, left.url).localeCompare(canonicalSocialAccountUrl(right.platform, right.url))
+  );
+}
+
+function retiredOwnerAccounts(ownerOverride) {
+  const records = [];
+  for (const [key, value] of Object.entries(ownerOverride ?? {})) {
+    const platformMatch = key.match(/^rejected([A-Z].*)$/);
+    if (!platformMatch || !Array.isArray(value)) continue;
+    const platform = normalizePlatform(
+      platformMatch[1].replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase()
+    );
+    for (const record of value) {
+      if (record?.url) records.push({ ...record, platform });
+    }
+  }
+  for (const record of ownerOverride?.retiredAccounts ?? []) {
+    if (record?.platform && record?.url) {
+      records.push({ ...record, platform: normalizePlatform(record.platform) });
+    }
+  }
+  return records;
+}
+
+function ownerAccountCanonicalKey(platform, rawUrl) {
+  if (!platform || !rawUrl) return null;
+  const normalizedPlatform = normalizePlatform(platform);
+  return `${normalizedPlatform}:${canonicalSocialAccountUrl(normalizedPlatform, rawUrl).toLowerCase()}`;
+}
+
+function autonomousCompanySlug(company) {
+  try {
+    const parts = new URL(company.profileUrl).pathname.split("/").filter(Boolean);
+    const companiesIndex = parts.indexOf("companies");
+    if (companiesIndex >= 0 && parts[companiesIndex + 1]) return parts[companiesIndex + 1];
+  } catch {
+    // Fall back to stable catalog identity.
+  }
+  return String(company.sourceKey)
+    .replace(/^company-/, "")
+    .replace(/^a16z-speedrun-006-/, "");
+}
+
 function normalizeYcAccounts(links, { entityType, entitySourceKey, discoveredFromUrl }) {
   return Object.entries(links ?? {})
     .filter(([, url]) => typeof url === "string" && url.trim())
-    .map(([rawPlatform, url]) => {
-      const platform = normalizePlatform(rawPlatform);
-      if (!socialUrlMatchesPlatform(platform, url)) {
-        throw new Error(`Official YC ${platform} account URL does not match its platform: ${url}`);
-      }
+    .flatMap(([rawPlatform, url]) => {
+      const declaredPlatform = normalizePlatform(rawPlatform);
+      const platform = socialUrlMatchesPlatform(declaredPlatform, url)
+        ? declaredPlatform
+        : socialPlatformFromUrl(url);
+      if (!platform) return [];
       const canonicalUrl = canonicalSocialAccountUrl(platform, url);
       const handle = socialHandle(canonicalUrl);
-      if (!handle) throw new Error(`Official YC ${platform} account URL has no account identity: ${url}`);
-      return {
+      if (!handle) return [];
+      return [{
         sourceKey: `acct:${entityType}:${entitySourceKey}:${platform}:${encodeURIComponent(canonicalUrl)}`,
         platform,
         handle,
@@ -523,7 +1277,7 @@ function normalizeYcAccounts(links, { entityType, entitySourceKey, discoveredFro
         verified: true,
         discoveredFromUrl,
         matchReason: "Linked from the official public YC profile."
-      };
+      }];
     });
 }
 
@@ -552,9 +1306,21 @@ function normalizeAccounts(accounts) {
     }));
 }
 
-function taskForEntity({ runKey, batch, company, entity, platform }) {
+function tasksForEntity({ runKey, batch, company, entity, platform }) {
+  const accounts = entity.accounts.filter((candidate) => candidate.platform === platform);
+  // A missing mapping remains one discoverable owner/platform task. Every mapped
+  // account is instead its own task so aliases and additional active accounts
+  // cannot be collapsed into a single collector outcome.
+  return (accounts.length ? accounts : [null]).map((account) =>
+    taskForEntityAccount({ runKey, batch, company, entity, platform, account })
+  );
+}
+
+function taskForEntityAccount({ runKey, batch, company, entity, platform, account }) {
   const entityType = entity.entityType;
-  const account = entity.accounts.find((candidate) => candidate.platform === platform) ?? null;
+  const accountIdentity = account
+    ? `account:${encodeURIComponent(canonicalSocialAccountUrl(platform, account.url))}`
+    : "discovery";
   const base = {
     batchSlug: batch.slug,
     companySourceKey: company.sourceKey,
@@ -564,7 +1330,7 @@ function taskForEntity({ runKey, batch, company, entity, platform }) {
     entityName: entity.name,
     platform,
     account,
-    checkpointKey: `${runKey}:${batch.slug}:${entityType}:${entity.sourceKey}:${platform}`,
+    checkpointKey: `${runKey}:${batch.slug}:${entityType}:${entity.sourceKey}:${platform}:${accountIdentity}`,
     status: "queued",
     terminalReason: null
   };
@@ -572,15 +1338,10 @@ function taskForEntity({ runKey, batch, company, entity, platform }) {
   if (EXPLICITLY_UNAVAILABLE.has(platform)) {
     return { ...base, status: "skipped", terminalReason: "collector_not_available" };
   }
-  if (entityType === "founder" && !FOUNDER_SOCIAL_PLATFORMS.has(platform)) {
+  if (entityType === "founder" && !FOUNDER_SOCIAL_PLATFORMS.has(platform) && !account) {
     return { ...base, status: "skipped", terminalReason: "collector_not_applicable_to_founder" };
   }
-  if (entityType === "founder" && FOUNDER_SOCIAL_PLATFORMS.has(platform) && !account) {
-    return { ...base, status: "needs_review", terminalReason: "missing_account_mapping" };
-  }
-  if (platform === "github" && !account && !(batch.slug === "A16ZSR006" && entityType === "company")) {
-    return { ...base, status: "needs_review", terminalReason: "missing_account_mapping" };
-  }
+  if (platform === "github" && !account) return base;
   if (platform !== "github" && !PUBLIC_PLATFORM_COLLECTORS.has(platform)) {
     return { ...base, status: "skipped", terminalReason: "collector_not_available" };
   }
@@ -590,6 +1351,8 @@ function taskForEntity({ runKey, batch, company, entity, platform }) {
 function normalizePlatform(platform) {
   if (platform === "twitter") return "x";
   if (platform === "website") return "web";
+  if (platform === "producthunt") return "product_hunt";
+  if (platform === "hn" || platform === "hackernews") return "hacker_news";
   return platform;
 }
 
@@ -598,11 +1361,23 @@ function normalizeIdentity(value) {
 }
 
 function collectorOutcomePriority(status) {
-  return ({ failed: 1, needs_review: 2, completed: 3 })[status] ?? 0;
+  return ({ blocked_or_empty: 1, failed: 2, needs_review: 3, completed: 4 })[status] ?? 0;
 }
 
 function isSuccessfulPublicEvidenceRow(row) {
-  return !["needs_review", "rejected"].includes(row?.review_state);
+  if (["needs_review", "rejected"].includes(row?.review_state)) return false;
+  if (Number(row?.contributionScore ?? 0) > 0) return true;
+  if (row?.platformObjectId ?? row?.platformPostId ?? row?.platform_post_id ?? row?.nativeId) return true;
+  const sourceUrl = String(row?.sourceUrl ?? row?.canonicalUrl ?? row?.url ?? "");
+  return /(?:\/status\/\d+|\/posts\/[^/?#]+|\/feed\/update\/urn:li:activity:|\/(?:p|reel|tv)\/[^/?#]+|\/watch\?(?:[^#]*&)?v=[^&#]+|news\.ycombinator\.com\/item\?id=\d+|reddit\.com\/r\/[^/]+\/comments\/[^/]+|producthunt\.com\/(?:posts|products)\/[^/?#]+)/i.test(sourceUrl);
+}
+
+function isExpectedPublicAccessOrEmptyFailure(failure) {
+  const message = String(failure?.message ?? failure?.error ?? "").toLowerCase();
+  if (/(?:\b404\b|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported .*url|referential)/i.test(message)) {
+    return false;
+  }
+  return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required)/i.test(message);
 }
 
 function canonicalSocialAccountUrl(platform, rawUrl) {
@@ -650,6 +1425,13 @@ function socialUrlMatchesPlatform(platform, rawUrl) {
   }
 }
 
+function socialPlatformFromUrl(rawUrl) {
+  for (const platform of ["github", "linkedin", "x", "instagram", "tiktok", "bluesky"]) {
+    if (socialUrlMatchesPlatform(platform, rawUrl)) return platform;
+  }
+  return null;
+}
+
 function socialHandle(url) {
   try {
     return new URL(url).pathname.split("/").filter(Boolean).at(-1) ?? null;
@@ -662,14 +1444,778 @@ function slugify(value) {
   return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+const MERGED_PUBLIC_SCORING_METRICS = Object.freeze({
+  x: new Set(["views", "likes", "replies", "reposts", "quotes"]),
+  linkedin: new Set(["views", "reactions", "comments", "reposts"]),
+  instagram: new Set(["views", "likes", "comments", "shares", "saves"]),
+  youtube: new Set(["views", "likes", "comments"]),
+  product_hunt: new Set(["upvotes", "comments"]),
+  hacker_news: new Set(["upvotes", "comments"]),
+  reddit: new Set(["upvotes", "comments"])
+});
+const MERGED_PUBLIC_DISPLAY_METRICS = Object.freeze({
+  ...MERGED_PUBLIC_SCORING_METRICS,
+  x: new Set([...MERGED_PUBLIC_SCORING_METRICS.x, "bookmarks"])
+});
+const MERGED_PUBLIC_DERIVED_METRICS = new Set([
+  "score",
+  "profile_score",
+  "contribution_score",
+  "max_repo_score"
+]);
+
 function evidenceKey(row) {
   const platform = normalizePlatform(row.platform ?? "other");
-  const entityId = row.entityId ?? row.attachedCompanyId ?? row.companySlug ?? row.companyName ?? "unknown-entity";
-  const nativeId = row.platformObjectId ?? row.platform_post_id ?? row.nativeId;
-  if (nativeId) return `${entityId}:${platform}:id:${nativeId}`;
-  const url = canonicalUrl(row.sourceUrl ?? row.canonicalUrl ?? row.url);
-  if (url) return `${entityId}:${platform}:url:${url}`;
-  return row.id ?? `${entityId}:${platform}:${row.title ?? row.text ?? "unknown"}`;
+  const entityId = evidenceEntityAttribution(row);
+  const physicalIdentity = mergedPublicEvidenceIdentity(platform, row);
+  return `${rowBatchScope(row)}:${entityId}:${platform}:post:${physicalIdentity.urlId ?? physicalIdentity.explicitId}`;
+}
+
+function reviewEvidenceKey(row) {
+  const platform = normalizePlatform(row.platform ?? "other");
+  const entityId = evidenceEntityAttribution(row);
+  const candidate = canonicalUrl(row.candidateUrl ?? row.sourceUrl ?? row.canonicalUrl ?? row.url) ??
+    row.platformPostId ?? row.platform_post_id ?? row.platformObjectId ?? row.nativeId ?? row.id ?? row.title;
+  return `${rowBatchScope(row)}:${entityId}:${platform}:${candidate ?? "unknown-review"}`;
+}
+
+function evidenceEntityAttribution(row) {
+  return row.entityId ?? row.attachedCompanyId ?? row.companySlug ?? row.companyName ?? "unknown-entity";
+}
+
+function samePublicAttribution(left, right) {
+  const leftBatch = String(left?.batchSlug ?? "").toUpperCase();
+  const rightBatch = String(right?.batchSlug ?? "").toUpperCase();
+  return (!leftBatch || !rightBatch || leftBatch === rightBatch) &&
+    String(left?.entityType ?? "company") === String(right?.entityType ?? "company") &&
+    String(left?.entityId ?? "") === String(right?.entityId ?? "");
+}
+
+function reconciliationCandidate(originalRow, replacementRow, disposition, reason) {
+  const platform = normalizePlatform(originalRow?.platform ?? replacementRow?.platform ?? "");
+  const identity = mergedPublicEvidenceIdentity(platform, originalRow);
+  const staleAttribution = publicAttribution(originalRow);
+  if (!identity.urlId || identity.conflict || !staleAttribution.batchSlug || !staleAttribution.entityId) return null;
+  return {
+    platform,
+    sourceUrl: canonicalUrl(originalRow?.sourceUrl ?? originalRow?.canonicalUrl ?? originalRow?.url),
+    platformPostId: identity.urlId,
+    disposition,
+    reason,
+    staleAttribution,
+    ...(replacementRow ? { replacementAttribution: publicAttribution(replacementRow) } : {})
+  };
+}
+
+function explicitQuarantineReconciliationCandidate(reviewRow, directive) {
+  const platform = normalizePlatform(directive?.platform ?? reviewRow?.platform ?? "");
+  const sourceUrl = canonicalUrl(directive?.sourceUrl ?? reviewRow?.sourceUrl ?? reviewRow?.candidateUrl);
+  const identity = mergedPublicEvidenceIdentity(platform, {
+    sourceUrl,
+    platformPostId: directive?.platformPostId ?? reviewRow?.platformPostId
+  });
+  if (!identity.urlId || identity.conflict || !directive?.reason) return null;
+  return {
+    platform,
+    sourceUrl,
+    platformPostId: identity.urlId,
+    disposition: "quarantined",
+    reason: directive.reason,
+    staleAttribution: {
+      ...publicAttribution(reviewRow),
+      ...(directive.staleAttribution ?? {}),
+      batchSlug: directive.staleAttribution?.batchSlug ??
+        reviewRow.batchSlug ?? reviewRow.batch_slug ?? null
+    }
+  };
+}
+
+function finalizeAttributionReconciliationLedger(candidates, acceptedEvidence) {
+  const acceptedAttributionTargets = new Set(
+    acceptedEvidence.map((row) => reconciliationPhysicalAttributionIdentity(
+      reconciliationPhysicalIdentity(row),
+      publicAttribution(row)
+    )).filter(Boolean)
+  );
+  const ledger = [];
+  const seen = new Set();
+  const reattributedStaleTargets = new Set(
+    candidates
+      .filter((candidate) => candidate?.disposition === "reattributed")
+      .map((candidate) => reconciliationPhysicalAttributionIdentity(
+        reconciliationPhysicalIdentity(candidate),
+        candidate.staleAttribution
+      ))
+      .filter(Boolean)
+  );
+  for (const candidate of candidates.filter(Boolean)) {
+    const physicalIdentity = reconciliationPhysicalIdentity(candidate);
+    // A stale generic-search row may be present beside a newly refreshed and
+    // accepted receipt for the exact same physical post. The accepted row wins;
+    // no durable attribution is retired merely because an older copy was stale.
+    if (
+      candidate.disposition === "quarantined" &&
+      (
+        acceptedAttributionTargets.has(
+          reconciliationPhysicalAttributionIdentity(physicalIdentity, candidate.staleAttribution)
+        ) ||
+        reattributedStaleTargets.has(
+          reconciliationPhysicalAttributionIdentity(physicalIdentity, candidate.staleAttribution)
+        )
+      )
+    ) {
+      continue;
+    }
+    const key = JSON.stringify([
+      physicalIdentity,
+      candidate.disposition,
+      candidate.staleAttribution?.batchSlug,
+      candidate.staleAttribution?.entityType,
+      candidate.staleAttribution?.entityId,
+      candidate.replacementAttribution?.batchSlug,
+      candidate.replacementAttribution?.entityType,
+      candidate.replacementAttribution?.entityId
+    ]);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    ledger.push(candidate);
+  }
+  return ledger.sort((left, right) =>
+    String(left.platform).localeCompare(String(right.platform)) ||
+    String(left.platformPostId).localeCompare(String(right.platformPostId)) ||
+    String(left.staleAttribution?.batchSlug).localeCompare(String(right.staleAttribution?.batchSlug)) ||
+    String(left.staleAttribution?.entityId).localeCompare(String(right.staleAttribution?.entityId))
+  );
+}
+
+function reconciliationPhysicalAttributionIdentity(physicalIdentity, attribution) {
+  if (!physicalIdentity || !attribution?.entityId || !attribution?.batchSlug) return null;
+  return [
+    physicalIdentity,
+    String(attribution.batchSlug).toUpperCase(),
+    attribution.entityType ?? "company",
+    attribution.entityId,
+    attribution.attributionType ?? "subject"
+  ].join(":");
+}
+
+function reconciliationPhysicalIdentity(row) {
+  const platform = normalizePlatform(row?.platform ?? "");
+  const identity = row?.platformPostId ?? mergedPublicEvidenceIdentity(platform, row).urlId;
+  return identity ? `${platform}:${String(identity).toLowerCase()}` : null;
+}
+
+function validateMergedPublicEvidence(
+  row,
+  { resolveNativeAuthor = null, nativeAuthorResolution = null } = {}
+) {
+  const platform = normalizePlatform(row.platform ?? "");
+  const sourceUrl = canonicalUrl(row.sourceUrl ?? row.canonicalUrl ?? row.url);
+  const identity = mergedPublicEvidenceIdentity(platform, { ...row, sourceUrl });
+  const metricValidation = mergedPublicMetricValidation(platform, row.metrics);
+  const reasons = [];
+  let attributionFailure = false;
+  let reconciliationEligible = false;
+
+  if (!row?.batchSlug && !row?.batch_slug) reasons.push("missing_or_ambiguous_batch_scope");
+  if (!MERGED_PUBLIC_SCORING_METRICS[platform]) reasons.push(`unsupported_platform:${platform || "missing"}`);
+  if (!sourceUrl) reasons.push("invalid_url");
+  if (sourceUrl && !identity.urlId) reasons.push("not_native_activity_url");
+  if (identity.conflict) {
+    reasons.push(`native_id_conflict:url=${identity.urlId};explicit=${identity.explicitId}`);
+  }
+  if (row.review_state !== "verified") reasons.push(`not_verified:${row.review_state ?? "missing"}`);
+  if (["invalid", "blocked"].includes(row.linkStatus)) reasons.push(`invalid_link:${row.linkStatus}`);
+  if (metricValidation.unsupported.length > 0) {
+    reasons.push(`unsupported_metrics:${metricValidation.unsupported.join(",")}`);
+  }
+  if (!metricValidation.hasPositiveScoringMetric) reasons.push("no_visible_positive_scoring_metrics");
+
+  let semanticAttribution = null;
+  if (typeof resolveNativeAuthor === "function") {
+    const ownership = mergedPublicOwnershipValidation(row, resolveNativeAuthor, nativeAuthorResolution);
+    if (!ownership.ok) {
+      reasons.push(ownership.reason);
+      attributionFailure = true;
+      reconciliationEligible = true;
+    }
+    if (isGenericSearchYouTubeRow(row) && !validGenericYouTubeAttributionReceipt(row)) {
+      reasons.push("generic_youtube_missing_attribution_v2_native_channel_receipt");
+      attributionFailure = true;
+    }
+    semanticAttribution = mergedSemanticAttribution(row, resolveNativeAuthor, nativeAuthorResolution);
+    if (!semanticAttribution.verified) {
+      reasons.push(`semantic_attribution:${semanticAttribution.reason}`);
+      attributionFailure = true;
+      reconciliationEligible ||= mergedSemanticAttributionCertainRejection(semanticAttribution);
+    }
+  }
+
+  if (reasons.length > 0) {
+    return { ok: false, reasons, attributionFailure, reconciliationEligible, semanticAttribution };
+  }
+  const conflictingBatchNote = semanticAttribution?.conflictingBatch
+    ? " Third-party title cohort label conflicts with the canonical catalog; canonical roster scope was retained because independent exact identity anchors resolved the company."
+    : "";
+  return {
+    ok: true,
+    row: {
+      ...row,
+      platform,
+      sourceUrl,
+      platformPostId: identity.urlId,
+      ...(semanticAttribution
+        ? {
+            attributionVersion: Math.max(
+              PUBLIC_EVIDENCE_ATTRIBUTION_VERSION,
+              Number(row.attributionVersion ?? 0)
+            ),
+            attributionStatus: "verified",
+            attributionMode: mergedPublicAttributionMode(row),
+            attributionSignals: semanticAttribution.signals,
+            attributionDescriptorMatches: semanticAttribution.descriptorMatches,
+            matchReason: `${row.matchReason ?? "Verified public evidence."}${conflictingBatchNote}`
+          }
+        : {})
+    },
+    attributionFailure: false,
+    semanticAttribution
+  };
+}
+
+const MERGED_ATTRIBUTION_DESCRIPTOR_STOP_WORDS = new Set([
+  "about", "agent", "agents", "and", "are", "build", "building", "built", "companies",
+  "company", "for", "from", "into", "its", "our", "platform", "product", "products",
+  "that", "the", "their", "they", "this", "through", "using", "with", "your"
+]);
+
+function mergedSemanticAttribution(row, resolveNativeAuthor, nativeAuthorResolution) {
+  const companyOwner = resolveNativeAuthor.companyForRow?.(row);
+  const company = companyOwner?.company;
+  if (!company) {
+    return {
+      verified: false,
+      reason: "canonical_company_attribution_unresolved",
+      signals: [],
+      descriptorMatches: []
+    };
+  }
+  const text = publicEvidenceAttributionText(row);
+  const signals = [];
+  if (
+    nativeAuthorResolution?.status === "matched" &&
+    nativeAuthorResolution.owner?.entityType === (row.entityType ?? row.entity_type ?? "company") &&
+    nativeAuthorResolution.owner?.entityId === (row.entityId ?? row.entity_id)
+  ) {
+    signals.push("unique_native_author");
+  }
+  if (
+    nativeAuthorResolution?.status === "matched" &&
+    nativeAuthorResolution.owner?.companySlug === (row.companySlug ?? row.company_slug) &&
+    containsExactTokenSequence(text, company.name)
+  ) {
+    signals.push("same_company_native_author_subject");
+  }
+  if (mergedCompanyDomainMentioned(company, row, text)) signals.push("company_domain");
+  if (hasDistinctiveCatalogPhrase(company, text)) signals.push("catalog_distinctive_phrase");
+  if (isListOrRoundupAttributionContext(row.batchSlug ?? row.batch_slug, text)) {
+    signals.push("batch_list_only");
+  }
+  // The public subject text deliberately strips native-author title chrome.
+  // A full canonical founder in that original title suffix is still valid
+  // corroboration, but only alongside an exact company subject match in the
+  // shared assessment below.
+  const rosterFounderMatches = mergedRosterFounderMatches(company, `${text}\n${row?.title ?? ""}`);
+  if (rosterFounderMatches.length > 0) {
+    signals.push("roster_founder");
+  }
+  if (rosterFounderMatches.length >= 2) signals.push("multiple_roster_founders");
+  if (
+    (row.entityType ?? row.entity_type) === "founder" &&
+    mergedAssignedFounderNameMentioned(row, company, nativeAuthorResolution)
+  ) {
+    signals.push("founder_subject_exact_identity");
+  }
+  if (mergedMappedAccountMatches(company, row)) signals.push("mapped_official_account");
+  const channelName = String(row?.youtubeChannelName ?? "");
+  if (
+    channelName &&
+    mergedCompanyBrandMatchesChannel(company.name, channelName) &&
+    (!isCollisionProneCompanyName(company.name) ||
+      organizationQualifiedBatchMarker(row.batchSlug ?? row.batch_slug, `${text}\n${channelName}`))
+  ) {
+    signals.push("native_channel_brand");
+  }
+  if (
+    channelName &&
+    (company?.founders ?? []).some((founder) => {
+      const name = String(founder?.name ?? "").trim();
+      return name.split(/\s+/).filter(Boolean).length >= 2 && containsExactTokenSequence(channelName, name);
+    })
+  ) {
+    signals.push("native_channel_roster_founder");
+  }
+  if (Number(row.attributionVersion ?? 0) >= PUBLIC_EVIDENCE_ATTRIBUTION_VERSION) {
+    for (const signal of row.attributionSignals ?? []) {
+      if ([
+        "company_domain",
+        "batch_list_only",
+        "founder_subject_exact_identity",
+        "mapped_official_account",
+        "native_channel_brand",
+        "native_channel_roster_founder",
+        "roster_founder",
+        "same_company_native_author_subject",
+        "unique_native_author"
+      ].includes(signal)) {
+        signals.push(signal);
+      }
+    }
+  }
+  return assessPublicEvidenceAttribution({
+    batchSlug: row.batchSlug ?? row.batch_slug,
+    companyName: company.name,
+    text,
+    signals,
+    descriptorMatches: mergedCompanyDescriptorMatches(company, text)
+  });
+}
+
+function mergedPublicAttributionMode(row) {
+  const explicit = String(row?.attributionMode ?? row?.attributionType ?? "").trim().toLowerCase();
+  if (["author", "account_owner", "owner"].includes(explicit)) return "account_owner";
+  if (explicit === "subject") return "subject";
+  return row?.accountUrl ? "account_owner" : "subject";
+}
+
+function shouldReassignMergedPublicRow(row, resolveNativeAuthor, nativeAuthorResolution) {
+  if (mergedPublicAttributionMode(row) !== "subject") return true;
+  const company = resolveNativeAuthor.companyForRow?.(row)?.company;
+  if (!company) return true;
+  if ((row?.entityType ?? row?.entity_type ?? "company") === "founder") {
+    return !mergedAssignedFounderNameMentioned(row, company, nativeAuthorResolution) &&
+      !mergedNativeOwnerMatchesRow(row, nativeAuthorResolution);
+  }
+  if (
+    nativeAuthorResolution?.owner?.companySlug === (row?.companySlug ?? row?.company_slug) &&
+    containsExactTokenSequence(publicEvidenceAttributionText(row), company.name)
+  ) {
+    return false;
+  }
+  return !mergedSemanticAttribution(row, resolveNativeAuthor, null).verified;
+}
+
+function mergedFounderToCompanySubjectReassignment(row, resolveNativeAuthor, nativeAuthorResolution) {
+  if (mergedPublicAttributionMode(row) !== "subject") return null;
+  if ((row?.entityType ?? row?.entity_type ?? "company") !== "founder") return null;
+  const companyOwner = resolveNativeAuthor.companyForRow?.(row);
+  const company = companyOwner?.company;
+  if (!company) return null;
+  if (
+    mergedAssignedFounderNameMentioned(row, company, nativeAuthorResolution) ||
+    mergedNativeOwnerMatchesRow(row, nativeAuthorResolution)
+  ) {
+    return null;
+  }
+  const companyRowFor = (owner) => ({
+    ...row,
+    batchSlug: owner.batchSlug,
+    entityType: "company",
+    entityId: owner.companyEntityId ?? owner.entityId,
+    entityName: owner.company.name,
+    companySlug: owner.companySlug,
+    companyName: owner.company.name,
+    attributionMode: "subject",
+    previousAttribution: publicAttribution(row),
+    nativeAuthorResolution
+  });
+  const currentCompanyRow = companyRowFor(companyOwner);
+  const currentAssessment = mergedSemanticAttribution(
+    currentCompanyRow,
+    resolveNativeAuthor,
+    nativeAuthorResolution
+  );
+  let resolvedCompanyRow = currentAssessment.verified ? currentCompanyRow : null;
+
+  if (!resolvedCompanyRow) {
+    const matches = [];
+    const seen = new Set();
+    for (const owner of resolveNativeAuthor.companyOwners ?? []) {
+      const key = `${owner.batchSlug}:${owner.companyEntityId ?? owner.entityId}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const candidate = companyRowFor(owner);
+      const assessment = mergedSemanticAttribution(candidate, resolveNativeAuthor, nativeAuthorResolution);
+      // First count every ordinary exact company+cohort subject. A second
+      // company makes the physical post ambiguous even if only one entry also
+      // names roster founders.
+      if (
+        assessment.verified &&
+        assessment.companySubjectNameMatch &&
+        assessment.expectedBatch &&
+        !assessment.signals.includes("batch_list_only")
+      ) {
+        matches.push({ candidate, assessment });
+      }
+    }
+    if (matches.length !== 1) return null;
+    if (!matches[0].assessment.signals.includes("roster_founder")) return null;
+    resolvedCompanyRow = matches[0].candidate;
+  }
+  resolvedCompanyRow = {
+    ...resolvedCompanyRow,
+    matchReason: `${row.matchReason ?? "Verified public evidence."} ` +
+      `Assigned founder was not established by the primary post; unique exact company evidence reassigned this physical post to company ${resolvedCompanyRow.companyName}.`
+  };
+  return {
+    row: resolvedCompanyRow,
+    reason: "founder_subject_reassigned_to_verified_company_subject"
+  };
+}
+
+function mergedPublicOwnershipValidation(row, resolveNativeAuthor, nativeAuthorResolution) {
+  const platform = normalizePlatform(row?.platform);
+  if (!["x", "linkedin", "instagram"].includes(platform)) return { ok: true };
+  const mode = mergedPublicAttributionMode(row);
+  const company = resolveNativeAuthor.companyForRow?.(row)?.company ?? nativeAuthorResolution?.company;
+  if (nativeAuthorResolution?.status === "ambiguous") {
+    return { ok: false, reason: "native_author_ambiguous:multiple_canonical_owners" };
+  }
+  if (mode === "account_owner") {
+    return mergedNativeOwnerMatchesRow(row, nativeAuthorResolution)
+      ? { ok: true }
+      : {
+          ok: false,
+          reason: `account_owner_native_author_mismatch:${nativeAuthorResolution?.status ?? "unavailable"}`
+        };
+  }
+  if ((row?.entityType ?? row?.entity_type ?? "company") === "founder") {
+    return mergedNativeOwnerMatchesRow(row, nativeAuthorResolution) ||
+      mergedAssignedFounderNameMentioned(row, company, nativeAuthorResolution)
+      ? { ok: true }
+      : { ok: false, reason: "founder_subject_without_exact_founder_or_native_owner" };
+  }
+  return { ok: true };
+}
+
+function mergedNativeOwnerMatchesRow(row, nativeAuthorResolution) {
+  return nativeAuthorResolution?.status === "matched" &&
+    nativeAuthorResolution.owner?.entityType === (row?.entityType ?? row?.entity_type ?? "company") &&
+    nativeAuthorResolution.owner?.entityId === (row?.entityId ?? row?.entity_id) &&
+    nativeAuthorResolution.owner?.batchSlug === (row?.batchSlug ?? row?.batch_slug);
+}
+
+function mergedAssignedFounderNameMentioned(row, company, nativeAuthorResolution = row?.nativeAuthorResolution) {
+  const entityId = row?.entityId ?? row?.entity_id;
+  const founder = (company?.founders ?? []).find((candidate) => candidate.sourceKey === entityId);
+  const name = String(founder?.name ?? "").trim();
+  if (name.split(/\s+/).filter(Boolean).length < 2) return false;
+  if (containsExactTokenSequence(publicEvidenceAttributionText(row), name)) return true;
+  return String(nativeAuthorResolution?.author?.key ?? "").toLowerCase() === slugify(name);
+}
+
+function mergedCompanyBrandMatchesChannel(companyName, channelName) {
+  if (containsExactTokenSequence(channelName, companyName)) return true;
+  const tokens = String(companyName ?? "").normalize("NFKC").match(/[\p{L}\p{N}]+/gu) ?? [];
+  const genericSuffixes = new Set(["ai", "app", "inc", "labs", "technologies", "technology"]);
+  if (tokens.length < 2 || !genericSuffixes.has(tokens.at(-1).toLowerCase())) return false;
+  return containsExactTokenSequence(channelName, tokens.slice(0, -1).join(" "));
+}
+
+function mergedCompanyDomainMentioned(company, row, text) {
+  const host = normalizedHost(company?.websiteUrl);
+  if (!host) return false;
+  if (String(text ?? "").toLowerCase().includes(host)) return true;
+  return [row?.sourceUrl, row?.submittedUrl]
+    .filter(Boolean)
+    .some((url) => {
+      const candidate = normalizedHost(url);
+      return candidate === host || candidate?.endsWith(`.${host}`);
+    });
+}
+
+function mergedRosterFounderMatches(company, text) {
+  return (company?.founders ?? []).filter((founder) => {
+    const name = String(founder?.name ?? "")
+      .replace(/\s*\([^)]*\)\s*$/, "")
+      .trim();
+    return name.split(/\s+/).filter(Boolean).length >= 2 && containsExactTokenSequence(text, name);
+  });
+}
+
+function mergedMappedAccountMatches(company, row) {
+  const platform = normalizePlatform(row?.platform);
+  const entityType = row?.entityType ?? row?.entity_type ?? "company";
+  const entityId = row?.entityId ?? row?.entity_id;
+  const owner = entityType === "founder"
+    ? (company?.founders ?? []).find((founder) => founder.sourceKey === entityId)
+    : company;
+  if (!owner) return false;
+  const candidateUrls = [row?.accountUrl, row?.youtubeChannelUrl].filter(Boolean);
+  if (candidateUrls.length === 0 && !row?.youtubeChannelId) return false;
+  const candidateKeys = new Set(candidateUrls.map((url) => canonicalMappedAccountIdentity(platform, url)).filter(Boolean));
+  if (row?.youtubeChannelId) candidateKeys.add(`youtube:channel:${String(row.youtubeChannelId).toLowerCase()}`);
+  return (owner.accounts ?? []).some((account) => {
+    if (normalizePlatform(account?.platform) !== platform) return false;
+    const key = canonicalMappedAccountIdentity(platform, account?.url);
+    if (key && candidateKeys.has(key)) return true;
+    return platform === "youtube" && row?.youtubeChannelId &&
+      String(account?.accountId ?? "").toLowerCase() === String(row.youtubeChannelId).toLowerCase();
+  });
+}
+
+function canonicalMappedAccountIdentity(platform, rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+    const path = decodeURIComponent(url.pathname).replace(/\/$/, "").toLowerCase();
+    if (platform === "youtube") {
+      const channel = path.match(/^\/channel\/(uc[\w-]+)$/i)?.[1];
+      if (channel) return `youtube:channel:${channel.toLowerCase()}`;
+    }
+    return `${platform}:${host}:${path}`;
+  } catch {
+    return null;
+  }
+}
+
+function mergedCompanyDescriptorMatches(company, text) {
+  const candidateTokens = new Set(String(text ?? "").toLowerCase().match(/[a-z0-9]+/g) ?? []);
+  const companyTokens = new Set(String(company?.name ?? "").toLowerCase().match(/[a-z0-9]+/g) ?? []);
+  return [...new Set(
+    String(`${company?.tagline ?? ""} ${company?.description ?? ""}`).toLowerCase().match(/[a-z0-9]+/g) ?? []
+  )]
+    .filter((token) => token.length >= 2)
+    .filter((token) => !companyTokens.has(token))
+    .filter((token) => !MERGED_ATTRIBUTION_DESCRIPTOR_STOP_WORDS.has(token))
+    .filter((token) => candidateTokens.has(token));
+}
+
+function normalizedHost(rawUrl) {
+  try {
+    return new URL(rawUrl).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function isGenericSearchYouTubeRow(row) {
+  return normalizePlatform(row?.platform) === "youtube" && !row?.accountUrl &&
+    /(?:public\s+youtube\s+search|generic[_ -]?search|youtube\s+search\s+result)/i.test(String(row?.matchReason ?? ""));
+}
+
+function validGenericYouTubeAttributionReceipt(row) {
+  return Number(row?.attributionVersion ?? 0) >= PUBLIC_EVIDENCE_ATTRIBUTION_VERSION &&
+    Boolean(row?.youtubeChannelId || row?.youtubeChannelUrl);
+}
+
+function mergedSemanticAttributionCertainRejection(assessment) {
+  if (assessment?.verified) return false;
+  if (assessment?.reason === "company_name_token_boundary_mismatch") return true;
+  if (assessment?.reason === "collision_prone_name_without_independent_anchor") {
+    return !assessment.expectedBatch;
+  }
+  return false;
+}
+
+function quarantinedPublicEvidence(row, reasons) {
+  const sourceId = row.id ?? `${evidenceEntityAttribution(row)}-${row.platform ?? "unknown"}`;
+  return {
+    ...row,
+    id: `quarantined-${sourceId}`,
+    sourceEvidenceId: row.id ?? null,
+    candidateUrl: row.sourceUrl ?? row.canonicalUrl ?? row.url ?? null,
+    review_state: "needs_review",
+    quarantineReasons: reasons,
+    matchReason: `Quarantined during public evidence merge: ${reasons.join("; ")}.`
+  };
+}
+
+function withSnapshotRowBatch(row, snapshot, resolveBatchSlug) {
+  if (typeof resolveBatchSlug === "function") {
+    // Catalog identity is authoritative. In particular, never let a collector
+    // lane's single-batch envelope stamp a canonically resolvable row from a
+    // different cohort. A resolver null is also authoritative: conflicts stay
+    // unscoped and fail closed instead of inheriting a plausible-looking lane.
+    return withCanonicalRowBatch(row, resolveBatchSlug(row));
+  }
+  const existing = row?.batchSlug ?? row?.batch_slug;
+  if (existing) return withCanonicalRowBatch(row, existing);
+  const batches = snapshotBatchSlugs(snapshot);
+  return batches.length === 1
+    ? withCanonicalRowBatch(row, batches[0])
+    : withCanonicalRowBatch(row, null);
+}
+
+function withSnapshotReviewBatch(row, snapshot, resolveBatchSlug) {
+  const reviewRow = withSnapshotRowBatch(row, snapshot, resolveBatchSlug);
+  const directive = reviewRow?.attributionReconciliationDirective;
+  if (!directive?.staleAttribution) return reviewRow;
+  const stale = {
+    ...publicAttribution(reviewRow),
+    ...directive.staleAttribution
+  };
+  const staleRow = withSnapshotRowBatch({
+    ...reviewRow,
+    batchSlug: stale.batchSlug,
+    entityType: stale.entityType,
+    entityId: stale.entityId,
+    companySlug: stale.companySlug ?? reviewRow.companySlug ?? reviewRow.company_slug,
+    companyName: stale.companyName ?? reviewRow.companyName ?? reviewRow.company_name,
+    attributionType: stale.attributionType
+  }, snapshot, resolveBatchSlug);
+  const canonicalStale = {
+    ...stale,
+    ...publicAttribution(staleRow)
+  };
+  if (!canonicalStale.batchSlug) delete canonicalStale.batchSlug;
+  return {
+    ...reviewRow,
+    attributionReconciliationDirective: {
+      ...directive,
+      staleAttribution: canonicalStale
+    }
+  };
+}
+
+function withCanonicalRowBatch(row, batchSlug) {
+  const { batchSlug: _camelBatch, batch_slug: _snakeBatch, ...rest } = row ?? {};
+  return batchSlug ? { ...rest, batchSlug } : rest;
+}
+
+function snapshotBatchSlugs(snapshot) {
+  return [...new Set([
+    snapshot?.source?.batchSlug,
+    ...(Array.isArray(snapshot?.source?.batchSlugs) ? snapshot.source.batchSlugs : [])
+  ].filter(Boolean))];
+}
+
+function rowBatchScope(row) {
+  return String(row?.batchSlug ?? row?.batch_slug ?? "unscoped").trim().toUpperCase() || "unscoped";
+}
+
+function mergedPublicMetricValidation(platform, value) {
+  const metrics = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  const aliases = {
+    plays: "views",
+    points: "upvotes",
+    retweets: "reposts",
+    reactions: platform === "linkedin" ? "reactions" : "likes",
+    likes: platform === "linkedin" ? "reactions" : "likes",
+    comments: platform === "x" ? "replies" : "comments",
+    saves: platform === "x" ? "bookmarks" : "saves"
+  };
+  const supported = MERGED_PUBLIC_DISPLAY_METRICS[platform] ?? new Set();
+  const scoring = MERGED_PUBLIC_SCORING_METRICS[platform] ?? new Set();
+  const unsupported = [];
+  let hasPositiveScoringMetric = false;
+  for (const [rawKey, rawValue] of Object.entries(metrics)) {
+    const key = aliases[rawKey] ?? rawKey;
+    if (MERGED_PUBLIC_DERIVED_METRICS.has(key)) continue;
+    const number = typeof rawValue === "string" ? Number(rawValue.replace(/,/g, "")) : Number(rawValue);
+    if (!Number.isFinite(number) || number < 0) {
+      unsupported.push(`${key}:invalid_value`);
+      continue;
+    }
+    if (!supported.has(key)) {
+      unsupported.push(key);
+      continue;
+    }
+    if (number > 0 && scoring.has(key)) hasPositiveScoringMetric = true;
+  }
+  return {
+    unsupported: [...new Set(unsupported)].sort(),
+    hasPositiveScoringMetric
+  };
+}
+
+function mergedPublicEvidenceIdentity(platform, row) {
+  const sourceUrl = row.sourceUrl ?? row.canonicalUrl ?? row.url;
+  const urlId = strictNativePublicIdentity(platform, sourceUrl);
+  const rawExplicit = row.platformPostId ?? row.platform_post_id ?? row.platformObjectId ?? row.nativeId;
+  const explicitId = normalizeExplicitPublicIdentity(platform, rawExplicit);
+  return {
+    urlId,
+    explicitId,
+    conflict: Boolean(urlId && explicitId && !publicIdentitiesMatch(platform, urlId, explicitId))
+  };
+}
+
+function strictNativePublicIdentity(platform, rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    const host = url.hostname.replace(/^www\./i, "").toLowerCase();
+    const path = url.pathname.replace(/\/+$/, "") || "/";
+    if (platform === "x" && ["x.com", "twitter.com", "mobile.twitter.com"].includes(host)) {
+      return path.match(/^\/(?:[A-Za-z0-9_]{1,15}\/status|i\/web\/status)\/(\d+)(?:\/(?:photo|video)\/\d+)?$/i)?.[1] ?? null;
+    }
+    if (platform === "linkedin" && (host === "linkedin.com" || host.endsWith(".linkedin.com"))) {
+      return path.match(/^\/feed\/update\/urn:li:activity:(\d+)$/i)?.[1] ??
+        path.match(/^\/posts\/[^/]*?activity[-:](\d+)(?:-[^/]*)?$/i)?.[1] ?? null;
+    }
+    if (platform === "instagram" && ["instagram.com", "m.instagram.com"].includes(host)) {
+      return path.match(/^\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)$/i)?.[1] ?? null;
+    }
+    if (platform === "youtube") {
+      if (host === "youtu.be") return path.match(/^\/([A-Za-z0-9_-]{6,})$/)?.[1] ?? null;
+      if (!["youtube.com", "m.youtube.com"].includes(host)) return null;
+      const value = path === "/watch" ? url.searchParams.get("v") : path.match(/^\/(?:shorts|live)\/([A-Za-z0-9_-]+)$/i)?.[1];
+      return /^[A-Za-z0-9_-]{6,}$/.test(value ?? "") ? value : null;
+    }
+    if (platform === "reddit") {
+      if (host === "redd.it") return path.match(/^\/([A-Za-z0-9]+)$/)?.[1]?.toLowerCase() ?? null;
+      if (!(host === "reddit.com" || host.endsWith(".reddit.com"))) return null;
+      return path.match(/^\/(?:r\/[A-Za-z0-9_]+\/)?comments\/([A-Za-z0-9]+)(?:\/[A-Za-z0-9_%.-]+)?(?:\/[A-Za-z0-9]+)?$/i)?.[1]?.toLowerCase() ?? null;
+    }
+    if (platform === "hacker_news" && host === "news.ycombinator.com" && path === "/item") {
+      const value = url.searchParams.get("id");
+      return /^\d+$/.test(value ?? "") ? value : null;
+    }
+    if (platform === "product_hunt" && host === "producthunt.com") {
+      const direct = path.match(/^\/(posts)\/([A-Za-z0-9][A-Za-z0-9_-]*)$/i);
+      if (direct) return `${direct[1].toLowerCase()}/${direct[2].toLowerCase()}`;
+      const forum = path.match(/^\/(p)\/([A-Za-z0-9][A-Za-z0-9_-]*)(?:\/([A-Za-z0-9][A-Za-z0-9_-]*))?$/i);
+      if (forum) return [forum[1], forum[2], forum[3]].filter(Boolean).join("/").toLowerCase();
+      const launch = path.match(/^\/(products)\/([A-Za-z0-9][A-Za-z0-9_-]*)\/(launches)\/([A-Za-z0-9][A-Za-z0-9_-]*)$/i);
+      return launch ? launch.slice(1).join("/").toLowerCase() : null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeExplicitPublicIdentity(platform, rawValue) {
+  const value = String(rawValue ?? "").trim();
+  if (!value) return null;
+  if (/^https?:\/\//i.test(value)) return strictNativePublicIdentity(platform, value);
+  if (platform === "x") return value.match(/(?:^|\/)status\/(\d+)/i)?.[1] ?? (/^\d+$/.test(value) ? value : null);
+  if (platform === "linkedin") return value.match(/activity[-:](\d+)/i)?.[1] ?? (/^\d+$/.test(value) ? value : null);
+  if (platform === "instagram") return value.match(/^(?:\/)?(?:p|reel|tv)[/:]([A-Za-z0-9_-]+)/i)?.[1] ?? (/^[A-Za-z0-9_-]+$/.test(value) ? value : null);
+  if (platform === "youtube") return value.match(/^(?:shorts|live)\/([A-Za-z0-9_-]+)$/i)?.[1] ?? (/^[A-Za-z0-9_-]{6,}$/.test(value) ? value : null);
+  if (platform === "reddit") return (value.match(/(?:^|\/)comments\/([A-Za-z0-9]+)/i)?.[1] ?? value.replace(/^t3_/i, "")).toLowerCase();
+  if (platform === "hacker_news") return /^\d+$/.test(value) ? value : null;
+  if (platform === "product_hunt") {
+    const normalized = value.replace(/^\/+|\/+$/g, "").toLowerCase();
+    return /^(?:posts\/[a-z0-9][a-z0-9_-]*|p\/[a-z0-9][a-z0-9_-]*(?:\/[a-z0-9][a-z0-9_-]*)?|products\/[a-z0-9][a-z0-9_-]*\/launches\/[a-z0-9][a-z0-9_-]*)$/.test(normalized) ||
+      /^[a-z0-9][a-z0-9_-]*$/.test(normalized)
+      ? normalized
+      : null;
+  }
+  return null;
+}
+
+function publicIdentitiesMatch(platform, urlId, explicitId) {
+  if (urlId === explicitId) return true;
+  if (platform !== "product_hunt") return false;
+  const aliases = new Set([urlId.replace(/\//g, "-")]);
+  const launch = urlId.match(/^products\/([^/]+)\/launches\/([^/]+)$/);
+  if (launch) aliases.add(`${launch[1]}-${launch[2]}`);
+  const direct = urlId.match(/^posts\/([^/]+)$/);
+  if (direct) aliases.add(direct[1]);
+  const forum = urlId.match(/^p\/([^/]+)$/);
+  if (forum) aliases.add(forum[1]);
+  return aliases.has(explicitId);
 }
 
 function canonicalUrl(value) {

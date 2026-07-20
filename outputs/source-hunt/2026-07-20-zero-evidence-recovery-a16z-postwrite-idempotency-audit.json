@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-07-20T10:17:09Z",
+  "target": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-20-zero-evidence-recovery-a16z-importable.json"
+  ],
+  "before": 305,
+  "received": 1,
+  "accepted": 0,
+  "updated": 0,
+  "duplicates": 1,
+  "duplicateRows": [
+    {
+      "input": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-a16z-importable.json",
+      "row": 0,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/activity-7453449486699290624-cuAs",
+      "platformPostId": "7453449486699290624",
+      "existingId": null,
+      "existingEntityId": "a16z-speedrun-006-quanto-founder-anderson-petergeorge"
+    }
+  ],
+  "includedBatches": [
+    "A16ZSR006"
+  ],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 305
+}

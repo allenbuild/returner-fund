@@ -8,6 +8,13 @@ import test from "node:test";
 const root = resolve(import.meta.dirname, "..");
 const importer = resolve(root, "scripts/import-source-hunt-evidence.mjs");
 const observedAt = "2026-07-19T03:00:00.000Z";
+const canonicalEvidenceFiles = [
+  "a16z-speedrun-006-social-evidence.json",
+  "public-evidence-current.json",
+  "logged-in-evidence-current.json",
+  "targeted-evidence-current.json"
+];
+const danielaBody = "I have never been this excited about anything. Last year, it took me using OpenClaw for all of 5 minutes to realize that the world is fundamentally changing. Technology is moving fast enough to completely rewrite how people work, what a small team can pull off, and who gets to build at all. And it’s only accelerating. I immediately turned to Jordan and I told him I want to be a part of this. It was simply too exciting not to. We dropped everything. We started talking to everyone we knew about how they were using AI. What did they know? What did they wish they could do? What was holding them back? A pattern showed up immediately. The people building and using these tools live in a bubble. Step outside it, and the businesses that stand to gain the most from this technology are the ones that have the least access and understanding of it. Today we’re taking LemonLime out of stealth to close ";
 
 test("imports verified native evidence and preserves case-sensitive post ids", async () => {
   const fixture = await fixtureFiles({ evidence: [] }, {
@@ -312,6 +319,116 @@ test("target=a16z dedupes repositories from every canonical GitHub snapshot", as
   }
 });
 
+test("dedupes Daniela's exact legacy profile-fragment body from every canonical evidence snapshot", async () => {
+  for (const evidenceFile of canonicalEvidenceFiles) {
+    const fixture = await fixtureFiles(
+      { source: {}, evidence: [] },
+      { evidence: [danielaNativeRow()] },
+      {
+        [evidenceFile]: {
+          source: {},
+          evidence: [danielaLegacyRow()]
+        }
+      }
+    );
+
+    const result = runImporter(fixture, "--strict", "--dry-run");
+    assert.equal(result.status, 0, `${evidenceFile}: ${result.stderr || result.stdout}`);
+    const audit = JSON.parse(result.stdout);
+    assert.equal(audit.accepted, 0, evidenceFile);
+    assert.equal(audit.duplicates, 1, evidenceFile);
+    assert.equal(audit.duplicateRows[0].duplicateReason, "same_platform_author_substantive_body");
+    assert.equal(
+      audit.duplicateRows[0].existingSource,
+      `src/lib/social/${evidenceFile}#evidence[0]`
+    );
+    assert.equal(audit.duplicateRows[0].existingId, danielaLegacyRow().id);
+    assert.equal(audit.duplicateRows[0].incomingPublishedAt, "2026-06-29T21:01:51.402Z");
+    assert.equal(audit.duplicateRows[0].incomingPublicationPrecision, "instant");
+    assert.equal(audit.duplicateRows[0].existingPublishedAt, null);
+    assert.equal(audit.duplicateRows[0].existingPublicationPrecision, null);
+    assert.match(audit.duplicateRows[0].contentBodySha256, /^[0-9a-f]{64}$/);
+  }
+});
+
+test("exact-content guard rejects fuzzy author, body, and publication-time matches", async (t) => {
+  const cases = [
+    {
+      name: "same body with a different author",
+      existing: danielaLegacyRow({ authorName: "Daniela Muñoz" }),
+      incoming: danielaNativeRow({ authorName: "Daniela Muñoz Jr." })
+    },
+    {
+      name: "same author with a near-miss body",
+      existing: danielaLegacyRow({ authorName: "Daniela Muñoz" }),
+      incoming: danielaNativeRow({ text: `${danielaBody}Materially different ending.` })
+    },
+    {
+      name: "same author and body published at a different known time",
+      existing: danielaLegacyRow({ authorName: "Daniela Muñoz", postedAt: "2026-06-29T20:01:51.402Z" }),
+      incoming: danielaNativeRow({ postedAt: "2026-06-29T21:01:51.402Z" })
+    }
+  ];
+
+  for (const testCase of cases) {
+    await t.test(testCase.name, async () => {
+      const fixture = await fixtureFiles(
+        { source: {}, evidence: [] },
+        { evidence: [testCase.incoming] },
+        {
+          "logged-in-evidence-current.json": {
+            source: {},
+            evidence: [testCase.existing]
+          }
+        }
+      );
+
+      const result = runImporter(fixture, "--strict", "--dry-run");
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+      const audit = JSON.parse(result.stdout);
+      assert.equal(audit.accepted, 1);
+      assert.equal(audit.duplicates, 0);
+    });
+  }
+});
+
+test("exact-content guard preserves valid multi-entity attribution", async () => {
+  const shared = {
+    platform: "linkedin",
+    sourceUrl: "https://www.linkedin.com/posts/activity-7999999999999999901-fixture",
+    platformPostId: "7999999999999999901",
+    authorName: "Verified Shared Author",
+    postedAt: "2026-06-12T16:00:21.775Z",
+    metrics: { reactions: 37, comments: 2, reposts: 4 },
+    review_state: "verified",
+    title: "Two-company fixture",
+    text: "This exact native post explicitly and substantively names two separate companies, so each verified entity attribution must remain independently importable.",
+    matchReason: "Native LinkedIn post explicitly names the attributed company."
+  };
+  const fixture = await fixtureFiles({ source: {}, evidence: [] }, {
+    evidence: [
+      {
+        ...shared,
+        entityType: "company",
+        entityId: "company-eden-robotics",
+        companyName: "Eden Robotics"
+      },
+      {
+        ...shared,
+        entityType: "company",
+        entityId: "company-9-mothers-corporation",
+        companyName: "9 Mothers"
+      }
+    ]
+  });
+
+  const result = runImporter(fixture, "--strict", "--dry-run");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const audit = JSON.parse(result.stdout);
+  assert.equal(audit.accepted, 2);
+  assert.equal(audit.duplicates, 0);
+});
+
 function evidenceRow(overrides = {}) {
   return {
     id: "existing-x-post",
@@ -388,7 +505,47 @@ function a16zSeededRow(overrides = {}) {
   };
 }
 
-async function fixtureFiles(targetValue, inputValue) {
+function danielaLegacyRow(overrides = {}) {
+  return {
+    id: "linkedin-founder-lemonlime-daniela-profile-post-3",
+    entityType: "founder",
+    entityId: "founder-lemonlime-daniela-mu-oz-3671976",
+    companySlug: "lemonlime",
+    companyName: "LemonLime",
+    platform: "linkedin",
+    title: "Daniela Muñoz LinkedIn post",
+    sourceUrl: "https://www.linkedin.com/in/danielamunoz12/recent-activity/all/#post-3",
+    platformPostId: null,
+    text: danielaBody,
+    rawVisibleText: `Feed post number 3 Daniela Muñoz Daniela Muñoz Follow ${danielaBody}`,
+    postedAt: null,
+    metrics: { likes: 62, comments: 13, reposts: 2 },
+    review_state: "verified",
+    matchReason: "Opt-in logged-in LinkedIn activity-page original post scrape from founder URL.",
+    ...overrides
+  };
+}
+
+function danielaNativeRow(overrides = {}) {
+  return {
+    entityType: "founder",
+    entityId: "founder-lemonlime-daniela-mu-oz-3671976",
+    companyName: "LemonLime",
+    platform: "linkedin",
+    sourceUrl: "https://www.linkedin.com/posts/activity-7477466387674816515-885Q",
+    platformPostId: "7477466387674816515",
+    authorName: "Daniela Muñoz",
+    postedAt: "2026-06-29T21:01:51.402Z",
+    title: "I have never been this excited about anything.",
+    text: danielaBody,
+    metrics: { reactions: 70, comments: 14 },
+    review_state: "verified",
+    matchReason: "Native LinkedIn JSON-LD exposes the exact founder, body, date, and visible metrics.",
+    ...overrides
+  };
+}
+
+async function fixtureFiles(targetValue, inputValue, evidenceOverrides = {}) {
   const directory = await mkdtemp(join(tmpdir(), "returner-source-import-"));
   const socialDirectory = join(directory, "src/lib/social");
   await mkdir(socialDirectory, { recursive: true });
@@ -403,7 +560,10 @@ async function fixtureFiles(targetValue, inputValue) {
     "logged-in-evidence-current.json",
     "targeted-evidence-current.json"
   ]) {
-    await writeJson(join(socialDirectory, file), { source: {}, evidence: [] });
+    await writeJson(
+      join(socialDirectory, file),
+      evidenceOverrides[file] ?? { source: {}, evidence: [] }
+    );
   }
   for (const file of [
     "github-traction.json",

@@ -5,8 +5,10 @@ import { Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import type { ComponentType } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type cytoscape from "cytoscape";
+import { edgePresentation } from "@/lib/graph/edge-presentation";
 import { buildClusterPositions, buildLabelPlacements, labelMaxWidthForNode, labelSizeForNode } from "@/lib/graph/layout";
-import type { BatchSummary, EdgeType, GraphEdge, GraphNode, Platform } from "@/lib/graph/types";
+import type { BatchSummary, GraphEdge, GraphNode, Platform } from "@/lib/graph/types";
+import { GraphEdgeLegend } from "./GraphEdgeLegend";
 
 const CytoscapeComponent = dynamic(
   () => import("react-cytoscapejs").then((module) => module.default),
@@ -27,13 +29,6 @@ interface CytoscapeGraphProps {
   focusedGroupPartners: string[];
   onSelectNode: (nodeId: string) => void;
 }
-
-const edgeColors: Record<EdgeType, string> = {
-  founder_of: "#334155",
-  industry_similarity: "#835a08",
-  same_group_partner: "#146b58",
-  top_voice_attention: "#0369a1"
-};
 
 const GRAPH_INTRO_SESSION_KEY = "yc-network-map-intro-played-v1";
 const GRAPH_INTRO_REVEAL_WINDOW_MS = 1150;
@@ -251,9 +246,10 @@ export function CytoscapeGraph({
           source: edge.source,
           target: edge.target,
           label: edge.label,
+          explanation: edge.explanation,
           weight: edge.weight,
           edgeType: edge.edgeType,
-          color: edgeColors[edge.edgeType],
+          color: edgePresentation(edge.edgeType).color,
           width:
             edge.edgeType === "same_group_partner"
               ? 1.22
@@ -871,6 +867,7 @@ export function CytoscapeGraph({
             </button>
           </div>
         </div>
+        <GraphEdgeLegend edges={visibleEdges} />
       </div>
       <CytoscapeComponent
         elements={elements}

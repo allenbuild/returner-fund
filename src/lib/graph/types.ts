@@ -1,19 +1,25 @@
+import type { CompanyVertical, CompanyVerticalClassification } from "./company-verticals";
+import type { PostTopic, PostTopicClassification } from "./post-topics";
+
 export type EntityType = "company" | "founder";
 
-export type Platform =
-  | "github"
-  | "x"
-  | "linkedin"
-  | "instagram"
-  | "product_hunt"
-  | "youtube"
-  | "rss"
-  | "web"
-  | "reddit"
-  | "hacker_news"
-  | "bilibili"
-  | "tiktok"
-  | "bluesky";
+export const PLATFORM_VALUES = [
+  "github",
+  "x",
+  "linkedin",
+  "instagram",
+  "product_hunt",
+  "youtube",
+  "rss",
+  "web",
+  "reddit",
+  "hacker_news",
+  "bilibili",
+  "tiktok",
+  "bluesky"
+] as const;
+
+export type Platform = (typeof PLATFORM_VALUES)[number];
 
 export type EdgeType = "founder_of" | "industry_similarity" | "same_group_partner" | "top_voice_attention";
 export type ReviewState = "verified" | "needs_review" | "rejected";
@@ -119,6 +125,8 @@ export interface EvidenceItem {
   matchReason?: string;
   review_state?: ReviewState;
   topVoice?: EvidenceTopVoiceMatch;
+  topics?: PostTopic[];
+  topicClassification?: PostTopicClassification;
 }
 
 export interface EvidenceTopVoiceMatch {
@@ -208,6 +216,8 @@ export interface CompanyRecord {
   review_state: ReviewState;
   sourceUrl: string;
   industries: string[];
+  verticals?: CompanyVertical[];
+  verticalClassification?: CompanyVerticalClassification;
   founderIds: string[];
   socialAccounts: SocialAccountSummary[];
   totalScore: number;
@@ -273,6 +283,8 @@ export interface GraphNode {
   sourceUrl: string;
   visual: VisualEncoding;
   industries: string[];
+  verticals?: CompanyVertical[];
+  verticalClassification?: CompanyVerticalClassification;
   relatedEntityIds: string[];
   founders: FounderSummary[];
   review_state_counts: Record<ReviewState, number>;
@@ -411,6 +423,8 @@ export interface GraphFilters {
   minScore?: number;
   industries?: string[];
   groupPartners?: string[];
+  topics?: PostTopic[];
+  verticals?: CompanyVertical[];
   businessModels?: BusinessModel[];
   declutter?: boolean;
   query?: string;

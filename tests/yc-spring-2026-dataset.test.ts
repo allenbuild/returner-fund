@@ -1,10 +1,153 @@
 import { describe, expect, it } from "vitest";
 import { canonicalPostKey } from "@/lib/graph/dedupe";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
-import { handleFromUrl, ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { scoringEligibility } from "@/lib/graph/traction-scoring";
+import {
+  evidenceMatchesBatchScope,
+  handleFromUrl,
+  hasExplicitLinkedInCommentClaim,
+  ycSummer2026GraphDataset,
+  ycSpring2026GraphDataset
+} from "@/lib/graph/yc-spring-2026-dataset";
 import type { SocialAccountSummary } from "@/lib/graph/types";
 
 describe("YC Summer 2026 official snapshot", () => {
+  it("uses explicit batch provenance to isolate evidence for entities shared by Spring and Summer", () => {
+    const sharedCompanyId = "company-textsidekick";
+    const sharedFounderId = "founder-textsidekick-justin-so-3332767";
+
+    expect(
+      ycSpring2026GraphDataset.companies
+        .filter((company) => company.id === sharedCompanyId)
+        .map((company) => company.batchSlug)
+        .sort()
+    ).toEqual(["S2026", "S26"]);
+    expect(
+      ycSpring2026GraphDataset.founders
+        .filter((founder) => founder.id === sharedFounderId)
+        .map((founder) => founder.batchSlug)
+        .sort()
+    ).toEqual(["S2026", "S26"]);
+
+    const springScoped = { batchSlug: "S2026" };
+    expect(evidenceMatchesBatchScope(springScoped, "S2026", false)).toBe(true);
+    expect(evidenceMatchesBatchScope(springScoped, "S26", true)).toBe(false);
+
+    const summerScoped = { batch_slug: "S26" };
+    expect(evidenceMatchesBatchScope(summerScoped, "S26", false)).toBe(true);
+    expect(evidenceMatchesBatchScope(summerScoped, "S2026", true)).toBe(false);
+
+    const ambiguousUnscoped = { entityId: sharedCompanyId };
+    expect(evidenceMatchesBatchScope(ambiguousUnscoped, "S2026", true)).toBe(false);
+    expect(evidenceMatchesBatchScope(ambiguousUnscoped, "S26", true)).toBe(false);
+
+    // Unique legacy entities keep the cohort-text decision until autonomous
+    // merge writes explicit provenance. Shared entity IDs fail closed.
+    expect(evidenceMatchesBatchScope({}, "S2026", true)).toBe(true);
+    expect(evidenceMatchesBatchScope({}, "S2026", false)).toBe(false);
+    expect(
+      ycSpring2026GraphDataset.evidence.some(
+        (item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId
+      )
+    ).toBe(false);
+    expect(
+      ycSpring2026GraphDataset.needsReview?.some(
+        (item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId
+      )
+    ).toBe(false);
+  });
+
+  it("materializes verified Vestris founders and their two existing physical posts", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const vestris = graph.nodes.find(
+      (node) => node.entityType === "company" && node.entityId === "company-vestris"
+    );
+    const expectedFounderIds = [
+      "founder-vestris-aahil-valliani-verified-aahil-valliani",
+      "founder-vestris-joshua-tang-verified-joshua-tang"
+    ];
+    const expectedPostIds = ["7467251847137939459", "7467271346683801600"];
+    const evidence = graph.evidence.filter((item) => expectedPostIds.includes(item.platformPostId ?? ""));
+
+    expect(vestris?.founders.map((founder) => founder.id).sort()).toEqual(expectedFounderIds.sort());
+    expect(evidence).toHaveLength(2);
+    expect(evidence.map((item) => item.entityId).sort()).toEqual(expectedFounderIds.sort());
+    expect(new Set(evidence.map(canonicalPostKey)).size).toBe(2);
+    expect(evidence.every((item) => scoringEligibility(item).eligible)).toBe(true);
+    expect(vestris?.score).toBeGreaterThan(0);
+  });
+
+  it("keeps the exact Earendil company post visible from explicit native author proof", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const activityId = "7442570736751374336";
+    expect(
+      ycSummer2026GraphDataset.evidence.find((item) => item.platformPostId === activityId)
+    ).toBeTruthy();
+    const evidence = graph.evidence.filter((item) => item.platformPostId === activityId);
+    const earendil = graph.nodes.find(
+      (node) => node.entityType === "company" && node.entityId === "company-earendil-robotics"
+    );
+
+    expect(evidence).toHaveLength(1);
+    expect(evidence[0]).toEqual(expect.objectContaining({
+      entityType: "company",
+      entityId: "company-earendil-robotics",
+      authorHandle: "earendil-robotics",
+      accountUrl: "https://www.linkedin.com/company/earendil-robotics",
+      metrics: { reactions: 30, comments: 2 }
+    }));
+    expect(scoringEligibility(evidence[0]!)).toEqual({ eligible: true, reason: "eligible" });
+    expect(earendil?.score).toBeGreaterThan(0);
+    expect(graph.evidence.some((item) => item.platformPostId === "7478895855991775232")).toBe(false);
+  });
+
+  it("does not classify native posts as comments from engagement-counter prose", () => {
+    expect(
+      hasExplicitLinkedInCommentClaim({
+        title: "Earendil Robotics native company post",
+        matchReason:
+          "Native LinkedIn post page identifies the company author and shows 30 reactions plus 2 comments on activity 7442570736751374336."
+      })
+    ).toBe(false);
+    expect(
+      hasExplicitLinkedInCommentClaim({
+        title: "Andrew Miklas LinkedIn comment about InsForge",
+        matchReason: "Native LinkedIn comment retained as context only."
+      })
+    ).toBe(true);
+
+    const earendilPost = ycSummer2026GraphDataset.evidence.find(
+      (item) => item.platformPostId === "7442570736751374336"
+    );
+    expect(earendilPost).toEqual(expect.objectContaining({
+      contributionScore: expect.any(Number),
+      review_state: "verified"
+    }));
+    expect(earendilPost?.contributionScore).toBeGreaterThan(0);
+  });
+
+  it("upgrades the existing Hexa physical row in place with founder attribution", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const activityId = "7452780945771966465";
+    const evidence = graph.evidence.filter((item) => item.platformPostId === activityId);
+    const hexa = graph.nodes.find(
+      (node) => node.entityType === "company" && node.entityId === "company-hexa"
+    );
+
+    expect(evidence).toHaveLength(1);
+    expect(evidence[0]).toEqual(expect.objectContaining({
+      id: "web-company-hexa-www-linkedin-com-posts-ishaan-makkar-manufacturing-distribution-ycombinator-activity-7452780945771966465-23w1-hexa-yc-p26-backed-by-y-combinator-linkedin",
+      entityType: "founder",
+      entityId: "founder-hexa-ishaan-makkar-2767100",
+      platform: "linkedin",
+      authorHandle: "ishaan-makkar",
+      accountUrl: "https://www.linkedin.com/in/ishaan-makkar",
+      metrics: { reactions: 282, comments: 62 }
+    }));
+    expect(scoringEligibility(evidence[0]!)).toEqual({ eligible: true, reason: "eligible" });
+    expect(hexa?.score).toBeGreaterThan(0);
+  });
+
   it("defaults to YC Spring 2026 while exposing every supported batch in graph metadata", () => {
     const graph = buildGraphResponse({}, ycSpring2026GraphDataset);
 
@@ -430,6 +573,19 @@ describe("YC Summer 2026 official snapshot", () => {
         })
       ])
     );
+  });
+
+  it("does not rematerialize accounts explicitly retired by identity validation", () => {
+    const openRelay = ycSpring2026GraphDataset.companies.find(
+      (company) => company.batchSlug === "S26" && company.id === "company-openrelay"
+    );
+
+    expect(openRelay).toBeTruthy();
+    expect(
+      openRelay?.socialAccounts.some(
+        (account) => account.url.toLowerCase() === "https://github.com/openrelayinc/openrelay"
+      )
+    ).toBe(false);
   });
 });
 

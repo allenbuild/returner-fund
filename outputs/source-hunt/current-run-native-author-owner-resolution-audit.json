@@ -1,0 +1,1415 @@
+{
+  "schemaVersion": 1,
+  "auditId": "current-run-native-author-owner-resolution",
+  "generatedAt": "2026-07-20T13:41:15.000Z",
+  "canonicalMutationAuthorized": false,
+  "sourceRunKey": "source-hunt-2026-07-20-comprehensive-v1",
+  "scope": {
+    "canonicalPath": "src/lib/social/public-evidence-current.json",
+    "checkpointPaths": [
+      "work/autonomous-ingestion/source-hunt-2026-07-20-comprehensive-v1-f6c683e7dbfcf1b4/checkpoint-public-s26.json",
+      "work/autonomous-ingestion/source-hunt-2026-07-20-comprehensive-v1-f6c683e7dbfcf1b4/checkpoint-public-s2026.json",
+      "work/autonomous-ingestion/source-hunt-2026-07-20-comprehensive-v1-f6c683e7dbfcf1b4/checkpoint-public-a16zsr006.json"
+    ],
+    "rosterSources": [
+      "src/lib/yc/summer-2026-companies.json",
+      "src/lib/yc/spring-2026-companies.json",
+      "src/lib/social/verified-social-overrides.json",
+      "src/lib/social/a16z-speedrun-006-social-accounts.json"
+    ]
+  },
+  "method": [
+    "Only a native post URL or structured native payload may identify the physical author.",
+    "X /<handle>/status/<id> URLs were verified with X oEmbed; LinkedIn /posts/<handle>_* URLs were verified against the exact public JSON-LD @id.",
+    "A conflict is reported only when platform plus normalized handle maps to exactly one roster owner and does not map to the assigned owner.",
+    "Company profile/account pages and repost listings are not treated as physical post-author evidence."
+  ],
+  "summary": {
+    "uniquePhysicalRows": 20,
+    "rowOccurrencesAcrossCanonicalAndCheckpoints": 21,
+    "checkpointDuplicatePhysicalId": "2070898557645660388",
+    "currentVerifiedRowsWithPositiveSupportedMetrics": 18,
+    "currentNeedsReviewRowsWithoutCanonicalPositiveMetrics": 2,
+    "sameCompanyCorrections": 12,
+    "crossCompanyCorrections": 8,
+    "companyRowsResolvingToFounder": 4,
+    "founderRowsResolvingElsewhere": 16,
+    "xRows": 4,
+    "linkedinRows": 16,
+    "a16zRows": 0,
+    "sameBatchCorrections": 18,
+    "crossBatchCorrections": 2
+  },
+  "wrapperExclusions": {
+    "canonicalCompanyProfileContextRowsWithoutPhysicalPostId": 284,
+    "ofWhichContainVisibleRepostText": 101,
+    "verifiedOrScoringRowsAmongThoseProfiles": 0,
+    "reason": "These are account/profile context pages, not physical native post URLs; underlying reposted content cannot be assigned from the wrapper."
+  },
+  "records": [
+    {
+      "physicalIdentity": "x:post:2064729924116914643",
+      "physicalId": "2064729924116914643",
+      "batch": "S2026",
+      "platform": "x",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "x-company-playablai-x-com-hamzawy998-status-2064729924116914643-a-data-point-that-surprised-us-playabl-ai-the-median-mobile-game-retains-under-4-of-players-by-day-7-while-top-25-of",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://x.com/hamzawy998/status/2064729924116914643",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "company",
+        "entityId": "company-playablai",
+        "companySlug": "playablai",
+        "companyName": "Playabl.ai"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-playablai-hamza-al-ali-3185206",
+        "companySlug": "playablai",
+        "companyName": "Playabl.ai",
+        "ownerName": "Hamza Al-Ali",
+        "rosterAccountUrl": "https://x.com/hamzawy998"
+      },
+      "relation": "same_company_company_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "views": 728
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": null,
+        "freshNativeHasPositiveSupportedMetric": false,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "x_oembed",
+        "schemaType": "oEmbed",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Hamza Al-Ali",
+        "authorHandle": "hamzawy998",
+        "authorUrl": "https://x.com/hamzawy998",
+        "postedAt": null
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-playablai-hamza-al-ali-3185206"
+      },
+      "exactReason": "The direct X status is physically authored by @hamzawy998. X oEmbed names Hamza Al-Ali, and the S2026 roster maps that handle uniquely to the Playabl.ai founder rather than the company entity.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "x:post:2066558515250860517",
+      "physicalId": "2066558515250860517",
+      "batch": "S2026",
+      "platform": "x",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "x-company-9-mothers-corporation-x-com-rhs-status-2066558515250860517-russell-smith-on-x-alumni-day-was-awesome-so-many-old-faces-and-new-to-meet-i-thought-i-d-miss-the-computer-his",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://x.com/rhs/status/2066558515250860517",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "company",
+        "entityId": "company-9-mothers-corporation",
+        "companySlug": "9-mothers-corporation",
+        "companyName": "9 Mothers"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-9-mothers-corporation-russell-smith-1373",
+        "companySlug": "9-mothers-corporation",
+        "companyName": "9 Mothers",
+        "ownerName": "Russell Smith",
+        "rosterAccountUrl": "https://twitter.com/rhs"
+      },
+      "relation": "same_company_company_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "views": 1500
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": null,
+        "freshNativeHasPositiveSupportedMetric": false,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "x_oembed",
+        "schemaType": "oEmbed",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Russell Smith 🤙",
+        "authorHandle": "rhs",
+        "authorUrl": "https://x.com/rhs",
+        "postedAt": null
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-9-mothers-corporation-russell-smith-1373"
+      },
+      "exactReason": "The direct X status is physically authored by @rhs. X oEmbed names Russell Smith, and the S2026 roster maps @rhs uniquely to founder Russell Smith, not to the 9 Mothers company account @9mothers.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "x:post:2070898557645660388",
+      "physicalId": "2070898557645660388",
+      "batch": "S2026",
+      "platform": "x",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "x-company-9-mothers-corporation-x-com-rhs-status-2070898557645660388-interview-about-inc-and-lisabonos-9mothers-ployai-apolloatomics-and-more-ycombinator-p26-folks",
+      "checkpointOccurrences": [
+        {
+          "path": "work/autonomous-ingestion/source-hunt-2026-07-20-comprehensive-v1-f6c683e7dbfcf1b4/checkpoint-public-s2026.json",
+          "rowId": "x-company-9-mothers-corporation-x-com-rhs-status-2070898557645660388-interview-about-inc-and-lisabonos-9mothers-ployai-apolloatomics-and-more-ycombinator-p26-folks",
+          "note": "Same physical row repeated in the stopped checkpoint; not a second physical item."
+        }
+      ],
+      "sourceUrl": "https://x.com/rhs/status/2070898557645660388",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "company",
+        "entityId": "company-9-mothers-corporation",
+        "companySlug": "9-mothers-corporation",
+        "companyName": "9 Mothers"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-9-mothers-corporation-russell-smith-1373",
+        "companySlug": "9-mothers-corporation",
+        "companyName": "9 Mothers",
+        "ownerName": "Russell Smith",
+        "rosterAccountUrl": "https://twitter.com/rhs"
+      },
+      "relation": "same_company_company_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "views": 7900
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": null,
+        "freshNativeHasPositiveSupportedMetric": false,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "x_oembed",
+        "schemaType": "oEmbed",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Russell Smith 🤙",
+        "authorHandle": "rhs",
+        "authorUrl": "https://x.com/rhs",
+        "postedAt": null
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-9-mothers-corporation-russell-smith-1373"
+      },
+      "exactReason": "The direct X status is physically authored by @rhs. X oEmbed names Russell Smith, and the S2026 roster maps @rhs uniquely to founder Russell Smith, not to the 9 Mothers company account @9mothers.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "x:post:2078933379115086291",
+      "physicalId": "2078933379115086291",
+      "batch": "S26",
+      "platform": "x",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "x-company-contextdev-x-com-mynameisyahia-status-2078933379115086291-context-dev",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://x.com/mynameisyahia/status/2078933379115086291",
+      "currentReviewState": "needs_review",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "company",
+        "entityId": "company-contextdev",
+        "companySlug": "contextdev",
+        "companyName": "Context.dev"
+      },
+      "resolvedAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-contextdev-yahia-bakour-2538368",
+        "companySlug": "contextdev",
+        "companyName": "Context.dev",
+        "ownerName": "Yahia Bakour",
+        "rosterAccountUrl": "https://x.com/mynameisyahia"
+      },
+      "relation": "same_company_company_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_keep_needs_review_until_metric_import_is_separately_authorized",
+      "metricsVerdict": {
+        "canonicalMetrics": {},
+        "canonicalHasPositiveSupportedMetric": false,
+        "currentCanonicalVerdict": "no_positive_supported_metric_captured",
+        "freshNativeMetrics": null,
+        "freshNativeHasPositiveSupportedMetric": false,
+        "note": "No positive supported metric is captured for the existing needs_review row."
+      },
+      "nativeAuthorProof": {
+        "provider": "x_oembed",
+        "schemaType": "oEmbed",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Yahia Bakour",
+        "authorHandle": "mynameisyahia",
+        "authorUrl": "https://x.com/mynameisyahia",
+        "postedAt": null
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/summer-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-contextdev-yahia-bakour-2538368"
+      },
+      "exactReason": "The direct X status is physically authored by @mynameisyahia. X oEmbed names Yahia Bakour, and the S26 roster maps that handle uniquely to the Context.dev founder; the row has no captured supported metric and must remain needs_review.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S26",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7450999896985272320",
+      "physicalId": "7450999896985272320",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-arctic-health-raghav-mehrish-3272652-linkedin-com-posts-arctic-health-credentialing-and-contracting-are-the-foundation-activity-7450999896985272320-npb2-maximize-h",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/arctic-health_credentialing-and-contracting-are-the-foundation-activity-7450999896985272320-NPb2",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-arctic-health-raghav-mehrish-3272652",
+        "companySlug": "arctic-health",
+        "companyName": "Arctic Health"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "company",
+        "entityId": "company-arctic-health",
+        "companySlug": "arctic-health",
+        "companyName": "Arctic Health",
+        "ownerName": "Arctic Health",
+        "rosterAccountUrl": "https://www.linkedin.com/company/arctic-health"
+      },
+      "relation": "same_company_founder_to_company",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 5
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 23,
+          "comments": 5
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Arctic Health (YC P26)",
+        "authorHandle": "arctic-health",
+        "authorUrl": "https://www.linkedin.com/company/arctic-health",
+        "postedAt": "2026-04-17T20:13:28.305Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": true,
+        "matchedEntityId": "company-arctic-health"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is the Arctic Health organization account /company/arctic-health. The physical post belongs to the company, not founder Raghav Mehrish.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7465638335319863296",
+      "physicalId": "7465638335319863296",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-callab-ai-chehir-dhaouadi-1992756-linkedin-com-posts-haithemkchaou-when-we-started-building-callab-ai-yc-p26-activity-7465638335319863296-4lzn-when-we-started-buil",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/haithemkchaou_when-we-started-building-callab-ai-yc-p26-activity-7465638335319863296-4LZN",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-callab-ai-chehir-dhaouadi-1992756",
+        "companySlug": "callab-ai",
+        "companyName": "Callab AI"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-callab-ai-haithem-kchaou-1938837",
+        "companySlug": "callab-ai",
+        "companyName": "Callab AI",
+        "ownerName": "Haithem Kchaou",
+        "rosterAccountUrl": "https://www.linkedin.com/in/haithemkchaou/"
+      },
+      "relation": "same_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 2
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 217,
+          "comments": 2
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Haithem Kchaou",
+        "authorHandle": "haithemkchaou",
+        "authorUrl": "https://www.linkedin.com/in/haithemkchaou",
+        "postedAt": "2026-05-28T05:41:23.976Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-callab-ai-haithem-kchaou-1938837"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Haithem Kchaou at /in/haithemkchaou. The profile is the other roster founder of Callab AI, not Chehir Dhaouadi.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7465785520959262720",
+      "physicalId": "7465785520959262720",
+      "batch": "S26",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-rekursivai-joshua-dillon-3527624-linkedin-com-posts-dankondratyuk-rekursivai-activity-7465785520959262720-brn7-rekursiv-ai-co-founder-on-automating-ml-research-dan",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/dankondratyuk_rekursivai-activity-7465785520959262720-bRn7",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-rekursivai-joshua-dillon-3527624",
+        "companySlug": "rekursivai",
+        "companyName": "rekursiv.ai"
+      },
+      "resolvedAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-rekursivai-dan-kondratyuk-3527564",
+        "companySlug": "rekursivai",
+        "companyName": "rekursiv.ai",
+        "ownerName": "Dan Kondratyuk",
+        "rosterAccountUrl": "https://www.linkedin.com/in/dankondratyuk/"
+      },
+      "relation": "same_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 19
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 132,
+          "comments": 19
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Dan Kondratyuk",
+        "authorHandle": "dankondratyuk",
+        "authorUrl": "https://www.linkedin.com/in/dankondratyuk",
+        "postedAt": "2026-05-28T15:26:15.755Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/summer-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-rekursivai-dan-kondratyuk-3527564"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Dan Kondratyuk at /in/dankondratyuk. The profile is the other S26 rekursiv.ai founder, not Joshua Dillon.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S26",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7468956240715542528",
+      "physicalId": "7468956240715542528",
+      "batch": "S26",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-onecli-guy-ben-aharon-1935982-linkedin-com-posts-jonathanfishner-you-gave-me-tool-use-what-do-you-expect-activity-7468956240715542528-i67c-guardrails-outside-the-a",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/jonathanfishner_you-gave-me-tool-use-what-do-you-expect-activity-7468956240715542528-i67C",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-onecli-guy-ben-aharon-1935982",
+        "companySlug": "onecli",
+        "companyName": "OneCLI"
+      },
+      "resolvedAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-onecli-jonathan-fishner-406823",
+        "companySlug": "onecli",
+        "companyName": "OneCLI",
+        "ownerName": "Jonathan Fishner",
+        "rosterAccountUrl": "https://www.linkedin.com/in/jonathanfishner"
+      },
+      "relation": "same_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "comments": 2
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 18,
+          "comments": 0
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Jonathan Haim Fishner",
+        "authorHandle": "jonathanfishner",
+        "authorUrl": "https://www.linkedin.com/in/jonathanfishner",
+        "postedAt": "2026-06-06T09:25:34.264Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/summer-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-onecli-jonathan-fishner-406823"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Jonathan Haim Fishner at /in/jonathanfishner. The profile is the other S26 OneCLI founder, not Guy Ben-Aharon.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S26",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7474532005708197888",
+      "physicalId": "7474532005708197888",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-rekursivai-dan-kondratyuk-3527564-linkedin-com-posts-advaith-sridhar-yc-demoday-ai4science-activity-7474532005708197888-9ir-yc-demoday-ai4science-advaith-sridhar-2",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/advaith-sridhar_yc-demoday-ai4science-activity-7474532005708197888-_9IR",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-rekursivai-dan-kondratyuk-3527564",
+        "companySlug": "rekursivai",
+        "companyName": "rekursiv.ai"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-matforge-advaith-sridhar-1591131",
+        "companySlug": "matforge",
+        "companyName": "matforge",
+        "ownerName": "Advaith Sridhar",
+        "rosterAccountUrl": "https://www.linkedin.com/in/advaith-sridhar/"
+      },
+      "relation": "cross_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 20
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 332,
+          "comments": 20
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "VideoObject",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Advaith Sridhar",
+        "authorHandle": "advaith-sridhar",
+        "authorUrl": "https://www.linkedin.com/in/advaith-sridhar",
+        "postedAt": "2026-06-21T18:41:40.223Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-matforge-advaith-sridhar-1591131"
+      },
+      "exactReason": "The exact native LinkedIn VideoObject creator is Advaith Sridhar at /in/advaith-sridhar. The S2026 roster maps that profile uniquely to matforge, not to S26 rekursiv.ai founder Dan Kondratyuk.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S2026",
+        "crossesBatch": true
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7475241289299456000",
+      "physicalId": "7475241289299456000",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-hessian-bao-nguyen-1814065-linkedin-com-posts-segrove-so-happy-to-launch-i-truly-want-to-to-make-activity-7475241289299456000-ymav-so-happy-to-launch-i-truly-want-",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/segrove_so-happy-to-launch-i-truly-want-to-to-make-activity-7475241289299456000-Ymav",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-hessian-bao-nguyen-1814065",
+        "companySlug": "hessian",
+        "companyName": "Hessian"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-linzumi-sean-grove-19683",
+        "companySlug": "linzumi",
+        "companyName": "Linzumi",
+        "ownerName": "Sean Grove",
+        "rosterAccountUrl": "https://www.linkedin.com/in/segrove/"
+      },
+      "relation": "cross_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 16
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 76,
+          "comments": 16
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "VideoObject",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Sean Grove",
+        "authorHandle": "segrove",
+        "authorUrl": "https://www.linkedin.com/in/segrove",
+        "postedAt": "2026-06-23T17:40:06.620Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-linzumi-sean-grove-19683"
+      },
+      "exactReason": "The exact native LinkedIn VideoObject creator is Sean Grove at /in/segrove. The S2026 roster maps that profile uniquely to Linzumi, not to Hessian founder Bao Nguyen.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7476445733739446274",
+      "physicalId": "7476445733739446274",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-surtr-defense-systems-cameron-fiore-3421205-linkedin-com-posts-deoarlo-airdefence-activity-7476445733739446274-z2tt-detecting-threats-before-they-reach-defended-as",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/deoarlo_airdefence-activity-7476445733739446274-Z2Tt",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-surtr-defense-systems-cameron-fiore-3421205",
+        "companySlug": "surtr-defense-systems",
+        "companyName": "Surtr Defense Systems"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-arlo-industries-deo-arlo-iron-dome-guy-836806",
+        "companySlug": "arlo-industries",
+        "companyName": "Arlo Industries",
+        "ownerName": "Deo Arlo (Iron Dome Guy)",
+        "rosterAccountUrl": "https://linkedin.com/in/deoarlo"
+      },
+      "relation": "cross_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 1
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 13,
+          "comments": 1
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Deo Arlo",
+        "authorHandle": "deoarlo",
+        "authorUrl": "https://www.linkedin.com/in/deoarlo",
+        "postedAt": "2026-06-27T01:26:08.553Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-arlo-industries-deo-arlo-iron-dome-guy-836806"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Deo Arlo at /in/deoarlo. The S2026 roster maps that profile uniquely to Arlo Industries, not to S26 Surtr Defense Systems founder Cameron Fiore.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S2026",
+        "crossesBatch": true
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7480757450569289728",
+      "physicalId": "7480757450569289728",
+      "batch": "S26",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-contextdev-yahia-bakour-2538368-linkedin-com-posts-aidantiruvan-they-aint-believe-in-us-god-did-activity-7480757450569289728-om1v-they-ain-t-believe-in-us-god-did-",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/aidantiruvan_they-aint-believe-in-us-god-did-activity-7480757450569289728-OM1V",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-contextdev-yahia-bakour-2538368",
+        "companySlug": "contextdev",
+        "companyName": "Context.dev"
+      },
+      "resolvedAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-archal-aidan-tiruvan-2037605",
+        "companySlug": "archal",
+        "companyName": "Archal",
+        "ownerName": "Aidan Tiruvan",
+        "rosterAccountUrl": "https://www.linkedin.com/in/aidantiruvan/"
+      },
+      "relation": "cross_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 45
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 239,
+          "comments": 51
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Aidan Tiruvan",
+        "authorHandle": "aidantiruvan",
+        "authorUrl": "https://www.linkedin.com/in/aidantiruvan",
+        "postedAt": "2026-07-08T22:59:21.945Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/summer-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-archal-aidan-tiruvan-2037605"
+      },
+      "exactReason": "The exact native LinkedIn activity JSON-LD identifies Aidan Tiruvan and /in/aidantiruvan. That profile maps uniquely to the S26 Archal founder, not to Context.dev founder Yahia Bakour.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S26",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7481084434042052608",
+      "physicalId": "7481084434042052608",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-alchemize-samuel-fu-2993764-linkedin-com-posts-geourg-kivijian-this-isnt-a-bird-its-ornadyne-yc-p26-activity-7481084434042052608-4fsg-this-isn-t-a-bird-it-s-ornady",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/geourg-kivijian_this-isnt-a-bird-its-ornadyne-yc-p26-activity-7481084434042052608-4fsG",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-alchemize-samuel-fu-2993764",
+        "companySlug": "alchemize",
+        "companyName": "Alchemize"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-ornadyne-geourg-kivijian-1504179",
+        "companySlug": "ornadyne",
+        "companyName": "Ornadyne",
+        "ownerName": "Geourg Kivijian",
+        "rosterAccountUrl": "https://www.linkedin.com/in/geourg-kivijian/"
+      },
+      "relation": "cross_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 46,
+          "comments": 104
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 869,
+          "comments": 104
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "VideoObject",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Geourg Kivijian",
+        "authorHandle": "geourg-kivijian",
+        "authorUrl": "https://www.linkedin.com/in/geourg-kivijian",
+        "postedAt": "2026-07-09T20:38:40.881Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-ornadyne-geourg-kivijian-1504179"
+      },
+      "exactReason": "The exact native LinkedIn VideoObject creator is Geourg Kivijian at /in/geourg-kivijian. The S2026 roster maps that profile uniquely to Ornadyne, while the row is assigned to Alchemize founder Samuel Fu.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7481346325960192001",
+      "physicalId": "7481346325960192001",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-asendia-ai-badis-zormati-2096458-linkedin-com-posts-fchishtie-rob-snyder-the-legend-wrote-a-book-highly-activity-7481346325960192001-8av9-rob-snyder-the-legend-wro",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/fchishtie_rob-snyder-the-legend-wrote-a-book-highly-activity-7481346325960192001-8AV9",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-asendia-ai-badis-zormati-2096458",
+        "companySlug": "asendia-ai",
+        "companyName": "Asendia AI"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-minicor-faizaan-chishtie-1037983",
+        "companySlug": "minicor",
+        "companyName": "Minicor",
+        "ownerName": "Faizaan Chishtie",
+        "rosterAccountUrl": "https://www.linkedin.com/in/fchishtie/"
+      },
+      "relation": "cross_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 4,
+          "comments": 3
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 54,
+          "comments": 3
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Faizaan Chishtie",
+        "authorHandle": "fchishtie",
+        "authorUrl": "https://www.linkedin.com/in/fchishtie",
+        "postedAt": "2026-07-10T13:59:20.773Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-minicor-faizaan-chishtie-1037983"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Faizaan Chishtie at /in/fchishtie. The S2026 roster maps that profile uniquely to Minicor, not to Asendia AI founder Badis Zormati.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7482193253954400256",
+      "physicalId": "7482193253954400256",
+      "batch": "S26",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-openrelay-jaden-wang-1876109-linkedin-com-posts-prashant182-openrelay-distributed-gpu-cloud-for-production-activity-7482193253954400256-dwg0-i-am-joining-y-combina",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/prashant182_openrelay-distributed-gpu-cloud-for-production-activity-7482193253954400256-DwG0",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-openrelay-jaden-wang-1876109",
+        "companySlug": "openrelay",
+        "companyName": "OpenRelay"
+      },
+      "resolvedAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-openrelay-prashant-patel-3742866",
+        "companySlug": "openrelay",
+        "companyName": "OpenRelay",
+        "ownerName": "Prashant Patel",
+        "rosterAccountUrl": "https://www.linkedin.com/in/prashant182/"
+      },
+      "relation": "same_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 27
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 228,
+          "comments": 27
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Prashant Patel",
+        "authorHandle": "prashant182",
+        "authorUrl": "https://www.linkedin.com/in/prashant182",
+        "postedAt": "2026-07-12T22:04:44.151Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/summer-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-openrelay-prashant-patel-3742866"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Prashant Patel at /in/prashant182. The profile is the other S26 OpenRelay founder, not Jaden Wang.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S26",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7482293696571539456",
+      "physicalId": "7482293696571539456",
+      "batch": "S26",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-osmaura-kali-abeje-2718831-linkedin-com-posts-tselote-we-spent-the-last-two-months-negotiating-activity-7482293696571539456-awrv-we-spent-the-last-two-months-negot",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/tselote_we-spent-the-last-two-months-negotiating-activity-7482293696571539456-AwRv",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-kali-abeje-2718831",
+        "companySlug": "osmaura",
+        "companyName": "Osmaura"
+      },
+      "resolvedAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-osmaura-jity-woldemichael-1366260",
+        "companySlug": "osmaura",
+        "companyName": "Osmaura",
+        "ownerName": "Jity Woldemichael",
+        "rosterAccountUrl": "https://www.linkedin.com/in/tselote/"
+      },
+      "relation": "same_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 8
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 149,
+          "comments": 8
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Jity Woldemichael",
+        "authorHandle": "tselote",
+        "authorUrl": "https://www.linkedin.com/in/tselote",
+        "postedAt": "2026-07-13T04:43:51.518Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/summer-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-osmaura-jity-woldemichael-1366260"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Jity Woldemichael at /in/tselote. The profile is the other S26 Osmaura founder, not Kali Abeje.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S26",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7482842797893410816",
+      "physicalId": "7482842797893410816",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-drafted-nicholas-donahue-308465-linkedin-com-posts-draftedai-introducing-regenerate-in-drafted-traditionally-activity-7482842797893410816-j4j6-regenerate-floor-pla",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/draftedai_introducing-regenerate-in-drafted-traditionally-activity-7482842797893410816-J4j6",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-drafted-nicholas-donahue-308465",
+        "companySlug": "drafted",
+        "companyName": "Drafted"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "company",
+        "entityId": "company-drafted",
+        "companySlug": "drafted",
+        "companyName": "Drafted",
+        "ownerName": "Drafted",
+        "rosterAccountUrl": "https://www.linkedin.com/company/draftedai/"
+      },
+      "relation": "same_company_founder_to_company",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 2
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 17,
+          "comments": 2
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "VideoObject",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Drafted",
+        "authorHandle": "draftedai",
+        "authorUrl": "https://www.linkedin.com/company/draftedai",
+        "postedAt": "2026-07-14T17:05:47.488Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": true,
+        "matchedEntityId": "company-drafted"
+      },
+      "exactReason": "The exact native LinkedIn VideoObject creator is the Drafted organization account /company/draftedai. The physical post belongs to the company, not founder Nicholas Donahue.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7482893982528806912",
+      "physicalId": "7482893982528806912",
+      "batch": "S26",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-florin-amol-pant-3776296-linkedin-com-posts-shauryaagg-excited-to-be-judging-the-stanford-university-activity-7482893982528806912-2oih-excited-to-be-judging-the-st",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/shauryaagg_excited-to-be-judging-the-stanford-university-activity-7482893982528806912-2oih",
+      "currentReviewState": "needs_review",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-florin-amol-pant-3776296",
+        "companySlug": "florin",
+        "companyName": "Florin"
+      },
+      "resolvedAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-florin-shaurya-aggarwal-3779733",
+        "companySlug": "florin",
+        "companyName": "Florin",
+        "ownerName": "Shaurya Aggarwal",
+        "rosterAccountUrl": "https://www.linkedin.com/in/shauryaagg"
+      },
+      "relation": "same_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_keep_needs_review_until_metric_import_is_separately_authorized",
+      "metricsVerdict": {
+        "canonicalMetrics": {},
+        "canonicalHasPositiveSupportedMetric": false,
+        "currentCanonicalVerdict": "no_positive_supported_metric_captured",
+        "freshNativeMetrics": {
+          "reactions": 30,
+          "comments": 3
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The current native LinkedIn page now exposes 30 reactions and 3 comments, but this audit does not authorize promoting the existing needs_review row."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Shaurya Aggarwal",
+        "authorHandle": "shauryaagg",
+        "authorUrl": "https://www.linkedin.com/in/shauryaagg",
+        "postedAt": "2026-07-14T20:29:10.866Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/summer-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-florin-shaurya-aggarwal-3779733"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Shaurya Aggarwal at /in/shauryaagg. The profile is the other S26 Florin founder, not Amol Pant; the canonical row remains needs_review because its stored snapshot captured no supported metric, although the current native page now exposes positive counters.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S26",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7483634831608705024",
+      "physicalId": "7483634831608705024",
+      "batch": "S2026",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-expanse-ismaeel-bashir-3381342-linkedin-com-posts-jeremcoh-a-month-already-since-p26-demo-day-and-today-activity-7483634831608705024-i9ss-a-month-already-since-p26",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/jeremcoh_a-month-already-since-p26-demo-day-and-today-activity-7483634831608705024-I9sS",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-expanse-ismaeel-bashir-3381342",
+        "companySlug": "expanse",
+        "companyName": "Expanse"
+      },
+      "resolvedAttribution": {
+        "batch": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-kelai-jeremie-cohen-3403044",
+        "companySlug": "kelai",
+        "companyName": "KelAI",
+        "ownerName": "Jeremie Cohen",
+        "rosterAccountUrl": "https://www.linkedin.com/in/jeremcoh/"
+      },
+      "relation": "cross_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 2,
+          "comments": 33
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 95,
+          "comments": 34
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Jeremie C.",
+        "authorHandle": "jeremcoh",
+        "authorUrl": "https://www.linkedin.com/in/jeremcoh",
+        "postedAt": "2026-07-16T21:33:03.049Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/spring-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-kelai-jeremie-cohen-3403044"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is /in/jeremcoh, which the S2026 roster maps uniquely to KelAI founder Jeremie Cohen. The post explicitly announces KelAI and is not owned by Expanse founder Ismaeel Bashir.",
+      "batchTransition": {
+        "from": "S2026",
+        "to": "S2026",
+        "crossesBatch": false
+      }
+    },
+    {
+      "physicalIdentity": "linkedin:post:7483969268389400576",
+      "physicalId": "7483969268389400576",
+      "batch": "S26",
+      "platform": "linkedin",
+      "canonicalPath": "src/lib/social/public-evidence-current.json",
+      "canonicalRowId": "linkedin-founder-inkbox-ray-liao-778892-linkedin-com-posts-jordan-zietz-theres-10-days-left-to-apply-to-yc-if-activity-7483969268389400576-lgz6-there-s-10-days-left-to-apply-to-yc-",
+      "checkpointOccurrences": [],
+      "sourceUrl": "https://linkedin.com/posts/jordan-zietz_theres-10-days-left-to-apply-to-yc-if-activity-7483969268389400576-lgz6",
+      "currentReviewState": "verified",
+      "oldAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-inkbox-ray-liao-778892",
+        "companySlug": "inkbox",
+        "companyName": "Inkbox"
+      },
+      "resolvedAttribution": {
+        "batch": "S26",
+        "entityType": "founder",
+        "entityId": "founder-lemonlime-jordan-zietz-3669391",
+        "companySlug": "lemonlime",
+        "companyName": "LemonLime",
+        "ownerName": "Jordan Zietz",
+        "rosterAccountUrl": "https://www.linkedin.com/in/jordan-zietz"
+      },
+      "relation": "cross_company_founder_to_founder",
+      "action": "deterministic_in_place_entity_reassignment_preserve_row_and_physical_id",
+      "metricsVerdict": {
+        "canonicalMetrics": {
+          "reactions": 1,
+          "comments": 10
+        },
+        "canonicalHasPositiveSupportedMetric": true,
+        "currentCanonicalVerdict": "positive_supported_metric",
+        "freshNativeMetrics": {
+          "reactions": 61,
+          "comments": 10
+        },
+        "freshNativeHasPositiveSupportedMetric": true,
+        "note": "The existing verified row has a positive supported canonical metric."
+      },
+      "nativeAuthorProof": {
+        "provider": "linkedin_public_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "checkedAt": "2026-07-20T13:41:15.000Z",
+        "httpStatus": 200,
+        "exactPhysicalIdMatch": true,
+        "directPhysicalPostUrl": true,
+        "profileOrRepostWrapper": false,
+        "authorName": "Jordan Zietz",
+        "authorHandle": "jordan-zietz",
+        "authorUrl": "https://www.linkedin.com/in/jordan-zietz",
+        "postedAt": "2026-07-17T19:41:58.991Z"
+      },
+      "rosterProof": {
+        "source": "src/lib/yc/summer-2026-companies.json",
+        "verifiedOverrideSource": "src/lib/social/verified-social-overrides.json",
+        "authorHandleMapsToExactlyOneRosterOwner": true,
+        "authorHandleIsCompanyHandle": false,
+        "matchedEntityId": "founder-lemonlime-jordan-zietz-3669391"
+      },
+      "exactReason": "The exact native LinkedIn JSON-LD author is Jordan Zietz at /in/jordan-zietz. The S26 roster maps that profile uniquely to LemonLime, not to Inkbox founder Ray Liao.",
+      "batchTransition": {
+        "from": "S26",
+        "to": "S26",
+        "crossesBatch": false
+      }
+    }
+  ]
+}

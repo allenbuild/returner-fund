@@ -5,10 +5,12 @@ import {
   ChevronDown,
   Copy,
   Filter,
+  Layers3,
   Palette,
   RefreshCw,
   Search,
   Share2,
+  Tags,
   Users
 } from "lucide-react";
 import Image from "next/image";
@@ -27,7 +29,24 @@ import { NodePanel } from "./NodePanel";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
 import { trackAnalyticsEvent, type AnalyticsEventPayloads } from "@/lib/analytics";
 import { applyClientGraphFilters, type ClientGraphFilters } from "@/lib/graph/client-filters";
+import {
+  COMPANY_VERTICALS,
+  isCompanyVertical,
+  normalizeCompanyVerticals,
+  type CompanyVertical
+} from "@/lib/graph/company-verticals";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
+import {
+  companyVerticalCounts,
+  enrichGraphTaxonomies,
+  topicPhysicalPostCounts
+} from "@/lib/graph/graph-taxonomies";
+import {
+  isPostTopic,
+  normalizePostTopics,
+  POST_TOPIC_TAXONOMY,
+  type PostTopic
+} from "@/lib/graph/post-topics";
 import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
 import { validateStaticGraphSnapshotContract } from "@/lib/graph/static-graph-snapshot-contract.mjs";
@@ -36,9 +55,9 @@ import {
   millisecondsUntilNextCentralMidnight
 } from "@/lib/time/central-day";
 import { normalizeTopVoiceAudienceId, topVoiceAudienceSummaries } from "@/lib/social/top-voices";
-import type { GraphResponse, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
+import { PLATFORM_VALUES, type GraphResponse, type Platform, type TopVoiceAudienceId } from "@/lib/graph/types";
 
-type FilterMenuId = "platform" | "industry" | "groupPartner" | "topVoices";
+type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices";
 
 interface DropdownOption<T extends string> {
   value: T;
@@ -46,23 +65,11 @@ interface DropdownOption<T extends string> {
   count?: number;
   color?: string;
   platform?: Platform;
+  disabled?: boolean;
+  description?: string;
 }
 
-const platformOptions: Platform[] = [
-  "github",
-  "x",
-  "linkedin",
-  "instagram",
-  "product_hunt",
-  "youtube",
-  "rss",
-  "web",
-  "reddit",
-  "hacker_news",
-  "bilibili",
-  "tiktok",
-  "bluesky"
-];
+const platformOptions: Platform[] = [...PLATFORM_VALUES];
 
 const defaultBatches = [
   { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 },
@@ -102,7 +109,7 @@ async function fetchGraphPayload(
           if (!response.ok) {
             throw new Error(`Graph request failed with ${response.status}`);
           }
-          return (await response.json()) as GraphResponse;
+          return enrichGraphTaxonomies((await response.json()) as GraphResponse);
         },
         options.signal
       );
@@ -309,6 +316,14 @@ function normalizeInitialPlatforms(platforms: Platform[] | undefined): Platform[
   return [...new Set(platforms.filter((platform) => allowed.has(platform)))];
 }
 
+function normalizeInitialTopics(topics: PostTopic[] | undefined): PostTopic[] {
+  return normalizePostTopics(topics ?? []);
+}
+
+function normalizeInitialVerticals(verticals: CompanyVertical[] | undefined): CompanyVertical[] {
+  return normalizeCompanyVerticals(verticals ?? [], COMPANY_VERTICALS.length);
+}
+
 function initialSelectedPlatforms(initialFilters: Partial<ClientGraphFilters> | undefined): Platform[] {
   return normalizeInitialPlatforms(initialFilters?.platforms);
 }
@@ -319,6 +334,17 @@ function normalizeInitialList(values: string[] | undefined): string[] {
 
 function queryList(params: URLSearchParams, key: string): string[] {
   return normalizeInitialList(params.get(key)?.split(",")).slice(0, 50);
+}
+
+function queryTopics(params: URLSearchParams): PostTopic[] {
+  return normalizePostTopics(queryList(params, "topics").filter(isPostTopic));
+}
+
+function queryVerticals(params: URLSearchParams): CompanyVertical[] {
+  return normalizeCompanyVerticals(
+    queryList(params, "verticals").filter(isCompanyVertical),
+    COMPANY_VERTICALS.length
+  );
 }
 
 function setUrlParameter(url: URL, key: string, value: string | null): void {
@@ -354,6 +380,8 @@ function staticGraphSnapshotUrl(batchSlug: string, topVoiceAudience: TopVoiceAud
 function hasClientGraphFilters(filters: ClientGraphFilters): boolean {
   return Boolean(
     filters.platforms.length ||
+      (filters.topics?.length ?? 0) > 0 ||
+      (filters.verticals?.length ?? 0) > 0 ||
       filters.industries.length ||
       filters.groupPartners.length ||
       filters.minScore > 0
@@ -429,26 +457,32 @@ export function Dashboard({
   initialFilters,
   manualRefreshEnabled = true
 }: DashboardProps = {}) {
-  const [batchSlug, setBatchSlug] = useState(() => initialBatchSlug(initialGraph, initialBatchSlugProp));
-  const [topVoiceAudience, setTopVoiceAudience] = useState<TopVoiceAudienceId>(() =>
-    initialTopVoiceAudience(initialGraph, initialTopVoiceAudienceProp)
+  const preparedInitialGraph = useMemo(
+    () => initialGraph ? enrichGraphTaxonomies(initialGraph) : undefined,
+    [initialGraph]
   );
-  const [graph, setGraph] = useState<GraphResponse | null>(initialGraph ?? null);
-  const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(initialGraph ?? null);
+  const [batchSlug, setBatchSlug] = useState(() => initialBatchSlug(preparedInitialGraph, initialBatchSlugProp));
+  const [topVoiceAudience, setTopVoiceAudience] = useState<TopVoiceAudienceId>(() =>
+    initialTopVoiceAudience(preparedInitialGraph, initialTopVoiceAudienceProp)
+  );
+  const [graph, setGraph] = useState<GraphResponse | null>(preparedInitialGraph ?? null);
+  const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(preparedInitialGraph ?? null);
   const graphCacheRef = useRef<Map<string, CachedGraphEntry>>(
     new Map(
-      initialGraph
+      preparedInitialGraph
         ? [
             [
-              graphCacheKey(initialGraph.batch.slug, initialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE),
-              { graph: initialGraph, source: "api" }
+              graphCacheKey(preparedInitialGraph.batch.slug, preparedInitialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE),
+              { graph: preparedInitialGraph, source: "api" }
             ]
           ]
         : []
     )
   );
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(initialGraph));
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(preparedInitialGraph));
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(() => initialSelectedPlatforms(initialFilters));
+  const [selectedTopics, setSelectedTopics] = useState<PostTopic[]>(() => normalizeInitialTopics(initialFilters?.topics));
+  const [selectedVerticals, setSelectedVerticals] = useState<CompanyVertical[]>(() => normalizeInitialVerticals(initialFilters?.verticals));
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>(() => normalizeInitialList(initialFilters?.industries));
   const [selectedGroupPartners, setSelectedGroupPartners] = useState<string[]>(() => normalizeInitialList(initialFilters?.groupPartners));
   const [minScore, setMinScore] = useState(initialFilters?.minScore ?? 0);
@@ -458,7 +492,7 @@ export function Dashboard({
   const [searchOpen, setSearchOpen] = useState(false);
   const [openFilterMenu, setOpenFilterMenu] = useState<FilterMenuId | null>(null);
   const [highlightedFounderId, setHighlightedFounderId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(!initialGraph);
+  const [loading, setLoading] = useState(!preparedInitialGraph);
   const [scopeTransitioning, setScopeTransitioning] = useState(false);
   const [actionLoading, setActionLoading] = useState<"ingest" | "refresh" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -477,16 +511,18 @@ export function Dashboard({
   const actionRequestIdRef = useRef(0);
   const activeActionAbortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef({ batchSlug, topVoiceAudience });
-  const initialGraphHydratedRef = useRef(Boolean(initialGraph));
+  const initialGraphHydratedRef = useRef(Boolean(preparedInitialGraph));
   const lastSubmittedQueryRef = useRef("");
   const currentFilters = useMemo<ClientGraphFilters>(
     () => ({
       platforms: selectedPlatforms,
-      industries: [],
-      groupPartners: [],
+      topics: selectedTopics,
+      verticals: selectedVerticals,
+      industries: selectedIndustries,
+      groupPartners: selectedGroupPartners,
       minScore
     }),
-    [minScore, selectedPlatforms]
+    [minScore, selectedGroupPartners, selectedIndustries, selectedPlatforms, selectedTopics, selectedVerticals]
   );
   const currentFiltersRef = useRef(currentFilters);
 
@@ -501,6 +537,12 @@ export function Dashboard({
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       const params = new URLSearchParams(window.location.search);
+      if (params.has("topics")) {
+        setSelectedTopics(queryTopics(params));
+      }
+      if (params.has("verticals")) {
+        setSelectedVerticals(queryVerticals(params));
+      }
       if (params.has("industries")) {
         setSelectedIndustries(queryList(params, "industries"));
       }
@@ -585,10 +627,14 @@ export function Dashboard({
     };
     const nextFilters = {
       ...currentFiltersRef.current,
+      topics: [],
+      verticals: [],
       industries: [],
       groupPartners: []
     };
     currentFiltersRef.current = nextFilters;
+    setSelectedTopics([]);
+    setSelectedVerticals([]);
     setSelectedIndustries([]);
     setSelectedGroupPartners([]);
     setOpenFilterMenu(null);
@@ -820,9 +866,9 @@ export function Dashboard({
 
       if (
         initialGraphHydratedRef.current &&
-        initialGraph &&
-        batchSlug === initialGraph.batch.slug &&
-        topVoiceAudience === (initialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE)
+        preparedInitialGraph &&
+        batchSlug === preparedInitialGraph.batch.slug &&
+        topVoiceAudience === (preparedInitialGraph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE)
       ) {
         initialGraphHydratedRef.current = false;
         const timeoutId = window.setTimeout(() => {
@@ -835,20 +881,22 @@ export function Dashboard({
 
     initialGraphHydratedRef.current = false;
     void fetchGraph({ unfiltered: true });
-  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, initialGraph, topVoiceAudience]);
+  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, preparedInitialGraph, topVoiceAudience]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
     setUrlParameter(url, "batch", batchSlug === DEFAULT_BATCH_SLUG ? null : batchSlug);
     setUrlParameter(url, "topVoices", topVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? null : topVoiceAudience);
     setUrlParameter(url, "platforms", selectedPlatforms.length ? selectedPlatforms.join(",") : null);
+    setUrlParameter(url, "topics", selectedTopics.length ? selectedTopics.join(",") : null);
+    setUrlParameter(url, "verticals", selectedVerticals.length ? selectedVerticals.join(",") : null);
 
     const nextLocation = `${url.pathname}${url.search}${url.hash}`;
     const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     if (nextLocation !== currentLocation) {
       window.history.replaceState(window.history.state, "", nextLocation);
     }
-  }, [batchSlug, selectedPlatforms, topVoiceAudience]);
+  }, [batchSlug, selectedPlatforms, selectedTopics, selectedVerticals, topVoiceAudience]);
 
   const settledGraph = graphMatchesSelection(graph, batchSlug, topVoiceAudience) ? graph : null;
   const graphBusy = loading || scopeTransitioning;
@@ -856,18 +904,9 @@ export function Dashboard({
   const scopedFilterMetadataGraph = graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
     ? filterMetadataGraph
     : null;
-  const mapGraph = useMemo(
-    () =>
-      scopedFilterMetadataGraph
-        ? applyClientGraphFilters(scopedFilterMetadataGraph, {
-            platforms: [],
-            industries: [],
-            groupPartners: [],
-            minScore
-          })
-        : graph,
-    [graph, minScore, scopedFilterMetadataGraph]
-  );
+  // Keep the previous scope visible (but inert) during an uncached scope
+  // transition; once settled, every surface consumes the same filtered graph.
+  const mapGraph = settledGraph ?? graph;
   const scopeSpecificFiltersDisabled = !settledGraph || !scopedFilterMetadataGraph;
 
   const activeSelectedNodeId = useMemo(() => {
@@ -888,6 +927,8 @@ export function Dashboard({
     setUrlParameter(url, "batch", batchSlug === DEFAULT_BATCH_SLUG ? null : batchSlug);
     setUrlParameter(url, "topVoices", topVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? null : topVoiceAudience);
     setUrlParameter(url, "platforms", selectedPlatforms.length ? selectedPlatforms.join(",") : null);
+    setUrlParameter(url, "topics", selectedTopics.length ? selectedTopics.join(",") : null);
+    setUrlParameter(url, "verticals", selectedVerticals.length ? selectedVerticals.join(",") : null);
     setUrlParameter(url, "industries", selectedIndustries.length ? selectedIndustries.join(",") : null);
     setUrlParameter(url, "groupPartners", selectedGroupPartners.length ? selectedGroupPartners.join(",") : null);
     setUrlParameter(url, "minScore", minScore > 0 ? String(minScore) : null);
@@ -905,6 +946,8 @@ export function Dashboard({
     selectedGroupPartners,
     selectedIndustries,
     selectedPlatforms,
+    selectedTopics,
+    selectedVerticals,
     topVoiceAudience,
     urlStateHydrated
   ]);
@@ -918,10 +961,8 @@ export function Dashboard({
     if (!mapGraph || !selectedNode) {
       return [];
     }
-    return selectedNodeEvidence(mapGraph, selectedNode)
-      .filter((item) => selectedPlatforms.length === 0 || selectedPlatforms.includes(item.platform))
-      .slice(0, TOP_POSTS_LIMIT);
-  }, [mapGraph, selectedNode, selectedPlatforms]);
+    return selectedNodeEvidence(mapGraph, selectedNode).slice(0, TOP_POSTS_LIMIT);
+  }, [mapGraph, selectedNode]);
 
   const searchResults = useMemo(
     () => mapGraph
@@ -1073,6 +1114,37 @@ export function Dashboard({
     []
   );
 
+  const topicCounts = useMemo(
+    () => topicPhysicalPostCounts(scopedFilterMetadataGraph?.evidence ?? []),
+    [scopedFilterMetadataGraph]
+  );
+  const verticalCounts = useMemo(
+    () => companyVerticalCounts(scopedFilterMetadataGraph?.nodes ?? []),
+    [scopedFilterMetadataGraph]
+  );
+  const topicDropdownOptions = useMemo<DropdownOption<PostTopic>[]>(
+    () => POST_TOPIC_TAXONOMY.map((topic) => ({
+      value: topic.slug,
+      label: topic.label,
+      description: topic.description,
+      count: topicCounts.get(topic.slug) ?? 0
+    })),
+    [topicCounts]
+  );
+  const verticalDropdownOptions = useMemo<DropdownOption<CompanyVertical>[]>(
+    () => COMPANY_VERTICALS.map((vertical) => {
+      const count = verticalCounts.get(vertical.slug) ?? 0;
+      return {
+        value: vertical.slug,
+        label: vertical.label,
+        description: vertical.description,
+        count,
+        disabled: count === 0 && !selectedVerticals.includes(vertical.slug)
+      };
+    }),
+    [selectedVerticals, verticalCounts]
+  );
+
   const industryDropdownOptions = useMemo<DropdownOption<string>[]>(
     () =>
       industryOptions.map((industry) => ({
@@ -1141,22 +1213,14 @@ export function Dashboard({
       if (!graphMatchesSelection(payload.graph, batchSlug, topVoiceAudience)) {
         throw new Error(`${titleCase(action)} returned a graph for a different batch or audience.`);
       }
-      const activeFilters = hasClientGraphFilters({
-        platforms: selectedPlatforms,
-        industries: [],
-        groupPartners: [],
-        minScore
-      });
+      const refreshedGraph = enrichGraphTaxonomies(payload.graph);
+      const activeFilters = hasClientGraphFilters(currentFiltersRef.current);
       invalidateGraphRequests();
       graphCacheRef.current.clear();
-      setGraph(payload.graph);
-      if (!activeFilters) {
-        rememberGraph(payload.graph);
-        setFilterMetadataGraph(payload.graph);
-      } else {
-        setFilterMetadataGraph(payload.graph);
-        void fetchGraph({ background: true, forceApi: true, unfiltered: true });
-      }
+      rememberGraph(refreshedGraph);
+      setFilterMetadataGraph(refreshedGraph);
+      setGraph(applyClientGraphFilters(refreshedGraph, currentFiltersRef.current));
+      if (activeFilters) void fetchGraph({ background: true, forceApi: true, unfiltered: true });
       const notice = refreshNoticeFor(action, payload);
       const refreshStatus = payload.status ?? payload.refreshSummary?.status;
       if (refreshStatus === "failed") {
@@ -1192,6 +1256,25 @@ export function Dashboard({
     trackFilterChange("platform", removing ? "removed" : "added", next.length);
   }
 
+  function toggleTopic(topic: PostTopic) {
+    const removing = selectedTopics.includes(topic);
+    const next = normalizePostTopics(
+      removing ? selectedTopics.filter((item) => item !== topic) : [...selectedTopics, topic]
+    );
+    setSelectedTopics(next);
+    trackFilterChange("topic", removing ? "removed" : "added", next.length);
+  }
+
+  function toggleVertical(vertical: CompanyVertical) {
+    const removing = selectedVerticals.includes(vertical);
+    const next = normalizeCompanyVerticals(
+      removing ? selectedVerticals.filter((item) => item !== vertical) : [...selectedVerticals, vertical],
+      COMPANY_VERTICALS.length
+    );
+    setSelectedVerticals(next);
+    trackFilterChange("vertical", removing ? "removed" : "added", next.length);
+  }
+
   function toggleIndustry(industry: string) {
     const removing = selectedIndustries.includes(industry);
     const next = removing ? selectedIndustries.filter((item) => item !== industry) : [...selectedIndustries, industry];
@@ -1225,9 +1308,13 @@ export function Dashboard({
     trackAnalyticsEvent("filter_changed", { filter, action, selection_count: selectionCount });
   }
 
-  function clearFilter(filter: "platform" | "industry" | "group_partner") {
+  function clearFilter(filter: "platform" | "topic" | "vertical" | "industry" | "group_partner") {
     const selectedCount = filter === "platform"
       ? selectedPlatforms.length
+      : filter === "topic"
+        ? selectedTopics.length
+        : filter === "vertical"
+          ? selectedVerticals.length
       : filter === "industry"
         ? selectedIndustries.length
         : selectedGroupPartners.length;
@@ -1235,13 +1322,15 @@ export function Dashboard({
       trackFilterChange(filter, "cleared", 0);
     }
     if (filter === "platform") setSelectedPlatforms([]);
+    if (filter === "topic") setSelectedTopics([]);
+    if (filter === "vertical") setSelectedVerticals([]);
     if (filter === "industry") setSelectedIndustries([]);
     if (filter === "group_partner") setSelectedGroupPartners([]);
   }
 
   function shareEventContext() {
     return {
-      included_filters: hasClientGraphFilters(currentFilters) || selectedIndustries.length > 0 || selectedGroupPartners.length > 0,
+      included_filters: hasClientGraphFilters(currentFilters),
       included_node: Boolean(activeSelectedNodeId)
     };
   }
@@ -1423,6 +1512,35 @@ export function Dashboard({
         />
 
         <FilterDropdown
+          id="topics"
+          icon={<Tags size={15} />}
+          title="Topics"
+          allLabel="All topics"
+          selectedValues={selectedTopics}
+          options={topicDropdownOptions}
+          isOpen={openFilterMenu === "topics"}
+          disabled={scopeSpecificFiltersDisabled}
+          onOpenChange={(open) => setOpenFilterMenu(open ? "topics" : null)}
+          onToggle={toggleTopic}
+          onClear={() => clearFilter("topic")}
+        />
+
+        <FilterDropdown
+          id="verticals"
+          icon={<Layers3 size={15} />}
+          title="Vertical"
+          allLabel="All verticals"
+          selectedValues={selectedVerticals}
+          options={verticalDropdownOptions}
+          isOpen={openFilterMenu === "verticals"}
+          disabled={scopeSpecificFiltersDisabled}
+          searchable
+          onOpenChange={(open) => setOpenFilterMenu(open ? "verticals" : null)}
+          onToggle={toggleVertical}
+          onClear={() => clearFilter("vertical")}
+        />
+
+        <FilterDropdown
           id="industry"
           icon={<Palette size={15} />}
           title="Industry"
@@ -1596,7 +1714,7 @@ export function Dashboard({
           />
           {settledGraph && (
             <InsightsTabs
-              graph={settledGraph}
+              graph={mapGraph ?? settledGraph}
               statsGraph={scopedFilterMetadataGraph ?? settledGraph}
               onSelectNode={selectRankedNode}
             />
@@ -1616,6 +1734,7 @@ interface FilterDropdownProps<T extends string> {
   options: DropdownOption<T>[];
   isOpen: boolean;
   disabled?: boolean;
+  searchable?: boolean;
   onOpenChange: (open: boolean) => void;
   onToggle: (value: T) => void;
   onClear: () => void;
@@ -1630,10 +1749,15 @@ function FilterDropdown<T extends string>({
   options,
   isOpen,
   disabled = false,
+  searchable = false,
   onOpenChange,
   onToggle,
   onClear
 }: FilterDropdownProps<T>) {
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const pendingFocusIndexRef = useRef<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const selectedLabels = options
     .filter((option) => selectedValues.includes(option.value))
     .map((option) => option.label);
@@ -1644,6 +1768,95 @@ function FilterDropdown<T extends string>({
         ? selectedLabels[0]
         : `${selectedLabels.length} selected`;
   const menuId = `${id}-filter-menu`;
+  const visibleOptions = searchable && searchQuery.trim()
+    ? options.filter((option) =>
+        `${option.label} ${option.description ?? ""}`.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      )
+    : options;
+  const entries: Array<{ option?: DropdownOption<T>; disabled: boolean }> = [
+    { disabled: false },
+    ...visibleOptions.map((option) => ({ option, disabled: option.disabled === true }))
+  ];
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (pendingFocusIndexRef.current !== null) {
+      const focusIndex = pendingFocusIndexRef.current;
+      pendingFocusIndexRef.current = null;
+      optionRefs.current[focusIndex]?.focus();
+    }
+  }, [isOpen, entries.length]);
+
+  function enabledIndex(start: number, direction: 1 | -1): number {
+    for (let offset = 0; offset < entries.length; offset += 1) {
+      const index = (start + offset * direction + entries.length) % entries.length;
+      if (!entries[index]?.disabled) return index;
+    }
+    return 0;
+  }
+
+  function focusEntry(start: number, direction: 1 | -1 = 1) {
+    optionRefs.current[enabledIndex(start, direction)]?.focus();
+  }
+
+  function openAndFocus(index: number) {
+    if (isOpen) {
+      focusEntry(index, index < 0 ? -1 : 1);
+      return;
+    }
+    pendingFocusIndexRef.current = enabledIndex(
+      index < 0 ? entries.length - 1 : index,
+      index < 0 ? -1 : 1
+    );
+    setSearchQuery("");
+    optionRefs.current = [];
+    onOpenChange(true);
+  }
+
+  function restoreFocus() {
+    setSearchQuery("");
+    optionRefs.current = [];
+    onOpenChange(false);
+    triggerRef.current?.focus();
+  }
+
+  function toggleOpen() {
+    if (isOpen) {
+      setSearchQuery("");
+      optionRefs.current = [];
+    }
+    onOpenChange(!isOpen);
+  }
+
+  function handleTriggerKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "ArrowDown" || event.key === "Home") {
+      event.preventDefault();
+      openAndFocus(0);
+    } else if (event.key === "ArrowUp" || event.key === "End") {
+      event.preventDefault();
+      openAndFocus(-1);
+    }
+  }
+
+  function handleEntryKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      focusEntry(index + 1, 1);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      focusEntry(index - 1, -1);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      focusEntry(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      focusEntry(entries.length - 1, -1);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      restoreFocus();
+    }
+  }
 
   return (
     <div className={`filter-dropdown ${isOpen ? "open" : ""}`}>
@@ -1652,25 +1865,53 @@ function FilterDropdown<T extends string>({
         {title}
       </span>
       <button
+        ref={triggerRef}
         type="button"
         className={`filter-dropdown-trigger ${selectedValues.length ? "active" : ""}`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls={menuId}
         disabled={disabled}
-        onClick={() => onOpenChange(!isOpen)}
+        onClick={toggleOpen}
+        onKeyDown={handleTriggerKeyDown}
       >
         <span>{buttonLabel}</span>
         <ChevronDown size={15} aria-hidden="true" />
       </button>
       {isOpen && (
         <div className="filter-dropdown-menu" id={menuId} role="menu">
+          {searchable && (
+            <label className="filter-menu-search">
+              <Search size={14} aria-hidden="true" />
+              <span className="sr-only">Search {title}</span>
+              <input
+                type="search"
+                value={searchQuery}
+                aria-label={`Search ${title}`}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    focusEntry(0);
+                  } else if (event.key === "Escape") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    restoreFocus();
+                  }
+                }}
+              />
+            </label>
+          )}
           <button
+            ref={(element) => {
+              optionRefs.current[0] = element;
+            }}
             type="button"
             role="menuitemcheckbox"
             aria-checked={selectedValues.length === 0}
             className={`filter-menu-option ${selectedValues.length === 0 ? "selected" : ""}`}
             onClick={onClear}
+            onKeyDown={(event) => handleEntryKeyDown(event, 0)}
           >
             <span className="filter-check" aria-hidden="true">
               {selectedValues.length === 0 && <Check size={15} />}
@@ -1678,27 +1919,38 @@ function FilterDropdown<T extends string>({
             <span className="filter-option-label">{allLabel}</span>
           </button>
 
-          {options.map((option) => {
+          {visibleOptions.map((option, optionIndex) => {
             const selected = selectedValues.includes(option.value);
+            const index = optionIndex + 1;
             return (
               <button
+                ref={(element) => {
+                  optionRefs.current[index] = element;
+                }}
                 type="button"
                 role="menuitemcheckbox"
                 aria-checked={selected}
-                className={`filter-menu-option ${selected ? "selected" : ""}`}
+                aria-disabled={option.disabled || undefined}
+                disabled={option.disabled}
+                className={`filter-menu-option ${selected ? "selected" : ""} ${option.disabled ? "disabled" : ""}`}
                 key={option.value}
                 onClick={() => onToggle(option.value)}
+                onKeyDown={(event) => handleEntryKeyDown(event, index)}
               >
                 <span className="filter-check" aria-hidden="true">
                   {selected && <Check size={15} />}
                 </span>
                 {option.platform && <PlatformLogo platform={option.platform} />}
                 {option.color && <span className="filter-swatch" style={{ backgroundColor: option.color }} />}
-                <span className="filter-option-label">{option.label}</span>
+                <span className="filter-option-copy">
+                  <span className="filter-option-label">{option.label}</span>
+                  {option.description && <small>{option.description}</small>}
+                </span>
                 {typeof option.count === "number" && <em>({option.count})</em>}
               </button>
             );
           })}
+          {visibleOptions.length === 0 && <p className="filter-menu-empty">No matching verticals</p>}
         </div>
       )}
     </div>

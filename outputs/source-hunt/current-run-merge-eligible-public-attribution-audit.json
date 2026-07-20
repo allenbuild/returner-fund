@@ -1,0 +1,2611 @@
+{
+  "schemaVersion": 1,
+  "auditType": "merge-eligible-public-candidate-native-attribution",
+  "auditedAt": "2026-07-20T13:38:34Z",
+  "scope": {
+    "runKey": "source-hunt-2026-07-20-comprehensive-v1",
+    "workdir": "work/autonomous-ingestion/source-hunt-2026-07-20-comprehensive-v1-f6c683e7dbfcf1b4",
+    "canonicalEvidenceRead": false,
+    "canonicalEvidenceWritten": false,
+    "note": "This checkpoint-only semantic audit is separate from the frozen-baseline canonical delta audit."
+  },
+  "inputCheckpointSha256": {
+    "A16ZSR006": "29420505daabe0ec22c2931d29eae9edde2b9bd3fefacda3bdd9d2211226ac4a",
+    "S2026": "e2faeb8c13f89bf761f4813c7dde7a6acaecb2afd7c017eb64d374d4f45434eb",
+    "S26": "1c3f4fe3b597bda949b04fd26e624d8ab9819da5eb5307fc3b60218da74cf23c"
+  },
+  "summary": {
+    "audited": 77,
+    "accepted": 64,
+    "rejectedCertainFalsePositive": 13,
+    "ambiguousFalsePositive": 0,
+    "acceptedByBatchPlatform": {
+      "A16ZSR006": {
+        "youtube": 1
+      },
+      "S2026": {
+        "hacker_news": 11,
+        "x": 1,
+        "youtube": 37,
+        "total": 49
+      },
+      "S26": {
+        "hacker_news": 3,
+        "x": 3,
+        "youtube": 8,
+        "total": 14
+      }
+    },
+    "rejectedByBatchPlatform": {
+      "S2026": {
+        "youtube": 10
+      },
+      "S26": {
+        "youtube": 3
+      }
+    },
+    "validIdentityWithBatchTextConflict": [
+      "DCYci-GzSgo",
+      "J2Dgm1rtRlY",
+      "fEBxXqWpUMA",
+      "Ok-zXlMPI0g"
+    ]
+  },
+  "failClosedCriteria": [
+    "Use Unicode-normalized bounded token-sequence equality; never substring or prefix matching.",
+    "Standalone calendar/season text and generic startup/founder/launch/product words are search hints, not attribution anchors.",
+    "A generic-search row auto-verifies only when an exact company-name sequence is corroborated by an official mapped channel, exact official domain, full roster founder, or an accelerator-bound exact cohort designator.",
+    "For common/dictionary/collision-known names, cohort text alone is insufficient; require official channel/domain/founder or at least two rare roster descriptor tokens.",
+    "A native owner, founder, domain, or known accelerator entity that resolves to a different roster company is a hard rejection.",
+    "Explicit contradictory batch/company identity is needs_review unless independent exact owner/founder/domain evidence resolves entity identity; the roster, never title text, supplies batch.",
+    "Persist native channel ID/URL and attribution anchors, and require them at merge for generic_search_target rows; search rank/title alone never produces verified evidence."
+  ],
+  "ambiguousFalsePositives": [],
+  "candidates": [
+    {
+      "ordinal": 1,
+      "batch": "A16ZSR006",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-taxnova",
+      "companySlug": "taxnova",
+      "companyName": "Taxnova",
+      "platform": "youtube",
+      "platformPostId": "gK2J_2HGjf0",
+      "sourceUrl": "https://www.youtube.com/watch?v=gK2J_2HGjf0",
+      "title": "The Hidden Opportunity in R&D Tax Credits: Why a16z speedrun Backed Taxnova",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:gK2J_2HGjf0"
+        },
+        {
+          "type": "native_channel",
+          "value": "Understanding VC"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Taxnova"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "a16z Speedrun"
+        }
+      ]
+    },
+    {
+      "ordinal": 2,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-9-mothers-corporation",
+      "companySlug": "9-mothers-corporation",
+      "companyName": "9 Mothers",
+      "platform": "x",
+      "platformPostId": "2070898557645660388",
+      "sourceUrl": "https://x.com/rhs/status/2070898557645660388",
+      "title": "Interview about @Inc and @lisabonos - @9Mothers , @ployai, @ApolloAtomics, and more @ycombinator P26 folks!",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Roster founder Russell Smith authored the native post and explicitly mentioned the company and cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "x:2070898557645660388"
+        },
+        {
+          "type": "roster_founder_author",
+          "value": "rhs / Russell Smith"
+        },
+        {
+          "type": "exact_company_mention",
+          "value": "@9Mothers"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 3,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-ardent",
+      "companySlug": "ardent",
+      "companyName": "Ardent",
+      "platform": "hacker_news",
+      "platformPostId": "48124436",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48124436",
+      "title": "Launch HN: Ardent (YC P26) – Postgres sandboxes in seconds with zero migration",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48124436"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Ardent"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 4,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-amboras",
+      "companySlug": "amboras",
+      "companyName": "Amboras",
+      "platform": "youtube",
+      "platformPostId": "KqengG858F8",
+      "sourceUrl": "https://www.youtube.com/watch?v=KqengG858F8",
+      "title": "Amboras (YC P26) Launch Video",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:KqengG858F8"
+        },
+        {
+          "type": "native_channel",
+          "value": "Ecomcoder AI"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Amboras"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "official_roster_history",
+          "value": "YC's Amboras profile states EcomCoder was the same founders' predecessor product."
+        }
+      ]
+    },
+    {
+      "ordinal": 5,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-chert",
+      "companySlug": "chert",
+      "companyName": "Chert",
+      "platform": "hacker_news",
+      "platformPostId": "48267829",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48267829",
+      "title": "Launch HN: Chert (YC P26) – Twilio for iMessage",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48267829"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Chert"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 6,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-drafted",
+      "companySlug": "drafted",
+      "companyName": "Drafted",
+      "platform": "hacker_news",
+      "platformPostId": "48543908",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48543908",
+      "title": "Launch HN: Drafted (YC P26) – Models for residential architecture",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48543908"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Drafted"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 7,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-archer",
+      "companySlug": "archer",
+      "companyName": "Archer",
+      "platform": "youtube",
+      "platformPostId": "oY9fNCY2qI0",
+      "sourceUrl": "https://www.youtube.com/watch?v=oY9fNCY2qI0",
+      "title": "Archer & Olive Spring 2026 UNBOXING 🌸 Brand Ambassador Reveal | Which Notebooks are my Favourite?",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The video is about stationery brand Archer & Olive; the roster Archer is an AI gifting company.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "common-name collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Nolana Lynch"
+        },
+        {
+          "type": "roster_tagline",
+          "value": " AI-powered gifting for customer acquisition and retention"
+        }
+      ]
+    },
+    {
+      "ordinal": 8,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-ara",
+      "companySlug": "ara",
+      "companyName": "Ara",
+      "platform": "youtube",
+      "platformPostId": "6ASb9QW2QEw",
+      "sourceUrl": "https://www.youtube.com/watch?v=6ASb9QW2QEw",
+      "title": "Ara (YC P26) Launch Video",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:6ASb9QW2QEw"
+        },
+        {
+          "type": "native_channel",
+          "value": "Ara"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Ara"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 9,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-ara",
+      "companySlug": "ara",
+      "companyName": "Ara",
+      "platform": "youtube",
+      "platformPostId": "XZhRQ_Lr664",
+      "sourceUrl": "https://www.youtube.com/watch?v=XZhRQ_Lr664",
+      "title": "Ara (YC P26) - YC Launch Video - The Self-driving IDE",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:XZhRQ_Lr664"
+        },
+        {
+          "type": "native_channel",
+          "value": "Ara"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Ara"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 10,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-ara",
+      "companySlug": "ara",
+      "companyName": "Ara",
+      "platform": "youtube",
+      "platformPostId": "yGLNjQ-8sk0",
+      "sourceUrl": "https://www.youtube.com/watch?v=yGLNjQ-8sk0",
+      "title": "Ara (YC P26) We want to give everyone an AI Computer",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:yGLNjQ-8sk0"
+        },
+        {
+          "type": "native_channel",
+          "value": "adi"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Ara"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 11,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-general-instinct",
+      "companySlug": "general-instinct",
+      "companyName": "General Instinct",
+      "platform": "hacker_news",
+      "platformPostId": "48414869",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48414869",
+      "title": "Launch HN: General Instinct (YC P26) – Frontier models on edge devices",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48414869"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "General Instinct"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 12,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-arlo-industries",
+      "companySlug": "arlo-industries",
+      "companyName": "Arlo Industries",
+      "platform": "youtube",
+      "platformPostId": "2F0cugbrq3A",
+      "sourceUrl": "https://www.youtube.com/watch?v=2F0cugbrq3A",
+      "title": "Arlo Industries (YC P26) Launch",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:2F0cugbrq3A"
+        },
+        {
+          "type": "native_channel",
+          "value": "Arlo Industries"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Arlo Industries"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Arlo Industries"
+        }
+      ]
+    },
+    {
+      "ordinal": 13,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-arlo-industries",
+      "companySlug": "arlo-industries",
+      "companyName": "Arlo Industries",
+      "platform": "youtube",
+      "platformPostId": "DCYci-GzSgo",
+      "sourceUrl": "https://www.youtube.com/watch?v=DCYci-GzSgo",
+      "title": "#02: Tracking Drones and Missiles Without Radar with Deo Arlo, Founder of Arlo Industries (YC S26)",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Exact company plus full roster-founder corroboration establishes entity identity; the textual batch conflict is recorded and the roster remains authoritative.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:DCYci-GzSgo"
+        },
+        {
+          "type": "native_channel",
+          "value": "The Parameter"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Arlo Industries"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Deo Arlo"
+        },
+        {
+          "type": "batch_text_conflict",
+          "value": "title says YC S26 while roster entity is Spring 2026/P26; accepted identity only because exact full founder corroborates"
+        }
+      ]
+    },
+    {
+      "ordinal": 14,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-kugelaudio",
+      "companySlug": "kugelaudio",
+      "companyName": "KugelAudio",
+      "platform": "hacker_news",
+      "platformPostId": "48358446",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48358446",
+      "title": "Ask HN: What's KugelAudio's (YC P26) Moat?",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48358446"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "KugelAudio"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 15,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-minicor",
+      "companySlug": "minicor",
+      "companyName": "Minicor",
+      "platform": "hacker_news",
+      "platformPostId": "48280729",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48280729",
+      "title": "Launch HN: Minicor (YC P26) – Windows desktop automations at scale",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48280729"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Minicor"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 16,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-rudus",
+      "companySlug": "rudus",
+      "companyName": "Rudus",
+      "platform": "hacker_news",
+      "platformPostId": "48374528",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48374528",
+      "title": "Launch HN: Rudus (YC P26) – AI for concrete contractors",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48374528"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Rudus"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 17,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "companySlug": "superlog",
+      "companyName": "Superlog",
+      "platform": "hacker_news",
+      "platformPostId": "48195021",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48195021",
+      "title": "Show HN: Superlog (YC P26) – Observability that installs itself and fixes bugs",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48195021"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Superlog"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 18,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "companySlug": "superlog",
+      "companyName": "Superlog",
+      "platform": "hacker_news",
+      "platformPostId": "48447904",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48447904",
+      "title": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48447904"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Superlog"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 19,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-testerarmy",
+      "companySlug": "testerarmy",
+      "companyName": "TesterArmy",
+      "platform": "hacker_news",
+      "platformPostId": "48586299",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48586299",
+      "title": "Launch HN: TesterArmy (YC P26) – Agents that test web and mobile apps",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48586299"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "TesterArmy"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 20,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-transload",
+      "companySlug": "transload",
+      "companyName": "transload",
+      "platform": "hacker_news",
+      "platformPostId": "48463273",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48463273",
+      "title": "Launch HN: Transload (YC P26) – Measuring freight items with CCTV",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48463273"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "transload"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 21,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-chronicle-labs",
+      "companySlug": "chronicle-labs",
+      "companyName": "Chronicle Labs",
+      "platform": "youtube",
+      "platformPostId": "LdpAPgGYL1E",
+      "sourceUrl": "https://www.youtube.com/watch?v=LdpAPgGYL1E",
+      "title": "Chronicle Labs (YC P26) -- Launch Video",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:LdpAPgGYL1E"
+        },
+        {
+          "type": "native_channel",
+          "value": "Chronicle Labs"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Chronicle Labs"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Chronicle Labs"
+        }
+      ]
+    },
+    {
+      "ordinal": 22,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-hedge",
+      "companySlug": "hedge",
+      "companyName": "Hedge",
+      "platform": "youtube",
+      "platformPostId": "atpJMfTfzhk",
+      "sourceUrl": "https://www.youtube.com/watch?v=atpJMfTfzhk",
+      "title": "How to Launch a Hedge Fund in 2026 | Blackstone, CPP, Stable & Canepa | Emerging Manager Masterclass",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The title discusses launching a hedge fund; it does not identify roster company Hedge, an AI-native wholesale insurer.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "common-noun collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "iConnections"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "AI-Native wholesale insurance company"
+        }
+      ]
+    },
+    {
+      "ordinal": 23,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-hedge",
+      "companySlug": "hedge",
+      "companyName": "Hedge",
+      "platform": "youtube",
+      "platformPostId": "CVpb8MGKWOs",
+      "sourceUrl": "https://www.youtube.com/watch?v=CVpb8MGKWOs",
+      "title": "Hedgeye Investing Summit Spring 2026 | Josh Crumb & Jeff Currie, Abaxx Technologies",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The native owner and title identify Hedgeye, not roster company Hedge.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "different-brand collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Hedgeye"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "AI-Native wholesale insurance company"
+        }
+      ]
+    },
+    {
+      "ordinal": 24,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-hedge",
+      "companySlug": "hedge",
+      "companyName": "Hedge",
+      "platform": "youtube",
+      "platformPostId": "dxSQiIsPY5E",
+      "sourceUrl": "https://www.youtube.com/watch?v=dxSQiIsPY5E",
+      "title": "Hedgeye Investing Summit Spring 2026 | Nancy Davis, Founder & CIO of Quadratic Capital",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The native owner and title identify Hedgeye, not roster company Hedge.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "different-brand collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Hedgeye"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "AI-Native wholesale insurance company"
+        }
+      ]
+    },
+    {
+      "ordinal": 25,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-trybloom",
+      "companySlug": "trybloom",
+      "companyName": "Bloom",
+      "platform": "youtube",
+      "platformPostId": "qAWx3099Um8",
+      "sourceUrl": "https://www.youtube.com/watch?v=qAWx3099Um8",
+      "title": "Y Combinator Spring 2026 Application - Bloomsbury Tech, Inc.",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The title identifies Bloomsbury Tech; Bloom is only a substring and the roster company is the agent brand-layer company.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "substring collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Eugene Shcherbinin"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "The brand layer for agents."
+        }
+      ]
+    },
+    {
+      "ordinal": 26,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-trybloom",
+      "companySlug": "trybloom",
+      "companyName": "Bloom",
+      "platform": "youtube",
+      "platformPostId": "8hGu1OPYQuo",
+      "sourceUrl": "https://www.youtube.com/watch?v=8hGu1OPYQuo",
+      "title": "Bloom Wave - Dartmouth CS21 Spring 2026",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The title is a Dartmouth course project called Bloom Wave, not roster company Bloom.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "common-word collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Black Lobster - Digital Arts"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "The brand layer for agents."
+        }
+      ]
+    },
+    {
+      "ordinal": 27,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-trybloom",
+      "companySlug": "trybloom",
+      "companyName": "Bloom",
+      "platform": "youtube",
+      "platformPostId": "g3a6LVsq76w",
+      "sourceUrl": "https://www.youtube.com/watch?v=g3a6LVsq76w",
+      "title": "Paperblanks Spring 2026 Collection: Let Your Imagination Bloom",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The title is a Paperblanks seasonal collection using the verb bloom, not roster company Bloom.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "common-word collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Paperblanks"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "The brand layer for agents."
+        }
+      ]
+    },
+    {
+      "ordinal": 28,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-chert",
+      "companySlug": "chert",
+      "companyName": "Chert",
+      "platform": "youtube",
+      "platformPostId": "g0BYKdbaNFo",
+      "sourceUrl": "https://www.youtube.com/watch?v=g0BYKdbaNFo",
+      "title": "Chert (YC P26): iMessage infrastructure for trusted communication at scale",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:g0BYKdbaNFo"
+        },
+        {
+          "type": "native_channel",
+          "value": "Chert"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Chert"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Chert"
+        }
+      ]
+    },
+    {
+      "ordinal": 29,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-datost",
+      "companySlug": "datost",
+      "companyName": "Datost",
+      "platform": "youtube",
+      "platformPostId": "J2Dgm1rtRlY",
+      "sourceUrl": "https://www.youtube.com/watch?v=J2Dgm1rtRlY",
+      "title": "#05: Semantic Layers for AI Data Analysts with Maceo Cardinale Kwik, Co-Founder of Datost (YC S26)",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Exact company plus full roster-founder corroboration establishes entity identity; the textual batch conflict is recorded and the roster remains authoritative.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:J2Dgm1rtRlY"
+        },
+        {
+          "type": "native_channel",
+          "value": "The Parameter"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Datost"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Maceo Cardinale Kwik"
+        },
+        {
+          "type": "batch_text_conflict",
+          "value": "title says YC S26 while roster entity is Spring 2026/P26; accepted identity only because exact full founder corroborates"
+        }
+      ]
+    },
+    {
+      "ordinal": 30,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-enjamb-labs",
+      "companySlug": "enjamb-labs",
+      "companyName": "Enjamb Labs",
+      "platform": "youtube",
+      "platformPostId": "5DwdtiLvViM",
+      "sourceUrl": "https://www.youtube.com/watch?v=5DwdtiLvViM",
+      "title": "Introducing Enjamb Labs (YC P26): AI Agents for Research",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:5DwdtiLvViM"
+        },
+        {
+          "type": "native_channel",
+          "value": "Enjamb (YC P26)"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Enjamb Labs"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Enjamb (YC P26)"
+        }
+      ]
+    },
+    {
+      "ordinal": 31,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-finaldose",
+      "companySlug": "finaldose",
+      "companyName": "FinalDose",
+      "platform": "youtube",
+      "platformPostId": "446etIvaYCM",
+      "sourceUrl": "https://www.youtube.com/watch?v=446etIvaYCM",
+      "title": "FinalDose YC Launch - A programmable drug that kills cancer by reading its DNA",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:446etIvaYCM"
+        },
+        {
+          "type": "native_channel",
+          "value": "FinalDose"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "FinalDose"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "FinalDose"
+        }
+      ]
+    },
+    {
+      "ordinal": 32,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-fuchsia",
+      "companySlug": "fuchsia",
+      "companyName": "Fuchsia",
+      "platform": "youtube",
+      "platformPostId": "epMVQDNfy-4",
+      "sourceUrl": "https://www.youtube.com/watch?v=epMVQDNfy-4",
+      "title": "Fuchsia YC Launch",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:epMVQDNfy-4"
+        },
+        {
+          "type": "native_channel",
+          "value": "Tony Gao"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Fuchsia"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Tony Gao"
+        }
+      ]
+    },
+    {
+      "ordinal": 33,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-gojiberry-ai",
+      "companySlug": "gojiberry-ai",
+      "companyName": "Gojiberry AI",
+      "platform": "youtube",
+      "platformPostId": "qsdc7V0_5Ps",
+      "sourceUrl": "https://www.youtube.com/watch?v=qsdc7V0_5Ps",
+      "title": "GojiberryAI YC Application (P26) - Accepted",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:qsdc7V0_5Ps"
+        },
+        {
+          "type": "native_channel",
+          "value": "Gojiberry"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Gojiberry AI"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Gojiberry"
+        }
+      ]
+    },
+    {
+      "ordinal": 34,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-gojiberry-ai",
+      "companySlug": "gojiberry-ai",
+      "companyName": "Gojiberry AI",
+      "platform": "youtube",
+      "platformPostId": "5lKBdQirHho",
+      "sourceUrl": "https://www.youtube.com/watch?v=5lKBdQirHho",
+      "title": "How To Use Gojiberry.ai 2025 - Full Tutorial",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:5lKBdQirHho"
+        },
+        {
+          "type": "native_channel",
+          "value": "Gojiberry"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Gojiberry AI"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Gojiberry"
+        }
+      ]
+    },
+    {
+      "ordinal": 35,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-heyclicky",
+      "companySlug": "heyclicky",
+      "companyName": "HeyClicky",
+      "platform": "youtube",
+      "platformPostId": "-PUo1FUKLrw",
+      "sourceUrl": "https://www.youtube.com/watch?v=-PUo1FUKLrw",
+      "title": "founder react to heyclicky | YC spring 2026",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:-PUo1FUKLrw"
+        },
+        {
+          "type": "native_channel",
+          "value": "SigmaGirl"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "HeyClicky"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "exact_brand_and_bound_cohort",
+          "value": "The unique HeyClicky brand and explicit YC Spring 2026 text identify the roster company despite a third-party channel."
+        }
+      ]
+    },
+    {
+      "ordinal": 36,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-instaagent",
+      "companySlug": "instaagent",
+      "companyName": "InstaAgent",
+      "platform": "youtube",
+      "platformPostId": "NM3l6c2cm0w",
+      "sourceUrl": "https://www.youtube.com/watch?v=NM3l6c2cm0w",
+      "title": "InstaAgent Launch YC",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:NM3l6c2cm0w"
+        },
+        {
+          "type": "native_channel",
+          "value": "InstaAgent"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "InstaAgent"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "InstaAgent"
+        }
+      ]
+    },
+    {
+      "ordinal": 37,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-kimpton-ai",
+      "companySlug": "kimpton-ai",
+      "companyName": "Kimpton AI",
+      "platform": "youtube",
+      "platformPostId": "hnIa8E7Q4qI",
+      "sourceUrl": "https://www.youtube.com/watch?v=hnIa8E7Q4qI",
+      "title": "YC Launch Demo: Kimpton AI",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:hnIa8E7Q4qI"
+        },
+        {
+          "type": "native_channel",
+          "value": "Jack Zumwalt"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Kimpton AI"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Jack Zumwalt"
+        }
+      ]
+    },
+    {
+      "ordinal": 38,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-kimpton-ai",
+      "companySlug": "kimpton-ai",
+      "companyName": "Kimpton AI",
+      "platform": "youtube",
+      "platformPostId": "3aED4nL3G50",
+      "sourceUrl": "https://www.youtube.com/watch?v=3aED4nL3G50",
+      "title": "Launch YC: Kimpton AI",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:3aED4nL3G50"
+        },
+        {
+          "type": "native_channel",
+          "value": "Kimpton AI"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Kimpton AI"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Kimpton AI"
+        }
+      ]
+    },
+    {
+      "ordinal": 39,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-kugelaudio",
+      "companySlug": "kugelaudio",
+      "companyName": "KugelAudio",
+      "platform": "youtube",
+      "platformPostId": "fEBxXqWpUMA",
+      "sourceUrl": "https://www.youtube.com/watch?v=fEBxXqWpUMA",
+      "title": "#03: Running Multilingual Voice AI On-Prem with Viktor Presber, Co-Founder of KugelAudio (YC S26)",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Exact company plus full roster-founder corroboration establishes entity identity; the textual batch conflict is recorded and the roster remains authoritative.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:fEBxXqWpUMA"
+        },
+        {
+          "type": "native_channel",
+          "value": "The Parameter"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "KugelAudio"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Viktor Presber"
+        },
+        {
+          "type": "batch_text_conflict",
+          "value": "title says YC S26 while roster entity is Spring 2026/P26; accepted identity only because exact full founder corroborates"
+        }
+      ]
+    },
+    {
+      "ordinal": 40,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-tryprism",
+      "companySlug": "tryprism",
+      "companyName": "Prism",
+      "platform": "youtube",
+      "platformPostId": "ceXFDoVspcU",
+      "sourceUrl": "https://www.youtube.com/watch?v=ceXFDoVspcU",
+      "title": "Founder to Builder | A PRISM Weekend Workshop, July 25-26, 2026",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The native owner is Dr. Jeff Bullock and the item is an unrelated PRISM workshop, not the roster AI recruiting company.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "acronym/common-name collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Dr. Jeff Bullock"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "AI-native recruiting agency"
+        }
+      ]
+    },
+    {
+      "ordinal": 41,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-raspire",
+      "companySlug": "raspire",
+      "companyName": "RASPIRE",
+      "platform": "youtube",
+      "platformPostId": "uggwRzCNs88",
+      "sourceUrl": "https://www.youtube.com/watch?v=uggwRzCNs88",
+      "title": "RASPIRE (YC P26) - App Security at AI Speed",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:uggwRzCNs88"
+        },
+        {
+          "type": "native_channel",
+          "value": "RASPIRE"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "RASPIRE"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "RASPIRE"
+        }
+      ]
+    },
+    {
+      "ordinal": 42,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-thomas",
+      "companySlug": "thomas",
+      "companyName": "Thomas",
+      "platform": "youtube",
+      "platformPostId": "lVME4RpYyw8",
+      "sourceUrl": "https://www.youtube.com/watch?v=lVME4RpYyw8",
+      "title": "Meet Thomas - Worlds First AI Founder at Y Combinator #ai #ycombinator",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:lVME4RpYyw8"
+        },
+        {
+          "type": "native_channel",
+          "value": "Program Strategy HQ | AI Native Engineering"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Thomas"
+        },
+        {
+          "type": "roster_descriptor_match",
+          "value": "The title's 'first AI founder' description matches Thomas's roster tagline and explicitly names Y Combinator."
+        }
+      ]
+    },
+    {
+      "ordinal": 43,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-imperfect",
+      "companySlug": "imperfect",
+      "companyName": "Imperfect",
+      "platform": "youtube",
+      "platformPostId": "xVmMhqS0eZg",
+      "sourceUrl": "https://www.youtube.com/watch?v=xVmMhqS0eZg",
+      "title": "Imperfect (YC P26): Training that Adapts to Real Life",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:xVmMhqS0eZg"
+        },
+        {
+          "type": "native_channel",
+          "value": "Imperfect_co"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Imperfect"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Imperfect_co"
+        }
+      ]
+    },
+    {
+      "ordinal": 44,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-kelai",
+      "companySlug": "kelai",
+      "companyName": "KelAI",
+      "platform": "youtube",
+      "platformPostId": "GyqGwltsNjk",
+      "sourceUrl": "https://www.youtube.com/watch?v=GyqGwltsNjk",
+      "title": "KelAI YC P26 launch",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:GyqGwltsNjk"
+        },
+        {
+          "type": "native_channel",
+          "value": "KelAI"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "KelAI"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        }
+      ]
+    },
+    {
+      "ordinal": 45,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-kinro",
+      "companySlug": "kinro",
+      "companyName": "Kinro",
+      "platform": "youtube",
+      "platformPostId": "z_bC6nejbbg",
+      "sourceUrl": "https://www.youtube.com/watch?v=z_bC6nejbbg",
+      "title": "Kinro - Launch Video (YC P2026). AI sales agent for insurance industry",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:z_bC6nejbbg"
+        },
+        {
+          "type": "native_channel",
+          "value": "Kinro"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Kinro"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Kinro"
+        }
+      ]
+    },
+    {
+      "ordinal": 46,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-klaimee",
+      "companySlug": "klaimee",
+      "companyName": "Klaimee",
+      "platform": "youtube",
+      "platformPostId": "Y7VBNr81b5Y",
+      "sourceUrl": "https://www.youtube.com/watch?v=Y7VBNr81b5Y",
+      "title": "Klaimee (YC P26) insures your AI Agents.",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:Y7VBNr81b5Y"
+        },
+        {
+          "type": "native_channel",
+          "value": "Klaimee"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Klaimee"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Klaimee"
+        }
+      ]
+    },
+    {
+      "ordinal": 47,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-kuli",
+      "companySlug": "kuli",
+      "companyName": "Kuli",
+      "platform": "youtube",
+      "platformPostId": "0wdu4XS7BHk",
+      "sourceUrl": "https://www.youtube.com/watch?v=0wdu4XS7BHk",
+      "title": "Kuli (YC P26) : AI coworker for social media and creator marketers",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:0wdu4XS7BHk"
+        },
+        {
+          "type": "native_channel",
+          "value": "Kuli"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Kuli"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Kuli"
+        }
+      ]
+    },
+    {
+      "ordinal": 48,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-memory-store",
+      "companySlug": "memory-store",
+      "companyName": "Memory Store",
+      "platform": "youtube",
+      "platformPostId": "Ok-zXlMPI0g",
+      "sourceUrl": "https://www.youtube.com/watch?v=Ok-zXlMPI0g",
+      "title": "#04: Unified Memory Layer for AI Agents with Diwank Tomer, Co-Founder of Memory Store (YC S26)",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Exact company plus full roster-founder corroboration establishes entity identity; the textual batch conflict is recorded and the roster remains authoritative.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:Ok-zXlMPI0g"
+        },
+        {
+          "type": "native_channel",
+          "value": "The Parameter"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Memory Store"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Diwank Tomer"
+        },
+        {
+          "type": "batch_text_conflict",
+          "value": "title says YC S26 while roster entity is Spring 2026/P26; accepted identity only because exact full founder corroborates"
+        }
+      ]
+    },
+    {
+      "ordinal": 49,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-minicor",
+      "companySlug": "minicor",
+      "companyName": "Minicor",
+      "platform": "youtube",
+      "platformPostId": "nzH4ekkaA2c",
+      "sourceUrl": "https://www.youtube.com/watch?v=nzH4ekkaA2c",
+      "title": "Minicor (YC P26) Launch Video | Self-healing desktop automations that scale",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:nzH4ekkaA2c"
+        },
+        {
+          "type": "native_channel",
+          "value": "Faizaan Chishtie"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Minicor"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Faizaan Chishtie"
+        }
+      ]
+    },
+    {
+      "ordinal": 50,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-ontora",
+      "companySlug": "ontora",
+      "companyName": "Ontora",
+      "platform": "youtube",
+      "platformPostId": "JPk4_Nx31nU",
+      "sourceUrl": "https://www.youtube.com/watch?v=JPk4_Nx31nU",
+      "title": "Ontora (YC P26) Launch",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:JPk4_Nx31nU"
+        },
+        {
+          "type": "native_channel",
+          "value": "Ontora"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Ontora"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Ontora"
+        }
+      ]
+    },
+    {
+      "ordinal": 51,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-ontora",
+      "companySlug": "ontora",
+      "companyName": "Ontora",
+      "platform": "youtube",
+      "platformPostId": "vI8shNqqmRE",
+      "sourceUrl": "https://www.youtube.com/watch?v=vI8shNqqmRE",
+      "title": "Launch: 1 Month of Ontora (YC P26)",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:vI8shNqqmRE"
+        },
+        {
+          "type": "native_channel",
+          "value": "Ontora"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Ontora"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Ontora"
+        }
+      ]
+    },
+    {
+      "ordinal": 52,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-oddpool",
+      "companySlug": "oddpool",
+      "companyName": "Oddpool",
+      "platform": "youtube",
+      "platformPostId": "dSG7gVU1M7w",
+      "sourceUrl": "https://www.youtube.com/watch?v=dSG7gVU1M7w",
+      "title": "Oddpool (YC P26) - The institutional data layer for prediction markets",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:dSG7gVU1M7w"
+        },
+        {
+          "type": "native_channel",
+          "value": "Oddpool Alerts"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Oddpool"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Oddpool Alerts"
+        }
+      ]
+    },
+    {
+      "ordinal": 53,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-useparrot",
+      "companySlug": "useparrot",
+      "companyName": "Parrot",
+      "platform": "youtube",
+      "platformPostId": "ruo4PUCUHL4",
+      "sourceUrl": "https://www.youtube.com/watch?v=ruo4PUCUHL4",
+      "title": "Parrot (YC P26) Launch Video",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:ruo4PUCUHL4"
+        },
+        {
+          "type": "native_channel",
+          "value": "Phillip Baek"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Parrot"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Phillip Baek"
+        }
+      ]
+    },
+    {
+      "ordinal": 54,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-runtime",
+      "companySlug": "runtime",
+      "companyName": "Runtime",
+      "platform": "youtube",
+      "platformPostId": "m3H8yUbdIHY",
+      "sourceUrl": "https://www.youtube.com/watch?v=m3H8yUbdIHY",
+      "title": "Runtime (YC P26) Launch Video",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:m3H8yUbdIHY"
+        },
+        {
+          "type": "native_channel",
+          "value": "Gus from Runtime"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Runtime"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Gus from Runtime"
+        }
+      ]
+    },
+    {
+      "ordinal": 55,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-wealor",
+      "companySlug": "wealor",
+      "companyName": "Wealor",
+      "platform": "youtube",
+      "platformPostId": "6IsOxBX4LBo",
+      "sourceUrl": "https://www.youtube.com/watch?v=6IsOxBX4LBo",
+      "title": "Wealor : YC P26 Launch video",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:6IsOxBX4LBo"
+        },
+        {
+          "type": "native_channel",
+          "value": "Karim Bouri"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Wealor"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Karim Bouri"
+        }
+      ]
+    },
+    {
+      "ordinal": 56,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-playablai",
+      "companySlug": "playablai",
+      "companyName": "Playabl.ai",
+      "platform": "youtube",
+      "platformPostId": "l9kgEjbqnOE",
+      "sourceUrl": "https://www.youtube.com/watch?v=l9kgEjbqnOE",
+      "title": "Playabl.ai - Y Combinator Launch Video",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:l9kgEjbqnOE"
+        },
+        {
+          "type": "native_channel",
+          "value": "Playabl"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Playabl.ai"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Playabl"
+        }
+      ]
+    },
+    {
+      "ordinal": 57,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-stablebrowse",
+      "companySlug": "stablebrowse",
+      "companyName": "StableBrowse",
+      "platform": "youtube",
+      "platformPostId": "ng_ZM1PCkv0",
+      "sourceUrl": "https://www.youtube.com/watch?v=ng_ZM1PCkv0",
+      "title": "StableBrowse Launch - May 2026",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:ng_ZM1PCkv0"
+        },
+        {
+          "type": "native_channel",
+          "value": "StableBrowse"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "StableBrowse"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "StableBrowse"
+        }
+      ]
+    },
+    {
+      "ordinal": 58,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-trellistech",
+      "companySlug": "trellistech",
+      "companyName": "Trellis",
+      "platform": "youtube",
+      "platformPostId": "UglxS-6au6Q",
+      "sourceUrl": "https://www.youtube.com/watch?v=UglxS-6au6Q",
+      "title": "Founder lessons with Jacky Lin, Trellis AI, YC company backed by General Catalyst",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The video identifies W24 Trellis AI founder Jacky Lin; the target P26 Trellis has founders Lodovico Benvenuti and Jan Sahagun and a different product.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "known-entity collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Icons"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "Agents that run short-term rental operations end-to-end"
+        }
+      ]
+    },
+    {
+      "ordinal": 59,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-walter",
+      "companySlug": "walter",
+      "companyName": "Walter",
+      "platform": "youtube",
+      "platformPostId": "fQHXdii_Hdo",
+      "sourceUrl": "https://www.youtube.com/watch?v=fQHXdii_Hdo",
+      "title": "Walter (YC P26) Launch Video",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:fQHXdii_Hdo"
+        },
+        {
+          "type": "native_channel",
+          "value": "Walter (YC P26)"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Walter"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Spring 2026/P26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Walter (YC P26)"
+        }
+      ]
+    },
+    {
+      "ordinal": 60,
+      "batch": "S2026",
+      "entityType": "company",
+      "entityId": "company-walter",
+      "companySlug": "walter",
+      "companyName": "Walter",
+      "platform": "youtube",
+      "platformPostId": "QxLdWVPU73c",
+      "sourceUrl": "https://www.youtube.com/watch?v=QxLdWVPU73c",
+      "title": "WALTER VAN BEIRENDONCK Spring 2026 Menswear Paris - Fashion Channel",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The item is a fashion video about designer Walter Van Beirendonck, not the roster manufacturing-operations AI company Walter.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "different-person/brand collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Fashion Channel"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "AI Employee for Manufacturing Operations"
+        }
+      ]
+    },
+    {
+      "ordinal": 61,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-contextdev",
+      "companySlug": "contextdev",
+      "companyName": "Context.dev",
+      "platform": "x",
+      "platformPostId": "2079090205903257759",
+      "sourceUrl": "https://x.com/getcontextdev/status/2079090205903257759",
+      "title": "yay",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "The native X author exactly matches the roster-mapped company account.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "x:2079090205903257759"
+        },
+        {
+          "type": "mapped_company_author",
+          "value": "getcontextdev"
+        },
+        {
+          "type": "mapped_account_url",
+          "value": "https://x.com/getcontextdev"
+        }
+      ]
+    },
+    {
+      "ordinal": 62,
+      "batch": "S26",
+      "entityType": "founder",
+      "entityId": "founder-contextdev-yahia-bakour-2538368",
+      "companySlug": "contextdev",
+      "companyName": "Context.dev",
+      "platform": "x",
+      "platformPostId": "2061455304013853004",
+      "sourceUrl": "https://x.com/mynameisyahia/status/2061455304013853004",
+      "title": "I got into YC S26 as a solo founder!",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "The native X author exactly matches the roster-mapped founder account; post topic does not alter founder attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "x:2061455304013853004"
+        },
+        {
+          "type": "mapped_founder_author",
+          "value": "mynameisyahia"
+        },
+        {
+          "type": "mapped_account_url",
+          "value": "https://x.com/mynameisyahia"
+        }
+      ]
+    },
+    {
+      "ordinal": 63,
+      "batch": "S26",
+      "entityType": "founder",
+      "entityId": "founder-contextdev-yahia-bakour-2538368",
+      "companySlug": "contextdev",
+      "companyName": "Context.dev",
+      "platform": "x",
+      "platformPostId": "1714017535765491843",
+      "sourceUrl": "https://x.com/mynameisyahia/status/1714017535765491843",
+      "title": "It's official. After 3 years of working on Stock Alarm, it's been acquired.",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "The native X author exactly matches the roster-mapped founder account; post topic does not alter founder attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "x:1714017535765491843"
+        },
+        {
+          "type": "mapped_founder_author",
+          "value": "mynameisyahia"
+        },
+        {
+          "type": "mapped_account_url",
+          "value": "https://x.com/mynameisyahia"
+        }
+      ]
+    },
+    {
+      "ordinal": 64,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-illume-labs",
+      "companySlug": "illume-labs",
+      "companyName": "Illume Labs",
+      "platform": "youtube",
+      "platformPostId": "bsfFOzB0Nho",
+      "sourceUrl": "https://www.youtube.com/watch?v=bsfFOzB0Nho",
+      "title": "Your 24/7 personalized health companion | Illume Labs (YC S26)",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:bsfFOzB0Nho"
+        },
+        {
+          "type": "native_channel",
+          "value": "Illume Labs"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Illume Labs"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Summer 2026/S26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Illume Labs"
+        }
+      ]
+    },
+    {
+      "ordinal": 65,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-agnost-ai",
+      "companySlug": "agnost-ai",
+      "companyName": "Agnost AI",
+      "platform": "hacker_news",
+      "platformPostId": "48908950",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48908950",
+      "title": "Launch HN: Agnost AI (YC S26) – Extract user feedback from agent conversations",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48908950"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Agnost AI"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC S26"
+        }
+      ]
+    },
+    {
+      "ordinal": 66,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companySlug": "coasty",
+      "companyName": "Coasty",
+      "platform": "hacker_news",
+      "platformPostId": "48922706",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48922706",
+      "title": "Launch HN: Coasty (YC S26) – An API for computer-use agents",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48922706"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Coasty"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC S26"
+        }
+      ]
+    },
+    {
+      "ordinal": 67,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-contextdev",
+      "companySlug": "contextdev",
+      "companyName": "Context.dev",
+      "platform": "hacker_news",
+      "platformPostId": "48847562",
+      "sourceUrl": "https://news.ycombinator.com/item?id=48847562",
+      "title": "Launch HN: Context.dev (YC S26) – API to get structured data from any website",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native Hacker News item title names the exact roster company and the matching YC cohort.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "hacker_news:48847562"
+        },
+        {
+          "type": "exact_company_title",
+          "value": "Context.dev"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC S26"
+        }
+      ]
+    },
+    {
+      "ordinal": 68,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-almanac",
+      "companySlug": "almanac",
+      "companyName": "Almanac",
+      "platform": "youtube",
+      "platformPostId": "_jWMSnaRE1w",
+      "sourceUrl": "https://www.youtube.com/watch?v=_jWMSnaRE1w",
+      "title": "Summer 2026 Heatwave Alert: What the Old Farmer's Almanac Predicts!",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The item is about the Old Farmer's Almanac, not roster company Almanac at codealmanac.com.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "different-brand collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Mohsin Insights"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "Self updating wiki for your coding agents"
+        }
+      ]
+    },
+    {
+      "ordinal": 69,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-archal",
+      "companySlug": "archal",
+      "companyName": "Archal",
+      "platform": "youtube",
+      "platformPostId": "uUv_93iCQWM",
+      "sourceUrl": "https://www.youtube.com/watch?v=uUv_93iCQWM",
+      "title": "Archal (YC S26) Demo",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:uUv_93iCQWM"
+        },
+        {
+          "type": "native_channel",
+          "value": "Archal Labs"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Archal"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Summer 2026/S26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Archal Labs"
+        }
+      ]
+    },
+    {
+      "ordinal": 70,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-cerenovus",
+      "companySlug": "cerenovus",
+      "companyName": "Cerenovus",
+      "platform": "youtube",
+      "platformPostId": "mK0rpw65PYg",
+      "sourceUrl": "https://www.youtube.com/watch?v=mK0rpw65PYg",
+      "title": "Cerenovus (YC S26) - Meet the Founders",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:mK0rpw65PYg"
+        },
+        {
+          "type": "native_channel",
+          "value": "Cerenovus"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Cerenovus"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Summer 2026/S26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Cerenovus"
+        }
+      ]
+    },
+    {
+      "ordinal": 71,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-donkey",
+      "companySlug": "donkey",
+      "companyName": "Donkey",
+      "platform": "youtube",
+      "platformPostId": "JsmV8UoXhyQ",
+      "sourceUrl": "https://www.youtube.com/watch?v=JsmV8UoXhyQ",
+      "title": "Donkey Trade (YC S26): Launch",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:JsmV8UoXhyQ"
+        },
+        {
+          "type": "native_channel",
+          "value": "Benjamin Martindale"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Donkey"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Summer 2026/S26"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Benjamin Martindale"
+        }
+      ]
+    },
+    {
+      "ordinal": 72,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-hyperprobe",
+      "companySlug": "hyperprobe",
+      "companyName": "HyperProbe",
+      "platform": "youtube",
+      "platformPostId": "ivV7I--ta5c",
+      "sourceUrl": "https://www.youtube.com/watch?v=ivV7I--ta5c",
+      "title": "HyperProbe Demo | YC BF Launch",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:ivV7I--ta5c"
+        },
+        {
+          "type": "native_channel",
+          "value": "Karan Raina"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "HyperProbe"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Karan Raina"
+        },
+        {
+          "type": "roster_founder_native_owner",
+          "value": "Native owner Karan Raina is a listed HyperProbe founder; 'YC BF' is not used as the batch source."
+        }
+      ]
+    },
+    {
+      "ordinal": 73,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-inkbox",
+      "companySlug": "inkbox",
+      "companyName": "Inkbox",
+      "platform": "youtube",
+      "platformPostId": "oJKl6tPHxRA",
+      "sourceUrl": "https://www.youtube.com/watch?v=oJKl6tPHxRA",
+      "title": "Give your AI agents email, phone, iMessage, and an internet address | Inkbox (YC S26)",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:oJKl6tPHxRA"
+        },
+        {
+          "type": "native_channel",
+          "value": "Inkbox (YC S26)"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Inkbox"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Summer 2026/S26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Inkbox (YC S26)"
+        }
+      ]
+    },
+    {
+      "ordinal": 74,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-nex",
+      "companySlug": "nex",
+      "companyName": "Nex",
+      "platform": "youtube",
+      "platformPostId": "csa8I2cYzVk",
+      "sourceUrl": "https://www.youtube.com/watch?v=csa8I2cYzVk",
+      "title": "Choosing Your Next Startup | 15 Ideas From Y Combinator: All You Need to Know",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The collector matched the first three letters of the word Next; the title does not contain the company token Nex.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "substring collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "a98 Growth"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "Turn manual workflows into AI agents"
+        }
+      ]
+    },
+    {
+      "ordinal": 75,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-trustai",
+      "companySlug": "trustai",
+      "companyName": "TrustAI",
+      "platform": "youtube",
+      "platformPostId": "adFrFJwv8mQ",
+      "sourceUrl": "https://www.youtube.com/watch?v=adFrFJwv8mQ",
+      "title": "TrustAI (YC S26) Demo",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:adFrFJwv8mQ"
+        },
+        {
+          "type": "native_channel",
+          "value": "Hannah Chung"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "TrustAI"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Summer 2026/S26"
+        },
+        {
+          "type": "roster_founder_title_or_channel",
+          "value": "Hannah Chung"
+        }
+      ]
+    },
+    {
+      "ordinal": 76,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-palette-2",
+      "companySlug": "palette-2",
+      "companyName": "Palette",
+      "platform": "youtube",
+      "platformPostId": "TY7eVSzfnuw",
+      "sourceUrl": "https://www.youtube.com/watch?v=TY7eVSzfnuw",
+      "title": "CHANEL Les Beiges Summer 2026 + New Concealer & Eyeshadow Palette || Tania B Wells",
+      "verdict": "reject_false_positive",
+      "confidence": "certain",
+      "reason": "The item is a cosmetics review using palette as a common noun, not the roster AI video company Palette.",
+      "anchors": [
+        {
+          "type": "collision_class",
+          "value": "common-noun collision"
+        },
+        {
+          "type": "native_channel",
+          "value": "Tania B. Wells"
+        },
+        {
+          "type": "roster_tagline",
+          "value": "An interactive AI video generation and editing platform"
+        }
+      ]
+    },
+    {
+      "ordinal": 77,
+      "batch": "S26",
+      "entityType": "company",
+      "entityId": "company-talentpluto",
+      "companySlug": "talentpluto",
+      "companyName": "Pluto",
+      "platform": "youtube",
+      "platformPostId": "gMuOogxpSo4",
+      "sourceUrl": "https://www.youtube.com/watch?v=gMuOogxpSo4",
+      "title": "Your career needs an agent (Pluto YC S26)",
+      "verdict": "accept",
+      "confidence": "high",
+      "reason": "Native title identifies the roster company and at least one independent channel, founder, domain-history, or cohort anchor corroborates attribution.",
+      "anchors": [
+        {
+          "type": "native_physical_identity",
+          "value": "youtube:gMuOogxpSo4"
+        },
+        {
+          "type": "native_channel",
+          "value": "Pluto @ Talentpluto"
+        },
+        {
+          "type": "exact_or_normalized_company_title",
+          "value": "Pluto"
+        },
+        {
+          "type": "cohort_bound_title",
+          "value": "YC Summer 2026/S26"
+        },
+        {
+          "type": "native_channel_brand_match",
+          "value": "Pluto @ Talentpluto"
+        }
+      ]
+    }
+  ]
+}

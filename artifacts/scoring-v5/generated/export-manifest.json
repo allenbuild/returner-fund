@@ -1,0 +1,24 @@
+{
+  "candidateSearchArtifactHash": "bd49340a15ffa8da0b637fe6fa8bfe159bcbc4fc816b60ac09f327dd8934925d",
+  "codeRevision": "sha256:64a83e80d9e83e6f9bda1a4f2b4789a83e6081e2173875da57382668f889d0e4",
+  "dependencyLockHash": "80cd12e4c1424387f3df9647ac7cd9b103c0b9a9c0669be410604bda043e009c",
+  "environment": {
+    "locale": "en-US",
+    "networkRequiredAfterRegistration": false,
+    "nodeVersion": "24.14.0",
+    "seed": 20260720,
+    "timezone": "UTC"
+  },
+  "evaluationArtifactHash": "89d29dd402a72aae1ca9f19e44b2398c42c379df77b09efd15a423eece42c862",
+  "incorporatedResearchSources": [],
+  "inputManifestHash": "10e52cd8f32ef6ef0aac762b0a8d35af3ae164df8ad71a9036c81fbac3347e0a",
+  "licensingSummary": "No external or internal training source was accepted in this run.",
+  "modelArtifactHash": "481d9fb9b652b8a564c7c99f0bdd2afe1c3edb4ed899f701184907c15bd23377",
+  "modelId": "traction-post-forecast-v5",
+  "modelVersion": "5.0.0-research",
+  "researchRegistryHash": "612d28b9597adc4ed9966615554c6ce0327cc8d1ddf4c025bd33a2ebc1f060bb",
+  "schemaVersion": "scoring-v5-export-manifest-v1",
+  "sourceHashes": {},
+  "splitHash": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "trainingDataHash": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+}

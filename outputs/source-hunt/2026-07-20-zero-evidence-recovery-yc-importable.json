@@ -1,0 +1,154 @@
+{
+  "generatedAt": "2026-07-20T10:17:09Z",
+  "sourceLedger": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-ledger.json",
+  "notes": [
+    "Strict-import schema projection containing only independently reverified, net-new YC rows.",
+    "Daniela Muñoz activity 7477466387674816515 is intentionally excluded because the same physical post already exists as verified logged-in founder evidence under a profile-fragment URL without a native activity ID."
+  ],
+  "evidence": [
+    {
+      "batchSlug": "S2026",
+      "entityType": "company",
+      "entityId": "company-stablebrowse",
+      "companyName": "StableBrowse",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/stablebrowse_building-site-familiarity-activity-7463574457559924736-ma5F",
+      "platformPostId": "7463574457559924736",
+      "accountUrl": "https://www.linkedin.com/company/stablebrowse",
+      "authorName": "StableBrowse (YC P26)",
+      "postedAt": "2026-05-22T13:00:17.173Z",
+      "title": "#2 Engineering blog: Site Familiarity for Web Agents",
+      "text": "#2 Engineering blog: Site Familiarity for Web Agents",
+      "metrics": {
+        "reactions": 16,
+        "comments": 2
+      },
+      "rawVisibleText": {
+        "verification": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact official company author, publication timestamp, article body, LikeAction=16, and CommentAction=2.",
+        "authorUrl": "https://www.linkedin.com/company/stablebrowse"
+      },
+      "matchReason": "Native LinkedIn post by the exact canonical StableBrowse company account with positive visible post-level counters.",
+      "review_state": "verified"
+    },
+    {
+      "batchSlug": "S2026",
+      "entityType": "company",
+      "entityId": "company-stablebrowse",
+      "companyName": "StableBrowse",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/stablebrowse_knowledge-graphs-for-browser-agents-activity-7463041729009455104-NqvT",
+      "platformPostId": "7463041729009455104",
+      "accountUrl": "https://www.linkedin.com/company/stablebrowse",
+      "authorName": "StableBrowse (YC P26)",
+      "postedAt": "2026-05-21T01:43:24.790Z",
+      "title": "Our first engineering blog is out: Knowledge Graphs.",
+      "text": "Our first engineering blog is out: Knowledge Graphs.",
+      "metrics": {
+        "reactions": 34,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "verification": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact official company author, publication timestamp, article body, LikeAction=34, and CommentAction=0.",
+        "authorUrl": "https://www.linkedin.com/company/stablebrowse"
+      },
+      "matchReason": "Native LinkedIn post by the exact canonical StableBrowse company account with a positive visible post-level counter.",
+      "review_state": "verified"
+    },
+    {
+      "batchSlug": "S2026",
+      "entityType": "company",
+      "entityId": "company-stablebrowse",
+      "companyName": "StableBrowse",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/stablebrowse_reading-anti-bot-challenge-scripts-activity-7465929944787865600-VwrJ",
+      "platformPostId": "7465929944787865600",
+      "accountUrl": "https://www.linkedin.com/company/stablebrowse",
+      "authorName": "StableBrowse (YC P26)",
+      "postedAt": "2026-05-29T01:00:09.089Z",
+      "title": "Engineering Series: Anti-Botting (2/3)",
+      "text": "Engineering Series: Anti-Botting (2/3)",
+      "metrics": {
+        "reactions": 18,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "verification": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact official company author, publication timestamp, article body, LikeAction=18, and CommentAction=0.",
+        "authorUrl": "https://www.linkedin.com/company/stablebrowse"
+      },
+      "matchReason": "Native LinkedIn post by the exact canonical StableBrowse company account with a positive visible post-level counter.",
+      "review_state": "verified"
+    },
+    {
+      "batchSlug": "S2026",
+      "entityType": "company",
+      "entityId": "company-stablebrowse",
+      "companyName": "StableBrowse",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/stablebrowse_stablebrowse-knowledge-graphs-benchmark-activity-7469824245758349312-jLWa",
+      "platformPostId": "7469824245758349312",
+      "accountUrl": "https://www.linkedin.com/company/stablebrowse",
+      "authorName": "StableBrowse (YC P26)",
+      "postedAt": "2026-06-08T18:54:42.794Z",
+      "title": "StableBrowse Knowledge Graphs Benchmark:",
+      "text": "StableBrowse Knowledge Graphs Benchmark:",
+      "metrics": {
+        "reactions": 16,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "verification": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact official company author, publication timestamp, article body, LikeAction=16, and CommentAction=0.",
+        "authorUrl": "https://www.linkedin.com/company/stablebrowse"
+      },
+      "matchReason": "Native LinkedIn post by the exact canonical StableBrowse company account with a positive visible post-level counter.",
+      "review_state": "verified"
+    },
+    {
+      "batchSlug": "S2026",
+      "entityType": "company",
+      "entityId": "company-stablebrowse",
+      "companyName": "StableBrowse",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/stablebrowse_the-browser-fingerprinting-toolkit-activity-7465975226724544512-1PYD",
+      "platformPostId": "7465975226724544512",
+      "accountUrl": "https://www.linkedin.com/company/stablebrowse",
+      "authorName": "StableBrowse (YC P26)",
+      "postedAt": "2026-05-29T04:00:05.144Z",
+      "title": "Engineering Series: Anti-Botting (3/3)",
+      "text": "Engineering Series: Anti-Botting (3/3)",
+      "metrics": {
+        "reactions": 25,
+        "comments": 2
+      },
+      "rawVisibleText": {
+        "verification": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact official company author, publication timestamp, article body, LikeAction=25, and CommentAction=2.",
+        "authorUrl": "https://www.linkedin.com/company/stablebrowse"
+      },
+      "matchReason": "Native LinkedIn post by the exact canonical StableBrowse company account with positive visible post-level counters.",
+      "review_state": "verified"
+    },
+    {
+      "batchSlug": "S2026",
+      "entityType": "company",
+      "entityId": "company-stablebrowse",
+      "companyName": "StableBrowse",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/stablebrowse_the-three-layers-of-anti-bot-detection-activity-7465882358349533184-EmlU",
+      "platformPostId": "7465882358349533184",
+      "accountUrl": "https://www.linkedin.com/company/stablebrowse",
+      "authorName": "StableBrowse (YC P26)",
+      "postedAt": "2026-05-28T21:51:03.600Z",
+      "title": "Engineering Series: Anti-Botting (1/3)",
+      "text": "Engineering Series: Anti-Botting (1/3)",
+      "metrics": {
+        "reactions": 22,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "verification": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact official company author, publication timestamp, article body, LikeAction=22, and CommentAction=0.",
+        "authorUrl": "https://www.linkedin.com/company/stablebrowse"
+      },
+      "matchReason": "Native LinkedIn post by the exact canonical StableBrowse company account with a positive visible post-level counter.",
+      "review_state": "verified"
+    }
+  ]
+}

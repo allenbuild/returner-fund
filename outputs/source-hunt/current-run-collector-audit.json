@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 1,
+  "auditType": "current_run_collector_output",
+  "auditedAt": "2026-07-20T12:20:53Z",
+  "run": {
+    "idempotencyKey": "source-hunt-2026-07-20-comprehensive-v1",
+    "workDirectory": "work/autonomous-ingestion/source-hunt-2026-07-20-comprehensive-v1-f6c683e7dbfcf1b4",
+    "runnerPid": 23275,
+    "skipPublish": true,
+    "exitCode": 1,
+    "terminalBasis": "Runner and all collector descendants were absent, then every settled file had identical size and mtime in two reads two seconds apart.",
+    "terminalError": "Mapped collector coverage was incomplete: 28/1837 classified (28 with native evidence), 0 need review, 0 blocked or empty, 1809 failed, 0 nonterminal."
+  },
+  "verdict": "FAIL",
+  "go": false,
+  "failureReasons": [
+    {
+      "code": "public_attempt_budget_exhausted",
+      "batches": [
+        "S2026",
+        "S26",
+        "A16ZSR006"
+      ],
+      "attemptsPerBatch": 2,
+      "attemptBudgetMinutes": 45,
+      "detail": "All six public collector processes timed out while their checkpoints were still advancing."
+    },
+    {
+      "code": "missing_final_public_snapshots",
+      "batches": [
+        "S2026",
+        "S26",
+        "A16ZSR006"
+      ],
+      "detail": "No public-*.json collector output was written; checkpoint files are partial recovery state, not publishable final snapshots."
+    },
+    {
+      "code": "public_task_coverage_partial",
+      "expected": 5609,
+      "explicitTerminal": 2816,
+      "missing": 2793
+    },
+    {
+      "code": "github_retry_exhaustion_rejected_terminal_snapshots",
+      "batches": [
+        "S2026",
+        "S26"
+      ],
+      "detail": "Both snapshots were structurally valid and covered every planned GitHub task, but the runner rejected them after retry exhaustion."
+    }
+  ],
+  "plannedCoverage": {
+    "allTasks": 14642,
+    "queued": 6735,
+    "predeterminedTerminal": 7907,
+    "mapped": 1837,
+    "mappedQueued": 1837,
+    "missingGithubMappings": 1070,
+    "byBatch": {
+      "S2026": {
+        "all": 7723,
+        "queued": 3559,
+        "publicQueued": 2965,
+        "githubQueued": 594
+      },
+      "S26": {
+        "all": 4485,
+        "queued": 2070,
+        "publicQueued": 1725,
+        "githubQueued": 345
+      },
+      "A16ZSR006": {
+        "all": 2434,
+        "queued": 1106,
+        "publicQueued": 919,
+        "githubQueued": 187
+      }
+    }
+  },
+  "attemptsObserved": {
+    "public": {
+      "S2026": {
+        "attempts": 2,
+        "outcome": "timed_out_twice"
+      },
+      "S26": {
+        "attempts": 2,
+        "outcome": "timed_out_twice"
+      },
+      "A16ZSR006": {
+        "attempts": 2,
+        "outcome": "timed_out_twice"
+      }
+    },
+    "github": {
+      "S2026": {
+        "attempts": 2,
+        "outcome": "valid_terminal_snapshot_rejected_after_retry_exhaustion"
+      },
+      "S26": {
+        "attempts": 2,
+        "outcome": "valid_terminal_snapshot_rejected_after_retry_exhaustion"
+      },
+      "A16ZSR006": {
+        "attempts": 2,
+        "outcome": "completed"
+      }
+    },
+    "topVoice": {
+      "attempts": 1,
+      "outcome": "completed"
+    }
+  },
+  "public": {
+    "finalSnapshotsPresent": 0,
+    "checkpointOnly": true,
+    "batches": {
+      "S2026": {
+        "checkpointSha256": "30c25fa62c362c9fadafb00b550d7fa31c139b9b56c1a5c042b3badebca4b424",
+        "jsonValid": true,
+        "catalogReferentialIntegrity": true,
+        "attempts": 1628,
+        "evidence": 29,
+        "needsReview": 533,
+        "failures": 1554,
+        "retryableFailureMessages": 968,
+        "plannedTaskCoverage": {
+          "expected": 2965,
+          "explicitTerminal": 1323,
+          "missing": 1642
+        },
+        "linkedin": {
+          "planned": 594,
+          "terminal": 44,
+          "remaining": 550
+        },
+        "mergeGatePreview": {
+          "acceptedNativeRows": 29,
+          "quarantinedRows": 0,
+          "nativeDuplicateGroups": 0
+        }
+      },
+      "S26": {
+        "checkpointSha256": "e6077c887420eb90852d89a50159f36267b18d6bc9810254ba4b6e99bb5a942b",
+        "jsonValid": true,
+        "catalogReferentialIntegrity": true,
+        "attempts": 1088,
+        "evidence": 10,
+        "needsReview": 343,
+        "failures": 982,
+        "retryableFailureMessages": 527,
+        "plannedTaskCoverage": {
+          "expected": 1725,
+          "explicitTerminal": 911,
+          "missing": 814
+        },
+        "linkedin": {
+          "planned": 345,
+          "terminal": 49,
+          "remaining": 296
+        },
+        "mergeGatePreview": {
+          "acceptedNativeRows": 10,
+          "quarantinedRows": 0,
+          "nativeDuplicateGroups": 0
+        }
+      },
+      "A16ZSR006": {
+        "checkpointSha256": "181897bfcadc7e0b627ccda2631be189a17dddeb58c53700137536e99582c630",
+        "jsonValid": true,
+        "catalogReferentialIntegrity": true,
+        "attempts": 678,
+        "evidence": 0,
+        "needsReview": 211,
+        "failures": 609,
+        "retryableFailureMessages": 236,
+        "plannedTaskCoverage": {
+          "expected": 919,
+          "explicitTerminal": 582,
+          "missing": 337
+        },
+        "linkedin": {
+          "planned": 189,
+          "terminal": 56,
+          "remaining": 133
+        },
+        "mergeGatePreview": {
+          "acceptedNativeRows": 0,
+          "quarantinedRows": 0,
+          "nativeDuplicateGroups": 0
+        }
+      }
+    },
+    "nativeRowAudit": {
+      "checkpointAcceptedRows": 39,
+      "invalidNativeUrlOrIdRows": 0,
+      "invalidVisibleMetricRows": 0,
+      "invalidAttributionRows": 0,
+      "physicalDuplicateGroups": 0,
+      "publishable": false,
+      "reason": "The rows exist only in partial checkpoints because no public collector wrote a final snapshot."
+    }
+  },
+  "github": {
+    "batches": {
+      "S2026": {
+        "sha256": "7959d45a22c7793d9aa9b8c06dec3651e2d6e9fcfe34f1b9f539eefde0d41504",
+        "attempt1Sha256": "6d9361c6b4ff6812045ff9c08eea1daccfa13e1330cbd303e0aa35bb87a4a553",
+        "jsonValid": true,
+        "schemaValid": true,
+        "catalogReferentialIntegrity": true,
+        "plannedTasks": 594,
+        "terminalTasks": 594,
+        "outcomes": {
+          "completed": 110,
+          "needs_review": 53,
+          "blocked_or_empty": 422,
+          "failed": 9
+        },
+        "accounts": {
+          "total": 125,
+          "fetched": 119,
+          "failed": 6
+        },
+        "sourceChecks": 1176,
+        "retrySignals": {
+          "current": 401,
+          "redundantOfficialProfile404": 390,
+          "residualAfterSuppression": 11
+        },
+        "nativeAudit": {
+          "invalidUrls": 0,
+          "invalidMetrics": 0,
+          "physicalDuplicateGroups": 40,
+          "physicalDuplicateExtraRows": 72,
+          "sameAttributionDuplicateGroups": 0
+        }
+      },
+      "S26": {
+        "sha256": "f39436b2ef8e1767e976db86b467a098769be0bfdc3ff3fb63cb6ae6a45418ed",
+        "attempt1Sha256": "566c03c8956a2d7f8ebc2e6a5c56ed59df775bc68fb883f068ab78768025d844",
+        "jsonValid": true,
+        "schemaValid": true,
+        "catalogReferentialIntegrity": true,
+        "plannedTasks": 345,
+        "terminalTasks": 345,
+        "outcomes": {
+          "completed": 64,
+          "needs_review": 25,
+          "blocked_or_empty": 248,
+          "failed": 8
+        },
+        "accounts": {
+          "total": 74,
+          "fetched": 67,
+          "failed": 7
+        },
+        "sourceChecks": 646,
+        "retrySignals": {
+          "current": 234,
+          "redundantOfficialProfile404": 222,
+          "residualAfterSuppression": 12
+        },
+        "nativeAudit": {
+          "invalidUrls": 0,
+          "invalidMetrics": 0,
+          "physicalDuplicateGroups": 21,
+          "physicalDuplicateExtraRows": 37,
+          "sameAttributionDuplicateGroups": 0
+        }
+      },
+      "A16ZSR006": {
+        "sha256": "56ed4e4e6a74001f0f6bb43c7efae7fe94c76e62e189bfa01872f2eaef1f4495",
+        "attempt1Sha256": "ff9ffe895f472e20cf3ad6ee3dce4362abe6b22694285d6b26b4f7d0cfac4507",
+        "jsonValid": true,
+        "schemaValid": true,
+        "catalogReferentialIntegrity": true,
+        "plannedTasks": 187,
+        "terminalTasks": 187,
+        "outcomes": {
+          "completed": 35,
+          "needs_review": 14,
+          "blocked_or_empty": 138,
+          "failed": 0
+        },
+        "accounts": {
+          "total": 37,
+          "fetched": 35,
+          "failed": 2
+        },
+        "sourceChecks": 318,
+        "retrySignals": {
+          "current": 0,
+          "redundantOfficialProfile404": 0,
+          "residualAfterSuppression": 0
+        },
+        "nativeAudit": {
+          "invalidUrls": 0,
+          "invalidMetrics": 0,
+          "physicalDuplicateGroups": 6,
+          "physicalDuplicateExtraRows": 9,
+          "sameAttributionDuplicateGroups": 0
+        }
+      }
+    },
+    "truncationDetected": false,
+    "notes": [
+      "All 1126 planned GitHub owner tasks have explicit terminal outcomes.",
+      "Physical duplicate GitHub URLs are cross-attribution reuse; no URL repeats for the same entity attribution.",
+      "Three valid S26 /orgs/<login> URLs were normalized as native GitHub organization identities."
+    ]
+  },
+  "topVoice": {
+    "receiptSha256": "ad60aa13c1487294f1b6e039a86df3bd1e4b6baec89972795bc94815bf9d21d6",
+    "isolatedEvidenceSha256": "cf1c43246f7a51ca62bad11589cc9f5d309d5cdf6e8e3bfd7350c7a16365f9db",
+    "jsonValid": true,
+    "schemaVersion": 2,
+    "status": "completed",
+    "batches": [
+      "S2026",
+      "S26",
+      "A16ZSR006"
+    ],
+    "targetsLoaded": 63,
+    "networkRequests": 1063,
+    "accepted": 0,
+    "stored": 0,
+    "failureReasonCounts": {
+      "no_status_ids": 12,
+      "top_voice_post_missing_company_mention": 1000
+    },
+    "nativeRowsToAudit": 0,
+    "truncationDetected": false
+  },
+  "requiredRemediation": {
+    "publicAttemptBudgetMinutes": 90,
+    "collectorAttempts": 2,
+    "linkedinWorkers": {
+      "standaloneDefault": 1,
+      "autonomousRunner": 4,
+      "hardMaximum": 4
+    },
+    "retrySemantics": "Suppress deterministic GitHub official_profile 404 retry signals only when the same owner has a successful alternate source check and an explicit terminal outcome.",
+    "exhaustionSemantics": "Accept a structurally valid snapshot after final retry exhaustion only when every planned task has an explicit terminal outcome and reason; retain the exhausted failures as telemetry.",
+    "failClosedGatesPreserved": [
+      "invalid snapshot",
+      "catalog referential-integrity failure",
+      "partial or nonterminal task coverage",
+      "mapped evidence coverage failure",
+      "native evidence validation failure"
+    ]
+  }
+}

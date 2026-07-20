@@ -1,4 +1,5 @@
 name: Autonomous Ingestion
+run-name: Autonomous ingestion candidate ${{ github.event.schedule || inputs.replay_key }}
 
 on:
   schedule:
@@ -23,9 +24,16 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  ingest:
+  resolve:
+    name: Resolve Central slot candidate
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 5
+    outputs:
+      should_run: ${{ steps.schedule.outputs.should_run }}
+      slot_key: ${{ steps.schedule.outputs.slot_key }}
+      trigger: ${{ steps.schedule.outputs.trigger }}
+      reason: ${{ steps.schedule.outputs.reason }}
+      scheduled_at: ${{ steps.schedule.outputs.scheduled_at }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -37,21 +45,55 @@ jobs:
           INGESTION_REPLAY_KEY: ${{ inputs.replay_key }}
         run: node scripts/lib/ingestion-schedule.mjs
 
+      - name: Record candidate decision
+        env:
+          SHOULD_RUN: ${{ steps.schedule.outputs.should_run }}
+          SLOT_KEY: ${{ steps.schedule.outputs.slot_key }}
+          REASON: ${{ steps.schedule.outputs.reason }}
+          SCHEDULED_AT: ${{ steps.schedule.outputs.scheduled_at }}
+        run: |
+          if [ "$SHOULD_RUN" = "true" ]; then
+            STATUS="accepted_slot"
+          else
+            STATUS="inactive_candidate"
+          fi
+          {
+            echo "## Autonomous ingestion candidate"
+            echo "- Status: $STATUS"
+            echo "- Slot: ${SLOT_KEY:-none}"
+            echo "- Reason: $REASON"
+            echo "- Scheduled at: ${SCHEDULED_AT:-n/a}"
+            echo "- This resolver job is not a successful data refresh receipt."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  ingest:
+    name: Publish accepted slot ${{ needs.resolve.outputs.slot_key }}
+    needs: resolve
+    if: needs.resolve.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 285
+    outputs:
+      published_commit: ${{ steps.publication_receipt.outputs.published_commit }}
+      receipt_status: ${{ steps.publication_receipt.outputs.receipt_status }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Use Node.js
-        if: steps.schedule.outputs.should_run == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 24.14.0
           cache: npm
 
       - name: Install dependencies
-        if: steps.schedule.outputs.should_run == 'true'
         timeout-minutes: 10
         run: npm ci
 
       - name: Run autonomous ingestion
-        if: steps.schedule.outputs.should_run == 'true'
-        timeout-minutes: 155
+        id: ingestion
+        timeout-minutes: 260
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -61,10 +103,73 @@ jobs:
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
-          INGESTION_IDEMPOTENCY_KEY: ${{ steps.schedule.outputs.slot_key }}
+          INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
         run: node scripts/run-autonomous-ingestion.mjs --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"
 
       - name: Validate generated public artifacts
-        if: steps.schedule.outputs.should_run == 'true'
         timeout-minutes: 5
         run: npm run artifacts:validate
+
+      - name: Record successful publication receipt
+        id: publication_receipt
+        env:
+          SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          RUNNER_STATUS: ${{ steps.ingestion.outputs.runner_status }}
+        run: |
+          PUBLISHED_COMMIT="$(git rev-parse HEAD)"
+          if [ "$RUNNER_STATUS" = "already_completed" ]; then
+            RECEIPT_STATUS="noop_completed"
+          elif [ "$RUNNER_STATUS" = "refreshed" ]; then
+            RECEIPT_STATUS="published"
+          else
+            echo "::error title=Missing ingestion outcome::Runner returned an unknown outcome: ${RUNNER_STATUS:-missing}"
+            exit 1
+          fi
+          echo "receipt_status=$RECEIPT_STATUS" >> "$GITHUB_OUTPUT"
+          echo "published_commit=$PUBLISHED_COMMIT" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Autonomous ingestion publication receipt"
+            echo "- Status: $RECEIPT_STATUS"
+            echo "- Slot: $SLOT_KEY"
+            echo "- Commit: $PUBLISHED_COMMIT"
+            echo "- Artifact validation: passed"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  receipt:
+    name: Audit refresh outcome
+    needs: [resolve, ingest]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Record auditable slot outcome
+        env:
+          SHOULD_RUN: ${{ needs.resolve.outputs.should_run }}
+          SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
+          RESOLVE_RESULT: ${{ needs.resolve.result }}
+          INGEST_RESULT: ${{ needs.ingest.result }}
+          RECEIPT_STATUS: ${{ needs.ingest.outputs.receipt_status }}
+          PUBLISHED_COMMIT: ${{ needs.ingest.outputs.published_commit }}
+        run: |
+          if [ "$RESOLVE_RESULT" != "success" ]; then
+            STATUS="resolver_failed"
+          elif [ "$SHOULD_RUN" != "true" ]; then
+            STATUS="inactive_candidate_no_refresh"
+          elif [ "$INGEST_RESULT" = "success" ] && { [ "$RECEIPT_STATUS" = "published" ] || [ "$RECEIPT_STATUS" = "noop_completed" ]; }; then
+            STATUS="$RECEIPT_STATUS"
+          else
+            STATUS="accepted_slot_failed"
+          fi
+          {
+            echo "## Autonomous ingestion audited outcome"
+            echo "- Status: $STATUS"
+            echo "- Slot: ${SLOT_KEY:-none}"
+            echo "- Resolver result: $RESOLVE_RESULT"
+            echo "- Ingestion result: $INGEST_RESULT"
+            echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ]; then
+            echo "::error title=Autonomous ingestion failed::$STATUS for ${SLOT_KEY:-unknown slot}"
+            exit 1
+          fi
+          echo "::notice title=Autonomous ingestion outcome::$STATUS for ${SLOT_KEY:-inactive candidate}"

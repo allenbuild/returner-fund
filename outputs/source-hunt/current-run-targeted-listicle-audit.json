@@ -1,0 +1,301 @@
+{
+  "schemaVersion": "targeted-listicle-audit.v1",
+  "generatedAt": "2026-07-20T15:07:46Z",
+  "status": "fail_current_canonical_requires_targeted_retirement",
+  "sourceFile": "src/lib/social/targeted-evidence-current.json",
+  "batchSlug": "S2026",
+  "reasonCode": "third_party_cohort_roundup_list_entry_only",
+  "summary": {
+    "targetedEvidenceRowsScanned": 1078,
+    "rejectedPhysicalPostCount": 5,
+    "rejectedAttributionRowCount": 46,
+    "currentDatasetRowCount": 46,
+    "currentDefaultGraphVisibleCount": 46,
+    "currentInsidersGraphVisibleCount": 46,
+    "currentYcPartnersGraphVisibleCount": 0,
+    "nativeAuthor": "Taro Fukuyama",
+    "topVoiceAudience": "insiders",
+    "additionalTargetedRoundupPhysicalPostsFound": 0,
+    "ordinaryBulletNegativeControlCount": 6
+  },
+  "policy": {
+    "decision": "reject_exact_attribution_targets",
+    "reason": "Each row is attributed only because the target appears as one entry in a third-party YC cohort roundup. No entry adds target-specific founder identity, canonical domain, or other proof beyond the list entry.",
+    "dedupeSafety": "Retire the exact S2026/entity attribution targets listed below. Do not globally retire an unrelated attribution merely because it shares a parent URL, body shape, or platform.",
+    "metricsNote": "Metrics are visible native post-level metrics, but valid metrics do not cure insufficient target attribution."
+  },
+  "physicalPosts": [
+    {
+      "platform": "linkedin",
+      "platformPostId": "7470880751752781824",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-top-devtech-startups-in-yc-p26-activity-7470880751752781824-H3Nd",
+      "title": "Taro Fukuyama top DevTech startups in YC P26",
+      "listProof": {
+        "format": "plus_prefixed_cohort_entries",
+        "entryCount": 11,
+        "openingText": "Here's the top DevTech startups in Y Combinator P26 by The Silicon Valley Post!"
+      },
+      "nativeMetrics": {
+        "reactions": 22,
+        "comments": 3,
+        "reposts": 0
+      },
+      "counts": {
+        "canonicalRows": 11,
+        "datasetRows": 11,
+        "defaultGraphVisible": 11,
+        "insidersGraphVisible": 11,
+        "ycPartnersGraphVisible": 0
+      },
+      "entries": [
+        { "id": "linkedin-topvoice-company-agentphone-tarof-activity-7470880751752781824", "entityId": "company-agentphone", "companyName": "AgentPhone", "contributionScore": 34 },
+        { "id": "source-hunt-6240361e512d23f19177", "entityId": "company-chronicle-labs", "companyName": "Chronicle Labs", "contributionScore": 1 },
+        { "id": "source-hunt-8353e53f1913b7a37bed", "entityId": "company-humwork", "companyName": "Humwork", "contributionScore": 1 },
+        { "id": "source-hunt-a581d6dc918591c0432c", "entityId": "company-insforge", "companyName": "InsForge", "contributionScore": 1 },
+        { "id": "source-hunt-680f7f5b234f9283bd20", "entityId": "company-limrun", "companyName": "Limrun", "contributionScore": 1 },
+        { "id": "source-hunt-f0789ddcb3ac85db2223", "entityId": "company-minicor", "companyName": "Minicor", "contributionScore": 1 },
+        { "id": "source-hunt-bb449fa0cc5b123c422a", "entityId": "company-replicas", "companyName": "Replicas", "contributionScore": 1 },
+        { "id": "source-hunt-ab10fec1084f0fd4153d", "entityId": "company-superlog", "companyName": "Superlog", "contributionScore": 1 },
+        { "id": "source-hunt-4fe564e35ca756325635", "entityId": "company-superset", "companyName": "Superset", "contributionScore": 1 },
+        { "id": "source-hunt-b6bb34d53b5fea75d76a", "entityId": "company-primitive", "companyName": "primitive", "contributionScore": 1 },
+        { "id": "source-hunt-183ea0d372a16c5b9934", "entityId": "company-smol-machines", "companyName": "smol machines", "contributionScore": 1 }
+      ]
+    },
+    {
+      "platform": "linkedin",
+      "platformPostId": "7471229920451629056",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-hardtech-startups-in-y-combinator-activity-7471229920451629056-w81v",
+      "title": "Taro Fukuyama top Hardtech startups in Y Combinator P26",
+      "listProof": {
+        "format": "plus_prefixed_cohort_entries",
+        "entryCount": 8,
+        "openingText": "Here's the top Hardtech startups in Y Combinator P26 by The Silicon Valley Post!"
+      },
+      "nativeMetrics": {
+        "reactions": 37,
+        "comments": 2,
+        "reposts": 4
+      },
+      "counts": {
+        "canonicalRows": 8,
+        "datasetRows": 8,
+        "defaultGraphVisible": 8,
+        "insidersGraphVisible": 8,
+        "ycPartnersGraphVisible": 0
+      },
+      "entries": [
+        { "id": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7471229920451629056", "entityId": "company-9-mothers-corporation", "companyName": "9 Mothers", "contributionScore": 39 },
+        { "id": "source-hunt-d1b5050d58bc83e1453c", "entityId": "company-adialante", "companyName": "Adialante", "contributionScore": 1 },
+        { "id": "source-hunt-1c376c900a287168eb51", "entityId": "company-apollo-atomics-inc", "companyName": "Apollo Atomics, Inc.", "contributionScore": 1 },
+        { "id": "source-hunt-42ac25a24dc0fceab4fc", "entityId": "company-dispatch", "companyName": "Dispatch", "contributionScore": 1 },
+        { "id": "source-hunt-950e316dfa0411b829d0", "entityId": "company-eden-robotics", "companyName": "Eden Robotics", "contributionScore": 1 },
+        { "id": "source-hunt-515f3ffb2f78df3745ab", "entityId": "company-general-aviation", "companyName": "General Aviation", "contributionScore": 1 },
+        { "id": "source-hunt-02a2ab4c027359acc720", "entityId": "company-lumius", "companyName": "Lumius", "contributionScore": 1 },
+        { "id": "source-hunt-7e912c1bc592f142458a", "entityId": "company-synphony", "companyName": "Synphony", "contributionScore": 1 }
+      ]
+    },
+    {
+      "platform": "linkedin",
+      "platformPostId": "7471592225164906496",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_heres-the-top-healthtech-startups-in-y-combinator-activity-7471592225164906496-6Vz3",
+      "title": "Taro Fukuyama top Healthtech startups in Y Combinator P26",
+      "listProof": {
+        "format": "plus_prefixed_cohort_entries",
+        "entryCount": 5,
+        "openingText": "Here's the top Healthtech startups in Y Combinator P26 by The Silicon Valley Post!"
+      },
+      "nativeMetrics": {
+        "reactions": 37,
+        "comments": 0,
+        "reposts": 1
+      },
+      "counts": {
+        "canonicalRows": 5,
+        "datasetRows": 5,
+        "defaultGraphVisible": 5,
+        "insidersGraphVisible": 5,
+        "ycPartnersGraphVisible": 0
+      },
+      "entries": [
+        { "id": "linkedin-topvoice-company-adialante-tarof-activity-7471592225164906496", "entityId": "company-adialante", "companyName": "Adialante", "contributionScore": 36 },
+        { "id": "source-hunt-5a15230adc2034bd8d86", "entityId": "company-clara-2", "companyName": "Clara", "contributionScore": 1 },
+        { "id": "source-hunt-44a1e55b9cbad220cb20", "entityId": "company-finaldose", "companyName": "FinalDose", "contributionScore": 1 },
+        { "id": "source-hunt-c8fb3bcad5422570880c", "entityId": "company-lumius", "companyName": "Lumius", "contributionScore": 1 },
+        { "id": "source-hunt-ab40a21ff33dc5b21346", "entityId": "company-voquill", "companyName": "Voquill", "contributionScore": 1 }
+      ]
+    },
+    {
+      "platform": "linkedin",
+      "platformPostId": "7471954633335275520",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_the-11-most-agent-pilled-startups-in-y-activity-7471954633335275520-Dwan",
+      "title": "Taro Fukuyama most agent-pilled startups in YC Spring 2026",
+      "listProof": {
+        "format": "numbered_cohort_entries",
+        "entryCount": 11,
+        "openingText": "The 11 most agent-pilled startups in Y Combinator P26."
+      },
+      "nativeMetrics": {
+        "reactions": 13,
+        "comments": 4,
+        "reposts": 0
+      },
+      "counts": {
+        "canonicalRows": 11,
+        "datasetRows": 11,
+        "defaultGraphVisible": 11,
+        "insidersGraphVisible": 11,
+        "ycPartnersGraphVisible": 0
+      },
+      "entries": [
+        { "id": "linkedin-topvoice-company-agentphone-tarof-activity-7471954633335275520", "entityId": "company-agentphone", "companyName": "AgentPhone", "contributionScore": 32 },
+        { "id": "source-hunt-90a9d2c66307b8b4f831", "entityId": "company-chronicle-labs", "companyName": "Chronicle Labs", "contributionScore": 1 },
+        { "id": "source-hunt-b0be36ed60de77d10c37", "entityId": "company-humwork", "companyName": "Humwork", "contributionScore": 1 },
+        { "id": "source-hunt-eab6dff3ea6b4b84c267", "entityId": "company-insforge", "companyName": "InsForge", "contributionScore": 1 },
+        { "id": "source-hunt-09cf13709bf0695edd5a", "entityId": "company-klaimee", "companyName": "Klaimee", "contributionScore": 1 },
+        { "id": "source-hunt-c3c3449b5e11e8d6506c", "entityId": "company-mount", "companyName": "Mount", "contributionScore": 1 },
+        { "id": "source-hunt-e73619642c91b2d4bf40", "entityId": "company-rentahuman", "companyName": "RentAHuman", "contributionScore": 1 },
+        { "id": "source-hunt-d9564dc3c0fe7b5fde4b", "entityId": "company-standout", "companyName": "Standout", "contributionScore": 1 },
+        { "id": "source-hunt-48551bcd1222324f16b6", "entityId": "company-superset", "companyName": "Superset", "contributionScore": 1 },
+        { "id": "source-hunt-49efd2415dfec9ab1bbe", "entityId": "company-thomas", "companyName": "Thomas", "contributionScore": 1 },
+        { "id": "source-hunt-8cc6fbd6a92d69a8cb54", "entityId": "company-primitive", "companyName": "primitive", "contributionScore": 1 }
+      ]
+    },
+    {
+      "platform": "linkedin",
+      "platformPostId": "7472317066167885824",
+      "sourceUrl": "https://www.linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
+      "title": "Taro Fukuyama YC Demo Day companies to watch",
+      "listProof": {
+        "format": "plus_prefixed_watchlist_entries",
+        "entryCount": 11,
+        "openingText": "If you're coming to Y Combinator Demo Day tomorrow, here are some companies I recommend keeping an eye on!"
+      },
+      "nativeMetrics": {
+        "reactions": 57,
+        "comments": 6,
+        "reposts": 0
+      },
+      "counts": {
+        "canonicalRows": 11,
+        "datasetRows": 11,
+        "defaultGraphVisible": 11,
+        "insidersGraphVisible": 11,
+        "ycPartnersGraphVisible": 0
+      },
+      "entries": [
+        { "id": "linkedin-topvoice-company-9-mothers-corporation-tarof-activity-7472317066167885824", "entityId": "company-9-mothers-corporation", "companyName": "9 Mothers", "contributionScore": 41 },
+        { "id": "source-hunt-197f149143e2a52863dc", "entityId": "company-adialante", "companyName": "Adialante", "contributionScore": 1 },
+        { "id": "source-hunt-bfaf858058e1c7b2ab69", "entityId": "company-apollo-atomics-inc", "companyName": "Apollo Atomics, Inc.", "contributionScore": 1 },
+        { "id": "source-hunt-0debff8c12f3c1d82500", "entityId": "company-complir", "companyName": "Complir", "contributionScore": 1 },
+        { "id": "source-hunt-476f8478c760b495caaf", "entityId": "company-dispatch", "companyName": "Dispatch", "contributionScore": 1 },
+        { "id": "source-hunt-8483ad4acc7cbc1b879c", "entityId": "company-general-aviation", "companyName": "General Aviation", "contributionScore": 1 },
+        { "id": "source-hunt-7c82dffb6f78d712575b", "entityId": "company-insforge", "companyName": "InsForge", "contributionScore": 1 },
+        { "id": "source-hunt-fcd209844b5767d74db5", "entityId": "company-limrun", "companyName": "Limrun", "contributionScore": 1 },
+        { "id": "source-hunt-0623d666fa939115e1f9", "entityId": "company-superset", "companyName": "Superset", "contributionScore": 1 },
+        { "id": "source-hunt-b49600bd1f953e0d053c", "entityId": "company-tasklet-2", "companyName": "Tasklet", "contributionScore": 1 },
+        { "id": "source-hunt-fb1e4469e8a3ad6be76e", "entityId": "company-primitive", "companyName": "primitive", "contributionScore": 1 }
+      ]
+    }
+  ],
+  "controls": {
+    "validPangoParentCommentPair": {
+      "purpose": "A parent post and a direct comment can share the parent activity ID in the original comment URL without being one physical scoring object.",
+      "parent": {
+        "id": "linkedin-first-party-s26-founder-pango-lukasz-reszczynski-7473269455783948288",
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-pango-lukasz-reszczynski-3331619",
+        "platformPostId": "7473269455783948288",
+        "sourceUrl": "https://www.linkedin.com/posts/lukasz-reszczynski-bio_pango-yc-s26-is-joining-y-combinator-today-activity-7473269455783948288-S_GE",
+        "metrics": { "reactions": 319, "comments": 43, "reposts": 0 },
+        "loadedCanonicalPostKey": "linkedin:post:7473269455783948288",
+        "loadedContributionScore": 64
+      },
+      "comment": {
+        "id": "linkedin-topvoices_people_only_third_sol_ultra-s26-topvoice-pango-petekoomen-7473616064967266304",
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-pango",
+        "platformPostId": "7473616064967266304",
+        "originalUrlContainsParentActivityId": "7473269455783948288",
+        "loadedContextUrl": "https://www.linkedin.com/in/petekoomen/recent-activity/comments/#post-7473616064967266304",
+        "metrics": { "reactions": 3 },
+        "loadedCanonicalPostKey": "linkedin:post:7473616064967266304",
+        "loadedContributionScore": 0,
+        "policy": "context_only_native_comment"
+      },
+      "expected": "Preserve both native objects. They have distinct child identities after LinkedIn activity classification and must not be retired as a duplicate or roundup."
+    },
+    "ordinaryBulletNegatives": [
+      {
+        "id": "live-x-founder-agnost-ai-1674746151332106242",
+        "batchSlug": "S26",
+        "entityId": "founder-agnost-ai-shubham-palriwala-1987056",
+        "companyName": "Agnost AI",
+        "platformPostId": "1674746151332106242",
+        "sourceUrl": "https://x.com/ShubhamInTech/status/1674746151332106242",
+        "metrics": { "views": 49846, "likes": 614, "replies": 19, "reposts": 7, "quotes": 1 },
+        "whyNotRoundup": "Single author autobiographical accomplishment list; no cohort/company roundup."
+      },
+      {
+        "id": "live-x-founder-screenpipe-1948745185178914929",
+        "batchSlug": "S26",
+        "entityId": "founder-screenpipe-louis-beaumont-716431",
+        "companyName": "screenpipe",
+        "platformPostId": "1948745185178914929",
+        "sourceUrl": "https://x.com/louis030195/status/1948745185178914929",
+        "metrics": { "views": 25454, "likes": 275, "replies": 47, "reposts": 14, "quotes": 10 },
+        "whyNotRoundup": "Single founder fundraising/product post with a product capability list; no cohort/company roundup."
+      },
+      {
+        "id": "live-x-company-talentpluto-2029965304814608489",
+        "batchSlug": "S26",
+        "entityId": "company-talentpluto",
+        "companyName": "Talentpluto",
+        "platformPostId": "2029965304814608489",
+        "sourceUrl": "https://x.com/talentpluto/status/2029965304814608489",
+        "metrics": { "views": 195, "likes": 1 },
+        "whyNotRoundup": "Official company case-study timeline; no cohort/company roundup."
+      },
+      {
+        "id": "live-x-company-insforge-2062935372703629402",
+        "batchSlug": "S2026",
+        "entityId": "company-insforge",
+        "companyName": "InsForge",
+        "platformPostId": "2062935372703629402",
+        "sourceUrl": "https://x.com/insforge/status/2062935372703629402",
+        "metrics": { "views": 597038, "likes": 299, "replies": 69, "reposts": 41, "quotes": 32 },
+        "whyNotRoundup": "Official company traction/product announcement; bullets are first-party metrics, not cohort entries."
+      },
+      {
+        "id": "live-x-company-kimpton-ai-2065508671694716976",
+        "batchSlug": "S2026",
+        "entityId": "company-kimpton-ai",
+        "companyName": "Kimpton AI",
+        "platformPostId": "2065508671694716976",
+        "sourceUrl": "https://x.com/KimptonAI/status/2065508671694716976",
+        "metrics": { "views": 428, "likes": 6, "replies": 1, "reposts": 2, "quotes": 1 },
+        "whyNotRoundup": "Official company feature list; no cohort/company roundup."
+      },
+      {
+        "id": "live-x-company-ploy-2071990002238853138",
+        "batchSlug": "S2026",
+        "entityId": "company-ploy",
+        "companyName": "Ploy",
+        "platformPostId": "2071990002238853138",
+        "sourceUrl": "https://x.com/ployai/status/2071990002238853138",
+        "metrics": { "views": 1996, "likes": 14, "replies": 5, "reposts": 6 },
+        "whyNotRoundup": "Official company product-demo agenda; no cohort/company roundup."
+      }
+    ]
+  },
+  "auditFindings": {
+    "multiEntityUrlDerivedGroups": 6,
+    "rejectedRoundupGroups": 5,
+    "nonRoundupParentCommentGroup": 1,
+    "broadStructuralCandidateRows": 52,
+    "broadStructuralCandidatePhysicalObjects": 11,
+    "broadStructuralFalsePositiveRows": 6,
+    "remainingUnclassifiedStructuralCandidates": 0
+  }
+}

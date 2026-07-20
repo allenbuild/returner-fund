@@ -1,13 +1,17 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtemp, mkdir, readFile, rm, symlink } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, it } from "node:test";
+import { readRequiredCanonicalJson } from "../scripts/lib/canonical-json.mjs";
 
 const repositoryRoot = process.cwd();
 const runnerPath = path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs");
-const runner = await readFile(runnerPath, "utf8");
+const [runner, autonomousPlan] = await Promise.all([
+  readFile(runnerPath, "utf8"),
+  readFile(path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-plan.mjs"), "utf8")
+]);
 const temporaryRoots = [];
 
 afterEach(async () => {
@@ -41,11 +45,11 @@ describe("autonomous ingestion runner CLI", () => {
     }, {
       idempotencyKey: "plan-contract",
       batches: [
-        { slug: "S2026", companies: 197, founders: 397, accounts: 950 },
-        { slug: "S26", companies: 115, founders: 228, accounts: 548 },
-        { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
+        { slug: "S2026", companies: 197, founders: 397, accounts: 959 },
+        { slug: "S26", companies: 115, founders: 230, accounts: 551 },
+        { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 327 }
       ],
-      coverage: { expected: 14_612, queued: 4_633, terminal: 9_979 }
+      coverage: { expected: 14_642, queued: 6_735, terminal: 7_907 }
     });
   });
 
@@ -99,7 +103,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes('"scripts/fetch-github-traction.mjs"'));
   });
 
-  it("starts every public and GitHub batch before awaiting them as one parallel settlement", () => {
+  it("starts public batches in parallel and rate-limits exhaustive GitHub batches through one queue", () => {
     const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
     const successfulRows = section("function successfulCollectorRowCount", "async function reconcileCollectorTasks");
 
@@ -108,10 +112,75 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(collectors.includes('kind: "github"'));
     assert.match(collectors, /run:\s*\(\)\s*=>\s*runCommand\(/);
     assert.ok(collectors.includes("command.promise = runCollectorWithRetries(command)"));
+    assert.ok(collectors.includes("let githubQueue = Promise.resolve()"));
+    assert.ok(collectors.includes("command.promise = githubQueue.then(() => runCollectorWithRetries(command))"));
     assert.ok(collectors.includes("await Promise.allSettled(commands.map((command) => command.promise))"));
+    assert.ok(collectors.includes('"--discover-missing-social"'));
+    assert.ok(collectors.includes('`--discovery-attempts=${discoveryAttemptOutputs.get(batchSlug)}`'));
+    assert.ok(collectors.includes('`--source-discovery-paths=${sourceDiscoveryPathOutputs.get(batchSlug)}`'));
+    assert.ok(collectors.includes('"--workers=16"'));
+    assert.ok(collectors.includes('"--linkedin-workers=4"'));
+    assert.ok(collectors.includes('"--instagram-workers=8"'));
+    assert.ok(collectors.includes('"--search-workers=1"'));
+    assert.ok(collectors.includes('`--max-searches=${companyCount * 2}`'));
+    assert.doesNotMatch(collectors, /--max-searches=60/);
     assert.ok(successfulRows.includes("countSuccessfulAutonomousCollectorRows(snapshot, kind)"));
     assert.doesNotMatch(successfulRows, /needsReview/);
     assert.doesNotMatch(collectors, /run:\s*async\s*\(\)\s*=>\s*await runCommand\(/);
+  });
+
+  it("retries exact failure ledgers and accepts exhaustion only after explicit terminal coverage", () => {
+    const retry = section("async function runCollectorWithRetries", "function retryableFailuresFromSnapshot");
+    const failures = section("function retryableFailuresFromSnapshot", "function successfulCollectorRowCount");
+
+    assert.ok(failures.includes("autonomousCollectorRetryableFailures(snapshot)"));
+    assert.ok(retry.includes("summarizeAutonomousCollectorTerminalTaskCoverage"));
+    assert.ok(retry.includes("terminalCoverage.nonTerminal"));
+    assert.ok(retry.includes("exhaustedRetryableFailures"));
+    assert.ok(retry.includes("every planned task reached an explicit terminal outcome"));
+    assert.ok(retry.includes("65_000"));
+    assert.ok(retry.includes("exhausted retries with"));
+    assert.doesNotMatch(retry, /retryableFailures\.length === 0 \|\| attempt === maxAttempts/);
+  });
+
+  it("seeds learned discovery state by explicit batch identity before legacy slug fallback", () => {
+    const preparation = section("async function prepareBatchDiscoveryState", "async function mergeCollectorDiscoveryState");
+    const batchIdentity = preparation.indexOf("row?.batch_slug ?? row?.batchSlug");
+    const legacySlug = preparation.indexOf("row?.company_slug ?? row?.companySlug");
+
+    assert.ok(batchIdentity > -1);
+    assert.ok(legacySlug > batchIdentity);
+    assert.ok(preparation.includes("if (rowBatch) return rowBatch === batch.slug"));
+  });
+
+  it("requires every canonical GitHub and discovery input before replacing its artifact set", () => {
+    const preparation = section("async function prepareBatchDiscoveryState", "async function mergePublicationInputs");
+    const publicationMerge = section("async function mergePublicationInputs", "async function mergeCollectorDiscoveryState");
+    const discoveryMerge = section("async function mergeCollectorDiscoveryState", "async function readJsonFromGitRef");
+    const githubMerge = section("async function publishGithubExports", "async function publishRepositoryArtifacts");
+
+    assert.equal((preparation.match(/readRequiredCanonicalRows\(/g) ?? []).length, 2);
+    assert.ok(preparation.includes("publishedDiscoveryAttemptsPath"));
+    assert.ok(preparation.includes("publishedSourceDiscoveryPathsPath"));
+    assert.doesNotMatch(preparation, /readJson\(published(?:DiscoveryAttempts|SourceDiscoveryPaths)Path/);
+
+    assert.equal((discoveryMerge.match(/readRequiredCanonicalRows\(/g) ?? []).length, 2);
+    const discoveryReadIndex = publicationMerge.indexOf("await mergeCollectorDiscoveryState(");
+    const discoveryAttemptWriteIndex = publicationMerge.indexOf("await writeJsonAtomic(publishedDiscoveryAttemptsPath");
+    const discoveryPathWriteIndex = publicationMerge.indexOf("await writeJsonAtomic(publishedSourceDiscoveryPathsPath");
+    assert.ok(discoveryReadIndex > -1 && discoveryAttemptWriteIndex > discoveryReadIndex);
+    assert.ok(discoveryPathWriteIndex > discoveryAttemptWriteIndex);
+    assert.doesNotMatch(discoveryMerge, /readJson\(published(?:DiscoveryAttempts|SourceDiscoveryPaths)Path/);
+    assert.ok(discoveryMerge.includes("readJson(discoveryAttemptOutputs.get(result.batchSlug), [])"));
+    assert.ok(discoveryMerge.includes("readJson(sourceDiscoveryPathOutputs.get(result.batchSlug), [])"));
+
+    assert.equal((githubMerge.match(/Canonical GitHub traction snapshot for/g) ?? []).length, 1);
+    assert.equal((githubMerge.match(/\["S2026"|\["S26"|\["A16ZSR006"/g) ?? []).length, 3);
+    assert.ok(githubMerge.includes("previousByBatch = new Map(await Promise.all("));
+    assert.ok(githubMerge.indexOf("readRequiredCanonicalJson(") < githubMerge.indexOf("for (const snapshot of snapshots)"));
+    assert.ok(githubMerge.indexOf("for (const snapshot of snapshots)") < githubMerge.indexOf("writeJsonAtomic(destination"));
+    assert.doesNotMatch(githubMerge, /readJson\(destination/);
+    assert.ok(githubMerge.includes("baseRef ? await readJsonFromGitRef(baseRef, relativeDestination, null) : null"));
   });
 
   it("runs Insider and YC Partner discovery concurrently with every batch collector", () => {
@@ -142,7 +211,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("blocks import, publication, and completion when no collection task succeeds", () => {
     const guardIndex = runner.indexOf("assertSuccessfulCollection(collectionResults, collectionCoverage)");
     const importIndex = runner.indexOf("const durableImport = await importDurableEvidence");
-    const publicationIndex = runner.indexOf("await publishGithubExports(githubSnapshots)");
+    const publicationIndex = runner.indexOf("await mergePublicationInputs(publicationInputs)");
     const completionIndex = runner.indexOf('await completeRun("completed"');
     const guard = section("function assertSuccessfulCollection", "async function persistCoverage");
 
@@ -172,13 +241,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("guards publication on terminal state coverage across all run tasks", () => {
     const coverage = section("async function persistCoverage", "async function persistArtifactManifest");
-    const guardIndex = runner.indexOf("if (prePublishCoverage.nonTerminal > 0)");
+    const guardIndex = runner.indexOf("validateAutonomousTerminalCoverage(prePublishCoverage");
     const publications = [
-      [
-        "public evidence snapshot",
-        runner.indexOf('await writeJsonAtomic(join(root, "src", "lib", "social", "public-evidence-current.json")')
-      ],
-      ["GitHub evidence exports", runner.indexOf("await publishGithubExports(githubSnapshots)")],
+      ["semantic publication merge", runner.indexOf("await mergePublicationInputs(publicationInputs)")],
       ["production build", runner.indexOf('await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"]')],
       ["graph and benchmark publication", runner.indexOf('await runCommand(process.execPath, ["scripts/update-daily-benchmarks.mjs"]')]
     ];
@@ -197,11 +262,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("resolves durable import or an explicit skip before writing or rebuilding any publication artifact", () => {
     const durableImportIndex = runner.indexOf("const durableImport = await importDurableEvidence");
     const publications = [
-      [
-        "public evidence snapshot",
-        runner.indexOf('await writeJsonAtomic(join(root, "src", "lib", "social", "public-evidence-current.json")')
-      ],
-      ["GitHub evidence exports", runner.indexOf("await publishGithubExports(githubSnapshots)")],
+      ["semantic publication merge", runner.indexOf("await mergePublicationInputs(publicationInputs)")],
       ["production build", runner.indexOf('await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"]')],
       ["graph and benchmark publication", runner.indexOf('await runCommand(process.execPath, ["scripts/update-daily-benchmarks.mjs"]')]
     ];
@@ -210,6 +271,19 @@ describe("autonomous ingestion runner static safety contracts", () => {
     for (const [label, publicationIndex] of publications) {
       assert.ok(publicationIndex > durableImportIndex, `${label} must occur after durable evidence import`);
     }
+  });
+
+  it("hard-fails configured durable imports with unresolved entity attributions", () => {
+    const importIndex = runner.indexOf("const durableImport = await importDurableEvidence");
+    const guardIndex = runner.indexOf("assertDurableAttributionCompleteness(durableImport)");
+    const publicationIndex = runner.indexOf("await mergePublicationInputs(publicationInputs)");
+    const importer = section("async function importDurableEvidence", "function assertDurableAttributionCompleteness");
+    const guard = section("function assertDurableAttributionCompleteness", "async function summarizeCollectionCoverage");
+
+    assert.ok(importIndex > -1 && guardIndex > importIndex && publicationIndex > guardIndex);
+    assert.ok(importer.includes("requireCompleteAttribution: true"));
+    assert.ok(guard.includes("importResult.attributions?.unresolved"));
+    assert.ok(guard.includes("publication is prohibited"));
   });
 
   it("terminates timed-out subprocesses within a bounded grace period", () => {
@@ -222,15 +296,16 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("writes, validates, and durably records the artifact manifest before completion", () => {
-    const writeIndex = runner.indexOf('"scripts/write-artifact-manifest.mjs"');
-    const validateIndex = runner.indexOf('["scripts/validate-public-artifacts.mjs"]');
-    const persistIndex = runner.indexOf("await persistArtifactManifest(run.id)");
+    const publicationBuild = section("async function buildAndValidatePublication", "async function synchronizePublicationBase");
+    const writeIndex = publicationBuild.indexOf('"scripts/write-artifact-manifest.mjs"');
+    const validateIndex = publicationBuild.indexOf('["scripts/validate-public-artifacts.mjs"]');
+    const persistIndex = runner.indexOf("await persistArtifactManifest(run.id)", runner.indexOf("await buildAndValidatePublication(publicationRunId)"));
     const completionIndex = runner.indexOf('await completeRun("completed"');
-    const manifestPersistence = section("async function persistArtifactManifest", "async function completeRun");
+    const manifestPersistence = section("async function persistArtifactManifest", "async function buildAndValidatePublication");
 
     assert.ok(writeIndex > -1);
     assert.ok(validateIndex > writeIndex);
-    assert.ok(persistIndex > validateIndex);
+    assert.ok(persistIndex > runner.indexOf("await buildAndValidatePublication(publicationRunId)"));
     assert.ok(completionIndex > persistIndex);
     assert.ok(manifestPersistence.includes('join(root, "public", "graph", "manifest.json")'));
     assert.ok(manifestPersistence.includes('from("ingestion_artifact_manifests").upsert'));
@@ -239,24 +314,142 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("publishes repository artifacts before reporting durable completion", () => {
-    const pushIndex = runner.indexOf("await publishRepositoryArtifacts()");
+    const pushIndex = runner.indexOf("await publishRepositoryArtifacts(publicationRunId, publicationInputs)");
     const completionIndex = runner.indexOf('await completeRun("completed"');
     assert.ok(pushIndex > -1);
     assert.ok(completionIndex > pushIndex);
   });
 
   it("publishes newly discovered raw Top Voice evidence with the generated graphs", () => {
-    const publication = section("async function publishRepositoryArtifacts", "async function completeRun");
-    assert.ok(publication.includes('"src/lib/social/targeted-evidence-current.json"'));
+    const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
+    assert.ok(artifactPaths.includes('"src/lib/social/targeted-evidence-current.json"'));
+  });
+
+  it("rebases, rebuilds, validates, and retries a non-fast-forward publication once", () => {
+    const publication = section("async function publishRepositoryArtifacts", "async function stageRepositoryArtifacts");
+    assert.ok(publication.includes('["push", "origin", `HEAD:${branch}`]'));
+    assert.ok(publication.includes("allowedExitCodes: [0, 1]"));
+    assert.ok(publication.includes('"publication.push_retry"'));
+    assert.ok(publication.includes('["rebase", `origin/${branch}`]'));
+    assert.ok(publication.includes("rebasedSanitizedPublicSnapshot"));
+    assert.ok(publication.includes("const retryDurableImport = await importDurableEvidence"));
+    assert.ok(publication.includes("assertDurableAttributionCompleteness(retryDurableImport)"));
+    assert.ok(publication.includes(
+      "await mergePublicationInputs(rebasedPublicationInputs, { baseRef: `origin/${branch}` })"
+    ));
+    const rebaseIndex = publication.indexOf('["rebase", `origin/${branch}`]');
+    const prepareIndex = publication.indexOf("const rebasedSanitizedPublicSnapshot");
+    const retryImportIndex = publication.indexOf("const retryDurableImport = await importDurableEvidence");
+    const guardIndex = publication.indexOf("assertDurableAttributionCompleteness(retryDurableImport)");
+    const samePlanMergeIndex = publication.indexOf("await mergePublicationInputs(rebasedPublicationInputs");
+    const rebuildIndex = publication.indexOf("await buildAndValidatePublication(publicationRunId)", samePlanMergeIndex);
+    assert.ok(
+      rebaseIndex < prepareIndex &&
+      prepareIndex < retryImportIndex &&
+      retryImportIndex < guardIndex &&
+      guardIndex < samePlanMergeIndex &&
+      samePlanMergeIndex < rebuildIndex
+    );
+    assert.ok(publication.includes("await buildAndValidatePublication(publicationRunId)"));
+    assert.ok(publication.includes("await stageRepositoryArtifacts()"));
+    assert.ok(publication.includes('label: "retry refreshed artifact push"'));
+  });
+
+  it("publishes learned discovery state from isolated batch collector files", () => {
+    const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
+    const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
+    assert.ok(collectors.includes("await prepareBatchDiscoveryState()"));
+    assert.ok(runner.includes("await mergeCollectorDiscoveryState("));
+    assert.ok(artifactPaths.includes('"outputs/discovery-attempts-current.json"'));
+    assert.ok(artifactPaths.includes('"outputs/source-discovery-paths-current.json"'));
+  });
+
+  it("re-reads and semantically merges publication state only after the initial rebase", () => {
+    const synchronizeIndex = runner.indexOf("await synchronizePublicationBase()");
+    const mergeIndex = runner.indexOf("await mergePublicationInputs(publicationInputs)");
+    const preparation = section("async function prepareSanitizedPublicSnapshot", "async function mergePublicationInputs");
+    const merge = section("async function mergePublicationInputs", "async function mergeCollectorDiscoveryState");
+
+    assert.ok(synchronizeIndex > -1 && mergeIndex > synchronizeIndex);
+    assert.ok(preparation.includes("previousPublicSnapshot = await readRequiredCanonicalJson"));
+    assert.ok(preparation.includes("basePublicSnapshot"));
+    assert.ok(preparation.includes("mergePublicEvidenceSnapshots"));
+    assert.ok(preparation.includes("resolveBatchSlug: resolveLegacyPublicEvidenceBatch"));
+    assert.ok(preparation.includes("resolveNativeAuthor: resolvePublicNativeAuthor"));
+    assert.ok(merge.includes("publishGithubExports(githubSnapshots, { baseRef })"));
+    const resolver = section(
+      "export function buildLegacyPublicEvidenceBatchResolver",
+      "function normalizedCatalogBatchAlias",
+      autonomousPlan
+    );
+    assert.ok(resolver.includes("matches.size === 1"));
+    assert.ok(resolver.includes("validExplicit && matches.has(validExplicit)"));
+    assert.ok(resolver.includes("return null"));
+  });
+
+  it("persists exact batch owner mappings and retires only absent associations", () => {
+    const sync = section("async function syncCatalogs", "function accountRow");
+    const retirement = section("async function retireAbsentSocialAccountOwners", "function socialAccountOwnerKey");
+    const durableImport = section("async function importDurableEvidence", "async function summarizeCollectionCoverage");
+
+    assert.ok(sync.includes('from("social_account_owners")'));
+    assert.ok(sync.includes('onConflict: "owner_key"'));
+    assert.ok(sync.includes("founderByBatchSourceKey"));
+    assert.ok(retirement.includes('review_state: "rejected"'));
+    assert.ok(retirement.includes('retirement_reason: "absent_from_current_batch_owner_inventory"'));
+    assert.doesNotMatch(retirement, /\.delete\(/);
+    assert.ok(durableImport.includes("companyByBatchEntityId"));
+    assert.ok(durableImport.includes("founderByBatchEntityId"));
+    assert.ok(durableImport.includes("batchBySlug"));
+  });
+
+  it("runs the all-cohort coverage audit as a hard gate before manifest publication", () => {
+    const publicationBuild = section("async function buildAndValidatePublication", "async function synchronizePublicationBase");
+    const auditIndex = publicationBuild.indexOf('"scripts/audit-cohort-coverage.mjs"');
+    const manifestIndex = publicationBuild.indexOf('"scripts/write-artifact-manifest.mjs"');
+    const validationIndex = publicationBuild.indexOf('"scripts/validate-public-artifacts.mjs"');
+
+    assert.ok(auditIndex > -1 && manifestIndex > auditIndex && validationIndex > manifestIndex);
+    assert.ok(publicationBuild.includes("--run-dir="));
+    assert.ok(publicationBuild.includes("--output="));
   });
 });
 
-function section(start, end) {
-  const startIndex = runner.indexOf(start);
-  const endIndex = runner.indexOf(end, startIndex + start.length);
+describe("required canonical publication inputs", () => {
+  it("fails on missing and malformed GitHub/discovery inputs without overwriting last-good peers", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "autonomous-required-publication-inputs-"));
+    temporaryRoots.push(root);
+
+    for (const fixture of [
+      { label: "Canonical GitHub traction snapshot", kind: "missing", expected: /could not be read/ },
+      { label: "Canonical GitHub traction snapshot", kind: "malformed", expected: /is malformed/ },
+      { label: "Canonical discovery attempts ledger", kind: "missing", expected: /could not be read/ },
+      { label: "Canonical discovery attempts ledger", kind: "malformed", expected: /is malformed/ },
+      { label: "Canonical source discovery paths ledger", kind: "missing", expected: /could not be read/ },
+      { label: "Canonical source discovery paths ledger", kind: "malformed", expected: /is malformed/ }
+    ]) {
+      const fixtureSlug = `${fixture.label.toLowerCase().replace(/[^a-z]+/g, "-")}-${fixture.kind}`;
+      const requiredPath = path.join(root, `${fixtureSlug}.json`);
+      const peerPath = path.join(root, `${fixtureSlug}-peer.json`);
+      const lastGoodPeer = `{"fixture":"${fixtureSlug}","status":"last-good"}\n`;
+      await writeFile(peerPath, lastGoodPeer, "utf8");
+      if (fixture.kind === "malformed") await writeFile(requiredPath, "{ malformed\n", "utf8");
+
+      await assert.rejects(
+        replacePeerAfterRequiredCanonicalRead(requiredPath, peerPath, fixture.label),
+        fixture.expected
+      );
+      assert.equal(await readFile(peerPath, "utf8"), lastGoodPeer);
+    }
+  });
+});
+
+function section(start, end, source = runner) {
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
   assert.ok(startIndex > -1);
   assert.ok(endIndex > startIndex);
-  return runner.slice(startIndex, endIndex);
+  return source.slice(startIndex, endIndex);
 }
 
 async function createRunnerRoot(prefix) {
@@ -266,5 +459,11 @@ async function createRunnerRoot(prefix) {
   await mkdir(path.join(root, "src", "lib"), { recursive: true });
   await symlink(path.join(repositoryRoot, "public", "graph"), path.join(root, "public", "graph"), "dir");
   await symlink(path.join(repositoryRoot, "src", "lib", "yc"), path.join(root, "src", "lib", "yc"), "dir");
+  await symlink(path.join(repositoryRoot, "src", "lib", "social"), path.join(root, "src", "lib", "social"), "dir");
   return root;
+}
+
+async function replacePeerAfterRequiredCanonicalRead(requiredPath, peerPath, label) {
+  const value = await readRequiredCanonicalJson(requiredPath, label);
+  await writeFile(peerPath, `${JSON.stringify(value)}\n`, "utf8");
 }

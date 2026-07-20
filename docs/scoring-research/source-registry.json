@@ -1,0 +1,1323 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-07-20",
+  "research_cutoff": "2026-07-20",
+  "access_timezone": "America/Chicago",
+  "scope": "Primary and official sources screened for a deterministic learned post-performance scorer. The registry distinguishes protocol relevance from legal and feature compatibility for training.",
+  "incorporation_policy": "A source is marked incorporated only when repository evidence shows its data, protocol, baseline, failure mode, or acceptance test was actually used. Registry-only screening and planned work do not count as incorporation.",
+  "decision_values": {
+    "accepted_protocol": "The source supports an experimental-design or evaluation requirement, but does not authorize or imply data use.",
+    "conditional_dataset": "Potentially compatible data, subject to acquisition, license/terms, hashing, schema verification, and leakage audit.",
+    "conditional_method": "Potentially compatible model or inference method, subject to deterministic implementation, held-out comparison, and acceptance tests.",
+    "rejected_dataset": "Not admissible for production-model training under the currently verified target, feature, availability, or legal constraints.",
+    "screen_only": "Relevant context or baseline, with no current acceptance decision beyond continued screening."
+  },
+  "incorporation_values": {
+    "registry_only": "Screened and documented only; not yet used in code, training, evaluation, or model selection.",
+    "implemented": "Actually used, with repository evidence recorded in implementation_evidence."
+  },
+  "summary": {
+    "source_count": 25,
+    "accepted_protocol": 11,
+    "conditional_dataset": 1,
+    "conditional_method": 1,
+    "rejected_dataset": 9,
+    "screen_only": 3,
+    "incorporated_count": 0,
+    "key_conclusion": "No screened external social benchmark is presently admissible as a drop-in training set for this product. GH Archive is the strongest reconstruction candidate for GitHub-only longitudinal targets; all social-platform transfer requires platform-specific validation and legal clearance."
+  },
+  "sources": [
+    {
+      "id": "twitter-recsys-2020",
+      "kind": "challenge_dataset_and_overview_paper",
+      "citation": "Luca Belli et al. Privacy-Aware Recommender Systems Challenge on Twitter's Home Timeline. arXiv:2004.13715, 2020.",
+      "identifiers": {
+        "arxiv": "2004.13715",
+        "doi": null,
+        "official_url": "https://arxiv.org/abs/2004.13715",
+        "challenge_url": "https://recsys.acm.org/recsys20/challenge/"
+      },
+      "publication": {
+        "status": "challenge overview preprint",
+        "venue": "ACM RecSys Challenge 2020",
+        "peer_reviewed": false
+      },
+      "platforms": ["Twitter"],
+      "task": "Predict four separate binary engagements for a specific reader-Tweet pair.",
+      "unit_of_prediction": "reader-Tweet pair",
+      "feature_observation_time": "Features were generated before the reader engagement label; training covers one week and validation/test the following week.",
+      "prediction_horizon": "No fixed aggregate post horizon; predicts whether the exposed reader engages.",
+      "target_labels": ["like", "reply", "retweet", "quote Tweet"],
+      "evaluation_metrics": ["relative cross entropy", "PR-AUC"],
+      "sample_size": "Approximately 160 million training examples plus 40 million following-week validation/test examples; the paper also describes the release as approximately 200 million records.",
+      "date_range": "Two consecutive weeks; exact calendar dates are not disclosed in the overview.",
+      "split_protocol": "Temporal: first week train, following week split evenly into validation and test.",
+      "author_or_user_leakage_protections": "User and Tweet identifiers were hashed; positive and pseudo-negative user sampling was coordinated. IDs and repeated users remain predictive entities, so this is not an unseen-author evaluation.",
+      "availability": {
+        "paper": "open",
+        "code": "challenge solutions exist, but no official maintained baseline repository was verified",
+        "dataset": "historically released through the challenge; current downloadable, immutable revision not verified",
+        "license": "No durable dataset license was verified from the official overview.",
+        "redistribution_restrictions": "Dataset was dynamically scrubbed and should not be redistributed as a fixed raw snapshot without terms review.",
+        "deletion_or_privacy_behavior": "Tweets/users removed or made private were promptly removed, causing dataset and leaderboard revisions."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv version available at access date; exact version not printed in extracted header",
+        "downloaded_sha256": "5c1c138c302d9de86ab9f3a63b5781c79eded3d8c0ee13ec7a86b7db8b82e59e"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["platform", "post text where available", "author account statistics in principle", "separate visible engagement types"],
+        "incompatible_or_unavailable_features": ["reader identity", "reader-author graph", "reader exposure event", "pseudo-negative sampling frame", "aggregate future post outcome"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "The target is personalized reader engagement, not aggregate future post performance, and the production system has no reader or exposure features. The live, deletion-synchronized dataset revision and license were not verified."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. Its temporal split and per-label evaluation are protocol candidates only.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "twitter-recsys-2021",
+      "kind": "challenge_dataset_and_peer_reviewed_overview",
+      "citation": "Luca Belli et al. The 2021 RecSys Challenge Dataset: Fairness is Not Optional. RecSysChallenge '21, 2021.",
+      "identifiers": {
+        "arxiv": "2109.08245",
+        "doi": "10.1145/3487572.3487573",
+        "official_url": "https://doi.org/10.1145/3487572.3487573",
+        "challenge_url": "https://recsys.acm.org/recsys21/challenge/"
+      },
+      "publication": {
+        "status": "peer-reviewed challenge proceedings paper",
+        "venue": "RecSysChallenge 2021",
+        "peer_reviewed": true
+      },
+      "platforms": ["Twitter"],
+      "task": "Fairly predict four engagement probabilities for a reader-Tweet pair under a 24-hour inference budget.",
+      "unit_of_prediction": "reader-Tweet pair",
+      "feature_observation_time": "Features precede engagement; snapshot covers four weeks.",
+      "prediction_horizon": "No fixed aggregate post horizon.",
+      "target_labels": ["like", "reply", "retweet", "quote"],
+      "evaluation_metrics": ["PR-AUC", "relative cross entropy", "producer-popularity fairness metric across five author-follower quantiles"],
+      "sample_size": "Approximately 1 billion records, balanced between positives and pseudo-negatives.",
+      "date_range": "Four weeks: first three train; final week validation/test.",
+      "split_protocol": "Temporal by week, with three weeks training and the last week validation/test.",
+      "author_or_user_leakage_protections": "Obfuscated identifiers and dynamic deletion scrubbing; evaluation explicitly stratifies authors into follower-count quintiles, but does not provide an unseen-author split.",
+      "availability": {
+        "paper": "open preprint and ACM record",
+        "code": "winning and participant repositories exist; not an official reference implementation",
+        "dataset": "historically challenge-gated; current downloadable revision not verified",
+        "license": "No standalone durable dataset license verified.",
+        "redistribution_restrictions": "Subject to Twitter developer terms and deletion synchronization.",
+        "deletion_or_privacy_behavior": "Content deleted on Twitter was promptly removed from the dataset."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv:2109.08245v3, 2021-09-21",
+        "downloaded_sha256": "29384d0fe4bda61a0a7f6ab5f4e9c2260699c0236140343a6843fd51f2e320f9"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["platform", "post text tokens", "separate engagement labels", "author follower count where permitted"],
+        "incompatible_or_unavailable_features": ["reader identity", "reader exposure", "reader-author relationship", "challenge pseudo-negatives", "aggregate post horizon"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "Personalized exposure-level prediction is target-incompatible. The fairness concept is valuable, but follower-stratum parity cannot turn reader-level labels into aggregate future-post labels."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. Author-audience stratification is retained as a proposed fairness diagnostic, not an implemented test.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "seismic-2015",
+      "kind": "paper_dataset_and_code",
+      "citation": "Qingyuan Zhao, Murat A. Erdogdu, Hera Y. He, Anand Rajaraman, and Jure Leskovec. SEISMIC: A Self-Exciting Point Process Model for Predicting Tweet Popularity. KDD 2015.",
+      "identifiers": {
+        "arxiv": "1506.02594",
+        "doi": "10.1145/2783258.2783401",
+        "official_url": "https://www.statslab.cam.ac.uk/~qz280/publication/seismic/",
+        "data_code_url": "http://snap.stanford.edu/seismic/"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "KDD 2015",
+        "peer_reviewed": true
+      },
+      "platforms": ["Twitter"],
+      "task": "Predict 14-day retweet-cascade size from early reshare event times and resharing-user follower counts.",
+      "unit_of_prediction": "original Tweet retweet cascade",
+      "feature_observation_time": "Predictions every five minutes; reported from 10 minutes through hours, beginning after 50 retweets.",
+      "prediction_horizon": "Final size approximated by retweets within 14 days.",
+      "target_labels": ["14-day retweet count", "top-k breakout membership"],
+      "evaluation_metrics": ["absolute percentage error quantiles", "Kendall tau", "top-k breakout coverage"],
+      "sample_size": "3.2 billion complete Tweets/retweets in source month; 166,076 cascades with at least 50 retweets in the first 15 days.",
+      "date_range": "2011-10-07 through 2011-11-07.",
+      "split_protocol": "Temporal: first seven days train, next eight days test, remaining 14 days allow outcomes to mature.",
+      "author_or_user_leakage_protections": "Temporal split and physical-cascade identity. No reported author-group holdout; follower count can memorize audience scale.",
+      "availability": {
+        "paper": "open author copy/arXiv",
+        "code": "official project and historical R package referenced",
+        "dataset": "official SNAP project referenced; live download and completeness not revalidated",
+        "license": "No dataset license verified from the paper or project landing page.",
+        "redistribution_restrictions": "Twitter content/identifiers require current terms review.",
+        "deletion_or_privacy_behavior": "Historical complete feed; no ongoing deletion synchronization documented."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv version available at access date",
+        "downloaded_sha256": "451bf3ce2634151c8b67156e5b728336256c65e69c6bcd1cae1226dce1a4c476"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["post identity", "publication time", "current reshare count in principle"],
+        "incompatible_or_unavailable_features": ["individual reshare timestamps", "resharer follower counts", "complete exposure graph", "at-least-50-retweet eligibility for most repository posts"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "The source gives a defensible future horizon, time-separated split, rank metric, and breakout coverage. Its model and fitted constants are rejected for direct use because production lacks timestamped reshare cascades and the paper hand-selects 15 training Tweets for a kernel component."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. Proposed adoption is limited to explicit t0/t1 horizons, temporal splitting, and rank/top-k evaluation if compatible histories exist.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "feature-point-process-2016",
+      "kind": "paper_benchmark_and_code",
+      "citation": "Swapnil Mishra, Marian-Andrei Rizoiu, and Lexing Xie. Feature Driven and Point Process Approaches for Popularity Prediction. CIKM 2016.",
+      "identifiers": {
+        "arxiv": "1608.04862",
+        "doi": "10.1145/2983323.2983812",
+        "official_url": "https://arxiv.org/abs/1608.04862",
+        "code_url": "https://github.com/s-mishra/featuredriven-hawkes"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "CIKM 2016",
+        "peer_reviewed": true
+      },
+      "platforms": ["Twitter"],
+      "task": "Predict final retweet-cascade size or whether a cascade doubles after a fixed early prefix.",
+      "unit_of_prediction": "retweet cascade",
+      "feature_observation_time": "5 minutes, 10 minutes, 1 hour, or first 25/50 retweets.",
+      "prediction_horizon": "Final collected cascade; doubling targets 25 to 50 and 50 to 100 retweets.",
+      "target_labels": ["final cascade size", "cascade doubles"],
+      "evaluation_metrics": ["absolute relative error", "accuracy", "statistical comparison at p < 0.01"],
+      "sample_size": "Tweet-1Mo has 30,463 sampled cascades; News collected 49,735,271 Tweets and reports 110,954 cascades of length over 50, with 20,093 July cascades in one benchmark.",
+      "date_range": "Tweet-1Mo: 2011 source month; News: April-July 2015.",
+      "split_protocol": "Most relevant feature-driven experiment uses July 1-15 train and July 16-31 test, with April-June only for historical user-success features. Other experiments use random 40/60 splits and are not accepted as the preferred protocol.",
+      "author_or_user_leakage_protections": "Temporal split in one experiment, but historical user-success features encode author behavior and no unseen-author split is reported.",
+      "availability": {
+        "paper": "open arXiv",
+        "code": "author repository",
+        "dataset": "paper says public; current downloadable artifacts and completeness not verified",
+        "license": "No repository or dataset license verified.",
+        "redistribution_restrictions": "Twitter data remains subject to platform terms.",
+        "deletion_or_privacy_behavior": "No ongoing deletion synchronization documented."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv version available at access date",
+        "downloaded_sha256": "2e97c5dfbc6d6efeb6422162dc33656f573fbac3cf990f19c6bc19b07d6a4fb7"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["publication time", "visible aggregate engagement at t0", "post text", "author statistics where available"],
+        "incompatible_or_unavailable_features": ["per-reshare timestamps", "resharer identities and followers", "complete final cascades", "long author histories for many accounts"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "Useful evidence that simple feature baselines must be compared with point-process models and that temporal prefixes matter. Neither coefficients nor data are accepted for training because licensing and production feature compatibility fail."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. The temporal July split and feature-versus-process ablation are candidates for replication only.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "deepcas-2017",
+      "kind": "paper",
+      "citation": "Cheng Li, Jiaqi Ma, Xiaoxiao Guo, and Qiaozhu Mei. DeepCas: An End-to-end Predictor of Information Cascades. WWW 2017.",
+      "identifiers": {
+        "doi": "10.1145/3038912.3052643",
+        "official_url": "https://archives.iw3c2.org/www2017/proceedings/proceedings/p577.pdf"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "WWW 2017",
+        "peer_reviewed": true
+      },
+      "platforms": ["Twitter", "AMiner/DBLP"],
+      "task": "Predict log-transformed future cascade-size increment from a sampled cascade graph.",
+      "unit_of_prediction": "Tweet retweet cascade or paper citation cascade",
+      "feature_observation_time": "Twitter prefixes at 1, 3, or 5 days; AMiner at 1, 2, or 3 years.",
+      "prediction_horizon": "Twitter future increments over 1, 3, or 5 days; citation increments over 1, 2, or 3 years.",
+      "target_labels": ["log2(future cascade-size increment + 1)"],
+      "evaluation_metrics": ["mean squared error in log target space"],
+      "sample_size": "Twitter configurations contain about 25.7k-26.9k train, 1.5k validation, and 6.6k test cascades; AMiner configurations vary by prefix, up to 34,347 train, 7,428 validation, and 7,337 test cascades.",
+      "date_range": "Twitter originals June 1-20, 2016 with 10-day tracking; AMiner global graph 1992-2002 and cascades 2003-2009.",
+      "split_protocol": "Temporal by original date: Twitter June 1-15 train, June 16 validation, June 17-20 test; AMiner 2003-07 train, 2008 validation, 2009 test.",
+      "author_or_user_leakage_protections": "Temporal split, but node identity features and a global graph built from prior interactions can memorize users; no unseen-user split.",
+      "availability": {
+        "paper": "open under CC BY 4.0",
+        "code": "No official code release verified from the paper.",
+        "dataset": "Twitter Decahose data is not publicly reconstructible from the paper; AMiner source is historical.",
+        "license": "Paper CC BY 4.0; no compatible Twitter dataset license.",
+        "redistribution_restrictions": "Twitter 10% stream cannot be treated as redistributable training data.",
+        "deletion_or_privacy_behavior": "No deletion synchronization described."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "IW3C2 proceedings PDF",
+        "downloaded_sha256": "500f3f507ba5b1fd17d0703984ef7a7769e42e40cf479449a65d05213b69e2ad"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["post age", "visible count prefix", "future increment target concept"],
+        "incompatible_or_unavailable_features": ["cascade graph", "retweet paths", "node identity graph", "long observation windows for near-real-time ranking"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "Strong temporal split and incremental-outcome formulation. Model reproduction is rejected unless timestamped cascade graphs become available at inference."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. Future-increment labels and calendar-separated splits are design candidates.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "deephawkes-2017",
+      "kind": "paper_and_code",
+      "citation": "Qi Cao, Huawei Shen, Keting Cen, Wentao Ouyang, and Xueqi Cheng. DeepHawkes: Bridging the Gap between Prediction and Understanding of Information Cascades. CIKM 2017.",
+      "identifiers": {
+        "doi": "10.1145/3132847.3132973",
+        "official_url": "https://doi.org/10.1145/3132847.3132973",
+        "code_url": "https://github.com/CaoQi92/DeepHawkes"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "CIKM 2017",
+        "peer_reviewed": true
+      },
+      "platforms": ["Sina Weibo", "APS citations"],
+      "task": "Predict future retweet- or citation-cascade size using diffusion paths, learned user influence, self-excitation, and temporal decay.",
+      "unit_of_prediction": "information cascade",
+      "feature_observation_time": "Reported follow-on reproductions use 1, 2, and 3-hour Weibo prefixes; exact paper settings require full-text/code reproduction before use.",
+      "prediction_horizon": "Weibo final cascade within the collection window; APS long-term citation count.",
+      "target_labels": ["future cascade size in log space"],
+      "evaluation_metrics": ["mean squared logarithmic error as reported by the benchmark line"],
+      "sample_size": "Official repository provides the benchmark dataset; follow-on papers report 119,313 Weibo posts before filtering. Exact accepted sample count must be regenerated from the pinned repository.",
+      "date_range": "Weibo posts collected on one day in June/July 2016 depending on later descriptions; this inconsistency must be resolved from source data before use.",
+      "split_protocol": "Common reproductions use chronological 70/15/15 after preprocessing; exact original split requires pinned reproduction.",
+      "author_or_user_leakage_protections": "User embeddings directly encode identity; no unseen-user/entity split was verified.",
+      "availability": {
+        "paper": "ACM record; full text not openly licensed on the official landing page",
+        "code": "public author repository at commit 37b4550687eb1d1e3a9e0111f1abe016a6fd04cc",
+        "dataset": "repository links data via external file hosting",
+        "license": "No license file was returned by the GitHub license endpoint.",
+        "redistribution_restrictions": "Unknown; external dataset host and platform terms require review.",
+        "deletion_or_privacy_behavior": "No dynamic deletion process documented."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "CaoQi92/DeepHawkes commit 37b4550687eb1d1e3a9e0111f1abe016a6fd04cc",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["post time", "current reshare count in principle"],
+        "incompatible_or_unavailable_features": ["diffusion paths", "user embeddings", "per-reshare times", "identity-safe unseen-entity inference"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "No verified license, platform mismatch, missing production cascade paths, and strong identity memorization risk."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. DeepHawkes remains a named baseline to reject cleanly when required event histories are absent.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "ctcp-2023",
+      "kind": "paper",
+      "citation": "Xiaodong Lu, Shuo Ji, Le Yu, Leilei Sun, Bowen Du, and Tongyu Zhu. Continuous-Time Graph Learning for Cascade Popularity Prediction. IJCAI 2023.",
+      "identifiers": {
+        "arxiv": "2306.03756",
+        "doi": "10.24963/ijcai.2023/247",
+        "official_url": "https://www.ijcai.org/proceedings/2023/247"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "IJCAI 2023",
+        "peer_reviewed": true
+      },
+      "platforms": ["Twitter", "Sina Weibo", "APS"],
+      "task": "Predict incremental cascade popularity using continuous user/cascade states and cross-cascade interaction history.",
+      "unit_of_prediction": "cascade at an observation cutoff",
+      "feature_observation_time": "2 days Twitter, 1 hour Weibo, 5 years APS.",
+      "prediction_horizon": "End of dataset for social cascades; 20 years after publication for APS.",
+      "target_labels": ["incremental cascade popularity"],
+      "evaluation_metrics": ["MSLE", "MAPE", "mRSE"],
+      "sample_size": "19,718 Twitter, 39,076 Weibo, and 48,575 APS cascades after preprocessing.",
+      "date_range": "Twitter 2012-03-24 to 2012-04-25; Weibo one day in 2016; APS before 2017.",
+      "split_protocol": "Random 70/15/15 split, not temporal or grouped.",
+      "author_or_user_leakage_protections": "No adequate protection: persistent static user states and random cascade split permit user overlap across partitions.",
+      "availability": {
+        "paper": "open IJCAI/arXiv",
+        "code": "No official code release verified.",
+        "dataset": "references prior Twitter/Weibo/APS sources",
+        "license": "No unified benchmark license verified.",
+        "redistribution_restrictions": "Twitter/Weibo portions have unresolved platform restrictions.",
+        "deletion_or_privacy_behavior": "Not documented."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv version available at access date",
+        "downloaded_sha256": "ef4d1f6c4b0ee4b486c8cbd523a2ee06e13a5747f9880229a1b1d7808cd2c23b"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["observation cutoff", "incremental future target"],
+        "incompatible_or_unavailable_features": ["global chronological user-cascade interaction stream", "static user identities", "cascade graphs"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "Random splitting and identity-bearing cross-cascade state violate the required temporal and unseen-entity evaluation. Inputs are unavailable in production."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. It reinforces the requirement to reject methods whose inference-time interaction graph is absent.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "concat-2025",
+      "kind": "paper",
+      "citation": "Xin Jing et al. On Your Mark, Get Set, Predict! Modeling Continuous-Time Dynamics of Cascades for Information Popularity Prediction. IEEE TKDE 37(9), 2025.",
+      "identifiers": {
+        "arxiv": "2409.16623",
+        "doi": "10.1109/TKDE.2025.3583129",
+        "official_url": "https://doi.org/10.1109/TKDE.2025.3583129"
+      },
+      "publication": {
+        "status": "peer-reviewed journal article",
+        "venue": "IEEE Transactions on Knowledge and Data Engineering",
+        "peer_reviewed": true
+      },
+      "platforms": ["Sina Weibo", "Twitter", "APS"],
+      "task": "Predict cascade popularity with neural ODE and temporal point-process representations.",
+      "unit_of_prediction": "observed cascade prefix",
+      "feature_observation_time": "Irregular event sequence and cascade graph through a cutoff; exact dataset-specific windows require source reproduction.",
+      "prediction_horizon": "Future/final cascade popularity depending on benchmark.",
+      "target_labels": ["future cascade size"],
+      "evaluation_metrics": ["MSLE and benchmark-specific regression metrics"],
+      "sample_size": "Three benchmark datasets; exact post-filter counts require reproduction.",
+      "date_range": "Inherited historical benchmark periods.",
+      "split_protocol": "Not accepted until exact source code and split construction are reproduced.",
+      "author_or_user_leakage_protections": "Unverified; cascade/user graph features create entity-overlap risk.",
+      "availability": {
+        "paper": "open arXiv; IEEE record",
+        "code": "No official repository verified in this review.",
+        "dataset": "Inherited cascade datasets; no unified licensed release verified.",
+        "license": "No dataset license verified.",
+        "redistribution_restrictions": "Platform-dependent and unresolved.",
+        "deletion_or_privacy_behavior": "Not documented."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv version available at access date",
+        "downloaded_sha256": "f12aaa51ece1cfd8282ad80af8beb61478e8b19c17d39911ed1e1dfe0c1b4f67"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["post time", "explicit early cutoff concept"],
+        "incompatible_or_unavailable_features": ["event-level cascade timing", "cascade graph", "neural ODE runtime and artifact parity burden"]
+      },
+      "decision": {
+        "status": "screen_only",
+        "reason": "Scientifically relevant but operationally incompatible today; the exact split, license, and code revision remain unverified."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "reddit-v-2025",
+      "kind": "peer_reviewed_dataset_and_code",
+      "citation": "Samir El-amrany, Matthias R. Brust, Salima Lamsiyah, and Pascal Bouvry. Reddit-V: A Virality Prediction Dataset and Zero-Shot Evaluation with Large Language Models. RANLP 2025.",
+      "identifiers": {
+        "anthology_id": "2025.ranlp-1.41",
+        "doi": "10.26615/978-954-452-098-4-041",
+        "official_url": "https://aclanthology.org/2025.ranlp-1.41/",
+        "code_data_url": "https://github.com/EL-Amrany/Reddit-V"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "RANLP 2025",
+        "peer_reviewed": true
+      },
+      "platforms": ["Reddit"],
+      "task": "Pre-engagement binary virality classification from title, image, and basic metadata.",
+      "unit_of_prediction": "Reddit submission",
+      "feature_observation_time": "At or shortly after posting; paper describes metadata available within one hour and excludes engagement inputs.",
+      "prediction_horizon": "Not precisely fixed; labels derive from realized upvotes/comments in the collected snapshot.",
+      "target_labels": ["viral/non-viral from top-percentile upvote/comment thresholds"],
+      "evaluation_metrics": ["accuracy", "F1"],
+      "sample_size": "27,587 posts from five subreddit categories.",
+      "date_range": "2018-01 through 2023-12.",
+      "split_protocol": "Repository provides Train.csv and test_reddit.csv; no temporal or author-grouped split was verified.",
+      "author_or_user_leakage_protections": "Usernames were not retained, but absence of author identity also prevents grouped author validation. Subreddit/category and time leakage require auditing.",
+      "availability": {
+        "paper": "open ACL Anthology under CC BY 4.0 for the paper",
+        "code": "public repository at commit e077e795ecca1b38771e779644fe520cbcd540e7",
+        "dataset": "CSV files in repository",
+        "license": "No license file or dataset license verified in the repository.",
+        "redistribution_restrictions": "Current Reddit Data API Terms prohibit using API User Content to train ML/AI without express rightsholder permission.",
+        "deletion_or_privacy_behavior": "Static release; no deletion synchronization documented."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "EL-Amrany/Reddit-V commit e077e795ecca1b38771e779644fe520cbcd540e7",
+        "downloaded_sha256": "e96b16fb3f3ed67b4dc5a9e863569b47c10a6ed2e85d7b24162b6bb1081cced9"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["post text", "publication time", "image presence in principle"],
+        "incompatible_or_unavailable_features": ["Reddit platform not currently scored", "fixed future horizon", "visible t0 engagement growth", "license/permission"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "No dataset license, no fixed t1 horizon, no temporal/grouped split, platform mismatch, and current Reddit terms prohibit the intended training use without additional permission."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "poprero-2024",
+      "kind": "peer_reviewed_dataset_and_code",
+      "citation": "Ana-Cristina Rogoz, Maria Ilinca Nechita, and Radu Tudor Ionescu. PoPreRo: A New Dataset for Popularity Prediction of Romanian Reddit Posts. ICPR 2024.",
+      "identifiers": {
+        "arxiv": "2407.04541",
+        "doi": null,
+        "official_url": "https://arxiv.org/abs/2407.04541",
+        "code_data_url": "https://github.com/ana-rogoz/PoPreRo"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "ICPR 2024",
+        "peer_reviewed": true
+      },
+      "platforms": ["Reddit"],
+      "task": "Binary popularity classification of Romanian-language Reddit posts from text.",
+      "unit_of_prediction": "Reddit submission",
+      "feature_observation_time": "Text/title are treated as pre-outcome features; no t0 engagement observation is modeled.",
+      "prediction_horizon": "Not fixed; label is computed from snapshot vote totals.",
+      "target_labels": ["popular/unpopular from a vote-derived threshold"],
+      "evaluation_metrics": ["accuracy", "macro F1"],
+      "sample_size": "28,107 posts: 23,645 train, 2,113 validation, 2,349 test.",
+      "date_range": "Not clearly fixed in the paper/repository summary.",
+      "split_protocol": "Entity/domain split by subreddit: Romania train, Bucuresti validation, Iasi/Timisoara/Cluj test.",
+      "author_or_user_leakage_protections": "Subreddit holdout offers domain separation; author grouping and temporal separation are not documented.",
+      "availability": {
+        "paper": "open arXiv; conference publication",
+        "code": "public repository at commit 873f82eafdd7b82f7b42ef53298c0a4ebe3c7296",
+        "dataset": "included in repository",
+        "license": "README states CC BY-NC-SA 4.0 for data and code; no standalone LICENSE file.",
+        "redistribution_restrictions": "Non-commercial only, share-alike, plus current Reddit API/rightsholder restrictions.",
+        "deletion_or_privacy_behavior": "Static archive-derived data; no deletion synchronization."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv:2407.04541v2 (2024-11-24); repository commit 873f82eafdd7b82f7b42ef53298c0a4ebe3c7296",
+        "downloaded_sha256": "63260c09629800b2507b78f12b85186cee1f7f50546e3c7c80423f941ffddb49"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["post text", "publication-time metadata"],
+        "incompatible_or_unavailable_features": ["commercial-use permission", "supported scoring platform", "fixed future horizon", "same production language/domain"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "Non-commercial share-alike licensing, Reddit terms, target/horizon mismatch, and Romanian local-subreddit domain mismatch prevent production training."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. The subreddit-held-out split is informative but not adopted.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "mmg-pop-2026",
+      "kind": "preprint_benchmark",
+      "citation": "Utkarsh Sahu et al. Benchmarking Multi-Modal Graph-based Social Media Popularity Prediction. arXiv:2606.27539, 2026.",
+      "identifiers": {
+        "arxiv": "2606.27539",
+        "doi": null,
+        "official_url": "https://arxiv.org/abs/2606.27539"
+      },
+      "publication": {
+        "status": "preprint",
+        "venue": "arXiv",
+        "peer_reviewed": false
+      },
+      "platforms": ["Bluesky", "Reddit"],
+      "task": "Multi-task prediction of final and fixed-horizon cascade size, width, depth, structural virality, unique users, and root-like score.",
+      "unit_of_prediction": "Bluesky/Reddit conversation cascade prefix",
+      "feature_observation_time": "Root-only or early windows: Bluesky 2/10/20 min; r/AMA 15/30/60 min; r/Gaming 20/50/90 min; r/Futurology 30/90/180 min.",
+      "prediction_horizon": "4, 8, 16, and 24 hours, plus final collected state.",
+      "target_labels": ["max width", "max depth", "structural virality", "cascade size", "unique users", "like score"],
+      "evaluation_metrics": ["MSE in log target space", "R-squared", "Spearman correlation"],
+      "sample_size": "Depending on window: Bluesky 52,972-63,904; r/AMA 35,677-38,982; r/Gaming 12,413-13,398; r/Futurology 8,349-9,780 cascades.",
+      "date_range": "Not sufficiently established in the paper passages reviewed.",
+      "split_protocol": "Random 80/10/10 train/validation/test split.",
+      "author_or_user_leakage_protections": "Inadequate for this product: random splits and graph/user features allow shared users and temporal leakage; no unseen-company equivalent.",
+      "availability": {
+        "paper": "open arXiv v1",
+        "code": "No benchmark repository URL or released artifact was verified.",
+        "dataset": "Described but no downloadable licensed release was verified.",
+        "license": "Not stated in the paper.",
+        "redistribution_restrictions": "Reddit portion is subject to current Reddit restrictions; Bluesky terms and content rights require review.",
+        "deletion_or_privacy_behavior": "Not documented."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv:2606.27539v1, 2026-06-25",
+        "downloaded_sha256": "9f0fba4bb9d11fde9aadb2f5d56fe4b3e70e469b755948e7dd37b0d1f368aafb"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["short early windows", "fixed future horizons", "multi-task outcomes", "Bluesky as a currently relevant platform candidate"],
+        "incompatible_or_unavailable_features": ["conversation tree", "reply-level text and timing", "random rather than temporal/entity split", "license", "released artifact"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "Promising task design, but unreleased/unlicensed data and random splits fail the acceptance gate. It is too new and unreviewed to rely on without independent reproduction."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. Fixed 4/8/16/24-hour horizon comparison is a protocol candidate only.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "github-popularity-2016",
+      "kind": "peer_reviewed_paper",
+      "citation": "Hudson Borges, Andre Hora, and Marco Tulio Valente. Predicting the Popularity of GitHub Repositories. PROMISE 2016.",
+      "identifiers": {
+        "arxiv": "1607.04342",
+        "doi": "10.1145/2972958.2972966",
+        "official_url": "https://arxiv.org/abs/1607.04342"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "PROMISE 2016",
+        "peer_reviewed": true
+      },
+      "platforms": ["GitHub"],
+      "task": "Predict repository star count and resulting popularity rank from historical weekly star accumulation.",
+      "unit_of_prediction": "GitHub repository",
+      "feature_observation_time": "Weekly star history, with reported ranking setup using 26 weeks of training history.",
+      "prediction_horizon": "52-week total in the principal ranking setup.",
+      "target_labels": ["future cumulative stars", "repository rank"],
+      "evaluation_metrics": ["mean relative squared error", "Spearman rank correlation"],
+      "sample_size": "4,248 repositories selected after filtering the top 5,000 most-starred repositories.",
+      "date_range": "Historical star events through 2016-04-25; only the last 52 weeks per repository are considered.",
+      "split_protocol": "Random 10-fold repository cross-validation; not a final calendar-time holdout.",
+      "author_or_user_leakage_protections": "Repositories are partitioned across folds, but sampling only already-popular repositories causes survivorship and truncation bias; newcomers are absent from training.",
+      "availability": {
+        "paper": "open arXiv",
+        "code": "No official reproduction repository verified.",
+        "dataset": "Reconstructible in principle from GitHub star events, subject to API history completeness.",
+        "license": "Paper access does not license GitHub event content as a dataset.",
+        "redistribution_restrictions": "Repository metadata and user event content remain subject to GitHub terms and underlying repository rights.",
+        "deletion_or_privacy_behavior": "Moved/removed repositories were excluded; no deletion-aware longitudinal protocol."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv version available at access date",
+        "downloaded_sha256": "6aac682c598aa62fef7cf7eb554c757d353c04f3ee53764bba3b97ead0c038d4"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["GitHub platform", "star events", "repository creation time", "future star growth", "ranking evaluation"],
+        "incompatible_or_unavailable_features": ["26-week history for young accelerator companies", "representative sampling of low-star repositories", "temporal final test", "fork/release outcomes"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "Supports treating stars as a distinct future-adoption target and using rank metrics, but its biased top-repository sample and random CV are rejected. No coefficients transfer."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. Future-star growth is a candidate GitHub-specific outcome only.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "gh-archive",
+      "kind": "official_project_dataset",
+      "citation": "Ilya Grigorik. GH Archive: A project to record the public GitHub timeline. 2011-present.",
+      "identifiers": {
+        "official_url": "https://www.gharchive.org/",
+        "github_url": "https://github.com/igrigorik/gharchive.org"
+      },
+      "publication": {
+        "status": "continuously updated public project",
+        "venue": "GH Archive / Google BigQuery public dataset",
+        "peer_reviewed": false
+      },
+      "platforms": ["GitHub"],
+      "task": "Raw event archive from which star, fork, issue, release, and push histories can be reconstructed separately.",
+      "unit_of_prediction": "not a prediction dataset; individual public GitHub event",
+      "feature_observation_time": "Hourly event timestamps from 2011-02-12 onward; Events API source from 2015-01-01 onward.",
+      "prediction_horizon": "User-defined and must be preregistered before extraction.",
+      "target_labels": ["WatchEvent/star", "ForkEvent", "IssuesEvent", "PushEvent", "ReleaseEvent", "other native events"],
+      "evaluation_metrics": [],
+      "sample_size": "Continuously growing; hourly JSON archives and BigQuery tables. Exact extraction size must be recorded in a manifest.",
+      "date_range": "2011-02-12 to present, updated hourly.",
+      "split_protocol": "None inherent; extraction must enforce event-time train/validation/test boundaries and canonical repository grouping.",
+      "author_or_user_leakage_protections": "None inherent. Extraction must group renamed/forked repositories, prevent future metadata joins, and test unseen repositories/organizations.",
+      "availability": {
+        "paper": "not applicable",
+        "code": "public project repository",
+        "dataset": "hourly compressed JSON and Google BigQuery public tables",
+        "license": "No blanket data license is stated on the project landing page; events originate from GitHub APIs.",
+        "redistribution_restrictions": "Requires legal review under GitHub terms and respect for deleted/renamed content and underlying repository rights.",
+        "deletion_or_privacy_behavior": "Historical event archives may retain events for content later removed; no scrub guarantee is stated."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "live landing page as accessed; any accepted extraction must pin every hourly object and SHA-256",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["supported GitHub platform", "event timestamp", "repository identity", "native star/fork event separation", "reproducible t0-to-t1 reconstruction"],
+        "incompatible_or_unavailable_features": ["guaranteed complete repository metadata", "pre-2015 schema consistency", "blanket data license", "deletion synchronization"]
+      },
+      "decision": {
+        "status": "conditional_dataset",
+        "reason": "Best external candidate for reconstructing genuine GitHub longitudinal outcomes. Acceptance is conditional on legal review, exact hourly-object manifests/hashes, schema-drift handling, canonical repository identity, and held-out temporal/entity tests."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. No GH Archive object has been acquired for model training in this lane.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "ghtorrent",
+      "kind": "peer_reviewed_dataset_project",
+      "citation": "Georgios Gousios. The GHTorrent Dataset and Tool Suite. MSR 2013, pages 233-236.",
+      "identifiers": {
+        "acm_id": "2487132",
+        "official_url": "https://github.com/ghtorrent/ghtorrent.org/blob/master/index.md",
+        "project_paper_url": "https://gousios.org/bibliography/GS12.html"
+      },
+      "publication": {
+        "status": "peer-reviewed conference dataset paper/project",
+        "venue": "MSR 2013",
+        "peer_reviewed": true
+      },
+      "platforms": ["GitHub"],
+      "task": "Queryable mirror of GitHub REST API and public event data; not itself a popularity target.",
+      "unit_of_prediction": "not a prediction dataset; relational GitHub entity/event",
+      "feature_observation_time": "Snapshot- and event-dependent.",
+      "prediction_horizon": "User-defined.",
+      "target_labels": ["repository/user/event metadata"],
+      "evaluation_metrics": [],
+      "sample_size": "Large historical mirror; exact active dump revision and coverage were not verified.",
+      "date_range": "Historical; project activity and current dump availability require verification.",
+      "split_protocol": "None inherent.",
+      "author_or_user_leakage_protections": "None inherent.",
+      "availability": {
+        "paper": "official author page and project citation",
+        "code": "public",
+        "dataset": "historical dumps/project; current reproducible dump not verified",
+        "license": "Author webpage material CC BY-SA 4.0 where noted; no blanket mirrored-data license verified.",
+        "redistribution_restrictions": "Underlying GitHub content rights and GitHub terms remain relevant.",
+        "deletion_or_privacy_behavior": "Historical mirror; no scrub guarantee verified."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "ghtorrent/ghtorrent.org master page as accessed",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["GitHub metadata joins", "repository identity resolution", "event history in principle"],
+        "incompatible_or_unavailable_features": ["verified current dump", "hourly append-only manifest", "blanket license", "schema parity with present GitHub"]
+      },
+      "decision": {
+        "status": "screen_only",
+        "reason": "Potential metadata supplement, but GH Archive is fresher and more directly reconstructible. Do not accept until a current pinned dump and legal terms are verified."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "can-cascades-be-predicted-2014",
+      "kind": "peer_reviewed_paper",
+      "citation": "Justin Cheng, Lada A. Adamic, P. Alex Dow, Jon Kleinberg, and Jure Leskovec. Can Cascades be Predicted? WWW 2014.",
+      "identifiers": {
+        "arxiv": "1403.4608",
+        "doi": "10.1145/2566486.2567997",
+        "official_url": "https://arxiv.org/abs/1403.4608"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "WWW 2014",
+        "peer_reviewed": true
+      },
+      "platforms": ["Facebook"],
+      "task": "Predict whether a reshare cascade doubles and compare independent cascades of the same content.",
+      "unit_of_prediction": "photo reshare cascade",
+      "feature_observation_time": "After observing a fixed number of reshares.",
+      "prediction_horizon": "Subsequent doubling/final relative growth.",
+      "target_labels": ["cascade doubles", "which matched-content cascade becomes larger", "eventual shape"],
+      "evaluation_metrics": ["classification accuracy", "ranking/paired comparison metrics"],
+      "sample_size": "Large proprietary Facebook photo-reshares; exact reusable data not available.",
+      "date_range": "Not available as a public reproducible dataset.",
+      "split_protocol": "Paper experimental splits; no accessible data for independent reproduction.",
+      "author_or_user_leakage_protections": "Matched-content comparisons control content wording in one analysis, a useful anti-confounding design; entity holdout cannot be reproduced without data.",
+      "availability": {
+        "paper": "open arXiv",
+        "code": "not verified",
+        "dataset": "proprietary/unavailable",
+        "license": "not available",
+        "redistribution_restrictions": "Facebook internal data",
+        "deletion_or_privacy_behavior": "not applicable to a public release"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv version available at access date",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["relative future-growth target", "matched-content error analysis concept"],
+        "incompatible_or_unavailable_features": ["Facebook cascade graph", "reshare sequence", "public data"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "The relative-growth and matched-content designs are useful against confounding, but the data and coefficients are not transferable."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. Matched-content qualitative evaluation is only proposed.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "lambdamart-2010",
+      "kind": "technical_report",
+      "citation": "Christopher J. C. Burges. From RankNet to LambdaRank to LambdaMART: An Overview. Microsoft Research Technical Report MSR-TR-2010-82, 2010.",
+      "identifiers": {
+        "report_id": "MSR-TR-2010-82",
+        "official_url": "https://www.microsoft.com/en-us/research/publication/from-ranknet-to-lambdarank-to-lambdamart-an-overview/"
+      },
+      "publication": {
+        "status": "research technical report",
+        "venue": "Microsoft Research",
+        "peer_reviewed": false
+      },
+      "platforms": ["method-general"],
+      "task": "Pairwise/listwise learning to rank, with LambdaMART using boosted trees and metric-derived lambdas.",
+      "unit_of_prediction": "item within a ranking query/group",
+      "feature_observation_time": "Application-defined.",
+      "prediction_horizon": "Application-defined.",
+      "target_labels": ["ordered or graded relevance"],
+      "evaluation_metrics": ["NDCG and other rank metrics"],
+      "sample_size": "Not a product-compatible dataset source.",
+      "date_range": "not applicable",
+      "split_protocol": "Requires query-group-preserving train/test partitions.",
+      "author_or_user_leakage_protections": "Not inherent; physical post and company groups must be enforced by the application.",
+      "availability": {
+        "paper": "open official report",
+        "code": "implementations exist in multiple libraries; no implementation selected here",
+        "dataset": "none",
+        "license": "report copyright; implementation-specific licenses",
+        "redistribution_restrictions": "none for a locally trained artifact beyond chosen library/license",
+        "deletion_or_privacy_behavior": "not applicable"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "MSR-TR-2010-82 official landing page",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["post ranking objective", "deterministic CPU tree training in principle", "top-k metrics"],
+        "incompatible_or_unavailable_features": ["calibrated probability output", "natural query groups unless cohort/time buckets are preregistered"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "Valid candidate for ranking comparison only. It cannot by itself support a score described as probability and must use leakage-safe ranking groups."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. No LambdaMART model has been trained or selected.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "calibration-guo-2017",
+      "kind": "peer_reviewed_paper",
+      "citation": "Chuan Guo, Geoff Pleiss, Yu Sun, and Kilian Q. Weinberger. On Calibration of Modern Neural Networks. ICML 2017.",
+      "identifiers": {
+        "arxiv": "1706.04599",
+        "pmlr": "v70/guo17a",
+        "official_url": "https://proceedings.mlr.press/v70/guo17a.html"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "ICML 2017",
+        "peer_reviewed": true
+      },
+      "platforms": ["method-general"],
+      "task": "Post-hoc probability calibration of classifiers, especially neural networks.",
+      "unit_of_prediction": "binary or multiclass classification example",
+      "feature_observation_time": "After the predictive model is trained; calibrator is fit on separate held-out predictions.",
+      "prediction_horizon": "inherited from application label",
+      "target_labels": ["event occurrence/correctness"],
+      "evaluation_metrics": ["expected calibration error", "negative log likelihood", "Brier score", "reliability diagrams"],
+      "sample_size": "Method paper across image and document classification datasets; not a post-performance dataset.",
+      "date_range": "not applicable",
+      "split_protocol": "Calibration parameters must be fit on held-out validation data, not final test data.",
+      "author_or_user_leakage_protections": "Inherited from upstream split; calibration cannot repair leakage.",
+      "availability": {
+        "paper": "open PMLR/arXiv",
+        "code": "author/community implementations; none selected here",
+        "dataset": "none product-compatible",
+        "license": "paper and implementation dependent",
+        "redistribution_restrictions": "none beyond implementation",
+        "deletion_or_privacy_behavior": "not applicable"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "PMLR volume 70 official paper",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["binary high-performance outcome", "validation-set predictions", "probability score interpretation"],
+        "incompatible_or_unavailable_features": ["adequate calibration sample for every platform may be absent"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "Supports fitting calibration only outside the training and final-test sets and evaluating reliability. Temperature scaling is not automatically accepted; it must beat simpler/no calibration on held-out data."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. Calibration metrics and method comparisons are not yet implemented by this lane.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "calibration-niculescu-mizil-2005",
+      "kind": "peer_reviewed_paper",
+      "citation": "Alexandru Niculescu-Mizil and Rich Caruana. Predicting Good Probabilities with Supervised Learning. ICML 2005.",
+      "identifiers": {
+        "doi": "10.1145/1102351.1102430",
+        "official_url": "https://doi.org/10.1145/1102351.1102430"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "ICML 2005",
+        "peer_reviewed": true
+      },
+      "platforms": ["method-general"],
+      "task": "Compare Platt scaling and isotonic regression for probabilistic calibration across classifier families.",
+      "unit_of_prediction": "binary classification example",
+      "feature_observation_time": "Post-hoc calibration on held-out model scores.",
+      "prediction_horizon": "inherited from application label",
+      "target_labels": ["binary event"],
+      "evaluation_metrics": ["calibration and probability-quality metrics"],
+      "sample_size": "Method comparison across benchmark datasets; no social-post training data.",
+      "date_range": "not applicable",
+      "split_protocol": "Separate calibration set; calibrator choice must not use final test.",
+      "author_or_user_leakage_protections": "Inherited from upstream data partition.",
+      "availability": {
+        "paper": "ACM record",
+        "code": "standard library implementations exist",
+        "dataset": "not applicable",
+        "license": "implementation-specific",
+        "redistribution_restrictions": "none beyond implementation",
+        "deletion_or_privacy_behavior": "not applicable"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "ACM DOI record",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["binary outcomes", "validation scores"],
+        "incompatible_or_unavailable_features": ["isotonic regression can overfit small calibration sets"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "Justifies an explicit held-out comparison of no calibration, sigmoid/Platt, and isotonic methods rather than choosing a calibrator by taste."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "conformal-angelopoulos-bates-2021",
+      "kind": "tutorial_preprint",
+      "citation": "Anastasios N. Angelopoulos and Stephen Bates. A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification. arXiv:2107.07511, 2021.",
+      "identifiers": {
+        "arxiv": "2107.07511",
+        "official_url": "https://arxiv.org/abs/2107.07511"
+      },
+      "publication": {
+        "status": "tutorial preprint",
+        "venue": "arXiv",
+        "peer_reviewed": false
+      },
+      "platforms": ["method-general"],
+      "task": "Distribution-free predictive sets/intervals under exchangeability.",
+      "unit_of_prediction": "application example",
+      "feature_observation_time": "After fitting a base predictor and using a separate calibration sample.",
+      "prediction_horizon": "inherited from application label",
+      "target_labels": ["classification or regression outcome"],
+      "evaluation_metrics": ["marginal coverage", "set/interval size", "conditional coverage diagnostics"],
+      "sample_size": "method tutorial; calibration sample requirements are application-specific",
+      "date_range": "not applicable",
+      "split_protocol": "Split conformal requires exchangeable calibration and future examples; temporal drift violates this assumption without adaptation.",
+      "author_or_user_leakage_protections": "Inherited from upstream grouped split; conformalization cannot repair contamination.",
+      "availability": {
+        "paper": "open arXiv",
+        "code": "linked educational notebooks/code",
+        "dataset": "none",
+        "license": "code-specific; no data use",
+        "redistribution_restrictions": "none beyond code license",
+        "deletion_or_privacy_behavior": "not applicable"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv version available at access date",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["explicit uncertainty reporting", "abstention rules"],
+        "incompatible_or_unavailable_features": ["small platform strata", "nonexchangeable temporal drift", "probability calibration is distinct from coverage"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "Coverage and interval width are appropriate uncertainty checks only when exchangeability is defensible. Naive random split conformal is rejected for a changing leaderboard; rolling/online variants require separate validation."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. No conformal interval is implemented or claimed valid.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "xgboost-paper-2016",
+      "kind": "peer_reviewed_system_paper",
+      "citation": "Tianqi Chen and Carlos Guestrin. XGBoost: A Scalable Tree Boosting System. KDD 2016.",
+      "identifiers": {
+        "doi": "10.1145/2939672.2939785",
+        "official_url": "https://doi.org/10.1145/2939672.2939785"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "KDD 2016",
+        "peer_reviewed": true
+      },
+      "platforms": ["method-general"],
+      "task": "Regularized gradient tree boosting for tabular prediction/ranking.",
+      "unit_of_prediction": "tabular example",
+      "feature_observation_time": "application-defined",
+      "prediction_horizon": "application-defined",
+      "target_labels": ["regression", "classification", "ranking objectives"],
+      "evaluation_metrics": ["objective-specific"],
+      "sample_size": "method paper",
+      "date_range": "not applicable",
+      "split_protocol": "application-defined; preprocessing and early stopping must fit on train/validation only",
+      "author_or_user_leakage_protections": "not inherent",
+      "availability": {
+        "paper": "official DOI/arXiv copies",
+        "code": "open-source XGBoost project",
+        "dataset": "none product-specific",
+        "license": "Apache-2.0 for current XGBoost code",
+        "redistribution_restrictions": "comply with dependency license and artifact notice",
+        "deletion_or_privacy_behavior": "not applicable"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "KDD 2016 DOI record; library version not selected in this registry",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["small tabular metric vectors", "CPU inference", "missingness handling", "nonlinear interactions"],
+        "incompatible_or_unavailable_features": ["determinism requires pinned version, seed, thread count, tree method, and exact feature order"]
+      },
+      "decision": {
+        "status": "conditional_method",
+        "reason": "Conditionally accepted as a candidate model family, not as a data source. It must beat transparent baselines, satisfy deterministic parity, and pass monotonic perturbation tests."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. No XGBoost model or package is selected by this lane.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "xgboost-monotonic-docs",
+      "kind": "official_software_documentation",
+      "citation": "XGBoost Developers. Monotonic Constraints. XGBoost documentation.",
+      "identifiers": {
+        "official_url": "https://xgboost.readthedocs.io/en/stable/tutorials/monotonic.html"
+      },
+      "publication": {
+        "status": "official maintained documentation",
+        "venue": "XGBoost documentation",
+        "peer_reviewed": false
+      },
+      "platforms": ["method-general"],
+      "task": "Enforce increasing/decreasing feature constraints in boosted trees.",
+      "unit_of_prediction": "tabular example",
+      "feature_observation_time": "application-defined",
+      "prediction_horizon": "application-defined",
+      "target_labels": ["application-defined"],
+      "evaluation_metrics": ["predictive metric plus explicit monotonic perturbation tests"],
+      "sample_size": "not applicable",
+      "date_range": "not applicable",
+      "split_protocol": "not inherent",
+      "author_or_user_leakage_protections": "not inherent",
+      "availability": {
+        "paper": "not applicable",
+        "code": "XGBoost",
+        "dataset": "none",
+        "license": "Apache-2.0 code",
+        "redistribution_restrictions": "standard dependency obligations",
+        "deletion_or_privacy_behavior": "not applicable"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "stable documentation as accessed; page rendered for XGBoost 3.3.0",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["nondecreasing genuine likes", "nondecreasing genuine replies", "nondecreasing genuine reposts", "feature-name constraints"],
+        "incompatible_or_unavailable_features": ["constraints do not distinguish genuine from manipulated engagement", "hist/approx methods may create shallow trees unless max_bin is evaluated"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "Supports hard monotonic constraints and, independently, perturbation-based verification. Constraints are not evidence that the fitted model generalizes."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None. No production constraint configuration exists yet in this lane.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "reddit-data-api-terms-2025",
+      "kind": "official_platform_terms",
+      "citation": "Reddit, Inc. Data API Terms, effective June 28, 2025.",
+      "identifiers": {
+        "official_url": "https://redditinc.com/policies/data-api-terms"
+      },
+      "publication": {
+        "status": "current official terms",
+        "venue": "Reddit policy",
+        "peer_reviewed": false
+      },
+      "platforms": ["Reddit"],
+      "task": "Defines permitted Data API use.",
+      "unit_of_prediction": "not applicable",
+      "feature_observation_time": "not applicable",
+      "prediction_horizon": "not applicable",
+      "target_labels": [],
+      "evaluation_metrics": [],
+      "sample_size": "not applicable",
+      "date_range": "effective 2025-06-28; accessed 2026-07-20",
+      "split_protocol": "not applicable",
+      "author_or_user_leakage_protections": "not applicable",
+      "availability": {
+        "paper": "not applicable",
+        "code": "not applicable",
+        "dataset": "not applicable",
+        "license": "The API grant is limited and revocable.",
+        "redistribution_restrictions": "Terms state API User Content may not be used to train a machine-learning or AI model without express permission of rightsholders.",
+        "deletion_or_privacy_behavior": "Platform/user content rights and deletion obligations remain operative."
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "terms page effective 2025-06-28",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": [],
+        "incompatible_or_unavailable_features": ["production ML training permission for Reddit user content"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "This is not a dataset; it is the controlling reason not to train on screened Reddit API content without additional documented permission."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None in model code. It changes the dataset-screening decision for Reddit-V and PoPreRo to rejected.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "online-conformal-2024",
+      "kind": "peer_reviewed_paper",
+      "citation": "Anastasios N. Angelopoulos, Rina Foygel Barber, and Stephen Bates. Online Conformal Prediction with Decaying Step Sizes. ICML 2024.",
+      "identifiers": {
+        "pmlr": "v235/angelopoulos24a",
+        "official_url": "https://proceedings.mlr.press/v235/angelopoulos24a.html"
+      },
+      "publication": {
+        "status": "peer-reviewed conference paper",
+        "venue": "ICML 2024",
+        "peer_reviewed": true
+      },
+      "platforms": ["method-general"],
+      "task": "Online conformal calibration with decaying step sizes for sequential predictions.",
+      "unit_of_prediction": "sequential example",
+      "feature_observation_time": "online, before each next outcome",
+      "prediction_horizon": "application-defined",
+      "target_labels": ["sequential outcome"],
+      "evaluation_metrics": ["long-run coverage", "time-local coverage behavior", "interval/set size"],
+      "sample_size": "method paper",
+      "date_range": "not applicable",
+      "split_protocol": "Sequential order is preserved; method addresses online rather than exchangeable batch calibration.",
+      "author_or_user_leakage_protections": "not inherent; entity grouping still required",
+      "availability": {
+        "paper": "open PMLR",
+        "code": "paper-associated materials may exist; no implementation selected",
+        "dataset": "none product-specific",
+        "license": "implementation-specific",
+        "redistribution_restrictions": "none beyond implementation",
+        "deletion_or_privacy_behavior": "not applicable"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "PMLR volume 235 official paper",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["chronological score stream", "possible drift-aware uncertainty"],
+        "incompatible_or_unavailable_features": ["sparse delayed t1 outcomes", "small per-platform streams", "coverage does not imply calibrated probability"]
+      },
+      "decision": {
+        "status": "accepted_protocol",
+        "reason": "More appropriate than naive split conformal under temporal drift, but must be validated on the actual delayed-outcome stream before use."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "recsys-2020-x-engineering-review",
+      "kind": "official_engineering_post",
+      "citation": "Twitter Engineering. What Twitter learned from the RecSys 2020 Challenge. 2020.",
+      "identifiers": {
+        "official_url": "https://blog.x.com/engineering/en_us/topics/insights/2020/what_twitter_learned_from_recsys2020"
+      },
+      "publication": {
+        "status": "official engineering retrospective",
+        "venue": "Twitter/X Engineering",
+        "peer_reviewed": false
+      },
+      "platforms": ["Twitter"],
+      "task": "Summarizes winning-system lessons for reader engagement prediction.",
+      "unit_of_prediction": "reader-Tweet pair",
+      "feature_observation_time": "same challenge as RecSys 2020",
+      "prediction_horizon": "same challenge as RecSys 2020",
+      "target_labels": ["like", "reply", "retweet", "quote Tweet"],
+      "evaluation_metrics": ["relative cross entropy", "PR-AUC"],
+      "sample_size": "same challenge as RecSys 2020",
+      "date_range": "same challenge as RecSys 2020",
+      "split_protocol": "The post explicitly depicts temporal train/validation/test separation.",
+      "author_or_user_leakage_protections": "Highlights adversarial validation for generalization; no product-compatible entity holdout.",
+      "availability": {
+        "paper": "official web post",
+        "code": "not applicable",
+        "dataset": "same unavailable/dynamic challenge dataset",
+        "license": "no dataset grant",
+        "redistribution_restrictions": "same as challenge",
+        "deletion_or_privacy_behavior": "dynamic platform synchronization"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "official engineering post as accessed",
+        "downloaded_sha256": null
+      },
+      "compatibility": {
+        "compatible_repository_features": ["adversarial validation concept", "temporal generalization check"],
+        "incompatible_or_unavailable_features": ["reader/exposure features", "current challenge data"]
+      },
+      "decision": {
+        "status": "rejected_dataset",
+        "reason": "Not a dataset and same target mismatch as RecSys 2020; retained only as an official retrospective."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None.",
+        "implementation_evidence": []
+      }
+    },
+    {
+      "id": "deepcas-independent-mmg-2026",
+      "kind": "cross_benchmark_result",
+      "citation": "Sahu et al. MMG-Pop cross-benchmark implementations of DeepCas and DeepHawkes. arXiv:2606.27539, 2026.",
+      "identifiers": {
+        "arxiv": "2606.27539",
+        "official_url": "https://arxiv.org/abs/2606.27539"
+      },
+      "publication": {
+        "status": "unreviewed cross-benchmark within a preprint",
+        "venue": "arXiv",
+        "peer_reviewed": false
+      },
+      "platforms": ["Bluesky", "Reddit"],
+      "task": "Re-implements DeepCas/DeepHawkes-style baselines across common early windows and six targets.",
+      "unit_of_prediction": "conversation cascade prefix",
+      "feature_observation_time": "dataset-specific minute windows",
+      "prediction_horizon": "4/8/16/24 hours and final state",
+      "target_labels": ["cascade structure", "unique users", "like score"],
+      "evaluation_metrics": ["MSE", "R-squared", "Spearman"],
+      "sample_size": "same as MMG-Pop entry",
+      "date_range": "same as MMG-Pop entry",
+      "split_protocol": "Random 80/10/10.",
+      "author_or_user_leakage_protections": "Insufficient due to random split and potential user overlap.",
+      "availability": {
+        "paper": "open preprint",
+        "code": "not verified",
+        "dataset": "not verified",
+        "license": "not stated",
+        "redistribution_restrictions": "platform-dependent",
+        "deletion_or_privacy_behavior": "not documented"
+      },
+      "provenance": {
+        "access_date": "2026-07-20",
+        "source_revision": "arXiv:2606.27539v1",
+        "downloaded_sha256": "9f0fba4bb9d11fde9aadb2f5d56fe4b3e70e469b755948e7dd37b0d1f368aafb"
+      },
+      "compatibility": {
+        "compatible_repository_features": ["comparative baseline design"],
+        "incompatible_or_unavailable_features": ["released artifact", "leakage-safe split", "license"]
+      },
+      "decision": {
+        "status": "screen_only",
+        "reason": "Useful negative evidence that classic cascade models may underperform when transferred, but not reliable enough to establish a production choice."
+      },
+      "incorporation": {
+        "state": "registry_only",
+        "exact_use": "None.",
+        "implementation_evidence": []
+      }
+    }
+  ]
+}

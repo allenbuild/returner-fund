@@ -1,0 +1,31 @@
+{
+  "registeredAt": "2026-07-20T00:00:00.000Z",
+  "schemaVersion": "scoring-v5-input-manifest-v1",
+  "sources": [],
+  "split": {
+    "groupByBatch": false,
+    "groupByEntity": false,
+    "testEnd": "2026-11-10T05:59:59.999Z",
+    "trainEnd": "2026-09-15T04:59:59.999Z",
+    "trainStart": "2026-07-21T05:00:00.000Z",
+    "validationEnd": "2026-10-13T04:59:59.999Z"
+  },
+  "target": {
+    "description": "Probability that a physical native object exceeds its platform training-set 80th-percentile log counter growth at the registered future horizon, using only values available at t0.",
+    "id": "returner-post-performance-v5-prereg-2026-07-20",
+    "observationRule": "features_at_or_before_observation_time",
+    "outcome": "binary_high_performance_at_horizon",
+    "platformTargets": {
+      "bilibili": { "horizonHours": 168, "targetMetric": "views", "thresholdQuantile": 0.8, "toleranceHours": 12 },
+      "github": { "horizonHours": 672, "targetMetric": "stars", "thresholdQuantile": 0.8, "toleranceHours": 24 },
+      "hacker_news": { "horizonHours": 168, "targetMetric": "points", "thresholdQuantile": 0.8, "toleranceHours": 12 },
+      "instagram": { "horizonHours": 168, "targetMetric": "plays", "thresholdQuantile": 0.8, "toleranceHours": 12 },
+      "linkedin": { "horizonHours": 168, "targetMetric": "impressions", "thresholdQuantile": 0.8, "toleranceHours": 12 },
+      "product_hunt": { "horizonHours": 168, "targetMetric": "upvotes", "thresholdQuantile": 0.8, "toleranceHours": 12 },
+      "reddit": { "horizonHours": 168, "targetMetric": "upvotes", "thresholdQuantile": 0.8, "toleranceHours": 12 },
+      "x": { "horizonHours": 168, "targetMetric": "views", "thresholdQuantile": 0.8, "toleranceHours": 12 },
+      "youtube": { "horizonHours": 168, "targetMetric": "views", "thresholdQuantile": 0.8, "toleranceHours": 12 }
+    },
+    "thresholdDefinition": "For each platform, use the deterministic nearest-rank 80th percentile of training-only log1p native-counter growth; apply strict greater-than to training, validation, and test."
+  }
+}

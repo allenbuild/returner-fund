@@ -1,6 +1,7 @@
 "use client";
 
 import { dedupeEvidenceItems } from "@/lib/graph/dedupe";
+import { getCompanyVerticalDefinition } from "@/lib/graph/company-verticals";
 import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
 import { EvidenceMediaCard } from "./EvidenceMediaCard";
@@ -42,6 +43,14 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
           </div>
         </div>
       </header>
+
+      {node.entityType === "company" && (node.verticals?.length ?? 0) > 0 && (
+        <section className="node-verticals" aria-label="Company verticals">
+          {node.verticals?.map((vertical) => (
+            <span className="vertical-chip" key={vertical}>{getCompanyVerticalDefinition(vertical).label}</span>
+          ))}
+        </section>
+      )}
 
       {node.entityType === "company" && (
         <PlatformContributions node={node} />

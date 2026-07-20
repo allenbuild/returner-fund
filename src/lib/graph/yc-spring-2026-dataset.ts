@@ -81,7 +81,27 @@ type RawSocialLinks = Partial<
   Record<"github" | "linkedin" | "x" | "instagram" | "tiktok" | "bluesky", string>
 >;
 
-interface VerifiedFounderOverride {
+type RetirableSocialPlatform = keyof RawSocialLinks | "youtube" | "product_hunt";
+
+interface RetiredSocialAccount {
+  url: string;
+  rejectedAt?: string;
+  reason?: string;
+  source?: string;
+  platform?: RetirableSocialPlatform;
+}
+
+interface SocialAccountRetirements {
+  rejectedGithub?: RetiredSocialAccount[];
+  rejectedLinkedin?: RetiredSocialAccount[];
+  rejectedX?: RetiredSocialAccount[];
+  rejectedInstagram?: RetiredSocialAccount[];
+  rejectedYoutube?: RetiredSocialAccount[];
+  rejectedProductHunt?: RetiredSocialAccount[];
+  retiredAccounts?: RetiredSocialAccount[];
+}
+
+interface VerifiedFounderOverride extends SocialAccountRetirements {
   id: string;
   name: string;
   ycProfileUrl?: string | null;
@@ -90,7 +110,7 @@ interface VerifiedFounderOverride {
   matchReason: string;
 }
 
-interface VerifiedSocialOverride {
+interface VerifiedSocialOverride extends SocialAccountRetirements {
   companySocialLinks?: RawSocialLinks;
   founders?: VerifiedFounderOverride[];
 }
@@ -155,6 +175,8 @@ interface PublicEvidenceSnapshot {
 
 interface PublicEvidenceRecord {
   id: string;
+  batchSlug?: string;
+  batch_slug?: string;
   entityType: "company" | "founder";
   entityId: string;
   companyName: string;
@@ -204,6 +226,8 @@ type LinkedInActivityPolicy =
 
 interface PublicNeedsReviewRecord {
   id: string;
+  batchSlug?: string;
+  batch_slug?: string;
   entityType: "company" | "founder";
   entityId: string;
   entityName: string;
@@ -293,6 +317,15 @@ const knownFounderIds = new Set(snapshot.companies.flatMap((company) => [
   ...manualFounderOverrides(company).map((founder) => manualFounderId(company, founder))
 ]));
 const knownEntityIds = new Set([...knownCompanyIds, ...knownFounderIds]);
+const springKnownCompanyIds = new Set(springSnapshot.companies.map(companyId));
+const springKnownFounderIds = new Set(springSnapshot.companies.flatMap((company) => [
+  ...company.founders.map((founder) => founderId(company, founder)),
+  ...manualFounderOverrides(company).map((founder) => manualFounderId(company, founder))
+]));
+const springKnownEntityIds = new Set([...springKnownCompanyIds, ...springKnownFounderIds]);
+const crossBatchEntityIds = new Set(
+  [...knownEntityIds].filter((entityId) => springKnownEntityIds.has(entityId))
+);
 const officialGithubUrlsByEntityId = buildOfficialSummerGithubUrlsByEntityId();
 const allowedLoggedInPlatforms = new Set(["instagram", "x", "linkedin", "tiktok", "bluesky"]);
 const allowedLoggedInEvidence = loggedInSnapshot.evidence.filter((item) =>
@@ -453,16 +486,18 @@ export const yc2026GraphDataset: DemoGraphDataset = {
     ...springDataset.founders,
     ...a16zSpeedrun006GraphDataset.founders
   ],
-  evidence: dedupeEvidenceItems([
-    ...ycSummer2026GraphDataset.evidence,
-    ...springDataset.evidence,
-    ...a16zSpeedrun006GraphDataset.evidence
-  ]),
+  evidence: dedupeEvidenceItems(
+    [
+      ...ycSummer2026GraphDataset.evidence,
+      ...springDataset.evidence,
+      ...a16zSpeedrun006GraphDataset.evidence
+    ].filter((item) => !hasCrossBatchEntityAmbiguity(item))
+  ),
   needsReview: [
     ...(ycSummer2026GraphDataset.needsReview ?? []),
     ...(springDataset.needsReview ?? []),
     ...(a16zSpeedrun006GraphDataset.needsReview ?? [])
-  ],
+  ].filter((item) => !hasCrossBatchEntityAmbiguity(item)),
   platformStatus: [
     ...springDataset.platformStatus,
     ...ycSummer2026GraphDataset.platformStatus,
@@ -474,17 +509,15 @@ export const ycSpring2026GraphDataset = yc2026GraphDataset;
 
 function buildSpring2026GraphDataset(): DemoGraphDataset {
   const springAttributionContext = buildAttributionContext(springSnapshot.companies.map(attributionCompanyProfile));
-  const springKnownCompanyIds = new Set(springSnapshot.companies.map(companyId));
-  const springKnownFounderIds = new Set(springSnapshot.companies.flatMap((company) => [
-    ...company.founders.map((founder) => founderId(company, founder)),
-    ...manualFounderOverrides(company).map((founder) => manualFounderId(company, founder))
-  ]));
-  const springKnownEntityIds = new Set([...springKnownCompanyIds, ...springKnownFounderIds]);
   const springPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEvidence, ...targetedSnapshot.evidence]
     .map((item) => canonicalizeVerifiedFounderEntity(item, springVerifiedFounderAliases))
     .filter((item) => item.review_state === "verified")
     .filter((item) => springKnownEntityIds.has(item.entityId))
-    .filter((item) => !hasSummerBatchContext(evidenceBatchText(item)))
+    .filter((item) => evidenceMatchesBatchScope(
+      item,
+      YC_SPRING_2026_BATCH_SLUG,
+      !hasSummerBatchContext(evidenceBatchText(item))
+    ))
     .filter((item) => springPublicEvidenceAccepted(item))
     .map(publicEvidenceItem)
     .map((item) => applyAttributionGuard(item, springAttributionContext));
@@ -523,7 +556,11 @@ function buildSpring2026GraphDataset(): DemoGraphDataset {
   ]
     .map((item) => canonicalizeVerifiedFounderEntity(item, springVerifiedFounderAliases))
     .filter((item) => springKnownEntityIds.has(item.entityId))
-    .filter((item) => !hasSummerBatchContext(`${item.entityName} ${item.matchReason}`))
+    .filter((item) => evidenceMatchesBatchScope(
+      item,
+      YC_SPRING_2026_BATCH_SLUG,
+      !hasSummerBatchContext(`${item.entityName} ${item.matchReason}`)
+    ))
     .map(publicNeedsReviewItem);
   const springPlatformStatus = spring2026PlatformStatus({
     companies: springSnapshot.companies,
@@ -715,7 +752,9 @@ function companyRecordForBatch(
   ];
   const entityEvidence = entityIds.flatMap((entityId) => options.evidenceByEntityId.get(entityId) ?? []);
   const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
-  const verifiedCompanyLinks = verifiedSocialOverrides[raw.slug]?.companySocialLinks ?? {};
+  const companyOverride = verifiedSocialOverrides[raw.slug];
+  const verifiedCompanyLinks = companyOverride?.companySocialLinks ?? {};
+  const retiredCompanyAccountKeys = retiredSocialAccountKeys(companyOverride);
   const socialAccounts = dedupeSocialAccounts([
     ...socialAccountsFor(socialLinksWithoutOverrides(raw.socialLinks, verifiedCompanyLinks), {
       entityType: "company",
@@ -729,7 +768,9 @@ function companyRecordForBatch(
       discoveredFromUrl: raw.websiteUrl ?? raw.ycProfileUrl,
       matchReason: `Verified social override for ${raw.name}; profile links back to the official company identity.`
     })
-  ]).filter((account) => !founderAccountKeys.has(socialAccountKey(account.platform, account.url)));
+  ])
+    .filter((account) => !retiredCompanyAccountKeys.has(socialAccountKey(account.platform, account.url)))
+    .filter((account) => !founderAccountKeys.has(socialAccountKey(account.platform, account.url)));
 
   return {
     id: companyId(raw),
@@ -775,6 +816,7 @@ function founderRecordsForBatch(
     const entityEvidence = options.evidenceByEntityId.get(founderId(raw, founder)) ?? [];
     const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
     const verifiedOverride = matchingVerifiedFounderOverride(raw, founder.name);
+    const retiredFounderAccountKeys = retiredSocialAccountKeys(verifiedOverride);
     const socialAccounts = dedupeSocialAccounts([
       ...socialAccountsFor(socialLinksWithoutOverrides(founder.socialLinks, verifiedOverride?.socialLinks ?? {}), {
         entityType: "founder",
@@ -788,7 +830,9 @@ function founderRecordsForBatch(
         discoveredFromUrl: verifiedOverride?.sourceUrl ?? raw.ycProfileUrl,
         matchReason: verifiedOverride?.matchReason ?? "Verified founder social override."
       })
-    ]);
+    ]).filter(
+      (account) => !retiredFounderAccountKeys.has(socialAccountKey(account.platform, account.url))
+    );
 
     return {
       id: founderId(raw, founder),
@@ -812,12 +856,15 @@ function founderRecordsForBatch(
   const manualRecords = manualFounderOverrides(raw).map((founder) => {
     const entityEvidence = options.evidenceByEntityId.get(manualFounderId(raw, founder)) ?? [];
     const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(entityEvidence));
+    const retiredFounderAccountKeys = retiredSocialAccountKeys(founder);
     const socialAccounts = socialAccountsFor(founder.socialLinks, {
       entityType: "founder",
       entityId: manualFounderId(raw, founder),
       discoveredFromUrl: founder.sourceUrl,
       matchReason: founder.matchReason
-    });
+    }).filter(
+      (account) => !retiredFounderAccountKeys.has(socialAccountKey(account.platform, account.url))
+    );
 
     return {
       id: manualFounderId(raw, founder),
@@ -1203,7 +1250,7 @@ function classifyLinkedInActivity(item: PublicEvidenceRecord): LinkedInActivityP
     };
   }
 
-  if (!reference && !claimsLinkedInComment(item)) {
+  if (!reference && !hasExplicitLinkedInCommentClaim(item)) {
     return { kind: "not_comment" };
   }
 
@@ -1315,10 +1362,15 @@ function canonicalLinkedInCommentContextUrl(
   }
 }
 
-function claimsLinkedInComment(item: PublicEvidenceRecord): boolean {
-  const text = [item.title, item.matchReason, item.rawVisibleText].filter(Boolean).join(" ");
-  return /\b(?:linkedin|native)\s+comment\b|\bcomment-level\b|\bdirect\s+comment\s+(?:permalink|locator)\b|\bcomments?\s+on\b/i.test(
-    text
+export function hasExplicitLinkedInCommentClaim(
+  item: Pick<PublicEvidenceRecord, "title" | "matchReason">
+): boolean {
+  // Comment classification must come from explicit adjudication metadata or a
+  // stable native comment locator. Ordinary post prose such as "2 comments on
+  // this activity" is not evidence that the row itself is a comment.
+  const adjudicationText = [item.title, item.matchReason].filter(Boolean).join(" ");
+  return /\b(?:linkedin|native)\s+comment\b|\bcomment-level\b|\bdirect\s+comment\s+(?:permalink|locator)\b/i.test(
+    adjudicationText
   );
 }
 
@@ -1341,7 +1393,11 @@ function recordFromUnknown(value: unknown): Record<string, unknown> | null {
 }
 
 function isKnownSummerEvidenceRecord(item: PublicEvidenceRecord): boolean {
-  return knownEntityIds.has(item.entityId) && !hasStaleSpringBatchContext(evidenceBatchText(item));
+  return knownEntityIds.has(item.entityId) && evidenceMatchesBatchScope(
+    item,
+    YC_SUMMER_2026_BATCH_SLUG,
+    !hasStaleSpringBatchContext(evidenceBatchText(item))
+  );
 }
 
 function canonicalizeRenamedSummerEntity<
@@ -1372,7 +1428,35 @@ function canonicalizeRenamedSummerEntity<
 }
 
 function isKnownSummerNeedsReviewRecord(item: PublicNeedsReviewRecord): boolean {
-  return knownEntityIds.has(item.entityId) && !hasStaleSpringBatchContext(`${item.entityName} ${item.matchReason}`);
+  return knownEntityIds.has(item.entityId) && evidenceMatchesBatchScope(
+    item,
+    YC_SUMMER_2026_BATCH_SLUG,
+    !hasStaleSpringBatchContext(`${item.entityName} ${item.matchReason}`)
+  );
+}
+
+export function evidenceMatchesBatchScope(
+  item: { entityId?: string; batchSlug?: string; batch_slug?: string },
+  expectedBatchSlug: string,
+  legacyMatch: boolean
+): boolean {
+  const explicitBatchSlug = String(item.batchSlug ?? item.batch_slug ?? "").trim();
+  if (explicitBatchSlug) {
+    return explicitBatchSlug.toUpperCase() === expectedBatchSlug.toUpperCase();
+  }
+  if (item.entityId && crossBatchEntityIds.has(item.entityId)) {
+    return false;
+  }
+  return legacyMatch;
+}
+
+function hasCrossBatchEntityAmbiguity(
+  item: { entityId: string; attachedCompanyId?: string | null }
+): boolean {
+  return (
+    crossBatchEntityIds.has(item.entityId) ||
+    Boolean(item.attachedCompanyId && crossBatchEntityIds.has(item.attachedCompanyId))
+  );
 }
 
 function isKnownSummerGithubAccount(account: GithubAccount): boolean {
@@ -1468,27 +1552,34 @@ function isLoggedInLinkedInActivityEvidence(item: PublicEvidenceRecord): boolean
 }
 
 function linkedInPostAuthorMatchesKnownEntity(item: PublicEvidenceRecord): boolean {
-  const authorHandle = linkedInAuthorHandleFromPostUrl(item.sourceUrl);
-  if (!authorHandle) {
-    return false;
-  }
-
-  const company =
-    snapshot.companies.find((candidate) => companyId(candidate) === item.entityId || candidate.name === item.companyName) ??
-    snapshot.companies.find((candidate) => companyId(candidate) === companyIdFromEvidenceName(item.companyName));
+  const company = snapshot.companies.find((candidate) =>
+    companyId(candidate) === item.entityId ||
+    candidate.founders.some((founder) => founderId(candidate, founder) === item.entityId) ||
+    manualFounderOverrides(candidate).some((founder) => manualFounderId(candidate, founder) === item.entityId)
+  );
   if (!company) {
     return false;
   }
 
-  const knownHandles = new Set<string>();
-  const companyHandle = linkedInProfileHandle(company.socialLinks?.linkedin);
-  if (companyHandle) knownHandles.add(companyHandle);
-  for (const founder of company.founders ?? []) {
-    const founderHandle = linkedInProfileHandle(founder.socialLinks?.linkedin);
-    if (founderHandle) knownHandles.add(founderHandle);
-  }
+  const companyProfile = attributionCompanyProfile(company);
+  const knownHandles = new Set(
+    [
+      ...companyProfile.socialLinks,
+      ...companyProfile.founders.flatMap((founder) => founder.socialLinks)
+    ]
+      .filter((link) => link.platform === "linkedin")
+      .map((link) => linkedInProfileHandle(link.url))
+      .filter((handle): handle is string => Boolean(handle))
+  );
+  const nativeAuthor = nativeAuthorFromRawVisibleText(item.rawVisibleText);
+  const candidateHandles = [
+    linkedInAuthorHandleFromPostUrl(item.sourceUrl),
+    linkedInProfileHandle(item.accountUrl ?? undefined),
+    normalizeHandle(item.authorHandle ?? undefined),
+    normalizeHandle(nativeAuthor.handle ?? undefined)
+  ].filter((handle): handle is string => Boolean(handle));
 
-  if (knownHandles.has(authorHandle)) {
+  if (candidateHandles.some((handle) => knownHandles.has(handle))) {
     return true;
   }
 
@@ -1497,7 +1588,7 @@ function linkedInPostAuthorMatchesKnownEntity(item: PublicEvidenceRecord): boole
 
 function linkedInNativeAuthorMatchesKnownEntity(item: PublicEvidenceRecord, company: RawCompany): boolean {
   const nativeAuthor = nativeAuthorFromRawVisibleText(item.rawVisibleText);
-  const authorName = normalizeSearchText(nativeAuthor.name ?? "");
+  const authorName = normalizeSearchText(nativeAuthor.name ?? item.authorName ?? "");
   if (!authorName) {
     return false;
   }
@@ -1918,6 +2009,36 @@ function socialLinksWithoutOverrides(base: RawSocialLinks, overrides: RawSocialL
   return Object.fromEntries(
     Object.entries(base).filter(([platform]) => !overrides[platform as keyof RawSocialLinks])
   ) as RawSocialLinks;
+}
+
+function retiredSocialAccountKeys(
+  override: SocialAccountRetirements | null | undefined
+): Set<string> {
+  const records: Array<{ platform: RetirableSocialPlatform; url: string }> = [];
+  const rejectedByPlatform: Array<[
+    keyof SocialAccountRetirements,
+    RetirableSocialPlatform
+  ]> = [
+    ["rejectedGithub", "github"],
+    ["rejectedLinkedin", "linkedin"],
+    ["rejectedX", "x"],
+    ["rejectedInstagram", "instagram"],
+    ["rejectedYoutube", "youtube"],
+    ["rejectedProductHunt", "product_hunt"]
+  ];
+
+  for (const [field, platform] of rejectedByPlatform) {
+    for (const record of override?.[field] ?? []) {
+      if (record?.url) records.push({ platform, url: record.url });
+    }
+  }
+  for (const record of override?.retiredAccounts ?? []) {
+    if (record?.platform && record.url) {
+      records.push({ platform: record.platform, url: record.url });
+    }
+  }
+
+  return new Set(records.map(({ platform, url }) => socialAccountKey(platform, url)));
 }
 
 function socialAccountKey(platform: string, rawUrl: string): string {

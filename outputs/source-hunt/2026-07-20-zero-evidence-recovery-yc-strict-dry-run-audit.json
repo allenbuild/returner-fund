@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-07-20T10:17:09Z",
+  "target": "src/lib/social/targeted-evidence-current.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-20-zero-evidence-recovery-yc-importable.json"
+  ],
+  "before": 1072,
+  "received": 6,
+  "accepted": 6,
+  "updated": 0,
+  "duplicates": 0,
+  "duplicateRows": [],
+  "includedBatches": [
+    "S2026",
+    "S26"
+  ],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 1078
+}

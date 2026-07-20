@@ -11,6 +11,7 @@ describe("insights tabs", () => {
 
     const overviewTab = screen.getByRole("tab", { name: "Overview" });
     const hottestTab = screen.getByRole("tab", { name: "Hottest" });
+    const rankedTab = screen.getByRole("tab", { name: "Ranked Posts" });
     const statsTab = screen.getByRole("tab", { name: "Stats" });
     expect(overviewTab).toHaveAttribute("aria-selected", "true");
     expect(overviewTab).toHaveAttribute("aria-controls", "insights-panel-overview");
@@ -39,6 +40,14 @@ describe("insights tabs", () => {
     expect(weekToggle).toHaveAttribute("aria-pressed", "true");
 
     fireEvent.keyDown(hottestTab, { key: "ArrowRight" });
+
+    expect(rankedTab).toHaveFocus();
+    expect(rankedTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-ranked");
+    expect(screen.getByRole("button", { name: "Today" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "All time" })).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.keyDown(rankedTab, { key: "ArrowRight" });
 
     expect(statsTab).toHaveFocus();
     expect(statsTab).toHaveAttribute("aria-selected", "true");
@@ -82,6 +91,38 @@ describe("insights tabs", () => {
     expect(screen.queryByText("Verified source links")).not.toBeInTheDocument();
     expect(screen.queryByText("Sources per company")).not.toBeInTheDocument();
     expect(screen.queryByText("Needs review")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Scoring model status and methodology" })).toBeInTheDocument();
+    expect(screen.getByText(/V5 learned model: rejected — insufficient data/i)).toBeInTheDocument();
+    expect(screen.getByText(/V5 validated platform coverage is currently none/i)).toBeInTheDocument();
+    expect(screen.getByText(/How the currently displayed V4 baseline is calculated/i)).toBeInTheDocument();
+    expect(screen.getByText(/strongest 5 posts per platform contribute/i)).toBeInTheDocument();
+    expect(screen.getByText(/V4 configured platform, reference, and raw metric weights/i)).toBeInTheDocument();
+    expect(screen.getByText(/product heuristics preserved only for V4 history and rollback/i)).toBeInTheDocument();
+    expect(screen.queryByText("Platform weights")).not.toBeInTheDocument();
+  });
+
+  it("renders at most 50 physically deduplicated ranked posts and a reliable Today empty state", () => {
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    render(
+      <InsightsTabs
+        graph={graph}
+        now={new Date("2099-01-01T18:00:00.000Z")}
+        onSelectNode={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
+    expect(screen.getByText("Posted today, Central Time")).toBeInTheDocument();
+    expect(screen.getByText(/Scores use graph evidence available as of/i)).toBeInTheDocument();
+    expect(screen.getByText("No reliably dated posts were published today.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "All time" }));
+    const list = screen.getByRole("list", { name: "Ranked posts" });
+    const posts = within(list).getAllByRole("listitem");
+    expect(posts.length).toBeGreaterThan(0);
+    expect(posts.length).toBeLessThanOrEqual(50);
+    expect(posts[0]).toHaveTextContent("Post score");
+    expect(within(posts[0]).getByRole("link", { name: /Open native post/i })).toHaveAttribute("href");
   });
 
   it("does not show a separate score scope or Top Voices audience strip", () => {

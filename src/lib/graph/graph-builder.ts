@@ -1,5 +1,6 @@
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-dataset";
 import { graphNodeMatchesSearchQuery } from "./search";
+import { enrichCompanyRecordVerticals, enrichGraphTaxonomies } from "./graph-taxonomies";
 import { withForwardCompatiblePlatformStatus } from "./platform-status";
 import { TRACTION_SCORING_CONFIG } from "./traction-scoring-config";
 import {
@@ -91,7 +92,9 @@ export function buildGraphResponse(
   const topVoiceAudience = resolveTopVoiceAudience(filters.topVoices);
   const topVoiceMode = topVoiceAudience.summary.id !== "off";
 
-  const baseBatchCompanies = dataset.companies.filter((company) => company.batchSlug === batch.slug);
+  const baseBatchCompanies = dataset.companies
+    .filter((company) => company.batchSlug === batch.slug)
+    .map(enrichCompanyRecordVerticals);
   const batchFounders = dataset.founders.filter((founder) => founder.batchSlug === batch.slug);
   const topVoiceRollups = topVoiceMode
     ? buildTopVoiceRollups(
@@ -164,7 +167,7 @@ export function buildGraphResponse(
     )
     .sort((a, b) => b.contributionScore - a.contributionScore);
 
-  return {
+  return enrichGraphTaxonomies({
     batch,
     batches: dataset.batches,
     nodes,
@@ -201,7 +204,7 @@ export function buildGraphResponse(
       evidence: evidenceForBatchEntities(dataset.evidence, baseBatchCompanies, batchFounders)
     }),
     mode: dataset.mode ?? "demo"
-  };
+  });
 }
 
 export function buildGraphEdges(
@@ -420,6 +423,8 @@ function companyToNode(
     sourceUrl: company.sourceUrl,
     visual: visualFor(company.primaryIndustry, company.businessModel, company.groupPartner),
     industries: company.industries,
+    verticals: company.verticals,
+    verticalClassification: company.verticalClassification,
     relatedEntityIds: company.founderIds,
     founders: founderSummaries,
     review_state_counts: reviewStateCounts,

@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-07-20T10:17:09Z",
+  "target": "src/lib/social/targeted-evidence-current.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-20-zero-evidence-recovery-yc-importable.json"
+  ],
+  "before": 1078,
+  "received": 6,
+  "accepted": 0,
+  "updated": 0,
+  "duplicates": 6,
+  "duplicateRows": [
+    {
+      "input": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-yc-importable.json",
+      "row": 0,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/stablebrowse_building-site-familiarity-activity-7463574457559924736-ma5F",
+      "platformPostId": "7463574457559924736",
+      "existingId": "source-hunt-bc15739d01c7a2a78351",
+      "existingEntityId": "company-stablebrowse"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-yc-importable.json",
+      "row": 1,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/stablebrowse_knowledge-graphs-for-browser-agents-activity-7463041729009455104-NqvT",
+      "platformPostId": "7463041729009455104",
+      "existingId": "source-hunt-9fe1d62723b26f3bccdd",
+      "existingEntityId": "company-stablebrowse"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-yc-importable.json",
+      "row": 2,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/stablebrowse_reading-anti-bot-challenge-scripts-activity-7465929944787865600-VwrJ",
+      "platformPostId": "7465929944787865600",
+      "existingId": "source-hunt-d69572c297eddb032d1e",
+      "existingEntityId": "company-stablebrowse"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-yc-importable.json",
+      "row": 3,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/stablebrowse_stablebrowse-knowledge-graphs-benchmark-activity-7469824245758349312-jLWa",
+      "platformPostId": "7469824245758349312",
+      "existingId": "source-hunt-d50c4ec884a8b4da57ae",
+      "existingEntityId": "company-stablebrowse"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-yc-importable.json",
+      "row": 4,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/stablebrowse_the-browser-fingerprinting-toolkit-activity-7465975226724544512-1PYD",
+      "platformPostId": "7465975226724544512",
+      "existingId": "source-hunt-eae9755d39e4b1b731af",
+      "existingEntityId": "company-stablebrowse"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-yc-importable.json",
+      "row": 5,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/stablebrowse_the-three-layers-of-anti-bot-detection-activity-7465882358349533184-EmlU",
+      "platformPostId": "7465882358349533184",
+      "existingId": "source-hunt-d2077cee03fdf9cfd0da",
+      "existingEntityId": "company-stablebrowse"
+    }
+  ],
+  "includedBatches": [
+    "S2026"
+  ],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 1078
+}

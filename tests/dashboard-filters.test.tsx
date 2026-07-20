@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Dashboard } from "@/components/Dashboard";
+import { COMPANY_VERTICALS } from "@/lib/graph/company-verticals";
 import { validateStaticGraphSnapshotContract } from "@/lib/graph/static-graph-snapshot-contract.mjs";
 import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
 import type {
@@ -116,8 +117,8 @@ describe("dashboard filters", () => {
         "aria-checked",
         "true"
       );
-      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B A")).toBeInTheDocument();
-      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B B")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B A")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B B")).not.toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
       expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-industries", "fintech");
     });
@@ -128,10 +129,181 @@ describe("dashboard filters", () => {
     fireEvent.click(partnerBButton);
 
     await waitFor(() => {
-      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B B")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B B")).not.toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
       expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-group-partners", "Partner B");
     });
+  });
+
+  it("composes Topic, Platform, and Vertical filters locally and persists canonical URL values", async () => {
+    const launchNode = {
+      ...makeNode("company:launch-co", "Launch Co", "b2b", "#7dd3fc", "Partner A", 72, "x"),
+      verticals: ["ai-agents"] as GraphNode["verticals"]
+    };
+    const fintechNode = {
+      ...makeNode("company:fintech-co", "Fintech Co", "fintech", "#2563eb", "Partner B", 68, "github"),
+      verticals: ["fintech"] as GraphNode["verticals"]
+    };
+    const fullGraph = graphResponse([launchNode, fintechNode]);
+    fullGraph.evidence = fullGraph.evidence.map((item) => ({
+      ...item,
+      topics: item.entityId === "launch-co" ? ["product-launch"] : ["traction"]
+    }));
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    const topicGroup = screen.getByText("Topics").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topicGroup).getByRole("button", { name: /all topics/i }));
+    fireEvent.click(within(topicGroup).getByRole("menuitemcheckbox", { name: /Product Launch/i }));
+
+    await waitFor(() => {
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Launch Co")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).queryByText("Fintech Co")).not.toBeInTheDocument();
+      expect(window.location.search).toContain("topics=product-launch");
+    });
+
+    const platformGroup = screen.getByText("Platform").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(platformGroup).getByRole("button", { name: /all platforms/i }));
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /GitHub/i }));
+    expect(await screen.findByText("No companies match the active filters.")).toBeInTheDocument();
+
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /all platforms/i }));
+    const verticalGroup = screen.getByText("Vertical").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(verticalGroup).getByRole("button", { name: /all verticals/i }));
+    const search = within(verticalGroup).getByRole("searchbox", { name: /search vertical/i });
+    fireEvent.change(search, { target: { value: "AI Agents" } });
+    const aiAgents = within(verticalGroup).getByRole("menuitemcheckbox", { name: /AI Agents/i });
+    expect(aiAgents).toBeEnabled();
+    fireEvent.click(aiAgents);
+
+    await waitFor(() => {
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Launch Co")).toBeInTheDocument();
+      expect(window.location.search).toContain("verticals=ai-agents");
+      expect(window.location.search).not.toContain("topics=bogus");
+    });
+  });
+
+  it("preserves more than five explicit vertical filters instead of applying the inference cap", () => {
+    const fullGraph = graphResponse([
+      makeNode("company:vertical-cap", "Vertical Cap", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const verticals = COMPANY_VERTICALS.slice(0, 6).map(({ slug }) => slug);
+
+    render(<Dashboard initialGraph={fullGraph} initialFilters={{ verticals }} />);
+
+    const verticalGroup = screen.getByText("Vertical").closest(".filter-dropdown") as HTMLElement;
+    expect(within(verticalGroup).getByRole("button", { name: "6 selected" })).toBeInTheDocument();
+  });
+
+  it("copies and rehydrates multiple Topics and more than five Verticals without truncation, then resets them", async () => {
+    const topics = ["traction", "product-launch"] as const;
+    const verticals = COMPANY_VERTICALS.slice(0, 6).map(({ slug }) => slug);
+    const node = {
+      ...makeNode("company:shared-view", "Shared View", "b2b", "#7dd3fc", "Partner A", 88, "x"),
+      verticals: [verticals[0]]
+    };
+    const fullGraph = graphResponse([node]);
+    fullGraph.evidence = fullGraph.evidence.map((item) => ({ ...item, topics: [topics[0]] }));
+    const writeText = vi.fn(async (value: string) => {
+      void value;
+    });
+    vi.stubGlobal("navigator", { clipboard: { writeText } });
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+    window.history.replaceState(
+      null,
+      "",
+      `/?topics=${topics.join(",")}&verticals=${verticals.join(",")}&minScore=80`
+    );
+
+    const firstView = render(
+      <Dashboard
+        initialGraph={fullGraph}
+        initialFilters={{ topics: [...topics], verticals, minScore: 80 }}
+      />
+    );
+
+    expect(screen.getByText("Topics").closest(".filter-dropdown")).toHaveTextContent("2 selected");
+    expect(screen.getByText("Vertical").closest(".filter-dropdown")).toHaveTextContent("6 selected");
+    expect(screen.getByLabelText("Minimum score value")).toHaveValue(80);
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Shared View")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy link" }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    const copiedUrl = new URL(writeText.mock.calls[0]![0]);
+    expect(copiedUrl.searchParams.get("topics")?.split(",")).toEqual([...topics]);
+    expect(copiedUrl.searchParams.get("verticals")?.split(",")).toEqual(verticals);
+    expect(copiedUrl.searchParams.get("verticals")?.split(",")).toHaveLength(6);
+    expect(copiedUrl.searchParams.get("minScore")).toBe("80");
+
+    firstView.unmount();
+    window.history.replaceState(null, "", `${copiedUrl.pathname}${copiedUrl.search}`);
+    render(
+      <Dashboard
+        initialGraph={fullGraph}
+        initialFilters={{ topics: [...topics], verticals, minScore: 80 }}
+      />
+    );
+
+    const topicGroup = screen.getByText("Topics").closest(".filter-dropdown") as HTMLElement;
+    const verticalGroup = screen.getByText("Vertical").closest(".filter-dropdown") as HTMLElement;
+    expect(within(topicGroup).getByRole("button", { name: "2 selected" })).toBeInTheDocument();
+    expect(within(verticalGroup).getByRole("button", { name: "6 selected" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Minimum score value")).toHaveValue(80);
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Shared View")).toBeInTheDocument();
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 0));
+    });
+
+    fireEvent.click(within(topicGroup).getByRole("button", { name: "2 selected" }));
+    fireEvent.click(within(topicGroup).getByRole("menuitemcheckbox", { name: /all topics/i }));
+    fireEvent.click(within(verticalGroup).getByRole("button", { name: "6 selected" }));
+    fireEvent.click(within(verticalGroup).getByRole("menuitemcheckbox", { name: /all verticals/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+
+    await waitFor(() => {
+      const params = new URLSearchParams(window.location.search);
+      expect(params.has("topics")).toBe(false);
+      expect(params.has("verticals")).toBe(false);
+      expect(params.has("minScore")).toBe(false);
+    });
+    expect(within(topicGroup).getByRole("button", { name: /all topics/i })).toBeInTheDocument();
+    expect(within(verticalGroup).getByRole("button", { name: /all verticals/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Minimum score value")).toHaveValue(0);
+  });
+
+  it("wraps the searchable Vertical menu by keyboard and restores trigger focus from search Escape", async () => {
+    const fullGraph = graphResponse([
+      {
+        ...makeNode("company:keyboard", "Keyboard Co", "b2b", "#7dd3fc", "Partner A"),
+        verticals: ["ai-agents"]
+      }
+    ]);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    const verticalGroup = screen.getByText("Vertical").closest(".filter-dropdown") as HTMLElement;
+    const trigger = within(verticalGroup).getByRole("button", { name: /all verticals/i });
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: "ArrowUp" });
+
+    const options = await within(verticalGroup).findAllByRole("menuitemcheckbox");
+    const enabledOptions = options.filter((option) => !option.hasAttribute("disabled"));
+    await waitFor(() => expect(document.activeElement).toBe(enabledOptions.at(-1)));
+    fireEvent.keyDown(enabledOptions.at(-1)!, { key: "ArrowDown" });
+    expect(document.activeElement).toBe(options[0]);
+    fireEvent.keyDown(options[0]!, { key: "Escape" });
+    expect(trigger).toHaveFocus();
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(trigger);
+    const search = within(verticalGroup).getByRole("searchbox", { name: /search vertical/i });
+    search.focus();
+    fireEvent.change(search, { target: { value: "definitely-not-a-vertical" } });
+    expect(within(verticalGroup).getByText("No matching verticals")).toBeInTheDocument();
+    fireEvent.keyDown(search, { key: "Escape" });
+    expect(trigger).toHaveFocus();
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
 
   it("renders the initial graph immediately without waiting for the first client fetch", () => {
@@ -240,10 +412,13 @@ describe("dashboard filters", () => {
     ]);
     const partnerGraph = withTopVoiceAudience(fullGraph, "yc_partners");
     const insiderGraph = withTopVoiceAudience(fullGraph, "insiders");
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => ({
-      ok: true,
-      json: async () => String(input).includes("insiders") ? insiderGraph : partnerGraph
-    }));
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void init;
+      return {
+        ok: true,
+        json: async () => String(input).includes("insiders") ? insiderGraph : partnerGraph
+      };
+    });
     vi.stubGlobal("fetch", fetchMock);
 
     render(<Dashboard initialGraph={fullGraph} />);
@@ -685,7 +860,10 @@ describe("dashboard filters", () => {
       localDateIso(-7)
     );
     expect(validateStaticGraphSnapshotContract(staticGraph)).toEqual({ ok: true, issues: [] });
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({ ok: true, json: async () => staticGraph }));
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      void input;
+      return { ok: true, json: async () => staticGraph };
+    });
     vi.stubGlobal("fetch", fetchMock);
 
     render(<Dashboard initialFilters={{ platforms: ["x"] }} />);
@@ -694,7 +872,7 @@ describe("dashboard filters", () => {
       await vi.advanceTimersByTimeAsync(0);
     });
     expect(within(screen.getByTestId("graph-canvas")).getByText("Static X Only")).toBeInTheDocument();
-    expect(within(screen.getByTestId("graph-canvas")).getByText("GitHub Only")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("GitHub Only")).not.toBeInTheDocument();
     expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-platforms", "x");
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
     expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
@@ -715,10 +893,13 @@ describe("dashboard filters", () => {
       localDateIso(-1),
       localDateIso(-7)
     );
-    const fetchMock = vi.fn(async (input: RequestInfo | URL) => ({
-      ok: true,
-      json: async () => staticGraph
-    }));
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      void input;
+      return {
+        ok: true,
+        json: async () => staticGraph
+      };
+    });
     vi.stubGlobal("fetch", fetchMock);
 
     render(<Dashboard />);
@@ -752,10 +933,14 @@ describe("dashboard filters", () => {
       null,
       null
     );
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
-      ok: true,
-      json: async () => partnerGraph
-    }));
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void input;
+      void init;
+      return {
+        ok: true,
+        json: async () => partnerGraph
+      };
+    });
     vi.stubGlobal("fetch", fetchMock);
 
     render(<Dashboard initialGraph={fullGraph} />);

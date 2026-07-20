@@ -30,7 +30,7 @@ For each canonical all-platform scoring run, v4 performs these stages:
 4. Blend an absolute platform reference with a within-platform evidence midrank.
 5. Apply recency only to the momentum share of the evidence score.
 6. Deduplicate physical evidence and aggregate the strongest five rows into each platform score.
-7. Combine the strongest platform with a fixed-weight diversified platform term.
+7. Aggregate platform scores with configured weights normalized over platforms that have eligible evidence.
 8. In full-batch dataset assembly, calibrate positive company scores against their batch with tie-aware percentiles. A material live-overlay rebuild recalculates that same canonical all-platform company score before any response filters are applied.
 9. Report confidence, limitations, model identity, and evidence timestamps separately from the traction score.
 
@@ -167,7 +167,7 @@ Each platform has an absolute raw-engagement reference `H_p`, a recency half-lif
 | Reddit | 4,000 | 60 | 0.04 |
 | Bilibili | 35,000 | 150 | 0.02 |
 
-The platform weights sum to `1`. Missing platforms are zero in the diversified term; their weights are not reassigned to available platforms.
+The platform weights sum to `1` across the complete configuration. At runtime the available-platform aggregate divides by the configured weight present in the eligible set, so missing-platform weight does not penalize the entity.
 
 ### Absolute and midrank normalization
 
@@ -264,13 +264,20 @@ The calibration cohort contains only records whose score breakdown matches the c
 C_percentile = (count(peer < U) + 0.5 * count(peer = U)) / positive_cohort_size
 ```
 
-The published calibrated company score is:
+First compute the configured blend for every positive company:
 
 ```text
-C = round(clamp(0.82 * U + 0.18 * 100 * C_percentile, 1, 100))
+B = 0.82 * U + 0.18 * 100 * C_percentile
 ```
 
-Equal absolute scores receive equal percentile and equal calibrated score. Canonical companies with zero absolute score stay at zero, are excluded from the positive calibration cohort, and record calibration method `none`. Positive calibrated rows record method `tie_aware_percentile_blend`, cohort size, percentile, and input absolute score. The blend uses the unrounded percentile and stores it rounded to four decimals. The helper sets both `totalScore` and `previousScore` to the calibrated value; it leaves a record with no canonical v4 `scoreBreakdown` unchanged.
+Let `B_min` and `B_max` be the minimum and maximum blended values in the positive cohort. The published score stretches that positive cohort to the complete integer range:
+
+```text
+C = round(1 + 99 * (B - B_min) / (B_max - B_min))  when B_max > B_min
+C = round(clamp(B, 1, 100))                         for a degenerate tied cohort
+```
+
+Equal absolute scores receive equal percentile and equal calibrated score. Canonical companies with zero absolute score stay at zero, are excluded from the positive calibration cohort, and record calibration method `none`. Positive calibrated rows record method `tie_aware_percentile_blend`, cohort size, percentile, and input absolute score. The blend uses the unrounded percentile and stores it rounded to four decimals; its full-range stretch uses the unrounded cohort blends. The helper sets both `totalScore` and `previousScore` to the calibrated value; it leaves a record with no canonical v4 `scoreBreakdown` unchanged.
 
 The 82/18 calibration is implemented once in [`src/lib/scoring/batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts). The A16Z and YC dataset builders import that shared helper; its percentile calculation comes from [`src/lib/scoring/percentiles.ts`](../src/lib/scoring/percentiles.ts). The helper reads both blend weights from `TRACTION_SCORING_CONFIG.batchCalibration`.
 

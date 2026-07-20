@@ -4,10 +4,13 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  Clock3,
   Database,
   Eye,
+  ExternalLink,
   GitFork,
   Heart,
+  ListOrdered,
   MessageCircle,
   Repeat2,
   Star,
@@ -29,6 +32,9 @@ import {
   generatedEvidenceThumbnailUrl
 } from "@/lib/graph/generated-evidence-thumbnail";
 import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
+import { getCompanyVerticalDefinition } from "@/lib/graph/company-verticals";
+import { getPostTopicDefinition } from "@/lib/graph/post-topics";
+import { selectRankedPosts, type RankedPostsPeriod } from "@/lib/graph/ranked-posts";
 import type {
   EvidenceItem,
   FastestGainingRow,
@@ -37,8 +43,9 @@ import type {
   MomentumDelta
 } from "@/lib/graph/types";
 import { formatPlatform, PlatformIdentity, PlatformLogo } from "./PlatformLogo";
+import { ScoringMethodology } from "./ScoringMethodology";
 
-type TabKey = "overview" | "gaining" | "stats";
+type TabKey = "overview" | "gaining" | "ranked" | "stats";
 type MomentumPeriod = "dod" | "wow";
 type OverviewSortKey = "rank" | "company";
 type SortDirection = "asc" | "desc";
@@ -47,17 +54,20 @@ interface InsightsTabsProps {
   graph: GraphResponse;
   statsGraph?: GraphResponse;
   onSelectNode: (nodeId: string) => void;
+  now?: Date;
 }
 
 const tabs: { key: TabKey; label: string; icon: typeof Trophy }[] = [
   { key: "overview", label: "Overview", icon: Trophy },
   { key: "gaining", label: "Hottest", icon: TrendingUp },
+  { key: "ranked", label: "Ranked Posts", icon: ListOrdered },
   { key: "stats", label: "Stats", icon: Database }
 ];
 
-export function InsightsTabs({ graph, statsGraph = graph, onSelectNode }: InsightsTabsProps) {
+export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: InsightsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [momentumPeriod, setMomentumPeriod] = useState<MomentumPeriod>("dod");
+  const [rankedPeriod, setRankedPeriod] = useState<RankedPostsPeriod>("today");
   const [overviewSort, setOverviewSort] = useState<{ key: OverviewSortKey; direction: SortDirection }>({
     key: "rank",
     direction: "asc"
@@ -71,6 +81,15 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode }: Insigh
     [graph.leaderboard, overviewSort]
   );
   const databaseStats = useMemo(() => buildDatabaseStats(statsGraph), [statsGraph]);
+  const rankedPosts = useMemo(
+    () => selectRankedPosts(graph, { period: rankedPeriod, now }),
+    [graph, now, rankedPeriod]
+  );
+  const rankedScoreAsOf = graph.scoringContext?.evidenceAsOf ?? graph.generatedAt;
+  const companyNodesById = useMemo(
+    () => new Map(graph.nodes.filter((node) => node.entityType === "company").map((node) => [node.entityId, node])),
+    [graph.nodes]
+  );
 
   function toggleOverviewSort(key: OverviewSortKey) {
     setOverviewSort((current) => ({
@@ -127,29 +146,21 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode }: Insigh
           );
         })}
         <div
-          className={`tab-list-actions ${activeTab === "gaining" ? "" : "tab-list-actions-hidden"}`}
-          aria-hidden={activeTab !== "gaining"}
+          className={`tab-list-actions ${activeTab === "gaining" || activeTab === "ranked" ? "" : "tab-list-actions-hidden"}`}
+          aria-hidden={activeTab !== "gaining" && activeTab !== "ranked"}
         >
-          <div className="segmented-toggle" role="group" aria-label="Momentum period">
-            <button
-              type="button"
-              className={momentumPeriod === "dod" ? "active" : ""}
-              aria-pressed={momentumPeriod === "dod"}
-              onClick={() => setMomentumPeriod("dod")}
-              tabIndex={activeTab === "gaining" ? 0 : -1}
-            >
-              Day over day
-            </button>
-            <button
-              type="button"
-              className={momentumPeriod === "wow" ? "active" : ""}
-              aria-pressed={momentumPeriod === "wow"}
-              onClick={() => setMomentumPeriod("wow")}
-              tabIndex={activeTab === "gaining" ? 0 : -1}
-            >
-              Week over week
-            </button>
-          </div>
+          {activeTab === "gaining" && (
+            <div className="segmented-toggle" role="group" aria-label="Momentum period">
+              <button type="button" className={momentumPeriod === "dod" ? "active" : ""} aria-pressed={momentumPeriod === "dod"} onClick={() => setMomentumPeriod("dod")}>Day over day</button>
+              <button type="button" className={momentumPeriod === "wow" ? "active" : ""} aria-pressed={momentumPeriod === "wow"} onClick={() => setMomentumPeriod("wow")}>Week over week</button>
+            </div>
+          )}
+          {activeTab === "ranked" && (
+            <div className="segmented-toggle" role="group" aria-label="Ranked posts period">
+              <button type="button" className={rankedPeriod === "today" ? "active" : ""} aria-pressed={rankedPeriod === "today"} onClick={() => setRankedPeriod("today")}>Today</button>
+              <button type="button" className={rankedPeriod === "all_time" ? "active" : ""} aria-pressed={rankedPeriod === "all_time"} onClick={() => setRankedPeriod("all_time")}>All time</button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -335,6 +346,81 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode }: Insigh
         </div>
       )}
 
+      {activeTab === "ranked" && (
+        <div
+          className="tab-body ranked-posts-tab-body"
+          id="insights-panel-ranked"
+          role="tabpanel"
+          aria-labelledby="insights-tab-ranked"
+        >
+          <header className="ranked-posts-header">
+            <div>
+              <h2>Top performing posts</h2>
+              <p>
+                {rankedPeriod === "today" ? "Posted today, Central Time" : "All eligible scored posts in the visible scope"}
+                <span>Scores use graph evidence available as of {formatPostDate(rankedScoreAsOf)}</span>
+              </p>
+            </div>
+            <span>{rankedPosts.length} of 50</span>
+          </header>
+
+          {!rankedPosts.length ? (
+            <div className="ranked-posts-empty" role="status">
+              <Clock3 size={22} aria-hidden="true" />
+              <strong>{rankedPeriod === "today" ? "No reliably dated posts were published today." : "No eligible scored posts match these filters."}</strong>
+              <span>{rankedPeriod === "today" ? "Posts with unknown or imprecise publication timestamps are excluded from Today." : "Try broadening one or more visibility filters."}</span>
+            </div>
+          ) : (
+            <ol className="ranked-posts-list" aria-label="Ranked posts">
+              {rankedPosts.map((post) => {
+                const item = post.evidence;
+                const contribution = formatContribution(item);
+                const company = companyNodesById.get(post.companyId);
+                const topics = (item.topics ?? []).map(getPostTopicDefinition);
+                const verticals = (company?.verticals ?? []).map(getCompanyVerticalDefinition);
+                return (
+                  <li key={post.canonicalPostKey}>
+                    <article className="ranked-post-card">
+                      <div className="ranked-post-rank" aria-label={`Rank ${post.rank}`}>{post.rank}</div>
+                      <a className="ranked-post-preview" href={contribution.url ?? undefined} target="_blank" rel="noreferrer" aria-label={`Open ${post.companyName} post on ${formatPlatform(item.platform)}`}>
+                        <ContributionThumbnail item={item} />
+                      </a>
+                      <div className="ranked-post-content">
+                        <div className="ranked-post-meta">
+                          <span className={`ranking-platform-chip ranking-platform-${item.platform}`}><PlatformIdentity platform={item.platform} /></span>
+                          <span className={`ranked-source-badge ranked-source-${post.sourceKind}`}>{formatSourceKind(post.sourceKind)}</span>
+                          <time dateTime={item.postedAt}>{formatPostDate(item.postedAt)}</time>
+                        </div>
+                        <button type="button" className="ranked-post-company" onClick={() => onSelectNode(`company:${post.companyId}`)}>{post.companyName}</button>
+                        {contribution.author && <span className="ranked-post-author">{formatAuthor(contribution.author, item.authorHandle)}</span>}
+                        <p>{contribution.title}</p>
+                        {contribution.metricPills.length > 0 && (
+                          <span className="overview-metric-pills ranked-metric-pills">
+                            {contribution.metricPills.map((metric) => <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}><MetricIcon metric={metric.key} /><span>{metric.value}</span></span>)}
+                          </span>
+                        )}
+                        {(topics.length > 0 || verticals.length > 0) && (
+                          <div className="ranked-post-taxonomies">
+                            {topics.map((topic) => <span className="topic-chip" key={topic.slug}>{topic.label}</span>)}
+                            {verticals.slice(0, 3).map((vertical) => <span className="vertical-chip" key={vertical.slug}>{vertical.label}</span>)}
+                          </div>
+                        )}
+                      </div>
+                      <div className="ranked-post-score">
+                        <span>Post score</span>
+                        <strong>{rankedEvidenceScore(item)}</strong>
+                        <small>{graph.scoringContext?.modelVersion ? `v${graph.scoringContext.modelVersion}` : "v4 baseline"}</small>
+                      </div>
+                      {contribution.url && <a className="ranked-post-open" href={contribution.url} target="_blank" rel="noreferrer" aria-label="Open native post"><ExternalLink size={16} aria-hidden="true" /></a>}
+                    </article>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </div>
+      )}
+
       {activeTab === "stats" && (
         <div
           className="tab-body stats-tab-body"
@@ -363,6 +449,8 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode }: Insigh
               <SplineTotalCard label="Total companies" points={databaseStats.dailyGrowth} field="companies" total={databaseStats.companyCount} />
               <SplineTotalCard label="Total founders" points={databaseStats.dailyGrowth} field="founders" total={databaseStats.founderCount} />
             </div>
+
+            <ScoringMethodology currentModel={statsGraph.scoringContext} />
 
           </section>
         </div>
@@ -750,6 +838,9 @@ function ContributionThumbnailContent({ item }: { item: EvidenceItem | null }) {
   return (
     <span className={`overview-post-thumbnail${platform ? ` overview-post-thumbnail-${platform}` : ""}`}>
       {thumbnailUrl ? (
+        // Evidence thumbnails can come from arbitrary registered source hosts; the
+        // native element preserves ordered fallback-on-error without a remote-host allowlist.
+        // eslint-disable-next-line @next/next/no-img-element
         <img src={thumbnailUrl} alt="" loading="lazy" decoding="async" onError={() => handleThumbnailError(thumbnailUrl)} />
       ) : platform ? (
         <span className="overview-post-thumbnail-fallback" aria-hidden="true">
@@ -956,6 +1047,35 @@ function evidenceAuthorLabel(item: EvidenceItem): string {
     return item.authorName;
   }
   return item.authorHandle || xHandleFromEvidenceUrl(item.accountUrl) || xHandleFromEvidenceUrl(item.sourceUrl) || "";
+}
+
+function formatSourceKind(value: "company" | "founder" | "top_voice"): string {
+  if (value === "top_voice") return "Top Voice";
+  return value === "founder" ? "Founder" : "Company";
+}
+
+function formatPostDate(value: string): string {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "Date unavailable";
+  return date.toLocaleString("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short"
+  });
+}
+
+function formatAuthor(author: string, handle: string | null): string {
+  if (!handle || author.toLowerCase().includes(handle.toLowerCase())) return author;
+  return `${author} · @${handle.replace(/^@/, "")}`;
+}
+
+function rankedEvidenceScore(item: EvidenceItem): number {
+  const value = Number.isFinite(item.normalizedScore) ? item.normalizedScore : item.contributionScore;
+  return Math.max(0, Math.min(100, Math.round(value ?? 0)));
 }
 
 function xHandleFromEvidenceUrl(value: string | null | undefined): string {

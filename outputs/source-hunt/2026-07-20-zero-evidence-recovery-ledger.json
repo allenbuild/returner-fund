@@ -1,0 +1,682 @@
+{
+  "generatedAt": "2026-07-20T10:17:09Z",
+  "mission": "Zero-score and zero-evidence recovery sweep across S2026, S26, and A16ZSR006 using only native post-level evidence with visible post-level metrics and exact canonical company or founder attribution.",
+  "dispositionPolicy": {
+    "accepted": "HTTP-resolved native post URL; public native JSON-LD exposed the post author, publication time, and at least one positive supported post-level metric; author exactly matched a canonical company account or listed founder; no canonical or prior-hunt native URL, normalized platform post ID, or physical post identity match.",
+    "duplicate": "The native URL or physical platform post identity already exists in a canonical social JSON or a prior source-hunt artifact, even when the existing row is context-only, needs review, or currently graph-invisible.",
+    "rejected": "Profile/search/homepage only, no resolvable native post URL, no positive visible metric, repost-only, third-party author, identity conflict, or inaccessible native post metadata.",
+    "normalization": "HTTPS; lowercase host; remove www.; remove query and fragment; trim trailing slash. LinkedIn platformPostId is the decimal activity ID. physicalPostIdentity is linkedin:activity:<platformPostId>."
+  },
+  "scope": {
+    "publicGraphGeneratedAt": {
+      "S2026": "2026-07-20T08:27:39.302Z",
+      "S26": "2026-07-20T08:27:41.616Z",
+      "A16ZSR006": "2026-07-20T08:27:42.902Z"
+    },
+    "zeroScoreCompanies": {
+      "S2026": [
+        "CentralComs",
+        "Framewise Health",
+        "GovGuard",
+        "Hexa",
+        "Huscarl",
+        "Infera",
+        "PLAN0 AI",
+        "Savant",
+        "shotwell.ai",
+        "Sidekick",
+        "Smartbase",
+        "StableBrowse",
+        "The Company Company"
+      ],
+      "S26": [
+        "Alkera AI",
+        "Bizmark",
+        "Earendil Robotics",
+        "Ekpa",
+        "Floracene",
+        "Florin",
+        "HERA",
+        "Insurf",
+        "Isengard Industries Inc",
+        "Justinian",
+        "Kebra",
+        "LemonLime",
+        "Levocred AI",
+        "Libra Robotics",
+        "OS3",
+        "Praxis AI",
+        "Prescience, Inc.",
+        "Rapidfolio",
+        "Sidekick",
+        "SubVysion",
+        "Truffle",
+        "Vestris"
+      ],
+      "A16ZSR006": [
+        "Advocate",
+        "August",
+        "PayPath",
+        "Quanto"
+      ]
+    },
+    "counts": {
+      "zeroScoreCompanies": 39,
+      "zeroEvidenceFoundersAcrossFullGraphs": {
+        "S2026": 174,
+        "S26": 136,
+        "A16ZSR006": 90,
+        "total": 400
+      },
+      "foundersBelongingToZeroScoreCompanies": {
+        "S2026": 29,
+        "S26": 43,
+        "A16ZSR006": 8,
+        "total": 80
+      },
+      "exactMappedAccountsForZeroScoreCompaniesAndTheirFounders": {
+        "S2026": {
+          "linkedin": 40,
+          "x": 11,
+          "total": 51
+        },
+        "S26": {
+          "linkedin": 61,
+          "x": 18,
+          "total": 79
+        },
+        "A16ZSR006": {
+          "linkedin": 10,
+          "x": 3,
+          "product_hunt": 1,
+          "total": 14
+        },
+        "total": 144
+      },
+      "nativeLinkedInProfilesFetchedThisSweep": 111,
+      "priorSourceHuntJsonArtifactsDeduped": 76
+    },
+    "nativeSurfaces": [
+      "All 31 exact mapped LinkedIn company profiles in the zero-score cohort were fetched directly.",
+      "All 80 exact mapped LinkedIn founder profiles in the zero-score cohort were fetched directly.",
+      "Every newly exposed LinkedIn post URL was fetched directly and parsed for public JSON-LD post identity, author, timestamp, body, and interaction counters.",
+      "Existing exact mapped X accounts were checked through canonical failures and prior source-hunt ledgers; anonymous access remained blocked or incomplete, so no X row was accepted without native visible metrics.",
+      "Existing Product Hunt, Hacker News, GitHub, YouTube, Reddit, Instagram, and website results were rechecked in canonical evidence and prior ledgers for identity and eligibility; profile/search/context-only surfaces were not promoted."
+    ]
+  },
+  "canonicalFilesDeduped": [
+    "src/lib/social/a16z-speedrun-006-social-accounts.json",
+    "src/lib/social/a16z-speedrun-006-social-evidence.json",
+    "src/lib/social/eden-robotics-verified-native-evidence.json",
+    "src/lib/social/github-traction-a16z-speedrun-006.json",
+    "src/lib/social/github-traction-summer-2026.json",
+    "src/lib/social/github-traction.json",
+    "src/lib/social/logged-in-evidence-current.json",
+    "src/lib/social/public-evidence-current.json",
+    "src/lib/social/targeted-evidence-current.json",
+    "src/lib/social/verified-social-overrides.json"
+  ],
+  "summary": {
+    "acceptedNetNew": 8,
+    "acceptedByBatch": {
+      "S2026": 6,
+      "S26": 1,
+      "A16ZSR006": 1
+    },
+    "acceptedByPlatform": {
+      "linkedin": 8
+    },
+    "canonicalOrPriorHuntDuplicates": 9,
+    "rejectedOrUncertainNearMisses": 19,
+    "canonicalEvidenceModified": false,
+    "publicSnapshotsModified": false
+  },
+  "accepted": [
+    {
+      "batchSlug": "S2026",
+      "companyName": "StableBrowse",
+      "companyEntityId": "company-stablebrowse",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "company_post",
+      "nativeUrl": "https://www.linkedin.com/posts/stablebrowse_building-site-familiarity-activity-7463574457559924736-ma5F",
+      "normalizedNativeUrl": "https://linkedin.com/posts/stablebrowse_building-site-familiarity-activity-7463574457559924736-ma5F",
+      "platformPostId": "7463574457559924736",
+      "physicalPostIdentity": "linkedin:activity:7463574457559924736",
+      "postedAt": "2026-05-22T13:00:17.173Z",
+      "author": {
+        "name": "StableBrowse (YC P26)",
+        "url": "https://www.linkedin.com/company/stablebrowse",
+        "relationship": "exact_official_company_account"
+      },
+      "headline": "#2 Engineering blog: Site Familiarity for Web Agents",
+      "metrics": {
+        "reactions": 16,
+        "comments": 2
+      },
+      "verificationEvidence": "Native LinkedIn HTTP 200 public JSON-LD exposed author, datePublished, articleBody, LikeAction=16, CommentAction=2, and commentCount=2. Author URL exactly matches the canonical StableBrowse company account.",
+      "dedupe": {
+        "canonicalNativeUrlMatched": false,
+        "canonicalPlatformPostIdMatched": false,
+        "canonicalPhysicalIdentityMatched": false,
+        "priorSourceHuntMatched": false
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "StableBrowse",
+      "companyEntityId": "company-stablebrowse",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "company_post",
+      "nativeUrl": "https://www.linkedin.com/posts/stablebrowse_knowledge-graphs-for-browser-agents-activity-7463041729009455104-NqvT",
+      "normalizedNativeUrl": "https://linkedin.com/posts/stablebrowse_knowledge-graphs-for-browser-agents-activity-7463041729009455104-NqvT",
+      "platformPostId": "7463041729009455104",
+      "physicalPostIdentity": "linkedin:activity:7463041729009455104",
+      "postedAt": "2026-05-21T01:43:24.790Z",
+      "author": {
+        "name": "StableBrowse (YC P26)",
+        "url": "https://www.linkedin.com/company/stablebrowse",
+        "relationship": "exact_official_company_account"
+      },
+      "headline": "Our first engineering blog is out: Knowledge Graphs.",
+      "metrics": {
+        "reactions": 34,
+        "comments": 0
+      },
+      "verificationEvidence": "Native LinkedIn HTTP 200 public JSON-LD exposed author, datePublished, articleBody, LikeAction=34, and CommentAction=0. Author URL exactly matches the canonical StableBrowse company account.",
+      "dedupe": {
+        "canonicalNativeUrlMatched": false,
+        "canonicalPlatformPostIdMatched": false,
+        "canonicalPhysicalIdentityMatched": false,
+        "priorSourceHuntMatched": false
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "StableBrowse",
+      "companyEntityId": "company-stablebrowse",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "company_post",
+      "nativeUrl": "https://www.linkedin.com/posts/stablebrowse_reading-anti-bot-challenge-scripts-activity-7465929944787865600-VwrJ",
+      "normalizedNativeUrl": "https://linkedin.com/posts/stablebrowse_reading-anti-bot-challenge-scripts-activity-7465929944787865600-VwrJ",
+      "platformPostId": "7465929944787865600",
+      "physicalPostIdentity": "linkedin:activity:7465929944787865600",
+      "postedAt": "2026-05-29T01:00:09.089Z",
+      "author": {
+        "name": "StableBrowse (YC P26)",
+        "url": "https://www.linkedin.com/company/stablebrowse",
+        "relationship": "exact_official_company_account"
+      },
+      "headline": "Engineering Series: Anti-Botting (2/3)",
+      "metrics": {
+        "reactions": 18,
+        "comments": 0
+      },
+      "verificationEvidence": "Native LinkedIn HTTP 200 public JSON-LD exposed author, datePublished, articleBody, LikeAction=18, and CommentAction=0. Author URL exactly matches the canonical StableBrowse company account.",
+      "dedupe": {
+        "canonicalNativeUrlMatched": false,
+        "canonicalPlatformPostIdMatched": false,
+        "canonicalPhysicalIdentityMatched": false,
+        "priorSourceHuntMatched": false
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "StableBrowse",
+      "companyEntityId": "company-stablebrowse",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "company_post",
+      "nativeUrl": "https://www.linkedin.com/posts/stablebrowse_stablebrowse-knowledge-graphs-benchmark-activity-7469824245758349312-jLWa",
+      "normalizedNativeUrl": "https://linkedin.com/posts/stablebrowse_stablebrowse-knowledge-graphs-benchmark-activity-7469824245758349312-jLWa",
+      "platformPostId": "7469824245758349312",
+      "physicalPostIdentity": "linkedin:activity:7469824245758349312",
+      "postedAt": "2026-06-08T18:54:42.794Z",
+      "author": {
+        "name": "StableBrowse (YC P26)",
+        "url": "https://www.linkedin.com/company/stablebrowse",
+        "relationship": "exact_official_company_account"
+      },
+      "headline": "StableBrowse Knowledge Graphs Benchmark:",
+      "metrics": {
+        "reactions": 16,
+        "comments": 0
+      },
+      "verificationEvidence": "Native LinkedIn HTTP 200 public JSON-LD exposed author, datePublished, articleBody, LikeAction=16, and CommentAction=0. The body reports a 150-site native benchmark; author URL exactly matches the canonical company account.",
+      "dedupe": {
+        "canonicalNativeUrlMatched": false,
+        "canonicalPlatformPostIdMatched": false,
+        "canonicalPhysicalIdentityMatched": false,
+        "priorSourceHuntMatched": false
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "StableBrowse",
+      "companyEntityId": "company-stablebrowse",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "company_post",
+      "nativeUrl": "https://www.linkedin.com/posts/stablebrowse_the-browser-fingerprinting-toolkit-activity-7465975226724544512-1PYD",
+      "normalizedNativeUrl": "https://linkedin.com/posts/stablebrowse_the-browser-fingerprinting-toolkit-activity-7465975226724544512-1PYD",
+      "platformPostId": "7465975226724544512",
+      "physicalPostIdentity": "linkedin:activity:7465975226724544512",
+      "postedAt": "2026-05-29T04:00:05.144Z",
+      "author": {
+        "name": "StableBrowse (YC P26)",
+        "url": "https://www.linkedin.com/company/stablebrowse",
+        "relationship": "exact_official_company_account"
+      },
+      "headline": "Engineering Series: Anti-Botting (3/3)",
+      "metrics": {
+        "reactions": 25,
+        "comments": 2
+      },
+      "verificationEvidence": "Native LinkedIn HTTP 200 public JSON-LD exposed author, datePublished, articleBody, LikeAction=25, CommentAction=2, and commentCount=2. Author URL exactly matches the canonical StableBrowse company account.",
+      "dedupe": {
+        "canonicalNativeUrlMatched": false,
+        "canonicalPlatformPostIdMatched": false,
+        "canonicalPhysicalIdentityMatched": false,
+        "priorSourceHuntMatched": false
+      }
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "StableBrowse",
+      "companyEntityId": "company-stablebrowse",
+      "founderName": null,
+      "platform": "linkedin",
+      "evidenceType": "company_post",
+      "nativeUrl": "https://www.linkedin.com/posts/stablebrowse_the-three-layers-of-anti-bot-detection-activity-7465882358349533184-EmlU",
+      "normalizedNativeUrl": "https://linkedin.com/posts/stablebrowse_the-three-layers-of-anti-bot-detection-activity-7465882358349533184-EmlU",
+      "platformPostId": "7465882358349533184",
+      "physicalPostIdentity": "linkedin:activity:7465882358349533184",
+      "postedAt": "2026-05-28T21:51:03.600Z",
+      "author": {
+        "name": "StableBrowse (YC P26)",
+        "url": "https://www.linkedin.com/company/stablebrowse",
+        "relationship": "exact_official_company_account"
+      },
+      "headline": "Engineering Series: Anti-Botting (1/3)",
+      "metrics": {
+        "reactions": 22,
+        "comments": 0
+      },
+      "verificationEvidence": "Native LinkedIn HTTP 200 public JSON-LD exposed author, datePublished, articleBody, LikeAction=22, and CommentAction=0. Author URL exactly matches the canonical StableBrowse company account.",
+      "dedupe": {
+        "canonicalNativeUrlMatched": false,
+        "canonicalPlatformPostIdMatched": false,
+        "canonicalPhysicalIdentityMatched": false,
+        "priorSourceHuntMatched": false
+      }
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "LemonLime",
+      "companyEntityId": "company-lemonlime",
+      "founderName": "Daniela Muñoz",
+      "founderEntityId": "founder-lemonlime-daniela-mu-oz-3671976",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "nativeUrl": "https://www.linkedin.com/posts/activity-7477466387674816515-885Q",
+      "normalizedNativeUrl": "https://linkedin.com/posts/activity-7477466387674816515-885Q",
+      "platformPostId": "7477466387674816515",
+      "physicalPostIdentity": "linkedin:activity:7477466387674816515",
+      "postedAt": "2026-06-29T21:01:51.402Z",
+      "author": {
+        "name": "Daniela Muñoz",
+        "url": "https://www.linkedin.com/in/danielamunoz12",
+        "relationship": "exact_listed_founder"
+      },
+      "headline": "I have never been this excited about anything.",
+      "metrics": {
+        "reactions": 70,
+        "comments": 14
+      },
+      "verificationEvidence": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact canonical founder, datePublished, full body, LikeAction=70, CommentAction=14, and commentCount=14. The body explicitly says LemonLime is coming out of stealth and describes its product for small businesses.",
+      "dedupe": {
+        "canonicalNativeUrlMatched": false,
+        "canonicalPlatformPostIdMatched": false,
+        "canonicalPhysicalIdentityMatched": false,
+        "priorSourceHuntMatched": false
+      }
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quanto",
+      "companyEntityId": "a16z-speedrun-006-quanto",
+      "founderName": "Anderson Petergeorge",
+      "founderEntityId": "a16z-speedrun-006-quanto-founder-anderson-petergeorge",
+      "platform": "linkedin",
+      "evidenceType": "founder_post",
+      "nativeUrl": "https://www.linkedin.com/posts/activity-7453449486699290624-cuAs",
+      "normalizedNativeUrl": "https://linkedin.com/posts/activity-7453449486699290624-cuAs",
+      "platformPostId": "7453449486699290624",
+      "physicalPostIdentity": "linkedin:activity:7453449486699290624",
+      "postedAt": "2026-04-24T14:27:15.939Z",
+      "author": {
+        "name": "Anderson Petergeorge, CPA",
+        "url": "https://www.linkedin.com/in/andersonpetergeorge",
+        "relationship": "exact_listed_founder"
+      },
+      "headline": "Tax season ended 9 days ago.",
+      "metrics": {
+        "reactions": 70,
+        "comments": 18
+      },
+      "verificationEvidence": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact canonical founder account, datePublished, full body, LikeAction=70, CommentAction=18, and commentCount=18. This is founder-attributed native activity; no company-level attribution is inferred from the post body.",
+      "dedupe": {
+        "canonicalNativeUrlMatched": false,
+        "canonicalPlatformPostIdMatched": false,
+        "canonicalPhysicalIdentityMatched": false,
+        "priorSourceHuntMatched": false
+      }
+    }
+  ],
+  "duplicates": [
+    {
+      "batchSlug": "S2026",
+      "companyName": "Hexa",
+      "founderName": "Ishaan Makkar",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/ishaan-makkar_manufacturing-distribution-ycombinator-activity-7452780945771966465-23W1",
+      "platformPostId": "7452780945771966465",
+      "physicalPostIdentity": "linkedin:activity:7452780945771966465",
+      "liveMetrics": {
+        "reactions": 282,
+        "comments": 62
+      },
+      "reason": "Exact native URL and physical identity already exist in src/lib/social/public-evidence-current.json as web/context needs_review. The native page is valid and strongly attributed, but must upgrade the existing physical row rather than insert a duplicate."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "GovGuard",
+      "founderName": null,
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/govguard_govguard-is-at-iimc-2026-in-reno-were-activity-7462245623447080960-wo9L",
+      "platformPostId": "7462245623447080960",
+      "physicalPostIdentity": "linkedin:activity:7462245623447080960",
+      "liveMetrics": {
+        "reactions": 24,
+        "comments": 1
+      },
+      "reason": "Exact native URL and physical identity already exist in public-evidence-current.json needsReview. Native JSON-LD now verifies the exact GovGuard company author and positive counters; upgrade in place rather than insert."
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Isengard Industries Inc",
+      "founderName": null,
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/isengard-industries_isengard-industries-is-not-another-drone-activity-7475946785627226112-OAiU",
+      "platformPostId": "7475946785627226112",
+      "physicalPostIdentity": "linkedin:activity:7475946785627226112",
+      "liveMetrics": {
+        "reactions": 4,
+        "comments": 0
+      },
+      "reason": "Exact native URL and physical identity already exist in public-evidence-current.json needsReview. Native JSON-LD verifies the exact official company author and a positive reaction counter; upgrade in place rather than insert."
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Earendil Robotics",
+      "founderName": null,
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/activity-7442570736751374336-JDcT",
+      "platformPostId": "7442570736751374336",
+      "physicalPostIdentity": "linkedin:activity:7442570736751374336",
+      "liveMetrics": {
+        "reactions": 30,
+        "comments": 2
+      },
+      "reason": "Exact physical post is already a verified public-evidence-current.json row. Current zero score therefore reflects downstream eligibility/attribution handling, not undiscovered evidence."
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Vestris",
+      "founderName": "Aahil Valliani",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/aahil-valliani_my-cofounder-joshua-tang-and-i-didnt-talk-activity-7467251847137939459-YHIb",
+      "platformPostId": "7467251847137939459",
+      "physicalPostIdentity": "linkedin:activity:7467251847137939459",
+      "reason": "Already accepted in targeted-evidence-current.json. The current S26 public graph has no Vestris founders/relatedEntityIds, so this verified row is graph-invisible because roster attribution cannot resolve it."
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Vestris",
+      "founderName": "Joshua Tang",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/tangjoshua_i-told-myself-that-i-would-never-write-one-activity-7467271346683801600--RLb",
+      "platformPostId": "7467271346683801600",
+      "physicalPostIdentity": "linkedin:activity:7467271346683801600",
+      "reason": "Already accepted in targeted-evidence-current.json. The current S26 public graph has no Vestris founders/relatedEntityIds, so this verified row is graph-invisible because roster attribution cannot resolve it."
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quanto",
+      "founderName": null,
+      "platform": "product_hunt",
+      "nativeUrl": "https://www.producthunt.com/products/quanto",
+      "platformPostId": "products/quanto",
+      "physicalPostIdentity": "product_hunt:products/quanto",
+      "liveMetrics": {
+        "upvotes": 62
+      },
+      "reason": "Already present in a16z-speedrun-006-social-evidence.json. Quanto still scoring zero indicates downstream eligibility/platform support, not a missing source."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Hexa",
+      "founderName": null,
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/greysteil_displacing-erps-used-to-be-impossible-now-activity-7468140763088879616-_hfp",
+      "platformPostId": "7468140763088879616",
+      "physicalPostIdentity": "linkedin:activity:7468140763088879616",
+      "reason": "Already present in targeted-evidence-current.json as a YC-partner Top Voice row. It must not be re-imported as company/founder first-party evidence."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "GovGuard",
+      "founderName": null,
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/activity-7468366634873913345-LhlF",
+      "platformPostId": "7468366634873913345",
+      "physicalPostIdentity": "linkedin:activity:7468366634873913345",
+      "reason": "Already present in public-evidence-current.json as needs_review/context, but native counters were not positive/visible during the current sweep. Preserve as a duplicate near miss; do not create another row."
+    }
+  ],
+  "rejected": [
+    {
+      "batchSlug": "S2026/S26",
+      "companyName": "Sidekick",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/textsidekick_sidekick-is-live-20-plants-600-frontline-activity-7483230160142409730-2ZJU",
+      "platformPostId": "7483230160142409730",
+      "physicalPostIdentity": "linkedin:activity:7483230160142409730",
+      "reason": "HTTP 200 returned no public post JSON-LD, author, timestamp, or positive post-level counters. The same canonical company/entity is also assigned to both S2026 and S26, so batch attribution is conflicting."
+    },
+    {
+      "batchSlug": "S2026/S26",
+      "companyName": "Sidekick",
+      "founderName": "Justin So",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/justinso1_were-hiring-an-account-executive-at-sidekick-activity-7474211358738104321-7n_4",
+      "platformPostId": "7474211358738104321",
+      "physicalPostIdentity": "linkedin:activity:7474211358738104321",
+      "reason": "Net-new identity, but HTTP 200 exposed no public JSON-LD, timestamp, author, or post counters. Prior source-hunt ledger independently marked the native page inaccessible."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Framewise Health",
+      "founderName": "Tane Kim",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/in/tanekim",
+      "platformPostId": null,
+      "reason": "Profile activity visibly summarized an exact founder-authored Framewise launch with aggregate 304 reactions and 83 comments, but no post-level URL or normalized activity ID could be resolved. Profiles are not admissible evidence."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "StableBrowse",
+      "founderName": "Somansh Shah",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/somanshshah_activity-7455365978068226048-4AqQ",
+      "platformPostId": "7455365978068226048",
+      "reason": "Founder native text is emoji only; all substantive content and metrics belong to Jay Mehta's quoted post. Prior source-hunt ledger correctly classified it repost-only."
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "LemonLime",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/activity-7480714857768624128-wJe3",
+      "platformPostId": "7480714857768624128",
+      "reason": "Native author is Fondo, a third party. Mentioning LemonLime/Jordan Zietz does not establish company- or founder-authored evidence."
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "LemonLime",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/activity-7477529483072163840-QvNm",
+      "platformPostId": "7477529483072163840",
+      "reason": "Native author Max Zou calls himself a founding engineer but is not a canonical listed founder or official company account; valid content and metrics cannot repair attribution."
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "LemonLime",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/activity-7477480590926303233-SiF0",
+      "platformPostId": "7477480590926303233",
+      "reason": "Native author Rebecca Alcala is not a canonical listed founder or official company account; valid content and metrics cannot repair attribution."
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "Levocred AI",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/activity-7481698966204469248-YQq8",
+      "platformPostId": "7481698966204469248",
+      "reason": "Native author is NEW ECONOMIES, a third-party media account. A batch roundup mention is not first-party company/founder evidence."
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quanto",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/quantohq_last-weekend-our-very-own-anderson-gave-a-activity-7457094462368911360-5OT9",
+      "platformPostId": "7457094462368911360",
+      "reason": "Native URL resolved HTTP 200 but exposed no public post JSON-LD, timestamp, author, or positive counters."
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quanto",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/quantohq_we-were-so-proud-to-be-part-of-the-sr006-activity-7455309704060350464-Z3Ge",
+      "platformPostId": "7455309704060350464",
+      "reason": "Native URL resolved HTTP 200 but exposed no public post JSON-LD, timestamp, author, or positive counters."
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Quanto",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/quantohq_were-excited-to-attend-the-ai-in-practice-activity-7454909689957519361-LTSV",
+      "platformPostId": "7454909689957519361",
+      "reason": "Exact official company post and native JSON-LD resolved, but LikeAction=0 and CommentAction=0. No positive visible post-level traction metric."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Hexa",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/vikrammakkar_manufacturing-distribution-ycombinator-activity-7453314397810208768-3LAY",
+      "platformPostId": "7453314397810208768",
+      "reason": "Native author Vikram Makkar is not a canonical Hexa founder or official company account. The exact company mention and positive counters are insufficient for first-party attribution."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "CentralComs",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/y-combinator_centralcoms-yc-p26-builds-ai-agents-for-activity-7465892774500990976-s4IX",
+      "platformPostId": "7465892774500990976",
+      "reason": "Native author is Y Combinator, not CentralComs or a listed founder. This is third-party launch coverage."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "GovGuard",
+      "platform": "x",
+      "nativeUrl": "https://x.com/ycombinator/status/2047027659432177682",
+      "platformPostId": "2047027659432177682",
+      "reason": "Native author is Y Combinator; mapped GovGuard accounts only reposted it. Third-party/repost-only evidence is ineligible."
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Huscarl",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/y-combinator_companies-can-now-decrease-their-insurance-activity-7453140671151910912-tyTA",
+      "platformPostId": "7453140671151910912",
+      "reason": "Native author is Y Combinator rather than Huscarl or a listed founder. Company/founder reposts do not change physical-post authorship."
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "Advocate",
+      "founderName": "Andrew Baran",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/in/andy-baran",
+      "platformPostId": null,
+      "reason": "Exact canonical founder profile only; no qualifying native post URL with positive visible post-level metrics resolved in either prior hunts or the current fetch."
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "August",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/noya-kremer-49028a197_a16z-speedrun-is-the-best-place-to-build-activity-7450378564123742208-GToK",
+      "platformPostId": "7450378564123742208",
+      "reason": "Post mentions August and its founders but is authored by an a16z Speedrun partner, not August or either canonical founder."
+    },
+    {
+      "batchSlug": "A16ZSR006",
+      "companyName": "PayPath",
+      "platform": "linkedin",
+      "nativeUrl": "https://www.linkedin.com/posts/datadog-for-startups_nytechweek-datadog-a16z-activity-7469828299221962752-7OTT",
+      "platformPostId": "7469828299221962752",
+      "reason": "Third-party Datadog event recap mentions Dean Glas/PayPath but is not PayPath- or founder-authored evidence."
+    },
+    {
+      "batchSlug": "S2026/S26/A16ZSR006",
+      "companyName": null,
+      "platform": "x",
+      "nativeUrl": null,
+      "platformPostId": null,
+      "reason": "Thirty-two exact mapped X accounts exist across the zero-score company families, but current anonymous native access was blocked/cooldown-limited and exposed no dependable post-level metrics. No X row was accepted from search snippets, syndication without counters, or inferred engagement."
+    }
+  ],
+  "eligibilityFindings": [
+    {
+      "companyName": "Vestris",
+      "batchSlug": "S26",
+      "finding": "Two verified founder posts already exist, but the current graph company node has founders=[] and relatedEntityIds=[]. Both rows silently disappear at attribution/roster resolution."
+    },
+    {
+      "companyName": "Earendil Robotics",
+      "batchSlug": "S26",
+      "finding": "A verified official-company LinkedIn post with positive native metrics already exists in public-evidence-current.json while the company remains score 0. This is an eligibility/import-routing defect, not source scarcity."
+    },
+    {
+      "companyName": "Quanto",
+      "batchSlug": "A16ZSR006",
+      "finding": "A native Product Hunt product row with 62 upvotes already exists while the company remains score 0; Product Hunt support/routing must be checked before hunting another copy."
+    },
+    {
+      "companyName": "Hexa",
+      "batchSlug": "S2026",
+      "finding": "A strong exact-founder LinkedIn post already exists as web/context needs_review and a separate Top Voice row exists. The founder post should be upgraded in place; the Top Voice row must stay distinct from first-party evidence."
+    },
+    {
+      "companyName": "Sidekick",
+      "batchSlug": "S2026/S26",
+      "finding": "The same company/founder IDs and social account are present in two batches. A physical-post import must not silently assign or duplicate the row across batches until batch identity is resolved."
+    }
+  ],
+  "blockers": [
+    "Anonymous X access/cooldowns prevented native post-counter verification for all 32 exact X mappings in scope.",
+    "Several public LinkedIn post URLs return HTTP 200 shells without JSON-LD; those rows remain rejected until author, timestamp, and positive counters are visible on the post-level surface.",
+    "Profile activity modules sometimes expose text and aggregate engagement but omit a native post URL/activity ID; profiles were never accepted.",
+    "The 400-founder full zero-evidence population is larger than the 80 founders attached to current zero-score companies. This pass enumerated all 400 and exhaustively fetched the 80 prioritized exact LinkedIn profiles; the remaining founder population remains for the automated comprehensive refresh."
+  ]
+}

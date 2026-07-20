@@ -22,6 +22,20 @@
       }
     ]
   },
+  "amdahl": {
+    "companySocialLinks": {
+      "github": "https://github.com/amdahlco"
+    },
+    "matchReason": "Verified working Amdahl GitHub organization; supersedes the stale https://github.com/amdahl-ai mapping, which returns 404.",
+    "rejectedGithub": [
+      {
+        "url": "https://github.com/amdahl-ai",
+        "rejectedAt": "2026-07-20T00:00:00.000Z",
+        "reason": "GitHub account returns 404; retired so it cannot remain a scheduled owner mapping.",
+        "source": "github-public-api-identity-guard"
+      }
+    ]
+  },
   "amboras": {
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://amboras.com.",
     "rejectedInstagram": [
@@ -590,6 +604,17 @@
       }
     ]
   },
+  "openrelay": {
+    "matchReason": "The GitHub repository previously listed on the YC profile returns 404 and is retired until an owner-verified replacement is available.",
+    "rejectedGithub": [
+      {
+        "url": "https://github.com/OpenRelayInc/OpenRelay",
+        "rejectedAt": "2026-07-20T00:00:00.000Z",
+        "reason": "GitHub repository returns 404; retired so the autonomous plan records a missing mapping instead of repeatedly scheduling a permanent failure.",
+        "source": "github-public-api-identity-guard"
+      }
+    ]
+  },
   "openwork": {
     "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (openwork) for OpenWork; query=\"\"OpenWork\" site:instagram.com\".",
     "rejectedInstagram": [
@@ -649,10 +674,15 @@
     }
   },
   "playablai": {
-    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://playabl.ai.",
-    "companySocialLinks": {
-      "instagram": "https://www.instagram.com/playabl_ai/"
-    }
+    "matchReason": "The previously mapped Instagram profile failed native identity validation and is excluded from verified collection targets.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/playabl_ai/",
+        "rejectedAt": "2026-07-20T00:00:00.000Z",
+        "reason": "Instagram profile identity did not match Playabl.ai; a shared handle alone is not sufficient owner proof.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
   },
   "pops": {
     "companySocialLinks": {
@@ -921,6 +951,31 @@
         "source": "logged-in-instagram-identity-guard"
       }
     ]
+  },
+  "vestris": {
+    "founders": [
+      {
+        "id": "verified-aahil-valliani",
+        "name": "Aahil Valliani",
+        "ycProfileUrl": null,
+        "sourceUrl": "https://www.linkedin.com/posts/aahil-valliani_my-cofounder-joshua-tang-and-i-didnt-talk-activity-7467251847137939459-YHIb",
+        "socialLinks": {
+          "linkedin": "https://www.linkedin.com/in/aahil-valliani"
+        },
+        "matchReason": "Native reciprocal founder posts identify Aahil Valliani as a Vestris cofounder, name Joshua Tang, describe the Vestris real-estate closing product, and identify YC S26; the public Vestris company page links the same company identity."
+      },
+      {
+        "id": "verified-joshua-tang",
+        "name": "Joshua Tang",
+        "ycProfileUrl": null,
+        "sourceUrl": "https://www.linkedin.com/posts/tangjoshua_i-told-myself-that-i-would-never-write-one-activity-7467271346683801600--RLb",
+        "socialLinks": {
+          "linkedin": "https://www.linkedin.com/in/tangjoshua"
+        },
+        "matchReason": "Native reciprocal founder posts identify Joshua Tang as a Vestris cofounder, name Aahil Valliani, describe the Vestris real-estate closing product, and identify YC S26; the public Vestris company page links the same company identity."
+      }
+    ],
+    "matchReason": "Verified Vestris founder roster supplement from two reciprocal native LinkedIn founder posts and the matching public Vestris company identity."
   },
   "youart": {
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://youart.ai.",

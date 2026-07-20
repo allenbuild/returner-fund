@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-07-20T10:17:09Z",
+  "sourceLedger": "outputs/source-hunt/2026-07-20-zero-evidence-recovery-ledger.json",
+  "notes": [
+    "Strict-import schema projection containing only the independently reverified, net-new A16ZSR006 row."
+  ],
+  "evidence": [
+    {
+      "batchSlug": "A16ZSR006",
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-quanto-founder-anderson-petergeorge",
+      "companySlug": "quanto",
+      "companyName": "Quanto",
+      "founderName": "Anderson Petergeorge",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7453449486699290624-cuAs",
+      "platformPostId": "7453449486699290624",
+      "accountUrl": "https://www.linkedin.com/in/andersonpetergeorge",
+      "authorName": "Anderson Petergeorge, CPA",
+      "postedAt": "2026-04-24T14:27:15.939Z",
+      "title": "Tax season ended 9 days ago.",
+      "text": "Tax season ended 9 days ago.",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 70,
+        "comments": 18
+      },
+      "rawVisibleText": {
+        "verification": "Native LinkedIn HTTP 200 public JSON-LD exposed the exact canonical founder author, publication timestamp, article body, LikeAction=70, and CommentAction=18.",
+        "authorUrl": "https://www.linkedin.com/in/andersonpetergeorge"
+      },
+      "matchReason": "Native LinkedIn post by the exact canonical Quanto founder account with positive visible post-level counters.",
+      "why": "Founder-attributed native activity only; no company-level authorship is inferred.",
+      "review_state": "verified"
+    }
+  ]
+}

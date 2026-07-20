@@ -40,7 +40,6 @@ const SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS = new Set<Platform>([
   "bluesky"
 ]);
 const ACCEPTED_GITHUB_LOGINS = new Set([
-  "amdahl-ai",
   "amdahlco",
   "belong-dev",
   "grove-tax",
@@ -48,7 +47,7 @@ const ACCEPTED_GITHUB_LOGINS = new Set([
   "panorama-dev",
   "taxnova-ai"
 ]);
-const REJECTED_GITHUB_LOGINS = new Set(["antihero-studios"]);
+const REJECTED_GITHUB_LOGINS = new Set(["amdahl-ai", "antihero-studios"]);
 const REJECTED_GITHUB_REPOS = new Set([
   "antihero-studios/antihero-messaging-services",
   "antihero-studios/antihero-repos-services",
@@ -1380,6 +1379,7 @@ function socialAccountFromSnapshot(
   entityId: string
 ): SocialAccountSummary | null {
   if (!SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(record.platform)) return null;
+  if ((record.review_state ?? "verified") !== "verified") return null;
 
   const normalizedAccount = normalizeNativeAccountRoot(record.platform, record.url);
   if (!normalizedAccount) return null;

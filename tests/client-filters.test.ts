@@ -189,6 +189,103 @@ describe("client graph filters", () => {
     expect(filtered.scoringContext).toMatchObject({ scoreScope: "all_platforms", selectedPlatforms: [] });
     expect(sourceCompanyRow.topVoiceScore).toBeUndefined();
   });
+
+  it("requires one physical evidence row to satisfy Platform, Topic, and Top Voice together", () => {
+    const canonical = canonicalGraph();
+    const source: GraphResponse = {
+      ...canonical,
+      selectedTopVoiceAudience: {
+        ...canonical.selectedTopVoiceAudience,
+        id: "insiders",
+        displayName: "Insiders"
+      },
+      evidence: canonical.evidence.map((item) => {
+        const audienceId = item.id === "github-only-evidence" ? "yc_partners" : "insiders";
+        const topics = item.id === "x-low"
+          ? ["traction" as const]
+          : ["product-launch" as const];
+        return {
+          ...item,
+          topics,
+          topVoice: {
+            audienceId,
+            memberId: `${audienceId}-member`,
+            displayName: audienceId === "insiders" ? "Insider" : "YC Partner",
+            category: "test",
+            weight: 1,
+            matchedBy: "adversarial fixture",
+            originalContributionScore: item.contributionScore
+          }
+        };
+      })
+    };
+
+    const filtered = applyClientGraphFilters(source, {
+      platforms: ["x"],
+      topics: ["product-launch"],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+
+    // canonical-high has an Insider X row and a separate Insider Product Launch
+    // row, but no single physical row that satisfies both predicates.
+    expect(companyIds(filtered)).toEqual(["x-evidence-high"]);
+    expect(filtered.evidence.map((item) => item.id)).toEqual(["x-high"]);
+    expect(filtered.nodes.find((node) => node.entityId === "x-evidence-high")?.evidenceIds).toEqual(["x-high"]);
+    expect(filtered.leaderboard).toHaveLength(1);
+    expect(filtered.leaderboard[0]?.biggestContribution?.id).toBe("x-high");
+  });
+
+  it("preserves canonical score surfaces while Topic and Vertical only change visibility", () => {
+    const canonical = canonicalGraph();
+    const source: GraphResponse = {
+      ...canonical,
+      nodes: canonical.nodes.map((node) => node.entityType === "company"
+        ? {
+            ...node,
+            verticals: node.entityId === "canonical-high" ? ["ai-agents"] : ["fintech"]
+          }
+        : node),
+      evidence: canonical.evidence.map((item) => ({
+        ...item,
+        topics: item.id === "x-low" ? ["product-launch"] : ["traction"]
+      }))
+    };
+    const sourceNode = source.nodes.find((node) => node.entityId === "canonical-high")!;
+    const sourceRow = source.leaderboard.find((row) => row.companyId === "canonical-high")!;
+    const sourceMomentum = source.fastestGaining.find((row) => row.companyId === "canonical-high")!;
+
+    const filtered = applyClientGraphFilters(source, {
+      platforms: [],
+      topics: ["product-launch"],
+      verticals: ["ai-agents"],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+    const filteredNode = filtered.nodes.find((node) => node.entityId === "canonical-high")!;
+    const filteredRow = filtered.leaderboard.find((row) => row.companyId === "canonical-high")!;
+
+    expect(companyIds(filtered)).toEqual(["canonical-high"]);
+    expect(filteredNode).toMatchObject({
+      score: sourceNode.score,
+      previousScore: sourceNode.previousScore,
+      scoreDelta: sourceNode.scoreDelta,
+      radius: sourceNode.radius,
+      topPlatform: sourceNode.topPlatform,
+      platformScores: sourceNode.platformScores
+    });
+    expect(filteredNode.scoreBreakdown).toBe(sourceNode.scoreBreakdown);
+    expect(filteredRow).toMatchObject({
+      rank: sourceRow.rank,
+      score: sourceRow.score,
+      topPlatform: sourceRow.topPlatform
+    });
+    expect(filtered.fastestGaining).toEqual([sourceMomentum]);
+    expect(filtered.scoringContext).toBe(source.scoringContext);
+    expect(filtered.evidence.map((item) => item.id)).toEqual(["x-low"]);
+  });
 });
 
 function canonicalGraph(): GraphResponse {

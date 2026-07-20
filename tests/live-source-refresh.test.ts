@@ -920,6 +920,7 @@ describe("live source refresh", () => {
     const postId = "2078000000000000101";
     const fetchedUrls: string[] = [];
     await mkdir(socialDir, { recursive: true });
+    await writeFile(join(socialDir, "verified-social-overrides.json"), JSON.stringify({}));
     await writeFile(
       join(socialDir, "a16z-speedrun-006-social-accounts.json"),
       JSON.stringify({
@@ -1043,6 +1044,7 @@ describe("live source refresh", () => {
     const postId = "2078000000000000102";
     const fetchedUrls: string[] = [];
     await mkdir(socialDir, { recursive: true });
+    await writeFile(join(socialDir, "verified-social-overrides.json"), JSON.stringify({}));
     await writeFile(
       join(socialDir, "a16z-speedrun-006-social-accounts.json"),
       JSON.stringify({
