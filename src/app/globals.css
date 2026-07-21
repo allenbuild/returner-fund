@@ -3840,7 +3840,7 @@ td button {
   }
 
   .tab-list-actions-hidden {
-    display: none;
+    display: flex;
   }
 
   .segmented-toggle {
