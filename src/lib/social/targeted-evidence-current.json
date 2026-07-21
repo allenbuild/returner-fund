@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-07-20T18:50:31.062Z",
+    "fetchedAt": "2026-07-21T12:26:02.596Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -51,7 +51,7 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-07-20T20:44:52.941Z",
+      "mergedAt": "2026-07-21T14:21:15.849Z",
       "existingSnapshots": 1,
       "existingInputRows": 1032,
       "isolatedRunInputRows": 0,
@@ -30138,10 +30138,10 @@
       },
       "why": "gradient-industrial-robotics/GradientOS GradientOS. 23 stars, 8 forks, 0 open issues. Last activity May 1, 2026.",
       "entityName": "Advanced Metal Research",
-      "batchSlug": "S2026",
       "sourceMetadata": {
         "lastActivityAt": "2026-05-01T01:42:37Z"
-      }
+      },
+      "batchSlug": "S2026"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-ara-aradotso-aradotso-data-skills",
@@ -30220,10 +30220,10 @@
       },
       "why": "Data skills by ara.so Aradotso/data-skills. Data skills by ara.so. 2 stars, 1 fork, 0 open issues.",
       "entityName": "Ara",
-      "batchSlug": "S2026",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-16T01:42:02Z"
-      }
+      },
+      "batchSlug": "S2026"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-ara-aradotso-aradotso-security-skills",
@@ -30302,10 +30302,10 @@
       },
       "why": "Security skills by ara.so Aradotso/security-skills. Security skills by ara.so. 7 stars, 1 fork, 0 open issues.",
       "entityName": "Ara",
-      "batchSlug": "S2026",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-14T21:23:56Z"
-      }
+      },
+      "batchSlug": "S2026"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-tolmo-tolmohq-tolmohq-tolmo",
@@ -30384,10 +30384,10 @@
       },
       "why": "tolmohq/tolmo tolmohq/tolmo. 4 stars, 0 forks, 0 open issues. Last activity July 15, 2026.",
       "entityName": "Tolmo",
-      "batchSlug": "S2026",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-15T23:46:54Z"
-      }
+      },
+      "batchSlug": "S2026"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s26-company-coasty-coasty-ai-coasty-ai-computer-use-cookbook",
@@ -30466,10 +30466,10 @@
       },
       "why": "coasty-ai/computer-use-cookbook coasty-ai/computer-use-cookbook. Computer-use cookbook. 3 stars, 0 forks, 0 open issues.",
       "entityName": "Coasty",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "lastActivityAt": "2026-06-13T19:48:19Z"
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s26-company-inkbox-inkbox-ai-inkbox-ai-hermes-agent-plugin",
@@ -30548,10 +30548,10 @@
       },
       "why": "inkbox-ai/hermes-agent-plugin inkbox-ai/hermes-agent-plugin. 26 stars, 7 forks, 4 open issues.",
       "entityName": "Inkbox",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-15T21:07:34Z"
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s26-company-inkbox-inkbox-ai-inkbox-ai-inkbox",
@@ -30630,10 +30630,10 @@
       },
       "why": "inkbox-ai/inkbox inkbox-ai/inkbox. 29 stars, 3 forks, 2 open issues.",
       "entityName": "Inkbox",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-15T20:58:01Z"
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s26-company-nebula-security-nebusec-nebusec-vega-skill",
@@ -30712,10 +30712,10 @@
       },
       "why": "NebuSec/vega-skill NebuSec/vega-skill. 4 stars, 1 fork, 0 open issues.",
       "entityName": "Nebula Security",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-05T05:41:53Z"
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s26-company-screenpipe-screenpipe-screenpipe-audiopipe",
@@ -30794,10 +30794,10 @@
       },
       "why": "screenpipe/audiopipe screenpipe/audiopipe. Speech-to-text repository. 27 stars, 9 forks, 0 open issues.",
       "entityName": "screenpipe",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-10T17:35:32Z"
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s26-company-screenpipe-screenpipe-screenpipe-sck-rs",
@@ -30876,10 +30876,10 @@
       },
       "why": "screenpipe/sck-rs screenpipe/sck-rs. 16 stars, 6 forks, 1 open issue.",
       "entityName": "screenpipe",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "lastActivityAt": "2026-07-13T01:03:06Z"
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "github-all_batches_nonx_nonlinkedin_sol_ultra-s26-company-screenpipe-screenpipe-screenpipe-screenleak",
@@ -30958,10 +30958,10 @@
       },
       "why": "screenpipe/screenleak screenpipe/screenleak. 21 stars, 0 forks, 0 open issues.",
       "entityName": "screenpipe",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "lastActivityAt": "2026-06-06T00:21:58Z"
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "product_hunt-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-cignara-nalin-gupta1-products-cignara",
@@ -38362,11 +38362,11 @@
       "entityName": "Drip",
       "companySlug": "drippay",
       "attachedCompanyId": "company-drippay",
-      "batchSlug": "S2026",
       "sourceMetadata": {
         "network": 2,
         "repositorySizeKb": 505
-      }
+      },
+      "batchSlug": "S2026"
     },
     {
       "id": "github-ninth-pass-s2026-company-zenbu-2-zenbu-labs-zenbu-labs-zenbu-js",
@@ -38399,11 +38399,11 @@
       "entityName": "Zenbu",
       "companySlug": "zenbu-2",
       "attachedCompanyId": "company-zenbu-2",
-      "batchSlug": "S2026",
       "sourceMetadata": {
         "network": 25,
         "repositorySizeKb": 13809
-      }
+      },
+      "batchSlug": "S2026"
     },
     {
       "id": "github-ninth-pass-s2026-company-zenbu-2-zenbu-labs-zenbu-labs-zenbu-release",
@@ -38435,11 +38435,11 @@
       "entityName": "Zenbu",
       "companySlug": "zenbu-2",
       "attachedCompanyId": "company-zenbu-2",
-      "batchSlug": "S2026",
       "sourceMetadata": {
         "network": 5,
         "repositorySizeKb": 6627
-      }
+      },
+      "batchSlug": "S2026"
     },
     {
       "id": "github-ninth-pass-s26-company-care-gp-care-ai-inc-care-ai-inc-careai-corina-service-releases",
@@ -38506,10 +38506,10 @@
       "entityName": "Ara",
       "companySlug": "ara",
       "attachedCompanyId": "company-ara",
-      "batchSlug": "S2026",
       "sourceMetadata": {
         "totalCommits": 1
-      }
+      },
+      "batchSlug": "S2026"
     },
     {
       "id": "linkedin-eighth-pass-s2026-company-arctic-health-arctic-health-yc-p26-7456050921798569984",
@@ -38862,10 +38862,10 @@
       "entityName": "6thSense",
       "companySlug": "6thsense",
       "attachedCompanyId": "company-6thsense",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 442
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-company-alloovium-alloovium-7467348701171200000",
@@ -38894,10 +38894,10 @@
       "entityName": "Alloovium",
       "companySlug": "alloovium",
       "attachedCompanyId": "company-alloovium",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 1904
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-company-care-gp-caregp-7467033690557030400",
@@ -38926,10 +38926,10 @@
       "entityName": "Care GP",
       "companySlug": "care-gp",
       "attachedCompanyId": "company-care-gp",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 5131
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-company-care-gp-caregp-7470676358583742465",
@@ -38958,10 +38958,10 @@
       "entityName": "Care GP",
       "companySlug": "care-gp",
       "attachedCompanyId": "company-care-gp",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 5131
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-company-flowmanual-flowmanual-7476435685877514240",
@@ -38990,10 +38990,10 @@
       "entityName": "FlowManual",
       "companySlug": "flowmanual",
       "attachedCompanyId": "company-flowmanual",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 201
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-6thsense-james-baek1-7476073924280348672",
@@ -39022,10 +39022,10 @@
       "entityName": "James Baek",
       "companySlug": "6thsense",
       "attachedCompanyId": "company-6thsense",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 1796
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-6thsense-james-baek1-7476595024709775360",
@@ -39054,10 +39054,10 @@
       "entityName": "James Baek",
       "companySlug": "6thsense",
       "attachedCompanyId": "company-6thsense",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 1796
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-alloovium-cielo-nicolosi-7482524277809020930",
@@ -39086,10 +39086,10 @@
       "entityName": "Cielo Nicolosi",
       "companySlug": "alloovium",
       "attachedCompanyId": "company-alloovium",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 8276
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-alloovium-zander-schweitzer-1a0651205-7467337043484790785",
@@ -39118,10 +39118,10 @@
       "entityName": "Zander Schweitzer",
       "companySlug": "alloovium",
       "attachedCompanyId": "company-alloovium",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 3378
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-alloovium-zander-schweitzer-1a0651205-7482524117519454208",
@@ -39150,10 +39150,10 @@
       "entityName": "Zander Schweitzer",
       "companySlug": "alloovium",
       "attachedCompanyId": "company-alloovium",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 3378
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-atlas-discovery-shaamilkarim-7475279336908943361",
@@ -39182,10 +39182,10 @@
       "entityName": "Shaamil Karim",
       "companySlug": "atlas-discovery",
       "attachedCompanyId": "company-atlas-discovery",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 7072
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-care-gp-melvinchen-7470676175162482688",
@@ -39214,10 +39214,10 @@
       "entityName": "Melvin Chen",
       "companySlug": "care-gp",
       "attachedCompanyId": "company-care-gp",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 18303
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-edviro-hursh-shah-7476448773238325248",
@@ -39246,10 +39246,10 @@
       "entityName": "Hursh Shah",
       "companySlug": "edviro",
       "attachedCompanyId": "company-edviro",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 1660
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-edviro-hursh-shah-7482524117611589634",
@@ -39278,10 +39278,10 @@
       "entityName": "Hursh Shah",
       "companySlug": "edviro",
       "attachedCompanyId": "company-edviro",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 1660
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-flowmanual-shijoonbae-7469855846215229440",
@@ -39310,10 +39310,10 @@
       "entityName": "David Shijoon Bae",
       "companySlug": "flowmanual",
       "attachedCompanyId": "company-flowmanual",
-      "batchSlug": "S26",
       "sourceMetadata": {
         "authorFollowers": 1706
-      }
+      },
+      "batchSlug": "S26"
     },
     {
       "id": "linkedin-ninth-pass-s26-founder-openrelay-prashant182-7482193253954400256",
