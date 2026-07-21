@@ -4333,39 +4333,6 @@ td button {
   background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.035), transparent 180px);
 }
 
-.ranked-posts-header {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 11px 14px 9px;
-  border-bottom: 1px solid var(--neutral-200);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(10px);
-}
-
-.ranked-posts-header h2 {
-  margin: 0;
-  color: var(--neutral-900);
-  font-size: 0.92rem;
-}
-
-.ranked-posts-header p,
-.ranked-posts-header > span {
-  margin: 2px 0 0;
-  color: var(--muted);
-  font-size: 0.68rem;
-}
-
-.ranked-posts-header p span {
-  display: block;
-  margin-top: 1px;
-  font-size: 0.62rem;
-}
-
 .ranked-posts-list {
   display: grid;
   gap: 0;
@@ -4497,7 +4464,7 @@ td button {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--neutral-900);
+  color: #c4470a;
   font-size: 0.78rem;
   font-weight: 750;
   line-height: 1.2;
@@ -4846,13 +4813,6 @@ td button {
 
   .filter-band {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding-right: 10px;
-    padding-left: 10px;
-  }
-
-  .ranked-posts-header {
-    align-items: flex-start;
-    gap: 8px;
     padding-right: 10px;
     padding-left: 10px;
   }

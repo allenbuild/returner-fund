@@ -3,7 +3,7 @@ import { scoringEligibility } from "./traction-scoring";
 import type { EvidenceItem, GraphNode, GraphResponse } from "./types";
 import { isCurrentCentralDay } from "../time/central-day";
 
-export const RANKED_POSTS_LIMIT = 50;
+export const RANKED_POSTS_LIMIT = 100;
 
 export type RankedPostsPeriod = "today" | "all_time";
 export type RankedPostSourceKind = "company" | "founder" | "top_voice";
@@ -80,10 +80,20 @@ export function selectRankedPosts(
     candidates.push(candidate);
   }
 
-  return candidates
+  const rankedCandidates = candidates
     .sort(compareRankedPostCandidates)
-    .slice(0, limit)
-    .map((candidate, index) => ({ ...candidate, rank: index + 1 }));
+    .slice(0, limit);
+  let tiedRank = 0;
+  let previousScore: number | null = null;
+
+  return rankedCandidates.map((candidate, index) => {
+    const score = rankedPostScore(candidate.evidence);
+    if (previousScore === null || score !== previousScore) {
+      tiedRank = index + 1;
+    }
+    previousScore = score;
+    return { ...candidate, rank: tiedRank };
+  });
 }
 
 export function compareRankedPostEvidence(left: EvidenceItem, right: EvidenceItem): number {

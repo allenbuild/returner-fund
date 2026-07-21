@@ -84,7 +84,6 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
     () => selectRankedPosts(graph, { period: rankedPeriod, now }),
     [graph, now, rankedPeriod]
   );
-  const rankedScoreAsOf = graph.scoringContext?.evidenceAsOf ?? graph.generatedAt;
   const companyNodesById = useMemo(
     () => new Map(graph.nodes.filter((node) => node.entityType === "company").map((node) => [node.entityId, node])),
     [graph.nodes]
@@ -352,17 +351,6 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
           role="tabpanel"
           aria-labelledby="insights-tab-ranked"
         >
-          <header className="ranked-posts-header">
-            <div>
-              <h2>Top performing posts</h2>
-              <p>
-                {rankedPeriod === "today" ? "Posted today, Central Time" : "All eligible scored posts in the visible scope"}
-                <span>Scores use graph evidence available as of {formatPostDate(rankedScoreAsOf)}</span>
-              </p>
-            </div>
-            <span>{rankedPosts.length} of 50</span>
-          </header>
-
           {!rankedPosts.length ? (
             <div className="ranked-posts-empty" role="status">
               <Clock3 size={22} aria-hidden="true" />
@@ -381,7 +369,7 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
                 return (
                   <li key={post.canonicalPostKey}>
                     <article className="ranked-post-card">
-                      <div className="ranked-post-rank" aria-label={`Rank ${post.rank}`}>{post.rank}</div>
+                      <div className="ranked-post-rank"><RankDisplay rank={post.rank} /></div>
                       <a className="ranked-post-preview" href={contribution.url ?? undefined} target="_blank" rel="noreferrer" aria-label={`Open ${post.companyName} post on ${formatPlatform(item.platform)}`}>
                         <ContributionThumbnail item={item} />
                       </a>

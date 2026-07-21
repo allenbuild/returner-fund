@@ -52,8 +52,8 @@ describe("ranked posts", () => {
       .toEqual(["eligible"]);
   });
 
-  it("caps results at exactly 50 after eligibility and dedupe", () => {
-    const candidates = Array.from({ length: 51 }, (_, index) =>
+  it("caps results at exactly 100 after eligibility and dedupe", () => {
+    const candidates = Array.from({ length: 101 }, (_, index) =>
       evidence({
         id: `post-${index + 1}`,
         sourceUrl: `https://x.com/company/status/${index + 100}`,
@@ -64,9 +64,19 @@ describe("ranked posts", () => {
     );
 
     const ranked = selectRankedPosts(graph(candidates), { period: "all_time" });
-    expect(ranked).toHaveLength(50);
-    expect(ranked.at(-1)?.evidence.id).toBe("post-50");
-    expect(ranked.some((item) => item.evidence.id === "post-51")).toBe(false);
+    expect(ranked).toHaveLength(100);
+    expect(ranked.at(-1)?.evidence.id).toBe("post-100");
+    expect(ranked.some((item) => item.evidence.id === "post-101")).toBe(false);
+  });
+
+  it("uses competition ranking for equal scores", () => {
+    const ranked = selectRankedPosts(graph([
+      evidence({ id: "first", normalizedScore: 90, sourceUrl: "https://x.com/c/status/901", platformPostId: "901" }),
+      evidence({ id: "second", normalizedScore: 90, sourceUrl: "https://x.com/c/status/902", platformPostId: "902" }),
+      evidence({ id: "third", normalizedScore: 80, sourceUrl: "https://x.com/c/status/903", platformPostId: "903" })
+    ]), { period: "all_time" });
+
+    expect(ranked.map((item) => item.rank)).toEqual([1, 1, 3]);
   });
 
   it("uses deterministic canonical tie ordering under shuffled input", () => {

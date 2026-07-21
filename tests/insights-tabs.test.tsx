@@ -103,7 +103,7 @@ describe("insights tabs", () => {
     expect(screen.queryByText("Platform weights")).not.toBeInTheDocument();
   });
 
-  it("renders at most 50 physically deduplicated ranked posts and a reliable Today empty state", () => {
+  it("renders at most 100 physically deduplicated ranked posts and a reliable Today empty state", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
     render(
       <InsightsTabs
@@ -114,18 +114,17 @@ describe("insights tabs", () => {
     );
 
     fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
-    expect(screen.getByText("All eligible scored posts in the visible scope")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Top performing posts" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Scores use graph evidence available as of/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Today" }));
-    expect(screen.getByText("Posted today, Central Time")).toBeInTheDocument();
-    expect(screen.getByText(/Scores use graph evidence available as of/i)).toBeInTheDocument();
     expect(screen.getByText("No reliably dated posts were published today.")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "All time" }));
     const list = screen.getByRole("list", { name: "Ranked posts" });
     const posts = within(list).getAllByRole("listitem");
     expect(posts.length).toBeGreaterThan(0);
-    expect(posts.length).toBeLessThanOrEqual(50);
+    expect(posts.length).toBeLessThanOrEqual(100);
     const firstPost = posts[0];
     expect(firstPost.querySelector("article.ranked-post-card")).toBeInTheDocument();
     expect(firstPost.querySelector(".ranked-post-primary-row")).toContainElement(
@@ -141,6 +140,7 @@ describe("insights tabs", () => {
     expect(score).toHaveTextContent(/^\d+$/);
     expect(score).toHaveAttribute("aria-label", expect.stringMatching(/^Post score \d+$/));
     expect(score?.querySelector("span, small")).not.toBeInTheDocument();
+    expect(firstPost.querySelector(".ranked-post-rank .rank-medal, .ranked-post-rank .rank-number")).toBeInTheDocument();
     expect(within(firstPost).getByRole("link", { name: /Open .* post on /i })).toHaveAttribute("href");
     expect(within(firstPost).getByRole("link", { name: /Open native post/i })).toHaveAttribute("href");
   });
