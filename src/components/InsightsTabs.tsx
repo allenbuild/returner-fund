@@ -66,7 +66,7 @@ const tabs: { key: TabKey; label: string; icon: typeof Trophy }[] = [
 export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: InsightsTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [momentumPeriod, setMomentumPeriod] = useState<MomentumPeriod>("dod");
-  const [rankedPeriod, setRankedPeriod] = useState<RankedPostsPeriod>("today");
+  const [rankedPeriod, setRankedPeriod] = useState<RankedPostsPeriod>("all_time");
   const [overviewSort, setOverviewSort] = useState<{ key: OverviewSortKey; direction: SortDirection }>({
     key: "rank",
     direction: "asc"
@@ -156,8 +156,8 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
           )}
           {activeTab === "ranked" && (
             <div className="segmented-toggle" role="group" aria-label="Ranked posts period">
-              <button type="button" className={rankedPeriod === "today" ? "active" : ""} aria-pressed={rankedPeriod === "today"} onClick={() => setRankedPeriod("today")}>Today</button>
               <button type="button" className={rankedPeriod === "all_time" ? "active" : ""} aria-pressed={rankedPeriod === "all_time"} onClick={() => setRankedPeriod("all_time")}>All time</button>
+              <button type="button" className={rankedPeriod === "today" ? "active" : ""} aria-pressed={rankedPeriod === "today"} onClick={() => setRankedPeriod("today")}>Today</button>
             </div>
           )}
         </div>

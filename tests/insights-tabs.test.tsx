@@ -44,8 +44,13 @@ describe("insights tabs", () => {
     expect(rankedTab).toHaveFocus();
     expect(rankedTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-ranked");
-    expect(screen.getByRole("button", { name: "Today" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "All time" })).toHaveAttribute("aria-pressed", "false");
+    const rankedPeriodGroup = screen.getByRole("group", { name: "Ranked posts period" });
+    expect(within(rankedPeriodGroup).getAllByRole("button").map((button) => button.textContent)).toEqual([
+      "All time",
+      "Today"
+    ]);
+    expect(screen.getByRole("button", { name: "All time" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Today" })).toHaveAttribute("aria-pressed", "false");
 
     fireEvent.keyDown(rankedTab, { key: "ArrowRight" });
 
@@ -109,6 +114,9 @@ describe("insights tabs", () => {
     );
 
     fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
+    expect(screen.getByText("All eligible scored posts in the visible scope")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Today" }));
     expect(screen.getByText("Posted today, Central Time")).toBeInTheDocument();
     expect(screen.getByText(/Scores use graph evidence available as of/i)).toBeInTheDocument();
     expect(screen.getByText("No reliably dated posts were published today.")).toBeInTheDocument();
