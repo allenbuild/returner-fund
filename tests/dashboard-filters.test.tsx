@@ -19,20 +19,16 @@ const V4_MODEL_VERSION = "4.0.0";
 vi.mock("@/components/CytoscapeGraph", () => ({
   CytoscapeGraph: ({
     nodes,
-    focusedPlatforms,
-    focusedIndustries,
-    focusedGroupPartners
+    focus
   }: {
     nodes: GraphNode[];
-    focusedPlatforms: Platform[];
-    focusedIndustries: string[];
-    focusedGroupPartners: string[];
+    focus: { active: boolean; companyNodeIds: string[]; signature: string };
   }) => (
     <div
       data-testid="graph-canvas"
-      data-focused-platforms={focusedPlatforms.join("|")}
-      data-focused-industries={focusedIndustries.join("|")}
-      data-focused-group-partners={focusedGroupPartners.join("|")}
+      data-focus-active={focus.active ? "true" : "false"}
+      data-focused-company-ids={focus.companyNodeIds.join("|")}
+      data-focus-signature={focus.signature}
     >
       {nodes.map((node) => (
         <span key={node.id}>{node.label}</span>
@@ -71,6 +67,23 @@ describe("dashboard filters", () => {
     vi.useRealTimers();
     window.history.replaceState(null, "", "/");
     document.title = "YC Network Map";
+  });
+
+  it("renders filters in the requested order without Topic subtext", () => {
+    const fullGraph = graphResponse([
+      makeNode("company:ordered", "Ordered Co", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    const { container } = render(<Dashboard initialGraph={fullGraph} />);
+    const labels = [...container.querySelectorAll(".filter-band > .filter-dropdown > .filter-dropdown-label")]
+      .map((element) => element.textContent?.trim());
+
+    expect(labels).toEqual(["Platform", "Industry", "Vertical", "Top Voices", "Group partner", "Topics"]);
+    const topicGroup = screen.getByText("Topics").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topicGroup).getByRole("button", { name: /all topics/i }));
+    expect(within(topicGroup).getByRole("menuitemcheckbox", { name: /Product Launch/i })).toBeInTheDocument();
+    expect(within(topicGroup).queryByText(/major offering has launched/i)).not.toBeInTheDocument();
   });
 
   it("shows platform, industry, and group partner filters without model or edge controls", async () => {
@@ -117,10 +130,12 @@ describe("dashboard filters", () => {
         "aria-checked",
         "true"
       );
-      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B A")).not.toBeInTheDocument();
-      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B B")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B A")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B B")).toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
-      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-industries", "fintech");
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:fintech-a");
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focus-active", "true");
+      expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("industries:fintech");
     });
 
     fireEvent.click(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i }));
@@ -129,9 +144,10 @@ describe("dashboard filters", () => {
     fireEvent.click(partnerBButton);
 
     await waitFor(() => {
-      expect(within(screen.getByTestId("graph-canvas")).queryByText("B2B B")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("B2B B")).toBeInTheDocument();
       expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech A")).toBeInTheDocument();
-      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-group-partners", "Partner B");
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:fintech-a");
+      expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("groupPartners:Partner B");
     });
   });
 
@@ -159,14 +175,21 @@ describe("dashboard filters", () => {
 
     await waitFor(() => {
       expect(within(screen.getByTestId("graph-canvas")).getByText("Launch Co")).toBeInTheDocument();
-      expect(within(screen.getByTestId("graph-canvas")).queryByText("Fintech Co")).not.toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech Co")).toBeInTheDocument();
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:launch-co");
+      expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("topics:product-launch");
       expect(window.location.search).toContain("topics=product-launch");
     });
 
     const platformGroup = screen.getByText("Platform").closest(".filter-dropdown") as HTMLElement;
     fireEvent.click(within(platformGroup).getByRole("button", { name: /all platforms/i }));
     fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /GitHub/i }));
-    expect(await screen.findByText("No companies match the active filters.")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "");
+      expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("platforms:github");
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Launch Co")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech Co")).toBeInTheDocument();
+    });
 
     fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /all platforms/i }));
     const verticalGroup = screen.getByText("Vertical").closest(".filter-dropdown") as HTMLElement;
@@ -179,6 +202,9 @@ describe("dashboard filters", () => {
 
     await waitFor(() => {
       expect(within(screen.getByTestId("graph-canvas")).getByText("Launch Co")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech Co")).toBeInTheDocument();
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:launch-co");
+      expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("verticals:ai-agents");
       expect(window.location.search).toContain("verticals=ai-agents");
       expect(window.location.search).not.toContain("topics=bogus");
     });
@@ -441,6 +467,107 @@ describe("dashboard filters", () => {
     expect(window.location.search).toContain("topVoices=yc_partners");
   });
 
+  it("preserves same-batch filters and the full option catalog when Top Voices changes", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:b2b", "B2B Baseline", "b2b", "#7dd3fc", "Partner A", 70, "x"),
+      makeNode("company:fintech", "Fintech Baseline", "fintech", "#2563eb", "Partner B", 80, "x")
+    ]);
+    const partnerGraph = withTopVoiceAudience(
+      graphResponse([
+        makeNode("company:fintech", "Fintech Baseline", "fintech", "#2563eb", "Partner B", 80, "x")
+      ]),
+      "yc_partners"
+    );
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => partnerGraph })));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    const industryGroup = screen.getByText("Industry").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(industryGroup).getByRole("button", { name: /all industries/i }));
+    fireEvent.click(within(industryGroup).getByRole("menuitemcheckbox", { name: /Fintech/i }));
+
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
+
+    await waitFor(() => {
+      expect(within(industryGroup).getByRole("button", { name: /Fintech/i })).toBeInTheDocument();
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:fintech");
+      expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("topVoices:yc_partners");
+    });
+    expect(within(screen.getByTestId("graph-canvas")).getByText("B2B Baseline")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Fintech Baseline")).toBeInTheDocument();
+
+    fireEvent.click(within(industryGroup).getByRole("button", { name: /Fintech/i }));
+    expect(within(industryGroup).getByRole("menuitemcheckbox", { name: /B2B\s*\(1\)/i })).toBeInTheDocument();
+    const groupPartnerGroup = screen.getByText("Group partner").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i }));
+    expect(within(groupPartnerGroup).getByRole("menuitemcheckbox", { name: /Partner A\s*\(1\)/i })).toBeInTheDocument();
+    expect(within(groupPartnerGroup).getByRole("menuitemcheckbox", { name: /Partner B\s*\(1\)/i })).toBeInTheDocument();
+  });
+
+  it("fetches the off-audience baseline for a direct Top Voices scope", async () => {
+    const baselineGraph = graphResponse([
+      makeNode("company:baseline-a", "Baseline A", "b2b", "#7dd3fc", "Partner A"),
+      makeNode("company:baseline-b", "Baseline B", "fintech", "#2563eb", "Partner B")
+    ]);
+    const audienceGraph = withTopVoiceAudience(
+      graphResponse([makeNode("company:baseline-b", "Baseline B", "fintech", "#2563eb", "Partner B")]),
+      "yc_partners"
+    );
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void input;
+      void init;
+      return { ok: true, json: async () => baselineGraph };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={audienceGraph} initialTopVoiceAudience="yc_partners" />);
+
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Baseline A")).toBeInTheDocument();
+      expect(within(screen.getByTestId("graph-canvas")).getByText("Baseline B")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:baseline-b");
+    expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("topVoices:yc_partners");
+  });
+
+  it("retries a transient off-audience baseline failure for a direct Top Voices scope", async () => {
+    vi.useFakeTimers();
+    const baselineGraph = graphResponse([
+      makeNode("company:baseline-a", "Baseline A", "b2b", "#7dd3fc", "Partner A"),
+      makeNode("company:baseline-b", "Baseline B", "fintech", "#2563eb", "Partner B")
+    ]);
+    const audienceGraph = withTopVoiceAudience(
+      graphResponse([makeNode("company:baseline-b", "Baseline B", "fintech", "#2563eb", "Partner B")]),
+      "yc_partners"
+    );
+    let failedCalls = 0;
+    const fetchMock = vi.fn(async () => {
+      if (failedCalls < 5) {
+        failedCalls += 1;
+        throw new Error("Temporary baseline failure");
+      }
+      return { ok: true, json: async () => baselineGraph };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={audienceGraph} initialTopVoiceAudience="yc_partners" />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(880);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Baseline A")).not.toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_000);
+    });
+    expect(fetchMock.mock.calls.length).toBeGreaterThan(5);
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Baseline A")).toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:baseline-b");
+  });
+
   it("navigates Top Voices by keyboard and restores focus after selection", () => {
     const fullGraph = graphResponse([
       makeNode("company:heyclicky", "HeyClicky", "b2b", "#7dd3fc", "Partner A")
@@ -633,9 +760,12 @@ describe("dashboard filters", () => {
       resolveInsiderBody(insiderGraph);
       await Promise.resolve();
     });
-    expect(await screen.findByText("Insider Graph")).toBeInTheDocument();
-    expect(within(screen.getByTestId("graph-canvas")).queryByText("Default Graph")).not.toBeInTheDocument();
-    expect(await screen.findByRole("button", { name: "Open profile Insider Graph" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Open leaderboard Insider Graph" })).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).queryByText("Insider Graph")).not.toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:insider");
+    expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("topVoices:insiders");
+    expect(await screen.findByRole("button", { name: "Open profile Default Graph" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Open leaderboard Insider Graph" })).toBeInTheDocument();
     expect(resultsRegion).toHaveAttribute("aria-busy", "false");
     expect(resultsGrid).not.toHaveAttribute("inert");
@@ -872,8 +1002,9 @@ describe("dashboard filters", () => {
       await vi.advanceTimersByTimeAsync(0);
     });
     expect(within(screen.getByTestId("graph-canvas")).getByText("Static X Only")).toBeInTheDocument();
-    expect(within(screen.getByTestId("graph-canvas")).queryByText("GitHub Only")).not.toBeInTheDocument();
-    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-platforms", "x");
+    expect(within(screen.getByTestId("graph-canvas")).getByText("GitHub Only")).toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:x-only");
+    expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("platforms:x");
     expect(fetchMock.mock.calls.some(([input]) => String(input).startsWith("/graph/s2026.json"))).toBe(true);
     expect(fetchMock.mock.calls.some(([input]) => String(input) === "/api/graph?batch=S2026")).toBe(false);
 
@@ -950,7 +1081,8 @@ describe("dashboard filters", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(0);
     });
-    expect(within(screen.getByTestId("graph-canvas")).getByText("Cached Partner Graph")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:cached-partner");
     const requestsAfterFirstLoad = fetchMock.mock.calls.length;
 
     fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /YC Partners/i }));
@@ -959,7 +1091,8 @@ describe("dashboard filters", () => {
 
     fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
     fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /YC Partners/i }));
-    expect(within(screen.getByTestId("graph-canvas")).getByText("Cached Partner Graph")).toBeInTheDocument();
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Default Graph")).toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:cached-partner");
     expect(fetchMock).toHaveBeenCalledTimes(requestsAfterFirstLoad);
 
     await act(async () => {
@@ -1011,7 +1144,8 @@ describe("dashboard filters", () => {
     fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /^X$/i }));
 
     expect(new URLSearchParams(window.location.search).get("platforms")).toBe("x");
-    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-platforms", "x");
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:x");
+    expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("platforms:x");
 
     fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /all platforms/i }));
     expect(new URLSearchParams(window.location.search).has("platforms")).toBe(false);

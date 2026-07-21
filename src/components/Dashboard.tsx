@@ -85,6 +85,7 @@ const API_GRAPH_TIMEOUT_MS = 20_000;
 const REFRESH_TIMEOUT_MS = 45_000;
 const BACKGROUND_REVALIDATION_DELAY_MS = 30_000;
 const SCOPE_TRANSITION_MINIMUM_MS = 450;
+const MAP_BASELINE_RETRY_DELAYS_MS = [1_000, 3_000, 10_000] as const;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
 
@@ -467,6 +468,12 @@ export function Dashboard({
   );
   const [graph, setGraph] = useState<GraphResponse | null>(preparedInitialGraph ?? null);
   const [filterMetadataGraph, setFilterMetadataGraph] = useState<GraphResponse | null>(preparedInitialGraph ?? null);
+  const [mapMetadataGraph, setMapMetadataGraph] = useState<GraphResponse | null>(() =>
+    (preparedInitialGraph?.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) === DEFAULT_TOP_VOICE_AUDIENCE
+      ? preparedInitialGraph ?? null
+      : null
+  );
+  const [mapBaselineRetry, setMapBaselineRetry] = useState<{ batchSlug: string; attempt: number } | null>(null);
   const graphCacheRef = useRef<Map<string, CachedGraphEntry>>(
     new Map(
       preparedInitialGraph
@@ -569,6 +576,12 @@ export function Dashboard({
       graphCacheKey(payload.batch.slug, payload.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE),
       { graph: payload, source }
     );
+    if (
+      (payload.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) === DEFAULT_TOP_VOICE_AUDIENCE &&
+      selectionRef.current.batchSlug === payload.batch.slug
+    ) {
+      setMapMetadataGraph(payload);
+    }
   }, []);
 
   const showCachedGraph = useCallback((targetBatchSlug: string, targetTopVoiceAudience: TopVoiceAudienceId) => {
@@ -585,9 +598,10 @@ export function Dashboard({
     return true;
   }, []);
 
-  const abortGraphRequestsExcept = useCallback((keyToKeep: string) => {
+  const abortGraphRequestsExcept = useCallback((keysToKeep: readonly string[]) => {
+    const retainedKeys = new Set(keysToKeep);
     for (const [key, request] of graphInFlightRef.current) {
-      if (key === keyToKeep) {
+      if (retainedKeys.has(key)) {
         continue;
       }
       graphFetchSequenceRef.current += 1;
@@ -620,23 +634,28 @@ export function Dashboard({
       }, SCOPE_TRANSITION_MINIMUM_MS);
     }
 
-    abortGraphRequestsExcept(graphCacheKey(targetBatchSlug, targetTopVoiceAudience));
+    abortGraphRequestsExcept([
+      graphCacheKey(targetBatchSlug, targetTopVoiceAudience),
+      graphCacheKey(targetBatchSlug, DEFAULT_TOP_VOICE_AUDIENCE)
+    ]);
     selectionRef.current = {
       batchSlug: targetBatchSlug,
       topVoiceAudience: targetTopVoiceAudience
     };
-    const nextFilters = {
-      ...currentFiltersRef.current,
-      topics: [],
-      verticals: [],
-      industries: [],
-      groupPartners: []
-    };
-    currentFiltersRef.current = nextFilters;
-    setSelectedTopics([]);
-    setSelectedVerticals([]);
-    setSelectedIndustries([]);
-    setSelectedGroupPartners([]);
+    if (currentSelection.batchSlug !== targetBatchSlug) {
+      const nextFilters = {
+        ...currentFiltersRef.current,
+        topics: [],
+        verticals: [],
+        industries: [],
+        groupPartners: []
+      };
+      currentFiltersRef.current = nextFilters;
+      setSelectedTopics([]);
+      setSelectedVerticals([]);
+      setSelectedIndustries([]);
+      setSelectedGroupPartners([]);
+    }
     setOpenFilterMenu(null);
     setHighlightedFounderId(null);
 
@@ -804,6 +823,59 @@ export function Dashboard({
     }
   }, [batchSlug, getOrStartGraphRequest, isCurrentGraphRequest, rememberGraph, topVoiceAudience]);
 
+  const fetchMapBaseline = useCallback(async (targetBatchSlug: string) => {
+    const cachedEntry = graphCacheRef.current.get(graphCacheKey(targetBatchSlug, DEFAULT_TOP_VOICE_AUDIENCE));
+    if (graphMatchesSelection(cachedEntry?.graph, targetBatchSlug, DEFAULT_TOP_VOICE_AUDIENCE)) {
+      setMapMetadataGraph(cachedEntry.graph);
+      setMapBaselineRetry((current) => current?.batchSlug === targetBatchSlug ? null : current);
+      return;
+    }
+
+    const request = getOrStartGraphRequest({
+      key: graphCacheKey(targetBatchSlug, DEFAULT_TOP_VOICE_AUDIENCE),
+      batchSlug: targetBatchSlug,
+      topVoiceAudience: DEFAULT_TOP_VOICE_AUDIENCE,
+      staticSnapshotUrl: staticGraphSnapshotUrl(targetBatchSlug, DEFAULT_TOP_VOICE_AUDIENCE),
+      apiUrl: `/api/graph?batch=${encodeURIComponent(targetBatchSlug)}`,
+      attempts: 3,
+      forceApi: false
+    });
+
+    try {
+      const result = await request.promise;
+      if (!isCurrentGraphRequest(request)) return;
+      rememberGraph(result.graph, result.source);
+      if (selectionRef.current.batchSlug === targetBatchSlug) {
+        setMapMetadataGraph(result.graph);
+        setMapBaselineRetry((current) => current?.batchSlug === targetBatchSlug ? null : current);
+      }
+    } catch (caught) {
+      if (!isAbortError(caught) && !request.controller.signal.aborted) {
+        if (selectionRef.current.batchSlug === targetBatchSlug) {
+          setMapBaselineRetry((current) => ({
+            batchSlug: targetBatchSlug,
+            attempt: current?.batchSlug === targetBatchSlug ? current.attempt + 1 : 1
+          }));
+        }
+      }
+    }
+  }, [getOrStartGraphRequest, isCurrentGraphRequest, rememberGraph]);
+
+  useEffect(() => {
+    if (graphMatchesSelection(mapMetadataGraph, batchSlug, DEFAULT_TOP_VOICE_AUDIENCE)) {
+      return undefined;
+    }
+    const retryAttempt = mapBaselineRetry?.batchSlug === batchSlug ? mapBaselineRetry.attempt : 0;
+    if (retryAttempt > MAP_BASELINE_RETRY_DELAYS_MS.length) {
+      return undefined;
+    }
+    const retryDelay = retryAttempt === 0 ? 0 : MAP_BASELINE_RETRY_DELAYS_MS[retryAttempt - 1];
+    const timeoutId = window.setTimeout(() => {
+      void fetchMapBaseline(batchSlug);
+    }, retryDelay);
+    return () => window.clearTimeout(timeoutId);
+  }, [batchSlug, fetchMapBaseline, mapBaselineRetry, mapMetadataGraph]);
+
   useEffect(() => {
     return () => {
       if (scopeTransitionTimerRef.current !== null) {
@@ -826,6 +898,8 @@ export function Dashboard({
       timeoutId = window.setTimeout(() => {
         invalidateGraphRequests();
         graphCacheRef.current.clear();
+        setMapMetadataGraph(null);
+        setMapBaselineRetry(null);
         void fetchGraph({ background: true, forceApi: true, unfiltered: true });
         scheduleDailyRefresh();
       }, Math.max(1_000, millisecondsUntilNextCentralMidnight() + MIDNIGHT_REFRESH_DELAY_MS));
@@ -904,10 +978,51 @@ export function Dashboard({
   const scopedFilterMetadataGraph = graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
     ? filterMetadataGraph
     : null;
-  // Keep the previous scope visible (but inert) during an uncached scope
-  // transition; once settled, every surface consumes the same filtered graph.
-  const mapGraph = settledGraph ?? graph;
+  const scopedMapMetadataGraph = graphMatchesSelection(mapMetadataGraph, batchSlug, DEFAULT_TOP_VOICE_AUDIENCE)
+    ? mapMetadataGraph
+    : null;
+  const filterCatalogGraph = scopedMapMetadataGraph ?? scopedFilterMetadataGraph;
+  const mapGraph = useMemo(
+    () => {
+      const source = scopedMapMetadataGraph ?? scopedFilterMetadataGraph ?? graph;
+      return source
+        ? applyClientGraphFilters(source, {
+            platforms: [],
+            topics: [],
+            verticals: [],
+            industries: [],
+            groupPartners: [],
+            minScore
+          })
+        : null;
+    }, [graph, minScore, scopedFilterMetadataGraph, scopedMapMetadataGraph]
+  );
   const scopeSpecificFiltersDisabled = !settledGraph || !scopedFilterMetadataGraph;
+
+  const mapFocus = useMemo(() => {
+    const active = Boolean(
+      selectedPlatforms.length ||
+      selectedIndustries.length ||
+      selectedVerticals.length ||
+      topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE ||
+      selectedGroupPartners.length ||
+      selectedTopics.length
+    );
+    const companyNodeIds = (settledGraph?.nodes ?? [])
+      .filter((node) => node.entityType === "company")
+      .map((node) => node.id)
+      .sort();
+    const signature = [
+      `platforms:${[...selectedPlatforms].sort().join("|")}`,
+      `industries:${[...selectedIndustries].sort().join("|")}`,
+      `verticals:${[...selectedVerticals].sort().join("|")}`,
+      `topVoices:${topVoiceAudience}`,
+      `groupPartners:${[...selectedGroupPartners].sort().join("|")}`,
+      `topics:${[...selectedTopics].sort().join("|")}`,
+      `companies:${companyNodeIds.join("|")}`
+    ].join(";");
+    return { active, companyNodeIds, signature };
+  }, [selectedGroupPartners, selectedIndustries, selectedPlatforms, selectedTopics, selectedVerticals, settledGraph, topVoiceAudience]);
 
   const activeSelectedNodeId = useMemo(() => {
     if (!mapGraph) {
@@ -1066,13 +1181,13 @@ export function Dashboard({
     return () => window.removeEventListener("pointerdown", handlePointerDown);
   }, []);
 
-  const batches = scopedFilterMetadataGraph?.batches ?? graph?.batches ?? defaultBatches;
-  const topVoiceAudiences = scopedFilterMetadataGraph?.topVoiceAudiences ?? graph?.topVoiceAudiences ?? defaultTopVoiceAudiences;
+  const batches = filterCatalogGraph?.batches ?? graph?.batches ?? defaultBatches;
+  const topVoiceAudiences = filterCatalogGraph?.topVoiceAudiences ?? graph?.topVoiceAudiences ?? defaultTopVoiceAudiences;
 
   const industryOptions = useMemo(() => {
     const byIndustry = new Map<string, { name: string; count: number; color: string }>();
 
-    for (const node of scopedFilterMetadataGraph?.nodes ?? []) {
+    for (const node of filterCatalogGraph?.nodes ?? []) {
       if (node.entityType !== "company") {
         continue;
       }
@@ -1086,12 +1201,12 @@ export function Dashboard({
     }
 
     return [...byIndustry.values()].sort((left, right) => right.count - left.count || left.name.localeCompare(right.name));
-  }, [scopedFilterMetadataGraph]);
+  }, [filterCatalogGraph]);
 
   const groupPartnerOptions = useMemo(() => {
     const byPartner = new Map<string, { name: string; count: number }>();
 
-    for (const node of scopedFilterMetadataGraph?.nodes ?? []) {
+    for (const node of filterCatalogGraph?.nodes ?? []) {
       if (node.entityType !== "company" || !node.groupPartner) {
         continue;
       }
@@ -1107,7 +1222,7 @@ export function Dashboard({
     }
 
     return [...byPartner.values()].sort((left, right) => right.count - left.count || left.name.localeCompare(right.name));
-  }, [batchSlug, scopedFilterMetadataGraph]);
+  }, [batchSlug, filterCatalogGraph]);
 
   const platformDropdownOptions = useMemo<DropdownOption<Platform>[]>(
     () => platformOptions.map((platform) => ({ value: platform, label: formatPlatform(platform), platform })),
@@ -1115,18 +1230,17 @@ export function Dashboard({
   );
 
   const topicCounts = useMemo(
-    () => topicPhysicalPostCounts(scopedFilterMetadataGraph?.evidence ?? []),
-    [scopedFilterMetadataGraph]
+    () => topicPhysicalPostCounts(filterCatalogGraph?.evidence ?? []),
+    [filterCatalogGraph]
   );
   const verticalCounts = useMemo(
-    () => companyVerticalCounts(scopedFilterMetadataGraph?.nodes ?? []),
-    [scopedFilterMetadataGraph]
+    () => companyVerticalCounts(filterCatalogGraph?.nodes ?? []),
+    [filterCatalogGraph]
   );
   const topicDropdownOptions = useMemo<DropdownOption<PostTopic>[]>(
     () => POST_TOPIC_TAXONOMY.map((topic) => ({
       value: topic.slug,
       label: topic.label,
-      description: topic.description,
       count: topicCounts.get(topic.slug) ?? 0
     })),
     [topicCounts]
@@ -1217,6 +1331,8 @@ export function Dashboard({
       const activeFilters = hasClientGraphFilters(currentFiltersRef.current);
       invalidateGraphRequests();
       graphCacheRef.current.clear();
+      setMapMetadataGraph(null);
+      setMapBaselineRetry(null);
       rememberGraph(refreshedGraph);
       setFilterMetadataGraph(refreshedGraph);
       setGraph(applyClientGraphFilters(refreshedGraph, currentFiltersRef.current));
@@ -1512,17 +1628,17 @@ export function Dashboard({
         />
 
         <FilterDropdown
-          id="topics"
-          icon={<Tags size={15} />}
-          title="Topics"
-          allLabel="All topics"
-          selectedValues={selectedTopics}
-          options={topicDropdownOptions}
-          isOpen={openFilterMenu === "topics"}
+          id="industry"
+          icon={<Palette size={15} />}
+          title="Industry"
+          allLabel="All industries"
+          selectedValues={selectedIndustries}
+          options={industryDropdownOptions}
+          isOpen={openFilterMenu === "industry"}
           disabled={scopeSpecificFiltersDisabled}
-          onOpenChange={(open) => setOpenFilterMenu(open ? "topics" : null)}
-          onToggle={toggleTopic}
-          onClear={() => clearFilter("topic")}
+          onOpenChange={(open) => setOpenFilterMenu(open ? "industry" : null)}
+          onToggle={toggleIndustry}
+          onClear={() => clearFilter("industry")}
         />
 
         <FilterDropdown
@@ -1538,34 +1654,6 @@ export function Dashboard({
           onOpenChange={(open) => setOpenFilterMenu(open ? "verticals" : null)}
           onToggle={toggleVertical}
           onClear={() => clearFilter("vertical")}
-        />
-
-        <FilterDropdown
-          id="industry"
-          icon={<Palette size={15} />}
-          title="Industry"
-          allLabel="All industries"
-          selectedValues={selectedIndustries}
-          options={industryDropdownOptions}
-          isOpen={openFilterMenu === "industry"}
-          disabled={scopeSpecificFiltersDisabled}
-          onOpenChange={(open) => setOpenFilterMenu(open ? "industry" : null)}
-          onToggle={toggleIndustry}
-          onClear={() => clearFilter("industry")}
-        />
-
-        <FilterDropdown
-          id="groupPartner"
-          icon={<Filter size={15} />}
-          title="Group partner"
-          allLabel="All group partners"
-          selectedValues={selectedGroupPartners}
-          options={groupPartnerDropdownOptions}
-          isOpen={openFilterMenu === "groupPartner"}
-          disabled={scopeSpecificFiltersDisabled}
-          onOpenChange={(open) => setOpenFilterMenu(open ? "groupPartner" : null)}
-          onToggle={toggleGroupPartner}
-          onClear={() => clearFilter("group_partner")}
         />
 
         <SingleSelectFilterDropdown
@@ -1586,6 +1674,34 @@ export function Dashboard({
             transitionGraphScope(batchSlug, nextTopVoiceAudience);
             setOpenFilterMenu(null);
           }}
+        />
+
+        <FilterDropdown
+          id="groupPartner"
+          icon={<Filter size={15} />}
+          title="Group partner"
+          allLabel="All group partners"
+          selectedValues={selectedGroupPartners}
+          options={groupPartnerDropdownOptions}
+          isOpen={openFilterMenu === "groupPartner"}
+          disabled={scopeSpecificFiltersDisabled}
+          onOpenChange={(open) => setOpenFilterMenu(open ? "groupPartner" : null)}
+          onToggle={toggleGroupPartner}
+          onClear={() => clearFilter("group_partner")}
+        />
+
+        <FilterDropdown
+          id="topics"
+          icon={<Tags size={15} />}
+          title="Topics"
+          allLabel="All topics"
+          selectedValues={selectedTopics}
+          options={topicDropdownOptions}
+          isOpen={openFilterMenu === "topics"}
+          disabled={scopeSpecificFiltersDisabled}
+          onOpenChange={(open) => setOpenFilterMenu(open ? "topics" : null)}
+          onToggle={toggleTopic}
+          onClear={() => clearFilter("topic")}
         />
 
         <div className="score-filter">
@@ -1678,9 +1794,7 @@ export function Dashboard({
                 batch={mapGraph.batch}
                 selectedNodeId={activeSelectedNodeId}
                 focusRevision={graphFocusRevision}
-                focusedPlatforms={selectedPlatforms}
-                focusedIndustries={selectedIndustries}
-                focusedGroupPartners={selectedGroupPartners}
+                focus={mapFocus}
                 onSelectNode={selectNode}
               />
             ) : (
@@ -1714,7 +1828,7 @@ export function Dashboard({
           />
           {settledGraph && (
             <InsightsTabs
-              graph={mapGraph ?? settledGraph}
+              graph={settledGraph}
               statsGraph={scopedFilterMetadataGraph ?? settledGraph}
               onSelectNode={selectRankedNode}
             />

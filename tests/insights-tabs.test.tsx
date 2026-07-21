@@ -54,7 +54,7 @@ describe("insights tabs", () => {
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-stats");
   });
 
-  it("shows database totals and ingestion growth charts without the quality summary row", () => {
+  it("shows database totals and ingestion growth charts without methodology or quality-summary text", () => {
     const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
     const companyCount = graph.nodes.filter((node) => node.entityType === "company").length;
     const founderCount = new Set(
@@ -91,13 +91,10 @@ describe("insights tabs", () => {
     expect(screen.queryByText("Verified source links")).not.toBeInTheDocument();
     expect(screen.queryByText("Sources per company")).not.toBeInTheDocument();
     expect(screen.queryByText("Needs review")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Scoring model status and methodology" })).toBeInTheDocument();
-    expect(screen.getByText(/V5 learned model: rejected — insufficient data/i)).toBeInTheDocument();
-    expect(screen.getByText(/V5 validated platform coverage is currently none/i)).toBeInTheDocument();
-    expect(screen.getByText(/How the currently displayed V4 baseline is calculated/i)).toBeInTheDocument();
-    expect(screen.getByText(/strongest 5 posts per platform contribute/i)).toBeInTheDocument();
-    expect(screen.getByText(/V4 configured platform, reference, and raw metric weights/i)).toBeInTheDocument();
-    expect(screen.getByText(/product heuristics preserved only for V4 history and rollback/i)).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Scoring model status and methodology" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/V5 learned model/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/How the currently displayed V4 baseline is calculated/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/strongest 5 posts per platform contribute/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Platform weights")).not.toBeInTheDocument();
   });
 
@@ -121,8 +118,21 @@ describe("insights tabs", () => {
     const posts = within(list).getAllByRole("listitem");
     expect(posts.length).toBeGreaterThan(0);
     expect(posts.length).toBeLessThanOrEqual(50);
-    expect(posts[0]).toHaveTextContent("Post score");
-    expect(within(posts[0]).getByRole("link", { name: /Open native post/i })).toHaveAttribute("href");
+    const firstPost = posts[0];
+    expect(firstPost.querySelector("article.ranked-post-card")).toBeInTheDocument();
+    expect(firstPost.querySelector(".ranked-post-primary-row")).toContainElement(
+      firstPost.querySelector(".ranked-post-company")
+    );
+    expect(firstPost.querySelector(".ranked-post-primary-row")).toContainElement(
+      firstPost.querySelector(".ranked-post-meta")
+    );
+    expect(firstPost.querySelector(".ranked-post-meta time")).toHaveAttribute("datetime");
+    expect(firstPost.querySelector(".ranked-post-title")).not.toBeEmptyDOMElement();
+    expect(firstPost.querySelector(".ranked-post-details")).toBeInTheDocument();
+    expect(firstPost).toHaveTextContent("Post score");
+    expect(firstPost.querySelector(".ranked-post-score small")).toHaveTextContent(/^v/);
+    expect(within(firstPost).getByRole("link", { name: /Open .* post on /i })).toHaveAttribute("href");
+    expect(within(firstPost).getByRole("link", { name: /Open native post/i })).toHaveAttribute("href");
   });
 
   it("does not show a separate score scope or Top Voices audience strip", () => {

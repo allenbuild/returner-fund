@@ -7,8 +7,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type cytoscape from "cytoscape";
 import { edgePresentation } from "@/lib/graph/edge-presentation";
 import { buildClusterPositions, buildLabelPlacements, labelMaxWidthForNode, labelSizeForNode } from "@/lib/graph/layout";
-import type { BatchSummary, GraphEdge, GraphNode, Platform } from "@/lib/graph/types";
-import { GraphEdgeLegend } from "./GraphEdgeLegend";
+import type { BatchSummary, GraphEdge, GraphNode } from "@/lib/graph/types";
 
 const CytoscapeComponent = dynamic(
   () => import("react-cytoscapejs").then((module) => module.default),
@@ -24,9 +23,11 @@ interface CytoscapeGraphProps {
   batch: BatchSummary;
   selectedNodeId: string | null;
   focusRevision: number;
-  focusedPlatforms: Platform[];
-  focusedIndustries: string[];
-  focusedGroupPartners: string[];
+  focus: {
+    active: boolean;
+    companyNodeIds: string[];
+    signature: string;
+  };
   onSelectNode: (nodeId: string) => void;
 }
 
@@ -103,25 +104,12 @@ function isUsableCy(cy: cytoscape.Core | null): cy is cytoscape.Core {
   }
 }
 
-function nodeMatchesFocusedPlatforms(node: GraphNode, focusedPlatforms: Set<Platform>): boolean {
-  const nodePlatforms = new Set<Platform>([
-    ...(Object.keys(node.platformScores) as Platform[]),
-    ...node.socialAccounts.map((account) => account.platform),
-    ...node.founders.flatMap((founder) => Object.keys(founder.platformScores) as Platform[]),
-    ...node.founders.flatMap((founder) => founder.socialAccounts.map((account) => account.platform))
-  ]);
-
-  return [...focusedPlatforms].some((platform) => nodePlatforms.has(platform));
-}
-
 export function CytoscapeGraph({
   nodes,
   edges,
   selectedNodeId,
   focusRevision,
-  focusedPlatforms,
-  focusedIndustries,
-  focusedGroupPartners,
+  focus,
   onSelectNode
 }: CytoscapeGraphProps) {
   const cyRef = useRef<cytoscape.Core | null>(null);
@@ -156,24 +144,15 @@ export function CytoscapeGraph({
         : edges,
     [decluttered, edges]
   );
-  const focusedIndustrySet = useMemo(() => new Set(focusedIndustries), [focusedIndustries]);
-  const focusedGroupPartnerSet = useMemo(() => new Set(focusedGroupPartners), [focusedGroupPartners]);
-  const focusedPlatformSet = useMemo(() => new Set(focusedPlatforms), [focusedPlatforms]);
+  const focusedCompanyNodeIdSet = useMemo(() => new Set(focus.companyNodeIds), [focus.companyNodeIds]);
   const focusedNodeIds = useMemo(() => {
-    if (focusedIndustrySet.size === 0 && focusedGroupPartnerSet.size === 0 && focusedPlatformSet.size === 0) {
+    if (!focus.active) {
       return new Set<string>();
     }
 
     const matchingCompanyIds = new Set(
       nodes
-        .filter(
-          (node) =>
-            node.entityType === "company" &&
-            (focusedPlatformSet.size === 0 || nodeMatchesFocusedPlatforms(node, focusedPlatformSet)) &&
-            (focusedIndustrySet.size === 0 || focusedIndustrySet.has(node.primaryIndustry)) &&
-            (focusedGroupPartnerSet.size === 0 ||
-              (Boolean(node.groupPartner) && focusedGroupPartnerSet.has(node.groupPartner as string)))
-        )
+        .filter((node) => node.entityType === "company" && focusedCompanyNodeIdSet.has(node.id))
         .map((node) => node.id)
     );
     const nodeEntityTypes = new Map(nodes.map((node) => [node.id, node.entityType]));
@@ -187,9 +166,8 @@ export function CytoscapeGraph({
       }
     }
     return associatedNodeIds;
-  }, [edges, focusedGroupPartnerSet, focusedIndustrySet, focusedPlatformSet, nodes]);
-  const categoryFocusActive =
-    focusedPlatformSet.size > 0 || focusedIndustrySet.size > 0 || focusedGroupPartnerSet.size > 0;
+  }, [edges, focus.active, focusedCompanyNodeIdSet, nodes]);
+  const categoryFocusActive = focus.active;
   const layout = useMemo(
     () => ({
       name: "preset",
@@ -354,13 +332,13 @@ export function CytoscapeGraph({
   useLayoutEffect(() => {
     const shouldFit = lastFitSignatureRef.current !== graphFitSignature;
     const timeoutId = window.setTimeout(() => {
-      applyCanonicalPositions({ fit: shouldFit && !introAnimatingRef.current });
+      applyCanonicalPositions({ fit: shouldFit && !introAnimatingRef.current && !categoryFocusActive });
       if (shouldFit) {
         lastFitSignatureRef.current = graphFitSignature;
       }
     }, 0);
     return () => window.clearTimeout(timeoutId);
-  }, [applyCanonicalPositions, graphFitSignature]);
+  }, [applyCanonicalPositions, categoryFocusActive, graphFitSignature]);
 
   useEffect(() => {
     const cy = cyRef.current;
@@ -397,11 +375,7 @@ export function CytoscapeGraph({
   }, [focusRevision]);
 
   useEffect(() => {
-    const focusSignature = [
-      `platforms:${[...focusedPlatformSet].sort().join("|")}`,
-      `industries:${[...focusedIndustrySet].sort().join("|")}`,
-      `partners:${[...focusedGroupPartnerSet].sort().join("|")}`
-    ].join(";");
+    const focusSignature = `${focus.signature};graph:${graphFitSignature};fullscreen:${isFullscreen}`;
     if (lastCategoryFocusRef.current === focusSignature) return;
 
     let cancelled = false;
@@ -419,8 +393,7 @@ export function CytoscapeGraph({
       cy.stop(true);
       suppressSelectedZoomUntilRef.current = performance.now() + 650;
       const focused = cy.nodes(".partner-focused");
-      const hasCategoryFocus =
-        focusedPlatformSet.size > 0 || focusedIndustrySet.size > 0 || focusedGroupPartnerSet.size > 0;
+      const hasCategoryFocus = focus.active;
       const target = hasCategoryFocus && focused.length ? focused : cy.nodes();
       if (!target.length) return;
       cy.animate(
@@ -434,7 +407,7 @@ export function CytoscapeGraph({
       cancelled = true;
       if (timeoutId !== null) window.clearTimeout(timeoutId);
     };
-  }, [cyReadyRevision, focusedGroupPartnerSet, focusedIndustrySet, focusedPlatformSet, layout.padding]);
+  }, [cyReadyRevision, focus.active, focus.signature, graphFitSignature, isFullscreen, layout.padding]);
 
   useEffect(() => {
     return () => {
@@ -825,10 +798,12 @@ export function CytoscapeGraph({
         return;
       }
       cy.resize();
-      cy.fit(undefined, Number(layout.padding));
+      const focused = cy.nodes(".partner-focused");
+      const hasCategoryFocus = focus.active && focused.length > 0;
+      cy.fit(hasCategoryFocus ? focused : undefined, hasCategoryFocus ? 96 : Number(layout.padding));
     }, 80);
     return () => window.clearTimeout(timeoutId);
-  }, [isFullscreen, layout.padding]);
+  }, [focus.active, isFullscreen, layout.padding]);
 
   const graphShellClassName = [
     "graph-shell",
@@ -838,7 +813,13 @@ export function CytoscapeGraph({
     .join(" ");
 
   return (
-    <div className={graphShellClassName} data-graph-intro-autoplay={GRAPH_INTRO_AUTOPLAY ? "true" : "false"} ref={graphShellRef}>
+    <div
+      className={graphShellClassName}
+      data-filter-focus-active={focus.active ? "true" : "false"}
+      data-filter-focus-count={focus.companyNodeIds.length}
+      data-graph-intro-autoplay={GRAPH_INTRO_AUTOPLAY ? "true" : "false"}
+      ref={graphShellRef}
+    >
       <div className="graph-toolbar">
         <div className="graph-toolbar-main">
           <div className="legend">
@@ -867,7 +848,6 @@ export function CytoscapeGraph({
             </button>
           </div>
         </div>
-        <GraphEdgeLegend edges={visibleEdges} />
       </div>
       <CytoscapeComponent
         elements={elements}

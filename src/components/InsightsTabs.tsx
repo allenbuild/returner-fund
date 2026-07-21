@@ -43,7 +43,6 @@ import type {
   MomentumDelta
 } from "@/lib/graph/types";
 import { formatPlatform, PlatformIdentity, PlatformLogo } from "./PlatformLogo";
-import { ScoringMethodology } from "./ScoringMethodology";
 
 type TabKey = "overview" | "gaining" | "ranked" | "stats";
 type MomentumPeriod = "dod" | "wow";
@@ -386,25 +385,29 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
                         <ContributionThumbnail item={item} />
                       </a>
                       <div className="ranked-post-content">
-                        <div className="ranked-post-meta">
-                          <span className={`ranking-platform-chip ranking-platform-${item.platform}`}><PlatformIdentity platform={item.platform} /></span>
-                          <span className={`ranked-source-badge ranked-source-${post.sourceKind}`}>{formatSourceKind(post.sourceKind)}</span>
-                          <time dateTime={item.postedAt}>{formatPostDate(item.postedAt)}</time>
-                        </div>
-                        <button type="button" className="ranked-post-company" onClick={() => onSelectNode(`company:${post.companyId}`)}>{post.companyName}</button>
-                        {contribution.author && <span className="ranked-post-author">{formatAuthor(contribution.author, item.authorHandle)}</span>}
-                        <p>{contribution.title}</p>
-                        {contribution.metricPills.length > 0 && (
-                          <span className="overview-metric-pills ranked-metric-pills">
-                            {contribution.metricPills.map((metric) => <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}><MetricIcon metric={metric.key} /><span>{metric.value}</span></span>)}
-                          </span>
-                        )}
-                        {(topics.length > 0 || verticals.length > 0) && (
-                          <div className="ranked-post-taxonomies">
-                            {topics.map((topic) => <span className="topic-chip" key={topic.slug}>{topic.label}</span>)}
-                            {verticals.slice(0, 3).map((vertical) => <span className="vertical-chip" key={vertical.slug}>{vertical.label}</span>)}
+                        <div className="ranked-post-primary-row">
+                          <button type="button" className="ranked-post-company" onClick={() => onSelectNode(`company:${post.companyId}`)}>{post.companyName}</button>
+                          <div className="ranked-post-meta">
+                            <span className={`ranking-platform-chip ranking-platform-${item.platform}`}><PlatformIdentity platform={item.platform} /></span>
+                            <span className={`ranked-source-badge ranked-source-${post.sourceKind}`}>{formatSourceKind(post.sourceKind)}</span>
+                            <time dateTime={item.postedAt}>{formatPostDate(item.postedAt)}</time>
                           </div>
-                        )}
+                        </div>
+                        <p className="ranked-post-title">{contribution.title}</p>
+                        <div className="ranked-post-details">
+                          {contribution.author && <span className="ranked-post-author">{formatAuthor(contribution.author, item.authorHandle)}</span>}
+                          {contribution.metricPills.length > 0 && (
+                            <span className="overview-metric-pills ranked-metric-pills">
+                              {contribution.metricPills.map((metric) => <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}><MetricIcon metric={metric.key} /><span>{metric.value}</span></span>)}
+                            </span>
+                          )}
+                          {(topics.length > 0 || verticals.length > 0) && (
+                            <div className="ranked-post-taxonomies">
+                              {topics.map((topic) => <span className="topic-chip" key={topic.slug}>{topic.label}</span>)}
+                              {verticals.slice(0, 3).map((vertical) => <span className="vertical-chip" key={vertical.slug}>{vertical.label}</span>)}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="ranked-post-score">
                         <span>Post score</span>
@@ -449,9 +452,6 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
               <SplineTotalCard label="Total companies" points={databaseStats.dailyGrowth} field="companies" total={databaseStats.companyCount} />
               <SplineTotalCard label="Total founders" points={databaseStats.dailyGrowth} field="founders" total={databaseStats.founderCount} />
             </div>
-
-            <ScoringMethodology currentModel={statsGraph.scoringContext} />
-
           </section>
         </div>
       )}
