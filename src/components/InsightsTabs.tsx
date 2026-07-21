@@ -377,6 +377,7 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
                 const company = companyNodesById.get(post.companyId);
                 const topics = (item.topics ?? []).map(getPostTopicDefinition);
                 const verticals = (company?.verticals ?? []).map(getCompanyVerticalDefinition);
+                const score = rankedEvidenceScore(item);
                 return (
                   <li key={post.canonicalPostKey}>
                     <article className="ranked-post-card">
@@ -409,10 +410,8 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
                           )}
                         </div>
                       </div>
-                      <div className="ranked-post-score">
-                        <span>Post score</span>
-                        <strong>{rankedEvidenceScore(item)}</strong>
-                        <small>{graph.scoringContext?.modelVersion ? `v${graph.scoringContext.modelVersion}` : "v4 baseline"}</small>
+                      <div className="ranked-post-score" aria-label={`Post score ${score}`}>
+                        <strong>{score}</strong>
                       </div>
                       {contribution.url && <a className="ranked-post-open" href={contribution.url} target="_blank" rel="noreferrer" aria-label="Open native post"><ExternalLink size={16} aria-hidden="true" /></a>}
                     </article>

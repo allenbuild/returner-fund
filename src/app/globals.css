@@ -4595,24 +4595,18 @@ td button {
 
 .ranked-post-score {
   display: grid;
-  justify-items: center;
-  gap: 1px;
-  width: 64px;
-  padding: 5px 3px;
+  place-items: center;
+  width: 44px;
+  min-height: 36px;
+  padding: 3px;
   border: 1px solid var(--accent-border-soft);
   border-radius: 12px;
   background: var(--accent-soft);
   color: var(--accent-strong);
 }
 
-.ranked-post-score span,
-.ranked-post-score small {
-  font-size: 0.54rem;
-  line-height: 1.15;
-}
-
 .ranked-post-score strong {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   line-height: 1.1;
 }
 
@@ -4856,8 +4850,9 @@ td button {
   }
 
   .ranked-post-score {
-    width: 56px;
-    padding: 4px 2px;
+    width: 40px;
+    min-height: 34px;
+    padding: 2px;
   }
 
   .ranked-post-taxonomies .vertical-chip {
@@ -4922,7 +4917,8 @@ td button {
   }
 
   .ranked-post-score {
-    width: 50px;
+    width: 38px;
+    min-height: 32px;
   }
 
   .ranked-post-open {

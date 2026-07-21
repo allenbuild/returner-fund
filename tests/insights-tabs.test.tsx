@@ -129,8 +129,10 @@ describe("insights tabs", () => {
     expect(firstPost.querySelector(".ranked-post-meta time")).toHaveAttribute("datetime");
     expect(firstPost.querySelector(".ranked-post-title")).not.toBeEmptyDOMElement();
     expect(firstPost.querySelector(".ranked-post-details")).toBeInTheDocument();
-    expect(firstPost).toHaveTextContent("Post score");
-    expect(firstPost.querySelector(".ranked-post-score small")).toHaveTextContent(/^v/);
+    const score = firstPost.querySelector(".ranked-post-score");
+    expect(score).toHaveTextContent(/^\d+$/);
+    expect(score).toHaveAttribute("aria-label", expect.stringMatching(/^Post score \d+$/));
+    expect(score?.querySelector("span, small")).not.toBeInTheDocument();
     expect(within(firstPost).getByRole("link", { name: /Open .* post on /i })).toHaveAttribute("href");
     expect(within(firstPost).getByRole("link", { name: /Open native post/i })).toHaveAttribute("href");
   });
