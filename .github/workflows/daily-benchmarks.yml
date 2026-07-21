@@ -12,8 +12,10 @@ permissions:
   contents: write
 
 concurrency:
-  group: daily-score-benchmarks
+  # Autonomous ingestion updates the same graph and benchmark artifacts.
+  group: repository-publication-main
   cancel-in-progress: false
+  queue: max
 
 jobs:
   update:
@@ -22,6 +24,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Synchronize publication base
+        run: |
+          git fetch origin main
+          git rebase origin/main
 
       - name: Use Node.js
         uses: actions/setup-node@v4

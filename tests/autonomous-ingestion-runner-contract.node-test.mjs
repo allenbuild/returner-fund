@@ -91,11 +91,27 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(runner.includes('runId: run?.id ?? null'));
   });
 
-  it("opts into terminal mapped failures only for skip-publish runs", () => {
+  it("uses an explicit bounded terminal-failure budget for publication", () => {
     assert.match(
       runner,
-      /validateMappedAutonomousCoverage\(collectionCoverage,\s*{\s*allowTerminalFailures: args\.skipPublish\s*}\s*\)/
+      /maxTerminalFailures: args\.skipPublish[\s\S]*AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET/
     );
+    assert.match(runner, /mappedFailureSamples/);
+    assert.match(runner, /COLLECTION_COVERAGE_RECEIPT/);
+  });
+
+  it("fails a stale final day before durable completion so the slot can be replayed", () => {
+    const staleGate = runner.indexOf('publicationInputs.sourceDelta.dailySourceHealth === "stale_day"');
+    const completion = runner.indexOf('await completeRun("completed"');
+    assert.ok(staleGate > -1 && completion > staleGate);
+    assert.match(runner, /published receipt is recoverable with a replay/);
+  });
+
+  it("recovers completed-slot freshness metadata from current or historical receipts", () => {
+    const completedReplay = section('if (run?.status === "completed")', "} else {");
+    assert.ok(completedReplay.includes("publishedSourceDeltaPath"));
+    assert.ok(completedReplay.includes("publishedSourceDeltaHistoryPath"));
+    assert.ok(completedReplay.includes("sourceDeltaHistory.find"));
   });
 
   it("isolates work directories with a hash of the exact idempotency key", () => {

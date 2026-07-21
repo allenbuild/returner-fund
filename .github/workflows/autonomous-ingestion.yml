@@ -19,10 +19,6 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: autonomous-ingestion
-  cancel-in-progress: false
-
 jobs:
   resolve:
     name: Resolve Central slot candidate
@@ -71,7 +67,11 @@ jobs:
     needs: resolve
     if: needs.resolve.outputs.should_run == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 285
+    timeout-minutes: 320
+    concurrency:
+      group: repository-publication-main
+      cancel-in-progress: false
+      queue: max
     outputs:
       published_commit: ${{ steps.publication_receipt.outputs.published_commit }}
       receipt_status: ${{ steps.publication_receipt.outputs.receipt_status }}
@@ -79,6 +79,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Use Node.js
@@ -93,7 +94,7 @@ jobs:
 
       - name: Run autonomous ingestion
         id: ingestion
-        timeout-minutes: 260
+        timeout-minutes: 300
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -104,6 +105,7 @@ jobs:
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
+          INGESTION_PUBLICATION_BRANCH: main
         run: node scripts/run-autonomous-ingestion.mjs --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"
 
       - name: Validate generated public artifacts
@@ -115,14 +117,35 @@ jobs:
         env:
           SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
           RUNNER_STATUS: ${{ steps.ingestion.outputs.runner_status }}
+          PUBLICATION_STATUS: ${{ steps.ingestion.outputs.publication_status }}
+          COLLECTION_HEALTH: ${{ steps.ingestion.outputs.collection_health }}
+          NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.new_physical_sources }}
+          DAILY_NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.daily_new_physical_sources }}
+          DAILY_SOURCE_HEALTH: ${{ steps.ingestion.outputs.daily_source_health }}
         run: |
           PUBLISHED_COMMIT="$(git rev-parse HEAD)"
           if [ "$RUNNER_STATUS" = "already_completed" ]; then
-            RECEIPT_STATUS="noop_completed"
-          elif [ "$RUNNER_STATUS" = "refreshed" ]; then
-            RECEIPT_STATUS="published"
+            if [ "$DAILY_SOURCE_HEALTH" = "stale_day" ]; then
+              RECEIPT_STATUS="noop_stale_day"
+            elif [ "$DAILY_SOURCE_HEALTH" = "healthy" ] || [ "$DAILY_SOURCE_HEALTH" = "awaiting_second_slot" ]; then
+              RECEIPT_STATUS="noop_completed"
+            else
+              RECEIPT_STATUS="noop_missing_receipt"
+            fi
+          elif [ "$RUNNER_STATUS" = "refreshed" ] && [ "$PUBLICATION_STATUS" = "published" ]; then
+            if [ "$DAILY_SOURCE_HEALTH" = "stale_day" ]; then
+              RECEIPT_STATUS="published_stale_day"
+            elif [ "$COLLECTION_HEALTH" = "degraded" ]; then
+              RECEIPT_STATUS="published_degraded"
+            elif [ "${NEW_PHYSICAL_SOURCES:-0}" = "0" ]; then
+              RECEIPT_STATUS="published_no_new_sources"
+            else
+              RECEIPT_STATUS="published"
+            fi
+          elif [ "$RUNNER_STATUS" = "refreshed" ] && [ "$PUBLICATION_STATUS" = "no_changes" ]; then
+            RECEIPT_STATUS="no_changes"
           else
-            echo "::error title=Missing ingestion outcome::Runner returned an unknown outcome: ${RUNNER_STATUS:-missing}"
+            echo "::error title=Missing ingestion outcome::Runner returned an unknown outcome: ${RUNNER_STATUS:-missing} / ${PUBLICATION_STATUS:-missing}"
             exit 1
           fi
           echo "receipt_status=$RECEIPT_STATUS" >> "$GITHUB_OUTPUT"
@@ -132,8 +155,16 @@ jobs:
             echo "- Status: $RECEIPT_STATUS"
             echo "- Slot: $SLOT_KEY"
             echo "- Commit: $PUBLISHED_COMMIT"
+            echo "- Collection health: ${COLLECTION_HEALTH:-unknown}"
+            echo "- New physical sources this slot: ${NEW_PHYSICAL_SOURCES:-unknown}"
+            echo "- New physical sources this Central day: ${DAILY_NEW_PHYSICAL_SOURCES:-unknown}"
+            echo "- Daily source health: ${DAILY_SOURCE_HEALTH:-unknown}"
             echo "- Artifact validation: passed"
           } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$RECEIPT_STATUS" = "published_stale_day" ] || [ "$RECEIPT_STATUS" = "noop_stale_day" ] || [ "$RECEIPT_STATUS" = "noop_missing_receipt" ] || [ "$RECEIPT_STATUS" = "no_changes" ]; then
+            echo "::error title=Daily source freshness failed::$RECEIPT_STATUS for $SLOT_KEY"
+            exit 1
+          fi
 
   receipt:
     name: Audit refresh outcome
@@ -155,7 +186,9 @@ jobs:
             STATUS="resolver_failed"
           elif [ "$SHOULD_RUN" != "true" ]; then
             STATUS="inactive_candidate_no_refresh"
-          elif [ "$INGEST_RESULT" = "success" ] && { [ "$RECEIPT_STATUS" = "published" ] || [ "$RECEIPT_STATUS" = "noop_completed" ]; }; then
+          elif [ "$RECEIPT_STATUS" = "published_stale_day" ] || [ "$RECEIPT_STATUS" = "noop_stale_day" ] || [ "$RECEIPT_STATUS" = "noop_missing_receipt" ] || [ "$RECEIPT_STATUS" = "no_changes" ]; then
+            STATUS="$RECEIPT_STATUS"
+          elif [ "$INGEST_RESULT" = "success" ] && { [ "$RECEIPT_STATUS" = "published" ] || [ "$RECEIPT_STATUS" = "published_degraded" ] || [ "$RECEIPT_STATUS" = "published_no_new_sources" ] || [ "$RECEIPT_STATUS" = "noop_completed" ]; }; then
             STATUS="$RECEIPT_STATUS"
           else
             STATUS="accepted_slot_failed"
@@ -168,8 +201,9 @@ jobs:
             echo "- Ingestion result: $INGEST_RESULT"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ]; then
+          if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ] || [ "$STATUS" = "published_stale_day" ] || [ "$STATUS" = "noop_stale_day" ] || [ "$STATUS" = "noop_missing_receipt" ] || [ "$STATUS" = "no_changes" ]; then
             echo "::error title=Autonomous ingestion failed::$STATUS for ${SLOT_KEY:-unknown slot}"
-            exit 1
+            echo "The upstream resolver or ingestion job is the single failing job for this run."
+            exit 0
           fi
           echo "::notice title=Autonomous ingestion outcome::$STATUS for ${SLOT_KEY:-inactive candidate}"

@@ -75,6 +75,12 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   lockReleaseHeadroomMs: 2 * MINUTE_MS
 });
 
+// A tiny number of explicit, terminal source failures must not discard hours
+// of otherwise valid collection work. Non-terminal tasks remain a hard stop,
+// and this absolute ceiling prevents a broad collector outage from being
+// mislabeled as a usable degraded refresh.
+export const AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET = 5;
+
 export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_BUDGETS) {
   const retriedCollectorWindow =
     budgets.collectorAttempts * Math.max(
@@ -96,10 +102,22 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     budgets.gitStageMs +
     budgets.gitDiffMs +
     budgets.gitCommitMs +
+    (2 * budgets.gitPushMs) + // push + remote verification fetch
+    budgets.gitDiffMs; // ancestry verification
+  const publicationRetryWindow =
+    (2 * budgets.gitPushMs) + // fetch + rebase
+    budgets.productionBuildMs +
+    budgets.benchmarkPublicationMs +
+    budgets.artifactManifestMs +
+    (2 * budgets.artifactValidationMs) + // cohort audit + public artifact validation
+    budgets.gitStageMs +
+    budgets.gitDiffMs +
+    budgets.gitCommitMs +
     budgets.gitPushMs;
   return (
     collectorWindow +
     publicationWindow +
+    publicationRetryWindow +
     budgets.processKillGraceMs +
     budgets.durablePersistenceHeadroomMs +
     budgets.lockReleaseHeadroomMs
@@ -632,7 +650,10 @@ export function validateAutonomousCollectorMatrix(results, batches = AUTONOMOUS_
 
 export function validateMappedAutonomousCoverage(
   coverage,
-  { allowTerminalFailures = false } = {}
+  {
+    allowTerminalFailures = false,
+    maxTerminalFailures = allowTerminalFailures ? Number.POSITIVE_INFINITY : 0
+  } = {}
 ) {
   const expected = coverage?.mappedExpected ?? 0;
   const succeeded = coverage?.mappedSucceeded ?? 0;
@@ -641,12 +662,17 @@ export function validateMappedAutonomousCoverage(
   const failed = coverage?.mappedFailed ?? 0;
   const nonTerminal = coverage?.mappedNonTerminal ?? 0;
   const classified = succeeded + needsReview + blockedOrEmpty;
-  const terminallyAccounted = classified + (allowTerminalFailures ? failed : 0);
-  if (terminallyAccounted !== expected || (!allowTerminalFailures && failed) || nonTerminal) {
+  const terminallyAccounted = classified + failed;
+  const failureBudgetExceeded = failed > maxTerminalFailures;
+  if (terminallyAccounted !== expected || failureBudgetExceeded || nonTerminal) {
+    const failureSamples = Array.isArray(coverage?.mappedFailureSamples)
+      ? ` Failed task samples: ${JSON.stringify(coverage.mappedFailureSamples.slice(0, 20))}.`
+      : "";
     throw new Error(
       "Mapped collector coverage was incomplete: " +
       `${classified}/${expected} classified (${succeeded} with native evidence), ${needsReview} need review, ` +
-      `${blockedOrEmpty} blocked or empty, ${failed} failed, ${nonTerminal} nonterminal.`
+      `${blockedOrEmpty} blocked or empty, ${failed} failed (budget ${maxTerminalFailures}), ` +
+      `${nonTerminal} nonterminal.${failureSamples}`
     );
   }
   return coverage;

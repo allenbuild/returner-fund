@@ -1,0 +1,89 @@
+[
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-21-0600",
+    "centralDay": "2026-07-21",
+    "observedAt": "2026-07-21T14:24:00.000Z",
+    "baselinePhysicalSources": 1774,
+    "publishedPhysicalSources": 1780,
+    "newPhysicalSources": 7,
+    "newPhysicalSourcesThisAttempt": 7,
+    "retainedPhysicalSources": 1773,
+    "removedPhysicalSources": 1,
+    "dailyNewPhysicalSources": 7,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "complete",
+    "mappedFailures": 0,
+    "newestNewSourcePostedAt": "2026-07-20T16:32:10Z",
+    "insertedByBatchPlatform": {
+      "S2026:github": 1,
+      "S2026:youtube": 5,
+      "S26:hacker_news": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-gojiberry-ai",
+        "sourceUrl": "https://youtube.com/watch?v=md64WNgbPVw",
+        "platformPostId": "md64WNgbPVw",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-auxos",
+        "sourceUrl": "https://youtube.com/watch?v=QW2A35qmU9I",
+        "platformPostId": "QW2A35qmU9I",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-kimpton-ai",
+        "sourceUrl": "https://youtube.com/watch?v=hnIa8E7Q4qI",
+        "platformPostId": "hnIa8E7Q4qI",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-clara-2",
+        "sourceUrl": "https://youtube.com/watch?v=dIxjqbVK2cg",
+        "platformPostId": "dIxjqbVK2cg",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "hacker_news",
+        "entityType": "company",
+        "entityId": "company-bloomy",
+        "sourceUrl": "https://news.ycombinator.com/item?id=48981136",
+        "platformPostId": "48981136",
+        "postedAt": "2026-07-20T16:32:10Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-thomas",
+        "sourceUrl": "https://youtube.com/watch?v=lVME4RpYyw8",
+        "platformPostId": "lVME4RpYyw8",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-insforge-tony-chang-2376097",
+        "sourceUrl": "https://github.com/InsForge/insforge-flutter",
+        "platformPostId": "InsForge/insforge-flutter",
+        "postedAt": "2026-06-09T17:54:40Z"
+      }
+    ]
+  }
+]

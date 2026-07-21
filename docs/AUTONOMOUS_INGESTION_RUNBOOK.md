@@ -95,7 +95,7 @@ All listed relations must exist and report RLS enabled. Also test with anon/auth
 | `SUPABASE_SERVICE_ROLE_KEY` | Coordinator and full diagnostics server | Service-role access to RLS-protected operational/evidence tables and runtime RPCs. |
 | `--idempotency-key` or `INGESTION_IDEMPOTENCY_KEY` | Coordinator | Stable run identity. The workflow passes the resolved Central slot or manual replay key as the CLI argument. |
 
-The GitHub workflow explicitly fails before collection when either Supabase secret is missing.
+When either Supabase secret is missing, the workflow continues in explicitly labeled file-backed mode so source collection and Git publication do not stop. That mode does not provide durable database locking, task history, importer counters, or database idempotency; the repository publication lane is the only coordinator lock. Configure both secrets for the full production contract.
 
 ### Required for production admin diagnostics
 
@@ -343,14 +343,14 @@ order by artifact_key;
 A production run is successful only when all of the following are true:
 
 - The workflow accepted the intended Central slot or explicit replay key.
-- One run row exists for the idempotency key and ends in `completed`.
-- The runtime lock is released.
+- When Supabase is configured, one run row exists for the idempotency key and ends in `completed` and the runtime lock is released. In file-backed mode, the receipt must explicitly report that these guarantees were skipped.
 - The overall coverage report has `nonTerminal = 0`.
-- Failed and skipped counts are reviewed and acceptable. `coveragePercentage = 100` alone is insufficient.
+- Explicit terminal mapped failures are at or below the hard budget of five and their exact checkpoint keys appear in the coverage receipt. Any nonterminal task or a sixth terminal failure blocks publication.
 - Durable importer counters have plausible `received`, `stored`, `readBack`, attribution, observation, and rejection values.
 - The production build, graph/benchmark publication, manifest write, and artifact validation completed.
 - The manifest run ID matches the ingestion run, and its SHA-256 matches the committed file.
-- The workflow pushed the expected publication commit, or explicitly reported no artifact changes.
+- The workflow pushed and remotely verified the expected publication commit. A no-change result is an error for a new accepted slot.
+- The source-delta receipt distinguishes newly inserted physical posts from re-observed rows. The final Central slot fails the daily freshness audit if both slots found zero new physical sources.
 - The deployed graph/API reflects the intended publication after deployment catches up with the pushed commit.
 
 ## Manual replay and backfill
@@ -410,12 +410,12 @@ The coordinator renews every 60 seconds against a 20-minute lease. A heartbeat c
 
 ### Collector timeout or failure
 
-- Broad-public child timeout: 55 minutes.
-- GitHub child timeout: 45 minutes.
-- Overall GitHub job timeout: 90 minutes.
-- Collectors run in parallel and settle independently.
+- Broad-public child timeout: 90 minutes per attempt, up to two attempts.
+- GitHub child timeout: 20 minutes per attempt, up to two attempts.
+- Overall ingestion step timeout: 300 minutes; overall job timeout: 320 minutes.
+- Public cohort collectors run in parallel. GitHub cohort collectors share a serialized queue to respect public API limits.
 
-A failed child marks matching queued tasks `failed`; terminal failures do not by themselves block publication. Review failed/skipped counters and source-specific errors before accepting the run.
+A failed child marks matching queued tasks `failed`. Up to five explicit terminal mapped failures can publish a clearly labeled degraded refresh so a tiny tail does not discard hours of valid work. More than five, any nonterminal task, an incomplete collector matrix, or zero successful collection rows blocks publication. Review the exact failed checkpoint keys in the workflow summary.
 
 If every collector fails before writing a readable snapshot, the durable importer rejects the run because it requires at least one snapshot. Partial available snapshots can still import.
 

@@ -5,6 +5,7 @@ import { appendFile, mkdir, readFile, rename, stat, writeFile } from "node:fs/pr
 import { dirname, join } from "node:path";
 import {
   AUTONOMOUS_BATCHES,
+  AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET,
   AUTONOMOUS_PROCESS_BUDGETS,
   autonomousCollectorRetryableFailures,
   buildAutonomousPublicNativeAuthorResolver,
@@ -26,6 +27,10 @@ import {
   validateMappedAutonomousCoverage
 } from "./lib/autonomous-ingestion-plan.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
+import {
+  mergeIngestionSourceDeltaHistory,
+  summarizeIngestionSourceDelta
+} from "./lib/ingestion-source-delta.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
 
 const root = process.cwd();
@@ -49,6 +54,8 @@ const sourceDiscoveryPathOutputs = new Map(
 const publishedDiscoveryAttemptsPath = join(root, "outputs", "discovery-attempts-current.json");
 const publishedSourceDiscoveryPathsPath = join(root, "outputs", "source-discovery-paths-current.json");
 const publishedCohortAuditPath = join(root, "outputs", "cohort-coverage-current.json");
+const publishedSourceDeltaPath = join(root, "outputs", "ingestion-source-delta-current.json");
+const publishedSourceDeltaHistoryPath = join(root, "outputs", "ingestion-source-delta-history.json");
 const topVoiceOutput = join(workRoot, "top-voice-refresh.json");
 
 if (!idempotencyKey) {
@@ -105,7 +112,21 @@ try {
   }
   if (run?.status === "completed") {
     console.log(`Ingestion ${idempotencyKey} already completed as run ${run.id}; replay is a no-op.`);
-    await writeRunnerOutcome("already_completed");
+    const [currentSourceDelta, sourceDeltaHistory] = await Promise.all([
+      readJson(publishedSourceDeltaPath, null),
+      readJson(publishedSourceDeltaHistoryPath, [])
+    ]);
+    const priorSourceDelta = currentSourceDelta?.idempotencyKey === idempotencyKey
+      ? currentSourceDelta
+      : sourceDeltaHistory.find((receipt) => receipt?.idempotencyKey === idempotencyKey) ?? null;
+    await writeRunnerOutcome({
+      status: "already_completed",
+      publicationStatus: "already_completed",
+      collectionHealth: priorSourceDelta?.collectionHealth ?? "unknown",
+      newPhysicalSources: priorSourceDelta?.newPhysicalSources ?? "",
+      dailyNewPhysicalSources: priorSourceDelta?.dailyNewPhysicalSources ?? "",
+      dailySourceHealth: priorSourceDelta?.dailySourceHealth ?? "unknown"
+    });
     process.exitCode = 0;
   } else {
     if (durableStorageConfigured) {
@@ -163,12 +184,17 @@ try {
       { skipNetwork: args.skipNetwork }
     );
     assertSuccessfulCollection(collectionResults, collectionCoverage);
+    await recordCollectionCoverage(collectionCoverage);
     validateMappedAutonomousCoverage(collectionCoverage, {
-      allowTerminalFailures: args.skipPublish
+      maxTerminalFailures: args.skipPublish
+        ? Number.POSITIVE_INFINITY
+        : AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET
     });
     assertSuccessfulTopVoiceRefresh(topVoiceRefresh);
     const publicationRunId = run?.id ?? `file:${idempotencyKey}`;
     if (!args.skipPublish) await synchronizePublicationBase();
+    const publicationBaseline = await readPublicationEvidenceBaseline();
+    const sourceDeltaHistory = await readJson(publishedSourceDeltaHistoryPath, []);
     const publicationInputs = {
       publicSnapshots,
       githubSnapshots,
@@ -233,7 +259,16 @@ try {
     // synchronizePublicationBase() can overwrite evidence or discovery rows
     // that another completed ingestion pushed while these collectors ran.
     await mergePublicationInputs(publicationInputs);
+    publicationInputs.sourceDelta = summarizeIngestionSourceDelta({
+      idempotencyKey,
+      beforeSnapshots: publicationBaseline,
+      afterSnapshots: await readPublicationEvidenceBaseline(),
+      previousHistory: sourceDeltaHistory,
+      mappedFailures: collectionCoverage.mappedFailed
+    });
+    await writeSourceDeltaReceipt(publicationInputs.sourceDelta, sourceDeltaHistory);
 
+    let publicationReceipt = { status: "skipped", publishedCommit: null };
     if (!args.skipPublish) {
       await buildAndValidatePublication(publicationRunId);
       if (run) {
@@ -246,7 +281,23 @@ try {
           { reason: "supabase_not_configured", publicationRunId }
         );
       }
-      await publishRepositoryArtifacts(publicationRunId, publicationInputs);
+      publicationReceipt = await publishRepositoryArtifacts(publicationRunId, publicationInputs);
+    }
+
+    if (!args.skipPublish && publicationReceipt.status === "no_changes") {
+      throw new Error(`Accepted ingestion slot ${idempotencyKey} produced no publication changes.`);
+    }
+    if (!args.skipPublish && publicationInputs.sourceDelta.dailySourceHealth === "stale_day") {
+      await event(
+        "publication.daily_source_stale",
+        "error",
+        "Both Central ingestion slots completed without a new physical source.",
+        publicationInputs.sourceDelta
+      );
+      throw new Error(
+        `Daily source freshness failed for ${publicationInputs.sourceDelta.centralDay}: ` +
+        "both Central slots found zero new physical sources. The published receipt is recoverable with a replay."
+      );
     }
 
     const finalCoverage = catalogState
@@ -273,9 +324,18 @@ try {
       status: "completed",
       coverage: finalCoverage,
       durableImport,
+      sourceDelta: publicationInputs.sourceDelta,
+      publicationReceipt,
       topVoiceRefresh
     }, null, 2));
-    await writeRunnerOutcome("refreshed");
+    await writeRunnerOutcome({
+      status: "refreshed",
+      publicationStatus: publicationReceipt.status,
+      collectionHealth: publicationInputs.sourceDelta.collectionHealth,
+      newPhysicalSources: publicationInputs.sourceDelta.newPhysicalSources,
+      dailyNewPhysicalSources: publicationInputs.sourceDelta.dailyNewPhysicalSources,
+      dailySourceHealth: publicationInputs.sourceDelta.dailySourceHealth
+    });
   }
 } catch (error) {
   hardFailure = error;
@@ -787,6 +847,59 @@ async function readCanonicalLoggedInAttributionReconciliationLedger({ baseRef = 
     base?.attributionReconciliationLedger,
     current.attributionReconciliationLedger
   );
+}
+
+async function readPublicationEvidenceBaseline({ baseRef = null } = {}) {
+  const evidencePaths = [
+    "src/lib/social/public-evidence-current.json",
+    "src/lib/social/targeted-evidence-current.json"
+  ];
+  const githubPaths = [
+    "src/lib/social/github-traction.json",
+    "src/lib/social/github-traction-summer-2026.json",
+    "src/lib/social/github-traction-a16z-speedrun-006.json"
+  ];
+  const snapshots = await Promise.all([...evidencePaths, ...githubPaths].map((path) => baseRef
+    ? readJsonFromGitRef(baseRef, path, { evidence: [] })
+    : readRequiredCanonicalJson(join(root, path), `Canonical publication baseline ${path}`)
+  ));
+  return [
+    ...snapshots.slice(0, evidencePaths.length),
+    ...snapshots.slice(evidencePaths.length).map((snapshot) => ({
+      source: snapshot?.source,
+      evidence: canonicalGithubContentIdentityRows(snapshot)
+    }))
+  ];
+}
+
+async function readSourceDeltaHistory({ baseRef = null } = {}) {
+  if (baseRef) {
+    return readJsonFromGitRef(baseRef, "outputs/ingestion-source-delta-history.json", []);
+  }
+  return readJson(publishedSourceDeltaHistoryPath, []);
+}
+
+async function writeSourceDeltaReceipt(receipt, previousHistory) {
+  await Promise.all([
+    writeJsonAtomic(publishedSourceDeltaPath, receipt),
+    writeJsonAtomic(
+      publishedSourceDeltaHistoryPath,
+      mergeIngestionSourceDeltaHistory(previousHistory, receipt)
+    )
+  ]);
+  console.log(`SOURCE_DELTA_RECEIPT ${JSON.stringify(receipt)}`);
+  const githubSummary = cleanEnv(process.env.GITHUB_STEP_SUMMARY);
+  if (!githubSummary) return;
+  await appendFile(githubSummary, [
+    "## New physical source receipt",
+    `- Slot: ${receipt.idempotencyKey}`,
+    `- New physical sources this slot: ${receipt.newPhysicalSources}`,
+    `- New physical sources this Central day: ${receipt.dailyNewPhysicalSources}`,
+    `- Daily source health: ${receipt.dailySourceHealth}`,
+    `- Published physical sources: ${receipt.publishedPhysicalSources}`,
+    `- Newest new-source post: ${receipt.newestNewSourcePostedAt ?? "none"}`,
+    ""
+  ].join("\n"), "utf8");
 }
 
 function canonicalGithubContentIdentityRows(snapshot) {
@@ -1433,6 +1546,7 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
     mappedBlockedOrEmpty: 0,
     mappedFailed: 0,
     mappedNonTerminal: 0,
+    mappedFailureSamples: [],
     coveragePercentage: 0,
     generatedAt: new Date().toISOString()
   };
@@ -1475,7 +1589,18 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
       if (outcome.status === "completed") report.mappedSucceeded += 1;
       else if (outcome.status === "needs_review") report.mappedNeedsReview += 1;
       else if (outcome.status === "blocked_or_empty") report.mappedBlockedOrEmpty += 1;
-      else report.mappedFailed += 1;
+      else {
+        report.mappedFailed += 1;
+        report.mappedFailureSamples.push({
+          checkpointKey: task.checkpointKey,
+          batchSlug: task.batchSlug,
+          platform: task.platform,
+          entityType: task.entityType,
+          entityId: task.entitySourceKey,
+          accountUrl: task.account?.url ?? null,
+          reason: outcome.reason
+        });
+      }
     }
   }
   report.attempted = report.expected - report.nonTerminal;
@@ -1483,6 +1608,48 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
     ? Number((((report.expected - report.nonTerminal) / report.expected) * 100).toFixed(2))
     : 100;
   return report;
+}
+
+async function recordCollectionCoverage(coverage) {
+  const degraded = (coverage.mappedFailed ?? 0) > 0;
+  const budgetExceeded = (coverage.mappedFailed ?? 0) > AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET;
+  const summary = {
+    mappedExpected: coverage.mappedExpected,
+    mappedSucceeded: coverage.mappedSucceeded,
+    mappedNeedsReview: coverage.mappedNeedsReview,
+    mappedBlockedOrEmpty: coverage.mappedBlockedOrEmpty,
+    mappedFailed: coverage.mappedFailed,
+    mappedNonTerminal: coverage.mappedNonTerminal,
+    terminalFailureBudget: AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET,
+    status: budgetExceeded ? "failed_budget_exceeded" : degraded ? "degraded" : "complete",
+    failedTaskSamples: coverage.mappedFailureSamples
+  };
+  console.log(`COLLECTION_COVERAGE_RECEIPT ${JSON.stringify(summary)}`);
+  if (degraded) {
+    console.warn(
+      budgetExceeded
+        ? `Refusing publication because ${coverage.mappedFailed} explicit terminal mapped failure(s) exceed ` +
+          `the budget of ${AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET}.`
+        : `Publishing a degraded refresh with ${coverage.mappedFailed} explicit terminal mapped failure(s) ` +
+          `within the budget of ${AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET}.`
+    );
+  }
+  const githubSummary = cleanEnv(process.env.GITHUB_STEP_SUMMARY);
+  if (!githubSummary) return;
+  await appendFile(githubSummary, [
+    "## Collector coverage",
+    `- Status: ${summary.status}`,
+    `- Mapped tasks: ${coverage.mappedExpected}`,
+    `- Native evidence: ${coverage.mappedSucceeded}`,
+    `- Needs review: ${coverage.mappedNeedsReview}`,
+    `- Blocked or empty: ${coverage.mappedBlockedOrEmpty}`,
+    `- Terminal failures: ${coverage.mappedFailed}/${AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET}`,
+    `- Nonterminal tasks: ${coverage.mappedNonTerminal}`,
+    ...(coverage.mappedFailureSamples ?? []).map((sample) =>
+      `- Failed task: \`${sample.checkpointKey}\` — ${sample.reason}`
+    ),
+    ""
+  ].join("\n"), "utf8");
 }
 
 function assertSuccessfulCollection(collectionResults, coverage) {
@@ -1691,7 +1858,7 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       "Repository publication was skipped outside GitHub Actions; generated artifacts remain local.",
       {}
     );
-    return;
+    return { status: "skipped", publishedCommit: null };
   }
 
   await runCommand("git", ["config", "user.name", "github-actions[bot]"], {
@@ -1711,7 +1878,13 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
   });
   if (diff.code === 0) {
     await event("publication.no_changes", "info", "No public artifact changes required publication.", {});
-    return;
+    return {
+      status: "no_changes",
+      publishedCommit: (await runCommand("git", ["rev-parse", "HEAD"], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+        label: "resolve unchanged publication commit"
+      })).stdout.trim()
+    };
   }
 
   await runCommand("git", ["commit", "-m", `Publish autonomous ingestion ${idempotencyKey}`], {
@@ -1767,6 +1940,10 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       sanitizedPublicSnapshot: rebasedSanitizedPublicSnapshot,
       sanitizedTargetedSnapshot: rebasedSanitizedTargetedSnapshot
     };
+    const [rebasedBaseline, rebasedSourceDeltaHistory] = await Promise.all([
+      readPublicationEvidenceBaseline({ baseRef: `origin/${branch}` }),
+      readSourceDeltaHistory({ baseRef: `origin/${branch}` })
+    ]);
     const retryDurableImport = await importDurableEvidence({
       publicSnapshots: [
         rebasedSanitizedPublicSnapshot,
@@ -1782,6 +1959,14 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     });
     assertDurableAttributionCompleteness(retryDurableImport);
     await mergePublicationInputs(rebasedPublicationInputs, { baseRef: `origin/${branch}` });
+    rebasedPublicationInputs.sourceDelta = summarizeIngestionSourceDelta({
+      idempotencyKey,
+      beforeSnapshots: rebasedBaseline,
+      afterSnapshots: await readPublicationEvidenceBaseline(),
+      previousHistory: rebasedSourceDeltaHistory,
+      mappedFailures: publicationInputs.sourceDelta?.mappedFailures ?? 0
+    });
+    await writeSourceDeltaReceipt(rebasedPublicationInputs.sourceDelta, rebasedSourceDeltaHistory);
     await buildAndValidatePublication(publicationRunId);
     if (run) await persistArtifactManifest(run.id);
     await stageRepositoryArtifacts();
@@ -1800,6 +1985,29 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
       label: "retry refreshed artifact push"
     });
+    publicationInputs.sourceDelta = rebasedPublicationInputs.sourceDelta;
+  }
+  const publishedCommit = (await runCommand("git", ["rev-parse", "HEAD"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+    label: "resolve published commit"
+  })).stdout.trim();
+  await runCommand("git", ["fetch", "origin", branch], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitPushMs,
+    label: "fetch published remote commit"
+  });
+  const remoteContainsPublication = await runCommand(
+    "git",
+    ["merge-base", "--is-ancestor", publishedCommit, `origin/${branch}`],
+    {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.gitDiffMs,
+      label: "verify published commit ancestry",
+      allowedExitCodes: [0, 1]
+    }
+  );
+  if (remoteContainsPublication.code !== 0) {
+    throw new Error(
+      `Publication verification failed: remote ${branch} does not contain ${publishedCommit || "the local commit"}.`
+    );
   }
   await event("publication.completed", "info", "Refreshed artifacts were committed and pushed.", {
     idempotencyKey,
@@ -1808,6 +2016,7 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     retriedAfterNonFastForward: firstPush.code !== 0,
     publishedPaths: repositoryArtifactPaths()
   });
+  return { status: "published", publishedCommit };
 }
 
 async function stageRepositoryArtifacts() {
@@ -1822,6 +2031,8 @@ function repositoryArtifactPaths() {
     "public/graph",
     "outputs/benchmarks",
     "outputs/cohort-coverage-current.json",
+    "outputs/ingestion-source-delta-current.json",
+    "outputs/ingestion-source-delta-history.json",
     "outputs/discovery-attempts-current.json",
     "outputs/source-discovery-paths-current.json",
     "src/lib/social/public-evidence-current.json",
@@ -1833,7 +2044,7 @@ function repositoryArtifactPaths() {
 }
 
 function publicationBranch() {
-  const branch = String(process.env.GITHUB_REF_NAME ?? "main").trim();
+  const branch = String(process.env.INGESTION_PUBLICATION_BRANCH ?? "main").trim();
   if (!/^[A-Za-z0-9._/-]+$/.test(branch) || branch.startsWith("-") || branch.includes("..")) {
     throw new Error(`Unsafe publication branch: ${branch || "empty"}.`);
   }
@@ -2002,10 +2213,23 @@ async function writeJsonAtomic(path, value) {
   await rename(temporary, path);
 }
 
-async function writeRunnerOutcome(status) {
+async function writeRunnerOutcome(outcome) {
   const githubOutput = cleanEnv(process.env.GITHUB_OUTPUT);
   if (!githubOutput) return;
-  await appendFile(githubOutput, `runner_status=${status}\n`, "utf8");
+  const normalized = typeof outcome === "string" ? { status: outcome } : outcome;
+  const outputs = {
+    runner_status: normalized.status,
+    publication_status: normalized.publicationStatus ?? "",
+    collection_health: normalized.collectionHealth ?? "",
+    new_physical_sources: normalized.newPhysicalSources ?? "",
+    daily_new_physical_sources: normalized.dailyNewPhysicalSources ?? "",
+    daily_source_health: normalized.dailySourceHealth ?? ""
+  };
+  await appendFile(
+    githubOutput,
+    `${Object.entries(outputs).map(([key, value]) => `${key}=${value}`).join("\n")}\n`,
+    "utf8"
+  );
 }
 
 async function readJson(path, fallback) {

@@ -442,7 +442,7 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
   });
 
   it("keeps process retries, durable persistence, and lock-release headroom below the workflow timeout", () => {
-    const runnerTimeoutMs = 260 * 60_000;
+    const runnerTimeoutMs = 300 * 60_000;
 
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 90 * 60_000);
@@ -511,6 +511,17 @@ describe("autonomous collector and publication gates", () => {
     assert.equal(
       validateMappedAutonomousCoverage(terminalFailure, { allowTerminalFailures: true }),
       terminalFailure
+    );
+    assert.equal(
+      validateMappedAutonomousCoverage(terminalFailure, { maxTerminalFailures: 1 }),
+      terminalFailure
+    );
+    assert.throws(
+      () => validateMappedAutonomousCoverage(
+        { ...terminalFailure, mappedFailed: 2, mappedBlockedOrEmpty: 0 },
+        { maxTerminalFailures: 1 }
+      ),
+      /failed \(budget 1\)/
     );
     assert.throws(
       () => validateMappedAutonomousCoverage(
