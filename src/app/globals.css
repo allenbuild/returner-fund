@@ -2388,7 +2388,7 @@ progress::-webkit-progress-value {
 
 .stats-tab-body {
   padding: 22px;
-  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.045), transparent 190px);
+  background: var(--panel);
   overflow: visible;
 }
 
@@ -2403,24 +2403,24 @@ progress::-webkit-progress-value {
   justify-content: space-between;
   gap: 18px;
   padding-left: 14px;
-  border-left: 4px solid var(--stats-source);
+  border-left: 3px solid rgba(var(--accent-rgb), 0.58);
 }
 
 .stats-header h2 {
-  color: var(--stats-source-text);
+  color: var(--neutral-900);
   font-size: 1.28rem;
   font-weight: 700;
   letter-spacing: 0;
 }
 
 .stats-header p {
-  color: var(--stats-company-text);
+  color: var(--neutral-600);
   font-size: 0.78rem;
   font-weight: 700;
 }
 
 .stats-header > span {
-  color: var(--stats-founder-text);
+  color: var(--neutral-600);
   font-size: 0.78rem;
   font-weight: 600;
 }
@@ -2436,35 +2436,17 @@ progress::-webkit-progress-value {
 }
 
 .stats-metric {
-  --stats-metric-color: var(--stats-source-text);
-  --stats-metric-line: var(--stats-source);
-  --stats-metric-soft: var(--stats-source-soft);
-  --stats-metric-border: var(--stats-source-border);
   display: grid;
   min-height: 106px;
   padding: 16px;
-  border: 1px solid var(--stats-metric-border);
+  border: 1px solid var(--neutral-200);
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--stats-metric-soft), #ffffff 70%);
-  box-shadow: inset 0 3px 0 var(--stats-metric-line);
-}
-
-.stats-metric-company {
-  --stats-metric-color: var(--stats-company-text);
-  --stats-metric-line: var(--stats-company);
-  --stats-metric-soft: var(--stats-company-soft);
-  --stats-metric-border: var(--stats-company-border);
-}
-
-.stats-metric-founder {
-  --stats-metric-color: var(--stats-founder-text);
-  --stats-metric-line: var(--stats-founder);
-  --stats-metric-soft: var(--stats-founder-soft);
-  --stats-metric-border: var(--stats-founder-border);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(28, 25, 23, 0.03);
 }
 
 .stats-metric > span {
-  color: var(--stats-metric-color);
+  color: var(--neutral-600);
   font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -2472,7 +2454,7 @@ progress::-webkit-progress-value {
 
 .stats-metric strong {
   align-self: end;
-  color: var(--stats-metric-color);
+  color: var(--neutral-900);
   font-size: 1.62rem;
   font-weight: 700;
   line-height: 1;
@@ -2480,7 +2462,7 @@ progress::-webkit-progress-value {
 
 .stats-metric small {
   align-self: end;
-  color: var(--stats-metric-color);
+  color: var(--neutral-600);
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -2492,19 +2474,16 @@ progress::-webkit-progress-value {
 }
 
 .stats-growth-card {
-  --stats-series-color: var(--stats-source);
-  --stats-series-text: var(--stats-source-text);
-  --stats-series-soft: var(--stats-source-soft);
-  --stats-series-border: var(--stats-source-border);
+  --stats-series-color: var(--accent);
   display: grid;
   grid-template-rows: auto 118px auto;
   gap: 12px;
   min-width: 0;
   padding: 16px;
-  border: 1px solid var(--stats-series-border);
+  border: 1px solid var(--neutral-200);
   border-radius: 8px;
-  background: linear-gradient(180deg, var(--stats-series-soft), #ffffff 52%);
-  box-shadow: inset 0 3px 0 var(--stats-series-color);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(28, 25, 23, 0.03);
 }
 
 .stats-growth-card header,
@@ -2521,20 +2500,20 @@ progress::-webkit-progress-value {
 }
 
 .stats-growth-card header span {
-  color: var(--stats-series-text);
+  color: var(--neutral-700);
   font-size: 0.82rem;
   font-weight: 700;
 }
 
 .stats-growth-card header strong {
-  color: var(--stats-series-text);
+  color: var(--neutral-900);
   font-size: 1.18rem;
   font-weight: 700;
 }
 
 .stats-growth-card header small,
 .stats-growth-card footer {
-  color: var(--stats-series-text);
+  color: var(--neutral-600);
   font-size: 0.7rem;
   font-weight: 600;
 }
@@ -2577,7 +2556,7 @@ progress::-webkit-progress-value {
   stroke: currentColor;
   stroke-width: 1;
   stroke-dasharray: 3 4;
-  opacity: 0.55;
+  opacity: 0.32;
   vector-effect: non-scaling-stroke;
 }
 
@@ -2586,20 +2565,6 @@ progress::-webkit-progress-value {
   stroke: currentColor;
   stroke-width: 3;
   vector-effect: non-scaling-stroke;
-}
-
-.stats-growth-companies {
-  --stats-series-color: var(--stats-company);
-  --stats-series-text: var(--stats-company-text);
-  --stats-series-soft: var(--stats-company-soft);
-  --stats-series-border: var(--stats-company-border);
-}
-
-.stats-growth-founders {
-  --stats-series-color: var(--stats-founder);
-  --stats-series-text: var(--stats-founder-text);
-  --stats-series-soft: var(--stats-founder-soft);
-  --stats-series-border: var(--stats-founder-border);
 }
 
 .table-toolbar {
