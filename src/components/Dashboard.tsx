@@ -1251,7 +1251,6 @@ export function Dashboard({
       return {
         value: vertical.slug,
         label: vertical.label,
-        description: vertical.description,
         count,
         disabled: count === 0 && !selectedVerticals.includes(vertical.slug)
       };
