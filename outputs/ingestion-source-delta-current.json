@@ -1,87 +1,141 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-07-21-0600",
+  "idempotencyKey": "central-2026-07-21-1800",
   "centralDay": "2026-07-21",
-  "observedAt": "2026-07-21T14:24:00.000Z",
-  "baselinePhysicalSources": 1774,
-  "publishedPhysicalSources": 1780,
-  "newPhysicalSources": 7,
-  "newPhysicalSourcesThisAttempt": 7,
-  "retainedPhysicalSources": 1773,
-  "removedPhysicalSources": 1,
-  "dailyNewPhysicalSources": 7,
+  "observedAt": "2026-07-22T02:28:32.040Z",
+  "baselinePhysicalSources": 1780,
+  "publishedPhysicalSources": 1793,
+  "newPhysicalSources": 13,
+  "newPhysicalSourcesThisAttempt": 13,
+  "retainedPhysicalSources": 1780,
+  "removedPhysicalSources": 0,
+  "dailyNewPhysicalSources": 20,
   "dailySourceHealth": "healthy",
   "collectionHealth": "complete",
   "mappedFailures": 0,
-  "newestNewSourcePostedAt": "2026-07-20T16:32:10Z",
+  "newestNewSourcePostedAt": "2026-07-20T14:58:56Z",
   "insertedByBatchPlatform": {
-    "S2026:github": 1,
-    "S2026:youtube": 5,
-    "S26:hacker_news": 1
+    "S2026:github": 10,
+    "S2026:youtube": 2,
+    "S26:youtube": 1
   },
   "insertedSourceSamples": [
     {
       "batchSlug": "S2026",
       "platform": "youtube",
       "entityType": "company",
-      "entityId": "company-gojiberry-ai",
-      "sourceUrl": "https://youtube.com/watch?v=md64WNgbPVw",
-      "platformPostId": "md64WNgbPVw",
+      "entityId": "company-expanse",
+      "sourceUrl": "https://youtube.com/watch?v=djj95nrsMvQ",
+      "platformPostId": "djj95nrsMvQ",
       "postedAt": null
     },
     {
       "batchSlug": "S2026",
       "platform": "youtube",
       "entityType": "company",
-      "entityId": "company-auxos",
-      "sourceUrl": "https://youtube.com/watch?v=QW2A35qmU9I",
-      "platformPostId": "QW2A35qmU9I",
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-kimpton-ai",
-      "sourceUrl": "https://youtube.com/watch?v=hnIa8E7Q4qI",
-      "platformPostId": "hnIa8E7Q4qI",
-      "postedAt": null
-    },
-    {
-      "batchSlug": "S2026",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-clara-2",
-      "sourceUrl": "https://youtube.com/watch?v=dIxjqbVK2cg",
-      "platformPostId": "dIxjqbVK2cg",
+      "entityId": "company-juno-chat",
+      "sourceUrl": "https://youtube.com/watch?v=BPwpKXB_jrU",
+      "platformPostId": "BPwpKXB_jrU",
       "postedAt": null
     },
     {
       "batchSlug": "S26",
-      "platform": "hacker_news",
-      "entityType": "company",
-      "entityId": "company-bloomy",
-      "sourceUrl": "https://news.ycombinator.com/item?id=48981136",
-      "platformPostId": "48981136",
-      "postedAt": "2026-07-20T16:32:10Z"
-    },
-    {
-      "batchSlug": "S2026",
       "platform": "youtube",
       "entityType": "company",
-      "entityId": "company-thomas",
-      "sourceUrl": "https://youtube.com/watch?v=lVME4RpYyw8",
-      "platformPostId": "lVME4RpYyw8",
+      "entityId": "company-prescience-inc",
+      "sourceUrl": "https://youtube.com/watch?v=PBqyj9zP4BY",
+      "platformPostId": "PBqyj9zP4BY",
       "postedAt": null
     },
     {
       "batchSlug": "S2026",
       "platform": "github",
-      "entityType": "founder",
-      "entityId": "founder-insforge-tony-chang-2376097",
-      "sourceUrl": "https://github.com/InsForge/insforge-flutter",
-      "platformPostId": "InsForge/insforge-flutter",
-      "postedAt": "2026-06-09T17:54:40Z"
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/superlog",
+      "platformPostId": "superloglabs/superlog",
+      "postedAt": "2026-06-02T19:13:48Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/skills",
+      "platformPostId": "superloglabs/skills",
+      "postedAt": "2026-05-06T02:06:41Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/cli",
+      "platformPostId": "superloglabs/cli",
+      "postedAt": "2026-04-24T06:47:21Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/otel-helpers",
+      "platformPostId": "superloglabs/otel-helpers",
+      "postedAt": "2026-05-06T23:24:44Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/agent",
+      "platformPostId": "superloglabs/agent",
+      "postedAt": "2026-04-24T05:44:29Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/superlog-expo",
+      "platformPostId": "superloglabs/superlog-expo",
+      "postedAt": "2026-06-02T22:38:59Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/helm-charts",
+      "platformPostId": "superloglabs/helm-charts",
+      "postedAt": "2026-07-20T14:58:56Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/mintlify-docs",
+      "platformPostId": "superloglabs/mintlify-docs",
+      "postedAt": "2026-06-29T18:02:51Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/docs",
+      "platformPostId": "superloglabs/docs",
+      "postedAt": "2026-05-22T23:18:22Z"
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-superlog",
+      "sourceUrl": "https://github.com/superloglabs/homebrew-tap",
+      "platformPostId": "superloglabs/homebrew-tap",
+      "postedAt": "2026-04-24T05:50:25Z"
     }
   ]
 }

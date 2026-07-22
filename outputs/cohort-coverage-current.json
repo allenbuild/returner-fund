@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-0600-0bac9a0f7eac1eae/checkpoint-public-a16zsr006.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-0600-0bac9a0f7eac1eae/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-1800-4dbf28a8c055e421/checkpoint-public-a16zsr006.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-1800-4dbf28a8c055e421/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -727,8 +727,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-0600-0bac9a0f7eac1eae/checkpoint-public-s2026.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-0600-0bac9a0f7eac1eae/github-s2026.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-1800-4dbf28a8c055e421/checkpoint-public-s2026.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-1800-4dbf28a8c055e421/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -738,8 +738,8 @@
         "catalogOwnerPlatformGroups": 958,
         "plannedOwnerMappings": 959,
         "multiAccountOwnerMappings": 1,
-        "graphEvidence": 2189,
-        "graphNeedsReview": 2974
+        "graphEvidence": 2196,
+        "graphNeedsReview": 3029
       },
       "structural": {
         "status": "pass",
@@ -1415,11 +1415,6 @@
           {
             "entityId": "company-infera",
             "name": "Infera",
-            "companyName": null
-          },
-          {
-            "entityId": "company-juno-chat",
-            "name": "Juno",
             "companyName": null
           },
           {
@@ -2255,11 +2250,6 @@
             "companyName": "Standout"
           },
           {
-            "entityId": "founder-superlog-arseniy-shishaev-2807293",
-            "name": "Arseniy Shishaev",
-            "companyName": "Superlog"
-          },
-          {
             "entityId": "founder-superlog-nicol-magnante-1660276",
             "name": "Nicolò Magnante",
             "companyName": "Superlog"
@@ -2509,11 +2499,6 @@
           {
             "entityId": "company-infera",
             "name": "Infera",
-            "companyName": null
-          },
-          {
-            "entityId": "company-juno-chat",
-            "name": "Juno",
             "companyName": null
           },
           {
@@ -3339,11 +3324,6 @@
             "companyName": "Standout"
           },
           {
-            "entityId": "founder-superlog-arseniy-shishaev-2807293",
-            "name": "Arseniy Shishaev",
-            "companyName": "Superlog"
-          },
-          {
             "entityId": "founder-superlog-nicol-magnante-1660276",
             "name": "Nicolò Magnante",
             "companyName": "Superlog"
@@ -3477,8 +3457,8 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-0600-0bac9a0f7eac1eae/checkpoint-public-s26.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-0600-0bac9a0f7eac1eae/github-s26.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-1800-4dbf28a8c055e421/checkpoint-public-s26.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-21-1800-4dbf28a8c055e421/github-s26.json"
       },
       "counts": {
         "companies": 115,
@@ -3488,8 +3468,8 @@
         "catalogOwnerPlatformGroups": 551,
         "plannedOwnerMappings": 551,
         "multiAccountOwnerMappings": 0,
-        "graphEvidence": 731,
-        "graphNeedsReview": 1248
+        "graphEvidence": 732,
+        "graphNeedsReview": 1303
       },
       "structural": {
         "status": "pass",
@@ -3671,11 +3651,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-prescience-inc",
-            "name": "Prescience, Inc.",
-            "companyName": null
-          },
-          {
             "entityId": "company-rapidfolio",
             "name": "Rapidfolio",
             "companyName": null
@@ -3760,11 +3735,6 @@
           {
             "entityId": "company-praxis-ai-2",
             "name": "Praxis AI",
-            "companyName": null
-          },
-          {
-            "entityId": "company-prescience-inc",
-            "name": "Prescience, Inc.",
             "companyName": null
           },
           {
@@ -3977,11 +3947,6 @@
           {
             "entityId": "company-praxis-ai-2",
             "name": "Praxis AI",
-            "companyName": null
-          },
-          {
-            "entityId": "company-prescience-inc",
-            "name": "Prescience, Inc.",
             "companyName": null
           },
           {
@@ -4911,11 +4876,6 @@
           {
             "entityId": "company-praxis-ai-2",
             "name": "Praxis AI",
-            "companyName": null
-          },
-          {
-            "entityId": "company-prescience-inc",
-            "name": "Prescience, Inc.",
             "companyName": null
           },
           {
