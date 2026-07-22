@@ -141,8 +141,11 @@ describe("insights tabs", () => {
     expect(score).toHaveAttribute("aria-label", expect.stringMatching(/^Post score \d+$/));
     expect(score?.querySelector("span, small")).not.toBeInTheDocument();
     expect(firstPost.querySelector(".ranked-post-rank .rank-medal, .ranked-post-rank .rank-number")).toBeInTheDocument();
-    expect(within(firstPost).getByRole("link", { name: /Open .* post on /i })).toHaveAttribute("href");
-    expect(within(firstPost).getByRole("link", { name: /Open native post/i })).toHaveAttribute("href");
+    const rowLink = within(firstPost).getByRole("link", { name: /Open .* post on /i });
+    expect(rowLink).toHaveAttribute("href");
+    expect(rowLink).toHaveAttribute("target", "_blank");
+    expect(rowLink).toContainElement(firstPost.querySelector("article.ranked-post-card"));
+    expect(firstPost.querySelector(".ranked-post-taxonomies")).not.toBeInTheDocument();
   });
 
   it("does not show a separate score scope or Top Voices audience strip", () => {

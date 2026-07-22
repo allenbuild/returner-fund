@@ -4290,8 +4290,7 @@ td button {
   font-size: 0.76rem;
 }
 
-.node-verticals,
-.ranked-post-taxonomies {
+.node-verticals {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
@@ -4348,15 +4347,28 @@ td button {
 
 .ranked-post-card {
   display: grid;
-  grid-template-columns: 32px 86px minmax(0, 1fr) 64px 30px;
+  grid-template-columns: 32px 86px minmax(360px, 600px) 52px;
   align-items: center;
+  justify-content: start;
   gap: 9px;
   min-height: 0;
-  padding: 6px 12px;
+  padding: 4px 12px;
 }
 
-.ranked-post-card:hover {
+.ranked-post-row-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ranked-post-row-link:hover .ranked-post-card,
+.ranked-post-row-link:focus-visible .ranked-post-card {
   background: rgba(var(--accent-rgb), 0.025);
+}
+
+.ranked-post-row-link:focus-visible {
+  outline: 2px solid var(--accent-outline);
+  outline-offset: -2px;
 }
 
 .ranked-post-rank {
@@ -4380,7 +4392,7 @@ td button {
 
 .ranked-post-content {
   display: grid;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -4420,7 +4432,7 @@ td button {
 .ranked-post-meta time,
 .ranked-post-author {
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: 0.7rem;
 }
 
 .ranked-post-meta .ranking-platform-chip {
@@ -4438,7 +4450,7 @@ td button {
 }
 
 .ranked-post-meta .ranking-platform-chip .platform-identity span {
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   font-weight: 700;
 }
 
@@ -4448,7 +4460,7 @@ td button {
   border-radius: 999px;
   background: #ffffff;
   color: var(--neutral-600);
-  font-size: 0.58rem;
+  font-size: 0.64rem;
   font-weight: 700;
 }
 
@@ -4466,7 +4478,7 @@ td button {
   border: 0;
   background: transparent;
   color: #c4470a;
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 750;
   line-height: 1.2;
   text-overflow: ellipsis;
@@ -4485,8 +4497,8 @@ td button {
   margin: 0;
   overflow: hidden;
   color: var(--neutral-700);
-  font-size: 0.74rem;
-  line-height: 1.25;
+  font-size: 0.82rem;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -4499,31 +4511,14 @@ td button {
 }
 
 .ranked-metric-pills .overview-metric-pill {
-  min-height: 20px;
+  min-height: 18px;
   padding: 0 6px;
-  font-size: 0.66rem;
+  font-size: 0.7rem;
 }
 
 .ranked-metric-pills .overview-metric-pill svg {
   width: 13px;
   height: 13px;
-}
-
-.ranked-post-taxonomies {
-  flex: 1 1 auto;
-  flex-wrap: nowrap;
-  justify-self: end;
-  justify-content: flex-end;
-  margin-left: auto;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.ranked-post-taxonomies .topic-chip,
-.ranked-post-taxonomies .vertical-chip {
-  min-height: 20px;
-  padding: 1px 6px;
-  font-size: 0.6rem;
 }
 
 .ranked-post-score {
@@ -4541,16 +4536,6 @@ td button {
 .ranked-post-score strong {
   font-size: 1.15rem;
   line-height: 1.1;
-}
-
-.ranked-post-open {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--neutral-200);
-  border-radius: 9px;
-  color: var(--neutral-600);
 }
 
 .ranked-posts-empty {
@@ -4726,6 +4711,10 @@ td button {
   .tab-list {
     grid-template-columns: repeat(4, minmax(112px, 154px)) minmax(0, 1fr);
   }
+
+  .ranked-post-card {
+    grid-template-columns: 32px 86px minmax(0, 1fr) 52px;
+  }
 }
 
 @media (max-width: 760px) {
@@ -4755,10 +4744,10 @@ td button {
   }
 
   .ranked-post-card {
-    grid-template-columns: 26px 70px minmax(0, 1fr) 56px 30px;
+    grid-template-columns: 26px 70px minmax(0, 1fr) 48px;
     gap: 6px;
     min-height: 0;
-    padding: 6px 8px;
+    padding: 4px 8px;
   }
 
   .ranked-post-preview .overview-post-thumbnail {
@@ -4788,10 +4777,6 @@ td button {
     padding: 2px;
   }
 
-  .ranked-post-taxonomies .vertical-chip {
-    display: none;
-  }
-
   .scoring-methodology > header {
     display: grid;
   }
@@ -4819,9 +4804,9 @@ td button {
   }
 
   .ranked-post-card {
-    grid-template-columns: 24px minmax(0, 1fr) 50px 28px;
+    grid-template-columns: 24px minmax(0, 1fr) 44px;
     gap: 5px;
-    padding: 6px;
+    padding: 4px 6px;
   }
 
   .ranked-post-preview {
@@ -4837,18 +4822,9 @@ td button {
     max-width: 110px;
   }
 
-  .ranked-post-taxonomies {
-    justify-content: flex-start;
-    margin-left: 0;
-  }
-
   .ranked-post-score {
     width: 38px;
     min-height: 32px;
   }
 
-  .ranked-post-open {
-    width: 28px;
-    height: 28px;
-  }
 }

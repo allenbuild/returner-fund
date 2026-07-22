@@ -7,7 +7,6 @@ import {
   Clock3,
   Database,
   Eye,
-  ExternalLink,
   GitFork,
   Heart,
   ListOrdered,
@@ -32,8 +31,6 @@ import {
   generatedEvidenceThumbnailUrl
 } from "@/lib/graph/generated-evidence-thumbnail";
 import { evidenceDisplayText, isGenericEvidenceLabel } from "@/lib/graph/evidence-display";
-import { getCompanyVerticalDefinition } from "@/lib/graph/company-verticals";
-import { getPostTopicDefinition } from "@/lib/graph/post-topics";
 import { selectRankedPosts, type RankedPostsPeriod } from "@/lib/graph/ranked-posts";
 import type {
   EvidenceItem,
@@ -84,11 +81,6 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
     () => selectRankedPosts(graph, { period: rankedPeriod, now }),
     [graph, now, rankedPeriod]
   );
-  const companyNodesById = useMemo(
-    () => new Map(graph.nodes.filter((node) => node.entityType === "company").map((node) => [node.entityId, node])),
-    [graph.nodes]
-  );
-
   function toggleOverviewSort(key: OverviewSortKey) {
     setOverviewSort((current) => ({
       key,
@@ -362,47 +354,50 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
               {rankedPosts.map((post) => {
                 const item = post.evidence;
                 const contribution = formatContribution(item);
-                const company = companyNodesById.get(post.companyId);
-                const topics = (item.topics ?? []).map(getPostTopicDefinition);
-                const verticals = (company?.verticals ?? []).map(getCompanyVerticalDefinition);
                 const score = rankedEvidenceScore(item);
+                const card = (
+                  <article className="ranked-post-card">
+                    <div className="ranked-post-rank"><RankDisplay rank={post.rank} /></div>
+                    <div className="ranked-post-preview">
+                      <ContributionThumbnail item={item} />
+                    </div>
+                    <div className="ranked-post-content">
+                      <div className="ranked-post-primary-row">
+                        <span className="ranked-post-company">{post.companyName}</span>
+                        <div className="ranked-post-meta">
+                          <span className={`ranking-platform-chip ranking-platform-${item.platform}`}><PlatformIdentity platform={item.platform} /></span>
+                          <span className={`ranked-source-badge ranked-source-${post.sourceKind}`}>{formatSourceKind(post.sourceKind)}</span>
+                          <time dateTime={item.postedAt}>{formatPostDate(item.postedAt)}</time>
+                        </div>
+                      </div>
+                      <p className="ranked-post-title">{contribution.title}</p>
+                      <div className="ranked-post-details">
+                        {contribution.author && <span className="ranked-post-author">{formatAuthor(contribution.author, item.authorHandle)}</span>}
+                        {contribution.metricPills.length > 0 && (
+                          <span className="overview-metric-pills ranked-metric-pills">
+                            {contribution.metricPills.map((metric) => <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}><MetricIcon metric={metric.key} /><span>{metric.value}</span></span>)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="ranked-post-score" aria-label={`Post score ${score}`}>
+                      <strong>{score}</strong>
+                    </div>
+                  </article>
+                );
                 return (
                   <li key={post.canonicalPostKey}>
-                    <article className="ranked-post-card">
-                      <div className="ranked-post-rank"><RankDisplay rank={post.rank} /></div>
-                      <a className="ranked-post-preview" href={contribution.url ?? undefined} target="_blank" rel="noreferrer" aria-label={`Open ${post.companyName} post on ${formatPlatform(item.platform)}`}>
-                        <ContributionThumbnail item={item} />
+                    {contribution.url ? (
+                      <a
+                        className="ranked-post-row-link"
+                        href={contribution.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`Open ${post.companyName} post on ${formatPlatform(item.platform)}`}
+                      >
+                        {card}
                       </a>
-                      <div className="ranked-post-content">
-                        <div className="ranked-post-primary-row">
-                          <button type="button" className="ranked-post-company" onClick={() => onSelectNode(`company:${post.companyId}`)}>{post.companyName}</button>
-                          <div className="ranked-post-meta">
-                            <span className={`ranking-platform-chip ranking-platform-${item.platform}`}><PlatformIdentity platform={item.platform} /></span>
-                            <span className={`ranked-source-badge ranked-source-${post.sourceKind}`}>{formatSourceKind(post.sourceKind)}</span>
-                            <time dateTime={item.postedAt}>{formatPostDate(item.postedAt)}</time>
-                          </div>
-                        </div>
-                        <p className="ranked-post-title">{contribution.title}</p>
-                        <div className="ranked-post-details">
-                          {contribution.author && <span className="ranked-post-author">{formatAuthor(contribution.author, item.authorHandle)}</span>}
-                          {contribution.metricPills.length > 0 && (
-                            <span className="overview-metric-pills ranked-metric-pills">
-                              {contribution.metricPills.map((metric) => <span className={`overview-metric-pill overview-metric-${metric.key}`} key={metric.key}><MetricIcon metric={metric.key} /><span>{metric.value}</span></span>)}
-                            </span>
-                          )}
-                          {(topics.length > 0 || verticals.length > 0) && (
-                            <div className="ranked-post-taxonomies">
-                              {topics.map((topic) => <span className="topic-chip" key={topic.slug}>{topic.label}</span>)}
-                              {verticals.slice(0, 3).map((vertical) => <span className="vertical-chip" key={vertical.slug}>{vertical.label}</span>)}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="ranked-post-score" aria-label={`Post score ${score}`}>
-                        <strong>{score}</strong>
-                      </div>
-                      {contribution.url && <a className="ranked-post-open" href={contribution.url} target="_blank" rel="noreferrer" aria-label="Open native post"><ExternalLink size={16} aria-hidden="true" /></a>}
-                    </article>
+                    ) : card}
                   </li>
                 );
               })}
