@@ -1,28 +1,78 @@
 name: Daily Score Benchmarks
+run-name: Daily score benchmark candidate ${{ github.event.schedule || 'manual' }}
 
 on:
   schedule:
-    # Separate expressions let the script identify which UTC slot fired. It
-    # evaluates that slot against Central midnight even when Actions starts late.
+    # Chicago alternates between UTC-6 and UTC-5. The resolver admits only the
+    # candidate that is actually Central midnight on that calendar day.
     - cron: "0 5 * * *"
     - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  # Autonomous ingestion updates the same graph and benchmark artifacts.
-  group: repository-publication-main
-  cancel-in-progress: false
-  queue: max
+  contents: read
 
 jobs:
-  update:
+  resolve:
+    name: Resolve Central midnight candidate
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 5
+    outputs:
+      should_run: ${{ steps.schedule.outputs.should_run }}
+      scheduled_utc_hour: ${{ steps.schedule.outputs.scheduled_utc_hour }}
+      trigger: ${{ steps.schedule.outputs.trigger }}
+      reason: ${{ steps.schedule.outputs.reason }}
+      scheduled_at: ${{ steps.schedule.outputs.scheduled_at }}
+      central_date: ${{ steps.schedule.outputs.central_date }}
     steps:
-      - name: Check out repository
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Resolve daily benchmark schedule
+        id: schedule
+        env:
+          GITHUB_EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: node scripts/lib/daily-benchmark-schedule.mjs
+
+      - name: Record candidate decision
+        env:
+          SHOULD_RUN: ${{ steps.schedule.outputs.should_run }}
+          REASON: ${{ steps.schedule.outputs.reason }}
+          SCHEDULED_AT: ${{ steps.schedule.outputs.scheduled_at }}
+          CENTRAL_DATE: ${{ steps.schedule.outputs.central_date }}
+        run: |
+          if [ "$SHOULD_RUN" = "true" ]; then
+            STATUS="accepted_candidate"
+          else
+            STATUS="inactive_candidate"
+          fi
+          {
+            echo "## Daily benchmark candidate"
+            echo "- Status: $STATUS"
+            echo "- Reason: $REASON"
+            echo "- Scheduled at: ${SCHEDULED_AT:-manual}"
+            echo "- Central date: ${CENTRAL_DATE:-manual}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  update:
+    name: Publish Central benchmark ${{ needs.resolve.outputs.central_date || 'manual' }}
+    needs: resolve
+    if: needs.resolve.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    permissions:
+      contents: write
+    concurrency:
+      group: repository-publication-main
+      cancel-in-progress: false
+      queue: max
+    outputs:
+      publication_status: ${{ steps.publish.outputs.publication_status }}
+      published_commit: ${{ steps.publish.outputs.published_commit }}
+    steps:
+      - name: Check out main
         uses: actions/checkout@v4
         with:
           ref: main
@@ -30,7 +80,7 @@ jobs:
 
       - name: Synchronize publication base
         run: |
-          git fetch origin main
+          git fetch --prune origin main
           git rebase origin/main
 
       - name: Use Node.js
@@ -44,6 +94,7 @@ jobs:
         run: npm ci
 
       - name: Test daily benchmark updater
+        timeout-minutes: 10
         run: npm run test:benchmarks:daily
 
       - name: Build app
@@ -52,21 +103,25 @@ jobs:
 
       - name: Update daily benchmark snapshots
         timeout-minutes: 10
+        env:
+          SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
         run: |
           scheduled_args=()
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            case "${{ github.event.schedule }}" in
-              "0 5 * * *") scheduled_args+=("--scheduled-utc-hour=5") ;;
-              "0 6 * * *") scheduled_args+=("--scheduled-utc-hour=6") ;;
-              *) echo "Unexpected benchmark schedule: ${{ github.event.schedule }}"; exit 1 ;;
-            esac
+          if [ -n "$SCHEDULED_UTC_HOUR" ]; then
+            scheduled_args+=("--scheduled-utc-hour=$SCHEDULED_UTC_HOUR")
           fi
           npm run benchmarks:daily -- "${scheduled_args[@]}"
 
       - name: Validate generated public artifacts
+        timeout-minutes: 5
         run: npm run artifacts:validate
 
-      - name: Commit updated benchmark snapshots
+      - name: Commit and publish benchmark snapshots
+        id: publish
+        timeout-minutes: 45
+        env:
+          PUBLICATION_BRANCH: main
+          SCHEDULED_UTC_HOUR: ${{ needs.resolve.outputs.scheduled_utc_hour }}
         run: |
           benchmark_files=(
             outputs/benchmarks/s2026-score-benchmarks.json
@@ -83,13 +138,88 @@ jobs:
             public/graph/a16zsr006-insiders.json
           )
 
-          if [ -z "$(git status --porcelain -- "${benchmark_files[@]}")" ]; then
-            echo "No benchmark snapshot changes to commit."
-            exit 0
-          fi
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- "${benchmark_files[@]}"
+          if git diff --cached --quiet; then
+            echo "No benchmark snapshot changes to commit."
+            git fetch --prune origin "$PUBLICATION_BRANCH"
+            echo "publication_status=no_changes" >> "$GITHUB_OUTPUT"
+            echo "published_commit=$(git rev-parse "origin/$PUBLICATION_BRANCH")" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           git commit -m "Update daily score benchmark snapshots"
-          git push
+          if ! git push origin "HEAD:$PUBLICATION_BRANCH"; then
+            echo "::warning title=Benchmark push retry::The publication branch advanced; rebuilding once from the new main."
+            git fetch --prune origin "$PUBLICATION_BRANCH"
+            if ! git rebase "origin/$PUBLICATION_BRANCH"; then
+              git rebase --abort || true
+              echo "::error title=Benchmark rebase failed::Manual conflict resolution is required."
+              exit 1
+            fi
+
+            timeout 10m npm ci
+            timeout 15m npm run build
+            scheduled_args=()
+            if [ -n "$SCHEDULED_UTC_HOUR" ]; then
+              scheduled_args+=("--scheduled-utc-hour=$SCHEDULED_UTC_HOUR")
+            fi
+            timeout 10m npm run benchmarks:daily -- "${scheduled_args[@]}"
+            npm run artifacts:validate
+            git add -- "${benchmark_files[@]}"
+            if ! git diff --cached --quiet; then
+              git commit --amend --no-edit
+            fi
+            git push origin "HEAD:$PUBLICATION_BRANCH"
+          fi
+
+          PUBLISHED_COMMIT="$(git rev-parse HEAD)"
+          git fetch --prune origin "$PUBLICATION_BRANCH"
+          REMOTE_COMMIT="$(git rev-parse "origin/$PUBLICATION_BRANCH")"
+          if ! git merge-base --is-ancestor "$PUBLISHED_COMMIT" "$REMOTE_COMMIT"; then
+            echo "::error title=Benchmark publication verification failed::Published commit $PUBLISHED_COMMIT is not reachable from remote ${REMOTE_COMMIT:-missing}."
+            exit 1
+          fi
+          echo "publication_status=published" >> "$GITHUB_OUTPUT"
+          echo "published_commit=$PUBLISHED_COMMIT" >> "$GITHUB_OUTPUT"
+
+  receipt:
+    name: Audit benchmark outcome
+    needs: [resolve, update]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Record auditable benchmark outcome
+        env:
+          SHOULD_RUN: ${{ needs.resolve.outputs.should_run }}
+          RESOLVE_RESULT: ${{ needs.resolve.result }}
+          UPDATE_RESULT: ${{ needs.update.result }}
+          PUBLICATION_STATUS: ${{ needs.update.outputs.publication_status }}
+          PUBLISHED_COMMIT: ${{ needs.update.outputs.published_commit }}
+          CENTRAL_DATE: ${{ needs.resolve.outputs.central_date }}
+        run: |
+          if [ "$RESOLVE_RESULT" != "success" ]; then
+            STATUS="resolver_failed"
+          elif [ "$SHOULD_RUN" != "true" ]; then
+            STATUS="inactive_candidate_no_update"
+          elif [ "$UPDATE_RESULT" = "success" ] && { [ "$PUBLICATION_STATUS" = "published" ] || [ "$PUBLICATION_STATUS" = "no_changes" ]; }; then
+            STATUS="$PUBLICATION_STATUS"
+          else
+            STATUS="accepted_candidate_failed"
+          fi
+          {
+            echo "## Daily benchmark audited outcome"
+            echo "- Status: $STATUS"
+            echo "- Central date: ${CENTRAL_DATE:-manual}"
+            echo "- Resolver result: $RESOLVE_RESULT"
+            echo "- Update result: $UPDATE_RESULT"
+            echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_candidate_failed" ]; then
+            echo "::error title=Daily benchmark failed::$STATUS for ${CENTRAL_DATE:-manual dispatch}"
+            echo "The upstream resolver or update job is the single failing job for this run."
+            exit 0
+          fi
+          echo "::notice title=Daily benchmark outcome::$STATUS for ${CENTRAL_DATE:-manual dispatch}"

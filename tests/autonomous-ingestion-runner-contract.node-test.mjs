@@ -114,6 +114,37 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(completedReplay.includes("sourceDeltaHistory.find"));
   });
 
+  it("counts all canonical GitHub traction exports in source freshness after publication merge", () => {
+    const baselineReader = section(
+      "async function readPublicationEvidenceBaseline",
+      "async function readSourceDeltaHistory"
+    );
+    for (const path of [
+      "src/lib/social/github-traction.json",
+      "src/lib/social/github-traction-summer-2026.json",
+      "src/lib/social/github-traction-a16z-speedrun-006.json"
+    ]) {
+      assert.ok(baselineReader.includes(`"${path}"`));
+    }
+    assert.ok(baselineReader.includes("canonicalGithubContentIdentityRows(snapshot)"));
+
+    const initialMerge = runner.indexOf("await mergePublicationInputs(publicationInputs)");
+    const initialDelta = runner.indexOf(
+      "afterSnapshots: await readPublicationEvidenceBaseline()",
+      initialMerge
+    );
+    assert.ok(initialMerge > -1 && initialDelta > initialMerge);
+
+    const rebasedMerge = runner.indexOf(
+      "await mergePublicationInputs(rebasedPublicationInputs, { baseRef: `origin/${branch}` })"
+    );
+    const rebasedDelta = runner.indexOf(
+      "afterSnapshots: await readPublicationEvidenceBaseline()",
+      rebasedMerge
+    );
+    assert.ok(rebasedMerge > -1 && rebasedDelta > rebasedMerge);
+  });
+
   it("isolates work directories with a hash of the exact idempotency key", () => {
     const safePath = section("function safePathSegment", "function chunks");
     assert.ok(safePath.includes('createHash("sha256")'));

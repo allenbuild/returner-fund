@@ -48,13 +48,21 @@ describe("public traction snapshot", () => {
   });
 
   it("keeps unrelated Product Hunt candidates out of the review queue", () => {
-    const productHuntReviewUrls = publicEvidence.needsReview
-      .filter((item) => item.platform === "product_hunt")
-      .map((item) => item.candidateUrl);
-    const repeatedUrls = productHuntReviewUrls.filter((url, index) => productHuntReviewUrls.indexOf(url) !== index);
+    const productHuntReviews = publicEvidence.needsReview
+      .filter((item) => item.platform === "product_hunt");
+    const productHuntReviewUrls = productHuntReviews.map((item) => item.candidateUrl);
+    const attributionsByUrl = new Map<string, Set<string>>();
+    for (const item of productHuntReviews) {
+      const owners = attributionsByUrl.get(item.candidateUrl) ?? new Set<string>();
+      owners.add(`${item.entityType ?? "company"}:${item.entityId}`);
+      attributionsByUrl.set(item.candidateUrl, owners);
+    }
+    const conflictingUrls = [...attributionsByUrl]
+      .filter(([, owners]) => owners.size > 1)
+      .map(([url]) => url);
 
     expect(productHuntReviewUrls).not.toContain("https://www.producthunt.com/products/screen-studio");
-    expect(repeatedUrls).toEqual([]);
+    expect(conflictingUrls).toEqual([]);
   });
 
   it("quarantines web and RSS context instead of publishing it as traction evidence", () => {

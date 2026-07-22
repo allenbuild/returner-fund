@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -65,6 +65,17 @@ function neverClosingBody(...chunks: Uint8Array[]): {
 }
 
 describe("POST /api/graph/refresh live evidence validation", () => {
+  beforeEach(() => {
+    vi.useRealTimers();
+    vi.doUnmock("node:fs/promises");
+    vi.doUnmock("@/lib/graph/graph-builder");
+    vi.doUnmock("@/lib/graph/yc-spring-2026-dataset");
+    vi.doUnmock("@/lib/ingestion/live-source-refresh");
+    vi.unstubAllEnvs();
+    vi.resetModules();
+    vi.restoreAllMocks();
+  });
+
   afterEach(async () => {
     vi.useRealTimers();
     vi.doUnmock("node:fs/promises");
@@ -506,6 +517,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
     const body = await response.json();
 
     expect(response.status).toBe(500);
+    expect(runLiveSourceRefresh).toHaveBeenCalledTimes(1);
     expect(response.headers.get("cache-control")).toContain("no-store");
     expect(body.error.code).toBe("refresh_failed");
     expect(body.refreshSummary).toMatchObject({
@@ -1295,9 +1307,21 @@ function withV4SnapshotContract(
   graph: GraphResponse,
   generatedAt = FROZEN_SNAPSHOT_GENERATED_AT
 ): GraphResponse {
+  const capAtGeneration = (value: string | null | undefined) =>
+    value && Date.parse(value) > Date.parse(generatedAt) ? generatedAt : value;
   return {
     ...graph,
     generatedAt,
+    evidence: graph.evidence.map((item) => ({
+      ...item,
+      postedAt: capAtGeneration(item.postedAt) ?? item.postedAt,
+      observedAt: capAtGeneration(item.observedAt),
+      metricsCheckedAt: capAtGeneration(item.metricsCheckedAt),
+      linkCheckedAt: capAtGeneration(item.linkCheckedAt),
+      first_seen_at: capAtGeneration(item.first_seen_at) ?? undefined,
+      last_checked_at: capAtGeneration(item.last_checked_at) ?? undefined,
+      last_updated_at: capAtGeneration(item.last_updated_at) ?? undefined
+    })),
     fastestGaining: graph.fastestGaining.map((row) => ({
       ...row,
       dod: { ...row.dod, benchmarkedAt: null },
@@ -1352,7 +1376,7 @@ function withV4SnapshotContract(
           inputScore: absoluteScore
         },
         limitations: existing?.limitations ?? [],
-        evidenceAsOf: existing?.evidenceAsOf ?? null,
+        evidenceAsOf: null,
         explanation: existing?.explanation ?? "Refresh route v4 contract fixture."
       };
       return { ...node, scoreBreakdown };

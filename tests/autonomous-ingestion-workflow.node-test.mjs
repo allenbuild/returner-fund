@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { maxAutonomousRunnerProcessBudgetMs } from "../scripts/lib/autonomous-ingestion-plan.mjs";
+import { DAILY_BENCHMARK_UTC_CRON_CANDIDATES } from "../scripts/lib/daily-benchmark-schedule.mjs";
 import { INGESTION_UTC_CRON_CANDIDATES } from "../scripts/lib/ingestion-schedule.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -33,21 +34,60 @@ test("accepted runs share the repository publication lane without delaying inact
     /ingest:[\s\S]*?concurrency:\s*\n\s*group:\s*repository-publication-main\s*\n\s*cancel-in-progress:\s*false\s*\n\s*queue:\s*max/
   );
   assert.doesNotMatch(workflow.split("jobs:")[0], /concurrency:/);
+  assert.match(workflow, /permissions:\s*\n\s*contents:\s*read/);
+  assert.match(workflow, /ingest:[\s\S]*?permissions:\s*\n\s*contents:\s*write/);
+  const resolverJob = workflow.match(/\n  resolve:[\s\S]*?(?=\n  ingest:)/)?.[0] ?? "";
+  assert.match(resolverJob, /uses:\s*actions\/checkout@v4[\s\S]*?ref:\s*main/);
 });
 
-test("daily benchmarks serialize and synchronize the same publication lane", () => {
+test("daily benchmarks resolve DST before entering the shared publication lane", () => {
+  const cronCandidates = Array.from(
+    dailyBenchmarkWorkflow.matchAll(/^\s*- cron:\s*["']([^"']+)["']\s*$/gm),
+    (match) => match[1]
+  );
+  assert.deepEqual(cronCandidates, DAILY_BENCHMARK_UTC_CRON_CANDIDATES);
   assert.match(
     dailyBenchmarkWorkflow,
-    /concurrency:\s*\n[\s\S]*?group:\s*repository-publication-main\s*\n\s*cancel-in-progress:\s*false\s*\n\s*queue:\s*max/
+    /resolve:[\s\S]*?node scripts\/lib\/daily-benchmark-schedule\.mjs/
   );
+  assert.match(dailyBenchmarkWorkflow, /if:\s*needs\.resolve\.outputs\.should_run == 'true'/);
+  assert.match(
+    dailyBenchmarkWorkflow,
+    /update:[\s\S]*?concurrency:\s*\n\s*group:\s*repository-publication-main\s*\n\s*cancel-in-progress:\s*false\s*\n\s*queue:\s*max/
+  );
+  assert.doesNotMatch(dailyBenchmarkWorkflow.split("jobs:")[0], /concurrency:/);
+  assert.match(dailyBenchmarkWorkflow, /permissions:\s*\n\s*contents:\s*read/);
+  assert.match(dailyBenchmarkWorkflow, /update:[\s\S]*?permissions:\s*\n\s*contents:\s*write/);
+});
+
+test("daily benchmarks synchronize, rebuild on push races, and verify main", () => {
   assert.match(dailyBenchmarkWorkflow, /ref:\s*main/);
   assert.match(dailyBenchmarkWorkflow, /fetch-depth:\s*0/);
-  assert.match(dailyBenchmarkWorkflow, /git fetch origin main/);
+  assert.match(dailyBenchmarkWorkflow, /git fetch --prune origin main/);
   assert.match(dailyBenchmarkWorkflow, /git rebase origin\/main/);
+  assert.match(dailyBenchmarkWorkflow, /PUBLICATION_BRANCH:\s*main/);
+  assert.match(dailyBenchmarkWorkflow, /if ! git push origin "HEAD:\$PUBLICATION_BRANCH"/);
+  assert.match(dailyBenchmarkWorkflow, /timeout 10m npm ci/);
+  assert.match(dailyBenchmarkWorkflow, /git commit --amend --no-edit/);
+  assert.match(dailyBenchmarkWorkflow, /npm run artifacts:validate/);
+  assert.match(dailyBenchmarkWorkflow, /git merge-base --is-ancestor/);
+  assert.match(dailyBenchmarkWorkflow, /publication_status=published/);
+  assert.match(dailyBenchmarkWorkflow, /publication_status=no_changes/);
+  assert.match(dailyBenchmarkWorkflow, /STATUS="inactive_candidate_no_update"/);
+  assert.match(dailyBenchmarkWorkflow, /STATUS="accepted_candidate_failed"/);
   assert.ok(
     dailyBenchmarkWorkflow.indexOf("git rebase origin/main") <
     dailyBenchmarkWorkflow.indexOf("npm run build")
   );
+  const updateJob = dailyBenchmarkWorkflow.match(/\n  update:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
+  const jobTimeout = Number(updateJob.match(/timeout-minutes:\s*(\d+)/)?.[1]);
+  const stepTimeouts = Array.from(
+    updateJob.matchAll(/^\s{8}timeout-minutes:\s*(\d+)/gm),
+    (match) => Number(match[1])
+  );
+  assert.equal(jobTimeout, 110);
+  assert.deepEqual(stepTimeouts, [10, 10, 15, 10, 5, 45]);
+  assert.ok(stepTimeouts.reduce((total, timeout) => total + timeout, 0) < jobTimeout);
 });
 
 test("workflow gates work through the schedule helper and stable key", () => {

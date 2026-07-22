@@ -25,6 +25,7 @@ import {
   PUBLIC_EVIDENCE_ATTRIBUTION_VERSION,
   publicEvidenceAttributionText
 } from "./lib/public-evidence-attribution.mjs";
+import { dedupePublicNeedsReviewItems } from "./lib/public-review-dedupe.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -3789,7 +3790,7 @@ function dedupeDiscoveryAttempts(items) {
 }
 
 function normalizeNeedsReviewItems(items) {
-  return dedupeById(items).filter((item) => isUsefulNeedsReviewItem(item));
+  return dedupePublicNeedsReviewItems(items, { isUseful: isUsefulNeedsReviewItem });
 }
 
 function isUsefulNeedsReviewItem(item) {

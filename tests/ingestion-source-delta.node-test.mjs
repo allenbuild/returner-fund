@@ -116,6 +116,28 @@ test("same-slot file-backed replay preserves earlier new-source credit", () => {
   assert.deepEqual(receipt.insertedByBatchPlatform, { "S2026:x": 4 });
 });
 
+test("same-slot file-backed replay adds newly discovered sources without erasing prior credit", () => {
+  const receipt = summarizeIngestionSourceDelta({
+    idempotencyKey: "central-2026-07-21-0600",
+    beforeSnapshots: [{ evidence: [row("100")] }],
+    afterSnapshots: [{ evidence: [row("100"), row("101")] }],
+    previousHistory: [{
+      idempotencyKey: "central-2026-07-21-0600",
+      centralDay: "2026-07-21",
+      newPhysicalSources: 4,
+      insertedByBatchPlatform: { "S2026:x": 4 },
+      insertedSourceSamples: [row("96")],
+      newestNewSourcePostedAt: "2026-07-21T11:00:00Z"
+    }]
+  });
+
+  assert.equal(receipt.newPhysicalSourcesThisAttempt, 1);
+  assert.equal(receipt.newPhysicalSources, 5);
+  assert.equal(receipt.dailyNewPhysicalSources, 5);
+  assert.equal(receipt.dailySourceHealth, "healthy");
+  assert.deepEqual(receipt.insertedByBatchPlatform, { "S2026:x": 5 });
+});
+
 test("tracks GitHub repositories and preserves case-sensitive native IDs", () => {
   const receipt = summarizeIngestionSourceDelta({
     idempotencyKey: "central-2026-07-21-0600",

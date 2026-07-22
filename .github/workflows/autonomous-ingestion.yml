@@ -17,7 +17,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   resolve:
@@ -33,6 +33,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Resolve Central ingestion slot
         id: schedule
@@ -68,6 +70,8 @@ jobs:
     if: needs.resolve.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 320
+    permissions:
+      contents: write
     concurrency:
       group: repository-publication-main
       cancel-in-progress: false

@@ -9,7 +9,7 @@ describe("public SEO catalog", () => {
     const catalog = getCatalog();
 
     expect(catalog.companies).toHaveLength(371);
-    expect(catalog.founders).toHaveLength(753);
+    expect(catalog.founders).toHaveLength(755);
     expect(catalog.cohorts).toHaveLength(3);
     expect(new Set(catalog.companies.map((company) => company.slug)).size).toBe(catalog.companies.length);
     expect(new Set(catalog.founders.map((founder) => founder.slug)).size).toBe(catalog.founders.length);

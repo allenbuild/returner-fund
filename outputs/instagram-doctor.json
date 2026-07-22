@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-30T11:56:03.005Z",
-  "started_at": "2026-06-30T11:55:49.630Z",
+  "generated_at": "2026-07-22T05:57:52.753Z",
+  "started_at": "2026-07-22T05:57:50.745Z",
   "policy": {
     "read_only": true,
     "max_workers": 2,
@@ -18,7 +18,7 @@
     "captcha_bypass": false
   },
   "summary": {
-    "pass_count": 7,
+    "pass_count": 5,
     "total_checks": 14,
     "overall_status": "needs_attention"
   },
@@ -31,12 +31,12 @@
     {
       "name": "opencli_installed",
       "status": "pass",
-      "message": "OpenCLI main script found at C:\\Users\\swimd\\AppData\\Roaming\\npm\\node_modules\\@jackwener\\opencli\\dist\\src\\main.js."
+      "message": "OpenCLI resolved through /Users/allenxu/Library/Caches/pnpm/dlx/c2f76477f34fcad739a82f0859f07e679601804ef1c640cb107612ad98a4af32/19f45eece19-7bcb/node_modules/.bin/opencli."
     },
     {
       "name": "browser_profile_available",
-      "status": "pass",
-      "message": "Found browser profile path(s): C:\\Users\\swimd\\AppData\\Local\\Google\\Chrome\\User Data"
+      "status": "fail",
+      "message": "No browser profile/session path found."
     },
     {
       "name": "logged_in_session_configured",
@@ -90,19 +90,17 @@
     },
     {
       "name": "app_feed_instagram_evidence",
-      "status": "pass",
-      "message": "81 Instagram evidence rows, 81 scored, 40 attached to HeyClicky.",
-      "instagramEvidenceCount": 81,
-      "scoredCount": 81,
-      "heyClickyEvidenceCount": 40
+      "status": "fail",
+      "message": "Graph check failed: fetch failed."
     },
     {
       "name": "storage_writable",
       "status": "pass",
-      "message": "Wrote outputs\\instagram-doctor-storage-check.json."
+      "message": "Wrote outputs/instagram-doctor-storage-check.json."
     }
   ],
   "findings": [
+    "No browser profile/session path was found through INSTAGRAM_BROWSER_PROFILE, CHROME_USER_DATA_DIR, or default Chrome User Data.",
     "No explicit INSTAGRAM_BROWSER_PROFILE or INSTAGRAM_COOKIE_FILE was provided. Default Chrome User Data exists, but the doctor does not attach to it automatically to avoid disturbing the user's live account."
   ]
 }
