@@ -226,5 +226,24 @@
         "postedAt": "2026-04-24T05:50:25Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-22-0600",
+    "centralDay": "2026-07-22",
+    "observedAt": "2026-07-22T14:26:58.264Z",
+    "baselinePhysicalSources": 1793,
+    "publishedPhysicalSources": 1792,
+    "newPhysicalSources": 0,
+    "newPhysicalSourcesThisAttempt": 0,
+    "retainedPhysicalSources": 1792,
+    "removedPhysicalSources": 1,
+    "dailyNewPhysicalSources": 0,
+    "dailySourceHealth": "awaiting_second_slot",
+    "collectionHealth": "degraded",
+    "mappedFailures": 1,
+    "newestNewSourcePostedAt": null,
+    "insertedByBatchPlatform": {},
+    "insertedSourceSamples": []
   }
 ]
