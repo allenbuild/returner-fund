@@ -802,7 +802,7 @@ describe("dashboard filters", () => {
 
     const resultsRegion = screen.getByRole("region", { name: "Network map results" });
     expect(resultsRegion).toHaveAttribute("aria-busy", "true");
-    expect(screen.getByText("Refreshing graph")).toBeInTheDocument();
+    expect(screen.getByText("Loading a16z map...")).toBeInTheDocument();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(0);
@@ -816,7 +816,7 @@ describe("dashboard filters", () => {
     ).toBe(false);
     expect(resultsRegion).toHaveAttribute("aria-busy", "true");
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(450);
+      await vi.advanceTimersByTimeAsync(650);
     });
     expect(resultsRegion).toHaveAttribute("aria-busy", "false");
     await act(async () => {
@@ -826,6 +826,8 @@ describe("dashboard filters", () => {
       fetchMock.mock.calls
         .filter(([input]) => String(input) === "/api/graph?batch=A16ZSR006")
     ).toHaveLength(1);
+    fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "S2026" } });
+    expect(screen.getByText("Loading YC map...")).toBeInTheDocument();
   });
 
   it("keeps the old graph and clears scope-specific filters while an uncached scope loads", async () => {
@@ -860,8 +862,7 @@ describe("dashboard filters", () => {
 
     expect(screen.getByTestId("graph-canvas")).toBeInTheDocument();
     expect(within(screen.getByTestId("graph-canvas")).getByText("Spring Fintech")).toBeInTheDocument();
-    expect(screen.queryByText("Loading a16z map...")).not.toBeInTheDocument();
-    expect(screen.getByText("Refreshing graph")).toBeInTheDocument();
+    expect(screen.getByText("Loading a16z map...")).toBeInTheDocument();
     expect(within(industryGroup).getByRole("button", { name: /all industries/i })).toBeInTheDocument();
     expect(within(industryGroup).getByRole("button", { name: /all industries/i })).toBeDisabled();
     expect(within(groupPartnerGroup).getByRole("button", { name: /all group partners/i })).toBeDisabled();

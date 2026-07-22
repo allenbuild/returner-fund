@@ -84,7 +84,7 @@ const STATIC_GRAPH_TIMEOUT_MS = 8_000;
 const API_GRAPH_TIMEOUT_MS = 20_000;
 const REFRESH_TIMEOUT_MS = 45_000;
 const BACKGROUND_REVALIDATION_DELAY_MS = 30_000;
-const SCOPE_TRANSITION_MINIMUM_MS = 450;
+const SCOPE_TRANSITION_MINIMUM_MS = 650;
 const MAP_BASELINE_RETRY_DELAYS_MS = [1_000, 3_000, 10_000] as const;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
@@ -1812,7 +1812,15 @@ export function Dashboard({
                 )}
               </div>
             )}
-            {graphBusy && graph && (
+            {scopeTransitioning && graph && (
+              <div className="graph-transition-overlay" role="status">
+                <div>
+                  <RefreshCw size={24} className="spin" aria-hidden="true" />
+                  <strong>Loading {loadingMapLabel} map...</strong>
+                </div>
+              </div>
+            )}
+            {graphBusy && !scopeTransitioning && graph && (
               <div className="overlay-status" role="status">
                 <RefreshCw size={14} className="spin" aria-hidden="true" />
                 Refreshing graph
