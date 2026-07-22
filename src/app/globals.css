@@ -3801,7 +3801,8 @@ td button {
     grid-column: 1 / -1;
     margin-left: 0;
     width: 100%;
-    min-height: 28px;
+    height: 36px;
+    min-height: 36px;
   }
 
   .tab-list-actions-hidden {
