@@ -54,6 +54,53 @@ test("does not mistake a refreshed timestamp or changed attribution for a new so
   assert.equal(receipt.dailySourceHealth, "awaiting_second_slot");
 });
 
+test("marks terminal-but-ineffective mapped collection and missing credentials as degraded", () => {
+  const receipt = summarizeIngestionSourceDelta({
+    idempotencyKey: "central-2026-07-22-0600",
+    beforeSnapshots: [{ evidence: [row("100")] }],
+    afterSnapshots: [{ evidence: [row("100")] }],
+    collectionCoverage: {
+      mappedExpected: 1837,
+      mappedSucceeded: 90,
+      mappedNeedsReview: 503,
+      mappedBlockedOrEmpty: 1243,
+      mappedFailed: 1,
+      mappedNonTerminal: 0
+    },
+    credentialGaps: ["EXA_API_KEY", "SUPABASE_SERVICE_ROLE_KEY", "X_RECENT_SEARCH_ERRORS:3"]
+  });
+
+  assert.equal(receipt.collectionHealth, "degraded");
+  assert.equal(receipt.mappedSuccessRate, 0.049);
+  assert.deepEqual(receipt.collectionHealthReasons, [
+    "missing_credential:EXA_API_KEY",
+    "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+    "connector_failure:X_RECENT_SEARCH_ERRORS:3",
+    "mapped_failures:1",
+    "mapped_success_rate_below_10_percent:0.0490"
+  ]);
+});
+
+test("accepts healthy mapped efficacy when credentials and terminal outcomes are sound", () => {
+  const receipt = summarizeIngestionSourceDelta({
+    idempotencyKey: "central-2026-07-22-0600",
+    beforeSnapshots: [{ evidence: [row("100")] }],
+    afterSnapshots: [{ evidence: [row("100"), row("101")] }],
+    collectionCoverage: {
+      mappedExpected: 100,
+      mappedSucceeded: 30,
+      mappedNeedsReview: 20,
+      mappedBlockedOrEmpty: 50,
+      mappedFailed: 0,
+      mappedNonTerminal: 0
+    },
+    credentialGaps: []
+  });
+
+  assert.equal(receipt.collectionHealth, "complete");
+  assert.deepEqual(receipt.collectionHealthReasons, []);
+});
+
 test("final daily slot becomes stale only when both slots found no new sources", () => {
   const stale = summarizeIngestionSourceDelta({
     idempotencyKey: "central-2026-07-21-1800",

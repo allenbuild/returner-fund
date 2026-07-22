@@ -151,6 +151,8 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /STATUS="accepted_slot_failed"/);
   assert.match(workflow, /RECEIPT_STATUS="noop_completed"/);
   assert.match(workflow, /RECEIPT_STATUS="noop_stale_day"/);
+  assert.match(workflow, /RECEIPT_STATUS="noop_degraded"/);
+  assert.match(workflow, /RECEIPT_STATUS="noop_no_new_sources"/);
   assert.match(workflow, /RECEIPT_STATUS="noop_missing_receipt"/);
   assert.match(workflow, /RECEIPT_STATUS="published"/);
   assert.match(workflow, /RECEIPT_STATUS="published_degraded"/);
@@ -163,6 +165,17 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /Published commit:/);
   assert.match(workflow, /if \[ "\$STATUS" = "resolver_failed" \] \|\| \[ "\$STATUS" = "accepted_slot_failed" \]/);
   assert.match(workflow, /upstream resolver or ingestion job is the single failing job/);
+  const publicationReceipt = workflow.match(
+    /- name: Record successful publication receipt([\s\S]*?)(?=\n  receipt:)/
+  )?.[1] ?? "";
+  for (const rejectedStatus of [
+    "published_degraded",
+    "published_no_new_sources",
+    "noop_degraded",
+    "noop_no_new_sources"
+  ]) {
+    assert.match(publicationReceipt, new RegExp(`\\$RECEIPT_STATUS.*${rejectedStatus}`));
+  }
   const runnerSource = readFileSync(path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs"), "utf8");
   assert.match(runnerSource, /writeRunnerOutcome\(\{\s*status:\s*"already_completed"/);
   assert.match(runnerSource, /writeRunnerOutcome\(\{\s*status:\s*"refreshed"/);

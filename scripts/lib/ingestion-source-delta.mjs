@@ -8,7 +8,9 @@ export function summarizeIngestionSourceDelta({
   afterSnapshots = [],
   previousHistory = [],
   observedAt = new Date().toISOString(),
-  mappedFailures = 0
+  mappedFailures = 0,
+  collectionCoverage = null,
+  credentialGaps = []
 }) {
   const before = physicalSourceIndex(beforeSnapshots);
   const after = physicalSourceIndex(afterSnapshots);
@@ -46,6 +48,24 @@ export function summarizeIngestionSourceDelta({
     0
   );
   const isFinalDailySlot = /-1800$/.test(String(idempotencyKey));
+  const mappedExpected = Number(collectionCoverage?.mappedExpected ?? 0);
+  const mappedSucceeded = Number(collectionCoverage?.mappedSucceeded ?? 0);
+  const mappedNeedsReview = Number(collectionCoverage?.mappedNeedsReview ?? 0);
+  const mappedBlockedOrEmpty = Number(collectionCoverage?.mappedBlockedOrEmpty ?? 0);
+  const mappedFailureCount = Number(collectionCoverage?.mappedFailed ?? mappedFailures ?? 0);
+  const mappedNonTerminal = Number(collectionCoverage?.mappedNonTerminal ?? 0);
+  const mappedSuccessRate = mappedExpected > 0 ? mappedSucceeded / mappedExpected : null;
+  const collectionHealthReasons = [
+    ...(credentialGaps ?? []).map((name) => {
+      const issue = String(name);
+      return issue.includes(":") ? `connector_failure:${issue}` : `missing_credential:${issue}`;
+    }),
+    ...(mappedFailureCount > 0 ? [`mapped_failures:${mappedFailureCount}`] : []),
+    ...(mappedNonTerminal > 0 ? [`mapped_nonterminal:${mappedNonTerminal}`] : []),
+    ...(mappedExpected > 0 && mappedSuccessRate < 0.1
+      ? [`mapped_success_rate_below_10_percent:${mappedSuccessRate.toFixed(4)}`]
+      : [])
+  ];
 
   return {
     schemaVersion: 1,
@@ -64,8 +84,15 @@ export function summarizeIngestionSourceDelta({
       : isFinalDailySlot
         ? "stale_day"
         : "awaiting_second_slot",
-    collectionHealth: mappedFailures > 0 ? "degraded" : "complete",
-    mappedFailures,
+    collectionHealth: collectionHealthReasons.length > 0 ? "degraded" : "complete",
+    collectionHealthReasons,
+    mappedExpected,
+    mappedSucceeded,
+    mappedNeedsReview,
+    mappedBlockedOrEmpty,
+    mappedFailures: mappedFailureCount,
+    mappedNonTerminal,
+    mappedSuccessRate: mappedSuccessRate === null ? null : Number(mappedSuccessRate.toFixed(4)),
     newestNewSourcePostedAt: newestPostedAt,
     insertedByBatchPlatform,
     insertedSourceSamples

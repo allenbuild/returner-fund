@@ -96,11 +96,14 @@ export function buildGraphResponse(
     .filter((company) => company.batchSlug === batch.slug)
     .map(enrichCompanyRecordVerticals);
   const batchFounders = dataset.founders.filter((founder) => founder.batchSlug === batch.slug);
+  const batchEvidence = dataset.evidence.filter((item) =>
+    !item.batchSlug || item.batchSlug.toUpperCase() === batch.slug.toUpperCase()
+  );
   const topVoiceRollups = topVoiceMode
     ? buildTopVoiceRollups(
         baseBatchCompanies,
         batchFounders,
-        dataset.evidence,
+        batchEvidence,
         selectedPlatforms,
         topVoiceAudience.summary.id,
         topVoiceAudience.members
@@ -108,7 +111,7 @@ export function buildGraphResponse(
     : new Map<string, TopVoiceCompanyRollup>();
   const graphEvidence = topVoiceMode
     ? [...topVoiceRollups.values()].flatMap((rollup) => rollup.evidence)
-    : dataset.evidence;
+    : batchEvidence;
   const scopedEvidence = graphEvidence.filter((item) => evidenceMatchesPlatforms(item, selectedPlatforms));
   const batchCompanies = topVoiceMode
     ? applyTopVoiceCompanyMetadata(baseBatchCompanies, topVoiceRollups, topVoiceAudience.summary)
@@ -201,7 +204,7 @@ export function buildGraphResponse(
     scoringContext: buildScoringContext({
       responseBuiltAt,
       companies: baseBatchCompanies,
-      evidence: evidenceForBatchEntities(dataset.evidence, baseBatchCompanies, batchFounders)
+      evidence: evidenceForBatchEntities(batchEvidence, baseBatchCompanies, batchFounders)
     }),
     mode: dataset.mode ?? "demo"
   });

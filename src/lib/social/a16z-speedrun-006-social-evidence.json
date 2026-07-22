@@ -1,6 +1,6 @@
 {
   "source": {
-    "generatedAt": "2026-07-20T10:17:09Z",
+    "generatedAt": "2026-07-22T20:30:00.000Z",
     "notes": [
       "Seeded native social post evidence for A16Z Speedrun 006 companies when the public traction snapshot does not yet include the post.",
       "Added verified Andrew Chen native X top-voice replies discovered in the 2026-07-15 exhaustive A16Z source audit.",
@@ -18,10 +18,11 @@
       "Imported 3 verified native YouTube rows from outputs/source-hunt/2026-07-19-a16z-recent.json and 1 people-only Andrew Chen X row from outputs/source-hunt/2026-07-19-topvoices-recent.json; rejected 4 GitHub commit/PR rows.",
       "Imported 27 verified A16Z second-pass rows from outputs/source-hunt/2026-07-19-a16z-second-pass.json (26 Instagram, 1 X); rejected 4 strict failures and skipped 3 exact duplicates.",
       "Imported 22 strict native rows from 2026-07-19-cross-batch-community-video-recent.json; refreshed 0 duplicates and rejected 0.",
-      "Imported 1 strict native rows from 2026-07-20-zero-evidence-recovery-a16z-importable.json; refreshed 0 duplicates and rejected 0."
+      "Imported 1 strict native rows from 2026-07-20-zero-evidence-recovery-a16z-importable.json; refreshed 0 duplicates and rejected 0.",
+      "Imported 26 strict native rows from 2026-07-22-a16z-nonzero-second-pass.json; refreshed 0 duplicates and rejected 0."
     ],
-    "sourceHuntImportedAt": "2026-07-20T10:17:09Z",
-    "evidenceCount": 305,
+    "sourceHuntImportedAt": "2026-07-22T20:30:00.000Z",
+    "evidenceCount": 331,
     "latestSourceHuntImport": {
       "artifactPath": "outputs/source-hunt/2026-07-19-a16z-second-pass.json",
       "strictCandidatesEvaluated": 34,
@@ -3194,6 +3195,75 @@
       }
     },
     {
+      "companySlug": "belong",
+      "companyName": "Belong",
+      "entityType": "founder",
+      "founderName": "Nick Holmsten",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/nickmanic_funding-startups-fintech-activity-7370811904262295553-C2F0",
+      "platformPostId": "7370811904262295553",
+      "accountUrl": "https://linkedin.com/in/nickmanic",
+      "authorName": "Nick Holmsten",
+      "authorHandle": null,
+      "postedAt": "2025-09-08T13:35:01.039Z",
+      "title": "Belong funding and fintech update",
+      "text": "#funding #startups #fintech",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 28
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":28},\"verification\":\"Exact native post under canonical founder profile /in/nickmanic; indexed native result text identifies Belong and exposes a positive post-level comment count.\"}",
+      "matchReason": "Exact native post under canonical founder profile /in/nickmanic; indexed native result text identifies Belong and exposes a positive post-level comment count.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "oasiz",
+      "companyName": "Oasiz",
+      "entityType": "founder",
+      "founderName": "Abel Dagne",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/abel-dagne_oasiz-raises-25m-seed-round-for-viral-playable-activity-7381760745254039552-53ep",
+      "platformPostId": "7381760745254039552",
+      "accountUrl": "https://linkedin.com/in/abel-dagne",
+      "authorName": "Abel Dagne",
+      "authorHandle": null,
+      "postedAt": "2025-10-08T18:41:48.120Z",
+      "title": "We've all used AI for work, school ...",
+      "text": "That sense of magic is what inspired Oasiz.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 26
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":26},\"verification\":\"Native LinkedIn body explicitly identifies Oasiz; the author is the exact canonical Abel Dagne founder account.\"}",
+      "matchReason": "Native LinkedIn body explicitly identifies Oasiz; the author is the exact canonical Abel Dagne founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "belong",
+      "companyName": "Belong",
+      "entityType": "founder",
+      "founderName": "Nick Holmsten",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/nickmanic_fantech-a16zspeedrun-engagementeconomy-activity-7401290857766625280-aPce",
+      "platformPostId": "7401290857766625280",
+      "accountUrl": "https://linkedin.com/in/nickmanic",
+      "authorName": "Nick Holmsten",
+      "authorHandle": null,
+      "postedAt": "2025-12-01T16:07:29.806Z",
+      "title": "Big News — Belong’s Latest Fundraising Includes Investment from a16z speedrun",
+      "text": "We’re incredibly proud to share that a16z speedrun has joined our latest round of fundraising.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 30
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":30},\"verification\":\"Native founder post names Belong and a16z speedrun; /in/nickmanic is the canonical founder account.\"}",
+      "matchReason": "Native founder post names Belong and a16z speedrun; /in/nickmanic is the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "crebit",
       "companyName": "Crebit",
       "entityType": "founder",
@@ -3323,6 +3393,52 @@
       "review_state": "verified"
     },
     {
+      "companySlug": "quanto",
+      "companyName": "Quanto",
+      "entityType": "founder",
+      "founderName": "Anderson Petergeorge",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/andersonpetergeorge_were-moving-to-san-francisco-for-the-next-activity-7416856618572664832-c4-O",
+      "platformPostId": "7416856618572664832",
+      "accountUrl": "https://linkedin.com/in/andersonpetergeorge",
+      "authorName": "Anderson Petergeorge",
+      "authorHandle": null,
+      "postedAt": "2026-01-13T15:00:16.383Z",
+      "title": "We're moving to San Francisco!",
+      "text": "For the next 4 months, we're building Quanto full-time with a16z speedrun.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 43
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":43},\"verification\":\"Native LinkedIn VideoObject explicitly names Quanto and a16z speedrun; the author profile exactly matches the canonical founder account.\"}",
+      "matchReason": "Native LinkedIn VideoObject explicitly names Quanto and a16z speedrun; the author profile exactly matches the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "pluvo",
+      "companyName": "Pluvo",
+      "entityType": "founder",
+      "founderName": "Vanessa Galarneau",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/vanessa-galarneau_pluvo-is-now-an-a16z-speedrun-company-activity-7421976509021663232-eDxG",
+      "platformPostId": "7421976509021663232",
+      "accountUrl": "https://linkedin.com/in/vanessa-galarneau",
+      "authorName": "Vanessa Galarneau",
+      "authorHandle": null,
+      "postedAt": "2026-01-27T18:04:53.381Z",
+      "title": "Pluvo is now an a16z speedrun company!!!",
+      "text": "Pluvo is now an a16z speedrun company!!!",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 68
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":68},\"verification\":\"Native founder post explicitly identifies Pluvo and a16z speedrun; the author profile exactly matches the canonical founder account.\"}",
+      "matchReason": "Native founder post explicitly identifies Pluvo and a16z speedrun; the author profile exactly matches the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "sentra",
       "companyName": "Sentra",
       "entityType": "founder",
@@ -3373,6 +3489,29 @@
       "why": "a16z_fifth_pass; imported from outputs/source-hunt/a16z-fifth-pass.json.",
       "review_state": "verified",
       "platformPostId": "7423552233965010944"
+    },
+    {
+      "companySlug": "panorama",
+      "companyName": "Panorama",
+      "entityType": "founder",
+      "founderName": "Jingwei Hao",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/jingwei-hao_panorama-is-now-a16z-speedrun-company-i-activity-7424149637068156928-EHrA",
+      "platformPostId": "7424149637068156928",
+      "accountUrl": "https://linkedin.com/in/jingwei-hao",
+      "authorName": "Jingwei Hao",
+      "authorHandle": null,
+      "postedAt": "2026-02-02T18:00:07.488Z",
+      "title": "Panorama is now a16z speedrun company!",
+      "text": "Panorama is now a16z speedrun company!",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 87
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":87},\"verification\":\"Native founder post names Panorama and a16z speedrun; /in/jingwei-hao is the exact canonical founder account.\"}",
+      "matchReason": "Native founder post names Panorama and a16z speedrun; /in/jingwei-hao is the exact canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
     },
     {
       "companySlug": "quinn",
@@ -3508,6 +3647,76 @@
       "platformPostId": "7424533996287655938"
     },
     {
+      "companySlug": "concorda",
+      "companyName": "Concorda",
+      "entityType": "founder",
+      "founderName": "Ke Ma",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/kema97_delighted-to-share-thatconcordais-backed-activity-7424534196884447232-uLwy",
+      "platformPostId": "7424534196884447232",
+      "accountUrl": "https://linkedin.com/in/kema97",
+      "authorName": "Ke Ma",
+      "authorHandle": null,
+      "postedAt": "2026-02-03T19:28:13.693Z",
+      "title": "Delighted to share that Concorda is backed by a16z speedrun",
+      "text": "Concorda automates complex litigation workflows so litigators can better focus on judgment, strategy, and advocacy.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 75
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":75},\"verification\":\"Native LinkedIn post explicitly names Concorda and a16z speedrun; /in/kema97 is the canonical founder account.\"}",
+      "matchReason": "Native LinkedIn post explicitly names Concorda and a16z speedrun; /in/kema97 is the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "clair-health",
+      "companyName": "Clair Health",
+      "entityType": "founder",
+      "founderName": "Jenny Duan",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/jennysduan_clair-pioneering-continuous-hormone-intelligence-activity-7424874585386328064-I_3O",
+      "platformPostId": "7424874585386328064",
+      "accountUrl": "https://linkedin.com/in/jennysduan",
+      "authorName": "Jenny Duan",
+      "authorHandle": null,
+      "postedAt": "2026-02-04T18:00:48.638Z",
+      "title": "Today, I am delighted to share that Clair Health is officially out of stealth!",
+      "text": "Together, we are building the world's first continuous hormone monitor.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 164
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":164},\"verification\":\"Native LinkedIn post names Clair Health and its a16z speedrun-led pre-seed round; /in/jennysduan is the canonical founder account.\"}",
+      "matchReason": "Native LinkedIn post names Clair Health and its a16z speedrun-led pre-seed round; /in/jennysduan is the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "omi-health",
+      "companyName": "Omi Health",
+      "entityType": "founder",
+      "founderName": "Sindu Chaparala",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/sindu-chaparala-60248560_omi-health-is-officially-an-a16z-speedrun-activity-7424982359210418176-nbIz",
+      "platformPostId": "7424982359210418176",
+      "accountUrl": "https://linkedin.com/in/sindu-chaparala-60248560",
+      "authorName": "Sindu Chaparala",
+      "authorHandle": null,
+      "postedAt": "2026-02-05T01:09:03.917Z",
+      "title": "Omi Health is officially an a16z speedrun company!",
+      "text": "Omi Health is officially an a16z speedrun company!",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 404,
+        "comments": 65
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":404,\"comments\":65},\"verification\":\"Native founder post explicitly identifies Omi Health and a16z speedrun; the author profile exactly matches the canonical founder account.\"}",
+      "matchReason": "Native founder post explicitly identifies Omi Health and a16z speedrun; the author profile exactly matches the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "kaaro",
       "companyName": "Kaaro",
       "entityType": "founder",
@@ -3532,6 +3741,29 @@
       "why": "Seeded from public web LinkedIn post page opened/read by source hunt with visible post/repo URL and metrics.",
       "review_state": "verified",
       "platformPostId": "7425629361355251713"
+    },
+    {
+      "companySlug": "kaaro",
+      "companyName": "Kaaro",
+      "entityType": "founder",
+      "founderName": "Gautham Venkateshwaran",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/gv6_kaaro-is-an-a16z-speedrun-backed-company-activity-7425629367839645696-ql2s",
+      "platformPostId": "7425629367839645696",
+      "accountUrl": "https://linkedin.com/in/gv6",
+      "authorName": "Gautham Venkateshwaran",
+      "authorHandle": null,
+      "postedAt": "2026-02-06T20:00:02.791Z",
+      "title": "Kaaro is an a16z speedrun-backed company.",
+      "text": "Kaaro is an a16z speedrun-backed company.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 57
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":57},\"verification\":\"Native founder post explicitly identifies Kaaro and a16z speedrun; /in/gv6 is the exact canonical founder account.\"}",
+      "matchReason": "Native founder post explicitly identifies Kaaro and a16z speedrun; /in/gv6 is the exact canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
     },
     {
       "companySlug": "quinn",
@@ -3665,6 +3897,29 @@
       "platformPostId": "7429910776573886464"
     },
     {
+      "companySlug": "belong",
+      "companyName": "Belong",
+      "entityType": "founder",
+      "founderName": "Nick Holmsten",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/nickmanic_im-giving-away-25-signed-copies-of-fan-powered-activity-7434606056321855488-nisL",
+      "platformPostId": "7434606056321855488",
+      "accountUrl": "https://linkedin.com/in/nickmanic",
+      "authorName": "Nick Holmsten",
+      "authorHandle": null,
+      "postedAt": "2026-03-03T14:30:12.107Z",
+      "title": "I’m giving away 25 signed copies of Fan-Powered Futures.",
+      "text": "The book was the thesis. Belong is the execution.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 64
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":64},\"verification\":\"Native founder post explicitly identifies Belong; /in/nickmanic is the canonical founder account.\"}",
+      "matchReason": "Native founder post explicitly identifies Belong; /in/nickmanic is the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "sellara",
       "companyName": "Sellara",
       "entityType": "founder",
@@ -3773,6 +4028,30 @@
       "platformPostId": "7435846202157514752"
     },
     {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "entityType": "founder",
+      "founderName": "Tyrin-Ian Todd",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/tyrin-ian-todd_farouk-adeleke-and-i-are-proud-to-announce-activity-7436867022828769280-v8iA",
+      "platformPostId": "7436867022828769280",
+      "accountUrl": "https://linkedin.com/in/tyrin-ian-todd",
+      "authorName": "Tyrin-Ian Todd",
+      "authorHandle": null,
+      "postedAt": "2026-03-09T20:14:28.532Z",
+      "title": "Farouk Adeleke and I are proud to announce that Modaic has joined a16z speedrun.",
+      "text": "Farouk Adeleke and I are proud to announce that Modaic has joined a16z speedrun.",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 306,
+        "comments": 92
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":306,\"comments\":92},\"verification\":\"Native founder post explicitly identifies Modaic and a16z speedrun; the author profile exactly matches the canonical founder account.\"}",
+      "matchReason": "Native founder post explicitly identifies Modaic and a16z speedrun; the author profile exactly matches the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "amdahl",
       "companyName": "Amdahl",
       "entityType": "founder",
@@ -3823,6 +4102,29 @@
       "platformPostId": "7437893925719265280"
     },
     {
+      "companySlug": "smart-bricks",
+      "companyName": "Smart Bricks",
+      "entityType": "founder",
+      "founderName": "Mohamed Mohamed",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/mohamedmohamed1_we-just-won-sxsw-smart-bricks-has-been-activity-7440034865783132161-c4v2",
+      "platformPostId": "7440034865783132161",
+      "accountUrl": "https://linkedin.com/in/mohamedmohamed1",
+      "authorName": "Mohamed Mohamed",
+      "authorHandle": null,
+      "postedAt": "2026-03-18T14:02:21.148Z",
+      "title": "We just won SXSW.",
+      "text": "Smart Bricks has been named a winner at SXSW Pitch 2026.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 193
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":193},\"verification\":\"Native LinkedIn body explicitly identifies Smart Bricks; /in/mohamedmohamed1 is the exact canonical founder account.\"}",
+      "matchReason": "Native LinkedIn body explicitly identifies Smart Bricks; /in/mohamedmohamed1 is the exact canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "hotbox",
       "companyName": "Hotbox",
       "entityType": "founder",
@@ -3869,6 +4171,29 @@
       "why": "Seeded from public LinkedIn post evidence visible outside the app.",
       "review_state": "verified",
       "platformPostId": "7441876103092330498"
+    },
+    {
+      "companySlug": "sun",
+      "companyName": "SUN",
+      "entityType": "founder",
+      "founderName": "Artin Bogdanov",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/artinbogdanov_long-overdue-update-sun-is-part-of-a16z-activity-7442571081053474816-s0bm",
+      "platformPostId": "7442571081053474816",
+      "accountUrl": "https://linkedin.com/in/artinbogdanov",
+      "authorName": "Artin Bogdanov",
+      "authorHandle": null,
+      "postedAt": "2026-03-25T14:00:21.989Z",
+      "title": "Long overdue update: SUN is part of a16z speedrun.",
+      "text": "Long overdue update: SUN is part of a16z speedrun.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 24
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":24},\"verification\":\"Native founder post explicitly identifies SUN and a16z speedrun; /in/artinbogdanov is the exact canonical founder account.\"}",
+      "matchReason": "Native founder post explicitly identifies SUN and a16z speedrun; /in/artinbogdanov is the exact canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
     },
     {
       "companySlug": "hammock",
@@ -4018,6 +4343,54 @@
       "platformPostId": "7445523105655005184"
     },
     {
+      "companySlug": "modern-industrials",
+      "companyName": "Modern Industrials",
+      "entityType": "founder",
+      "founderName": "Vatsal Bhargava",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/vatsal-bhargava_goodbye-google-and-hello-modern-industrials-activity-7445530133626781697-KIds",
+      "platformPostId": "7445530133626781697",
+      "accountUrl": "https://linkedin.com/in/vatsal-bhargava",
+      "authorName": "Vatsal Bhargava",
+      "authorHandle": null,
+      "postedAt": "2026-04-02T17:58:35.098Z",
+      "title": "Goodbye Google and hello Modern Industrials, we are bringing AI to building materials distribution and are backed by a16z speedrun!",
+      "text": "Goodbye Google and hello Modern Industrials, we are bringing AI to building materials distribution and are backed by a16z speedrun!",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 250,
+        "comments": 86
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":250,\"comments\":86},\"verification\":\"Native LinkedIn post explicitly names Modern Industrials and a16z speedrun; its author profile exactly matches the canonical founder account.\"}",
+      "matchReason": "Native LinkedIn post explicitly names Modern Industrials and a16z speedrun; its author profile exactly matches the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "modern-industrials",
+      "companyName": "Modern Industrials",
+      "entityType": "founder",
+      "founderName": "Ankit Bhargava",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/abharg_were-thrilled-to-share-that-modern-industrials-activity-7445575802890485760-MyEO",
+      "platformPostId": "7445575802890485760",
+      "accountUrl": "https://linkedin.com/in/abharg",
+      "authorName": "Ankit Bhargava",
+      "authorHandle": null,
+      "postedAt": "2026-04-02T21:00:03.488Z",
+      "title": "We’re thrilled to share that Modern Industrials is now backed by a16z speedrun!",
+      "text": "We’re thrilled to share that Modern Industrials is now backed by a16z speedrun!",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 189,
+        "comments": 62
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":189,\"comments\":62},\"verification\":\"Native LinkedIn post names Modern Industrials and a16z speedrun; the canonical account snapshot maps the exact /in/abharg profile to founder Ankit Bhargava.\"}",
+      "matchReason": "Native LinkedIn post names Modern Industrials and a16z speedrun; the canonical account snapshot maps the exact /in/abharg profile to founder Ankit Bhargava.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "hotbox",
       "companyName": "Hotbox",
       "entityType": "founder",
@@ -4040,6 +4413,29 @@
       "why": "Seeded from public LinkedIn post evidence visible outside the app.",
       "review_state": "verified",
       "platformPostId": "7448045636349775872"
+    },
+    {
+      "companySlug": "sentra",
+      "companyName": "Sentra",
+      "entityType": "founder",
+      "founderName": "Ashwin Gopinath",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/ashgopi_weve-raised-5m-to-build-organizational-activity-7448052612878274560-cRsk",
+      "platformPostId": "7448052612878274560",
+      "accountUrl": "https://linkedin.com/in/ashgopi",
+      "authorName": "Ashwin Gopinath",
+      "authorHandle": null,
+      "postedAt": "2026-04-09T17:02:01.004Z",
+      "title": "We've raised $5M to build organizational memory.",
+      "text": "We built Sentra to make sure that never happens again.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 67
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":67},\"verification\":\"Native LinkedIn VideoObject explicitly identifies Sentra; /in/ashgopi is the exact canonical founder account.\"}",
+      "matchReason": "Native LinkedIn VideoObject explicitly identifies Sentra; /in/ashgopi is the exact canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
     },
     {
       "companySlug": "sirius-technology",
@@ -4091,6 +4487,52 @@
       "why": "Seeded from 2026-07-15 second-pass source hunt with visible native linkedin URL and metrics.",
       "review_state": "verified",
       "platformPostId": "7449510766657060864"
+    },
+    {
+      "companySlug": "thirdbrain-labs",
+      "companyName": "Thirdbrain Labs",
+      "entityType": "founder",
+      "founderName": "David Huang",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/ds-huang_i-joined-forces-with-margaret-zhang-to-unlock-activity-7449515423223693312-xKlr",
+      "platformPostId": "7449515423223693312",
+      "accountUrl": "https://linkedin.com/in/ds-huang",
+      "authorName": "David S Huang",
+      "authorHandle": null,
+      "postedAt": "2026-04-13T17:54:42.183Z",
+      "title": "I joined forces with Margaret Zhang to unlock the next billion specialized models.",
+      "text": "Today teams from medical, industrials, robotics, finance and more are using Thirdbrain Labs.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 26
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":26},\"verification\":\"Native LinkedIn VideoObject identifies David S Huang and names Thirdbrain Labs; the canonical snapshot maps /in/ds-huang to the founder.\"}",
+      "matchReason": "Native LinkedIn VideoObject identifies David S Huang and names Thirdbrain Labs; the canonical snapshot maps /in/ds-huang to the founder.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "cedar",
+      "companyName": "Cedar",
+      "entityType": "founder",
+      "founderName": "Greg Gunn",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/gunnr_i-am-proud-to-share-that-beier-cai-and-i-activity-7449555940489723904-pXaI",
+      "platformPostId": "7449555940489723904",
+      "accountUrl": "https://linkedin.com/in/gunnr",
+      "authorName": "Greg Gunn",
+      "authorHandle": null,
+      "postedAt": "2026-04-13T20:35:42.252Z",
+      "title": "I am proud to share that Beier Cai and I are back building together!",
+      "text": "Founding team at Hootsuite. Then Commit. Now Cedar AI Agents.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 133
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":133},\"verification\":\"Native LinkedIn body identifies Cedar AI Agents and a16z speedrun Demo Day; /in/gunnr is the exact canonical founder account.\"}",
+      "matchReason": "Native LinkedIn body identifies Cedar AI Agents and a16z speedrun Demo Day; /in/gunnr is the exact canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
     },
     {
       "companySlug": "oasiz",
@@ -4268,6 +4710,29 @@
       "platformPostId": "7450359805304782848"
     },
     {
+      "companySlug": "quanto",
+      "companyName": "Quanto",
+      "entityType": "founder",
+      "founderName": "Anderson Petergeorge",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/andersonpetergeorge_this-was-the-calm-before-the-storm-at-a16z-activity-7452763171699724288-rYLd",
+      "platformPostId": "7452763171699724288",
+      "accountUrl": "https://linkedin.com/in/andersonpetergeorge",
+      "authorName": "Anderson Petergeorge",
+      "authorHandle": null,
+      "postedAt": "2026-04-22T17:00:05.735Z",
+      "title": "This was the calm before the storm at a16z speedrun demo day.",
+      "text": "I’m glad to be building Quanto as a team.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 17
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":17},\"verification\":\"Native LinkedIn body names Quanto and a16z speedrun Demo Day; the author profile exactly matches the canonical founder account.\"}",
+      "matchReason": "Native LinkedIn body names Quanto and a16z speedrun Demo Day; the author profile exactly matches the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "concorda",
       "companyName": "Concorda",
       "entityType": "founder",
@@ -4387,6 +4852,30 @@
       "why": "Seeded from public LinkedIn post evidence visible outside the app.",
       "review_state": "verified",
       "platformPostId": "7457089172978200578"
+    },
+    {
+      "companySlug": "modern-industrials",
+      "companyName": "Modern Industrials",
+      "entityType": "founder",
+      "founderName": "Austin Mao",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/a-mao_i-was-obsessed-with-the-percy-jackson-series-activity-7460365018576871424-Tz4g",
+      "platformPostId": "7460365018576871424",
+      "accountUrl": "https://linkedin.com/in/a-mao",
+      "authorName": "Austin Mao",
+      "authorHandle": null,
+      "postedAt": "2026-05-13T16:27:07.289Z",
+      "title": "I was obsessed with the Percy Jackson series as a kid.",
+      "text": "I’ll always be grateful to a16z speedrun for helping kickstart our quest at Modern Industrials.",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 308,
+        "comments": 58
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":308,\"comments\":58},\"verification\":\"Native LinkedIn VideoObject identifies Austin Mao and explicitly names Modern Industrials; the canonical A16ZSR006 account snapshot maps this exact profile to the founder.\"}",
+      "matchReason": "Native LinkedIn VideoObject identifies Austin Mao and explicitly names Modern Industrials; the canonical A16ZSR006 account snapshot maps this exact profile to the founder.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
     },
     {
       "companySlug": "hotbox",
@@ -4554,6 +5043,101 @@
       "platformPostId": "7464788896615202816"
     },
     {
+      "companySlug": "modaic",
+      "companyName": "Modaic",
+      "entityType": "founder",
+      "founderName": "Tyrin-Ian Todd",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/tyrin-ian-todd_bostontechweek-activity-7465389319499743232-cnqD",
+      "platformPostId": "7465389319499743232",
+      "accountUrl": "https://linkedin.com/in/tyrin-ian-todd",
+      "authorName": "Tyrin-Ian Todd",
+      "authorHandle": null,
+      "postedAt": "2026-05-27T13:11:53.977Z",
+      "title": "Almost a year ago today I graduated from Massachusetts Institute of Technology with a degree in AI and Decision Making (course 6-4) and now I'm back on campus for Boston TECH WEEK by a16z!",
+      "text": "Modaic (SR 006) is backed by Andreessen Horowitz a16z speedrun building exactly what my major was named after — AI for decision making.",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 183,
+        "comments": 10
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":183,\"comments\":10},\"verification\":\"Native LinkedIn body explicitly identifies Modaic and SR 006; /in/tyrin-ian-todd is the canonical founder account.\"}",
+      "matchReason": "Native LinkedIn body explicitly identifies Modaic and SR 006; /in/tyrin-ian-todd is the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "bilrost",
+      "companyName": "Bilrost",
+      "entityType": "founder",
+      "founderName": "Silvia Chen",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/silvia-chen_building-a-category-defining-company-in-financial-activity-7467674155283435530-wvWh",
+      "platformPostId": "7467674155283435530",
+      "accountUrl": "https://linkedin.com/in/silvia-chen",
+      "authorName": "Silvia Chen",
+      "authorHandle": null,
+      "postedAt": "2026-06-02T20:31:01.244Z",
+      "title": "Building a category-defining company in financial infrastructure is hard.",
+      "text": "Excited to share that Erin James Collard is joining Bilrost as a strategic advisor.",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 71,
+        "comments": 8
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":71,\"comments\":8},\"verification\":\"Native LinkedIn body explicitly names Bilrost; the author profile exactly matches canonical founder Silvia Chen.\"}",
+      "matchReason": "Native LinkedIn body explicitly names Bilrost; the author profile exactly matches canonical founder Silvia Chen.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "pluvo",
+      "companyName": "Pluvo",
+      "entityType": "founder",
+      "founderName": "Vanessa Galarneau",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/vanessa-galarneau_when-we-started-planning-our-new-york-event-activity-7468024356917542912-hFHD",
+      "platformPostId": "7468024356917542912",
+      "accountUrl": "https://linkedin.com/in/vanessa-galarneau",
+      "authorName": "Vanessa Galarneau",
+      "authorHandle": null,
+      "postedAt": "2026-06-03T19:42:35.855Z",
+      "title": "When we started planning our New York event, I was hoping maybe 100 people would sign up.",
+      "text": "Today I'm in SoHo @ The Malin with the Pluvo team putting the finishing touches on tomorrow's AI for Finance event.",
+      "mediaType": "link",
+      "metrics": {
+        "comments": 15
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"comments\":15},\"verification\":\"Native LinkedIn body explicitly identifies the Pluvo team and event; /in/vanessa-galarneau is the canonical founder account.\"}",
+      "matchReason": "Native LinkedIn body explicitly identifies the Pluvo team and event; /in/vanessa-galarneau is the canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "bilrost",
+      "companyName": "Bilrost",
+      "entityType": "founder",
+      "founderName": "Silvia Chen",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/silvia-chen_i-never-thought-id-see-our-name-in-lights-activity-7468354768118190080-gPfc",
+      "platformPostId": "7468354768118190080",
+      "accountUrl": "https://linkedin.com/in/silvia-chen",
+      "authorName": "Silvia Chen",
+      "authorHandle": null,
+      "postedAt": "2026-06-04T17:35:32.020Z",
+      "title": "I never thought I'd see our name in lights this soon.",
+      "text": "We built Bilrost to do what real estate lenders have been waiting for.",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 164,
+        "comments": 24
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":164,\"comments\":24},\"verification\":\"Native LinkedIn body explicitly names Bilrost; the author profile exactly matches canonical founder Silvia Chen.\"}",
+      "matchReason": "Native LinkedIn body explicitly names Bilrost; the author profile exactly matches canonical founder Silvia Chen.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
       "companySlug": "quinn",
       "companyName": "Quinn",
       "entityType": "company",
@@ -4706,6 +5290,30 @@
       "why": "Seeded from public LinkedIn post evidence visible outside the app.",
       "review_state": "verified",
       "platformPostId": "7472316994005131264"
+    },
+    {
+      "companySlug": "hotbox",
+      "companyName": "Hotbox",
+      "entityType": "founder",
+      "founderName": "Harpriya Bagri",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/harpriya_every-company-has-no-choice-but-to-become-activity-7473766544741662720-l7wv",
+      "platformPostId": "7473766544741662720",
+      "accountUrl": "https://linkedin.com/in/harpriya",
+      "authorName": "Harpriya Bagri",
+      "authorHandle": null,
+      "postedAt": "2026-06-19T16:00:00.118Z",
+      "title": "every company has no choice but to become a media company.",
+      "text": "hotbox exists because of this bet.",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 6,
+        "comments": 1
+      },
+      "rawVisibleText": "{\"source\":\"strict_source_hunt\",\"metrics\":{\"reactions\":6,\"comments\":1},\"verification\":\"Native LinkedIn body explicitly identifies Hotbox; /in/harpriya is the exact canonical founder account.\"}",
+      "matchReason": "Native LinkedIn body explicitly identifies Hotbox; /in/harpriya is the exact canonical founder account.",
+      "why": "Imported from outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
     },
     {
       "companySlug": "crebit",

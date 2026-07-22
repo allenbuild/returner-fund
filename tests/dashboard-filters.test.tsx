@@ -86,6 +86,114 @@ describe("dashboard filters", () => {
     expect(within(topicGroup).queryByText(/major offering has launched/i)).not.toBeInTheDocument();
   });
 
+  it("groups and searches canonical Topics with sticky reset controls and accessible keyboard focus", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:launch", "Launch Co", "b2b", "#7dd3fc", "Partner A"),
+      makeNode("company:customer", "Customer Co", "b2b", "#7dd3fc", "Partner A"),
+      makeNode("company:showcase", "Showcase Co", "b2b", "#7dd3fc", "Partner A"),
+      makeNode("company:research", "Research Co", "b2b", "#7dd3fc", "Partner A"),
+      makeNode("company:culture", "Culture Co", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    fullGraph.evidence = fullGraph.evidence.map((item) => ({
+      ...item,
+      text: item.entityId === "launch"
+        ? "We just launched our public beta and it is available today."
+        : item.entityId === "customer"
+          ? "Our customer selected us after a successful paid pilot."
+          : item.entityId === "showcase"
+            ? "Watch our product demo in action."
+            : item.entityId === "research"
+              ? "Our benchmark results show the new evaluation outperforms prior models."
+              : "Expectation vs reality: the deployment meme of the week.",
+      topics: item.entityId === "launch"
+        ? ["product-launch"]
+        : item.entityId === "customer"
+          ? ["customer-partnership-deployment"]
+          : item.entityId === "showcase"
+            ? ["product-demo-showcase"]
+        : item.entityId === "research"
+          ? ["research-benchmark-technical-insight"]
+          : ["humor-culture"]
+    }));
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    const topicGroup = screen.getByText("Topics").closest(".filter-dropdown") as HTMLElement;
+    const trigger = within(topicGroup).getByRole("button", { name: /all topics/i });
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    const menu = within(topicGroup).getByRole("menu", { name: "Topics filter" });
+    const allTopics = within(menu).getByRole("menuitemcheckbox", { name: "All topics" });
+    await waitFor(() => expect(allTopics).toHaveFocus());
+    expect(within(menu).getByText("Business progress")).toBeInTheDocument();
+    expect(within(menu).getByText("Product & technical")).toBeInTheDocument();
+    expect(within(menu).getByText("Company narrative")).toBeInTheDocument();
+    expect(within(menu).getByText("Ecosystem")).toBeInTheDocument();
+    expect(within(menu).getAllByText("Other").length).toBeGreaterThanOrEqual(1);
+
+    fireEvent.keyDown(allTopics, { key: "ArrowDown" });
+    expect(within(menu).getByRole("menuitemcheckbox", { name: /Customer, Partnership & Deployment\s*\(1\)/i })).toHaveFocus();
+
+    const launch = within(menu).getByRole("menuitemcheckbox", { name: /Product Launch\s*\(1\)/i });
+    expect(launch).toHaveAttribute("data-filter-value", "product-launch");
+    fireEvent.click(launch);
+    expect(within(menu).getByText("Clear")).toBeInTheDocument();
+    expect(allTopics).toHaveAttribute("aria-checked", "false");
+
+    const search = within(menu).getByRole("searchbox", { name: "Search Topics" });
+    fireEvent.change(search, { target: { value: "open source" } });
+    expect(within(menu).getByRole("menuitemcheckbox", { name: /Research, Benchmark & Technical Insight/i })).toHaveAttribute(
+      "data-filter-value",
+      "research-benchmark-technical-insight"
+    );
+    expect(within(menu).queryByRole("menuitemcheckbox", { name: /Product Launch/i })).not.toBeInTheDocument();
+    expect(within(menu).queryByText("Business progress")).not.toBeInTheDocument();
+    expect(within(menu).queryByText(/engineering explanation/i)).not.toBeInTheDocument();
+    expect(within(menu).queryByText(/confidence|classifier|automatic/i)).not.toBeInTheDocument();
+
+    search.focus();
+    fireEvent.keyDown(search, { key: "Escape" });
+    expect(trigger).toHaveFocus();
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("updates Topic post counts from active filters without collapsing the Topic OR facet", async () => {
+    const fullGraph = graphResponse([
+      makeNode("company:x-launch", "X Launch", "b2b", "#7dd3fc", "Partner A", 90, "x"),
+      makeNode("company:x-traction", "X Traction", "b2b", "#7dd3fc", "Partner A", 70, "x"),
+      makeNode("company:github-launch", "GitHub Launch", "fintech", "#2563eb", "Partner B", 85, "github")
+    ]);
+    fullGraph.evidence = fullGraph.evidence.map((item) => ({
+      ...item,
+      text: item.entityId.endsWith("launch")
+        ? "We just launched our new product and it is now live."
+        : "We crossed 10,000 paid customers."
+    }));
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+
+    const topicGroup = screen.getByText("Topics").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topicGroup).getByRole("button", { name: /all topics/i }));
+    expect(within(topicGroup).getByRole("menuitemcheckbox", { name: /Product Launch\s*\(2\)/i })).toBeEnabled();
+    expect(within(topicGroup).getByRole("menuitemcheckbox", { name: /Traction & Growth\s*\(1\)/i })).toBeEnabled();
+
+    const platformGroup = screen.getByText("Platform").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(platformGroup).getByRole("button", { name: /all platforms/i }));
+    fireEvent.click(within(platformGroup).getByRole("menuitemcheckbox", { name: /^X$/i }));
+
+    fireEvent.click(within(topicGroup).getByRole("button", { name: /all topics/i }));
+    await waitFor(() => {
+      expect(within(topicGroup).getByRole("menuitemcheckbox", { name: /Product Launch\s*\(1\)/i })).toBeEnabled();
+      expect(within(topicGroup).getByRole("menuitemcheckbox", { name: /Traction & Growth\s*\(1\)/i })).toBeEnabled();
+    });
+
+    fireEvent.click(within(topicGroup).getByRole("menuitemcheckbox", { name: /Traction & Growth\s*\(1\)/i }));
+    expect(within(topicGroup).getByRole("menuitemcheckbox", { name: /Product Launch\s*\(1\)/i })).toBeEnabled();
+  });
+
   it("shows platform, industry, and group partner filters without model or edge controls", async () => {
     const fullGraph = graphResponse([
       makeNode("company:b2b-a", "B2B A", "b2b", "#7dd3fc", "Partner A"),
@@ -163,7 +271,9 @@ describe("dashboard filters", () => {
     const fullGraph = graphResponse([launchNode, fintechNode]);
     fullGraph.evidence = fullGraph.evidence.map((item) => ({
       ...item,
-      topics: item.entityId === "launch-co" ? ["product-launch"] : ["traction"]
+      text: item.entityId === "launch-co"
+        ? "We just launched our public beta and it is available today."
+        : "We crossed 10,000 paid customers."
     }));
     vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
 
@@ -223,14 +333,14 @@ describe("dashboard filters", () => {
   });
 
   it("copies and rehydrates multiple Topics and more than five Verticals without truncation, then resets them", async () => {
-    const topics = ["traction", "product-launch"] as const;
+    const topics = ["traction-growth", "product-launch"] as const;
     const verticals = COMPANY_VERTICALS.slice(0, 6).map(({ slug }) => slug);
     const node = {
       ...makeNode("company:shared-view", "Shared View", "b2b", "#7dd3fc", "Partner A", 88, "x"),
       verticals: [verticals[0]]
     };
     const fullGraph = graphResponse([node]);
-    fullGraph.evidence = fullGraph.evidence.map((item) => ({ ...item, topics: [topics[0]] }));
+    fullGraph.evidence = fullGraph.evidence.map((item) => ({ ...item, text: "We crossed 10,000 paid customers." }));
     const writeText = vi.fn(async (value: string) => {
       void value;
     });
@@ -407,7 +517,7 @@ describe("dashboard filters", () => {
     expect(options[2]).toHaveValue("A16ZSR006");
   });
 
-  it("uses a16z speedrun branding when the speedrun batch is active", async () => {
+  it("uses a16z speedrun branding without overwriting route metadata", () => {
     const speedrunGraph = graphResponse(
       [makeNode("company:sun", "SUN", "consumer", "#76F7EF", "a16z speedrun")],
       { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
@@ -418,6 +528,7 @@ describe("dashboard filters", () => {
       vi.fn(() => new Promise(() => undefined))
     );
 
+    document.title = "a16z route metadata | Returner.fund";
     const { container } = render(<Dashboard initialGraph={speedrunGraph} />);
 
     expect(screen.getByRole("heading", { name: "a16z Network Map" })).toBeInTheDocument();
@@ -429,7 +540,7 @@ describe("dashboard filters", () => {
       within(groupPartnerGroup).queryByRole("menuitemcheckbox", { name: /a16z speedrun\s*\(1\)/i })
     ).not.toBeInTheDocument();
     expect(container.querySelector(".dashboard-a16z")).toBeInTheDocument();
-    await waitFor(() => expect(document.title).toBe("a16z Network Map"));
+    expect(document.title).toBe("a16z route metadata | Returner.fund");
   });
 
   it("fetches only the selected Top Voices snapshot", async () => {

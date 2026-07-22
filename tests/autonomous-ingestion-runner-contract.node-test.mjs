@@ -83,12 +83,21 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(runner, /finally\s*{[\s\S]*if \(runtimeLock\)[\s\S]*await releaseRuntimeLock\(\)/);
   });
 
-  it("treats Supabase as optional and labels the skipped durability path", () => {
+  it("allows file-backed recovery without Supabase but explicitly degrades workflow health", () => {
     assert.ok(runner.includes("const durableStorageConfigured = Boolean(url && serviceKey)"));
     assert.doesNotMatch(runner, /SUPABASE_SERVICE_ROLE_KEY are required/);
+    assert.ok(runner.includes("collection health will be degraded and the workflow receipt will fail"));
     assert.ok(runner.includes('status: "skipped"'));
     assert.ok(runner.includes('reason: "supabase_not_configured"'));
     assert.ok(runner.includes('runId: run?.id ?? null'));
+  });
+
+  it("carries credential gaps and mapped efficacy into the published health receipt", () => {
+    assert.ok(runner.includes('!cleanEnv(process.env.X_BEARER_TOKEN) ? "X_BEARER_TOKEN"'));
+    assert.ok(runner.includes('!cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY"'));
+    assert.ok(runner.includes("collectionCoverage,"));
+    assert.ok(runner.includes("credentialGaps: collectionCredentialGaps"));
+    assert.ok(runner.includes("collectionHealthReasons"));
   });
 
   it("uses an explicit bounded terminal-failure budget for publication", () => {

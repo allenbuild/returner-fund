@@ -26,8 +26,8 @@ export function DirectoryCompanyList({
               <span>
                 <DirectoryLink href={`/cohorts/${slugify(company.graph.batch.label)}`}>{company.graph.batch.label}</DirectoryLink>
               </span>
-              {company.node.industries[0] ? (
-                <span><DirectoryLink href={`/industries/${slugify(company.node.industries[0])}`}>{company.node.industries[0]}</DirectoryLink></span>
+              {company.node.primaryIndustry ? (
+                <span><DirectoryLink href={`/industries/${slugify(company.node.primaryIndustry)}`}>{company.node.primaryIndustry}</DirectoryLink></span>
               ) : null}
               <span><DirectoryLink href={graphUrl(company)}>Open graph</DirectoryLink></span>
             </div>

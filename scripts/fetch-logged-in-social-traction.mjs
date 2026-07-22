@@ -2,6 +2,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
 import {
+  linkedinAccountSlugFromUrl,
   linkedinPostIdFromUrl,
   linkedinPostMatchesAccount
 } from "./lib/social-native-identity.mjs";
@@ -555,8 +556,16 @@ async function fetchLinkedInPosts(target, workerIndex) {
   }
 
   const raw = await runOpenCli(["browser", session, "eval", linkedInExtractJs()], { timeoutMs: perTargetTimeoutMs });
+  const expectedAccountSlug = linkedinAccountSlugFromUrl(target.url);
   const posts = parseJsonOutput(raw)
     .filter((post) => !isLinkedInRepost(post, target.name))
+    // A feed/update URN has no author in its URL. Require the requested
+    // account to appear in the extracted card, otherwise a previous profile's
+    // card left in the browser session can be attributed to the wrong entity.
+    .filter((post) => expectedAccountSlug && (post.authorUrls ?? []).some(
+      (authorUrl) => linkedinAccountSlugFromUrl(authorUrl) === expectedAccountSlug
+    ))
+    .filter((post) => linkedInCardHeaderMatchesTarget(post.rawText, target.name))
     .filter((post) => linkedinPostMatchesAccount(post.url, target.url))
     .slice(0, postLimit);
   if (!posts.length) {
@@ -593,6 +602,19 @@ async function fetchLinkedInPosts(target, workerIndex) {
     failures: [],
     needsReview: []
   };
+}
+
+function linkedInCardHeaderMatchesTarget(rawText, targetName) {
+  const normalize = (value) => String(value ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  const target = normalize(targetName);
+  if (!target) return false;
+  // The header contains the post author before the body. Checking only this
+  // region prevents profile/sidebar links from validating a stale feed card.
+  const header = normalize(String(rawText ?? "").slice(0, 320));
+  return header.includes(target);
 }
 
 async function fetchInstagramPosts(target, workerIndex) {
@@ -1749,7 +1771,7 @@ function linkedInExtractJs() {
   const nativePostUrl = (card) => {
     const href = Array.from(card.querySelectorAll("a[href]"))
       .map((link) => absolute(link.getAttribute("href")))
-      .find((value) => /\/feed\/update\/urn:li:activity:\d+|\/posts\/[^?#]*activity-\d+/i.test(value || ""));
+      .find((value) => /\\/feed\\/update\\/urn:li:activity:\\d+|\\/posts\\/[^?#]*activity-\\d+/i.test(value || ""));
     if (href) {
       try {
         const parsed = new URL(href);
@@ -1833,6 +1855,11 @@ function linkedInExtractJs() {
     return {
       rank: index + 1,
       url: updateUrl,
+      authorUrls: [...new Set(
+        Array.from(card.querySelectorAll("a[href*='/in/'], a[href*='/company/']"))
+          .map((link) => absolute(link.getAttribute("href")))
+          .filter((value) => /linkedin\\.com\\/(?:in|company)\\/[^/?#]+/i.test(value || ""))
+      )],
       body,
       rawText,
       reactions: metricFrom(card, "reactions?"),

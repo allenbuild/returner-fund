@@ -26,6 +26,13 @@ import {
   publicEvidenceAttributionText
 } from "./lib/public-evidence-attribution.mjs";
 import { dedupePublicNeedsReviewItems } from "./lib/public-review-dedupe.mjs";
+import {
+  extractEmbeddedYouTubeIds,
+  extractProductHuntLinks,
+  fetchRecentXPostsForTargets,
+  searchExaSourceCandidates,
+  xUsernameFromUrl
+} from "./lib/credentialed-source-discovery.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -74,6 +81,8 @@ const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified
 const canonicalPublicEvidencePath = join(root, "src", "lib", "social", "public-evidence-current.json");
 const planOnly = hasArg("--plan");
 const PUBLIC_ATTRIBUTION_VERSION = PUBLIC_EVIDENCE_ATTRIBUTION_VERSION;
+const xBearerToken = cleanEnv(process.env.X_BEARER_TOKEN);
+const exaApiKey = cleanEnv(process.env.EXA_API_KEY);
 
 const verifiedSocialOverrides = await readRequiredCanonicalJson(
   verifiedSocialOverridesPath,
@@ -134,6 +143,8 @@ const sourceDiscoveryPaths = dedupeById([
 ]);
 const companyBySlug = new Map(canonicalCompanyCatalog.map((company) => [company.slug, company]));
 const currentBatchNativeOwnerIndex = buildNativeOwnerIndex(batchSnapshot.companies);
+const officialLaunchPageCache = new Map();
+let exaFailureCount = 0;
 let checkpointWriteChain = Promise.resolve();
 const platformCooldowns = new Map();
 const INGEST_METRIC_WEIGHTS = {
@@ -222,6 +233,17 @@ if (planOnly) {
   process.exit(0);
 }
 
+const xRecentCollection = await fetchRecentXPostsForTargets({
+  targets: publicSocialCollectionTargets(companies).filter((target) => target.platform === "x"),
+  bearerToken: xBearerToken
+});
+if (xRecentCollection.errors.length) {
+  console.warn(
+    `Credentialed X recent search completed with ${xRecentCollection.errors.length} partial failure(s); ` +
+    "public-reader fallback remains enabled."
+  );
+}
+
 const taskPlan = companies.flatMap(buildCompanyTasks);
 await runTaskPlan(taskPlan, workerCount);
 const normalizedOutputEvidence = normalizeEvidenceForStorage(evidence);
@@ -247,6 +269,16 @@ const payload = {
       instagram: Math.max(1, Math.min(workerCount, platformConcurrency("instagram")))
     },
     forcedRefresh: forceRefresh,
+    credentialedDiscovery: {
+      x: {
+        configured: xRecentCollection.configured,
+        handlesRequested: xRecentCollection.handlesRequested,
+        requestCount: xRecentCollection.requestCount,
+        successfulRequestCount: xRecentCollection.successfulRequestCount,
+        errorCount: xRecentCollection.errors.length
+      },
+      exa: { configured: Boolean(exaApiKey), errorCount: exaFailureCount }
+    },
     platformsAttempted: [
       "x",
       "linkedin",
@@ -260,7 +292,8 @@ const payload = {
     ],
     notes: [
       "Read-only public requests only.",
-      "No account login, cookies, private APIs, browser sessions, or mutations.",
+      "No account login, cookies, browser sessions, or mutations.",
+      "Official X recent-search and Exa web-search APIs are used only when their workflow credentials are configured.",
       "Blocked platforms are logged per company and do not fail the batch.",
       "Batch profile text is not used as traction evidence.",
       ...(taskPlan.length === 0
@@ -1118,6 +1151,7 @@ async function ingestHackerNews(company) {
 }
 
 async function ingestYouTube(company) {
+  const officialLaunchResults = await ingestOfficialEmbeddedYouTube(company);
   const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${company.name} ${currentBatchContext.label}`)}`;
   const response = await fetchPublic(url);
   const html = await response.text();
@@ -1139,7 +1173,7 @@ async function ingestYouTube(company) {
     })
   }));
 
-  if (!assessedResults.length) {
+  if (!assessedResults.length && !officialLaunchResults.evidence.length && !officialLaunchResults.needsReview.length) {
     return { failures: [failure("youtube", company, url, "No verified public YouTube result match.")] };
   }
 
@@ -1173,7 +1207,9 @@ async function ingestYouTube(company) {
     }));
 
   return {
-    evidence: verifiedResults.map(({ video, attribution }) => {
+    evidence: [
+      ...officialLaunchResults.evidence,
+      ...verifiedResults.map(({ video, attribution }) => {
       return evidenceItem({
         company,
         entityType: "company",
@@ -1197,9 +1233,133 @@ async function ingestYouTube(company) {
         attributionSignals: attribution.signals,
         attributionDescriptorMatches: attribution.descriptorMatches
       });
-    }),
-    needsReview: needsReviewItems
+      })
+    ],
+    needsReview: [...officialLaunchResults.needsReview, ...needsReviewItems],
+    sourceDiscoveryPaths: officialLaunchResults.sourceDiscoveryPaths
   };
+}
+
+async function ingestOfficialEmbeddedYouTube(company) {
+  const launchPage = await readOfficialLaunchPage(company);
+  if (!launchPage) return { evidence: [], needsReview: [], sourceDiscoveryPaths: [] };
+  const videoIds = extractEmbeddedYouTubeIds(`${launchPage.html}\n${launchPage.text}`).slice(0, 5);
+  const evidenceRows = [];
+  const reviewRows = [];
+  const paths = [];
+
+  for (const videoId of videoIds) {
+    const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const [channel, watchMetadata] = await Promise.all([
+      enrichYouTubeNativeChannel({
+      videoId,
+      title: `${company.name} launch video`,
+      description: `Embedded in the official ${company.name} YC company page.`,
+      views: null,
+      raw: launchPage.text
+      }),
+      fetchYouTubeWatchMetadata(videoId)
+    ]);
+    const metrics = removeNullish({
+      views: watchMetadata?.views,
+      likes: watchMetadata?.likes,
+      comments: watchMetadata?.comments
+    });
+    const hasPositiveMetrics = Object.values(metrics).some((value) => Number(value) > 0);
+    const youtubeChannelId = watchMetadata?.youtubeChannelId ?? channel.youtubeChannelId;
+    const youtubeChannelUrl = watchMetadata?.youtubeChannelUrl ?? channel.youtubeChannelUrl;
+    const youtubeChannelName = watchMetadata?.youtubeChannelName ?? channel.youtubeChannelName;
+    const hasNativeChannel = Boolean(youtubeChannelId || youtubeChannelUrl);
+    paths.push(sourceDiscoveryPath({
+      company,
+      sourceUrl: company.ycProfileUrl,
+      discoveredUrl: videoUrl,
+      discoveredPlatform: "youtube",
+      discoveredEntityType: "company",
+      discoveredEntityId: companyId(company),
+      discoveredEntityName: company.name,
+      matchReason: `Official YC company page embedded native YouTube video ${videoId}.`,
+      reviewState: hasPositiveMetrics && hasNativeChannel ? "verified" : "needs_review"
+    }));
+    if (!hasPositiveMetrics || !hasNativeChannel) {
+      reviewRows.push({
+        ...reviewCandidate(
+          company,
+          "youtube",
+          videoUrl,
+          !hasNativeChannel
+            ? "Official YC company page embedded this video, but the native YouTube channel identity was unavailable."
+            : "Official YC company page embedded this video, but positive native metrics were not publicly visible."
+        ),
+        platformPostId: videoId,
+        youtubeChannelId: youtubeChannelId ?? null,
+        youtubeChannelUrl: youtubeChannelUrl ?? null,
+        youtubeChannelName: youtubeChannelName ?? null
+      });
+      continue;
+    }
+    evidenceRows.push(evidenceItem({
+      company,
+      entityType: "company",
+      entityId: companyId(company),
+      platform: "youtube",
+      sourceUrl: videoUrl,
+      platformPostId: videoId,
+      title: watchMetadata?.title || channel.title || `${company.name} launch video`,
+      text: watchMetadata?.description || `Embedded in the official ${company.name} YC company page.`,
+      rawVisibleText: watchMetadata?.raw ?? launchPage.text,
+      postedAt: watchMetadata?.postedAt ?? null,
+      metrics,
+      contributionScore: scoreMetrics("youtube", metrics),
+      review_state: "verified",
+      youtubeChannelId,
+      youtubeChannelUrl,
+      youtubeChannelName,
+      attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+      attributionStatus: "verified",
+      attributionProvenance: "official_yc_company_page_embed_v1",
+      matchReason: "Native YouTube video was embedded in the exact official YC company page and exposed positive public metrics plus native channel identity."
+    }));
+  }
+
+  return { evidence: evidenceRows, needsReview: reviewRows, sourceDiscoveryPaths: paths };
+}
+
+async function fetchYouTubeWatchMetadata(videoId) {
+  try {
+    const response = await fetchPublic(`https://www.youtube.com/watch?v=${videoId}`);
+    if (!response.ok) return null;
+    const html = await response.text();
+    const detailsStart = html.indexOf('"videoDetails":{');
+    const details = detailsStart >= 0 ? html.slice(detailsStart, detailsStart + 120_000) : html;
+    const youtubeChannelId = jsonStringField(details, "channelId");
+    const youtubeChannelName = jsonStringField(details, "author") ?? jsonStringField(html, "ownerChannelName");
+    return {
+      title: jsonStringField(details, "title"),
+      description: jsonStringField(details, "shortDescription"),
+      postedAt: jsonStringField(html, "publishDate") ?? jsonStringField(html, "uploadDate"),
+      views: numberOrNull(jsonStringField(details, "viewCount") ?? jsonNumberField(details, "viewCount")),
+      likes: numberOrNull(jsonStringField(html, "likeCount") ?? jsonNumberField(html, "likeCount")),
+      comments: numberOrNull(jsonStringField(html, "commentCount") ?? jsonNumberField(html, "commentCount")),
+      youtubeChannelId,
+      youtubeChannelUrl: youtubeChannelId
+        ? `https://www.youtube.com/channel/${youtubeChannelId}`
+        : null,
+      youtubeChannelName,
+      raw: cleanText(details.slice(0, 8_000))
+    };
+  } catch {
+    return null;
+  }
+}
+
+function jsonStringField(value, field) {
+  const match = String(value ?? "").match(new RegExp(`"${field}":"((?:\\\\.|[^"\\\\])*)"`));
+  return match ? decodeJsonText(match[1]) : null;
+}
+
+function jsonNumberField(value, field) {
+  return String(value ?? "").match(new RegExp(`"${field}":(\\d+)`))?.[1] ?? null;
 }
 
 function isPotentialCompanyMention(company, text) {
@@ -1314,17 +1474,33 @@ async function ingestMappedProductHuntAccount(company, entity, entityType, accou
 
 async function ingestProductHunt(company) {
   const url = `https://www.producthunt.com/search?q=${encodeURIComponent(company.name)}`;
-  const page = await fetchReader(url);
-  if (isBlocked(page.text)) {
-    return { failures: [failure("product_hunt", company, url, "Product Hunt public search was blocked.")] };
-  }
-
-  const searchPageLinks = extractMarkdownLinks(page.text)
+  const page = await fetchReader(url).catch(() => null);
+  const publicSearchBlocked = !page || isBlocked(page.text);
+  const searchPageLinks = (publicSearchBlocked ? [] : extractMarkdownLinks(page.text))
     .filter((link) => link.url.includes("producthunt.com"))
     .filter((link) => /\/(products|posts)\//.test(link.url))
     .filter((link) => !/\/reviews\b|\/products\/lovable\b/i.test(link.url));
+  const officialLaunchPage = await readOfficialLaunchPage(company);
+  const officialLaunchLinks = extractProductHuntLinks(
+    `${officialLaunchPage?.html ?? ""}\n${officialLaunchPage?.text ?? ""}`
+  ).map((link) => ({ text: `${company.name} official YC launch page`, url: link }));
+  const exactSlugCandidates = [
+    {
+      text: `${company.name} exact Product Hunt launch slug`,
+      url: `https://www.producthunt.com/products/${company.slug}/launches/${company.slug}`
+    },
+    {
+      text: `${company.name} exact Product Hunt product slug`,
+      url: `https://www.producthunt.com/products/${company.slug}`
+    }
+  ];
   const webSearchLinks = await searchProductHuntLinks(company);
-  const links = dedupeProductHuntLinks([...searchPageLinks, ...webSearchLinks])
+  const links = dedupeProductHuntLinks([
+    ...officialLaunchLinks,
+    ...exactSlugCandidates,
+    ...searchPageLinks,
+    ...webSearchLinks
+  ])
     .filter((link) => productHuntCandidateMatches(company, link))
     .slice(0, 5);
   const verified = [];
@@ -1360,6 +1536,21 @@ async function ingestProductHunt(company) {
   };
 }
 
+async function readOfficialLaunchPage(company) {
+  const profileUrl = company?.ycProfileUrl;
+  if (!profileUrl || !/\/\/www\.ycombinator\.com\/companies\//i.test(profileUrl)) return null;
+  if (!officialLaunchPageCache.has(profileUrl)) {
+    officialLaunchPageCache.set(
+      profileUrl,
+      fetchReadable(profileUrl, { readerFallback: true }).catch((error) => {
+        console.warn(`Official YC launch-page discovery failed for ${company.slug}: ${errorMessage(error)}`);
+        return null;
+      })
+    );
+  }
+  return officialLaunchPageCache.get(profileUrl);
+}
+
 async function searchProductHuntLinks(company) {
   const queries = [
     `site:producthunt.com/products "${company.name}"`,
@@ -1383,6 +1574,24 @@ async function searchProductHuntLinks(company) {
           links.push({ text: title, url: sourceUrl });
         }
       });
+  }
+
+  if (exaApiKey) {
+    try {
+      const exaLinks = await searchExaSourceCandidates({
+        query: `${company.name} ${company.websiteUrl ?? ""} Product Hunt launch`,
+        platform: "product_hunt",
+        apiKey: exaApiKey,
+        numResults: 8
+      });
+      links.push(...exaLinks.map((candidate) => ({
+        text: cleanText(`${candidate.title} ${candidate.snippet}`),
+        url: candidate.url
+      })));
+    } catch (error) {
+      exaFailureCount += 1;
+      console.warn(`Exa Product Hunt discovery failed for ${company.slug}: ${errorMessage(error)}`);
+    }
   }
 
   return links;
@@ -1420,6 +1629,38 @@ async function discoverSocialCandidates(company, platform, entity = null) {
         });
     } catch {
       // Search discovery is opportunistic. Connector failures are captured at the parent attempt level.
+    }
+  }
+
+  if (exaApiKey && ["linkedin", "x"].includes(platform)) {
+    const name = entityName(entity ?? company, entity ? "founder" : "company");
+    const mappedAccountUrl = entity?.socialLinks?.[platform] ?? company?.socialLinks?.[platform] ?? null;
+    const mappedAccountAlias = platform === "x"
+      ? xUsernameFromUrl(mappedAccountUrl)
+      : socialProfileNameAlias(mappedAccountUrl, platform);
+    const query = [
+      name,
+      company.name,
+      mappedAccountAlias,
+      currentBatchContext.label,
+      platform === "linkedin" ? "LinkedIn native post" : "X post"
+    ].filter(Boolean).join(" ");
+    try {
+      const exaCandidates = await searchExaSourceCandidates({
+        query,
+        platform,
+        apiKey: exaApiKey,
+        numResults: 8
+      });
+      for (const candidate of exaCandidates) {
+        const url = canonicalProfileUrl(candidate.url, platform);
+        if (!urlMatchesPlatform(url, platform)) continue;
+        if (!isCompanyMatch(company, `${candidate.title} ${candidate.snippet} ${url}`)) continue;
+        candidates.push({ ...candidate, url });
+      }
+    } catch (error) {
+      exaFailureCount += 1;
+      console.warn(`Exa ${platform} discovery failed for ${company.slug}: ${errorMessage(error)}`);
     }
   }
 
@@ -1547,7 +1788,7 @@ function dedupeProductHuntLinks(links) {
       links
         .map((link) => ({ ...link, url: normalizeSearchUrl(link.url).replace(/[?#].*$/, "") }))
         .filter((link) => /^https:\/\/www\.producthunt\.com\/(products|posts)\//i.test(link.url))
-        .filter((link) => !/\/reviews\b|\/products\/lovable\b/i.test(link.url))
+        .filter((link) => !/\/(?:reviews|alternatives)\b|\/products\/lovable\b/i.test(link.url))
         .map((link) => [link.url, link])
     ).values()
   ];
@@ -1784,6 +2025,18 @@ async function ingestReddit(company) {
 }
 
 async function ingestSocialProfile(company, entity, entityType, platform, url) {
+  if (platform === "x") {
+    const apiEvidence = xApiEvidenceForAccount(company, entity, entityType, url);
+    if (apiEvidence.length) {
+      return {
+        evidence: apiEvidence,
+        failures: [],
+        needsReview: [],
+        source: "x_recent_search_api"
+      };
+    }
+  }
+
   const page = await fetchReader(url);
   if (isBlocked(page.text)) {
     const fallback = discoverMissingSocial
@@ -1890,6 +2143,46 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     failures: [],
     sourceDiscoveryPaths: zeroPostFallback.sourceDiscoveryPaths
   };
+}
+
+function xApiEvidenceForAccount(company, entity, entityType, accountUrl) {
+  const handle = xUsernameFromUrl(accountUrl);
+  if (!handle) return [];
+  return (xRecentCollection.postsByHandle.get(handle) ?? [])
+    .map((post) => {
+      const publicMetrics = post?.public_metrics ?? {};
+      const metrics = removeNullish({
+        views: numberOrNull(publicMetrics.impression_count),
+        likes: numberOrNull(publicMetrics.like_count),
+        replies: numberOrNull(publicMetrics.reply_count),
+        reposts: numberOrNull(publicMetrics.retweet_count),
+        quotes: numberOrNull(publicMetrics.quote_count)
+      });
+      if (!Object.values(metrics).some((value) => Number(value) > 0)) return null;
+      const authorHandle = String(post?.author?.username ?? handle);
+      const sourceUrl = `https://x.com/${authorHandle}/status/${post.id}`;
+      return evidenceItem({
+        company,
+        entityType,
+        entityId: entityIdFor(company, entity, entityType),
+        platform: "x",
+        sourceUrl,
+        platformPostId: String(post.id),
+        authorHandle,
+        title: firstUsefulText(post.text) ?? `${entityName(entity, entityType)} on X`,
+        text: post.text ?? "",
+        rawVisibleText: JSON.stringify(post),
+        postedAt: post.created_at ?? null,
+        metrics,
+        contributionScore: scoreMetrics("x", metrics),
+        review_state: "verified",
+        attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+        attributionStatus: "verified",
+        attributionProvenance: "x_recent_search_exact_mapped_author_v1",
+        matchReason: `Official X recent-search result was authored by the exact mapped @${handle} account.`
+      });
+    })
+    .filter(Boolean);
 }
 
 async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, matchReasonPrefix, entity = company, entityType = "company") {
@@ -2575,6 +2868,8 @@ function platformPostIdFromUrl(platform, rawUrl) {
     if (platform === "linkedin") return linkedinPostIdFromUrl(rawUrl);
     if (platform === "youtube") return url.searchParams.get("v") ?? path.match(/\/shorts\/([^/]+)/i)?.[1] ?? null;
     if (platform === "product_hunt") {
+      const launch = path.match(/^\/products\/([^/]+)\/launches\/([^/]+)$/i);
+      if (launch) return `products/${launch[1].toLowerCase()}/launches/${launch[2].toLowerCase()}`;
       return path.match(/\/posts\/([^/]+)/i)?.[1] ?? path.match(/\/products\/([^/]+)/i)?.[1] ?? null;
     }
     if (platform === "reddit") return path.match(/\/comments\/([^/]+)/i)?.[1] ?? null;
@@ -3954,8 +4249,22 @@ function normalizeStoredEvidence(item) {
     company,
     resolvedAttributionMode
   );
-  const semanticAttribution = company
-    ? publicEvidenceAttributionAssessment(company, normalized)
+  const productHuntAttribution = platform === "product_hunt" && company
+    ? productHuntVerification(
+        company,
+        { text: normalized.title, url: normalized.sourceUrl },
+        { title: normalized.title, text: normalized.rawVisibleText }
+      )
+    : null;
+  const semanticAttribution = productHuntAttribution?.verified
+    ? {
+        verified: true,
+        reason: `verified_product_hunt_native_page:${productHuntAttribution.reason}`,
+        signals: ["product_hunt_native_page"],
+        descriptorMatches: []
+      }
+    : company
+      ? publicEvidenceAttributionAssessment(company, normalized)
     : { verified: false, reason: "canonical_company_attribution_unresolved", signals: [], descriptorMatches: [] };
   const youtubeReceiptValid = !isGenericSearchYouTube(normalized) || (
     Number(normalized.attributionVersion ?? 0) >= PUBLIC_ATTRIBUTION_VERSION &&
@@ -4239,7 +4548,8 @@ function isNativeContentUrl(platform, rawUrl) {
     }
     if (platform === "youtube") return (host === "youtube.com" || host.endsWith(".youtube.com")) &&
       ((path === "/watch" && /^[\w-]{6,}$/.test(url.searchParams.get("v") ?? "")) || /^\/shorts\/[\w-]{6,}$/i.test(path));
-    if (platform === "product_hunt") return (host === "producthunt.com" || host.endsWith(".producthunt.com")) && /^\/(?:posts|products)\/[^/]+$/i.test(path);
+    if (platform === "product_hunt") return (host === "producthunt.com" || host.endsWith(".producthunt.com")) &&
+      (/^\/(?:posts|products)\/[^/]+$/i.test(path) || /^\/products\/[^/]+\/launches\/[^/]+$/i.test(path));
     if (platform === "hacker_news") return host === "news.ycombinator.com" && path === "/item" && /^\d+$/.test(url.searchParams.get("id") ?? "");
     if (platform === "reddit") return (host === "reddit.com" || host.endsWith(".reddit.com")) && /\/comments\/[^/]+/i.test(path);
     if (platform === "github") return host === "github.com" && path.split("/").filter(Boolean).length === 2;
@@ -4477,4 +4787,9 @@ function resolveBatchConfig(value) {
 
 function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function cleanEnv(value) {
+  const normalized = String(value ?? "").trim();
+  return normalized || null;
 }

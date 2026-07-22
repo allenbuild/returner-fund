@@ -1042,6 +1042,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
 
   return enrichEvidenceThumbnail({
     id: item.id,
+    batchSlug: String(item.batchSlug ?? item.batch_slug ?? "").trim() || undefined,
     entityType: item.entityType,
     entityId: item.entityId,
     platform: item.platform,
@@ -1476,8 +1477,12 @@ export function evidenceMatchesBatchScope(
 }
 
 function hasCrossBatchEntityAmbiguity(
-  item: { entityId: string; attachedCompanyId?: string | null }
+  item: { entityId: string; attachedCompanyId?: string | null; batchSlug?: string }
 ): boolean {
+  if (String(item.batchSlug ?? "").trim()) {
+    return false;
+  }
+
   return (
     crossBatchEntityIds.has(item.entityId) ||
     Boolean(item.attachedCompanyId && crossBatchEntityIds.has(item.attachedCompanyId))

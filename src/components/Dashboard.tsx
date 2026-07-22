@@ -36,16 +36,16 @@ import {
   type CompanyVertical
 } from "@/lib/graph/company-verticals";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
+import { topicPostFacetCounts } from "@/lib/graph/filter-facets";
 import {
   companyVerticalCounts,
-  enrichGraphTaxonomies,
-  topicPhysicalPostCounts
+  enrichGraphTaxonomies
 } from "@/lib/graph/graph-taxonomies";
 import {
-  isPostTopic,
   normalizePostTopics,
   POST_TOPIC_TAXONOMY,
-  type PostTopic
+  type PostTopic,
+  type PostTopicGroup
 } from "@/lib/graph/post-topics";
 import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import { searchGraphNodes, type GraphSearchResult } from "@/lib/graph/search";
@@ -67,6 +67,13 @@ interface DropdownOption<T extends string> {
   platform?: Platform;
   disabled?: boolean;
   description?: string;
+  searchText?: string;
+}
+
+interface DropdownOptionGroup<T extends string> {
+  id: string;
+  label: string;
+  values: readonly T[];
 }
 
 const platformOptions: Platform[] = [...PLATFORM_VALUES];
@@ -88,6 +95,18 @@ const SCOPE_TRANSITION_MINIMUM_MS = 650;
 const MAP_BASELINE_RETRY_DELAYS_MS = [1_000, 3_000, 10_000] as const;
 const DEFAULT_TOP_VOICE_AUDIENCE: TopVoiceAudienceId = "off";
 const defaultTopVoiceAudiences = topVoiceAudienceSummaries();
+const TOPIC_FILTER_GROUP_ORDER = [
+  "Business progress",
+  "Product & technical",
+  "Company narrative",
+  "Ecosystem",
+  "Other"
+] as const satisfies readonly PostTopicGroup[];
+const TOPIC_FILTER_GROUPS: readonly DropdownOptionGroup<PostTopic>[] = TOPIC_FILTER_GROUP_ORDER.map((label) => ({
+  id: label.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+  label,
+  values: POST_TOPIC_TAXONOMY.filter((topic) => topic.group === label).map((topic) => topic.slug)
+}));
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
@@ -338,7 +357,7 @@ function queryList(params: URLSearchParams, key: string): string[] {
 }
 
 function queryTopics(params: URLSearchParams): PostTopic[] {
-  return normalizePostTopics(queryList(params, "topics").filter(isPostTopic));
+  return normalizePostTopics(queryList(params, "topics"));
 }
 
 function queryVerticals(params: URLSearchParams): CompanyVertical[] {
@@ -1230,20 +1249,27 @@ export function Dashboard({
   );
 
   const topicCounts = useMemo(
-    () => topicPhysicalPostCounts(filterCatalogGraph?.evidence ?? []),
-    [filterCatalogGraph]
+    () => scopedFilterMetadataGraph
+      ? topicPostFacetCounts(scopedFilterMetadataGraph, currentFilters)
+      : new Map<PostTopic, number>(),
+    [currentFilters, scopedFilterMetadataGraph]
   );
   const verticalCounts = useMemo(
     () => companyVerticalCounts(filterCatalogGraph?.nodes ?? []),
     [filterCatalogGraph]
   );
   const topicDropdownOptions = useMemo<DropdownOption<PostTopic>[]>(
-    () => POST_TOPIC_TAXONOMY.map((topic) => ({
-      value: topic.slug,
-      label: topic.label,
-      count: topicCounts.get(topic.slug) ?? 0
-    })),
-    [topicCounts]
+    () => POST_TOPIC_TAXONOMY.map((topic) => {
+      const count = topicCounts.get(topic.slug) ?? 0;
+      return {
+        value: topic.slug,
+        label: topic.label,
+        count,
+        disabled: count === 0 && !selectedTopics.includes(topic.slug),
+        searchText: `${topic.slug} ${topic.aliases.join(" ")}`
+      };
+    }),
+    [selectedTopics, topicCounts]
   );
   const verticalDropdownOptions = useMemo<DropdownOption<CompanyVertical>[]>(
     () => COMPANY_VERTICALS.map((vertical) => {
@@ -1491,10 +1517,6 @@ export function Dashboard({
   const brandTitle = isA16zSpeedrunBatch ? "a16z Network Map" : "YC Network Map";
   const loadingMapLabel = isA16zSpeedrunBatch ? "a16z" : "YC";
 
-  useEffect(() => {
-    document.title = brandTitle;
-  }, [brandTitle]);
-
   return (
     <main className={`dashboard${isA16zSpeedrunBatch ? " dashboard-a16z" : ""}`}>
       <header className="topbar">
@@ -1650,6 +1672,7 @@ export function Dashboard({
           isOpen={openFilterMenu === "verticals"}
           disabled={scopeSpecificFiltersDisabled}
           searchable
+          emptyLabel="No matching verticals"
           onOpenChange={(open) => setOpenFilterMenu(open ? "verticals" : null)}
           onToggle={toggleVertical}
           onClear={() => clearFilter("vertical")}
@@ -1696,8 +1719,12 @@ export function Dashboard({
           allLabel="All topics"
           selectedValues={selectedTopics}
           options={topicDropdownOptions}
+          groups={TOPIC_FILTER_GROUPS}
           isOpen={openFilterMenu === "topics"}
           disabled={scopeSpecificFiltersDisabled}
+          searchable
+          stickyControls
+          emptyLabel="No matching topics"
           onOpenChange={(open) => setOpenFilterMenu(open ? "topics" : null)}
           onToggle={toggleTopic}
           onClear={() => clearFilter("topic")}
@@ -1853,9 +1880,12 @@ interface FilterDropdownProps<T extends string> {
   allLabel: string;
   selectedValues: T[];
   options: DropdownOption<T>[];
+  groups?: readonly DropdownOptionGroup<T>[];
   isOpen: boolean;
   disabled?: boolean;
   searchable?: boolean;
+  stickyControls?: boolean;
+  emptyLabel?: string;
   onOpenChange: (open: boolean) => void;
   onToggle: (value: T) => void;
   onClear: () => void;
@@ -1868,9 +1898,12 @@ function FilterDropdown<T extends string>({
   allLabel,
   selectedValues,
   options,
+  groups,
   isOpen,
   disabled = false,
   searchable = false,
+  stickyControls = false,
+  emptyLabel = `No matching ${title.toLowerCase()}s`,
   onOpenChange,
   onToggle,
   onClear
@@ -1891,12 +1924,31 @@ function FilterDropdown<T extends string>({
   const menuId = `${id}-filter-menu`;
   const visibleOptions = searchable && searchQuery.trim()
     ? options.filter((option) =>
-        `${option.label} ${option.description ?? ""}`.toLowerCase().includes(searchQuery.trim().toLowerCase())
+        `${option.label} ${option.description ?? ""} ${option.searchText ?? ""}`.toLowerCase().includes(searchQuery.trim().toLowerCase())
       )
     : options;
+  const visibleOptionByValue = new Map(visibleOptions.map((option) => [option.value, option]));
+  const groupedValues = new Set(groups?.flatMap((group) => [...group.values]) ?? []);
+  const visibleGroups = (groups ?? [])
+    .map((group) => ({
+      ...group,
+      options: group.values
+        .map((value) => visibleOptionByValue.get(value))
+        .filter((option): option is DropdownOption<T> => Boolean(option))
+    }))
+    .filter((group) => group.options.length > 0);
+  const ungroupedOptions = groups
+    ? visibleOptions.filter((option) => !groupedValues.has(option.value))
+    : visibleOptions;
+  const orderedVisibleOptions = groups
+    ? [...visibleGroups.flatMap((group) => group.options), ...ungroupedOptions]
+    : visibleOptions;
+  const visibleOptionIndex = new Map(
+    orderedVisibleOptions.map((option, index) => [option.value, index + 1])
+  );
   const entries: Array<{ option?: DropdownOption<T>; disabled: boolean }> = [
     { disabled: false },
-    ...visibleOptions.map((option) => ({ option, disabled: option.disabled === true }))
+    ...orderedVisibleOptions.map((option) => ({ option, disabled: option.disabled === true }))
   ];
 
   useEffect(() => {
@@ -1956,6 +2008,9 @@ function FilterDropdown<T extends string>({
     } else if (event.key === "ArrowUp" || event.key === "End") {
       event.preventDefault();
       openAndFocus(-1);
+    } else if (!isOpen && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      openAndFocus(0);
     }
   }
 
@@ -1976,11 +2031,69 @@ function FilterDropdown<T extends string>({
       event.preventDefault();
       event.stopPropagation();
       restoreFocus();
+    } else if (event.key === "Tab") {
+      setSearchQuery("");
+      optionRefs.current = [];
+      onOpenChange(false);
     }
   }
 
+  function renderOption(option: DropdownOption<T>) {
+    const selected = selectedValues.includes(option.value);
+    const index = visibleOptionIndex.get(option.value) ?? 0;
+    return (
+      <button
+        ref={(element) => {
+          optionRefs.current[index] = element;
+        }}
+        type="button"
+        role="menuitemcheckbox"
+        aria-checked={selected}
+        aria-disabled={option.disabled || undefined}
+        disabled={option.disabled}
+        className={`filter-menu-option ${selected ? "selected" : ""} ${option.disabled ? "disabled" : ""}`}
+        data-filter-value={option.value}
+        key={option.value}
+        onClick={() => onToggle(option.value)}
+        onKeyDown={(event) => handleEntryKeyDown(event, index)}
+      >
+        <span className="filter-check" aria-hidden="true">
+          {selected && <Check size={15} />}
+        </span>
+        {option.platform && <PlatformLogo platform={option.platform} />}
+        {option.color && <span className="filter-swatch" style={{ backgroundColor: option.color }} />}
+        <span className="filter-option-copy">
+          <span className="filter-option-label">{option.label}</span>
+          {option.description && <small>{option.description}</small>}
+        </span>
+        {typeof option.count === "number" && <em>({option.count})</em>}
+      </button>
+    );
+  }
+
+  const allOption = (
+    <button
+      ref={(element) => {
+        optionRefs.current[0] = element;
+      }}
+      type="button"
+      role="menuitemcheckbox"
+      aria-checked={selectedValues.length === 0}
+      aria-label={allLabel}
+      className={`filter-menu-option filter-menu-all ${selectedValues.length === 0 ? "selected" : ""}`}
+      onClick={onClear}
+      onKeyDown={(event) => handleEntryKeyDown(event, 0)}
+    >
+      <span className="filter-check" aria-hidden="true">
+        {selectedValues.length === 0 && <Check size={15} />}
+      </span>
+      <span className="filter-option-label">{allLabel}</span>
+      {selectedValues.length > 0 && <strong aria-hidden="true">Clear</strong>}
+    </button>
+  );
+
   return (
-    <div className={`filter-dropdown ${isOpen ? "open" : ""}`}>
+    <div className={`filter-dropdown filter-dropdown-${id} ${isOpen ? "open" : ""}`}>
       <span className="filter-dropdown-label">
         {icon}
         {title}
@@ -2000,78 +2113,55 @@ function FilterDropdown<T extends string>({
         <ChevronDown size={15} aria-hidden="true" />
       </button>
       {isOpen && (
-        <div className="filter-dropdown-menu" id={menuId} role="menu">
-          {searchable && (
-            <label className="filter-menu-search">
-              <Search size={14} aria-hidden="true" />
-              <span className="sr-only">Search {title}</span>
-              <input
-                type="search"
-                value={searchQuery}
-                aria-label={`Search ${title}`}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "ArrowDown") {
-                    event.preventDefault();
-                    focusEntry(0);
-                  } else if (event.key === "Escape") {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    restoreFocus();
-                  }
-                }}
-              />
-            </label>
+        <div className="filter-dropdown-menu" id={menuId} role="menu" aria-label={`${title} filter`}>
+          {(searchable || stickyControls) && (
+            <div className={`filter-menu-sticky ${stickyControls ? "with-controls" : ""}`} role="none">
+              {searchable && (
+                <label className="filter-menu-search">
+                  <Search size={14} aria-hidden="true" />
+                  <span className="sr-only">Search {title}</span>
+                  <input
+                    type="search"
+                    value={searchQuery}
+                    aria-label={`Search ${title}`}
+                    autoComplete="off"
+                    placeholder={`Search ${title.toLowerCase()}`}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "ArrowDown") {
+                        event.preventDefault();
+                        focusEntry(0);
+                      } else if (event.key === "Escape") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        restoreFocus();
+                      } else if (event.key === "Tab") {
+                        setSearchQuery("");
+                        optionRefs.current = [];
+                        onOpenChange(false);
+                      }
+                    }}
+                  />
+                </label>
+              )}
+              {stickyControls && allOption}
+            </div>
           )}
-          <button
-            ref={(element) => {
-              optionRefs.current[0] = element;
-            }}
-            type="button"
-            role="menuitemcheckbox"
-            aria-checked={selectedValues.length === 0}
-            className={`filter-menu-option ${selectedValues.length === 0 ? "selected" : ""}`}
-            onClick={onClear}
-            onKeyDown={(event) => handleEntryKeyDown(event, 0)}
-          >
-            <span className="filter-check" aria-hidden="true">
-              {selectedValues.length === 0 && <Check size={15} />}
-            </span>
-            <span className="filter-option-label">{allLabel}</span>
-          </button>
-
-          {visibleOptions.map((option, optionIndex) => {
-            const selected = selectedValues.includes(option.value);
-            const index = optionIndex + 1;
+          {!stickyControls && allOption}
+          {visibleGroups.map((group) => {
+            const headingId = `${menuId}-${group.id}`;
             return (
-              <button
-                ref={(element) => {
-                  optionRefs.current[index] = element;
-                }}
-                type="button"
-                role="menuitemcheckbox"
-                aria-checked={selected}
-                aria-disabled={option.disabled || undefined}
-                disabled={option.disabled}
-                className={`filter-menu-option ${selected ? "selected" : ""} ${option.disabled ? "disabled" : ""}`}
-                key={option.value}
-                onClick={() => onToggle(option.value)}
-                onKeyDown={(event) => handleEntryKeyDown(event, index)}
-              >
-                <span className="filter-check" aria-hidden="true">
-                  {selected && <Check size={15} />}
-                </span>
-                {option.platform && <PlatformLogo platform={option.platform} />}
-                {option.color && <span className="filter-swatch" style={{ backgroundColor: option.color }} />}
-                <span className="filter-option-copy">
-                  <span className="filter-option-label">{option.label}</span>
-                  {option.description && <small>{option.description}</small>}
-                </span>
-                {typeof option.count === "number" && <em>({option.count})</em>}
-              </button>
+              <div className="filter-menu-group" role="group" aria-labelledby={headingId} key={group.id}>
+                <div className="filter-menu-group-label" id={headingId}>
+                  <span>{group.label}</span>
+                  <em>{group.options.length}</em>
+                </div>
+                {group.options.map(renderOption)}
+              </div>
             );
           })}
-          {visibleOptions.length === 0 && <p className="filter-menu-empty">No matching verticals</p>}
+          {ungroupedOptions.map(renderOption)}
+          {visibleOptions.length === 0 && <p className="filter-menu-empty" role="status" aria-live="polite">{emptyLabel}</p>}
         </div>
       )}
     </div>

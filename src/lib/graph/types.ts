@@ -85,6 +85,7 @@ export interface EvidenceMetrics {
 
 export interface EvidenceItem {
   id: string;
+  batchSlug?: string;
   entityType: EntityType;
   entityId: string;
   platform: Platform;

@@ -528,7 +528,7 @@ describe("targeted Top Voice evidence publication merge", () => {
     assert.equal(merged.evidence.filter((row) => listPostIds.has(row.platformPostId)).length, 0);
     assert.equal(reviews.length, 46);
     assert.equal(ledger.length, 46);
-    assert.equal(merged.evidence.length, 1032);
+    assert.equal(merged.evidence.length, canonical.evidence.length);
     assert.deepEqual(merged.evidence, canonical.evidence);
     assert.deepEqual(merged.needsReview, canonical.needsReview);
     assert.deepEqual(

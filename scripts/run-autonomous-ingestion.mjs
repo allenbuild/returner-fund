@@ -65,6 +65,12 @@ if (!idempotencyKey) {
 const url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const serviceKey = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
 const durableStorageConfigured = Boolean(url && serviceKey);
+const discoveryCredentialGaps = [
+  !cleanEnv(process.env.X_BEARER_TOKEN) ? "X_BEARER_TOKEN" : null,
+  !cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY" : null,
+  !url ? "NEXT_PUBLIC_SUPABASE_URL" : null,
+  !serviceKey ? "SUPABASE_SERVICE_ROLE_KEY" : null
+].filter(Boolean);
 
 await mkdir(workRoot, { recursive: true });
 const catalogs = await loadAutonomousCatalogs(root);
@@ -106,8 +112,8 @@ try {
       !serviceKey ? "SUPABASE_SERVICE_ROLE_KEY" : null
     ].filter(Boolean);
     console.warn(
-      `Durable Supabase import skipped because optional configuration is incomplete (${missing.join(", ")}). ` +
-      "File-backed collection and publication will continue."
+      `Durable Supabase import skipped because required production configuration is incomplete (${missing.join(", ")}). ` +
+      "File-backed collection and publication will continue, but collection health will be degraded and the workflow receipt will fail."
     );
   }
   if (run?.status === "completed") {
@@ -175,6 +181,21 @@ try {
     const publicSnapshots = (await readAvailableSnapshots(
       successfulCollectorResults.filter((result) => result.kind === "public")
     )).map(withSnapshotBatchProvenance);
+    const credentialedDiscoveryFailures = publicSnapshots.flatMap((snapshot) => {
+      const credentialed = snapshot?.source?.credentialedDiscovery;
+      return [
+        ...(Number(credentialed?.x?.errorCount ?? 0) > 0
+          ? [`X_RECENT_SEARCH_ERRORS:${credentialed.x.errorCount}`]
+          : []),
+        ...(Number(credentialed?.exa?.errorCount ?? 0) > 0
+          ? [`EXA_SEARCH_ERRORS:${credentialed.exa.errorCount}`]
+          : [])
+      ];
+    });
+    const collectionCredentialGaps = [...new Set([
+      ...discoveryCredentialGaps,
+      ...credentialedDiscoveryFailures
+    ])];
     const githubSnapshots = await readAvailableSnapshots(
       successfulCollectorResults.filter((result) => result.kind === "github")
     );
@@ -200,7 +221,9 @@ try {
       githubSnapshots,
       publicResults: successfulCollectorResults.filter((result) => result.kind === "public"),
       topVoiceRefresh,
-      catalogState
+      catalogState,
+      collectionCoverage,
+      credentialGaps: collectionCredentialGaps
     };
     // One sanitized publication plan is computed after synchronizing the base.
     // This exact plan drives both durable persistence and the file publication,
@@ -264,7 +287,9 @@ try {
       beforeSnapshots: publicationBaseline,
       afterSnapshots: await readPublicationEvidenceBaseline(),
       previousHistory: sourceDeltaHistory,
-      mappedFailures: collectionCoverage.mappedFailed
+      mappedFailures: collectionCoverage.mappedFailed,
+      collectionCoverage,
+      credentialGaps: collectionCredentialGaps
     });
     await writeSourceDeltaReceipt(publicationInputs.sourceDelta, sourceDeltaHistory);
 
@@ -896,6 +921,9 @@ async function writeSourceDeltaReceipt(receipt, previousHistory) {
     `- New physical sources this slot: ${receipt.newPhysicalSources}`,
     `- New physical sources this Central day: ${receipt.dailyNewPhysicalSources}`,
     `- Daily source health: ${receipt.dailySourceHealth}`,
+    `- Collection health: ${receipt.collectionHealth}`,
+    `- Collection health reasons: ${receipt.collectionHealthReasons?.join(", ") || "none"}`,
+    `- Mapped native-evidence success: ${receipt.mappedSucceeded}/${receipt.mappedExpected}`,
     `- Published physical sources: ${receipt.publishedPhysicalSources}`,
     `- Newest new-source post: ${receipt.newestNewSourcePostedAt ?? "none"}`,
     ""
@@ -1964,7 +1992,9 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       beforeSnapshots: rebasedBaseline,
       afterSnapshots: await readPublicationEvidenceBaseline(),
       previousHistory: rebasedSourceDeltaHistory,
-      mappedFailures: publicationInputs.sourceDelta?.mappedFailures ?? 0
+      mappedFailures: publicationInputs.sourceDelta?.mappedFailures ?? 0,
+      collectionCoverage: publicationInputs.collectionCoverage,
+      credentialGaps: publicationInputs.credentialGaps
     });
     await writeSourceDeltaReceipt(rebasedPublicationInputs.sourceDelta, rebasedSourceDeltaHistory);
     await buildAndValidatePublication(publicationRunId);

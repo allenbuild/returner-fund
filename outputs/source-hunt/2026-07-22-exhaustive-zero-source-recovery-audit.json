@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-07-22T19:00:00.000Z",
+  "target": "src/lib/social/targeted-evidence-current.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-22-exhaustive-zero-source-recovery.json"
+  ],
+  "before": 1032,
+  "received": 19,
+  "accepted": 15,
+  "updated": 0,
+  "duplicates": 4,
+  "duplicateRows": [
+    {
+      "input": "outputs/source-hunt/2026-07-22-exhaustive-zero-source-recovery.json",
+      "row": 6,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/feed/update/urn:li:activity:7454936810092269569",
+      "platformPostId": "7454936810092269569",
+      "duplicateReason": "same_platform_post_id",
+      "existingSource": "src/lib/social/logged-in-evidence-current.json#evidence[780]",
+      "existingId": "linkedin-founder-withasync-ben-smith-2087375-www-linkedin-com-feed-update-urn-li-activity-7454936810092269569-we-ve-been-working-with-adriena-clifton-and-clifton-law-pllc-for-the-p",
+      "existingEntityId": "founder-withasync-ben-smith-2087375",
+      "existingSourceUrl": "https://linkedin.com/feed/update/urn:li:activity:7454936810092269569"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-22-exhaustive-zero-source-recovery.json",
+      "row": 16,
+      "platform": "github",
+      "sourceUrl": "https://github.com/skymerse/pyaixm",
+      "platformPostId": "skymerse/pyaixm",
+      "duplicateReason": "same_platform_post_id",
+      "existingSource": "src/lib/social/github-traction-summer-2026.json#accounts[18].repos[0]",
+      "existingId": null,
+      "existingEntityId": "company-skymerse",
+      "existingSourceUrl": "https://github.com/skymerse/pyaixm"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-22-exhaustive-zero-source-recovery.json",
+      "row": 17,
+      "platform": "github",
+      "sourceUrl": "https://github.com/skymerse/notamify-mcp",
+      "platformPostId": "skymerse/notamify-mcp",
+      "duplicateReason": "same_platform_post_id",
+      "existingSource": "src/lib/social/github-traction-summer-2026.json#accounts[18].repos[1]",
+      "existingId": null,
+      "existingEntityId": "company-skymerse",
+      "existingSourceUrl": "https://github.com/skymerse/notamify-mcp"
+    },
+    {
+      "input": "outputs/source-hunt/2026-07-22-exhaustive-zero-source-recovery.json",
+      "row": 18,
+      "platform": "github",
+      "sourceUrl": "https://github.com/skymerse/notamify-sdk-python",
+      "platformPostId": "skymerse/notamify-sdk-python",
+      "duplicateReason": "same_platform_post_id",
+      "existingSource": "src/lib/social/github-traction-summer-2026.json#accounts[18].repos[2]",
+      "existingId": null,
+      "existingEntityId": "company-skymerse",
+      "existingSourceUrl": "https://github.com/skymerse/notamify-sdk-python"
+    }
+  ],
+  "includedBatches": [],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 1047
+}

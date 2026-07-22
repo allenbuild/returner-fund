@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-07-22T20:30:00.000Z",
+  "target": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-22-a16z-nonzero-second-pass.json"
+  ],
+  "before": 305,
+  "received": 26,
+  "accepted": 26,
+  "updated": 0,
+  "duplicates": 0,
+  "duplicateRows": [],
+  "includedBatches": [],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 331
+}

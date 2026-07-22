@@ -5,26 +5,39 @@ import {
   enrichGraphNodeVerticals,
   topicPhysicalPostCounts
 } from "@/lib/graph/graph-taxonomies";
+import { classifyPostTopics } from "@/lib/graph/post-topics";
 import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
 
 describe("graph taxonomy enrichment", () => {
   it("classifies evidence once and preserves current classifier output", () => {
     const enriched = enrichEvidenceTopics(evidence({ text: "We crossed 10,000 paid customers." }));
-    expect(enriched.topics).toContain("traction");
+    expect(enriched.topics).toContain("traction-growth");
     expect(enrichEvidenceTopics(enriched)).toBe(enriched);
   });
 
-  it("treats legacy topics without classification metadata as curated", () => {
+  it("reclassifies retired flat labels instead of treating them as curated truth", () => {
     const enriched = enrichEvidenceTopics(evidence({ topics: ["culture"], text: "We launched today." }));
-    expect(enriched.topics).toEqual(["culture"]);
-    expect(enriched.topicClassification?.method).toBe("curated");
+    expect(enriched.topics).toEqual(["product-launch"]);
+    expect(enriched.topicClassification?.method).toBe("rules");
+  });
+
+  it("preserves a canonical manual override across automated taxonomy enrichment", () => {
+    const automatic = classifyPostTopics({ text: "We just launched our public beta today." });
+    const enriched = enrichEvidenceTopics(evidence({
+      topics: ["humor-culture"],
+      text: "We just launched our public beta today.",
+      topicClassification: { ...automatic, method: "manual", strength: "manual", primaryTopic: "humor-culture", topics: ["humor-culture"] }
+    }));
+    expect(enriched.topics).toEqual(["humor-culture"]);
+    expect(enriched.topicClassification?.method).toBe("manual");
   });
 
   it("counts unique physical posts per topic across attachment duplicates", () => {
-    const duplicateA = enrichEvidenceTopics(evidence({ id: "a", topics: ["traction"] }));
-    const duplicateB = enrichEvidenceTopics(evidence({ id: "b", entityType: "founder", entityId: "founder", topics: ["traction"] }));
-    const other = enrichEvidenceTopics(evidence({ id: "c", topics: ["traction"], sourceUrl: "https://x.com/a/status/2", platformPostId: "2" }));
-    expect(topicPhysicalPostCounts([duplicateA, duplicateB, other]).get("traction")).toBe(2);
+    const tractionText = "We crossed 10,000 paid customers.";
+    const duplicateA = enrichEvidenceTopics(evidence({ id: "a", topics: ["traction"], text: tractionText }));
+    const duplicateB = enrichEvidenceTopics(evidence({ id: "b", entityType: "founder", entityId: "founder", topics: ["traction"], text: tractionText }));
+    const other = enrichEvidenceTopics(evidence({ id: "c", topics: ["traction"], text: tractionText, sourceUrl: "https://x.com/a/status/2", platformPostId: "2" }));
+    expect(topicPhysicalPostCounts([duplicateA, duplicateB, other]).get("traction-growth")).toBe(2);
   });
 
   it("infers and counts bounded company verticals without touching score surfaces", () => {

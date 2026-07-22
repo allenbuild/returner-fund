@@ -6,9 +6,20 @@ import { publicMetadata, SITE_NAME, truncateDescription } from "@/lib/seo/site";
 import type { Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
 import { COMPANY_VERTICALS, isCompanyVertical, type CompanyVertical } from "@/lib/graph/company-verticals";
-import { POST_TOPIC_SLUGS, isPostTopic, type PostTopic } from "@/lib/graph/post-topics";
+import { normalizePostTopics, type PostTopic } from "@/lib/graph/post-topics";
 
 const DEFAULT_BATCH_SLUG = "S2026";
+const GRAPH_STATE_QUERY_KEYS = new Set([
+  "batch",
+  "groupPartners",
+  "industries",
+  "minScore",
+  "node",
+  "platforms",
+  "topVoices",
+  "topics",
+  "verticals"
+]);
 const queryPlatforms: Platform[] = [
   "github",
   "x",
@@ -31,16 +42,28 @@ interface PageProps {
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const params = (await searchParams) ?? {};
-  const cohort = selectedCohort(singleQueryValue(params.batch));
+  const requestedBatch = singleQueryValue(params.batch);
+  const requestedCohort = requestedBatch ? findCohort(requestedBatch) : undefined;
+  const cohort = selectedCohort(requestedBatch);
   const isQueryView = Object.values(params).some((value) => value !== undefined);
+  const hasRecognizedGraphState = Object.entries(params).some(([key, value]) =>
+    GRAPH_STATE_QUERY_KEYS.has(key) && singleQueryValue(value)?.trim()
+  );
+  const canonicalCohort = hasRecognizedGraphState && (!requestedBatch || requestedCohort)
+    ? cohort
+    : undefined;
   const description = truncateDescription(
     `${cohort.label} startup traction map with ${cohort.companies.length} companies and ${cohort.evidenceCount.toLocaleString("en-US")} public evidence records.`
   );
 
   const metadata = publicMetadata({
-    title: isQueryView ? `${cohort.label} traction map | ${SITE_NAME}` : `Startup traction intelligence | ${SITE_NAME}`,
-    description: isQueryView ? description : "Explore public startup traction across accelerator cohorts, founders, industries, and social platforms.",
-    path: isQueryView ? `/cohorts/${cohort.slug}` : "/",
+    title: canonicalCohort
+      ? `${cohort.label} network map and social traction | ${SITE_NAME}`
+      : `${SITE_NAME} startup maps and traction intelligence`,
+    description: canonicalCohort
+      ? description
+      : "Explore YC and a16z Speedrun startup network maps, company rankings, founders, industries, and evidence-linked public social traction.",
+    path: canonicalCohort ? `/cohorts/${cohort.slug}` : "/",
     index: !isQueryView
   });
 
@@ -129,8 +152,7 @@ function parsePlatformList(value: string | undefined): Platform[] {
 }
 
 function parseTopicList(value: string | undefined): PostTopic[] {
-  const selected = new Set((value ?? "").split(",").map((item) => item.trim()).filter(isPostTopic));
-  return POST_TOPIC_SLUGS.filter((topic) => selected.has(topic));
+  return normalizePostTopics((value ?? "").split(",").map((item) => item.trim()));
 }
 
 function parseVerticalList(value: string | undefined): CompanyVertical[] {

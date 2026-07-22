@@ -1,6 +1,8 @@
 import { getCatalog } from "@/lib/seo/catalog";
+import { DirectoryLink } from "@/components/seo/DirectoryLink";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/seo/site";
+import styles from "./HomeDiscovery.module.css";
 
 export function HomeStructuredData() {
   const catalog = getCatalog();
@@ -13,6 +15,7 @@ export function HomeStructuredData() {
       "@id": siteUrl("/#website"),
       url: siteUrl("/"),
       name: SITE_NAME,
+      alternateName: "Returner",
       description: SITE_DESCRIPTION,
       publisher: { "@id": organizationId },
       potentialAction: {
@@ -46,10 +49,37 @@ export function HomeStructuredData() {
       "@type": "Organization",
       "@id": organizationId,
       name: SITE_NAME,
+      alternateName: "Returner",
       url: siteUrl("/"),
       description: "An independent public-data project for exploring startup traction."
     }
   ];
 
-  return <JsonLd data={structuredData} />;
+  return (
+    <>
+      <section className={styles.discovery} aria-labelledby="explore-returner-heading">
+        <div>
+          <p className={styles.eyebrow}>Explore Returner.fund</p>
+          <h2 id="explore-returner-heading">Startup network maps and social traction rankings</h2>
+          <p>
+            Browse server-rendered YC and a16z Speedrun directories, rankings, and evidence-linked
+            public traction data. Returner.fund is an independent public-data project and is not
+            affiliated with Y Combinator or Andreessen Horowitz.
+          </p>
+        </div>
+        <nav className={styles.links} aria-label="Startup maps and public directories">
+          <DirectoryLink href="/yc-network-map">YC network map</DirectoryLink>
+          <DirectoryLink href="/a16z-network-map">a16z network map</DirectoryLink>
+          <DirectoryLink href="/yc-social-traction">YC social traction</DirectoryLink>
+          <DirectoryLink href="/a16z-social-traction">a16z social traction</DirectoryLink>
+          <DirectoryLink href="/companies">Company directory</DirectoryLink>
+          <DirectoryLink href="/founders">Founder directory</DirectoryLink>
+          <DirectoryLink href="/rankings">Startup rankings</DirectoryLink>
+          <DirectoryLink href="/methodology">Methodology</DirectoryLink>
+          <DirectoryLink href="/data-sources">Data sources</DirectoryLink>
+        </nav>
+      </section>
+      <JsonLd data={structuredData} />
+    </>
+  );
 }

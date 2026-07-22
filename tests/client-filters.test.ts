@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
+import { topicPostFacetCounts } from "@/lib/graph/filter-facets";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import type {
   CompanyRecord,
@@ -285,6 +286,85 @@ describe("client graph filters", () => {
     expect(filtered.fastestGaining).toEqual([sourceMomentum]);
     expect(filtered.scoringContext).toBe(source.scoringContext);
     expect(filtered.evidence.map((item) => item.id)).toEqual(["x-low"]);
+  });
+
+  it("counts deduped Topic posts after all non-Topic filters while ignoring the current Topic OR selection", () => {
+    const canonical = canonicalGraph();
+    const source: GraphResponse = {
+      ...canonical,
+      nodes: canonical.nodes.map((node) => node.entityType === "company"
+        ? {
+            ...node,
+            groupPartner: node.entityId === "canonical-high" ? "Partner A" : "Partner B",
+            verticals: node.entityId === "canonical-high" ? ["ai-agents"] : ["fintech"]
+          }
+        : node),
+      evidence: [
+        ...canonical.evidence.map((item) => ({
+          ...item,
+          topics: item.id === "x-low" || item.id === "github-high"
+            ? ["product-launch" as const]
+            : ["traction-growth" as const]
+        })),
+        {
+          ...canonical.evidence.find((item) => item.id === "x-low")!,
+          id: "x-low-founder-attachment",
+          topics: ["product-launch"],
+          // The same physical URL attached twice must still count as one post.
+          sourceUrl: canonical.evidence.find((item) => item.id === "x-low")!.sourceUrl
+        }
+      ]
+    };
+
+    const counts = topicPostFacetCounts(source, {
+      platforms: ["x"],
+      topics: ["traction-growth"],
+      verticals: ["ai-agents"],
+      industries: ["b2b"],
+      groupPartners: ["Partner A"],
+      minScore: 90
+    });
+
+    expect(counts.get("product-launch")).toBe(1);
+    expect(counts.get("traction-growth") ?? 0).toBe(0);
+  });
+
+  it("uses only the active Top Voices audience when calculating Topic facet counts", () => {
+    const canonical = canonicalGraph();
+    const source: GraphResponse = {
+      ...canonical,
+      selectedTopVoiceAudience: {
+        ...canonical.selectedTopVoiceAudience,
+        id: "insiders",
+        displayName: "Insiders"
+      },
+      evidence: canonical.evidence.map((item) => ({
+        ...item,
+        sourceUrl: `https://x.com/voice/status/${item.id}`,
+        topics: item.platform === "x" ? ["traction-growth"] : ["product-launch"],
+        topVoice: {
+          audienceId: item.platform === "x" ? "insiders" : "yc_partners",
+          memberId: "voice",
+          displayName: "Voice",
+          category: "test",
+          weight: 1,
+          matchedBy: "test fixture",
+          originalContributionScore: item.contributionScore
+        }
+      }))
+    };
+
+    const counts = topicPostFacetCounts(source, {
+      platforms: [],
+      topics: [],
+      verticals: [],
+      industries: [],
+      groupPartners: [],
+      minScore: 0
+    });
+
+    expect(counts.get("traction-growth")).toBe(2);
+    expect(counts.get("product-launch") ?? 0).toBe(0);
   });
 });
 

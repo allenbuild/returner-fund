@@ -95,7 +95,7 @@ All listed relations must exist and report RLS enabled. Also test with anon/auth
 | `SUPABASE_SERVICE_ROLE_KEY` | Coordinator and full diagnostics server | Service-role access to RLS-protected operational/evidence tables and runtime RPCs. |
 | `--idempotency-key` or `INGESTION_IDEMPOTENCY_KEY` | Coordinator | Stable run identity. The workflow passes the resolved Central slot or manual replay key as the CLI argument. |
 
-When either Supabase secret is missing, the workflow continues in explicitly labeled file-backed mode so source collection and Git publication do not stop. That mode does not provide durable database locking, task history, importer counters, or database idempotency; the repository publication lane is the only coordinator lock. Configure both secrets for the full production contract.
+When either Supabase secret is missing, the workflow continues in explicitly labeled file-backed recovery mode so source collection and Git publication do not stop. That mode does not provide durable database locking, task history, importer counters, or database idempotency; the repository publication lane is the only coordinator lock. It is always reported as degraded and fails the workflow health receipt. Configure both secrets for the production contract.
 
 ### Required for production admin diagnostics
 
@@ -116,9 +116,11 @@ Without either secret, the production API returns `503`. Without the Supabase UR
 | `ARTIFACT_INGESTION_RUN_ID` or `INGESTION_RUN_ID` | Fallback run ID for the manifest writer when the CLI flag is omitted. |
 | `EVIDENCE_COLLECTED_AT`, `OLDEST_PLATFORM_REFRESH_AT`, `ARTIFACT_PUBLISHED_AT` | Optional manifest timestamp overrides. Normally values are derived or generated. |
 
-### Present but not active in the autonomous path
+### Credentialed discovery and remaining inactive credentials
 
-The workflow passes `X_BEARER_TOKEN`, `EXA_API_KEY`, and Reddit client variables, but the current autonomous collector scripts do not consume them. Do not claim authenticated X, Exa, or Reddit operation merely because the secrets are configured.
+`X_BEARER_TOKEN` is consumed by the broad public collector for batched official recent-search reads of exact mapped X accounts. `EXA_API_KEY` is consumed for domain-restricted LinkedIn, X, and Product Hunt source discovery. Missing X, Exa, or Supabase credentials are recorded as degraded collection-health reasons, and the workflow health gate rejects the resulting publication receipt instead of reporting a green refresh.
+
+Reddit client variables are still passed but are not consumed by the current broad-public script; Reddit continues to use public JSON/page access.
 
 `INGESTION_ARTIFACT_BUCKET` is not used; artifacts are not uploaded to object storage. `INGESTION_GLOBAL_CONCURRENCY`, `INGESTION_REQUEST_TIMEOUT_MS`, and `INGESTION_MAX_ATTEMPTS` are not read by the current coordinator or collectors. `YOUTUBE_COOKIES_PATH`, `PLATFORM_COOKIES_PATH`, browser profile variables, and logged-in collector state are not used by this workflow.
 

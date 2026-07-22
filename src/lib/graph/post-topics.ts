@@ -1,193 +1,87 @@
 /**
- * Canonical, client-safe post topic taxonomy and deterministic classifier.
+ * Versioned, deterministic topic classification for post-level evidence.
  *
- * Keep this module network-free: the same evidence must receive the same topics
- * in ingestion, API, snapshot, and browser contexts.
+ * Topics describe the principal announcement.  Signals describe facts that may
+ * coexist in it.  This deliberately prevents a post such as a YC launch with a
+ * metric from appearing three times in the map's topic filters.
  */
 
-export const POST_TOPIC_TAXONOMY_VERSION = "post-topics-2026-07-20" as const;
-export const POST_TOPIC_CLASSIFIER_VERSION = "post-topics-rules-2026-07-20.1" as const;
-export const MAX_AUTOMATIC_POST_TOPICS = 3 as const;
+export const POST_TOPIC_TAXONOMY_VERSION = "post-topics-2026-07-22" as const;
+export const POST_TOPIC_CLASSIFIER_VERSION = "post-topics-rules-2026-07-22.1" as const;
+/** Kept for callers written against the former multi-label contract. */
+export const MAX_AUTOMATIC_POST_TOPICS = 1 as const;
 
 export const POST_TOPIC_TAXONOMY = [
-  {
-    slug: "traction",
-    label: "Traction",
-    description: "Measurable adoption, revenue, growth, retention, contracts, or usage progress.",
-    aliases: ["growth", "business traction", "customer traction"]
-  },
-  {
-    slug: "product-showcase",
-    label: "Product Showcase",
-    description: "A demo, screenshot, walkthrough, product tour, or feature demonstration.",
-    aliases: ["demo", "product demo", "showcase", "walkthrough"]
-  },
-  {
-    slug: "product-launch",
-    label: "Product Launch",
-    description: "An announcement that a product or major offering has launched or become available.",
-    aliases: ["launch", "launch announcement", "new product"]
-  },
-  {
-    slug: "yc-acceptance",
-    label: "YC Acceptance",
-    description: "An authored announcement about being accepted into or joining a named YC batch.",
-    aliases: ["y combinator acceptance", "yc batch", "accepted to yc", "accepted into yc"]
-  },
-  {
-    slug: "company-vision",
-    label: "Company Vision",
-    description: "The company's mission, long-term vision, category thesis, or intended future state.",
-    aliases: ["vision", "mission", "company mission", "category thesis"]
-  },
-  {
-    slug: "humor",
-    label: "Humor",
-    description: "An explicit joke, meme, parody, satire, or clearly comedic format.",
-    aliases: ["funny", "meme", "comedy", "joke"]
-  },
-  {
-    slug: "customer-win",
-    label: "Customer Win",
-    description: "A customer selection, testimonial, case study, or successful customer outcome.",
-    aliases: ["customer success", "case study", "customer story"]
-  },
-  {
-    slug: "fundraising",
-    label: "Fundraising",
-    description: "A funding round, investment, or company fundraising announcement.",
-    aliases: ["funding", "fundraise", "venture funding", "investment round"]
-  },
-  {
-    slug: "hiring",
-    label: "Hiring",
-    description: "Open roles, recruiting, or an invitation to join the team.",
-    aliases: ["jobs", "careers", "recruiting", "we are hiring"]
-  },
-  {
-    slug: "founder-story",
-    label: "Founder Story",
-    description: "A founder's origin, personal journey, lessons, or reason for starting the company.",
-    aliases: ["founder journey", "origin story", "founding story"]
-  },
-  {
-    slug: "technical-deep-dive",
-    label: "Technical Deep Dive",
-    description: "A detailed engineering, architecture, implementation, or systems explanation.",
-    aliases: ["technical", "deep dive", "engineering deep dive", "architecture"]
-  },
-  {
-    slug: "open-source",
-    label: "Open Source",
-    description: "Software or technical work released under an open-source model or license.",
-    aliases: ["opensource", "oss", "open sourced"]
-  },
-  {
-    slug: "research-or-benchmark",
-    label: "Research or Benchmark",
-    description: "Original research, a study, paper, evaluation, dataset, or comparative benchmark.",
-    aliases: ["research", "benchmark", "study", "paper"]
-  },
-  {
-    slug: "partnership",
-    label: "Partnership",
-    description: "A formal partnership, collaboration, or strategic integration with another organization.",
-    aliases: ["partner", "collaboration", "strategic partnership"]
-  },
-  {
-    slug: "demo-day",
-    label: "Demo Day",
-    description: "Participation in, preparation for, or an announcement about a Demo Day.",
-    aliases: ["demoday", "demo day presentation", "yc demo day"]
-  },
-  {
-    slug: "milestone",
-    label: "Milestone",
-    description: "A notable company, team, product, or operational achievement.",
-    aliases: ["achievement", "anniversary", "company milestone"]
-  },
-  {
-    slug: "product-update",
-    label: "Product Update",
-    description: "A new feature, release note, changelog entry, improvement, or product change.",
-    aliases: ["feature update", "new feature", "changelog", "release notes"]
-  },
-  {
-    slug: "behind-the-scenes",
-    label: "Behind the Scenes",
-    description: "A look at the team, process, workplace, or making of the product.",
-    aliases: ["bts", "making of", "day in the life"]
-  },
-  {
-    slug: "market-insight",
-    label: "Market Insight",
-    description: "Analysis or a point of view about a market, category, customer behavior, or industry trend.",
-    aliases: ["market analysis", "industry insight", "trend analysis"]
-  },
-  {
-    slug: "community",
-    label: "Community",
-    description: "Community participation, support, gatherings, contributions, or member recognition.",
-    aliases: ["community update", "community spotlight", "contributors"]
-  },
-  {
-    slug: "press-or-media",
-    label: "Press or Media",
-    description: "Press coverage, a media feature, interview, podcast, or publication appearance.",
-    aliases: ["press", "media", "press coverage", "in the news"]
-  },
-  {
-    slug: "awards",
-    label: "Awards",
-    description: "An award, honor, finalist selection, competition win, or formal recognition.",
-    aliases: ["award", "recognition", "winner"]
-  },
-  {
-    slug: "event",
-    label: "Event",
-    description: "An event, conference, meetup, webinar, workshop, or speaking appearance.",
-    aliases: ["conference", "meetup", "webinar", "workshop"]
-  },
-  {
-    slug: "culture",
-    label: "Culture",
-    description: "Company values, team culture, traditions, workplace practices, or an offsite.",
-    aliases: ["company culture", "team culture", "values", "offsite"]
-  },
-  {
-    slug: "other",
-    label: "Other",
-    description: "Content without enough evidence for a more specific canonical topic.",
-    aliases: ["uncategorized", "unclassified"]
-  }
+  { slug: "traction-growth", label: "Traction & Growth", group: "Business progress", description: "A quantified milestone in revenue, users, usage, growth, retention, or deployment volume.", aliases: ["traction", "growth", "milestone"] },
+  { slug: "product-launch", label: "Product Launch", group: "Product & technical", description: "A new product, major feature, public release, beta, or newly available version.", aliases: ["launch", "product update", "release"] },
+  { slug: "product-demo-showcase", label: "Product Demo & Showcase", group: "Product & technical", description: "A demonstration, walkthrough, use case, screenshot, or video of an existing capability.", aliases: ["product showcase", "demo", "walkthrough"] },
+  { slug: "customer-partnership-deployment", label: "Customer, Partnership & Deployment", group: "Business progress", description: "A named customer, contract, pilot, deployment, integration, or formal partnership.", aliases: ["customer win", "partnership", "customer success"] },
+  { slug: "fundraising-financing", label: "Fundraising & Financing", group: "Business progress", description: "A financing round, grant, investment, debt facility, or fundraising milestone.", aliases: ["fundraising", "funding", "financing"] },
+  { slug: "accelerator-program", label: "Accelerator & Program", group: "Ecosystem", description: "Acceptance into, participation in, or an announcement from an accelerator, fellowship, or demo day.", aliases: ["yc acceptance", "demo day", "y combinator"] },
+  { slug: "hiring-team", label: "Hiring & Team", group: "Business progress", description: "Open roles, recruiting, team additions, or a people-focused company announcement.", aliases: ["hiring", "jobs", "team"] },
+  { slug: "company-vision-founder-perspective", label: "Vision & Founder Perspective", group: "Company narrative", description: "A company thesis, mission, founder lesson, origin story, or strategic perspective.", aliases: ["company vision", "founder story", "market insight"] },
+  { slug: "research-benchmark-technical-insight", label: "Research, Benchmark & Technical Insight", group: "Product & technical", description: "Research, a benchmark, an engineering explanation, or a substantive open-source technical contribution.", aliases: ["research or benchmark", "technical deep dive", "open source"] },
+  { slug: "event-media-community", label: "Event, Media & Community", group: "Ecosystem", description: "A conference, interview, podcast, press feature, award, webinar, or community activity.", aliases: ["event", "press or media", "community"] },
+  { slug: "educational-informational", label: "Educational & Informational", group: "Company narrative", description: "A tutorial, explainer, guide, or non-promotional informational post.", aliases: ["education", "tutorial", "informational"] },
+  { slug: "humor-culture", label: "Humor & Culture", group: "Company narrative", description: "A meme, joke, playful culture post, or content whose principal purpose is entertainment.", aliases: ["humor", "culture", "behind the scenes"] },
+  { slug: "corporate-update", label: "Corporate Update", group: "Other", description: "A meaningful company announcement that lacks evidence for a more precise primary topic.", aliases: ["company update", "general update"] },
+  { slug: "other", label: "Other", group: "Other", description: "A legitimate post that is clearly in scope but does not fit a defined topic.", aliases: ["miscellaneous"] },
+  { slug: "unclassified", label: "Unclassified", group: "Other", description: "Insufficient reliable content exists to select a primary topic; it remains visible for review.", aliases: ["uncategorized", "unknown"] }
 ] as const;
 
 export type PostTopicDefinition = (typeof POST_TOPIC_TAXONOMY)[number];
-export type PostTopic = PostTopicDefinition["slug"];
-export type PostTopicClassificationMethod = "curated" | "rules" | "fallback";
-export type PostTopicRuleStrength = "curated" | "strong" | "moderate" | "fallback";
+export type CanonicalPostTopic = PostTopicDefinition["slug"];
+/**
+ * Storage and test fixtures from taxonomy v1 may still carry these values.
+ * They are accepted at boundaries, then normalized to CanonicalPostTopic
+ * before classification, filtering, or display.
+ */
+export type LegacyPostTopic =
+  | "traction" | "product-showcase" | "yc-acceptance" | "company-vision" | "humor"
+  | "customer-win" | "fundraising" | "hiring" | "founder-story" | "technical-deep-dive"
+  | "open-source" | "research-or-benchmark" | "partnership" | "demo-day" | "milestone"
+  | "product-update" | "behind-the-scenes" | "market-insight" | "community" | "press-or-media"
+  | "awards" | "event" | "culture";
+export type PostTopic = CanonicalPostTopic | LegacyPostTopic;
+export type PostTopicGroup = PostTopicDefinition["group"];
+export type PostTopicClassificationMethod = "curated" | "rules" | "fallback" | "manual";
+export type PostTopicRuleStrength = "curated" | "manual" | "high" | "medium" | "low" | "fallback";
 export type PostTopicMediaType = "text" | "image" | "video" | "link" | "repo" | "launch" | "unknown";
+export type PostTopicAuthorType = "company" | "founder" | "third_party" | "unknown";
+export type PostTopicSecondarySignal =
+  | "contains_quantified_metric" | "revenue_mentioned" | "user_count_mentioned" | "growth_rate_mentioned"
+  | "customer_named" | "partnership_named" | "funding_amount_mentioned" | "hiring_call_to_action"
+  | "product_availability_announced" | "open_source_release" | "benchmark_result" | "accelerator_mentioned"
+  | "founder_authored" | "company_authored" | "third_party_mention" | "competitor_comparison"
+  | "geographic_expansion" | "regulatory_milestone" | "award" | "acquisition" | "event_participation" | "press_coverage";
 
 export interface PostTopicClassifierInput {
-  /** Valid curated slugs, labels, or aliases replace automatic classification. */
+  /** Curated values take precedence. Legacy labels are normalized safely. */
   explicitTopics?: readonly string[] | null;
   title?: string | null;
   text?: string | null;
   rawVisibleText?: string | null;
   hashtags?: readonly string[] | null;
   mediaType?: PostTopicMediaType | null;
+  platform?: string | null;
+  authorType?: PostTopicAuthorType | null;
 }
 
-export interface PostTopicRuleMatch {
-  topic: PostTopic;
-  score: number;
-  confidence: number;
-  strength: PostTopicRuleStrength;
-  matchedTerms: readonly string[];
-}
-
+export interface PostTopicRuleMatch { topic: PostTopic; score: number; confidence: number; strength: PostTopicRuleStrength; matchedTerms: readonly string[]; }
+export interface PostTopicEvidence { text: string; signal: PostTopicSecondarySignal | "topic_rule"; }
+export interface PostTopicAlternative { topic: PostTopic; confidence: number; }
 export interface PostTopicClassification {
+  /** Compatibility projection: primary followed by an optional genuinely co-primary topic. */
   topics: readonly PostTopic[];
+  primaryTopic: PostTopic;
+  secondaryTopic: PostTopic | null;
+  secondarySignals: readonly PostTopicSecondarySignal[];
+  evidence: readonly PostTopicEvidence[];
+  reasoningSummary: string;
+  alternatives: readonly PostTopicAlternative[];
+  needsReview: boolean;
+  /** Prior persisted result retained by database backfills; never raw content. */
+  priorClassification?: { taxonomyVersion: string; classifierVersion: string; primaryTopic: string | null } | null;
   classifierVersion: typeof POST_TOPIC_CLASSIFIER_VERSION;
   taxonomyVersion: typeof POST_TOPIC_TAXONOMY_VERSION;
   method: PostTopicClassificationMethod;
@@ -197,612 +91,100 @@ export interface PostTopicClassification {
   matches: readonly PostTopicRuleMatch[];
 }
 
-interface WeightedSignal {
-  pattern: RegExp;
-  weight: number;
+type Rule = { topic: Exclude<CanonicalPostTopic, "other" | "unclassified">; minimum: number; high: number; patterns: readonly [RegExp, number][]; exclude?: readonly RegExp[] };
+const RULES: readonly Rule[] = [
+  { topic: "fundraising-financing", minimum: 5, high: 7, patterns: [[/\b(?:raised|closed)\s+(?:\$|usd\s*)[\d,.]+\s*(?:[kmb]\b)?/i, 8], [/\b(?:pre-?seed|seed|series\s+[a-z]|grant|debt financing)\b.{0,45}\b(?:round|funding|financing|backed)\b/i, 6], [/\bfundraising\b/i, 3]] },
+  { topic: "accelerator-program", minimum: 6, high: 7, patterns: [[/\b(?:we|i)\s+(?:were |got |have been |just )?(?:accepted|accepted into|got into|joined|are joining)\s+(?:y combinator|yc)\b/i, 8], [/\b(?:yc|y combinator)\s+(?:spring|summer|winter|fall|[wsf])\s*\d{2,4}\s+batch\b/i, 7], [/\b(?:yc\s+)?demo day\b/i, 6]], exclude: [/\b(?:apply|application|congratulations? to|how to get into)\b/i] },
+  { topic: "customer-partnership-deployment", minimum: 5, high: 7, patterns: [[/\b(?:partnered|partnering|integration)\s+with\s+[a-z0-9]/i, 7], [/\b(?:customer|client)\s+(?:chose|selected|deployed|uses|is using|switched to)\b/i, 7], [/\b(?:pilot|contract|deployment|design partner)\b/i, 5], [/\b(?:case study|customer win|strategic partnership)\b/i, 6]] },
+  { topic: "traction-growth", minimum: 6, high: 8, patterns: [[/\b(?:reached|hit|crossed|surpassed|serving)\s+(?:over\s+)?[\d,.]+\s*(?:[kmb]\b)?\s*(?:paid\s+)?(?:users?|customers?|teams?|signups?|transactions?|deployments?)\b/i, 8], [/\b(?:\$|usd\s*)[\d,.]+\s*(?:[kmb]\b)?\s*(?:arr|mrr|gmv|revenue)\b/i, 8], [/\b(?:grew|growth|up)\s+(?:by\s+)?\d+(?:\.\d+)?%/i, 7], [/\b\d+(?:\.\d+)?x\s+(?:revenue|arr|mrr|growth|customers?|clients?|users?)\b/i, 7], [/\b(?:arr|mrr|gmv|retention|waitlist|revenue)\b/i, 3]] },
+  { topic: "hiring-team", minimum: 5, high: 7, patterns: [[/\b(?:we(?:'re| are)|i(?:'m| am)) hiring\b/i, 8], [/\b(?:open roles?|job openings?|join our team|come work with us|apply (?:here|now|for))\b/i, 6], [/\b(?:welcoming|welcome)\s+[A-Z][\w .'-]+\s+(?:to|as)\s+(?:our )?team\b/i, 5]] },
+  { topic: "product-launch", minimum: 5, high: 7, patterns: [[/\b(?:we(?:'ve| have)?|i(?:'ve| have)?|now)\s+(?:just\s+)?(?:launched|released|shipped)\b/i, 7], [/\b[A-Z][\w.-]+\s+(?:has\s+)?(?:launched|released|shipped)\b/, 6], [/\b(?:introducing|available today|now live|public beta|general availability)\b/i, 6], [/\b(?:v|version\s*)\d+(?:\.\d+)+\s+(?:is|now available|released)\b/i, 6]], exclude: [/\b(?:launching a fund|launching a podcast)\b/i] },
+  { topic: "research-benchmark-technical-insight", minimum: 5, high: 7, patterns: [[/\b(?:benchmark|evaluation|research|paper|arxiv|dataset)\b.{0,48}\b(?:result|results|outperforms?|findings?|release)\b/i, 7], [/\b(?:open[- ]sourced|open source release|mit license|apache\s*2\.0)\b/i, 7], [/\b(?:engineering|architecture|implementation|under the hood)\s+(?:deep dive|breakdown|details)\b/i, 6]] },
+  { topic: "product-demo-showcase", minimum: 5, high: 7, patterns: [[/\b(?:watch|see|try)\s+(?:it|our|the).{0,20}\b(?:demo|in action)\b/i, 7], [/\b(?:walkthrough|product tour|screen recording|here(?:'s| is) how (?:it|our) works)\b/i, 6], [/\b(?:demo|showcase)\b/i, 3]], exclude: [/\b(?:demo day|book a demo|request a demo)\b/i] },
+  { topic: "company-vision-founder-perspective", minimum: 5, high: 7, patterns: [[/\b(?:our mission|our vision|why we(?:'re| are) building|we believe the future|category thesis)\b/i, 7], [/\b(?:why|how) i (?:started|founded|built)\b/i, 6], [/\b(?:the future of|a world where)\b/i, 4]] },
+  { topic: "event-media-community", minimum: 5, high: 7, patterns: [[/\b(?:speaking|presenting|exhibiting|join us|meet us) at\b/i, 6], [/\b(?:podcast|interview|featured in|press coverage|conference|webinar|meetup)\b/i, 5], [/\b(?:award|finalist|winner|community)\b/i, 4]] },
+  { topic: "educational-informational", minimum: 5, high: 7, patterns: [[/\b(?:tutorial|guide|explainer|how to|step[- ]by[- ]step)\b/i, 6], [/\b(?:learn how|we explain|primer)\b/i, 5]] },
+  { topic: "humor-culture", minimum: 5, high: 7, patterns: [[/\b(?:meme|parody|satire|shitpost|joke|expectation vs\.? reality)\b/i, 7], [/#(?:meme|startuphumor|techhumor)\b/i, 6], [/\b(?:offsite|behind the scenes|day in the life)\b/i, 5]] }
+];
+
+const LEGACY_ALIASES: Readonly<Record<string, CanonicalPostTopic>> = {
+  "traction": "traction-growth", "growth": "traction-growth", "milestone": "traction-growth",
+  "product-showcase": "product-demo-showcase", "product-demo": "product-demo-showcase",
+  "yc-acceptance": "accelerator-program", "demo-day": "accelerator-program",
+  "customer-win": "customer-partnership-deployment", "partnership": "customer-partnership-deployment",
+  "fundraising": "fundraising-financing", "hiring": "hiring-team",
+  "company-vision": "company-vision-founder-perspective", "founder-story": "company-vision-founder-perspective", "market-insight": "company-vision-founder-perspective",
+  "technical-deep-dive": "research-benchmark-technical-insight", "research-or-benchmark": "research-benchmark-technical-insight", "open-source": "research-benchmark-technical-insight",
+  "event": "event-media-community", "press-or-media": "event-media-community", "community": "event-media-community", "awards": "event-media-community",
+  "humor": "humor-culture", "culture": "humor-culture", "behind-the-scenes": "humor-culture",
+  "product-update": "product-launch", "other": "unclassified"
+};
+
+const RAW_VISIBLE_KEYS = new Set(["accessibilitycaption", "body", "caption", "content", "description", "fulltext", "rawtext", "text", "title", "visibletext"]);
+const RAW_IGNORED_KEYS = new Set(["author", "batchcontext", "counts", "engagement", "metadata", "metrics", "owner", "profile", "target", "verification"]);
+export const POST_TOPIC_SLUGS: readonly CanonicalPostTopic[] = POST_TOPIC_TAXONOMY.map((topic) => topic.slug);
+
+export function isPostTopic(value: string): value is PostTopic { return POST_TOPIC_SLUGS.includes(value as CanonicalPostTopic) || Boolean(LEGACY_ALIASES[value]); }
+export function getPostTopicDefinition(topic: PostTopic): PostTopicDefinition { const canonical = normalizePostTopic(topic); const definition = canonical && POST_TOPIC_TAXONOMY.find((item) => item.slug === canonical); if (!definition) throw new Error(`Unknown canonical post topic: ${topic}`); return definition; }
+export function normalizePostTopic(value: string): CanonicalPostTopic | null {
+  const key = normalizeAlias(value); if (!key) return null;
+  const legacy = LEGACY_ALIASES[key]; if (legacy) return legacy;
+  return POST_TOPIC_TAXONOMY.find((topic) => [topic.slug, topic.label, ...topic.aliases].some((candidate) => normalizeAlias(candidate) === key))?.slug ?? null;
 }
-
-interface TopicRule {
-  topic: Exclude<PostTopic, "other">;
-  minimumScore: number;
-  strongScore: number;
-  signals: readonly WeightedSignal[];
-  negativeSignals?: readonly WeightedSignal[];
-  mediaWeights?: Readonly<Partial<Record<PostTopicMediaType, number>>>;
-}
-
-const TOPIC_RULES: readonly TopicRule[] = [
-  {
-    topic: "traction",
-    minimumScore: 4,
-    strongScore: 6,
-    signals: [
-      { pattern: /(?:\$|usd\s*)[\d,.]+\s*(?:[kmb]\b)?[^.!?\n]{0,18}\b(?:arr|mrr|gmv|revenue)\b/i, weight: 7 },
-      { pattern: /\b(?:arr|mrr|gmv|revenue)\b[^.!?\n]{0,18}(?:\$|usd\s*)[\d,.]+\s*(?:[kmb]\b)?/i, weight: 7 },
-      { pattern: /\b(?:grew|growing|growth|increased|up)\s+(?:by\s+)?\d+(?:\.\d+)?%/i, weight: 6 },
-      { pattern: /\b(?:reached|hit|crossed|surpassed|serving|now at)\s+(?:over\s+|more than\s+)?[\d,.]+\s*(?:[kmb]\b)?\s*(?:users?|customers?|seats?|signups?|subscribers?|waitlist(?: signups?)?|transactions?)\b/i, weight: 6 },
-      { pattern: /(?<![\d,.])\d[\d,]*(?:\.\d+)?\s*(?:[kmb]\b)?\s*(?:paid\s+)?(?:users?|customers?|seats?|signups?|subscribers?|waitlist(?: signups?)?|transactions?)\b/i, weight: 5 },
-      { pattern: /\b(?:signed|closed|secured|landed|completed)\s+(?:\d+\s+)?(?:new\s+)?(?:pilots?|contracts?|lois?|letters? of intent)\b/i, weight: 5 },
-      { pattern: /\b(?:retention|usage|adoption|transaction volume)\b[^.!?\n]{0,24}\b(?:grew|increased|reached|hit|crossed|surpassed|\d+(?:\.\d+)?%)\b/i, weight: 5 },
-      { pattern: /\b(?:doubled|tripled)\s+(?:our\s+)?(?:revenue|users?|customers?|usage|adoption|transaction volume)\b/i, weight: 5 },
-      { pattern: /\b(?:arr|mrr|gmv|revenue|retention|waitlist|transaction volume|adoption)\b/i, weight: 2 },
-      { pattern: /#(?:traction|growth|milestone)\b/i, weight: 2 }
-    ]
-  },
-  {
-    topic: "product-showcase",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:product|feature|live|interactive)\s+demo\b/i, weight: 5 },
-      { pattern: /\b(?:watch|see|try)\s+(?:the|our|it)\s+(?:demo|in action)\b/i, weight: 5 },
-      { pattern: /\b(?:here(?:'s| is) how (?:it|our [\w-]+) works|how it works)\b/i, weight: 5 },
-      { pattern: /\b(?:walkthrough|product tour|feature tour|screen recording)\b/i, weight: 5 },
-      { pattern: /\b(?:screenshot|demo)\b/i, weight: 3 },
-      { pattern: /\b(?:our|the)\s+(?:product|app|platform|feature)\b/i, weight: 2 },
-      { pattern: /#(?:productdemo|demo|walkthrough)\b/i, weight: 3 }
-    ],
-    negativeSignals: [
-      { pattern: /\bdemo day\b/i, weight: 5 },
-      { pattern: /\b(?:book|schedule|request) a demo\b/i, weight: 3 }
-    ],
-    mediaWeights: { image: 1, video: 1 }
-  },
-  {
-    topic: "product-launch",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:we(?:'ve| have)?|i(?:'ve| have)?)\s+(?:just\s+)?launched\b/i, weight: 5 },
-      { pattern: /\bintroducing\s+(?:our|the|a|an|[A-Z][\w-]+)\b/i, weight: 5 },
-      { pattern: /\b(?:now live|available today|shipping (?:now|today)|launching today)\b/i, weight: 5 },
-      { pattern: /\b(?:launching|launched|released)\s+(?:our|the|a|an)\s+(?:new\s+)?(?:product|app|platform|service|tool)\b/i, weight: 5 },
-      { pattern: /\b(?:launch|launching|launched)\b/i, weight: 2 },
-      { pattern: /#(?:launch|productlaunch|shipping)\b/i, weight: 3 }
-    ],
-    mediaWeights: { launch: 2 }
-  },
-  {
-    topic: "yc-acceptance",
-    minimumScore: 6,
-    strongScore: 6,
-    signals: [
-      { pattern: /\b(?:we(?:'ve| have| were)?|i(?:'ve| have| was)?)\s+(?:just\s+)?(?:been\s+)?accepted\s+(?:to|into|by)\s+(?:y combinator|yc)\b/i, weight: 8 },
-      { pattern: /\b(?:we(?:'re| are)|i(?:'m| am))\s+(?:excited|thrilled|proud)?\s*(?:to\s+)?(?:join|joining|part of)\s+(?:(?:y combinator|yc)(?:'s)?\s+)?(?:the\s+)?(?:winter|spring|summer|fall|w|s|f)\s*\d{2,4}\s+(?:yc\s+)?batch\b/i, weight: 8 },
-      { pattern: /\b(?:joining|accepted into)\s+(?:y combinator|yc)\s+(?:winter|spring|summer|fall|w|s|f)\s*\d{2,4}\b/i, weight: 8 },
-      { pattern: /\b(?:we got|i got) into (?:y combinator|yc)\b/i, weight: 8 }
-    ],
-    negativeSignals: [
-      { pattern: /\b(?:apply|applying|application|applications|interview tips?|how to get)\b/i, weight: 8 },
-      { pattern: /\bcongratulations? to\b/i, weight: 8 }
-    ]
-  },
-  {
-    topic: "company-vision",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:our|the company(?:'s)?)\s+(?:mission|vision)\s+(?:is|:)\b/i, weight: 6 },
-      { pattern: /\b(?:long-term vision|category thesis)\b/i, weight: 5 },
-      { pattern: /\bwe believe (?:that\s+)?the future\b/i, weight: 5 },
-      { pattern: /\b(?:a future|a world) where\b/i, weight: 3 },
-      { pattern: /\bwhy we(?:'re| are) building\b/i, weight: 4 },
-      { pattern: /\b(?:build|building|create|creating)\b/i, weight: 1 },
-      { pattern: /#(?:mission|vision)\b/i, weight: 2 }
-    ]
-  },
-  {
-    topic: "humor",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:meme|parody|satire|shitpost|comedy sketch)\b/i, weight: 5 },
-      { pattern: /\b(?:here(?:'s| is) a joke|just kidding|plot twist:|expectation vs\.? reality)\b/i, weight: 5 },
-      { pattern: /\b(?:knock knock|walks into a bar)\b/i, weight: 5 },
-      { pattern: /#(?:meme|memes|parody|satire|startuphumor|techhumor)\b/i, weight: 5 },
-      { pattern: /(?:😂|🤣|\blol\b|\bjk\b)/i, weight: 2 }
-    ]
-  },
-  {
-    topic: "customer-win",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:customer win|customer success story|customer case study|client case study)\b/i, weight: 6 },
-      { pattern: /\b(?:customer|client)\s+(?:chose|selected|picked|switched to)\s+(?:us|our|[\w-]+)\b/i, weight: 5 },
-      { pattern: /\bwelcome\s+[\w .&'-]+\s+as (?:a|our) (?:new )?(?:customer|client)\b/i, weight: 5 },
-      { pattern: /\b(?:testimonial|case study)\b/i, weight: 4 },
-      { pattern: /#(?:customerwin|customersuccess|casestudy)\b/i, weight: 4 }
-    ]
-  },
-  {
-    topic: "fundraising",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:we(?:'ve| have)?|i(?:'ve| have)?)\s+(?:raised|closed)\s+(?:a\s+)?(?:\$|usd\s*)[\d,.]+\s*(?:[kmb]\b)?/i, weight: 7 },
-      { pattern: /\b(?:raised|raising|closed)\s+(?:our\s+)?(?:pre-seed|seed|series\s+[a-z]|funding|financing)\s+(?:round)?/i, weight: 6 },
-      { pattern: /\b(?:pre-seed|seed|series\s+[a-z])\s+(?:funding|financing|round)\b/i, weight: 5 },
-      { pattern: /\b(?:fundraise|fundraising|funding round)\b/i, weight: 4 },
-      { pattern: /#(?:fundraising|funding|seedround)\b/i, weight: 4 }
-    ],
-    negativeSignals: [{ pattern: /\b(?:fundraising advice|how to raise|fundraising tips)\b/i, weight: 4 }]
-  },
-  {
-    topic: "hiring",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:we(?:'re| are)|i(?:'m| am)) hiring\b/i, weight: 6 },
-      { pattern: /\b(?:join our team|come work with us|open roles?|job openings?|apply for (?:the|our))\b/i, weight: 5 },
-      { pattern: /\b(?:hiring|recruiting)\s+(?:an?|for|our next)\b/i, weight: 4 },
-      { pattern: /#(?:hiring|jobs|careers|nowhiring)\b/i, weight: 4 }
-    ]
-  },
-  {
-    topic: "founder-story",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:why|how) i (?:started|founded|co-founded|built)\b/i, weight: 6 },
-      { pattern: /\b(?:my|our) founder (?:story|journey)\b/i, weight: 6 },
-      { pattern: /\b(?:founding story|origin story|founder journey)\b/i, weight: 5 },
-      { pattern: /\bas a (?:first-time|repeat )?founder\b/i, weight: 4 },
-      { pattern: /#(?:founderstory|founderjourney)\b/i, weight: 4 }
-    ]
-  },
-  {
-    topic: "technical-deep-dive",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:technical|engineering|architecture) deep dive\b/i, weight: 6 },
-      { pattern: /\b(?:under the hood|engineering breakdown|system design|implementation details)\b/i, weight: 5 },
-      { pattern: /\bhow we (?:built|scaled|implemented|architected)\b/i, weight: 5 },
-      { pattern: /\b(?:architecture|latency|throughput|distributed systems?)\b/i, weight: 2 },
-      { pattern: /#(?:engineering|technicaldeepdive|systemdesign)\b/i, weight: 3 }
-    ]
-  },
-  {
-    topic: "open-source",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:we(?:'ve| have)?|i(?:'ve| have)?)\s+open[- ]sourced\b/i, weight: 6 },
-      { pattern: /\b(?:now|available|released)\s+(?:as\s+)?open source\b/i, weight: 6 },
-      { pattern: /\bopen[- ]source\s+(?:release|project|library|framework|license)\b/i, weight: 5 },
-      { pattern: /\b(?:apache|mit|gpl)\s+(?:2\.0\s+)?license\b/i, weight: 4 },
-      { pattern: /#(?:opensource|oss)\b/i, weight: 4 }
-    ]
-  },
-  {
-    topic: "research-or-benchmark",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:our|new)\s+(?:research|study|paper|benchmark|evaluation|dataset)\b/i, weight: 5 },
-      { pattern: /\b(?:we (?:studied|evaluated|benchmarked)|benchmark results?|research findings?)\b/i, weight: 5 },
-      { pattern: /\b(?:peer-reviewed|arxiv|white paper|technical report)\b/i, weight: 5 },
-      { pattern: /\b(?:research|benchmark|study|paper|evaluation)\b/i, weight: 2 },
-      { pattern: /#(?:research|benchmark|whitepaper)\b/i, weight: 3 }
-    ]
-  },
-  {
-    topic: "partnership",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:we(?:'ve| have| are)?|i(?:'m| am)?)\s+(?:partnered|partnering|collaborated|collaborating)\s+with\b/i, weight: 6 },
-      { pattern: /\b(?:announce|announcing|excited about)\s+(?:a|our|this)?\s*(?:strategic )?(?:partnership|collaboration)\b/i, weight: 6 },
-      { pattern: /\b(?:strategic partnership|official partner|in partnership with)\b/i, weight: 5 },
-      { pattern: /#(?:partnership|collaboration)\b/i, weight: 4 }
-    ]
-  },
-  {
-    topic: "demo-day",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:yc\s+)?demo day\b/i, weight: 6 },
-      { pattern: /\b(?:presenting|pitching|see you) at demo day\b/i, weight: 6 },
-      { pattern: /#(?:demoday|ycdemoday)\b/i, weight: 5 }
-    ]
-  },
-  {
-    topic: "milestone",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:major|huge|important|company|team|product) milestone\b/i, weight: 5 },
-      { pattern: /\b(?:we(?:'ve| have)?|i(?:'ve| have)?)\s+(?:reached|hit|crossed|celebrated)\s+(?:a|our|the)?\s*(?:new )?milestone\b/i, weight: 6 },
-      { pattern: /\b\d+(?:st|nd|rd|th) anniversary\b/i, weight: 5 },
-      { pattern: /\bmilestone\b/i, weight: 3 },
-      { pattern: /#(?:milestone|anniversary)\b/i, weight: 3 }
-    ]
-  },
-  {
-    topic: "product-update",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:product|feature|platform|app) update\b/i, weight: 5 },
-      { pattern: /\b(?:new feature|new capability|release notes?|changelog)\b/i, weight: 5 },
-      { pattern: /\bwe(?:'ve| have) (?:added|improved|updated|redesigned)\b/i, weight: 4 },
-      { pattern: /\b(?:v\d+(?:\.\d+)+|version \d+(?:\.\d+)*)\s+(?:is|now|has)\b/i, weight: 4 },
-      { pattern: /#(?:productupdate|newfeature|changelog)\b/i, weight: 4 }
-    ]
-  },
-  {
-    topic: "behind-the-scenes",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\bbehind the scenes\b/i, weight: 6 },
-      { pattern: /\b(?:day in the life|making of|meet the team|inside our office)\b/i, weight: 5 },
-      { pattern: /\bhow (?:we|the team) (?:make|made|work|works)\b/i, weight: 4 },
-      { pattern: /#(?:behindthescenes|bts|dayinthelife)\b/i, weight: 4 }
-    ]
-  },
-  {
-    topic: "market-insight",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:market|industry|category) (?:analysis|insight|outlook|trend|thesis)\b/i, weight: 5 },
-      { pattern: /\b(?:our take|what we(?:'re| are) seeing) (?:on|in) the (?:market|industry|category)\b/i, weight: 5 },
-      { pattern: /\bthe (?:market|industry) is (?:shifting|changing|growing|moving)\b/i, weight: 4 },
-      { pattern: /#(?:marketinsights|industrytrends)\b/i, weight: 4 }
-    ]
-  },
-  {
-    topic: "community",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:our|the) community\s+(?:members?|contributors?|gathered|grew|built|shared)\b/i, weight: 5 },
-      { pattern: /\b(?:community spotlight|community update|thank you to our community|contributor spotlight)\b/i, weight: 5 },
-      { pattern: /\bjoin (?:our|the) community\b/i, weight: 4 },
-      { pattern: /#(?:community|communityspotlight)\b/i, weight: 3 }
-    ]
-  },
-  {
-    topic: "press-or-media",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:featured|covered|profiled|quoted) in\s+(?:the\s+)?[\w .&'-]+/i, weight: 5 },
-      { pattern: /\b(?:as seen in|in the news|press coverage|media coverage)\b/i, weight: 5 },
-      { pattern: /\b(?:listen to|watch|read) (?:our|my|the) (?:podcast|interview|feature)\b/i, weight: 5 },
-      { pattern: /#(?:press|inthemedia|podcast)\b/i, weight: 3 }
-    ]
-  },
-  {
-    topic: "awards",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:we(?:'ve| have| were)?|i(?:'ve| have| was)?)\s+(?:won|awarded|named|selected|recognized)\b[^.!?\n]{0,30}\b(?:award|winner|finalist|honoree|prize)\b/i, weight: 6 },
-      { pattern: /\b(?:award winner|won the .{0,30} award|named a finalist|selected as a finalist)\b/i, weight: 6 },
-      { pattern: /\b(?:award|winner|finalist|honoree|prize)\b/i, weight: 2 },
-      { pattern: /#(?:award|winner|finalist)\b/i, weight: 3 }
-    ]
-  },
-  {
-    topic: "event",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:join us|meet us|see you|speaking|presenting|exhibiting) at\b[^.!?\n]{0,35}\b(?:conference|event|meetup|summit|webinar|workshop)\b/i, weight: 6 },
-      { pattern: /\b(?:register|rsvp) (?:now|today|here|for)\b/i, weight: 4 },
-      { pattern: /\b(?:live webinar|in-person meetup|annual conference|upcoming event)\b/i, weight: 5 },
-      { pattern: /#(?:event|conference|meetup|webinar|workshop)\b/i, weight: 3 }
-    ]
-  },
-  {
-    topic: "culture",
-    minimumScore: 4,
-    strongScore: 5,
-    signals: [
-      { pattern: /\b(?:our|company|team) culture\b/i, weight: 5 },
-      { pattern: /\b(?:our|company) values\b/i, weight: 5 },
-      { pattern: /\b(?:team offsite|company offsite|workplace culture|how we work)\b/i, weight: 5 },
-      { pattern: /#(?:companyculture|teamculture|offsite)\b/i, weight: 4 }
-    ]
-  }
-] as const;
-
-const VISIBLE_RAW_KEYS = new Set([
-  "accessibilitycaption",
-  "body",
-  "caption",
-  "content",
-  "description",
-  "fulltext",
-  "rawtext",
-  "text",
-  "title",
-  "visibletext"
-]);
-const NON_AUTHORED_RAW_SUBTREES = new Set([
-  "author",
-  "batchcontext",
-  "counts",
-  "engagement",
-  "metadata",
-  "metrics",
-  "owner",
-  "profile",
-  "target",
-  "verification"
-]);
-const MAX_RAW_VISIBLE_TEXT_LENGTH = 50_000;
-const MAX_EXTRACTED_RAW_VALUES = 24;
-const MAX_RAW_DEPTH = 8;
-
-export const POST_TOPIC_SLUGS: readonly PostTopic[] = POST_TOPIC_TAXONOMY.map((topic) => topic.slug);
-
-export function isPostTopic(value: string): value is PostTopic {
-  return POST_TOPIC_TAXONOMY.some((topic) => topic.slug === value);
-}
-
-/** Resolve a canonical slug from a slug, display label, or declared alias. */
-export function normalizePostTopic(value: string): PostTopic | null {
-  const normalized = normalizeAlias(value);
-  if (!normalized) {
-    return null;
-  }
-
-  const definition = POST_TOPIC_TAXONOMY.find((topic) =>
-    [topic.slug, topic.label, ...topic.aliases].some((candidate) => normalizeAlias(candidate) === normalized)
-  );
-  return definition?.slug ?? null;
-}
-
-export function getPostTopicDefinition(topic: PostTopic): PostTopicDefinition {
-  const definition = POST_TOPIC_TAXONOMY.find((candidate) => candidate.slug === topic);
-  if (!definition) {
-    throw new Error(`Unknown canonical post topic: ${topic}`);
-  }
-  return definition;
-}
-
-/** Deduplicate and restore canonical taxonomy order. Invalid values are ignored. */
-export function normalizePostTopics(values: readonly string[]): PostTopic[] {
-  const selected = new Set<PostTopic>();
-  for (const value of values) {
-    const topic = normalizePostTopic(value);
-    if (topic) {
-      selected.add(topic);
-    }
-  }
-  return POST_TOPIC_SLUGS.filter((topic) => selected.has(topic));
-}
+export function normalizePostTopics(values: readonly string[]): CanonicalPostTopic[] { const valuesSet = new Set<CanonicalPostTopic>(); for (const value of values) { const topic = normalizePostTopic(value); if (topic) valuesSet.add(topic); } return POST_TOPIC_SLUGS.filter((topic) => valuesSet.has(topic)); }
 
 export function classifyPostTopics(input: PostTopicClassifierInput): PostTopicClassification {
-  const curatedTopics = normalizePostTopics(input.explicitTopics ?? []);
-  if (curatedTopics.length > 0) {
-    const matches = curatedTopics.map((topic): PostTopicRuleMatch => ({
-      topic,
-      score: 1,
-      confidence: 1,
-      strength: "curated",
-      matchedTerms: [getPostTopicDefinition(topic).label]
-    }));
-    return classificationResult(curatedTopics, "curated", 1, "curated", matches);
+  const curated = normalizePostTopics(input.explicitTopics ?? []);
+  if (curated.length) return result(curated[0]!, "curated", 1, "curated", [{ topic: curated[0]!, score: 1, confidence: 1, strength: "curated", matchedTerms: [getPostTopicDefinition(curated[0]!).label] }], input);
+  const text = authoredText(input);
+  const signals = extractTopicSignals(text, input.authorType ?? "unknown");
+  const matches = RULES.map((rule, index) => ({ match: evaluate(rule, text), index })).filter((entry): entry is { match: PostTopicRuleMatch; index: number } => entry.match !== null).sort((a, b) => b.match.score - a.match.score || a.index - b.index).map((entry) => entry.match);
+  if (!matches.length) {
+    const fallbackTopic: PostTopic = hasMeaningfulCorporateUpdate(text)
+      ? "corporate-update"
+      : hasEnoughVisibleContent(text)
+        ? "other"
+        : "unclassified";
+    const fallbackConfidence = fallbackTopic === "corporate-update" ? .45 : fallbackTopic === "other" ? .35 : .2;
+    return result(fallbackTopic, "fallback", fallbackConfidence, "fallback", [{ topic: fallbackTopic, score: 0, confidence: fallbackConfidence, strength: "fallback", matchedTerms: [] }], input, signals);
   }
-
-  const authoredText = buildAuthoredText(input);
-  const automaticMatches = TOPIC_RULES.map((rule, taxonomyIndex) => ({
-    match: evaluateRule(rule, authoredText, input.mediaType ?? "unknown"),
-    taxonomyIndex
-  }))
-    .filter((candidate): candidate is { match: PostTopicRuleMatch; taxonomyIndex: number } => candidate.match !== null)
-    .sort((left, right) => right.match.score - left.match.score || left.taxonomyIndex - right.taxonomyIndex)
-    .slice(0, MAX_AUTOMATIC_POST_TOPICS)
-    .map((candidate) => candidate.match);
-
-  if (automaticMatches.length === 0) {
-    const fallback: PostTopicRuleMatch = {
-      topic: "other",
-      score: 0,
-      confidence: 0.25,
-      strength: "fallback",
-      matchedTerms: []
-    };
-    return classificationResult(["other"], "fallback", fallback.confidence, "fallback", [fallback]);
-  }
-
-  const strongest = automaticMatches[0];
-  return classificationResult(
-    automaticMatches.map((match) => match.topic),
-    "rules",
-    strongest.confidence,
-    strongest.strength,
-    automaticMatches
-  );
+  const primary = matches[0]!;
+  const second = matches[1];
+  const primaryTopic = primary.topic;
+  const secondaryTopic = second && isGenuinelyCoPrimary(primary, second) ? second.topic : null;
+  return result(primaryTopic, "rules", primary.confidence, primary.strength, matches.slice(0, 3), input, signals, secondaryTopic);
 }
 
-/**
- * Extract only authored/visible text fields from raw JSON. Metadata fields such
- * as counts, verification, target, and batch context are intentionally ignored.
- */
+/** Deterministic fact extraction, intentionally separate from primary-topic choice. */
+export function extractTopicSignals(text: string, authorType: PostTopicAuthorType = "unknown"): PostTopicSecondarySignal[] {
+  const signals = new Set<PostTopicSecondarySignal>();
+  const add = (condition: boolean, signal: PostTopicSecondarySignal) => { if (condition) signals.add(signal); };
+  add(/(?:\$|usd\s*)[\d,.]+\s*(?:[kmb]\b)?/i.test(text), "contains_quantified_metric");
+  add(/(?:arr|mrr|gmv|revenue)\b/i.test(text), "revenue_mentioned"); add(/[\d,.]+\s*(?:paid\s+)?(?:users?|customers?|teams?|signups?)/i.test(text), "user_count_mentioned"); add(/(?:grew|growth|up)\s+(?:by\s+)?\d+(?:\.\d+)?%/i.test(text), "growth_rate_mentioned");
+  add(/\b(?:customer|client|case study|pilot|contract|deployment)\b/i.test(text), "customer_named"); add(/\b(?:partnered|partnership|integration)\b/i.test(text), "partnership_named"); add(/\b(?:raised|funding|financing|seed|series\s+[a-z]|grant)\b/i.test(text), "funding_amount_mentioned"); add(/\b(?:we(?:'re| are)|are) hiring\b|\b(?:open roles?|join our team)\b/i.test(text), "hiring_call_to_action");
+  add(/\b(?:launched|released|available today|now live|public beta)\b/i.test(text), "product_availability_announced"); add(/\b(?:open[- ]sourced|open source|mit license|apache)\b/i.test(text), "open_source_release"); add(/\b(?:benchmark|evaluation|outperforms?|research results?)\b/i.test(text), "benchmark_result"); add(/\b(?:y combinator|\byc\b|accelerator|demo day|fellowship)\b/i.test(text), "accelerator_mentioned");
+  add(authorType === "founder", "founder_authored"); add(authorType === "company", "company_authored"); add(authorType === "third_party", "third_party_mention"); add(/\b(?:vs\.?|compared with|alternative to)\b/i.test(text), "competitor_comparison"); add(/\b(?:expanding to|expansion into|launching in)\b/i.test(text), "geographic_expansion"); add(/\b(?:regulatory|fda|approved|certified)\b/i.test(text), "regulatory_milestone"); add(/\b(?:award|finalist|winner)\b/i.test(text), "award"); add(/\b(?:acquired|acquisition)\b/i.test(text), "acquisition"); add(/\b(?:conference|webinar|meetup|speaking|presenting)\b/i.test(text), "event_participation"); add(/\b(?:featured in|podcast|interview|press coverage)\b/i.test(text), "press_coverage");
+  return [...signals];
+}
+
 export function extractPostVisibleText(rawVisibleText: string | null | undefined): string {
-  const raw = rawVisibleText?.trim();
-  if (!raw) {
-    return "";
-  }
-
-  const bounded = raw.slice(0, MAX_RAW_VISIBLE_TEXT_LENGTH);
-  if (!bounded.startsWith("{") && !bounded.startsWith("[")) {
-    return "";
-  }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(bounded);
-  } catch {
-    return "";
-  }
-
-  const values: string[] = [];
-  collectVisibleValues(parsed, "", 0, values);
-  return normalizeText(values.join(" "));
+  const raw = rawVisibleText?.trim(); if (!raw || (!raw.startsWith("{") && !raw.startsWith("["))) return "";
+  try { const values: string[] = []; collectVisible(JSON.parse(raw.slice(0, 50_000)), "", 0, values); return normalizeText(values.join(" ")); } catch { return ""; }
 }
 
-function classificationResult(
-  topics: readonly PostTopic[],
-  method: PostTopicClassificationMethod,
-  confidence: number,
-  strength: PostTopicRuleStrength,
-  matches: readonly PostTopicRuleMatch[]
-): PostTopicClassification {
-  return {
-    topics,
-    classifierVersion: POST_TOPIC_CLASSIFIER_VERSION,
-    taxonomyVersion: POST_TOPIC_TAXONOMY_VERSION,
-    method,
-    confidence,
-    strength,
-    matchedTerms: uniqueStrings(matches.flatMap((match) => match.matchedTerms)),
-    matches
-  };
+function evaluate(rule: Rule, text: string): PostTopicRuleMatch | null { let score = 0; const matchedTerms: string[] = []; for (const [pattern, weight] of rule.patterns) { const found = pattern.exec(text); if (found?.[0]) { score += weight; matchedTerms.push(normalizeText(found[0])); } } if ((rule.exclude ?? []).some((pattern) => pattern.test(text))) score = 0; if (score < rule.minimum) return null; const strength: PostTopicRuleStrength = score >= rule.high ? "high" : "medium"; return { topic: rule.topic, score, confidence: Math.min(.98, .58 + (score - rule.minimum) * .07), strength, matchedTerms: unique(matchedTerms) }; }
+function result(primaryTopic: PostTopic, method: PostTopicClassificationMethod, confidence: number, strength: PostTopicRuleStrength, matches: readonly PostTopicRuleMatch[], input: PostTopicClassifierInput, signals = extractTopicSignals(authoredText(input), input.authorType ?? "unknown"), secondaryTopic: PostTopic | null = null): PostTopicClassification {
+  const primaryMatch = matches[0]; const evidence = primaryMatch?.matchedTerms.slice(0, 2).map((text) => ({ text, signal: "topic_rule" as const })) ?? [];
+  const alternatives = matches.slice(1, 3).filter((match) => match.topic !== secondaryTopic).map((match) => ({ topic: match.topic, confidence: match.confidence }));
+  const needsReview = method !== "curated" && (confidence < .72 || primaryTopic === "unclassified" || Boolean(secondaryTopic));
+  return { topics: secondaryTopic ? [primaryTopic, secondaryTopic] : [primaryTopic], primaryTopic, secondaryTopic, secondarySignals: signals, evidence, reasoningSummary: reasoning(primaryTopic, signals, method), alternatives, needsReview, classifierVersion: POST_TOPIC_CLASSIFIER_VERSION, taxonomyVersion: POST_TOPIC_TAXONOMY_VERSION, method, confidence, strength, matchedTerms: unique(matches.flatMap((match) => match.matchedTerms)), matches };
 }
-
-function evaluateRule(
-  rule: TopicRule,
-  text: string,
-  mediaType: PostTopicMediaType
-): PostTopicRuleMatch | null {
-  let score = 0;
-  const matchedTerms: string[] = [];
-
-  for (const signal of rule.signals) {
-    const match = signal.pattern.exec(text);
-    if (match?.[0]) {
-      score += signal.weight;
-      matchedTerms.push(normalizeText(match[0]));
-    }
-  }
-
-  if (score > 0) {
-    const mediaWeight = rule.mediaWeights?.[mediaType] ?? 0;
-    if (mediaWeight > 0) {
-      score += mediaWeight;
-      matchedTerms.push(`media:${mediaType}`);
-    }
-  }
-
-  for (const signal of rule.negativeSignals ?? []) {
-    if (signal.pattern.test(text)) {
-      score -= signal.weight;
-    }
-  }
-
-  if (score < rule.minimumScore) {
-    return null;
-  }
-
-  const strength: PostTopicRuleStrength = score >= rule.strongScore ? "strong" : "moderate";
-  return {
-    topic: rule.topic,
-    score,
-    confidence: ruleConfidence(score, rule.minimumScore, rule.strongScore),
-    strength,
-    matchedTerms: uniqueStrings(matchedTerms)
-  };
-}
-
-function buildAuthoredText(input: PostTopicClassifierInput): string {
-  const hashtags = (input.hashtags ?? [])
-    .map((hashtag) => hashtag.trim())
-    .filter(Boolean)
-    .map((hashtag) => (hashtag.startsWith("#") ? hashtag : `#${hashtag}`));
-  return normalizeText([
-    input.title ?? "",
-    input.text ?? "",
-    extractPostVisibleText(input.rawVisibleText),
-    ...hashtags
-  ].join(" "));
-}
-
-function collectVisibleValues(value: unknown, parentKey: string, depth: number, values: string[]): void {
-  if (depth > MAX_RAW_DEPTH || values.length >= MAX_EXTRACTED_RAW_VALUES) {
-    return;
-  }
-  if (typeof value === "string") {
-    if (VISIBLE_RAW_KEYS.has(normalizeRawKey(parentKey))) {
-      values.push(value);
-    }
-    return;
-  }
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      collectVisibleValues(item, parentKey, depth + 1, values);
-      if (values.length >= MAX_EXTRACTED_RAW_VALUES) {
-        break;
-      }
-    }
-    return;
-  }
-  if (typeof value !== "object" || value === null) {
-    return;
-  }
-
-  for (const key of Object.keys(value).sort((left, right) => left.localeCompare(right))) {
-    if (NON_AUTHORED_RAW_SUBTREES.has(normalizeRawKey(key))) {
-      continue;
-    }
-    const child: unknown = Reflect.get(value, key);
-    collectVisibleValues(child, key, depth + 1, values);
-    if (values.length >= MAX_EXTRACTED_RAW_VALUES) {
-      break;
-    }
-  }
-}
-
-function normalizeRawKey(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
-function normalizeAlias(value: string): string {
-  return value
-    .normalize("NFKC")
-    .trim()
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function normalizeText(value: string): string {
-  return value
-    .normalize("NFKC")
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function uniqueStrings(values: readonly string[]): string[] {
-  const seen = new Set<string>();
-  const unique: string[] = [];
-  for (const value of values) {
-    const key = value.toLowerCase();
-    if (value && !seen.has(key)) {
-      seen.add(key);
-      unique.push(value);
-    }
-  }
-  return unique;
-}
-
-function ruleConfidence(score: number, minimumScore: number, strongScore: number): number {
-  if (score >= strongScore) {
-    return Math.min(0.99, roundConfidence(0.85 + (score - strongScore) * 0.025));
-  }
-  const span = Math.max(1, strongScore - minimumScore);
-  return roundConfidence(0.6 + ((score - minimumScore) / span) * 0.2);
-}
-
-function roundConfidence(value: number): number {
-  return Math.round(value * 100) / 100;
-}
+function reasoning(topic: PostTopic, signals: readonly PostTopicSecondarySignal[], method: PostTopicClassificationMethod): string { if (method === "manual") return "A maintainer selected the canonical primary topic."; if (method === "curated") return "A maintained classification selected the canonical primary topic."; if (topic === "unclassified") return "The visible post text lacks reliable evidence for a canonical primary topic."; const facts = signals.slice(0, 2).map((signal) => signal.replaceAll("_", " ")); return facts.length ? `Primary topic selected from visible ${facts.join(" and ")}.` : "Primary topic selected from explicit visible announcement language."; }
+function isGenuinelyCoPrimary(left: PostTopicRuleMatch, right: PostTopicRuleMatch) { return left.confidence >= .8 && right.confidence >= .8 && Math.abs(left.score - right.score) <= 1 && !["humor-culture", "event-media-community"].includes(right.topic); }
+function authoredText(input: PostTopicClassifierInput): string { const tags = (input.hashtags ?? []).map((tag) => tag.trim()).filter(Boolean).map((tag) => tag.startsWith("#") ? tag : `#${tag}`); return normalizeText([input.title ?? "", input.text ?? "", extractPostVisibleText(input.rawVisibleText), ...tags].join(" ")); }
+function hasMeaningfulCorporateUpdate(text: string) { return /\b(?:announc(?:e|ing|ement)|update|welcome|proud|excited|today|news)\b/i.test(text) && text.length >= 24; }
+function hasEnoughVisibleContent(text: string) { return text.split(/\s+/).filter(Boolean).length >= 5; }
+function collectVisible(value: unknown, parent: string, depth: number, values: string[]) { if (depth > 8 || values.length >= 24) return; if (typeof value === "string") { if (RAW_VISIBLE_KEYS.has(normalizeAlias(parent))) values.push(value); return; } if (Array.isArray(value)) { for (const child of value) collectVisible(child, parent, depth + 1, values); return; } if (!value || typeof value !== "object") return; for (const key of Object.keys(value as object).sort()) { if (RAW_IGNORED_KEYS.has(normalizeAlias(key))) continue; collectVisible(Reflect.get(value, key), key, depth + 1, values); } }
+function normalizeAlias(value: string) { return value.trim().toLowerCase().replace(/[_/]+/g, " ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+function normalizeText(value: string) { return value.replace(/\s+/g, " ").trim(); }
+function unique(values: readonly string[]) { return [...new Set(values.filter(Boolean))]; }

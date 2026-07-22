@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl("/")),
   title: {
-    default: `${SITE_NAME} | Startup traction intelligence`,
+    default: `${SITE_NAME} | Startup network maps and social traction`,
     template: `%s | ${SITE_NAME}`
   },
   description: SITE_DESCRIPTION,
@@ -15,6 +15,12 @@ export const metadata: Metadata = {
   category: "technology",
   keywords: [
     "startup traction",
+    "startup network map",
+    "startup social traction",
+    "YC network map",
+    "YC social traction",
+    "a16z network map",
+    "a16z social traction",
     "accelerator cohorts",
     "startup founders",
     "public startup data",
@@ -37,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: `${SITE_NAME} | Startup traction intelligence`,
+    title: `${SITE_NAME} | Startup network maps and social traction`,
     description: SITE_DESCRIPTION,
     url: siteUrl("/"),
     images: [
@@ -51,7 +57,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} | Startup traction intelligence`,
+    title: `${SITE_NAME} | Startup network maps and social traction`,
     description: SITE_DESCRIPTION,
     images: [siteUrl("/opengraph-image")]
   },
@@ -62,7 +68,10 @@ export const metadata: Metadata = {
     ],
     shortcut: "/favicon.ico?v=returner-3",
     apple: "/icon.png?v=returner-3"
-  }
+  },
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined
 };
 
 const poppins = Poppins({

@@ -798,6 +798,150 @@ test("mapped YouTube and Product Hunt URLs get direct account-attributed attempt
   }
 });
 
+test("official YC embeds and exact Product Hunt launch slugs recover unmapped native sources", async () => {
+  const cases = [{
+    company: "dayjob",
+    batch: "S2026",
+    platform: "youtube",
+    expectedUrl: "https://www.youtube.com/watch?v=GI2HtwWodpc",
+    fetchSource: `
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value.includes("youtube.com/oembed")) {
+    return new Response(JSON.stringify({ author_name: "Dayjob", author_url: "https://www.youtube.com/@dayjob" }), { status: 200 });
+  }
+  if (value === "https://www.youtube.com/watch?v=GI2HtwWodpc") {
+    return new Response('<script>{"videoDetails":{"videoId":"GI2HtwWodpc","title":"Dayjob launch","channelId":"UCdayjob123","author":"Dayjob","shortDescription":"Dayjob launch demo","viewCount":"302"},"likeCount":"3","publishDate":"2026-07-01"}</script>', { status: 200 });
+  }
+  if (value.includes("ycombinator.com/companies/dayjob")) {
+    return new Response('<iframe src="https://www.youtube-nocookie.com/embed/GI2HtwWodpc"></iframe>', { status: 200 });
+  }
+  return new Response('<html></html>', { status: 200 });
+};
+`
+  }, {
+    company: "lemonlime",
+    batch: "S26",
+    platform: "product_hunt",
+    expectedUrl: "https://www.producthunt.com/products/lemonlime/launches/lemonlime",
+    fetchSource: `
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value.includes("producthunt.com/products/lemonlime/launches/lemonlime")) {
+    return new Response('Title: LemonLime | Product Hunt\\nLemonLime automates workflows at lemonlime.ai. 180 upvotes 12 comments', { status: 200 });
+  }
+  return new Response('<html></html>', { status: 200 });
+};
+`
+  }];
+
+  for (const fixture of cases) {
+    const directory = await mkdtemp(join(tmpdir(), `returner-public-official-${fixture.platform}-`));
+    const output = join(directory, "public-evidence.json");
+    const checkpoint = join(directory, "checkpoint.json");
+    const discoveryAttempts = join(directory, "discovery-attempts.json");
+    const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+    const preload = join(directory, "mock-fetch.mjs");
+    await Promise.all([
+      writeFile(discoveryAttempts, "[]\n"),
+      writeFile(sourceDiscoveryPaths, "[]\n"),
+      writeFile(preload, fixture.fetchSource)
+    ]);
+    execFileSync(process.execPath, [
+      "scripts/fetch-public-traction.mjs",
+      `--batch=${fixture.batch}`,
+      `--company=${fixture.company}`,
+      `--platforms=${fixture.platform}`,
+      "--social=none",
+      "--workers=1",
+      "--delay-ms=0",
+      "--force",
+      `--output=${output}`,
+      `--checkpoint=${checkpoint}`,
+      `--discovery-attempts=${discoveryAttempts}`,
+      `--source-discovery-paths=${sourceDiscoveryPaths}`
+    ], {
+      cwd: root,
+      env: {
+        ...process.env,
+        X_BEARER_TOKEN: "",
+        EXA_API_KEY: "",
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+      },
+      stdio: "pipe"
+    });
+    const snapshot = JSON.parse(await readFile(output, "utf8"));
+    const row = snapshot.evidence.find((candidate) => candidate.sourceUrl === fixture.expectedUrl);
+    assert.ok(row, `${fixture.platform} official source was not accepted`);
+    assert.ok(Object.values(row.metrics).some((value) => Number(value) > 0));
+  }
+});
+
+test("official X recent search becomes exact mapped-owner evidence", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-x-api-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+globalThis.fetch = async (url, options = {}) => {
+  const value = String(url);
+  if (value.startsWith("https://api.x.com/2/tweets/search/recent")) {
+    if (options.headers.Authorization !== "Bearer test-x-token") throw new Error("missing bearer token");
+    return new Response(JSON.stringify({
+      data: [{
+        id: "1234567890123456789",
+        author_id: "42",
+        text: "Taxnova launch update",
+        created_at: "2026-07-22T10:00:00.000Z",
+        public_metrics: { impression_count: 500, like_count: 20, reply_count: 2, retweet_count: 3, quote_count: 1 }
+      }],
+      includes: { users: [{ id: "42", username: "taxnovaai", name: "Taxnova" }] },
+      meta: { result_count: 1 }
+    }), { status: 200 });
+  }
+  throw new Error("public-reader fallback should not run when the official X API returns evidence");
+};
+`)
+  ]);
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=A16ZSR006",
+    "--company=taxnova",
+    "--platforms=x",
+    "--social=company",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: {
+      ...process.env,
+      X_BEARER_TOKEN: "test-x-token",
+      EXA_API_KEY: "",
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+    },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const row = snapshot.evidence.find((candidate) => candidate.platformPostId === "1234567890123456789");
+  assert.ok(row);
+  assert.equal(row.entityId, "a16z-speedrun-006-taxnova");
+  assert.equal(row.authorHandle, "taxnovaai");
+  assert.equal(row.metrics.likes, 20);
+  assert.equal(row.attributionProvenance, "x_recent_search_exact_mapped_author_v1");
+  assert.equal(snapshot.source.credentialedDiscovery.x.successfulRequestCount, 1);
+});
+
 test("discovery ledgers keep identical cross-batch owner identities distinct", async () => {
   const idsByBatch = new Map();
   for (const batch of ["S2026", "S26"]) {

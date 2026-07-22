@@ -20,7 +20,7 @@ import {
 } from "@/lib/graph/graph-response-cache";
 import { datasetWithLiveEvidence, liveEvidenceCacheVersion } from "@/lib/graph/live-evidence-dataset";
 import { overlayLiveEvidenceOnGraph } from "@/lib/graph/live-evidence-overlay";
-import { POST_TOPIC_SLUGS, isPostTopic, type PostTopic } from "@/lib/graph/post-topics";
+import { POST_TOPIC_SLUGS, normalizePostTopic, type PostTopic } from "@/lib/graph/post-topics";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
 import { loadLiveEvidenceRecords } from "@/lib/ingestion/live-source-refresh";
@@ -96,10 +96,17 @@ const businessModelListSchema = commaSeparatedValuesSchema.pipe(
     .max(businessModels.length)
     .refine((values) => new Set(values).size === values.length, { message: "Values must be unique." })
 );
-const postTopicSchema = z.custom<PostTopic>(
-  (value) => typeof value === "string" && isPostTopic(value),
-  { message: `Must be one of: ${POST_TOPIC_SLUGS.join(", ")}.` }
-);
+const postTopicSchema = z.string().transform((value, context): PostTopic => {
+  const normalized = normalizePostTopic(value);
+  if (!normalized) {
+    context.addIssue({
+      code: "custom",
+      message: `Must be one of: ${POST_TOPIC_SLUGS.join(", ")}.`
+    });
+    return z.NEVER;
+  }
+  return normalized;
+});
 const companyVerticalSchema = z.custom<CompanyVertical>(
   (value) => typeof value === "string" && isCompanyVertical(value),
   { message: `Must be one of: ${COMPANY_VERTICALS.map(({ slug }) => slug).join(", ")}.` }
