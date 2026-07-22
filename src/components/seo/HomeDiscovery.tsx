@@ -40,7 +40,9 @@ export function HomeStructuredData() {
       hasPart: catalog.cohorts.map((cohort) => ({
         "@type": "Dataset",
         name: `${cohort.label} public startup traction data`,
+        description: `Public startup traction data for ${cohort.label}, covering ${cohort.companies.length} companies and ${cohort.evidenceCount.toLocaleString("en-US")} attributable evidence records.`,
         url: siteUrl(`/cohorts/${cohort.slug}`),
+        creator: { "@id": organizationId },
         size: `${cohort.companies.length} companies; ${cohort.evidenceCount} evidence records`
       }))
     },

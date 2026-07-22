@@ -307,7 +307,9 @@ function IntentStructuredData({
           hasPart: snapshot.cohorts.map((cohort) => ({
             "@type": "Dataset",
             name: `${cohort.label} public startup traction data`,
+            description: `Public startup traction data for ${cohort.label}, covering ${cohort.companies.length} companies and ${cohort.evidenceCount.toLocaleString("en-US")} attributable evidence records.`,
             url: siteUrl(`/cohorts/${cohort.slug}`),
+            creator: { "@type": "Organization", "@id": organizationId, name: SITE_NAME },
             dateModified: cohort.companies[0]?.graph.generatedAt ?? snapshot.generatedAt
           }))
         }

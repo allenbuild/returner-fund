@@ -119,11 +119,18 @@ describe("crawl metadata routes", () => {
 
   it("server-renders visible discovery links for every search-intent route", () => {
     const markup = renderToStaticMarkup(createElement(HomeStructuredData));
+    const jsonLdBlocks = [...markup.matchAll(/<script type="application\/ld\+json">([^<]+)<\/script>/g)]
+      .flatMap((match) => JSON.parse(match[1]) as Array<Record<string, unknown>>);
+    const dataset = jsonLdBlocks.find((item) => item["@type"] === "Dataset");
+    const cohortDatasets = dataset?.hasPart as Array<Record<string, unknown>>;
 
     expect(markup).toContain("Startup network maps and social traction rankings");
     for (const path of INTENT_PATHS) {
       expect(markup).toContain(`href="${path}"`);
     }
+    expect(cohortDatasets.length).toBe(getCatalog().cohorts.length);
+    expect(cohortDatasets.every((item) => typeof item.description === "string" && item.description.length > 0)).toBe(true);
+    expect(cohortDatasets.every((item) => typeof item.creator === "object" && item.creator !== null)).toBe(true);
   });
 
   it("links company rows only to generated primary-industry routes", () => {
@@ -166,6 +173,14 @@ describe("crawl metadata routes", () => {
           return false;
         }
       })).toBe(true);
+      const structuredData = jsonLdBlocks
+        .flatMap((match) => JSON.parse(match[1]) as Array<Record<string, unknown>>);
+      const dataset = structuredData.find((item) => item["@type"] === "Dataset");
+      const cohortDatasets = dataset?.hasPart as Array<Record<string, unknown>>;
+
+      expect(cohortDatasets.length).toBeGreaterThan(0);
+      expect(cohortDatasets.every((item) => typeof item.description === "string" && item.description.length > 0)).toBe(true);
+      expect(cohortDatasets.every((item) => typeof item.creator === "object" && item.creator !== null)).toBe(true);
     }
 
     expect(titles.size).toBe(pages.length);
