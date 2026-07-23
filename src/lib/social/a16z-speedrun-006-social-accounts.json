@@ -4111,11 +4111,11 @@
       "accounts": [
         {
           "platform": "linkedin",
-          "url": "https://www.linkedin.com/company/vereda-ia",
-          "handle": "vereda-ia",
+          "url": "https://www.linkedin.com/company/vereda.agro",
+          "handle": "vereda.agro",
           "verifiedFrom": "agent_verified_native_account",
-          "evidenceUrl": "https://www.linkedin.com/company/vereda-ia",
-          "matchReason": "Native social account found during A16Z Speedrun 006 profile audit.",
+          "evidenceUrl": "https://www.linkedin.com/company/vereda.agro",
+          "matchReason": "Current native LinkedIn company vanity verified from public company JSON-LD; the prior vereda-ia vanity resolves to the same Vereda entity, website, and founders.",
           "review_state": "verified"
         },
         {

@@ -1,0 +1,131 @@
+{
+  "source": {
+    "label": "Two-hour autonomous source hunt: manually adjudicated official YC-page YouTube embeds",
+    "generatedAt": "2026-07-23T02:30:00.000Z",
+    "batchSlug": "S2026",
+    "platformsCovered": [
+      "youtube"
+    ],
+    "notes": [
+      "Rows were originally conservatively sent to needs_review because of short or collision-prone names.",
+      "Manual review verified native ownership from the exact official YC embed plus exact channel/title/founder/product-description identity.",
+      "Surtr Defense Systems knoUepYwVmI was verified but excluded because it already exists in canonical targeted evidence."
+    ]
+  },
+  "evidence": [
+    {
+      "id": "youtube-company-intelligence-factory-www-youtube-com-watch-v-nhq7k4cj-24-intelligence-factory-launch-video",
+      "batchSlug": "S2026",
+      "entityType": "company",
+      "entityId": "company-intelligence-factory",
+      "companySlug": "intelligence-factory",
+      "companyName": "Intelligence Factory",
+      "platform": "youtube",
+      "title": "Intelligence Factory Launch Video",
+      "sourceUrl": "https://www.youtube.com/watch?v=NhQ7k4CJ_24",
+      "platformPostId": "NhQ7k4CJ_24",
+      "accountUrl": "https://www.youtube.com/channel/UCfg6h7swJCKjbLwlF7DO7Dg",
+      "authorName": "Yash",
+      "text": "Embedded in the official Intelligence Factory YC company page.",
+      "postedAt": "2026-05-29T22:09:11-07:00",
+      "metrics": {
+        "views": 573,
+        "likes": 6,
+        "comments": 0
+      },
+      "contributionScore": 0,
+      "youtubeChannelId": "UCfg6h7swJCKjbLwlF7DO7Dg",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCfg6h7swJCKjbLwlF7DO7Dg",
+      "youtubeChannelName": "Yash",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/intelligence-factory",
+      "rawVisibleText": {
+        "source": "manual_official_yc_embed_adjudication_v1",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/intelligence-factory",
+        "company": {
+          "name": "Intelligence Factory",
+          "slug": "intelligence-factory",
+          "entityId": "company-intelligence-factory"
+        },
+        "post": {
+          "platformPostId": "NhQ7k4CJ_24",
+          "title": "Intelligence Factory Launch Video",
+          "authorName": "Yash",
+          "authorUrl": "https://www.youtube.com/channel/UCfg6h7swJCKjbLwlF7DO7Dg",
+          "channelId": "UCfg6h7swJCKjbLwlF7DO7Dg",
+          "publishedAt": "2026-05-29T22:09:11-07:00"
+        },
+        "metrics": {
+          "views": 573,
+          "likes": 6,
+          "comments": 0
+        },
+        "verification": "The official YC company page embeds the native launch video; title exactly names Intelligence Factory and channel author Yash matches roster founder Yash Sinha."
+      },
+      "matchReason": "The official YC company page embeds the native launch video; title exactly names Intelligence Factory and channel author Yash matches roster founder Yash Sinha.",
+      "attributionProvenance": "manual_official_yc_embed_adjudication_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-05-29T22:09:11-07:00"
+    },
+    {
+      "id": "youtube-company-jo-www-youtube-com-watch-v-7u6vxyf44ri-jo-1-0-release",
+      "batchSlug": "S2026",
+      "entityType": "company",
+      "entityId": "company-jo",
+      "companySlug": "jo",
+      "companyName": "jo",
+      "platform": "youtube",
+      "title": "jo 1.0 release",
+      "sourceUrl": "https://www.youtube.com/watch?v=7u6vxYF44rI",
+      "platformPostId": "7u6vxYF44rI",
+      "accountUrl": "https://www.youtube.com/channel/UCG-YFKEiWil_9QqP8epSbqA",
+      "authorName": "jo",
+      "text": "TL;DR - jo is a personal AI that runs on your Mac and a private cloud machine we host for you. It knows your life, improves itself autonomously, chats via Telegram and WhatsApp, and never shares your data. Less \\\"chatbot\\\" and more \\\"a second brain that does things.\\\"",
+      "postedAt": "2026-03-01T17:10:53-08:00",
+      "metrics": {
+        "views": 842,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 0,
+      "youtubeChannelId": "UCG-YFKEiWil_9QqP8epSbqA",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCG-YFKEiWil_9QqP8epSbqA",
+      "youtubeChannelName": "jo",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/jo",
+      "rawVisibleText": {
+        "source": "manual_official_yc_embed_adjudication_v1",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/jo",
+        "company": {
+          "name": "jo",
+          "slug": "jo",
+          "entityId": "company-jo"
+        },
+        "post": {
+          "platformPostId": "7u6vxYF44rI",
+          "title": "jo 1.0 release",
+          "authorName": "jo",
+          "authorUrl": "https://www.youtube.com/channel/UCG-YFKEiWil_9QqP8epSbqA",
+          "channelId": "UCG-YFKEiWil_9QqP8epSbqA",
+          "publishedAt": "2026-03-01T17:10:53-08:00"
+        },
+        "metrics": {
+          "views": 842,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "The official YC company page embeds the native release video; channel, title, and full product description exactly match jo and its official product description."
+      },
+      "matchReason": "The official YC company page embeds the native release video; channel, title, and full product description exactly match jo and its official product description.",
+      "attributionProvenance": "manual_official_yc_embed_adjudication_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-03-01T17:10:53-08:00"
+    }
+  ]
+}

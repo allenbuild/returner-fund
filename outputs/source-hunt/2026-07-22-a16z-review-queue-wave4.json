@@ -1,0 +1,293 @@
+{
+  "source": {
+    "generatedAt": "2026-07-23T03:20:00.000Z",
+    "worker": "source_hunt_a16z",
+    "scope": "A16Z Speedrun 006 low-source LinkedIn review-queue reconciliation after wave 3",
+    "notes": [
+      "All rows are native posts from exact company handles in the canonical A16Z account map.",
+      "Positive reactions and comments were re-read from each public LinkedIn post page.",
+      "LinkedIn activity timestamps were decoded from the 64-bit activity identifiers."
+    ]
+  },
+  "evidence": [
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-belong",
+      "companyName": "Belong",
+      "companySlug": "belong",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/belongrewards_fan-powered-futures-shaping-the-future-of-activity-7462886557205778433-lKIa",
+      "platformPostId": "7462886557205778433",
+      "accountUrl": "https://www.linkedin.com/company/belongrewards",
+      "authorName": "Belong",
+      "authorHandle": "belongrewards",
+      "postedAt": "2026-05-20T15:26:48.965Z",
+      "title": "Belong is the membership platform for artists, athletes, creators, and fans",
+      "text": "Belong is the membership platform that lets artists, athletes, and creators issue their own card programs to their fans — unlocking a new revenue stream and recognizing and rewarding the people who power their careers.",
+      "metrics": { "reactions": 10, "comments": 0 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle belongrewards; the post explicitly describes Belong's membership product and has visible positive engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Belong",
+        "authorHandle": "belongrewards",
+        "followers": 1422,
+        "post": "Belong is the membership platform that lets artists, athletes, and creators issue their own card programs to their fans.",
+        "visibleMetrics": { "reactions": 10, "comments": 0 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-belong",
+      "companyName": "Belong",
+      "companySlug": "belong",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/belongrewards_powered-by-belong-built-for-fans-owned-activity-7464680007429402625-NrIl",
+      "platformPostId": "7464680007429402625",
+      "accountUrl": "https://www.linkedin.com/company/belongrewards",
+      "authorName": "Belong",
+      "authorHandle": "belongrewards",
+      "postedAt": "2026-05-25T14:13:20.819Z",
+      "title": "Powered by Belong. Built for fans. Owned by the artist.",
+      "text": "Powered by Belong. Built for fans. Owned by the artist.",
+      "metrics": { "reactions": 9, "comments": 0 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle belongrewards; the post explicitly names Belong and has visible positive engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Belong",
+        "authorHandle": "belongrewards",
+        "followers": 1422,
+        "post": "Powered by Belong. Built for fans. Owned by the artist.",
+        "visibleMetrics": { "reactions": 9, "comments": 0 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-coalition-systems",
+      "companyName": "Coalition Systems",
+      "companySlug": "coalition-systems",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/coalition-systems_the-front-line-of-the-ai-race-runs-through-activity-7481447117270720513-VpKL",
+      "platformPostId": "7481447117270720513",
+      "accountUrl": "https://www.linkedin.com/company/coalition-systems",
+      "authorName": "Coalition Systems",
+      "authorHandle": "coalition-systems",
+      "postedAt": "2026-07-10T20:39:51.323Z",
+      "title": "Great-Power Competition Runs Through Company Chat Logs",
+      "text": "The front lines of great-power competition no longer run only through government. Coalition Systems explains how sovereign, compartmented networks can protect organizations from nation-state adversaries.",
+      "metrics": { "reactions": 18, "comments": 1 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle coalition-systems; the post explicitly describes Coalition Systems' work and has visible positive engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Coalition Systems",
+        "authorHandle": "coalition-systems",
+        "followers": 643,
+        "post": "The front lines of great-power competition no longer run only through government. Closing the sovereign-network gap is the work at Coalition Systems.",
+        "visibleMetrics": { "reactions": 18, "comments": 1 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-crebit",
+      "companyName": "Crebit",
+      "companySlug": "crebit",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/crebit-pay_ribbit-activity-7436115728535011329-TY5R",
+      "platformPostId": "7436115728535011329",
+      "accountUrl": "https://www.linkedin.com/company/crebit-pay",
+      "authorName": "Crebit",
+      "authorHandle": "crebit-pay",
+      "postedAt": "2026-03-07T18:29:06.032Z",
+      "title": "Ribbit",
+      "text": "Ribbit. Crebit's frog mascot makes the fintech company memorable and gives its community a recognizable identity.",
+      "metrics": { "reactions": 16, "comments": 1 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle crebit-pay; the post is a Crebit brand post and has visible positive engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Crebit",
+        "authorHandle": "crebit-pay",
+        "followers": 2008,
+        "post": "Ribbit.",
+        "visibleMetrics": { "reactions": 16, "comments": 1 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-emanate",
+      "companyName": "Emanate",
+      "companySlug": "emanate",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/emanateai_this-week-our-founder-and-ceo-kiara-nirghin-activity-7473781897572163585-jacl",
+      "platformPostId": "7473781897572163585",
+      "accountUrl": "https://www.linkedin.com/company/emanateai",
+      "authorName": "Emanate",
+      "authorHandle": "emanateai",
+      "postedAt": "2026-06-19T17:01:00.534Z",
+      "title": "Emanate at the Global Steel Dynamics Forum",
+      "text": "Emanate founder and CEO Kiara Nirghin spoke at the Global Steel Dynamics Forum about applying frontier AI to America's industrial materials companies.",
+      "metrics": { "reactions": 11, "comments": 0 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle emanateai; the post explicitly names Emanate, its founder, and its industrial AI mission, with visible positive engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Emanate",
+        "authorHandle": "emanateai",
+        "followers": 285,
+        "post": "Our founder and CEO Kiara Nirghin took the stage at the Global Steel Dynamics Forum. Frontier AI has arrived in the physical economy.",
+        "visibleMetrics": { "reactions": 11, "comments": 0 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-quanto",
+      "companyName": "Quanto",
+      "companySlug": "quanto",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/quantohq_check-out-anderson-petergeorge-cpa-from-activity-7464669607526752256-BYeT",
+      "platformPostId": "7464669607526752256",
+      "accountUrl": "https://www.linkedin.com/company/quantohq",
+      "authorName": "Quanto",
+      "authorHandle": "quantohq",
+      "postedAt": "2026-05-25T13:32:01.289Z",
+      "title": "Quanto demonstrates a custom pricing calculator for accounting firms",
+      "text": "Quanto team member Anderson Petergeorge will demonstrate how accounting firms can build a custom pricing calculator from their existing pricing logic.",
+      "metrics": { "reactions": 1, "comments": 0 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle quantohq; the post explicitly names Quanto's team and product use case and has positive visible engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Quanto",
+        "authorHandle": "quantohq",
+        "followers": 1609,
+        "post": "Check out Anderson Petergeorge, CPA from the Quanto team presenting on how you can build a custom pricing calculator for your firm.",
+        "visibleMetrics": { "reactions": 1, "comments": 0 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-quanto",
+      "companyName": "Quanto",
+      "companySlug": "quanto",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/quantohq_we-are-here-in-new-york-representing-accountants-activity-7462096084169981952-7anU",
+      "platformPostId": "7462096084169981952",
+      "accountUrl": "https://www.linkedin.com/company/quantohq",
+      "authorName": "Quanto",
+      "authorHandle": "quantohq",
+      "postedAt": "2026-05-18T11:05:45.507Z",
+      "title": "Quanto represents accountants at the Deel pitch",
+      "text": "We are here in New York representing accountants at the Deel pitch!",
+      "metrics": { "reactions": 2, "comments": 0 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle quantohq; the post explicitly describes Quanto's team at the Deel pitch and has positive visible engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Quanto",
+        "authorHandle": "quantohq",
+        "followers": 1609,
+        "post": "We are here in New York representing accountants at the Deel pitch!",
+        "visibleMetrics": { "reactions": 2, "comments": 0 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-sentra",
+      "companyName": "Sentra",
+      "companySlug": "sentra",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/sentra-app_andrej-karpathy-co-founder-of-openai-now-activity-7470972243456454656-ygz4",
+      "platformPostId": "7470972243456454656",
+      "accountUrl": "https://www.linkedin.com/company/sentra-app",
+      "authorName": "Sentra",
+      "authorHandle": "sentra-app",
+      "postedAt": "2026-06-11T22:56:26.792Z",
+      "title": "Agent memory and organizational memory are the same problem",
+      "text": "Every conversation starts at zero tokens. Agent memory and organizational memory are the same problem. Sentra is solving that exact problem.",
+      "metrics": { "reactions": 9, "comments": 0 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle sentra-app; the post explicitly explains Sentra's organizational-memory product and has visible positive engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Sentra",
+        "authorHandle": "sentra-app",
+        "followers": 2418,
+        "post": "Agent memory and organizational memory are the same problem. We are solving that exact problem at Sentra.",
+        "visibleMetrics": { "reactions": 9, "comments": 0 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-variantnow",
+      "companyName": "VariantNow",
+      "companySlug": "variantnow",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/variantnow_bar-karako-has-joined-variant-as-our-new-activity-7483524825806876674-R2_f",
+      "platformPostId": "7483524825806876674",
+      "accountUrl": "https://www.linkedin.com/company/variantnow",
+      "authorName": "Variant",
+      "authorHandle": "variantnow",
+      "postedAt": "2026-07-16T14:15:55.640Z",
+      "title": "Bar Karako joins Variant as CRO Expert",
+      "text": "Bar Karako has joined Variant as our new CRO Expert. This is great news for anyone who wants their pages to convert better.",
+      "metrics": { "reactions": 28, "comments": 13 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle variantnow; the post announces a Variant team member and has visible positive engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Variant",
+        "authorHandle": "variantnow",
+        "followers": 1786,
+        "post": "Bar Karako has joined Variant as our new CRO Expert. Welcome to the team Bar.",
+        "visibleMetrics": { "reactions": 28, "comments": 13 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-zerodrift",
+      "companyName": "ZeroDrift",
+      "companySlug": "zerodrift",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/zerodrift_were-thrilled-to-welcome-halley-young-to-activity-7483561828111925249-QVwy",
+      "platformPostId": "7483561828111925249",
+      "accountUrl": "https://www.linkedin.com/company/zerodrift",
+      "authorName": "ZeroDrift",
+      "authorHandle": "zerodrift",
+      "postedAt": "2026-07-16T16:42:57.677Z",
+      "title": "Halley Young joins ZeroDrift as Founding AI Research Scientist",
+      "text": "We're thrilled to welcome Halley Young to ZeroDrift as our Founding AI Research Scientist. Halley joins from Microsoft AI and previously DeepMind.",
+      "metrics": { "reactions": 23, "comments": 4 },
+      "matchReason": "Native company post from exact canonical LinkedIn handle zerodrift; the post announces a ZeroDrift research hire and has visible positive engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "ZeroDrift",
+        "authorHandle": "zerodrift",
+        "followers": 2540,
+        "post": "We're thrilled to welcome Halley Young to ZeroDrift as our Founding AI Research Scientist!",
+        "visibleMetrics": { "reactions": 23, "comments": 4 }
+      },
+      "review_state": "verified"
+    }
+  ],
+  "quarantines": [
+    {
+      "companyName": "Kaaro",
+      "sourceUrl": "https://www.linkedin.com/posts/kaaro-ai_super-excited-to-be-here-activity-7430369815883763712-A87A",
+      "reason": "Exact native company post and company-relevant text, but the public page exposed no positive supported engagement metric."
+    },
+    {
+      "companyName": "Advocate",
+      "reason": "Re-audited exact founder LinkedIn profile plus company site and indexed posts; no native company-relevant post with visible positive metrics was exposed."
+    },
+    {
+      "companyName": "August",
+      "reason": "Re-audited both founders' LinkedIn/X accounts; only a positive-metric Bar Ittah post about Erebor was found and rejected as off-company."
+    },
+    {
+      "companyName": "PayPath",
+      "reason": "Re-audited the exact company LinkedIn page and three founders' LinkedIn/X accounts; no native PayPath post with visible positive metrics was exposed."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-07-23T03:15:00.000Z",
+  "target": "src/lib/social/targeted-evidence-current.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-22-spring-native-upgrades-wave3.json"
+  ],
+  "before": 1320,
+  "received": 28,
+  "accepted": 28,
+  "updated": 0,
+  "duplicates": 0,
+  "duplicateRows": [],
+  "includedBatches": [],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 1348
+}

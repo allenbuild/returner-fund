@@ -1,0 +1,324 @@
+{
+  "source": {
+    "generatedAt": "2026-07-23T02:30:00.000Z",
+    "worker": "source_hunt_a16z",
+    "scope": "Post-wave-1 A16Z Speedrun 006 native X review-queue reconciliation",
+    "notes": [
+      "Contains only novel rows absent from the 351-row accepted A16Z evidence set.",
+      "Every row is a native owner or exact canonical founder post with positive public engagement metrics.",
+      "The previously imported Quo Labs post 1961702125249204259 is intentionally excluded."
+    ]
+  },
+  "evidence": [
+    {
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-quo-labs-founder-jenny-wen",
+      "companyName": "Quo Labs",
+      "companySlug": "quo-labs",
+      "founderName": "Jenny Wen",
+      "platform": "x",
+      "sourceUrl": "https://x.com/imjennywen/status/2041619066776121749",
+      "platformPostId": "2041619066776121749",
+      "accountUrl": "https://x.com/imjennywen",
+      "authorName": "jenny 🍞",
+      "authorHandle": "imjennywen",
+      "postedAt": "2026-04-07T20:48:11.624Z",
+      "title": "I just built a smart caretaker for my grandma",
+      "text": "i just built a smart caretaker for my grandma\n\neveryone go check it out",
+      "metrics": {
+        "views": 8289,
+        "likes": 56,
+        "replies": 4,
+        "reposts": 2,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "matchReason": "Native X post by Jenny Wen's exact canonical founder handle imjennywen. Her public profile identifies her as founder of @quolabsai, and the caretaker product is Quo Labs' Sam.",
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "endpoint": "https://api.fxtwitter.com/imjennywen/status/2041619066776121749",
+        "profile": {
+          "name": "jenny 🍞",
+          "handle": "imjennywen",
+          "description": "18, founder @quolabsai, backed by @a16z @speedrun @fdotinc • incoming @columbia",
+          "website": "http://withsam.com"
+        },
+        "post": {
+          "id": "2041619066776121749",
+          "createdAt": "2026-04-07T20:48:11.624Z",
+          "text": "i just built a smart caretaker for my grandma\n\neveryone go check it out"
+        },
+        "counts": {
+          "views": 8289,
+          "likes": 56,
+          "replies": 4,
+          "reposts": 2,
+          "quotes": 0,
+          "bookmarks": 2
+        }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-quo-labs-founder-audrey-lo",
+      "companyName": "Quo Labs",
+      "companySlug": "quo-labs",
+      "founderName": "Audrey Lo",
+      "platform": "x",
+      "sourceUrl": "https://x.com/audrlo/status/2041617908418408753",
+      "platformPostId": "2041617908418408753",
+      "accountUrl": "https://x.com/audrlo",
+      "authorName": "Audrey",
+      "authorHandle": "audrlo",
+      "postedAt": "2026-04-07T20:43:35.450Z",
+      "title": "Introducing Sam, the first AI caretaker for seniors",
+      "text": "I just built a device to keep my grandma safe.\n\nIntroducing Sam, the first AI caretaker for seniors.\n\nIt talks to your senior, monitors their cognitive health, and lets you know if something's wrong.\n\nIf you want one for your grandma...\n\nComment \"SAM\" and we'll send you one.",
+      "metrics": {
+        "views": 75904,
+        "likes": 766,
+        "replies": 179,
+        "reposts": 81,
+        "quotes": 19,
+        "bookmarks": 261
+      },
+      "matchReason": "Native X product-launch post by Audrey Lo's exact canonical founder handle audrlo. Her profile identifies her as founder and CEO of quolabs.ai, and the post launches Quo Labs' Sam product.",
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "endpoint": "https://api.fxtwitter.com/audrlo/status/2041617908418408753",
+        "profile": {
+          "name": "Audrey",
+          "handle": "audrlo",
+          "description": "founder & ceo http://quolabs.ai",
+          "website": "http://quolabs.ai"
+        },
+        "post": {
+          "id": "2041617908418408753",
+          "createdAt": "2026-04-07T20:43:35.450Z",
+          "text": "I just built a device to keep my grandma safe. Introducing Sam, the first AI caretaker for seniors."
+        },
+        "counts": {
+          "views": 75904,
+          "likes": 766,
+          "replies": 179,
+          "reposts": 81,
+          "quotes": 19,
+          "bookmarks": 261
+        }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-sentra",
+      "companyName": "Sentra",
+      "companySlug": "sentra",
+      "platform": "x",
+      "sourceUrl": "https://x.com/sentra_app/status/2067027090600579566",
+      "platformPostId": "2067027090600579566",
+      "accountUrl": "https://x.com/sentra_app",
+      "authorName": "Sentra",
+      "authorHandle": "sentra_app",
+      "postedAt": "2026-06-16T23:30:36.562Z",
+      "title": "We beat Mythos and Fable 5 in under 36 hours",
+      "text": "We beat Mythos and Fable 5 in <36 hours. Sentra's Code Memory scored 88.31%, ahead of Fable 5 and Mythos 5, while reducing cost and token use.",
+      "metrics": {
+        "views": 1434,
+        "likes": 3,
+        "replies": 0,
+        "reposts": 1,
+        "quotes": 0,
+        "bookmarks": 2
+      },
+      "matchReason": "Native post from the exact verified Sentra company account sentra_app. The profile links sentra.app and the post reports Sentra product benchmark results.",
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "endpoint": "https://api.fxtwitter.com/sentra_app/status/2067027090600579566",
+        "profile": {
+          "name": "Sentra",
+          "handle": "sentra_app",
+          "description": "Your Organization's Memory System",
+          "website": "http://sentra.app"
+        },
+        "post": {
+          "id": "2067027090600579566",
+          "createdAt": "2026-06-16T23:30:36.562Z",
+          "text": "We beat Mythos and Fable 5 in <36 hours. There's been endless hype around Mythos' capabilities since its announcement. We took GPT-5.5 and gave it Sentra's Code Memory. The result: 88.31%, 3.65x cheaper, cost down 72.6%, tokens down 41.2%."
+        },
+        "counts": {
+          "views": 1434,
+          "likes": 3,
+          "replies": 0,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 2
+        }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-syncere-founder-aaron-tan",
+      "companyName": "Syncere",
+      "companySlug": "syncere",
+      "founderName": "Aaron Tan",
+      "platform": "x",
+      "sourceUrl": "https://x.com/aaronistan/status/2041909335220220252",
+      "platformPostId": "2041909335220220252",
+      "accountUrl": "https://x.com/aaronistan",
+      "authorName": "Aaron Tan",
+      "authorHandle": "aaronistan",
+      "postedAt": "2026-04-08T16:01:37.014Z",
+      "title": "Introducing Lume, a lamp that does your chores",
+      "text": "Introducing Lume.\n\nA lamp that does your chores.\n\nOrder now. Shipping this summer.",
+      "metrics": {
+        "views": 1341537,
+        "likes": 2549,
+        "replies": 451,
+        "reposts": 168,
+        "quotes": 329,
+        "bookmarks": 1259
+      },
+      "matchReason": "Native Syncere product-launch post by Aaron Tan's exact canonical founder handle aaronistan. His profile states CEO @bySyncere and links syncere.com.",
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "endpoint": "https://api.fxtwitter.com/aaronistan/status/2041909335220220252",
+        "profile": {
+          "name": "Aaron Tan",
+          "handle": "aaronistan",
+          "description": "ceo @bySyncere | prev. @Stanford @UofT phd",
+          "website": "https://syncere.com"
+        },
+        "post": {
+          "id": "2041909335220220252",
+          "createdAt": "2026-04-08T16:01:37.014Z",
+          "text": "Introducing Lume. A lamp that does your chores. Order now. Shipping this summer."
+        },
+        "counts": {
+          "views": 1341537,
+          "likes": 2549,
+          "replies": 451,
+          "reposts": 168,
+          "quotes": 329,
+          "bookmarks": 1259
+        }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-syncere-founder-aaron-tan",
+      "companyName": "Syncere",
+      "companySlug": "syncere",
+      "founderName": "Aaron Tan",
+      "platform": "x",
+      "sourceUrl": "https://x.com/aaronistan/status/1949862617872478664",
+      "platformPostId": "1949862617872478664",
+      "accountUrl": "https://x.com/aaronistan",
+      "authorName": "Aaron Tan",
+      "authorHandle": "aaronistan",
+      "postedAt": "2025-07-28T16:00:49.453Z",
+      "title": "Introducing Lume, the robotic lamp",
+      "text": "Introducing Lume, the robotic lamp.\n\nThe first robot designed to fit naturally into your home and help with chores, starting with laundry folding.\n\nIf you’re looking for help and want to avoid the privacy and safety concerns of humanoids in your home, pre-order now.",
+      "metrics": {
+        "views": 4184686,
+        "likes": 6550,
+        "replies": 1721,
+        "reposts": 402,
+        "quotes": 1844,
+        "bookmarks": 3539
+      },
+      "matchReason": "Native Syncere Lume launch post by Aaron Tan's exact canonical founder handle aaronistan. His profile states CEO @bySyncere and links syncere.com.",
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "endpoint": "https://api.fxtwitter.com/aaronistan/status/1949862617872478664",
+        "profile": {
+          "name": "Aaron Tan",
+          "handle": "aaronistan",
+          "description": "ceo @bySyncere | prev. @Stanford @UofT phd",
+          "website": "https://syncere.com"
+        },
+        "post": {
+          "id": "1949862617872478664",
+          "createdAt": "2025-07-28T16:00:49.453Z",
+          "text": "Introducing Lume, the robotic lamp. The first robot designed to fit naturally into your home and help with chores, starting with laundry folding."
+        },
+        "counts": {
+          "views": 4184686,
+          "likes": 6550,
+          "replies": 1721,
+          "reposts": 402,
+          "quotes": 1844,
+          "bookmarks": 3539
+        }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-syncere-founder-angus-fung",
+      "companyName": "Syncere",
+      "companySlug": "syncere",
+      "founderName": "Angus Fung",
+      "platform": "x",
+      "sourceUrl": "https://x.com/angus_fung/status/2041935135671718371",
+      "platformPostId": "2041935135671718371",
+      "accountUrl": "https://x.com/angus_fung",
+      "authorName": "Angus Fung",
+      "authorHandle": "angus_fung",
+      "postedAt": "2026-04-08T17:44:08.321Z",
+      "title": "Lume bridges the gap between the lab and the living room",
+      "text": "Lume bridges the gap between the lab and the living room. Proud of the team for making the future feel this seamless.",
+      "metrics": {
+        "views": 1489,
+        "likes": 18,
+        "replies": 2,
+        "reposts": 3,
+        "quotes": 0,
+        "bookmarks": 0
+      },
+      "matchReason": "Native Syncere product post by Angus Fung's exact canonical founder handle angus_fung. His profile states CTO @bySyncere and links syncere.com.",
+      "rawVisibleText": {
+        "source": "fxtwitter_public_post_json",
+        "endpoint": "https://api.fxtwitter.com/angus_fung/status/2041935135671718371",
+        "profile": {
+          "name": "Angus Fung",
+          "handle": "angus_fung",
+          "description": "CTO @bySyncere | Prev. Robotics PhD @UofT",
+          "website": "http://syncere.com"
+        },
+        "post": {
+          "id": "2041935135671718371",
+          "createdAt": "2026-04-08T17:44:08.321Z",
+          "text": "Lume bridges the gap between the lab and the living room. Proud of the team for making the future feel this seamless."
+        },
+        "counts": {
+          "views": 1489,
+          "likes": 18,
+          "replies": 2,
+          "reposts": 3,
+          "quotes": 0,
+          "bookmarks": 0
+        }
+      },
+      "review_state": "verified"
+    }
+  ],
+  "quarantines": [
+    {
+      "companyName": "Syncere",
+      "sourceUrl": "https://x.com/aaronistan/status/2065462687346352624",
+      "reason": "Exact founder account and positive metrics, but the post text is only 'Lume in NYC'; held out under strict semantic relevance review."
+    },
+    {
+      "companyName": "August",
+      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7431773361053257728",
+      "reason": "Exact founder post with positive metrics, but it discusses Erebor and a new bank rather than August."
+    },
+    {
+      "companyName": "Hotbox",
+      "sourceUrl": "https://x.com/hardiksirohi/status/1682165101867175936",
+      "reason": "Exact founder account, but the 2023 post concerns United luggage and an AI agent rather than Hotbox."
+    }
+  ]
+}

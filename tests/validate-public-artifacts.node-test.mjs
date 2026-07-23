@@ -11,6 +11,7 @@ import {
   collectCanonicalGraphSetViolations,
   collectGraphArtifactViolations,
   collectHistoryArtifactViolations,
+  nativeEvidenceIdentityFromUrl,
   runPublicArtifactValidationCli,
   validatePublicArtifacts
 } from "../scripts/validate-public-artifacts.mjs";
@@ -129,6 +130,23 @@ test("detects duplicate native posts across URL aliases and explicit identity co
   duplicate.platformPostId = "999999999999999999";
   const conflicted = collectGraphArtifactViolations(graph, descriptor).join("\n");
   assert.match(conflicted, /conflicting x native identities/);
+});
+
+test("accepts locale LinkedIn hosts but rejects lookalike domains", () => {
+  const postPath = "/posts/vereda.agro_launch-activity-7485423404670521345-HjKU";
+
+  assert.equal(
+    nativeEvidenceIdentityFromUrl("linkedin", `https://pt.linkedin.com${postPath}`),
+    "7485423404670521345"
+  );
+  assert.equal(
+    nativeEvidenceIdentityFromUrl("linkedin", `https://regional.pt.linkedin.com${postPath}`),
+    "7485423404670521345"
+  );
+  assert.equal(
+    nativeEvidenceIdentityFromUrl("linkedin", `https://pt.linkedin.com.evil.example${postPath}`),
+    null
+  );
 });
 
 test("enforces canonical materialized account lineage and preserves explicit null lineage", () => {

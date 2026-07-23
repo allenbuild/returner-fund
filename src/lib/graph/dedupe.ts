@@ -166,7 +166,7 @@ export function nativeEvidenceIdentityFromUrl(
     }
 
     if (platform === "linkedin") {
-      if (!hostIs(host, "linkedin.com", "m.linkedin.com")) return null;
+      if (!hostIsDomainOrSubdomain(host, "linkedin.com")) return null;
       const feedId = path.match(/^\/feed\/update\/urn:li:activity:(\d+)$/i)?.[1];
       if (feedId) return feedId;
       const postSegment = path.match(/^\/posts\/([^/]+)$/i)?.[1];
@@ -439,6 +439,10 @@ function normalizedPath(url: URL): string {
 
 function hostIs(host: string, ...allowed: string[]): boolean {
   return allowed.includes(host);
+}
+
+function hostIsDomainOrSubdomain(host: string, domain: string): boolean {
+  return host === domain || host.endsWith(`.${domain}`);
 }
 
 function validObjectId(value: string | null): string | null {

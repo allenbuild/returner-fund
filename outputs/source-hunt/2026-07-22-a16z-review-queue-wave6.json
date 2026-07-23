@@ -1,0 +1,165 @@
+{
+  "source": {
+    "generatedAt": "2026-07-23T04:15:00.000Z",
+    "worker": "source_hunt_a16z",
+    "scope": "A16Z Speedrun 006 final anonymous-vanity LinkedIn collector reconciliation after wave 5",
+    "notes": [
+      "Every accepted row is a native LinkedIn activity page owned by the mapped company account or an exact canonical founder account.",
+      "All accepted rows contain explicit company or product context and positive visible engagement metrics.",
+      "Third-party authors, off-company founder posts, and owner posts without visible positive metrics remain quarantined."
+    ]
+  },
+  "evidence": [
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-cascade",
+      "companyName": "Cascade",
+      "companySlug": "cascade",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7478838142519709696-l8Ih",
+      "platformPostId": "7478838142519709696",
+      "accountUrl": "https://www.linkedin.com/company/use-cascade",
+      "authorName": "Cascade",
+      "authorHandle": "use-cascade",
+      "postedAt": "2026-07-03T15:52:43.270Z",
+      "title": "Cities built with AI: Cascade's AEC predictions",
+      "text": "The data center and AI infrastructure boom is rewriting how cities get built. At Cascade, we're excited to be part of the conversation by helping AEC firms predict the future. Proud to have our CEO Hannia Zia joining the lineup in Nashville.",
+      "metrics": { "reactions": 5, "comments": 1 },
+      "matchReason": "Native post authored by Cascade's exact mapped LinkedIn company page use-cascade. The post names Cascade, describes its AEC prediction product, and identifies canonical founder and CEO Hannia Zia.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Cascade",
+        "authorHandle": "use-cascade",
+        "followers": 1077,
+        "post": "The data center + AI infrastructure boom is rewriting how cities get built. At Cascade, we're excited to be part of the conversation by helping AEC firms predict the future. Proud to have our CEO Hannia Zia joining the lineup in Nashville.",
+        "visibleMetrics": { "reactions": 5, "comments": 1 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
+      "companyName": "Kaaro",
+      "companySlug": "kaaro",
+      "founderName": "Sai Surisetti",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7430369144849645568-KgmS",
+      "platformPostId": "7430369144849645568",
+      "accountUrl": "https://www.linkedin.com/in/saisrikar-surisetti",
+      "authorName": "Sai Surisetti",
+      "authorHandle": "saisrikar-surisetti",
+      "postedAt": "2026-02-19T21:54:13.715Z",
+      "title": "Kaaro at the REMSA Showcase",
+      "text": "Kaaro is in Omaha tonight at the REMSA Showcase during North American Maintenance Railway Club's Union Pacific Railroad Night. Swing by our booth to see our AI in action and enter our raffle.",
+      "metrics": { "reactions": 56, "comments": 1 },
+      "matchReason": "Native post from exact canonical Kaaro founder Sai Surisetti's mapped LinkedIn account. It explicitly promotes Kaaro's AI product demonstration at an industry showcase.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Sai Surisetti",
+        "authorHandle": "saisrikar-surisetti",
+        "followers": 2261,
+        "post": "Kaaro is in Omaha tonight at the REMSA Showcase during North American Maintenance Railway Club's Union Pacific Railroad Night! Swing by our booth to see our AI in action and enter our raffle.",
+        "visibleMetrics": { "reactions": 56, "comments": 1 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+      "companyName": "SUN",
+      "companySlug": "sun",
+      "founderName": "Artin Bogdanov",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7463380642387505152-2_iF",
+      "platformPostId": "7463380642387505152",
+      "accountUrl": "https://www.linkedin.com/in/artinbogdanov",
+      "authorName": "Artin Bogdanov",
+      "authorHandle": "artinbogdanov",
+      "postedAt": "2026-05-22T00:10:08.052Z",
+      "title": "SUN ranks first in blind AI audio benchmark",
+      "text": "Our Science Team ran a blind benchmark comparing four AI audio generation pipelines: NotebookLM, Spotify's Save-to-Spotify workflow, and two SUN pipelines. SUN ranked number one overall. The benchmark compared quality, engagement, learning, production, and safety under the same source material and evaluation protocol.",
+      "metrics": { "reactions": 39, "comments": 9 },
+      "matchReason": "Native post from exact canonical SUN founder Artin Bogdanov's mapped LinkedIn account. The post explicitly reports SUN product benchmark results and methodology.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Artin Bogdanov",
+        "authorHandle": "artinbogdanov",
+        "followers": 6652,
+        "post": "Our Science Team ran a blind benchmark comparing four AI audio generation pipelines: NotebookLM, Spotify's Save-to-Spotify workflow, and two SUN pipelines. SUN ranked #1 overall.",
+        "visibleMetrics": { "reactions": 39, "comments": 9 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "a16z-speedrun-006-sparta-founder-arya-kanna",
+      "companyName": "Sparta",
+      "companySlug": "sparta",
+      "founderName": "Arya Kanna",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7432518722747117568-RaOQ",
+      "platformPostId": "7432518722747117568",
+      "accountUrl": "https://www.linkedin.com/in/arya-kanna",
+      "authorName": "Arya Kanna",
+      "authorHandle": "arya-kanna",
+      "postedAt": "2026-02-25T20:15:53.023Z",
+      "title": "From script to signal: Sparta has evolved",
+      "text": "When we first started Sparta, our branding reflected where we began. From script to signal, Sparta has evolved. We are building intelligent data delivery for high-throughput AI, streaming, and cloud infrastructure.",
+      "metrics": { "reactions": 178, "comments": 15 },
+      "matchReason": "Native post from exact canonical Sparta founder Arya Kanna's mapped LinkedIn account. The post explicitly describes Sparta's evolution and current intelligent data-delivery product.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_page",
+        "author": "Arya Kanna",
+        "authorHandle": "arya-kanna",
+        "followers": 3213,
+        "post": "When we first started Sparta, our branding reflected where we began. From script to signal. Sparta has evolved. We are building intelligent data delivery for high-throughput AI, streaming, and cloud infrastructure.",
+        "visibleMetrics": { "reactions": 178, "comments": 15 }
+      },
+      "review_state": "verified"
+    }
+  ],
+  "quarantines": [
+    {
+      "companyName": "Acceler8",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7434784959380279296-_eDM",
+      "platformPostId": "7434784959380279296",
+      "reason": "Verified exact founder post, but already present in canonical evidence under the same LinkedIn platform post ID; excluded from this net-new wave."
+    },
+    {
+      "companyName": "Quanto",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7472288456753319938-PAXn",
+      "platformPostId": "7472288456753319938",
+      "reason": "Exact founder owner and positive engagement, but the visible post discusses an accounting conference and generic Claude setup without naming Quanto or a distinctive Quanto product; insufficient company-subject attribution."
+    },
+    {
+      "companyName": "Kaaro",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7426611105759711232-oshk",
+      "platformPostId": "7426611105759711232",
+      "reason": "Exact founder owner and positive engagement, but the post only discusses a Canadian Railway Club gala and does not mention Kaaro or its product."
+    },
+    {
+      "companyName": "Kaaro",
+      "sourceUrl": "https://www.linkedin.com/posts/kaaro-ai_super-excited-to-be-here-activity-7430369815883763712-A87A",
+      "platformPostId": "7430369815883763712",
+      "reason": "Exact mapped company owner, but no positive visible engagement metric was exposed on the public page."
+    },
+    {
+      "companyName": "Sentra",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7462188171846389760-wGDf",
+      "platformPostId": "7462188171846389760",
+      "reason": "The author Andrew Song is not a mapped Sentra company or founder account; third-party or employee attribution is ineligible."
+    },
+    {
+      "companyName": "ZeroDrift",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7483490625833799680-GVT_",
+      "platformPostId": "7483490625833799680",
+      "reason": "The author TechNadu is a third-party publication, not the mapped ZeroDrift company or founder account."
+    },
+    {
+      "companyName": "SUN",
+      "sourceUrl": "https://www.linkedin.com/posts/activity-7466773705113772032-Tj3j",
+      "platformPostId": "7466773705113772032",
+      "reason": "The author Best AI Tools Finder is a third-party page, not the mapped SUN company or founder account."
+    }
+  ]
+}

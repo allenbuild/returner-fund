@@ -1,0 +1,1707 @@
+{
+  "generatedAt": "2026-07-23T04:02:00.000Z",
+  "scope": {
+    "batchSlug": "S2026",
+    "wave": 3,
+    "platforms": [
+      "linkedin"
+    ],
+    "purpose": "Third-pass remaining-zero audit and exact native upgrade of low-source public needs-review candidates; isolated strict handoff only"
+  },
+  "accepted": [
+    {
+      "entityType": "founder",
+      "entityId": "founder-andco-michael-lemm-1161905",
+      "companyEntityId": "company-andco",
+      "companyName": "Andco",
+      "companySlug": "andco",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/michael-s-lemm_one-of-the-hardest-tensions-in-early-stage-activity-7483312793618833408-p51L",
+      "platformPostId": "7483312793618833408",
+      "accountUrl": "https://www.linkedin.com/in/michael-s-lemm",
+      "authorName": "Michael Lemm",
+      "authorHandle": "michael-s-lemm",
+      "title": "One of the hardest tensions in early-stage building is speed vs.",
+      "text": "One of the hardest tensions in early-stage building is speed vs. scope.\n\nEvery week at Andco, there's a pull to build the ocean. We talk to new law firms and get requests for every workflow a plaintiff firm could ever want - records, bills, liens, claims, seo, marketing, all of it.\n\nThat vision is right. It's definitely where we're headed. But it's not what wins.\n\nWhat wins is shipping absolute killer features. The one thing that makes a managing partner stop mid-demo and say \"wait, that's all we have to do?\" The feature that saves a case manager 8+ hours on a single file. That's what gets us in the door, gets us referred, and gets us renewed.\n\nSo we've been forcing ourselves into a discipline here early on: ship the sharp thing first. Let the platform emerge from a stack of features firms cannot imagine living without.",
+      "postedAt": "2026-07-16T00:13:23.203Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 24,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Michael Lemm",
+          "username": "michael-s-lemm",
+          "url": "https://www.linkedin.com/in/michael-s-lemm",
+          "canonicalEntityId": "founder-andco-michael-lemm-1161905"
+        },
+        "post": {
+          "authorName": "Michael Lemm",
+          "authorHandle": "michael-s-lemm",
+          "activityId": "7483312793618833408",
+          "publishedAt": "2026-07-16T00:13:23.203Z",
+          "originalBody": "One of the hardest tensions in early-stage building is speed vs. scope.\n\nEvery week at Andco, there's a pull to build the ocean. We talk to new law firms and get requests for every workflow a plaintiff firm could ever want - records, bills, liens, claims, seo, marketing, all of it.\n\nThat vision is right. It's definitely where we're headed. But it's not what wins.\n\nWhat wins is shipping absolute killer features. The one thing that makes a managing partner stop mid-demo and say \"wait, that's all we have to do?\" The feature that saves a case manager 8+ hours on a single file. That's what gets us in the door, gets us referred, and gets us renewed.\n\nSo we've been forcing ourselves into a discipline here early on: ship the sharp thing first. Let the platform emerge from a stack of features firms cannot imagine living without.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 24,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Andco founder Michael Lemm; original body explicitly attributes or substantively describes Andco, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-16T00:13:23.203Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-aseon-labs-dan-keene-2699748",
+      "companyEntityId": "company-aseon-labs",
+      "companyName": "Aseon Labs",
+      "companySlug": "aseon-labs",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/dancbkeene_robotaxi-pit-stops-could-pop-up-near-you-activity-7481794330874138624-Ti0m",
+      "platformPostId": "7481794330874138624",
+      "accountUrl": "https://www.linkedin.com/in/dancbkeene",
+      "authorName": "Dan Keene",
+      "authorHandle": "dancbkeene",
+      "title": "Great to see Fox News Media feature Aseon Labs and the future of autonomous infrastructure.",
+      "text": "Great to see Fox News Media feature Aseon Labs and the future of autonomous infrastructure. \n\nAutonomous vehicles are only half the equation.\n\nThe infrastructure that keeps them operating 24/7 is the other half.\n\n👀👇\n\nhttps://lnkd.in/dnnbutuH",
+      "postedAt": "2026-07-11T19:39:33.478Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 37,
+        "comments": 6
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Dan Keene",
+          "username": "dancbkeene",
+          "url": "https://www.linkedin.com/in/dancbkeene",
+          "canonicalEntityId": "founder-aseon-labs-dan-keene-2699748"
+        },
+        "post": {
+          "authorName": "Dan Keene",
+          "authorHandle": "dancbkeene",
+          "activityId": "7481794330874138624",
+          "publishedAt": "2026-07-11T19:39:33.478Z",
+          "originalBody": "Great to see Fox News Media feature Aseon Labs and the future of autonomous infrastructure. \n\nAutonomous vehicles are only half the equation.\n\nThe infrastructure that keeps them operating 24/7 is the other half.\n\n👀👇\n\nhttps://lnkd.in/dnnbutuH",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 37,
+          "comments": 6
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Aseon Labs founder Dan Keene; original body explicitly attributes or substantively describes Aseon Labs, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-11T19:39:33.478Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-complir-gustav-bang-1829555",
+      "companyEntityId": "company-complir",
+      "companyName": "Complir",
+      "companySlug": "complir",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/gustavbangn_complir-is-hiring-a-head-of-germany-activity-7483505210909306880-jPY_",
+      "platformPostId": "7483505210909306880",
+      "accountUrl": "https://www.linkedin.com/in/gustavbangn",
+      "authorName": "Gustav Bang",
+      "authorHandle": "gustavbangn",
+      "title": "🇩🇪 Complir is hiring a Head of Germany to double down on the largest consumer market in Europe.",
+      "text": "🇩🇪 Complir is hiring a Head of Germany to double down on the largest consumer market in Europe.\n\nThis is a selling job before it's anything else. Your own pipeline, full sales cycle, founders backing every deal.\n\nWe're YC-backed, growing fast, and looking for someone who wants ownership from day one.\n\nIf you're wondering about the picture - before Demo Day, we didn't cold-email our way into San Francisco retailers. We hand-wrote invitations, drove them across the city, and dropped them off ourselves, at their headquarters.\n\nThat's the GTM instinct we're hiring for in Germany.\n\nLink to the full role below.",
+      "postedAt": "2026-07-16T12:57:59.066Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 132,
+        "comments": 4
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Gustav Bang",
+          "username": "gustavbangn",
+          "url": "https://www.linkedin.com/in/gustavbangn",
+          "canonicalEntityId": "founder-complir-gustav-bang-1829555"
+        },
+        "post": {
+          "authorName": "Gustav Bang",
+          "authorHandle": "gustavbangn",
+          "activityId": "7483505210909306880",
+          "publishedAt": "2026-07-16T12:57:59.066Z",
+          "originalBody": "🇩🇪 Complir is hiring a Head of Germany to double down on the largest consumer market in Europe.\n\nThis is a selling job before it's anything else. Your own pipeline, full sales cycle, founders backing every deal.\n\nWe're YC-backed, growing fast, and looking for someone who wants ownership from day one.\n\nIf you're wondering about the picture - before Demo Day, we didn't cold-email our way into San Francisco retailers. We hand-wrote invitations, drove them across the city, and dropped them off ourselves, at their headquarters.\n\nThat's the GTM instinct we're hiring for in Germany.\n\nLink to the full role below.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 132,
+          "comments": 4
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Complir founder Gustav Bang; original body explicitly attributes or substantively describes Complir, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-16T12:57:59.066Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-deep-interactions",
+      "companyEntityId": "company-deep-interactions",
+      "companyName": "Deep Interactions",
+      "companySlug": "deep-interactions",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/deep-interactions_thats-our-first-customer-spider-proud-activity-7478467317526355968-St4x",
+      "platformPostId": "7478467317526355968",
+      "accountUrl": "https://www.linkedin.com/company/deep-interactions",
+      "authorName": "Deep Interactions (YC P26)",
+      "authorHandle": "deep-interactions",
+      "title": "That's our first customer 🌞 Spider proud 🕷️🕸️",
+      "text": "That's our first customer 🌞 Spider proud 🕷️🕸️",
+      "postedAt": "2026-07-02T15:19:11.687Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 3,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Deep Interactions",
+          "username": "deep-interactions",
+          "url": "https://www.linkedin.com/company/deep-interactions",
+          "canonicalEntityId": "company-deep-interactions"
+        },
+        "post": {
+          "authorName": "Deep Interactions (YC P26)",
+          "authorHandle": "deep-interactions",
+          "activityId": "7478467317526355968",
+          "publishedAt": "2026-07-02T15:19:11.687Z",
+          "originalBody": "That's our first customer 🌞 Spider proud 🕷️🕸️",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 3,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Deep Interactions company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-02T15:19:11.687Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-hub",
+      "companyEntityId": "company-hub",
+      "companyName": "Hub",
+      "companySlug": "hub",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/hub-xyz_hub-is-hiring-a-field-operator-in-s%C3%A3o-paulo-activity-7483407599225270272-8SuK",
+      "platformPostId": "7483407599225270272",
+      "accountUrl": "https://www.linkedin.com/company/hub-xyz",
+      "authorName": "Hub",
+      "authorHandle": "hub-xyz",
+      "title": "Hub is hiring a Field Operator in São Paulo.",
+      "text": "Hub is hiring a Field Operator in São Paulo.\n\nFull ownership of the ground: signing new businesses, deploying kits, training crews, keeping the data flowing every day. \n\nWe hire on drive, not resume, and this role can grow into running Hub's field operations across all of Brazil.\n\nApply here or share it with someone you know: https://lnkd.in/e4J8ydgG",
+      "postedAt": "2026-07-16T06:30:06.611Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 1,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Hub",
+          "username": "hub-xyz",
+          "url": "https://www.linkedin.com/company/hub-xyz",
+          "canonicalEntityId": "company-hub"
+        },
+        "post": {
+          "authorName": "Hub",
+          "authorHandle": "hub-xyz",
+          "activityId": "7483407599225270272",
+          "publishedAt": "2026-07-16T06:30:06.611Z",
+          "originalBody": "Hub is hiring a Field Operator in São Paulo.\n\nFull ownership of the ground: signing new businesses, deploying kits, training crews, keeping the data flowing every day. \n\nWe hire on drive, not resume, and this role can grow into running Hub's field operations across all of Brazil.\n\nApply here or share it with someone you know: https://lnkd.in/e4J8ydgG",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 1,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Hub company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-16T06:30:06.611Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-andco-ryan-xue-1126674",
+      "companyEntityId": "company-andco",
+      "companyName": "Andco",
+      "companySlug": "andco",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ryanxue_lawyers-dont-call-software-beautiful-activity-7484028527210749952-Gwsc",
+      "platformPostId": "7484028527210749952",
+      "accountUrl": "https://www.linkedin.com/in/ryanxue",
+      "authorName": "Ryan Xue",
+      "authorHandle": "ryanxue",
+      "title": "Lawyers don't call software \"beautiful.\" But ours keep saying it.",
+      "text": "Lawyers don't call software \"beautiful.\" But ours keep saying it. When we ask what they mean, they never mention design, fonts, or colors. \n\nThey describe moments: Requesting records used to mean digging through the police report for the at-fault insurer, rereading intake notes, and combing treatment records for provider names.\n\nIn Andco, when users click \"Start a request\" and most organizations they need to request from are already waiting. When you carry dozens of cases, beauty and convenience are the same word. Beauty is how deeply software understands your day.\n\nWe got here by sitting with attorneys and their paralegals, noticing the sigh before every records request, and asking: \"What do you do right after this?\"",
+      "postedAt": "2026-07-17T23:37:27.396Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 30,
+        "comments": 5
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Ryan Xue",
+          "username": "ryanxue",
+          "url": "https://www.linkedin.com/in/ryanxue",
+          "canonicalEntityId": "founder-andco-ryan-xue-1126674"
+        },
+        "post": {
+          "authorName": "Ryan Xue",
+          "authorHandle": "ryanxue",
+          "activityId": "7484028527210749952",
+          "publishedAt": "2026-07-17T23:37:27.396Z",
+          "originalBody": "Lawyers don't call software \"beautiful.\" But ours keep saying it. When we ask what they mean, they never mention design, fonts, or colors. \n\nThey describe moments: Requesting records used to mean digging through the police report for the at-fault insurer, rereading intake notes, and combing treatment records for provider names.\n\nIn Andco, when users click \"Start a request\" and most organizations they need to request from are already waiting. When you carry dozens of cases, beauty and convenience are the same word. Beauty is how deeply software understands your day.\n\nWe got here by sitting with attorneys and their paralegals, noticing the sigh before every records request, and asking: \"What do you do right after this?\"",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 30,
+          "comments": 5
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Andco founder Ryan Xue; original body explicitly attributes or substantively describes Andco, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-17T23:37:27.396Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-andco-ryan-xue-1126674",
+      "companyEntityId": "company-andco",
+      "companyName": "Andco",
+      "companySlug": "andco",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/ryanxue_every-andco-customer-gets-a-full-client-platform-activity-7483371140963274753-5VEc",
+      "platformPostId": "7483371140963274753",
+      "accountUrl": "https://www.linkedin.com/in/ryanxue",
+      "authorName": "Ryan Xue",
+      "authorHandle": "ryanxue",
+      "title": "Every Andco customer gets a full client platform included.",
+      "text": "Every Andco customer gets a full client platform included. Here's why we built it.\n\nWe kept hearing the same thing from firms: it's hard to get documents from your own client. Weeks of follow-up for something that takes two minutes.\n\nAnd on the other end of the line, the client is going through the worst stretch of their year. They're hurt, out of work, and anxious. So they call, email, and text to ask where the case stands. Did the medical records come in? The police report? The insurance response? The silence in between is the hardest part.\n\nThat part of the workflow needed to be reinvented, not patched.\n\nMost client portals in legal feel like an afterthought. Ours is a full-fledged product. Clean and fast, built for the phone in their pocket, the kind of experience people expect from the apps they use every day, not from a law firm. Clients upload documents and sign forms in a few taps. Or they link their records with us directly through major hospital systems, no paperwork at all. And they can see where their case stands without having to ask.\n\nEverything lands in the case file automatically.\n\nIf you're evaluating Andco, you're not just buying agents for records retrieval and insurance verification. You're buying a better experience for people who badly need one. That's the client experience.",
+      "postedAt": "2026-07-16T04:05:14.290Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 21,
+        "comments": 4
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Ryan Xue",
+          "username": "ryanxue",
+          "url": "https://www.linkedin.com/in/ryanxue",
+          "canonicalEntityId": "founder-andco-ryan-xue-1126674"
+        },
+        "post": {
+          "authorName": "Ryan Xue",
+          "authorHandle": "ryanxue",
+          "activityId": "7483371140963274753",
+          "publishedAt": "2026-07-16T04:05:14.290Z",
+          "originalBody": "Every Andco customer gets a full client platform included. Here's why we built it.\n\nWe kept hearing the same thing from firms: it's hard to get documents from your own client. Weeks of follow-up for something that takes two minutes.\n\nAnd on the other end of the line, the client is going through the worst stretch of their year. They're hurt, out of work, and anxious. So they call, email, and text to ask where the case stands. Did the medical records come in? The police report? The insurance response? The silence in between is the hardest part.\n\nThat part of the workflow needed to be reinvented, not patched.\n\nMost client portals in legal feel like an afterthought. Ours is a full-fledged product. Clean and fast, built for the phone in their pocket, the kind of experience people expect from the apps they use every day, not from a law firm. Clients upload documents and sign forms in a few taps. Or they link their records with us directly through major hospital systems, no paperwork at all. And they can see where their case stands without having to ask.\n\nEverything lands in the case file automatically.\n\nIf you're evaluating Andco, you're not just buying agents for records retrieval and insurance verification. You're buying a better experience for people who badly need one. That's the client experience.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 21,
+          "comments": 4
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Andco founder Ryan Xue; original body explicitly attributes or substantively describes Andco, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-16T04:05:14.290Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-aseon-labs",
+      "companyEntityId": "company-aseon-labs",
+      "companyName": "Aseon Labs",
+      "companySlug": "aseon-labs",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/aseon-labs_home-the-av-fleet-brief-activity-7479231833855938562-pkXV",
+      "platformPostId": "7479231833855938562",
+      "accountUrl": "https://www.linkedin.com/company/aseon-labs",
+      "authorName": "Aseon Labs",
+      "authorHandle": "aseon-labs",
+      "title": "Mike Murphy puts it better than we could.",
+      "text": "Mike Murphy puts it better than we could.\n\nThe AV operations layer is no longer a footnote. Capital is converging on it from both ends of the stack: institutional infrastructure funds and early-stage venture. The category is being recognised.\n\nOne line in particular:\n\n\"The companies that solve the operations problem at scale capture more value than most current AV valuations reflect.\"\n\nThat's why we built Aseon Labs. And why we raised $10M to deploy it.",
+      "postedAt": "2026-07-04T17:57:06.580Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 8,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Aseon Labs",
+          "username": "aseon-labs",
+          "url": "https://www.linkedin.com/company/aseon-labs",
+          "canonicalEntityId": "company-aseon-labs"
+        },
+        "post": {
+          "authorName": "Aseon Labs",
+          "authorHandle": "aseon-labs",
+          "activityId": "7479231833855938562",
+          "publishedAt": "2026-07-04T17:57:06.580Z",
+          "originalBody": "Mike Murphy puts it better than we could.\n\nThe AV operations layer is no longer a footnote. Capital is converging on it from both ends of the stack: institutional infrastructure funds and early-stage venture. The category is being recognised.\n\nOne line in particular:\n\n\"The companies that solve the operations problem at scale capture more value than most current AV valuations reflect.\"\n\nThat's why we built Aseon Labs. And why we raised $10M to deploy it.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 8,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Aseon Labs company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-04T17:57:06.580Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-inth-christopher-burns-735095",
+      "companyEntityId": "company-inth",
+      "companyName": "Inth",
+      "companySlug": "inth",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/burnedchris_handbook-resend-activity-7481825343251816448-VxoO",
+      "platformPostId": "7481825343251816448",
+      "accountUrl": "https://www.linkedin.com/in/burnedchris",
+      "authorName": "Christopher Burns",
+      "authorHandle": "burnedchris",
+      "title": "I’m writing the first draft of Inth’s handbook.",
+      "text": "I’m writing the first draft of Inth’s handbook.\n\nI think companies need to do this earlier. As AI produces more of the work, craft, taste, and the principles behind it matter more, not less.\n\nInspired, as always, by my heroes at @resend.\nhttps://lnkd.in/e7gGnXC5",
+      "postedAt": "2026-07-11T21:42:47.407Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 5,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Christopher Burns",
+          "username": "burnedchris",
+          "url": "https://www.linkedin.com/in/burnedchris",
+          "canonicalEntityId": "founder-inth-christopher-burns-735095"
+        },
+        "post": {
+          "authorName": "Christopher Burns",
+          "authorHandle": "burnedchris",
+          "activityId": "7481825343251816448",
+          "publishedAt": "2026-07-11T21:42:47.407Z",
+          "originalBody": "I’m writing the first draft of Inth’s handbook.\n\nI think companies need to do this earlier. As AI produces more of the work, craft, taste, and the principles behind it matter more, not less.\n\nInspired, as always, by my heroes at @resend.\nhttps://lnkd.in/e7gGnXC5",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 5,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Inth founder Christopher Burns; original body explicitly attributes or substantively describes Inth, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-11T21:42:47.407Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-kinect-kratik-agrawal-565942",
+      "companyEntityId": "company-kinect",
+      "companyName": "Kinect",
+      "companySlug": "kinect",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/kratikagrawal_one-of-our-first-purchases-we-made-was-this-activity-7468477675586809856-9FQn",
+      "platformPostId": "7468477675586809856",
+      "accountUrl": "https://www.linkedin.com/in/kratikagrawal",
+      "authorName": "Kratik Agrawal",
+      "authorHandle": "kratikagrawal",
+      "title": "One of our first purchases we made was this whiteboard.",
+      "text": "One of our first purchases we made was this whiteboard. Kinect AI runs our business on this whiteboard. Even investor calls are tracked on here. 📓 \n\nCustomer calls, tracking onboardings, revenue, math, parking tickets, fundraising, funny quotes, brainstorming sessions.\n\nEvery week Varun Kandula and I set out some time to realign and think of the big goals of the week. We can totally do this on google docs, but something about writing it makes it feel more real.",
+      "postedAt": "2026-06-05T01:43:55.448Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 59,
+        "comments": 15
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Kratik Agrawal",
+          "username": "kratikagrawal",
+          "url": "https://www.linkedin.com/in/kratikagrawal",
+          "canonicalEntityId": "founder-kinect-kratik-agrawal-565942"
+        },
+        "post": {
+          "authorName": "Kratik Agrawal",
+          "authorHandle": "kratikagrawal",
+          "activityId": "7468477675586809856",
+          "publishedAt": "2026-06-05T01:43:55.448Z",
+          "originalBody": "One of our first purchases we made was this whiteboard. Kinect AI runs our business on this whiteboard. Even investor calls are tracked on here. 📓 \n\nCustomer calls, tracking onboardings, revenue, math, parking tickets, fundraising, funny quotes, brainstorming sessions.\n\nEvery week Varun Kandula and I set out some time to realign and think of the big goals of the week. We can totally do this on google docs, but something about writing it makes it feel more real.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 59,
+          "comments": 15
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Kinect founder Kratik Agrawal; original body explicitly attributes or substantively describes Kinect, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-06-05T01:43:55.448Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-kinro-pierre-alexandre-kamienny-2043734",
+      "companyEntityId": "company-kinro",
+      "companyName": "Kinro",
+      "companySlug": "kinro",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/pakamienny_super-proud-to-have-hemanth-sai-kosari-on-activity-7482822405959159808-C72l",
+      "platformPostId": "7482822405959159808",
+      "accountUrl": "https://www.linkedin.com/in/pakamienny",
+      "authorName": "Pierre-Alexandre Kamienny",
+      "authorHandle": "pakamienny",
+      "title": "Super proud to have Hemanth Sai Kosari on the Kinro team.",
+      "text": "Super proud to have Hemanth Sai Kosari on the Kinro team.\n\nWhen we were just getting started, he took the time to learn everything about Kinro and showed incredible persistence. \n\nHe sent 20 emails, booked demo calls, and even built a project that became core to our business, all just to get our attention.\n\nFrom our very first call, his ambition, humility, maturity, and genuine nature stood out.\n\nI’m glad we took that call, and even more glad to count him as Kinro’s first MTS.",
+      "postedAt": "2026-07-14T15:44:45.672Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 24,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Pierre-Alexandre Kamienny",
+          "username": "pakamienny",
+          "url": "https://www.linkedin.com/in/pakamienny",
+          "canonicalEntityId": "founder-kinro-pierre-alexandre-kamienny-2043734"
+        },
+        "post": {
+          "authorName": "Pierre-Alexandre Kamienny",
+          "authorHandle": "pakamienny",
+          "activityId": "7482822405959159808",
+          "publishedAt": "2026-07-14T15:44:45.672Z",
+          "originalBody": "Super proud to have Hemanth Sai Kosari on the Kinro team.\n\nWhen we were just getting started, he took the time to learn everything about Kinro and showed incredible persistence. \n\nHe sent 20 emails, booked demo calls, and even built a project that became core to our business, all just to get our attention.\n\nFrom our very first call, his ambition, humility, maturity, and genuine nature stood out.\n\nI’m glad we took that call, and even more glad to count him as Kinro’s first MTS.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 24,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Kinro founder Pierre-Alexandre Kamienny; original body explicitly attributes or substantively describes Kinro, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-14T15:44:45.672Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-mochatrade",
+      "companyEntityId": "company-mochatrade",
+      "companyName": "Mochatrade",
+      "companySlug": "mochatrade",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/mochatrade_iranwar-globalmarkets-marketcrash-activity-7483030136871698432-vaQh",
+      "platformPostId": "7483030136871698432",
+      "accountUrl": "https://www.linkedin.com/company/mochatrade",
+      "authorName": "Mochatrade (YC P26)",
+      "authorHandle": "mochatrade",
+      "title": "The Iran war caused the largest oil supply disruption in history.",
+      "text": "The Iran war caused the largest oil supply disruption in history. Most people assumed the stock market would crash.\n\nIt didn't.\n\nWhen the Strait of Hormuz, the route for roughly a fifth of the world's oil, was blocked, oil ran from around $73 to nearly $120, then fell all the way back to where it started. A full round trip in months. And through all of it, US markets stayed calm and even touched record highs.\n\nSo where did the damage actually go?\n\nNot the stock ticker. Prices. US inflation climbed from 2.4% before the war to over 4%. Fuel, shipping, and food all moved with it.\n\nThere's a lesson in that for anyone who follows markets: equities tend to look past a shock they believe is temporary. What they fear is duration, how long higher costs linger and feed inflation. The war made the headlines. The inflation is what quietly stayed.\n\nWe broke the whole story down in detail, link in the comments.\n\nFor educational purposes only. Not investment advice. Figures approximate.\n#iranwar #globalmarkets #marketcrash",
+      "postedAt": "2026-07-15T05:30:12.589Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 4,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Mochatrade",
+          "username": "mochatrade",
+          "url": "https://www.linkedin.com/company/mochatrade",
+          "canonicalEntityId": "company-mochatrade"
+        },
+        "post": {
+          "authorName": "Mochatrade (YC P26)",
+          "authorHandle": "mochatrade",
+          "activityId": "7483030136871698432",
+          "publishedAt": "2026-07-15T05:30:12.589Z",
+          "originalBody": "The Iran war caused the largest oil supply disruption in history. Most people assumed the stock market would crash.\n\nIt didn't.\n\nWhen the Strait of Hormuz, the route for roughly a fifth of the world's oil, was blocked, oil ran from around $73 to nearly $120, then fell all the way back to where it started. A full round trip in months. And through all of it, US markets stayed calm and even touched record highs.\n\nSo where did the damage actually go?\n\nNot the stock ticker. Prices. US inflation climbed from 2.4% before the war to over 4%. Fuel, shipping, and food all moved with it.\n\nThere's a lesson in that for anyone who follows markets: equities tend to look past a shock they believe is temporary. What they fear is duration, how long higher costs linger and feed inflation. The war made the headlines. The inflation is what quietly stayed.\n\nWe broke the whole story down in detail, link in the comments.\n\nFor educational purposes only. Not investment advice. Figures approximate.\n#iranwar #globalmarkets #marketcrash",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 4,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Mochatrade company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-15T05:30:12.589Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-regbase",
+      "companyEntityId": "company-regbase",
+      "companyName": "Regbase",
+      "companySlug": "regbase",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/regbase_regbase-legalinnovatorscalifornia-legaltech-activity-7470946252801712129-tEOk",
+      "platformPostId": "7470946252801712129",
+      "accountUrl": "https://www.linkedin.com/company/regbase",
+      "authorName": "Regbase",
+      "authorHandle": "regbase",
+      "title": "A great couple of days at Legal Innovators California.",
+      "text": "A great couple of days at Legal Innovators California. Our CEO and founder Natalie Aresta-Katz took the Start-up Spotlight stage to talk through \"Automating 100-Hour Tasks\" and how we help legal teams stay on top of regulatory and legislative change.\n\nThanks to everyone who stopped by to chat. If regulatory tracking is a pain your team knows well, we'd love to hear how you're handling it.\n\n#Regbase #LegalInnovatorsCalifornia #LegalTech #RegTech  #LegalInnovation",
+      "postedAt": "2026-06-11T21:13:10.115Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 10,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Regbase",
+          "username": "regbase",
+          "url": "https://www.linkedin.com/company/regbase",
+          "canonicalEntityId": "company-regbase"
+        },
+        "post": {
+          "authorName": "Regbase",
+          "authorHandle": "regbase",
+          "activityId": "7470946252801712129",
+          "publishedAt": "2026-06-11T21:13:10.115Z",
+          "originalBody": "A great couple of days at Legal Innovators California. Our CEO and founder Natalie Aresta-Katz took the Start-up Spotlight stage to talk through \"Automating 100-Hour Tasks\" and how we help legal teams stay on top of regulatory and legislative change.\n\nThanks to everyone who stopped by to chat. If regulatory tracking is a pain your team knows well, we'd love to hear how you're handling it.\n\n#Regbase #LegalInnovatorsCalifornia #LegalTech #RegTech  #LegalInnovation",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 10,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Regbase company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-06-11T21:13:10.115Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-regbase",
+      "companyEntityId": "company-regbase",
+      "companyName": "Regbase",
+      "companySlug": "regbase",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/regbase_cloc-legalops-legaltech-activity-7462209476436258816-uYfi",
+      "platformPostId": "7462209476436258816",
+      "accountUrl": "https://www.linkedin.com/company/regbase",
+      "authorName": "Regbase",
+      "authorHandle": "regbase",
+      "title": "Last week, the Regbase team had the pleasure of participating in the CLOC (Corporate Legal Operations Consortium) Global Institute in Chicago as a startup vendor, and what a week i",
+      "text": "Last week, the Regbase team had the pleasure of participating in the CLOC (Corporate Legal Operations Consortium) Global Institute in Chicago as a startup vendor, and what a week it was.\n\nSo much energy in the legal ops space right now. We got to meet some incredible people, learn from teams pushing the industry forward, and have real conversations about where regulatory tracking, legal operations, and the broader compliance landscape are headed.\n\nThank you to everyone who stopped by, asked thoughtful questions, and made the week so memorable. Looking forward to next year already.\n\nUntil then, please don't hesitate to reach out if you'd like to continue the conversation!\n\n#CLOC #LegalOps #LegalTech #RegTech #Regbase",
+      "postedAt": "2026-05-18T18:36:20.314Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 15,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Regbase",
+          "username": "regbase",
+          "url": "https://www.linkedin.com/company/regbase",
+          "canonicalEntityId": "company-regbase"
+        },
+        "post": {
+          "authorName": "Regbase",
+          "authorHandle": "regbase",
+          "activityId": "7462209476436258816",
+          "publishedAt": "2026-05-18T18:36:20.314Z",
+          "originalBody": "Last week, the Regbase team had the pleasure of participating in the CLOC (Corporate Legal Operations Consortium) Global Institute in Chicago as a startup vendor, and what a week it was.\n\nSo much energy in the legal ops space right now. We got to meet some incredible people, learn from teams pushing the industry forward, and have real conversations about where regulatory tracking, legal operations, and the broader compliance landscape are headed.\n\nThank you to everyone who stopped by, asked thoughtful questions, and made the week so memorable. Looking forward to next year already.\n\nUntil then, please don't hesitate to reach out if you'd like to continue the conversation!\n\n#CLOC #LegalOps #LegalTech #RegTech #Regbase",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 15,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Regbase company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-05-18T18:36:20.314Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-river-markets",
+      "companyEntityId": "company-river-markets",
+      "companyName": "River Markets",
+      "companySlug": "river-markets",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/rivermarkets_we-are-super-excited-to-announce-we-fully-activity-7470178320215601153-i1aO",
+      "platformPostId": "7470178320215601153",
+      "accountUrl": "https://www.linkedin.com/company/rivermarkets",
+      "authorName": "River Markets (YC P26)",
+      "authorHandle": "rivermarkets",
+      "title": "We are super excited to announce we fully onboarded Polymarket US!",
+      "text": "We are super excited to announce we fully onboarded Polymarket US! You can now seamlessly trade across all major exchanges on River Markets.\n\nBook a demo here: https://lnkd.in/geb5cJDG",
+      "postedAt": "2026-06-09T18:21:40.723Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 31,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "River Markets",
+          "username": "rivermarkets",
+          "url": "https://www.linkedin.com/company/rivermarkets",
+          "canonicalEntityId": "company-river-markets"
+        },
+        "post": {
+          "authorName": "River Markets (YC P26)",
+          "authorHandle": "rivermarkets",
+          "activityId": "7470178320215601153",
+          "publishedAt": "2026-06-09T18:21:40.723Z",
+          "originalBody": "We are super excited to announce we fully onboarded Polymarket US! You can now seamlessly trade across all major exchanges on River Markets.\n\nBook a demo here: https://lnkd.in/geb5cJDG",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 31,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official River Markets company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-06-09T18:21:40.723Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-saudara-ai-edward-haryono-2623220",
+      "companyEntityId": "company-saudara-ai",
+      "companyName": "Saudara AI",
+      "companySlug": "saudara-ai",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/edward-haryono-tanuwijaya_saudara-sourcing-startup-activity-7482573171682893824-ZQZE",
+      "platformPostId": "7482573171682893824",
+      "accountUrl": "https://www.linkedin.com/in/edward-haryono-tanuwijaya",
+      "authorName": "Edward Haryono",
+      "authorHandle": "edward-haryono-tanuwijaya",
+      "title": "Indonesians make up ~30% of the entire global factory workforce for Nike and Adidas.",
+      "text": "Indonesians make up ~30% of the entire global factory workforce for Nike and Adidas.\n\nMany founders ask me whether Indonesia has the manufacturing capability for their category. Whether the workforce is skilled enough and if the infrastructure can handle real volume.\n\nNike and Adidas already answered that question. At scale. For decades.\nWhen a third of the people making shoes for two companies with a combined market cap in the hundreds of billions are in Indonesia, the capability question is closed. \n\nWhat is left is an access question. \n\nMost small and mid-sized American brands have never had a way into that ecosystem. \n\nThe factories that supply Nike are not the factories that show up on a basic Alibaba search, and they were never built to take cold inbound from a brand doing a few thousand units.\n\nThis is the gap between what Indonesia is and how it gets discovered. \nThe capacity and skilled workforce is there and at a scale most countries cannot match. What has been missing is the layer that connects that capacity to the brands that need it but do not have the relationships, the language, or the years on the ground to access it directly.\n\nSaudara is an AI-native sourcing broker connecting US brands with vetted overseas manufacturers, starting with Indonesia. \n\nIf your category is one where Indonesia already has deep manufacturing experience, even if you have never thought of it as an option, reach out.\n\n#Saudara #Sourcing #Startup",
+      "postedAt": "2026-07-13T23:14:23.596Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 48,
+        "comments": 7
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Edward Haryono",
+          "username": "edward-haryono-tanuwijaya",
+          "url": "https://www.linkedin.com/in/edward-haryono-tanuwijaya",
+          "canonicalEntityId": "founder-saudara-ai-edward-haryono-2623220"
+        },
+        "post": {
+          "authorName": "Edward Haryono",
+          "authorHandle": "edward-haryono-tanuwijaya",
+          "activityId": "7482573171682893824",
+          "publishedAt": "2026-07-13T23:14:23.596Z",
+          "originalBody": "Indonesians make up ~30% of the entire global factory workforce for Nike and Adidas.\n\nMany founders ask me whether Indonesia has the manufacturing capability for their category. Whether the workforce is skilled enough and if the infrastructure can handle real volume.\n\nNike and Adidas already answered that question. At scale. For decades.\nWhen a third of the people making shoes for two companies with a combined market cap in the hundreds of billions are in Indonesia, the capability question is closed. \n\nWhat is left is an access question. \n\nMost small and mid-sized American brands have never had a way into that ecosystem. \n\nThe factories that supply Nike are not the factories that show up on a basic Alibaba search, and they were never built to take cold inbound from a brand doing a few thousand units.\n\nThis is the gap between what Indonesia is and how it gets discovered. \nThe capacity and skilled workforce is there and at a scale most countries cannot match. What has been missing is the layer that connects that capacity to the brands that need it but do not have the relationships, the language, or the years on the ground to access it directly.\n\nSaudara is an AI-native sourcing broker connecting US brands with vetted overseas manufacturers, starting with Indonesia. \n\nIf your category is one where Indonesia already has deep manufacturing experience, even if you have never thought of it as an option, reach out.\n\n#Saudara #Sourcing #Startup",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 48,
+          "comments": 7
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Saudara AI founder Edward Haryono; original body explicitly attributes or substantively describes Saudara AI, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-13T23:14:23.596Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-saudara-ai-edward-haryono-2623220",
+      "companyEntityId": "company-saudara-ai",
+      "companyName": "Saudara AI",
+      "companySlug": "saudara-ai",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/edward-haryono-tanuwijaya_saudara-sourcing-startup-activity-7481852916027314176-C2q8",
+      "platformPostId": "7481852916027314176",
+      "accountUrl": "https://www.linkedin.com/in/edward-haryono-tanuwijaya",
+      "authorName": "Edward Haryono",
+      "authorHandle": "edward-haryono-tanuwijaya",
+      "title": "A founder on Reddit gave the most honest sourcing advice I've seen in a while.",
+      "text": "A founder on Reddit gave the most honest sourcing advice I've seen in a while. \nHe is right. This is the single most reliable way to know what you are actually working with. \n\nIn person, you see whether there is real machinery or just a desk and a sample room. You see the workers, the floor, the inventory. \n\nBut notice what the advice actually requires. A flight to China. Time off from running the business. Enough familiarity with the language, the industrial zones, and the etiquette to walk into a factory and ask the right questions. \n\nFor a founder running a $2M brand with a small team, that is not a quick trip. It is a significant bet of time and money on top of the sourcing decision itself.\nThis is the part of the sourcing process that never makes it into the \"how to find a factory\" guides. The advice that actually works is also the advice that is hardest to act on.\n\nWhat we do at Saudara is built around that gap.\n We are already on the ground in Indonesia. The factory visits, the in-person vetting, the conversations that reveal whether you are talking to a real manufacturer or a trading company with a nice photo gallery, that work is already done before you ever talk to us. \n\nYou get the outcome of flying there yourself without needing to be the one on the plane.\n\nSaudara is an AI-native sourcing broker connecting US brands with vetted overseas manufacturers, starting with Indonesia. If you have been putting off a sourcing trip because you simply do not have the time, that is exactly the problem we exist to solve.\n\n#saudara #sourcing #startup",
+      "postedAt": "2026-07-11T23:32:21.264Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 44,
+        "comments": 4
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Edward Haryono",
+          "username": "edward-haryono-tanuwijaya",
+          "url": "https://www.linkedin.com/in/edward-haryono-tanuwijaya",
+          "canonicalEntityId": "founder-saudara-ai-edward-haryono-2623220"
+        },
+        "post": {
+          "authorName": "Edward Haryono",
+          "authorHandle": "edward-haryono-tanuwijaya",
+          "activityId": "7481852916027314176",
+          "publishedAt": "2026-07-11T23:32:21.264Z",
+          "originalBody": "A founder on Reddit gave the most honest sourcing advice I've seen in a while. \nHe is right. This is the single most reliable way to know what you are actually working with. \n\nIn person, you see whether there is real machinery or just a desk and a sample room. You see the workers, the floor, the inventory. \n\nBut notice what the advice actually requires. A flight to China. Time off from running the business. Enough familiarity with the language, the industrial zones, and the etiquette to walk into a factory and ask the right questions. \n\nFor a founder running a $2M brand with a small team, that is not a quick trip. It is a significant bet of time and money on top of the sourcing decision itself.\nThis is the part of the sourcing process that never makes it into the \"how to find a factory\" guides. The advice that actually works is also the advice that is hardest to act on.\n\nWhat we do at Saudara is built around that gap.\n We are already on the ground in Indonesia. The factory visits, the in-person vetting, the conversations that reveal whether you are talking to a real manufacturer or a trading company with a nice photo gallery, that work is already done before you ever talk to us. \n\nYou get the outcome of flying there yourself without needing to be the one on the plane.\n\nSaudara is an AI-native sourcing broker connecting US brands with vetted overseas manufacturers, starting with Indonesia. If you have been putting off a sourcing trip because you simply do not have the time, that is exactly the problem we exist to solve.\n\n#saudara #sourcing #startup",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 44,
+          "comments": 4
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Saudara AI founder Edward Haryono; original body explicitly attributes or substantively describes Saudara AI, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-11T23:32:21.264Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-expanse-nikodem-bieniek-3409042",
+      "companyEntityId": "company-expanse",
+      "companyName": "Expanse",
+      "companySlug": "expanse",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/nikodemb_what-y-combinators-latest-batch-reveals-activity-7468333470008844288-vouc",
+      "platformPostId": "7468333470008844288",
+      "accountUrl": "https://linkedin.com/in/nikodemb",
+      "authorName": "Nikodem B.",
+      "authorHandle": "nikodemb",
+      "title": "We got featured in Forbes today!",
+      "text": "We got featured in Forbes today!\n\nDasha Shunina wrote about what YC's latest batch reveals about the future, and our startup Expanse was featured for how we're solving one of AI's biggest infrastructure problems. Half of the world's compute is being wasted!\n\nI'm proud to be working on this with my closest and goated friends, Ismaeel Bashir, Eren Mendi and Yafet Melake. \n\nThank you Dasha Shunina and Forbes for the feature!",
+      "postedAt": "2026-06-04T16:10:54.158Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 69,
+        "comments": 5
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Nikodem Bieniek",
+          "username": "nikodemb",
+          "url": "https://linkedin.com/in/nikodemb",
+          "canonicalEntityId": "founder-expanse-nikodem-bieniek-3409042"
+        },
+        "post": {
+          "authorName": "Nikodem B.",
+          "authorHandle": "nikodemb",
+          "activityId": "7468333470008844288",
+          "publishedAt": "2026-06-04T16:10:54.158Z",
+          "originalBody": "We got featured in Forbes today!\n\nDasha Shunina wrote about what YC's latest batch reveals about the future, and our startup Expanse was featured for how we're solving one of AI's biggest infrastructure problems. Half of the world's compute is being wasted!\n\nI'm proud to be working on this with my closest and goated friends, Ismaeel Bashir, Eren Mendi and Yafet Melake. \n\nThank you Dasha Shunina and Forbes for the feature!",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 69,
+          "comments": 5
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Expanse founder Nikodem Bieniek; original body explicitly attributes or substantively describes Expanse, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-06-04T16:10:54.158Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-pavoot",
+      "companyEntityId": "company-pavoot",
+      "companyName": "Pavoot",
+      "companySlug": "pavoot",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/pavoot_big-news-we-joined-the-yc-p26-batch-and-activity-7452019506727661568-MmC2",
+      "platformPostId": "7452019506727661568",
+      "accountUrl": "https://www.linkedin.com/company/pavoot",
+      "authorName": "Pavoot (YC P26)",
+      "authorHandle": "pavoot",
+      "title": "Big news 🔥: we joined the YC P26 batch and moved to San Francisco ✈️ Crazy, we went from wanting to bootstrap less than 3 months ago to being in the most successful accelerator in",
+      "text": "Big news 🔥: we joined the YC P26 batch and moved to San Francisco ✈️\n\nCrazy, we went from wanting to bootstrap less than 3 months ago to being in the most successful accelerator in the world.\n\nThe timing with AI and the problem we are solving were too strong to ignore, so we decided to go all in.\n\nThe problem: Companies spend millions on events, but most of the time it is unclear what they actually get back. There are so many manual steps and disconnected tools that it becomes really hard to see what is working and what is not.\n\nThat is why we are building Pavoot (YC P26) 🦚. We are using AI to automate event management and help companies make sure their events actually drive revenue and improve customer experience.\n\nSuper grateful to David Lieb and Grey Baker for betting on us!\n\nWe will share more soon about how we met, what YC is like, and what we are building next. Follow to be part of the journey. 🎊\n\nP.S. If you are an event organizer, we’d love to connect and hear your thoughts!",
+      "postedAt": "2026-04-20T15:45:02.212Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 376,
+        "comments": 106
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Pavoot",
+          "username": "pavoot",
+          "url": "https://www.linkedin.com/company/pavoot",
+          "canonicalEntityId": "company-pavoot"
+        },
+        "post": {
+          "authorName": "Pavoot (YC P26)",
+          "authorHandle": "pavoot",
+          "activityId": "7452019506727661568",
+          "publishedAt": "2026-04-20T15:45:02.212Z",
+          "originalBody": "Big news 🔥: we joined the YC P26 batch and moved to San Francisco ✈️\n\nCrazy, we went from wanting to bootstrap less than 3 months ago to being in the most successful accelerator in the world.\n\nThe timing with AI and the problem we are solving were too strong to ignore, so we decided to go all in.\n\nThe problem: Companies spend millions on events, but most of the time it is unclear what they actually get back. There are so many manual steps and disconnected tools that it becomes really hard to see what is working and what is not.\n\nThat is why we are building Pavoot (YC P26) 🦚. We are using AI to automate event management and help companies make sure their events actually drive revenue and improve customer experience.\n\nSuper grateful to David Lieb and Grey Baker for betting on us!\n\nWe will share more soon about how we met, what YC is like, and what we are building next. Follow to be part of the journey. 🎊\n\nP.S. If you are an event organizer, we’d love to connect and hear your thoughts!",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 376,
+          "comments": 106
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Pavoot company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-04-20T15:45:02.212Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-cohesion",
+      "companyEntityId": "company-cohesion",
+      "companyName": "Cohesion",
+      "companySlug": "cohesion",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/cohesionplatform_cohesion-yc-p26-is-partnering-with-quartr-activity-7463239117565374464-1MDa",
+      "platformPostId": "7463239117565374464",
+      "accountUrl": "https://www.linkedin.com/company/cohesionplatform",
+      "authorName": "Cohesion (YC P26)",
+      "authorHandle": "cohesionplatform",
+      "title": "Cohesion (YC P26) is partnering with Quartr to bring institutional-grade financial data into our agentic platform.",
+      "text": "Cohesion (YC P26) is partnering with Quartr to bring institutional-grade financial data into our agentic platform.\n\nThrough this integration, Cohesion agents have direct access to earnings calls, investor presentations, and filings across thousands of global, public companies.\n\nThe partnership reflects our continued investment in the foundations that matter most for public equity workflows: reliable sources, accurate data, and timely coverage.\n\nhttps://lnkd.in/ewpB-53f",
+      "postedAt": "2026-05-21T14:47:45.888Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 28,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Cohesion",
+          "username": "cohesionplatform",
+          "url": "https://www.linkedin.com/company/cohesionplatform",
+          "canonicalEntityId": "company-cohesion"
+        },
+        "post": {
+          "authorName": "Cohesion (YC P26)",
+          "authorHandle": "cohesionplatform",
+          "activityId": "7463239117565374464",
+          "publishedAt": "2026-05-21T14:47:45.888Z",
+          "originalBody": "Cohesion (YC P26) is partnering with Quartr to bring institutional-grade financial data into our agentic platform.\n\nThrough this integration, Cohesion agents have direct access to earnings calls, investor presentations, and filings across thousands of global, public companies.\n\nThe partnership reflects our continued investment in the foundations that matter most for public equity workflows: reliable sources, accurate data, and timely coverage.\n\nhttps://lnkd.in/ewpB-53f",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 28,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Cohesion company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-05-21T14:47:45.888Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-datost",
+      "companyEntityId": "company-datost",
+      "companyName": "Datost",
+      "companySlug": "datost",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/datost_datost-outperformed-claude-opus-46-and-all-activity-7449943355289026560-6kGJ",
+      "platformPostId": "7449943355289026560",
+      "accountUrl": "https://www.linkedin.com/company/datost",
+      "authorName": "Datost (YC P26)",
+      "authorHandle": "datost",
+      "title": "check us out at https://datost.com/.",
+      "text": "check us out at https://datost.com/.\n\nIf you want an AI data analyst thats actually accurate book a call with us: https://lnkd.in/eA2vTnTU",
+      "postedAt": "2026-04-14T22:15:09.131Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 2,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Datost",
+          "username": "datost",
+          "url": "https://www.linkedin.com/company/datost",
+          "canonicalEntityId": "company-datost"
+        },
+        "post": {
+          "authorName": "Datost (YC P26)",
+          "authorHandle": "datost",
+          "activityId": "7449943355289026560",
+          "publishedAt": "2026-04-14T22:15:09.131Z",
+          "originalBody": "check us out at https://datost.com/.\n\nIf you want an AI data analyst thats actually accurate book a call with us: https://lnkd.in/eA2vTnTU",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 2,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Datost company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-04-14T22:15:09.131Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-klarify",
+      "companyEntityId": "company-klarify",
+      "companyName": "Klarify",
+      "companySlug": "klarify",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/klarifytherapy_your-value-isnt-based-on-how-productive-activity-7380995301756641281-8LaR",
+      "platformPostId": "7380995301756641281",
+      "accountUrl": "https://www.linkedin.com/company/klarifytherapy",
+      "authorName": "Klarify (YC P26)",
+      "authorHandle": "klarifytherapy",
+      "title": "Your value isn’t based on how productive you are.",
+      "text": "Your value isn’t based on how productive you are.\n\nYou are more than what you do. Rest is not a reward, it’s a need.",
+      "postedAt": "2025-10-06T16:00:12.170Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 2,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Klarify",
+          "username": "klarifytherapy",
+          "url": "https://www.linkedin.com/company/klarifytherapy",
+          "canonicalEntityId": "company-klarify"
+        },
+        "post": {
+          "authorName": "Klarify (YC P26)",
+          "authorHandle": "klarifytherapy",
+          "activityId": "7380995301756641281",
+          "publishedAt": "2025-10-06T16:00:12.170Z",
+          "originalBody": "Your value isn’t based on how productive you are.\n\nYou are more than what you do. Rest is not a reward, it’s a need.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 2,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Klarify company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2025-10-06T16:00:12.170Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-light-anchor",
+      "companyEntityId": "company-light-anchor",
+      "companyName": "Light Anchor",
+      "companySlug": "light-anchor",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/light-anchor_shoptalk2026-retailai-lightanchor-activity-7442697479780995072-4KX7",
+      "platformPostId": "7442697479780995072",
+      "accountUrl": "https://www.linkedin.com/company/light-anchor",
+      "authorName": "Light Anchor (YC P26)",
+      "authorHandle": "light-anchor",
+      "title": "We're at Shoptalk 2026!",
+      "text": "We're at Shoptalk 2026!\n\nThe theme this year, Retail in the Age of AI, couldn't be more relevant to what we're building at Light Anchor. We just launched a free AI Readiness Report that scans your store and tells you exactly how prepared your business is for AI. From customer experience to internal operations to integrations, it takes seconds and the insights are actionable.\n\nIf you're here in Vegas this week, we'd love to connect. And if you're not, you can still check your AI readiness right now: https://lnkd.in/gyCPQwW4\n\nCome find us! We're walking the floor and always down to chat about ops, AI agents, and what's next for retail.\n\n#Shoptalk2026 #RetailAI #LightAnchor",
+      "postedAt": "2026-03-25T22:22:37.789Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 21,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Light Anchor",
+          "username": "light-anchor",
+          "url": "https://www.linkedin.com/company/light-anchor",
+          "canonicalEntityId": "company-light-anchor"
+        },
+        "post": {
+          "authorName": "Light Anchor (YC P26)",
+          "authorHandle": "light-anchor",
+          "activityId": "7442697479780995072",
+          "publishedAt": "2026-03-25T22:22:37.789Z",
+          "originalBody": "We're at Shoptalk 2026!\n\nThe theme this year, Retail in the Age of AI, couldn't be more relevant to what we're building at Light Anchor. We just launched a free AI Readiness Report that scans your store and tells you exactly how prepared your business is for AI. From customer experience to internal operations to integrations, it takes seconds and the insights are actionable.\n\nIf you're here in Vegas this week, we'd love to connect. And if you're not, you can still check your AI readiness right now: https://lnkd.in/gyCPQwW4\n\nCome find us! We're walking the floor and always down to chat about ops, AI agents, and what's next for retail.\n\n#Shoptalk2026 #RetailAI #LightAnchor",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 21,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Light Anchor company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-03-25T22:22:37.789Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-projectx",
+      "companyEntityId": "company-projectx",
+      "companyName": "ProjectX",
+      "companySlug": "projectx",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/projectx-cloud_boys-we-are-so-going-back-to-2021-with-activity-7419541202057961472-BXpy",
+      "platformPostId": "7419541202057961472",
+      "accountUrl": "https://www.linkedin.com/company/projectx-cloud",
+      "authorName": "ProjectX (YC P26)",
+      "authorHandle": "projectx-cloud",
+      "title": "Why are you getting angry at NVIDIA for re-releasing the 30 series?",
+      "text": "Why are you getting angry at NVIDIA for re-releasing the 30 series?\n\nIt was you who gave them this power, the audacity to give you less for more.\n\nWho's going to think about you? Who's going to give you back the compute you deserved?\n\n\nJoin the waitlist: https://lnkd.in/gShR49nM",
+      "postedAt": "2026-01-21T00:47:50.963Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 22,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "ProjectX",
+          "username": "projectx-cloud",
+          "url": "https://www.linkedin.com/company/projectx-cloud",
+          "canonicalEntityId": "company-projectx"
+        },
+        "post": {
+          "authorName": "ProjectX (YC P26)",
+          "authorHandle": "projectx-cloud",
+          "activityId": "7419541202057961472",
+          "publishedAt": "2026-01-21T00:47:50.963Z",
+          "originalBody": "Why are you getting angry at NVIDIA for re-releasing the 30 series?\n\nIt was you who gave them this power, the audacity to give you less for more.\n\nWho's going to think about you? Who's going to give you back the compute you deserved?\n\n\nJoin the waitlist: https://lnkd.in/gShR49nM",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 22,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official ProjectX company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-01-21T00:47:50.963Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-qomplement",
+      "companyEntityId": "company-qomplement",
+      "companyName": "qomplement",
+      "companySlug": "qomplement",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/qomplement_enterpriseai-aiagents-sap-activity-7463642337647218688-ZH2n",
+      "platformPostId": "7463642337647218688",
+      "accountUrl": "https://www.linkedin.com/company/qomplement",
+      "authorName": "qomplement",
+      "authorHandle": "qomplement",
+      "title": "qomplement doesn't replace your systems.",
+      "text": "qomplement doesn't replace your systems.\n\nIt connects to them.\n\nYour AI agents handle the operational layer.\n\nNo migration. No heavy setup. No disruption.\n\nqomplement.com \n\n#EnterpriseAI #AIAgents #SAP #Salesforce #EnterpriseAutomation",
+      "postedAt": "2026-05-22T17:30:01.045Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 11,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "qomplement",
+          "username": "qomplement",
+          "url": "https://www.linkedin.com/company/qomplement",
+          "canonicalEntityId": "company-qomplement"
+        },
+        "post": {
+          "authorName": "qomplement",
+          "authorHandle": "qomplement",
+          "activityId": "7463642337647218688",
+          "publishedAt": "2026-05-22T17:30:01.045Z",
+          "originalBody": "qomplement doesn't replace your systems.\n\nIt connects to them.\n\nYour AI agents handle the operational layer.\n\nNo migration. No heavy setup. No disruption.\n\nqomplement.com \n\n#EnterpriseAI #AIAgents #SAP #Salesforce #EnterpriseAutomation",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 11,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official qomplement company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-05-22T17:30:01.045Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-saudara-ai-edward-haryono-2623220",
+      "companyEntityId": "company-saudara-ai",
+      "companyName": "Saudara AI",
+      "companySlug": "saudara-ai",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/edward-haryono-tanuwijaya_saudara-sourcing-startup-activity-7480755918595444736-aHXD",
+      "platformPostId": "7480755918595444736",
+      "accountUrl": "https://www.linkedin.com/in/edward-haryono-tanuwijaya",
+      "authorName": "Edward Haryono",
+      "authorHandle": "edward-haryono-tanuwijaya",
+      "title": "I came across the profile of Ethnicraft, one of the most respected furniture brands manufacturing out of Indonesia, and I loved the founder’s story.",
+      "text": "I came across the profile of Ethnicraft, one of the most respected furniture brands manufacturing out of Indonesia, and I loved the founder’s story.\n\nPhilippe Delaisse was enchanted by teak objects he came across while traveling in Bali in 1995, and began exporting antiques and local crafts before quickly moving into production. \n\nHe started in 1996 in Rembang, East Java, where he found skilled woodworkers willing to work with recycled teak taken from old buildings, craftsmen using basic tools, many of them working barefoot. \n\nFrom there, piece by piece, he and his business partner built what Ethnicraft is today. \n\nThat operation now runs a main hub of around 1,600 workers in the coastal town of Tegal, combining high-precision machinery and modern production lines with a dedication to material and craft that remains rooted in tradition.\nIndonesia has a large young labor force, abundant natural resources, and deep pockets of craft expertise: woodworking being one of them, in a country where a former president built his fortune selling furniture to the world. \n\nEthnicraft proves the opportunity is real. It also proves the access problem is real. \n\nWhat took Delaisse three decades of being there, in person, building relationships one workshop at a time, is what we built Saudara to compress.\nSaudara is an AI-native sourcing broker connecting US brands with vetted overseas manufacturers, starting with Indonesia. \n\nIf you are looking at Indonesian manufacturing for your category and want a head start on that thirty-year head start, reach out.\n\n#Saudara #Sourcing #Startup",
+      "postedAt": "2026-07-08T22:53:16.692Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 33,
+        "comments": 2
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Edward Haryono",
+          "username": "edward-haryono-tanuwijaya",
+          "url": "https://www.linkedin.com/in/edward-haryono-tanuwijaya",
+          "canonicalEntityId": "founder-saudara-ai-edward-haryono-2623220"
+        },
+        "post": {
+          "authorName": "Edward Haryono",
+          "authorHandle": "edward-haryono-tanuwijaya",
+          "activityId": "7480755918595444736",
+          "publishedAt": "2026-07-08T22:53:16.692Z",
+          "originalBody": "I came across the profile of Ethnicraft, one of the most respected furniture brands manufacturing out of Indonesia, and I loved the founder’s story.\n\nPhilippe Delaisse was enchanted by teak objects he came across while traveling in Bali in 1995, and began exporting antiques and local crafts before quickly moving into production. \n\nHe started in 1996 in Rembang, East Java, where he found skilled woodworkers willing to work with recycled teak taken from old buildings, craftsmen using basic tools, many of them working barefoot. \n\nFrom there, piece by piece, he and his business partner built what Ethnicraft is today. \n\nThat operation now runs a main hub of around 1,600 workers in the coastal town of Tegal, combining high-precision machinery and modern production lines with a dedication to material and craft that remains rooted in tradition.\nIndonesia has a large young labor force, abundant natural resources, and deep pockets of craft expertise: woodworking being one of them, in a country where a former president built his fortune selling furniture to the world. \n\nEthnicraft proves the opportunity is real. It also proves the access problem is real. \n\nWhat took Delaisse three decades of being there, in person, building relationships one workshop at a time, is what we built Saudara to compress.\nSaudara is an AI-native sourcing broker connecting US brands with vetted overseas manufacturers, starting with Indonesia. \n\nIf you are looking at Indonesian manufacturing for your category and want a head start on that thirty-year head start, reach out.\n\n#Saudara #Sourcing #Startup",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 33,
+          "comments": 2
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Saudara AI founder Edward Haryono; original body explicitly attributes or substantively describes Saudara AI, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-07-08T22:53:16.692Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-projectx",
+      "companyEntityId": "company-projectx",
+      "companyName": "ProjectX",
+      "companySlug": "projectx",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/projectx-cloud_we-are-super-happy-to-announce-that-we-just-activity-7363382267576008704-rzdO",
+      "platformPostId": "7363382267576008704",
+      "accountUrl": "https://www.linkedin.com/company/projectx-cloud",
+      "authorName": "ProjectX (YC P26)",
+      "authorHandle": "projectx-cloud",
+      "title": "We are super happy to announce that we just got backed by Pontaq ventures to change the way of computing for the next generations!!!",
+      "text": "We are super happy to announce that we just got backed by Pontaq ventures to change the way of computing for the next generations!!!\n\nRounak Adhikary Suraj Kuncham Bishal Karmakar Sourya M. Namrata Biswas Anirban Roy Gunjan Saha Ankan Pal CA Shaifali Bharaktiya Carlos Eduardo Arango Gutierrez Arup Das Viraj Pathi Kiran Kadekoppa E-Cell, IIT Bombay Stanford ASES MeitY Startup Hub STPI - Software Technology Parks of India Ministry of Electronics and Information Technology Sorabh Lakhanpal, PhD Dr. Kanishka Jha, PhD Rohit Vij Sumit Basena Draper University TigerLaunch Incubation Centre IIT Patna (IC IITP) Society for Innovation & Entrepreneurship -SINE IIT Bombay Ajeet Khurana ⭕️ Ankur Vaid NSRCEL Gauri Parate Indian Institute of Technology, Bombay Rushil Saini Blind Eye Ventures",
+      "postedAt": "2025-08-19T01:32:17.583Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 35,
+        "comments": 6
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "ProjectX",
+          "username": "projectx-cloud",
+          "url": "https://www.linkedin.com/company/projectx-cloud",
+          "canonicalEntityId": "company-projectx"
+        },
+        "post": {
+          "authorName": "ProjectX (YC P26)",
+          "authorHandle": "projectx-cloud",
+          "activityId": "7363382267576008704",
+          "publishedAt": "2025-08-19T01:32:17.583Z",
+          "originalBody": "We are super happy to announce that we just got backed by Pontaq ventures to change the way of computing for the next generations!!!\n\nRounak Adhikary Suraj Kuncham Bishal Karmakar Sourya M. Namrata Biswas Anirban Roy Gunjan Saha Ankan Pal CA Shaifali Bharaktiya Carlos Eduardo Arango Gutierrez Arup Das Viraj Pathi Kiran Kadekoppa E-Cell, IIT Bombay Stanford ASES MeitY Startup Hub STPI - Software Technology Parks of India Ministry of Electronics and Information Technology Sorabh Lakhanpal, PhD Dr. Kanishka Jha, PhD Rohit Vij Sumit Basena Draper University TigerLaunch Incubation Centre IIT Patna (IC IITP) Society for Innovation & Entrepreneurship -SINE IIT Bombay Ajeet Khurana ⭕️ Ankur Vaid NSRCEL Gauri Parate Indian Institute of Technology, Bombay Rushil Saini Blind Eye Ventures",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 35,
+          "comments": 6
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party body published by the official company account",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official ProjectX company account; public native JSON-LD exposes the original body, exact timestamp, and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2025-08-19T01:32:17.583Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-datost-maceo-cardinale-kwik-3415656",
+      "companyEntityId": "company-datost",
+      "companyName": "Datost",
+      "companySlug": "datost",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/maceo-cardinale-kwik_two-months-ago-i-was-going-to-sleep-at-4-activity-7445614585753088000-5ryr",
+      "platformPostId": "7445614585753088000",
+      "accountUrl": "https://www.linkedin.com/in/maceo-cardinale-kwik",
+      "authorName": "Maceo Cardinale Kwik",
+      "authorHandle": "maceo-cardinale-kwik",
+      "title": "Two months ago I was going to sleep at 4 am and waking up at 7:30 after working on Datost (YC P26) after my 9 to 9 job.",
+      "text": "Two months ago I was going to sleep at 4 am and waking up at 7:30 after working on Datost (YC P26) after my 9 to 9 job. I genuinely could not stop. The problem was too obvious and nobody was solving it right.\n\nThe Y Combinator call was music to my ears because it meant more people believed the vision. Jason Wang and I both quit our jobs the next day. No hesitation.\n\nWe're building Datost because every company is sitting on answers they can't access. Not because the data isn't there but because LLMs don't understand your business. Datost fixes that. It learns your context, your metrics, your definitions so you can just ask questions and get real answers. It will even track your metrics for you and investigate when they fall.\n\nIf your team is still waiting on analysts or drowning in dashboards, come talk to me. DMs are open.",
+      "postedAt": "2026-04-02T23:34:10.043Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 182,
+        "comments": 16
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Maceo Cardinale Kwik",
+          "username": "maceo-cardinale-kwik",
+          "url": "https://www.linkedin.com/in/maceo-cardinale-kwik",
+          "canonicalEntityId": "founder-datost-maceo-cardinale-kwik-3415656"
+        },
+        "post": {
+          "authorName": "Maceo Cardinale Kwik",
+          "authorHandle": "maceo-cardinale-kwik",
+          "activityId": "7445614585753088000",
+          "publishedAt": "2026-04-02T23:34:10.043Z",
+          "originalBody": "Two months ago I was going to sleep at 4 am and waking up at 7:30 after working on Datost (YC P26) after my 9 to 9 job. I genuinely could not stop. The problem was too obvious and nobody was solving it right.\n\nThe Y Combinator call was music to my ears because it meant more people believed the vision. Jason Wang and I both quit our jobs the next day. No hesitation.\n\nWe're building Datost because every company is sitting on answers they can't access. Not because the data isn't there but because LLMs don't understand your business. Datost fixes that. It learns your context, your metrics, your definitions so you can just ask questions and get real answers. It will even track your metrics for you and investigate when they fall.\n\nIf your team is still waiting on analysts or drowning in dashboards, come talk to me. DMs are open.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 182,
+          "comments": 16
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T04:02:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Datost founder Maceo Cardinale Kwik; original body explicitly attributes or substantively describes Datost, with exact native timestamp and positive metrics.",
+      "why": "Strict needs-review upgrade: native activity URL, exact canonical owner, original body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:02:00.000Z",
+      "last_checked_at": "2026-07-23T04:02:00.000Z",
+      "last_updated_at": "2026-04-02T23:34:10.043Z",
+      "contributionScore": 1
+    }
+  ],
+  "rejected": [
+    {
+      "companyName": "Savant",
+      "platform": "linkedin/x/web",
+      "reason": "Repeated company-name/domain and canonical-founder searches yielded profiles, reactions, or unrelated mentions only; no original native post with exact URL, deterministic timestamp, positive visible post metrics, and self-contained Savant attribution was found."
+    },
+    {
+      "companyName": "shotwell.ai",
+      "platform": "linkedin/x/web",
+      "reason": "Official @ShotwellSt/company profile and four canonical founder surfaces yielded no qualifying original Shotwell native post with all strict fields; third-party robotics mentions and bare profiles were excluded."
+    },
+    {
+      "companyName": "The Company Company",
+      "platform": "linkedin/x/web",
+      "reason": "Official @thecompanyai and canonical founder Julius Lipp surfaces exposed no qualifying first-party current-company post; visible activity consisted of reposts or prior Mixedbread content."
+    },
+    {
+      "companyName": "Standard Signal",
+      "platform": "linkedin",
+      "sourceUrls": [
+        "https://www.linkedin.com/posts/michaelroyzen_thank-you-y-combinator-super-excited-to-activity-6960306908566102017-TSmJ",
+        "https://www.linkedin.com/posts/michaelroyzen_the-teenage-tech-entrepreneur-making-your-activity-6511450520446660608-iSai"
+      ],
+      "reason": "Exact native posts are from 2022 and 2019 and do not attribute the current Spring 2026 Standard Signal company; likely prior-company/earlier-batch context."
+    },
+    {
+      "companyName": "AICE",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/gregoirechomette_we-had-sam-altman-at-y-combinator-yesterday-activity-7452389130761568258-mkBc",
+      "reason": "Canonical founder post discusses Sam Altman and YC constraints but does not name or describe AICE; strict founder-to-company content attribution is absent."
+    }
+  ],
+  "quarantined": [
+    {
+      "companyName": "Aseon Labs",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/dancbkeene_activity-7481794590253932544-6l1s",
+      "platformPostId": "7481794590253932544",
+      "reason": "Exact native founder post is only a standalone explosion emoji; positive metrics exist but the body has no company attribution."
+    },
+    {
+      "companyName": "Hessian",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/bao-thai-nguyen_proud-to-be-serving-fazeshift-activity-7465581738497314816-GhwX",
+      "platformPostId": "7465581738497314816",
+      "reason": "Exact native founder body names only customer Fazeshift and does not attribute Hessian; company-account counterpart already exists."
+    },
+    {
+      "companyName": "Inth",
+      "platform": "linkedin",
+      "sourceUrls": [
+        "https://www.linkedin.com/posts/burnedchris_checked-out-room-2014-this-morning-got-a-activity-7478229303046934529-NEpP",
+        "https://www.linkedin.com/posts/burnedchris_killer-lineup-its-going-to-be-a-good-day-activity-7478210417006403584-y2Px"
+      ],
+      "reason": "Canonical founder bodies discuss an event/room and do not name or substantively describe Inth."
+    },
+    {
+      "companyName": "Kinect",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/kratikagrawal_ai-x-commerce-2026-summer-update-activity-7470133427355168768-rFZu",
+      "reason": "Canonical founder body is commentary on an external report and does not attribute Kinect."
+    }
+  ],
+  "duplicates": [],
+  "coverageNotes": [
+    "Rechecked exact public native post pages for 69 low-source candidates whose URL author token exactly matched an official YC-linked company or founder LinkedIn handle.",
+    "53 candidates exposed complete public native JSON-LD; only self-contained company-attributable original bodies with positive native metrics were accepted.",
+    "Exact activity IDs were checked across targeted-evidence-current, public-evidence-current, and logged-in-evidence-current before wave-3 generation.",
+    "Remaining zero-source companies were re-audited across their official/canonical company, founder, X, LinkedIn, website, and indexed public surfaces; no strict row was manufactured from a profile, repost, prior-company item, or third-party mention."
+  ]
+}

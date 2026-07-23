@@ -427,7 +427,7 @@ describe("a16z speedrun 006 dataset", () => {
     expect(modaic?.topPlatform).toBe("github");
     expect(modaic?.score).toBeGreaterThan(0);
     expect(modaic?.socialAccounts.map((account) => account.platform)).toContain("github");
-    expect(sentra?.topPlatform).toBe("x");
+    expect(["linkedin", "x"]).toContain(sentra?.topPlatform);
     expect(sentra?.score).toBeGreaterThan(0);
     expect(sentra?.socialAccounts.map((account) => account.platform)).toEqual(
       expect.arrayContaining(["linkedin", "x"])

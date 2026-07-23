@@ -1,0 +1,1541 @@
+{
+  "generatedAt": "2026-07-23T03:28:00.000Z",
+  "scope": {
+    "batchSlug": "S2026",
+    "wave": 2,
+    "platforms": [
+      "linkedin"
+    ],
+    "purpose": "Second-hour low/zero-source and recent-miss sweep; isolated strict handoff only"
+  },
+  "accepted": [
+    {
+      "entityType": "company",
+      "entityId": "company-netter",
+      "companyEntityId": "company-netter",
+      "companyName": "Netter",
+      "companySlug": "netter",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/netterai_one-month-ago-andrej-karpathy-founding-activity-7459987272529256448-Inpc",
+      "platformPostId": "7459987272529256448",
+      "accountUrl": "https://www.linkedin.com/company/netterai/?viewAsMember=true",
+      "authorName": "Netter (YC P26)",
+      "authorHandle": "netterai",
+      "title": "One month ago, Andrej Karpathy (founding member at OpenAI) posted something that stormed Twitter about LLM Knowledge Bases, and it perfectly illustrates what we are building.",
+      "text": "One month ago, Andrej Karpathy (founding member at OpenAI) posted something that stormed Twitter about LLM Knowledge Bases, and it perfectly illustrates what we are building. \n\nThe idea is simple: you dump raw data sources, papers, tables, repos, and let an LLM turn all of it into a structured wiki. Summaries, backlinks, concept articles, all auto-generated and maintained by the model.\n\nOnce the knowledge base is built, you can ask real questions and the LLM will come back with actual answers.\n\nPeople often talk about the great output they can get, but few talk about everything that had to happen before it.\n\nThe data had to be clean, structured, consistent. Without it, even the smartest system just hallucinates with confidence.\n\nKarpathy does it himself with scripts and Obsidian. Most companies don't have an OpenAI cofounder to take care of their data. \n\nMost companies have real-world data: messy, scattered, inconsistent. \n\nThat's exactly the problem we're building on: an agent that does the work a great data scientist would do, so you can orchestrate AI systems around a solid backbone to reason on. \n\nNetter is here to help any company get ready for the biggest technological shift of our era.\n\nMore details coming soon! \n\nLink of the tweet: https://lnkd.in/evh-Kepq",
+      "postedAt": "2026-05-12T15:26:05.615Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 36,
+        "comments": 2
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Netter (YC P26)",
+          "username": "netterai",
+          "url": "https://www.linkedin.com/company/netterai/?viewAsMember=true",
+          "canonicalEntityId": "company-netter"
+        },
+        "post": {
+          "authorName": "Netter (YC P26)",
+          "authorHandle": "netterai",
+          "activityId": "7459987272529256448",
+          "publishedAt": "2026-05-12T15:26:05.615Z",
+          "originalBody": "One month ago, Andrej Karpathy (founding member at OpenAI) posted something that stormed Twitter about LLM Knowledge Bases, and it perfectly illustrates what we are building. \n\nThe idea is simple: you dump raw data sources, papers, tables, repos, and let an LLM turn all of it into a structured wiki. Summaries, backlinks, concept articles, all auto-generated and maintained by the model.\n\nOnce the knowledge base is built, you can ask real questions and the LLM will come back with actual answers.\n\nPeople often talk about the great output they can get, but few talk about everything that had to happen before it.\n\nThe data had to be clean, structured, consistent. Without it, even the smartest system just hallucinates with confidence.\n\nKarpathy does it himself with scripts and Obsidian. Most companies don't have an OpenAI cofounder to take care of their data. \n\nMost companies have real-world data: messy, scattered, inconsistent. \n\nThat's exactly the problem we're building on: an agent that does the work a great data scientist would do, so you can orchestrate AI systems around a solid backbone to reason on. \n\nNetter is here to help any company get ready for the biggest technological shift of our era.\n\nMore details coming soon! \n\nLink of the tweet: https://lnkd.in/evh-Kepq",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 36,
+          "comments": 2
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Netter company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-05-12T15:26:05.615Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-netter",
+      "companyEntityId": "company-netter",
+      "companyName": "Netter",
+      "companySlug": "netter",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/netterai_people-overuse-llms-one-of-the-most-common-activity-7465425675445903360-Lo9k",
+      "platformPostId": "7465425675445903360",
+      "accountUrl": "https://www.linkedin.com/company/netterai/?viewAsMember=true",
+      "authorName": "Netter (YC P26)",
+      "authorHandle": "netterai",
+      "title": "People overuse LLMs.",
+      "text": "People overuse LLMs.\n\nOne of the most common misconceptions in AI today is to assume that every intelligent system should be an LLM.\n\nLLMs are extraordinary, but they are language models i.e optimized to understand and generate sequences of tokens.\n\nThe fact that they can answer questions, write code or analyze documents so well sometimes makes us forget that they were not designed to solve every problem.\n\nIf you want to forecast demand, predict equipment failures, optimize a production schedule, or detect anomalies in financial transactions, many ML models (Gradient Boosting, Time-series forecasting models etc.) will often outperform an LLM.\n\nIn many cases, a deterministic algorithm will be more reliable, easier to validate, and orders of magnitude cheaper to run.\n\nWhat makes the current wave of AI so exciting is not that LLMs replace everything else. It is that they provide a universal interface to all these capabilities. They can understand a user's intent, gather context, orchestrate workflows and decide when to invoke forecasting models, optimization engines, or other business rules.\n\nLike a conductor who knows when to call upon the sustained reliability of the strings, the surgical precision of the oboe, the raw power of the tuba or the split-second accuracy of the percussion. The LLM knows which intelligence to summon, and when.\n\nIn that sense, LLMs are often more of a means than an end.\n\nThe future of enterprise AI will belong to systems capable of combining multiple forms of machine intelligence and applying the most relevant one to solve a specific problem.\n\nThat's the philosophy behind Netter's product: making organizations AI-ready so agents can deploy the right intelligence for each task, whether it's an LLM, a forecasting model, a deterministic algorithm or even a simple SQL query.",
+      "postedAt": "2026-05-27T15:36:21.907Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 43,
+        "comments": 3
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Netter (YC P26)",
+          "username": "netterai",
+          "url": "https://www.linkedin.com/company/netterai/?viewAsMember=true",
+          "canonicalEntityId": "company-netter"
+        },
+        "post": {
+          "authorName": "Netter (YC P26)",
+          "authorHandle": "netterai",
+          "activityId": "7465425675445903360",
+          "publishedAt": "2026-05-27T15:36:21.907Z",
+          "originalBody": "People overuse LLMs.\n\nOne of the most common misconceptions in AI today is to assume that every intelligent system should be an LLM.\n\nLLMs are extraordinary, but they are language models i.e optimized to understand and generate sequences of tokens.\n\nThe fact that they can answer questions, write code or analyze documents so well sometimes makes us forget that they were not designed to solve every problem.\n\nIf you want to forecast demand, predict equipment failures, optimize a production schedule, or detect anomalies in financial transactions, many ML models (Gradient Boosting, Time-series forecasting models etc.) will often outperform an LLM.\n\nIn many cases, a deterministic algorithm will be more reliable, easier to validate, and orders of magnitude cheaper to run.\n\nWhat makes the current wave of AI so exciting is not that LLMs replace everything else. It is that they provide a universal interface to all these capabilities. They can understand a user's intent, gather context, orchestrate workflows and decide when to invoke forecasting models, optimization engines, or other business rules.\n\nLike a conductor who knows when to call upon the sustained reliability of the strings, the surgical precision of the oboe, the raw power of the tuba or the split-second accuracy of the percussion. The LLM knows which intelligence to summon, and when.\n\nIn that sense, LLMs are often more of a means than an end.\n\nThe future of enterprise AI will belong to systems capable of combining multiple forms of machine intelligence and applying the most relevant one to solve a specific problem.\n\nThat's the philosophy behind Netter's product: making organizations AI-ready so agents can deploy the right intelligence for each task, whether it's an LLM, a forecasting model, a deterministic algorithm or even a simple SQL query.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 43,
+          "comments": 3
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Netter company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-05-27T15:36:21.907Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-dayjob",
+      "companyEntityId": "company-dayjob",
+      "companyName": "Dayjob",
+      "companySlug": "dayjob",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/dayjob-ai_were-hiring-another-customer-success-manager-activity-7455602584175661056-orPq",
+      "platformPostId": "7455602584175661056",
+      "accountUrl": "https://www.linkedin.com/company/dayjob-ai",
+      "authorName": "Dayjob",
+      "authorHandle": "dayjob-ai",
+      "title": "We're hiring another Customer Success Manager at Dayjob to support our growing customer base.",
+      "text": "We're hiring another Customer Success Manager at Dayjob to support our growing customer base.\n\nWe build AI agents for waste trucks, one of the largest, least-digitised sectors of the economy. \n\nThis year we got backed by Y Combinator, are live with 13 paying customers, and are growing fast.\n\nOur customers run real fleets, with real operational complexity. A 5% improvement in routing efficiency is worth hundreds of thousands of pounds a year to them. We take that seriously. \n\nWe want every customer to feel the impact of what we're building, and this role is central to making that happen.\n\nThis is a field-first role: three days a week at customer depots across the UK, the rest at our Camden office. You'll own a portfolio of accounts end-to-end, drive measurable efficiency gains, and help build the CS function from the ground up.\n\nThe kind of person who will love this:\n\n- Gets energy from being on-site and around straight-talking people \n- Wants to build something from scratch\n- Takes full ownership and doesn't wait to be told\n\n£50k to £90k depending on level of experience, plus equity.\n\nFull details in the spec in comments. If someone in your network would be a great fit, tag them or send it their way.",
+      "postedAt": "2026-04-30T13:02:54.444Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 19,
+        "comments": 2
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Dayjob",
+          "username": "dayjob-ai",
+          "url": "https://www.linkedin.com/company/dayjob-ai",
+          "canonicalEntityId": "company-dayjob"
+        },
+        "post": {
+          "authorName": "Dayjob",
+          "authorHandle": "dayjob-ai",
+          "activityId": "7455602584175661056",
+          "publishedAt": "2026-04-30T13:02:54.444Z",
+          "originalBody": "We're hiring another Customer Success Manager at Dayjob to support our growing customer base.\n\nWe build AI agents for waste trucks, one of the largest, least-digitised sectors of the economy. \n\nThis year we got backed by Y Combinator, are live with 13 paying customers, and are growing fast.\n\nOur customers run real fleets, with real operational complexity. A 5% improvement in routing efficiency is worth hundreds of thousands of pounds a year to them. We take that seriously. \n\nWe want every customer to feel the impact of what we're building, and this role is central to making that happen.\n\nThis is a field-first role: three days a week at customer depots across the UK, the rest at our Camden office. You'll own a portfolio of accounts end-to-end, drive measurable efficiency gains, and help build the CS function from the ground up.\n\nThe kind of person who will love this:\n\n- Gets energy from being on-site and around straight-talking people \n- Wants to build something from scratch\n- Takes full ownership and doesn't wait to be told\n\n£50k to £90k depending on level of experience, plus equity.\n\nFull details in the spec in comments. If someone in your network would be a great fit, tag them or send it their way.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 19,
+          "comments": 2
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Dayjob company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-04-30T13:02:54.444Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-govguard",
+      "companyEntityId": "company-govguard",
+      "companyName": "GovGuard",
+      "companySlug": "govguard",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/govguard_govguard-is-at-iimc-2026-in-reno-were-activity-7462245623447080960-wo9L",
+      "platformPostId": "7462245623447080960",
+      "accountUrl": "https://www.linkedin.com/company/govguard",
+      "authorName": "GovGuard",
+      "authorHandle": "govguard",
+      "title": "GovGuard is at IIMC 2026 in Reno!",
+      "text": "GovGuard is at IIMC 2026 in Reno! \n\nWe’re at Booth 221 showing how GovGuard automates the manual work behind public records and FOIA requests. Our AI agents automatically find responsive records, flag redactions, and clear backlogs faster without reviewing every document line by line.\n\nStop by for a quick demo, enter our raffle, and pick up a pin at the booth.\n\nGreat to be here with International Institute of Municipal Clerks",
+      "postedAt": "2026-05-18T20:59:58.420Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 24,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "GovGuard",
+          "username": "govguard",
+          "url": "https://www.linkedin.com/company/govguard",
+          "canonicalEntityId": "company-govguard"
+        },
+        "post": {
+          "authorName": "GovGuard",
+          "authorHandle": "govguard",
+          "activityId": "7462245623447080960",
+          "publishedAt": "2026-05-18T20:59:58.420Z",
+          "originalBody": "GovGuard is at IIMC 2026 in Reno! \n\nWe’re at Booth 221 showing how GovGuard automates the manual work behind public records and FOIA requests. Our AI agents automatically find responsive records, flag redactions, and clear backlogs faster without reviewing every document line by line.\n\nStop by for a quick demo, enter our raffle, and pick up a pin at the booth.\n\nGreat to be here with International Institute of Municipal Clerks",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 24,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official GovGuard company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-05-18T20:59:58.420Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-hessian",
+      "companyEntityId": "company-hessian",
+      "companyName": "Hessian",
+      "companySlug": "hessian",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/hessianhq_fazeshift-is-closing-more-deals-than-ever-activity-7465580950962278400-byX5",
+      "platformPostId": "7465580950962278400",
+      "accountUrl": "https://www.linkedin.com/company/hessianhq",
+      "authorName": "Hessian",
+      "authorHandle": "hessianhq",
+      "title": "Fazeshift is closing more deals than ever.",
+      "text": "Fazeshift is closing more deals than ever.\n\nHessian operates across Fazeshift’s sales operations, competitive intelligence, and sales handoffs – surfacing critical insights their team needs to secure more customers and drive revenue.\n\nOur forward-deployed engineers embed themselves deeply into your operations to automate work with AI effectively.\n\nHessian is your AI operating layer, so you and your team can focus on what matters most.",
+      "postedAt": "2026-05-28T01:53:22.480Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 18,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Hessian",
+          "username": "hessianhq",
+          "url": "https://www.linkedin.com/company/hessianhq",
+          "canonicalEntityId": "company-hessian"
+        },
+        "post": {
+          "authorName": "Hessian",
+          "authorHandle": "hessianhq",
+          "activityId": "7465580950962278400",
+          "publishedAt": "2026-05-28T01:53:22.480Z",
+          "originalBody": "Fazeshift is closing more deals than ever.\n\nHessian operates across Fazeshift’s sales operations, competitive intelligence, and sales handoffs – surfacing critical insights their team needs to secure more customers and drive revenue.\n\nOur forward-deployed engineers embed themselves deeply into your operations to automate work with AI effectively.\n\nHessian is your AI operating layer, so you and your team can focus on what matters most.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 18,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Hessian company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-05-28T01:53:22.480Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-modern",
+      "companyEntityId": "company-modern",
+      "companyName": "Modern",
+      "companySlug": "modern",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/modernhq_yesterday-we-launched-modern-yc-p26-on-activity-7448876122714566656-nEyJ",
+      "platformPostId": "7448876122714566656",
+      "accountUrl": "https://www.linkedin.com/company/modernhq",
+      "authorName": "Modern (YC P26)",
+      "authorHandle": "modernhq",
+      "title": "Yesterday, we launched Modern (YC P26) on Y Combinator The response has been incredible 🔥 We're building AI agents for IT, HR, Finance and Ops.",
+      "text": "Yesterday, we launched Modern (YC P26) on Y Combinator\n\nThe response has been incredible 🔥 \n\nWe're building AI agents for IT, HR, Finance and Ops. It's been exciting to see how strongly this resonates and the number of IT teams who are actively exploring what comes next (post ServiceNow, Ivanti, Halo, Jira SM, etc.).\n\nAI is becoming a core part of every enterprise IT team. We believe the best organizations will focus their AI transformation efforts on balancing security, governance, consolidation and flexibility.\n\nThanks to everyone who supported the launch, shared feedback, reposted, or reached out.\n\nA lot more is coming soon.\n\nSeb Poole Aleks Tomovski",
+      "postedAt": "2026-04-11T23:34:21.058Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 39,
+        "comments": 8
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Modern (YC P26)",
+          "username": "modernhq",
+          "url": "https://www.linkedin.com/company/modernhq",
+          "canonicalEntityId": "company-modern"
+        },
+        "post": {
+          "authorName": "Modern (YC P26)",
+          "authorHandle": "modernhq",
+          "activityId": "7448876122714566656",
+          "publishedAt": "2026-04-11T23:34:21.058Z",
+          "originalBody": "Yesterday, we launched Modern (YC P26) on Y Combinator\n\nThe response has been incredible 🔥 \n\nWe're building AI agents for IT, HR, Finance and Ops. It's been exciting to see how strongly this resonates and the number of IT teams who are actively exploring what comes next (post ServiceNow, Ivanti, Halo, Jira SM, etc.).\n\nAI is becoming a core part of every enterprise IT team. We believe the best organizations will focus their AI transformation efforts on balancing security, governance, consolidation and flexibility.\n\nThanks to everyone who supported the launch, shared feedback, reposted, or reached out.\n\nA lot more is coming soon.\n\nSeb Poole Aleks Tomovski",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 39,
+          "comments": 8
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Modern company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-04-11T23:34:21.058Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-maquoketa-research",
+      "companyEntityId": "company-maquoketa-research",
+      "companyName": "Maquoketa Research",
+      "companySlug": "maquoketa-research",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/maquoketa-research_maquoketa-is-excited-to-announce-support-activity-7481884133091110912-0Rvn",
+      "platformPostId": "7481884133091110912",
+      "accountUrl": "https://www.linkedin.com/company/maquoketa-research",
+      "authorName": "Maquoketa Research",
+      "authorHandle": "maquoketa-research",
+      "title": "Maquoketa is excited to announce support for analog video on our Synapse guidance system!",
+      "text": "Maquoketa is excited to announce support for analog video on our Synapse guidance system! \n\nIf you're a drone OEM with an analog VTX looking for an automatic target recognition and terminal guidance solution, we'd love to connect. Synapse taps directly into your existing analog video feed, so you can add automatic target recognition and terminal guidance to platforms already in the field: no redesign, no swapping out your VTX or flight controller. Drop us a message or reach out at contact@maquoketa.net to talk integration.\n\n(FPV feed shown below is on an ArduPilot platform with ExpressLRS radio and 5.8 GHz analog VTX)",
+      "postedAt": "2026-07-12T01:36:23.987Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 12,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Maquoketa Research",
+          "username": "maquoketa-research",
+          "url": "https://www.linkedin.com/company/maquoketa-research",
+          "canonicalEntityId": "company-maquoketa-research"
+        },
+        "post": {
+          "authorName": "Maquoketa Research",
+          "authorHandle": "maquoketa-research",
+          "activityId": "7481884133091110912",
+          "publishedAt": "2026-07-12T01:36:23.987Z",
+          "originalBody": "Maquoketa is excited to announce support for analog video on our Synapse guidance system! \n\nIf you're a drone OEM with an analog VTX looking for an automatic target recognition and terminal guidance solution, we'd love to connect. Synapse taps directly into your existing analog video feed, so you can add automatic target recognition and terminal guidance to platforms already in the field: no redesign, no swapping out your VTX or flight controller. Drop us a message or reach out at contact@maquoketa.net to talk integration.\n\n(FPV feed shown below is on an ArduPilot platform with ExpressLRS radio and 5.8 GHz analog VTX)",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 12,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Maquoketa Research company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-07-12T01:36:23.987Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_surfers-is-joining-elyra-a-warm-welcome-activity-7472981381615083523-lYaZ",
+      "platformPostId": "7472981381615083523",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "Surfers is joining Elyra, a warm welcome!",
+      "text": "Surfers is joining Elyra, a warm welcome!\n\nA restaurant full of energy and atmosphere. We're happy to be working together. 🍶",
+      "postedAt": "2026-06-17T12:00:02.636Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 6,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7472981381615083523",
+          "publishedAt": "2026-06-17T12:00:02.636Z",
+          "originalBody": "Surfers is joining Elyra, a warm welcome!\n\nA restaurant full of energy and atmosphere. We're happy to be working together. 🍶",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 6,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-17T12:00:02.636Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_were-happy-that-popina-vitti-is-joining-activity-7473011588749520896-DBm0",
+      "platformPostId": "7473011588749520896",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "We're happy that Popina Vitti is joining Elyra, excited to be working together!",
+      "text": "We're happy that Popina Vitti is joining Elyra, excited to be working together!",
+      "postedAt": "2026-06-17T14:00:04.577Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 6,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7473011588749520896",
+          "publishedAt": "2026-06-17T14:00:04.577Z",
+          "originalBody": "We're happy that Popina Vitti is joining Elyra, excited to be working together!",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 6,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-17T14:00:04.577Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_b%C3%A2tard-is-coming-to-elyra-a-warm-welcome-activity-7473056906484391941--jUW",
+      "platformPostId": "7473056906484391941",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "Bâtard is coming to Elyra, a warm welcome!",
+      "text": "Bâtard is coming to Elyra, a warm welcome! 🇫🇷",
+      "postedAt": "2026-06-17T17:00:09.162Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 8,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7473056906484391941",
+          "publishedAt": "2026-06-17T17:00:09.162Z",
+          "originalBody": "Bâtard is coming to Elyra, a warm welcome! 🇫🇷",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 8,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-17T17:00:09.162Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_kitchin-dn-is-joining-elyra-were-excited-activity-7473253166759915520-1rwq",
+      "platformPostId": "7473253166759915520",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "Kitchin DN is joining Elyra, we're excited to work with the team!",
+      "text": "Kitchin DN is joining Elyra, we're excited to work with the team! 🥢",
+      "postedAt": "2026-06-18T06:00:01.259Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 8,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7473253166759915520",
+          "publishedAt": "2026-06-18T06:00:01.259Z",
+          "originalBody": "Kitchin DN is joining Elyra, we're excited to work with the team! 🥢",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 8,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-18T06:00:01.259Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_were-happy-to-welcome-la-cucina-to-elyra-activity-7473298478413025280-LfxM",
+      "platformPostId": "7473298478413025280",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "We’re happy to welcome La Cucina to Elyra.",
+      "text": "We’re happy to welcome La Cucina to Elyra. Looking forward to working together! 🍝",
+      "postedAt": "2026-06-18T09:00:04.404Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 13,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7473298478413025280",
+          "publishedAt": "2026-06-18T09:00:04.404Z",
+          "originalBody": "We’re happy to welcome La Cucina to Elyra. Looking forward to working together! 🍝",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 13,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-18T09:00:04.404Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_were-happy-to-welcome-freyja-s%C3%B6der-to-activity-7473343850724569088-nlKJ",
+      "platformPostId": "7473343850724569088",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "We’re happy to welcome Freyja + Söder to Elyra!",
+      "text": "We’re happy to welcome Freyja + Söder to Elyra!\n\nAn iconic rooftop destination with one of Stockholm’s best views. Excited to be working with the team. 🌇",
+      "postedAt": "2026-06-18T12:00:22.007Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 13,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7473343850724569088",
+          "publishedAt": "2026-06-18T12:00:22.007Z",
+          "originalBody": "We’re happy to welcome Freyja + Söder to Elyra!\n\nAn iconic rooftop destination with one of Stockholm’s best views. Excited to be working with the team. 🌇",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 13,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-18T12:00:22.007Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_were-happy-to-welcome-melanders-t%C3%A4by-centrum-activity-7473615595998113792-9nfN",
+      "platformPostId": "7473615595998113792",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "We’re happy to welcome Melanders Täby Centrum to Elyra.",
+      "text": "We’re happy to welcome Melanders Täby Centrum to Elyra. Looking forward to working with the team! 🐟",
+      "postedAt": "2026-06-19T06:00:11.123Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 9,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7473615595998113792",
+          "publishedAt": "2026-06-19T06:00:11.123Z",
+          "originalBody": "We’re happy to welcome Melanders Täby Centrum to Elyra. Looking forward to working with the team! 🐟",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 9,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-19T06:00:11.123Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_orangeriet-uppsala-is-joining-elyra-a-warm-activity-7473675986212085760-GIZw",
+      "platformPostId": "7473675986212085760",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "Orangeriet Uppsala is joining Elyra, a warm welcome to the team!",
+      "text": "Orangeriet Uppsala is joining Elyra, a warm welcome to the team!\n\nHappy to be working together. 🍊",
+      "postedAt": "2026-06-19T10:00:09.191Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 12,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7473675986212085760",
+          "publishedAt": "2026-06-19T10:00:09.191Z",
+          "originalBody": "Orangeriet Uppsala is joining Elyra, a warm welcome to the team!\n\nHappy to be working together. 🍊",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 12,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-19T10:00:09.191Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-elyra",
+      "companyEntityId": "company-elyra",
+      "companyName": "Elyra",
+      "companySlug": "elyra",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/elyrasystems_were-excited-to-welcome-griffins-steakhouse-activity-7473721322351542272-YLqz",
+      "platformPostId": "7473721322351542272",
+      "accountUrl": "https://www.linkedin.com/company/elyrasystems",
+      "authorName": "Elyra",
+      "authorHandle": "elyrasystems",
+      "title": "We’re excited to welcome Griffin’s Steakhouse to Elyra!",
+      "text": "We’re excited to welcome Griffin’s Steakhouse to Elyra!\n\nOne of Stockholm’s go-to places for a great steak. Happy to be working together. 🥩",
+      "postedAt": "2026-06-19T13:00:18.256Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 15,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Elyra",
+          "username": "elyrasystems",
+          "url": "https://www.linkedin.com/company/elyrasystems",
+          "canonicalEntityId": "company-elyra"
+        },
+        "post": {
+          "authorName": "Elyra",
+          "authorHandle": "elyrasystems",
+          "activityId": "7473721322351542272",
+          "publishedAt": "2026-06-19T13:00:18.256Z",
+          "originalBody": "We’re excited to welcome Griffin’s Steakhouse to Elyra!\n\nOne of Stockholm’s go-to places for a great steak. Happy to be working together. 🥩",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 15,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Elyra company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-19T13:00:18.256Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-zolvo",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zolvo-ai_the-june-secured-finance-network-webinar-activity-7477855764364066816-JWl4",
+      "platformPostId": "7477855764364066816",
+      "accountUrl": "https://www.linkedin.com/company/zolvo-ai",
+      "authorName": "Zolvo",
+      "authorHandle": "zolvo-ai",
+      "title": "The June Secured Finance Network webinar on fraud risk opened with a line worth sitting with.",
+      "text": "The June Secured Finance Network webinar on fraud risk opened with a line worth sitting with.\n\n\"As ERPs evolve, payments go fully digital, and bad actors deploy generative AI, traditional monitoring tools are no longer enough.\"\n\nThat's not a warning about the future. It's a description of right now.\n\nHere's what that means in practice for a factoring desk running standard document review:\n\nThe fraud that used to take weeks to engineer now takes hours. A borrower who wants to manufacture a receivable can use generative AI to produce an invoice in correct formatting, plausible buyer name, consistent with the borrower's historical style, all in minutes. The document passes visual inspection because it was designed to.\n\nYour analyst reviews it. Approves it. You fund.\n\nThe fraud detection gap isn't analyst skill. It's detection architecture. Manual review was built for a world where fraud required significant effort to produce. That world ended.\n\nThe checks that now matter can't be run by eye:\n\nMetadata validation: does the file's creation date match the stated invoice date?\nCross-portfolio duplicate detection: was this same receivable submitted to another lender this week?\nBuyer registry verification: does this entity actually exist and operate at this scale?\nRelationship plausibility: does the transaction size match the buyer-seller history?\n\nNone of these take more than seconds when automated. All of them take longer than a typical review cycle when done manually, which means they don't get done.\n\nThe cost of a funded fraudulent invoice isn't a write-down. It's a realized loss. And when the LP asks for the audit trail, the question won't be whether fraud occurred. It'll be whether the system was designed to catch it.\n\nMost operations today are running detection designed for the last generation of fraud.\n\nThe current generation of fraud was designed with that in mind.\nLet’s change this together. Hit us up at hi@zolvo.com",
+      "postedAt": "2026-06-30T22:49:06.040Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 6,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Zolvo",
+          "username": "zolvo-ai",
+          "url": "https://www.linkedin.com/company/zolvo-ai",
+          "canonicalEntityId": "company-zolvo"
+        },
+        "post": {
+          "authorName": "Zolvo",
+          "authorHandle": "zolvo-ai",
+          "activityId": "7477855764364066816",
+          "publishedAt": "2026-06-30T22:49:06.040Z",
+          "originalBody": "The June Secured Finance Network webinar on fraud risk opened with a line worth sitting with.\n\n\"As ERPs evolve, payments go fully digital, and bad actors deploy generative AI, traditional monitoring tools are no longer enough.\"\n\nThat's not a warning about the future. It's a description of right now.\n\nHere's what that means in practice for a factoring desk running standard document review:\n\nThe fraud that used to take weeks to engineer now takes hours. A borrower who wants to manufacture a receivable can use generative AI to produce an invoice in correct formatting, plausible buyer name, consistent with the borrower's historical style, all in minutes. The document passes visual inspection because it was designed to.\n\nYour analyst reviews it. Approves it. You fund.\n\nThe fraud detection gap isn't analyst skill. It's detection architecture. Manual review was built for a world where fraud required significant effort to produce. That world ended.\n\nThe checks that now matter can't be run by eye:\n\nMetadata validation: does the file's creation date match the stated invoice date?\nCross-portfolio duplicate detection: was this same receivable submitted to another lender this week?\nBuyer registry verification: does this entity actually exist and operate at this scale?\nRelationship plausibility: does the transaction size match the buyer-seller history?\n\nNone of these take more than seconds when automated. All of them take longer than a typical review cycle when done manually, which means they don't get done.\n\nThe cost of a funded fraudulent invoice isn't a write-down. It's a realized loss. And when the LP asks for the audit trail, the question won't be whether fraud occurred. It'll be whether the system was designed to catch it.\n\nMost operations today are running detection designed for the last generation of fraud.\n\nThe current generation of fraud was designed with that in mind.\nLet’s change this together. Hit us up at hi@zolvo.com",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 6,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Zolvo company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-30T22:49:06.040Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-zolvo",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zolvo-ai_the-june-issue-of-the-secured-lender-ran-activity-7478457287603535872-nwBx",
+      "platformPostId": "7478457287603535872",
+      "accountUrl": "https://www.linkedin.com/company/zolvo-ai",
+      "authorName": "Zolvo",
+      "authorHandle": "zolvo-ai",
+      "title": "The June issue of The Secured Lender ran a piece titled \"Protecting Collateral Liquidity Through Cyber Operational Resilience.\" One paragraph has been circulating in ABL circles si",
+      "text": "The June issue of The Secured Lender ran a piece titled \"Protecting Collateral Liquidity Through Cyber Operational Resilience.\" One paragraph has been circulating in ABL circles since.\n\n\"In a cyber incident, collateral may remain 'there' but visibility to the lender's collateral and its quality disappears. If a borrower can't ship, can't invoice, or can't produce a trustworthy borrowing base for even a few days, collateral proceeds and AR/inventory mix will change significantly.\"\n\nThat's the hidden operational risk almost no servicing team models for.\n\nHere's the structure of the problem:\n\nABL is built on the premise that collateral converts to cash if the borrower defaults. But that conversion depends on a live, accurate picture of what the collateral actually is at any given moment. AR aging. Invoice mix. Inventory levels. Dilution rates.\n\nWhen that picture goes dark, whether because of a cyber incident, a system failure, or simply a manual process that can't update fast enough, the lender is flying without instruments.\n\nThe borrowing base certificate becomes stale the moment it's submitted. By the time the next one arrives, the collateral composition has already shifted. A lender relying on periodic manual reporting is always operating on a lag.\n\nThe operational consequence isn't theoretical. It shows up in advance rate calculations that don't reflect current eligibility. In concentration limits that breach silently. In covenant monitoring that catches problems after they've compounded.\n\nThe lenders who aren't exposed to this risk aren't running better field exams. They're running continuous monitoring: real-time data feeds from bank accounts and receivables systems, automatic borrowing base recalculation, covenant alerts that fire before breach rather than after.\n\nThe infrastructure gap between a periodic manual process and a continuous one is where most collateral risk lives in 2026. Not in credit quality, in visibility latency. \n\nLet Zolvo handle this, improve your visibility now. Hit us up at hi@zolvo.com",
+      "postedAt": "2026-07-02T14:39:20.363Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 3,
+        "comments": 1
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Zolvo",
+          "username": "zolvo-ai",
+          "url": "https://www.linkedin.com/company/zolvo-ai",
+          "canonicalEntityId": "company-zolvo"
+        },
+        "post": {
+          "authorName": "Zolvo",
+          "authorHandle": "zolvo-ai",
+          "activityId": "7478457287603535872",
+          "publishedAt": "2026-07-02T14:39:20.363Z",
+          "originalBody": "The June issue of The Secured Lender ran a piece titled \"Protecting Collateral Liquidity Through Cyber Operational Resilience.\" One paragraph has been circulating in ABL circles since.\n\n\"In a cyber incident, collateral may remain 'there' but visibility to the lender's collateral and its quality disappears. If a borrower can't ship, can't invoice, or can't produce a trustworthy borrowing base for even a few days, collateral proceeds and AR/inventory mix will change significantly.\"\n\nThat's the hidden operational risk almost no servicing team models for.\n\nHere's the structure of the problem:\n\nABL is built on the premise that collateral converts to cash if the borrower defaults. But that conversion depends on a live, accurate picture of what the collateral actually is at any given moment. AR aging. Invoice mix. Inventory levels. Dilution rates.\n\nWhen that picture goes dark, whether because of a cyber incident, a system failure, or simply a manual process that can't update fast enough, the lender is flying without instruments.\n\nThe borrowing base certificate becomes stale the moment it's submitted. By the time the next one arrives, the collateral composition has already shifted. A lender relying on periodic manual reporting is always operating on a lag.\n\nThe operational consequence isn't theoretical. It shows up in advance rate calculations that don't reflect current eligibility. In concentration limits that breach silently. In covenant monitoring that catches problems after they've compounded.\n\nThe lenders who aren't exposed to this risk aren't running better field exams. They're running continuous monitoring: real-time data feeds from bank accounts and receivables systems, automatic borrowing base recalculation, covenant alerts that fire before breach rather than after.\n\nThe infrastructure gap between a periodic manual process and a continuous one is where most collateral risk lives in 2026. Not in credit quality, in visibility latency. \n\nLet Zolvo handle this, improve your visibility now. Hit us up at hi@zolvo.com",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 3,
+          "comments": 1
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Zolvo company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-07-02T14:39:20.363Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-zolvo",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zolvo-ai_six-months-ago-a-mid-market-lender-got-a-activity-7478852072243863552-04fL",
+      "platformPostId": "7478852072243863552",
+      "accountUrl": "https://www.linkedin.com/company/zolvo-ai",
+      "authorName": "Zolvo",
+      "authorHandle": "zolvo-ai",
+      "title": "Six months ago, a mid-market lender got a routine LP data request.",
+      "text": "Six months ago, a mid-market lender got a routine LP data request.\n\n\"Can you pull the confirmation records for the supply chain facilities from Q4?\"\n\nStandard ask. Thirty-minute job, they assumed.\n\nFour business days later, they were still reconstructing.\n\nThe confirmation records existed... \nsomewhere, but, where?)\n\nSpread across three email inboxes, two shared drives, a folder labeled \"2025 Verification Misc,\" and a spreadsheet someone had built to track things manually before realizing it was too slow to maintain. The analyst who had run most of those confirmations was on parental leave.\n\nThey found what they needed. Eventually. But the LP had moved on and was now asking a different question: not about Q4, but about their verification process in general.\n\nABF Journal covered a version of this story in a different context last week, noting that \"documentation, audit rights and confirmation protocols are all being rebuilt\" across the asset class following verification gaps that surfaced in supply chain financing last year. The exposure wasn't the fraud itself. It was the absence of a clean, timestamped record of what the lender had checked and when.\n\nWhat LP due diligence looks like now is different from what it looked like two years ago. The question has shifted from \"do you have the data?\" to \"can you show me the process that produced it?\"\n\nA spreadsheet answer to that question used to be acceptable.\n\nIt isn't anymore.\n\nThe operations that can answer that question in minutes rather than days aren't running harder. They're running with a different system: one where the verification record is created automatically at the moment of confirmation, not reconstructed four days later when someone asks.\n\nLeave audit trails to Zolvo, hit us up at hi@zolvo.com",
+      "postedAt": "2026-07-03T16:48:04.358Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 2,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Zolvo",
+          "username": "zolvo-ai",
+          "url": "https://www.linkedin.com/company/zolvo-ai",
+          "canonicalEntityId": "company-zolvo"
+        },
+        "post": {
+          "authorName": "Zolvo",
+          "authorHandle": "zolvo-ai",
+          "activityId": "7478852072243863552",
+          "publishedAt": "2026-07-03T16:48:04.358Z",
+          "originalBody": "Six months ago, a mid-market lender got a routine LP data request.\n\n\"Can you pull the confirmation records for the supply chain facilities from Q4?\"\n\nStandard ask. Thirty-minute job, they assumed.\n\nFour business days later, they were still reconstructing.\n\nThe confirmation records existed... \nsomewhere, but, where?)\n\nSpread across three email inboxes, two shared drives, a folder labeled \"2025 Verification Misc,\" and a spreadsheet someone had built to track things manually before realizing it was too slow to maintain. The analyst who had run most of those confirmations was on parental leave.\n\nThey found what they needed. Eventually. But the LP had moved on and was now asking a different question: not about Q4, but about their verification process in general.\n\nABF Journal covered a version of this story in a different context last week, noting that \"documentation, audit rights and confirmation protocols are all being rebuilt\" across the asset class following verification gaps that surfaced in supply chain financing last year. The exposure wasn't the fraud itself. It was the absence of a clean, timestamped record of what the lender had checked and when.\n\nWhat LP due diligence looks like now is different from what it looked like two years ago. The question has shifted from \"do you have the data?\" to \"can you show me the process that produced it?\"\n\nA spreadsheet answer to that question used to be acceptable.\n\nIt isn't anymore.\n\nThe operations that can answer that question in minutes rather than days aren't running harder. They're running with a different system: one where the verification record is created automatically at the moment of confirmation, not reconstructed four days later when someone asks.\n\nLeave audit trails to Zolvo, hit us up at hi@zolvo.com",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 2,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Zolvo company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-07-03T16:48:04.358Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-zolvo",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zolvo-ai_private-credit-in-2026-discipline-dispersion-activity-7479889433874472961-cp2s",
+      "platformPostId": "7479889433874472961",
+      "accountUrl": "https://www.linkedin.com/company/zolvo-ai",
+      "authorName": "Zolvo",
+      "authorHandle": "zolvo-ai",
+      "title": "\"Private Credit in 2026: Discipline, Dispersion and Defaults\" by Arcesium makes a point operators already suspect: default outcomes get decided long before the default shows up on ",
+      "text": "\"Private Credit in 2026: Discipline, Dispersion and Defaults\" by Arcesium  makes a point operators already suspect: default outcomes get decided long before the default shows up on paper, in how early the operational team notices stress and how fast that signal reaches the right person.\n\nMost servicing teams already have that signal. It just doesn't travel.\n\nA collections analyst notices a borrower asking for three payment extensions in six weeks. Notes it in the CRM. Moves to the next call.\n\nA reconciliation analyst, working a different queue entirely, notices the same borrower's payments have started arriving four to six days late, every month, for the last quarter.\n\nNeither analyst sees the other's notes. Neither one is wrong. The information just lives in two systems that don't talk, updated by two people who don't compare notes unless something has already gone wrong enough to force a meeting.\n\nBy the time both signals reach a risk officer together, the borrower isn't early-stage stressed anymore. They're 60 days out, and the workout conversation starts from a weaker position than it needed to.\n\nThe whitepaper's framing: technology integration matters less as a productivity story and more as a signal-routing story. The extension requests and the late payments were never separate data points. They were the same borrower, in the same quarter, telling the same story twice, to two people who never compared notes.\n\nFixing this isn't hiring a risk analyst to read every note. It's making the collections log and the reconciliation ledger reference the same borrower record, so the pattern surfaces on its own instead of waiting for a human to notice it twice.\n\nHow are you preventing or solving this gap?🧐",
+      "postedAt": "2026-07-06T13:30:10.630Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 1,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Zolvo",
+          "username": "zolvo-ai",
+          "url": "https://www.linkedin.com/company/zolvo-ai",
+          "canonicalEntityId": "company-zolvo"
+        },
+        "post": {
+          "authorName": "Zolvo",
+          "authorHandle": "zolvo-ai",
+          "activityId": "7479889433874472961",
+          "publishedAt": "2026-07-06T13:30:10.630Z",
+          "originalBody": "\"Private Credit in 2026: Discipline, Dispersion and Defaults\" by Arcesium  makes a point operators already suspect: default outcomes get decided long before the default shows up on paper, in how early the operational team notices stress and how fast that signal reaches the right person.\n\nMost servicing teams already have that signal. It just doesn't travel.\n\nA collections analyst notices a borrower asking for three payment extensions in six weeks. Notes it in the CRM. Moves to the next call.\n\nA reconciliation analyst, working a different queue entirely, notices the same borrower's payments have started arriving four to six days late, every month, for the last quarter.\n\nNeither analyst sees the other's notes. Neither one is wrong. The information just lives in two systems that don't talk, updated by two people who don't compare notes unless something has already gone wrong enough to force a meeting.\n\nBy the time both signals reach a risk officer together, the borrower isn't early-stage stressed anymore. They're 60 days out, and the workout conversation starts from a weaker position than it needed to.\n\nThe whitepaper's framing: technology integration matters less as a productivity story and more as a signal-routing story. The extension requests and the late payments were never separate data points. They were the same borrower, in the same quarter, telling the same story twice, to two people who never compared notes.\n\nFixing this isn't hiring a risk analyst to read every note. It's making the collections log and the reconciliation ledger reference the same borrower record, so the pattern surfaces on its own instead of waiting for a human to notice it twice.\n\nHow are you preventing or solving this gap?🧐",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 1,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Zolvo company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-07-06T13:30:10.630Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-zolvo",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zolvo-ai_we-never-thought-wed-compare-zolvo-to-a-activity-7479952522049327104-kiIW",
+      "platformPostId": "7479952522049327104",
+      "accountUrl": "https://www.linkedin.com/company/zolvo-ai",
+      "authorName": "Zolvo",
+      "authorHandle": "zolvo-ai",
+      "title": "We never thought we'd compare Zolvo to a referee.",
+      "text": "We never thought we'd compare Zolvo to a referee. But here we are.\n\nThink about VAR for a second.\n\nThe referee runs the whole match. Makes the call. Keeps things moving.\nVAR only gets checked when something looks wrong.\n\nThat's exactly how Zolvo works for accounting teams.\n\nEvery reconciliation. Every debtor pool update. Every NOA. Every transaction running quietly in the background.\n\nZolvo makes the call. In real time. No human needed to babysit it.\n\nYour accounting team doesn't touch it (they don't have to).\n\nThey only step in when something's actually exceptional. A mismatch. A flag. Something that needs a real human decision.\n\nThat's it. That's the whole job now.\n\nNot reviewing 100% of transactions like it's still 2015.\nJust reviewing the 2% that actually matter.\n\nWe built this because we watched teams manually checking EVERY play when they should've been trusting the system and only stepping in for the controversial calls.\n\nThe best referees are invisible. You only notice them when something's wrong.\n\nThat's the product we're building.",
+      "postedAt": "2026-07-06T17:40:52.030Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 11,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Zolvo",
+          "username": "zolvo-ai",
+          "url": "https://www.linkedin.com/company/zolvo-ai",
+          "canonicalEntityId": "company-zolvo"
+        },
+        "post": {
+          "authorName": "Zolvo",
+          "authorHandle": "zolvo-ai",
+          "activityId": "7479952522049327104",
+          "publishedAt": "2026-07-06T17:40:52.030Z",
+          "originalBody": "We never thought we'd compare Zolvo to a referee. But here we are.\n\nThink about VAR for a second.\n\nThe referee runs the whole match. Makes the call. Keeps things moving.\nVAR only gets checked when something looks wrong.\n\nThat's exactly how Zolvo works for accounting teams.\n\nEvery reconciliation. Every debtor pool update. Every NOA. Every transaction running quietly in the background.\n\nZolvo makes the call. In real time. No human needed to babysit it.\n\nYour accounting team doesn't touch it (they don't have to).\n\nThey only step in when something's actually exceptional. A mismatch. A flag. Something that needs a real human decision.\n\nThat's it. That's the whole job now.\n\nNot reviewing 100% of transactions like it's still 2015.\nJust reviewing the 2% that actually matter.\n\nWe built this because we watched teams manually checking EVERY play when they should've been trusting the system and only stepping in for the controversial calls.\n\nThe best referees are invisible. You only notice them when something's wrong.\n\nThat's the product we're building.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 11,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Zolvo company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-07-06T17:40:52.030Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-zolvo",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zolvo-ai_what-should-we-talk-about-when-focusing-on-activity-7480987416590233600-jTPn",
+      "platformPostId": "7480987416590233600",
+      "accountUrl": "https://www.linkedin.com/company/zolvo-ai",
+      "authorName": "Zolvo",
+      "authorHandle": "zolvo-ai",
+      "title": "What should we talk about when focusing on niche lending: construction, oilfield services, staffing?",
+      "text": "What should we talk about when focusing on niche lending: construction, oilfield services, staffing?\n\nSFNet's panel spent an hour on one idea: the red flags in these industries don't look like red flags anywhere else.\n\nA regional factor decided to test that against their own book. They ran an audit on 90 days of construction invoices.\n\nWhat they found:\n\nOne: pay-if-paid clauses buried in subcontracts that made half their \"eligible\" receivables conditional on a payment that hadn't happened yet.\n\nTwo: three invoices from the same GC, same project, submitted by two different subcontractors they were funding. Same job, same money, funded twice.\n\nThree: a staffing sub-vertical where the invoice amount tracked headcount that didn't match any payroll filing on record.\n\nNone of these tripped a standard fraud check. Standard checks look for forged documents and inflated amounts. These were real documents, real numbers, wrong assumptions.\n\nThe panel's point: construction, oilfield, and staffing all carry industry-specific structures, retainage, joint checks, pay-if-paid, per diem staffing math, that a generic verification process was never built to catch.\n\nThe factor's fix wasn't more review time. It was industry-specific rules layered onto the standard checks: flag pay-if-paid language automatically, cross-reference GC and project across submissions, tie staffing invoices to headcount data.\n\nSame team. Same volume. Different questions being asked of every invoice.",
+      "postedAt": "2026-07-09T14:13:10.121Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 2,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Zolvo",
+          "username": "zolvo-ai",
+          "url": "https://www.linkedin.com/company/zolvo-ai",
+          "canonicalEntityId": "company-zolvo"
+        },
+        "post": {
+          "authorName": "Zolvo",
+          "authorHandle": "zolvo-ai",
+          "activityId": "7480987416590233600",
+          "publishedAt": "2026-07-09T14:13:10.121Z",
+          "originalBody": "What should we talk about when focusing on niche lending: construction, oilfield services, staffing?\n\nSFNet's panel spent an hour on one idea: the red flags in these industries don't look like red flags anywhere else.\n\nA regional factor decided to test that against their own book. They ran an audit on 90 days of construction invoices.\n\nWhat they found:\n\nOne: pay-if-paid clauses buried in subcontracts that made half their \"eligible\" receivables conditional on a payment that hadn't happened yet.\n\nTwo: three invoices from the same GC, same project, submitted by two different subcontractors they were funding. Same job, same money, funded twice.\n\nThree: a staffing sub-vertical where the invoice amount tracked headcount that didn't match any payroll filing on record.\n\nNone of these tripped a standard fraud check. Standard checks look for forged documents and inflated amounts. These were real documents, real numbers, wrong assumptions.\n\nThe panel's point: construction, oilfield, and staffing all carry industry-specific structures, retainage, joint checks, pay-if-paid, per diem staffing math, that a generic verification process was never built to catch.\n\nThe factor's fix wasn't more review time. It was industry-specific rules layered onto the standard checks: flag pay-if-paid language automatically, cross-reference GC and project across submissions, tie staffing invoices to headcount data.\n\nSame team. Same volume. Different questions being asked of every invoice.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 2,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Zolvo company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-07-09T14:13:10.121Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-zolvo",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zolvo-ai_abf-journals-read-on-this-week-higher-for-longer-activity-7481395444166725632-2fqW",
+      "platformPostId": "7481395444166725632",
+      "accountUrl": "https://www.linkedin.com/company/zolvo-ai",
+      "authorName": "Zolvo",
+      "authorHandle": "zolvo-ai",
+      "title": "ABF Journal's read on this week: higher-for-longer cost of capital, collateral-anchored underwriting, borrowing-base discipline.",
+      "text": "ABF Journal's read on this week: higher-for-longer cost of capital, collateral-anchored underwriting, borrowing-base discipline. That's the environment every commercial lender is underwriting into right now.\n\nHere's the number that environment doesn't show up in, but should: what your current manual servicing process is costing you per month, separate from your cost of capital.\n\nTake a mid-size factoring shop running $80M in receivables. Three reconciliation analysts at $75K a year. If 40% of their time goes to fixing errors and rework instead of new volume, that's roughly $90,000 a year spent correcting a process instead of running it.\n\nAdd invoice fraud that slips past manual review because a 60-invoice batch doesn't get six layers of checking, it gets two. Add a borrowing base certificate that's a week behind the actual reconciled ledger by the time an LP or auditor asks for it.\n\nNone of that shows up as a line item. It shows up as a slower close, a covenant question nobody can answer cleanly, and a fraud loss that gets discovered eighteen months later in a portfolio review.\n\nIn a higher-for-longer environment, capital is already more expensive. Layering an unmeasured servicing cost on top of that is a choice, even when it doesn't feel like one.\n\nThe question worth asking this quarter: if reconciliation, invoice verification, and borrowing-base reporting ran on current data instead of last week's export, what would that actually be worth against the cost of capital already being paid?",
+      "postedAt": "2026-07-10T17:14:31.471Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 1,
+        "comments": 0
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Zolvo",
+          "username": "zolvo-ai",
+          "url": "https://www.linkedin.com/company/zolvo-ai",
+          "canonicalEntityId": "company-zolvo"
+        },
+        "post": {
+          "authorName": "Zolvo",
+          "authorHandle": "zolvo-ai",
+          "activityId": "7481395444166725632",
+          "publishedAt": "2026-07-10T17:14:31.471Z",
+          "originalBody": "ABF Journal's read on this week: higher-for-longer cost of capital, collateral-anchored underwriting, borrowing-base discipline. That's the environment every commercial lender is underwriting into right now.\n\nHere's the number that environment doesn't show up in, but should: what your current manual servicing process is costing you per month, separate from your cost of capital.\n\nTake a mid-size factoring shop running $80M in receivables. Three reconciliation analysts at $75K a year. If 40% of their time goes to fixing errors and rework instead of new volume, that's roughly $90,000 a year spent correcting a process instead of running it.\n\nAdd invoice fraud that slips past manual review because a 60-invoice batch doesn't get six layers of checking, it gets two. Add a borrowing base certificate that's a week behind the actual reconciled ledger by the time an LP or auditor asks for it.\n\nNone of that shows up as a line item. It shows up as a slower close, a covenant question nobody can answer cleanly, and a fraud loss that gets discovered eighteen months later in a portfolio review.\n\nIn a higher-for-longer environment, capital is already more expensive. Layering an unmeasured servicing cost on top of that is a choice, even when it doesn't feel like one.\n\nThe question worth asking this quarter: if reconciliation, invoice verification, and borrowing-base reporting ran on current data instead of last week's export, what would that actually be worth against the cost of capital already being paid?",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 1,
+          "comments": 0
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Zolvo company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-07-10T17:14:31.471Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "company",
+      "entityId": "company-zolvo",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/zolvo-ai_if-youve-ever-had-an-entire-workflow-break-activity-7485093213742088192-rRSv",
+      "platformPostId": "7485093213742088192",
+      "accountUrl": "https://www.linkedin.com/company/zolvo-ai",
+      "authorName": "Zolvo",
+      "authorHandle": "zolvo-ai",
+      "title": "If you’ve ever had an entire workflow break because a borrower updated their accounting software and renamed a spreadsheet column from Inv_Date to Billing_Date, you already know ho",
+      "text": "If you’ve ever had an entire workflow break because a borrower updated their accounting software and renamed a spreadsheet column from Inv_Date to Billing_Date, you already know how brittle traditional automation is.\n\nEveryone keeps saying \"just use AI.\" or \"give it to claude\"\n\nBut the reality is that an AI error isn't just an awkward typo in a marketing email. It’s an undetected cross-aging dilution, a corrupted ineligible calculation, or an over-advance that vaporizes your collateral cushion.\n\nThe truth? AI is an incredible precision tool, but dropping it into a 30-year-old core system without customized data engineering, ontop of processes that are discretional to each employee, not knowing what to ask or what to expect is an existential risk to your capital and your reputation.\n\nWe do believe that AI can make your operations run smoother, but we know it's not just waving the magic wand.\n\nJoin Isa, Zolvo's CEO for a beginner friendly technical briefing designed exclusively for senior lenders. \n\nExpect to end the session knowing the basics of how to implement AI, what to expect from implementation and how to avoid common mistakes.\n\nSave your spot here: https://luma.com/giuei6jj",
+      "postedAt": "2026-07-20T22:08:08.437Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 9,
+        "comments": 2
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Zolvo",
+          "username": "zolvo-ai",
+          "url": "https://www.linkedin.com/company/zolvo-ai",
+          "canonicalEntityId": "company-zolvo"
+        },
+        "post": {
+          "authorName": "Zolvo",
+          "authorHandle": "zolvo-ai",
+          "activityId": "7485093213742088192",
+          "publishedAt": "2026-07-20T22:08:08.437Z",
+          "originalBody": "If you’ve ever had an entire workflow break because a borrower updated their accounting software and renamed a spreadsheet column from Inv_Date to Billing_Date, you already know how brittle traditional automation is.\n\nEveryone keeps saying \"just use AI.\" or \"give it to claude\"\n\nBut the reality is that an AI error isn't just an awkward typo in a marketing email. It’s an undetected cross-aging dilution, a corrupted ineligible calculation, or an over-advance that vaporizes your collateral cushion.\n\nThe truth? AI is an incredible precision tool, but dropping it into a 30-year-old core system without customized data engineering, ontop of processes that are discretional to each employee, not knowing what to ask or what to expect is an existential risk to your capital and your reputation.\n\nWe do believe that AI can make your operations run smoother, but we know it's not just waving the magic wand.\n\nJoin Isa, Zolvo's CEO for a beginner friendly technical briefing designed exclusively for senior lenders. \n\nExpect to end the session knowing the basics of how to implement AI, what to expect from implementation and how to avoid common mistakes.\n\nSave your spot here: https://luma.com/giuei6jj",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 9,
+          "comments": 2
+        },
+        "verification": {
+          "method": "LinkedIn public company-page JSON-LD plus post-level feed metric attributes",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Official LinkedIn company account linked from the canonical public YC company profile",
+          "contentAttribution": "Original first-party company-account body; reshare wrappers excluded",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by the official Zolvo company account; public native data exposes an original body, exact timestamp, and positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical company ownership, original company-account body, positive visible native metrics, deterministic publication time, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-07-20T22:08:08.437Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-netter-amin-hamzaoui-3140846",
+      "companyEntityId": "company-netter",
+      "companyName": "Netter",
+      "companySlug": "netter",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/amin-hamzaoui_from-the-cover-of-nature-to-the-agents-of-activity-7467583346785652736-48Oj",
+      "platformPostId": "7467583346785652736",
+      "accountUrl": "https://fr.linkedin.com/in/amin-hamzaoui",
+      "authorName": "Amin Hamzaoui",
+      "authorHandle": "amin-hamzaoui",
+      "title": "From the cover of Nature to the agents of Netter (YC P26).",
+      "text": "From the cover of Nature to the agents of Netter (YC P26).\n\nDuring my internship at AMOLF (Amsterdam), I wrote an algorithm that made the cover of Nature.\n\nThe lab was drowning in data: a single fungus generated ~700 GB of microscope images in two months, and a full experiment meant tens of terabytes a month. They could only study a handful of these organisms, by hand.\n\nI built an algorithm to fix that: turn thousands of images into one compact map of the network, with the exact moment each branch grew baked in. Around 1000x smaller, and for the first time the team could analyze the entire dataset.\n\nThe network (every branch colored by its age) got featured on the cover of Nature.\n\nThat experience inspired me to build Netter (YC P26).\n\nNo matter how smart the LLM, what limits us is getting messy information into a shape intelligence can actually use.\n\nMost companies have the exact same problem, at scale. Years of valuable data, scattered across tools that don’t talk to each other, and teams analyzing a sliver of it by hand.\n\nOur mission is to democratize data science excellence: normalize and organize data so AI agents can reason across it and deploy the right intelligence for each situation.\n\nWe are now applying the same approach to entire companies (instead of fungi), with results already in production.\n\nAnd we’re just getting started.",
+      "postedAt": "2026-06-02T14:30:10.844Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 81,
+        "comments": 13
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Amin Hamzaoui",
+          "username": "amin-hamzaoui",
+          "url": "https://fr.linkedin.com/in/amin-hamzaoui",
+          "canonicalEntityId": "founder-netter-amin-hamzaoui-3140846"
+        },
+        "post": {
+          "authorName": "Amin Hamzaoui",
+          "authorHandle": "amin-hamzaoui",
+          "activityId": "7467583346785652736",
+          "publishedAt": "2026-06-02T14:30:10.844Z",
+          "originalBody": "From the cover of Nature to the agents of Netter (YC P26). During my internship at AMOLF, I wrote an algorithm that made the cover of Nature. That experience inspired me to build Netter (YC P26).",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 81,
+          "comments": 13
+        },
+        "verification": {
+          "method": "LinkedIn public native post JSON-LD",
+          "checkedAt": "2026-07-23T03:28:00.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party founder body explicitly names Netter (YC P26)",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across current canonical evidence and source-hunt manifests"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Netter founder Amin Hamzaoui; original body explicitly attributes Netter and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T03:28:00.000Z",
+      "last_checked_at": "2026-07-23T03:28:00.000Z",
+      "last_updated_at": "2026-06-02T14:30:10.844Z",
+      "contributionScore": 1
+    }
+  ],
+  "rejected": [
+    {
+      "companyName": "Savant",
+      "platform": "linkedin/x",
+      "reason": "Official/founder surfaces exposed no independently authored native company post with strict owner attribution, deterministic timestamp, and positive visible metrics."
+    },
+    {
+      "companyName": "shotwell.ai",
+      "platform": "linkedin/x",
+      "reason": "No qualifying first-party native company or canonical-founder post was found on the verified public surfaces searched."
+    },
+    {
+      "companyName": "The Company Company",
+      "platform": "linkedin/x",
+      "reason": "Founder public activity contained prior-company Mixedbread material and reposts, not first-party native posts attributable to The Company Company."
+    },
+    {
+      "companyName": "Smartbase",
+      "platform": "linkedin",
+      "reason": "Public founder/company search exposed reposts and third-party mentions, not an independently authored native company post with self-contained attribution."
+    },
+    {
+      "companyName": "PLAN0",
+      "platform": "linkedin",
+      "reason": "No qualifying original first-party native post with positive visible metrics was exposed on the verified public surfaces."
+    },
+    {
+      "companyName": "Infera",
+      "platform": "linkedin",
+      "reason": "No qualifying original first-party native post with positive visible metrics was exposed on the verified public surfaces."
+    },
+    {
+      "companyName": "flowscope",
+      "platform": "linkedin",
+      "sourceUrls": [
+        "https://www.linkedin.com/posts/flow-scope_samuel-mirpuri-presenting-flowscope-yc-p26-activity-7484649500435836928-cqU-",
+        "https://www.linkedin.com/posts/flow-scope_most-ai-agents-fail-because-they-have-no-activity-7484649794016161792-f2T2",
+        "https://www.linkedin.com/posts/flow-scope_ask-yourself-if-we-built-this-process-today-activity-7485291193476620288-CwKO"
+      ],
+      "reason": "Company-feed HTML repeated one 91-reaction/6-comment metric card across three activities, while direct public post fetches did not expose post-specific metrics; rejected rather than importing misbound counts."
+    },
+    {
+      "companyName": "Panacea",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/panacea-bio_adialante-changing-cancer-early-diagnosis-activity-7482811206714699776",
+      "reason": "Official Panacea account body discusses unrelated Adialante cancer/MRI work; canonical Panacea is FDA regulatory services. Attribution conflict, so not imported."
+    }
+  ],
+  "quarantined": [
+    {
+      "companyName": "Netter",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/netterai_from-nature-to-netter-activity-7467597825334472704",
+      "platformPostId": "7467597825334472704",
+      "reason": "Company wrapper resharing the accepted native founder post; excluded under strict no-reshare-wrapper policy."
+    }
+  ],
+  "duplicates": [
+    {
+      "companyName": "Dayjob",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/dayjob-ai_dayjob-in-numbers-activity-7472994482108571648-Jzqf",
+      "platformPostId": "7472994482108571648",
+      "reason": "Exact platform post ID already exists in public-evidence-current.json; excluded from wave-2 accepted handoff."
+    },
+    {
+      "companyName": "ReasonBlocks",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/reason-blocks_reasonblocks-activity-7447459083332411392-iQux",
+      "platformPostId": "7447459083332411392",
+      "reason": "Exact platform post ID already exists in public-evidence-current.json; excluded from wave-2 accepted handoff."
+    }
+  ],
+  "coverageNotes": [
+    "Systematic public crawl covered every official Spring/P26 LinkedIn company page for companies with two or fewer current canonical sources.",
+    "Exact activity IDs were checked against the 1,280-row canonical YC targeted-evidence state before manifest generation.",
+    "Low/zero-priority companies were also checked through public LinkedIn/X discovery; ambiguous profiles, third-party mentions, reposts, metric-misbound cards, and unrelated identity/pivot content were excluded."
+  ]
+}

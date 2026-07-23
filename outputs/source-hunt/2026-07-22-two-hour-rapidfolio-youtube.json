@@ -1,0 +1,70 @@
+{
+  "source": {
+    "label": "Two-hour autonomous source hunt: Rapidfolio native YouTube launch recovery",
+    "generatedAt": "2026-07-23T02:30:00.000Z",
+    "batchSlug": "S26",
+    "platformsCovered": [
+      "youtube"
+    ],
+    "notes": [
+      "Direct native watch-page metadata supplied publication time, owner channel, channel ID, current public views, exact YC S26 title, and first-party product description."
+    ]
+  },
+  "evidence": [
+    {
+      "id": "youtube-company-rapidfolio-www-youtube-com-watch-v-0ubifrhnh08-introducing-rapidfolio-y-combinator-s26",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-rapidfolio",
+      "companySlug": "rapidfolio",
+      "companyName": "Rapidfolio",
+      "platform": "youtube",
+      "title": "Introducing Rapidfolio (Y Combinator S26)",
+      "sourceUrl": "https://www.youtube.com/watch?v=0UBIfRhNh08",
+      "platformPostId": "0UBIfRhNh08",
+      "accountUrl": "https://www.youtube.com/channel/UC2YBx4Zw31IrWMFNptRdxOQ",
+      "authorName": "Rapidfolio",
+      "text": "Rapidfolio, the AI platform for banks and fintechs. Backed by Y Combinator. Rapidfolio automates manual back-office workflows for banks and fintechs.",
+      "postedAt": "2026-07-22T12:22:26-07:00",
+      "metrics": {
+        "views": 8,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 3,
+      "youtubeChannelId": "UC2YBx4Zw31IrWMFNptRdxOQ",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UC2YBx4Zw31IrWMFNptRdxOQ",
+      "youtubeChannelName": "Rapidfolio",
+      "rawVisibleText": {
+        "source": "native_youtube_direct_verification_v1",
+        "post": {
+          "platformPostId": "0UBIfRhNh08",
+          "title": "Introducing Rapidfolio (Y Combinator S26)",
+          "authorName": "Rapidfolio",
+          "authorUrl": "https://www.youtube.com/channel/UC2YBx4Zw31IrWMFNptRdxOQ",
+          "channelId": "UC2YBx4Zw31IrWMFNptRdxOQ",
+          "publishedAt": "2026-07-22T12:22:26-07:00",
+          "description": "Rapidfolio, the AI platform for banks and fintechs. Backed by Y Combinator."
+        },
+        "metrics": {
+          "views": 8,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Native YouTube launch video from the Rapidfolio-owned channel; title names Rapidfolio and YC S26, description names the product and YC backing, and the official company identity matches exactly."
+      },
+      "matchReason": "Native YouTube launch video from the Rapidfolio-owned channel; title names Rapidfolio and YC S26, description names the product and YC backing, and the official company identity matches exactly.",
+      "attributionProvenance": "native_youtube_direct_verification_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "native_channel_brand",
+        "exact_company_and_expected_cohort"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-22T12:22:26-07:00"
+    }
+  ]
+}

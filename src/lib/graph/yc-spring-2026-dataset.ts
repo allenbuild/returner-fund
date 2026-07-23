@@ -205,7 +205,9 @@ interface PublicEvidenceRecord {
   contributionScore: number;
   review_state: "verified" | "needs_review" | "rejected";
   attributionVersion?: number;
+  attributionProvenance?: string;
   attributionStatus?: string;
+  attributionMode?: string;
   attributionSignals?: string[];
   matchReason: string;
   first_seen_at: string;
@@ -1579,6 +1581,10 @@ function hasVerifiedSemanticAttributionReceipt(item: PublicEvidenceRecord): bool
 }
 
 function shouldTrustCanonicalAttributionReceiptAtGraphBoundary(item: PublicEvidenceRecord): boolean {
+  if (isVerifiedOfficialYcCompanyPageYouTubeEmbed(item)) {
+    return true;
+  }
+
   if (!hasVerifiedSemanticAttributionReceipt(item)) {
     return false;
   }
@@ -1602,6 +1608,107 @@ function shouldTrustCanonicalAttributionReceiptAtGraphBoundary(item: PublicEvide
   }
 
   return false;
+}
+
+export function isVerifiedOfficialYcCompanyPageYouTubeEmbed(item: unknown): boolean {
+  if (!item || typeof item !== "object" || Array.isArray(item)) {
+    return false;
+  }
+
+  const evidence = item as Partial<PublicEvidenceRecord>;
+  if (
+    evidence.platform !== "youtube" ||
+    evidence.entityType !== "company" ||
+    evidence.review_state !== "verified" ||
+    evidence.attributionStatus !== "verified"
+  ) {
+    return false;
+  }
+
+  const explicitBatchSlug = String(evidence.batchSlug ?? evidence.batch_slug ?? "").trim().toUpperCase();
+  const catalog =
+    explicitBatchSlug === YC_SUMMER_2026_BATCH_SLUG
+      ? snapshot.companies
+      : explicitBatchSlug === YC_SPRING_2026_BATCH_SLUG
+        ? springSnapshot.companies
+        : null;
+  if (!catalog) {
+    return false;
+  }
+
+  const catalogCompany = catalog.find((company) => companyId(company) === evidence.entityId);
+  const receipt = rawVisibleTextRecord(evidence.rawVisibleText);
+  const receiptCompany = recordFromUnknown(receipt?.company);
+  const receiptPost = recordFromUnknown(receipt?.post);
+  const receiptMetrics = recordFromUnknown(receipt?.metrics);
+  const receiptSource = stringRecordValue(receipt, "source");
+  const isAutomatedReceipt =
+    receiptSource === "official_yc_company_page_embed_v1" &&
+    (evidence.attributionSignals?.length ?? 0) > 0;
+  const isManualAdjudicationReceipt =
+    receiptSource === "manual_official_yc_embed_adjudication_v1" &&
+    evidence.attributionProvenance === receiptSource &&
+    evidence.attributionMode === "subject" &&
+    stringRecordValue(receipt, "verification") === evidence.matchReason;
+  if (
+    !catalogCompany ||
+    (!isAutomatedReceipt && !isManualAdjudicationReceipt) ||
+    stringRecordValue(receiptCompany, "entityId") !== evidence.entityId ||
+    stringRecordValue(receiptCompany, "slug") !== catalogCompany.slug ||
+    stringRecordValue(receiptCompany, "name") !== catalogCompany.name ||
+    evidence.companyName !== catalogCompany.name ||
+    stringRecordValue(receipt, "officialYcProfileUrl") !== catalogCompany.ycProfileUrl
+  ) {
+    return false;
+  }
+
+  const canonicalPostId = String(evidence.platformPostId ?? "").trim();
+  const receiptPostId = stringRecordValue(receiptPost, "platformPostId");
+  const nativeUrlPostId = nativeYouTubeVideoId(evidence.sourceUrl);
+  if (
+    !canonicalPostId ||
+    receiptPostId !== canonicalPostId ||
+    nativeUrlPostId !== canonicalPostId ||
+    stringRecordValue(receiptPost, "publishedAt") !== evidence.postedAt
+  ) {
+    return false;
+  }
+
+  const receiptViews = finiteRecordNumber(receiptMetrics, "views");
+  const receiptLikes = finiteRecordNumber(receiptMetrics, "likes");
+  const receiptComments = finiteRecordNumber(receiptMetrics, "comments");
+  return (
+    receiptViews !== null &&
+    receiptViews > 0 &&
+    receiptViews === Number(evidence.metrics?.views) &&
+    receiptLikes === Number(evidence.metrics?.likes ?? 0) &&
+    receiptComments === Number(evidence.metrics?.comments ?? 0)
+  );
+}
+
+function nativeYouTubeVideoId(rawUrl: string | null | undefined): string | null {
+  try {
+    const url = new URL(rawUrl ?? "");
+    const host = url.hostname.replace(/^www\./i, "").toLowerCase();
+    const path = url.pathname.replace(/\/+$/, "");
+    if (host === "youtu.be") {
+      return path.match(/^\/([A-Za-z0-9_-]+)$/)?.[1] ?? null;
+    }
+    if (host !== "youtube.com" && host !== "m.youtube.com") {
+      return null;
+    }
+    if (path === "/watch") {
+      return url.searchParams.get("v");
+    }
+    return path.match(/^\/shorts\/([A-Za-z0-9_-]+)$/i)?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function finiteRecordNumber(record: Record<string, unknown> | null, key: string): number | null {
+  const value = record?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function isAcceptedLinkedInEvidenceWithoutSemanticReceipt(item: PublicEvidenceRecord): boolean {

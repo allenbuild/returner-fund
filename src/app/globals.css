@@ -2340,7 +2340,10 @@ progress::-webkit-progress-value {
 
 .tab-list {
   display: grid;
-  grid-template-columns: repeat(3, 154px) minmax(0, 1fr);
+  /* Four invariant navigation tracks plus one reserved action track. Keeping
+     the actions in their own column prevents active-panel controls from ever
+     changing the tab widths. */
+  grid-template-columns: repeat(4, 154px) minmax(0, 1fr);
   align-items: center;
   flex-wrap: nowrap;
   gap: 8px;
@@ -2355,9 +2358,9 @@ progress::-webkit-progress-value {
   flex: 0 0 154px;
   align-items: center;
   justify-content: center;
-  width: 154px;
-  min-width: 154px;
-  max-width: 154px;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
   height: 36px;
   min-height: 36px;
   padding: 0 12px;
@@ -2396,7 +2399,7 @@ progress::-webkit-progress-value {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  grid-column: 4;
+  grid-column: 5;
   margin-left: 0;
   min-height: 34px;
 }
@@ -3796,7 +3799,7 @@ td button {
 
   .tab-list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: center;
     min-height: 0;
     overflow: visible;
@@ -4429,22 +4432,6 @@ td button {
   color: var(--neutral-700);
 }
 
-.tab-list {
-  /* Keep navigation controls compact and invariant. The action area absorbs
-     period-toggle width so switching panels cannot resize the four tabs. */
-  grid-template-columns: repeat(4, 154px) minmax(0, 1fr);
-}
-
-.tab-list > button {
-  width: 154px;
-  min-width: 154px;
-  max-width: 154px;
-}
-
-.tab-list-actions {
-  grid-column: 5;
-}
-
 .ranked-posts-tab-body {
   padding: 0;
   background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.035), transparent 180px);
@@ -4595,7 +4582,7 @@ td button {
   border: 0;
   background: transparent;
   color: #ef5a16;
-  font-size: 0.98rem;
+  font-size: 1.05rem;
   font-weight: 750;
   line-height: 1.2;
   text-overflow: ellipsis;
@@ -4623,7 +4610,7 @@ td button {
   margin: 0;
   overflow: hidden;
   color: var(--neutral-700);
-  font-size: 0.94rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.2;
   text-overflow: ellipsis;
@@ -4649,18 +4636,23 @@ td button {
 }
 
 .ranked-post-score {
+  display: inline-flex;
   flex: 0 0 auto;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #ef5a16;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--overview-score-bg);
+  color: var(--overview-score-ink);
   font-variant-numeric: tabular-nums;
+  box-shadow: 0 8px 16px var(--accent-shadow);
 }
 
 .ranked-post-score strong {
-  font-size: 1.08rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 750;
   line-height: 1.1;
 }
 
@@ -4834,10 +4826,6 @@ td button {
     grid-column: 1 / -1;
   }
 
-  .tab-list {
-    grid-template-columns: repeat(4, 154px) minmax(0, 1fr);
-  }
-
   .ranked-post-card {
     grid-template-columns: 32px 86px minmax(0, 1fr);
   }
@@ -4851,25 +4839,6 @@ td button {
 
   .filter-band .score-filter {
     grid-column: 1 / -1;
-  }
-
-  .tab-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .tab-list-actions {
-    grid-column: 1 / -1;
-  }
-
-  .tab-list > button {
-    width: 100%;
-    min-width: 0;
-    max-width: none;
-    font-size: 0.61rem;
-  }
-
-  .tab-list > button svg {
-    display: none;
   }
 
   .ranked-post-card {

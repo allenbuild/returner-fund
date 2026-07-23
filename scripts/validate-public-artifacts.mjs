@@ -1136,7 +1136,7 @@ export function nativeEvidenceIdentityFromUrl(platform, rawUrl) {
       return pathname.match(/^\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)$/i)?.[1] ?? null;
     }
     if (platform === "linkedin") {
-      if (!hostIs(host, "linkedin.com", "m.linkedin.com")) return null;
+      if (host !== "linkedin.com" && !host.endsWith(".linkedin.com")) return null;
       const feedId = pathname.match(/^\/feed\/update\/urn:li:activity:(\d+)$/i)?.[1];
       if (feedId) return feedId;
       const postSegment = pathname.match(/^\/posts\/([^/]+)$/i)?.[1];

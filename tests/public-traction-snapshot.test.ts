@@ -19,7 +19,10 @@ function isNativeContentUrl(platform: string, rawUrl: string) {
   if (platform === "instagram") return /^\/(?:p|reel|tv)\/[^/]+$/i.test(path);
   if (platform === "linkedin") return /\/feed\/update\/urn:li:activity:\d+$|\/posts\/[^/]*?activity-\d+/i.test(path);
   if (platform === "youtube") return (path === "/watch" && Boolean(url.searchParams.get("v"))) || /^\/shorts\/[^/]+$/i.test(path);
-  if (platform === "product_hunt") return /^\/(?:posts|products)\/[^/]+$/i.test(path);
+  if (platform === "product_hunt") {
+    return /^\/(?:posts|products)\/[^/]+$/i.test(path)
+      || /^\/products\/[^/]+\/launches\/[^/]+$/i.test(path);
+  }
   if (platform === "hacker_news") return url.hostname === "news.ycombinator.com" && path === "/item" && /^\d+$/.test(url.searchParams.get("id") ?? "");
   if (platform === "reddit") return /\/comments\/[^/]+/i.test(path);
   if (platform === "github") return path.split("/").filter(Boolean).length === 2;

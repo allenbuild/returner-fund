@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-07-23T02:51:00.000Z",
+  "target": "src/lib/social/targeted-evidence-current.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-22-s26-autonomous-hunt-source_hunt_summer-wave2.json"
+  ],
+  "before": 1307,
+  "received": 13,
+  "accepted": 13,
+  "updated": 0,
+  "duplicates": 0,
+  "duplicateRows": [],
+  "includedBatches": [],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 1320
+}

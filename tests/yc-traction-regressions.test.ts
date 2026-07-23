@@ -9,7 +9,10 @@ import {
 } from "@/lib/graph/traction-scoring";
 import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import type { EvidenceItem, Platform } from "@/lib/graph/types";
-import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import {
+  isVerifiedOfficialYcCompanyPageYouTubeEmbed,
+  ycSpring2026GraphDataset
+} from "@/lib/graph/yc-spring-2026-dataset";
 import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 
 describe("YC traction scoring regressions", () => {
@@ -25,10 +28,13 @@ describe("YC traction scoring regressions", () => {
     expect(postIds(evidence)).toEqual(
       expect.arrayContaining([
         "7473766659829223424",
-        "2059649954520736030"
+        "2059649954520736030",
+        "hjkTYmDQqtQ",
+        "oKlgnHUq0jo"
       ])
     );
     expect(postIds(evidence)).not.toContain("7471229920451629056");
+    expect(evidence.some((item) => item.contributionScore > 0)).toBe(true);
     expect(evidence.every((item) => item.contributionScore > 0)).toBe(true);
     expect(new Set(evidence.map((item) => `${item.platform}:${item.platformPostId}`)).size).toBe(evidence.length);
 
@@ -63,6 +69,81 @@ describe("YC traction scoring regressions", () => {
       ycSpring2026GraphDataset
     );
     expect(insiderGraph.evidence.some((item) => item.platformPostId === "7471229920451629056")).toBe(false);
+  });
+
+  it("trusts only complete official YC company-page YouTube embed receipts", () => {
+    const edenYouTube = targetedEvidenceSnapshot.evidence.find(
+      (item) =>
+        item.entityId === "company-eden-robotics" &&
+        item.platform === "youtube" &&
+        item.platformPostId === "hjkTYmDQqtQ"
+    );
+    expect(edenYouTube).toBeTruthy();
+    expect(isVerifiedOfficialYcCompanyPageYouTubeEmbed(edenYouTube)).toBe(true);
+
+    const receipt = JSON.parse(edenYouTube!.rawVisibleText);
+    const withReceipt = (nextReceipt: unknown) => ({
+      ...edenYouTube,
+      rawVisibleText: JSON.stringify(nextReceipt)
+    });
+    expect(isVerifiedOfficialYcCompanyPageYouTubeEmbed({ ...edenYouTube, entityType: "founder" })).toBe(false);
+    expect(isVerifiedOfficialYcCompanyPageYouTubeEmbed({ ...edenYouTube, review_state: "needs_review" })).toBe(false);
+    expect(isVerifiedOfficialYcCompanyPageYouTubeEmbed({ ...edenYouTube, attributionStatus: "unverified" })).toBe(false);
+    expect(isVerifiedOfficialYcCompanyPageYouTubeEmbed({ ...edenYouTube, attributionSignals: [] })).toBe(false);
+    expect(
+      isVerifiedOfficialYcCompanyPageYouTubeEmbed(withReceipt({ ...receipt, source: "untrusted_source" }))
+    ).toBe(false);
+    expect(
+      isVerifiedOfficialYcCompanyPageYouTubeEmbed(withReceipt({
+        ...receipt,
+        company: { ...receipt.company, entityId: "company-not-eden" }
+      }))
+    ).toBe(false);
+    expect(
+      isVerifiedOfficialYcCompanyPageYouTubeEmbed(withReceipt({
+        ...receipt,
+        officialYcProfileUrl: "https://www.ycombinator.com/companies/not-eden"
+      }))
+    ).toBe(false);
+    expect(
+      isVerifiedOfficialYcCompanyPageYouTubeEmbed(withReceipt({
+        ...receipt,
+        post: { ...receipt.post, platformPostId: "DifferentVideo" }
+      }))
+    ).toBe(false);
+    expect(
+      isVerifiedOfficialYcCompanyPageYouTubeEmbed({
+        ...edenYouTube,
+        sourceUrl: "https://youtube.com/watch?v=DifferentVideo"
+      })
+    ).toBe(false);
+    expect(
+      isVerifiedOfficialYcCompanyPageYouTubeEmbed({
+        ...edenYouTube,
+        sourceUrl: "https://youtube.com.evil.example/watch?v=hjkTYmDQqtQ"
+      })
+    ).toBe(false);
+
+    const manuallyAdjudicated = targetedEvidenceSnapshot.evidence.find(
+      (item) =>
+        item.entityId === "company-jo" &&
+        item.platform === "youtube" &&
+        item.platformPostId === "7u6vxYF44rI"
+    );
+    expect(manuallyAdjudicated).toBeTruthy();
+    expect(isVerifiedOfficialYcCompanyPageYouTubeEmbed(manuallyAdjudicated)).toBe(true);
+    expect(
+      isVerifiedOfficialYcCompanyPageYouTubeEmbed({
+        ...manuallyAdjudicated,
+        attributionProvenance: "untrusted_manual_review"
+      })
+    ).toBe(false);
+    expect(
+      isVerifiedOfficialYcCompanyPageYouTubeEmbed({
+        ...manuallyAdjudicated,
+        matchReason: "Receipt verification no longer matches the adjudication."
+      })
+    ).toBe(false);
   });
 
   it("reports platform coverage for the selected YC batch", () => {

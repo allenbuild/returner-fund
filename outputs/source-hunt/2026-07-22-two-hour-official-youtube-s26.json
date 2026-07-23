@@ -1,0 +1,1423 @@
+{
+  "source": {
+    "label": "Two-hour autonomous source hunt: S26 official YC-page YouTube embeds",
+    "generatedAt": "2026-07-23T02:30:00.000Z",
+    "batchSlug": "S26",
+    "platformsCovered": [
+      "youtube"
+    ],
+    "attributionProvenance": "official_yc_company_page_embed_v1",
+    "dedupedAgainst": [
+      "src/lib/social/targeted-evidence-current.json",
+      "src/lib/social/public-evidence-current.json",
+      "src/lib/social/logged-in-evidence-current.json",
+      "src/lib/social/a16z-speedrun-006-social-evidence.json"
+    ],
+    "notes": [
+      "Only exact native YouTube watch URLs embedded on the official YC company page are included.",
+      "Each row has a native channel identity, publication timestamp, and at least one positive visible scoring metric.",
+      "Raw platform payloads were reduced to concise verification fields before import."
+    ]
+  },
+  "evidence": [
+    {
+      "id": "youtube-company-6thsense-www-youtube-com-watch-v-gxx53tciv5u-vision-tactile-labeled-dataset",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-6thsense",
+      "companySlug": "6thsense",
+      "companyName": "6thSense",
+      "platform": "youtube",
+      "title": "Vision-Tactile Labeled Dataset",
+      "sourceUrl": "https://youtube.com/watch?v=gXx53tcIv5U",
+      "platformPostId": "gXx53tcIv5U",
+      "accountUrl": "https://youtube.com/channel/UCVKXJvGeY89cvuCdsKfE5_w",
+      "authorName": "6thSense",
+      "text": "At 6thSense, we built a wearable that captures exactly that. Every frame records what the hands see and feel: pressure across every finger, object contact, and 3D hand pose - in any kitchen, any hallway, anywhere. Not a lab. The real world. We believe this is the missing layer for teaching robots dexterity and master manipulation tasks. inquires contact alex@6thsense.dev Backed by Y Combinator",
+      "postedAt": "2026-06-25T17:18:39-07:00",
+      "metrics": {
+        "views": 305,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 35,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "6thSense",
+          "slug": "6thsense",
+          "entityId": "company-6thsense"
+        },
+        "post": {
+          "platformPostId": "gXx53tcIv5U",
+          "title": "Vision-Tactile Labeled Dataset",
+          "authorName": "6thSense",
+          "authorUrl": "https://youtube.com/channel/UCVKXJvGeY89cvuCdsKfE5_w",
+          "publishedAt": "2026-06-25T17:18:39-07:00",
+          "channelId": "UCVKXJvGeY89cvuCdsKfE5_w"
+        },
+        "metrics": {
+          "views": 305,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/6thsense"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-06-25T17:18:39-07:00",
+      "youtubeChannelId": "UCVKXJvGeY89cvuCdsKfE5_w",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCVKXJvGeY89cvuCdsKfE5_w",
+      "youtubeChannelName": "6thSense",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/6thsense"
+    },
+    {
+      "id": "youtube-company-agentcard-www-youtube-com-watch-v-tn5rsdpu1u4-order-doordash-from-claude-with-agentcard",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-agentcard",
+      "companySlug": "agentcard",
+      "companyName": "Agentcard",
+      "platform": "youtube",
+      "title": "order DoorDash from Claude with Agentcard",
+      "sourceUrl": "https://youtube.com/watch?v=Tn5rsdPu1u4",
+      "platformPostId": "Tn5rsdPu1u4",
+      "accountUrl": "https://youtube.com/channel/UCsjqARWAaqO0z2ubdvXumpg",
+      "authorName": "Agentcard",
+      "text": "you can now buy Doordash from Claude. connect Agentcard to your Openclaw, Claude or whatever you use, ask for what you want and we handle the rest. it feels magic. install from agentcard.sh and make your first order for free!",
+      "postedAt": "2026-06-19T11:13:57-07:00",
+      "metrics": {
+        "views": 289,
+        "likes": 2,
+        "comments": 0
+      },
+      "contributionScore": 39,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Agentcard",
+          "slug": "agentcard",
+          "entityId": "company-agentcard"
+        },
+        "post": {
+          "platformPostId": "Tn5rsdPu1u4",
+          "title": "order DoorDash from Claude with Agentcard",
+          "authorName": "Agentcard",
+          "authorUrl": "https://youtube.com/channel/UCsjqARWAaqO0z2ubdvXumpg",
+          "publishedAt": "2026-06-19T11:13:57-07:00",
+          "channelId": "UCsjqARWAaqO0z2ubdvXumpg"
+        },
+        "metrics": {
+          "views": 289,
+          "likes": 2,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/agentcard"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-06-19T11:13:57-07:00",
+      "youtubeChannelId": "UCsjqARWAaqO0z2ubdvXumpg",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCsjqARWAaqO0z2ubdvXumpg",
+      "youtubeChannelName": "Agentcard",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/agentcard"
+    },
+    {
+      "id": "youtube-company-agentcard-www-youtube-com-watch-v-ucydbp73hr0-agentcard-cli-demo",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-agentcard",
+      "companySlug": "agentcard",
+      "companyName": "Agentcard",
+      "platform": "youtube",
+      "title": "agentcard cli demo",
+      "sourceUrl": "https://youtube.com/watch?v=ucYDbP73hr0",
+      "platformPostId": "ucYDbP73hr0",
+      "accountUrl": "https://youtube.com/channel/UCZRuZ5Cjn_jWSw9ZyTY5pxw",
+      "authorName": "Felipe Abello",
+      "text": "Embedded in the official Agentcard YC company page.",
+      "postedAt": "2026-06-22T11:38:19-07:00",
+      "metrics": {
+        "views": 227,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 31,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Agentcard",
+          "slug": "agentcard",
+          "entityId": "company-agentcard"
+        },
+        "post": {
+          "platformPostId": "ucYDbP73hr0",
+          "title": "agentcard cli demo",
+          "authorName": "Felipe Abello",
+          "authorUrl": "https://youtube.com/channel/UCZRuZ5Cjn_jWSw9ZyTY5pxw",
+          "publishedAt": "2026-06-22T11:38:19-07:00",
+          "channelId": "UCZRuZ5Cjn_jWSw9ZyTY5pxw"
+        },
+        "metrics": {
+          "views": 227,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/agentcard"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "native_channel_roster_founder"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-06-22T11:38:19-07:00",
+      "youtubeChannelId": "UCZRuZ5Cjn_jWSw9ZyTY5pxw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCZRuZ5Cjn_jWSw9ZyTY5pxw",
+      "youtubeChannelName": "Felipe Abello",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/agentcard"
+    },
+    {
+      "id": "youtube-company-alkera-ai-www-youtube-com-watch-v-fqevpqpynxg-alkera-ai-s26-launch-video",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-alkera-ai",
+      "companySlug": "alkera-ai",
+      "companyName": "Alkera AI",
+      "platform": "youtube",
+      "title": "Alkera AI (S26) | Launch Video",
+      "sourceUrl": "https://youtube.com/watch?v=fQEVpQPYNxg",
+      "platformPostId": "fQEVpQPYNxg",
+      "accountUrl": "https://youtube.com/channel/UC8NKDH38KYaCz4zH3ABSqGg",
+      "authorName": "Alkera AI",
+      "text": "Try the Alkera agent today at https://alkera.ai to build your data engineering pipelines, run complex analyses on your data, or execute parallel data science experiments. Book a call to learn more about how Alkera can supercharge your data teams.",
+      "postedAt": "2026-07-17T08:31:28-07:00",
+      "metrics": {
+        "views": 163,
+        "likes": 7,
+        "comments": 0
+      },
+      "contributionScore": 44,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Alkera AI",
+          "slug": "alkera-ai",
+          "entityId": "company-alkera-ai"
+        },
+        "post": {
+          "platformPostId": "fQEVpQPYNxg",
+          "title": "Alkera AI (S26) | Launch Video",
+          "authorName": "Alkera AI",
+          "authorUrl": "https://youtube.com/channel/UC8NKDH38KYaCz4zH3ABSqGg",
+          "publishedAt": "2026-07-17T08:31:28-07:00",
+          "channelId": "UC8NKDH38KYaCz4zH3ABSqGg"
+        },
+        "metrics": {
+          "views": 163,
+          "likes": 7,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/alkera-ai"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-17T08:31:28-07:00",
+      "youtubeChannelId": "UC8NKDH38KYaCz4zH3ABSqGg",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UC8NKDH38KYaCz4zH3ABSqGg",
+      "youtubeChannelName": "Alkera AI",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/alkera-ai"
+    },
+    {
+      "id": "youtube-company-alloovium-www-youtube-com-watch-v-wvpjl3o8pzm-alloovium-construction-paperwork-that-finally-works-for-your-team",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-alloovium",
+      "companySlug": "alloovium",
+      "companyName": "Alloovium",
+      "platform": "youtube",
+      "title": "Alloovium: Construction paperwork that finally works for your team",
+      "sourceUrl": "https://youtube.com/watch?v=wVPJL3o8PzM",
+      "platformPostId": "wVPJL3o8PzM",
+      "accountUrl": "https://youtube.com/channel/UCbXK2OfnsmLx9EF-vqsOChw",
+      "authorName": "Alloovium",
+      "text": "Embedded in the official Alloovium YC company page.",
+      "postedAt": "2026-07-08T16:20:51-07:00",
+      "metrics": {
+        "views": 120,
+        "likes": 2,
+        "comments": 0
+      },
+      "contributionScore": 30,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Alloovium",
+          "slug": "alloovium",
+          "entityId": "company-alloovium"
+        },
+        "post": {
+          "platformPostId": "wVPJL3o8PzM",
+          "title": "Alloovium: Construction paperwork that finally works for your team",
+          "authorName": "Alloovium",
+          "authorUrl": "https://youtube.com/channel/UCbXK2OfnsmLx9EF-vqsOChw",
+          "publishedAt": "2026-07-08T16:20:51-07:00",
+          "channelId": "UCbXK2OfnsmLx9EF-vqsOChw"
+        },
+        "metrics": {
+          "views": 120,
+          "likes": 2,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/alloovium"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "catalog_distinctive_phrase",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-08T16:20:51-07:00",
+      "youtubeChannelId": "UCbXK2OfnsmLx9EF-vqsOChw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCbXK2OfnsmLx9EF-vqsOChw",
+      "youtubeChannelName": "Alloovium",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/alloovium"
+    },
+    {
+      "id": "youtube-company-bloomy-www-youtube-com-watch-v-8e5phhwjtd4-meet-bloomy",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-bloomy",
+      "companySlug": "bloomy",
+      "companyName": "Bloomy",
+      "platform": "youtube",
+      "title": "Meet Bloomy",
+      "sourceUrl": "https://youtube.com/watch?v=8E5PhhWjtD4",
+      "platformPostId": "8E5PhhWjtD4",
+      "accountUrl": "https://youtube.com/channel/UCR0AxNOqIsK9MY9Bw09fY1w",
+      "authorName": "Bloomy Learning",
+      "text": "Bloomy: AI-powered mastery learning for K-12 Using AI to help kids learn faster Learn more at bloomylearning.com",
+      "postedAt": "2026-07-01T00:51:06-07:00",
+      "metrics": {
+        "views": 510,
+        "likes": 4,
+        "comments": 0
+      },
+      "contributionScore": 49,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Bloomy",
+          "slug": "bloomy",
+          "entityId": "company-bloomy"
+        },
+        "post": {
+          "platformPostId": "8E5PhhWjtD4",
+          "title": "Meet Bloomy",
+          "authorName": "Bloomy Learning",
+          "authorUrl": "https://youtube.com/channel/UCR0AxNOqIsK9MY9Bw09fY1w",
+          "publishedAt": "2026-07-01T00:51:06-07:00",
+          "channelId": "UCR0AxNOqIsK9MY9Bw09fY1w"
+        },
+        "metrics": {
+          "views": 510,
+          "likes": 4,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/bloomy"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "catalog_distinctive_phrase",
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-01T00:51:06-07:00",
+      "youtubeChannelId": "UCR0AxNOqIsK9MY9Bw09fY1w",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCR0AxNOqIsK9MY9Bw09fY1w",
+      "youtubeChannelName": "Bloomy Learning",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/bloomy"
+    },
+    {
+      "id": "youtube-company-coasty-www-youtube-com-watch-v-3ewlfqlgdem-coasty-helps-developers-kill-rpa",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-coasty",
+      "companySlug": "coasty",
+      "companyName": "Coasty",
+      "platform": "youtube",
+      "title": "Coasty Helps Developers Kill RPA",
+      "sourceUrl": "https://youtube.com/watch?v=3EwLfqlgDEM",
+      "platformPostId": "3EwLfqlgDEM",
+      "accountUrl": "https://youtube.com/channel/UCK4MQrXRfHoa1Ms20AwIhJA",
+      "authorName": "Coasty AI",
+      "text": "Only at Coasty. https://coasty.ai/",
+      "postedAt": "2026-07-09T23:13:28-07:00",
+      "metrics": {
+        "views": 130,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 23,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Coasty",
+          "slug": "coasty",
+          "entityId": "company-coasty"
+        },
+        "post": {
+          "platformPostId": "3EwLfqlgDEM",
+          "title": "Coasty Helps Developers Kill RPA",
+          "authorName": "Coasty AI",
+          "authorUrl": "https://youtube.com/channel/UCK4MQrXRfHoa1Ms20AwIhJA",
+          "publishedAt": "2026-07-09T23:13:28-07:00",
+          "channelId": "UCK4MQrXRfHoa1Ms20AwIhJA"
+        },
+        "metrics": {
+          "views": 130,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/coasty"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-09T23:13:28-07:00",
+      "youtubeChannelId": "UCK4MQrXRfHoa1Ms20AwIhJA",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCK4MQrXRfHoa1Ms20AwIhJA",
+      "youtubeChannelName": "Coasty AI",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/coasty"
+    },
+    {
+      "id": "youtube-company-conifer-www-youtube-com-watch-v-qlvnismtet0-conifer-demo-video",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-conifer",
+      "companySlug": "conifer",
+      "companyName": "Conifer",
+      "platform": "youtube",
+      "title": "Conifer Demo Video",
+      "sourceUrl": "https://youtube.com/watch?v=QLVNISmtet0",
+      "platformPostId": "QLVNISmtet0",
+      "accountUrl": "https://youtube.com/channel/UCyKZ-jHM7VDebEyYGfEyDCg",
+      "authorName": "Conifer",
+      "text": "Local-first least cost router to reduce +80% token spend.",
+      "postedAt": "2026-07-14T12:46:00-07:00",
+      "metrics": {
+        "views": 287,
+        "likes": 2,
+        "comments": 0
+      },
+      "contributionScore": 39,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Conifer",
+          "slug": "conifer",
+          "entityId": "company-conifer"
+        },
+        "post": {
+          "platformPostId": "QLVNISmtet0",
+          "title": "Conifer Demo Video",
+          "authorName": "Conifer",
+          "authorUrl": "https://youtube.com/channel/UCyKZ-jHM7VDebEyYGfEyDCg",
+          "publishedAt": "2026-07-14T12:46:00-07:00",
+          "channelId": "UCyKZ-jHM7VDebEyYGfEyDCg"
+        },
+        "metrics": {
+          "views": 287,
+          "likes": 2,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/conifer"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "catalog_distinctive_phrase",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-14T12:46:00-07:00",
+      "youtubeChannelId": "UCyKZ-jHM7VDebEyYGfEyDCg",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCyKZ-jHM7VDebEyYGfEyDCg",
+      "youtubeChannelName": "Conifer",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/conifer"
+    },
+    {
+      "id": "youtube-company-definite-www-youtube-com-watch-v-ji1ae8y-v4e-definite-the-most-accurate-ai-agents-for-financial-reporting",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-definite",
+      "companySlug": "definite",
+      "companyName": "Definite",
+      "platform": "youtube",
+      "title": "Definite - The Most Accurate AI Agents for Financial Reporting",
+      "sourceUrl": "https://youtube.com/watch?v=ji1ae8y_V4E",
+      "platformPostId": "ji1ae8y_V4E",
+      "accountUrl": "https://youtube.com/channel/UCRzt0pueR1wLbGsrjp3U7cw",
+      "authorName": "Definite (YC S26)",
+      "text": "Definite builds AI agents that generate the reports banks and financial institutions file with their regulators. Before any number lands in a filing, our verification engine checks it independently. Every line gets recomputed from ledger records and checked against a versioned rulebook, and wrong outputs go back to the agent with the reason, like compiler errors. They don't ship.",
+      "postedAt": "2026-07-14T12:34:21-07:00",
+      "metrics": {
+        "views": 63,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 15,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Definite",
+          "slug": "definite",
+          "entityId": "company-definite"
+        },
+        "post": {
+          "platformPostId": "ji1ae8y_V4E",
+          "title": "Definite - The Most Accurate AI Agents for Financial Reporting",
+          "authorName": "Definite (YC S26)",
+          "authorUrl": "https://youtube.com/channel/UCRzt0pueR1wLbGsrjp3U7cw",
+          "publishedAt": "2026-07-14T12:34:21-07:00",
+          "channelId": "UCRzt0pueR1wLbGsrjp3U7cw"
+        },
+        "metrics": {
+          "views": 63,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/definite"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "catalog_distinctive_phrase",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-14T12:34:21-07:00",
+      "youtubeChannelId": "UCRzt0pueR1wLbGsrjp3U7cw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCRzt0pueR1wLbGsrjp3U7cw",
+      "youtubeChannelName": "Definite (YC S26)",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/definite"
+    },
+    {
+      "id": "youtube-company-ekpa-www-youtube-com-watch-v-coiur4puqpg-ekpa-demo-video",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-ekpa",
+      "companySlug": "ekpa",
+      "companyName": "Ekpa",
+      "platform": "youtube",
+      "title": "Ekpa Demo Video",
+      "sourceUrl": "https://youtube.com/watch?v=COiuR4pUQpg",
+      "platformPostId": "COiuR4pUQpg",
+      "accountUrl": "https://youtube.com/channel/UCsxOxa0HaJvgWSktxpHuK_Q",
+      "authorName": "Anant Asthana",
+      "text": "A simple portfolio management platform built by Ekpa! Check it out at goekpa.com",
+      "postedAt": "2026-07-08T21:33:03-07:00",
+      "metrics": {
+        "views": 499,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 43,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Ekpa",
+          "slug": "ekpa",
+          "entityId": "company-ekpa"
+        },
+        "post": {
+          "platformPostId": "COiuR4pUQpg",
+          "title": "Ekpa Demo Video",
+          "authorName": "Anant Asthana",
+          "authorUrl": "https://youtube.com/channel/UCsxOxa0HaJvgWSktxpHuK_Q",
+          "publishedAt": "2026-07-08T21:33:03-07:00",
+          "channelId": "UCsxOxa0HaJvgWSktxpHuK_Q"
+        },
+        "metrics": {
+          "views": 499,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/ekpa"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_roster_founder"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-08T21:33:03-07:00",
+      "youtubeChannelId": "UCsxOxa0HaJvgWSktxpHuK_Q",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCsxOxa0HaJvgWSktxpHuK_Q",
+      "youtubeChannelName": "Anant Asthana",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/ekpa"
+    },
+    {
+      "id": "youtube-company-fabraix-www-youtube-com-watch-v-whmjimiuaem-launching-nyx-the-world-s-frontier-hacker-for-ai-agents",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-fabraix",
+      "companySlug": "fabraix",
+      "companyName": "Fabraix",
+      "platform": "youtube",
+      "title": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+      "sourceUrl": "https://youtube.com/watch?v=WHmJIMIuAEM",
+      "platformPostId": "WHmJIMIuAEM",
+      "accountUrl": "https://youtube.com/channel/UCkSbCzJjWO1MpztvSyWakwA",
+      "authorName": "Fabraix HQ",
+      "text": "Embedded in the official Fabraix YC company page.",
+      "postedAt": "2026-07-17T22:48:35-07:00",
+      "metrics": {
+        "views": 57,
+        "likes": 1,
+        "comments": 0
+      },
+      "contributionScore": 21,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Fabraix",
+          "slug": "fabraix",
+          "entityId": "company-fabraix"
+        },
+        "post": {
+          "platformPostId": "WHmJIMIuAEM",
+          "title": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+          "authorName": "Fabraix HQ",
+          "authorUrl": "https://youtube.com/channel/UCkSbCzJjWO1MpztvSyWakwA",
+          "publishedAt": "2026-07-17T22:48:35-07:00",
+          "channelId": "UCkSbCzJjWO1MpztvSyWakwA"
+        },
+        "metrics": {
+          "views": 57,
+          "likes": 1,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/fabraix"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "catalog_distinctive_phrase",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-17T22:48:35-07:00",
+      "youtubeChannelId": "UCkSbCzJjWO1MpztvSyWakwA",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCkSbCzJjWO1MpztvSyWakwA",
+      "youtubeChannelName": "Fabraix HQ",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/fabraix"
+    },
+    {
+      "id": "youtube-company-instance-www-youtube-com-watch-v-eqxkpffnukk-instance-automated-evals-for-robot-policies",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-instance",
+      "companySlug": "instance",
+      "companyName": "Instance",
+      "platform": "youtube",
+      "title": "Instance - Automated evals for robot policies",
+      "sourceUrl": "https://youtube.com/watch?v=EqxkPffnUKk",
+      "platformPostId": "EqxkPffnUKk",
+      "accountUrl": "https://youtube.com/channel/UC3YtMhqBxP5j8SqAOQGNxEQ",
+      "authorName": "Claire Mao",
+      "text": "Email founders@instancelabs.ai to book a demo.",
+      "postedAt": "2026-07-13T00:47:23-07:00",
+      "metrics": {
+        "views": 234,
+        "likes": 6,
+        "comments": 0
+      },
+      "contributionScore": 44,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Instance",
+          "slug": "instance",
+          "entityId": "company-instance"
+        },
+        "post": {
+          "platformPostId": "EqxkPffnUKk",
+          "title": "Instance - Automated evals for robot policies",
+          "authorName": "Claire Mao",
+          "authorUrl": "https://youtube.com/channel/UC3YtMhqBxP5j8SqAOQGNxEQ",
+          "publishedAt": "2026-07-13T00:47:23-07:00",
+          "channelId": "UC3YtMhqBxP5j8SqAOQGNxEQ"
+        },
+        "metrics": {
+          "views": 234,
+          "likes": 6,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/instance"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "catalog_distinctive_phrase",
+        "company_domain",
+        "native_channel_roster_founder"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-13T00:47:23-07:00",
+      "youtubeChannelId": "UC3YtMhqBxP5j8SqAOQGNxEQ",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UC3YtMhqBxP5j8SqAOQGNxEQ",
+      "youtubeChannelName": "Claire Mao",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/instance"
+    },
+    {
+      "id": "youtube-company-lemonlime-www-youtube-com-watch-v-afcb1fjhpmy-lemonlime-yc-launch-we-love-small",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-lemonlime",
+      "companySlug": "lemonlime",
+      "companyName": "LemonLime",
+      "platform": "youtube",
+      "title": "LemonLime YC Launch | We Love Small",
+      "sourceUrl": "https://youtube.com/watch?v=aFcB1fJhPmY",
+      "platformPostId": "aFcB1fJhPmY",
+      "accountUrl": "https://youtube.com/channel/UCE3it13F_hur6A_sFx4vsJw",
+      "authorName": "LemonLime",
+      "text": "LemonLime enables any business to deploy custom AI automations in minutes. Get started at https://lemonlime.ai",
+      "postedAt": "2026-07-06T17:07:43-07:00",
+      "metrics": {
+        "views": 175,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 27,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "LemonLime",
+          "slug": "lemonlime",
+          "entityId": "company-lemonlime"
+        },
+        "post": {
+          "platformPostId": "aFcB1fJhPmY",
+          "title": "LemonLime YC Launch | We Love Small",
+          "authorName": "LemonLime",
+          "authorUrl": "https://youtube.com/channel/UCE3it13F_hur6A_sFx4vsJw",
+          "publishedAt": "2026-07-06T17:07:43-07:00",
+          "channelId": "UCE3it13F_hur6A_sFx4vsJw"
+        },
+        "metrics": {
+          "views": 175,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/lemonlime"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-06T17:07:43-07:00",
+      "youtubeChannelId": "UCE3it13F_hur6A_sFx4vsJw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCE3it13F_hur6A_sFx4vsJw",
+      "youtubeChannelName": "LemonLime",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/lemonlime"
+    },
+    {
+      "id": "youtube-company-litmus-hiring-www-youtube-com-watch-v-lusuktcmzga-litmus-run-an-async-work-trial-on-every-engineer-you-interview",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-litmus-hiring",
+      "companySlug": "litmus-hiring",
+      "companyName": "Litmus",
+      "platform": "youtube",
+      "title": "Litmus - Run an async work trial on every engineer you interview.",
+      "sourceUrl": "https://youtube.com/watch?v=lusUktcmZGA",
+      "platformPostId": "lusUktcmZGA",
+      "accountUrl": "https://youtube.com/channel/UCJcOG1dOuczWZm1SWZ9VpRw",
+      "authorName": "Shaivi",
+      "text": "www.litmushiring.com",
+      "postedAt": "2026-07-07T08:50:13-07:00",
+      "metrics": {
+        "views": 532,
+        "likes": 9,
+        "comments": 0
+      },
+      "contributionScore": 54,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Litmus",
+          "slug": "litmus-hiring",
+          "entityId": "company-litmus-hiring"
+        },
+        "post": {
+          "platformPostId": "lusUktcmZGA",
+          "title": "Litmus - Run an async work trial on every engineer you interview.",
+          "authorName": "Shaivi",
+          "authorUrl": "https://youtube.com/channel/UCJcOG1dOuczWZm1SWZ9VpRw",
+          "publishedAt": "2026-07-07T08:50:13-07:00",
+          "channelId": "UCJcOG1dOuczWZm1SWZ9VpRw"
+        },
+        "metrics": {
+          "views": 532,
+          "likes": 9,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/litmus-hiring"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "catalog_distinctive_phrase",
+        "company_domain"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-07T08:50:13-07:00",
+      "youtubeChannelId": "UCJcOG1dOuczWZm1SWZ9VpRw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCJcOG1dOuczWZm1SWZ9VpRw",
+      "youtubeChannelName": "Shaivi",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/litmus-hiring"
+    },
+    {
+      "id": "youtube-company-petrarch-www-youtube-com-watch-v-yrflyeouvyo-petrarch-launch",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-petrarch",
+      "companySlug": "petrarch",
+      "companyName": "Petrarch",
+      "platform": "youtube",
+      "title": "Petrarch Launch",
+      "sourceUrl": "https://youtube.com/watch?v=YRflyEOuVYo",
+      "platformPostId": "YRflyEOuVYo",
+      "accountUrl": "https://youtube.com/channel/UC5YXnqGYRrVoQoMDNm7zqyQ",
+      "authorName": "Ian Lee",
+      "text": "Embedded in the official Petrarch YC company page.",
+      "postedAt": "2026-07-13T09:04:12-07:00",
+      "metrics": {
+        "views": 271,
+        "likes": 5,
+        "comments": 0
+      },
+      "contributionScore": 44,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Petrarch",
+          "slug": "petrarch",
+          "entityId": "company-petrarch"
+        },
+        "post": {
+          "platformPostId": "YRflyEOuVYo",
+          "title": "Petrarch Launch",
+          "authorName": "Ian Lee",
+          "authorUrl": "https://youtube.com/channel/UC5YXnqGYRrVoQoMDNm7zqyQ",
+          "publishedAt": "2026-07-13T09:04:12-07:00",
+          "channelId": "UC5YXnqGYRrVoQoMDNm7zqyQ"
+        },
+        "metrics": {
+          "views": 271,
+          "likes": 5,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/petrarch"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "native_channel_roster_founder"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-13T09:04:12-07:00",
+      "youtubeChannelId": "UC5YXnqGYRrVoQoMDNm7zqyQ",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UC5YXnqGYRrVoQoMDNm7zqyQ",
+      "youtubeChannelName": "Ian Lee",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/petrarch"
+    },
+    {
+      "id": "youtube-company-poth-labs-www-youtube-com-watch-v-k9gsdaxxdtm-ask-poth",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-poth-labs",
+      "companySlug": "poth-labs",
+      "companyName": "Poth Labs",
+      "platform": "youtube",
+      "title": "Ask Poth",
+      "sourceUrl": "https://youtube.com/watch?v=k9gsdaxXdtM",
+      "platformPostId": "k9gsdaxXdtM",
+      "accountUrl": "https://youtube.com/channel/UCjixZVkF357OAf1LAqsvnAA",
+      "authorName": "Matthew Wong",
+      "text": "Try Poth today at pothlabs.com",
+      "postedAt": "2026-07-22T10:49:07-07:00",
+      "metrics": {
+        "views": 11,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 4,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Poth Labs",
+          "slug": "poth-labs",
+          "entityId": "company-poth-labs"
+        },
+        "post": {
+          "platformPostId": "k9gsdaxXdtM",
+          "title": "Ask Poth",
+          "authorName": "Matthew Wong",
+          "authorUrl": "https://youtube.com/channel/UCjixZVkF357OAf1LAqsvnAA",
+          "publishedAt": "2026-07-22T10:49:07-07:00",
+          "channelId": "UCjixZVkF357OAf1LAqsvnAA"
+        },
+        "metrics": {
+          "views": 11,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/poth-labs"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_roster_founder"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-22T10:49:07-07:00",
+      "youtubeChannelId": "UCjixZVkF357OAf1LAqsvnAA",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCjixZVkF357OAf1LAqsvnAA",
+      "youtubeChannelName": "Matthew Wong",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/poth-labs"
+    },
+    {
+      "id": "youtube-company-prized-www-youtube-com-watch-v-wilimoqemd4-prized-lovable-for-internal-tools",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-prized",
+      "companySlug": "prized",
+      "companyName": "Prized",
+      "platform": "youtube",
+      "title": "Prized - Lovable for internal tools",
+      "sourceUrl": "https://youtube.com/watch?v=WILimoqemD4",
+      "platformPostId": "WILimoqemD4",
+      "accountUrl": "https://youtube.com/channel/UCz8aBC9ZVz8FVzgCR1iQx2w",
+      "authorName": "Prized",
+      "text": "Prized lets anyone at your company build and ship secure internal tools with AI. Company data comes pre-connected and scoped to what each person should see, every access is audited, and finished tools deploy behind your company's sign-in. prized.dev",
+      "postedAt": "2026-07-13T12:50:32-07:00",
+      "metrics": {
+        "views": 222,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 30,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Prized",
+          "slug": "prized",
+          "entityId": "company-prized"
+        },
+        "post": {
+          "platformPostId": "WILimoqemD4",
+          "title": "Prized - Lovable for internal tools",
+          "authorName": "Prized",
+          "authorUrl": "https://youtube.com/channel/UCz8aBC9ZVz8FVzgCR1iQx2w",
+          "publishedAt": "2026-07-13T12:50:32-07:00",
+          "channelId": "UCz8aBC9ZVz8FVzgCR1iQx2w"
+        },
+        "metrics": {
+          "views": 222,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/prized"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "catalog_distinctive_phrase",
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-13T12:50:32-07:00",
+      "youtubeChannelId": "UCz8aBC9ZVz8FVzgCR1iQx2w",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCz8aBC9ZVz8FVzgCR1iQx2w",
+      "youtubeChannelName": "Prized",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/prized"
+    },
+    {
+      "id": "youtube-company-rational-www-youtube-com-watch-v-mcf30tmnltg-rational-launch",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-rational",
+      "companySlug": "rational",
+      "companyName": "Rational",
+      "platform": "youtube",
+      "title": "Rational - Launch",
+      "sourceUrl": "https://youtube.com/watch?v=mcF30tmNLTg",
+      "platformPostId": "mcF30tmNLTg",
+      "accountUrl": "https://youtube.com/channel/UCRsFE-GqVNFt3-c65osJ5jg",
+      "authorName": "Rational, Inc.",
+      "text": "Visit rational.to/book-demo to stop saying no to business growth.",
+      "postedAt": "2026-07-16T14:34:16-07:00",
+      "metrics": {
+        "views": 282,
+        "likes": 3,
+        "comments": 0
+      },
+      "contributionScore": 41,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Rational",
+          "slug": "rational",
+          "entityId": "company-rational"
+        },
+        "post": {
+          "platformPostId": "mcF30tmNLTg",
+          "title": "Rational - Launch",
+          "authorName": "Rational, Inc.",
+          "authorUrl": "https://youtube.com/channel/UCRsFE-GqVNFt3-c65osJ5jg",
+          "publishedAt": "2026-07-16T14:34:16-07:00",
+          "channelId": "UCRsFE-GqVNFt3-c65osJ5jg"
+        },
+        "metrics": {
+          "views": 282,
+          "likes": 3,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/rational"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-16T14:34:16-07:00",
+      "youtubeChannelId": "UCRsFE-GqVNFt3-c65osJ5jg",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCRsFE-GqVNFt3-c65osJ5jg",
+      "youtubeChannelName": "Rational, Inc.",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/rational"
+    },
+    {
+      "id": "youtube-company-rindler-www-youtube-com-watch-v-v-ncixyd-so-rindler-launch",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-rindler",
+      "companySlug": "rindler",
+      "companyName": "Rindler",
+      "platform": "youtube",
+      "title": "Rindler Launch",
+      "sourceUrl": "https://youtube.com/watch?v=V_nCIxYD-so",
+      "platformPostId": "V_nCIxYD-so",
+      "accountUrl": "https://youtube.com/channel/UCj99Y98YbeiTboBgvBjDWbw",
+      "authorName": "Michael Serrano",
+      "text": "Embedded in the official Rindler YC company page.",
+      "postedAt": "2026-07-07T00:11:16-07:00",
+      "metrics": {
+        "views": 195,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 29,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Rindler",
+          "slug": "rindler",
+          "entityId": "company-rindler"
+        },
+        "post": {
+          "platformPostId": "V_nCIxYD-so",
+          "title": "Rindler Launch",
+          "authorName": "Michael Serrano",
+          "authorUrl": "https://youtube.com/channel/UCj99Y98YbeiTboBgvBjDWbw",
+          "publishedAt": "2026-07-07T00:11:16-07:00",
+          "channelId": "UCj99Y98YbeiTboBgvBjDWbw"
+        },
+        "metrics": {
+          "views": 195,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/rindler"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "native_channel_roster_founder"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-07T00:11:16-07:00",
+      "youtubeChannelId": "UCj99Y98YbeiTboBgvBjDWbw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCj99Y98YbeiTboBgvBjDWbw",
+      "youtubeChannelName": "Michael Serrano",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/rindler"
+    },
+    {
+      "id": "youtube-company-rise-reforming-www-youtube-com-watch-v-bx-aspapxlq-rise-reforming-launch-video",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-rise-reforming",
+      "companySlug": "rise-reforming",
+      "companyName": "Rise Reforming",
+      "platform": "youtube",
+      "title": "Rise Reforming Launch Video",
+      "sourceUrl": "https://youtube.com/watch?v=Bx_ASPapxlQ",
+      "platformPostId": "Bx_ASPapxlQ",
+      "accountUrl": "https://youtube.com/channel/UC8opT-_QPO61GFvCzRLyTQg",
+      "authorName": "Lucas Zubillaga",
+      "text": "Embedded in the official Rise Reforming YC company page.",
+      "postedAt": "2026-07-13T08:21:00-07:00",
+      "metrics": {
+        "views": 35,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 10,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Rise Reforming",
+          "slug": "rise-reforming",
+          "entityId": "company-rise-reforming"
+        },
+        "post": {
+          "platformPostId": "Bx_ASPapxlQ",
+          "title": "Rise Reforming Launch Video",
+          "authorName": "Lucas Zubillaga",
+          "authorUrl": "https://youtube.com/channel/UC8opT-_QPO61GFvCzRLyTQg",
+          "publishedAt": "2026-07-13T08:21:00-07:00",
+          "channelId": "UC8opT-_QPO61GFvCzRLyTQg"
+        },
+        "metrics": {
+          "views": 35,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/rise-reforming"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "native_channel_roster_founder"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-13T08:21:00-07:00",
+      "youtubeChannelId": "UC8opT-_QPO61GFvCzRLyTQg",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UC8opT-_QPO61GFvCzRLyTQg",
+      "youtubeChannelName": "Lucas Zubillaga",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/rise-reforming"
+    },
+    {
+      "id": "youtube-company-screenpipe-www-youtube-com-watch-v-c1jv6e9pyug-screenpipe-yc-s26-record-how-you-work-and-turn-that-into-agents",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-screenpipe",
+      "companySlug": "screenpipe",
+      "companyName": "screenpipe",
+      "platform": "youtube",
+      "title": "screenpipe (YC S26) | Record how you work and turn that into agents",
+      "sourceUrl": "https://youtube.com/watch?v=c1jV6E9pyug",
+      "platformPostId": "c1jV6E9pyug",
+      "accountUrl": "https://youtube.com/channel/UCwjkpAsb70_mENKvy7hT5bw",
+      "authorName": "screenpipe",
+      "text": "https://screenpipe.com",
+      "postedAt": "2026-07-13T10:34:09-07:00",
+      "metrics": {
+        "views": 190,
+        "likes": 1,
+        "comments": 0
+      },
+      "contributionScore": 32,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "screenpipe",
+          "slug": "screenpipe",
+          "entityId": "company-screenpipe"
+        },
+        "post": {
+          "platformPostId": "c1jV6E9pyug",
+          "title": "screenpipe (YC S26) | Record how you work and turn that into agents",
+          "authorName": "screenpipe",
+          "authorUrl": "https://youtube.com/channel/UCwjkpAsb70_mENKvy7hT5bw",
+          "publishedAt": "2026-07-13T10:34:09-07:00",
+          "channelId": "UCwjkpAsb70_mENKvy7hT5bw"
+        },
+        "metrics": {
+          "views": 190,
+          "likes": 1,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/screenpipe"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-13T10:34:09-07:00",
+      "youtubeChannelId": "UCwjkpAsb70_mENKvy7hT5bw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCwjkpAsb70_mENKvy7hT5bw",
+      "youtubeChannelName": "screenpipe",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/screenpipe"
+    },
+    {
+      "id": "youtube-company-trustai-www-youtube-com-watch-v-oupgun9ap8o-trustai-yc-s26-launch",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-trustai",
+      "companySlug": "trustai",
+      "companyName": "TrustAI",
+      "platform": "youtube",
+      "title": "TrustAI (YC S26) Launch",
+      "sourceUrl": "https://youtube.com/watch?v=ouPgUN9Ap8o",
+      "platformPostId": "ouPgUN9Ap8o",
+      "accountUrl": "https://youtube.com/channel/UCauO1He2uWS4Q4VgGktNAaw",
+      "authorName": "Hannah D Chung",
+      "text": "Embedded in the official TrustAI YC company page.",
+      "postedAt": "2026-07-21T03:19:41-07:00",
+      "metrics": {
+        "views": 58,
+        "likes": 2,
+        "comments": 0
+      },
+      "contributionScore": 26,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "TrustAI",
+          "slug": "trustai",
+          "entityId": "company-trustai"
+        },
+        "post": {
+          "platformPostId": "ouPgUN9Ap8o",
+          "title": "TrustAI (YC S26) Launch",
+          "authorName": "Hannah D Chung",
+          "authorUrl": "https://youtube.com/channel/UCauO1He2uWS4Q4VgGktNAaw",
+          "publishedAt": "2026-07-21T03:19:41-07:00",
+          "channelId": "UCauO1He2uWS4Q4VgGktNAaw"
+        },
+        "metrics": {
+          "views": 58,
+          "likes": 2,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/trustai"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-21T03:19:41-07:00",
+      "youtubeChannelId": "UCauO1He2uWS4Q4VgGktNAaw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UCauO1He2uWS4Q4VgGktNAaw",
+      "youtubeChannelName": "Hannah D Chung",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/trustai"
+    },
+    {
+      "id": "youtube-company-whitespace-www-youtube-com-watch-v-4uxlkkxrgfi-whitespace-launch",
+      "batchSlug": "S26",
+      "entityType": "company",
+      "entityId": "company-whitespace",
+      "companySlug": "whitespace",
+      "companyName": "Whitespace",
+      "platform": "youtube",
+      "title": "Whitespace Launch",
+      "sourceUrl": "https://youtube.com/watch?v=4UxlKKXrgfI",
+      "platformPostId": "4UxlKKXrgfI",
+      "accountUrl": "https://youtube.com/channel/UC5dHHsTzhHZsscdyHSrqkDw",
+      "authorName": "Whitespace",
+      "text": "Whitespace gives wholesale distributors AI agents that learn the business and do work across existing systems. We're already helping customers automate inventory planning, customer service, and order processing. Wholesale distribution is a $60 trillion global industry, yet it still runs largely manually. Staff spend their days on email, spreadsheets, and legacy systems, relying on tribal knowledge in their heads. With Whitespace, wholesale distributors can grow without adding headcount and power the physical goods economy more efficiently. Find out more at https://whitespacehq.ai/",
+      "postedAt": "2026-07-15T16:52:11-07:00",
+      "metrics": {
+        "views": 116,
+        "likes": 0,
+        "comments": 0
+      },
+      "contributionScore": 22,
+      "rawVisibleText": {
+        "source": "official_yc_company_page_embed_v1",
+        "company": {
+          "name": "Whitespace",
+          "slug": "whitespace",
+          "entityId": "company-whitespace"
+        },
+        "post": {
+          "platformPostId": "4UxlKKXrgfI",
+          "title": "Whitespace Launch",
+          "authorName": "Whitespace",
+          "authorUrl": "https://youtube.com/channel/UC5dHHsTzhHZsscdyHSrqkDw",
+          "publishedAt": "2026-07-15T16:52:11-07:00",
+          "channelId": "UC5dHHsTzhHZsscdyHSrqkDw"
+        },
+        "metrics": {
+          "views": 116,
+          "likes": 0,
+          "comments": 0
+        },
+        "verification": "Exact native YouTube video embedded on the company’s official YC profile.",
+        "officialYcProfileUrl": "https://www.ycombinator.com/companies/whitespace"
+      },
+      "matchReason": "Native YouTube video was embedded on the exact official YC company page and exposes positive public metrics plus native channel identity.",
+      "attributionProvenance": "official_yc_company_page_embed_v1",
+      "attributionStatus": "verified",
+      "attributionMode": "subject",
+      "attributionSignals": [
+        "company_domain",
+        "native_channel_brand"
+      ],
+      "review_state": "verified",
+      "first_seen_at": "2026-07-23T02:30:00.000Z",
+      "last_checked_at": "2026-07-23T02:30:00.000Z",
+      "last_updated_at": "2026-07-15T16:52:11-07:00",
+      "youtubeChannelId": "UC5dHHsTzhHZsscdyHSrqkDw",
+      "youtubeChannelUrl": "https://www.youtube.com/channel/UC5dHHsTzhHZsscdyHSrqkDw",
+      "youtubeChannelName": "Whitespace",
+      "officialYcProfileUrl": "https://www.ycombinator.com/companies/whitespace"
+    }
+  ]
+}

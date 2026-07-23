@@ -1,0 +1,39 @@
+{
+  "source": {
+    "generatedAt": "2026-07-23T03:27:00.000Z",
+    "scope": "First-party YouTube collector review-queue reconciliation"
+  },
+  "evidence": [
+    {
+      "entityType": "company",
+      "entityId": "company-superset",
+      "companyName": "Superset",
+      "companySlug": "superset",
+      "platform": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=mk02bSQmEKY",
+      "platformPostId": "mk02bSQmEKY",
+      "accountUrl": "https://youtube.com/@superset-sh",
+      "authorName": "Superset",
+      "authorHandle": "superset-sh",
+      "postedAt": "2026-02-26T22:26:40-08:00",
+      "title": "Introducing Superset",
+      "text": "Superset is the terminal built for the AI agents era. Run multiple coding agents in parallel with isolated git worktrees and a unified workspace. Download at https://superset.sh/.",
+      "metrics": { "views": 8440 },
+      "matchReason": "Native product introduction on the exact Superset company channel; the native description links superset.sh, its documentation, and its canonical GitHub repository.",
+      "rawVisibleText": {
+        "source": "youtube_watch_player_microformat",
+        "channelId": "UCw0LWJr2s8XXPmu3NB_47YQ",
+        "ownerChannelName": "Superset",
+        "ownerProfileUrl": "http://www.youtube.com/@superset-sh",
+        "publishDate": "2026-02-26T22:26:40-08:00",
+        "viewCount": "8440",
+        "descriptionLinks": [
+          "https://superset.sh/",
+          "https://docs.superset.sh/installation",
+          "https://github.com/superset-sh/superset"
+        ]
+      },
+      "review_state": "verified"
+    }
+  ]
+}

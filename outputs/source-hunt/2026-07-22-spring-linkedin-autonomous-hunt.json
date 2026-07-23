@@ -1,0 +1,948 @@
+{
+  "generatedAt": "2026-07-23T02:32:03.000Z",
+  "scope": {
+    "batch": "S2026",
+    "platformsSearched": [
+      "linkedin",
+      "x",
+      "github",
+      "product_hunt",
+      "reddit",
+      "hacker_news",
+      "instagram"
+    ],
+    "focus": "Non-YouTube native first-party sources; official-site YouTube pool delegated to parent worker.",
+    "canonicalFilesModified": false
+  },
+  "accepted": [
+    {
+      "entityType": "founder",
+      "entityId": "founder-soria-adam-ron-1865223",
+      "companyEntityId": "company-soria",
+      "companyName": "Soria",
+      "companySlug": "soria",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/adammron_i-left-my-job-that-i-loved-after-8-years-activity-7465088487822831617-efby",
+      "platformPostId": "7465088487822831617",
+      "accountUrl": "https://www.linkedin.com/in/adammron",
+      "authorName": "Adam Ron",
+      "authorHandle": "adammron",
+      "title": "I left my job that I loved after 8 years to start something new.",
+      "text": "I left my job that I loved after 8 years to start something new. \n\nPreviously, I was a VP in Equity Research at Bank of America covering Healthcare Facilities and Managed Care, and now I’m building the tools I always wished I had.\n\nToday I’m excited to announce the public launch of Soria: an AI “Bloomberg Terminal” built for healthcare.\n\nWe’re backed by 𝗬 𝗖𝗼𝗺𝗯𝗶𝗻𝗮𝘁𝗼𝗿, the founder of GLG, and other industry insiders. We recently won 𝗕𝗮𝘁𝘁𝗹𝗲𝗙𝗶𝗻’𝘀 #𝟭 𝗡𝗲𝘄 𝗗𝗮𝘁𝗮 𝗩𝗲𝗻𝗱𝗼𝗿 award, and are already privileged to serve many of the largest banks, hedge funds, and asset managers.\n\nOur pitch is simple: the research process is still too manual, time-intensive, error-prone, and disjointed. Soria pre-aggregates the most important public and private sources that healthcare analysts actually care about, turns them into an always-updated sector model, and alerts users the moment key data changes.\n\nNo more manually tracking everything in Excel or feeling out of the loop.\n\nWe are differentiated in three critical ways:\n\n1. 𝗦𝗼𝗿𝗶𝗮 𝗶𝘀 𝗽𝗿𝗼𝗮𝗰𝘁𝗶𝘃𝗲. There is zero setup. From day one, analysts receive real-time updates on the most important datapoints, curated and reviewed by actual research analysts. Every day we add more sources, and the model gets better without users needing to lift a finger.\n\n2. 𝗦𝗼𝗿𝗶𝗮 𝗿𝗲𝗾𝘂𝗶𝗿𝗲𝘀 𝗻𝗼 𝗱𝗮𝘁𝗮 𝘀𝗵𝗮𝗿𝗶𝗻𝗴. We do not need to integrate into your bank or fund. We build the research and data layer ourselves, then deliver the output however you want it: our web terminal UI, MCP, API, warehouse sync, or even just email.\n\n3. 𝗦𝗼𝗿𝗶𝗮 𝗯𝘂𝗶𝗹𝗱𝘀 𝗰𝗼𝘃𝗲𝗿𝗮𝗴𝗲 𝗼𝗻𝗲 𝘀𝗲𝗰𝘁𝗼𝗿 𝗮𝘁 𝗮 𝘁𝗶𝗺𝗲. Most “AI for Finance” companies help analysts work faster, but still leave the job of sector coverage to the analyst. At Soria, we do that work for you.\n\nThe result is that we consolidate $200k+ of healthcare services vendor spend, including Milliman, HMA, Mark Farrah, AHD, Daloopa, FactSet, and NAIC, into one platform, while also doing the work of another associate on your team without the training or churn.\n\nIf you would like to learn more, please reach out to me on LinkedIn, email me at 𝗮𝗱𝗮𝗺.𝗿𝗼𝗻@𝘀𝗼𝗿𝗶𝗮𝗮𝗻𝗮𝗹𝘆𝘁𝗶𝗰𝘀.𝗰𝗼𝗺, or book a call on our website www.soriaanalytics.com.",
+      "postedAt": "2026-05-26T17:16:30.116Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 218,
+        "comments": 41
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Adam Ron",
+          "username": "adammron",
+          "url": "https://www.linkedin.com/in/adammron",
+          "canonicalEntityId": "founder-soria-adam-ron-1865223"
+        },
+        "post": {
+          "authorName": "Adam Ron",
+          "authorHandle": "adammron",
+          "activityId": "7465088487822831617",
+          "publishedAt": "2026-05-26T17:16:30.116Z",
+          "originalBody": "I left my job that I loved after 8 years to start something new. \n\nPreviously, I was a VP in Equity Research at Bank of America covering Healthcare Facilities and Managed Care, and now I’m building the tools I always wished I had.\n\nToday I’m excited to announce the public launch of Soria: an AI “Bloomberg Terminal” built for healthcare.\n\nWe’re backed by 𝗬 𝗖𝗼𝗺𝗯𝗶𝗻𝗮𝘁𝗼𝗿, the founder of GLG, and other industry insiders. We recently won 𝗕𝗮𝘁𝘁𝗹𝗲𝗙𝗶𝗻’𝘀 #𝟭 𝗡𝗲𝘄 𝗗𝗮𝘁𝗮 𝗩𝗲𝗻𝗱𝗼𝗿 award, and are already privileged to serve many of the largest banks, hedge funds, and asset managers.\n\nOur pitch is simple: the research process is still too manual, time-intensive, error-prone, and disjointed. Soria pre-aggregates the most important public and private sources that healthcare analysts actually care about, turns them into an always-updated sector model, and alerts users the moment key data changes.\n\nNo more manually tracking everything in Excel or feeling out of the loop.\n\nWe are differentiated in three critical ways:\n\n1. 𝗦𝗼𝗿𝗶𝗮 𝗶𝘀 𝗽𝗿𝗼𝗮𝗰𝘁𝗶𝘃𝗲. There is zero setup. From day one, analysts receive real-time updates on the most important datapoints, curated and reviewed by actual research analysts. Every day we add more sources, and the model gets better without users needing to lift a finger.\n\n2. 𝗦𝗼𝗿𝗶𝗮 𝗿𝗲𝗾𝘂𝗶𝗿𝗲𝘀 𝗻𝗼 𝗱𝗮𝘁𝗮 𝘀𝗵𝗮𝗿𝗶𝗻𝗴. We do not need to integrate into your bank or fund. We build the research and data layer ourselves, then deliver the output however you want it: our web terminal UI, MCP, API, warehouse sync, or even just email.\n\n3. 𝗦𝗼𝗿𝗶𝗮 𝗯𝘂𝗶𝗹𝗱𝘀 𝗰𝗼𝘃𝗲𝗿𝗮𝗴𝗲 𝗼𝗻𝗲 𝘀𝗲𝗰𝘁𝗼𝗿 𝗮𝘁 𝗮 𝘁𝗶𝗺𝗲. Most “AI for Finance” companies help analysts work faster, but still leave the job of sector coverage to the analyst. At Soria, we do that work for you.\n\nThe result is that we consolidate $200k+ of healthcare services vendor spend, including Milliman, HMA, Mark Farrah, AHD, Daloopa, FactSet, and NAIC, into one platform, while also doing the work of another associate on your team without the training or churn.\n\nIf you would like to learn more, please reach out to me on LinkedIn, email me at 𝗮𝗱𝗮𝗺.𝗿𝗼𝗻@𝘀𝗼𝗿𝗶𝗮𝗮𝗻𝗮𝗹𝘆𝘁𝗶𝗰𝘀.𝗰𝗼𝗺, or book a call on our website www.soriaanalytics.com.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 218,
+          "comments": 41
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Soria founder Adam Ron; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-05-26T17:16:30.116Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-abinitio-bio-nisha-gopal-3776060",
+      "companyEntityId": "company-abinitio-bio",
+      "companyName": "AbInitio Bio",
+      "companySlug": "abinitio-bio",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/gopalnisha_im-excited-to-officially-share-my-recent-activity-7467572024593330178-a-3Y",
+      "platformPostId": "7467572024593330178",
+      "accountUrl": "https://www.linkedin.com/in/gopalnisha",
+      "authorName": "Nisha Gopal, PhD",
+      "authorHandle": "gopalnisha",
+      "title": "I'm excited to officially share my recent career move with my network!",
+      "text": "I'm excited to officially share my recent career move with my network! \n\nI just wrapped up two incredible years at Broad Institute of MIT and Harvard in the lab of Pardis Sabeti as a scientist, doing end-to-end pathogen surveillance in West Africa. This experience has blown up my concept of what I am capable of, and that is the force that led me to my new role....\n\nI'm joining my incredible friend Daniel Mukasa, PhD as a co-founder and CSO of Abinitio Bio, a Y Combinator start-up company that is making advanced foundation models to streamline the biomanufacturing of drugs so that therapies can get to patients faster. \n\nI'm so excited for this new adventure and for all of the new people I'll get to meet and work with along the way!",
+      "postedAt": "2026-06-02T13:45:11.420Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 68,
+        "comments": 10
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Nisha Gopal, PhD",
+          "username": "gopalnisha",
+          "url": "https://www.linkedin.com/in/gopalnisha",
+          "canonicalEntityId": "founder-abinitio-bio-nisha-gopal-3776060"
+        },
+        "post": {
+          "authorName": "Nisha Gopal, PhD",
+          "authorHandle": "gopalnisha",
+          "activityId": "7467572024593330178",
+          "publishedAt": "2026-06-02T13:45:11.420Z",
+          "originalBody": "I'm excited to officially share my recent career move with my network! \n\nI just wrapped up two incredible years at Broad Institute of MIT and Harvard in the lab of Pardis Sabeti as a scientist, doing end-to-end pathogen surveillance in West Africa. This experience has blown up my concept of what I am capable of, and that is the force that led me to my new role....\n\nI'm joining my incredible friend Daniel Mukasa, PhD as a co-founder and CSO of Abinitio Bio, a Y Combinator start-up company that is making advanced foundation models to streamline the biomanufacturing of drugs so that therapies can get to patients faster. \n\nI'm so excited for this new adventure and for all of the new people I'll get to meet and work with along the way!",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 68,
+          "comments": 10
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical AbInitio Bio founder Nisha Gopal, PhD; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-06-02T13:45:11.420Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-amboras-imad-mokadem-1449044",
+      "companyEntityId": "company-amboras",
+      "companyName": "Amboras",
+      "companySlug": "amboras",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/imad-eddine-mokadem-36aa64224_my-brother-and-i-are-joining-y-combinator-activity-7441863115757096960-Vjdi",
+      "platformPostId": "7441863115757096960",
+      "accountUrl": "https://www.linkedin.com/in/imad-eddine-mokadem-36aa64224",
+      "authorName": "Imad Eddine Mokadem",
+      "authorHandle": "imad-eddine-mokadem-36aa64224",
+      "title": "My brother and I are joining Y Combinator.",
+      "text": "My brother and I are joining Y Combinator.\nLast time two brothers went through YC, they built Stripe. No pressure.\n\nIf you want to be part of this - we're hiring engineers who are extremely talented but also haven't written a single line of code without AI in the last year. \nWe'll fly you out to SF, put you up in our hacker house, feed you, and pay you a big assss salary. No catch.\n\nThe story:\nTwo years ago we were scaling e-commerce stores to six figures a month, obsessing over why some online stores print money and others just sit there. That obsession became Amboras.\n\nAmboras (prev Ecomcoder) puts your entire e-commerce on autopilot. It builds your store, continuously optimizes it, reads your analytics, and learns what converts - all autonomously. No developers. No agencies. No guessing. Today it sells to humans. Tomorrow it sells to AI agents.\n\nIf you want to build this with us:\n\n→ Founding Engineer (Full-Stack)\n→ Full-Stack Engineer\n\nDM me.\n\nBefore I go - Zurich deserves its flowers. This city gave us the focus and environment to build Amboras from zero. Especially J floor - more than just a space, a real community that had our back when it mattered.\n\nBut most of all - the biggest applause goes to the Amboras team. You pulled off things I could have never imagined. Thank you.",
+      "postedAt": "2026-03-23T15:07:09.909Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 525,
+        "comments": 111
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Imad Eddine Mokadem",
+          "username": "imad-eddine-mokadem-36aa64224",
+          "url": "https://www.linkedin.com/in/imad-eddine-mokadem-36aa64224",
+          "canonicalEntityId": "founder-amboras-imad-mokadem-1449044"
+        },
+        "post": {
+          "authorName": "Imad Eddine Mokadem",
+          "authorHandle": "imad-eddine-mokadem-36aa64224",
+          "activityId": "7441863115757096960",
+          "publishedAt": "2026-03-23T15:07:09.909Z",
+          "originalBody": "My brother and I are joining Y Combinator.\nLast time two brothers went through YC, they built Stripe. No pressure.\n\nIf you want to be part of this - we're hiring engineers who are extremely talented but also haven't written a single line of code without AI in the last year. \nWe'll fly you out to SF, put you up in our hacker house, feed you, and pay you a big assss salary. No catch.\n\nThe story:\nTwo years ago we were scaling e-commerce stores to six figures a month, obsessing over why some online stores print money and others just sit there. That obsession became Amboras.\n\nAmboras (prev Ecomcoder) puts your entire e-commerce on autopilot. It builds your store, continuously optimizes it, reads your analytics, and learns what converts - all autonomously. No developers. No agencies. No guessing. Today it sells to humans. Tomorrow it sells to AI agents.\n\nIf you want to build this with us:\n\n→ Founding Engineer (Full-Stack)\n→ Full-Stack Engineer\n\nDM me.\n\nBefore I go - Zurich deserves its flowers. This city gave us the focus and environment to build Amboras from zero. Especially J floor - more than just a space, a real community that had our back when it mattered.\n\nBut most of all - the biggest applause goes to the Amboras team. You pulled off things I could have never imagined. Thank you.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 525,
+          "comments": 111
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Amboras founder Imad Eddine Mokadem; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-03-23T15:07:09.909Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-kuli-jonathan-hassan-1985040",
+      "companyEntityId": "company-kuli",
+      "companyName": "Kuli",
+      "companySlug": "kuli",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/jonathan-salvador-hassan_kuli-is-joining-y-combinator-to-fix-social-activity-7445120738031927296-SEb4",
+      "platformPostId": "7445120738031927296",
+      "accountUrl": "https://www.linkedin.com/in/jonathan-salvador-hassan",
+      "authorName": "Jonathan Hassan",
+      "authorHandle": "jonathan-salvador-hassan",
+      "title": "Kuli is joining Y Combinator to fix social and creator marketing.",
+      "text": "Kuli is joining Y Combinator to fix social and creator marketing.\n\nMarketers used to love their job. \nA job built on creativity, intuition, and a lot of fun.\n\nBut that passion has quietly faded.\n\nTeams are under more pressure than ever. \nDrowning in manual work. \nFighting for attention across millions of videos every day.\n\nThe job became a grind. And nobody's talking about it.\n\nKuli was built to solve this problem and is already helping enterprise brands rediscover the power and the pleasure of winning on social.\n\nCampaigns that used to take weeks now run in days. \nPerformance up by +65% at the same budget.\n\nKuli watches millions of social videos and turns them into insights and actions teams can use instantly.\n\nThrilled to push this vision further alongside brilliant entrepreneurs and mentors David Lieb Garry Tan Grey Baker\n\nAnd especially grateful to be building this with my co-founder Michael Hodara.",
+      "postedAt": "2026-04-01T14:51:47.576Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 389,
+        "comments": 107
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Jonathan Hassan",
+          "username": "jonathan-salvador-hassan",
+          "url": "https://www.linkedin.com/in/jonathan-salvador-hassan",
+          "canonicalEntityId": "founder-kuli-jonathan-hassan-1985040"
+        },
+        "post": {
+          "authorName": "Jonathan Hassan",
+          "authorHandle": "jonathan-salvador-hassan",
+          "activityId": "7445120738031927296",
+          "publishedAt": "2026-04-01T14:51:47.576Z",
+          "originalBody": "Kuli is joining Y Combinator to fix social and creator marketing.\n\nMarketers used to love their job. \nA job built on creativity, intuition, and a lot of fun.\n\nBut that passion has quietly faded.\n\nTeams are under more pressure than ever. \nDrowning in manual work. \nFighting for attention across millions of videos every day.\n\nThe job became a grind. And nobody's talking about it.\n\nKuli was built to solve this problem and is already helping enterprise brands rediscover the power and the pleasure of winning on social.\n\nCampaigns that used to take weeks now run in days. \nPerformance up by +65% at the same budget.\n\nKuli watches millions of social videos and turns them into insights and actions teams can use instantly.\n\nThrilled to push this vision further alongside brilliant entrepreneurs and mentors David Lieb Garry Tan Grey Baker\n\nAnd especially grateful to be building this with my co-founder Michael Hodara.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 389,
+          "comments": 107
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Kuli founder Jonathan Hassan; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-04-01T14:51:47.576Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-zolvo-isabela-rodriguez-3096630",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/isabela-rodriguez-438785170_sf-is-the-best-place-to-build-a-huge-company-activity-7445211499062571008-2IgN",
+      "platformPostId": "7445211499062571008",
+      "accountUrl": "https://co.linkedin.com/in/isabela-rodriguez-438785170",
+      "authorName": "Isabela Rodriguez",
+      "authorHandle": "isabela-rodriguez-438785170",
+      "title": "SF is the best place to build a huge company, that's why I moved here to build Zolvo",
+      "text": "SF is the best place to build a huge company, that's why I moved here to build Zolvo\n\nI've been going back and forth to the Bay for the last three years. \n\nWhy?\n\nI was making things happen.\n\nReaching out to founders and investors I admired, grabbing coffees, coworking, finding any possible excuse to learn more.\n\n3 years ago, there were not many latinos in tech around.\n\nThings are changing for the better now.\n\nLatam founders are building global companies.\n\nNo permission asked. No more thinking small. \n\nIt's amazing to see events like Latam at Silicon Valley bring together the founders that are changing history back in Latam with the vibe that only SF has.\n\nSee you there?\n\nHappy to join you Laura, Maria Echeverri & Nicolas!",
+      "postedAt": "2026-04-01T20:52:26.695Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 167,
+        "comments": 8
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Isabela Rodriguez",
+          "username": "isabela-rodriguez-438785170",
+          "url": "https://co.linkedin.com/in/isabela-rodriguez-438785170",
+          "canonicalEntityId": "founder-zolvo-isabela-rodriguez-3096630"
+        },
+        "post": {
+          "authorName": "Isabela Rodriguez",
+          "authorHandle": "isabela-rodriguez-438785170",
+          "activityId": "7445211499062571008",
+          "publishedAt": "2026-04-01T20:52:26.695Z",
+          "originalBody": "SF is the best place to build a huge company, that's why I moved here to build Zolvo\n\nI've been going back and forth to the Bay for the last three years. \n\nWhy?\n\nI was making things happen.\n\nReaching out to founders and investors I admired, grabbing coffees, coworking, finding any possible excuse to learn more.\n\n3 years ago, there were not many latinos in tech around.\n\nThings are changing for the better now.\n\nLatam founders are building global companies.\n\nNo permission asked. No more thinking small. \n\nIt's amazing to see events like Latam at Silicon Valley bring together the founders that are changing history back in Latam with the vibe that only SF has.\n\nSee you there?\n\nHappy to join you Laura, Maria Echeverri & Nicolas!",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 167,
+          "comments": 8
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Zolvo founder Isabela Rodriguez; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-04-01T20:52:26.695Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-zolvo-tony-montes-1909560",
+      "companyEntityId": "company-zolvo",
+      "companyName": "Zolvo",
+      "companySlug": "zolvo",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/t-montes_one-of-the-best-things-about-having-a-co-founder-activity-7441665049993310208-8BNT",
+      "platformPostId": "7441665049993310208",
+      "accountUrl": "https://www.linkedin.com/in/t-montes",
+      "authorName": "Tony Montes",
+      "authorHandle": "t-montes",
+      "title": "One of the best things about having a co-founder with such an amazing network, is to get to meet BRILLIANT people that are reshaping the future.",
+      "text": "One of the best things about having a co-founder with such an amazing network, is to get to meet BRILLIANT people that are reshaping the future. And one of the best things of being in SF is that you just go hiking with them.\n\nMariana Romero and Santiago Avella, part of our team at Zolvo, with whom we're changing the way lending works nowadays, an industry that has worked the same way for more than 50 years! Making it extremely slow and costly to get a loan.\n\nDaniel Estrada, CEO of Signa and angel investor in Zolvo, who is literally saving lives by tracking down fake and dangerous products online and getting them removed before they reach people’s homes.\n\nAnd Mariana Ortiz, one of the smartest people I’ve met, cracked at leading hard, concrete projects and making them happen, building in SF, and obsessed with how we power the world through energy and sustainability.\n\nMost time we're heads down building, but it's great to touch some grass now and then :) (kidding, actually the best decisions we've taken with Isabela are when we zoom-out), so today we had our first offsite with the Zolvo team, and we got one of the best spots around thanks to Mariana!",
+      "postedAt": "2026-03-23T02:00:07.347Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 127,
+        "comments": 7
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Tony Montes",
+          "username": "t-montes",
+          "url": "https://www.linkedin.com/in/t-montes",
+          "canonicalEntityId": "founder-zolvo-tony-montes-1909560"
+        },
+        "post": {
+          "authorName": "Tony Montes",
+          "authorHandle": "t-montes",
+          "activityId": "7441665049993310208",
+          "publishedAt": "2026-03-23T02:00:07.347Z",
+          "originalBody": "One of the best things about having a co-founder with such an amazing network, is to get to meet BRILLIANT people that are reshaping the future. And one of the best things of being in SF is that you just go hiking with them.\n\nMariana Romero and Santiago Avella, part of our team at Zolvo, with whom we're changing the way lending works nowadays, an industry that has worked the same way for more than 50 years! Making it extremely slow and costly to get a loan.\n\nDaniel Estrada, CEO of Signa and angel investor in Zolvo, who is literally saving lives by tracking down fake and dangerous products online and getting them removed before they reach people’s homes.\n\nAnd Mariana Ortiz, one of the smartest people I’ve met, cracked at leading hard, concrete projects and making them happen, building in SF, and obsessed with how we power the world through energy and sustainability.\n\nMost time we're heads down building, but it's great to touch some grass now and then :) (kidding, actually the best decisions we've taken with Isabela are when we zoom-out), so today we had our first offsite with the Zolvo team, and we got one of the best spots around thanks to Mariana!",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 127,
+          "comments": 7
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Zolvo founder Tony Montes; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-03-23T02:00:07.347Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-modern-seb-poole-1854581",
+      "companyEntityId": "company-modern",
+      "companyName": "Modern",
+      "companySlug": "modern",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/seb-poole_what-an-incredible-few-weeks-at-y-combinator-activity-7453525449504129024-_IIX",
+      "platformPostId": "7453525449504129024",
+      "accountUrl": "https://www.linkedin.com/in/seb-poole",
+      "authorName": "Seb Poole",
+      "authorHandle": "seb-poole",
+      "title": "What an incredible few weeks at Y Combinator.",
+      "text": "What an incredible few weeks at Y Combinator. Quick observations of SF, the batch and Modern:\n\n- The density of young builders here operating with both pace and maturity is wild. For any young entrepreneurs, book that flight and put yourself in this environment.\n\n- Great companies are built on embodied optimism and being surrounded by it daily is energising.\n\n- The perceived pace of AI change settles once you see a clearer path of what will float and what will sink. There's a lot of noise. The noise will eventually stop.\n\n- Friday runs are a win with the YC crew. Charlie Warren and Mathilde Collin leading from the front.\n\n- Birthday's in SF are special when friends fly in to celebrate.\n\n- The pull of Modern (YC P26) has been incredible. Aleks Tomovski and I running hard across time zones and teams pushing to go-live ASAP. \n\n- Waking up with more energy than I did when I was 18; enjoying all the vicissitudes.",
+      "postedAt": "2026-04-24T19:29:06.945Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 175,
+        "comments": 23
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Seb Poole",
+          "username": "seb-poole",
+          "url": "https://www.linkedin.com/in/seb-poole",
+          "canonicalEntityId": "founder-modern-seb-poole-1854581"
+        },
+        "post": {
+          "authorName": "Seb Poole",
+          "authorHandle": "seb-poole",
+          "activityId": "7453525449504129024",
+          "publishedAt": "2026-04-24T19:29:06.945Z",
+          "originalBody": "What an incredible few weeks at Y Combinator. Quick observations of SF, the batch and Modern:\n\n- The density of young builders here operating with both pace and maturity is wild. For any young entrepreneurs, book that flight and put yourself in this environment.\n\n- Great companies are built on embodied optimism and being surrounded by it daily is energising.\n\n- The perceived pace of AI change settles once you see a clearer path of what will float and what will sink. There's a lot of noise. The noise will eventually stop.\n\n- Friday runs are a win with the YC crew. Charlie Warren and Mathilde Collin leading from the front.\n\n- Birthday's in SF are special when friends fly in to celebrate.\n\n- The pull of Modern (YC P26) has been incredible. Aleks Tomovski and I running hard across time zones and teams pushing to go-live ASAP. \n\n- Waking up with more energy than I did when I was 18; enjoying all the vicissitudes.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 175,
+          "comments": 23
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Modern founder Seb Poole; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-04-24T19:29:06.945Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-modern-aleks-tomovski-1862452",
+      "companyEntityId": "company-modern",
+      "companyName": "Modern",
+      "companySlug": "modern",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/atomovski_i-joined-y-combinator-p26-batch-with-seb-activity-7447792416444743680-ioTb",
+      "platformPostId": "7447792416444743680",
+      "accountUrl": "https://www.linkedin.com/in/atomovski",
+      "authorName": "Aleks Tomovski",
+      "authorHandle": "atomovski",
+      "title": "I joined Y Combinator P26 batch with Seb!",
+      "text": "I joined Y Combinator P26 batch with Seb!\n\nTwelve years ago I was sitting in a cafe in Vilnius watching YC Startup School videos, wondering if building a YC worthy company was even possible for someone like me.\n\nToday I'm in San Francisco building Modern (YC P26), one agent layer across IT, HR, Legal, and Finance. Check it out at: https://getmodern.ai/\n\nThe version of me in that cafe would not believe it.\n\nIf you're somewhere at the beginning of that journey keep going ❤️",
+      "postedAt": "2026-04-08T23:48:05.356Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 293,
+        "comments": 75
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Aleks Tomovski",
+          "username": "atomovski",
+          "url": "https://www.linkedin.com/in/atomovski",
+          "canonicalEntityId": "founder-modern-aleks-tomovski-1862452"
+        },
+        "post": {
+          "authorName": "Aleks Tomovski",
+          "authorHandle": "atomovski",
+          "activityId": "7447792416444743680",
+          "publishedAt": "2026-04-08T23:48:05.356Z",
+          "originalBody": "I joined Y Combinator P26 batch with Seb!\n\nTwelve years ago I was sitting in a cafe in Vilnius watching YC Startup School videos, wondering if building a YC worthy company was even possible for someone like me.\n\nToday I'm in San Francisco building Modern (YC P26), one agent layer across IT, HR, Legal, and Finance. Check it out at: https://getmodern.ai/\n\nThe version of me in that cafe would not believe it.\n\nIf you're somewhere at the beginning of that journey keep going ❤️",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 293,
+          "comments": 75
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Modern founder Aleks Tomovski; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-04-08T23:48:05.356Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-korso-martin-pan-2729430",
+      "companyEntityId": "company-korso",
+      "companyName": "Korso",
+      "companySlug": "korso",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/martinjcp_at-my-end-of-internship-presentation-last-activity-7445160580035878912-rVbh",
+      "platformPostId": "7445160580035878912",
+      "accountUrl": "https://www.linkedin.com/in/martinjcp",
+      "authorName": "Martin Pan",
+      "authorHandle": "martinjcp",
+      "title": "At my end of internship presentation last summer, I attached the YC logo to the end of my slides.",
+      "text": "At my end of internship presentation last summer, I attached the YC logo to the end of my slides. Fed up with corporate, I wanted to escape and work on something that I actually enjoyed.\n\nNow, I'm excited to say that Korso (YC P26) has been accepted to Y Combinator! We're automating manual processes for factories through AI, and my cofounders Alex Liu, Daichi Hiraoka, and I truly believe in the products we're going to be shipping these next few months. \n\nFollow along - we're just getting started.",
+      "postedAt": "2026-04-01T17:30:06.651Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 233,
+        "comments": 35
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Martin Pan",
+          "username": "martinjcp",
+          "url": "https://www.linkedin.com/in/martinjcp",
+          "canonicalEntityId": "founder-korso-martin-pan-2729430"
+        },
+        "post": {
+          "authorName": "Martin Pan",
+          "authorHandle": "martinjcp",
+          "activityId": "7445160580035878912",
+          "publishedAt": "2026-04-01T17:30:06.651Z",
+          "originalBody": "At my end of internship presentation last summer, I attached the YC logo to the end of my slides. Fed up with corporate, I wanted to escape and work on something that I actually enjoyed.\n\nNow, I'm excited to say that Korso (YC P26) has been accepted to Y Combinator! We're automating manual processes for factories through AI, and my cofounders Alex Liu, Daichi Hiraoka, and I truly believe in the products we're going to be shipping these next few months. \n\nFollow along - we're just getting started.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 233,
+          "comments": 35
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Korso founder Martin Pan; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-04-01T17:30:06.651Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-korso-martin-pan-2729430",
+      "companyEntityId": "company-korso",
+      "companyName": "Korso",
+      "companySlug": "korso",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/martinjcp_the-best-part-of-a-startup-is-the-amount-activity-7448525226029756416-g8Km",
+      "platformPostId": "7448525226029756416",
+      "accountUrl": "https://www.linkedin.com/in/martinjcp",
+      "authorName": "Martin Pan",
+      "authorHandle": "martinjcp",
+      "title": "The best part of a startup is the amount of people you get to meet and the pace at which you learn.",
+      "text": "The best part of a startup is the amount of people you get to meet and the pace at which you learn. This is the exact thing that has led the Korso (YC P26) team to realize that we were solving the wrong problem, and to get excited about the right one.\n\nManufacturing teams can't afford to switch their entire complex workflows off of legacy ERPs, at least not yet. Rather than replacing existing systems, Korso's building on top of workflows to ensure that factories never miss a followup or let an order slip through the cracks. \n\nIf you're in the industry, DM me, I'd love to talk. And if you're in the bay, dinner's on me.",
+      "postedAt": "2026-04-11T00:20:00.771Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 25,
+        "comments": 7
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Martin Pan",
+          "username": "martinjcp",
+          "url": "https://www.linkedin.com/in/martinjcp",
+          "canonicalEntityId": "founder-korso-martin-pan-2729430"
+        },
+        "post": {
+          "authorName": "Martin Pan",
+          "authorHandle": "martinjcp",
+          "activityId": "7448525226029756416",
+          "publishedAt": "2026-04-11T00:20:00.771Z",
+          "originalBody": "The best part of a startup is the amount of people you get to meet and the pace at which you learn. This is the exact thing that has led the Korso (YC P26) team to realize that we were solving the wrong problem, and to get excited about the right one.\n\nManufacturing teams can't afford to switch their entire complex workflows off of legacy ERPs, at least not yet. Rather than replacing existing systems, Korso's building on top of workflows to ensure that factories never miss a followup or let an order slip through the cracks. \n\nIf you're in the industry, DM me, I'd love to talk. And if you're in the bay, dinner's on me.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 25,
+          "comments": 7
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Korso founder Martin Pan; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-04-11T00:20:00.771Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-korso-daichi-hiraoka-2913136",
+      "companyEntityId": "company-korso",
+      "companyName": "Korso",
+      "companySlug": "korso",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/daichihiraoka_my-cofounders-alex-and-martin-already-shared-activity-7448526239465648128-isyy",
+      "platformPostId": "7448526239465648128",
+      "accountUrl": "https://www.linkedin.com/in/daichihiraoka",
+      "authorName": "Daichi Hiraoka",
+      "authorHandle": "daichihiraoka",
+      "title": "My cofounders Alex and Martin already shared the polished, professional updates about Korso (YC P26) getting into Y Combinator, so I’m here to share the reality of our decision-making skills.",
+      "text": "My cofounders Alex and Martin already shared the polished, professional updates about Korso (YC P26) getting into Y Combinator, so I’m here to share the reality of our decision-making skills. \n\nFor our drive up to SF from Orange County (that's normally a 7 hour drive), we decided to take the scenic route through Big Sur, thinking it would be a quick one hour detour. 14 hours later, we finally arrived. \n\nThat drive is exactly what building a startup feels like. There's always bumps in the road. The path forward is never as straight as you expected and sometimes you have to stop and re-navigate, but at least the view along the way is incredible. \n\nWe took a much more intentional detour right after getting accepted into the P26 batch. Martin, Alex, and I immediately packed our bags and spent the last two months living out of suitcases. We wanted to make sure the AI we are building for manufacturers actually solves their on-the-floor problems, not just our Silicon Valley assumptions. \n\nWe're finally back, settled in SF, and building at full speed. Follow along to see how we bring modern AI to the manufacturing world. \n\nJust don't ask us for road trip directions.",
+      "postedAt": "2026-04-11T00:24:02.393Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 130,
+        "comments": 22
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Daichi Hiraoka",
+          "username": "daichihiraoka",
+          "url": "https://www.linkedin.com/in/daichihiraoka",
+          "canonicalEntityId": "founder-korso-daichi-hiraoka-2913136"
+        },
+        "post": {
+          "authorName": "Daichi Hiraoka",
+          "authorHandle": "daichihiraoka",
+          "activityId": "7448526239465648128",
+          "publishedAt": "2026-04-11T00:24:02.393Z",
+          "originalBody": "My cofounders Alex and Martin already shared the polished, professional updates about Korso (YC P26) getting into Y Combinator, so I’m here to share the reality of our decision-making skills. \n\nFor our drive up to SF from Orange County (that's normally a 7 hour drive), we decided to take the scenic route through Big Sur, thinking it would be a quick one hour detour. 14 hours later, we finally arrived. \n\nThat drive is exactly what building a startup feels like. There's always bumps in the road. The path forward is never as straight as you expected and sometimes you have to stop and re-navigate, but at least the view along the way is incredible. \n\nWe took a much more intentional detour right after getting accepted into the P26 batch. Martin, Alex, and I immediately packed our bags and spent the last two months living out of suitcases. We wanted to make sure the AI we are building for manufacturers actually solves their on-the-floor problems, not just our Silicon Valley assumptions. \n\nWe're finally back, settled in SF, and building at full speed. Follow along to see how we bring modern AI to the manufacturing world. \n\nJust don't ask us for road trip directions.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 130,
+          "comments": 22
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Korso founder Daichi Hiraoka; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-04-11T00:24:02.393Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-korso-martin-pan-2729430",
+      "companyEntityId": "company-korso",
+      "companyName": "Korso",
+      "companySlug": "korso",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/martinjcp_products-activity-7437058370970333184-E96j",
+      "platformPostId": "7437058370970333184",
+      "accountUrl": "https://www.linkedin.com/in/martinjcp",
+      "authorName": "Martin Pan",
+      "authorHandle": "martinjcp",
+      "title": "Ironically, I've read more research papers after dropping out than I ever had whilst in school.",
+      "text": "Ironically, I've read more research papers after dropping out than I ever had whilst in school. Whilst attending classes, there was no reason for me to care about cutting-edge research. You read the syllabus, skip a few classes, cram for finals, pass, and move on. But when you're building something real, being at the forefront of the field is the competitive edge.\n\nLast week, my cofounders at Korso and I combed through:\n\niText2KG (WISE 2024) - https://lnkd.in/g8Z_pa2S\nGraphiti bi-temporal KG model (2025) - https://lnkd.in/gsuJcQ3D\nKG Lifecycle Management (VLDB 2025) - https://lnkd.in/gfU7MaUY\n\nand many many more papers to fully rethink how Korso understands your business by refining our state of the art ingestion pipeline.\n\nIf you're in manufacturing and looking to streamline your operations, take a look at korsoai.com.",
+      "postedAt": "2026-03-10T08:54:49.479Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 46,
+        "comments": 7
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Martin Pan",
+          "username": "martinjcp",
+          "url": "https://www.linkedin.com/in/martinjcp",
+          "canonicalEntityId": "founder-korso-martin-pan-2729430"
+        },
+        "post": {
+          "authorName": "Martin Pan",
+          "authorHandle": "martinjcp",
+          "activityId": "7437058370970333184",
+          "publishedAt": "2026-03-10T08:54:49.479Z",
+          "originalBody": "Ironically, I've read more research papers after dropping out than I ever had whilst in school. Whilst attending classes, there was no reason for me to care about cutting-edge research. You read the syllabus, skip a few classes, cram for finals, pass, and move on. But when you're building something real, being at the forefront of the field is the competitive edge.\n\nLast week, my cofounders at Korso and I combed through:\n\niText2KG (WISE 2024) - https://lnkd.in/g8Z_pa2S\nGraphiti bi-temporal KG model (2025) - https://lnkd.in/gsuJcQ3D\nKG Lifecycle Management (VLDB 2025) - https://lnkd.in/gfU7MaUY\n\nand many many more papers to fully rethink how Korso understands your business by refining our state of the art ingestion pipeline.\n\nIf you're in manufacturing and looking to streamline your operations, take a look at korsoai.com.",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 46,
+          "comments": 7
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Korso founder Martin Pan; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-03-10T08:54:49.479Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-korso-martin-pan-2729430",
+      "companyEntityId": "company-korso",
+      "companyName": "Korso",
+      "companySlug": "korso",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_video_post",
+      "sourceUrl": "https://www.linkedin.com/posts/martinjcp_new-korso-feature-release-many-traditional-activity-7467654530650984449-SP6d",
+      "platformPostId": "7467654530650984449",
+      "accountUrl": "https://www.linkedin.com/in/martinjcp",
+      "authorName": "Martin Pan",
+      "authorHandle": "martinjcp",
+      "title": "New Korso feature release!",
+      "text": "New Korso feature release!\n\nMany traditional operators today still run the majority of their workflow on paper. Having to processing shipment confirmations and inspection reports on the floor, then enter them into the ERP when they get back to the desk means that the software is always a few steps behind. We're now allowing workflows to be ran straight from SMS. No app, login, or training to sync up your systems and enter in data. \n\nOur team has been working overtime, and the Korso agent is cooking up something for all YC P26 companies, coming later this week - look out for that announcement :)",
+      "postedAt": "2026-06-02T19:13:02.400Z",
+      "mediaType": "video",
+      "metrics": {
+        "reactions": 54,
+        "comments": 6
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Martin Pan",
+          "username": "martinjcp",
+          "url": "https://www.linkedin.com/in/martinjcp",
+          "canonicalEntityId": "founder-korso-martin-pan-2729430"
+        },
+        "post": {
+          "authorName": "Martin Pan",
+          "authorHandle": "martinjcp",
+          "activityId": "7467654530650984449",
+          "publishedAt": "2026-06-02T19:13:02.400Z",
+          "originalBody": "New Korso feature release!\n\nMany traditional operators today still run the majority of their workflow on paper. Having to processing shipment confirmations and inspection reports on the floor, then enter them into the ERP when they get back to the desk means that the software is always a few steps behind. We're now allowing workflows to be ran straight from SMS. No app, login, or training to sync up your systems and enter in data. \n\nOur team has been working overtime, and the Korso agent is cooking up something for all YC P26 companies, coming later this week - look out for that announcement :)",
+          "sourceType": "VideoObject"
+        },
+        "counts": {
+          "reactions": 54,
+          "comments": 6
+        },
+        "verification": {
+          "method": "LinkedIn public native JSON-LD",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names or describes the canonical company",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Korso founder Martin Pan; original body explicitly attributes the company and public native JSON-LD exposes positive reactions/comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic publication time, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-06-02T19:13:02.400Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-textsidekick-justin-so-3332767",
+      "companyEntityId": "company-textsidekick",
+      "companyName": "Sidekick",
+      "companySlug": "textsidekick",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/justinso1_were-hiring-our-first-bdr-interns-at-sidekick-activity-7474164063279673345-qsXV",
+      "platformPostId": "7474164063279673345",
+      "accountUrl": "https://www.linkedin.com/in/justinso1",
+      "authorName": "Justin So",
+      "authorHandle": "justinso1",
+      "title": "We're hiring our first BDR interns at Sidekick (YC P26).",
+      "text": "We're hiring our first BDR interns at Sidekick (YC P26). Sidekick is an AI assistant for frontline and manufacturing workers, no app, no login, just text on any phone. We're heading into YC Demo Day this fall and need help reaching more shops before then. This one's built for college students who are hungry, love talking to people, and want to learn startup sales from the ground up working directly with me. Warm leads, no cold list-building, fully remote, runs through the summer. Top performers get a real shot at full-time after. If that's you, apply below. And if you know someone who'd crush it, tag them.",
+      "postedAt": "2026-06-20T18:19:35.939Z",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 52,
+        "comments": 8
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Justin So",
+          "username": "justinso1",
+          "url": "https://www.linkedin.com/in/justinso1",
+          "canonicalEntityId": "founder-textsidekick-justin-so-3332767"
+        },
+        "post": {
+          "authorName": "Justin So",
+          "authorHandle": "justinso1",
+          "activityId": "7474164063279673345",
+          "publishedAt": "2026-06-20T18:19:35.939Z",
+          "publicationTimestampMethod": "LinkedIn activity Snowflake (activityId >> 22)",
+          "originalBody": "We're hiring our first BDR interns at Sidekick (YC P26). Sidekick is an AI assistant for frontline and manufacturing workers, no app, no login, just text on any phone. We're heading into YC Demo Day this fall and need help reaching more shops before then. This one's built for college students who are hungry, love talking to people, and want to learn startup sales from the ground up working directly with me. Warm leads, no cold list-building, fully remote, runs through the summer. Top performers get a real shot at full-time after. If that's you, apply below. And if you know someone who'd crush it, tag them.",
+          "sourceType": "LinkedIn public profile indexed activity"
+        },
+        "counts": {
+          "reactions": 52,
+          "comments": 8
+        },
+        "verification": {
+          "method": "LinkedIn public profile/activity surface",
+          "checkedAt": "2026-07-23T02:32:03.000Z",
+          "ownership": "Canonical YC founder roster plus matching public LinkedIn profile",
+          "contentAttribution": "Original first-party body explicitly names Sidekick (YC P26)",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across canonical and source-hunt evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Sidekick (YC P26) founder Justin So; original body explicitly names Sidekick and the LinkedIn public profile surface exposes 52 reactions and 8 comments.",
+      "why": "Strict source hunt: native activity URL, canonical founder ownership, self-contained company body, positive visible native metrics, deterministic activity timestamp, exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T02:32:03.000Z",
+      "last_checked_at": "2026-07-23T02:32:03.000Z",
+      "last_updated_at": "2026-06-20T18:19:35.939Z",
+      "contributionScore": 1
+    }
+  ],
+  "quarantined": [
+    {
+      "companyName": "AICE",
+      "platform": "linkedin",
+      "sourceUrl": "https://fr.linkedin.com/posts/gregoirechomette_lann%C3%A9e-2025-en-une-image-notre-quotidien-activity-7411702306393722881-elkC",
+      "platformPostId": "7411702306393722881",
+      "postedAt": "2025-12-30T09:38:52.592Z",
+      "metrics": {
+        "reactions": 213,
+        "comments": 6
+      },
+      "reason": "First-party and measurable, but content describes the pre-pivot AICE Power energy-optimization product while the canonical P26 company now builds submarine drones for defense; requires explicit pivot-era attribution policy."
+    },
+    {
+      "companyName": "AICE",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/remi-bouteiller_youll-be-back-in-6-months-thats-what-activity-7444446254786383872--r52",
+      "platformPostId": "7444446254786383872",
+      "postedAt": "2026-03-30T18:11:38.240Z",
+      "metrics": {
+        "reactions": 280,
+        "comments": 43
+      },
+      "reason": "First-party and measurable but explicitly describes pre-pivot AICE Power energy deployment; quarantine until pivot-era scoring policy is adjudicated."
+    },
+    {
+      "companyName": "AICE",
+      "platform": "linkedin",
+      "sourceUrl": "https://fr.linkedin.com/posts/gregoirechomette_energyefficiency-flexibilit%C3%A9%C3%A9nerg%C3%A9tique-activity-7425099545388265472-k5wy",
+      "platformPostId": "7425099545388265472",
+      "postedAt": "2026-02-05T08:54:43.282Z",
+      "metrics": {
+        "reactions": 102,
+        "comments": 9
+      },
+      "reason": "First-party pre-pivot AICE Power energy content; canonical company is now a defense/submarine-drone startup."
+    }
+  ],
+  "rejected": [
+    {
+      "companyName": "Smartbase",
+      "platform": "linkedin",
+      "reason": "Founder profiles only exposed reposts of Y Combinator launch material; no independently authored native company post with self-contained attribution was found."
+    },
+    {
+      "companyName": "Soria",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/cameron-spiller-b316b850_its-been-a-crazy-year-since-adam-ron-and-activity-7465121512019099648-ZfBX",
+      "platformPostId": "7465121512019099648",
+      "reason": "Original body is context-dependent and primarily quotes the already accepted Adam Ron launch post; reject quote/repost bleed."
+    },
+    {
+      "companyName": "Modern",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/seb-poole_activity-7449999578982137856",
+      "platformPostId": "7449999578982137856",
+      "reason": "Original body is only “Buzzing.” and depends on quoted company content; reject context-dependent attribution."
+    },
+    {
+      "companyName": "The Company Company",
+      "platform": "github",
+      "reason": "Official GitHub organization exists but exposes no repositories; profile-only URL is not a native measurable activity source."
+    },
+    {
+      "companyName": "PLAN0 AI",
+      "reason": "Search results surfaced only third-party investor/accelerator mentions; no founder/company-authored native item with positive metrics."
+    },
+    {
+      "companyName": "Savant",
+      "reason": "No qualifying public founder/company native item with positive visible metrics found across searched platforms."
+    },
+    {
+      "companyName": "shotwell.ai",
+      "reason": "No qualifying public founder/company native item with positive visible metrics found across searched platforms."
+    },
+    {
+      "companyName": "Infera",
+      "reason": "Non-YouTube search surfaced third-party spotlight material only; official embedded YouTube source was delegated to parent worker."
+    }
+  ],
+  "duplicates": [
+    {
+      "companyName": "Korso",
+      "platform": "linkedin",
+      "platformPostId": "7464765205017710592",
+      "sourceUrl": "https://www.linkedin.com/posts/martinjcp_happy-memorial-day-spent-a-little-bit-of-activity-7464765205017710592-piAA",
+      "metrics": {
+        "reactions": 41,
+        "comments": 3
+      },
+      "reason": "Exact activity ID already appears in public-evidence-current review queue; reported but excluded from accepted novel rows."
+    },
+    {
+      "companyName": "AICE",
+      "platform": "linkedin",
+      "platformPostId": "7462915996023001088",
+      "reason": "Current-pivot founder post already exists as verified canonical public evidence; excluded as duplicate."
+    },
+    {
+      "companyName": "Sidekick",
+      "companySlug": "textsidekick",
+      "platform": "linkedin",
+      "platformPostId": "7449896856748294144",
+      "sourceUrl": "https://www.linkedin.com/posts/justinso1_im-excited-to-announce-that-sidekick-yc-activity-7449896856748294144-g96F",
+      "metrics": {
+        "reactions": 578,
+        "comments": 141
+      },
+      "reason": "Exact activity ID already exists in targeted-evidence-current; excluded from novel accepted rows."
+    }
+  ],
+  "coverageNotes": [
+    "The seven all-evidence P26 zero-source companies at sweep start were Infera, PLAN0 AI, Savant, shotwell.ai, Smartbase, Soria, and The Company Company. This manifest adds a strict native founder source for Soria; the other six had no qualifying non-YouTube item in this pass.",
+    "Official-site YouTube discoveries were intentionally excluded because the parent worker owns that independently verified pool.",
+    "LinkedIn public JSON-LD was treated as the source of publication timestamps, author identity, original body, and native reactions/comments."
+  ]
+}

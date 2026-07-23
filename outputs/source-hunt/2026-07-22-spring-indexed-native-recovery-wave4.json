@@ -1,0 +1,139 @@
+{
+  "generatedAt": "2026-07-23T04:25:00.000Z",
+  "scope": {
+    "batchSlug": "S2026",
+    "wave": 4,
+    "platforms": [
+      "linkedin"
+    ],
+    "purpose": "Final regional/indexed public endpoint recovery for owner-matched low-source candidates blocked in native JSON-LD crawl"
+  },
+  "accepted": [
+    {
+      "entityType": "founder",
+      "entityId": "founder-characterquilt-bhairav-mehta-438433",
+      "companyEntityId": "company-characterquilt",
+      "companyName": "CharacterQuilt",
+      "companySlug": "characterquilt",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/bhairav-mehta_if-you-had-asked-me-a-few-years-ago-if-i-activity-7459790355257950208-pN_-",
+      "platformPostId": "7459790355257950208",
+      "accountUrl": "https://www.linkedin.com/in/bhairav-mehta",
+      "authorName": "Bhairav Mehta",
+      "authorHandle": "bhairav-mehta",
+      "title": "If you had asked me a few years ago if I had \"running a marketing agency\" was on my bingo card, I probably would’ve had to google the phrase first. We're excited today to be launch",
+      "text": "If you had asked me a few years ago if I had \"running a marketing agency\" was on my bingo card, I probably would’ve had to google the phrase first. We're excited today to be launching CharacterQuilt as part of the P26 Y Combinator batch. CharacterQuilt is AI infrastructure for marketing teams: a brain that learns your brand and agents that operate your existing tools.\n\nWe accidentally found ourselves running a full-stack marketing agency hunting for PMF, and after one too many manual Marketo deployments, we decided it was time to automate it all away. Clint Burgess and I are grateful to our small but mighty team (Hunter Tolman, Meg Bell, and Kenn Muguna) who keep the lights on when we're out shooting launch videos with friends (and future stars!) like Natasha B.\n\nWe're growing fast (turns out there's a lot of ops to automate) across sales and engineering - so if you're interested, reach out :) https://lnkd.in/guuzy4-Z",
+      "postedAt": "2026-05-12T02:23:36.896Z",
+      "publishedAtPrecision": "linkedin_activity_snowflake",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 61,
+        "comments": 7
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Bhairav Mehta",
+          "username": "bhairav-mehta",
+          "url": "https://www.linkedin.com/in/bhairav-mehta",
+          "canonicalEntityId": "founder-characterquilt-bhairav-mehta-438433"
+        },
+        "post": {
+          "authorName": "Bhairav Mehta",
+          "authorHandle": "bhairav-mehta",
+          "activityId": "7459790355257950208",
+          "publishedAt": "2026-05-12T02:23:36.896Z",
+          "originalBody": "If you had asked me a few years ago if I had \"running a marketing agency\" was on my bingo card, I probably would’ve had to google the phrase first. We're excited today to be launching CharacterQuilt as part of the P26 Y Combinator batch. CharacterQuilt is AI infrastructure for marketing teams: a brain that learns your brand and agents that operate your existing tools.\n\nWe accidentally found ourselves running a full-stack marketing agency hunting for PMF, and after one too many manual Marketo deployments, we decided it was time to automate it all away. Clint Burgess and I are grateful to our small but mighty team (Hunter Tolman, Meg Bell, and Kenn Muguna) who keep the lights on when we're out shooting launch videos with friends (and future stars!) like Natasha B.\n\nWe're growing fast (turns out there's a lot of ops to automate) across sales and engineering - so if you're interested, reach out :) https://lnkd.in/guuzy4-Z",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 61,
+          "comments": 7
+        },
+        "verification": {
+          "method": "LinkedIn public native indexed post page; exact activity URL/body/author/metrics plus deterministic activity-snowflake time",
+          "checkedAt": "2026-07-23T04:25:00.000Z",
+          "ownership": "Canonical YC founder roster plus exact official LinkedIn handle match",
+          "contentAttribution": "Original first-party founder body explicitly names and describes CharacterQuilt",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical CharacterQuilt founder Bhairav Mehta; public native page exposes self-contained company attribution and positive reactions/comments.",
+      "why": "Strict public needs-review upgrade: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic activity timestamp, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:25:00.000Z",
+      "last_checked_at": "2026-07-23T04:25:00.000Z",
+      "last_updated_at": "2026-05-12T02:23:36.896Z",
+      "contributionScore": 1
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-pentagon-edgar-pavlovsky-402484",
+      "companyEntityId": "company-pentagon",
+      "companyName": "Pentagon",
+      "companySlug": "pentagon",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceKind": "linkedin_native_post",
+      "sourceUrl": "https://www.linkedin.com/posts/edgarpavlovsky_when-we-first-joined-yc-with-pentagon-i-activity-7463248944794324992-A-DL",
+      "platformPostId": "7463248944794324992",
+      "accountUrl": "https://www.linkedin.com/in/edgarpavlovsky",
+      "authorName": "Edgar Pavlovsky",
+      "authorHandle": "edgarpavlovsky",
+      "title": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would a",
+      "text": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would actually feel like. I'm humbled to say that the camraderie I've felt from the YC community these past weeks has been standout and far above my expectations.\n\nThere's a persistent energy that lifts you up, but there is also - and this is probably my favorite part - just a very simple drive from within to wake up every day and iterate towards building something people want. This holds at scale: from first-time founders fresh from dropping out of school to seasoned entrepreneurs with enormously successful backgrounds, that simple focus on and love for building something people want stays exactly the same. That's crazy, and it's crazy unique.\n\nIt's been inspirational and has motivated us to push on Pentagon with relentless velocity. I'm excited to be on this journey and back in the trenches building something new. Onwards!",
+      "postedAt": "2026-05-21T15:26:48.899Z",
+      "publishedAtPrecision": "linkedin_activity_snowflake",
+      "mediaType": "link",
+      "metrics": {
+        "reactions": 46,
+        "comments": 3
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Edgar Pavlovsky",
+          "username": "edgarpavlovsky",
+          "url": "https://www.linkedin.com/in/edgarpavlovsky",
+          "canonicalEntityId": "founder-pentagon-edgar-pavlovsky-402484"
+        },
+        "post": {
+          "authorName": "Edgar Pavlovsky",
+          "authorHandle": "edgarpavlovsky",
+          "activityId": "7463248944794324992",
+          "publishedAt": "2026-05-21T15:26:48.899Z",
+          "originalBody": "When we first joined YC with Pentagon, I (obviously) had a good perception of the world's greatest startup accelerator - but I was relatively neutral on what the experience would actually feel like. I'm humbled to say that the camraderie I've felt from the YC community these past weeks has been standout and far above my expectations.\n\nThere's a persistent energy that lifts you up, but there is also - and this is probably my favorite part - just a very simple drive from within to wake up every day and iterate towards building something people want. This holds at scale: from first-time founders fresh from dropping out of school to seasoned entrepreneurs with enormously successful backgrounds, that simple focus on and love for building something people want stays exactly the same. That's crazy, and it's crazy unique.\n\nIt's been inspirational and has motivated us to push on Pentagon with relentless velocity. I'm excited to be on this journey and back in the trenches building something new. Onwards!",
+          "sourceType": "SocialMediaPosting"
+        },
+        "counts": {
+          "reactions": 46,
+          "comments": 3
+        },
+        "verification": {
+          "method": "LinkedIn public native indexed post page; exact activity URL/body/author/metrics plus deterministic activity-snowflake time",
+          "checkedAt": "2026-07-23T04:25:00.000Z",
+          "ownership": "Canonical YC founder roster plus exact official LinkedIn handle match",
+          "contentAttribution": "Original first-party founder body explicitly names and describes Pentagon",
+          "duplicateCheck": "Exact LinkedIn activity ID checked across targeted, public, and logged-in canonical evidence"
+        }
+      },
+      "matchReason": "First-party LinkedIn post by canonical Pentagon founder Edgar Pavlovsky; public native page exposes self-contained company attribution and positive reactions/comments.",
+      "why": "Strict public needs-review upgrade: native activity URL, canonical founder ownership, substantive original company-linked body, positive visible native metrics, deterministic activity timestamp, and exact-activity dedupe check.",
+      "review_state": "verified",
+      "linkStatus": "valid",
+      "first_seen_at": "2026-07-23T04:25:00.000Z",
+      "last_checked_at": "2026-07-23T04:25:00.000Z",
+      "last_updated_at": "2026-05-21T15:26:48.899Z",
+      "contributionScore": 1
+    }
+  ],
+  "rejected": [],
+  "quarantined": [],
+  "duplicates": [],
+  "coverageNotes": [
+    "Recovered two exact native founder posts from live public LinkedIn indexed pages after direct regional JSON-LD endpoints remained blocked.",
+    "Post bodies, authors, exact activity URLs, and current post-level metrics were visible on the native public pages; deterministic publication times derive from LinkedIn activity snowflakes.",
+    "The other 14 blocked owner-matched candidates were not upgraded without equally complete native body, owner, post-level metrics, and deterministic date evidence."
+  ]
+}

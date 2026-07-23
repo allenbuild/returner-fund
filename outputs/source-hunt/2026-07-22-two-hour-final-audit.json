@@ -1,0 +1,130 @@
+{
+  "run": {
+    "label": "Two-hour autonomous maximum-worker source hunt",
+    "startedAt": "2026-07-23T01:26:49.000Z",
+    "completedAt": "2026-07-23T04:38:33.000Z",
+    "minimumRequestedDurationSeconds": 7200,
+    "actualDurationSeconds": 11504,
+    "status": "complete",
+    "baselineCommit": "a16096c"
+  },
+  "canonicalEvidence": {
+    "targeted": {
+      "baselineRows": 1089,
+      "finalRows": 1372,
+      "netNewRows": 283,
+      "sessionAddedRows": 284
+    },
+    "a16zSpeedrun006": {
+      "baselineRows": 331,
+      "finalRows": 374,
+      "netNewRows": 43
+    },
+    "combined": {
+      "finalRows": 1746,
+      "uniquePhysicalKeys": 1746,
+      "duplicatePhysicalKeyGroups": 0,
+      "baselineRemovals": 1,
+      "netNewRows": 326,
+      "sessionAddedRows": 327,
+      "upstreamQuarantinedPriorRows": [
+        {
+          "platform": "linkedin",
+          "platformPostId": "7471278925428604928",
+          "companyName": "Justinian",
+          "reason": "Preserved the upstream canonical_targeted_conflicting_strong_author_identity quarantine during semantic rebase."
+        }
+      ]
+    },
+    "netNewByPlatform": {
+      "linkedin": 137,
+      "x": 46,
+      "youtube": 144
+    }
+  },
+  "publication": {
+    "graphVisibleScoringRowsFromNetNewSet": 325,
+    "retainedCanonicalContextOnlyRows": 2,
+    "contextOnly": [
+      {
+        "platform": "x",
+        "platformPostId": "2072397457804410903",
+        "companyName": "OS3",
+        "reason": "Conservative graph attribution guard rejected a personal founder post without a visible company/product signal."
+      },
+      {
+        "platform": "x",
+        "platformPostId": "2076105028398461223",
+        "companyName": "Truffle",
+        "reason": "Conservative graph attribution guard retained the company-owned event post as context because the post body lacks a visible company/product signal."
+      }
+    ],
+    "officialYcCompanyPageYouTubeReceipts": {
+      "automatedRows": 137,
+      "automatedRowsVerifiedAndScoring": 137,
+      "manualJoReceiptVerifiedAndScoring": true
+    },
+    "graphSnapshotsRegenerated": 9,
+    "artifactManifestValidated": true,
+    "publicArtifactEvidenceRows": 3772
+  },
+  "zeroSourceRecovery": {
+    "recovered": [
+      "CentralComs",
+      "Huscarl",
+      "Infera",
+      "PLAN0 AI",
+      "Smartbase",
+      "Soria",
+      "Sidekick",
+      "Ekpa",
+      "Florin",
+      "HERA",
+      "Insurf",
+      "Isengard Industries Inc",
+      "OS3",
+      "Praxis AI",
+      "Rapidfolio",
+      "Truffle"
+    ],
+    "remainingStrictZero": {
+      "S2026": [
+        "Savant",
+        "shotwell.ai",
+        "The Company Company"
+      ],
+      "S26": [
+        "Floracene",
+        "Kebra"
+      ],
+      "A16ZSR006": [
+        "Advocate",
+        "August",
+        "PayPath"
+      ]
+    }
+  },
+  "publicationFixes": [
+    "Rebuilt the production Next.js bundle before graph publication so the publisher could not serve stale bundled evidence.",
+    "Reconciled Hop Aero and Vereda LinkedIn account vanity aliases to their verified current identities.",
+    "Accepted true locale LinkedIn subdomains at both graph-native identity and public-artifact validation boundaries while rejecting lookalike hosts.",
+    "Added a strict structured-receipt trust path for official YC company-page YouTube embeds, including narrowly verified manual adjudications.",
+    "Kept ambiguous personal, repost, profile, feed-card, and non-native candidates out of scoring."
+  ],
+  "validation": {
+    "productionBuild": "passed",
+    "focusedVitest": {
+      "filesPassed": 7,
+      "testsPassed": 130,
+      "testsSkipped": 1
+    },
+    "finalYcAndArtifactVitest": {
+      "filesPassed": 2,
+      "testsPassed": 40
+    },
+    "nodeImporterAndMergeTestsPassed": 31,
+    "publicArtifactValidatorTestsPassed": 13,
+    "insightsTabsTestsPassed": 17,
+    "typescript": "passed"
+  }
+}

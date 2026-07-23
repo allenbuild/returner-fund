@@ -1,0 +1,98 @@
+{
+  "source": {
+    "generatedAt": "2026-07-23T03:40:00.000Z",
+    "worker": "source_hunt_a16z",
+    "scope": "A16Z Speedrun 006 Vereda LinkedIn collector reconciliation after wave 4",
+    "notes": [
+      "The three native public post pages resolve to Vereda's current LinkedIn vanity vereda.agro.",
+      "The current company page links vereda.ia.br and lists canonical founders Joao Souza and Pedro Galindo, proving it is the same Vereda company as the stale vereda-ia account-map entry.",
+      "All metrics and full post bodies were re-read from LinkedIn's public pages."
+    ]
+  },
+  "evidence": [
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-vereda",
+      "companyName": "Vereda",
+      "companySlug": "vereda",
+      "platform": "linkedin",
+      "sourceUrl": "https://pt.linkedin.com/posts/vereda.agro_vereda-agro-agroneg%C3%B3cio-activity-7485423404670521345-HjKU",
+      "platformPostId": "7485423404670521345",
+      "accountUrl": "https://br.linkedin.com/company/vereda.agro",
+      "authorName": "Vereda",
+      "authorHandle": "vereda.agro",
+      "postedAt": "2026-07-21T20:00:12.115Z",
+      "title": "Parcerias criam um ecossistema mais eficiente para o produtor rural",
+      "text": "Boas parcerias geram mais do que negócios. Elas criam um ecossistema capaz de entregar mais eficiência, inovação e valor para o produtor rural. Na Vereda, aproximamos indústrias e agricultores para construir relações mais ágeis, transparentes e orientadas por resultados.",
+      "metrics": { "reactions": 10, "comments": 0 },
+      "matchReason": "Native post from Vereda's current LinkedIn company vanity vereda.agro. The linked company page uses vereda.ia.br and lists canonical founders Joao Souza and Pedro Galindo, proving continuity from the stale mapped vanity vereda-ia; the post explicitly describes Vereda's agricultural marketplace mission.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_and_company_pages",
+        "author": "Vereda",
+        "authorHandle": "vereda.agro",
+        "followers": 558,
+        "companyWebsite": "https://www.vereda.ia.br/",
+        "foundersListed": ["João Pedro Aguiar de Souza", "Pedro Galindo"],
+        "post": "Boas parcerias geram mais do que negócios. Elas criam um ecossistema capaz de entregar mais eficiência, inovação e valor para quem realmente importa: o produtor rural.",
+        "visibleMetrics": { "reactions": 10, "comments": 0 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-vereda",
+      "companyName": "Vereda",
+      "companySlug": "vereda",
+      "platform": "linkedin",
+      "sourceUrl": "https://pt.linkedin.com/posts/vereda.agro_380-mil-hectares-cadastrados-em-menos-de-activity-7483242742379368449-Helo",
+      "platformPostId": "7483242742379368449",
+      "accountUrl": "https://br.linkedin.com/company/vereda.agro",
+      "authorName": "Vereda",
+      "authorHandle": "vereda.agro",
+      "postedAt": "2026-07-15T19:35:01.710Z",
+      "title": "380 mil hectares cadastrados em menos de 6 meses",
+      "text": "380 mil hectares cadastrados em menos de 6 meses. Por trás desse número estão 80 grupos familiares e operações que seguem acontecendo todos os dias no campo. A Vereda constrói uma experiência de compra mais simples dentro da forma como o produtor já trabalha.",
+      "metrics": { "reactions": 31, "comments": 1 },
+      "matchReason": "Native post from Vereda's current LinkedIn company vanity vereda.agro. The linked company page uses vereda.ia.br and lists canonical founders Joao Souza and Pedro Galindo; the post reports a Vereda product adoption milestone with positive visible engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_and_company_pages",
+        "author": "Vereda",
+        "authorHandle": "vereda.agro",
+        "followers": 558,
+        "companyWebsite": "https://www.vereda.ia.br/",
+        "foundersListed": ["João Pedro Aguiar de Souza", "Pedro Galindo"],
+        "post": "380 mil hectares cadastrados em menos de 6 meses. Por trás desse número estão 80 grupos familiares e operações que seguem acontecendo todos os dias no campo.",
+        "visibleMetrics": { "reactions": 31, "comments": 1 }
+      },
+      "review_state": "verified"
+    },
+    {
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-vereda",
+      "companyName": "Vereda",
+      "companySlug": "vereda",
+      "platform": "linkedin",
+      "sourceUrl": "https://pt.linkedin.com/posts/vereda.agro_se-96-dos-produtores-usam-whatsapp-para-activity-7480349935155204096-cW-8",
+      "platformPostId": "7480349935155204096",
+      "accountUrl": "https://br.linkedin.com/company/vereda.agro",
+      "authorName": "Vereda",
+      "authorHandle": "vereda.agro",
+      "postedAt": "2026-07-07T20:00:02.722Z",
+      "title": "96% dos produtores usam WhatsApp para buscar informação",
+      "text": "Se 96% dos produtores usam WhatsApp para buscar informação, por que o agro ainda trata esse canal como apoio e não como ponto de partida? Na Vereda, construímos uma experiência de compra dentro do canal que já faz parte da rotina do campo.",
+      "metrics": { "reactions": 18, "comments": 0 },
+      "matchReason": "Native post from Vereda's current LinkedIn company vanity vereda.agro. The linked company page uses vereda.ia.br and lists canonical founders Joao Souza and Pedro Galindo; the post explicitly explains Vereda's WhatsApp purchasing product and has positive visible engagement.",
+      "rawVisibleText": {
+        "source": "public_linkedin_post_and_company_pages",
+        "author": "Vereda",
+        "authorHandle": "vereda.agro",
+        "followers": 558,
+        "companyWebsite": "https://www.vereda.ia.br/",
+        "foundersListed": ["João Pedro Aguiar de Souza", "Pedro Galindo"],
+        "post": "Na Vereda, escolhemos partir do canal que já faz parte da rotina do campo e construímos uma experiência de compra dentro do WhatsApp.",
+        "visibleMetrics": { "reactions": 18, "comments": 0 }
+      },
+      "review_state": "verified"
+    }
+  ]
+}

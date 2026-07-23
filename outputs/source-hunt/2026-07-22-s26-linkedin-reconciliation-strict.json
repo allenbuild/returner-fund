@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-22T20:15:00.000Z",
+  "scope": "S26 strict promotion of exact native LinkedIn activities previously present only in needsReview",
+  "policy": {
+    "accepted": "Exact native activity URL plus official roster-linked native author, complete publication timestamp, full native body, and positive native post-level metrics proven by public LinkedIn JSON-LD.",
+    "reconciliation": "These physical activities exist only as needsReview candidates in public-evidence-current. Import establishes one accepted targeted row per physical post; the stale needsReview entries should then be retired in place."
+  },
+  "evidence": [
+    {
+      "entityType": "company",
+      "entityId": "company-isengard-industries-inc",
+      "companyName": "Isengard Industries Inc",
+      "companySlug": "isengard-industries-inc",
+      "batchSlug": "S26",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/isengard-industries_isengard-industries-is-not-another-drone-activity-7475946785627226112-OAiU",
+      "platformPostId": "7475946785627226112",
+      "accountUrl": "https://www.linkedin.com/company/isengard-industries",
+      "authorName": "Isengard Industries",
+      "postedAt": "2026-06-25T16:23:30.050Z",
+      "title": "Isengard Industries is not another drone company",
+      "text": "Isengard Industries is not another drone company.\n\nWe build sovereign production: the means for allied nations to make precision-strike and counter-drone systems by the thousand, on their own soil, at a fraction of what the primes charge.\n\nWe call it Weapons of Mass Production. The Arsenal of Democracy, rebuilt for the drone age.\n\nMore to come, and only where it helps. You know how to reach us.",
+      "metrics": { "reactions": 4, "comments": 0 },
+      "review_state": "verified",
+      "matchReason": "Public LinkedIn JSON-LD identifies @type SocialMediaPosting activity 7475946785627226112, exact official Organization author Isengard Industries at the roster-linked company URL, full native body, exact publication timestamp, and four native reactions.",
+      "rawNativeProof": {
+        "source": "public_linkedin_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "canonicalId": "https://www.linkedin.com/posts/isengard-industries_isengard-industries-is-not-another-drone-activity-7475946785627226112-OAiU",
+        "authorType": "Organization",
+        "authorName": "Isengard Industries",
+        "authorUrl": "https://www.linkedin.com/company/isengard-industries",
+        "datePublished": "2026-06-25T16:23:30.050Z",
+        "likeActionCount": 4,
+        "commentActionCount": 0,
+        "activityUrn": "urn:li:activity:7475946785627226112"
+      },
+      "dedupeResult": "needs_review_only_no_accepted_physical_post_match"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-ekpa-anant-asthana-3028173",
+      "companyName": "Ekpa",
+      "companySlug": "ekpa",
+      "batchSlug": "S26",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/asthana-anant_building-is-fun-and-its-even-more-fun-when-activity-7480076159557320704-UmgZ",
+      "platformPostId": "7480076159557320704",
+      "accountUrl": "https://www.linkedin.com/in/asthana-anant",
+      "authorName": "Anant Asthana",
+      "postedAt": "2026-07-07T01:52:09.517Z",
+      "title": "Building is fun",
+      "text": "Building is fun. And it's even more fun when you get to talk to people in the process.\n\nIf you are or have friends interested in trading stocks and aren't satisfied with just sitting on S&P500 shares, I'd love to talk. We're bringing hedge-fund level strategies to the everyday retail trader, and we believe anyone looking to get involved in the market should be a part of this movement.\n\nAlso follow @yyugap and @AnantAsthana on X. Thanks for the warm welcome LinkedIn!",
+      "metrics": { "reactions": 18, "comments": 2 },
+      "review_state": "verified",
+      "matchReason": "Public LinkedIn JSON-LD identifies @type SocialMediaPosting activity 7480076159557320704, exact roster-linked founder Anant Asthana as the Person author, full native body describing Ekpa's retail trading strategy, exact publication timestamp, and positive native reactions/comments.",
+      "rawNativeProof": {
+        "source": "public_linkedin_json_ld",
+        "schemaType": "SocialMediaPosting",
+        "canonicalId": "https://www.linkedin.com/posts/asthana-anant_building-is-fun-and-its-even-more-fun-when-activity-7480076159557320704-UmgZ",
+        "authorType": "Person",
+        "authorName": "Anant Asthana",
+        "authorUrl": "https://www.linkedin.com/in/asthana-anant",
+        "datePublished": "2026-07-07T01:52:09.517Z",
+        "likeActionCount": 18,
+        "commentActionCount": 2,
+        "activityUrn": "urn:li:activity:7480076159557320704"
+      },
+      "dedupeResult": "needs_review_only_no_accepted_physical_post_match"
+    }
+  ],
+  "reconciliation": [
+    {
+      "platform": "linkedin",
+      "platformPostId": "7475946785627226112",
+      "retireNeedsReviewId": "review-linkedin-company-isengard-industries-inc-linkedin-com-posts-isengard-industries-isengard-industries-is-not-another-drone-activity-7475946785627226112-oaiu",
+      "action": "Retire the needsReview candidate after accepted targeted import; do not retain two UI-visible records for one physical post."
+    },
+    {
+      "platform": "linkedin",
+      "platformPostId": "7480076159557320704",
+      "retireNeedsReviewId": "review-linkedin-company-ekpa-linkedin-com-posts-activity-7480076159557320704-t-d",
+      "action": "Retire the stale company-attributed needsReview candidate after founder-attributed accepted targeted import."
+    }
+  ],
+  "counts": {
+    "verified": 2,
+    "linkedin": 2,
+    "needsReviewRetirements": 2
+  }
+}

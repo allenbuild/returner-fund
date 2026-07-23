@@ -5,7 +5,8 @@ import {
   canonicalPostKey,
   dedupeEvidenceForScoring,
   dedupeEvidenceItems,
-  hasEvidenceIdentityConflict
+  hasEvidenceIdentityConflict,
+  nativeEvidenceIdentityFromUrl
 } from "@/lib/graph/dedupe";
 import type { EvidenceItem } from "@/lib/graph/types";
 
@@ -20,6 +21,24 @@ describe("evidence dedupe", () => {
     expect(canonicalEvidenceUrl("https://www.instagram.com/reel/ABC123/?igshid=test&utm_campaign=x")).toBe(
       "https://instagram.com/reel/ABC123"
     );
+  });
+
+  it("accepts LinkedIn locale subdomains without accepting lookalike hosts", () => {
+    const postPath =
+      "/posts/vereda.agro_vereda-agro-activity-7485423404670521345-HjKU";
+
+    expect(
+      nativeEvidenceIdentityFromUrl("linkedin", `https://pt.linkedin.com${postPath}`)
+    ).toBe("7485423404670521345");
+    expect(
+      nativeEvidenceIdentityFromUrl("linkedin", `https://regional.pt.linkedin.com${postPath}`)
+    ).toBe("7485423404670521345");
+    expect(
+      nativeEvidenceIdentityFromUrl("linkedin", `https://pt.linkedin.com.evil.example${postPath}`)
+    ).toBeNull();
+    expect(
+      nativeEvidenceIdentityFromUrl("linkedin", `https://notlinkedin.com${postPath}`)
+    ).toBeNull();
   });
 
   it("keeps only the strongest duplicate evidence row", () => {
