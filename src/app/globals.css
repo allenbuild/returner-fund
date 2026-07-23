@@ -2329,6 +2329,10 @@ progress::-webkit-progress-value {
   grid-column: 1 / -1;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 260px;
   margin-top: 10px;
   border-radius: 16px;
@@ -2340,20 +2344,29 @@ progress::-webkit-progress-value {
 
 .tab-list {
   display: grid;
-  /* Four invariant navigation tracks plus one reserved action track. Keeping
-     the actions in their own column prevents active-panel controls from ever
-     changing the tab widths. */
-  grid-template-columns: repeat(4, 154px) minmax(0, 1fr);
+  grid-template-columns: 640px minmax(0, 1fr);
   align-items: center;
-  flex-wrap: nowrap;
   gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 53px;
   padding: 8px 10px;
   border-bottom: 1px solid var(--neutral-200);
   background: #ffffff;
 }
 
-.tab-list > button {
+.tab-navigation {
+  display: grid;
+  grid-template-columns: repeat(4, 154px);
+  align-items: center;
+  gap: 8px;
+  width: 640px;
+  min-width: 640px;
+}
+
+.tab-navigation > button {
   box-sizing: border-box;
   display: grid;
   grid-template-columns: 16px 90px;
@@ -2376,25 +2389,25 @@ progress::-webkit-progress-value {
   white-space: nowrap;
 }
 
-.tab-list > button .tab-label {
+.tab-navigation > button .tab-label {
   min-width: 0;
   text-align: left;
 }
 
-.tab-list > button:hover {
+.tab-navigation > button:hover {
   border-color: var(--accent-border-faint);
   background: var(--accent-hover);
   color: var(--accent-strong);
 }
 
-.tab-list > button svg {
+.tab-navigation > button svg {
   flex: 0 0 16px;
   width: 16px;
   height: 16px;
   overflow: visible;
 }
 
-.tab-list > button.active {
+.tab-navigation > button.active {
   border-color: var(--accent-border-soft);
   background: var(--accent-tab-active);
   color: var(--accent-strong);
@@ -2416,6 +2429,10 @@ progress::-webkit-progress-value {
 }
 
 .tab-body {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 0;
   padding: 6px 10px 10px;
   overflow: auto;
@@ -3805,7 +3822,7 @@ td button {
 
   .tab-list {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     min-height: 0;
     overflow: visible;
@@ -3813,8 +3830,17 @@ td button {
     scrollbar-width: auto;
   }
 
-  .tab-list > button {
-    display: inline-flex;
+  .tab-navigation {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tab-navigation > button {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr);
+    align-items: center;
+    justify-content: stretch;
     width: 100%;
     min-width: 0;
     max-width: none;
@@ -3827,7 +3853,12 @@ td button {
     line-height: 1;
   }
 
-  .tab-list > button svg {
+  .tab-navigation > button .tab-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tab-navigation > button svg {
     flex-basis: 14px;
     width: 14px;
     height: 14px;

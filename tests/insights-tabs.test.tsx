@@ -13,6 +13,10 @@ describe("insights tabs", () => {
     const hottestTab = screen.getByRole("tab", { name: "Hottest" });
     const rankedTab = screen.getByRole("tab", { name: "Ranked Posts" });
     const statsTab = screen.getByRole("tab", { name: "Stats" });
+    const navigation = screen.getByRole("tablist", { name: "Dashboard panels" });
+    expect(navigation).toHaveClass("tab-navigation");
+    expect(within(navigation).getAllByRole("tab")).toHaveLength(4);
+    expect(navigation.parentElement).toHaveClass("tab-list");
     expect(overviewTab).toHaveAttribute("aria-selected", "true");
     expect(overviewTab).toHaveAttribute("aria-controls", "insights-panel-overview");
     expect(overviewTab).toHaveAttribute("tabindex", "0");
