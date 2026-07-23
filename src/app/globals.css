@@ -773,8 +773,14 @@ button:disabled {
 }
 
 .filter-band .score-filter {
+  display: grid;
+  grid-template-columns: auto minmax(52px, 80px) auto;
+  align-items: center;
+  gap: 6px;
   flex: none;
   align-self: end;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .filter-title {
@@ -891,9 +897,10 @@ button:disabled {
 }
 
 .score-filter-footer {
-  display: inline-flex;
+  display: inline-grid;
+  grid-template-columns: 46px 54px;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex: 0 0 auto;
   min-width: 0;
 }
@@ -933,8 +940,8 @@ button:disabled {
 }
 
 .score-filter input[type="number"] {
-  flex: 0 0 54px;
-  width: 54px;
+  flex: 0 0 46px;
+  width: 46px;
   height: 26px;
   min-height: 26px;
   padding: 0 6px;
@@ -950,8 +957,8 @@ button:disabled {
   flex: 0 0 auto;
   height: 26px;
   min-height: 26px;
-  min-width: 58px;
-  padding: 0 9px;
+  min-width: 54px;
+  padding: 0 7px;
   border-radius: 10px;
   border-color: rgba(242, 177, 128, 0.72);
   background: rgba(255, 255, 255, 0.62);
@@ -4306,10 +4313,10 @@ td button {
 }
 
 .filter-band .score-filter input[type="range"] {
-  flex: 0 1 130px;
-  width: 130px;
-  min-width: 90px;
-  max-width: 130px;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 80px;
 }
 
 .filter-menu-search {
@@ -4887,6 +4894,18 @@ td button {
 
   .filter-band .score-filter {
     grid-column: 1 / -1;
+    grid-template-columns: auto auto minmax(0, 1fr) 38px 44px;
+    overflow: hidden;
+  }
+
+  .filter-band .score-filter input[type="range"] {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .filter-band .score-filter-footer {
+    display: contents;
   }
 
   .ranked-post-card {
