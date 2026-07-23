@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-07-23T00:01:30.590Z",
+    "fetchedAt": "2026-07-23T12:27:14.117Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -63,8 +63,8 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-07-23T04:29:33.000Z",
-      "existingSnapshots": 2,
+      "mergedAt": "2026-07-23T14:23:21.411Z",
+      "existingSnapshots": 1,
       "existingInputRows": 1372,
       "isolatedRunInputRows": 0,
       "acceptedRunRows": 0,
@@ -109,6 +109,8 @@
       "last_updated_at": "2026-04-20T15:45:02.212Z",
       "contributionScore": 1,
       "id": "source-hunt-02c29f56161916e15061",
+      "entityName": "Pavoot",
+      "attachedCompanyId": "company-pavoot",
       "batchSlug": "S2026"
     },
     {
@@ -142,6 +144,8 @@
       "last_updated_at": "2026-05-18T18:36:20.314Z",
       "contributionScore": 1,
       "id": "source-hunt-0797659153044e28fecb",
+      "entityName": "Regbase",
+      "attachedCompanyId": "company-regbase",
       "batchSlug": "S2026"
     },
     {
@@ -175,6 +179,8 @@
       "last_updated_at": "2026-07-02T15:19:11.687Z",
       "contributionScore": 1,
       "id": "source-hunt-0f4f7310e53365e4bfbd",
+      "entityName": "Deep Interactions",
+      "attachedCompanyId": "company-deep-interactions",
       "batchSlug": "S2026"
     },
     {
@@ -208,6 +214,8 @@
       "last_updated_at": "2026-06-11T21:13:10.115Z",
       "contributionScore": 1,
       "id": "source-hunt-131cdea19f28a6170618",
+      "entityName": "Regbase",
+      "attachedCompanyId": "company-regbase",
       "batchSlug": "S2026"
     },
     {
@@ -241,6 +249,8 @@
       "last_updated_at": "2025-10-06T16:00:12.170Z",
       "contributionScore": 1,
       "id": "source-hunt-166f27b1892bc5ac8ad0",
+      "entityName": "Klarify",
+      "attachedCompanyId": "company-klarify",
       "batchSlug": "S2026"
     },
     {
@@ -274,6 +284,8 @@
       "last_updated_at": "2026-06-04T16:10:54.158Z",
       "contributionScore": 1,
       "id": "source-hunt-168ffbaf0f23dde89a52",
+      "entityName": "Nikodem Bieniek",
+      "attachedCompanyId": "company-expanse",
       "batchSlug": "S2026"
     },
     {
@@ -307,6 +319,8 @@
       "last_updated_at": "2026-05-22T17:30:01.045Z",
       "contributionScore": 1,
       "id": "source-hunt-16cd003cd4d40f2fb199",
+      "entityName": "qomplement",
+      "attachedCompanyId": "company-qomplement",
       "batchSlug": "S2026"
     },
     {
@@ -340,6 +354,8 @@
       "last_updated_at": "2026-07-11T21:42:47.407Z",
       "contributionScore": 1,
       "id": "source-hunt-1d4e033893b2e2e92116",
+      "entityName": "Christopher Burns",
+      "attachedCompanyId": "company-inth",
       "batchSlug": "S2026"
     },
     {
@@ -373,6 +389,8 @@
       "last_updated_at": "2026-07-15T05:30:12.589Z",
       "contributionScore": 1,
       "id": "source-hunt-20393b29c3c3081e961b",
+      "entityName": "Mochatrade",
+      "attachedCompanyId": "company-mochatrade",
       "batchSlug": "S2026"
     },
     {
@@ -406,6 +424,8 @@
       "last_updated_at": "2026-07-08T22:53:16.692Z",
       "contributionScore": 1,
       "id": "source-hunt-298420bdf70995a64adf",
+      "entityName": "Edward Haryono",
+      "attachedCompanyId": "company-saudara-ai",
       "batchSlug": "S2026"
     },
     {
@@ -439,6 +459,8 @@
       "last_updated_at": "2026-06-09T18:21:40.723Z",
       "contributionScore": 1,
       "id": "source-hunt-2ab08f701a36dce68507",
+      "entityName": "River Markets",
+      "attachedCompanyId": "company-river-markets",
       "batchSlug": "S2026"
     },
     {
@@ -472,6 +494,8 @@
       "last_updated_at": "2026-05-21T14:47:45.888Z",
       "contributionScore": 1,
       "id": "source-hunt-47ef57dda942bb24ab89",
+      "entityName": "Cohesion",
+      "attachedCompanyId": "company-cohesion",
       "batchSlug": "S2026"
     },
     {
@@ -505,6 +529,8 @@
       "last_updated_at": "2026-04-02T23:34:10.043Z",
       "contributionScore": 1,
       "id": "source-hunt-4be9dd3eb27e1ba2e83f",
+      "entityName": "Maceo Cardinale Kwik",
+      "attachedCompanyId": "company-datost",
       "batchSlug": "S2026"
     },
     {
@@ -538,6 +564,8 @@
       "last_updated_at": "2026-04-14T22:15:09.131Z",
       "contributionScore": 1,
       "id": "source-hunt-4cfc08c33590927044fc",
+      "entityName": "Datost",
+      "attachedCompanyId": "company-datost",
       "batchSlug": "S2026"
     },
     {
@@ -571,6 +599,8 @@
       "last_updated_at": "2025-08-19T01:32:17.583Z",
       "contributionScore": 1,
       "id": "source-hunt-4d67554534ce857ad415",
+      "entityName": "ProjectX",
+      "attachedCompanyId": "company-projectx",
       "batchSlug": "S2026"
     },
     {
@@ -604,6 +634,8 @@
       "last_updated_at": "2026-03-25T22:22:37.789Z",
       "contributionScore": 1,
       "id": "source-hunt-60b7f1d5fa0fb1e7b9b4",
+      "entityName": "Light Anchor",
+      "attachedCompanyId": "company-light-anchor",
       "batchSlug": "S2026"
     },
     {
@@ -637,6 +669,8 @@
       "last_updated_at": "2026-01-21T00:47:50.963Z",
       "contributionScore": 1,
       "id": "source-hunt-881e777be54c75c8569a",
+      "entityName": "ProjectX",
+      "attachedCompanyId": "company-projectx",
       "batchSlug": "S2026"
     },
     {
@@ -670,6 +704,8 @@
       "last_updated_at": "2026-07-11T23:32:21.264Z",
       "contributionScore": 1,
       "id": "source-hunt-924cc55b0ccc8611dc48",
+      "entityName": "Edward Haryono",
+      "attachedCompanyId": "company-saudara-ai",
       "batchSlug": "S2026"
     },
     {
@@ -703,6 +739,8 @@
       "last_updated_at": "2026-07-16T04:05:14.290Z",
       "contributionScore": 1,
       "id": "source-hunt-9b21ca100bbe1b7a2ef4",
+      "entityName": "Ryan Xue",
+      "attachedCompanyId": "company-andco",
       "batchSlug": "S2026"
     },
     {
@@ -736,6 +774,8 @@
       "last_updated_at": "2026-07-13T23:14:23.596Z",
       "contributionScore": 1,
       "id": "source-hunt-b1f3107d6ba5fe980f5e",
+      "entityName": "Edward Haryono",
+      "attachedCompanyId": "company-saudara-ai",
       "batchSlug": "S2026"
     },
     {
@@ -769,6 +809,8 @@
       "last_updated_at": "2026-07-16T12:57:59.066Z",
       "contributionScore": 1,
       "id": "source-hunt-b21ea05f4da8d954e880",
+      "entityName": "Gustav Bang",
+      "attachedCompanyId": "company-complir",
       "batchSlug": "S2026"
     },
     {
@@ -802,6 +844,8 @@
       "last_updated_at": "2026-07-11T19:39:33.478Z",
       "contributionScore": 1,
       "id": "source-hunt-b4956728987bbd609da8",
+      "entityName": "Dan Keene",
+      "attachedCompanyId": "company-aseon-labs",
       "batchSlug": "S2026"
     },
     {
@@ -835,6 +879,8 @@
       "last_updated_at": "2026-07-04T17:57:06.580Z",
       "contributionScore": 1,
       "id": "source-hunt-b9cc614116558b4935ac",
+      "entityName": "Aseon Labs",
+      "attachedCompanyId": "company-aseon-labs",
       "batchSlug": "S2026"
     },
     {
@@ -869,6 +915,8 @@
       "last_updated_at": "2026-05-12T02:23:36.896Z",
       "contributionScore": 1,
       "id": "source-hunt-c57ce46721191b14ce4a",
+      "entityName": "Bhairav Mehta",
+      "attachedCompanyId": "company-characterquilt",
       "batchSlug": "S2026"
     },
     {
@@ -903,6 +951,8 @@
       "last_updated_at": "2026-05-21T15:26:48.899Z",
       "contributionScore": 1,
       "id": "source-hunt-c8039dc2f3dd9471f001",
+      "entityName": "Edgar Pavlovsky",
+      "attachedCompanyId": "company-pentagon",
       "batchSlug": "S2026"
     },
     {
@@ -936,6 +986,8 @@
       "last_updated_at": "2026-07-17T23:37:27.396Z",
       "contributionScore": 1,
       "id": "source-hunt-cca2b0a7ec26ff3254cf",
+      "entityName": "Ryan Xue",
+      "attachedCompanyId": "company-andco",
       "batchSlug": "S2026"
     },
     {
@@ -969,6 +1021,8 @@
       "last_updated_at": "2026-06-05T01:43:55.448Z",
       "contributionScore": 1,
       "id": "source-hunt-d931dda4f1aeaba088a0",
+      "entityName": "Kratik Agrawal",
+      "attachedCompanyId": "company-kinect",
       "batchSlug": "S2026"
     },
     {
@@ -1002,6 +1056,8 @@
       "last_updated_at": "2026-07-16T06:30:06.611Z",
       "contributionScore": 1,
       "id": "source-hunt-e5281f740bace473052a",
+      "entityName": "Hub",
+      "attachedCompanyId": "company-hub",
       "batchSlug": "S2026"
     },
     {
@@ -1035,6 +1091,8 @@
       "last_updated_at": "2026-07-14T15:44:45.672Z",
       "contributionScore": 1,
       "id": "source-hunt-e859ed05b3e0248eb046",
+      "entityName": "Pierre-Alexandre Kamienny",
+      "attachedCompanyId": "company-kinro",
       "batchSlug": "S2026"
     },
     {
@@ -1068,6 +1126,8 @@
       "last_updated_at": "2026-07-16T00:13:23.203Z",
       "contributionScore": 1,
       "id": "source-hunt-edcb1275d6ffeb9a3d76",
+      "entityName": "Michael Lemm",
+      "attachedCompanyId": "company-andco",
       "batchSlug": "S2026"
     },
     {
@@ -1101,6 +1161,8 @@
       "last_updated_at": "2026-07-06T17:40:52.030Z",
       "contributionScore": 1,
       "id": "source-hunt-0e1c740ea5aac8e77c20",
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -1134,6 +1196,8 @@
       "last_updated_at": "2026-07-09T14:13:10.121Z",
       "contributionScore": 1,
       "id": "source-hunt-157ebd9a537fa8e8561a",
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -1167,6 +1231,8 @@
       "last_updated_at": "2026-06-19T13:00:18.256Z",
       "contributionScore": 1,
       "id": "source-hunt-265b46f6fac2010cde53",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1200,6 +1266,8 @@
       "last_updated_at": "2026-07-03T16:48:04.358Z",
       "contributionScore": 1,
       "id": "source-hunt-2b2aa810cd3b302bf4b2",
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -1233,6 +1301,8 @@
       "last_updated_at": "2026-05-12T15:26:05.615Z",
       "contributionScore": 1,
       "id": "source-hunt-2f48a65e2786edae4c5b",
+      "entityName": "Netter",
+      "attachedCompanyId": "company-netter",
       "batchSlug": "S2026"
     },
     {
@@ -1266,6 +1336,8 @@
       "last_updated_at": "2026-06-19T10:00:09.191Z",
       "contributionScore": 1,
       "id": "source-hunt-4ef646e48010e7b72a86",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1299,6 +1371,8 @@
       "last_updated_at": "2026-05-18T20:59:58.420Z",
       "contributionScore": 1,
       "id": "source-hunt-4f4a651967f1cb2c8b39",
+      "entityName": "GovGuard",
+      "attachedCompanyId": "company-govguard",
       "batchSlug": "S2026"
     },
     {
@@ -1332,6 +1406,8 @@
       "last_updated_at": "2026-07-12T01:36:23.987Z",
       "contributionScore": 1,
       "id": "source-hunt-533fd5e348e8cb3432ce",
+      "entityName": "Maquoketa Research",
+      "attachedCompanyId": "company-maquoketa-research",
       "batchSlug": "S2026"
     },
     {
@@ -1365,6 +1441,8 @@
       "last_updated_at": "2026-06-18T12:00:22.007Z",
       "contributionScore": 1,
       "id": "source-hunt-570cf8966577d0536da3",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1398,6 +1476,8 @@
       "last_updated_at": "2026-07-10T17:14:31.471Z",
       "contributionScore": 1,
       "id": "source-hunt-5ec7242d0a56bc5a730e",
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -1431,6 +1511,8 @@
       "last_updated_at": "2026-06-17T17:00:09.162Z",
       "contributionScore": 1,
       "id": "source-hunt-60d184b21d5f64090378",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1464,6 +1546,8 @@
       "last_updated_at": "2026-06-18T09:00:04.404Z",
       "contributionScore": 1,
       "id": "source-hunt-6d0fc12c71605ed0a12b",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1497,6 +1581,8 @@
       "last_updated_at": "2026-06-17T12:00:02.636Z",
       "contributionScore": 1,
       "id": "source-hunt-6ed6efb8c9de40f0c385",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1530,6 +1616,8 @@
       "last_updated_at": "2026-06-30T22:49:06.040Z",
       "contributionScore": 1,
       "id": "source-hunt-720a8bfa675453186c3c",
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -1563,6 +1651,8 @@
       "last_updated_at": "2026-07-06T13:30:10.630Z",
       "contributionScore": 1,
       "id": "source-hunt-83170c3ec4a7e22026db",
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -1596,6 +1686,8 @@
       "last_updated_at": "2026-07-02T14:39:20.363Z",
       "contributionScore": 1,
       "id": "source-hunt-9fb561b9e2dff2451e43",
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -1629,6 +1721,8 @@
       "last_updated_at": "2026-06-02T14:30:10.844Z",
       "contributionScore": 1,
       "id": "source-hunt-a025e1c4581859d49d60",
+      "entityName": "Amin Hamzaoui",
+      "attachedCompanyId": "company-netter",
       "batchSlug": "S2026"
     },
     {
@@ -1662,6 +1756,8 @@
       "last_updated_at": "2026-05-27T15:36:21.907Z",
       "contributionScore": 1,
       "id": "source-hunt-ad5e9ebe8de81a933cf9",
+      "entityName": "Netter",
+      "attachedCompanyId": "company-netter",
       "batchSlug": "S2026"
     },
     {
@@ -1695,6 +1791,8 @@
       "last_updated_at": "2026-04-11T23:34:21.058Z",
       "contributionScore": 1,
       "id": "source-hunt-b47dc59ec44cf03f6d41",
+      "entityName": "Modern",
+      "attachedCompanyId": "company-modern",
       "batchSlug": "S2026"
     },
     {
@@ -1728,6 +1826,8 @@
       "last_updated_at": "2026-06-18T06:00:01.259Z",
       "contributionScore": 1,
       "id": "source-hunt-b48c6a8527171877c5b0",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1761,6 +1861,8 @@
       "last_updated_at": "2026-06-19T06:00:11.123Z",
       "contributionScore": 1,
       "id": "source-hunt-b702370d7b1dc65d83b3",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1794,6 +1896,8 @@
       "last_updated_at": "2026-04-30T13:02:54.444Z",
       "contributionScore": 1,
       "id": "source-hunt-bcd4bb7e5d36ef694301",
+      "entityName": "Dayjob",
+      "attachedCompanyId": "company-dayjob",
       "batchSlug": "S2026"
     },
     {
@@ -1827,6 +1931,8 @@
       "last_updated_at": "2026-07-20T22:08:08.437Z",
       "contributionScore": 1,
       "id": "source-hunt-d667433172d059f0341d",
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -1860,6 +1966,8 @@
       "last_updated_at": "2026-05-28T01:53:22.480Z",
       "contributionScore": 1,
       "id": "source-hunt-da975b1f6eee2c0fc2fd",
+      "entityName": "Hessian",
+      "attachedCompanyId": "company-hessian",
       "batchSlug": "S2026"
     },
     {
@@ -1893,6 +2001,8 @@
       "last_updated_at": "2026-06-17T14:00:04.577Z",
       "contributionScore": 1,
       "id": "source-hunt-e840f5f5b0d0cee50104",
+      "entityName": "Elyra",
+      "attachedCompanyId": "company-elyra",
       "batchSlug": "S2026"
     },
     {
@@ -1920,6 +2030,8 @@
       "first_seen_at": "2026-07-23T03:27:00.000Z",
       "last_checked_at": "2026-07-23T03:27:00.000Z",
       "last_updated_at": "2026-02-26T22:26:40-08:00",
+      "entityName": "Superset",
+      "attachedCompanyId": "company-superset",
       "batchSlug": "S2026"
     },
     {
@@ -1948,6 +2060,8 @@
       "first_seen_at": "2026-07-23T03:18:00.000Z",
       "last_checked_at": "2026-07-23T03:18:00.000Z",
       "last_updated_at": "2026-07-02T15:31:10-07:00",
+      "entityName": "Karan Raina",
+      "attachedCompanyId": "company-hyperprobe",
       "batchSlug": "S26"
     },
     {
@@ -1976,6 +2090,8 @@
       "first_seen_at": "2026-07-23T03:18:00.000Z",
       "last_checked_at": "2026-07-23T03:18:00.000Z",
       "last_updated_at": "2026-02-26T23:01:26-08:00",
+      "entityName": "Aidan Pratt 🥑",
+      "attachedCompanyId": "company-autostep",
       "batchSlug": "S2026"
     },
     {
@@ -2004,6 +2120,8 @@
       "first_seen_at": "2026-07-23T03:18:00.000Z",
       "last_checked_at": "2026-07-23T03:18:00.000Z",
       "last_updated_at": "2026-03-20T13:44:58-07:00",
+      "entityName": "Jack Zumwalt",
+      "attachedCompanyId": "company-kimpton-ai",
       "batchSlug": "S2026"
     },
     {
@@ -2031,6 +2149,8 @@
       "first_seen_at": "2026-07-23T03:18:00.000Z",
       "last_checked_at": "2026-07-23T03:18:00.000Z",
       "last_updated_at": "2026-04-02T00:00:06-07:00",
+      "entityName": "Kinro",
+      "attachedCompanyId": "company-kinro",
       "batchSlug": "S2026"
     },
     {
@@ -2061,6 +2181,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2025-11-26T01:43:50.000Z",
+      "entityName": "Chris Hailey",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2090,6 +2212,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2026-07-15T09:23:32.000Z",
+      "entityName": "Aydin Sorensen",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -2119,6 +2243,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2026-07-01T17:46:40.000Z",
+      "entityName": "Aydin Sorensen",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -2147,6 +2273,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2026-06-15T21:44:06.000Z",
+      "entityName": "Aydin Sorensen",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -2177,6 +2305,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2026-06-25T16:26:18.000Z",
+      "entityName": "Aydin Sorensen",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -2207,6 +2337,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2026-06-13T18:44:56.000Z",
+      "entityName": "Aydin Sorensen",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -2238,6 +2370,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2025-10-16T16:07:20.000Z",
+      "entityName": "Chris Hailey",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2268,6 +2402,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2026-07-06T08:38:25.000Z",
+      "entityName": "Rishabh Chanana",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2297,6 +2433,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2026-07-09T19:36:27.000Z",
+      "entityName": "Rishabh Chanana",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2329,6 +2467,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2025-11-21T20:32:33.000Z",
+      "entityName": "Chris Hailey",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2359,6 +2499,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2026-01-06T23:30:54.000Z",
+      "entityName": "Rishabh Chanana",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2389,6 +2531,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2025-10-19T16:07:03.000Z",
+      "entityName": "Chris Hailey",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2419,6 +2563,8 @@
       "first_seen_at": "2026-07-23T02:51:00.000Z",
       "last_checked_at": "2026-07-23T02:51:00.000Z",
       "last_updated_at": "2025-11-27T01:10:46.000Z",
+      "entityName": "Rishabh Chanana",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2460,6 +2606,8 @@
       "first_seen_at": "2026-07-23T02:50:00.000Z",
       "last_checked_at": "2026-07-23T02:50:00.000Z",
       "last_updated_at": "2026-07-07T01:52:09.517Z",
+      "entityName": "Anant Asthana",
+      "attachedCompanyId": "company-ekpa",
       "batchSlug": "S26"
     },
     {
@@ -2501,6 +2649,8 @@
       "first_seen_at": "2026-07-23T02:50:00.000Z",
       "last_checked_at": "2026-07-23T02:50:00.000Z",
       "last_updated_at": "2026-06-25T16:23:30.050Z",
+      "entityName": "Isengard Industries Inc",
+      "attachedCompanyId": "company-isengard-industries-inc",
       "batchSlug": "S26"
     },
     {
@@ -2531,6 +2681,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-22T06:08:24.000Z",
+      "entityName": "Shaurya Aggarwal",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -2560,6 +2712,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-05-28T15:26:15.784Z",
+      "entityName": "Dan Kondratyuk",
+      "attachedCompanyId": "company-rekursivai",
       "batchSlug": "S26"
     },
     {
@@ -2592,6 +2746,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-22T15:40:52.000Z",
+      "entityName": "Dan Kondratyuk",
+      "attachedCompanyId": "company-rekursivai",
       "batchSlug": "S26"
     },
     {
@@ -2625,6 +2781,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-21T15:36:45.000Z",
+      "entityName": "Rishab Jain",
+      "attachedCompanyId": "company-prescience-inc",
       "batchSlug": "S26"
     },
     {
@@ -2654,6 +2812,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-05-13T16:15:00.873Z",
+      "entityName": "Bryan Chung",
+      "attachedCompanyId": "company-insurf",
       "batchSlug": "S26"
     },
     {
@@ -2684,6 +2844,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-13T01:17:16.000Z",
+      "entityName": "Rohan Seelamsetty",
+      "attachedCompanyId": "company-praxis-ai-2",
       "batchSlug": "S26"
     },
     {
@@ -2717,6 +2879,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-21T15:40:25.000Z",
+      "entityName": "Aditya Jain",
+      "attachedCompanyId": "company-prescience-inc",
       "batchSlug": "S26"
     },
     {
@@ -2748,6 +2912,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-15T08:12:20.000Z",
+      "entityName": "Rishabh Chanana",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2777,6 +2943,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-05-31T01:00:10.000Z",
+      "entityName": "Rohan Seelamsetty",
+      "attachedCompanyId": "company-praxis-ai-2",
       "batchSlug": "S26"
     },
     {
@@ -2806,6 +2974,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-14T00:42:55.545Z",
+      "entityName": "HERA",
+      "attachedCompanyId": "company-manufacturingintelligence",
       "batchSlug": "S26"
     },
     {
@@ -2835,6 +3005,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-21T15:50:34.000Z",
+      "entityName": "Prescience, Inc.",
+      "attachedCompanyId": "company-prescience-inc",
       "batchSlug": "S26"
     },
     {
@@ -2864,6 +3036,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-21T01:42:38.000Z",
+      "entityName": "Shaurya Aggarwal",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -2893,6 +3067,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-02T00:05:13.183Z",
+      "entityName": "Rohan Seelamsetty",
+      "attachedCompanyId": "company-praxis-ai-2",
       "batchSlug": "S26"
     },
     {
@@ -2923,6 +3099,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-05-10T00:26:21.000Z",
+      "entityName": "Damian Szumski",
+      "attachedCompanyId": "company-skymerse",
       "batchSlug": "S26"
     },
     {
@@ -2954,6 +3132,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-01T19:10:31.000Z",
+      "entityName": "Rishabh Chanana",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -2983,6 +3163,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-06-10T17:37:53.522Z",
+      "entityName": "Nikos Dritsakos",
+      "attachedCompanyId": "company-glen",
       "batchSlug": "S26"
     },
     {
@@ -3014,6 +3196,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-06-25T05:27:58.000Z",
+      "entityName": "Arjun Chaliha",
+      "attachedCompanyId": "company-truffle",
       "batchSlug": "S26"
     },
     {
@@ -3043,6 +3227,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-19T14:30:23.000Z",
+      "entityName": "Noelle So",
+      "attachedCompanyId": "company-manufacturingintelligence",
       "batchSlug": "S26"
     },
     {
@@ -3072,6 +3258,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2025-09-01T16:42:12.000Z",
+      "entityName": "Damian Szumski",
+      "attachedCompanyId": "company-skymerse",
       "batchSlug": "S26"
     },
     {
@@ -3102,6 +3290,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-07T08:23:29.000Z",
+      "entityName": "Aydin Sorensen",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -3131,6 +3321,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-17T17:30:39.000Z",
+      "entityName": "Aydin Sorensen",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -3161,6 +3353,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-02-15T19:52:59.000Z",
+      "entityName": "Shaurya Aggarwal",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -3191,6 +3385,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-03-20T12:30:00.000Z",
+      "entityName": "Shaurya Aggarwal",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -3222,6 +3418,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-09T00:07:00.000Z",
+      "entityName": "Arjun Chaliha",
+      "attachedCompanyId": "company-truffle",
       "batchSlug": "S26"
     },
     {
@@ -3251,6 +3449,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-01T01:21:01.368Z",
+      "entityName": "Joanathan McIntosh",
+      "attachedCompanyId": "company-billow-ai-labs",
       "batchSlug": "S26"
     },
     {
@@ -3281,6 +3481,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-14T08:53:21.000Z",
+      "entityName": "Rishabh Chanana",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -3310,6 +3512,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-06-27T01:01:26.515Z",
+      "entityName": "Meera Patel",
+      "attachedCompanyId": "company-manufacturingintelligence",
       "batchSlug": "S26"
     },
     {
@@ -3340,6 +3544,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-01-27T07:32:08.000Z",
+      "entityName": "Shaurya Aggarwal",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -3369,6 +3575,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-21T15:29:20.157Z",
+      "entityName": "Aditya Jain",
+      "attachedCompanyId": "company-prescience-inc",
       "batchSlug": "S26"
     },
     {
@@ -3400,6 +3608,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-08T19:58:33.000Z",
+      "entityName": "Aydin Sorensen",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
@@ -3428,6 +3638,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-17T18:24:22.000Z",
+      "entityName": "Marcus Lima",
+      "attachedCompanyId": "company-torus",
       "batchSlug": "S26"
     },
     {
@@ -3457,6 +3669,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-05-05T17:48:49.000Z",
+      "entityName": "Damian Szumski",
+      "attachedCompanyId": "company-skymerse",
       "batchSlug": "S26"
     },
     {
@@ -3486,6 +3700,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-06-15T15:02:08.658Z",
+      "entityName": "Aakar Khanna",
+      "attachedCompanyId": "company-truffle",
       "batchSlug": "S26"
     },
     {
@@ -3515,6 +3731,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-04-01T20:01:56.000Z",
+      "entityName": "Chris Hailey",
+      "attachedCompanyId": "company-os3",
       "batchSlug": "S26"
     },
     {
@@ -3544,6 +3762,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-05-26T22:30:40.309Z",
+      "entityName": "Rodrigo Mosqueira",
+      "attachedCompanyId": "company-bizmark",
       "batchSlug": "S26"
     },
     {
@@ -3573,6 +3793,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-06-29T20:23:58.199Z",
+      "entityName": "Noelle So",
+      "attachedCompanyId": "company-manufacturingintelligence",
       "batchSlug": "S26"
     },
     {
@@ -3604,6 +3826,8 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-12T00:43:05.000Z",
+      "entityName": "Truffle",
+      "attachedCompanyId": "company-truffle",
       "batchSlug": "S26"
     },
     {
@@ -3637,6 +3861,8 @@
       "last_updated_at": "2026-04-01T17:30:06.651Z",
       "contributionScore": 1,
       "id": "source-hunt-2ac1aa788c41a46afab5",
+      "entityName": "Martin Pan",
+      "attachedCompanyId": "company-korso",
       "batchSlug": "S2026"
     },
     {
@@ -3670,6 +3896,8 @@
       "last_updated_at": "2026-04-08T23:48:05.356Z",
       "contributionScore": 1,
       "id": "source-hunt-37ac560fc20e83562c41",
+      "entityName": "Aleks Tomovski",
+      "attachedCompanyId": "company-modern",
       "batchSlug": "S2026"
     },
     {
@@ -3703,6 +3931,8 @@
       "last_updated_at": "2026-04-01T14:51:47.576Z",
       "contributionScore": 1,
       "id": "source-hunt-42061c00509528039d53",
+      "entityName": "Jonathan Hassan",
+      "attachedCompanyId": "company-kuli",
       "batchSlug": "S2026"
     },
     {
@@ -3736,6 +3966,8 @@
       "last_updated_at": "2026-04-11T00:24:02.393Z",
       "contributionScore": 1,
       "id": "source-hunt-4c38e475203c10d548a4",
+      "entityName": "Daichi Hiraoka",
+      "attachedCompanyId": "company-korso",
       "batchSlug": "S2026"
     },
     {
@@ -3769,6 +4001,8 @@
       "last_updated_at": "2026-06-02T19:13:02.400Z",
       "contributionScore": 1,
       "id": "source-hunt-5c2a6394f50470e45df8",
+      "entityName": "Martin Pan",
+      "attachedCompanyId": "company-korso",
       "batchSlug": "S2026"
     },
     {
@@ -3802,6 +4036,8 @@
       "last_updated_at": "2026-04-01T20:52:26.695Z",
       "contributionScore": 1,
       "id": "source-hunt-63ef425668a26d656fb4",
+      "entityName": "Isabela Rodriguez",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -3835,6 +4071,8 @@
       "last_updated_at": "2026-06-02T13:45:11.420Z",
       "contributionScore": 1,
       "id": "source-hunt-6d27f766a024d62e7e24",
+      "entityName": "Nisha Gopal",
+      "attachedCompanyId": "company-abinitio-bio",
       "batchSlug": "S2026"
     },
     {
@@ -3868,6 +4106,8 @@
       "last_updated_at": "2026-03-23T15:07:09.909Z",
       "contributionScore": 1,
       "id": "source-hunt-93192a9d2b461825998c",
+      "entityName": "Imad Mokadem",
+      "attachedCompanyId": "company-amboras",
       "batchSlug": "S2026"
     },
     {
@@ -3901,6 +4141,8 @@
       "last_updated_at": "2026-06-20T18:19:35.939Z",
       "contributionScore": 1,
       "id": "source-hunt-a295e154f48a106fef34",
+      "entityName": "Justin So",
+      "attachedCompanyId": "company-textsidekick",
       "batchSlug": "S2026"
     },
     {
@@ -3934,6 +4176,8 @@
       "last_updated_at": "2026-03-10T08:54:49.479Z",
       "contributionScore": 1,
       "id": "source-hunt-c73656635c2b41fbd0a2",
+      "entityName": "Martin Pan",
+      "attachedCompanyId": "company-korso",
       "batchSlug": "S2026"
     },
     {
@@ -3967,6 +4211,8 @@
       "last_updated_at": "2026-05-26T17:16:30.116Z",
       "contributionScore": 1,
       "id": "source-hunt-cde435e9cdf9ab12027a",
+      "entityName": "Adam Ron",
+      "attachedCompanyId": "company-soria",
       "batchSlug": "S2026"
     },
     {
@@ -4000,6 +4246,8 @@
       "last_updated_at": "2026-03-23T02:00:07.347Z",
       "contributionScore": 1,
       "id": "source-hunt-ce3de2852e9844c71f35",
+      "entityName": "Tony Montes",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -4033,6 +4281,8 @@
       "last_updated_at": "2026-04-24T19:29:06.945Z",
       "contributionScore": 1,
       "id": "source-hunt-efe2dcf465b6ce0dd1cd",
+      "entityName": "Seb Poole",
+      "attachedCompanyId": "company-modern",
       "batchSlug": "S2026"
     },
     {
@@ -4066,6 +4316,8 @@
       "last_updated_at": "2026-04-11T00:20:00.771Z",
       "contributionScore": 1,
       "id": "source-hunt-f1b4ae72b35d61bd7c9c",
+      "entityName": "Martin Pan",
+      "attachedCompanyId": "company-korso",
       "batchSlug": "S2026"
     },
     {
@@ -4106,6 +4358,8 @@
       "youtubeChannelName": "6thSense",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/6thsense",
       "authorHandle": null,
+      "entityName": "6thSense",
+      "attachedCompanyId": "company-6thsense",
       "batchSlug": "S26"
     },
     {
@@ -4145,6 +4399,8 @@
       "youtubeChannelName": "9 Mothers",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/9-mothers-corporation",
       "authorHandle": null,
+      "entityName": "9 Mothers",
+      "attachedCompanyId": "company-9-mothers-corporation",
       "batchSlug": "S2026"
     },
     {
@@ -4184,6 +4440,8 @@
       "youtubeChannelName": "9 Mothers",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/9-mothers-corporation",
       "authorHandle": null,
+      "entityName": "9 Mothers",
+      "attachedCompanyId": "company-9-mothers-corporation",
       "batchSlug": "S2026"
     },
     {
@@ -4223,6 +4481,8 @@
       "youtubeChannelName": "Adialante",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/adialante",
       "authorHandle": null,
+      "entityName": "Adialante",
+      "attachedCompanyId": "company-adialante",
       "batchSlug": "S2026"
     },
     {
@@ -4263,6 +4523,8 @@
       "youtubeChannelName": "Agentcard",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/agentcard",
       "authorHandle": null,
+      "entityName": "Agentcard",
+      "attachedCompanyId": "company-agentcard",
       "batchSlug": "S26"
     },
     {
@@ -4302,6 +4564,8 @@
       "youtubeChannelName": "Felipe Abello",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/agentcard",
       "authorHandle": null,
+      "entityName": "Agentcard",
+      "attachedCompanyId": "company-agentcard",
       "batchSlug": "S26"
     },
     {
@@ -4342,6 +4606,8 @@
       "youtubeChannelName": "Meet Modi",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/agentphone",
       "authorHandle": null,
+      "entityName": "AgentPhone",
+      "attachedCompanyId": "company-agentphone",
       "batchSlug": "S2026"
     },
     {
@@ -4382,6 +4648,8 @@
       "youtubeChannelName": "Alchemize",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/alchemize",
       "authorHandle": null,
+      "entityName": "Alchemize",
+      "attachedCompanyId": "company-alchemize",
       "batchSlug": "S2026"
     },
     {
@@ -4422,6 +4690,8 @@
       "youtubeChannelName": "Alkera AI",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/alkera-ai",
       "authorHandle": null,
+      "entityName": "Alkera AI",
+      "attachedCompanyId": "company-alkera-ai",
       "batchSlug": "S26"
     },
     {
@@ -4462,6 +4732,8 @@
       "youtubeChannelName": "Alloovium",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/alloovium",
       "authorHandle": null,
+      "entityName": "Alloovium",
+      "attachedCompanyId": "company-alloovium",
       "batchSlug": "S26"
     },
     {
@@ -4501,6 +4773,8 @@
       "youtubeChannelName": "Dasmer Singh",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/allowance",
       "authorHandle": null,
+      "entityName": "Allowance",
+      "attachedCompanyId": "company-allowance",
       "batchSlug": "S2026"
     },
     {
@@ -4541,6 +4815,8 @@
       "youtubeChannelName": "Andustry (YC P26)",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/andustry",
       "authorHandle": null,
+      "entityName": "Andustry",
+      "attachedCompanyId": "company-andustry",
       "batchSlug": "S2026"
     },
     {
@@ -4580,6 +4856,8 @@
       "youtubeChannelName": "Apollo Atomics",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/apollo-atomics-inc",
       "authorHandle": null,
+      "entityName": "Apollo Atomics, Inc.",
+      "attachedCompanyId": "company-apollo-atomics-inc",
       "batchSlug": "S2026"
     },
     {
@@ -4619,6 +4897,8 @@
       "youtubeChannelName": "Benjamin Nguyen",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/archer",
       "authorHandle": null,
+      "entityName": "Archer",
+      "attachedCompanyId": "company-archer",
       "batchSlug": "S2026"
     },
     {
@@ -4658,6 +4938,8 @@
       "youtubeChannelName": "Vikram Chennai",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/ardent",
       "authorHandle": null,
+      "entityName": "Ardent",
+      "attachedCompanyId": "company-ardent",
       "batchSlug": "S2026"
     },
     {
@@ -4697,6 +4979,8 @@
       "youtubeChannelName": "Akira Tong",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/arga-labs",
       "authorHandle": null,
+      "entityName": "Arga Labs",
+      "attachedCompanyId": "company-arga-labs",
       "batchSlug": "S2026"
     },
     {
@@ -4736,6 +5020,8 @@
       "youtubeChannelName": "Akira Tong",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/arga-labs",
       "authorHandle": null,
+      "entityName": "Arga Labs",
+      "attachedCompanyId": "company-arga-labs",
       "batchSlug": "S2026"
     },
     {
@@ -4775,6 +5061,8 @@
       "youtubeChannelName": "Armature",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/armature",
       "authorHandle": null,
+      "entityName": "Armature",
+      "attachedCompanyId": "company-armature",
       "batchSlug": "S2026"
     },
     {
@@ -4814,6 +5102,8 @@
       "youtubeChannelName": "Arzana",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/arzana",
       "authorHandle": null,
+      "entityName": "Arzana",
+      "attachedCompanyId": "company-arzana",
       "batchSlug": "S2026"
     },
     {
@@ -4853,6 +5143,8 @@
       "youtubeChannelName": "Asendia inc",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/asendia-ai",
       "authorHandle": null,
+      "entityName": "Asendia AI",
+      "attachedCompanyId": "company-asendia-ai",
       "batchSlug": "S2026"
     },
     {
@@ -4893,6 +5185,8 @@
       "youtubeChannelName": "Aseon Labs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/aseon-labs",
       "authorHandle": null,
+      "entityName": "Aseon Labs",
+      "attachedCompanyId": "company-aseon-labs",
       "batchSlug": "S2026"
     },
     {
@@ -4933,6 +5227,8 @@
       "youtubeChannelName": "Aster",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/asterlab",
       "authorHandle": null,
+      "entityName": "Aster",
+      "attachedCompanyId": "company-asterlab",
       "batchSlug": "S2026"
     },
     {
@@ -4973,6 +5269,8 @@
       "youtubeChannelName": "Atrisa AI",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/atrisa",
       "authorHandle": null,
+      "entityName": "Atrisa",
+      "attachedCompanyId": "company-atrisa",
       "batchSlug": "S2026"
     },
     {
@@ -5012,6 +5310,8 @@
       "youtubeChannelName": "Aidan",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/autostep",
       "authorHandle": null,
+      "entityName": "Autostep",
+      "attachedCompanyId": "company-autostep",
       "batchSlug": "S2026"
     },
     {
@@ -5051,6 +5351,8 @@
       "youtubeChannelName": "Avea Robotics",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/avea-robotics",
       "authorHandle": null,
+      "entityName": "Avea Robotics",
+      "attachedCompanyId": "company-avea-robotics",
       "batchSlug": "S2026"
     },
     {
@@ -5090,6 +5392,8 @@
       "youtubeChannelName": "Abhinav soni",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/bentolabs-ai",
       "authorHandle": null,
+      "entityName": "BentoLabs AI",
+      "attachedCompanyId": "company-bentolabs-ai",
       "batchSlug": "S2026"
     },
     {
@@ -5131,6 +5435,8 @@
       "youtubeChannelName": "Bloomy Learning",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/bloomy",
       "authorHandle": null,
+      "entityName": "Bloomy",
+      "attachedCompanyId": "company-bloomy",
       "batchSlug": "S26"
     },
     {
@@ -5170,6 +5476,8 @@
       "youtubeChannelName": "CentralComs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/centralcoms",
       "authorHandle": null,
+      "entityName": "CentralComs",
+      "attachedCompanyId": "company-centralcoms",
       "batchSlug": "S2026"
     },
     {
@@ -5209,6 +5517,8 @@
       "youtubeChannelName": "CharacterQuilt",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/characterquilt",
       "authorHandle": null,
+      "entityName": "CharacterQuilt",
+      "attachedCompanyId": "company-characterquilt",
       "batchSlug": "S2026"
     },
     {
@@ -5248,6 +5558,8 @@
       "youtubeChannelName": "Cignara",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/cignara",
       "authorHandle": null,
+      "entityName": "Cignara",
+      "attachedCompanyId": "company-cignara",
       "batchSlug": "S2026"
     },
     {
@@ -5289,6 +5601,8 @@
       "youtubeChannelName": "Eric Levine",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/clawvisor",
       "authorHandle": null,
+      "entityName": "Clawvisor",
+      "attachedCompanyId": "company-clawvisor",
       "batchSlug": "S2026"
     },
     {
@@ -5329,6 +5643,8 @@
       "youtubeChannelName": "Coasty AI",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/coasty",
       "authorHandle": null,
+      "entityName": "Coasty",
+      "attachedCompanyId": "company-coasty",
       "batchSlug": "S26"
     },
     {
@@ -5369,6 +5685,8 @@
       "youtubeChannelName": "Cohesion",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/cohesion",
       "authorHandle": null,
+      "entityName": "Cohesion",
+      "attachedCompanyId": "company-cohesion",
       "batchSlug": "S2026"
     },
     {
@@ -5408,6 +5726,8 @@
       "youtubeChannelName": "Gustav Bang",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/complir",
       "authorHandle": null,
+      "entityName": "Complir",
+      "attachedCompanyId": "company-complir",
       "batchSlug": "S2026"
     },
     {
@@ -5448,6 +5768,8 @@
       "youtubeChannelName": "Conifer",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/conifer",
       "authorHandle": null,
+      "entityName": "Conifer",
+      "attachedCompanyId": "company-conifer",
       "batchSlug": "S26"
     },
     {
@@ -5488,6 +5810,8 @@
       "youtubeChannelName": "Datost",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/datost",
       "authorHandle": null,
+      "entityName": "Datost",
+      "attachedCompanyId": "company-datost",
       "batchSlug": "S2026"
     },
     {
@@ -5528,6 +5852,8 @@
       "youtubeChannelName": "Definite (YC S26)",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/definite",
       "authorHandle": null,
+      "entityName": "Definite",
+      "attachedCompanyId": "company-definite",
       "batchSlug": "S26"
     },
     {
@@ -5569,6 +5895,8 @@
       "youtubeChannelName": "Dispatch",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/dispatch",
       "authorHandle": null,
+      "entityName": "Dispatch",
+      "attachedCompanyId": "company-dispatch",
       "batchSlug": "S2026"
     },
     {
@@ -5608,6 +5936,8 @@
       "youtubeChannelName": "Drafted AI",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/drafted",
       "authorHandle": null,
+      "entityName": "Drafted",
+      "attachedCompanyId": "company-drafted",
       "batchSlug": "S2026"
     },
     {
@@ -5647,6 +5977,8 @@
       "youtubeChannelName": "Eden Robotics",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/eden-robotics",
       "authorHandle": null,
+      "entityName": "Eden Robotics",
+      "attachedCompanyId": "company-eden-robotics",
       "batchSlug": "S2026"
     },
     {
@@ -5686,6 +6018,8 @@
       "youtubeChannelName": "Eden Robotics",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/eden-robotics",
       "authorHandle": null,
+      "entityName": "Eden Robotics",
+      "attachedCompanyId": "company-eden-robotics",
       "batchSlug": "S2026"
     },
     {
@@ -5726,6 +6060,8 @@
       "youtubeChannelName": "Anant Asthana",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/ekpa",
       "authorHandle": null,
+      "entityName": "Ekpa",
+      "attachedCompanyId": "company-ekpa",
       "batchSlug": "S26"
     },
     {
@@ -5766,6 +6102,8 @@
       "youtubeChannelName": "Fabraix HQ",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/fabraix",
       "authorHandle": null,
+      "entityName": "Fabraix",
+      "attachedCompanyId": "company-fabraix",
       "batchSlug": "S26"
     },
     {
@@ -5805,6 +6143,8 @@
       "youtubeChannelName": "FinalDose",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/finaldose",
       "authorHandle": null,
+      "entityName": "FinalDose",
+      "attachedCompanyId": "company-finaldose",
       "batchSlug": "S2026"
     },
     {
@@ -5844,6 +6184,8 @@
       "youtubeChannelName": "Foaster",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/foaster",
       "authorHandle": null,
+      "entityName": "Foaster",
+      "attachedCompanyId": "company-foaster",
       "batchSlug": "S2026"
     },
     {
@@ -5883,6 +6225,8 @@
       "youtubeChannelName": "Eytan Rozenblum",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/foresight",
       "authorHandle": null,
+      "entityName": "Foresight",
+      "attachedCompanyId": "company-foresight",
       "batchSlug": "S2026"
     },
     {
@@ -5922,6 +6266,8 @@
       "youtubeChannelName": "General Instinct",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/general-instinct",
       "authorHandle": null,
+      "entityName": "General Instinct",
+      "attachedCompanyId": "company-general-instinct",
       "batchSlug": "S2026"
     },
     {
@@ -5962,6 +6308,8 @@
       "youtubeChannelName": "Gigacatalyst",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/gigacatalyst",
       "authorHandle": null,
+      "entityName": "Gigacatalyst",
+      "attachedCompanyId": "company-gigacatalyst",
       "batchSlug": "S2026"
     },
     {
@@ -6002,6 +6350,8 @@
       "youtubeChannelName": "Gojiberry",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/gojiberry-ai",
       "authorHandle": null,
+      "entityName": "Gojiberry AI",
+      "attachedCompanyId": "company-gojiberry-ai",
       "batchSlug": "S2026"
     },
     {
@@ -6041,6 +6391,8 @@
       "youtubeChannelName": "Gravy",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/gravy",
       "authorHandle": null,
+      "entityName": "Gravy",
+      "attachedCompanyId": "company-gravy",
       "batchSlug": "S2026"
     },
     {
@@ -6080,6 +6432,8 @@
       "youtubeChannelName": "HEVN",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/hevn-inc",
       "authorHandle": null,
+      "entityName": "HEVN, inc",
+      "attachedCompanyId": "company-hevn-inc",
       "batchSlug": "S2026"
     },
     {
@@ -6119,6 +6473,8 @@
       "youtubeChannelName": "Hexa Agents",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/hexa",
       "authorHandle": null,
+      "entityName": "Hexa",
+      "attachedCompanyId": "company-hexa",
       "batchSlug": "S2026"
     },
     {
@@ -6158,6 +6514,8 @@
       "youtubeChannelName": "farzatv",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/heyclicky",
       "authorHandle": null,
+      "entityName": "HeyClicky",
+      "attachedCompanyId": "company-heyclicky",
       "batchSlug": "S2026"
     },
     {
@@ -6198,6 +6556,8 @@
       "youtubeChannelName": "Huscarl",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/huscarl",
       "authorHandle": null,
+      "entityName": "Huscarl",
+      "attachedCompanyId": "company-huscarl",
       "batchSlug": "S2026"
     },
     {
@@ -6237,6 +6597,8 @@
       "youtubeChannelName": "Hyper (YC P26)",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/hyper-4",
       "authorHandle": null,
+      "entityName": "Hyper",
+      "attachedCompanyId": "company-hyper-4",
       "batchSlug": "S2026"
     },
     {
@@ -6276,6 +6638,8 @@
       "youtubeChannelName": "Infera",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/infera",
       "authorHandle": null,
+      "entityName": "Infera",
+      "attachedCompanyId": "company-infera",
       "batchSlug": "S2026"
     },
     {
@@ -6317,6 +6681,8 @@
       "youtubeChannelName": "Claire Mao",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/instance",
       "authorHandle": null,
+      "entityName": "Instance",
+      "attachedCompanyId": "company-instance",
       "batchSlug": "S26"
     },
     {
@@ -6356,6 +6722,8 @@
       "youtubeChannelName": "Inth",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/inth",
       "authorHandle": null,
+      "entityName": "Inth",
+      "attachedCompanyId": "company-inth",
       "batchSlug": "S2026"
     },
     {
@@ -6392,6 +6760,8 @@
       "last_checked_at": "2026-07-23T02:30:00.000Z",
       "last_updated_at": "2026-03-01T17:10:53-08:00",
       "authorHandle": null,
+      "entityName": "jo",
+      "attachedCompanyId": "company-jo",
       "batchSlug": "S2026"
     },
     {
@@ -6432,6 +6802,8 @@
       "youtubeChannelName": "Juno",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/juno-chat",
       "authorHandle": null,
+      "entityName": "Juno",
+      "attachedCompanyId": "company-juno-chat",
       "batchSlug": "S2026"
     },
     {
@@ -6471,6 +6843,8 @@
       "youtubeChannelName": "Keyframe Labs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/keyframe-labs",
       "authorHandle": null,
+      "entityName": "Keyframe Labs",
+      "attachedCompanyId": "company-keyframe-labs",
       "batchSlug": "S2026"
     },
     {
@@ -6510,6 +6884,8 @@
       "youtubeChannelName": "Kimpton AI",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/kimpton-ai",
       "authorHandle": null,
+      "entityName": "Kimpton AI",
+      "attachedCompanyId": "company-kimpton-ai",
       "batchSlug": "S2026"
     },
     {
@@ -6549,6 +6925,8 @@
       "youtubeChannelName": "Kinect",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/kinect",
       "authorHandle": null,
+      "entityName": "Kinect",
+      "attachedCompanyId": "company-kinect",
       "batchSlug": "S2026"
     },
     {
@@ -6588,6 +6966,8 @@
       "youtubeChannelName": "KugelAudio",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/kugelaudio",
       "authorHandle": null,
+      "entityName": "KugelAudio",
+      "attachedCompanyId": "company-kugelaudio",
       "batchSlug": "S2026"
     },
     {
@@ -6628,6 +7008,8 @@
       "youtubeChannelName": "Lamina Labs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/lamina-labs",
       "authorHandle": null,
+      "entityName": "Lamina Labs",
+      "attachedCompanyId": "company-lamina-labs",
       "batchSlug": "S2026"
     },
     {
@@ -6668,6 +7050,8 @@
       "youtubeChannelName": "Christine Park",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/lattice-health",
       "authorHandle": null,
+      "entityName": "Lattice Health",
+      "attachedCompanyId": "company-lattice-health",
       "batchSlug": "S2026"
     },
     {
@@ -6708,6 +7092,8 @@
       "youtubeChannelName": "LemonLime",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/lemonlime",
       "authorHandle": null,
+      "entityName": "LemonLime",
+      "attachedCompanyId": "company-lemonlime",
       "batchSlug": "S26"
     },
     {
@@ -6748,6 +7134,8 @@
       "youtubeChannelName": "Lightsprint",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/lightsprint",
       "authorHandle": null,
+      "entityName": "Lightsprint",
+      "attachedCompanyId": "company-lightsprint",
       "batchSlug": "S2026"
     },
     {
@@ -6787,6 +7175,8 @@
       "youtubeChannelName": "Limrun",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/limrun",
       "authorHandle": null,
+      "entityName": "Limrun",
+      "attachedCompanyId": "company-limrun",
       "batchSlug": "S2026"
     },
     {
@@ -6826,6 +7216,8 @@
       "youtubeChannelName": "Sean Grove",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/linzumi",
       "authorHandle": null,
+      "entityName": "Linzumi",
+      "attachedCompanyId": "company-linzumi",
       "batchSlug": "S2026"
     },
     {
@@ -6865,6 +7257,8 @@
       "youtubeChannelName": "Sean Grove",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/linzumi",
       "authorHandle": null,
+      "entityName": "Linzumi",
+      "attachedCompanyId": "company-linzumi",
       "batchSlug": "S2026"
     },
     {
@@ -6904,6 +7298,8 @@
       "youtubeChannelName": "Sean Grove",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/linzumi",
       "authorHandle": null,
+      "entityName": "Linzumi",
+      "attachedCompanyId": "company-linzumi",
       "batchSlug": "S2026"
     },
     {
@@ -6943,6 +7339,8 @@
       "youtubeChannelName": "Sean Grove",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/linzumi",
       "authorHandle": null,
+      "entityName": "Linzumi",
+      "attachedCompanyId": "company-linzumi",
       "batchSlug": "S2026"
     },
     {
@@ -6983,6 +7381,8 @@
       "youtubeChannelName": "Shaivi",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/litmus-hiring",
       "authorHandle": null,
+      "entityName": "Litmus",
+      "attachedCompanyId": "company-litmus-hiring",
       "batchSlug": "S26"
     },
     {
@@ -7023,6 +7423,8 @@
       "youtubeChannelName": "Lumius",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/lumius",
       "authorHandle": null,
+      "entityName": "Lumius",
+      "attachedCompanyId": "company-lumius",
       "batchSlug": "S2026"
     },
     {
@@ -7062,6 +7464,8 @@
       "youtubeChannelName": "Naman Bansal",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/manicule",
       "authorHandle": null,
+      "entityName": "Manicule",
+      "attachedCompanyId": "company-manicule",
       "batchSlug": "S2026"
     },
     {
@@ -7101,6 +7505,8 @@
       "youtubeChannelName": "Memory Store",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/memory-store",
       "authorHandle": null,
+      "entityName": "Memory Store",
+      "attachedCompanyId": "company-memory-store",
       "batchSlug": "S2026"
     },
     {
@@ -7141,6 +7547,8 @@
       "youtubeChannelName": "Miso Labs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/miso-labs",
       "authorHandle": null,
+      "entityName": "Miso Labs",
+      "attachedCompanyId": "company-miso-labs",
       "batchSlug": "S2026"
     },
     {
@@ -7181,6 +7589,8 @@
       "youtubeChannelName": "Miso Labs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/miso-labs",
       "authorHandle": null,
+      "entityName": "Miso Labs",
+      "attachedCompanyId": "company-miso-labs",
       "batchSlug": "S2026"
     },
     {
@@ -7221,6 +7631,8 @@
       "youtubeChannelName": "Miso Labs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/miso-labs",
       "authorHandle": null,
+      "entityName": "Miso Labs",
+      "attachedCompanyId": "company-miso-labs",
       "batchSlug": "S2026"
     },
     {
@@ -7261,6 +7673,8 @@
       "youtubeChannelName": "Miso Labs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/miso-labs",
       "authorHandle": null,
+      "entityName": "Miso Labs",
+      "attachedCompanyId": "company-miso-labs",
       "batchSlug": "S2026"
     },
     {
@@ -7301,6 +7715,8 @@
       "youtubeChannelName": "Mochatrade",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/mochatrade",
       "authorHandle": null,
+      "entityName": "Mochatrade",
+      "attachedCompanyId": "company-mochatrade",
       "batchSlug": "S2026"
     },
     {
@@ -7341,6 +7757,8 @@
       "youtubeChannelName": "Napkin Math",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/napkin-math",
       "authorHandle": null,
+      "entityName": "Napkin Math",
+      "attachedCompanyId": "company-napkin-math",
       "batchSlug": "S2026"
     },
     {
@@ -7383,6 +7801,8 @@
       "youtubeChannelName": "Nine Fives",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/nine-fives",
       "authorHandle": null,
+      "entityName": "Nine Fives",
+      "attachedCompanyId": "company-nine-fives",
       "batchSlug": "S2026"
     },
     {
@@ -7423,6 +7843,8 @@
       "youtubeChannelName": "Ornadyne",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/ornadyne",
       "authorHandle": null,
+      "entityName": "Ornadyne",
+      "attachedCompanyId": "company-ornadyne",
       "batchSlug": "S2026"
     },
     {
@@ -7462,6 +7884,8 @@
       "youtubeChannelName": "Pairio",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/pairio",
       "authorHandle": null,
+      "entityName": "Pairio",
+      "attachedCompanyId": "company-pairio",
       "batchSlug": "S2026"
     },
     {
@@ -7503,6 +7927,8 @@
       "youtubeChannelName": "Panacea",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/panacea",
       "authorHandle": null,
+      "entityName": "Panacea",
+      "attachedCompanyId": "company-panacea",
       "batchSlug": "S2026"
     },
     {
@@ -7543,6 +7969,8 @@
       "youtubeChannelName": "Pavoot",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/pavoot",
       "authorHandle": null,
+      "entityName": "Pavoot",
+      "attachedCompanyId": "company-pavoot",
       "batchSlug": "S2026"
     },
     {
@@ -7582,6 +8010,8 @@
       "youtubeChannelName": "Edgar Pavlovsky",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/pentagon",
       "authorHandle": null,
+      "entityName": "Pentagon",
+      "attachedCompanyId": "company-pentagon",
       "batchSlug": "S2026"
     },
     {
@@ -7622,6 +8052,8 @@
       "youtubeChannelName": "PerfectBit",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/perfectbit-inc",
       "authorHandle": null,
+      "entityName": "PerfectBit, Inc.",
+      "attachedCompanyId": "company-perfectbit-inc",
       "batchSlug": "S2026"
     },
     {
@@ -7661,6 +8093,8 @@
       "youtubeChannelName": "Ian Lee",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/petrarch",
       "authorHandle": null,
+      "entityName": "Petrarch",
+      "attachedCompanyId": "company-petrarch",
       "batchSlug": "S26"
     },
     {
@@ -7700,6 +8134,8 @@
       "youtubeChannelName": "Arash Barati",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/plan0-ai",
       "authorHandle": null,
+      "entityName": "PLAN0 AI",
+      "attachedCompanyId": "company-plan0-ai",
       "batchSlug": "S2026"
     },
     {
@@ -7740,6 +8176,8 @@
       "youtubeChannelName": "Eyad Abdalla",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/plena-health",
       "authorHandle": null,
+      "entityName": "Plena Health",
+      "attachedCompanyId": "company-plena-health",
       "batchSlug": "S2026"
     },
     {
@@ -7781,6 +8219,8 @@
       "youtubeChannelName": "Ploy",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/ploy",
       "authorHandle": null,
+      "entityName": "Ploy",
+      "attachedCompanyId": "company-ploy",
       "batchSlug": "S2026"
     },
     {
@@ -7821,6 +8261,8 @@
       "youtubeChannelName": "Matthew Wong",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/poth-labs",
       "authorHandle": null,
+      "entityName": "Poth Labs",
+      "attachedCompanyId": "company-poth-labs",
       "batchSlug": "S26"
     },
     {
@@ -7862,6 +8304,8 @@
       "youtubeChannelName": "Prized",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/prized",
       "authorHandle": null,
+      "entityName": "Prized",
+      "attachedCompanyId": "company-prized",
       "batchSlug": "S26"
     },
     {
@@ -7901,6 +8345,8 @@
       "youtubeChannelName": "Rounak Adhikary",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/projectx",
       "authorHandle": null,
+      "entityName": "ProjectX",
+      "attachedCompanyId": "company-projectx",
       "batchSlug": "S2026"
     },
     {
@@ -7940,6 +8386,8 @@
       "youtubeChannelName": "PrototypingIO",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/prototypingio",
       "authorHandle": null,
+      "entityName": "Prototyping.io",
+      "attachedCompanyId": "company-prototypingio",
       "batchSlug": "S2026"
     },
     {
@@ -7979,6 +8427,8 @@
       "youtubeChannelName": "qomplement",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/qomplement",
       "authorHandle": null,
+      "entityName": "qomplement",
+      "attachedCompanyId": "company-qomplement",
       "batchSlug": "S2026"
     },
     {
@@ -8018,6 +8468,8 @@
       "last_checked_at": "2026-07-23T02:30:00.000Z",
       "last_updated_at": "2026-07-22T12:22:26-07:00",
       "authorHandle": null,
+      "entityName": "Rapidfolio",
+      "attachedCompanyId": "company-rapidfolio",
       "batchSlug": "S26"
     },
     {
@@ -8058,6 +8510,8 @@
       "youtubeChannelName": "Rational, Inc.",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/rational",
       "authorHandle": null,
+      "entityName": "Rational",
+      "attachedCompanyId": "company-rational",
       "batchSlug": "S26"
     },
     {
@@ -8098,6 +8552,8 @@
       "youtubeChannelName": "Regbase",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/regbase",
       "authorHandle": null,
+      "entityName": "Regbase",
+      "attachedCompanyId": "company-regbase",
       "batchSlug": "S2026"
     },
     {
@@ -8137,6 +8593,8 @@
       "youtubeChannelName": "Replicas",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/replicas",
       "authorHandle": null,
+      "entityName": "Replicas",
+      "attachedCompanyId": "company-replicas",
       "batchSlug": "S2026"
     },
     {
@@ -8176,6 +8634,8 @@
       "youtubeChannelName": "Michael Serrano",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/rindler",
       "authorHandle": null,
+      "entityName": "Rindler",
+      "attachedCompanyId": "company-rindler",
       "batchSlug": "S26"
     },
     {
@@ -8215,6 +8675,8 @@
       "youtubeChannelName": "Lucas Zubillaga",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/rise-reforming",
       "authorHandle": null,
+      "entityName": "Rise Reforming",
+      "attachedCompanyId": "company-rise-reforming",
       "batchSlug": "S26"
     },
     {
@@ -8254,6 +8716,8 @@
       "youtubeChannelName": "River Markets",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/river-markets",
       "authorHandle": null,
+      "entityName": "River Markets",
+      "attachedCompanyId": "company-river-markets",
       "batchSlug": "S2026"
     },
     {
@@ -8294,6 +8758,8 @@
       "youtubeChannelName": "Gus from Runtime",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/runtime",
       "authorHandle": null,
+      "entityName": "Runtime",
+      "attachedCompanyId": "company-runtime",
       "batchSlug": "S2026"
     },
     {
@@ -8334,6 +8800,8 @@
       "youtubeChannelName": "Saffron AI",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/saffron",
       "authorHandle": null,
+      "entityName": "Saffron",
+      "attachedCompanyId": "company-saffron",
       "batchSlug": "S2026"
     },
     {
@@ -8373,6 +8841,8 @@
       "youtubeChannelName": "Ruhan Ponnada",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/salesgraph",
       "authorHandle": null,
+      "entityName": "Salesgraph",
+      "attachedCompanyId": "company-salesgraph",
       "batchSlug": "S2026"
     },
     {
@@ -8412,6 +8882,8 @@
       "youtubeChannelName": "Anand-Arnaud PAJANIRADJANE",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/scope",
       "authorHandle": null,
+      "entityName": "Scope",
+      "attachedCompanyId": "company-scope",
       "batchSlug": "S2026"
     },
     {
@@ -8452,6 +8924,8 @@
       "youtubeChannelName": "screenpipe",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/screenpipe",
       "authorHandle": null,
+      "entityName": "screenpipe",
+      "attachedCompanyId": "company-screenpipe",
       "batchSlug": "S26"
     },
     {
@@ -8492,6 +8966,8 @@
       "youtubeChannelName": "Silmaril",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/silmaril",
       "authorHandle": null,
+      "entityName": "Silmaril",
+      "attachedCompanyId": "company-silmaril",
       "batchSlug": "S2026"
     },
     {
@@ -8532,6 +9008,8 @@
       "youtubeChannelName": "Sam Goldman",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/smartbase",
       "authorHandle": null,
+      "entityName": "Smartbase",
+      "attachedCompanyId": "company-smartbase",
       "batchSlug": "S2026"
     },
     {
@@ -8571,6 +9049,8 @@
       "youtubeChannelName": "Soria",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/soria",
       "authorHandle": null,
+      "entityName": "Soria",
+      "attachedCompanyId": "company-soria",
       "batchSlug": "S2026"
     },
     {
@@ -8611,6 +9091,8 @@
       "youtubeChannelName": "StableBrowse",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/stablebrowse",
       "authorHandle": null,
+      "entityName": "StableBrowse",
+      "attachedCompanyId": "company-stablebrowse",
       "batchSlug": "S2026"
     },
     {
@@ -8651,6 +9133,8 @@
       "youtubeChannelName": "Charles Pan",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/stage",
       "authorHandle": null,
+      "entityName": "Stage",
+      "attachedCompanyId": "company-stage",
       "batchSlug": "S2026"
     },
     {
@@ -8690,6 +9174,8 @@
       "youtubeChannelName": "Standout Talent",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/standout",
       "authorHandle": null,
+      "entityName": "Standout",
+      "attachedCompanyId": "company-standout",
       "batchSlug": "S2026"
     },
     {
@@ -8730,6 +9216,8 @@
       "youtubeChannelName": "Superlog (YC P26) - Nicolo Magnante",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/superlog",
       "authorHandle": null,
+      "entityName": "Superlog",
+      "attachedCompanyId": "company-superlog",
       "batchSlug": "S2026"
     },
     {
@@ -8770,6 +9258,8 @@
       "youtubeChannelName": "Superset",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/superset",
       "authorHandle": null,
+      "entityName": "Superset",
+      "attachedCompanyId": "company-superset",
       "batchSlug": "S2026"
     },
     {
@@ -8809,6 +9299,8 @@
       "youtubeChannelName": "Superset",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/superset",
       "authorHandle": null,
+      "entityName": "Superset",
+      "attachedCompanyId": "company-superset",
       "batchSlug": "S2026"
     },
     {
@@ -8849,6 +9341,8 @@
       "youtubeChannelName": "Nanda Guntupalli",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/taiga",
       "authorHandle": null,
+      "entityName": "Taiga",
+      "attachedCompanyId": "company-taiga",
       "batchSlug": "S2026"
     },
     {
@@ -8889,6 +9383,8 @@
       "youtubeChannelName": "TakeCareOS",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/takecareos",
       "authorHandle": null,
+      "entityName": "TakeCareOS",
+      "attachedCompanyId": "company-takecareos",
       "batchSlug": "S2026"
     },
     {
@@ -8928,6 +9424,8 @@
       "youtubeChannelName": "Tenet Industries",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/tenet-industries",
       "authorHandle": null,
+      "entityName": "Tenet Industries",
+      "attachedCompanyId": "company-tenet-industries",
       "batchSlug": "S2026"
     },
     {
@@ -8967,6 +9465,8 @@
       "youtubeChannelName": "Tenet Industries",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/tenet-industries",
       "authorHandle": null,
+      "entityName": "Tenet Industries",
+      "attachedCompanyId": "company-tenet-industries",
       "batchSlug": "S2026"
     },
     {
@@ -9006,6 +9506,8 @@
       "youtubeChannelName": "Tenet Industries",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/tenet-industries",
       "authorHandle": null,
+      "entityName": "Tenet Industries",
+      "attachedCompanyId": "company-tenet-industries",
       "batchSlug": "S2026"
     },
     {
@@ -9046,6 +9548,8 @@
       "youtubeChannelName": "TesterArmy",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/testerarmy",
       "authorHandle": null,
+      "entityName": "TesterArmy",
+      "attachedCompanyId": "company-testerarmy",
       "batchSlug": "S2026"
     },
     {
@@ -9085,6 +9589,8 @@
       "youtubeChannelName": "Tolmo",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/tolmo",
       "authorHandle": null,
+      "entityName": "Tolmo",
+      "attachedCompanyId": "company-tolmo",
       "batchSlug": "S2026"
     },
     {
@@ -9124,6 +9630,8 @@
       "youtubeChannelName": "transload",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/transload",
       "authorHandle": null,
+      "entityName": "transload",
+      "attachedCompanyId": "company-transload",
       "batchSlug": "S2026"
     },
     {
@@ -9163,6 +9671,8 @@
       "youtubeChannelName": "Trellis",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/trellistech",
       "authorHandle": null,
+      "entityName": "Trellis",
+      "attachedCompanyId": "company-trellistech",
       "batchSlug": "S2026"
     },
     {
@@ -9200,6 +9710,8 @@
       "youtubeChannelName": "Hannah D Chung",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/trustai",
       "authorHandle": null,
+      "entityName": "TrustAI",
+      "attachedCompanyId": "company-trustai",
       "batchSlug": "S26"
     },
     {
@@ -9239,6 +9751,8 @@
       "youtubeChannelName": "Bloom AI",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/trybloom",
       "authorHandle": null,
+      "entityName": "Bloom",
+      "attachedCompanyId": "company-trybloom",
       "batchSlug": "S2026"
     },
     {
@@ -9278,6 +9792,8 @@
       "youtubeChannelName": "Twolabs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/twolabs",
       "authorHandle": null,
+      "entityName": "Twolabs",
+      "attachedCompanyId": "company-twolabs",
       "batchSlug": "S2026"
     },
     {
@@ -9317,6 +9833,8 @@
       "youtubeChannelName": "Userlens",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/userlens",
       "authorHandle": null,
+      "entityName": "Userlens",
+      "attachedCompanyId": "company-userlens",
       "batchSlug": "S2026"
     },
     {
@@ -9356,6 +9874,8 @@
       "youtubeChannelName": "Josiah Saunders",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/voquill",
       "authorHandle": null,
+      "entityName": "Voquill",
+      "attachedCompanyId": "company-voquill",
       "batchSlug": "S2026"
     },
     {
@@ -9396,6 +9916,8 @@
       "youtubeChannelName": "Whitespace",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/whitespace",
       "authorHandle": null,
+      "entityName": "Whitespace",
+      "attachedCompanyId": "company-whitespace",
       "batchSlug": "S26"
     },
     {
@@ -9436,6 +9958,8 @@
       "youtubeChannelName": "WithAI",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/withai",
       "authorHandle": null,
+      "entityName": "WithAI",
+      "attachedCompanyId": "company-withai",
       "batchSlug": "S2026"
     },
     {
@@ -9476,6 +10000,8 @@
       "youtubeChannelName": "YouArt",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/youart",
       "authorHandle": null,
+      "entityName": "YouArt",
+      "attachedCompanyId": "company-youart",
       "batchSlug": "S2026"
     },
     {
@@ -9517,6 +10043,8 @@
       "youtubeChannelName": "Zenbu Labs",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/zenbu-2",
       "authorHandle": null,
+      "entityName": "Zenbu",
+      "attachedCompanyId": "company-zenbu-2",
       "batchSlug": "S2026"
     },
     {
@@ -9556,6 +10084,8 @@
       "youtubeChannelName": "Isabela Rodriguez",
       "officialYcProfileUrl": "https://www.ycombinator.com/companies/zolvo",
       "authorHandle": null,
+      "entityName": "Zolvo",
+      "attachedCompanyId": "company-zolvo",
       "batchSlug": "S2026"
     },
     {
@@ -9597,6 +10127,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-03T16:47:10.390Z",
+      "entityName": "Hop Aero",
+      "attachedCompanyId": "company-hop-aero",
       "batchSlug": "S26"
     },
     {
@@ -9638,6 +10170,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-06-29T19:36:40.745Z",
+      "entityName": "Hop Aero",
+      "attachedCompanyId": "company-hop-aero",
       "batchSlug": "S26"
     },
     {
@@ -9679,6 +10213,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-07T20:26:15.448Z",
+      "entityName": "Risklytics",
+      "attachedCompanyId": "company-risklytics",
       "batchSlug": "S26"
     },
     {
@@ -9720,6 +10256,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-04-28T13:09:46.058Z",
+      "entityName": "Francisco Dias",
+      "attachedCompanyId": "company-nex",
       "batchSlug": "S26"
     },
     {
@@ -9761,6 +10299,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-09T15:00:20.872Z",
+      "entityName": "Alex Southmayd",
+      "attachedCompanyId": "company-bloomy",
       "batchSlug": "S26"
     },
     {
@@ -9802,6 +10342,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-05-20T19:29:40.842Z",
+      "entityName": "83 Sciences",
+      "attachedCompanyId": "company-83-sciences",
       "batchSlug": "S26"
     },
     {
@@ -9843,6 +10385,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-08T15:45:07.585Z",
+      "entityName": "Lewis Jones",
+      "attachedCompanyId": "company-cosmic-robotics",
       "batchSlug": "S26"
     },
     {
@@ -9884,6 +10428,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-14T22:22:02.071Z",
+      "entityName": "James Emerick",
+      "attachedCompanyId": "company-cosmic-robotics",
       "batchSlug": "S26"
     },
     {
@@ -9925,6 +10471,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-07T14:32:08.628Z",
+      "entityName": "James Emerick",
+      "attachedCompanyId": "company-cosmic-robotics",
       "batchSlug": "S26"
     },
     {
@@ -9966,6 +10514,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-06-02T22:53:50.072Z",
+      "entityName": "Jihyun Kim",
+      "attachedCompanyId": "company-zomma",
       "batchSlug": "S26"
     },
     {
@@ -10007,6 +10557,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-16T15:55:24.898Z",
+      "entityName": "Matija Milenovic",
+      "attachedCompanyId": "company-hop-aero",
       "batchSlug": "S26"
     },
     {
@@ -10048,6 +10600,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-07T20:25:22.677Z",
+      "entityName": "Risklytics",
+      "attachedCompanyId": "company-risklytics",
       "batchSlug": "S26"
     },
     {
@@ -10089,6 +10643,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-05-26T11:30:28.448Z",
+      "entityName": "Pango",
+      "attachedCompanyId": "company-pango",
       "batchSlug": "S26"
     },
     {
@@ -10130,6 +10686,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-05-23T19:25:05.155Z",
+      "entityName": "Salem Robotics Inc",
+      "attachedCompanyId": "company-salem-robotics-inc",
       "batchSlug": "S26"
     },
     {
@@ -10171,6 +10729,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-15T14:55:01.110Z",
+      "entityName": "Matthew Chow",
+      "attachedCompanyId": "company-trope",
       "batchSlug": "S26"
     },
     {
@@ -10212,6 +10772,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-04-18T16:26:41.227Z",
+      "entityName": "Operon",
+      "attachedCompanyId": "company-operon",
       "batchSlug": "S26"
     },
     {
@@ -10253,6 +10815,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-15T19:46:25.633Z",
+      "entityName": "Shaurnav Ghosh",
+      "attachedCompanyId": "company-assemble",
       "batchSlug": "S26"
     },
     {
@@ -10294,6 +10858,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-13T17:10:39.467Z",
+      "entityName": "Assemble",
+      "attachedCompanyId": "company-assemble",
       "batchSlug": "S26"
     },
     {
@@ -10335,6 +10901,8 @@
       "first_seen_at": "2026-07-22T21:15:00.000Z",
       "last_checked_at": "2026-07-22T21:15:00.000Z",
       "last_updated_at": "2026-07-14T20:29:10.866Z",
+      "entityName": "Shaurya Aggarwal",
+      "attachedCompanyId": "company-florin",
       "batchSlug": "S26"
     },
     {
