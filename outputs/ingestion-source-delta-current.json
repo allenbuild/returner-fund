@@ -1,19 +1,138 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-07-22-0600",
+  "idempotencyKey": "central-2026-07-22-1800",
   "centralDay": "2026-07-22",
-  "observedAt": "2026-07-22T14:26:58.264Z",
-  "baselinePhysicalSources": 1793,
-  "publishedPhysicalSources": 1792,
-  "newPhysicalSources": 0,
-  "newPhysicalSourcesThisAttempt": 0,
-  "retainedPhysicalSources": 1792,
+  "observedAt": "2026-07-23T01:50:34.637Z",
+  "baselinePhysicalSources": 1849,
+  "publishedPhysicalSources": 1859,
+  "newPhysicalSources": 11,
+  "newPhysicalSourcesThisAttempt": 11,
+  "retainedPhysicalSources": 1848,
   "removedPhysicalSources": 1,
-  "dailyNewPhysicalSources": 0,
-  "dailySourceHealth": "awaiting_second_slot",
+  "dailyNewPhysicalSources": 11,
+  "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
-  "mappedFailures": 1,
-  "newestNewSourcePostedAt": null,
-  "insertedByBatchPlatform": {},
-  "insertedSourceSamples": []
+  "collectionHealthReasons": [
+    "missing_credential:X_BEARER_TOKEN",
+    "missing_credential:EXA_API_KEY",
+    "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+    "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+    "mapped_success_rate_below_10_percent:0.0544"
+  ],
+  "mappedExpected": 1837,
+  "mappedSucceeded": 100,
+  "mappedNeedsReview": 567,
+  "mappedBlockedOrEmpty": 1170,
+  "mappedFailures": 0,
+  "mappedNonTerminal": 0,
+  "mappedSuccessRate": 0.0544,
+  "newestNewSourcePostedAt": "2026-07-22T04:00:38Z",
+  "insertedByBatchPlatform": {
+    "S2026:github": 1,
+    "S2026:product_hunt": 1,
+    "S2026:youtube": 1,
+    "S26:github": 4,
+    "S26:youtube": 4
+  },
+  "insertedSourceSamples": [
+    {
+      "batchSlug": "S26",
+      "platform": "youtube",
+      "entityType": "company",
+      "entityId": "company-shepherd-3",
+      "sourceUrl": "https://youtube.com/watch?v=3F9Bwuhcoak",
+      "platformPostId": "3F9Bwuhcoak",
+      "postedAt": null
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "youtube",
+      "entityType": "company",
+      "entityId": "company-shepherd-3",
+      "sourceUrl": "https://youtube.com/watch?v=2G-UD1_UhC8",
+      "platformPostId": "2G-UD1_UhC8",
+      "postedAt": null
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "youtube",
+      "entityType": "company",
+      "entityId": "company-shepherd-3",
+      "sourceUrl": "https://youtube.com/watch?v=KIuypKSM-HY",
+      "platformPostId": "KIuypKSM-HY",
+      "postedAt": null
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "youtube",
+      "entityType": "company",
+      "entityId": "company-rapidfolio",
+      "sourceUrl": "https://youtube.com/watch?v=0UBIfRhNh08",
+      "platformPostId": "0UBIfRhNh08",
+      "postedAt": null
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "youtube",
+      "entityType": "company",
+      "entityId": "company-superset",
+      "sourceUrl": "https://youtube.com/watch?v=mk02bSQmEKY",
+      "platformPostId": "mk02bSQmEKY",
+      "postedAt": null
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "product_hunt",
+      "entityType": "company",
+      "entityId": "company-napkin-math",
+      "sourceUrl": "https://producthunt.com/products/napkin-math/launches/napkin-math",
+      "platformPostId": "products/napkin-math/launches/napkin-math",
+      "postedAt": null
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "github",
+      "entityType": "founder",
+      "entityId": "founder-ara-sven-myhre-3131989",
+      "sourceUrl": "https://github.com/Aradotso/acme-monorepo",
+      "platformPostId": "Aradotso/acme-monorepo",
+      "postedAt": "2026-07-14T17:51:36Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-rekursivai",
+      "sourceUrl": "https://github.com/rekursiv-ai/trackinizer",
+      "platformPostId": "rekursiv-ai/trackinizer",
+      "postedAt": "2026-07-22T01:26:21Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-rekursivai",
+      "sourceUrl": "https://github.com/rekursiv-ai/wesearch",
+      "platformPostId": "rekursiv-ai/wesearch",
+      "postedAt": "2026-07-22T04:00:38Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-rekursivai",
+      "sourceUrl": "https://github.com/rekursiv-ai/priml",
+      "platformPostId": "rekursiv-ai/priml",
+      "postedAt": "2026-07-22T01:34:29Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-rekursivai",
+      "sourceUrl": "https://github.com/rekursiv-ai/madcatter",
+      "platformPostId": "rekursiv-ai/madcatter",
+      "postedAt": "2026-07-22T03:21:41Z"
+    }
+  ]
 }
