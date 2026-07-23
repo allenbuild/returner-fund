@@ -4430,15 +4430,15 @@ td button {
 }
 
 .tab-list {
-  /* Four equal tab containers at every desktop width.  The period switcher
-     lives in its own final column and no longer changes individual tab width. */
-  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(144px, max-content);
+  /* Keep navigation controls compact and invariant. The action area absorbs
+     period-toggle width so switching panels cannot resize the four tabs. */
+  grid-template-columns: repeat(4, 154px) minmax(0, 1fr);
 }
 
 .tab-list > button {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
+  width: 154px;
+  min-width: 154px;
+  max-width: 154px;
 }
 
 .tab-list-actions {
@@ -4464,9 +4464,7 @@ td button {
 
 .ranked-post-card {
   display: grid;
-  /* Let the post use the row width; the score becomes the right-hand anchor
-     instead of leaving a fixed 600px content island on wide dashboards. */
-  grid-template-columns: 32px 86px minmax(0, 1fr) max-content;
+  grid-template-columns: 32px 86px minmax(0, 1fr);
   align-items: center;
   width: 100%;
   gap: 11px;
@@ -4597,7 +4595,7 @@ td button {
   border: 0;
   background: transparent;
   color: #ef5a16;
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   font-weight: 750;
   line-height: 1.2;
   text-overflow: ellipsis;
@@ -4612,12 +4610,22 @@ td button {
   white-space: nowrap;
 }
 
+.ranked-post-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
 .ranked-post-content p {
+  flex: 0 1 auto;
+  min-width: 0;
   margin: 0;
   overflow: hidden;
   color: var(--neutral-700);
-  font-size: 0.82rem;
-  line-height: 1.15;
+  font-size: 0.94rem;
+  font-weight: 600;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -4641,19 +4649,17 @@ td button {
 }
 
 .ranked-post-score {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 38px;
-  padding: 0 2px 0 12px;
-  border-left: 1px solid var(--neutral-200);
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
   background: transparent;
-  color: var(--accent-strong);
+  color: #ef5a16;
   font-variant-numeric: tabular-nums;
 }
 
 .ranked-post-score strong {
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 800;
   line-height: 1.1;
 }
@@ -4829,11 +4835,11 @@ td button {
   }
 
   .tab-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(144px, max-content);
+    grid-template-columns: repeat(4, 154px) minmax(0, 1fr);
   }
 
   .ranked-post-card {
-    grid-template-columns: 32px 86px minmax(0, 1fr) max-content;
+    grid-template-columns: 32px 86px minmax(0, 1fr);
   }
 }
 
@@ -4856,6 +4862,9 @@ td button {
   }
 
   .tab-list > button {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
     font-size: 0.61rem;
   }
 
@@ -4864,7 +4873,7 @@ td button {
   }
 
   .ranked-post-card {
-    grid-template-columns: 26px 70px minmax(0, 1fr) max-content;
+    grid-template-columns: 26px 70px minmax(0, 1fr);
     gap: 6px;
     min-height: 0;
     padding: 4px 8px;
@@ -4889,11 +4898,6 @@ td button {
 
   .ranked-post-author {
     flex-basis: 110px;
-  }
-
-  .ranked-post-score {
-    min-width: 34px;
-    padding-left: 8px;
   }
 
   .scoring-methodology > header {
@@ -4923,7 +4927,7 @@ td button {
   }
 
   .ranked-post-card {
-    grid-template-columns: 24px minmax(0, 1fr) max-content;
+    grid-template-columns: 24px minmax(0, 1fr);
     gap: 5px;
     padding: 4px 6px;
   }
@@ -4939,11 +4943,6 @@ td button {
 
   .ranked-post-company {
     max-width: 110px;
-  }
-
-  .ranked-post-score {
-    min-width: 32px;
-    padding-left: 6px;
   }
 
 }

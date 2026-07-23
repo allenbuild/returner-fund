@@ -370,7 +370,12 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
                           <time dateTime={item.postedAt}>{formatPostDate(item.postedAt)}</time>
                         </div>
                       </div>
-                      <p className="ranked-post-title">{contribution.title}</p>
+                      <div className="ranked-post-title-row">
+                        <p className="ranked-post-title">{contribution.title}</p>
+                        <div className="ranked-post-score" aria-label={`Post score ${score}`}>
+                          <strong>{score}</strong>
+                        </div>
+                      </div>
                       <div className="ranked-post-details">
                         {contribution.author && <span className="ranked-post-author">{formatAuthor(contribution.author, item.authorHandle)}</span>}
                         {contribution.metricPills.length > 0 && (
@@ -379,9 +384,6 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
                           </span>
                         )}
                       </div>
-                    </div>
-                    <div className="ranked-post-score" aria-label={`Post score ${score}`}>
-                      <strong>{score}</strong>
                     </div>
                   </article>
                 );

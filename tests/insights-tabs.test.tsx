@@ -135,8 +135,12 @@ describe("insights tabs", () => {
     );
     expect(firstPost.querySelector(".ranked-post-meta time")).toHaveAttribute("datetime");
     expect(firstPost.querySelector(".ranked-post-title")).not.toBeEmptyDOMElement();
+    expect(firstPost.querySelector(".ranked-post-title-row")).toContainElement(
+      firstPost.querySelector(".ranked-post-title")
+    );
     expect(firstPost.querySelector(".ranked-post-details")).toBeInTheDocument();
-    const score = firstPost.querySelector(".ranked-post-score");
+    const score = firstPost.querySelector<HTMLElement>(".ranked-post-score");
+    expect(firstPost.querySelector(".ranked-post-title-row")).toContainElement(score);
     expect(score).toHaveTextContent(/^\d+$/);
     expect(score).toHaveAttribute("aria-label", expect.stringMatching(/^Post score \d+$/));
     expect(score?.querySelector("span, small")).not.toBeInTheDocument();
