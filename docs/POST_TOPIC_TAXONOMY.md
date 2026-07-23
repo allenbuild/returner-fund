@@ -1,24 +1,23 @@
 # Post topic taxonomy
 
-Taxonomy `post-topics-2026-07-22` has one primary topic per physical post. A secondary topic is exceptional and appears only when two announcements have equal, high-confidence evidence. Source platform and format are metadata, never topics.
+Taxonomy `post-topics-2026-07-23` has one primary topic per physical post. A secondary topic is exceptional and appears only when two announcements have equal, high-confidence evidence. Source platform and format are metadata, never topics.
 
 | Primary topic | Include | Exclude / boundary |
 | --- | --- | --- |
 | Traction & Growth | Quantified revenue, users, growth, retention, usage, or deployment milestone | A number alone, engagement counts, or planned targets |
 | Product Launch | Newly available product, feature, release, beta, or version | A demo of an existing product |
-| Product Demo & Showcase | Walkthrough, screenshot, demo, use case, or capability in action | “Book a demo” or Demo Day |
-| Customer, Partnership & Deployment | Named customer, contract, pilot, deployment, integration, or formal partner | Generic mention of customers |
-| Fundraising & Financing | Funding round, grant, investment, debt financing | Fundraising advice or a historical investor bio |
-| Accelerator & Program | Authored acceptance, participation, or Demo Day announcement | Merely being a YC company or congratulating someone else |
+| Product Demo | Walkthrough, screenshot, demo, use case, or capability in action | “Book a demo” or Demo Day |
+| Customers & Partners | Named customer, contract, pilot, deployment, integration, or formal partner | Generic mention of customers |
+| Fundraising | Funding round, grant, investment, debt financing | Fundraising advice or a historical investor bio |
+| Accelerator | Authored acceptance, participation, or Demo Day announcement | Merely being a YC company or congratulating someone else |
 | Hiring & Team | Roles, recruiting CTA, team addition | Generic culture language |
-| Vision & Founder Perspective | Mission, thesis, founder origin/lesson, strategic perspective | Product description without a perspective |
-| Research, Benchmark & Technical Insight | Benchmark result, research, paper, technical explanation, substantive OSS release | A GitHub repository alone |
-| Event, Media & Community | Event, interview, press, award, webinar, community activity | A product launch occurring at an event |
-| Educational & Informational | Tutorial, guide, explainer, primer | Promotional feature announcement |
+| Founder Perspective | Mission, thesis, founder origin/lesson, strategic perspective | Product description without a perspective |
+| Research & Technical | Benchmark result, research, paper, technical explanation, substantive OSS release | A GitHub repository alone |
+| Events & Media | Event, interview, press, award, webinar, community activity | A product launch occurring at an event |
+| Educational | Tutorial, guide, explainer, primer | Promotional feature announcement |
 | Humor & Culture | Meme/joke or entertainment-first culture content | Humorous phrasing around a real launch |
 | Corporate Update | Meaningful general announcement | A better-evidenced topic |
-| Other | In-scope content that clearly fits none | Insufficient text, which is Unclassified |
-| Unclassified | Insufficient reliable evidence | Never silently hidden; reviewable in diagnostics |
+| Unclassified | Insufficient reliable content for any topic | Never silently hidden; reviewable in diagnostics |
 
 Secondary signals independently record facts such as a quantified metric, named customer, funding amount, release availability, benchmark, accelerator reference, author type, event, or press. They do not add extra primary labels.
 
@@ -54,8 +53,9 @@ This reports accuracy, macro F1, per-topic precision/recall/F1, a confusion
 matrix, false positives, the Unclassified rate, and review-queue rate. Do not
 promote a classifier where a category lacks sufficient reviewed examples or
 where the reviewed false-positive rate increases. The current deterministic
-rules are deliberately conservative: low-evidence in-scope records are `Other`
-and marked for review; content too thin to establish scope is `Unclassified`.
+rules use `Corporate Update` for substantive company-authored fallback content
+and `Founder Perspective` for substantive founder-authored fallback content;
+content too thin to establish scope is `Unclassified`.
 
 ## Backfill
 

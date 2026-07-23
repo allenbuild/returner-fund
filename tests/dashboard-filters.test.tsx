@@ -53,8 +53,8 @@ vi.mock("@/components/InsightsTabs", () => ({
 }));
 
 vi.mock("@/components/NodePanel", () => ({
-  NodePanel: ({ node }: { node: GraphNode | null }) => (
-    <aside data-testid="node-panel">
+  NodePanel: ({ node, evidence }: { node: GraphNode | null; evidence: EvidenceItem[] }) => (
+    <aside data-testid="node-panel" data-evidence-ids={evidence.map((item) => item.id).join("|")}>
       {node && <button type="button">Open profile {node.label}</button>}
     </aside>
   )
@@ -131,10 +131,10 @@ describe("dashboard filters", () => {
     expect(within(menu).getByText("Product & technical")).toBeInTheDocument();
     expect(within(menu).getByText("Company narrative")).toBeInTheDocument();
     expect(within(menu).getByText("Ecosystem")).toBeInTheDocument();
-    expect(within(menu).getAllByText("Other").length).toBeGreaterThanOrEqual(1);
+    expect(within(menu).queryByRole("menuitemcheckbox", { name: /^Other(?:\s|$)/i })).not.toBeInTheDocument();
 
     fireEvent.keyDown(allTopics, { key: "ArrowDown" });
-    expect(within(menu).getByRole("menuitemcheckbox", { name: /Customer, Partnership & Deployment\s*\(1\)/i })).toHaveFocus();
+    expect(within(menu).getByRole("menuitemcheckbox", { name: /Customers & Partners\s*\(1\)/i })).toHaveFocus();
 
     const launch = within(menu).getByRole("menuitemcheckbox", { name: /Product Launch\s*\(1\)/i });
     expect(launch).toHaveAttribute("data-filter-value", "product-launch");
@@ -144,7 +144,7 @@ describe("dashboard filters", () => {
 
     const search = within(menu).getByRole("searchbox", { name: "Search Topics" });
     fireEvent.change(search, { target: { value: "open source" } });
-    expect(within(menu).getByRole("menuitemcheckbox", { name: /Research, Benchmark & Technical Insight/i })).toHaveAttribute(
+    expect(within(menu).getByRole("menuitemcheckbox", { name: /Research & Technical/i })).toHaveAttribute(
       "data-filter-value",
       "research-benchmark-technical-insight"
     );
@@ -157,6 +157,46 @@ describe("dashboard filters", () => {
     fireEvent.keyDown(search, { key: "Escape" });
     expect(trigger).toHaveFocus();
     expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("shows only the selected topic's posts in the selected company panel", async () => {
+    const node = makeNode("company:mixed-posts", "Mixed Posts", "b2b", "#7dd3fc", "Partner A");
+    const fullGraph = graphResponse([node]);
+    const launchEvidence = {
+      ...fullGraph.evidence[0]!,
+      id: "launch-post",
+      platformPostId: "launch-post",
+      sourceUrl: "https://x.com/mixed/status/launch-post",
+      text: "We just launched our public beta and it is available today.",
+      topics: ["product-launch"] as EvidenceItem["topics"]
+    };
+    const tractionEvidence = {
+      ...fullGraph.evidence[0]!,
+      id: "traction-post",
+      platformPostId: "traction-post",
+      sourceUrl: "https://x.com/mixed/status/traction-post",
+      text: "We crossed 10,000 paid customers this quarter.",
+      topics: ["traction-growth"] as EvidenceItem["topics"]
+    };
+    fullGraph.evidence = [launchEvidence, tractionEvidence];
+    fullGraph.nodes = fullGraph.nodes.map((candidate) => candidate.id === node.id
+      ? { ...candidate, evidenceIds: [launchEvidence.id, tractionEvidence.id] }
+      : candidate);
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<Dashboard initialGraph={fullGraph} />);
+    expect(screen.getByTestId("node-panel")).toHaveAttribute(
+      "data-evidence-ids",
+      "launch-post|traction-post"
+    );
+
+    const topicGroup = screen.getByText("Topics").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topicGroup).getByRole("button", { name: /all topics/i }));
+    fireEvent.click(within(topicGroup).getByRole("menuitemcheckbox", { name: /Product Launch/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("node-panel")).toHaveAttribute("data-evidence-ids", "launch-post");
+    });
   });
 
   it("updates Topic post counts from active filters without collapsing the Topic OR facet", async () => {

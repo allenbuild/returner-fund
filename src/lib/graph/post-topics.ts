@@ -6,26 +6,25 @@
  * metric from appearing three times in the map's topic filters.
  */
 
-export const POST_TOPIC_TAXONOMY_VERSION = "post-topics-2026-07-22" as const;
-export const POST_TOPIC_CLASSIFIER_VERSION = "post-topics-rules-2026-07-22.1" as const;
+export const POST_TOPIC_TAXONOMY_VERSION = "post-topics-2026-07-23" as const;
+export const POST_TOPIC_CLASSIFIER_VERSION = "post-topics-rules-2026-07-23.1" as const;
 /** Kept for callers written against the former multi-label contract. */
 export const MAX_AUTOMATIC_POST_TOPICS = 1 as const;
 
 export const POST_TOPIC_TAXONOMY = [
   { slug: "traction-growth", label: "Traction & Growth", group: "Business progress", description: "A quantified milestone in revenue, users, usage, growth, retention, or deployment volume.", aliases: ["traction", "growth", "milestone"] },
   { slug: "product-launch", label: "Product Launch", group: "Product & technical", description: "A new product, major feature, public release, beta, or newly available version.", aliases: ["launch", "product update", "release"] },
-  { slug: "product-demo-showcase", label: "Product Demo & Showcase", group: "Product & technical", description: "A demonstration, walkthrough, use case, screenshot, or video of an existing capability.", aliases: ["product showcase", "demo", "walkthrough"] },
-  { slug: "customer-partnership-deployment", label: "Customer, Partnership & Deployment", group: "Business progress", description: "A named customer, contract, pilot, deployment, integration, or formal partnership.", aliases: ["customer win", "partnership", "customer success"] },
-  { slug: "fundraising-financing", label: "Fundraising & Financing", group: "Business progress", description: "A financing round, grant, investment, debt facility, or fundraising milestone.", aliases: ["fundraising", "funding", "financing"] },
-  { slug: "accelerator-program", label: "Accelerator & Program", group: "Ecosystem", description: "Acceptance into, participation in, or an announcement from an accelerator, fellowship, or demo day.", aliases: ["yc acceptance", "demo day", "y combinator"] },
+  { slug: "product-demo-showcase", label: "Product Demo", group: "Product & technical", description: "A demonstration, walkthrough, use case, screenshot, or video of an existing capability.", aliases: ["product showcase", "demo", "walkthrough"] },
+  { slug: "customer-partnership-deployment", label: "Customers & Partners", group: "Business progress", description: "A named customer, contract, pilot, deployment, integration, or formal partnership.", aliases: ["customer win", "partnership", "customer success"] },
+  { slug: "fundraising-financing", label: "Fundraising", group: "Business progress", description: "A financing round, grant, investment, debt facility, or fundraising milestone.", aliases: ["fundraising", "funding", "financing"] },
+  { slug: "accelerator-program", label: "Accelerator", group: "Ecosystem", description: "Acceptance into, participation in, or an announcement from an accelerator, fellowship, or demo day.", aliases: ["yc acceptance", "demo day", "y combinator"] },
   { slug: "hiring-team", label: "Hiring & Team", group: "Business progress", description: "Open roles, recruiting, team additions, or a people-focused company announcement.", aliases: ["hiring", "jobs", "team"] },
-  { slug: "company-vision-founder-perspective", label: "Vision & Founder Perspective", group: "Company narrative", description: "A company thesis, mission, founder lesson, origin story, or strategic perspective.", aliases: ["company vision", "founder story", "market insight"] },
-  { slug: "research-benchmark-technical-insight", label: "Research, Benchmark & Technical Insight", group: "Product & technical", description: "Research, a benchmark, an engineering explanation, or a substantive open-source technical contribution.", aliases: ["research or benchmark", "technical deep dive", "open source"] },
-  { slug: "event-media-community", label: "Event, Media & Community", group: "Ecosystem", description: "A conference, interview, podcast, press feature, award, webinar, or community activity.", aliases: ["event", "press or media", "community"] },
-  { slug: "educational-informational", label: "Educational & Informational", group: "Company narrative", description: "A tutorial, explainer, guide, or non-promotional informational post.", aliases: ["education", "tutorial", "informational"] },
+  { slug: "company-vision-founder-perspective", label: "Founder Perspective", group: "Company narrative", description: "A company thesis, mission, founder lesson, origin story, or strategic perspective.", aliases: ["company vision", "founder story", "market insight"] },
+  { slug: "research-benchmark-technical-insight", label: "Research & Technical", group: "Product & technical", description: "Research, a benchmark, an engineering explanation, or a substantive open-source technical contribution.", aliases: ["research or benchmark", "technical deep dive", "open source"] },
+  { slug: "event-media-community", label: "Events & Media", group: "Ecosystem", description: "A conference, interview, podcast, press feature, award, webinar, or community activity.", aliases: ["event", "press or media", "community"] },
+  { slug: "educational-informational", label: "Educational", group: "Company narrative", description: "A tutorial, explainer, guide, or non-promotional informational post.", aliases: ["education", "tutorial", "informational"] },
   { slug: "humor-culture", label: "Humor & Culture", group: "Company narrative", description: "A meme, joke, playful culture post, or content whose principal purpose is entertainment.", aliases: ["humor", "culture", "behind the scenes"] },
   { slug: "corporate-update", label: "Corporate Update", group: "Other", description: "A meaningful company announcement that lacks evidence for a more precise primary topic.", aliases: ["company update", "general update"] },
-  { slug: "other", label: "Other", group: "Other", description: "A legitimate post that is clearly in scope but does not fit a defined topic.", aliases: ["miscellaneous"] },
   { slug: "unclassified", label: "Unclassified", group: "Other", description: "Insufficient reliable content exists to select a primary topic; it remains visible for review.", aliases: ["uncategorized", "unknown"] }
 ] as const;
 
@@ -41,7 +40,7 @@ export type LegacyPostTopic =
   | "customer-win" | "fundraising" | "hiring" | "founder-story" | "technical-deep-dive"
   | "open-source" | "research-or-benchmark" | "partnership" | "demo-day" | "milestone"
   | "product-update" | "behind-the-scenes" | "market-insight" | "community" | "press-or-media"
-  | "awards" | "event" | "culture";
+  | "awards" | "event" | "culture" | "other";
 export type PostTopic = CanonicalPostTopic | LegacyPostTopic;
 export type PostTopicGroup = PostTopicDefinition["group"];
 export type PostTopicClassificationMethod = "curated" | "rules" | "fallback" | "manual";
@@ -91,7 +90,7 @@ export interface PostTopicClassification {
   matches: readonly PostTopicRuleMatch[];
 }
 
-type Rule = { topic: Exclude<CanonicalPostTopic, "other" | "unclassified">; minimum: number; high: number; patterns: readonly [RegExp, number][]; exclude?: readonly RegExp[] };
+type Rule = { topic: Exclude<CanonicalPostTopic, "unclassified">; minimum: number; high: number; patterns: readonly [RegExp, number][]; exclude?: readonly RegExp[] };
 const RULES: readonly Rule[] = [
   { topic: "fundraising-financing", minimum: 5, high: 7, patterns: [[/\b(?:raised|closed)\s+(?:\$|usd\s*)[\d,.]+\s*(?:[kmb]\b)?/i, 8], [/\b(?:pre-?seed|seed|series\s+[a-z]|grant|debt financing)\b.{0,45}\b(?:round|funding|financing|backed)\b/i, 6], [/\bfundraising\b/i, 3]] },
   { topic: "accelerator-program", minimum: 6, high: 7, patterns: [[/\b(?:we|i)\s+(?:were |got |have been |just )?(?:accepted|accepted into|got into|joined|are joining)\s+(?:y combinator|yc)\b/i, 8], [/\b(?:yc|y combinator)\s+(?:spring|summer|winter|fall|[wsf])\s*\d{2,4}\s+batch\b/i, 7], [/\b(?:yc\s+)?demo day\b/i, 6]], exclude: [/\b(?:apply|application|congratulations? to|how to get into)\b/i] },
@@ -117,7 +116,7 @@ const LEGACY_ALIASES: Readonly<Record<string, CanonicalPostTopic>> = {
   "technical-deep-dive": "research-benchmark-technical-insight", "research-or-benchmark": "research-benchmark-technical-insight", "open-source": "research-benchmark-technical-insight",
   "event": "event-media-community", "press-or-media": "event-media-community", "community": "event-media-community", "awards": "event-media-community",
   "humor": "humor-culture", "culture": "humor-culture", "behind-the-scenes": "humor-culture",
-  "product-update": "product-launch", "other": "unclassified"
+  "product-update": "product-launch", "other": "corporate-update", "miscellaneous": "corporate-update"
 };
 
 const RAW_VISIBLE_KEYS = new Set(["accessibilitycaption", "body", "caption", "content", "description", "fulltext", "rawtext", "text", "title", "visibletext"]);
@@ -142,10 +141,12 @@ export function classifyPostTopics(input: PostTopicClassifierInput): PostTopicCl
   if (!matches.length) {
     const fallbackTopic: PostTopic = hasMeaningfulCorporateUpdate(text)
       ? "corporate-update"
-      : hasEnoughVisibleContent(text)
-        ? "other"
+      : hasEnoughVisibleContent(text, input)
+        ? input.authorType === "founder"
+          ? "company-vision-founder-perspective"
+          : "corporate-update"
         : "unclassified";
-    const fallbackConfidence = fallbackTopic === "corporate-update" ? .45 : fallbackTopic === "other" ? .35 : .2;
+    const fallbackConfidence = fallbackTopic === "corporate-update" ? .4 : .2;
     return result(fallbackTopic, "fallback", fallbackConfidence, "fallback", [{ topic: fallbackTopic, score: 0, confidence: fallbackConfidence, strength: "fallback", matchedTerms: [] }], input, signals);
   }
   const primary = matches[0]!;
@@ -179,11 +180,17 @@ function result(primaryTopic: PostTopic, method: PostTopicClassificationMethod, 
   const needsReview = method !== "curated" && (confidence < .72 || primaryTopic === "unclassified" || Boolean(secondaryTopic));
   return { topics: secondaryTopic ? [primaryTopic, secondaryTopic] : [primaryTopic], primaryTopic, secondaryTopic, secondarySignals: signals, evidence, reasoningSummary: reasoning(primaryTopic, signals, method), alternatives, needsReview, classifierVersion: POST_TOPIC_CLASSIFIER_VERSION, taxonomyVersion: POST_TOPIC_TAXONOMY_VERSION, method, confidence, strength, matchedTerms: unique(matches.flatMap((match) => match.matchedTerms)), matches };
 }
-function reasoning(topic: PostTopic, signals: readonly PostTopicSecondarySignal[], method: PostTopicClassificationMethod): string { if (method === "manual") return "A maintainer selected the canonical primary topic."; if (method === "curated") return "A maintained classification selected the canonical primary topic."; if (topic === "unclassified") return "The visible post text lacks reliable evidence for a canonical primary topic."; const facts = signals.slice(0, 2).map((signal) => signal.replaceAll("_", " ")); return facts.length ? `Primary topic selected from visible ${facts.join(" and ")}.` : "Primary topic selected from explicit visible announcement language."; }
+function reasoning(topic: PostTopic, signals: readonly PostTopicSecondarySignal[], method: PostTopicClassificationMethod): string { if (method === "manual") return "A maintainer selected the canonical primary topic."; if (method === "curated") return "A maintained classification selected the canonical primary topic."; if (topic === "unclassified") return "The visible post text lacks reliable evidence for a canonical primary topic."; if (topic === "corporate-update" && method === "fallback") return "The visible company post is substantive but lacks evidence for a more specific primary topic."; if (topic === "company-vision-founder-perspective" && method === "fallback") return "The visible founder post is substantive but lacks evidence for a more specific primary topic."; const facts = signals.slice(0, 2).map((signal) => signal.replaceAll("_", " ")); return facts.length ? `Primary topic selected from visible ${facts.join(" and ")}.` : "Primary topic selected from explicit visible announcement language."; }
 function isGenuinelyCoPrimary(left: PostTopicRuleMatch, right: PostTopicRuleMatch) { return left.confidence >= .8 && right.confidence >= .8 && Math.abs(left.score - right.score) <= 1 && !["humor-culture", "event-media-community"].includes(right.topic); }
 function authoredText(input: PostTopicClassifierInput): string { const tags = (input.hashtags ?? []).map((tag) => tag.trim()).filter(Boolean).map((tag) => tag.startsWith("#") ? tag : `#${tag}`); return normalizeText([input.title ?? "", input.text ?? "", extractPostVisibleText(input.rawVisibleText), ...tags].join(" ")); }
 function hasMeaningfulCorporateUpdate(text: string) { return /\b(?:announc(?:e|ing|ement)|update|welcome|proud|excited|today|news)\b/i.test(text) && text.length >= 24; }
-function hasEnoughVisibleContent(text: string) { return text.split(/\s+/).filter(Boolean).length >= 5; }
+function hasEnoughVisibleContent(text: string, input: PostTopicClassifierInput) {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length >= 5) return true;
+  return (input.mediaType === "repo" || input.platform?.toLowerCase() === "github") &&
+    words.length >= 3 &&
+    /[a-z]{3}/i.test(text);
+}
 function collectVisible(value: unknown, parent: string, depth: number, values: string[]) { if (depth > 8 || values.length >= 24) return; if (typeof value === "string") { if (RAW_VISIBLE_KEYS.has(normalizeAlias(parent))) values.push(value); return; } if (Array.isArray(value)) { for (const child of value) collectVisible(child, parent, depth + 1, values); return; } if (!value || typeof value !== "object") return; for (const key of Object.keys(value as object).sort()) { if (RAW_IGNORED_KEYS.has(normalizeAlias(key))) continue; collectVisible(Reflect.get(value, key), key, depth + 1, values); } }
 function normalizeAlias(value: string) { return value.trim().toLowerCase().replace(/[_/]+/g, " ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 function normalizeText(value: string) { return value.replace(/\s+/g, " ").trim(); }

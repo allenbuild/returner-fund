@@ -1092,11 +1092,11 @@ export function Dashboard({
   );
 
   const selectedEvidence = useMemo(() => {
-    if (!mapGraph || !selectedNode) {
+    if (!settledGraph || !selectedNode) {
       return [];
     }
-    return selectedNodeEvidence(mapGraph, selectedNode).slice(0, TOP_POSTS_LIMIT);
-  }, [mapGraph, selectedNode]);
+    return selectedNodeEvidence(settledGraph, selectedNode).slice(0, TOP_POSTS_LIMIT);
+  }, [selectedNode, settledGraph]);
 
   const searchResults = useMemo(
     () => mapGraph

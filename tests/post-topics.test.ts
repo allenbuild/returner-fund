@@ -13,11 +13,13 @@ import {
 
 describe("post topic taxonomy v2", () => {
   it("has a concise, grouped canonical vocabulary and maps v1 IDs safely", () => {
-    expect(POST_TOPIC_TAXONOMY).toHaveLength(15);
-    expect(new Set(POST_TOPIC_SLUGS).size).toBe(15);
+    expect(POST_TOPIC_TAXONOMY).toHaveLength(14);
+    expect(new Set(POST_TOPIC_SLUGS).size).toBe(14);
     expect(POST_TOPIC_TAXONOMY.every((topic) => topic.group && topic.description.length > 35)).toBe(true);
-    expect(POST_TOPIC_TAXONOMY_VERSION).toBe("post-topics-2026-07-22");
-    expect(POST_TOPIC_CLASSIFIER_VERSION).toBe("post-topics-rules-2026-07-22.1");
+    expect(POST_TOPIC_TAXONOMY_VERSION).toBe("post-topics-2026-07-23");
+    expect(POST_TOPIC_CLASSIFIER_VERSION).toBe("post-topics-rules-2026-07-23.1");
+    expect(POST_TOPIC_SLUGS).not.toContain("other");
+    expect(normalizePostTopic("Other")).toBe("corporate-update");
     expect(normalizePostTopic("Product Showcase")).toBe("product-demo-showcase");
     expect(normalizePostTopic("YC Acceptance")).toBe("accelerator-program");
     expect(normalizePostTopics(["traction", "customer win", "bogus"])).toEqual([
@@ -46,9 +48,9 @@ describe("post topic taxonomy v2", () => {
   });
 
   it("does not confuse adjacent categories or create redundant labels", () => {
-    expect(classifyPostTopics({ text: "We build software and happen to be a YC company." }).primaryTopic).toBe("other");
-    expect(classifyPostTopics({ text: "Revenue matters to every business." }).primaryTopic).toBe("other");
-    expect(classifyPostTopics({ text: "A Product Hunt page for our product." }).primaryTopic).toBe("other");
+    expect(classifyPostTopics({ text: "We build software and happen to be a YC company." }).primaryTopic).toBe("corporate-update");
+    expect(classifyPostTopics({ text: "Revenue matters to every business." }).primaryTopic).toBe("corporate-update");
+    expect(classifyPostTopics({ text: "A Product Hunt page for our product." }).primaryTopic).toBe("corporate-update");
     const launch = classifyPostTopics({ text: "We launched version 2.0 today. Here is a demo." });
     expect(launch.primaryTopic).toBe("product-launch");
     expect(launch.topics).toHaveLength(1);
@@ -59,6 +61,19 @@ describe("post topic taxonomy v2", () => {
     expect(curated).toMatchObject({ primaryTopic: "customer-partnership-deployment", method: "curated", confidence: 1, needsReview: false });
     const unknown = classifyPostTopics({ text: "hello" });
     expect(unknown).toMatchObject({ primaryTopic: "unclassified", needsReview: true, method: "fallback" });
+  });
+
+  it("reserves Unclassified for genuinely thin content and recognizes terse repositories", () => {
+    expect(classifyPostTopics({ text: "hello" }).primaryTopic).toBe("unclassified");
+    expect(classifyPostTopics({
+      text: "The best founders learn by shipping every week.",
+      authorType: "founder"
+    }).primaryTopic).toBe("company-vision-founder-perspective");
+    expect(classifyPostTopics({
+      title: "InsForge/CLI: InsForge CLI (TypeScript).",
+      platform: "github",
+      mediaType: "repo"
+    }).primaryTopic).toBe("corporate-update");
   });
 
   it("extracts structured facts independently from the topic", () => {

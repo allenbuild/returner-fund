@@ -4253,7 +4253,29 @@ td button {
 
 /* Ranked posts, taxonomies, learned-model governance, and relationship legend. */
 .filter-band {
-  grid-template-columns: repeat(6, minmax(104px, 1fr)) minmax(400px, 2fr);
+  grid-template-columns: repeat(5, minmax(104px, 1fr)) minmax(144px, 176px) minmax(400px, 2fr);
+}
+
+.filter-band > * {
+  min-width: 0;
+}
+
+.filter-dropdown-topics {
+  width: 100%;
+  max-width: 176px;
+  min-width: 0;
+  contain: inline-size;
+}
+
+.filter-dropdown-topics .filter-dropdown-trigger {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.filter-band .score-filter input[type="range"] {
+  min-width: 110px;
 }
 
 .filter-menu-search {
