@@ -2355,7 +2355,8 @@ progress::-webkit-progress-value {
 
 .tab-list > button {
   box-sizing: border-box;
-  flex: 0 0 154px;
+  display: grid;
+  grid-template-columns: 16px 90px;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -2373,6 +2374,11 @@ progress::-webkit-progress-value {
   line-height: 1;
   overflow: visible;
   white-space: nowrap;
+}
+
+.tab-list > button .tab-label {
+  min-width: 0;
+  text-align: left;
 }
 
 .tab-list > button:hover {
@@ -3808,6 +3814,7 @@ td button {
   }
 
   .tab-list > button {
+    display: inline-flex;
     width: 100%;
     min-width: 0;
     max-width: none;
@@ -4599,8 +4606,9 @@ td button {
 
 .ranked-post-title-row {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 16px;
   min-width: 0;
 }
 

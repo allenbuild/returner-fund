@@ -131,7 +131,7 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
               onKeyDown={(event) => handleTabKeyDown(event, tab.key)}
             >
               <Icon size={16} aria-hidden="true" />
-              {tab.label}
+              <span className="tab-label">{tab.label}</span>
             </button>
           );
         })}
