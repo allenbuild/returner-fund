@@ -4253,7 +4253,7 @@ td button {
 
 /* Ranked posts, taxonomies, learned-model governance, and relationship legend. */
 .filter-band {
-  grid-template-columns: repeat(5, minmax(104px, 1fr)) minmax(144px, 176px) minmax(400px, 2fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr)) minmax(300px, 320px);
 }
 
 .filter-band > * {
@@ -4262,7 +4262,7 @@ td button {
 
 .filter-dropdown-topics {
   width: 100%;
-  max-width: 176px;
+  max-width: none;
   min-width: 0;
   contain: inline-size;
 }
@@ -4275,7 +4275,10 @@ td button {
 }
 
 .filter-band .score-filter input[type="range"] {
-  min-width: 110px;
+  flex: 0 1 130px;
+  width: 130px;
+  min-width: 90px;
+  max-width: 130px;
 }
 
 .filter-menu-search {
@@ -4480,7 +4483,7 @@ td button {
 
 .ranked-post-card {
   display: grid;
-  grid-template-columns: 32px 86px minmax(0, 1fr);
+  grid-template-columns: 32px 86px minmax(0, 560px) 52px minmax(0, 1fr);
   align-items: center;
   width: 100%;
   gap: 11px;
@@ -4627,10 +4630,7 @@ td button {
 }
 
 .ranked-post-title-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 16px;
+  display: block;
   min-width: 0;
 }
 
@@ -4667,6 +4667,8 @@ td button {
 
 .ranked-post-score {
   display: inline-flex;
+  grid-column: 4;
+  justify-self: center;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
@@ -4857,7 +4859,7 @@ td button {
   }
 
   .ranked-post-card {
-    grid-template-columns: 32px 86px minmax(0, 1fr);
+    grid-template-columns: 32px 86px minmax(0, 560px) 52px minmax(0, 1fr);
   }
 }
 
@@ -4872,7 +4874,7 @@ td button {
   }
 
   .ranked-post-card {
-    grid-template-columns: 26px 70px minmax(0, 1fr);
+    grid-template-columns: 26px 70px minmax(0, 1fr) 50px;
     gap: 6px;
     min-height: 0;
     padding: 4px 8px;
@@ -4926,13 +4928,17 @@ td button {
   }
 
   .ranked-post-card {
-    grid-template-columns: 24px minmax(0, 1fr);
+    grid-template-columns: 24px minmax(0, 1fr) 48px;
     gap: 5px;
     padding: 4px 6px;
   }
 
   .ranked-post-preview {
     display: none;
+  }
+
+  .ranked-post-score {
+    grid-column: 3;
   }
 
   .ranked-post-meta {

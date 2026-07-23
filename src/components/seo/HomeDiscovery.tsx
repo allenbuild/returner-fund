@@ -5,6 +5,17 @@ import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/seo/site";
 export function HomeStructuredData() {
   const catalog = getCatalog();
   const organizationId = siteUrl("/#organization");
+  const datasetCreator = {
+    "@type": "Organization",
+    "@id": organizationId,
+    name: SITE_NAME,
+    url: siteUrl("/")
+  };
+  const datasetLicense = {
+    "@type": "CreativeWork",
+    name: "Returner.fund dataset use terms",
+    url: siteUrl("/data-sources#dataset-use")
+  };
 
   const structuredData = [
     {
@@ -32,7 +43,8 @@ export function HomeStructuredData() {
       name: "Returner public startup traction dataset",
       description: SITE_DESCRIPTION,
       url: siteUrl("/"),
-      creator: { "@id": organizationId },
+      creator: datasetCreator,
+      license: datasetLicense,
       isAccessibleForFree: true,
       keywords: ["startup traction", "accelerator cohorts", "founders", "public evidence"],
       hasPart: catalog.cohorts.map((cohort) => ({
@@ -40,7 +52,8 @@ export function HomeStructuredData() {
         name: `${cohort.label} public startup traction data`,
         description: `Public startup traction data for ${cohort.label}, covering ${cohort.companies.length} companies and ${cohort.evidenceCount.toLocaleString("en-US")} attributable evidence records.`,
         url: siteUrl(`/cohorts/${cohort.slug}`),
-        creator: { "@id": organizationId },
+        creator: datasetCreator,
+        license: datasetLicense,
         size: `${cohort.companies.length} companies; ${cohort.evidenceCount} evidence records`
       }))
     },

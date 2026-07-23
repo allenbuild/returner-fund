@@ -261,6 +261,17 @@ function IntentStructuredData({
 }) {
   const canonical = siteUrl(path);
   const organizationId = siteUrl("/#organization");
+  const datasetCreator = {
+    "@type": "Organization",
+    "@id": organizationId,
+    name: SITE_NAME,
+    url: siteUrl("/")
+  };
+  const datasetLicense = {
+    "@type": "CreativeWork",
+    name: "Returner.fund dataset use terms",
+    url: siteUrl("/data-sources#dataset-use")
+  };
   const keywords = snapshot.key === "yc"
     ? ["YC network map", "Y Combinator startups", "YC social traction", "startup traction rankings"]
     : ["a16z network map", "a16z Speedrun startups", "a16z social traction", "startup traction rankings"];
@@ -295,7 +306,8 @@ function IntentStructuredData({
           name: `${title} public dataset`,
           description,
           url: canonical,
-          creator: { "@type": "Organization", "@id": organizationId, name: SITE_NAME },
+          creator: datasetCreator,
+          license: datasetLicense,
           isAccessibleForFree: true,
           dateModified: snapshot.generatedAt,
           temporalCoverage: "2026",
@@ -309,7 +321,8 @@ function IntentStructuredData({
             name: `${cohort.label} public startup traction data`,
             description: `Public startup traction data for ${cohort.label}, covering ${cohort.companies.length} companies and ${cohort.evidenceCount.toLocaleString("en-US")} attributable evidence records.`,
             url: siteUrl(`/cohorts/${cohort.slug}`),
-            creator: { "@type": "Organization", "@id": organizationId, name: SITE_NAME },
+            creator: datasetCreator,
+            license: datasetLicense,
             dateModified: cohort.companies[0]?.graph.generatedAt ?? snapshot.generatedAt
           }))
         }

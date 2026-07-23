@@ -127,8 +127,17 @@ describe("crawl metadata routes", () => {
     expect(markup).not.toContain("Startup network maps and social traction rankings");
     expect(markup).not.toContain("Startup maps and public directories");
     expect(cohortDatasets.length).toBe(getCatalog().cohorts.length);
+    expect(dataset).toMatchObject({
+      description: expect.any(String),
+      creator: expect.objectContaining({ "@type": "Organization", name: "Returner.fund" }),
+      license: expect.objectContaining({
+        "@type": "CreativeWork",
+        url: `${CANONICAL_ORIGIN}/data-sources#dataset-use`
+      })
+    });
     expect(cohortDatasets.every((item) => typeof item.description === "string" && item.description.length > 0)).toBe(true);
     expect(cohortDatasets.every((item) => typeof item.creator === "object" && item.creator !== null)).toBe(true);
+    expect(cohortDatasets.every((item) => typeof item.license === "object" && item.license !== null)).toBe(true);
   });
 
   it("links company rows only to generated primary-industry routes", () => {
@@ -177,8 +186,17 @@ describe("crawl metadata routes", () => {
       const cohortDatasets = dataset?.hasPart as Array<Record<string, unknown>>;
 
       expect(cohortDatasets.length).toBeGreaterThan(0);
+      expect(dataset).toMatchObject({
+        description: expect.any(String),
+        creator: expect.objectContaining({ "@type": "Organization", name: "Returner.fund" }),
+        license: expect.objectContaining({
+          "@type": "CreativeWork",
+          url: `${CANONICAL_ORIGIN}/data-sources#dataset-use`
+        })
+      });
       expect(cohortDatasets.every((item) => typeof item.description === "string" && item.description.length > 0)).toBe(true);
       expect(cohortDatasets.every((item) => typeof item.creator === "object" && item.creator !== null)).toBe(true);
+      expect(cohortDatasets.every((item) => typeof item.license === "object" && item.license !== null)).toBe(true);
     }
 
     expect(titles.size).toBe(pages.length);

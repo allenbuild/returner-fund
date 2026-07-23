@@ -140,7 +140,9 @@ describe("insights tabs", () => {
     );
     expect(firstPost.querySelector(".ranked-post-details")).toBeInTheDocument();
     const score = firstPost.querySelector<HTMLElement>(".ranked-post-score");
-    expect(firstPost.querySelector(".ranked-post-title-row")).toContainElement(score);
+    expect(firstPost.querySelector(".ranked-post-title-row")).not.toContainElement(score);
+    expect(firstPost.querySelector("article.ranked-post-card")).toContainElement(score);
+    expect(score?.parentElement).toBe(firstPost.querySelector("article.ranked-post-card"));
     expect(score).toHaveTextContent(/^\d+$/);
     expect(score).toHaveAttribute("aria-label", expect.stringMatching(/^Post score \d+$/));
     expect(score?.querySelector("span, small")).not.toBeInTheDocument();
