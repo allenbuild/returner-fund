@@ -117,17 +117,15 @@ describe("crawl metadata routes", () => {
     expect(new Set(urls).size).toBe(urls.length);
   });
 
-  it("server-renders visible discovery links for every search-intent route", () => {
+  it("publishes home-page dataset structured data without a visible discovery block", () => {
     const markup = renderToStaticMarkup(createElement(HomeStructuredData));
     const jsonLdBlocks = [...markup.matchAll(/<script type="application\/ld\+json">([^<]+)<\/script>/g)]
       .flatMap((match) => JSON.parse(match[1]) as Array<Record<string, unknown>>);
     const dataset = jsonLdBlocks.find((item) => item["@type"] === "Dataset");
     const cohortDatasets = dataset?.hasPart as Array<Record<string, unknown>>;
 
-    expect(markup).toContain("Startup network maps and social traction rankings");
-    for (const path of INTENT_PATHS) {
-      expect(markup).toContain(`href="${path}"`);
-    }
+    expect(markup).not.toContain("Startup network maps and social traction rankings");
+    expect(markup).not.toContain("Startup maps and public directories");
     expect(cohortDatasets.length).toBe(getCatalog().cohorts.length);
     expect(cohortDatasets.every((item) => typeof item.description === "string" && item.description.length > 0)).toBe(true);
     expect(cohortDatasets.every((item) => typeof item.creator === "object" && item.creator !== null)).toBe(true);
