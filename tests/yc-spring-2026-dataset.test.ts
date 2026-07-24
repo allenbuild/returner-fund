@@ -79,16 +79,38 @@ describe("YC Summer 2026 official snapshot", () => {
     // merge writes explicit provenance. Shared entity IDs fail closed.
     expect(evidenceMatchesBatchScope({}, "S2026", true)).toBe(true);
     expect(evidenceMatchesBatchScope({}, "S2026", false)).toBe(false);
+    const sharedEvidence = ycSpring2026GraphDataset.evidence.filter(
+      (item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId
+    );
+    const sharedReview = (ycSpring2026GraphDataset.needsReview ?? []).filter(
+      (item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId
+    );
+    expect(sharedEvidence.length).toBeGreaterThan(0);
+    expect(sharedEvidence.every((item) => Boolean(item.batchSlug))).toBe(true);
+    expect(sharedReview.every((item) => Boolean(item.batchSlug))).toBe(true);
+
+    const springGraph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const summerGraph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     expect(
-      ycSpring2026GraphDataset.evidence.some(
-        (item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId
-      )
-    ).toBe(false);
+      springGraph.evidence
+        .filter((item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId)
+        .every((item) => item.batchSlug === "S2026")
+    ).toBe(true);
     expect(
-      ycSpring2026GraphDataset.needsReview?.some(
-        (item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId
-      )
-    ).toBe(false);
+      summerGraph.evidence
+        .filter((item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId)
+        .every((item) => item.batchSlug === "S26")
+    ).toBe(true);
+    expect(
+      springGraph.needsReview
+        .filter((item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId)
+        .every((item) => item.batchSlug === "S2026")
+    ).toBe(true);
+    expect(
+      summerGraph.needsReview
+        .filter((item) => item.entityId === sharedCompanyId || item.entityId === sharedFounderId)
+        .every((item) => item.batchSlug === "S26")
+    ).toBe(true);
   });
 
   it("materializes verified Vestris founders and their two existing physical posts", () => {
@@ -512,21 +534,12 @@ describe("YC Summer 2026 official snapshot", () => {
         metrics: expect.objectContaining({ reactions: 319, comments: 43 })
       })
     );
-    expect(pangoContext).toEqual([
-      expect.objectContaining({
-        id: "linkedin-topvoices_people_only_third_sol_ultra-s26-topvoice-pango-petekoomen-7473616064967266304",
-        contributionScore: 0,
-        sourceUrl: "https://www.linkedin.com/in/petekoomen/recent-activity/comments/#post-7473616064967266304",
-        metrics: expect.objectContaining({ reactions: 3 })
-      })
-    ]);
-    expect(canonicalPostKey(pangoContext[0]!)).toBe("linkedin:post:7473616064967266304");
-    expect(pangoContext[0]?.why).toContain("Direct comment locator:");
+    expect(pangoContext).toEqual([]);
 
     const linkedInCommentContexts = [...spring.evidence, ...summer.evidence].filter((item) =>
       item.sourceUrl.includes("/recent-activity/comments/#post-")
     );
-    expect(linkedInCommentContexts).toHaveLength(5);
+    expect(linkedInCommentContexts).toHaveLength(1);
     for (const item of linkedInCommentContexts) {
       expect(item.contributionScore).toBe(0);
       expect(item.review_state).toBe("verified");

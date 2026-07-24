@@ -207,10 +207,10 @@ target.evidence = appendOnly ? existingRows : existingRows.sort(compareEvidence)
 target.source = target.source && typeof target.source === "object" ? target.source : {};
 if (targetKind === "a16z") {
   target.source.generatedAt = observedAt;
-  target.source.evidenceCount = target.evidence.length;
 } else {
   target.source.fetchedAt = observedAt;
 }
+target.source.evidenceCount = target.evidence.length;
 target.source.sourceHuntImportedAt = observedAt;
 target.source.notes = Array.isArray(target.source.notes) ? target.source.notes : [];
 const note = `Imported ${audit.accepted} strict native rows from ${inputPaths.map((path) => basename(path)).join(", ")}; refreshed ${audit.updated} duplicates and rejected ${audit.rejected}.`;

@@ -103,8 +103,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("uses an explicit bounded terminal-failure budget for publication", () => {
     assert.match(
       runner,
-      /maxTerminalFailures: args\.skipPublish[\s\S]*AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET/
+      /const terminalFailureBudget = autonomousMappedTerminalFailureBudget\([\s\S]*maxTerminalFailures: args\.skipPublish[\s\S]*terminalFailureBudget/
     );
+    assert.match(autonomousPlan, /AUTONOMOUS_MAPPED_TERMINAL_FAILURE_RATIO = 0\.05/);
     assert.match(runner, /mappedFailureSamples/);
     assert.match(runner, /COLLECTION_COVERAGE_RECEIPT/);
   });
@@ -185,24 +186,43 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("starts public batches in parallel and rate-limits exhaustive GitHub batches through one queue", () => {
     const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
+    const shardedCollector = section(
+      "async function runShardedPublicCollector",
+      "async function runPublicCollectorWithCheckpointRecovery"
+    );
+    const shardedGithubCollector = section(
+      "async function runShardedGithubCollector",
+      "async function runPublicCollectorWithCheckpointRecovery"
+    );
     const successfulRows = section("function successfulCollectorRowCount", "async function reconcileCollectorTasks");
 
     assert.equal((collectors.match(/AUTONOMOUS_BATCHES\.map/g) ?? []).length, 2);
     assert.ok(collectors.includes('kind: "public"'));
     assert.ok(collectors.includes('kind: "github"'));
-    assert.match(collectors, /run:\s*\(\)\s*=>\s*runCommand\(/);
+    assert.ok(collectors.includes("run: () => runShardedGithubCollector({"));
+    assert.ok(collectors.includes("totalCompanyCount: companyCount"));
     assert.ok(collectors.includes("command.promise = runCollectorWithRetries(command)"));
     assert.ok(collectors.includes("let githubQueue = Promise.resolve()"));
     assert.ok(collectors.includes("command.promise = githubQueue.then(() => runCollectorWithRetries(command))"));
+    assert.ok(collectors.includes("runShardedGithubCollector"));
+    assert.ok(shardedGithubCollector.includes("Promise.allSettled"));
+    assert.ok(shardedGithubCollector.includes("`--company-shard-count=${shardCount}`"));
+    assert.ok(shardedGithubCollector.includes("`--company-shard-index=${shard.shardIndex}`"));
+    assert.ok(shardedGithubCollector.includes("githubShardSearchBudget(totalCompanyCount, shardCount, shardIndex)"));
+    assert.ok(shardedGithubCollector.includes("`--max-searches=${shard.searchBudget}`"));
+    assert.ok(shardedGithubCollector.includes("mergeGithubCollectorShards"));
     assert.ok(collectors.includes("await Promise.allSettled(commands.map((command) => command.promise))"));
     assert.ok(collectors.includes('"--discover-missing-social"'));
-    assert.ok(collectors.includes('`--discovery-attempts=${discoveryAttemptOutputs.get(batchSlug)}`'));
-    assert.ok(collectors.includes('`--source-discovery-paths=${sourceDiscoveryPathOutputs.get(batchSlug)}`'));
+    assert.ok(shardedCollector.includes("`--discovery-attempts=${shard.discoveryAttemptsPath}`"));
+    assert.ok(shardedCollector.includes("`--source-discovery-paths=${shard.sourceDiscoveryPathsPath}`"));
+    assert.ok(shardedCollector.includes('label: "Public unauthenticated platform/page ingestion"'));
     assert.ok(collectors.includes('"--workers=16"'));
     assert.ok(collectors.includes('"--linkedin-workers=4"'));
     assert.ok(collectors.includes('"--instagram-workers=8"'));
     assert.ok(collectors.includes('"--search-workers=1"'));
-    assert.ok(collectors.includes('`--max-searches=${companyCount * 2}`'));
+    assert.ok(collectors.includes('process.env.GITHUB_TOKEN?.trim() ? "--search" : "--no-search"'));
+    assert.ok(collectors.includes("githubSearchArg"));
+    assert.doesNotMatch(collectors, /`--max-searches=\$\{companyCount \* 2\}`/);
     assert.doesNotMatch(collectors, /--max-searches=60/);
     assert.ok(successfulRows.includes("countSuccessfulAutonomousCollectorRows(snapshot, kind)"));
     assert.doesNotMatch(successfulRows, /needsReview/);
@@ -221,6 +241,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(retry.includes("65_000"));
     assert.ok(retry.includes("exhausted retries with"));
     assert.doesNotMatch(retry, /retryableFailures\.length === 0 \|\| attempt === maxAttempts/);
+    assert.ok(retry.includes("args.resumeSnapshots"));
+    assert.ok(retry.includes("collector.snapshot_resumed"));
+    assert.ok(retry.includes("terminalCoverage.nonTerminal === 0"));
+    assert.ok(runner.includes('resumeSnapshots: rawArgs.includes("--resume-snapshots")'));
   });
 
   it("seeds learned discovery state by explicit batch identity before legacy slug fallback", () => {
@@ -264,7 +288,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("runs Insider and YC Partner discovery concurrently with every batch collector", () => {
-    const parallelStart = runner.indexOf("await Promise.all([runCollectors(), runTopVoiceCollector()])");
+    const parallelStart = runner.search(
+      /await Promise\.all\(\[\s*runCollectors\(\),\s*args\.resumeSnapshots\s*\?\s*readJson\(topVoiceOutput,\s*null\)\s*:\s*runTopVoiceCollector\(\)\s*\]\)/
+    );
     const topVoiceCollector = section("async function runTopVoiceCollector", "async function runCollectorWithRetries");
 
     assert.ok(parallelStart > -1);
@@ -373,6 +399,30 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(commandRunner.includes('child.kill("SIGKILL")'));
     assert.ok(commandRunner.includes("AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs"));
     assert.ok(commandRunner.includes("if (timedOut)"));
+  });
+
+  it("flushes public checkpoints after a process timeout instead of discarding task outcomes", () => {
+    const collectorRunner = section("async function runPublicCollectorWithCheckpointRecovery", "async function runTopVoiceCollector");
+
+    assert.ok(collectorRunner.includes("collector.timeout_checkpoint_flush"));
+    assert.ok(collectorRunner.includes('"--max-companies=0"'));
+    assert.ok(collectorRunner.includes("AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs"));
+    assert.match(runner, /"--x-workers=4"/);
+  });
+
+  it("shards large public cohorts and merges shard checkpoints before coverage", () => {
+    const collectorRunner = section("async function runShardedPublicCollector", "async function runPublicCollectorWithCheckpointRecovery");
+
+    assert.ok(runner.includes("S2026: 4"));
+    assert.ok(runner.includes("S26: 2"));
+    assert.ok(collectorRunner.includes("--company-shard-count="));
+    assert.ok(collectorRunner.includes("--company-shard-index="));
+    assert.ok(collectorRunner.includes("Promise.allSettled"));
+    assert.ok(collectorRunner.includes("after every sibling stopped"));
+    assert.ok(collectorRunner.includes("seedShardLedger(shard.discoveryAttemptsPath"));
+    assert.ok(collectorRunner.includes("seedShardLedger(shard.sourceDiscoveryPathsPath"));
+    assert.ok(collectorRunner.includes("mergePublicEvidenceSnapshots(snapshots"));
+    assert.ok(collectorRunner.includes("writeJsonAtomic(outputPath, merged)"));
   });
 
   it("writes, validates, and durably records the artifact manifest before completion", () => {

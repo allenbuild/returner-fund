@@ -4,12 +4,22 @@ import { createBrowserSupabaseClient } from "@/lib/db/client";
 
 export type InsiderAuthChangeHandler = () => void;
 
+const ACCESS_TOKEN_EXPIRY_LEEWAY_MS = 30_000;
+let cachedAccessToken: { value: string; expiresAtMs: number } | null = null;
+
 export async function insiderAccessToken(): Promise<string | null> {
+  if (cachedAccessToken && cachedAccessToken.expiresAtMs > Date.now() + ACCESS_TOKEN_EXPIRY_LEEWAY_MS) {
+    return cachedAccessToken.value;
+  }
   const client = createBrowserSupabaseClient();
   if (!client) return null;
   const { data, error } = await client.auth.getSession();
-  if (error) return null;
-  return data.session?.access_token ?? null;
+  if (error || !data.session?.access_token) {
+    cachedAccessToken = null;
+    return null;
+  }
+  rememberAccessToken(data.session.access_token, data.session.expires_at);
+  return data.session.access_token;
 }
 
 export async function insiderApiFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
@@ -37,10 +47,21 @@ export async function requestInsiderSignInLink(email: string): Promise<void> {
 export function subscribeToInsiderAuth(handler: InsiderAuthChangeHandler): () => void {
   const client = createBrowserSupabaseClient();
   if (!client) return () => undefined;
-  const { data } = client.auth.onAuthStateChange((event) => {
+  const { data } = client.auth.onAuthStateChange((event, session) => {
+    if (session?.access_token) rememberAccessToken(session.access_token, session.expires_at);
+    else if (event === "SIGNED_OUT") cachedAccessToken = null;
     if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
       handler();
     }
   });
   return () => data.subscription.unsubscribe();
+}
+
+function rememberAccessToken(accessToken: string, expiresAtSeconds?: number): void {
+  cachedAccessToken = {
+    value: accessToken,
+    expiresAtMs: expiresAtSeconds
+      ? expiresAtSeconds * 1_000
+      : Date.now() + ACCESS_TOKEN_EXPIRY_LEEWAY_MS * 2
+  };
 }

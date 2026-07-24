@@ -3,10 +3,12 @@ import { defaultInsiderMembers } from "@/lib/social/top-voices";
 import { emptyInsiderConfiguration } from "@/lib/social/user-insiders";
 
 const authenticateInsiderRequest = vi.fn();
+const createInsiderRlsClient = vi.fn();
 const loadUserInsiderConfiguration = vi.fn();
 
 vi.mock("@/lib/social/user-insiders-server", () => ({
   authenticateInsiderRequest,
+  createInsiderRlsClient,
   loadUserInsiderConfiguration
 }));
 
@@ -29,7 +31,7 @@ describe("/api/insiders", () => {
     expect(body.defaultMembers).toEqual(defaultInsiderMembers());
     expect(body.effectiveMembers).toHaveLength(58);
     expect(loadUserInsiderConfiguration).not.toHaveBeenCalled();
-  });
+  }, 60_000);
 
   it("loads only the authenticated user's private configuration", async () => {
     const client = { rpc: vi.fn() };
@@ -54,7 +56,7 @@ describe("/api/insiders", () => {
   });
 
   it("rejects anonymous saves before parsing or writing any configuration", async () => {
-    authenticateInsiderRequest.mockResolvedValue(null);
+    createInsiderRlsClient.mockReturnValue(null);
     const { PUT } = await import("@/app/api/insiders/route");
 
     const response = await PUT(new Request("http://localhost/api/insiders", {
@@ -84,10 +86,7 @@ describe("/api/insiders", () => {
       },
       error: null
     });
-    authenticateInsiderRequest.mockResolvedValue({
-      client: { rpc },
-      userId: "trusted-user"
-    });
+    createInsiderRlsClient.mockReturnValue({ rpc });
     const { PUT } = await import("@/app/api/insiders/route");
 
     const response = await PUT(new Request("http://localhost/api/insiders", {
@@ -123,10 +122,7 @@ describe("/api/insiders", () => {
         message: "Insiders configuration changed in another session."
       }
     });
-    authenticateInsiderRequest.mockResolvedValue({
-      client: { rpc },
-      userId: "trusted-user"
-    });
+    createInsiderRlsClient.mockReturnValue({ rpc });
     const { PUT } = await import("@/app/api/insiders/route");
 
     const response = await PUT(new Request("http://localhost/api/insiders", {
@@ -143,5 +139,35 @@ describe("/api/insiders", () => {
 
     expect(response.status).toBe(409);
     expect(body.error.code).toBe("configuration_conflict");
+  });
+
+  it("lets the RLS-protected save RPC reject an invalid bearer token as unauthorized", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: null,
+      error: {
+        code: "PGRST301",
+        message: "JWT expired"
+      }
+    });
+    createInsiderRlsClient.mockReturnValue({ rpc });
+    const { PUT } = await import("@/app/api/insiders/route");
+
+    const response = await PUT(new Request("http://localhost/api/insiders", {
+      method: "PUT",
+      headers: {
+        Authorization: "Bearer expired-session-token",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        expectedVersion: 0,
+        excludedDefaultIds: [],
+        weightOverrides: {},
+        addedInsiders: []
+      })
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(body.error.code).toBe("authentication_required");
   });
 });

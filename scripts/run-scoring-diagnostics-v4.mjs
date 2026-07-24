@@ -1414,9 +1414,13 @@ function runMonotonicityAudit(context, before) {
       const perturbedCompanyEvidence = baselineCompanyEvidence.map(
         (item) => replacements.get(item.__auditKey) ?? item
       );
-      const perturbedCompanyScore = aggregateBalancedTractionScore(
+      const baselineCompanyBreakdown = aggregateBalancedTractionScore(
+        baselineCompanyEvidence
+      );
+      const perturbedCompanyBreakdown = aggregateBalancedTractionScore(
         perturbedCompanyEvidence
-      ).totalScore;
+      );
+      const perturbedCompanyScore = perturbedCompanyBreakdown.totalScore;
       if (rowScoreDecreased || perturbedCompanyScore < baselineCompany.score) {
         failures.push({
           evidence_id: sourceItem.id,
@@ -1431,7 +1435,20 @@ function runMonotonicityAudit(context, before) {
           company_score_before: baselineCompany.score,
           company_score_after: perturbedCompanyScore,
           row_score_decreased: rowScoreDecreased,
-          company_score_decreased: perturbedCompanyScore < baselineCompany.score
+          company_score_decreased: perturbedCompanyScore < baselineCompany.score,
+          company_platform_scores_before: baselineCompanyBreakdown.platformScores,
+          company_platform_scores_after: perturbedCompanyBreakdown.platformScores,
+          company_evidence_changes: baselineCompanyEvidence
+            .map((item) => {
+              const replacement = replacements.get(item.__auditKey);
+              return {
+                evidence_id: item.id,
+                platform: item.platform,
+                score_before: item.contributionScore,
+                score_after: replacement?.contributionScore ?? item.contributionScore
+              };
+            })
+            .filter((item) => item.score_before !== item.score_after)
         });
       }
     }
@@ -2716,10 +2733,21 @@ function validateAudit(payload) {
     { id: "invariant_results_missing" }
   ];
   if (violations.length) {
+    const monotonicityFailures = payload.cohorts
+      .flatMap((cohort) =>
+        cohort.perturbations.monotonicity.failures.map((failure) => ({
+          cohort: cohort.cohort,
+          ...failure
+        }))
+      )
+      .slice(0, 5);
+    const diagnosticSuffix = monotonicityFailures.length
+      ? `; monotonicity examples: ${JSON.stringify(monotonicityFailures)}`
+      : "";
     throw new Error(
       `Scoring diagnostics invariant violation${violations.length === 1 ? "" : "s"}: ${violations
         .map((violation) => violation.id)
-        .join(", ")}`
+        .join(", ")}${diagnosticSuffix}`
     );
   }
 }

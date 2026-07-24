@@ -9,6 +9,8 @@ const apiBase = "https://api.github.com";
 const workers = Math.max(1, Math.min(numberArg("--workers") ?? 6, 16));
 const searchWorkers = Math.max(1, Math.min(numberArg("--search-workers") ?? 1, 4));
 const companyLimit = numberArg("--max-companies") ?? Number.POSITIVE_INFINITY;
+const companyShardCount = Math.max(1, Math.floor(numberArg("--company-shard-count") ?? 1));
+const companyShardIndex = Math.floor(numberArg("--company-shard-index") ?? 0);
 const maxSearches = numberArg("--max-searches") ?? 80;
 const enableWebsiteDiscovery = hasArg("--no-website") ? false : hasArg("--website") || batchConfig.defaultWebsiteDiscovery;
 const enableSearchDiscovery = hasArg("--no-search") ? false : hasArg("--search") || batchConfig.defaultSearchDiscovery;
@@ -24,7 +26,15 @@ const snapshot = {
   ...rawSnapshot,
   companies: mergeVerifiedGithubOverrides(rawSnapshot.companies, verifiedSocialOverrides)
 };
-const companies = snapshot.companies.slice(0, companyLimit);
+if (companyShardIndex < 0 || companyShardIndex >= companyShardCount) {
+  throw new Error(
+    `--company-shard-index must be between 0 and ${companyShardCount - 1}; received ${companyShardIndex}.`
+  );
+}
+const limitedCompanies = snapshot.companies.slice(0, companyLimit);
+const companies = limitedCompanies.filter(
+  (_company, index) => index % companyShardCount === companyShardIndex
+);
 const owners = collectGithubOwners(companies);
 const explicitTargets = collectExplicitGithubTargets(companies);
 const discovery = planOnly
@@ -36,6 +46,9 @@ if (planOnly) {
     batchSlug: batchConfig.slug,
     sourcePath: batchConfig.sourcePath,
     companyCount: companies.length,
+    totalCompanyCount: limitedCompanies.length,
+    companyShardCount,
+    companyShardIndex,
     targets: githubTargets
   }, null, 2)}\n`);
   process.exit(0);
@@ -70,6 +83,10 @@ const payload = {
     batchLabel: batchConfig.label,
     sourcePath: batchConfig.sourcePath,
     fetchedAt: new Date().toISOString(),
+    companyCount: companies.length,
+    totalCompanyCount: limitedCompanies.length,
+    companyShardCount,
+    companyShardIndex,
     targetCount: githubTargets.length,
     fetchedCount: results.filter((result) => result.fetched).length,
     activeAccountMappings: owners.flatMap((owner) => owner.mappedUrls.map((url) => ({

@@ -41,6 +41,17 @@ describe("no-secret guard", () => {
     ).toEqual([]);
   });
 
+  it("does not mistake words ending in sk for OpenAI secret keys", () => {
+    expect(
+      hasSecretLikeContent(
+        "https://example.com/musk-sues-openai-altman-for-breaching-founding-mission"
+      )
+    ).toBe(false);
+    expect(
+      hasSecretLikeContent(["credential: sk", "proj", "abcdefghijklmnopqrstuv"].join("-"))
+    ).toBe(true);
+  });
+
   it("does not find committed secret values in source, docs, or config files", () => {
     const hits: string[] = [];
 

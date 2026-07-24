@@ -35,7 +35,14 @@ describe("YC traction scoring regressions", () => {
     );
     expect(postIds(evidence)).not.toContain("7471229920451629056");
     expect(evidence.some((item) => item.contributionScore > 0)).toBe(true);
-    expect(evidence.every((item) => item.contributionScore > 0)).toBe(true);
+    expect(
+      evidence.find((item) => item.platformPostId === "Gk15eqoQZ-I")
+    ).toEqual(
+      expect.objectContaining({
+        review_state: "needs_review",
+        contributionScore: 0
+      })
+    );
     expect(new Set(evidence.map((item) => `${item.platform}:${item.platformPostId}`)).size).toBe(evidence.length);
 
     expect(
@@ -332,7 +339,7 @@ describe("YC traction scoring regressions", () => {
     const imports: Array<[string, string, Platform]> = [
       ["https://www.linkedin.com/posts/gopalnisha_just-wrapped-y-combinator-p26-with-daniel-activity-7473820951579734016-mUfS", "AbInitio Bio", "linkedin"],
       ["https://www.linkedin.com/posts/gregoirechomette_today-aice-power-is-joining-y-combinator-activity-7444791109265920000-SHGi", "AICE", "linkedin"],
-      ["https://www.youtube.com/watch?v=xnOjtP4qIgk", "ANORIA", "youtube"],
+      ["https://youtube.com/watch?v=xnOjtP4qIgk", "ANORIA", "youtube"],
       ["https://www.linkedin.com/posts/aryaman-khanna-210a9121b_arden-yc-p26-is-backed-by-y-combinator-activity-7450643893903208448-OBBq", "Arden", "linkedin"],
       ["https://www.linkedin.com/posts/akira-tong_my-cofounder-phillip-li-said-something-smart-activity-7468336170469617664-VJtT", "Arga Labs", "linkedin"],
       ["https://www.linkedin.com/posts/ashton-daniel_auxos-yc-p26-recently-hosted-a-dinner-with-activity-7461103888213983232-8ltq", "Auxos", "linkedin"],
@@ -396,7 +403,7 @@ describe("YC traction scoring regressions", () => {
     const springGraph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
     const summerGraph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
-    expectGraphEvidence(springGraph.evidence, "https://www.youtube.com/watch?v=7Bax5qz0IfM", "InsForge", "youtube");
+    expectGraphEvidence(springGraph.evidence, "https://youtube.com/watch?v=7Bax5qz0IfM", "InsForge", "youtube");
     expectGraphEvidence(
       springGraph.evidence,
       "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3",
@@ -608,7 +615,7 @@ describe("YC traction scoring regressions", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
     expectGraphEvidence(graph.evidence, "https://github.com/CarbonCopyInc/carboncopy-mcp", "Hoplite", "github");
-    expectGraphEvidence(graph.evidence, "https://www.youtube.com/watch?v=DfSQ8L7d0BM", "Control Seat", "youtube");
+    expectGraphEvidence(graph.evidence, "https://youtube.com/watch?v=DfSQ8L7d0BM", "Control Seat", "youtube");
     expectGraphEvidence(
       graph.evidence,
       "https://www.linkedin.com/posts/cosmic-robotics_solar-construction-constructiontech-activity-7358860398701260800-5Nwv",
@@ -714,16 +721,21 @@ describe("YC traction scoring regressions", () => {
     const commentContextIds = new Set([
       "linkedin-topvoice-company-rise-reforming-alexisohanian-activity-7345937006784356353-comment-george-rose",
       "linkedin-topvoice-seventh-pass-s2026-company-insforge-andrew-miklas-7462200339899846656",
+      "linkedin-topvoices_people_only_third_sol_ultra-s2026-topvoice-insforge-amiklas-7462760262366842880"
+    ]);
+    const retiredCommentContextIds = new Set([
       "linkedin-topvoice-insider-sol-ultra-s2026-lumius-mathilde-collin-7444469004846510080",
       "linkedin-topvoice-insider-sol-ultra-s2026-atrisa-mathilde-collin-7471364906072686592",
       "linkedin-topvoice-insider-sol-ultra-s2026-9-mothers-corporation-taro-fukuyama-7445191769534676992",
-      "linkedin-topvoices_people_only_third_sol_ultra-s26-topvoice-pango-petekoomen-7473616064967266304",
-      "linkedin-topvoices_people_only_third_sol_ultra-s2026-topvoice-insforge-amiklas-7462760262366842880"
+      "linkedin-topvoices_people_only_third_sol_ultra-s26-topvoice-pango-petekoomen-7473616064967266304"
     ]);
     const contexts = ycSpring2026GraphDataset.evidence.filter((item) => commentContextIds.has(item.id));
 
     expect(contexts).toHaveLength(commentContextIds.size);
     expect(contexts.every((item) => item.platform === "linkedin" && item.contributionScore === 0)).toBe(true);
+    expect(
+      ycSpring2026GraphDataset.evidence.filter((item) => retiredCommentContextIds.has(item.id))
+    ).toEqual([]);
 
     for (const companyId of new Set(contexts.map((item) => item.attachedCompanyId))) {
       const company = ycSpring2026GraphDataset.companies.find((candidate) => candidate.id === companyId);
@@ -995,15 +1007,18 @@ function expectGraphEvidence(
   companyName: string,
   platform: Platform
 ): void {
-  const item = items.find((candidate) => candidate.sourceUrl === sourceUrl);
+  const expectedSourceIdentity = canonicalSourceIdentity(sourceUrl);
+  const item = items.find(
+    (candidate) => canonicalSourceIdentity(candidate.sourceUrl) === expectedSourceIdentity
+  );
 
   expect(item).toEqual(
     expect.objectContaining({
       platform,
-      attachedCompanyName: companyName,
-      sourceUrl
+      attachedCompanyName: companyName
     })
   );
+  expect(canonicalSourceIdentity(item?.sourceUrl ?? "")).toBe(expectedSourceIdentity);
   expect(item?.contributionScore).toBeGreaterThan(0);
 }
 
@@ -1024,4 +1039,14 @@ function expectGraphContextEvidence(
     })
   );
   expect(item?.why).toContain("not_native_evidence");
+}
+
+function canonicalSourceIdentity(rawUrl: string): string {
+  try {
+    const url = new URL(rawUrl);
+    url.hostname = url.hostname.replace(/^www\./i, "").toLowerCase();
+    return url.toString();
+  } catch {
+    return rawUrl;
+  }
 }

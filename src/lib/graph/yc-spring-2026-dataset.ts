@@ -1913,6 +1913,7 @@ function normalizeHandle(value: string | undefined): string {
 function publicNeedsReviewItem(item: PublicNeedsReviewRecord): NeedsReviewItem {
   return {
     id: item.id,
+    batchSlug: String(item.batchSlug ?? item.batch_slug ?? "").trim() || undefined,
     entityType: item.entityType,
     entityId: item.entityId,
     entityName: item.entityName,

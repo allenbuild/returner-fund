@@ -59,7 +59,7 @@ import { normalizeTopVoiceAudienceId, topVoiceAudienceSummaries } from "@/lib/so
 import { insiderAccessToken } from "@/lib/social/user-insiders-client";
 import { PLATFORM_VALUES, type GraphResponse, type Platform, type TopVoiceAudienceId } from "@/lib/graph/types";
 
-type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices" | "insiders";
+type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices";
 
 interface DropdownOption<T extends string> {
   value: T;
@@ -591,38 +591,39 @@ export function Dashboard({
     selectionRef.current = { batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds };
   }, [batchSlug, selectedInsiderIds, topVoiceAudience]);
 
+  /* URL hydration must finish in the mount effect before controls can synchronously
+     write route state; deferring it lets the first user action race the hydration. */
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has("topics")) {
-        setSelectedTopics(queryTopics(params));
-      }
-      if (params.has("verticals")) {
-        setSelectedVerticals(queryVerticals(params));
-      }
-      if (params.has("industries")) {
-        setSelectedIndustries(queryList(params, "industries"));
-      }
-      if (params.has("groupPartners")) {
-        setSelectedGroupPartners(queryList(params, "groupPartners"));
-      }
-      if (params.has("insiderIds")) {
-        setSelectedInsiderIds(queryList(params, "insiderIds"));
-      }
-      const urlMinScore = params.get("minScore");
-      if (urlMinScore !== null) {
-        const normalizedScore = clampScore(Number(urlMinScore) || 0);
-        setMinScore(normalizedScore);
-        setMinScoreDraft(normalizedScore);
-      }
-      const urlNodeId = params.get("node")?.trim();
-      if (urlNodeId) {
-        setSelectedNodeId(urlNodeId.slice(0, 300));
-      }
-      setUrlStateHydrated(true);
-    }, 0);
-    return () => window.clearTimeout(timeoutId);
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("topics")) {
+      setSelectedTopics(queryTopics(params));
+    }
+    if (params.has("verticals")) {
+      setSelectedVerticals(queryVerticals(params));
+    }
+    if (params.has("industries")) {
+      setSelectedIndustries(queryList(params, "industries"));
+    }
+    if (params.has("groupPartners")) {
+      setSelectedGroupPartners(queryList(params, "groupPartners"));
+    }
+    if (params.has("insiderIds")) {
+      setSelectedInsiderIds(queryList(params, "insiderIds"));
+    }
+    const urlMinScore = params.get("minScore");
+    if (urlMinScore !== null) {
+      const normalizedScore = clampScore(Number(urlMinScore) || 0);
+      setMinScore(normalizedScore);
+      setMinScoreDraft(normalizedScore);
+    }
+    const urlNodeId = params.get("node")?.trim();
+    if (urlNodeId) {
+      setSelectedNodeId(urlNodeId.slice(0, 300));
+    }
+    setUrlStateHydrated(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const rememberGraph = useCallback((payload: GraphResponse, source: GraphPayloadSource = "api") => {
     graphCacheRef.current.set(
@@ -1295,17 +1296,6 @@ export function Dashboard({
 
   const batches = filterCatalogGraph?.batches ?? graph?.batches ?? defaultBatches;
   const topVoiceAudiences = filterCatalogGraph?.topVoiceAudiences ?? graph?.topVoiceAudiences ?? defaultTopVoiceAudiences;
-  const insiderDropdownOptions = useMemo<DropdownOption<string>[]>(
-    () => (scopedFilterMetadataGraph?.insiderFilterOptions ?? settledGraph?.insiderFilterOptions ?? [])
-      .map((member) => ({
-        value: member.memberId,
-        label: member.displayName,
-        description: `Weight ${member.weight}`
-      }))
-      .sort((left, right) => left.label.localeCompare(right.label)),
-    [scopedFilterMetadataGraph?.insiderFilterOptions, settledGraph?.insiderFilterOptions]
-  );
-
   const industryOptions = useMemo(() => {
     const byIndustry = new Map<string, { name: string; count: number; color: string }>();
 
@@ -1818,37 +1808,6 @@ export function Dashboard({
           }}
         />
 
-        {topVoiceAudience === "insiders" && (
-          <FilterDropdown
-            id="insiders"
-            icon={<Users size={15} />}
-            title="Insiders"
-            allLabel="All enabled insiders"
-            selectedValues={selectedInsiderIds}
-            options={insiderDropdownOptions}
-            isOpen={openFilterMenu === "insiders"}
-            disabled={scopeSpecificFiltersDisabled}
-            searchable
-            stickyControls
-            emptyLabel="No enabled insiders"
-            onOpenChange={(open) => setOpenFilterMenu(open ? "insiders" : null)}
-            onToggle={(personId) => {
-              const next = selectedInsiderIds.includes(personId)
-                ? selectedInsiderIds.filter((candidate) => candidate !== personId)
-                : [...selectedInsiderIds, personId];
-              selectionRef.current = { ...selectionRef.current, insiderIds: next };
-              setSelectedInsiderIds(next);
-              trackFilterChange("insiders", next.length ? "set" : "cleared", next.length);
-            }}
-            onClear={() => {
-              selectionRef.current = { ...selectionRef.current, insiderIds: [] };
-              setSelectedInsiderIds([]);
-              setOpenFilterMenu(null);
-              trackFilterChange("insiders", "cleared", 0);
-            }}
-          />
-        )}
-
         <FilterDropdown
           id="groupPartner"
           icon={<Filter size={15} />}
@@ -1882,10 +1841,7 @@ export function Dashboard({
         />
 
         <div className="score-filter">
-          <div className="score-filter-header">
-            <span>Min score</span>
-            <strong>{minScoreDraft}</strong>
-          </div>
+          <span className="score-filter-label">Min score</span>
           <input
             type="range"
             min={0}

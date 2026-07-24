@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { JsonObject } from "@/types/database";
-import { clearTopVoiceRollupCache } from "@/lib/graph/graph-builder";
 import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
 import {
   addedInsidersAsJson,
@@ -11,6 +10,7 @@ import {
 } from "@/lib/social/user-insiders";
 import {
   authenticateInsiderRequest,
+  createInsiderRlsClient,
   loadUserInsiderConfiguration
 } from "@/lib/social/user-insiders-server";
 
@@ -32,8 +32,8 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const authenticated = await authenticateInsiderRequest(request);
-  if (!authenticated) {
+  const client = createInsiderRlsClient(request);
+  if (!client) {
     return errorJson(401, "authentication_required", "Sign in to save a private Insiders list.");
   }
 
@@ -45,13 +45,16 @@ export async function PUT(request: Request) {
     return errorJson(400, "invalid_configuration", message);
   }
 
-  const { data, error } = await authenticated.client.rpc("save_user_insider_configuration", {
+  const { data, error } = await client.rpc("save_user_insider_configuration", {
     p_expected_version: input.expectedVersion,
     p_excluded_default_ids: input.excludedDefaultIds,
     p_weight_overrides: input.weightOverrides as JsonObject,
     p_added_insiders: addedInsidersAsJson(input.addedInsiders)
   });
   if (error) {
+    if (isAuthenticationError(error)) {
+      return errorJson(401, "authentication_required", "Sign in to save a private Insiders list.");
+    }
     const conflict = error.code === "40001" || /changed in another session/i.test(error.message);
     if (conflict) {
       return errorJson(409, "configuration_conflict", "This list changed in another tab. Reload it before saving.");
@@ -62,7 +65,10 @@ export async function PUT(request: Request) {
 
   try {
     const configuration = parseInsiderConfigurationRow(data);
-    clearTopVoiceRollupCache();
+    // Response keys include the user and saved configuration version, while
+    // rollup keys include the complete member/weight signature. Clearing the
+    // lightweight response cache is sufficient and avoids loading every
+    // cohort/evidence module on the save request's critical path.
     clearGraphResponseCache();
     return noStoreJson(configurationResponse(configuration, true));
   } catch (error) {
@@ -80,4 +86,14 @@ function noStoreJson(body: unknown, status = 200) {
 
 function errorJson(status: number, code: string, message: string) {
   return noStoreJson({ error: { code, message } }, status);
+}
+
+function isAuthenticationError(error: { code?: string | null; message?: string | null }): boolean {
+  return (
+    error.code === "42501" ||
+    error.code === "PGRST301" ||
+    /(?:authentication required|invalid|expired).*(?:jwt|token)|(?:jwt|token).*(?:invalid|expired)/i.test(
+      error.message ?? ""
+    )
+  );
 }

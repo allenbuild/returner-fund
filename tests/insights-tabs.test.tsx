@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { InsightsTabs } from "@/components/InsightsTabs";
@@ -6,6 +7,45 @@ import type { GraphResponse } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 
 describe("insights tabs", () => {
+  it("keeps all four navigation boxes on one shared equal-size layout in every selected view", () => {
+    render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
+
+    const tabNames = ["Overview", "Hottest", "Ranked Posts", "Stats"] as const;
+    const tabs = tabNames.map((name) => screen.getByRole("tab", { name }));
+    const sharedClassName = tabs[0].className;
+    const sharedInlineStyle = tabs[0].getAttribute("style");
+
+    expect(sharedClassName).toBe("insights-tab-button");
+    expect(new Set(tabs.map((tab) => tab.className))).toEqual(new Set([sharedClassName]));
+    expect(new Set(tabs.map((tab) => tab.getAttribute("style")))).toEqual(
+      new Set([sharedInlineStyle])
+    );
+
+    for (const selectedTab of tabs) {
+      fireEvent.click(selectedTab);
+      expect(selectedTab).toHaveAttribute("aria-selected", "true");
+      expect(new Set(tabs.map((tab) => tab.className))).toEqual(new Set([sharedClassName]));
+      expect(new Set(tabs.map((tab) => tab.getAttribute("style")))).toEqual(
+        new Set([sharedInlineStyle])
+      );
+    }
+
+    const css = readFileSync("src/app/globals.css", "utf8");
+    expect(css).toMatch(
+      /\.tab-navigation\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/s
+    );
+    expect(css).not.toMatch(/#insights-tab-(?:overview|gaining|ranked|stats)/);
+    expect(css).not.toMatch(/\.insights-tab-button:nth-(?:child|of-type)/);
+
+    const selectedRule = css.match(
+      /\.insights-tab-button\[aria-selected="true"\]\s*\{([^}]*)\}/
+    )?.[1];
+    expect(selectedRule).toBeDefined();
+    expect(selectedRule).not.toMatch(
+      /(?:^|;)\s*(?:width|height|min-width|min-height|max-width|max-height|padding|margin|font-size|grid-template-columns)\s*:/
+    );
+  });
+
   it("exposes selected tabs and momentum periods to assistive technology", () => {
     render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
 

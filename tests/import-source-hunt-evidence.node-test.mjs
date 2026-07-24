@@ -38,6 +38,7 @@ test("imports verified native evidence and preserves case-sensitive post ids", a
   const target = JSON.parse(await readFile(fixture.target, "utf8"));
   assert.equal(target.evidence[0].platformPostId, "DayUBNASjcO");
   assert.equal(target.evidence[0].contributionScore, 1);
+  assert.equal(target.source.evidenceCount, 1);
 });
 
 test("strict mode rejects profile pages and leaves the target untouched", async () => {

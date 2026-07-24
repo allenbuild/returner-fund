@@ -33,6 +33,7 @@ import {
   searchExaSourceCandidates,
   xUsernameFromUrl
 } from "./lib/credentialed-source-discovery.mjs";
+import { prioritizeAutonomousCompaniesByCoverage } from "./lib/autonomous-ingestion-plan.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -46,6 +47,13 @@ const checkpointPath = resolvePathArg(
 const now = new Date().toISOString();
 const companyLimit = numberArg("--max-companies") ?? Number.POSITIVE_INFINITY;
 const companyFilter = stringArg("--company")?.toLowerCase();
+const companyShardCount = Math.max(1, Math.floor(numberArg("--company-shard-count") ?? 1));
+const companyShardIndex = Math.floor(numberArg("--company-shard-index") ?? 0);
+if (companyShardIndex < 0 || companyShardIndex >= companyShardCount) {
+  throw new Error(
+    `--company-shard-index must be between 0 and ${companyShardCount - 1}; received ${companyShardIndex}.`
+  );
+}
 const socialMode = stringArg("--social") ?? "company"; // company | all | none
 const platformInput = stringArg("--platforms") ?? stringArg("--platform") ?? "";
 const platformFilter = new Set(
@@ -56,6 +64,11 @@ const platformFilter = new Set(
 );
 const requestDelayMs = numberArg("--delay-ms") ?? 450;
 const workerCount = numberArg("--workers") ?? 8;
+const MAX_X_WORKERS = 8;
+const xWorkerCount = Math.max(
+  1,
+  Math.min(MAX_X_WORKERS, Math.floor(numberArg("--x-workers") ?? 2))
+);
 const MAX_LINKEDIN_WORKERS = 4;
 const linkedinWorkerCount = Math.max(
   1,
@@ -67,6 +80,7 @@ const instagramWorkerCount = Math.max(
   Math.min(MAX_INSTAGRAM_WORKERS, Math.floor(numberArg("--instagram-workers") ?? 2))
 );
 const forceRefresh = hasArg("--force");
+const prioritySeed = stringArg("--priority-seed") ?? now.slice(0, 10);
 const freshForHours = Math.max(0, numberArg("--fresh-for-hours") ?? 12);
 const discoverMissingSocial = hasArg("--discover-missing-social") || platformFilter.size > 0;
 const discoveryAttemptsPath = resolvePathArg(
@@ -96,6 +110,7 @@ const batchSnapshot = {
   ...normalizedBatchSnapshot,
   companies: mergeVerifiedSocialOverrides(normalizedBatchSnapshot.companies, verifiedSocialOverrides)
 };
+const currentGraph = await readJson(batchConfig.graphPath, { evidence: [] });
 const companySlugByEntityId = new Map(
   batchSnapshot.companies.flatMap((company) => [
     [companyId(company), company.slug],
@@ -122,7 +137,15 @@ const checkpoint = await readJson(checkpointPath, {
   sourceDiscoveryPaths: []
 });
 const attemptMap = new Map(
-  Object.entries(checkpoint.attempts ?? {})
+  [
+    ...Object.entries(currentOutput.attempts ?? {})
+      .filter(([, attempt]) => attempt?.batchSlug === batchConfig.slug)
+      .map(([key, attempt]) => [
+        attempt.attemptKey ?? stripStoredAttemptBatchPrefix(key, batchConfig.slug),
+        attempt
+      ]),
+    ...Object.entries(checkpoint.attempts ?? {})
+  ]
     .filter(([, attempt]) => !isObsoleteInternalFailure(attempt))
     .map(([key, attempt]) => [key, withAttemptBatchScope(attempt)])
 );
@@ -204,14 +227,28 @@ const MAPPED_ACCOUNT_PLATFORMS = Object.freeze([
 const carriedAttributionReconciliationReviews = normalizeEvidenceForStorage(evidence).needsReview
   .filter((row) => row.attributionReconciliationDirective);
 
-const companies = batchSnapshot.companies
+const coverageCompanies = batchSnapshot.companies.map((company) => ({
+  ...company,
+  sourceKey: companyId(company),
+  founders: (company.founders ?? []).map((founder) => ({
+    ...founder,
+    sourceKey: entityIdFor(company, founder, "founder")
+  }))
+}));
+const prioritizedCompanies = prioritizeAutonomousCompaniesByCoverage(
+  coverageCompanies,
+  currentGraph.evidence,
+  { batchSlug: batchConfig.slug, prioritySeed }
+)
   .filter(
     (company) =>
       !companyFilter ||
       company.slug.toLowerCase() === companyFilter ||
       company.name.toLowerCase() === companyFilter ||
       company.name.toLowerCase().includes(companyFilter)
-  )
+  );
+const companies = prioritizedCompanies
+  .filter((_, index) => index % companyShardCount === companyShardIndex)
   .slice(0, companyLimit);
 
 if (planOnly) {
@@ -220,9 +257,12 @@ if (planOnly) {
     batchSlug: batchConfig.slug,
     snapshotPath: batchSnapshotPath,
     checkpointPath,
+    companyShardCount,
+    companyShardIndex,
     companyCount: companies.length,
     founderCount: companies.reduce((count, company) => count + (company.founders?.length ?? 0), 0),
     laneConcurrency: {
+      x: Math.max(1, Math.min(workerCount, platformConcurrency("x"))),
       linkedin: Math.max(1, Math.min(workerCount, platformConcurrency("linkedin"))),
       instagram: Math.max(1, Math.min(workerCount, platformConcurrency("instagram")))
     },
@@ -265,6 +305,7 @@ const payload = {
     checkpointAttemptCount: attemptMap.size,
     workerCount,
     laneConcurrency: {
+      x: Math.max(1, Math.min(workerCount, platformConcurrency("x"))),
       linkedin: Math.max(1, Math.min(workerCount, platformConcurrency("linkedin"))),
       instagram: Math.max(1, Math.min(workerCount, platformConcurrency("instagram")))
     },
@@ -525,7 +566,7 @@ async function runLane(lane, tasks, limit) {
 
 function platformConcurrency(lane) {
   if (lane === "instagram") return instagramWorkerCount;
-  if (lane === "x") return 2;
+  if (lane === "x") return xWorkerCount;
   if (lane === "linkedin") return linkedinWorkerCount;
   if (lane === "reddit") return 2;
   if (lane === "product_hunt") return 2;
@@ -4749,6 +4790,11 @@ function isFreshCompletedAttempt(attempt) {
   return Date.now() - checkedAt < freshForHours * 60 * 60 * 1000;
 }
 
+function stripStoredAttemptBatchPrefix(key, batchSlug) {
+  const prefix = `${batchSlug}:`;
+  return key.startsWith(prefix) ? key.slice(prefix.length) : key;
+}
+
 function resolvePathArg(value) {
   return resolve(root, value);
 }
@@ -4762,7 +4808,8 @@ function resolveBatchConfig(value) {
     return {
       slug: "S26",
       label: "YC Summer 2026 (S26)",
-      snapshotPath: join(root, "src", "lib", "yc", "summer-2026-companies.json")
+      snapshotPath: join(root, "src", "lib", "yc", "summer-2026-companies.json"),
+      graphPath: join(root, "public", "graph", "s26.json")
     };
   }
 
@@ -4770,7 +4817,8 @@ function resolveBatchConfig(value) {
     return {
       slug: "S2026",
       label: "YC Spring 2026 (P26)",
-      snapshotPath: join(root, "src", "lib", "yc", "spring-2026-companies.json")
+      snapshotPath: join(root, "src", "lib", "yc", "spring-2026-companies.json"),
+      graphPath: join(root, "public", "graph", "s2026.json")
     };
   }
 
@@ -4778,7 +4826,8 @@ function resolveBatchConfig(value) {
     return {
       slug: "A16ZSR006",
       label: "a16z Speedrun 006",
-      snapshotPath: join(root, "public", "graph", "a16zsr006.json")
+      snapshotPath: join(root, "public", "graph", "a16zsr006.json"),
+      graphPath: join(root, "public", "graph", "a16zsr006.json")
     };
   }
 

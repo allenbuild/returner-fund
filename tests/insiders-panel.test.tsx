@@ -45,10 +45,27 @@ describe("InsidersPanel", () => {
     expect(await screen.findByText("Sign in to edit your private list")).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "Email address" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Email sign-in link" })).toBeInTheDocument();
-    expect(screen.getByRole("spinbutton", { name: "Paul Graham weight" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Decrease Paul Graham weight" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Increase Paul Graham weight" })).toBeDisabled();
   });
 
-  it("stages integer edits until one save and keeps all 58 defaults searchable", async () => {
+  it("ranks insiders by descending weight with a name tie-break and omits source badges", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(response()), { status: 200 })
+    ));
+
+    const { container } = render(<InsidersPanel onClose={vi.fn()} />);
+    await screen.findByText("58 insiders");
+
+    const names = [...container.querySelectorAll(".insider-row-copy strong")]
+      .slice(0, 4)
+      .map((element) => element.textContent);
+    expect(names).toEqual(["Ben Horowitz", "Marc Andreessen", "Michael Seibel", "Paul Graham"]);
+    expect(screen.queryByText("Default")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Recompute scores" })).not.toBeInTheDocument();
+  });
+
+  it("stages stepper edits until one save and keeps all 58 defaults searchable", async () => {
     const initial = response();
     const saved = {
       ...initial,
@@ -72,7 +89,8 @@ describe("InsidersPanel", () => {
     const row = screen.getByText("Paul Graham").closest(".insider-row") as HTMLElement;
     expect(row).toBeInTheDocument();
     expect(within(row).queryByText(/@paulg/i)).not.toBeInTheDocument();
-    fireEvent.change(within(row).getByRole("spinbutton", { name: "Paul Graham weight" }), { target: { value: "4" } });
+    fireEvent.click(within(row).getByRole("button", { name: "Decrease Paul Graham weight" }));
+    expect(within(row).getByLabelText("Paul Graham weight")).toHaveTextContent("4");
     expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
@@ -109,14 +127,57 @@ describe("InsidersPanel", () => {
     }));
 
     render(<InsidersPanel onClose={vi.fn()} onSaved={onSaved} />);
-    const weight = await screen.findByRole("spinbutton", { name: "Paul Graham weight" });
-    fireEvent.change(weight, { target: { value: "4" } });
+    const decrease = await screen.findByRole("button", { name: "Decrease Paul Graham weight" });
+    fireEvent.click(decrease);
     fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
 
     expect(await screen.findByText("Recomputing scores…")).toBeInTheDocument();
     expect(onSaved).toHaveBeenCalledOnce();
     finishRecompute?.();
     expect(await screen.findByText("Saved")).toBeInTheDocument();
+  });
+
+  it("resets members and weights to the built-in defaults before saving", async () => {
+    const initial = response(3);
+    initial.configuration = {
+      ...initial.configuration,
+      excludedDefaultIds: ["michael-seibel"],
+      weightOverrides: { "paul-graham": 3 },
+      addedInsiders: [{
+        personId: "user:x:test-insider",
+        displayName: "Test Insider",
+        aliases: ["Test Insider"],
+        handles: { x: ["test-insider"] },
+        category: "insider",
+        weight: 5,
+        active: true,
+        source: "user-added"
+      }]
+    };
+    const saved = response(4);
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify(initial), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(saved), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<InsidersPanel onClose={vi.fn()} />);
+    expect(await screen.findByText("Test Insider")).toBeInTheDocument();
+    expect(screen.queryByText("Michael Seibel")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+
+    expect(screen.queryByText("Test Insider")).not.toBeInTheDocument();
+    expect(screen.getByText("Michael Seibel")).toBeInTheDocument();
+    expect(screen.getByLabelText("Paul Graham weight")).toHaveTextContent("5");
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(JSON.parse(String((fetchMock.mock.calls[1][1] as RequestInit).body))).toMatchObject({
+      expectedVersion: 3,
+      excludedDefaultIds: [],
+      weightOverrides: {},
+      addedInsiders: []
+    });
   });
 
   it("requires an explicit leave choice and can save before closing", async () => {

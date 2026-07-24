@@ -59,6 +59,7 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   collectorAttempts: 2,
   collectorRetryDelayMaxMs: 5_000,
   publicCollectorAttemptMs: 90 * MINUTE_MS,
+  collectorCheckpointFlushMs: 2 * MINUTE_MS,
   githubCollectorAttemptMs: 20 * MINUTE_MS,
   topVoiceCollectorMs: 22 * MINUTE_MS,
   productionBuildMs: 10 * MINUTE_MS,
@@ -75,11 +76,22 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   lockReleaseHeadroomMs: 2 * MINUTE_MS
 });
 
-// A tiny number of explicit, terminal source failures must not discard hours
-// of otherwise valid collection work. Non-terminal tasks remain a hard stop,
-// and this absolute ceiling prevents a broad collector outage from being
-// mislabeled as a usable degraded refresh.
+// A small number of explicit, terminal source failures must not discard hours
+// of otherwise valid collection work. The proportional ceiling scales with the
+// current mapped inventory while still stopping a broad collector outage.
+// Non-terminal tasks remain a hard stop.
 export const AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET = 5;
+export const AUTONOMOUS_MAPPED_TERMINAL_FAILURE_RATIO = 0.05;
+
+export function autonomousMappedTerminalFailureBudget(mappedExpected = 0) {
+  const expected = Number.isFinite(Number(mappedExpected))
+    ? Math.max(0, Math.floor(Number(mappedExpected)))
+    : 0;
+  return Math.max(
+    AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET,
+    Math.ceil(expected * AUTONOMOUS_MAPPED_TERMINAL_FAILURE_RATIO)
+  );
+}
 
 export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_BUDGETS) {
   const retriedCollectorWindow =
@@ -88,7 +100,10 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
       budgets.githubCollectorAttemptMs
     ) +
     (budgets.collectorAttempts - 1) * budgets.collectorRetryDelayMaxMs +
-    budgets.collectorAttempts * budgets.processKillGraceMs;
+    budgets.collectorAttempts * (
+      budgets.processKillGraceMs +
+      budgets.collectorCheckpointFlushMs
+    );
   const collectorWindow = Math.max(
     retriedCollectorWindow,
     budgets.topVoiceCollectorMs + budgets.processKillGraceMs
@@ -589,6 +604,69 @@ export function buildAutonomousTaskPlan(catalogs, { runKey }) {
   return tasks.sort((left, right) => left.checkpointKey.localeCompare(right.checkpointKey));
 }
 
+export function prioritizeAutonomousCompaniesByCoverage(
+  companies,
+  evidenceRows,
+  { prioritySeed = "", batchSlug = null } = {}
+) {
+  const evidenceCountByEntity = new Map();
+  const latestPostByEntity = new Map();
+  for (const row of evidenceRows ?? []) {
+    const rowBatch = row?.batchSlug ?? row?.batch_slug;
+    if (batchSlug && rowBatch && rowBatch !== batchSlug) continue;
+    const entityId = row?.entityId ?? row?.entity_id;
+    if (!entityId || ["needs_review", "rejected"].includes(row?.review_state)) continue;
+    evidenceCountByEntity.set(entityId, (evidenceCountByEntity.get(entityId) ?? 0) + 1);
+    const postedAt = Date.parse(row?.postedAt ?? row?.publishedAt ?? row?.last_updated_at ?? "");
+    if (Number.isFinite(postedAt)) {
+      latestPostByEntity.set(entityId, Math.max(latestPostByEntity.get(entityId) ?? 0, postedAt));
+    }
+  }
+
+  const summaries = new Map((companies ?? []).map((company) => {
+    const owners = [company, ...(company.founders ?? [])];
+    const counts = owners.map((owner) => evidenceCountByEntity.get(owner.sourceKey) ?? 0);
+    const latestPostAt = Math.max(
+      0,
+      ...owners.map((owner) => latestPostByEntity.get(owner.sourceKey) ?? 0)
+    );
+    return [company.sourceKey, {
+      ownerCount: owners.length,
+      zeroOwnerCount: counts.filter((count) => count === 0).length,
+      minimumOwnerCount: Math.min(...counts),
+      totalEvidenceCount: counts.reduce((sum, count) => sum + count, 0),
+      latestPostAt,
+      rotation: seededCoverageRotation(prioritySeed, company.sourceKey)
+    }];
+  }));
+
+  return [...(companies ?? [])].sort((left, right) => {
+    const leftSummary = summaries.get(left.sourceKey);
+    const rightSummary = summaries.get(right.sourceKey);
+    const leftZeroRatio = leftSummary.zeroOwnerCount / leftSummary.ownerCount;
+    const rightZeroRatio = rightSummary.zeroOwnerCount / rightSummary.ownerCount;
+    return (
+      rightZeroRatio - leftZeroRatio ||
+      rightSummary.zeroOwnerCount - leftSummary.zeroOwnerCount ||
+      leftSummary.minimumOwnerCount - rightSummary.minimumOwnerCount ||
+      (leftSummary.totalEvidenceCount / leftSummary.ownerCount) -
+        (rightSummary.totalEvidenceCount / rightSummary.ownerCount) ||
+      leftSummary.latestPostAt - rightSummary.latestPostAt ||
+      leftSummary.rotation - rightSummary.rotation ||
+      left.sourceKey.localeCompare(right.sourceKey)
+    );
+  });
+}
+
+function seededCoverageRotation(seed, value) {
+  let hash = 2_166_136_261;
+  for (const character of `${seed}:${value}`) {
+    hash ^= character.codePointAt(0);
+    hash = Math.imul(hash, 16_777_619);
+  }
+  return hash >>> 0;
+}
+
 export function summarizeTaskCoverage(tasks) {
   const summary = {
     expected: tasks.length,
@@ -1068,12 +1146,24 @@ export function classifyAutonomousCollectorTaskOutcome(
   if (outcome) return outcome;
   if (accountUrl) {
     return {
-      status: "failed",
+      status: "nonterminal",
       reason: "collector_returned_no_account_attempt"
     };
   }
+  if (normalizePlatform(platform) === "github" && outcomeIndex) {
+    return {
+      status: "blocked_or_empty",
+      reason: "collector_checked_no_github_mapping"
+    };
+  }
+  if (normalizePlatform(platform) === "rss" && outcomeIndex) {
+    return {
+      status: "blocked_or_empty",
+      reason: "collector_checked_no_rss_feed"
+    };
+  }
   return {
-    status: "failed",
+    status: "nonterminal",
     reason: "collector_returned_no_entity_attempt"
   };
 }
@@ -1305,6 +1395,7 @@ export function mergePublicEvidenceSnapshots(
     snapshots.flatMap((snapshot) => snapshot.sourceDiscoveryPaths ?? []),
     (row) => row.id ?? `${row.batch_slug ?? row.batchSlug}:${row.discovered_entity_id}:${row.source_url}:${row.discovered_url}`
   );
+  const attempts = mergePublicCollectorAttempts(snapshots);
   return {
     source: {
       label: "Autonomous public ingestion merged export",
@@ -1321,6 +1412,7 @@ export function mergePublicEvidenceSnapshots(
       failureCount: failures.length,
       discoveryAttemptCount: discoveryAttempts.length,
       sourceDiscoveryPathCount: sourceDiscoveryPaths.length,
+      attemptCount: Object.keys(attempts).length,
       notes: [
         durableStorageConfigured
           ? "Generated export only; this run also imported validated evidence into durable Supabase tables."
@@ -1333,9 +1425,46 @@ export function mergePublicEvidenceSnapshots(
     attributionReconciliationLedger,
     needsReview,
     failures,
+    attempts,
     discoveryAttempts,
     sourceDiscoveryPaths
   };
+}
+
+function mergePublicCollectorAttempts(snapshots) {
+  const attempts = new Map();
+  for (const snapshot of snapshots) {
+    for (const [storedKey, sourceAttempt] of Object.entries(snapshot.attempts ?? {})) {
+      const batchSlug = String(
+        sourceAttempt?.batchSlug ??
+        snapshot?.source?.batchSlug ??
+        ""
+      ).trim();
+      if (!batchSlug) continue;
+      const prefixedKey = `${batchSlug}:`;
+      const attemptKey = String(
+        sourceAttempt?.attemptKey ??
+        (storedKey.startsWith(prefixedKey) ? storedKey.slice(prefixedKey.length) : storedKey)
+      ).trim();
+      if (!attemptKey) continue;
+      const canonicalKey = `${batchSlug}:${attemptKey}`;
+      const candidate = {
+        ...sourceAttempt,
+        attemptKey,
+        batchSlug
+      };
+      const previous = attempts.get(canonicalKey);
+      const candidateCheckedAt = Date.parse(candidate.checkedAt ?? "") || 0;
+      const previousCheckedAt = Date.parse(previous?.checkedAt ?? "") || 0;
+      if (
+        !previous ||
+        candidateCheckedAt >= previousCheckedAt
+      ) {
+        attempts.set(canonicalKey, candidate);
+      }
+    }
+  }
+  return Object.fromEntries([...attempts.entries()].sort(([left], [right]) => left.localeCompare(right)));
 }
 
 export function mergeGithubTractionSnapshots(previous, fresh, { fetchedAt = new Date().toISOString() } = {}) {

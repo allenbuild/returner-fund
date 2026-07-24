@@ -124,15 +124,17 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
                 id={`insights-tab-${tab.key}`}
                 type="button"
                 role="tab"
-                className={activeTab === tab.key ? "active" : ""}
+                className="insights-tab-button"
                 aria-controls={`insights-panel-${tab.key}`}
                 aria-selected={activeTab === tab.key}
                 tabIndex={activeTab === tab.key ? 0 : -1}
                 onClick={() => setActiveTab(tab.key)}
                 onKeyDown={(event) => handleTabKeyDown(event, tab.key)}
               >
-                <Icon size={16} aria-hidden="true" />
-                <span className="tab-label">{tab.label}</span>
+                <span className="insights-tab-button-content">
+                  <Icon size={16} aria-hidden="true" />
+                  <span className="tab-label">{tab.label}</span>
+                </span>
               </button>
             );
           })}

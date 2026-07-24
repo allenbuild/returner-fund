@@ -8,6 +8,7 @@ import {
   AUTONOMOUS_BATCHES,
   AUTONOMOUS_PLATFORMS,
   AUTONOMOUS_PROCESS_BUDGETS,
+  autonomousMappedTerminalFailureBudget,
   autonomousCollectorRetryableFailures,
   buildAutonomousTaskPlan,
   classifyAutonomousCollectorTaskOutcome,
@@ -18,6 +19,7 @@ import {
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
   normalizeAutonomousFailureEntityId,
+  prioritizeAutonomousCompaniesByCoverage,
   summarizeAutonomousCollectorTerminalTaskCoverage,
   summarizeTaskCoverage,
   validateAutonomousCatalogRoster,
@@ -31,7 +33,66 @@ import { readRequiredCanonicalJson } from "../scripts/lib/canonical-json.mjs";
 
 const repositoryRoot = process.cwd();
 
+describe("autonomous runner resume contract", () => {
+  it("reuses the existing Top Voice receipt when snapshot resume is requested", async () => {
+    const source = await readFile(
+      join(repositoryRoot, "scripts/run-autonomous-ingestion.mjs"),
+      "utf8"
+    );
+
+    assert.match(
+      source,
+      /await Promise\.all\(\[\s*runCollectors\(\),\s*args\.resumeSnapshots\s*\?\s*readJson\(topVoiceOutput,\s*null\)\s*:\s*runTopVoiceCollector\(\)\s*\]\)/
+    );
+  });
+});
+
 describe("autonomous ingestion planning against the collector catalogs", () => {
+  it("puts companies with zero and low owner evidence first and rotates equal gaps by run", () => {
+    const companies = [
+      {
+        sourceKey: "company-covered",
+        founders: [{ sourceKey: "founder-covered" }]
+      },
+      {
+        sourceKey: "company-founder-gap",
+        founders: [{ sourceKey: "founder-gap" }]
+      },
+      {
+        sourceKey: "company-zero-a",
+        founders: [{ sourceKey: "founder-zero-a" }]
+      },
+      {
+        sourceKey: "company-zero-b",
+        founders: [{ sourceKey: "founder-zero-b" }]
+      }
+    ];
+    const evidence = [
+      { batchSlug: "S26", entityId: "company-covered", postedAt: "2026-07-24T01:00:00Z" },
+      { batchSlug: "S26", entityId: "founder-covered", postedAt: "2026-07-24T01:00:00Z" },
+      { batchSlug: "S26", entityId: "company-founder-gap", postedAt: "2026-07-22T01:00:00Z" }
+    ];
+    const first = prioritizeAutonomousCompaniesByCoverage(companies, evidence, {
+      batchSlug: "S26",
+      prioritySeed: "central-2026-07-24-0600"
+    });
+    assert.deepEqual(
+      first.slice(0, 2).map((company) => company.sourceKey).sort(),
+      ["company-zero-a", "company-zero-b"]
+    );
+    assert.equal(first[2].sourceKey, "company-founder-gap");
+    assert.equal(first[3].sourceKey, "company-covered");
+    const firstGapAcrossRuns = new Set(
+      Array.from({ length: 12 }, (_, index) =>
+        prioritizeAutonomousCompaniesByCoverage(companies, evidence, {
+          batchSlug: "S26",
+          prioritySeed: `central-run-${index}`
+        })[0].sourceKey
+      )
+    );
+    assert.deepEqual(firstGapAcrossRuns, new Set(["company-zero-a", "company-zero-b"]));
+  });
+
   it("fails closed when required canonical override JSON is absent or malformed", async () => {
     const directory = await mkdtemp(join(tmpdir(), "returner-required-canonical-json-"));
     const path = join(directory, "verified-social-overrides.json");
@@ -215,6 +276,40 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
       assert.deepEqual(actual, expected, `${catalog.slug} GitHub collector plan drifted from canonical mappings`);
     }
     assert.equal(githubCollectorPlan("A16ZSR006").targets.length, 28);
+  });
+
+  it("partitions every GitHub cohort into deterministic disjoint company shards", () => {
+    for (const [batchSlug, shardCount] of [
+      ["S2026", 4],
+      ["S26", 2],
+      ["A16ZSR006", 1]
+    ]) {
+      const complete = githubCollectorPlan(batchSlug);
+      const shards = Array.from({ length: shardCount }, (_, shardIndex) =>
+        githubCollectorPlan(batchSlug, [
+          `--company-shard-count=${shardCount}`,
+          `--company-shard-index=${shardIndex}`
+        ])
+      );
+      assert.ok(shards.every((shard) => shard.companyShardCount === shardCount));
+      assert.deepEqual(
+        shards.map((shard) => shard.companyShardIndex),
+        Array.from({ length: shardCount }, (_, shardIndex) => shardIndex)
+      );
+      assert.ok(shards.every((shard) => shard.totalCompanyCount === complete.companyCount));
+      assert.equal(
+        shards.reduce((total, shard) => total + shard.companyCount, 0),
+        complete.companyCount
+      );
+      const targetKey = (target) =>
+        `${target.entityType}:${target.entityId}:${target.githubUrl.toLowerCase()}`;
+      const shardedTargetKeys = shards.flatMap((shard) => shard.targets.map(targetKey));
+      assert.equal(new Set(shardedTargetKeys).size, shardedTargetKeys.length);
+      assert.deepEqual(
+        [...shardedTargetKeys].sort(),
+        complete.targets.map(targetKey).sort()
+      );
+    }
   });
 
   it("records checked-empty GitHub discovery only after fetching each owner's official profile", async () => {
@@ -446,6 +541,7 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
 
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 90 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs, 2 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.durablePersistenceHeadroomMs, 25 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.lockReleaseHeadroomMs, 2 * 60_000);
     assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeoutMs);
@@ -537,6 +633,13 @@ describe("autonomous collector and publication gates", () => {
       ),
       /Mapped collector coverage was incomplete/
     );
+  });
+
+  it("scales the bounded terminal-failure budget without accepting a broad outage", () => {
+    assert.equal(autonomousMappedTerminalFailureBudget(0), 5);
+    assert.equal(autonomousMappedTerminalFailureBudget(100), 5);
+    assert.equal(autonomousMappedTerminalFailureBudget(1_837), 92);
+    assert.equal(autonomousMappedTerminalFailureBudget(10_000), 500);
   });
 
   it("requires every planned task to exist and be terminal before publication", () => {
@@ -1027,7 +1130,73 @@ describe("autonomous collector task accounting", () => {
       platform: "reddit",
       entityType: "company",
       entityId: "company-empty"
-    }), { status: "failed", reason: "collector_returned_no_entity_attempt" });
+    }), { status: "nonterminal", reason: "collector_returned_no_entity_attempt" });
+  });
+
+  it("terminalizes only an unmapped RSS discovery task after its public collector completed", () => {
+    const completedPublicOutcomeIndex = indexAutonomousCollectorTaskOutcomes({
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: {}
+    }, {
+      kind: "public",
+      batchSlug: "S26",
+      explicitTerminalOnly: true
+    });
+    const rssTask = {
+      platform: "rss",
+      entityType: "company",
+      entityId: "company-no-feed",
+      accountUrl: null
+    };
+
+    assert.deepEqual(
+      classifyAutonomousCollectorTaskOutcome(completedPublicOutcomeIndex, rssTask),
+      {
+        status: "blocked_or_empty",
+        reason: "collector_checked_no_rss_feed"
+      }
+    );
+    assert.deepEqual(
+      classifyAutonomousCollectorTaskOutcome(null, rssTask),
+      {
+        status: "nonterminal",
+        reason: "collector_returned_no_entity_attempt"
+      }
+    );
+    assert.deepEqual(
+      classifyAutonomousCollectorTaskOutcome(completedPublicOutcomeIndex, {
+        ...rssTask,
+        platform: "web"
+      }),
+      {
+        status: "nonterminal",
+        reason: "collector_returned_no_entity_attempt"
+      }
+    );
+
+    const coverage = summarizeAutonomousCollectorTerminalTaskCoverage({
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: {}
+    }, {
+      kind: "public",
+      batchSlug: "S26",
+      tasks: [{
+        batchSlug: "S26",
+        status: "queued",
+        platform: "rss",
+        entityType: "company",
+        entitySourceKey: "company-no-feed",
+        account: null
+      }]
+    });
+    assert.equal(coverage.expected, 1);
+    assert.equal(coverage.terminal, 1);
+    assert.equal(coverage.nonTerminal, 0);
+    assert.equal(coverage.byStatus.blocked_or_empty, 1);
   });
 
   it("prefers validated evidence over review and failure rows for the same task", () => {
@@ -1124,11 +1293,14 @@ describe("autonomous collector task accounting", () => {
       entityType: "founder",
       entityId: "a16z-speedrun-006-acceler8-founder-trisha-pathak"
     }), { status: "failed", reason: "collector_reported_failure" });
-    assert.equal(classifyAutonomousCollectorTaskOutcome(index, {
+    assert.deepEqual(classifyAutonomousCollectorTaskOutcome(index, {
       platform: "github",
       entityType: "company",
       entityId: "a16z-speedrun-006-no-account"
-    }).status, "failed");
+    }), {
+      status: "blocked_or_empty",
+      reason: "collector_checked_no_github_mapping"
+    });
     assert.deepEqual(classifyAutonomousCollectorTaskOutcome(null, {
       platform: "github",
       entityType: "company",
@@ -1227,6 +1399,105 @@ describe("autonomous collector failure identities", () => {
 });
 
 describe("autonomous public evidence merge", () => {
+  it("persists batch-scoped terminal attempt receipts so later slots can resume", () => {
+    const merged = mergePublicEvidenceSnapshots([
+      {
+        source: { batchSlug: "S2026" },
+        attempts: {
+          "x:company:company-example:https://x.com/example": {
+            status: "done",
+            checkedAt: "2026-07-24T06:00:00.000Z",
+            batchSlug: "S2026",
+            platform: "x",
+            entityType: "company",
+            entityId: "company-example",
+            outcomeStatus: "completed",
+            outcomeReason: "collector_verified_native_evidence"
+          }
+        },
+        evidence: [],
+        needsReview: [],
+        failures: []
+      },
+      {
+        source: { batchSlug: "S26" },
+        attempts: {
+          "x:company:company-example:https://x.com/example": {
+            status: "done",
+            checkedAt: "2026-07-24T18:00:00.000Z",
+            batchSlug: "S26",
+            platform: "x",
+            entityType: "company",
+            entityId: "company-example",
+            outcomeStatus: "blocked_or_empty",
+            outcomeReason: "collector_checked_blocked_or_empty"
+          }
+        },
+        evidence: [],
+        needsReview: [],
+        failures: []
+      }
+    ], { fetchedAt: "2026-07-24T18:01:00.000Z" });
+
+    assert.equal(Object.keys(merged.attempts).length, 2);
+    assert.equal(merged.source.attemptCount, 2);
+    assert.equal(
+      merged.attempts["S2026:x:company:company-example:https://x.com/example"].attemptKey,
+      "x:company:company-example:https://x.com/example"
+    );
+    assert.equal(
+      merged.attempts["S26:x:company:company-example:https://x.com/example"].batchSlug,
+      "S26"
+    );
+  });
+
+  it("replaces a malformed legacy attempt timestamp with a valid fresh shard receipt", () => {
+    const attemptKey = "x:company:company-example:https://x.com/example";
+    const merged = mergePublicEvidenceSnapshots([
+      {
+        source: { batchSlug: "S26" },
+        attempts: {
+          [attemptKey]: {
+            status: "done",
+            checkedAt: "not-a-date",
+            batchSlug: "S26",
+            platform: "x",
+            entityType: "company",
+            entityId: "company-example",
+            outcomeStatus: "blocked_or_empty",
+            outcomeReason: "legacy"
+          }
+        },
+        evidence: [],
+        needsReview: [],
+        failures: []
+      },
+      {
+        source: { batchSlug: "S26" },
+        attempts: {
+          [attemptKey]: {
+            status: "done",
+            checkedAt: "2026-07-24T18:00:00.000Z",
+            batchSlug: "S26",
+            platform: "x",
+            entityType: "company",
+            entityId: "company-example",
+            outcomeStatus: "completed",
+            outcomeReason: "fresh_shard_receipt"
+          }
+        },
+        evidence: [],
+        needsReview: [],
+        failures: []
+      }
+    ]);
+
+    assert.equal(
+      merged.attempts[`S26:${attemptKey}`].outcomeReason,
+      "fresh_shard_receipt"
+    );
+  });
+
   it("retains a native multi-company post once for each distinct entity attribution", () => {
     const sourceUrl = "https://www.linkedin.com/posts/test_activity-7999999999999999999-fixture";
     const merged = mergePublicEvidenceSnapshots([
@@ -1713,10 +1984,10 @@ describe("autonomous GitHub evidence merge", () => {
   });
 });
 
-function githubCollectorPlan(batchSlug) {
+function githubCollectorPlan(batchSlug, extraArgs = []) {
   return JSON.parse(execFileSync(
     process.execPath,
-    ["scripts/fetch-github-traction.mjs", `--batch=${batchSlug}`, "--plan"],
+    ["scripts/fetch-github-traction.mjs", `--batch=${batchSlug}`, "--plan", ...extraArgs],
     { cwd: repositoryRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }
   ));
 }

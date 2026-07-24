@@ -210,6 +210,7 @@ export async function GET(request: Request) {
   let insiderMembers: ReturnType<typeof effectiveInsiderMembers> | undefined;
   let insiderConfigurationVersion: number | null = null;
   let insiderConfigurationCacheKey = "built-in";
+  let hasPersonalizedInsiderConfiguration = false;
   if (query.topVoices === "insiders") {
     const authenticated = await authenticateInsiderRequest(request);
     if (authenticated) {
@@ -218,6 +219,7 @@ export async function GET(request: Request) {
         insiderMembers = effectiveInsiderMembers(configuration);
         insiderConfigurationVersion = configuration.version;
         insiderConfigurationCacheKey = `${authenticated.userId}:${configuration.version}`;
+        hasPersonalizedInsiderConfiguration = true;
       } catch (error) {
         console.error("Personalized Insiders configuration load failed", error);
         return NextResponse.json(
@@ -314,6 +316,14 @@ export async function GET(request: Request) {
               canonicalGraph
             );
             if (filters.topVoices !== "insiders") return inherited;
+            // The unauthenticated, unfiltered Insiders graph is a canonical
+            // audience slice used by the static daily benchmark publisher. It
+            // must keep the all-platform company scores it inherited above.
+            // Personalized configurations and explicit member selections are
+            // scenarios, so those are dynamically rescored.
+            if (!hasPersonalizedInsiderConfiguration && selectedInsiderIds.length === 0) {
+              return inherited;
+            }
             return applyInsiderScenarioScoring({
               ...inherited,
               insiderFilterOptions: (insiderMembers ?? []).map((member) => ({

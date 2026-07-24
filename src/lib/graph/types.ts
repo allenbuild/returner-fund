@@ -368,6 +368,7 @@ export interface MomentumDelta {
 
 export interface NeedsReviewItem {
   id: string;
+  batchSlug?: string;
   entityType: EntityType;
   entityId: string;
   entityName: string;

@@ -100,6 +100,34 @@ describe("cohort-wide structural coverage audit", () => {
     assert.equal(fail.batches[0].structural.unattemptedOwnerMappings[0].entityType, "founder");
   });
 
+  it("recognizes batch-scoped runner attempts from their receipt metadata", () => {
+    const fixture = syntheticCohort();
+    fixture.runOutputs.public.attempts = Object.fromEntries(
+      fixture.catalog.mappings.map((mapping) => [
+        [
+          mapping.batchSlug,
+          mapping.platform,
+          mapping.entityType,
+          mapping.entityId,
+          mapping.originalUrl
+        ].join(":"),
+        {
+          status: "done",
+          batchSlug: mapping.batchSlug,
+          platform: mapping.platform,
+          entityType: mapping.entityType,
+          entityId: mapping.entityId,
+          accountUrl: mapping.originalUrl,
+          outcomeStatus: "blocked_or_empty"
+        }
+      ])
+    );
+
+    const report = auditCoverageInputs([fixture], { runOutputsProvided: true });
+    assert.equal(report.status, "pass");
+    assert.equal(report.batches[0].structural.unattemptedOwnerMappings.length, 0);
+  });
+
   it("requires a distinct run attempt for every same-owner canonical URL", () => {
     const fixture = multiAccountCohort();
     const report = auditCoverageInputs([fixture], { runOutputsProvided: true });

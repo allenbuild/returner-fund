@@ -11,17 +11,26 @@ export interface AuthenticatedRequest {
   userId: string;
 }
 
+/**
+ * Creates a token-bound client for security-invoker RPCs. The database remains
+ * the authority: PostgREST verifies the bearer token and the function uses
+ * auth.uid() plus RLS before it can write any user configuration.
+ */
+export function createInsiderRlsClient(request: Request): AppSupabaseClient | null {
+  const accessToken = accessTokenFromRequest(request);
+  return accessToken ? createServerSupabaseClient({ accessToken }) : null;
+}
+
 export async function authenticateInsiderRequest(request: Request): Promise<AuthenticatedRequest | null> {
-  const authorization = request.headers.get("authorization")?.trim() ?? "";
-  const match = /^Bearer\s+(.+)$/i.exec(authorization);
-  const accessToken = match?.[1]?.trim();
+  const accessToken = accessTokenFromRequest(request);
   if (!accessToken) return null;
 
   const client = createServerSupabaseClient({ accessToken });
   if (!client) return null;
-  const { data, error } = await client.auth.getUser(accessToken);
-  if (error || !data.user) return null;
-  return { client, userId: data.user.id };
+  const { data, error } = await client.auth.getClaims(accessToken);
+  const userId = data?.claims.sub;
+  if (error || !userId) return null;
+  return { client, userId };
 }
 
 export async function loadUserInsiderConfiguration(
@@ -42,4 +51,10 @@ export async function loadUserInsiderConfiguration(
 
 function isMissingConfigurationTable(error: { code?: string | null; message?: string | null }): boolean {
   return error.code === "42P01" || /user_insider_configurations.*does not exist/i.test(error.message ?? "");
+}
+
+function accessTokenFromRequest(request: Request): string | null {
+  const authorization = request.headers.get("authorization")?.trim() ?? "";
+  const match = /^Bearer\s+(.+)$/i.exec(authorization);
+  return match?.[1]?.trim() || null;
 }

@@ -610,8 +610,25 @@ function mappingWasAttempted(mapping, runOutputs) {
     });
   }
 
-  const attempts = Object.keys(runOutputs?.public?.attempts ?? {});
-  return attempts.some((key) => attemptKeyMatchesMapping(key, mapping));
+  const attempts = Object.entries(runOutputs?.public?.attempts ?? {});
+  return attempts.some(([key, attempt]) =>
+    attemptMetadataMatchesMapping(attempt, mapping) ||
+    attemptKeyMatchesMapping(key, mapping)
+  );
+}
+
+function attemptMetadataMatchesMapping(attempt, mapping) {
+  if (!attempt || typeof attempt !== "object") return false;
+  const platform = normalizePlatform(attempt.platform);
+  const canonicalUrl = canonicalAccountUrl(platform, attempt.accountUrl);
+  if (!platform || !canonicalUrl) return false;
+  const ownerCandidates = ownerReferenceCandidates(attempt.entityId, attempt.entityType);
+  const expectedOwnerCandidates = new Set(mapping.ownerReferenceCandidates);
+  return (!attempt.batchSlug || attempt.batchSlug === mapping.batchSlug) &&
+    platform === mapping.platform &&
+    attempt.entityType === mapping.entityType &&
+    ownerCandidates.some((candidate) => expectedOwnerCandidates.has(candidate)) &&
+    canonicalUrl === mapping.canonicalUrl;
 }
 
 function attemptKeyMatchesMapping(key, mapping) {
@@ -622,7 +639,9 @@ function attemptKeyMatchesMapping(key, mapping) {
   if (prefixParts[0] === mapping.platform && prefixParts[1] === mapping.entityType) {
     entityToken = prefixParts.slice(2).join(":");
   } else if (prefixParts[0] === mapping.batchSlug && prefixParts[1] === mapping.platform) {
-    entityToken = prefixParts.slice(2).join(":");
+    entityToken = prefixParts[2] === mapping.entityType
+      ? prefixParts.slice(3).join(":")
+      : prefixParts.slice(2).join(":");
   } else {
     return false;
   }

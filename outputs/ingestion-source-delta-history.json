@@ -427,5 +427,106 @@
         "postedAt": null
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "source-sweep-2026-07-24T11-14-03-369Z-sweep-001",
+    "centralDay": null,
+    "observedAt": "2026-07-24T16:32:52.859Z",
+    "baselinePhysicalSources": 4201,
+    "publishedPhysicalSources": 4208,
+    "newPhysicalSources": 7,
+    "newPhysicalSourcesThisAttempt": 7,
+    "retainedPhysicalSources": 4201,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 7,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_failures:42",
+      "mapped_success_rate_below_10_percent:0.0087"
+    ],
+    "mappedExpected": 1837,
+    "mappedSucceeded": 16,
+    "mappedNeedsReview": 1771,
+    "mappedBlockedOrEmpty": 8,
+    "mappedFailures": 42,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0087,
+    "newestNewSourcePostedAt": "2026-07-23T13:15:51-07:00",
+    "insertedByBatchPlatform": {
+      "S2026:youtube": 1,
+      "S26:x": 1,
+      "S26:youtube": 5
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-onecli",
+        "sourceUrl": "https://youtube.com/watch?v=5e5pbPEzZfY",
+        "platformPostId": "5e5pbPEzZfY",
+        "postedAt": "2026-07-23T01:04:16-07:00"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-provenmetal",
+        "sourceUrl": "https://youtube.com/watch?v=TH0XImuvNbc",
+        "platformPostId": "TH0XImuvNbc",
+        "postedAt": "2026-07-12T11:48:56-07:00"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-robocurve",
+        "sourceUrl": "https://youtube.com/watch?v=E6iuSGE2MVE",
+        "platformPostId": "E6iuSGE2MVE",
+        "postedAt": "2026-07-22T23:53:29-07:00"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-nebula-security",
+        "sourceUrl": "https://youtube.com/watch?v=gOzg5M5DhXI",
+        "platformPostId": "gOzg5M5DhXI",
+        "postedAt": "2026-07-22T22:08:35-07:00"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-daqstra",
+        "sourceUrl": "https://youtube.com/watch?v=ykvD67omalI",
+        "platformPostId": "ykvD67omalI",
+        "postedAt": "2026-07-23T13:15:51-07:00"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-foresight",
+        "sourceUrl": "https://youtube.com/watch?v=wRdpxXuWvWg",
+        "platformPostId": "wRdpxXuWvWg",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-onecli",
+        "sourceUrl": "https://x.com/bradflora/status/2080356091746197598",
+        "platformPostId": "2080356091746197598",
+        "postedAt": "2026-07-23T18:15:18.000Z"
+      }
+    ]
   }
 ]

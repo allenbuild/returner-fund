@@ -4,7 +4,7 @@ const SECRET_KEY_PATTERN =
 const SECRET_VALUE_PATTERNS = [
   /gh[pousr]_[A-Za-z0-9_]{20,}/,
   /github_pat_[A-Za-z0-9_]{20,}/,
-  /sk-[A-Za-z0-9_-]{20,}/,
+  /(?:^|[^A-Za-z0-9])sk-[A-Za-z0-9_-]{20,}/,
   /xox[baprs]-[A-Za-z0-9-]{20,}/,
   /AKIA[0-9A-Z]{16}/,
   /(?:^|\s)Bearer\s+[A-Za-z0-9._-]{12,}/i,

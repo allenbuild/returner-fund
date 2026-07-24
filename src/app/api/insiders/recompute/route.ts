@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { clearTopVoiceRollupCache } from "@/lib/graph/graph-builder";
 import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
 import {
   authenticateInsiderRequest,
@@ -23,7 +22,9 @@ export async function POST(request: Request) {
       authenticated.client,
       authenticated.userId
     );
-    clearTopVoiceRollupCache();
+    // Rollups are content-addressed by the full member/weight signature.
+    // Invalidating only the response layer forces a fresh response without
+    // paying the cost of importing all graph datasets on this request.
     clearGraphResponseCache();
     return json({
       status: "recomputed",

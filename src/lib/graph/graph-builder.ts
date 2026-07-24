@@ -198,6 +198,7 @@ export function buildGraphResponse(
         selectedPlatforms
       }),
       ...(dataset.needsReview ?? []).filter((item) =>
+        (!item.batchSlug || item.batchSlug.toUpperCase() === batch.slug.toUpperCase()) &&
         platformSelected(item.platform, selectedPlatforms) &&
         (item.entityType === "company" ? visibleCompanyIds.has(item.entityId) : visibleFounderIds.has(item.entityId))
       )

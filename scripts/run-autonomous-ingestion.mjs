@@ -5,8 +5,8 @@ import { appendFile, mkdir, readFile, rename, stat, writeFile } from "node:fs/pr
 import { dirname, join } from "node:path";
 import {
   AUTONOMOUS_BATCHES,
-  AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET,
   AUTONOMOUS_PROCESS_BUDGETS,
+  autonomousMappedTerminalFailureBudget,
   autonomousCollectorRetryableFailures,
   buildAutonomousPublicNativeAuthorResolver,
   buildCanonicalTargetedAttributionResolver,
@@ -57,6 +57,16 @@ const publishedCohortAuditPath = join(root, "outputs", "cohort-coverage-current.
 const publishedSourceDeltaPath = join(root, "outputs", "ingestion-source-delta-current.json");
 const publishedSourceDeltaHistoryPath = join(root, "outputs", "ingestion-source-delta-history.json");
 const topVoiceOutput = join(workRoot, "top-voice-refresh.json");
+const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
+  S2026: 4,
+  S26: 2,
+  A16ZSR006: 1
+});
+const GITHUB_COLLECTOR_SHARDS = Object.freeze({
+  S2026: 4,
+  S26: 2,
+  A16ZSR006: 1
+});
 
 if (!idempotencyKey) {
   throw new Error("--idempotency-key or INGESTION_IDEMPOTENCY_KEY is required.");
@@ -168,7 +178,12 @@ try {
 
     const [collectionResults, topVoiceRefresh] = args.skipNetwork
       ? [[], null]
-      : await Promise.all([runCollectors(), runTopVoiceCollector()]);
+      : await Promise.all([
+          runCollectors(),
+          args.resumeSnapshots
+            ? readJson(topVoiceOutput, null)
+            : runTopVoiceCollector()
+        ]);
     assertLeaseHealthy();
     if (!args.skipNetwork) validateAutonomousCollectorMatrix(collectionResults);
     if (args.skipNetwork && run) {
@@ -204,12 +219,15 @@ try {
       collectionResults,
       { skipNetwork: args.skipNetwork }
     );
+    const terminalFailureBudget = autonomousMappedTerminalFailureBudget(
+      collectionCoverage.mappedExpected
+    );
     assertSuccessfulCollection(collectionResults, collectionCoverage);
-    await recordCollectionCoverage(collectionCoverage);
+    await recordCollectionCoverage(collectionCoverage, terminalFailureBudget);
     validateMappedAutonomousCoverage(collectionCoverage, {
       maxTerminalFailures: args.skipPublish
         ? Number.POSITIVE_INFINITY
-        : AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET
+        : terminalFailureBudget
     });
     assertSuccessfulTopVoiceRefresh(topVoiceRefresh);
     const publicationRunId = run?.id ?? `file:${idempotencyKey}`;
@@ -1134,29 +1152,29 @@ function withSnapshotBatchProvenance(snapshot) {
 async function runCollectors() {
   await prepareBatchDiscoveryState();
   await event("collection.started", "info", "Public collectors started in parallel.", {});
+  const githubSearchArg = process.env.GITHUB_TOKEN?.trim() ? "--search" : "--no-search";
   const commands = [
     ...AUTONOMOUS_BATCHES.map(({ slug: batchSlug }) => ({
       kind: "public",
       batchSlug,
       outputPath: publicOutputs.get(batchSlug),
-      run: () => runCommand(
-        process.execPath,
-        [
+      run: () => runShardedPublicCollector({
+        batchSlug,
+        outputPath: publicOutputs.get(batchSlug),
+        shardCount: PUBLIC_COLLECTOR_SHARDS[batchSlug] ?? 1,
+        baseArgs: [
           "scripts/fetch-public-traction.mjs",
           `--batch=${batchSlug}`,
           "--social=all",
           "--discover-missing-social",
           "--workers=16",
+          "--x-workers=4",
           "--linkedin-workers=4",
           "--instagram-workers=8",
           "--fresh-for-hours=11",
-          `--output=${publicOutputs.get(batchSlug)}`,
-          `--checkpoint=${join(workRoot, `checkpoint-public-${batchSlug.toLowerCase()}.json`)}`,
-          `--discovery-attempts=${discoveryAttemptOutputs.get(batchSlug)}`,
-          `--source-discovery-paths=${sourceDiscoveryPathOutputs.get(batchSlug)}`
-        ],
-        { timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, label: `public ${batchSlug}` }
-      )
+          `--priority-seed=${idempotencyKey}`
+        ]
+      })
     })),
     ...AUTONOMOUS_BATCHES.map((batch) => {
       const companyCount = catalogs.find((catalog) => catalog.slug === batch.slug)?.companies.length;
@@ -1166,9 +1184,12 @@ async function runCollectors() {
         batchSlug: batch.slug,
         outputPath: githubOutputs.get(batch.slug),
         expectedSourcePath: batch.githubSourcePath,
-        run: () => runCommand(
-          process.execPath,
-          [
+        run: () => runShardedGithubCollector({
+          batchSlug: batch.slug,
+          outputPath: githubOutputs.get(batch.slug),
+          shardCount: GITHUB_COLLECTOR_SHARDS[batch.slug] ?? 1,
+          totalCompanyCount: companyCount,
+          baseArgs: [
             "scripts/fetch-github-traction.mjs",
             `--batch=${batch.slug}`,
             // Official-page and mapped-account fetches are ordinary GitHub/web
@@ -1178,15 +1199,9 @@ async function runCollectors() {
             "--workers=16",
             "--search-workers=1",
             "--website",
-            "--search",
-            // GitHub fallback issues at most two review-only queries per
-            // company. Budget the complete cohort instead of silently
-            // truncating discovery after an arbitrary global prefix.
-            `--max-searches=${companyCount * 2}`,
-            `--output=${githubOutputs.get(batch.slug)}`
-          ],
-          { timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.githubCollectorAttemptMs, label: `github ${batch.slug}` }
-        )
+            githubSearchArg
+          ]
+        })
       };
     })
   ];
@@ -1222,6 +1237,281 @@ async function runCollectors() {
   }
   await event("collection.finished", "info", "Public collector processes reached terminal states.", { results });
   return results;
+}
+
+async function runShardedPublicCollector({
+  batchSlug,
+  outputPath,
+  shardCount,
+  baseArgs
+}) {
+  const batchKey = batchSlug.toLowerCase();
+  const shards = Array.from({ length: shardCount }, (_, shardIndex) => {
+    const suffix = `shard-${shardIndex}-of-${shardCount}`;
+    return {
+      shardIndex,
+      outputPath: join(workRoot, `public-${batchKey}-${suffix}.json`),
+      checkpointPath: join(workRoot, `checkpoint-public-${batchKey}-${suffix}.json`),
+      discoveryAttemptsPath: join(workRoot, `discovery-attempts-${batchKey}-${suffix}.json`),
+      sourceDiscoveryPathsPath: join(workRoot, `source-discovery-paths-${batchKey}-${suffix}.json`)
+    };
+  });
+  // The batch-level ledgers were seeded from the canonical publication by
+  // prepareBatchDiscoveryState(). Give each new shard that same learned state
+  // without overwriting a shard's newer retry/resume ledger.
+  const [batchDiscoveryAttempts, batchSourceDiscoveryPaths] = await Promise.all([
+    readJson(discoveryAttemptOutputs.get(batchSlug), []),
+    readJson(sourceDiscoveryPathOutputs.get(batchSlug), [])
+  ]);
+  await Promise.all(shards.flatMap((shard) => [
+    seedShardLedger(shard.discoveryAttemptsPath, batchDiscoveryAttempts),
+    seedShardLedger(shard.sourceDiscoveryPathsPath, batchSourceDiscoveryPaths)
+  ]));
+  // Wait for every shard to stop before retrying the cohort. Promise.all()
+  // rejects as soon as one shard fails, which can leave sibling collectors
+  // writing the same checkpoint paths while the retry starts.
+  const shardResults = await Promise.allSettled(shards.map((shard) =>
+    runPublicCollectorWithCheckpointRecovery({
+      batchSlug,
+      outputPath: shard.outputPath,
+      checkpointPath: shard.checkpointPath,
+      args: [
+        ...baseArgs,
+        `--company-shard-count=${shardCount}`,
+        `--company-shard-index=${shard.shardIndex}`,
+        `--output=${shard.outputPath}`,
+        `--checkpoint=${shard.checkpointPath}`,
+        `--discovery-attempts=${shard.discoveryAttemptsPath}`,
+        `--source-discovery-paths=${shard.sourceDiscoveryPathsPath}`
+      ]
+    })
+  ));
+  const shardFailures = shardResults.flatMap((result, shardIndex) =>
+    result.status === "rejected"
+      ? [`shard ${shardIndex + 1}/${shardCount}: ${errorMessage(result.reason)}`]
+      : []
+  );
+  if (shardFailures.length > 0) {
+    throw new Error(
+      `public ${batchSlug} shard collection failed after every sibling stopped: ${shardFailures.join("; ")}`
+    );
+  }
+  const snapshots = await Promise.all(
+    shards.map((shard) => readJson(shard.outputPath, null))
+  );
+  if (snapshots.some((snapshot) => !snapshot)) {
+    throw new Error(`public ${batchSlug} did not write every shard snapshot.`);
+  }
+  const merged = mergePublicEvidenceSnapshots(snapshots, {
+    fetchedAt: new Date().toISOString(),
+    durableStorageConfigured
+  });
+  merged.source = {
+    ...merged.source,
+    // mergePublicEvidenceSnapshots() intentionally labels canonical/publication
+    // snapshots as a merged export. This file is still the batch collector's
+    // validated output, however, and runCollectorWithRetries() re-reads it
+    // through the collector snapshot contract. Preserve that contract here so
+    // successful sharded public rows are not incorrectly discarded as though
+    // every collector had failed.
+    label: "Public unauthenticated platform/page ingestion",
+    batchSlug,
+    shardCount
+  };
+  await Promise.all([
+    writeJsonAtomic(outputPath, merged),
+    writeJsonAtomic(discoveryAttemptOutputs.get(batchSlug), merged.discoveryAttempts ?? []),
+    writeJsonAtomic(sourceDiscoveryPathOutputs.get(batchSlug), merged.sourceDiscoveryPaths ?? [])
+  ]);
+}
+
+async function seedShardLedger(path, canonicalRows) {
+  const existing = await readJson(path, null);
+  if (Array.isArray(existing)) return;
+  await writeJsonAtomic(path, Array.isArray(canonicalRows) ? canonicalRows : []);
+}
+
+async function runShardedGithubCollector({
+  batchSlug,
+  outputPath,
+  shardCount,
+  totalCompanyCount,
+  baseArgs
+}) {
+  const batchKey = batchSlug.toLowerCase();
+  const shards = Array.from({ length: shardCount }, (_, shardIndex) => ({
+    shardIndex,
+    searchBudget: githubShardSearchBudget(totalCompanyCount, shardCount, shardIndex),
+    outputPath: join(
+      workRoot,
+      `github-${batchKey}-shard-${shardIndex}-of-${shardCount}.json`
+    )
+  }));
+  // The GitHub search lane remains bounded to one worker per shard. Sharding
+  // makes full-cohort discovery finish inside the process budget while every
+  // output stays isolated, so a timed-out process can never clobber a sibling.
+  // Wait for every sibling to stop before a retry begins.
+  const shardResults = await Promise.allSettled(shards.map((shard) =>
+    runCommand(
+      process.execPath,
+      [
+        ...baseArgs,
+        `--company-shard-count=${shardCount}`,
+        `--company-shard-index=${shard.shardIndex}`,
+        `--max-searches=${shard.searchBudget}`,
+        `--output=${shard.outputPath}`
+      ],
+      {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.githubCollectorAttemptMs,
+        label: `github ${batchSlug} shard ${shard.shardIndex + 1}/${shardCount}`
+      }
+    )
+  ));
+  const shardFailures = shardResults.flatMap((result, shardIndex) =>
+    result.status === "rejected"
+      ? [`shard ${shardIndex + 1}/${shardCount}: ${errorMessage(result.reason)}`]
+      : []
+  );
+  if (shardFailures.length > 0) {
+    throw new Error(
+      `github ${batchSlug} shard collection failed after every sibling stopped: ${shardFailures.join("; ")}`
+    );
+  }
+  const snapshots = await Promise.all(
+    shards.map((shard) => readJson(shard.outputPath, null))
+  );
+  if (snapshots.some((snapshot) => !snapshot)) {
+    throw new Error(`github ${batchSlug} did not write every shard snapshot.`);
+  }
+  await writeJsonAtomic(
+    outputPath,
+    mergeGithubCollectorShards(snapshots, {
+      batchSlug,
+      shardCount,
+      fetchedAt: new Date().toISOString()
+    })
+  );
+}
+
+function githubShardSearchBudget(totalCompanyCount, shardCount, shardIndex) {
+  if (shardIndex >= totalCompanyCount) return 0;
+  const shardCompanyCount = Math.floor(
+    (totalCompanyCount - 1 - shardIndex) / shardCount
+  ) + 1;
+  // GitHub fallback issues at most two review-only queries per company.
+  // Allocate the cohort-wide budget across disjoint shards so sharding
+  // reduces wall time without multiplying search API traffic.
+  return shardCompanyCount * 2;
+}
+
+function mergeGithubCollectorShards(
+  snapshots,
+  { batchSlug, shardCount, fetchedAt }
+) {
+  const mergedAccounts = snapshots.reduce(
+    (merged, snapshot) => mergeGithubTractionSnapshots(merged, snapshot, { fetchedAt }),
+    null
+  );
+  const firstSource = snapshots[0]?.source ?? {};
+  const dedupeRows = (rows, keyForRow) => [
+    ...new Map(rows.map((row) => [keyForRow(row), row])).values()
+  ];
+  const sourceChecks = dedupeRows(
+    snapshots.flatMap((snapshot) => snapshot?.source?.discovery?.sourceChecks ?? []),
+    (row) => JSON.stringify([
+      row.entityType,
+      row.entityId,
+      row.sourceKind,
+      row.sourceUrl
+    ])
+  );
+  const searchFailures = dedupeRows(
+    snapshots.flatMap((snapshot) => snapshot?.source?.discovery?.searchFailures ?? []),
+    (row) => JSON.stringify([row.company, row.query, row.error ?? row.message])
+  );
+  const activeAccountMappings = dedupeRows(
+    snapshots.flatMap((snapshot) => snapshot?.source?.activeAccountMappings ?? []),
+    (row) => JSON.stringify([row.entityType, row.entityId, row.url])
+  );
+  const retiredAccountMappings = dedupeRows(
+    snapshots.flatMap((snapshot) => snapshot?.source?.retiredAccountMappings ?? []),
+    (row) => JSON.stringify([row.entityType, row.entityId, row.url])
+  );
+  const notes = [...new Set(
+    snapshots.flatMap((snapshot) => snapshot?.source?.notes ?? [])
+  )];
+  const sumSource = (key) => snapshots.reduce(
+    (total, snapshot) => total + Number(snapshot?.source?.[key] ?? 0),
+    0
+  );
+  const sumDiscovery = (key) => snapshots.reduce(
+    (total, snapshot) => total + Number(snapshot?.source?.discovery?.[key] ?? 0),
+    0
+  );
+  return {
+    ...mergedAccounts,
+    source: {
+      ...firstSource,
+      fetchedAt,
+      batchSlug,
+      companyCount: sumSource("companyCount"),
+      totalCompanyCount: Math.max(
+        ...snapshots.map((snapshot) => Number(snapshot?.source?.totalCompanyCount ?? 0))
+      ),
+      companyShardCount: shardCount,
+      targetCount: sumSource("targetCount"),
+      fetchedCount: sumSource("fetchedCount"),
+      activeAccountMappings,
+      retiredAccountMappings,
+      discovery: {
+        explicitTargetCount: sumDiscovery("explicitTargetCount"),
+        discoveredTargetCount: sumDiscovery("discoveredTargetCount"),
+        websiteTargets: sumDiscovery("websiteTargets"),
+        profileTargets: sumDiscovery("profileTargets"),
+        officialSourceChecks: sourceChecks.length,
+        sourceChecks,
+        searchTargets: sumDiscovery("searchTargets"),
+        searchConcurrency: snapshots.reduce(
+          (total, snapshot) =>
+            total + Number(snapshot?.source?.discovery?.searchConcurrency ?? 0),
+          0
+        ),
+        searchesUsed: sumDiscovery("searchesUsed"),
+        searchFailures
+      },
+      notes
+    },
+    attempts: Object.assign(
+      {},
+      ...snapshots.map((snapshot) => snapshot?.attempts ?? {})
+    )
+  };
+}
+
+async function runPublicCollectorWithCheckpointRecovery({
+  batchSlug,
+  outputPath,
+  checkpointPath,
+  args
+}) {
+  try {
+    return await runCommand(process.execPath, args, {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs,
+      label: `public ${batchSlug}`
+    });
+  } catch (error) {
+    if (!/timed out after/i.test(errorMessage(error))) throw error;
+    await event(
+      "collector.timeout_checkpoint_flush",
+      "warning",
+      `public ${batchSlug} reached its process limit; flushing its durable checkpoint before coverage evaluation.`,
+      { batchSlug, outputPath, checkpointPath }
+    );
+    return runCommand(process.execPath, [...args, "--max-companies=0"], {
+      timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs,
+      label: `public ${batchSlug} checkpoint flush`
+    });
+  }
 }
 
 async function runTopVoiceCollector() {
@@ -1263,6 +1553,39 @@ async function runTopVoiceCollector() {
 }
 
 async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts) {
+  if (args.resumeSnapshots) {
+    const snapshot = await readCollectorSnapshot(command.outputPath, command.kind, {
+      batchSlug: command.batchSlug,
+      expectedSourcePath: command.expectedSourcePath
+    });
+    if (snapshot) {
+      const retryableFailures = retryableFailuresFromSnapshot(snapshot);
+      const terminalCoverage = summarizeAutonomousCollectorTerminalTaskCoverage(snapshot, {
+        kind: command.kind,
+        batchSlug: command.batchSlug,
+        tasks: plannedTasks
+      });
+      if (terminalCoverage.nonTerminal === 0) {
+        await event(
+          "collector.snapshot_resumed",
+          retryableFailures.length > 0 ? "warning" : "info",
+          `${command.kind} ${command.batchSlug} resumed its validated terminal snapshot without repeating network collection.`,
+          {
+            retryableFailures: retryableFailures.length,
+            successfulRows: successfulCollectorRowCount(snapshot, command.kind),
+            terminalCoverage
+          }
+        );
+        return {
+          attempts: 0,
+          retryableFailures: retryableFailures.length,
+          exhaustedRetryableFailures: retryableFailures.length,
+          successfulRows: successfulCollectorRowCount(snapshot, command.kind),
+          terminalCoverage
+        };
+      }
+    }
+  }
   let lastError = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     let retryReasons = [];
@@ -1388,6 +1711,7 @@ async function reconcileCollectorTasks(results, catalogState) {
           collectorError: result.error
         });
         const { status, reason } = outcome;
+        if (status === "nonterminal") continue;
         const groupKey = JSON.stringify([status, reason, result.attempts]);
         const group = updateGroups.get(groupKey) ?? { ids: [], status, reason, attempts: result.attempts };
         group.ids.push(task.id);
@@ -1612,11 +1936,13 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
     if (outcome.status === "completed") report.succeeded += 1;
     else if (outcome.status === "needs_review") report.needsReview += 1;
     else if (outcome.status === "blocked_or_empty") report.blockedOrEmpty += 1;
+    else if (outcome.status === "nonterminal") report.nonTerminal += 1;
     else report.failed += 1;
     if (task.account) {
       if (outcome.status === "completed") report.mappedSucceeded += 1;
       else if (outcome.status === "needs_review") report.mappedNeedsReview += 1;
       else if (outcome.status === "blocked_or_empty") report.mappedBlockedOrEmpty += 1;
+      else if (outcome.status === "nonterminal") report.mappedNonTerminal += 1;
       else {
         report.mappedFailed += 1;
         report.mappedFailureSamples.push({
@@ -1638,9 +1964,12 @@ async function summarizeCollectionCoverage(tasks, collectionResults, { skipNetwo
   return report;
 }
 
-async function recordCollectionCoverage(coverage) {
+async function recordCollectionCoverage(
+  coverage,
+  terminalFailureBudget = autonomousMappedTerminalFailureBudget(coverage?.mappedExpected)
+) {
   const degraded = (coverage.mappedFailed ?? 0) > 0;
-  const budgetExceeded = (coverage.mappedFailed ?? 0) > AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET;
+  const budgetExceeded = (coverage.mappedFailed ?? 0) > terminalFailureBudget;
   const summary = {
     mappedExpected: coverage.mappedExpected,
     mappedSucceeded: coverage.mappedSucceeded,
@@ -1648,7 +1977,7 @@ async function recordCollectionCoverage(coverage) {
     mappedBlockedOrEmpty: coverage.mappedBlockedOrEmpty,
     mappedFailed: coverage.mappedFailed,
     mappedNonTerminal: coverage.mappedNonTerminal,
-    terminalFailureBudget: AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET,
+    terminalFailureBudget,
     status: budgetExceeded ? "failed_budget_exceeded" : degraded ? "degraded" : "complete",
     failedTaskSamples: coverage.mappedFailureSamples
   };
@@ -1657,9 +1986,9 @@ async function recordCollectionCoverage(coverage) {
     console.warn(
       budgetExceeded
         ? `Refusing publication because ${coverage.mappedFailed} explicit terminal mapped failure(s) exceed ` +
-          `the budget of ${AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET}.`
+          `the budget of ${terminalFailureBudget}.`
         : `Publishing a degraded refresh with ${coverage.mappedFailed} explicit terminal mapped failure(s) ` +
-          `within the budget of ${AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET}.`
+          `within the budget of ${terminalFailureBudget}.`
     );
   }
   const githubSummary = cleanEnv(process.env.GITHUB_STEP_SUMMARY);
@@ -1671,7 +2000,7 @@ async function recordCollectionCoverage(coverage) {
     `- Native evidence: ${coverage.mappedSucceeded}`,
     `- Needs review: ${coverage.mappedNeedsReview}`,
     `- Blocked or empty: ${coverage.mappedBlockedOrEmpty}`,
-    `- Terminal failures: ${coverage.mappedFailed}/${AUTONOMOUS_MAPPED_TERMINAL_FAILURE_BUDGET}`,
+    `- Terminal failures: ${coverage.mappedFailed}/${terminalFailureBudget}`,
     `- Nonterminal tasks: ${coverage.mappedNonTerminal}`,
     ...(coverage.mappedFailureSamples ?? []).map((sample) =>
       `- Failed task: \`${sample.checkpointKey}\` — ${sample.reason}`
@@ -2323,6 +2652,7 @@ function parseArgs(rawArgs) {
   return {
     idempotencyKey: value("--idempotency-key"),
     plan: rawArgs.includes("--plan"),
+    resumeSnapshots: rawArgs.includes("--resume-snapshots"),
     skipNetwork: rawArgs.includes("--skip-network"),
     skipPublish: rawArgs.includes("--skip-publish")
   };

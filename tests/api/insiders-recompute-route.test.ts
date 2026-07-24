@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const authenticateInsiderRequest = vi.fn();
 const loadUserInsiderConfiguration = vi.fn();
 const clearGraphResponseCache = vi.fn();
-const clearTopVoiceRollupCache = vi.fn();
 const reportGenerator = vi.fn();
 
 vi.mock("@/lib/social/user-insiders-server", () => ({
@@ -11,7 +10,6 @@ vi.mock("@/lib/social/user-insiders-server", () => ({
   loadUserInsiderConfiguration
 }));
 vi.mock("@/lib/graph/graph-response-cache", () => ({ clearGraphResponseCache }));
-vi.mock("@/lib/graph/graph-builder", () => ({ clearTopVoiceRollupCache }));
 
 describe("POST /api/insiders/recompute", () => {
   beforeEach(() => vi.clearAllMocks());
@@ -35,7 +33,6 @@ describe("POST /api/insiders/recompute", () => {
       reportRegenerated: false
     });
     expect(clearGraphResponseCache).toHaveBeenCalledOnce();
-    expect(clearTopVoiceRollupCache).toHaveBeenCalledOnce();
     expect(reportGenerator).not.toHaveBeenCalled();
   });
 

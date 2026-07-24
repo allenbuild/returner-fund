@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-23-0600-80aa8c97dabf1ca0/checkpoint-public-a16zsr006.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-23-0600-80aa8c97dabf1ca0/github-a16zsr006.json"
+        "publicRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/public-a16zsr006.json",
+        "githubRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -23,7 +23,7 @@
         "catalogOwnerPlatformGroups": 324,
         "plannedOwnerMappings": 327,
         "multiAccountOwnerMappings": 3,
-        "graphEvidence": 391,
+        "graphEvidence": 1003,
         "graphNeedsReview": 0
       },
       "structural": {
@@ -161,11 +161,6 @@
             "companyName": null
           },
           {
-            "entityId": "a16z-speedrun-006-august",
-            "name": "August",
-            "companyName": null
-          },
-          {
             "entityId": "a16z-speedrun-006-paypath",
             "name": "PayPath",
             "companyName": null
@@ -175,11 +170,6 @@
           {
             "entityId": "a16z-speedrun-006-advocate",
             "name": "Advocate",
-            "companyName": null
-          },
-          {
-            "entityId": "a16z-speedrun-006-august",
-            "name": "August",
             "companyName": null
           },
           {
@@ -225,6 +215,11 @@
             "companyName": null
           },
           {
+            "entityId": "a16z-speedrun-006-grove-tax",
+            "name": "Grove Tax",
+            "companyName": null
+          },
+          {
             "entityId": "a16z-speedrun-006-heavi",
             "name": "Heavi",
             "companyName": null
@@ -245,18 +240,8 @@
             "companyName": null
           },
           {
-            "entityId": "a16z-speedrun-006-oasiz",
-            "name": "Oasiz",
-            "companyName": null
-          },
-          {
             "entityId": "a16z-speedrun-006-paypath",
             "name": "PayPath",
-            "companyName": null
-          },
-          {
-            "entityId": "a16z-speedrun-006-sellara",
-            "name": "Sellara",
             "companyName": null
           },
           {
@@ -275,16 +260,6 @@
             "entityId": "a16z-speedrun-006-advocate-founder-andrew-baran",
             "name": "Andrew Baran",
             "companyName": "Advocate"
-          },
-          {
-            "entityId": "a16z-speedrun-006-alike-founder-danial-hussain",
-            "name": "Danial Hussain",
-            "companyName": "Alike"
-          },
-          {
-            "entityId": "a16z-speedrun-006-amdahl-founder-arya-soltanieh",
-            "name": "Arya Soltanieh",
-            "companyName": "Amdahl"
           },
           {
             "entityId": "a16z-speedrun-006-amdahl-founder-robert-khoury",
@@ -307,11 +282,6 @@
             "companyName": "Antihero Studios"
           },
           {
-            "entityId": "a16z-speedrun-006-august-founder-bar-ittah",
-            "name": "Bar Ittah",
-            "companyName": "August"
-          },
-          {
             "entityId": "a16z-speedrun-006-august-founder-tom-tankilevitch",
             "name": "Tom Tankilevitch",
             "companyName": "August"
@@ -320,11 +290,6 @@
             "entityId": "a16z-speedrun-006-auto-founder-sam-hare",
             "name": "Sam Hare",
             "companyName": "Auto"
-          },
-          {
-            "entityId": "a16z-speedrun-006-belong-founder-ash-pournouri",
-            "name": "Ash Pournouri",
-            "companyName": "Belong"
           },
           {
             "entityId": "a16z-speedrun-006-bilrost-founder-peter-hsu",
@@ -352,16 +317,6 @@
             "companyName": "Crebit"
           },
           {
-            "entityId": "a16z-speedrun-006-emanate-founder-kiara-nirghin",
-            "name": "Kiara Nirghin",
-            "companyName": "Emanate"
-          },
-          {
-            "entityId": "a16z-speedrun-006-grove-tax-founder-gaurav-mathur",
-            "name": "Gaurav Mathur",
-            "companyName": "Grove Tax"
-          },
-          {
             "entityId": "a16z-speedrun-006-grove-tax-founder-uday-nandam",
             "name": "Uday Nandam",
             "companyName": "Grove Tax"
@@ -375,11 +330,6 @@
             "entityId": "a16z-speedrun-006-idilio-founder-esteban-ramirez",
             "name": "Esteban Ramirez",
             "companyName": "Idilio"
-          },
-          {
-            "entityId": "a16z-speedrun-006-loops-ai-founder-ari-nazir",
-            "name": "Ari Nazir",
-            "companyName": "Loops AI"
           },
           {
             "entityId": "a16z-speedrun-006-loops-ai-founder-hakan-bas",
@@ -415,11 +365,6 @@
             "entityId": "a16z-speedrun-006-miraka-founder-nolan-abeyta",
             "name": "Nolan Abeyta",
             "companyName": "Miraka"
-          },
-          {
-            "entityId": "a16z-speedrun-006-modaic-founder-farouk-adeleke",
-            "name": "Farouk Adeleke",
-            "companyName": "Modaic"
           },
           {
             "entityId": "a16z-speedrun-006-oasis-founder-naveen-sharma",
@@ -492,11 +437,6 @@
             "companyName": "Pluvo"
           },
           {
-            "entityId": "a16z-speedrun-006-pluvo-founder-seb-fallenbuchl",
-            "name": "Seb Fallenbuchl",
-            "companyName": "Pluvo"
-          },
-          {
             "entityId": "a16z-speedrun-006-prior-foundry-founder-johne-kamphorst",
             "name": "Johne Kamphorst",
             "companyName": "Prior Foundry"
@@ -517,34 +457,14 @@
             "companyName": "Quanto"
           },
           {
-            "entityId": "a16z-speedrun-006-quinn-founder-ben-anderson",
-            "name": "Ben Anderson",
-            "companyName": "Quinn"
-          },
-          {
             "entityId": "a16z-speedrun-006-safeworld-founder-ding-zhao",
             "name": "Ding Zhao",
-            "companyName": "SafeWorld"
-          },
-          {
-            "entityId": "a16z-speedrun-006-safeworld-founder-kyle-wong",
-            "name": "Kyle Wong",
-            "companyName": "SafeWorld"
-          },
-          {
-            "entityId": "a16z-speedrun-006-safeworld-founder-simo-rachidi",
-            "name": "Simo Rachidi",
             "companyName": "SafeWorld"
           },
           {
             "entityId": "a16z-speedrun-006-simula-founder-yizhen-zhen",
             "name": "Yizhen Zhen",
             "companyName": "Simula"
-          },
-          {
-            "entityId": "a16z-speedrun-006-sirius-technology-founder-benazir-toleubekova",
-            "name": "Benazir Toleubekova",
-            "companyName": "Sirius Technology"
           },
           {
             "entityId": "a16z-speedrun-006-snag-founder-niko-georgantas",
@@ -559,16 +479,6 @@
           {
             "entityId": "a16z-speedrun-006-snapp-stats-founder-andrew-tamura",
             "name": "Andrew Tamura",
-            "companyName": "Snapp Stats"
-          },
-          {
-            "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
-            "name": "Min Park",
-            "companyName": "Snapp Stats"
-          },
-          {
-            "entityId": "a16z-speedrun-006-snapp-stats-founder-shawn-tsao",
-            "name": "Shawn Tsao",
             "companyName": "Snapp Stats"
           },
           {
@@ -607,19 +517,9 @@
             "companyName": "SUN"
           },
           {
-            "entityId": "a16z-speedrun-006-vereda-founder-joao-souza",
-            "name": "Joao Souza",
-            "companyName": "Vereda"
-          },
-          {
             "entityId": "a16z-speedrun-006-vereda-founder-pedro-galindo",
             "name": "Pedro Galindo",
             "companyName": "Vereda"
-          },
-          {
-            "entityId": "a16z-speedrun-006-zerodrift-founder-kumesh-aroomoogan",
-            "name": "Kumesh Aroomoogan",
-            "companyName": "ZeroDrift"
           }
         ],
         "reviewOnlyCompanies": [],
@@ -632,8 +532,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-23-0600-80aa8c97dabf1ca0/checkpoint-public-s2026.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-23-0600-80aa8c97dabf1ca0/github-s2026.json"
+        "publicRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/public-s2026.json",
+        "githubRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -643,8 +543,8 @@
         "catalogOwnerPlatformGroups": 958,
         "plannedOwnerMappings": 959,
         "multiAccountOwnerMappings": 1,
-        "graphEvidence": 2403,
-        "graphNeedsReview": 3504
+        "graphEvidence": 3369,
+        "graphNeedsReview": 3794
       },
       "structural": {
         "status": "pass",
@@ -1062,32 +962,12 @@
             "entityId": "company-savant",
             "name": "Savant",
             "companyName": null
-          },
-          {
-            "entityId": "company-shotwellai",
-            "name": "shotwell.ai",
-            "companyName": null
-          },
-          {
-            "entityId": "company-the-company-company",
-            "name": "The Company Company",
-            "companyName": null
           }
         ],
         "zeroFamilyNativeEvidenceCompanies": [
           {
             "entityId": "company-savant",
             "name": "Savant",
-            "companyName": null
-          },
-          {
-            "entityId": "company-shotwellai",
-            "name": "shotwell.ai",
-            "companyName": null
-          },
-          {
-            "entityId": "company-the-company-company",
-            "name": "The Company Company",
             "companyName": null
           }
         ],
@@ -1105,16 +985,6 @@
           {
             "entityId": "company-akkari",
             "name": "Akkari",
-            "companyName": null
-          },
-          {
-            "entityId": "company-aquashield",
-            "name": "AquaShield",
-            "companyName": null
-          },
-          {
-            "entityId": "company-arden",
-            "name": "Arden",
             "companyName": null
           },
           {
@@ -1150,16 +1020,6 @@
           {
             "entityId": "company-matforge",
             "name": "matforge",
-            "companyName": null
-          },
-          {
-            "entityId": "company-memoir",
-            "name": "Memoir",
-            "companyName": null
-          },
-          {
-            "entityId": "company-mount",
-            "name": "Mount",
             "companyName": null
           },
           {
@@ -1250,11 +1110,6 @@
             "companyName": "Arctic Health"
           },
           {
-            "entityId": "founder-arden-david-lomelin-2377562",
-            "name": "David Lomelin",
-            "companyName": "Arden"
-          },
-          {
             "entityId": "founder-arga-labs-phillip-li-3010892",
             "name": "Phillip Li",
             "companyName": "Arga Labs"
@@ -1298,11 +1153,6 @@
             "entityId": "founder-centralcoms-kyle-chang-1562583",
             "name": "Kyle Chang",
             "companyName": "CentralComs"
-          },
-          {
-            "entityId": "founder-chert-ian-fong-2929634",
-            "name": "Ian Fong",
-            "companyName": "Chert"
           },
           {
             "entityId": "founder-clara-2-caitlin-swift-3206223",
@@ -1430,11 +1280,6 @@
             "companyName": "Hexa"
           },
           {
-            "entityId": "founder-hub-armin-kiani-3369916",
-            "name": "Armin Kiani",
-            "companyName": "Hub"
-          },
-          {
             "entityId": "founder-humwork-rohan-datta-1524523",
             "name": "Rohan Datta",
             "companyName": "Humwork"
@@ -1480,29 +1325,9 @@
             "companyName": "Kimpton AI"
           },
           {
-            "entityId": "founder-kimpton-ai-mauricio-ortiz-3193138",
-            "name": "Mauricio Ortiz",
-            "companyName": "Kimpton AI"
-          },
-          {
-            "entityId": "founder-kinect-varun-kandula-3413616",
-            "name": "Varun Kandula",
-            "companyName": "Kinect"
-          },
-          {
-            "entityId": "founder-kinro-corentin-hugot-3226721",
-            "name": "Corentin Hugot",
-            "companyName": "Kinro"
-          },
-          {
             "entityId": "founder-kinro-parth-ainampudi-3399845",
             "name": "Parth Ainampudi",
             "companyName": "Kinro"
-          },
-          {
-            "entityId": "founder-klaimee-ines-boutemadja-2955371",
-            "name": "Ines Boutemadja",
-            "companyName": "Klaimee"
           },
           {
             "entityId": "founder-klaimee-julien-catonnet-1500510",
@@ -1635,11 +1460,6 @@
             "companyName": "Prism"
           },
           {
-            "entityId": "founder-prototypingio-prerit-oberai-319214",
-            "name": "Prerit Oberai",
-            "companyName": "Prototyping.io"
-          },
-          {
             "entityId": "founder-raspire-kareem-selim-2883773",
             "name": "Kareem Selim",
             "companyName": "RASPIRE"
@@ -1658,16 +1478,6 @@
             "entityId": "founder-regbase-natalie-aresta-katz-2132981",
             "name": "Natalie Aresta-Katz",
             "companyName": "Regbase"
-          },
-          {
-            "entityId": "founder-rudus-rishi-pankhaniya-2926837",
-            "name": "Rishi Pankhaniya",
-            "companyName": "Rudus"
-          },
-          {
-            "entityId": "founder-rudus-sahil-goel-2504494",
-            "name": "Sahil Goel",
-            "companyName": "Rudus"
           },
           {
             "entityId": "founder-runtime-carlos-volante-952396",
@@ -1700,21 +1510,6 @@
             "companyName": "Savant"
           },
           {
-            "entityId": "founder-sazabi-sherwood-callaway-282099",
-            "name": "Sherwood Callaway",
-            "companyName": "Sazabi"
-          },
-          {
-            "entityId": "founder-sherpa-ethan-kinnan-2561349",
-            "name": "Ethan Kinnan",
-            "companyName": "Sherpa"
-          },
-          {
-            "entityId": "founder-sherpa-norbu-sonam-919118",
-            "name": "Norbu Sonam",
-            "companyName": "Sherpa"
-          },
-          {
             "entityId": "founder-shotwellai-ali-abdalla-324918",
             "name": "Ali Abdalla",
             "companyName": "shotwell.ai"
@@ -1727,11 +1522,6 @@
           {
             "entityId": "founder-shotwellai-farhan-khan-1249194",
             "name": "Farhan Khan",
-            "companyName": "shotwell.ai"
-          },
-          {
-            "entityId": "founder-shotwellai-nour-eldifrawy-1374486",
-            "name": "Nour Eldifrawy",
             "companyName": "shotwell.ai"
           },
           {
@@ -1750,28 +1540,13 @@
             "companyName": "Smartbase"
           },
           {
-            "entityId": "founder-smartbase-taira-fujioka-1892312",
-            "name": "Taira Fujioka",
-            "companyName": "Smartbase"
-          },
-          {
             "entityId": "founder-soria-cameron-spiller-2983501",
             "name": "Cameron Spiller",
             "companyName": "Soria"
           },
           {
-            "entityId": "founder-stablebrowse-deepit-shah-1022491",
-            "name": "Deepit Shah",
-            "companyName": "StableBrowse"
-          },
-          {
             "entityId": "founder-stablebrowse-jay-mehta-1788727",
             "name": "Jay Mehta",
-            "companyName": "StableBrowse"
-          },
-          {
-            "entityId": "founder-stablebrowse-sarthak-awasthi-3414133",
-            "name": "Sarthak Awasthi",
             "companyName": "StableBrowse"
           },
           {
@@ -1780,49 +1555,9 @@
             "companyName": "StableBrowse"
           },
           {
-            "entityId": "founder-stage-charles-pan-327595",
-            "name": "Charles Pan",
-            "companyName": "Stage"
-          },
-          {
-            "entityId": "founder-stage-dean-stratakos-1219322",
-            "name": "Dean Stratakos",
-            "companyName": "Stage"
-          },
-          {
-            "entityId": "founder-standout-alexis-aftalion-2886794",
-            "name": "Alexis Aftalion",
-            "companyName": "Standout"
-          },
-          {
             "entityId": "founder-standout-witold-de-la-chapelle-1349620",
             "name": "Witold de La Chapelle",
             "companyName": "Standout"
-          },
-          {
-            "entityId": "founder-superlog-nicol-magnante-1660276",
-            "name": "Nicolò Magnante",
-            "companyName": "Superlog"
-          },
-          {
-            "entityId": "founder-superset-avi-peltz-230159",
-            "name": "Avi Peltz",
-            "companyName": "Superset"
-          },
-          {
-            "entityId": "founder-superset-kiet-ho-276516",
-            "name": "Kiet Ho",
-            "companyName": "Superset"
-          },
-          {
-            "entityId": "founder-superset-satya-patel-667926",
-            "name": "Satya Patel",
-            "companyName": "Superset"
-          },
-          {
-            "entityId": "founder-surtr-defense-systems-anshul-ahluwalia-679653",
-            "name": "Anshul Ahluwalia",
-            "companyName": "Surtr Defense Systems"
           },
           {
             "entityId": "founder-surtr-defense-systems-cameron-fiore-3421205",
@@ -1848,21 +1583,6 @@
             "entityId": "founder-testerarmy-piotr-matyjasik-3414053",
             "name": "Piotr Matyjasik",
             "companyName": "TesterArmy"
-          },
-          {
-            "entityId": "founder-testerarmy-szymon-rybczak-3414052",
-            "name": "Szymon Rybczak",
-            "companyName": "TesterArmy"
-          },
-          {
-            "entityId": "founder-the-company-company-julius-lipp-1382706",
-            "name": "Julius Lipp",
-            "companyName": "The Company Company"
-          },
-          {
-            "entityId": "founder-tolmo-vladimir-de-turckheim-3476457",
-            "name": "Vladimir de Turckheim",
-            "companyName": "Tolmo"
           },
           {
             "entityId": "founder-transload-jago-wahl-schwentker-3351257",
@@ -1895,11 +1615,6 @@
             "companyName": "Walter"
           },
           {
-            "entityId": "founder-wato-rahul-rejeev-3203486",
-            "name": "Rahul Rejeev",
-            "companyName": "Wato"
-          },
-          {
             "entityId": "founder-wealor-pierre-depuydt-3331290",
             "name": "Pierre Depuydt",
             "companyName": "Wealor"
@@ -1912,11 +1627,6 @@
           {
             "entityId": "founder-youart-harry-zheng-1404079",
             "name": "Harry Zheng",
-            "companyName": "YouArt"
-          },
-          {
-            "entityId": "founder-youart-keith-zhang-3172846",
-            "name": "Keith Zhang",
             "companyName": "YouArt"
           },
           {
@@ -1939,16 +1649,6 @@
           {
             "entityId": "company-akkari",
             "name": "Akkari",
-            "companyName": null
-          },
-          {
-            "entityId": "company-aquashield",
-            "name": "AquaShield",
-            "companyName": null
-          },
-          {
-            "entityId": "company-arden",
-            "name": "Arden",
             "companyName": null
           },
           {
@@ -1987,16 +1687,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-memoir",
-            "name": "Memoir",
-            "companyName": null
-          },
-          {
-            "entityId": "company-mount",
-            "name": "Mount",
-            "companyName": null
-          },
-          {
             "entityId": "company-savant",
             "name": "Savant",
             "companyName": null
@@ -2004,6 +1694,11 @@
           {
             "entityId": "company-shotwellai",
             "name": "shotwell.ai",
+            "companyName": null
+          },
+          {
+            "entityId": "company-textsidekick",
+            "name": "Sidekick",
             "companyName": null
           },
           {
@@ -2079,11 +1774,6 @@
             "companyName": "Arctic Health"
           },
           {
-            "entityId": "founder-arden-david-lomelin-2377562",
-            "name": "David Lomelin",
-            "companyName": "Arden"
-          },
-          {
             "entityId": "founder-arga-labs-phillip-li-3010892",
             "name": "Phillip Li",
             "companyName": "Arga Labs"
@@ -2127,11 +1817,6 @@
             "entityId": "founder-centralcoms-kyle-chang-1562583",
             "name": "Kyle Chang",
             "companyName": "CentralComs"
-          },
-          {
-            "entityId": "founder-chert-ian-fong-2929634",
-            "name": "Ian Fong",
-            "companyName": "Chert"
           },
           {
             "entityId": "founder-clara-2-caitlin-swift-3206223",
@@ -2259,11 +1944,6 @@
             "companyName": "Hexa"
           },
           {
-            "entityId": "founder-hub-armin-kiani-3369916",
-            "name": "Armin Kiani",
-            "companyName": "Hub"
-          },
-          {
             "entityId": "founder-humwork-rohan-datta-1524523",
             "name": "Rohan Datta",
             "companyName": "Humwork"
@@ -2309,29 +1989,9 @@
             "companyName": "Kimpton AI"
           },
           {
-            "entityId": "founder-kimpton-ai-mauricio-ortiz-3193138",
-            "name": "Mauricio Ortiz",
-            "companyName": "Kimpton AI"
-          },
-          {
-            "entityId": "founder-kinect-varun-kandula-3413616",
-            "name": "Varun Kandula",
-            "companyName": "Kinect"
-          },
-          {
-            "entityId": "founder-kinro-corentin-hugot-3226721",
-            "name": "Corentin Hugot",
-            "companyName": "Kinro"
-          },
-          {
             "entityId": "founder-kinro-parth-ainampudi-3399845",
             "name": "Parth Ainampudi",
             "companyName": "Kinro"
-          },
-          {
-            "entityId": "founder-klaimee-ines-boutemadja-2955371",
-            "name": "Ines Boutemadja",
-            "companyName": "Klaimee"
           },
           {
             "entityId": "founder-klaimee-julien-catonnet-1500510",
@@ -2464,11 +2124,6 @@
             "companyName": "Prism"
           },
           {
-            "entityId": "founder-prototypingio-prerit-oberai-319214",
-            "name": "Prerit Oberai",
-            "companyName": "Prototyping.io"
-          },
-          {
             "entityId": "founder-raspire-kareem-selim-2883773",
             "name": "Kareem Selim",
             "companyName": "RASPIRE"
@@ -2487,16 +2142,6 @@
             "entityId": "founder-regbase-natalie-aresta-katz-2132981",
             "name": "Natalie Aresta-Katz",
             "companyName": "Regbase"
-          },
-          {
-            "entityId": "founder-rudus-rishi-pankhaniya-2926837",
-            "name": "Rishi Pankhaniya",
-            "companyName": "Rudus"
-          },
-          {
-            "entityId": "founder-rudus-sahil-goel-2504494",
-            "name": "Sahil Goel",
-            "companyName": "Rudus"
           },
           {
             "entityId": "founder-runtime-carlos-volante-952396",
@@ -2529,21 +2174,6 @@
             "companyName": "Savant"
           },
           {
-            "entityId": "founder-sazabi-sherwood-callaway-282099",
-            "name": "Sherwood Callaway",
-            "companyName": "Sazabi"
-          },
-          {
-            "entityId": "founder-sherpa-ethan-kinnan-2561349",
-            "name": "Ethan Kinnan",
-            "companyName": "Sherpa"
-          },
-          {
-            "entityId": "founder-sherpa-norbu-sonam-919118",
-            "name": "Norbu Sonam",
-            "companyName": "Sherpa"
-          },
-          {
             "entityId": "founder-shotwellai-ali-abdalla-324918",
             "name": "Ali Abdalla",
             "companyName": "shotwell.ai"
@@ -2556,11 +2186,6 @@
           {
             "entityId": "founder-shotwellai-farhan-khan-1249194",
             "name": "Farhan Khan",
-            "companyName": "shotwell.ai"
-          },
-          {
-            "entityId": "founder-shotwellai-nour-eldifrawy-1374486",
-            "name": "Nour Eldifrawy",
             "companyName": "shotwell.ai"
           },
           {
@@ -2579,28 +2204,13 @@
             "companyName": "Smartbase"
           },
           {
-            "entityId": "founder-smartbase-taira-fujioka-1892312",
-            "name": "Taira Fujioka",
-            "companyName": "Smartbase"
-          },
-          {
             "entityId": "founder-soria-cameron-spiller-2983501",
             "name": "Cameron Spiller",
             "companyName": "Soria"
           },
           {
-            "entityId": "founder-stablebrowse-deepit-shah-1022491",
-            "name": "Deepit Shah",
-            "companyName": "StableBrowse"
-          },
-          {
             "entityId": "founder-stablebrowse-jay-mehta-1788727",
             "name": "Jay Mehta",
-            "companyName": "StableBrowse"
-          },
-          {
-            "entityId": "founder-stablebrowse-sarthak-awasthi-3414133",
-            "name": "Sarthak Awasthi",
             "companyName": "StableBrowse"
           },
           {
@@ -2609,49 +2219,9 @@
             "companyName": "StableBrowse"
           },
           {
-            "entityId": "founder-stage-charles-pan-327595",
-            "name": "Charles Pan",
-            "companyName": "Stage"
-          },
-          {
-            "entityId": "founder-stage-dean-stratakos-1219322",
-            "name": "Dean Stratakos",
-            "companyName": "Stage"
-          },
-          {
-            "entityId": "founder-standout-alexis-aftalion-2886794",
-            "name": "Alexis Aftalion",
-            "companyName": "Standout"
-          },
-          {
             "entityId": "founder-standout-witold-de-la-chapelle-1349620",
             "name": "Witold de La Chapelle",
             "companyName": "Standout"
-          },
-          {
-            "entityId": "founder-superlog-nicol-magnante-1660276",
-            "name": "Nicolò Magnante",
-            "companyName": "Superlog"
-          },
-          {
-            "entityId": "founder-superset-avi-peltz-230159",
-            "name": "Avi Peltz",
-            "companyName": "Superset"
-          },
-          {
-            "entityId": "founder-superset-kiet-ho-276516",
-            "name": "Kiet Ho",
-            "companyName": "Superset"
-          },
-          {
-            "entityId": "founder-superset-satya-patel-667926",
-            "name": "Satya Patel",
-            "companyName": "Superset"
-          },
-          {
-            "entityId": "founder-surtr-defense-systems-anshul-ahluwalia-679653",
-            "name": "Anshul Ahluwalia",
-            "companyName": "Surtr Defense Systems"
           },
           {
             "entityId": "founder-surtr-defense-systems-cameron-fiore-3421205",
@@ -2679,21 +2249,6 @@
             "companyName": "TesterArmy"
           },
           {
-            "entityId": "founder-testerarmy-szymon-rybczak-3414052",
-            "name": "Szymon Rybczak",
-            "companyName": "TesterArmy"
-          },
-          {
-            "entityId": "founder-the-company-company-julius-lipp-1382706",
-            "name": "Julius Lipp",
-            "companyName": "The Company Company"
-          },
-          {
-            "entityId": "founder-tolmo-vladimir-de-turckheim-3476457",
-            "name": "Vladimir de Turckheim",
-            "companyName": "Tolmo"
-          },
-          {
             "entityId": "founder-transload-jago-wahl-schwentker-3351257",
             "name": "Jago Wahl-Schwentker",
             "companyName": "transload"
@@ -2719,11 +2274,6 @@
             "companyName": "Walter"
           },
           {
-            "entityId": "founder-wato-rahul-rejeev-3203486",
-            "name": "Rahul Rejeev",
-            "companyName": "Wato"
-          },
-          {
             "entityId": "founder-wealor-pierre-depuydt-3331290",
             "name": "Pierre Depuydt",
             "companyName": "Wealor"
@@ -2736,11 +2286,6 @@
           {
             "entityId": "founder-youart-harry-zheng-1404079",
             "name": "Harry Zheng",
-            "companyName": "YouArt"
-          },
-          {
-            "entityId": "founder-youart-keith-zhang-3172846",
-            "name": "Keith Zhang",
             "companyName": "YouArt"
           },
           {
@@ -2757,8 +2302,8 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-23-0600-80aa8c97dabf1ca0/checkpoint-public-s26.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-23-0600-80aa8c97dabf1ca0/github-s26.json"
+        "publicRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/public-s26.json",
+        "githubRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/github-s26.json"
       },
       "counts": {
         "companies": 115,
@@ -2768,8 +2313,8 @@
         "catalogOwnerPlatformGroups": 551,
         "plannedOwnerMappings": 551,
         "multiAccountOwnerMappings": 0,
-        "graphEvidence": 856,
-        "graphNeedsReview": 1425
+        "graphEvidence": 1286,
+        "graphNeedsReview": 1567
       },
       "structural": {
         "status": "pass",
@@ -2891,11 +2436,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-justinian",
-            "name": "Justinian",
-            "companyName": null
-          },
-          {
             "entityId": "company-kebra",
             "name": "Kebra",
             "companyName": null
@@ -2905,11 +2445,6 @@
           {
             "entityId": "company-floracene",
             "name": "Floracene",
-            "companyName": null
-          },
-          {
-            "entityId": "company-justinian",
-            "name": "Justinian",
             "companyName": null
           },
           {
@@ -2965,6 +2500,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-dialogus",
+            "name": "Dialogus",
+            "companyName": null
+          },
+          {
             "entityId": "company-edviro",
             "name": "Edviro",
             "companyName": null
@@ -2980,13 +2520,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-guild",
-            "name": "GUILD",
+            "entityId": "company-greypoint-industries",
+            "name": "Greypoint Industries",
             "companyName": null
           },
           {
-            "entityId": "company-hardware-intelligence",
-            "name": "hardware intelligence",
+            "entityId": "company-guild",
+            "name": "GUILD",
             "companyName": null
           },
           {
@@ -3010,18 +2550,13 @@
             "companyName": null
           },
           {
+            "entityId": "company-lato",
+            "name": "LATO",
+            "companyName": null
+          },
+          {
             "entityId": "company-levocred-ai",
             "name": "Levocred AI",
-            "companyName": null
-          },
-          {
-            "entityId": "company-machine0",
-            "name": "machine0",
-            "companyName": null
-          },
-          {
-            "entityId": "company-markov",
-            "name": "Markov",
             "companyName": null
           },
           {
@@ -3050,23 +2585,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-palette-2",
-            "name": "Palette",
-            "companyName": null
-          },
-          {
-            "entityId": "company-parasma",
-            "name": "Parasma",
-            "companyName": null
-          },
-          {
             "entityId": "company-praxis-ai-2",
             "name": "Praxis AI",
-            "companyName": null
-          },
-          {
-            "entityId": "company-textsidekick",
-            "name": "Sidekick",
             "companyName": null
           },
           {
@@ -3087,6 +2607,11 @@
           {
             "entityId": "company-truffle",
             "name": "Truffle",
+            "companyName": null
+          },
+          {
+            "entityId": "company-verdant",
+            "name": "Verdant",
             "companyName": null
           },
           {
@@ -3142,11 +2667,6 @@
             "companyName": "Axelrod"
           },
           {
-            "entityId": "founder-baud-eric-taylor-3805085",
-            "name": "Eric Taylor",
-            "companyName": "Baud"
-          },
-          {
             "entityId": "founder-billow-ai-labs-philip-moniaga-548009",
             "name": "Philip Moniaga",
             "companyName": "Billow AI Labs"
@@ -3157,19 +2677,9 @@
             "companyName": "Bizmark"
           },
           {
-            "entityId": "founder-conifer-charles-muehlberger-2679506",
-            "name": "Charles Muehlberger",
-            "companyName": "Conifer"
-          },
-          {
             "entityId": "founder-control-seat-jack-grodnick-3132492",
             "name": "Jack Grodnick",
             "companyName": "Control Seat"
-          },
-          {
-            "entityId": "founder-cova-jordan-ibe-1711673",
-            "name": "Jordan Ibe",
-            "companyName": "Cova"
           },
           {
             "entityId": "founder-daqstra-anchit-kumar-2547322",
@@ -3189,11 +2699,6 @@
           {
             "entityId": "founder-dialogus-juberth-rodriguez-3398179",
             "name": "Juberth Rodriguez",
-            "companyName": "Dialogus"
-          },
-          {
-            "entityId": "founder-dialogus-rodrigo-ter-n-3047141",
-            "name": "Rodrigo Terán",
             "companyName": "Dialogus"
           },
           {
@@ -3217,19 +2722,9 @@
             "companyName": "Earendil Robotics"
           },
           {
-            "entityId": "founder-edviro-tanuj-siripurapu-1865110",
-            "name": "Tanuj Siripurapu",
-            "companyName": "Edviro"
-          },
-          {
             "entityId": "founder-ekpa-yuga-patel-2421466",
             "name": "Yuga Patel",
             "companyName": "Ekpa"
-          },
-          {
-            "entityId": "founder-experiential-labs-kion-fallah-3149739",
-            "name": "Kion Fallah",
-            "companyName": "Experiential Labs"
           },
           {
             "entityId": "founder-fabraix-ibrahim-abdu-2769430",
@@ -3250,21 +2745,6 @@
             "entityId": "founder-florin-amol-pant-3776296",
             "name": "Amol Pant",
             "companyName": "Florin"
-          },
-          {
-            "entityId": "founder-flowmanual-michael-lin-3054292",
-            "name": "Michael Lin",
-            "companyName": "FlowManual"
-          },
-          {
-            "entityId": "founder-greypoint-industries-darcy-zhang-3676390",
-            "name": "Darcy Zhang",
-            "companyName": "Greypoint Industries"
-          },
-          {
-            "entityId": "founder-greypoint-industries-jordan-khoo-3558298",
-            "name": "Jordan Khoo",
-            "companyName": "Greypoint Industries"
           },
           {
             "entityId": "founder-greypoint-industries-nic-chu-3676391",
@@ -3292,21 +2772,6 @@
             "companyName": "Illume Labs"
           },
           {
-            "entityId": "founder-inkbox-alex-wilcox-2773563",
-            "name": "Alex Wilcox",
-            "companyName": "Inkbox"
-          },
-          {
-            "entityId": "founder-inkbox-ray-liao-778892",
-            "name": "Ray Liao",
-            "companyName": "Inkbox"
-          },
-          {
-            "entityId": "founder-instance-claire-mao-3107325",
-            "name": "Claire Mao",
-            "companyName": "Instance"
-          },
-          {
             "entityId": "founder-instance-lucy-cai-2386225",
             "name": "Lucy Cai",
             "companyName": "Instance"
@@ -3327,11 +2792,6 @@
             "companyName": "Isengard Industries Inc"
           },
           {
-            "entityId": "founder-justinian-parth-badhwar-2399943",
-            "name": "Parth Badhwar",
-            "companyName": "Justinian"
-          },
-          {
             "entityId": "founder-kebra-luca-hadife-1693074",
             "name": "Luca Hadife",
             "companyName": "Kebra"
@@ -3347,49 +2807,14 @@
             "companyName": "LATO"
           },
           {
-            "entityId": "founder-lato-tymek-staniszewski-3156352",
-            "name": "Tymek Staniszewski",
-            "companyName": "LATO"
-          },
-          {
-            "entityId": "founder-lemonlime-daniela-mu-oz-3671976",
-            "name": "Daniela Muñoz",
-            "companyName": "LemonLime"
-          },
-          {
             "entityId": "founder-libra-robotics-yaojing-huang-2782328",
             "name": "Yaojing Huang",
             "companyName": "Libra Robotics"
           },
           {
-            "entityId": "founder-mireye-ansh-chokshi-793651",
-            "name": "Ansh Chokshi",
-            "companyName": "Mireye"
-          },
-          {
-            "entityId": "founder-mireye-shashwat-kapoor-678147",
-            "name": "Shashwat Kapoor",
-            "companyName": "Mireye"
-          },
-          {
             "entityId": "founder-molagri-min-jin-3659967",
             "name": "Min Jin",
             "companyName": "Molagri"
-          },
-          {
-            "entityId": "founder-nebula-security-eten-zou-1626290",
-            "name": "Eten Zou",
-            "companyName": "Nebula Security"
-          },
-          {
-            "entityId": "founder-nebula-security-frank-wu-3676409",
-            "name": "Frank Wu",
-            "companyName": "Nebula Security"
-          },
-          {
-            "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
-            "name": "Xiaochuan Yu",
-            "companyName": "Nebula Security"
           },
           {
             "entityId": "founder-nebula-security-yuan-tan-3676420",
@@ -3417,16 +2842,6 @@
             "companyName": "OpenRelay"
           },
           {
-            "entityId": "founder-opentrade-ojas-kandhare-2384611",
-            "name": "Ojas Kandhare",
-            "companyName": "OpenTrade"
-          },
-          {
-            "entityId": "founder-opentrade-tario-you-2613840",
-            "name": "Tario You",
-            "companyName": "OpenTrade"
-          },
-          {
             "entityId": "founder-osseus-ayush-patel-1979222",
             "name": "Ayush Patel",
             "companyName": "Osseus"
@@ -3445,11 +2860,6 @@
             "entityId": "founder-petrarch-samuel-hahn-2670953",
             "name": "Samuel Hahn",
             "companyName": "Petrarch"
-          },
-          {
-            "entityId": "founder-talentpluto-maki-potamianos-3207785",
-            "name": "Maki Potamianos",
-            "companyName": "Pluto"
           },
           {
             "entityId": "founder-talentpluto-sahil-seth-1666957",
@@ -3472,11 +2882,6 @@
             "companyName": "Praxis AI"
           },
           {
-            "entityId": "founder-prized-hudson-griffith-2447160",
-            "name": "Hudson Griffith",
-            "companyName": "Prized"
-          },
-          {
             "entityId": "founder-prized-marinos-eliades-2485896",
             "name": "Marinos Eliades",
             "companyName": "Prized"
@@ -3487,24 +2892,9 @@
             "companyName": "Rapidfolio"
           },
           {
-            "entityId": "founder-rapidfolio-naveen-qureshi-334623",
-            "name": "Naveen Qureshi",
-            "companyName": "Rapidfolio"
-          },
-          {
             "entityId": "founder-rational-christ-xu-3411828",
             "name": "Christ Xu",
             "companyName": "Rational"
-          },
-          {
-            "entityId": "founder-rational-jibril-moinuddin-1591705",
-            "name": "Jibril Moinuddin",
-            "companyName": "Rational"
-          },
-          {
-            "entityId": "founder-realpact-ranvir-deshmukh-1249471",
-            "name": "Ranvir Deshmukh",
-            "companyName": "RealPact"
           },
           {
             "entityId": "founder-rekursivai-joshua-dillon-3527624",
@@ -3515,11 +2905,6 @@
             "entityId": "founder-rex-inc-lewis-blackwood-173279",
             "name": "Lewis Blackwood",
             "companyName": "Rex"
-          },
-          {
-            "entityId": "founder-rindler-arthur-de-los-santos-3443947",
-            "name": "Arthur De Los Santos",
-            "companyName": "Rindler"
           },
           {
             "entityId": "founder-rise-reforming-george-rose-3646927",
@@ -3542,24 +2927,9 @@
             "companyName": "Robocurve"
           },
           {
-            "entityId": "founder-robocurve-jay-chooi-2392672",
-            "name": "Jay Chooi",
-            "companyName": "Robocurve"
-          },
-          {
-            "entityId": "founder-salem-robotics-inc-caleb-horan-3403013",
-            "name": "Caleb Horan",
-            "companyName": "Salem Robotics Inc"
-          },
-          {
             "entityId": "founder-salem-robotics-inc-janak-crasun-panthi-3208433",
             "name": "Janak (Crasun) Panthi",
             "companyName": "Salem Robotics Inc"
-          },
-          {
-            "entityId": "founder-shepherd-3-elijah-renner-3348061",
-            "name": "Elijah Renner",
-            "companyName": "Shepherd"
           },
           {
             "entityId": "founder-touchmark-roman-yanushevskyi-3532865",
@@ -3567,29 +2937,9 @@
             "companyName": "Touchmark"
           },
           {
-            "entityId": "founder-trope-victor-vannara-1405446",
-            "name": "Victor Vannara",
-            "companyName": "Trope"
-          },
-          {
-            "entityId": "founder-trustai-hannah-chung-2573695",
-            "name": "Hannah Chung",
-            "companyName": "TrustAI"
-          },
-          {
-            "entityId": "founder-trustai-medha-venkatapathy-2043461",
-            "name": "Medha Venkatapathy",
-            "companyName": "TrustAI"
-          },
-          {
             "entityId": "founder-understudy-labs-aamir-poonawalla-73303",
             "name": "Aamir Poonawalla",
             "companyName": "Understudy Labs"
-          },
-          {
-            "entityId": "founder-verdant-jason-yi-1527348",
-            "name": "Jason Yi",
-            "companyName": "Verdant"
           },
           {
             "entityId": "founder-whitespace-leon-yao-3405544",
@@ -3654,6 +3004,11 @@
             "companyName": null
           },
           {
+            "entityId": "company-dialogus",
+            "name": "Dialogus",
+            "companyName": null
+          },
+          {
             "entityId": "company-edviro",
             "name": "Edviro",
             "companyName": null
@@ -3669,13 +3024,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-guild",
-            "name": "GUILD",
+            "entityId": "company-greypoint-industries",
+            "name": "Greypoint Industries",
             "companyName": null
           },
           {
-            "entityId": "company-hardware-intelligence",
-            "name": "hardware intelligence",
+            "entityId": "company-guild",
+            "name": "GUILD",
             "companyName": null
           },
           {
@@ -3699,18 +3054,13 @@
             "companyName": null
           },
           {
+            "entityId": "company-lato",
+            "name": "LATO",
+            "companyName": null
+          },
+          {
             "entityId": "company-levocred-ai",
             "name": "Levocred AI",
-            "companyName": null
-          },
-          {
-            "entityId": "company-machine0",
-            "name": "machine0",
-            "companyName": null
-          },
-          {
-            "entityId": "company-markov",
-            "name": "Markov",
             "companyName": null
           },
           {
@@ -3739,16 +3089,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-palette-2",
-            "name": "Palette",
-            "companyName": null
-          },
-          {
-            "entityId": "company-parasma",
-            "name": "Parasma",
-            "companyName": null
-          },
-          {
             "entityId": "company-praxis-ai-2",
             "name": "Praxis AI",
             "companyName": null
@@ -3771,6 +3111,11 @@
           {
             "entityId": "company-truffle",
             "name": "Truffle",
+            "companyName": null
+          },
+          {
+            "entityId": "company-verdant",
+            "name": "Verdant",
             "companyName": null
           },
           {
@@ -3826,11 +3171,6 @@
             "companyName": "Axelrod"
           },
           {
-            "entityId": "founder-baud-eric-taylor-3805085",
-            "name": "Eric Taylor",
-            "companyName": "Baud"
-          },
-          {
             "entityId": "founder-billow-ai-labs-philip-moniaga-548009",
             "name": "Philip Moniaga",
             "companyName": "Billow AI Labs"
@@ -3841,19 +3181,9 @@
             "companyName": "Bizmark"
           },
           {
-            "entityId": "founder-conifer-charles-muehlberger-2679506",
-            "name": "Charles Muehlberger",
-            "companyName": "Conifer"
-          },
-          {
             "entityId": "founder-control-seat-jack-grodnick-3132492",
             "name": "Jack Grodnick",
             "companyName": "Control Seat"
-          },
-          {
-            "entityId": "founder-cova-jordan-ibe-1711673",
-            "name": "Jordan Ibe",
-            "companyName": "Cova"
           },
           {
             "entityId": "founder-daqstra-anchit-kumar-2547322",
@@ -3873,11 +3203,6 @@
           {
             "entityId": "founder-dialogus-juberth-rodriguez-3398179",
             "name": "Juberth Rodriguez",
-            "companyName": "Dialogus"
-          },
-          {
-            "entityId": "founder-dialogus-rodrigo-ter-n-3047141",
-            "name": "Rodrigo Terán",
             "companyName": "Dialogus"
           },
           {
@@ -3901,19 +3226,9 @@
             "companyName": "Earendil Robotics"
           },
           {
-            "entityId": "founder-edviro-tanuj-siripurapu-1865110",
-            "name": "Tanuj Siripurapu",
-            "companyName": "Edviro"
-          },
-          {
             "entityId": "founder-ekpa-yuga-patel-2421466",
             "name": "Yuga Patel",
             "companyName": "Ekpa"
-          },
-          {
-            "entityId": "founder-experiential-labs-kion-fallah-3149739",
-            "name": "Kion Fallah",
-            "companyName": "Experiential Labs"
           },
           {
             "entityId": "founder-fabraix-ibrahim-abdu-2769430",
@@ -3934,21 +3249,6 @@
             "entityId": "founder-florin-amol-pant-3776296",
             "name": "Amol Pant",
             "companyName": "Florin"
-          },
-          {
-            "entityId": "founder-flowmanual-michael-lin-3054292",
-            "name": "Michael Lin",
-            "companyName": "FlowManual"
-          },
-          {
-            "entityId": "founder-greypoint-industries-darcy-zhang-3676390",
-            "name": "Darcy Zhang",
-            "companyName": "Greypoint Industries"
-          },
-          {
-            "entityId": "founder-greypoint-industries-jordan-khoo-3558298",
-            "name": "Jordan Khoo",
-            "companyName": "Greypoint Industries"
           },
           {
             "entityId": "founder-greypoint-industries-nic-chu-3676391",
@@ -3976,21 +3276,6 @@
             "companyName": "Illume Labs"
           },
           {
-            "entityId": "founder-inkbox-alex-wilcox-2773563",
-            "name": "Alex Wilcox",
-            "companyName": "Inkbox"
-          },
-          {
-            "entityId": "founder-inkbox-ray-liao-778892",
-            "name": "Ray Liao",
-            "companyName": "Inkbox"
-          },
-          {
-            "entityId": "founder-instance-claire-mao-3107325",
-            "name": "Claire Mao",
-            "companyName": "Instance"
-          },
-          {
             "entityId": "founder-instance-lucy-cai-2386225",
             "name": "Lucy Cai",
             "companyName": "Instance"
@@ -4011,11 +3296,6 @@
             "companyName": "Isengard Industries Inc"
           },
           {
-            "entityId": "founder-justinian-parth-badhwar-2399943",
-            "name": "Parth Badhwar",
-            "companyName": "Justinian"
-          },
-          {
             "entityId": "founder-kebra-luca-hadife-1693074",
             "name": "Luca Hadife",
             "companyName": "Kebra"
@@ -4031,49 +3311,14 @@
             "companyName": "LATO"
           },
           {
-            "entityId": "founder-lato-tymek-staniszewski-3156352",
-            "name": "Tymek Staniszewski",
-            "companyName": "LATO"
-          },
-          {
-            "entityId": "founder-lemonlime-daniela-mu-oz-3671976",
-            "name": "Daniela Muñoz",
-            "companyName": "LemonLime"
-          },
-          {
             "entityId": "founder-libra-robotics-yaojing-huang-2782328",
             "name": "Yaojing Huang",
             "companyName": "Libra Robotics"
           },
           {
-            "entityId": "founder-mireye-ansh-chokshi-793651",
-            "name": "Ansh Chokshi",
-            "companyName": "Mireye"
-          },
-          {
-            "entityId": "founder-mireye-shashwat-kapoor-678147",
-            "name": "Shashwat Kapoor",
-            "companyName": "Mireye"
-          },
-          {
             "entityId": "founder-molagri-min-jin-3659967",
             "name": "Min Jin",
             "companyName": "Molagri"
-          },
-          {
-            "entityId": "founder-nebula-security-eten-zou-1626290",
-            "name": "Eten Zou",
-            "companyName": "Nebula Security"
-          },
-          {
-            "entityId": "founder-nebula-security-frank-wu-3676409",
-            "name": "Frank Wu",
-            "companyName": "Nebula Security"
-          },
-          {
-            "entityId": "founder-nebula-security-xiaochuan-yu-3680004",
-            "name": "Xiaochuan Yu",
-            "companyName": "Nebula Security"
           },
           {
             "entityId": "founder-notyfi-michael-marcotte-3087509",
@@ -4096,16 +3341,6 @@
             "companyName": "OpenRelay"
           },
           {
-            "entityId": "founder-opentrade-ojas-kandhare-2384611",
-            "name": "Ojas Kandhare",
-            "companyName": "OpenTrade"
-          },
-          {
-            "entityId": "founder-opentrade-tario-you-2613840",
-            "name": "Tario You",
-            "companyName": "OpenTrade"
-          },
-          {
             "entityId": "founder-osseus-ayush-patel-1979222",
             "name": "Ayush Patel",
             "companyName": "Osseus"
@@ -4124,11 +3359,6 @@
             "entityId": "founder-petrarch-samuel-hahn-2670953",
             "name": "Samuel Hahn",
             "companyName": "Petrarch"
-          },
-          {
-            "entityId": "founder-talentpluto-maki-potamianos-3207785",
-            "name": "Maki Potamianos",
-            "companyName": "Pluto"
           },
           {
             "entityId": "founder-talentpluto-sahil-seth-1666957",
@@ -4151,11 +3381,6 @@
             "companyName": "Praxis AI"
           },
           {
-            "entityId": "founder-prized-hudson-griffith-2447160",
-            "name": "Hudson Griffith",
-            "companyName": "Prized"
-          },
-          {
             "entityId": "founder-prized-marinos-eliades-2485896",
             "name": "Marinos Eliades",
             "companyName": "Prized"
@@ -4166,24 +3391,9 @@
             "companyName": "Rapidfolio"
           },
           {
-            "entityId": "founder-rapidfolio-naveen-qureshi-334623",
-            "name": "Naveen Qureshi",
-            "companyName": "Rapidfolio"
-          },
-          {
             "entityId": "founder-rational-christ-xu-3411828",
             "name": "Christ Xu",
             "companyName": "Rational"
-          },
-          {
-            "entityId": "founder-rational-jibril-moinuddin-1591705",
-            "name": "Jibril Moinuddin",
-            "companyName": "Rational"
-          },
-          {
-            "entityId": "founder-realpact-ranvir-deshmukh-1249471",
-            "name": "Ranvir Deshmukh",
-            "companyName": "RealPact"
           },
           {
             "entityId": "founder-rekursivai-joshua-dillon-3527624",
@@ -4194,11 +3404,6 @@
             "entityId": "founder-rex-inc-lewis-blackwood-173279",
             "name": "Lewis Blackwood",
             "companyName": "Rex"
-          },
-          {
-            "entityId": "founder-rindler-arthur-de-los-santos-3443947",
-            "name": "Arthur De Los Santos",
-            "companyName": "Rindler"
           },
           {
             "entityId": "founder-rise-reforming-george-rose-3646927",
@@ -4221,24 +3426,9 @@
             "companyName": "Robocurve"
           },
           {
-            "entityId": "founder-robocurve-jay-chooi-2392672",
-            "name": "Jay Chooi",
-            "companyName": "Robocurve"
-          },
-          {
-            "entityId": "founder-salem-robotics-inc-caleb-horan-3403013",
-            "name": "Caleb Horan",
-            "companyName": "Salem Robotics Inc"
-          },
-          {
             "entityId": "founder-salem-robotics-inc-janak-crasun-panthi-3208433",
             "name": "Janak (Crasun) Panthi",
             "companyName": "Salem Robotics Inc"
-          },
-          {
-            "entityId": "founder-shepherd-3-elijah-renner-3348061",
-            "name": "Elijah Renner",
-            "companyName": "Shepherd"
           },
           {
             "entityId": "founder-touchmark-roman-yanushevskyi-3532865",
@@ -4246,29 +3436,9 @@
             "companyName": "Touchmark"
           },
           {
-            "entityId": "founder-trope-victor-vannara-1405446",
-            "name": "Victor Vannara",
-            "companyName": "Trope"
-          },
-          {
-            "entityId": "founder-trustai-hannah-chung-2573695",
-            "name": "Hannah Chung",
-            "companyName": "TrustAI"
-          },
-          {
-            "entityId": "founder-trustai-medha-venkatapathy-2043461",
-            "name": "Medha Venkatapathy",
-            "companyName": "TrustAI"
-          },
-          {
             "entityId": "founder-understudy-labs-aamir-poonawalla-73303",
             "name": "Aamir Poonawalla",
             "companyName": "Understudy Labs"
-          },
-          {
-            "entityId": "founder-verdant-jason-yi-1527348",
-            "name": "Jason Yi",
-            "companyName": "Verdant"
           },
           {
             "entityId": "founder-whitespace-leon-yao-3405544",

@@ -1,7 +1,23 @@
 {
-  "runId": "instagram-thumbnails-2026-06-30T06-20-41-668Z",
-  "startedAt": "2026-06-30T06:20:41.669Z",
-  "objective": "Instagram coverage plus real thumbnail remediation across YC Spring 2026.",
-  "nextDiscoveryOffset": 2,
-  "updatedAt": "2026-06-30T06:22:02.078Z"
+  "runId": "source-sweep-2026-07-24T11-14-03-369Z",
+  "pid": 1674,
+  "startedAt": "2026-07-24T11:14:03.368Z",
+  "deadlineAt": "2026-07-24T16:14:03.368Z",
+  "durationMinutes": 300,
+  "launchedAt": "2026-07-24T11:14:03.370Z",
+  "lastHeartbeatAt": "2026-07-24T16:14:03.383Z",
+  "command": "/Users/allenxu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/run-long-cycle.mjs --minutes=300 --checkpoint-minutes=5",
+  "stdoutPath": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/outputs/longrun/source-sweep-2026-07-24T11-14-03-369Z.stdout.log",
+  "stderrPath": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/outputs/longrun/source-sweep-2026-07-24T11-14-03-369Z.stderr.log",
+  "statusPath": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/docs/LONG_RUN_STATUS.md",
+  "eventLogPath": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/outputs/longrun/source-sweep-2026-07-24T11-14-03-369Z.json",
+  "status": "complete",
+  "currentSweep": {
+    "type": "sweep_started",
+    "at": "2026-07-24T15:27:24.042Z",
+    "elapsedMinutes": 253,
+    "cycleIndex": 1,
+    "attempt": 7,
+    "idempotencyKey": "source-sweep-2026-07-24T11-14-03-369Z-sweep-001"
+  }
 }

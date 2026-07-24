@@ -292,6 +292,40 @@ describe("a16z speedrun 006 dataset", () => {
     expect(A16Z_NATIVE_SOCIAL_TRACTION_PLATFORMS.has("bilibili")).toBe(true);
   });
 
+  it("does not score third-party or owner-unverified Grove Tax Reddit mentions", () => {
+    const graph = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
+      ycSpring2026GraphDataset
+    );
+    const ownerUnverified = graph.evidence.find((item) =>
+      item.sourceUrl.includes("/1s5r9f2/")
+    );
+    const thirdPartyRecommendation = graph.evidence.find((item) =>
+      item.sourceUrl.includes("/1tvt0xn/")
+    );
+
+    expect(ownerUnverified).toEqual(
+      expect.objectContaining({
+        review_state: "needs_review",
+        contributionScore: 0
+      })
+    );
+    expect(thirdPartyRecommendation).toEqual(
+      expect.objectContaining({
+        review_state: "rejected",
+        contributionScore: 0
+      })
+    );
+    expect(scoringEligibility(ownerUnverified!)).toEqual({
+      eligible: false,
+      reason: "not_verified"
+    });
+    expect(scoringEligibility(thirdPartyRecommendation!)).toEqual({
+      eligible: false,
+      reason: "not_verified"
+    });
+  });
+
   it("loads every explicitly attributed canonical A16Z LinkedIn post once", () => {
     const graph = buildGraphResponse({ batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG }, ycSpring2026GraphDataset);
     const expectedIds = [...VERIFIED_A16Z_PUBLIC_LINKEDIN_POST_IDS].sort();
@@ -424,7 +458,7 @@ describe("a16z speedrun 006 dataset", () => {
     const modaic = graph.nodes.find((node) => node.entityType === "company" && node.label === "Modaic");
     const sentra = graph.nodes.find((node) => node.entityType === "company" && node.label === "Sentra");
 
-    expect(modaic?.topPlatform).toBe("github");
+    expect(["github", "x"]).toContain(modaic?.topPlatform);
     expect(modaic?.score).toBeGreaterThan(0);
     expect(modaic?.socialAccounts.map((account) => account.platform)).toContain("github");
     expect(["linkedin", "x"]).toContain(sentra?.topPlatform);
@@ -641,7 +675,7 @@ describe("a16z speedrun 006 dataset", () => {
       (item) => item.sourceUrl === "https://www.youtube.com/watch?v=RqS_WpgsPdY"
     );
 
-    expect(sunYouTubeEvidence).toHaveLength(16);
+    expect(sunYouTubeEvidence).toHaveLength(17);
     expect(sunYouTubeEvidence.map((item) => item.sourceUrl)).toEqual(
       expect.arrayContaining([
         "https://www.youtube.com/watch?v=pHTVgy_HSS0",

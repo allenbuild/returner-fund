@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronUp,
   LoaderCircle,
+  Minus,
   Plus,
   RotateCcw,
   Search,
@@ -84,6 +85,9 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
       const result = await insiderApiFetch("/api/insiders", { cache: "no-store" });
       if (!result.ok) throw new Error(`Insiders request failed with ${result.status}.`);
       const payload = await result.json() as InsiderConfigurationResponse;
+      if (!isInsiderConfigurationResponse(payload)) {
+        throw new Error("The Insiders service returned an invalid configuration.");
+      }
       setResponse(payload);
       setSaved(cloneConfiguration(payload.configuration));
       setDraft(cloneConfiguration(payload.configuration));
@@ -129,7 +133,11 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     return response.defaultMembers
       .filter((member) => !excluded.has(member.personId))
       .map((member) => ({ ...member, weight: draft.weightOverrides[member.personId] ?? member.weight }))
-      .concat([...addedById.values()].filter((member) => member.active));
+      .concat([...addedById.values()].filter((member) => member.active))
+      .sort((left, right) =>
+        right.weight - left.weight ||
+        left.displayName.localeCompare(right.displayName, undefined, { sensitivity: "base" })
+      );
   }, [draft, response]);
 
   const visibleMembers = useMemo(() => {
@@ -169,8 +177,13 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
       setSaved(cloneConfiguration(payload.configuration));
       setDraft(cloneConfiguration(payload.configuration));
       setStatus("recomputing");
-      await onSaved?.();
-      setStatus("saved");
+      void Promise.resolve(onSaved?.()).then(
+        () => setStatus("saved"),
+        (caught: unknown) => {
+          setError(caught instanceof Error ? caught.message : "Scores could not be recomputed.");
+          setStatus("error");
+        }
+      );
       return true;
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "No changes were saved.");
@@ -180,22 +193,6 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
       setSaving(false);
     }
   }, [draft, onSaved, response?.authenticated, saving]);
-
-  const recomputeScores = useCallback(async () => {
-    if (!response?.authenticated || saving || dirty) return;
-    setStatus("recomputing");
-    setError(null);
-    try {
-      const result = await insiderApiFetch("/api/insiders/recompute", { method: "POST" });
-      const payload = await result.json() as { error?: { message?: string } };
-      if (!result.ok) throw new Error(payload.error?.message ?? `Recompute failed with ${result.status}.`);
-      await onSaved?.();
-      setStatus("saved");
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Scores could not be recomputed.");
-      setStatus("error");
-    }
-  }, [dirty, onSaved, response?.authenticated, saving]);
 
   async function sendSignInLink() {
     const email = signInEmail.trim();
@@ -225,9 +222,8 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
 
   useImperativeHandle(ref, () => ({ requestLeave }), [requestLeave]);
 
-  function setWeight(member: TopVoiceMember, rawValue: string) {
+  function setWeight(member: TopVoiceMember, weight: number) {
     if (!draft) return;
-    const weight = Number(rawValue);
     if (!Number.isInteger(weight) || weight < 1 || weight > 5) {
       setError("Weight must be a whole number from 1 to 5.");
       return;
@@ -249,6 +245,20 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     if (weight === defaultWeight) delete weightOverrides[member.personId];
     else weightOverrides[member.personId] = weight;
     setDraft({ ...draft, weightOverrides });
+  }
+
+  function resetToDefaults() {
+    if (!draft || !response?.authenticated) return;
+    setDraft({
+      ...draft,
+      excludedDefaultIds: [],
+      weightOverrides: {},
+      addedInsiders: []
+    });
+    setQuery("");
+    setAddOpen(false);
+    setError(null);
+    setStatus("idle");
   }
 
   function removeMember(member: TopVoiceMember) {
@@ -360,9 +370,20 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
           <span className="eyebrow">Top Voices</span>
           <h2>Insiders</h2>
         </div>
-        <button type="button" className="icon-button" aria-label="Close Insiders" onClick={() => requestLeave(onClose)}>
-          <X size={18} />
-        </button>
+        <div className="insiders-header-actions">
+          <button
+            type="button"
+            className="insiders-reset-button"
+            onClick={resetToDefaults}
+            disabled={!response.authenticated || saving}
+          >
+            <RotateCcw size={15} />
+            Reset
+          </button>
+          <button type="button" className="icon-button" aria-label="Close Insiders" onClick={() => requestLeave(onClose)}>
+            <X size={18} />
+          </button>
+        </div>
       </header>
 
       {!draft || !response ? (
@@ -467,7 +488,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
 
           <div className="insiders-list-summary">
             <strong>{effectiveMembers.length} insiders</strong>
-            <span>{visibleMembers.length === effectiveMembers.length ? "Save to recompute scores" : `${visibleMembers.length} matches`}</span>
+            {visibleMembers.length !== effectiveMembers.length && <span>{visibleMembers.length} matches</span>}
           </div>
 
           <div className="insiders-list">
@@ -476,24 +497,30 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
                 <div className="insider-row-copy">
                   <div>
                     <strong>{member.displayName}</strong>
-                    <span className={member.source === "user-added" ? "added" : ""}>
-                      {member.source === "user-added" ? "Added" : "Default"}
-                    </span>
                   </div>
                 </div>
-                <label className="insider-weight">
+                <div className="insider-weight">
                   <span>Weight</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="5"
-                    step="1"
-                    value={member.weight}
-                    disabled={!response.authenticated}
-                    onChange={(event) => setWeight(member, event.target.value)}
-                    aria-label={`${member.displayName} weight`}
-                  />
-                </label>
+                  <div className="insider-weight-stepper">
+                    <button
+                      type="button"
+                      onClick={() => setWeight(member, member.weight - 1)}
+                      disabled={!response.authenticated || member.weight <= 1}
+                      aria-label={`Decrease ${member.displayName} weight`}
+                    >
+                      <Minus size={15} strokeWidth={3} />
+                    </button>
+                    <output aria-label={`${member.displayName} weight`}>{member.weight}</output>
+                    <button
+                      type="button"
+                      onClick={() => setWeight(member, member.weight + 1)}
+                      disabled={!response.authenticated || member.weight >= 5}
+                      aria-label={`Increase ${member.displayName} weight`}
+                    >
+                      <Plus size={15} strokeWidth={3} />
+                    </button>
+                  </div>
+                </div>
                 <button
                   type="button"
                   className="icon-button danger"
@@ -542,15 +569,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
             <div className="insiders-save-actions">
               <button
                 type="button"
-                disabled={dirty || saving || status === "recomputing" || !response.authenticated}
-                onClick={() => void recomputeScores()}
-              >
-                {status === "recomputing" ? <LoaderCircle className="spin" size={15} /> : null}
-                Recompute scores
-              </button>
-              <button
-                type="button"
-                className="primary-button"
+                className="primary-button insiders-save-button"
                 disabled={!dirty || saving || !response.authenticated}
                 onClick={() => void save()}
               >
@@ -594,6 +613,21 @@ function cloneConfiguration(configuration: UserInsiderConfiguration): UserInside
       ) as Partial<Record<Platform, string[]>>
     }))
   };
+}
+
+function isInsiderConfigurationResponse(value: unknown): value is InsiderConfigurationResponse {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<InsiderConfigurationResponse>;
+  const configuration = candidate.configuration as Partial<UserInsiderConfiguration> | undefined;
+  return (
+    typeof candidate.authenticated === "boolean" &&
+    Array.isArray(candidate.defaultMembers) &&
+    Array.isArray(candidate.effectiveMembers) &&
+    Boolean(configuration) &&
+    Array.isArray(configuration?.excludedDefaultIds) &&
+    Boolean(configuration?.weightOverrides && typeof configuration.weightOverrides === "object") &&
+    Array.isArray(configuration?.addedInsiders)
+  );
 }
 
 function configurationSignature(configuration: UserInsiderConfiguration): string {

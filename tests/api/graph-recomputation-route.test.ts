@@ -78,7 +78,7 @@ describe("GET /api/graph recomputation order", () => {
     ).toBe(true);
   }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 
-  it("keeps YC scoring canonical while applying weighted Insider scoring after live updates", async () => {
+  it("keeps the canonical Insider audience static while dynamically scoring explicit selections", async () => {
     const dataset = routeDataset();
     const liveRecords = [
       topVoiceLiveXRecord("sama", "Sam Altman", "1000000000000000004"),
@@ -118,16 +118,14 @@ describe("GET /api/graph recomputation order", () => {
     expect(canonicalCompanyProjection(ycPartners, "alpha")).toEqual(canonical);
     const insiderNode = insiders.nodes.find((node) => node.entityId === "alpha");
     const insiderRow = insiders.leaderboard.find((row) => row.companyId === "alpha");
-    expect(insiderNode?.score).toBe(Math.min(100, canonical.node.score + 6));
+    expect(insiderNode?.score).toBe(canonical.node.score);
     expect(insiderRow?.score).toBe(insiderNode?.score);
-    expect(insiderNode?.insiderScoreBreakdown).toMatchObject({
-      baseScore: canonical.node.score,
-      weightedInsiderSubtotal: 6,
-      finalScore: insiderNode?.score
-    });
+    expect(insiderNode?.insiderScoreBreakdown).toBeUndefined();
+    expect(insiders.scoringContext?.scoreScope).toBe("all_platforms");
     expect(samOnly.selectedInsiderIds).toEqual(["sam-altman"]);
     expect(samOnly.evidence).toHaveLength(1);
     expect(samOnly.evidence[0]?.topVoice?.memberId).toBe("sam-altman");
+    expect(samOnly.scoringContext?.scoreScope).toBe("top_voice");
     expect(samOnly.nodes.find((node) => node.entityId === "alpha")?.insiderScoreBreakdown)
       .toMatchObject({ weightedInsiderSubtotal: 4 });
   }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
