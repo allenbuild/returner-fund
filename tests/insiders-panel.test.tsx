@@ -23,6 +23,17 @@ function response(version = 0): InsiderConfigurationResponse {
 }
 
 describe("InsidersPanel", () => {
+  it("renders the built-in list immediately while private overrides load", () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>(() => undefined)));
+
+    render(<InsidersPanel onClose={vi.fn()} />);
+
+    expect(screen.getByText("58 insiders")).toBeInTheDocument();
+    expect(screen.getByText("Paul Graham")).toBeInTheDocument();
+    expect(screen.queryByText("Loading your list…")).not.toBeInTheDocument();
+    expect(screen.queryByText("Your private audience for personalized attention scoring.")).not.toBeInTheDocument();
+  });
+
   it("offers an email sign-in path when the private editor has no session", async () => {
     const anonymous = { ...response(), authenticated: false };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(

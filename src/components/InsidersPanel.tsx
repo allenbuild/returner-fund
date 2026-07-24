@@ -21,7 +21,9 @@ import {
 } from "react";
 import type { Platform, TopVoiceMember } from "@/lib/graph/types";
 import {
+  configurationResponse,
   createAddedInsider,
+  emptyInsiderConfiguration,
   type InsiderConfigurationResponse,
   type UserInsiderConfiguration
 } from "@/lib/social/user-insiders";
@@ -52,9 +54,15 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
   { onClose, onDirtyChange, onSaved },
   ref
 ) {
-  const [response, setResponse] = useState<InsiderConfigurationResponse | null>(null);
-  const [saved, setSaved] = useState<UserInsiderConfiguration | null>(null);
-  const [draft, setDraft] = useState<UserInsiderConfiguration | null>(null);
+  const [response, setResponse] = useState<InsiderConfigurationResponse>(() =>
+    configurationResponse(emptyInsiderConfiguration(), false)
+  );
+  const [saved, setSaved] = useState<UserInsiderConfiguration>(() =>
+    emptyInsiderConfiguration()
+  );
+  const [draft, setDraft] = useState<UserInsiderConfiguration>(() =>
+    emptyInsiderConfiguration()
+  );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"idle" | "saved" | "recomputing" | "error">("idle");
@@ -351,26 +359,20 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
         <div>
           <span className="eyebrow">Top Voices</span>
           <h2>Insiders</h2>
-          <p>Your private audience for personalized attention scoring.</p>
         </div>
         <button type="button" className="icon-button" aria-label="Close Insiders" onClick={() => requestLeave(onClose)}>
           <X size={18} />
         </button>
       </header>
 
-      {loading ? (
-        <div className="insiders-loading" role="status">
-          <LoaderCircle className="spin" size={20} />
-          Loading your list…
-        </div>
-      ) : !draft || !response ? (
+      {!draft || !response ? (
         <div className="insiders-error-state">
           <p>{error ?? "Your Insiders list is unavailable."}</p>
           <button type="button" onClick={() => void load()}>Retry</button>
         </div>
       ) : (
         <>
-          {!response.authenticated && (
+          {!loading && !response.authenticated && (
             <div className="insiders-auth-note" role="status">
               <strong>Sign in to edit your private list</strong>
               {signInSent ? (

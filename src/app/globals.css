@@ -1386,7 +1386,6 @@ button:disabled {
   line-height: 1.08;
 }
 
-.insiders-panel-header p,
 .insiders-list-summary span,
 .insider-row-copy small {
   color: var(--muted);
