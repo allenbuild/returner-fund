@@ -892,13 +892,13 @@ export function Dashboard({
     }
   }, [getOrStartGraphRequest, isCurrentGraphRequest, rememberGraph]);
 
-  const refreshPersonalizedInsiders = useCallback(() => {
+  const refreshPersonalizedInsiders = useCallback(async () => {
     for (const key of [...graphCacheRef.current.keys()]) {
       if (key.endsWith("::insiders")) graphCacheRef.current.delete(key);
     }
     invalidateGraphRequests();
     if (selectionRef.current.topVoiceAudience === "insiders") {
-      window.setTimeout(() => void fetchGraph({ forceApi: true, unfiltered: true }), 0);
+      await fetchGraph({ forceApi: true, unfiltered: true });
     }
   }, [fetchGraph, invalidateGraphRequests]);
 

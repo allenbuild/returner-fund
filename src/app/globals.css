@@ -1485,6 +1485,49 @@ button:disabled {
   line-height: 1.4;
 }
 
+.insiders-auth-note {
+  display: grid;
+  gap: 7px;
+}
+
+.insiders-auth-note strong {
+  color: var(--neutral-900);
+  font-size: 0.84rem;
+}
+
+.insiders-auth-note p {
+  margin: 0;
+}
+
+.insiders-auth-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
+}
+
+.insiders-auth-form input {
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--neutral-200);
+  border-radius: 10px;
+  background: white;
+  color: var(--neutral-900);
+  font: inherit;
+}
+
+.insiders-auth-form button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding-inline: 11px;
+  border-radius: 10px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .insiders-inline-error {
   border-color: color-mix(in srgb, var(--danger) 30%, white);
   color: var(--danger);
@@ -1555,7 +1598,7 @@ button:disabled {
 
 .insiders-list {
   flex: 1;
-  gap: 7px;
+  gap: 4px;
   min-height: 120px;
   padding-right: 2px;
   overflow-y: auto;
@@ -1563,18 +1606,17 @@ button:disabled {
 
 .insider-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px 32px;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 66px 28px;
+  gap: 7px;
   min-width: 0;
-  padding: 9px;
+  padding: 6px 7px;
   border: 1px solid var(--neutral-200);
-  border-radius: 12px;
+  border-radius: 10px;
   background: white;
 }
 
 .insider-row-copy {
   min-width: 0;
-  gap: 3px;
 }
 
 .insider-row-copy > div {
@@ -1585,7 +1627,8 @@ button:disabled {
 .insider-row-copy strong {
   overflow: hidden;
   color: var(--neutral-900);
-  font-size: 0.84rem;
+  font-size: 0.96rem;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1595,7 +1638,7 @@ button:disabled {
   border-radius: 999px;
   background: var(--neutral-100);
   color: var(--muted);
-  font-size: 0.58rem;
+  font-size: 0.54rem;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -1605,10 +1648,19 @@ button:disabled {
   color: var(--accent-strong);
 }
 
-.insider-row-copy small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.insider-row .insider-weight {
+  gap: 2px;
+  font-size: 0.58rem;
+}
+
+.insider-row .insider-weight input {
+  height: 30px;
+}
+
+.insider-row > .icon-button {
+  width: 28px;
+  height: 28px;
+  align-self: end;
 }
 
 .removed-insiders {
@@ -3822,6 +3874,10 @@ td button {
     --control-height: 34px;
     --control-radius: 11px;
     padding: 14px 16px;
+  }
+
+  .insiders-auth-form {
+    grid-template-columns: 1fr;
   }
 
   .topbar,

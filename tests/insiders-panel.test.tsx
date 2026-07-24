@@ -23,6 +23,20 @@ function response(version = 0): InsiderConfigurationResponse {
 }
 
 describe("InsidersPanel", () => {
+  it("offers an email sign-in path when the private editor has no session", async () => {
+    const anonymous = { ...response(), authenticated: false };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(anonymous), { status: 200 })
+    ));
+
+    render(<InsidersPanel onClose={vi.fn()} />);
+
+    expect(await screen.findByText("Sign in to edit your private list")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Email address" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Email sign-in link" })).toBeInTheDocument();
+    expect(screen.getByRole("spinbutton", { name: "Paul Graham weight" })).toBeDisabled();
+  });
+
   it("stages edits until one save and keeps all 50 defaults searchable", async () => {
     const initial = response();
     const saved = {
@@ -46,11 +60,12 @@ describe("InsidersPanel", () => {
     fireEvent.change(screen.getByRole("searchbox", { name: "Search insiders" }), { target: { value: "paulg" } });
     const row = screen.getByText("Paul Graham").closest(".insider-row") as HTMLElement;
     expect(row).toBeInTheDocument();
+    expect(within(row).queryByText(/@paulg/i)).not.toBeInTheDocument();
     fireEvent.change(within(row).getByRole("spinbutton", { name: "Paul Graham weight" }), { target: { value: "1.5" } });
     expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     const request = fetchMock.mock.calls[1][1] as RequestInit;
     expect(request.method).toBe("PUT");
@@ -58,6 +73,38 @@ describe("InsidersPanel", () => {
       expectedVersion: 0,
       weightOverrides: { "paul-graham": 1.5 }
     });
+    expect(await screen.findByText("Saved")).toBeInTheDocument();
+  });
+
+  it("waits for personalized score recomputation before reporting the save complete", async () => {
+    const initial = response();
+    const saved = {
+      ...initial,
+      configuration: {
+        ...initial.configuration,
+        version: 1,
+        weightOverrides: { "paul-graham": 2 }
+      },
+      effectiveMembers: initial.effectiveMembers.map((member) =>
+        member.personId === "paul-graham" ? { ...member, weight: 2 } : member
+      )
+    };
+    vi.stubGlobal("fetch", vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify(initial), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(saved), { status: 200 })));
+    let finishRecompute: (() => void) | undefined;
+    const onSaved = vi.fn(() => new Promise<void>((resolve) => {
+      finishRecompute = resolve;
+    }));
+
+    render(<InsidersPanel onClose={vi.fn()} onSaved={onSaved} />);
+    const weight = await screen.findByRole("spinbutton", { name: "Paul Graham weight" });
+    fireEvent.change(weight, { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
+
+    expect(await screen.findByText("Recomputing scores…")).toBeInTheDocument();
+    expect(onSaved).toHaveBeenCalledOnce();
+    finishRecompute?.();
     expect(await screen.findByText("Saved")).toBeInTheDocument();
   });
 
@@ -102,10 +149,10 @@ describe("InsidersPanel", () => {
 
     render(<InsidersPanel onClose={vi.fn()} />);
     fireEvent.click(await screen.findByRole("button", { name: "Remove Paul Graham" }));
-    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("No changes were saved");
     expect(screen.getByText("49 insiders")).toBeInTheDocument();
     expect(screen.getByText("Not saved")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save changes" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Save & recompute" })).toBeEnabled();
   });
 });

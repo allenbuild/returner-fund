@@ -25,7 +25,11 @@ import {
   type InsiderConfigurationResponse,
   type UserInsiderConfiguration
 } from "@/lib/social/user-insiders";
-import { insiderApiFetch } from "@/lib/social/user-insiders-client";
+import {
+  insiderApiFetch,
+  requestInsiderSignInLink,
+  subscribeToInsiderAuth
+} from "@/lib/social/user-insiders-client";
 import { formatPlatform } from "./PlatformLogo";
 
 const ADD_PLATFORMS = ["x", "linkedin", "github", "instagram", "youtube"] as const satisfies readonly Platform[];
@@ -37,7 +41,7 @@ export interface InsidersPanelHandle {
 interface InsidersPanelProps {
   onClose: () => void;
   onDirtyChange?: (dirty: boolean) => void;
-  onSaved?: () => void;
+  onSaved?: () => void | Promise<void>;
 }
 
 interface PendingLeave {
@@ -53,8 +57,11 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
   const [draft, setDraft] = useState<UserInsiderConfiguration | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "saved" | "recomputing" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [signInEmail, setSignInEmail] = useState("");
+  const [signInSending, setSignInSending] = useState(false);
+  const [signInSent, setSignInSent] = useState(false);
   const [query, setQuery] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [addName, setAddName] = useState("");
@@ -82,6 +89,11 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => subscribeToInsiderAuth(() => {
+    setSignInSent(false);
+    void load();
+  }), [load]);
 
   const dirty = useMemo(
     () => Boolean(saved && draft && configurationSignature(saved) !== configurationSignature(draft)),
@@ -148,8 +160,9 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
       setResponse(payload);
       setSaved(cloneConfiguration(payload.configuration));
       setDraft(cloneConfiguration(payload.configuration));
+      setStatus("recomputing");
+      await onSaved?.();
       setStatus("saved");
-      onSaved?.();
       return true;
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "No changes were saved.");
@@ -159,6 +172,24 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
       setSaving(false);
     }
   }, [draft, onSaved, response?.authenticated, saving]);
+
+  async function sendSignInLink() {
+    const email = signInEmail.trim();
+    if (!email) {
+      setError("Enter your email address.");
+      return;
+    }
+    setSignInSending(true);
+    setError(null);
+    try {
+      await requestInsiderSignInLink(email);
+      setSignInSent(true);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The sign-in link could not be sent.");
+    } finally {
+      setSignInSending(false);
+    }
+  }
 
   const requestLeave = useCallback((action: () => void) => {
     if (!dirty) {
@@ -296,7 +327,35 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
         <>
           {!response.authenticated && (
             <div className="insiders-auth-note" role="status">
-              Sign in to edit and save this private list. The built-in 50 insiders remain active.
+              <strong>Sign in to edit your private list</strong>
+              {signInSent ? (
+                <p>Check your email for the sign-in link, then return here. Your list will unlock automatically.</p>
+              ) : (
+                <>
+                  <p>Enter your email once to unlock weights, additions, and removals.</p>
+                  <div className="insiders-auth-form">
+                    <input
+                      type="email"
+                      value={signInEmail}
+                      onChange={(event) => setSignInEmail(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") void sendSignInLink();
+                      }}
+                      placeholder="you@example.com"
+                      aria-label="Email address"
+                    />
+                    <button
+                      type="button"
+                      className="primary-button"
+                      disabled={signInSending}
+                      onClick={() => void sendSignInLink()}
+                    >
+                      {signInSending ? <LoaderCircle className="spin" size={15} /> : null}
+                      Email sign-in link
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -307,7 +366,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search name or handle"
+                placeholder="Search names"
                 aria-label="Search insiders"
               />
             </label>
@@ -361,7 +420,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
 
           <div className="insiders-list-summary">
             <strong>{effectiveMembers.length} insiders</strong>
-            <span>{visibleMembers.length === effectiveMembers.length ? "Default and added members" : `${visibleMembers.length} matches`}</span>
+            <span>{visibleMembers.length === effectiveMembers.length ? "Save to recompute scores" : `${visibleMembers.length} matches`}</span>
           </div>
 
           <div className="insiders-list">
@@ -374,9 +433,6 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
                       {member.source === "user-added" ? "Added" : "Default"}
                     </span>
                   </div>
-                  <small>
-                    {formatHandles(member)}
-                  </small>
                 </div>
                 <label className="insider-weight">
                   <span>Weight</span>
@@ -426,7 +482,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
 
           <footer className="insiders-save-footer">
             <div aria-live="polite">
-              {saving ? "Saving…" : status === "saved" ? (
+              {status === "recomputing" ? "Recomputing scores…" : saving ? "Saving…" : status === "saved" ? (
                 <><Check size={14} /> Saved</>
               ) : status === "error" ? "Not saved" : dirty ? "Unsaved changes" : "No changes"}
             </div>
@@ -437,7 +493,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
               onClick={() => void save()}
             >
               {saving ? <LoaderCircle className="spin" size={15} /> : null}
-              Save changes
+              Save & recompute
             </button>
           </footer>
 
@@ -483,12 +539,6 @@ function configurationSignature(configuration: UserInsiderConfiguration): string
     weightOverrides: Object.fromEntries(Object.entries(configuration.weightOverrides).sort(([a], [b]) => a.localeCompare(b))),
     addedInsiders: configuration.addedInsiders
   });
-}
-
-function formatHandles(member: TopVoiceMember): string {
-  const handles = Object.entries(member.handles)
-    .flatMap(([platform, values]) => (values ?? []).map((value) => `${formatPlatform(platform as Platform)} @${value}`));
-  return handles.length ? handles.join(" · ") : member.personId;
 }
 
 function normalizeHandle(value: string): string {
