@@ -295,6 +295,12 @@ export function resolveTopVoiceAudience(value: string | null | undefined): { sum
   };
 }
 
+export function defaultInsiderMembers(): TopVoiceMember[] {
+  return dedupeMembers(insiderOnlySeeds)
+    .filter((candidate) => candidate.active)
+    .map(cloneTopVoiceMember);
+}
+
 export function topVoiceAudienceSummaries(): TopVoiceAudienceSummary[] {
   return [
     TOP_VOICE_OFF_SUMMARY,
@@ -302,6 +308,16 @@ export function topVoiceAudienceSummaries(): TopVoiceAudienceSummary[] {
       .filter((set) => set.active)
       .map((set) => summaryFor(set, dedupeMembers(set.members).length))
   ];
+}
+
+function cloneTopVoiceMember(member: TopVoiceMember): TopVoiceMember {
+  return {
+    ...member,
+    aliases: [...member.aliases],
+    handles: Object.fromEntries(
+      Object.entries(member.handles).map(([platform, handles]) => [platform, [...(handles ?? [])]])
+    ) as Partial<Record<Platform, string[]>>
+  };
 }
 
 export function matchEvidenceToTopVoice(

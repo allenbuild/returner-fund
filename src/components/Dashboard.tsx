@@ -25,6 +25,7 @@ import {
 } from "react";
 import { CytoscapeGraph } from "./CytoscapeGraph";
 import { InsightsTabs } from "./InsightsTabs";
+import { InsidersPanel, type InsidersPanelHandle } from "./InsidersPanel";
 import { NodePanel } from "./NodePanel";
 import { formatPlatform, PlatformLogo } from "./PlatformLogo";
 import { trackAnalyticsEvent, type AnalyticsEventPayloads } from "@/lib/analytics";
@@ -55,6 +56,7 @@ import {
   millisecondsUntilNextCentralMidnight
 } from "@/lib/time/central-day";
 import { normalizeTopVoiceAudienceId, topVoiceAudienceSummaries } from "@/lib/social/top-voices";
+import { insiderAccessToken } from "@/lib/social/user-insiders-client";
 import { PLATFORM_VALUES, type GraphResponse, type Platform, type TopVoiceAudienceId } from "@/lib/graph/types";
 
 type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices";
@@ -115,7 +117,7 @@ function isAbortError(error: unknown): boolean {
 async function fetchGraphPayload(
   url: string,
   attempts = 3,
-  options: { cache?: RequestCache; signal?: AbortSignal; timeoutMs?: number } = {}
+  options: { cache?: RequestCache; signal?: AbortSignal; timeoutMs?: number; accessToken?: string | null } = {}
 ): Promise<GraphResponse> {
   let lastError: Error | null = null;
 
@@ -123,7 +125,10 @@ async function fetchGraphPayload(
     try {
       return await fetchWithTimeout(
         url,
-        { cache: options.cache ?? "no-store" },
+        {
+          cache: options.cache ?? "no-store",
+          headers: options.accessToken ? { authorization: `Bearer ${options.accessToken}` } : undefined
+        },
         options.timeoutMs ?? API_GRAPH_TIMEOUT_MS,
         async (response) => {
           if (!response.ok) {
@@ -157,7 +162,9 @@ async function fetchGraphPayloadWithStaticSnapshot(
     expectedTopVoiceAudience: TopVoiceAudienceId;
   }
 ): Promise<GraphPayloadResult> {
-  if (staticSnapshotUrl) {
+  const accessToken = await insiderAccessToken();
+  const personalizedInsiders = options.expectedTopVoiceAudience === "insiders" && Boolean(accessToken);
+  if (staticSnapshotUrl && !personalizedInsiders) {
     try {
       const staticPayload = await fetchGraphPayload(staticSnapshotUrl, 2, {
         cache: "no-store",
@@ -181,7 +188,8 @@ async function fetchGraphPayloadWithStaticSnapshot(
   const apiGraph = await fetchGraphPayload(apiUrl, attempts, {
     cache: "no-store",
     timeoutMs: API_GRAPH_TIMEOUT_MS,
-    signal: options.signal
+    signal: options.signal,
+    accessToken
   });
   if (!graphMatchesSelection(apiGraph, options.expectedBatchSlug, options.expectedTopVoiceAudience)) {
     throw new Error("Graph response does not match the selected graph scope");
@@ -506,6 +514,9 @@ export function Dashboard({
     )
   );
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialSelectedNodeId(preparedInitialGraph));
+  const [detailPaneView, setDetailPaneView] = useState<"company" | "insiders">(() =>
+    initialTopVoiceAudience(preparedInitialGraph, initialTopVoiceAudienceProp) === "insiders" ? "insiders" : "company"
+  );
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(() => initialSelectedPlatforms(initialFilters));
   const [selectedTopics, setSelectedTopics] = useState<PostTopic[]>(() => normalizeInitialTopics(initialFilters?.topics));
   const [selectedVerticals, setSelectedVerticals] = useState<CompanyVertical[]>(() => normalizeInitialVerticals(initialFilters?.verticals));
@@ -529,6 +540,7 @@ export function Dashboard({
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterBandRef = useRef<HTMLElement | null>(null);
   const dashboardGridRef = useRef<HTMLElement | null>(null);
+  const insidersPanelRef = useRef<InsidersPanelHandle | null>(null);
   const graphRequestIdRef = useRef(0);
   const scopeTransitionTimerRef = useRef<number | null>(null);
   const graphFetchSequenceRef = useRef(0);
@@ -880,6 +892,27 @@ export function Dashboard({
     }
   }, [getOrStartGraphRequest, isCurrentGraphRequest, rememberGraph]);
 
+  const refreshPersonalizedInsiders = useCallback(() => {
+    for (const key of [...graphCacheRef.current.keys()]) {
+      if (key.endsWith("::insiders")) graphCacheRef.current.delete(key);
+    }
+    invalidateGraphRequests();
+    if (selectionRef.current.topVoiceAudience === "insiders") {
+      window.setTimeout(() => void fetchGraph({ forceApi: true, unfiltered: true }), 0);
+    }
+  }, [fetchGraph, invalidateGraphRequests]);
+
+  useEffect(() => {
+    if (topVoiceAudience !== "insiders") return undefined;
+    let cancelled = false;
+    void insiderAccessToken().then((accessToken) => {
+      if (!cancelled && accessToken) refreshPersonalizedInsiders();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshPersonalizedInsiders, topVoiceAudience]);
+
   useEffect(() => {
     if (graphMatchesSelection(mapMetadataGraph, batchSlug, DEFAULT_TOP_VOICE_AUDIENCE)) {
       return undefined;
@@ -1122,14 +1155,19 @@ export function Dashboard({
     if (!node) {
       return;
     }
-    setSelectedNodeId(nodeId);
-    setHighlightedFounderId(null);
-    setGraphFocusRevision((current) => current + 1);
-    trackAnalyticsEvent("graph_node_opened", {
-      node_type: node.entityType,
-      source
-    });
-  }, [mapGraph]);
+    const select = () => {
+      setDetailPaneView("company");
+      setSelectedNodeId(nodeId);
+      setHighlightedFounderId(null);
+      setGraphFocusRevision((current) => current + 1);
+      trackAnalyticsEvent("graph_node_opened", {
+        node_type: node.entityType,
+        source
+      });
+    };
+    if (detailPaneView === "insiders") insidersPanelRef.current?.requestLeave(select);
+    else select();
+  }, [detailPaneView, mapGraph]);
 
   const selectRankedNode = useCallback(
     (nodeId: string) => {
@@ -1158,20 +1196,25 @@ export function Dashboard({
     if (!node) {
       return;
     }
-    submitSearchTelemetry();
-    trackAnalyticsEvent("result_opened", {
-      result_type: result.kind,
-      position: Math.max(0, searchResults.findIndex((candidate) => candidate === result)) + 1
-    });
-    trackAnalyticsEvent("graph_node_opened", {
-      node_type: node.entityType,
-      source: "search"
-    });
-    setSelectedNodeId(result.companyNodeId);
-    setHighlightedFounderId(result.kind === "founder" ? result.id : null);
-    setSearchOpen(false);
-    setGraphFocusRevision((current) => current + 1);
-  }, [mapGraph, searchResults, submitSearchTelemetry]);
+    const select = () => {
+      submitSearchTelemetry();
+      trackAnalyticsEvent("result_opened", {
+        result_type: result.kind,
+        position: Math.max(0, searchResults.findIndex((candidate) => candidate === result)) + 1
+      });
+      trackAnalyticsEvent("graph_node_opened", {
+        node_type: node.entityType,
+        source: "search"
+      });
+      setDetailPaneView("company");
+      setSelectedNodeId(result.companyNodeId);
+      setHighlightedFounderId(result.kind === "founder" ? result.id : null);
+      setSearchOpen(false);
+      setGraphFocusRevision((current) => current + 1);
+    };
+    if (detailPaneView === "insiders") insidersPanelRef.current?.requestLeave(select);
+    else select();
+  }, [detailPaneView, mapGraph, searchResults, submitSearchTelemetry]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1327,11 +1370,15 @@ export function Dashboard({
     activeActionAbortRef.current = controller;
 
     try {
+      const accessToken = await insiderAccessToken();
       const payload = await fetchWithTimeout<SuccessfulRefreshResponse>(
         "/api/graph/refresh",
         {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: {
+            "content-type": "application/json",
+            ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {})
+          },
           body: JSON.stringify({
             action,
             batchSlug,
@@ -1589,10 +1636,14 @@ export function Dashboard({
                 value={batchSlug}
                 onChange={(event) => {
                   const nextBatchSlug = event.target.value;
-                  if (nextBatchSlug !== batchSlug) {
-                    trackFilterChange("batch", "set", 1);
-                  }
-                  transitionGraphScope(nextBatchSlug, topVoiceAudience);
+                  const changeBatch = () => {
+                    if (nextBatchSlug !== batchSlug) {
+                      trackFilterChange("batch", "set", 1);
+                    }
+                    transitionGraphScope(nextBatchSlug, topVoiceAudience);
+                  };
+                  if (detailPaneView === "insiders") insidersPanelRef.current?.requestLeave(changeBatch);
+                  else changeBatch();
                 }}
               >
                 {batches.map((batch) => (
@@ -1690,11 +1741,19 @@ export function Dashboard({
           onOpenChange={(open) => setOpenFilterMenu(open ? "topVoices" : null)}
           onSelect={(value) => {
             const nextTopVoiceAudience = normalizeTopVoiceAudienceId(value);
-            if (nextTopVoiceAudience !== topVoiceAudience) {
-              trackFilterChange("top_voices", nextTopVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? "cleared" : "set", nextTopVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? 0 : 1);
+            const changeAudience = () => {
+              if (nextTopVoiceAudience !== topVoiceAudience) {
+                trackFilterChange("top_voices", nextTopVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? "cleared" : "set", nextTopVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? 0 : 1);
+              }
+              transitionGraphScope(batchSlug, nextTopVoiceAudience);
+              setDetailPaneView(nextTopVoiceAudience === "insiders" ? "insiders" : "company");
+              setOpenFilterMenu(null);
+            };
+            if (detailPaneView === "insiders" && nextTopVoiceAudience !== "insiders") {
+              insidersPanelRef.current?.requestLeave(changeAudience);
+            } else {
+              changeAudience();
             }
-            transitionGraphScope(batchSlug, nextTopVoiceAudience);
-            setOpenFilterMenu(null);
           }}
         />
 
@@ -1854,12 +1913,20 @@ export function Dashboard({
               </div>
             )}
           </div>
-          <NodePanel
-            node={selectedNode}
-            relatedNodes={relatedNodes}
-            evidence={selectedEvidence}
-            highlightedFounderId={highlightedFounderId}
-          />
+          {detailPaneView === "insiders" ? (
+            <InsidersPanel
+              ref={insidersPanelRef}
+              onClose={() => setDetailPaneView("company")}
+              onSaved={refreshPersonalizedInsiders}
+            />
+          ) : (
+            <NodePanel
+              node={selectedNode}
+              relatedNodes={relatedNodes}
+              evidence={selectedEvidence}
+              highlightedFounderId={highlightedFounderId}
+            />
+          )}
           {settledGraph && (
             <InsightsTabs
               graph={settledGraph}

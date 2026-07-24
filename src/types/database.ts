@@ -1469,9 +1469,45 @@ export interface Database {
           updated_at?: string;
         }
       >;
+      user_insider_configurations: TableDefinition<
+        {
+          user_id: string;
+          version: number;
+          excluded_default_ids: string[];
+          weight_overrides: Json;
+          added_insiders: Json;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        },
+        {
+          user_id: string;
+          version?: number;
+          excluded_default_ids?: string[];
+          weight_overrides?: Json;
+          added_insiders?: Json;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        },
+        {
+          version?: number;
+          excluded_default_ids?: string[];
+          weight_overrides?: Json;
+          added_insiders?: Json;
+          updated_at?: Timestamp;
+        }
+      >;
     };
     Views: Record<string, never>;
     Functions: {
+      save_user_insider_configuration: {
+        Args: {
+          p_expected_version: number;
+          p_excluded_default_ids: string[];
+          p_weight_overrides: Json;
+          p_added_insiders: Json;
+        };
+        Returns: Database["public"]["Tables"]["user_insider_configurations"]["Row"];
+      };
       claim_ingestion_runtime_lock: {
         Args: {
           p_lock_key: string;

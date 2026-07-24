@@ -916,7 +916,7 @@ describe("dashboard filters", () => {
     expect(within(screen.getByTestId("graph-canvas")).queryByText("Insider Graph")).not.toBeInTheDocument();
     expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:insider");
     expect(screen.getByTestId("graph-canvas").getAttribute("data-focus-signature")).toContain("topVoices:insiders");
-    expect(await screen.findByRole("button", { name: "Open profile Default Graph" })).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "Insiders editor" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Open leaderboard Insider Graph" })).toBeInTheDocument();
     expect(resultsRegion).toHaveAttribute("aria-busy", "false");
     expect(resultsGrid).not.toHaveAttribute("inert");

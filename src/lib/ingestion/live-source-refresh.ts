@@ -146,6 +146,7 @@ export interface LiveSourceRefreshOptions {
   xTargetHandles?: string[];
   xSourceUrls?: string[];
   topVoices?: TopVoiceAudienceId;
+  topVoiceMembers?: TopVoiceMember[];
   maxTopVoiceXTargets?: number;
   stageLogPath?: string;
   signal?: AbortSignal;
@@ -478,7 +479,7 @@ async function executeLiveSourceRefresh(
       }
     } else {
       const matchTargets = await loadCompanyMatchTargets(rootDir, batchSlugs, log);
-      const targets = loadTopVoiceXTargets(topVoiceAudience, batchSlugs);
+      const targets = loadTopVoiceXTargets(topVoiceAudience, batchSlugs, options.topVoiceMembers);
       log({
         stage: "parsed",
         platform: "x",
@@ -1208,9 +1209,15 @@ function isDistinctiveSingleWordBrand(raw: string, normalized: string): boolean 
   return normalized.length >= 10 || /[a-z][A-Z]|[A-Z][a-z]+[A-Z]|[0-9.]/.test(raw);
 }
 
-function loadTopVoiceXTargets(audienceId: TopVoiceAudienceId, batchSlugs: string[]): TopVoiceXTarget[] {
-  const audience = resolveTopVoiceAudience(audienceId);
-  return audience.members.flatMap((member) =>
+function loadTopVoiceXTargets(
+  audienceId: TopVoiceAudienceId,
+  batchSlugs: string[],
+  memberOverride?: TopVoiceMember[]
+): TopVoiceXTarget[] {
+  const members = audienceId === "insiders" && memberOverride
+    ? memberOverride
+    : resolveTopVoiceAudience(audienceId).members;
+  return members.flatMap((member) =>
     (member.handles.x ?? []).map((handle) => ({
       platform: "x" as const,
       batchSlug: batchSlugs.join(","),

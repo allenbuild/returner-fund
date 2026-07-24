@@ -27,6 +27,11 @@ import { loadLiveEvidenceRecords } from "@/lib/ingestion/live-source-refresh";
 import { centralDayKey, millisecondsUntilNextCentralMidnight } from "@/lib/time/central-day";
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { BusinessModel, EdgeType, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
+import { effectiveInsiderMembers } from "@/lib/social/user-insiders";
+import {
+  authenticateInsiderRequest,
+  loadUserInsiderConfiguration
+} from "@/lib/social/user-insiders-server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -191,6 +196,24 @@ export async function GET(request: Request) {
     query: query.q,
     topVoices: query.topVoices
   };
+  let insiderMembers: ReturnType<typeof effectiveInsiderMembers> | undefined;
+  let insiderConfigurationCacheKey = "built-in";
+  if (query.topVoices === "insiders") {
+    const authenticated = await authenticateInsiderRequest(request);
+    if (authenticated) {
+      try {
+        const configuration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
+        insiderMembers = effectiveInsiderMembers(configuration);
+        insiderConfigurationCacheKey = `${authenticated.userId}:${configuration.version}`;
+      } catch (error) {
+        console.error("Personalized Insiders configuration load failed", error);
+        return NextResponse.json(
+          { error: { code: "insider_configuration_load_failed", message: "Your private Insiders list could not be loaded." } },
+          { status: 500, headers: { "Cache-Control": "private, no-store, max-age=0" } }
+        );
+      }
+    }
+  }
   let liveEvidence: Awaited<ReturnType<typeof loadLiveEvidenceRecords>>;
   try {
     liveEvidence = await loadLiveEvidenceRecords();
@@ -211,7 +234,8 @@ export async function GET(request: Request) {
     dataset: "yc-2026-official",
     benchmarkCentralDay: centralDayKey(now),
     benchmarkStore: benchmarkStoreVersion(batchSlug),
-    liveEvidence: liveEvidenceCacheVersion(liveEvidence)
+    liveEvidence: liveEvidenceCacheVersion(liveEvidence),
+    insiderConfiguration: insiderConfigurationCacheKey
   });
   const cacheTtlMs = Math.min(
     GRAPH_RESPONSE_CACHE_TTL_MS,
@@ -243,7 +267,8 @@ export async function GET(request: Request) {
         : inheritCanonicalCompanyScoring(
             buildGraphResponse(
               { batchSlug, topVoices: filters.topVoices },
-              datasetWithLiveEvidence(dataset, liveEvidence)
+              datasetWithLiveEvidence(dataset, liveEvidence),
+              { insiderMembers }
             ),
             canonicalGraph
           );

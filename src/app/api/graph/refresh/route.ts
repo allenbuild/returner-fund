@@ -28,7 +28,12 @@ import {
   type LiveSourceRefreshResult
 } from "@/lib/ingestion/live-source-refresh";
 import { isCurrentCentralDay } from "@/lib/time/central-day";
-import type { EdgeType, GraphResponse, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
+import type { EdgeType, GraphResponse, Platform, TopVoiceAudienceId, TopVoiceMember } from "@/lib/graph/types";
+import { effectiveInsiderMembers } from "@/lib/social/user-insiders";
+import {
+  authenticateInsiderRequest,
+  loadUserInsiderConfiguration
+} from "@/lib/social/user-insiders-server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -318,7 +323,27 @@ export async function POST(request: Request) {
   }
 
   const body = parsed.data;
-  const requestKey = refreshRequestKey(body);
+  let insiderMembers: TopVoiceMember[] | undefined;
+  let insiderRequestScope = "built-in";
+  if (body.topVoices === "insiders") {
+    const authenticated = await authenticateInsiderRequest(request);
+    if (authenticated) {
+      try {
+        const configuration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
+        insiderMembers = effectiveInsiderMembers(configuration);
+        insiderRequestScope = `${authenticated.userId}:${configuration.version}`;
+      } catch (error) {
+        console.error("Personalized Insiders refresh configuration load failed", error);
+        return errorResponse(
+          500,
+          "insider_configuration_load_failed",
+          ["Your private Insiders list could not be loaded."],
+          requestStartedAt
+        );
+      }
+    }
+  }
+  const requestKey = `${refreshRequestKey(body)}:${insiderRequestScope}`;
   const activeRefresh = inFlightRefresh;
   if (activeRefresh) {
     if (activeRefresh.key !== requestKey) {
@@ -353,7 +378,7 @@ export async function POST(request: Request) {
   const startedAt = new Date().toISOString();
   const abortController = new AbortController();
   const unlinkRequestSignal = forwardAbortSignal(request.signal, abortController);
-  const executionPromise = executeRefresh(body, observability, abortController.signal).catch((error) =>
+  const executionPromise = executeRefresh(body, observability, abortController.signal, insiderMembers).catch((error) =>
     request.signal.aborted
       ? cancelledRefreshFailure(observability, requestKey)
       : unexpectedRefreshFailure(error, observability, requestKey)
@@ -379,7 +404,8 @@ export async function POST(request: Request) {
 async function executeRefresh(
   body: RefreshRequest,
   observability: RefreshExecutionObservability,
-  signal: AbortSignal
+  signal: AbortSignal,
+  insiderMembers?: TopVoiceMember[]
 ): Promise<RefreshRouteResult> {
   const routeStartedAt = observability.routeStartedAt;
   const action = body.action;
@@ -394,6 +420,7 @@ async function executeRefresh(
     batchSlug,
     platforms: body.platforms,
     topVoices,
+    topVoiceMembers: insiderMembers,
     xSourceUrls: body.sourceUrls,
     maxPostsPerTarget: 1,
     maxXTargets: targetScope.profileTargetLimit,
@@ -423,7 +450,7 @@ async function executeRefresh(
     });
   }
   throwIfRefreshAborted(signal);
-  const graphResolution = await resolveGraph(batchSlug, topVoices, liveEvidenceRecords);
+  const graphResolution = await resolveGraph(batchSlug, topVoices, liveEvidenceRecords, insiderMembers);
   throwIfRefreshAborted(signal);
   const filteredGraph = applyRefreshClientFilters(graphResolution.overlay.graph, body);
   const sanitizedGraph = sanitizeGraphResponse(filteredGraph);
@@ -1079,9 +1106,12 @@ function formatRefreshOutcome(status: RefreshOutcomeStatus): string {
 async function resolveGraph(
   batchSlug: string,
   topVoices: TopVoiceAudienceId,
-  liveEvidenceRecords: LiveEvidenceRecord[]
+  liveEvidenceRecords: LiveEvidenceRecord[],
+  insiderMembers?: TopVoiceMember[]
 ): Promise<GraphResolution> {
-  const snapshot = await loadGeneratedGraphSnapshot(batchSlug, topVoices);
+  const snapshot = insiderMembers
+    ? { graph: null, fallbackReason: "top_voice_live_evidence_requires_rebuild" as const }
+    : await loadGeneratedGraphSnapshot(batchSlug, topVoices);
   let fallbackReason = snapshot.fallbackReason;
 
   if (snapshot.graph) {
@@ -1156,7 +1186,8 @@ async function resolveGraph(
     : inheritCanonicalCompanyScoring(
         graphBuilder.buildGraphResponse(
           { batchSlug, topVoices },
-          datasetWithLiveEvidence(dataset, liveEvidenceRecords)
+          datasetWithLiveEvidence(dataset, liveEvidenceRecords),
+          { insiderMembers }
         ),
         canonicalGraph
       );

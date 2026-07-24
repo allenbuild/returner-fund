@@ -81,7 +81,7 @@ export function createBrowserSupabaseClient(): AppSupabaseClient | null {
   return browserClient;
 }
 
-export function createServerSupabaseClient(options: { useServiceRole?: boolean } = {}): AppSupabaseClient | null {
+export function createServerSupabaseClient(options: { useServiceRole?: boolean; accessToken?: string } = {}): AppSupabaseClient | null {
   if (options.useServiceRole && typeof window !== "undefined") {
     throw new Error("Service-role Supabase clients can only be created on the server.");
   }
@@ -102,12 +102,13 @@ export function createServerSupabaseClient(options: { useServiceRole?: boolean }
     global: {
       headers: {
         "X-Client-Info": "yc-network-intelligence",
+        ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {})
       },
     },
   });
 }
 
-export function requireServerSupabaseClient(options: { useServiceRole?: boolean } = {}): AppSupabaseClient {
+export function requireServerSupabaseClient(options: { useServiceRole?: boolean; accessToken?: string } = {}): AppSupabaseClient {
   const client = createServerSupabaseClient(options);
 
   if (!client) {

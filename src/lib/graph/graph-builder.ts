@@ -78,7 +78,8 @@ export function clearTopVoiceRollupCache(): void {
 
 export function buildGraphResponse(
   filters: GraphFilters = {},
-  dataset: DemoGraphDataset = yc2026GraphDataset
+  dataset: DemoGraphDataset = yc2026GraphDataset,
+  options: { insiderMembers?: TopVoiceMember[] } = {}
 ): GraphResponse {
   const responseBuiltAt = new Date().toISOString();
   const batch = resolveBatch(filters.batchSlug, dataset);
@@ -89,7 +90,16 @@ export function buildGraphResponse(
   const selectedGroupPartners = normalizeStrings(filters.groupPartners);
   const selectedBusinessModels = normalizeStrings(filters.businessModels);
   const query = filters.query?.trim().toLowerCase() ?? "";
-  const topVoiceAudience = resolveTopVoiceAudience(filters.topVoices);
+  const resolvedTopVoiceAudience = resolveTopVoiceAudience(filters.topVoices);
+  const topVoiceAudience = resolvedTopVoiceAudience.summary.id === "insiders" && options.insiderMembers
+    ? {
+        summary: {
+          ...resolvedTopVoiceAudience.summary,
+          memberCount: options.insiderMembers.length
+        },
+        members: options.insiderMembers
+      }
+    : resolvedTopVoiceAudience;
   const topVoiceMode = topVoiceAudience.summary.id !== "off";
 
   const baseBatchCompanies = dataset.companies
@@ -660,7 +670,17 @@ function topVoiceRollupCacheKey(
     evidence.length,
     evidenceSignature(evidence),
     members
-      .map((member) => [member.personId, member.displayName, member.category, member.weight].join("|"))
+      .map((member) => [
+        member.personId,
+        member.displayName,
+        member.category,
+        member.weight,
+        [...member.aliases].sort().join(","),
+        Object.entries(member.handles)
+          .sort(([left], [right]) => left.localeCompare(right))
+          .map(([platform, handles]) => `${platform}:${[...(handles ?? [])].sort().join(",")}`)
+          .join(";")
+      ].join("|"))
       .join(",")
   ].join("::");
 }
