@@ -59,7 +59,7 @@ import { normalizeTopVoiceAudienceId, topVoiceAudienceSummaries } from "@/lib/so
 import { insiderAccessToken } from "@/lib/social/user-insiders-client";
 import { PLATFORM_VALUES, type GraphResponse, type Platform, type TopVoiceAudienceId } from "@/lib/graph/types";
 
-type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices";
+type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices" | "insiders";
 
 interface DropdownOption<T extends string> {
   value: T;
@@ -163,8 +163,8 @@ async function fetchGraphPayloadWithStaticSnapshot(
   }
 ): Promise<GraphPayloadResult> {
   const accessToken = await insiderAccessToken();
-  const personalizedInsiders = options.expectedTopVoiceAudience === "insiders" && Boolean(accessToken);
-  if (staticSnapshotUrl && !personalizedInsiders) {
+  const dynamicInsiders = options.expectedTopVoiceAudience === "insiders";
+  if (staticSnapshotUrl && !dynamicInsiders) {
     try {
       const staticPayload = await fetchGraphPayload(staticSnapshotUrl, 2, {
         cache: "no-store",
@@ -323,8 +323,12 @@ function initialTopVoiceAudience(
   return graph?.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE;
 }
 
-function graphCacheKey(batchSlug: string, topVoiceAudience: TopVoiceAudienceId): string {
-  return `${batchSlug}::${topVoiceAudience}`;
+function graphCacheKey(
+  batchSlug: string,
+  topVoiceAudience: TopVoiceAudienceId,
+  insiderIds: readonly string[] = []
+): string {
+  return `${batchSlug}::${topVoiceAudience}::${[...insiderIds].sort().join(",")}`;
 }
 
 function graphMatchesSelection(
@@ -333,6 +337,14 @@ function graphMatchesSelection(
   topVoiceAudience: TopVoiceAudienceId
 ): graph is GraphResponse {
   return graph?.batch.slug === batchSlug && (graph.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE) === topVoiceAudience;
+}
+
+function graphMatchesInsiderSelection(
+  graph: GraphResponse | null | undefined,
+  audience: TopVoiceAudienceId,
+  insiderIds: readonly string[]
+): boolean {
+  return audience !== "insiders" || sameValues(graph?.selectedInsiderIds ?? [], insiderIds);
 }
 
 function normalizeInitialPlatforms(platforms: Platform[] | undefined): Platform[] {
@@ -362,6 +374,12 @@ function normalizeInitialList(values: string[] | undefined): string[] {
 
 function queryList(params: URLSearchParams, key: string): string[] {
   return normalizeInitialList(params.get(key)?.split(",")).slice(0, 50);
+}
+
+function sameValues(left: readonly string[], right: readonly string[]): boolean {
+  if (left.length !== right.length) return false;
+  const rightSet = new Set(right);
+  return left.every((value) => rightSet.has(value));
 }
 
 function queryTopics(params: URLSearchParams): PostTopic[] {
@@ -522,6 +540,7 @@ export function Dashboard({
   const [selectedVerticals, setSelectedVerticals] = useState<CompanyVertical[]>(() => normalizeInitialVerticals(initialFilters?.verticals));
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>(() => normalizeInitialList(initialFilters?.industries));
   const [selectedGroupPartners, setSelectedGroupPartners] = useState<string[]>(() => normalizeInitialList(initialFilters?.groupPartners));
+  const [selectedInsiderIds, setSelectedInsiderIds] = useState<string[]>([]);
   const [minScore, setMinScore] = useState(initialFilters?.minScore ?? 0);
   const [minScoreDraft, setMinScoreDraft] = useState(initialFilters?.minScore ?? 0);
   const [graphFocusRevision, setGraphFocusRevision] = useState(0);
@@ -548,7 +567,7 @@ export function Dashboard({
   const graphInFlightRef = useRef<Map<string, InFlightGraphRequest>>(new Map());
   const actionRequestIdRef = useRef(0);
   const activeActionAbortRef = useRef<AbortController | null>(null);
-  const selectionRef = useRef({ batchSlug, topVoiceAudience });
+  const selectionRef = useRef({ batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds });
   const initialGraphHydratedRef = useRef(Boolean(preparedInitialGraph));
   const lastSubmittedQueryRef = useRef("");
   const currentFilters = useMemo<ClientGraphFilters>(
@@ -569,8 +588,8 @@ export function Dashboard({
   }, [currentFilters]);
 
   useEffect(() => {
-    selectionRef.current = { batchSlug, topVoiceAudience };
-  }, [batchSlug, topVoiceAudience]);
+    selectionRef.current = { batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds };
+  }, [batchSlug, selectedInsiderIds, topVoiceAudience]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -586,6 +605,9 @@ export function Dashboard({
       }
       if (params.has("groupPartners")) {
         setSelectedGroupPartners(queryList(params, "groupPartners"));
+      }
+      if (params.has("insiderIds")) {
+        setSelectedInsiderIds(queryList(params, "insiderIds"));
       }
       const urlMinScore = params.get("minScore");
       if (urlMinScore !== null) {
@@ -604,7 +626,11 @@ export function Dashboard({
 
   const rememberGraph = useCallback((payload: GraphResponse, source: GraphPayloadSource = "api") => {
     graphCacheRef.current.set(
-      graphCacheKey(payload.batch.slug, payload.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE),
+      graphCacheKey(
+        payload.batch.slug,
+        payload.selectedTopVoiceAudience?.id ?? DEFAULT_TOP_VOICE_AUDIENCE,
+        payload.selectedInsiderIds ?? []
+      ),
       { graph: payload, source }
     );
     if (
@@ -615,8 +641,14 @@ export function Dashboard({
     }
   }, []);
 
-  const showCachedGraph = useCallback((targetBatchSlug: string, targetTopVoiceAudience: TopVoiceAudienceId) => {
-    const cachedEntry = graphCacheRef.current.get(graphCacheKey(targetBatchSlug, targetTopVoiceAudience));
+  const showCachedGraph = useCallback((
+    targetBatchSlug: string,
+    targetTopVoiceAudience: TopVoiceAudienceId,
+    targetInsiderIds: string[] = []
+  ) => {
+    const cachedEntry = graphCacheRef.current.get(
+      graphCacheKey(targetBatchSlug, targetTopVoiceAudience, targetInsiderIds)
+    );
     if (!graphMatchesSelection(cachedEntry?.graph, targetBatchSlug, targetTopVoiceAudience)) {
       return false;
     }
@@ -646,6 +678,7 @@ export function Dashboard({
     targetBatchSlug: string,
     targetTopVoiceAudience: TopVoiceAudienceId
   ) => {
+    const targetInsiderIds = targetTopVoiceAudience === "insiders" ? selectedInsiderIds : [];
     const currentSelection = selectionRef.current;
     if (
       currentSelection.batchSlug === targetBatchSlug &&
@@ -666,12 +699,13 @@ export function Dashboard({
     }
 
     abortGraphRequestsExcept([
-      graphCacheKey(targetBatchSlug, targetTopVoiceAudience),
+      graphCacheKey(targetBatchSlug, targetTopVoiceAudience, targetInsiderIds),
       graphCacheKey(targetBatchSlug, DEFAULT_TOP_VOICE_AUDIENCE)
     ]);
     selectionRef.current = {
       batchSlug: targetBatchSlug,
-      topVoiceAudience: targetTopVoiceAudience
+      topVoiceAudience: targetTopVoiceAudience,
+      insiderIds: targetInsiderIds
     };
     if (currentSelection.batchSlug !== targetBatchSlug) {
       const nextFilters = {
@@ -697,7 +731,7 @@ export function Dashboard({
     setRefreshError(null);
     setRefreshNotice(null);
 
-    if (!showCachedGraph(targetBatchSlug, targetTopVoiceAudience)) {
+    if (!showCachedGraph(targetBatchSlug, targetTopVoiceAudience, targetInsiderIds)) {
       graphRequestIdRef.current += 1;
       setLoading(true);
       setError(null);
@@ -705,7 +739,7 @@ export function Dashboard({
 
     setBatchSlug(targetBatchSlug);
     setTopVoiceAudience(targetTopVoiceAudience);
-  }, [abortGraphRequestsExcept, showCachedGraph]);
+  }, [abortGraphRequestsExcept, selectedInsiderIds, showCachedGraph]);
 
   const isCurrentGraphRequest = useCallback((request: InFlightGraphRequest) => {
     return latestGraphFetchIdRef.current.get(request.key) === request.requestId;
@@ -779,7 +813,8 @@ export function Dashboard({
 
   const fetchGraph = useCallback(async (options: { background?: boolean; forceApi?: boolean; unfiltered?: boolean } = {}) => {
     const background = options.background === true;
-    const key = graphCacheKey(batchSlug, topVoiceAudience);
+    const activeInsiderIds = topVoiceAudience === "insiders" ? selectedInsiderIds : [];
+    const key = graphCacheKey(batchSlug, topVoiceAudience, activeInsiderIds);
     const requestFilters = options.unfiltered
       ? { platforms: [], industries: [], groupPartners: [], minScore: 0 }
       : currentFiltersRef.current;
@@ -797,6 +832,9 @@ export function Dashboard({
     const params = new URLSearchParams({ batch: batchSlug });
     if (topVoiceAudience !== DEFAULT_TOP_VOICE_AUDIENCE) {
       params.set("topVoices", topVoiceAudience);
+    }
+    if (activeInsiderIds.length) {
+      params.set("insiderIds", activeInsiderIds.join(","));
     }
     if (requestFilters.platforms.length) {
       params.set("platforms", requestFilters.platforms.join(","));
@@ -829,7 +867,9 @@ export function Dashboard({
         rememberGraph(payload, result.source);
       }
       const selected = selectionRef.current;
-      const matchesCurrentSelection = graphMatchesSelection(payload, selected.batchSlug, selected.topVoiceAudience);
+      const matchesCurrentSelection =
+        graphMatchesSelection(payload, selected.batchSlug, selected.topVoiceAudience) &&
+        sameValues(payload.selectedInsiderIds ?? [], selected.insiderIds);
       if ((!background && requestId !== graphRequestIdRef.current) || !matchesCurrentSelection) {
         return;
       }
@@ -852,7 +892,7 @@ export function Dashboard({
         setLoading(false);
       }
     }
-  }, [batchSlug, getOrStartGraphRequest, isCurrentGraphRequest, rememberGraph, topVoiceAudience]);
+  }, [batchSlug, getOrStartGraphRequest, isCurrentGraphRequest, rememberGraph, selectedInsiderIds, topVoiceAudience]);
 
   const fetchMapBaseline = useCallback(async (targetBatchSlug: string) => {
     const cachedEntry = graphCacheRef.current.get(graphCacheKey(targetBatchSlug, DEFAULT_TOP_VOICE_AUDIENCE));
@@ -894,13 +934,21 @@ export function Dashboard({
 
   const refreshPersonalizedInsiders = useCallback(async () => {
     for (const key of [...graphCacheRef.current.keys()]) {
-      if (key.endsWith("::insiders")) graphCacheRef.current.delete(key);
+      if (key.includes("::insiders::")) graphCacheRef.current.delete(key);
     }
     invalidateGraphRequests();
+    if (selectedInsiderIds.length) {
+      selectionRef.current = {
+        ...selectionRef.current,
+        insiderIds: []
+      };
+      setSelectedInsiderIds([]);
+      return;
+    }
     if (selectionRef.current.topVoiceAudience === "insiders") {
       await fetchGraph({ forceApi: true, unfiltered: true });
     }
-  }, [fetchGraph, invalidateGraphRequests]);
+  }, [fetchGraph, invalidateGraphRequests, selectedInsiderIds.length]);
 
   useEffect(() => {
     if (topVoiceAudience !== "insiders") return undefined;
@@ -967,9 +1015,12 @@ export function Dashboard({
   }, [fetchGraph, invalidateGraphRequests]);
 
   useEffect(() => {
-    const cachedEntry = graphCacheRef.current.get(graphCacheKey(batchSlug, topVoiceAudience));
+    const cachedEntry = graphCacheRef.current.get(
+      graphCacheKey(batchSlug, topVoiceAudience, topVoiceAudience === "insiders" ? selectedInsiderIds : [])
+    );
     const cachedGraph =
-      graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
+      graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience) &&
+      graphMatchesInsiderSelection(filterMetadataGraph, topVoiceAudience, selectedInsiderIds)
         ? filterMetadataGraph
         : cachedEntry?.graph;
 
@@ -1007,27 +1058,18 @@ export function Dashboard({
 
     initialGraphHydratedRef.current = false;
     void fetchGraph({ unfiltered: true });
-  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, preparedInitialGraph, topVoiceAudience]);
+  }, [batchSlug, currentFilters, fetchGraph, filterMetadataGraph, preparedInitialGraph, selectedInsiderIds, topVoiceAudience]);
 
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    setUrlParameter(url, "batch", batchSlug === DEFAULT_BATCH_SLUG ? null : batchSlug);
-    setUrlParameter(url, "topVoices", topVoiceAudience === DEFAULT_TOP_VOICE_AUDIENCE ? null : topVoiceAudience);
-    setUrlParameter(url, "platforms", selectedPlatforms.length ? selectedPlatforms.join(",") : null);
-    setUrlParameter(url, "topics", selectedTopics.length ? selectedTopics.join(",") : null);
-    setUrlParameter(url, "verticals", selectedVerticals.length ? selectedVerticals.join(",") : null);
-
-    const nextLocation = `${url.pathname}${url.search}${url.hash}`;
-    const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    if (nextLocation !== currentLocation) {
-      window.history.replaceState(window.history.state, "", nextLocation);
-    }
-  }, [batchSlug, selectedPlatforms, selectedTopics, selectedVerticals, topVoiceAudience]);
-
-  const settledGraph = graphMatchesSelection(graph, batchSlug, topVoiceAudience) ? graph : null;
+  const settledGraph =
+    graphMatchesSelection(graph, batchSlug, topVoiceAudience) &&
+    graphMatchesInsiderSelection(graph, topVoiceAudience, selectedInsiderIds)
+      ? graph
+      : null;
   const graphBusy = loading || scopeTransitioning;
   const graphScopeMismatch = graph !== null && settledGraph === null;
-  const scopedFilterMetadataGraph = graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience)
+  const scopedFilterMetadataGraph =
+    graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience) &&
+    graphMatchesInsiderSelection(filterMetadataGraph, topVoiceAudience, selectedInsiderIds)
     ? filterMetadataGraph
     : null;
   const scopedMapMetadataGraph = graphMatchesSelection(mapMetadataGraph, batchSlug, DEFAULT_TOP_VOICE_AUDIENCE)
@@ -1098,6 +1140,13 @@ export function Dashboard({
     setUrlParameter(url, "verticals", selectedVerticals.length ? selectedVerticals.join(",") : null);
     setUrlParameter(url, "industries", selectedIndustries.length ? selectedIndustries.join(",") : null);
     setUrlParameter(url, "groupPartners", selectedGroupPartners.length ? selectedGroupPartners.join(",") : null);
+    setUrlParameter(
+      url,
+      "insiderIds",
+      topVoiceAudience === "insiders" && selectedInsiderIds.length
+        ? selectedInsiderIds.join(",")
+        : null
+    );
     setUrlParameter(url, "minScore", minScore > 0 ? String(minScore) : null);
     setUrlParameter(url, "node", activeSelectedNodeId);
 
@@ -1112,6 +1161,7 @@ export function Dashboard({
     minScore,
     selectedGroupPartners,
     selectedIndustries,
+    selectedInsiderIds,
     selectedPlatforms,
     selectedTopics,
     selectedVerticals,
@@ -1245,6 +1295,16 @@ export function Dashboard({
 
   const batches = filterCatalogGraph?.batches ?? graph?.batches ?? defaultBatches;
   const topVoiceAudiences = filterCatalogGraph?.topVoiceAudiences ?? graph?.topVoiceAudiences ?? defaultTopVoiceAudiences;
+  const insiderDropdownOptions = useMemo<DropdownOption<string>[]>(
+    () => (scopedFilterMetadataGraph?.insiderFilterOptions ?? settledGraph?.insiderFilterOptions ?? [])
+      .map((member) => ({
+        value: member.memberId,
+        label: member.displayName,
+        description: `Weight ${member.weight}`
+      }))
+      .sort((left, right) => left.label.localeCompare(right.label)),
+    [scopedFilterMetadataGraph?.insiderFilterOptions, settledGraph?.insiderFilterOptions]
+  );
 
   const industryOptions = useMemo(() => {
     const byIndustry = new Map<string, { name: string; count: number; color: string }>();
@@ -1675,10 +1735,11 @@ export function Dashboard({
                 type="button"
                 onClick={() => void runDemoAction("refresh")}
                 disabled={!!actionLoading}
-                title="Refresh now"
+                title="Regenerate report from the latest source data"
+                aria-label="Regenerate report (full source refresh)"
               >
                 <RefreshCw size={16} className={actionLoading === "refresh" ? "spin" : ""} />
-                {actionLoading === "refresh" ? "Refreshing" : "Refresh"}
+                {actionLoading === "refresh" ? "Regenerating" : "Regenerate report"}
               </button>
             </div>
           )}
@@ -1756,6 +1817,37 @@ export function Dashboard({
             }
           }}
         />
+
+        {topVoiceAudience === "insiders" && (
+          <FilterDropdown
+            id="insiders"
+            icon={<Users size={15} />}
+            title="Insiders"
+            allLabel="All enabled insiders"
+            selectedValues={selectedInsiderIds}
+            options={insiderDropdownOptions}
+            isOpen={openFilterMenu === "insiders"}
+            disabled={scopeSpecificFiltersDisabled}
+            searchable
+            stickyControls
+            emptyLabel="No enabled insiders"
+            onOpenChange={(open) => setOpenFilterMenu(open ? "insiders" : null)}
+            onToggle={(personId) => {
+              const next = selectedInsiderIds.includes(personId)
+                ? selectedInsiderIds.filter((candidate) => candidate !== personId)
+                : [...selectedInsiderIds, personId];
+              selectionRef.current = { ...selectionRef.current, insiderIds: next };
+              setSelectedInsiderIds(next);
+              trackFilterChange("insiders", next.length ? "set" : "cleared", next.length);
+            }}
+            onClear={() => {
+              selectionRef.current = { ...selectionRef.current, insiderIds: [] };
+              setSelectedInsiderIds([]);
+              setOpenFilterMenu(null);
+              trackFilterChange("insiders", "cleared", 0);
+            }}
+          />
+        )}
 
         <FilterDropdown
           id="groupPartner"

@@ -3,8 +3,8 @@ import type { Json, JsonObject } from "@/types/database";
 import { PLATFORM_VALUES, type Platform, type TopVoiceMember } from "@/lib/graph/types";
 import { defaultInsiderMembers } from "./top-voices";
 
-export const INSIDER_WEIGHT_MIN = 0.01;
-export const INSIDER_WEIGHT_MAX = 100;
+export const INSIDER_WEIGHT_MIN = 1;
+export const INSIDER_WEIGHT_MAX = 5;
 export const MAX_ADDED_INSIDERS = 200;
 
 const handleSchema = z.string().trim().min(1).max(100).transform(normalizeHandle);
@@ -19,22 +19,18 @@ export const addedInsiderSchema = z.object({
   aliases: z.array(z.string().trim().min(1).max(120)).max(20),
   handles: handlesSchema,
   category: z.literal("insider").default("insider"),
-  weight: z.number().finite().min(INSIDER_WEIGHT_MIN).max(INSIDER_WEIGHT_MAX),
-  active: z.literal(true).default(true),
+  weight: z.number().int().min(INSIDER_WEIGHT_MIN).max(INSIDER_WEIGHT_MAX),
+  active: z.boolean().default(true),
   source: z.literal("user-added").default("user-added"),
   notes: z.string().trim().max(500).optional()
-}).strict().superRefine((member, context) => {
-  if (!Object.values(member.handles).some((handles) => (handles?.length ?? 0) > 0)) {
-    context.addIssue({ code: "custom", path: ["handles"], message: "Add at least one platform handle." });
-  }
-});
+}).strict();
 
 export const insiderConfigurationInputSchema = z.object({
   expectedVersion: z.number().int().min(0),
-  excludedDefaultIds: z.array(z.string().trim().min(1).max(160)).max(50),
+  excludedDefaultIds: z.array(z.string().trim().min(1).max(160)).max(58),
   weightOverrides: z.record(
     z.string().trim().min(1).max(160),
-    z.number().finite().min(INSIDER_WEIGHT_MIN).max(INSIDER_WEIGHT_MAX)
+    z.number().int().min(INSIDER_WEIGHT_MIN).max(INSIDER_WEIGHT_MAX)
   ),
   addedInsiders: z.array(addedInsiderSchema).max(MAX_ADDED_INSIDERS)
 }).strict();
@@ -115,18 +111,42 @@ export function validateInsiderConfiguration(value: unknown): InsiderConfigurati
     }
   }
 
-  const addedInsiders = parsed.addedInsiders.map(normalizeAddedInsider);
-  const effective = [
-    ...defaults.filter((member) => !excludedDefaultIds.includes(member.personId)),
-    ...addedInsiders
-  ];
+  const defaultIdentityToId = new Map(
+    defaults.flatMap((member) =>
+      [member.displayName, ...member.aliases].map((name) => [normalizeInsiderName(name), member.personId] as const)
+    )
+  );
+  const weightOverrides = { ...parsed.weightOverrides };
+  const addedInsiders = parsed.addedInsiders
+    .map(normalizeAddedInsider)
+    .filter((member) => {
+      const canonicalDefaultId = [member.displayName, ...member.aliases]
+        .map(normalizeInsiderName)
+        .map((name) => defaultIdentityToId.get(name))
+        .find(Boolean);
+      if (!canonicalDefaultId) return true;
+      if (member.active) {
+        weightOverrides[canonicalDefaultId] = member.weight;
+      }
+      return false;
+    });
+  const allMembers = [...defaults, ...addedInsiders];
   const personIds = new Set<string>();
   const identities = new Map<string, string>();
-  for (const member of effective) {
+  const names = new Map<string, string>();
+  for (const member of allMembers) {
     if (personIds.has(member.personId)) {
       throw new Error(`Duplicate insider identity: ${member.personId}`);
     }
     personIds.add(member.personId);
+    for (const name of [member.displayName, ...member.aliases]) {
+      const key = normalizeInsiderName(name);
+      const existing = names.get(key);
+      if (existing && existing !== member.personId) {
+        throw new Error(`Duplicate insider name: ${name}`);
+      }
+      names.set(key, member.personId);
+    }
     for (const [platform, handles] of Object.entries(member.handles) as [Platform, string[]][]) {
       for (const handle of handles) {
         const key = `${platform}:${normalizeHandle(handle)}`;
@@ -142,9 +162,10 @@ export function validateInsiderConfiguration(value: unknown): InsiderConfigurati
   return {
     expectedVersion: parsed.expectedVersion,
     excludedDefaultIds,
-    weightOverrides: Object.fromEntries(
-      Object.entries(parsed.weightOverrides).filter(([, weight]) => weight !== 1)
-    ),
+    weightOverrides: Object.fromEntries(Object.entries(weightOverrides).filter(([personId, weight]) => {
+      const defaultWeight = defaults.find((member) => member.personId === personId)?.weight;
+      return defaultWeight !== weight;
+    })),
     addedInsiders
   };
 }
@@ -159,7 +180,10 @@ export function effectiveInsiderMembers(
       ...member,
       weight: configuration.weightOverrides[member.personId] ?? member.weight
     }));
-  return [...defaults, ...configuration.addedInsiders.map(normalizeAddedInsider)];
+  return [
+    ...defaults,
+    ...configuration.addedInsiders.map(normalizeAddedInsider).filter((member) => member.active)
+  ];
 }
 
 export function configurationResponse(
@@ -187,15 +211,18 @@ export function createAddedInsider(input: {
   handles: Partial<Record<Platform, string[]>>;
   weight?: number;
 }): TopVoiceMember {
+  const displayName = input.displayName.trim();
+  if (!displayName) throw new Error("Name is required.");
   const handles = normalizeHandles(input.handles);
   const primary = (Object.entries(handles) as [Platform, string[]][])
     .find(([, values]) => values.length > 0);
-  if (!primary) throw new Error("Add at least one platform handle.");
-  const personId = `user:${primary[0]}:${primary[1][0]}`.toLowerCase();
+  const personId = primary
+    ? `user:${primary[0]}:${primary[1][0]}`.toLowerCase()
+    : `user:name:${normalizeInsiderName(displayName).replace(/\s+/g, "-")}`;
   return normalizeAddedInsider(addedInsiderSchema.parse({
     personId,
-    displayName: input.displayName.trim(),
-    aliases: [input.displayName.trim()],
+    displayName,
+    aliases: [displayName],
     handles,
     category: "insider",
     weight: input.weight ?? 1,
@@ -212,7 +239,7 @@ function normalizeAddedInsider(member: AddedInsider | TopVoiceMember): TopVoiceM
     handles: normalizeHandles(member.handles),
     category: "insider",
     weight: member.weight,
-    active: true,
+    active: member.active,
     source: "user-added",
     ...(member.notes ? { notes: member.notes.trim() } : {})
   };
@@ -228,6 +255,15 @@ function normalizeHandles(handles: Partial<Record<Platform, string[]>>): Partial
 
 function normalizeHandle(value: string): string {
   return value.trim().toLowerCase().replace(/^@/, "").replace(/^https?:\/\//, "").replace(/\/$/, "");
+}
+
+export function normalizeInsiderName(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 function unique<T>(values: T[]): T[] {

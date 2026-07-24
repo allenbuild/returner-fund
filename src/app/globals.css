@@ -1467,6 +1467,31 @@ button:disabled {
   font-weight: 800;
 }
 
+.insiders-save-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.insider-score-section > p {
+  margin: 0 0 8px;
+  color: var(--neutral-700);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.insider-score-section > small {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.insider-score-section li.excluded {
+  opacity: 0.56;
+}
+
 .insiders-toolbar button {
   gap: 5px;
 }
@@ -4704,6 +4729,10 @@ td button {
 /* Ranked posts, taxonomies, learned-model governance, and relationship legend. */
 .filter-band {
   grid-template-columns: repeat(6, minmax(0, 1fr)) minmax(300px, 320px);
+}
+
+.filter-band:has(.filter-dropdown-insiders) {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) minmax(250px, 280px);
 }
 
 .filter-band > * {

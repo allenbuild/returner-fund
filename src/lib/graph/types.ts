@@ -193,6 +193,25 @@ export interface ScoreBreakdown {
   explanation: string;
 }
 
+export interface InsiderScoreMatch {
+  memberId: string;
+  displayName: string;
+  effectiveWeight: number;
+  evidenceCount: number;
+  included: boolean;
+  exclusionReason: "disabled" | "not_selected" | null;
+}
+
+export interface InsiderScoreBreakdown {
+  baseScore: number;
+  weightedInsiderSubtotal: number;
+  finalScore: number;
+  selectedInsiderIds: string[];
+  configurationVersion: number | null;
+  matches: InsiderScoreMatch[];
+  formula: "base_plus_unique_weighted_insiders_capped_100";
+}
+
 export interface ScoringContext {
   modelId: string;
   modelVersion: string;
@@ -225,6 +244,7 @@ export interface CompanyRecord {
   previousScore: number;
   platformScores: Partial<Record<Platform, number>>;
   scoreBreakdown?: ScoreBreakdown;
+  insiderScoreBreakdown?: InsiderScoreBreakdown;
   topVoiceScore?: number;
   topVoiceConnectionCount?: number;
   topVoiceConnections?: TopVoiceConnectionPreview[];
@@ -247,6 +267,7 @@ export interface FounderRecord {
   previousScore: number;
   platformScores: Partial<Record<Platform, number>>;
   scoreBreakdown?: ScoreBreakdown;
+  insiderScoreBreakdown?: InsiderScoreBreakdown;
 }
 
 export interface FounderSummary {
@@ -293,6 +314,7 @@ export interface GraphNode {
   topVoiceScore?: number;
   topVoiceConnectionCount?: number;
   topVoiceConnections?: TopVoiceConnectionPreview[];
+  insiderScoreBreakdown?: InsiderScoreBreakdown;
   selectedTopVoiceAudience?: TopVoiceAudienceSummary;
 }
 
@@ -322,6 +344,7 @@ export interface LeaderboardRow {
   topVoiceScore?: number;
   topVoiceConnectionCount?: number;
   topVoiceConnections?: TopVoiceConnectionPreview[];
+  insiderScoreBreakdown?: InsiderScoreBreakdown;
 }
 
 export interface FastestGainingRow {
@@ -431,6 +454,13 @@ export interface GraphFilters {
   query?: string;
   similarityThreshold?: number;
   topVoices?: TopVoiceAudienceId;
+  insiderIds?: string[];
+}
+
+export interface InsiderFilterOption {
+  memberId: string;
+  displayName: string;
+  weight: number;
 }
 
 export interface GraphResponse {
@@ -445,6 +475,9 @@ export interface GraphResponse {
   platformStatus: PlatformStatus[];
   selectedTopVoiceAudience: TopVoiceAudienceSummary;
   topVoiceAudiences: TopVoiceAudienceSummary[];
+  insiderFilterOptions?: InsiderFilterOption[];
+  selectedInsiderIds?: string[];
+  insiderConfigurationVersion?: number | null;
   generatedAt: string;
   scoringContext?: ScoringContext;
   mode: "demo" | "database" | "official_snapshot";

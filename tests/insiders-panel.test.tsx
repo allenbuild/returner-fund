@@ -37,17 +37,17 @@ describe("InsidersPanel", () => {
     expect(screen.getByRole("spinbutton", { name: "Paul Graham weight" })).toBeDisabled();
   });
 
-  it("stages edits until one save and keeps all 50 defaults searchable", async () => {
+  it("stages integer edits until one save and keeps all 58 defaults searchable", async () => {
     const initial = response();
     const saved = {
       ...initial,
       configuration: {
         ...initial.configuration,
         version: 1,
-        weightOverrides: { "paul-graham": 1.5 }
+        weightOverrides: { "paul-graham": 4 }
       },
       effectiveMembers: initial.effectiveMembers.map((member) =>
-        member.personId === "paul-graham" ? { ...member, weight: 1.5 } : member
+        member.personId === "paul-graham" ? { ...member, weight: 4 } : member
       )
     };
     const fetchMock = vi.fn()
@@ -56,12 +56,12 @@ describe("InsidersPanel", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<InsidersPanel onClose={vi.fn()} />);
-    expect(await screen.findByText("50 insiders")).toBeInTheDocument();
+    expect(await screen.findByText("58 insiders")).toBeInTheDocument();
     fireEvent.change(screen.getByRole("searchbox", { name: "Search insiders" }), { target: { value: "paulg" } });
     const row = screen.getByText("Paul Graham").closest(".insider-row") as HTMLElement;
     expect(row).toBeInTheDocument();
     expect(within(row).queryByText(/@paulg/i)).not.toBeInTheDocument();
-    fireEvent.change(within(row).getByRole("spinbutton", { name: "Paul Graham weight" }), { target: { value: "1.5" } });
+    fireEvent.change(within(row).getByRole("spinbutton", { name: "Paul Graham weight" }), { target: { value: "4" } });
     expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
@@ -71,7 +71,7 @@ describe("InsidersPanel", () => {
     expect(request.method).toBe("PUT");
     expect(JSON.parse(String(request.body))).toMatchObject({
       expectedVersion: 0,
-      weightOverrides: { "paul-graham": 1.5 }
+      weightOverrides: { "paul-graham": 4 }
     });
     expect(await screen.findByText("Saved")).toBeInTheDocument();
   });
@@ -83,10 +83,10 @@ describe("InsidersPanel", () => {
       configuration: {
         ...initial.configuration,
         version: 1,
-        weightOverrides: { "paul-graham": 2 }
+        weightOverrides: { "paul-graham": 4 }
       },
       effectiveMembers: initial.effectiveMembers.map((member) =>
-        member.personId === "paul-graham" ? { ...member, weight: 2 } : member
+        member.personId === "paul-graham" ? { ...member, weight: 4 } : member
       )
     };
     vi.stubGlobal("fetch", vi.fn()
@@ -99,7 +99,7 @@ describe("InsidersPanel", () => {
 
     render(<InsidersPanel onClose={vi.fn()} onSaved={onSaved} />);
     const weight = await screen.findByRole("spinbutton", { name: "Paul Graham weight" });
-    fireEvent.change(weight, { target: { value: "2" } });
+    fireEvent.change(weight, { target: { value: "4" } });
     fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
 
     expect(await screen.findByText("Recomputing scores…")).toBeInTheDocument();
@@ -151,7 +151,7 @@ describe("InsidersPanel", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Remove Paul Graham" }));
     fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("No changes were saved");
-    expect(screen.getByText("49 insiders")).toBeInTheDocument();
+    expect(screen.getByText("57 insiders")).toBeInTheDocument();
     expect(screen.getByText("Not saved")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save & recompute" })).toBeEnabled();
   });

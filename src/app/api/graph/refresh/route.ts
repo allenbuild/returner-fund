@@ -11,6 +11,7 @@ import {
 import { graphBenchmarkDatesAreFresh } from "@/lib/graph/benchmark-freshness";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
+import { applyInsiderScenarioScoring } from "@/lib/graph/insider-scoring";
 import { datasetWithLiveEvidence } from "@/lib/graph/live-evidence-dataset";
 import { overlayLiveEvidenceOnGraph, type LiveEvidenceOverlayResult } from "@/lib/graph/live-evidence-overlay";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
@@ -1181,7 +1182,7 @@ async function resolveGraph(
       console.error("Graph refresh benchmark momentum failed; returning graph without persisted benchmark deltas", error);
     }
   }
-  const graphWithBenchmarks = topVoices === "off"
+  const graphWithBenchmarksBase = topVoices === "off"
     ? canonicalGraph
     : inheritCanonicalCompanyScoring(
         graphBuilder.buildGraphResponse(
@@ -1191,6 +1192,16 @@ async function resolveGraph(
         ),
         canonicalGraph
       );
+  const graphWithBenchmarks = topVoices === "insiders"
+    ? applyInsiderScenarioScoring({
+        ...graphWithBenchmarksBase,
+        insiderFilterOptions: (insiderMembers ?? []).map((member) => ({
+          memberId: member.personId,
+          displayName: member.displayName,
+          weight: member.weight
+        }))
+      })
+    : graphWithBenchmarksBase;
 
   return {
     overlay: topVoices === "off"

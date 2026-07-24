@@ -78,11 +78,12 @@ describe("GET /api/graph recomputation order", () => {
     ).toBe(true);
   }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 
-  it("keeps canonical company scoring and momentum identical across Top Voice audiences after live updates", async () => {
+  it("keeps YC scoring canonical while applying weighted Insider scoring after live updates", async () => {
     const dataset = routeDataset();
     const liveRecords = [
       topVoiceLiveXRecord("sama", "Sam Altman", "1000000000000000004"),
-      topVoiceLiveXRecord("garrytan", "Garry Tan", "1000000000000000005")
+      topVoiceLiveXRecord("garrytan", "Garry Tan", "1000000000000000005"),
+      topVoiceLiveXRecord("aplusk", "Ashton Kutcher", "1000000000000000006")
     ];
     vi.doMock("@/lib/graph/yc-spring-2026-dataset", async (importOriginal) => ({
       ...(await importOriginal<typeof import("@/lib/graph/yc-spring-2026-dataset")>()),
@@ -99,9 +100,10 @@ describe("GET /api/graph recomputation order", () => {
     const { GET } = await import("@/app/api/graph/route");
     clearGraphResponseCache();
 
-    const [base, insiders, ycPartners] = await Promise.all([
+    const [base, insiders, samOnly, ycPartners] = await Promise.all([
       graphResponse(GET, "http://localhost/api/graph?batch=S2026"),
       graphResponse(GET, "http://localhost/api/graph?batch=S2026&topVoices=insiders"),
+      graphResponse(GET, "http://localhost/api/graph?batch=S2026&topVoices=insiders&insiderIds=sam-altman"),
       graphResponse(GET, "http://localhost/api/graph?batch=S2026&topVoices=yc_partners")
     ]);
     const canonical = canonicalCompanyProjection(base, "alpha");
@@ -109,12 +111,25 @@ describe("GET /api/graph recomputation order", () => {
     expect(base.evidence.map((item) => item.sourceUrl)).toEqual(
       expect.arrayContaining(liveRecords.map((record) => record.sourceUrl))
     );
-    expect(insiders.evidence).toHaveLength(1);
+    expect(insiders.evidence).toHaveLength(2);
     expect(insiders.evidence[0]?.topVoice?.audienceId).toBe("insiders");
     expect(ycPartners.evidence).toHaveLength(1);
     expect(ycPartners.evidence[0]?.topVoice?.audienceId).toBe("yc_partners");
-    expect(canonicalCompanyProjection(insiders, "alpha")).toEqual(canonical);
     expect(canonicalCompanyProjection(ycPartners, "alpha")).toEqual(canonical);
+    const insiderNode = insiders.nodes.find((node) => node.entityId === "alpha");
+    const insiderRow = insiders.leaderboard.find((row) => row.companyId === "alpha");
+    expect(insiderNode?.score).toBe(Math.min(100, canonical.node.score + 6));
+    expect(insiderRow?.score).toBe(insiderNode?.score);
+    expect(insiderNode?.insiderScoreBreakdown).toMatchObject({
+      baseScore: canonical.node.score,
+      weightedInsiderSubtotal: 6,
+      finalScore: insiderNode?.score
+    });
+    expect(samOnly.selectedInsiderIds).toEqual(["sam-altman"]);
+    expect(samOnly.evidence).toHaveLength(1);
+    expect(samOnly.evidence[0]?.topVoice?.memberId).toBe("sam-altman");
+    expect(samOnly.nodes.find((node) => node.entityId === "alpha")?.insiderScoreBreakdown)
+      .toMatchObject({ weightedInsiderSubtotal: 4 });
   }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 });
 

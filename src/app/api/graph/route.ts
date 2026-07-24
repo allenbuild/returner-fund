@@ -13,6 +13,7 @@ import {
   type CompanyVertical
 } from "@/lib/graph/company-verticals";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
+import { applyInsiderScenarioScoring } from "@/lib/graph/insider-scoring";
 import { enrichGraphTaxonomies } from "@/lib/graph/graph-taxonomies";
 import {
   getOrBuildCachedGraphResponse,
@@ -165,10 +166,19 @@ const graphQuerySchema = z.object({
   businessModels: businessModelListSchema.optional(),
   q: z.string().trim().min(1).max(200).optional(),
   topVoices: z.enum(topVoiceAudiences).default("off"),
+  insiderIds: looseListSchema.optional(),
   includeRaw: booleanQuerySchema.default(false),
   includeNonScoring: booleanQuerySchema.default(false),
   includeWhy: booleanQuerySchema.default(false)
-}).strict();
+}).strict().superRefine((query, context) => {
+  if (query.insiderIds?.length && query.topVoices !== "insiders") {
+    context.addIssue({
+      code: "custom",
+      path: ["insiderIds"],
+      message: "Individual insiders can only be selected when Top Voices is set to insiders."
+    });
+  }
+});
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
@@ -194,9 +204,11 @@ export async function GET(request: Request) {
     verticals: query.verticals,
     businessModels: query.businessModels,
     query: query.q,
-    topVoices: query.topVoices
+    topVoices: query.topVoices,
+    insiderIds: query.insiderIds
   };
   let insiderMembers: ReturnType<typeof effectiveInsiderMembers> | undefined;
+  let insiderConfigurationVersion: number | null = null;
   let insiderConfigurationCacheKey = "built-in";
   if (query.topVoices === "insiders") {
     const authenticated = await authenticateInsiderRequest(request);
@@ -204,6 +216,7 @@ export async function GET(request: Request) {
       try {
         const configuration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
         insiderMembers = effectiveInsiderMembers(configuration);
+        insiderConfigurationVersion = configuration.version;
         insiderConfigurationCacheKey = `${authenticated.userId}:${configuration.version}`;
       } catch (error) {
         console.error("Personalized Insiders configuration load failed", error);
@@ -212,6 +225,24 @@ export async function GET(request: Request) {
           { status: 500, headers: { "Cache-Control": "private, no-store, max-age=0" } }
         );
       }
+    }
+    insiderMembers ??= effectiveInsiderMembers({
+      excludedDefaultIds: [],
+      weightOverrides: {},
+      addedInsiders: []
+    });
+    const enabledIds = new Set(insiderMembers.map((member) => member.personId));
+    const unknownSelection = (query.insiderIds ?? []).find((personId) => !enabledIds.has(personId));
+    if (unknownSelection) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "invalid_insider_selection",
+            message: `${unknownSelection} is not an enabled insider.`
+          }
+        },
+        { status: 400, headers: { "Cache-Control": "private, no-store, max-age=0" } }
+      );
     }
   }
   let liveEvidence: Awaited<ReturnType<typeof loadLiveEvidenceRecords>>;
@@ -264,14 +295,37 @@ export async function GET(request: Request) {
       }
       const graphForAudience = filters.topVoices === "off"
         ? canonicalGraph
-        : inheritCanonicalCompanyScoring(
-            buildGraphResponse(
-              { batchSlug, topVoices: filters.topVoices },
-              datasetWithLiveEvidence(dataset, liveEvidence),
-              { insiderMembers }
-            ),
-            canonicalGraph
-          );
+        : (() => {
+            const selectedInsiderIds = query.insiderIds ?? [];
+            const selectedInsiderIdSet = new Set(selectedInsiderIds);
+            const membersForScenario = filters.topVoices === "insiders" && selectedInsiderIds.length
+              ? insiderMembers?.filter((member) => selectedInsiderIdSet.has(member.personId))
+              : insiderMembers;
+            const inherited = inheritCanonicalCompanyScoring(
+              buildGraphResponse(
+                {
+                  batchSlug,
+                  topVoices: filters.topVoices,
+                  insiderIds: selectedInsiderIds
+                },
+                datasetWithLiveEvidence(dataset, liveEvidence),
+                { insiderMembers: membersForScenario }
+              ),
+              canonicalGraph
+            );
+            if (filters.topVoices !== "insiders") return inherited;
+            return applyInsiderScenarioScoring({
+              ...inherited,
+              insiderFilterOptions: (insiderMembers ?? []).map((member) => ({
+                memberId: member.personId,
+                displayName: member.displayName,
+                weight: member.weight
+              }))
+            }, {
+              selectedInsiderIds,
+              configurationVersion: insiderConfigurationVersion
+            });
+          })();
       const filteredGraph = applyClientGraphFilters(enrichGraphTaxonomies(graphForAudience), {
         platforms: filters.platforms ?? [],
         industries: filters.industries ?? [],

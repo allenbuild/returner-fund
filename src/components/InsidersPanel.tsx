@@ -120,8 +120,8 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     const addedById = new Map(draft.addedInsiders.map((member) => [member.personId, member]));
     return response.defaultMembers
       .filter((member) => !excluded.has(member.personId))
-      .map((member) => ({ ...member, weight: draft.weightOverrides[member.personId] ?? 1 }))
-      .concat([...addedById.values()]);
+      .map((member) => ({ ...member, weight: draft.weightOverrides[member.personId] ?? member.weight }))
+      .concat([...addedById.values()].filter((member) => member.active));
   }, [draft, response]);
 
   const visibleMembers = useMemo(() => {
@@ -173,6 +173,22 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     }
   }, [draft, onSaved, response?.authenticated, saving]);
 
+  const recomputeScores = useCallback(async () => {
+    if (!response?.authenticated || saving || dirty) return;
+    setStatus("recomputing");
+    setError(null);
+    try {
+      const result = await insiderApiFetch("/api/insiders/recompute", { method: "POST" });
+      const payload = await result.json() as { error?: { message?: string } };
+      if (!result.ok) throw new Error(payload.error?.message ?? `Recompute failed with ${result.status}.`);
+      await onSaved?.();
+      setStatus("saved");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Scores could not be recomputed.");
+      setStatus("error");
+    }
+  }, [dirty, onSaved, response?.authenticated, saving]);
+
   async function sendSignInLink() {
     const email = signInEmail.trim();
     if (!email) {
@@ -204,7 +220,11 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
   function setWeight(member: TopVoiceMember, rawValue: string) {
     if (!draft) return;
     const weight = Number(rawValue);
-    if (!Number.isFinite(weight)) return;
+    if (!Number.isInteger(weight) || weight < 1 || weight > 5) {
+      setError("Weight must be a whole number from 1 to 5.");
+      return;
+    }
+    setError(null);
     if (member.source === "user-added") {
       setDraft({
         ...draft,
@@ -215,7 +235,10 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
       return;
     }
     const weightOverrides = { ...draft.weightOverrides };
-    if (weight === 1) delete weightOverrides[member.personId];
+    const defaultWeight = response?.defaultMembers.find(
+      (candidate) => candidate.personId === member.personId
+    )?.weight;
+    if (weight === defaultWeight) delete weightOverrides[member.personId];
     else weightOverrides[member.personId] = weight;
     setDraft({ ...draft, weightOverrides });
   }
@@ -225,7 +248,9 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     if (member.source === "user-added") {
       setDraft({
         ...draft,
-        addedInsiders: draft.addedInsiders.filter((candidate) => candidate.personId !== member.personId)
+        addedInsiders: draft.addedInsiders.map((candidate) =>
+          candidate.personId === member.personId ? { ...candidate, active: false } : candidate
+        )
       });
       return;
     }
@@ -246,6 +271,16 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     });
   }
 
+  function restoreAdded(personId: string) {
+    if (!draft) return;
+    setDraft({
+      ...draft,
+      addedInsiders: draft.addedInsiders.map((member) =>
+        member.personId === personId ? { ...member, active: true } : member
+      )
+    });
+  }
+
   function addInsider() {
     if (!draft) return;
     try {
@@ -260,7 +295,14 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
         handles,
         weight: Number(addWeight)
       });
-      const allIds = new Set(effectiveMembers.map((candidate) => candidate.personId));
+      const allIds = new Set([
+        ...response!.defaultMembers.map((candidate) => candidate.personId),
+        ...draft.addedInsiders.map((candidate) => candidate.personId)
+      ]);
+      const allNames = new Set([
+        ...response!.defaultMembers.flatMap((candidate) => [candidate.displayName, ...candidate.aliases]),
+        ...draft.addedInsiders.flatMap((candidate) => [candidate.displayName, ...candidate.aliases])
+      ].map(normalizeName));
       const allHandles = new Set(
         effectiveMembers.flatMap((candidate) =>
           Object.entries(candidate.handles).flatMap(([platform, values]) =>
@@ -269,6 +311,9 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
         )
       );
       if (allIds.has(member.personId)) throw new Error("That insider is already on the list.");
+      if ([member.displayName, ...member.aliases].some((name) => allNames.has(normalizeName(name)))) {
+        throw new Error("That insider name or alias is already on the list.");
+      }
       for (const [platform, values] of Object.entries(member.handles)) {
         if ((values ?? []).some((value) => allHandles.has(`${platform}:${normalizeHandle(value)}`))) {
           throw new Error(`That ${formatPlatform(platform as Platform)} handle is already on the list.`);
@@ -393,9 +438,9 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
                   <span>Weight</span>
                   <input
                     type="number"
-                    min="0.01"
-                    max="100"
-                    step="0.1"
+                    min="1"
+                    max="5"
+                    step="1"
                     value={addWeight}
                     onChange={(event) => setAddWeight(event.target.value)}
                   />
@@ -438,9 +483,9 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
                   <span>Weight</span>
                   <input
                     type="number"
-                    min="0.01"
-                    max="100"
-                    step="0.1"
+                    min="1"
+                    max="5"
+                    step="1"
                     value={member.weight}
                     disabled={!response.authenticated}
                     onChange={(event) => setWeight(member, event.target.value)}
@@ -461,9 +506,9 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
             {!visibleMembers.length && <div className="empty-state">No insiders match this search.</div>}
           </div>
 
-          {draft.excludedDefaultIds.length > 0 && (
+          {(draft.excludedDefaultIds.length > 0 || draft.addedInsiders.some((member) => !member.active)) && (
             <section className="removed-insiders">
-              <strong>Removed defaults</strong>
+              <strong>Disabled insiders</strong>
               <div>
                 {draft.excludedDefaultIds.map((personId) => {
                   const member = response.defaultMembers.find((candidate) => candidate.personId === personId);
@@ -474,6 +519,12 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
                     </button>
                   );
                 })}
+                {draft.addedInsiders.filter((member) => !member.active).map((member) => (
+                  <button type="button" key={member.personId} onClick={() => restoreAdded(member.personId)}>
+                    <RotateCcw size={13} />
+                    Restore {member.displayName}
+                  </button>
+                ))}
               </div>
             </section>
           )}
@@ -486,15 +537,25 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
                 <><Check size={14} /> Saved</>
               ) : status === "error" ? "Not saved" : dirty ? "Unsaved changes" : "No changes"}
             </div>
-            <button
-              type="button"
-              className="primary-button"
-              disabled={!dirty || saving || !response.authenticated}
-              onClick={() => void save()}
-            >
-              {saving ? <LoaderCircle className="spin" size={15} /> : null}
-              Save & recompute
-            </button>
+            <div className="insiders-save-actions">
+              <button
+                type="button"
+                disabled={dirty || saving || status === "recomputing" || !response.authenticated}
+                onClick={() => void recomputeScores()}
+              >
+                {status === "recomputing" ? <LoaderCircle className="spin" size={15} /> : null}
+                Recompute scores
+              </button>
+              <button
+                type="button"
+                className="primary-button"
+                disabled={!dirty || saving || !response.authenticated}
+                onClick={() => void save()}
+              >
+                {saving ? <LoaderCircle className="spin" size={15} /> : null}
+                Save & recompute
+              </button>
+            </div>
           </footer>
 
           {pendingLeave && (
@@ -543,4 +604,13 @@ function configurationSignature(configuration: UserInsiderConfiguration): string
 
 function normalizeHandle(value: string): string {
   return value.trim().toLowerCase().replace(/^@/, "");
+}
+
+function normalizeName(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }

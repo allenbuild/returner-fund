@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import type { JsonObject } from "@/types/database";
+import { clearTopVoiceRollupCache } from "@/lib/graph/graph-builder";
+import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
 import {
   addedInsidersAsJson,
   configurationResponse,
@@ -60,6 +62,8 @@ export async function PUT(request: Request) {
 
   try {
     const configuration = parseInsiderConfigurationRow(data);
+    clearTopVoiceRollupCache();
+    clearGraphResponseCache();
     return noStoreJson(configurationResponse(configuration, true));
   } catch (error) {
     console.error("Saved Insiders configuration was invalid", error);

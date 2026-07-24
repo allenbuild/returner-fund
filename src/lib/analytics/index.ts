@@ -12,7 +12,7 @@ export interface AnalyticsEventPayloads {
     position: number;
   };
   filter_changed: {
-    filter: "batch" | "platform" | "topic" | "vertical" | "industry" | "group_partner" | "top_voices" | "min_score";
+    filter: "batch" | "platform" | "topic" | "vertical" | "industry" | "group_partner" | "top_voices" | "insiders" | "min_score";
     action: "added" | "removed" | "cleared" | "set";
     selection_count: number;
   };
@@ -56,7 +56,7 @@ const eventRules: { [EventName in AnalyticsEventName]: Record<keyof AnalyticsEve
     position: "count"
   },
   filter_changed: {
-    filter: ["batch", "platform", "topic", "vertical", "industry", "group_partner", "top_voices", "min_score"],
+    filter: ["batch", "platform", "topic", "vertical", "industry", "group_partner", "top_voices", "insiders", "min_score"],
     action: ["added", "removed", "cleared", "set"],
     selection_count: "count"
   },

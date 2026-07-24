@@ -29,6 +29,67 @@ interface MemberOptions {
   notes?: string;
 }
 
+export const CANONICAL_INSIDER_WEIGHTS = {
+  "Jude Gomila": 3,
+  "Immad Akhund": 2,
+  "Philip Johnston": 2,
+  "Ashton Kutcher": 2,
+  "Paul Buchheit": 4,
+  "Tom Blomfield": 3,
+  "Jason Gray": 3,
+  "Jared Heyman": 4,
+  "Paul Graham": 5,
+  "Jessica Livingston": 4,
+  "Michael Seibel": 5,
+  "Sam Altman": 4,
+  "Brian Chesky": 3,
+  "Patrick Collison": 3,
+  "John Collison": 2,
+  "Brian Armstrong": 3,
+  "Drew Houston": 1,
+  "Steve Huffman": 2,
+  "Justin Kan": 2,
+  "Emmett Shear": 1,
+  "Alexis Ohanian": 2,
+  "Guillermo Rauch": 1,
+  "Dylan Field": 1,
+  "Aravind Srinivas": 1,
+  "Alex Wang": 1,
+  "Palmer Luckey": 1,
+  "Parker Conrad": 1,
+  "Aaron Levie": 1,
+  "Eric Migicovsky": 1,
+  "Tony Xu": 1,
+  "Apoorva Mehta": 1,
+  "Max Mullen": 1,
+  "Henrique Dubugras": 1,
+  "Pedro Franceschi": 1,
+  "Mathilde Collin": 1,
+  "Rahul Vohra": 1,
+  "Spenser Skates": 1,
+  "Suhail Doshi": 1,
+  "Taro Fukuyama": 1,
+  "Dalton Caldwell": 4,
+  "Qasar Younis": 2,
+  "Ali Rowghani": 2,
+  "Anu Hariharan": 2,
+  "Elad Gil": 3,
+  "Nat Friedman": 1,
+  "Daniel Gross": 3,
+  "David Sacks": 2,
+  "Marc Andreessen": 5,
+  "Ben Horowitz": 5,
+  "Naval Ravikant": 1,
+  "Keith Rabois": 1,
+  "Sarah Guo": 1,
+  "Andrew Chen": 4,
+  "Lachy Groom": 1,
+  "Semil Shah": 1,
+  "Delian Asparouhov": 1,
+  "Trae Stephens": 1,
+  "Lenny Rachitsky": 1
+} as const;
+
 const ycPartnerSeeds = [
   member("garry-tan", "Garry Tan", {
     aliases: ["garrytan"],
@@ -91,6 +152,31 @@ const ycPartnerSeeds = [
 ];
 
 const insiderOnlySeeds = [
+  insider("jude-gomila", "Jude Gomila", {
+    handles: { x: ["judegomila"], linkedin: ["judegomila"] }
+  }),
+  insider("immad-akhund", "Immad Akhund", {
+    handles: { x: ["immad"], linkedin: ["immad"] }
+  }),
+  insider("philip-johnston", "Philip Johnston", {
+    aliases: ["Phillip Johnston"],
+    handles: { x: ["philipjohnston"], linkedin: ["philipjohnston"] }
+  }),
+  insider("ashton-kutcher", "Ashton Kutcher", {
+    handles: { x: ["aplusk"], linkedin: ["ashton-kutcher"] }
+  }),
+  insider("paul-buchheit", "Paul Buchheit", {
+    handles: { x: ["paultoo"], linkedin: ["paul-buchheit"] }
+  }),
+  insider("tom-blomfield", "Tom Blomfield", {
+    handles: { x: ["t_blom"], linkedin: ["tomblomfield"] }
+  }),
+  insider("jason-gray", "Jason Gray", {
+    handles: { linkedin: ["jason-gray"] }
+  }),
+  insider("jared-heyman", "Jared Heyman", {
+    handles: { linkedin: ["jaredheyman"] }
+  }),
   insider("paul-graham", "Paul Graham", {
     aliases: ["pg"],
     handles: { x: ["paulg", "pg"] }
@@ -409,8 +495,15 @@ function member(
 }
 
 function insider(personId: string, displayName: string, options: MemberOptions = {}): TopVoiceMember {
+  const canonicalWeight = CANONICAL_INSIDER_WEIGHTS[
+    displayName as keyof typeof CANONICAL_INSIDER_WEIGHTS
+  ];
+  if (!canonicalWeight) {
+    throw new Error(`Missing canonical insider weight for ${displayName}.`);
+  }
   return member(personId, displayName, {
     category: "insider",
+    weight: canonicalWeight,
     ...options
   });
 }

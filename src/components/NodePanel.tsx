@@ -53,7 +53,10 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
       )}
 
       {node.entityType === "company" && (
-        <PlatformContributions node={node} />
+        <>
+          {node.insiderScoreBreakdown && <InsiderContributions node={node} />}
+          <PlatformContributions node={node} />
+        </>
       )}
 
       {(node.founders.length > 0 || node.socialAccounts.length > 0) && (
@@ -121,6 +124,34 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
         </div>
       </section>
     </aside>
+  );
+}
+
+function InsiderContributions({ node }: { node: GraphNode }) {
+  const breakdown = node.insiderScoreBreakdown!;
+  return (
+    <section className="score-platform-section insider-score-section" aria-label="Insider score breakdown">
+      <h3>Insider score</h3>
+      <p>
+        Base {formatScore(breakdown.baseScore)} + weighted insiders{" "}
+        {formatScore(breakdown.weightedInsiderSubtotal)} ={" "}
+        <strong>{formatScore(breakdown.finalScore)}</strong>
+      </p>
+      <ol className="score-platform-contributions">
+        {breakdown.matches.map((match) => (
+          <li key={match.memberId} className={match.included ? "" : "excluded"}>
+            <span>{match.displayName}</span>
+            <span className="score-platform-contribution">
+              <strong>{match.included ? `+${match.effectiveWeight}` : "Excluded"}</strong>
+              <small>{formatItemCount(match.evidenceCount)}</small>
+            </span>
+          </li>
+        ))}
+      </ol>
+      {breakdown.selectedInsiderIds.length > 0 && (
+        <small>Visible score uses the selected Insider subset.</small>
+      )}
+    </section>
   );
 }
 

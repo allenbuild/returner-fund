@@ -1469,6 +1469,34 @@ export interface Database {
           updated_at?: string;
         }
       >;
+      insider_registry: TableDefinition<
+        {
+          person_id: string;
+          display_name: string;
+          normalized_name: string;
+          aliases: Json;
+          weight: number;
+          active: boolean;
+          updated_at: Timestamp;
+        },
+        {
+          person_id: string;
+          display_name: string;
+          normalized_name: string;
+          aliases?: Json;
+          weight: number;
+          active?: boolean;
+          updated_at?: Timestamp;
+        },
+        {
+          display_name?: string;
+          normalized_name?: string;
+          aliases?: Json;
+          weight?: number;
+          active?: boolean;
+          updated_at?: Timestamp;
+        }
+      >;
       user_insider_configurations: TableDefinition<
         {
           user_id: string;

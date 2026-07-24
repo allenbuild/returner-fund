@@ -675,6 +675,7 @@ function topVoiceRollupCacheKey(
         member.displayName,
         member.category,
         member.weight,
+        member.active,
         [...member.aliases].sort().join(","),
         Object.entries(member.handles)
           .sort(([left], [right]) => left.localeCompare(right))

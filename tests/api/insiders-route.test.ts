@@ -27,7 +27,7 @@ describe("/api/insiders", () => {
     expect(response.headers.get("cache-control")).toContain("no-store");
     expect(body.authenticated).toBe(false);
     expect(body.defaultMembers).toEqual(defaultInsiderMembers());
-    expect(body.effectiveMembers).toHaveLength(50);
+    expect(body.effectiveMembers).toHaveLength(58);
     expect(loadUserInsiderConfiguration).not.toHaveBeenCalled();
   });
 
@@ -50,7 +50,7 @@ describe("/api/insiders", () => {
     expect(loadUserInsiderConfiguration).toHaveBeenCalledWith(client, "user-a");
     expect(body.authenticated).toBe(true);
     expect(body.configuration.version).toBe(3);
-    expect(body.effectiveMembers).toHaveLength(49);
+    expect(body.effectiveMembers).toHaveLength(57);
   });
 
   it("rejects anonymous saves before parsing or writing any configuration", async () => {
