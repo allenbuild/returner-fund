@@ -64,6 +64,10 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
   const [draft, setDraft] = useState<UserInsiderConfiguration>(() =>
     emptyInsiderConfiguration()
   );
+  const [memberOrder, setMemberOrder] = useState<string[]>(() => {
+    const initialResponse = configurationResponse(emptyInsiderConfiguration(), false);
+    return sortMembersByWeight(initialResponse.effectiveMembers).map((member) => member.personId);
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"idle" | "saved" | "recomputing" | "error">("idle");
@@ -88,9 +92,14 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
       if (!isInsiderConfigurationResponse(payload)) {
         throw new Error("The Insiders service returned an invalid configuration.");
       }
+      const configuration = cloneConfiguration(payload.configuration);
       setResponse(payload);
-      setSaved(cloneConfiguration(payload.configuration));
-      setDraft(cloneConfiguration(payload.configuration));
+      setSaved(configuration);
+      setDraft(cloneConfiguration(configuration));
+      setMemberOrder(
+        sortMembersByWeight(resolveEffectiveMembers(payload, configuration))
+          .map((member) => member.personId)
+      );
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Your Insiders list could not be loaded.");
     } finally {
@@ -128,17 +137,8 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
 
   const effectiveMembers = useMemo(() => {
     if (!response || !draft) return [];
-    const excluded = new Set(draft.excludedDefaultIds);
-    const addedById = new Map(draft.addedInsiders.map((member) => [member.personId, member]));
-    return response.defaultMembers
-      .filter((member) => !excluded.has(member.personId))
-      .map((member) => ({ ...member, weight: draft.weightOverrides[member.personId] ?? member.weight }))
-      .concat([...addedById.values()].filter((member) => member.active))
-      .sort((left, right) =>
-        right.weight - left.weight ||
-        left.displayName.localeCompare(right.displayName, undefined, { sensitivity: "base" })
-      );
-  }, [draft, response]);
+    return orderMembers(resolveEffectiveMembers(response, draft), memberOrder);
+  }, [draft, memberOrder, response]);
 
   const visibleMembers = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -249,12 +249,17 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
 
   function resetToDefaults() {
     if (!draft || !response?.authenticated) return;
-    setDraft({
+    const resetDraft = {
       ...draft,
       excludedDefaultIds: [],
       weightOverrides: {},
       addedInsiders: []
-    });
+    };
+    setDraft(resetDraft);
+    setMemberOrder(
+      sortMembersByWeight(resolveEffectiveMembers(response, resetDraft))
+        .map((member) => member.personId)
+    );
     setQuery("");
     setAddOpen(false);
     setError(null);
@@ -338,6 +343,9 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
         }
       }
       setDraft({ ...draft, addedInsiders: [...draft.addedInsiders, member] });
+      setMemberOrder((current) =>
+        current.includes(member.personId) ? current : [...current, member.personId]
+      );
       setAddName("");
       setAddWeight("1");
       setAddHandles({});
@@ -613,6 +621,47 @@ function cloneConfiguration(configuration: UserInsiderConfiguration): UserInside
       ) as Partial<Record<Platform, string[]>>
     }))
   };
+}
+
+function resolveEffectiveMembers(
+  response: InsiderConfigurationResponse,
+  configuration: UserInsiderConfiguration
+): TopVoiceMember[] {
+  const excluded = new Set(configuration.excludedDefaultIds);
+  const addedById = new Map(
+    configuration.addedInsiders.map((member) => [member.personId, member])
+  );
+  return response.defaultMembers
+    .filter((member) => !excluded.has(member.personId))
+    .map((member) => ({
+      ...member,
+      weight: configuration.weightOverrides[member.personId] ?? member.weight
+    }))
+    .concat([...addedById.values()].filter((member) => member.active));
+}
+
+function compareMembersByWeight(left: TopVoiceMember, right: TopVoiceMember): number {
+  return right.weight - left.weight ||
+    left.displayName.localeCompare(right.displayName, undefined, { sensitivity: "base" }) ||
+    left.personId.localeCompare(right.personId);
+}
+
+function sortMembersByWeight(members: TopVoiceMember[]): TopVoiceMember[] {
+  return [...members].sort(compareMembersByWeight);
+}
+
+function orderMembers(members: TopVoiceMember[], memberOrder: string[]): TopVoiceMember[] {
+  const positionById = new Map(memberOrder.map((personId, index) => [personId, index]));
+  return [...members].sort((left, right) => {
+    const leftPosition = positionById.get(left.personId);
+    const rightPosition = positionById.get(right.personId);
+    if (leftPosition !== undefined && rightPosition !== undefined) {
+      return leftPosition - rightPosition;
+    }
+    if (leftPosition !== undefined) return -1;
+    if (rightPosition !== undefined) return 1;
+    return compareMembersByWeight(left, right);
+  });
 }
 
 function isInsiderConfigurationResponse(value: unknown): value is InsiderConfigurationResponse {

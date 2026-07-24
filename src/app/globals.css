@@ -1704,7 +1704,7 @@ button:disabled {
   border-inline: 1px solid rgba(255, 255, 255, 0.34);
   color: white;
   font-size: 0.88rem;
-  font-weight: 900;
+  font-weight: 400;
   line-height: 1;
 }
 
@@ -2861,6 +2861,13 @@ progress::-webkit-progress-value {
   white-space: nowrap;
 }
 
+.tab-navigation > .insights-tab-button {
+  display: grid;
+  place-items: center;
+  justify-content: stretch;
+  gap: 0;
+}
+
 .insights-tab-button-content {
   display: inline-flex;
   align-items: center;
@@ -2901,7 +2908,19 @@ progress::-webkit-progress-value {
   grid-column: 2;
   grid-row: 1;
   margin-left: 0;
-  min-height: 34px;
+  height: var(--insights-tab-height);
+  min-height: var(--insights-tab-height);
+}
+
+.tab-list-actions > .segmented-toggle {
+  box-sizing: border-box;
+  height: var(--insights-tab-height);
+  max-height: var(--insights-tab-height);
+}
+
+.tab-list-actions > .segmented-toggle > button {
+  height: 28px;
+  min-height: 28px;
 }
 
 .tab-list-actions-hidden {
@@ -3224,7 +3243,7 @@ table {
 
 .overview-table th:nth-child(4),
 .overview-table td:nth-child(4) {
-  width: 150px;
+  width: 190px;
 }
 
 th,
@@ -3490,9 +3509,30 @@ td button {
 }
 
 .overview-platform-cell {
+  min-width: 0;
   color: #111827;
   font-size: 1.08rem;
   font-weight: 650;
+}
+
+.overview-platform-cell .ranking-platform-chip {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.overview-platform-cell .ranking-platform-chip .platform-identity {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.overview-platform-cell .ranking-platform-chip .platform-identity span {
+  min-width: 0;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .ranking-platform-chip {
@@ -4487,23 +4527,29 @@ td button {
   }
 
   .overview-table td:nth-child(4) {
-    display: none;
+    display: block;
+    grid-column: 2 / 4;
+    grid-row: 2;
+    justify-self: start;
+    width: 100%;
+    min-width: 0;
   }
 
   .overview-table td:nth-child(5) {
     grid-column: 1 / -1;
-    grid-row: 2;
+    grid-row: 3;
   }
 
   .leaderboard-company-button {
     display: block;
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
+    overflow-wrap: anywhere;
     font-size: 1.02rem;
     text-align: left;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .overview-score-cell span {
@@ -4545,8 +4591,20 @@ td button {
   }
 
   .overview-post-title {
+    overflow: visible;
+    overflow-wrap: anywhere;
     font-size: 0.78rem;
     line-height: 1.14;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .overview-post-title > span:last-child,
+  .overview-post-author {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .overview-metric-pill {
@@ -5002,7 +5060,7 @@ td button {
 
 .ranked-post-card {
   display: grid;
-  grid-template-columns: 32px 86px minmax(0, 560px) 52px minmax(0, 1fr);
+  grid-template-columns: 32px 86px minmax(0, 1fr) 52px;
   align-items: center;
   width: 100%;
   gap: 11px;
@@ -5056,32 +5114,35 @@ td button {
   display: flex;
   align-items: center;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .ranked-post-primary-row {
-  gap: 8px;
+  gap: 2px 8px;
 }
 
 .ranked-post-details {
-  gap: 6px;
-  overflow: hidden;
+  gap: 3px 6px;
+  overflow: visible;
 }
 
 .ranked-post-meta {
   display: flex;
   align-items: center;
   flex: 1 1 auto;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 5px;
   min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
+  overflow: visible;
+  white-space: normal;
 }
 
 .ranked-post-meta time {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .ranked-post-meta time,
@@ -5105,8 +5166,12 @@ td button {
 }
 
 .ranked-post-meta .ranking-platform-chip .platform-identity span {
+  overflow: visible;
   font-size: 0.86rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .ranked-source-badge {
@@ -5127,8 +5192,10 @@ td button {
 .ranked-post-company {
   flex: 0 1 auto;
   justify-self: start;
-  max-width: 180px;
-  overflow: hidden;
+  max-width: 100%;
+  min-width: 0;
+  overflow: visible;
+  overflow-wrap: anywhere;
   padding: 0;
   border: 0;
   background: transparent;
@@ -5136,16 +5203,18 @@ td button {
   font-size: 1.05rem;
   font-weight: 750;
   line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .ranked-post-author {
-  flex: 0 1 170px;
+  flex: 0 1 auto;
+  max-width: 100%;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .ranked-post-title-row {
@@ -5157,20 +5226,21 @@ td button {
   flex: 0 1 auto;
   min-width: 0;
   margin: 0;
-  overflow: hidden;
+  overflow: visible;
+  overflow-wrap: anywhere;
   color: var(--neutral-700);
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .ranked-metric-pills {
   flex: 0 1 auto;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: flex-start;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .ranked-metric-pills .overview-metric-pill {
@@ -5386,7 +5456,7 @@ td button {
   }
 
   .ranked-post-card {
-    grid-template-columns: 32px 86px minmax(0, 560px) 52px minmax(0, 1fr);
+    grid-template-columns: 32px 86px minmax(0, 1fr) 52px;
   }
 }
 
@@ -5418,14 +5488,6 @@ td button {
 
   .ranked-post-primary-row {
     gap: 6px;
-  }
-
-  .ranked-post-company {
-    max-width: 130px;
-  }
-
-  .ranked-post-author {
-    flex-basis: 110px;
   }
 
   .scoring-methodology > header {
@@ -5471,10 +5533,6 @@ td button {
   .ranked-post-meta {
     flex-wrap: wrap;
     white-space: normal;
-  }
-
-  .ranked-post-company {
-    max-width: 110px;
   }
 
 }

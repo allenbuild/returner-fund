@@ -65,6 +65,25 @@ describe("InsidersPanel", () => {
     expect(screen.queryByRole("button", { name: "Recompute scores" })).not.toBeInTheDocument();
   });
 
+  it("preserves the initially ranked row order while weights are staged", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(response()), { status: 200 })
+    ));
+
+    const { container } = render(<InsidersPanel onClose={vi.fn()} />);
+    await screen.findByText("58 insiders");
+    const names = () => [...container.querySelectorAll(".insider-row-copy strong")]
+      .map((element) => element.textContent);
+    const initialOrder = names();
+
+    fireEvent.click(screen.getByRole("button", { name: "Decrease Ben Horowitz weight" }));
+    fireEvent.click(screen.getByRole("button", { name: "Increase Dalton Caldwell weight" }));
+
+    expect(screen.getByLabelText("Ben Horowitz weight")).toHaveTextContent("4");
+    expect(screen.getByLabelText("Dalton Caldwell weight")).toHaveTextContent("5");
+    expect(names()).toEqual(initialOrder);
+  });
+
   it("stages stepper edits until one save and keeps all 58 defaults searchable", async () => {
     const initial = response();
     const saved = {
@@ -160,7 +179,7 @@ describe("InsidersPanel", () => {
       .mockResolvedValueOnce(new Response(JSON.stringify(saved), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<InsidersPanel onClose={vi.fn()} />);
+    const { container } = render(<InsidersPanel onClose={vi.fn()} />);
     expect(await screen.findByText("Test Insider")).toBeInTheDocument();
     expect(screen.queryByText("Michael Seibel")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Reset" }));
@@ -169,6 +188,10 @@ describe("InsidersPanel", () => {
     expect(screen.getByText("Michael Seibel")).toBeInTheDocument();
     expect(screen.getByLabelText("Paul Graham weight")).toHaveTextContent("5");
     expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+    expect([...container.querySelectorAll(".insider-row-copy strong")]
+      .slice(0, 4)
+      .map((element) => element.textContent)
+    ).toEqual(["Ben Horowitz", "Marc Andreessen", "Michael Seibel", "Paul Graham"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));

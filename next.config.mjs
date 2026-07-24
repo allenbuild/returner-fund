@@ -1,8 +1,10 @@
 const graphRuntimeData = [
   "outputs/benchmarks/**/*.json",
-  "public/graph/**/*.json",
-  "src/lib/social/**/*.json",
-  "src/lib/yc/**/*.json"
+  "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/a16z-speedrun-006-social-accounts.json",
+  "src/lib/social/verified-social-overrides.json",
+  "src/lib/yc/summer-2026-companies.json",
+  "src/lib/yc/spring-2026-companies.json"
 ];
 
 const graphTraceExcludes = [
@@ -40,7 +42,7 @@ const nextConfig = {
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   outputFileTracingIncludes: {
     "/api/graph": graphRuntimeData,
-    "/api/graph/refresh": graphRuntimeData
+    "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"]
   },
   outputFileTracingExcludes: {
     "/api/graph": graphTraceExcludes,

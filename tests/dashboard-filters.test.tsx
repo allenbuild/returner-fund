@@ -500,6 +500,28 @@ describe("dashboard filters", () => {
     expect(screen.queryByText("Graph unavailable")).not.toBeInTheDocument();
   });
 
+  it("aborts an in-flight initial graph request when the dashboard unmounts", async () => {
+    let requestSignal: AbortSignal | undefined;
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+      requestSignal = init?.signal ?? undefined;
+      return new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener(
+          "abort",
+          () => reject(new DOMException("Aborted", "AbortError")),
+          { once: true }
+        );
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const view = render(<Dashboard />);
+    await waitFor(() => expect(requestSignal).toBeDefined());
+
+    view.unmount();
+
+    expect(requestSignal?.aborted).toBe(true);
+  });
+
   it("marks an initial uncached load busy and disables scope-specific filters", () => {
     vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
 
@@ -1081,6 +1103,76 @@ describe("dashboard filters", () => {
 
     expect(within(screen.getByTestId("graph-canvas")).getByText("Recovered Speedrun")).toBeInTheDocument();
     expect(resultsRegion).toHaveAttribute("aria-busy", "false");
+    expect(screen.queryByRole("button", { name: /retry selected graph/i })).not.toBeInTheDocument();
+  });
+
+  it("keeps the baseline graph usable when an Insiders request returns 500, then recovers on retry", async () => {
+    vi.useFakeTimers();
+    const baselineGraph = graphResponse([
+      makeNode("company:baseline", "Baseline Company", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const personalizedGraph = withTopVoiceAudience(
+      graphResponse([
+        makeNode("company:personalized", "Personalized Company", "fintech", "#2563eb", "Partner B")
+      ]),
+      "insiders"
+    );
+    let failPersonalizedGraph = true;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/graph") && url.includes("topVoices=insiders")) {
+        return failPersonalizedGraph
+          ? { ok: false, status: 500, json: async () => ({}) }
+          : { ok: true, json: async () => personalizedGraph };
+      }
+      return { ok: true, json: async () => baselineGraph };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={baselineGraph} />);
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /Insiders/i }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_000);
+    });
+
+    const resultsRegion = screen.getByRole("region", { name: "Network map results" });
+    const resultsGrid = resultsRegion.querySelector(".dashboard-grid") as HTMLElement;
+    expect(screen.getByText("Graph request failed with 500")).toBeInTheDocument();
+    expect(resultsRegion).toHaveAttribute("aria-busy", "false");
+    expect(resultsGrid).not.toHaveAttribute("inert");
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Baseline Company")).toBeInTheDocument();
+    const baselineRow = screen.getByRole("button", { name: "Open leaderboard Baseline Company" });
+    fireEvent.click(baselineRow);
+    expect(screen.getByRole("button", { name: "Open profile Baseline Company" })).toBeInTheDocument();
+
+    failPersonalizedGraph = false;
+    fireEvent.click(screen.getByRole("button", { name: /retry selected graph/i }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(screen.queryByText("Graph request failed with 500")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /retry selected graph/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:personalized");
+    expect(screen.getByRole("button", { name: "Open leaderboard Personalized Company" })).toBeInTheDocument();
+  });
+
+  it("renders a successful zero-company response as an empty state instead of a loading failure", async () => {
+    const emptyGraph = graphResponse([]);
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => emptyGraph
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard />);
+
+    expect(await screen.findByText("No companies are available in this graph.")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Network map results" })).toHaveAttribute("aria-busy", "false");
+    expect(screen.queryByText(/Graph request failed|Graph unavailable/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /retry selected graph/i })).not.toBeInTheDocument();
   });
 

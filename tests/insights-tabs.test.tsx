@@ -11,19 +11,32 @@ describe("insights tabs", () => {
     render(<InsightsTabs graph={graphResponse()} onSelectNode={vi.fn()} />);
 
     const tabNames = ["Overview", "Hottest", "Ranked Posts", "Stats"] as const;
+    const navigation = screen.getByRole("tablist", { name: "Dashboard panels" });
+    const tabList = navigation.parentElement;
+    const actions = tabList?.querySelector(".tab-list-actions");
     const tabs = tabNames.map((name) => screen.getByRole("tab", { name }));
     const sharedClassName = tabs[0].className;
     const sharedInlineStyle = tabs[0].getAttribute("style");
 
+    expect(tabList).toHaveClass("tab-list");
+    expect(actions).toBeInstanceOf(HTMLElement);
     expect(sharedClassName).toBe("insights-tab-button");
     expect(new Set(tabs.map((tab) => tab.className))).toEqual(new Set([sharedClassName]));
     expect(new Set(tabs.map((tab) => tab.getAttribute("style")))).toEqual(
       new Set([sharedInlineStyle])
     );
+    expect(tabs.map((tab) => tab.parentElement)).toEqual(tabs.map(() => navigation));
+    expect(
+      tabs.map((tab) => tab.querySelector(".insights-tab-button-content")?.className)
+    ).toEqual(tabs.map(() => "insights-tab-button-content"));
 
     for (const selectedTab of tabs) {
       fireEvent.click(selectedTab);
       expect(selectedTab).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByRole("tablist", { name: "Dashboard panels" })).toBe(navigation);
+      expect(navigation.parentElement).toBe(tabList);
+      expect(tabList?.querySelector(".tab-list-actions")).toBe(actions);
+      expect(within(navigation).getAllByRole("tab")).toEqual(tabs);
       expect(new Set(tabs.map((tab) => tab.className))).toEqual(new Set([sharedClassName]));
       expect(new Set(tabs.map((tab) => tab.getAttribute("style")))).toEqual(
         new Set([sharedInlineStyle])
@@ -31,9 +44,60 @@ describe("insights tabs", () => {
     }
 
     const css = readFileSync("src/app/globals.css", "utf8");
-    expect(css).toMatch(
-      /\.tab-navigation\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/s
-    );
+    const navigationRules = [
+      ...css.matchAll(/(?:^|\n)\s*\.tab-navigation\s*\{([^}]*)\}/g)
+    ].map((match) => match[1]);
+    const buttonRules = [
+      ...css.matchAll(/(?:^|\n)\s*\.insights-tab-button\s*\{([^}]*)\}/g)
+    ].map((match) => match[1]);
+    const hiddenActionRules = [
+      ...css.matchAll(/(?:^|\n)\s*\.tab-list-actions-hidden\s*\{([^}]*)\}/g)
+    ].map((match) => match[1]);
+    const centeredButtonRule = css.match(
+      /\.tab-navigation\s*>\s*\.insights-tab-button\s*\{([^}]*)\}/
+    )?.[1];
+    const desktopActionsRule = css.match(
+      /(?:^|\n)\s*\.tab-list-actions\s*\{([^}]*)\}/
+    )?.[1];
+    const desktopToggleRule = css.match(
+      /\.tab-list-actions\s*>\s*\.segmented-toggle\s*\{([^}]*)\}/
+    )?.[1];
+    const desktopToggleButtonRule = css.match(
+      /\.tab-list-actions\s*>\s*\.segmented-toggle\s*>\s*button\s*\{([^}]*)\}/
+    )?.[1];
+
+    expect(navigationRules.length).toBeGreaterThan(0);
+    for (const rule of navigationRules) {
+      expect(rule).toMatch(/grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/);
+      expect(rule).toMatch(/width:\s*100%/);
+      expect(rule).toMatch(/min-width:\s*0/);
+    }
+
+    expect(buttonRules.length).toBeGreaterThan(0);
+    for (const rule of buttonRules) {
+      expect(rule).toMatch(/box-sizing:\s*border-box|width:\s*100%/);
+      expect(rule).toMatch(/width:\s*100%/);
+      expect(rule).toMatch(/min-width:\s*0/);
+      expect(rule).toMatch(/max-width:\s*none/);
+    }
+
+    expect(hiddenActionRules.length).toBeGreaterThan(0);
+    for (const rule of hiddenActionRules) {
+      expect(rule).not.toMatch(/display:\s*none/);
+      expect(rule).not.toMatch(
+        /(?:^|;)\s*(?:width|min-width|max-width|padding|margin|grid-column|grid-template-columns)\s*:/
+      );
+    }
+
+    expect(centeredButtonRule).toMatch(/display:\s*grid/);
+    expect(centeredButtonRule).toMatch(/place-items:\s*center/);
+    expect(desktopActionsRule).toMatch(/height:\s*var\(--insights-tab-height\)/);
+    expect(desktopActionsRule).toMatch(/min-height:\s*var\(--insights-tab-height\)/);
+    expect(desktopToggleRule).toMatch(/height:\s*var\(--insights-tab-height\)/);
+    expect(desktopToggleRule).toMatch(/max-height:\s*var\(--insights-tab-height\)/);
+    expect(desktopToggleButtonRule).toMatch(/height:\s*28px/);
+    expect(desktopToggleButtonRule).toMatch(/min-height:\s*28px/);
+
     expect(css).not.toMatch(/#insights-tab-(?:overview|gaining|ranked|stats)/);
     expect(css).not.toMatch(/\.insights-tab-button:nth-(?:child|of-type)/);
 
@@ -44,6 +108,51 @@ describe("insights tabs", () => {
     expect(selectedRule).not.toMatch(
       /(?:^|;)\s*(?:width|height|min-width|min-height|max-width|max-height|padding|margin|font-size|grid-template-columns)\s*:/
     );
+  });
+
+  it("shows complete top-platform names instead of ellipsizing long labels", () => {
+    const graph = graphResponse();
+    const platforms = [
+      { platform: "instagram" as const, label: "Instagram" },
+      { platform: "product_hunt" as const, label: "Product Hunt" },
+      { platform: "hacker_news" as const, label: "Hacker News" }
+    ];
+    graph.leaderboard = platforms.map(({ platform }, index) => ({
+      ...graph.leaderboard[0]!,
+      rank: index + 1,
+      companyId: `company-platform-${index}`,
+      companyName: `Platform company ${index + 1}`,
+      topPlatform: platform
+    }));
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+
+    for (const { label } of platforms) {
+      const platformName = screen.getByText(label);
+      expect(platformName.closest(".overview-platform-cell")).toBeInTheDocument();
+      expect(platformName.closest(".platform-identity")).toBeInTheDocument();
+      expect(platformName).toHaveTextContent(label);
+    }
+
+    const css = readFileSync("src/app/globals.css", "utf8");
+    const platformLabelRule = css.match(
+      /\.overview-platform-cell\s+\.ranking-platform-chip\s+\.platform-identity\s+span\s*\{([^}]*)\}/
+    )?.[1];
+
+    expect(platformLabelRule).toBeDefined();
+    expect(platformLabelRule).toMatch(/overflow:\s*visible/);
+    expect(platformLabelRule).toMatch(/overflow-wrap:\s*anywhere/);
+    expect(platformLabelRule).toMatch(/text-overflow:\s*clip/);
+    expect(platformLabelRule).toMatch(/white-space:\s*normal/);
+    expect(platformLabelRule).not.toMatch(/text-overflow:\s*ellipsis/);
+    expect(platformLabelRule).not.toMatch(/white-space:\s*nowrap/);
+
+    const responsivePlatformRules = [
+      ...css.matchAll(/\.overview-table td:nth-child\(4\)\s*\{([^}]*)\}/g)
+    ].map((match) => match[1]);
+    expect(responsivePlatformRules.length).toBeGreaterThan(0);
+    expect(responsivePlatformRules).not.toContainEqual(expect.stringMatching(/display:\s*none/));
+    expect(responsivePlatformRules).toContainEqual(expect.stringMatching(/grid-row:\s*2/));
   });
 
   it("exposes selected tabs and momentum periods to assistive technology", () => {
@@ -196,6 +305,25 @@ describe("insights tabs", () => {
     expect(rowLink).toHaveAttribute("target", "_blank");
     expect(rowLink).toContainElement(firstPost.querySelector("article.ranked-post-card"));
     expect(firstPost.querySelector(".ranked-post-taxonomies")).not.toBeInTheDocument();
+  });
+
+  it("keeps every ranked-post label readable instead of clipping it into an ellipsis", () => {
+    const css = readFileSync("src/app/globals.css", "utf8");
+    const rankedPostRules = css.slice(
+      css.indexOf(".ranked-post-card"),
+      css.indexOf(".ranked-posts-empty")
+    );
+
+    expect(rankedPostRules).toMatch(
+      /grid-template-columns:\s*32px\s+86px\s+minmax\(0,\s*1fr\)\s+52px/
+    );
+    expect(rankedPostRules).not.toMatch(/grid-template-columns:[^;]*minmax\(0,\s*560px\)/);
+    expect(rankedPostRules).not.toMatch(/text-overflow:\s*ellipsis/);
+    expect(rankedPostRules).not.toMatch(/white-space:\s*nowrap/);
+    expect(rankedPostRules).not.toMatch(/overflow:\s*hidden/);
+    expect(rankedPostRules).toMatch(/overflow-wrap:\s*anywhere/);
+    expect(rankedPostRules).toMatch(/white-space:\s*normal/);
+    expect(rankedPostRules).toMatch(/flex-wrap:\s*wrap/);
   });
 
   it("does not show a separate score scope or Top Voices audience strip", () => {

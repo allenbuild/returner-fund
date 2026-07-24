@@ -398,12 +398,14 @@ async function executeLiveSourceRefresh(
   options: LiveSourceRefreshOptions,
   control: LiveRefreshRunControl
 ): Promise<LiveSourceRefreshResult> {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? /* turbopackIgnore: true */ process.cwd();
   const now = options.now ?? new Date();
   const generatedAt = now.toISOString();
   const runId = `live-refresh-${now.getTime()}`;
   const fetchImpl = options.fetchImpl ?? fetch;
-  const targetedEvidencePath = options.targetedEvidencePath ?? join(rootDir, TARGETED_EVIDENCE_PATH);
+  const targetedEvidencePath =
+    options.targetedEvidencePath ??
+    join(/* turbopackIgnore: true */ rootDir, TARGETED_EVIDENCE_PATH);
   const requestedPlatforms = normalizeRequestedPlatforms(options.platforms);
   const topVoiceAudience = options.topVoices ?? "off";
   const stageLog: LiveRefreshStageLog[] = [];
@@ -603,7 +605,11 @@ async function executeLiveSourceRefresh(
   }
 
   if (!control.signal.aborted) {
-    await writeStageLog(options.stageLogPath ?? join(rootDir, STAGE_LOG_PATH), stageLog, control.signal);
+    await writeStageLog(
+      options.stageLogPath ?? join(/* turbopackIgnore: true */ rootDir, STAGE_LOG_PATH),
+      stageLog,
+      control.signal
+    );
   }
 
   return {
@@ -627,11 +633,15 @@ async function executeLiveSourceRefresh(
 }
 
 export async function loadLiveEvidenceRecords(
-  rootDir = process.cwd(),
+  rootDir = /* turbopackIgnore: true */ process.cwd(),
   options: { targetedEvidencePath?: string } = {}
 ): Promise<LiveEvidenceRecord[]> {
-  const targetedEvidencePath = options.targetedEvidencePath ?? join(rootDir, TARGETED_EVIDENCE_PATH);
-  const fileStat = await stat(targetedEvidencePath).catch(() => null);
+  const targetedEvidencePath =
+    options.targetedEvidencePath ??
+    join(/* turbopackIgnore: true */ rootDir, TARGETED_EVIDENCE_PATH);
+  const fileStat = await stat(
+    /* turbopackIgnore: true */ targetedEvidencePath
+  ).catch(() => null);
   if (fileStat) {
     const cached = liveEvidenceRecordsCache.get(targetedEvidencePath);
     if (cached && cached.mtimeMs === fileStat.mtimeMs && cached.size === fileStat.size) {
@@ -792,8 +802,26 @@ async function loadXTargets(
   const targets: XTarget[] = [];
   const selectedBatchSlugs = new Set(batchSlugs);
   const ycSnapshotSpecs = [
-    { path: join(rootDir, "src", "lib", "yc", "summer-2026-companies.json"), slug: "S26" },
-    { path: join(rootDir, "src", "lib", "yc", "spring-2026-companies.json"), slug: "S2026" }
+    {
+      path: join(
+        /* turbopackIgnore: true */ rootDir,
+        "src",
+        "lib",
+        "yc",
+        "summer-2026-companies.json"
+      ),
+      slug: "S26"
+    },
+    {
+      path: join(
+        /* turbopackIgnore: true */ rootDir,
+        "src",
+        "lib",
+        "yc",
+        "spring-2026-companies.json"
+      ),
+      slug: "S2026"
+    }
   ].filter(({ slug }) => selectedBatchSlugs.has(slug));
   const snapshots = await Promise.all(
     ycSnapshotSpecs.map(({ path, slug }) => readBatchSnapshot(path, slug, log))
@@ -841,7 +869,12 @@ async function readVerifiedSocialOverrides(
   log: (entry: Omit<LiveRefreshStageLog, "at">) => void
 ): Promise<Record<string, VerifiedSocialOverride>> {
   try {
-    return JSON.parse(await readFile(join(rootDir, VERIFIED_SOCIAL_OVERRIDES_PATH), "utf8")) as Record<
+    return JSON.parse(
+      await readFile(
+        join(/* turbopackIgnore: true */ rootDir, VERIFIED_SOCIAL_OVERRIDES_PATH),
+        "utf8"
+      )
+    ) as Record<
       string,
       VerifiedSocialOverride
     >;
@@ -854,7 +887,10 @@ async function readVerifiedSocialOverrides(
       message: `Could not read verified social overrides: ${message}.`
     });
     throw new Error(
-      `Required canonical verified social overrides could not be read at ${join(rootDir, VERIFIED_SOCIAL_OVERRIDES_PATH)}: ${message}`
+      `Required canonical verified social overrides could not be read at ${join(
+        /* turbopackIgnore: true */ rootDir,
+        VERIFIED_SOCIAL_OVERRIDES_PATH
+      )}: ${message}`
     );
   }
 }
@@ -865,7 +901,9 @@ async function readBatchSnapshot(
   log: (entry: Omit<LiveRefreshStageLog, "at">) => void
 ): Promise<{ slug: string; snapshot: RawSnapshot }> {
   try {
-    const snapshot = JSON.parse(await readFile(path, "utf8")) as RawSnapshot;
+    const snapshot = JSON.parse(
+      await readFile(/* turbopackIgnore: true */ path, "utf8")
+    ) as RawSnapshot;
     return { slug, snapshot };
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
@@ -883,9 +921,14 @@ async function readA16zSocialAccountSnapshot(
   rootDir: string,
   log: (entry: Omit<LiveRefreshStageLog, "at">) => void
 ): Promise<A16zSocialAccountSnapshot> {
-  const snapshotPath = join(rootDir, A16Z_SOCIAL_ACCOUNTS_PATH);
+  const snapshotPath = join(
+    /* turbopackIgnore: true */ rootDir,
+    A16Z_SOCIAL_ACCOUNTS_PATH
+  );
   try {
-    const snapshot = JSON.parse(await readFile(snapshotPath, "utf8")) as A16zSocialAccountSnapshot;
+    const snapshot = JSON.parse(
+      await readFile(/* turbopackIgnore: true */ snapshotPath, "utf8")
+    ) as A16zSocialAccountSnapshot;
     return { companies: Array.isArray(snapshot.companies) ? snapshot.companies : [] };
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
@@ -1138,8 +1181,26 @@ async function loadCompanyMatchTargets(
   const targets: CompanyMatchTarget[] = [];
   const selectedBatchSlugs = new Set(batchSlugs);
   const ycSnapshotSpecs = [
-    { path: join(rootDir, "src", "lib", "yc", "summer-2026-companies.json"), slug: "S26" },
-    { path: join(rootDir, "src", "lib", "yc", "spring-2026-companies.json"), slug: "S2026" }
+    {
+      path: join(
+        /* turbopackIgnore: true */ rootDir,
+        "src",
+        "lib",
+        "yc",
+        "summer-2026-companies.json"
+      ),
+      slug: "S26"
+    },
+    {
+      path: join(
+        /* turbopackIgnore: true */ rootDir,
+        "src",
+        "lib",
+        "yc",
+        "spring-2026-companies.json"
+      ),
+      slug: "S2026"
+    }
   ].filter(({ slug }) => selectedBatchSlugs.has(slug));
   const snapshots = await Promise.all(
     ycSnapshotSpecs.map(({ path, slug }) => readBatchSnapshot(path, slug, log))
@@ -2723,7 +2784,7 @@ async function readAndMergeEvidenceSnapshot(
 }
 
 async function withEvidenceSnapshotWriteLock<T>(path: string, task: () => Promise<T>): Promise<T> {
-  const key = resolve(path);
+  const key = resolve(/* turbopackIgnore: true */ path);
   const previous = evidenceSnapshotWriteQueues.get(key) ?? Promise.resolve();
   let release: () => void = () => {};
   const lock = new Promise<void>((resolveLock) => {
@@ -2746,7 +2807,7 @@ async function withEvidenceSnapshotWriteLock<T>(path: string, task: () => Promis
 async function readEvidenceSnapshot(path: string, fallbackFetchedAt: string): Promise<EvidenceSnapshot> {
   let rawSnapshot: string;
   try {
-    rawSnapshot = await readFile(path, "utf8");
+    rawSnapshot = await readFile(/* turbopackIgnore: true */ path, "utf8");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
       throw new Error(`Could not read evidence snapshot ${path}: ${errorMessage(error)}`);
@@ -2794,22 +2855,32 @@ async function writeEvidenceSnapshot(path: string, snapshot: EvidenceSnapshot, s
   if (signal?.aborted) {
     return false;
   }
-  await mkdir(dirname(path), { recursive: true });
+  await mkdir(dirname(/* turbopackIgnore: true */ path), { recursive: true });
   if (signal?.aborted) {
     return false;
   }
   const tempPath = `${path}.${process.pid}.${Date.now()}.tmp`;
   try {
-    await writeFile(tempPath, `${JSON.stringify(snapshot, null, 2)}\n`, { signal });
+    await writeFile(
+      /* turbopackIgnore: true */ tempPath,
+      `${JSON.stringify(snapshot, null, 2)}\n`,
+      { signal }
+    );
     if (signal?.aborted) {
-      await rm(tempPath, { force: true });
+      await rm(/* turbopackIgnore: true */ tempPath, { force: true });
       return false;
     }
-    await rename(tempPath, path);
+    await rename(
+      /* turbopackIgnore: true */ tempPath,
+      /* turbopackIgnore: true */ path
+    );
     liveEvidenceRecordsCache.delete(path);
     return true;
   } catch (error) {
-    await rm(tempPath, { force: true }).catch(() => undefined);
+    await rm(
+      /* turbopackIgnore: true */ tempPath,
+      { force: true }
+    ).catch(() => undefined);
     if (signal?.aborted) {
       return false;
     }
@@ -2821,25 +2892,31 @@ async function writeStageLog(path: string, stageLog: LiveRefreshStageLog[], sign
   if (signal?.aborted) {
     return false;
   }
-  await mkdir(dirname(path), { recursive: true });
+  await mkdir(dirname(/* turbopackIgnore: true */ path), { recursive: true });
   if (signal?.aborted) {
     return false;
   }
   const tempPath = `${path}.${process.pid}.${Date.now()}.tmp`;
   try {
     await writeFile(
-      tempPath,
+      /* turbopackIgnore: true */ tempPath,
       `${JSON.stringify({ generatedAt: new Date().toISOString(), stages: stageLog }, null, 2)}\n`,
       { signal }
     );
     if (signal?.aborted) {
-      await rm(tempPath, { force: true });
+      await rm(/* turbopackIgnore: true */ tempPath, { force: true });
       return false;
     }
-    await rename(tempPath, path);
+    await rename(
+      /* turbopackIgnore: true */ tempPath,
+      /* turbopackIgnore: true */ path
+    );
     return true;
   } catch (error) {
-    await rm(tempPath, { force: true }).catch(() => undefined);
+    await rm(
+      /* turbopackIgnore: true */ tempPath,
+      { force: true }
+    ).catch(() => undefined);
     if (signal?.aborted) {
       return false;
     }

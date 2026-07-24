@@ -162,9 +162,7 @@ async function fetchGraphPayloadWithStaticSnapshot(
     expectedTopVoiceAudience: TopVoiceAudienceId;
   }
 ): Promise<GraphPayloadResult> {
-  const accessToken = await insiderAccessToken();
-  const dynamicInsiders = options.expectedTopVoiceAudience === "insiders";
-  if (staticSnapshotUrl && !dynamicInsiders) {
+  if (staticSnapshotUrl) {
     try {
       const staticPayload = await fetchGraphPayload(staticSnapshotUrl, 2, {
         cache: "no-store",
@@ -185,6 +183,7 @@ async function fetchGraphPayloadWithStaticSnapshot(
     }
   }
 
+  const accessToken = await insiderAccessToken();
   const apiGraph = await fetchGraphPayload(apiUrl, attempts, {
     cache: "no-store",
     timeoutMs: API_GRAPH_TIMEOUT_MS,
@@ -853,7 +852,10 @@ export function Dashboard({
       key,
       batchSlug,
       topVoiceAudience,
-      staticSnapshotUrl: options.unfiltered ? staticGraphSnapshotUrl(batchSlug, topVoiceAudience) : null,
+      staticSnapshotUrl:
+        options.unfiltered && activeInsiderIds.length === 0
+          ? staticGraphSnapshotUrl(batchSlug, topVoiceAudience)
+          : null,
       apiUrl: `/api/graph?${params.toString()}`,
       attempts: 3,
       forceApi: options.forceApi === true
@@ -934,11 +936,41 @@ export function Dashboard({
   }, [getOrStartGraphRequest, isCurrentGraphRequest, rememberGraph]);
 
   const refreshPersonalizedInsiders = useCallback(async () => {
+    const selection = selectionRef.current;
+    if (selection.topVoiceAudience !== "insiders") {
+      return;
+    }
+
+    const pendingKey = graphCacheKey(
+      selection.batchSlug,
+      selection.topVoiceAudience,
+      selection.insiderIds
+    );
+    const pendingRequest = graphInFlightRef.current.get(pendingKey);
+    if (pendingRequest && !pendingRequest.forceApi) {
+      try {
+        await pendingRequest.promise;
+      } catch (error) {
+        if (!isAbortError(error)) {
+          // The forced request below remains the authoritative retry path.
+        }
+      }
+      const latestSelection = selectionRef.current;
+      if (
+        latestSelection.batchSlug !== selection.batchSlug ||
+        latestSelection.topVoiceAudience !== selection.topVoiceAudience ||
+        !sameValues(latestSelection.insiderIds, selection.insiderIds)
+      ) {
+        return;
+      }
+    }
+
     for (const key of [...graphCacheRef.current.keys()]) {
       if (key.includes("::insiders::")) graphCacheRef.current.delete(key);
     }
     invalidateGraphRequests();
-    if (selectedInsiderIds.length) {
+
+    if (selectionRef.current.insiderIds.length) {
       selectionRef.current = {
         ...selectionRef.current,
         insiderIds: []
@@ -946,10 +978,9 @@ export function Dashboard({
       setSelectedInsiderIds([]);
       return;
     }
-    if (selectionRef.current.topVoiceAudience === "insiders") {
-      await fetchGraph({ forceApi: true, unfiltered: true });
-    }
-  }, [fetchGraph, invalidateGraphRequests, selectedInsiderIds.length]);
+
+    await fetchGraph({ forceApi: true, unfiltered: true });
+  }, [fetchGraph, invalidateGraphRequests]);
 
   useEffect(() => {
     if (topVoiceAudience !== "insiders") return undefined;
@@ -1092,6 +1123,8 @@ export function Dashboard({
         : null;
     }, [graph, minScore, scopedFilterMetadataGraph, scopedMapMetadataGraph]
   );
+  const fallbackGraphActive = graphScopeMismatch && !graphBusy && Boolean(mapGraph);
+  const interactiveGraph = settledGraph ?? (fallbackGraphActive ? mapGraph : null);
   const scopeSpecificFiltersDisabled = !settledGraph || !scopedFilterMetadataGraph;
 
   const mapFocus = useMemo(() => {
@@ -1103,7 +1136,7 @@ export function Dashboard({
       selectedGroupPartners.length ||
       selectedTopics.length
     );
-    const companyNodeIds = (settledGraph?.nodes ?? [])
+    const companyNodeIds = (interactiveGraph?.nodes ?? [])
       .filter((node) => node.entityType === "company")
       .map((node) => node.id)
       .sort();
@@ -1117,7 +1150,7 @@ export function Dashboard({
       `companies:${companyNodeIds.join("|")}`
     ].join(";");
     return { active, companyNodeIds, signature };
-  }, [selectedGroupPartners, selectedIndustries, selectedPlatforms, selectedTopics, selectedVerticals, settledGraph, topVoiceAudience]);
+  }, [interactiveGraph, selectedGroupPartners, selectedIndustries, selectedPlatforms, selectedTopics, selectedVerticals, topVoiceAudience]);
 
   const activeSelectedNodeId = useMemo(() => {
     if (!mapGraph) {
@@ -1171,16 +1204,16 @@ export function Dashboard({
   ]);
 
   const selectedNode = useMemo(
-    () => settledGraph ? mapGraph?.nodes.find((node) => node.id === activeSelectedNodeId) ?? null : null,
-    [activeSelectedNodeId, mapGraph, settledGraph]
+    () => interactiveGraph ? mapGraph?.nodes.find((node) => node.id === activeSelectedNodeId) ?? null : null,
+    [activeSelectedNodeId, interactiveGraph, mapGraph]
   );
 
   const selectedEvidence = useMemo(() => {
-    if (!settledGraph || !selectedNode) {
+    if (!interactiveGraph || !selectedNode) {
       return [];
     }
-    return selectedNodeEvidence(settledGraph, selectedNode).slice(0, TOP_POSTS_LIMIT);
-  }, [selectedNode, settledGraph]);
+    return selectedNodeEvidence(interactiveGraph, selectedNode).slice(0, TOP_POSTS_LIMIT);
+  }, [interactiveGraph, selectedNode]);
 
   const searchResults = useMemo(
     () => mapGraph
@@ -1195,11 +1228,11 @@ export function Dashboard({
   );
 
   const relatedNodes = useMemo(() => {
-    if (!settledGraph || !selectedNode) {
+    if (!interactiveGraph || !selectedNode) {
       return [];
     }
     return [];
-  }, [selectedNode, settledGraph]);
+  }, [interactiveGraph, selectedNode]);
 
   const selectNode = useCallback((nodeId: string, source: "graph" | "leaderboard" = "graph") => {
     const node = mapGraph?.nodes.find((candidate) => candidate.id === nodeId);
@@ -1892,8 +1925,13 @@ export function Dashboard({
       {((error && graph) || refreshError || refreshNotice) && (
         <section className="status-line" aria-live="polite">
           {error && graph && <span className="error-text">{error}</span>}
-          {error && graphScopeMismatch && !graphBusy && (
-            <button type="button" onClick={() => void fetchGraph({ unfiltered: true })}>
+          {error && fallbackGraphActive && (
+            <span className="refresh-notice-text">
+              Showing the standard company graph while the selected audience is unavailable.
+            </span>
+          )}
+          {error && graph && !graphBusy && (
+            <button type="button" onClick={() => void fetchGraph({ forceApi: true, unfiltered: true })}>
               <RefreshCw size={15} aria-hidden="true" />
               Retry selected graph
             </button>
@@ -1912,7 +1950,7 @@ export function Dashboard({
         <section
           className="dashboard-grid"
           ref={dashboardGridRef}
-          inert={graphScopeMismatch}
+          inert={graphScopeMismatch && graphBusy}
         >
           <div className="graph-column">
             {graphIsEmpty ? (
@@ -1939,7 +1977,7 @@ export function Dashboard({
                     : error ?? "The selected graph could not be loaded."}
                 </span>
                 {!graphBusy && error && (
-                  <button type="button" onClick={() => void fetchGraph({ unfiltered: true })}>
+                  <button type="button" onClick={() => void fetchGraph({ forceApi: true, unfiltered: true })}>
                     <RefreshCw size={15} aria-hidden="true" />
                     Retry selected graph
                   </button>
@@ -1975,10 +2013,10 @@ export function Dashboard({
               highlightedFounderId={highlightedFounderId}
             />
           )}
-          {settledGraph && (
+          {interactiveGraph && (
             <InsightsTabs
-              graph={settledGraph}
-              statsGraph={scopedFilterMetadataGraph ?? settledGraph}
+              graph={interactiveGraph}
+              statsGraph={scopedFilterMetadataGraph ?? interactiveGraph}
               onSelectNode={selectRankedNode}
             />
           )}
