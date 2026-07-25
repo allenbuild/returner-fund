@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/public-a16zsr006.json",
-        "githubRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-24-1800-f2b3bb369147ddef/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-24-1800-f2b3bb369147ddef/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -532,8 +532,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/public-s2026.json",
-        "githubRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/github-s2026.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-24-1800-f2b3bb369147ddef/public-s2026.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-24-1800-f2b3bb369147ddef/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -543,8 +543,8 @@
         "catalogOwnerPlatformGroups": 958,
         "plannedOwnerMappings": 959,
         "multiAccountOwnerMappings": 1,
-        "graphEvidence": 3369,
-        "graphNeedsReview": 3794
+        "graphEvidence": 3381,
+        "graphNeedsReview": 4032
       },
       "structural": {
         "status": "pass",
@@ -2302,8 +2302,8 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/public-s26.json",
-        "githubRun": "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/autonomous-ingestion/source-sweep-2026-07-24T11-14-03-369Z-sweep-001-6beb02908fb09cfe/github-s26.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-24-1800-f2b3bb369147ddef/public-s26.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-24-1800-f2b3bb369147ddef/github-s26.json"
       },
       "counts": {
         "companies": 115,
@@ -2313,8 +2313,8 @@
         "catalogOwnerPlatformGroups": 551,
         "plannedOwnerMappings": 551,
         "multiAccountOwnerMappings": 0,
-        "graphEvidence": 1286,
-        "graphNeedsReview": 1567
+        "graphEvidence": 1297,
+        "graphNeedsReview": 1719
       },
       "structural": {
         "status": "pass",
