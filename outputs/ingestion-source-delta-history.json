@@ -793,5 +793,69 @@
         "postedAt": null
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-25-0600",
+    "centralDay": "2026-07-25",
+    "observedAt": "2026-07-25T12:51:53.307Z",
+    "baselinePhysicalSources": 4253,
+    "publishedPhysicalSources": 4256,
+    "newPhysicalSources": 3,
+    "newPhysicalSourcesThisAttempt": 3,
+    "retainedPhysicalSources": 4253,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 3,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_success_rate_below_10_percent:0.0397"
+    ],
+    "mappedExpected": 1837,
+    "mappedSucceeded": 73,
+    "mappedNeedsReview": 83,
+    "mappedBlockedOrEmpty": 1681,
+    "mappedFailures": 0,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0397,
+    "newestNewSourcePostedAt": "2026-07-25T10:19:10.000Z",
+    "insertedByBatchPlatform": {
+      "S2026:youtube": 1,
+      "S26:x": 1,
+      "S26:youtube": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-sherpa",
+        "sourceUrl": "https://youtube.com/watch?v=Oa7mllkzzU0",
+        "platformPostId": "Oa7mllkzzU0",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-greypoint-industries",
+        "sourceUrl": "https://youtube.com/watch?v=nq-Po2DEmcQ",
+        "platformPostId": "nq-Po2DEmcQ",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-assemble",
+        "sourceUrl": "https://x.com/agupta/status/2080961047071187396",
+        "platformPostId": "2080961047071187396",
+        "postedAt": "2026-07-25T10:19:10.000Z"
+      }
+    ]
   }
 ]
