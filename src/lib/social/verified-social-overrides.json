@@ -605,12 +605,21 @@
     ]
   },
   "openrelay": {
-    "matchReason": "The GitHub repository previously listed on the YC profile returns 404 and is retired until an owner-verified replacement is available.",
+    "companySocialLinks": {
+      "github": "https://github.com/OpenRelayInc"
+    },
+    "matchReason": "The live OpenRelayInc organization is linked to openrelay.inc and supersedes the dead OpenRelay repository and stale vectorlay account.",
     "rejectedGithub": [
       {
         "url": "https://github.com/OpenRelayInc/OpenRelay",
         "rejectedAt": "2026-07-20T00:00:00.000Z",
         "reason": "GitHub repository returns 404; retired so the autonomous plan records a missing mapping instead of repeatedly scheduling a permanent failure.",
+        "source": "github-public-api-identity-guard"
+      },
+      {
+        "url": "https://github.com/vectorlay",
+        "rejectedAt": "2026-07-26T00:00:00.000Z",
+        "reason": "GitHub account returns 404; the stale link on openrelay.inc is superseded by the owner-verified OpenRelayInc organization.",
         "source": "github-public-api-identity-guard"
       }
     ]
@@ -1009,5 +1018,80 @@
       }
     ],
     "matchReason": "Verified social override for Codag based on eighth-pass source hunt and live YC founder attribution."
+  },
+  "stage": {
+    "companySocialLinks": {
+      "github": "https://github.com/ReviewStage"
+    },
+    "founders": [
+      {
+        "id": "1219322",
+        "name": "Dean Stratakos",
+        "socialLinks": {
+          "github": "https://github.com/dastratakos"
+        },
+        "matchReason": "GitHub profile identifies Dean Stratakos and Stage, and links the official stagereview.app domain."
+      },
+      {
+        "id": "327595",
+        "name": "Charles Pan",
+        "socialLinks": {
+          "github": "https://github.com/charleslpan"
+        },
+        "matchReason": "GitHub profile identifies Charles Pan and states that he is building stagereview.app."
+      }
+    ],
+    "matchReason": "The live ReviewStage organization links stagereview.app and supersedes the dead stage-review account.",
+    "rejectedGithub": [
+      {
+        "url": "https://github.com/stage-review",
+        "rejectedAt": "2026-07-26T00:00:00.000Z",
+        "reason": "GitHub account returns 404; replaced by the owner-verified ReviewStage organization.",
+        "source": "github-public-api-identity-guard"
+      }
+    ]
+  },
+  "interfaze": {
+    "companySocialLinks": {
+      "github": "https://github.com/InterfazeAI"
+    },
+    "founders": [
+      {
+        "id": "1618136",
+        "name": "Yoeven D Khemlani",
+        "socialLinks": {
+          "github": "https://github.com/yoeven"
+        },
+        "matchReason": "GitHub profile identifies Yoeven D Khemlani and JigsawStack, the prior Interfaze identity."
+      },
+      {
+        "id": "2229538",
+        "name": "Harsha Vardhan Khurdula",
+        "socialLinks": {
+          "github": "https://github.com/Khurdhula-Harshavardhan"
+        },
+        "matchReason": "GitHub profile identifies Harsha Vardhan Khurdula and JigsawStack, the prior Interfaze identity."
+      }
+    ],
+    "matchReason": "JigsawStack repositories redirect to the live InterfazeAI organization, whose profile links interfaze.ai.",
+    "rejectedGithub": [
+      {
+        "url": "https://github.com/JigsawStack",
+        "rejectedAt": "2026-07-26T00:00:00.000Z",
+        "reason": "GitHub organization returns 404 and its repositories redirect to the owner-verified InterfazeAI organization.",
+        "source": "github-public-api-identity-guard"
+      }
+    ]
+  },
+  "coasty": {
+    "matchReason": "The official Coasty repository remains coasty-ai/open-cowork; the similarly named anthropics repository is third-party and must never be attributed to Coasty.",
+    "rejectedGithub": [
+      {
+        "url": "https://github.com/anthropics/open-computer-use",
+        "rejectedAt": "2026-07-26T00:00:00.000Z",
+        "reason": "Repository returns 404 and belongs to a third-party organization, not Coasty.",
+        "source": "github-public-api-identity-guard"
+      }
+    ]
   }
 }

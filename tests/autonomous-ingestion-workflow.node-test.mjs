@@ -109,7 +109,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   )?.[1];
   assert.ok(runnerStep, "missing autonomous ingestion step");
   assert.match(runnerStep, /id:\s*ingestion/);
-  assert.match(runnerStep, /timeout-minutes:\s*300/);
+  assert.match(runnerStep, /timeout-minutes:\s*330/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
   assert.doesNotMatch(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
@@ -136,10 +136,11 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   const runnerTimeout = Number(workflow.match(/- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
   const validationTimeout = Number(workflow.match(/- name: Validate generated public artifacts[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
 
-  assert.equal(jobTimeout, 320);
+  assert.equal(jobTimeout, 350);
   assert.equal(installTimeout, 10);
-  assert.equal(runnerTimeout, 300);
+  assert.equal(runnerTimeout, 330);
   assert.equal(validationTimeout, 5);
+  assert.ok(runnerTimeout < jobTimeout);
   assert.ok(installTimeout + runnerTimeout + validationTimeout < jobTimeout);
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeout * 60_000);
 });

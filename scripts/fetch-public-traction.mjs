@@ -33,7 +33,10 @@ import {
   searchExaSourceCandidates,
   xUsernameFromUrl
 } from "./lib/credentialed-source-discovery.mjs";
-import { prioritizeAutonomousCompaniesByCoverage } from "./lib/autonomous-ingestion-plan.mjs";
+import {
+  isAutonomousCollectorFailureRetryable,
+  prioritizeAutonomousCompaniesByCoverage
+} from "./lib/autonomous-ingestion-plan.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -543,14 +546,20 @@ async function runLane(lane, tasks, limit) {
                 identity.name,
                 identity.entityId
               ),
-              accountUrl: identity.accountUrl
+              accountUrl: identity.accountUrl,
+              attemptKey: identity.attemptKey
             }
-          : failure(lane, task.company, null, message));
+          : {
+              ...failure(lane, task.company, null, message),
+              attemptKey: identity?.attemptKey ?? null
+            });
         if (identity) {
           attemptMap.set(identity.attemptKey, socialAttemptRecord({
+            attemptKey: identity.attemptKey,
             status: "failed",
             checkedAt: now,
             error: message,
+            retryable: retryableCollectorFailure(message),
             outcomeStatus: "blocked_or_empty",
             outcomeReason: "collector_checked_blocked_or_empty"
           }, identity));
@@ -589,9 +598,14 @@ async function attempt(platform, key, company, fn) {
     }
     addItems(result?.evidence ?? [], evidence);
     addItems(result?.needsReview ?? [], needsReview);
-    addItems(result?.failures ?? [], failures);
+    addItems(
+      (result?.failures ?? []).map((row) => ({ ...row, attemptKey })),
+      failures
+    );
     addItems(result?.sourceDiscoveryPaths ?? [], sourceDiscoveryPaths);
     const attemptSummary = summarizeConnectorResult(result);
+    const outcomeStatus = collectorOutcomeStatus(attemptSummary);
+    const retryable = retryableCollectorFailure(attemptSummary.failureReason);
     discoveryAttempts.push(
       discoveryAttempt({
         company,
@@ -606,9 +620,12 @@ async function attempt(platform, key, company, fn) {
       })
     );
     attemptMap.set(attemptKey, socialAttemptRecord({
+      attemptKey,
       status: "done",
       checkedAt: now,
-      outcomeStatus: collectorOutcomeStatus(attemptSummary),
+      ...(attemptSummary.failureReason ? { error: attemptSummary.failureReason } : {}),
+      retryable,
+      outcomeStatus,
       outcomeReason: collectorOutcomeReason(attemptSummary)
     }, {
       platform: normalizedPlatform,
@@ -620,7 +637,11 @@ async function attempt(platform, key, company, fn) {
     }));
   } catch (error) {
     recordPlatformCooldownIfNeeded(normalizedPlatform, error);
-    failures.push(failure(normalizedPlatform, company, null, errorMessage(error)));
+    const message = errorMessage(error);
+    failures.push({
+      ...failure(normalizedPlatform, company, null, message),
+      attemptKey
+    });
     discoveryAttempts.push(
       discoveryAttempt({
         company,
@@ -631,14 +652,15 @@ async function attempt(platform, key, company, fn) {
         usefulResultCount: 0,
         selectedUrl: null,
         status: "failed",
-        failureReason: errorMessage(error)
+        failureReason: message
       })
     );
-    const message = errorMessage(error);
     attemptMap.set(attemptKey, socialAttemptRecord({
+      attemptKey,
       status: "failed",
       checkedAt: now,
       error: message,
+      retryable: retryableCollectorFailure(message),
       outcomeStatus: expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
       outcomeReason: expectedAccessOrEmptyMessage(message)
         ? "collector_checked_blocked_or_empty"
@@ -794,7 +816,10 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       );
     } else {
       const missingMessage = `No mapped public ${platform} URL for ${entityType} ${name}; public discovery returned no candidates.`;
-      failures.push(failure(platform, company, null, missingMessage, entityType, name, entityId));
+      failures.push({
+        ...failure(platform, company, null, missingMessage, entityType, name, entityId),
+        attemptKey: key
+      });
       discoveryAttempts.push(
         discoveryAttempt({
           company,
@@ -813,9 +838,11 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       );
     }
     attemptMap.set(key, socialAttemptRecord({
+      attemptKey: key,
       status: "done",
       checkedAt: now,
       count: candidates.length,
+      retryable: false,
       outcomeStatus: candidates.length ? "needs_review" : "blocked_or_empty",
       outcomeReason: candidates.length ? "collector_needs_review" : "collector_checked_blocked_or_empty"
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: null }));
@@ -852,8 +879,10 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       })
     );
     attemptMap.set(key, socialAttemptRecord({
+      attemptKey: key,
       status: "done",
       checkedAt: now,
+      retryable: false,
       outcomeStatus: "needs_review",
       outcomeReason: "collector_needs_review"
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
@@ -872,7 +901,11 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     }
     addItems(result.evidence, evidence);
     addItems(result.needsReview, needsReview);
-    addItems(result.failures, failures);
+    const attributedFailures = (result.failures ?? []).map((row) => ({
+      ...row,
+      attemptKey: key
+    }));
+    addItems(attributedFailures, failures);
     addItems(result.sourceDiscoveryPaths ?? [], sourceDiscoveryPaths);
     const attemptSummary = summarizeConnectorResult(result);
     discoveryAttempts.push(
@@ -891,17 +924,23 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
         failureReason: attemptSummary.failureReason
       })
     );
+    const outcomeStatus = collectorOutcomeStatus(attemptSummary);
+    const failureReason = String(attemptSummary.failureReason ?? "").trim();
     attemptMap.set(key, socialAttemptRecord({
+      attemptKey: key,
       status: "done",
       checkedAt: now,
-      outcomeStatus: collectorOutcomeStatus(attemptSummary),
+      error: failureReason || undefined,
+      retryable: retryableCollectorFailure(failureReason),
+      outcomeStatus,
       outcomeReason: collectorOutcomeReason(attemptSummary)
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   } catch (error) {
     recordPlatformCooldownIfNeeded(platform, error);
     failures.push({
       ...failure(platform, company, url, errorMessage(error), entityType, name, entityId),
-      accountUrl: url
+      accountUrl: url,
+      attemptKey: key
     });
     discoveryAttempts.push(
       discoveryAttempt({
@@ -921,9 +960,11 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     );
     const message = errorMessage(error);
     attemptMap.set(key, socialAttemptRecord({
+      attemptKey: key,
       status: "failed",
       checkedAt: now,
       error: message,
+      retryable: retryableCollectorFailure(message),
       outcomeStatus: expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
       outcomeReason: expectedAccessOrEmptyMessage(message)
         ? "collector_checked_blocked_or_empty"
@@ -1013,6 +1054,16 @@ function expectedAccessOrEmptyMessage(value) {
     return false;
   }
   return /(?:no\b[^.\n]{0,100}\b(?:matches?|posts?|videos?|content|results?|items?|candidates?|evidence|mentions?|links?)\b|empty|login|log in|sign in|signup|join (?:linkedin|x)|access (?:blocked|denied)|\bblocked\b|rate.?limit|\b429\b|captcha|robots|authentication required)/i.test(message);
+}
+
+function retryableCollectorFailure(value) {
+  const message = String(value ?? "").trim();
+  if (
+    /(?:login|log in|sign in|signup|join (?:linkedin|x)|captcha|robots|authentication required|access[- ]gated)/i.test(message)
+  ) {
+    return false;
+  }
+  return isAutonomousCollectorFailureRetryable(message);
 }
 
 function discoveredSocialCandidatesFromPaths(company, platform, entity = company, entityType = "company") {
@@ -4767,17 +4818,30 @@ function hasArg(name) {
 }
 
 function isFreshCompletedAttempt(attempt) {
-  if (attempt?.status !== "done" || !attempt.checkedAt) return false;
+  if (!attempt?.checkedAt) return false;
   if (
     attempt.batchSlug !== batchConfig.slug ||
     !attempt.platform ||
     !["company", "founder"].includes(attempt.entityType) ||
     !attempt.entityId ||
-    !["completed", "needs_review", "blocked_or_empty"].includes(attempt.outcomeStatus) ||
     !String(attempt.outcomeReason ?? "").trim()
   ) {
     return false;
   }
+  const error = String(attempt.error ?? "").trim();
+  const retryable =
+    typeof attempt.retryable === "boolean"
+      ? attempt.retryable
+      : attempt.status === "failed" || attempt.outcomeStatus === "failed"
+        ? error
+          ? retryableCollectorFailure(error)
+          : true
+        : false;
+  if (retryable) return false;
+  const terminalOutcome =
+    ["completed", "needs_review", "blocked_or_empty"].includes(attempt.outcomeStatus) ||
+    (attempt.outcomeStatus === "failed" && Boolean(error));
+  if (!terminalOutcome) return false;
   const staleAttributionVersion = Number(attempt.attributionVersion ?? 0) < PUBLIC_ATTRIBUTION_VERSION;
   if (attempt.platform === "linkedin" && staleAttributionVersion) {
     return false;

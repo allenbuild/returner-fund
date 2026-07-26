@@ -28,7 +28,7 @@ describe("five-hour source sweep orchestrator", () => {
     assert.match(runnerSource, /run-autonomous-ingestion\.mjs/);
     assert.match(
       runnerSource,
-      /autonomousRunnerPath,\s*"--skip-publish",\s*"--resume-snapshots",\s*`--idempotency-key=\$\{idempotencyKey\}`/
+      /autonomousRunnerPath,\s*"--skip-publish",\s*"--resume-snapshots",\s*`--campaign-key=\$\{runId\}`,\s*`--idempotency-key=\$\{idempotencyKey\}`/
     );
     for (const batch of ["S2026", "S26", "A16ZSR006"]) {
       assert.ok(runnerSource.includes(batch), `${batch} must be explicit in the orchestration contract`);

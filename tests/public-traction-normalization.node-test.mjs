@@ -276,6 +276,148 @@ globalThis.fetch = async (url) => new Response(
   assert.deepEqual(second.attempts["rss:eden-robotics"], receipt);
 });
 
+test("fresh deterministic failed receipts are terminal and do not repeat network work", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-deterministic-terminal-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const noFetchPreload = join(directory, "no-fetch.mjs");
+  const attemptKey = "rss:eden-robotics";
+  const attempt = {
+    attemptKey,
+    batchSlug: "S2026",
+    companySlug: "eden-robotics",
+    platform: "rss",
+    entityType: "company",
+    entityId: "company-eden-robotics",
+    entityName: "Eden Robotics",
+    accountUrl: null,
+    status: "failed",
+    error: "HTTP 404 Not Found",
+    outcomeStatus: "blocked_or_empty",
+    outcomeReason: "collector_checked_blocked_or_empty",
+    checkedAt: new Date(Date.now() - 60_000).toISOString()
+  };
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(checkpoint, `${JSON.stringify({
+      attempts: { [attemptKey]: attempt },
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      discoveryAttempts: [],
+      sourceDiscoveryPaths: []
+    }, null, 2)}\n`),
+    writeFile(noFetchPreload, `globalThis.fetch = async () => { throw new Error("deterministic terminal receipt must skip network"); };\n`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=rss",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${noFetchPreload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  assert.deepEqual(snapshot.attempts[attemptKey], attempt);
+});
+
+test("retryable receipts rerun once and a shared campaign checkpoint skips the next cycle", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-campaign-checkpoint-"));
+  const firstOutput = join(directory, "cycle-one.json");
+  const secondOutput = join(directory, "cycle-two.json");
+  const checkpoint = join(directory, "shared-checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const noFetchPreload = join(directory, "no-fetch.mjs");
+  const attemptKey = "rss:eden-robotics";
+  const previousCheckedAt = new Date(Date.now() - 60_000).toISOString();
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(checkpoint, `${JSON.stringify({
+      attempts: {
+        [attemptKey]: {
+          attemptKey,
+          batchSlug: "S2026",
+          companySlug: "eden-robotics",
+          platform: "rss",
+          entityType: "company",
+          entityId: "company-eden-robotics",
+          entityName: "Eden Robotics",
+          accountUrl: null,
+          status: "failed",
+          error: "HTTP 429 rate limit",
+          retryable: true,
+          outcomeStatus: "failed",
+          outcomeReason: "collector_reported_failure",
+          checkedAt: previousCheckedAt
+        }
+      },
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      discoveryAttempts: [],
+      sourceDiscoveryPaths: []
+    }, null, 2)}\n`),
+    writeFile(preload, `
+globalThis.fetch = async (url) => new Response(
+  String(url).includes("feed")
+    ? "<?xml version=\\"1.0\\"?><rss><channel></channel></rss>"
+    : "<html><head><link rel=\\"alternate\\" type=\\"application/rss+xml\\" href=\\"/feed.xml\\"></head><body>Eden Robotics</body></html>",
+  { status: 200 }
+);
+`),
+    writeFile(noFetchPreload, `globalThis.fetch = async () => { throw new Error("shared campaign checkpoint must skip completed work"); };\n`)
+  ]);
+  const args = (output) => [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=rss",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ];
+
+  execFileSync(process.execPath, args(firstOutput), {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+  const first = JSON.parse(await readFile(firstOutput, "utf8"));
+  const terminal = first.attempts[attemptKey];
+  assert.notEqual(terminal.checkedAt, previousCheckedAt);
+  assert.equal(terminal.retryable, false);
+  assert.equal(terminal.outcomeStatus, "blocked_or_empty");
+
+  execFileSync(process.execPath, args(secondOutput), {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${noFetchPreload}` },
+    stdio: "pipe"
+  });
+  const second = JSON.parse(await readFile(secondOutput, "utf8"));
+  assert.deepEqual(second.attempts[attemptKey], terminal);
+});
+
 test("fresh mapped LinkedIn receipts below the attribution contract version rerun once and then skip", async () => {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-linkedin-v3-receipt-"));
   const output = join(directory, "public-evidence.json");

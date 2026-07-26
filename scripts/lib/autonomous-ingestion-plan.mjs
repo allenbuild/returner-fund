@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { readRequiredCanonicalJson } from "./canonical-json.mjs";
+import { canonicalGithubTargetUrl } from "./github-url.mjs";
 import {
   publicationTimesCompatible,
   sourceAuthorsCompatible,
@@ -64,6 +65,7 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   topVoiceCollectorMs: 22 * MINUTE_MS,
   productionBuildMs: 10 * MINUTE_MS,
   benchmarkPublicationMs: 6 * MINUTE_MS,
+  scoringDiagnosticsMs: 3 * MINUTE_MS,
   artifactManifestMs: MINUTE_MS,
   artifactValidationMs: 4 * MINUTE_MS,
   gitConfigMs: 30_000,
@@ -108,11 +110,14 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     retriedCollectorWindow,
     budgets.topVoiceCollectorMs + budgets.processKillGraceMs
   );
+  const publicationBaseSynchronizationWindow =
+    2 * budgets.gitPushMs; // initial fetch + rebase
   const publicationWindow =
     budgets.productionBuildMs +
     budgets.benchmarkPublicationMs +
+    budgets.scoringDiagnosticsMs +
     budgets.artifactManifestMs +
-    budgets.artifactValidationMs +
+    (2 * budgets.artifactValidationMs) + // cohort audit + public artifact validation
     (2 * budgets.gitConfigMs) +
     budgets.gitStageMs +
     budgets.gitDiffMs +
@@ -123,6 +128,7 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     (2 * budgets.gitPushMs) + // fetch + rebase
     budgets.productionBuildMs +
     budgets.benchmarkPublicationMs +
+    budgets.scoringDiagnosticsMs +
     budgets.artifactManifestMs +
     (2 * budgets.artifactValidationMs) + // cohort audit + public artifact validation
     budgets.gitStageMs +
@@ -131,6 +137,7 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     budgets.gitPushMs;
   return (
     collectorWindow +
+    publicationBaseSynchronizationWindow +
     publicationWindow +
     publicationRetryWindow +
     budgets.processKillGraceMs +
@@ -909,14 +916,44 @@ const MISSING_COLLECTOR_OUTCOME_REASONS = new Set([
   "collector_returned_no_entity_attempt"
 ]);
 const RETRYABLE_COLLECTOR_FAILURE_PATTERN =
-  /(?:rate.?limit|secondary.?limit|\b403\b|forbidden|\b429\b|\b5\d\d\b|timeout|timed out|\babort(?:ed|error)?\b|\betimedout\b|network|fetch failed|econn|socket|temporar|unavailable)/i;
+  /(?:rate.?limit|secondary.?limit|\b403\b|\b408\b|\b425\b|forbidden|\b429\b|\b5\d\d\b|timeout|timed out|\babort(?:ed|error)?\b|\betimedout\b|network|fetch failed|econn|socket|temporar|unavailable)/i;
+const NON_RETRYABLE_COLLECTOR_FAILURE_PATTERN =
+  /(?:\b(?:400|401|404|405|410|422)\b|not found|invalid (?:url|mapping|host|identity)|dead (?:url|mapping|account)|wrong host|host did not match|unsupported (?:owner )?url|referential)/i;
+
+export function isAutonomousCollectorFailureRetryable(message) {
+  const normalized = String(message ?? "").trim();
+  if (!normalized || NON_RETRYABLE_COLLECTOR_FAILURE_PATTERN.test(normalized)) return false;
+  return RETRYABLE_COLLECTOR_FAILURE_PATTERN.test(normalized);
+}
 
 export function autonomousCollectorRetryableFailures(snapshot) {
+  const attempts = Object.entries(snapshot?.attempts ?? {}).map(([storedKey, attempt]) => {
+    const batchPrefix = attempt?.batchSlug ? `${attempt.batchSlug}:` : "";
+    const attemptKey = String(
+      attempt?.attemptKey ??
+      (batchPrefix && storedKey.startsWith(batchPrefix)
+        ? storedKey.slice(batchPrefix.length)
+        : storedKey)
+    ).trim();
+    return {
+      ...attempt,
+      attemptKey
+    };
+  });
+  const attemptsByKey = new Map(
+    attempts
+      .filter((attempt) => attempt.attemptKey)
+      .map((attempt) => [attempt.attemptKey, attempt])
+  );
   const sourceChecks = snapshot?.source?.discovery?.sourceChecks ?? [];
   const attemptsByOwner = new Map(
-    Object.values(snapshot?.attempts ?? {})
+    attempts
       .map((attempt) => [collectorOwnerKey(attempt), attempt])
       .filter(([key]) => Boolean(key))
+      .reduce((groups, [key, attempt]) => {
+        groups.set(key, [...(groups.get(key) ?? []), attempt]);
+        return groups;
+      }, new Map())
   );
   const sourceChecksByOwner = new Map();
   for (const check of sourceChecks) {
@@ -925,21 +962,76 @@ export function autonomousCollectorRetryableFailures(snapshot) {
     sourceChecksByOwner.set(key, [...(sourceChecksByOwner.get(key) ?? []), check]);
   }
 
+  const explicitAttemptFailures = attempts
+    .filter((attempt) => attempt.retryable === true)
+    .map((attempt) =>
+      attempt.error ??
+      attempt.failureReason ??
+      `Retryable collector attempt ${attempt.attemptKey || collectorOwnerKey(attempt) || "unknown"}`
+    );
   const sourceCheckFailures = sourceChecks
     .filter((check) => check.status === "failed")
     .filter((check) => !suppressDeterministicProfileNotFoundRetry(
       check,
-      attemptsByOwner.get(collectorOwnerKey(check)),
+      newestCollectorAttempt(attemptsByOwner.get(collectorOwnerKey(check)) ?? []),
       sourceChecksByOwner.get(collectorOwnerKey(check)) ?? []
     ))
+    .filter((check) => collectorFailureRetryDecision(check, attemptsByKey, attemptsByOwner) !== false)
     .map((check) => check.error);
   const messages = [
-    ...(snapshot?.failures ?? []).map((failure) => failure.message),
-    ...(snapshot?.accounts ?? []).filter((account) => account.fetched === false).map((account) => account.error),
+    ...explicitAttemptFailures,
+    ...(snapshot?.failures ?? [])
+      .filter((failure) => collectorFailureRetryDecision(failure, attemptsByKey, attemptsByOwner) !== false)
+      .map((failure) => failure.message ?? failure.error),
+    ...(snapshot?.accounts ?? [])
+      .filter((account) => account.fetched === false)
+      .filter((account) => collectorFailureRetryDecision(account, attemptsByKey, attemptsByOwner) !== false)
+      .map((account) => account.error),
     ...(snapshot?.source?.discovery?.searchFailures ?? []).map((failure) => failure.error ?? failure.message),
     ...sourceCheckFailures
   ];
-  return messages.filter((message) => RETRYABLE_COLLECTOR_FAILURE_PATTERN.test(String(message ?? "")));
+  return [...new Set(
+    messages
+      .map((message) => String(message ?? "").trim())
+      .filter(Boolean)
+      .filter((message) => isAutonomousCollectorFailureRetryable(message) ||
+        explicitAttemptFailures.includes(message))
+  )];
+}
+
+function collectorFailureRetryDecision(row, attemptsByKey, attemptsByOwner) {
+  if (typeof row?.retryable === "boolean") return row.retryable;
+  const attemptKey = String(row?.attemptKey ?? row?.attempt_key ?? "").trim();
+  const exactAttempt = attemptKey ? attemptsByKey.get(attemptKey) : null;
+  if (typeof exactAttempt?.retryable === "boolean") return exactAttempt.retryable;
+
+  const ownerAttempts = attemptsByOwner.get(collectorOwnerKey(row)) ?? [];
+  const accountUrl = canonicalCollectorFailureAccountUrl(row);
+  const matchingAttempts = accountUrl
+    ? ownerAttempts.filter((attempt) =>
+        canonicalCollectorFailureAccountUrl(attempt) === accountUrl
+      )
+    : ownerAttempts;
+  const explicit = matchingAttempts.filter((attempt) => typeof attempt.retryable === "boolean");
+  if (!explicit.length) return null;
+  return explicit.some((attempt) => attempt.retryable === true);
+}
+
+function canonicalCollectorFailureAccountUrl(row) {
+  const raw = row?.accountUrl ?? row?.account_url ?? row?.githubUrl ?? row?.url ?? null;
+  if (!raw) return null;
+  return canonicalSocialAccountUrl(
+    normalizePlatform(row?.platform ?? "github"),
+    raw
+  ).toLowerCase();
+}
+
+function newestCollectorAttempt(attempts) {
+  return [...attempts].sort(
+    (left, right) =>
+      (Date.parse(right?.checkedAt ?? "") || 0) -
+      (Date.parse(left?.checkedAt ?? "") || 0)
+  )[0] ?? null;
 }
 
 export function summarizeAutonomousCollectorTerminalTaskCoverage(
@@ -1868,8 +1960,8 @@ function canonicalSocialAccountUrl(platform, rawUrl) {
     const parts = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
     const host = url.hostname.replace(/^www\./i, "").toLowerCase();
     if (platform === "github" && host === "github.com") {
-      const handle = parts[0]?.toLowerCase() === "orgs" ? parts[1] : parts[0];
-      if (handle) return `https://github.com/${handle.toLowerCase().replace(/\.git$/i, "")}`;
+      const canonicalUrl = canonicalGithubTargetUrl(rawUrl);
+      if (canonicalUrl) return canonicalUrl.toLowerCase();
     }
     if (platform === "linkedin" && (host === "linkedin.com" || host.endsWith(".linkedin.com"))) {
       const markerIndex = parts.findIndex((part) => ["company", "in", "school"].includes(part.toLowerCase()));

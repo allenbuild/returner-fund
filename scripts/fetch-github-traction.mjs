@@ -1,6 +1,12 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
+import { isAutonomousCollectorFailureRetryable } from "./lib/autonomous-ingestion-plan.mjs";
+import {
+  canonicalGithubTargetUrl,
+  parseGithubTargetUrl,
+  sameGithubTargetUrl
+} from "./lib/github-url.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -64,13 +70,19 @@ await runWorkerPool(githubTargets, workers, async (target) => {
     const repos = target.repo
       ? [await fetchJson(`${apiBase}/repos/${target.login}/${target.repo}`)]
       : await fetchJson(`${apiBase}/users/${target.login}/repos?sort=updated&per_page=100&type=owner`);
-    results.push(normalizeTarget(target, account, repos));
+    results.push({
+      ...normalizeTarget(target, account, repos),
+      attemptKey: githubTargetAttemptKey(target),
+      retryable: false
+    });
     console.log(`Fetched GitHub traction for ${target.companyName}: ${target.login}${target.repo ? `/${target.repo}` : ""}`);
   } catch (error) {
     results.push({
       ...target,
+      attemptKey: githubTargetAttemptKey(target),
       fetched: false,
-      error: errorMessage(error)
+      error: errorMessage(error),
+      retryable: isAutonomousCollectorFailureRetryable(errorMessage(error))
     });
     console.warn(`GitHub fetch failed for ${target.login}${target.repo ? `/${target.repo}` : ""}: ${errorMessage(error)}`);
   }
@@ -182,12 +194,12 @@ function collectGithubOwners(companies) {
       companyName: company.name,
       // Some manually verified founders do not have a standalone accelerator
       // profile. Keep the discovery attempt real by scanning their verified
-      // source first, then the company's official profile/site as a bounded
-      // fallback. githubOwnerAttempts only reports sources actually fetched.
+      // source first, then the company's official profile as a bounded
+      // fallback. A company website is never a founder-owned identity source.
       profileUrl: batchConfig.founderProfileUrl(company, founder)
         ?? founder.sourceUrl
         ?? batchConfig.companyProfileUrl(company),
-      websiteUrl: founder.websiteUrl ?? company.websiteUrl ?? null,
+      websiteUrl: founder.websiteUrl ?? null,
       mappedUrls: githubUrlsForOwner(founder),
       retiredUrls: (founder.retiredGithub ?? []).map((record) => record.url)
     }))
@@ -209,6 +221,7 @@ function githubOwnerAttempts(owners, results, discovery) {
     checksByOwner.set(check.entityId, [...(checksByOwner.get(check.entityId) ?? []), check]);
   }
   for (const owner of owners) {
+    const attemptKey = githubOwnerAttemptKey(owner);
     const ownerResults = resultsByOwner.get(owner.entityId) ?? [];
     const reviewCandidates = reviewByOwner.get(owner.entityId) ?? [];
     const sourceChecks = checksByOwner.get(owner.entityId) ?? [];
@@ -233,7 +246,13 @@ function githubOwnerAttempts(owners, results, discovery) {
       outcomeStatus = "blocked_or_empty";
       outcomeReason = "collector_official_sources_checked_empty_or_blocked";
     }
-    rows[`${owner.entityType}:${owner.entityId}`] = {
+    const errors = [
+      ...ownerResults.filter((result) => result.fetched === false).map((result) => result.error),
+      ...sourceChecks.filter((check) => check.status === "failed").map((check) => check.error)
+    ].map((error) => String(error ?? "").trim()).filter(Boolean);
+    const retryableError = errors.find(isAutonomousCollectorFailureRetryable) ?? null;
+    rows[attemptKey] = {
+      attemptKey,
       platform: "github",
       entityType: owner.entityType,
       entityId: owner.entityId,
@@ -252,6 +271,8 @@ function githubOwnerAttempts(owners, results, discovery) {
       successfulSourceCheckCount: successfulSourceChecks.length,
       failedSourceCheckCount: sourceChecks.length - successfulSourceChecks.length,
       status: "done",
+      ...(retryableError ?? errors[0] ? { error: retryableError ?? errors[0] } : {}),
+      retryable: outcomeStatus === "failed" && Boolean(retryableError),
       outcomeStatus,
       outcomeReason,
       reviewCandidates: reviewCandidates.map((candidate) => candidate.githubUrl),
@@ -294,16 +315,18 @@ async function discoverGithubTargets(companies, explicitTargets, owners) {
         error = errorMessage(caught);
       }
       stats.sourceChecks.push({
+        attemptKey: githubSourceCheckAttemptKey(owner, source),
         entityType: owner.entityType,
         entityId: owner.entityId,
         sourceKind: source.kind,
         sourceUrl: source.url,
         status: error ? "failed" : urls.length ? "found_candidates" : "checked_empty",
         githubUrls: urls,
-        error
+        error,
+        retryable: error ? isAutonomousCollectorFailureRetryable(error) : false
       });
       for (const url of urls) {
-        if (owner.retiredUrls.some((retiredUrl) => sameGithubUrl(retiredUrl, url))) continue;
+        if (owner.retiredUrls.some((retiredUrl) => sameGithubTargetUrl(retiredUrl, url))) continue;
         const parsed = parseGithubUrl(url);
         if (!parsed.login) continue;
         targets.push({
@@ -345,6 +368,18 @@ async function discoverGithubTargets(companies, explicitTargets, owners) {
   return stats;
 }
 
+function githubOwnerAttemptKey(owner) {
+  return `${owner.entityType}:${owner.entityId}`;
+}
+
+function githubTargetAttemptKey(target) {
+  return `account:${target.entityType}:${target.entityId}:${canonicalGithubTargetUrl(target.githubUrl)}`;
+}
+
+function githubSourceCheckAttemptKey(owner, source) {
+  return `discovery:${owner.entityType}:${owner.entityId}:${source.kind}:${source.url}`;
+}
+
 function mergeVerifiedGithubOverrides(companies, overrides) {
   return companies.map((company) => {
     const override = overrides?.[company.slug];
@@ -380,14 +415,14 @@ function mergeVerifiedGithubOverrides(companies, overrides) {
 function mergeGithubOwnerOverride(owner, ownerOverride, positiveLinks) {
   const retiredGithub = retiredGithubRecords(ownerOverride);
   const existingGithub = owner.socialLinks?.github;
-  const github = existingGithub && retiredGithub.some((record) => sameGithubUrl(record.url, existingGithub))
+  const github = existingGithub && retiredGithub.some((record) => sameGithubTargetUrl(record.url, existingGithub))
     ? null
     : existingGithub;
   const githubAccounts = [
     ...(owner.githubAccounts ?? []),
     ...(github ? [{ platform: "github", url: github }] : []),
     ...(positiveLinks?.github ? [{ platform: "github", url: positiveLinks.github }] : [])
-  ].filter((account) => !retiredGithub.some((record) => sameGithubUrl(record.url, account.url)));
+  ].filter((account) => !retiredGithub.some((record) => sameGithubTargetUrl(record.url, account.url)));
   return {
     ...owner,
     socialLinks: {
@@ -396,7 +431,10 @@ function mergeGithubOwnerOverride(owner, ownerOverride, positiveLinks) {
       ...(positiveLinks?.github ? { github: positiveLinks.github } : {})
     },
     githubAccounts: [...new Map(
-      githubAccounts.map((account) => [normalizeGithubUrl(account.url).toLowerCase(), account])
+      githubAccounts.flatMap((account) => {
+        const canonicalUrl = canonicalGithubTargetUrl(account.url);
+        return canonicalUrl ? [[canonicalUrl.toLowerCase(), { ...account, url: canonicalUrl }]] : [];
+      })
     ).values()],
     retiredGithub
   };
@@ -406,7 +444,10 @@ function githubUrlsForOwner(owner) {
   return [...new Map([
     ...(owner?.githubAccounts ?? []).map((account) => account?.url),
     owner?.socialLinks?.github
-  ].filter(Boolean).map((url) => [normalizeGithubUrl(url).toLowerCase(), url])).values()];
+  ].filter(Boolean).flatMap((url) => {
+    const canonicalUrl = canonicalGithubTargetUrl(url);
+    return canonicalUrl ? [[canonicalUrl.toLowerCase(), canonicalUrl]] : [];
+  })).values()];
 }
 
 function retiredGithubRecords(ownerOverride) {
@@ -417,11 +458,7 @@ function retiredGithubRecords(ownerOverride) {
 }
 
 function isRetiredGithubUrl(owner, rawUrl) {
-  return (owner.retiredGithub ?? []).some((record) => sameGithubUrl(record.url, rawUrl));
-}
-
-function sameGithubUrl(left, right) {
-  return normalizeGithubUrl(left).toLowerCase() === normalizeGithubUrl(right).toLowerCase();
+  return (owner.retiredGithub ?? []).some((record) => sameGithubTargetUrl(record.url, rawUrl));
 }
 
 function writeStdout(value) {
@@ -453,7 +490,8 @@ async function discoverGithubLinksFromUrl(sourceUrl) {
   const regex = /https?:\/\/(?:www\.)?github\.com\/[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)?/gi;
   let match;
   while ((match = regex.exec(html))) {
-    const url = normalizeGithubUrl(match[0]);
+    const url = canonicalGithubTargetUrl(match[0]);
+    if (!url) continue;
     const parsed = parseGithubUrl(url);
     if (!parsed.login || invalidGithubPath(parsed)) continue;
     if (!/\/(?:topics|marketplace|features|pricing|login|signup)\b/i.test(url)) urls.add(url);
@@ -509,17 +547,7 @@ function candidateRepoMatchesCompany(company, repo) {
 }
 
 function parseGithubUrl(url) {
-  try {
-    const parsed = new URL(normalizeGithubUrl(url));
-    const parts = parsed.pathname.split("/").filter(Boolean);
-    const [login, repo] = parts[0] === "orgs" ? [parts[1], parts[2]] : parts;
-    return {
-      login: login?.trim() ?? "",
-      repo: repo?.trim() || null
-    };
-  } catch {
-    return { login: "", repo: null };
-  }
+  return parseGithubTargetUrl(url) ?? { login: "", repo: null };
 }
 
 function invalidGithubPath(parsed) {
@@ -528,15 +556,10 @@ function invalidGithubPath(parsed) {
     .some((part) => /\.(?:png|jpe?g|gif|webp|svg|ico|css|js|map|json|txt)$/i.test(part));
 }
 
-function normalizeGithubUrl(url) {
-  return String(url)
-    .replace(/^http:\/\//i, "https://")
-    .replace(/[?#].*$/, "")
-    .replace(/\/+$/, "");
-}
-
 function githubUrlFromParsed(parsed) {
-  return `https://github.com/${parsed.login}${parsed.repo ? `/${parsed.repo}` : ""}`;
+  return canonicalGithubTargetUrl(
+    `https://github.com/${parsed.login}${parsed.repo ? `/${parsed.repo}` : ""}`
+  );
 }
 
 async function fetchJson(url) {

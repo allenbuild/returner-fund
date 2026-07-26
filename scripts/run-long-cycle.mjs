@@ -84,6 +84,7 @@ try {
         autonomousRunnerPath,
         "--skip-publish",
         "--resume-snapshots",
+        `--campaign-key=${runId}`,
         `--idempotency-key=${idempotencyKey}`
       ], stopAtMs);
       await recordEvent(result.exitCode === 0 ? "sweep_succeeded" : "sweep_failed", {

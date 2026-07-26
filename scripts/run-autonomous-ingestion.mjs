@@ -40,24 +40,27 @@ const idempotencyKey = args.idempotencyKey ?? process.env.INGESTION_IDEMPOTENCY_
 const workerId = `${process.env.GITHUB_RUN_ID ?? "local"}:${process.pid}:${randomUUID()}`;
 const runStartedAt = new Date();
 const workRoot = join(root, "work", "autonomous-ingestion", safePathSegment(idempotencyKey ?? "missing"));
+const collectorRoot = args.campaignKey
+  ? join(root, "work", "autonomous-ingestion-campaigns", safePathSegment(args.campaignKey))
+  : workRoot;
 const publicOutputs = new Map(
-  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(workRoot, `public-${batch.slug.toLowerCase()}.json`)])
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)])
 );
 const githubOutputs = new Map(
-  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(workRoot, `github-${batch.slug.toLowerCase()}.json`)])
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `github-${batch.slug.toLowerCase()}.json`)])
 );
 const discoveryAttemptOutputs = new Map(
-  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(workRoot, `discovery-attempts-${batch.slug.toLowerCase()}.json`)])
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `discovery-attempts-${batch.slug.toLowerCase()}.json`)])
 );
 const sourceDiscoveryPathOutputs = new Map(
-  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(workRoot, `source-discovery-paths-${batch.slug.toLowerCase()}.json`)])
+  AUTONOMOUS_BATCHES.map((batch) => [batch.slug, join(collectorRoot, `source-discovery-paths-${batch.slug.toLowerCase()}.json`)])
 );
 const publishedDiscoveryAttemptsPath = join(root, "outputs", "discovery-attempts-current.json");
 const publishedSourceDiscoveryPathsPath = join(root, "outputs", "source-discovery-paths-current.json");
 const publishedCohortAuditPath = join(root, "outputs", "cohort-coverage-current.json");
 const publishedSourceDeltaPath = join(root, "outputs", "ingestion-source-delta-current.json");
 const publishedSourceDeltaHistoryPath = join(root, "outputs", "ingestion-source-delta-history.json");
-const topVoiceOutput = join(workRoot, "top-voice-refresh.json");
+const topVoiceOutput = join(collectorRoot, "top-voice-refresh.json");
 const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -83,7 +86,10 @@ const discoveryCredentialGaps = [
   !serviceKey ? "SUPABASE_SERVICE_ROLE_KEY" : null
 ].filter(Boolean);
 
-await mkdir(workRoot, { recursive: true });
+await Promise.all([
+  mkdir(workRoot, { recursive: true }),
+  mkdir(collectorRoot, { recursive: true })
+]);
 const catalogs = await loadAutonomousCatalogs(root);
 const resolvePublicNativeAuthor = buildAutonomousPublicNativeAuthorResolver(catalogs);
 const resolveCanonicalTargetedAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
@@ -815,8 +821,8 @@ async function prepareBatchDiscoveryState() {
       return companySlugs.has(slug);
     };
     await Promise.all([
-      writeJsonAtomic(discoveryAttemptOutputs.get(batch.slug), publishedAttempts.filter(belongsToBatch)),
-      writeJsonAtomic(sourceDiscoveryPathOutputs.get(batch.slug), publishedPaths.filter(belongsToBatch))
+      seedShardLedger(discoveryAttemptOutputs.get(batch.slug), publishedAttempts.filter(belongsToBatch)),
+      seedShardLedger(sourceDiscoveryPathOutputs.get(batch.slug), publishedPaths.filter(belongsToBatch))
     ]);
   }));
 }
@@ -1246,10 +1252,10 @@ async function runShardedPublicCollector({
     const suffix = `shard-${shardIndex}-of-${shardCount}`;
     return {
       shardIndex,
-      outputPath: join(workRoot, `public-${batchKey}-${suffix}.json`),
-      checkpointPath: join(workRoot, `checkpoint-public-${batchKey}-${suffix}.json`),
-      discoveryAttemptsPath: join(workRoot, `discovery-attempts-${batchKey}-${suffix}.json`),
-      sourceDiscoveryPathsPath: join(workRoot, `source-discovery-paths-${batchKey}-${suffix}.json`)
+      outputPath: join(collectorRoot, `public-${batchKey}-${suffix}.json`),
+      checkpointPath: join(collectorRoot, `checkpoint-public-${batchKey}-${suffix}.json`),
+      discoveryAttemptsPath: join(collectorRoot, `discovery-attempts-${batchKey}-${suffix}.json`),
+      sourceDiscoveryPathsPath: join(collectorRoot, `source-discovery-paths-${batchKey}-${suffix}.json`)
     };
   });
   // The batch-level ledgers were seeded from the canonical publication by
@@ -1269,6 +1275,8 @@ async function runShardedPublicCollector({
   const shardResults = await Promise.allSettled(shards.map((shard) =>
     runPublicCollectorWithCheckpointRecovery({
       batchSlug,
+      shardIndex: shard.shardIndex,
+      shardCount,
       outputPath: shard.outputPath,
       checkpointPath: shard.checkpointPath,
       args: [
@@ -1339,7 +1347,7 @@ async function runShardedGithubCollector({
     shardIndex,
     searchBudget: githubShardSearchBudget(totalCompanyCount, shardCount, shardIndex),
     outputPath: join(
-      workRoot,
+      collectorRoot,
       `github-${batchKey}-shard-${shardIndex}-of-${shardCount}.json`
     )
   }));
@@ -1486,6 +1494,8 @@ function mergeGithubCollectorShards(
 
 async function runPublicCollectorWithCheckpointRecovery({
   batchSlug,
+  shardIndex,
+  shardCount,
   outputPath,
   checkpointPath,
   args
@@ -1493,19 +1503,19 @@ async function runPublicCollectorWithCheckpointRecovery({
   try {
     return await runCommand(process.execPath, args, {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs,
-      label: `public ${batchSlug}`
+      label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount}`
     });
   } catch (error) {
     if (!/timed out after/i.test(errorMessage(error))) throw error;
     await event(
       "collector.timeout_checkpoint_flush",
       "warning",
-      `public ${batchSlug} reached its process limit; flushing its durable checkpoint before coverage evaluation.`,
-      { batchSlug, outputPath, checkpointPath }
+      `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} reached its process limit; flushing its durable checkpoint before coverage evaluation.`,
+      { batchSlug, shardIndex, shardCount, outputPath, checkpointPath }
     );
     return runCommand(process.execPath, [...args, "--max-companies=0"], {
       timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs,
-      label: `public ${batchSlug} checkpoint flush`
+      label: `public ${batchSlug} shard ${shardIndex + 1}/${shardCount} checkpoint flush`
     });
   }
 }
@@ -1582,7 +1592,7 @@ async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS
         batchSlug: command.batchSlug,
         tasks: plannedTasks
       });
-      if (terminalCoverage.nonTerminal === 0) {
+      if (terminalCoverage.nonTerminal === 0 && retryableFailures.length === 0) {
         await event(
           "collector.snapshot_resumed",
           retryableFailures.length > 0 ? "warning" : "info",
@@ -2153,6 +2163,15 @@ async function buildAndValidatePublication(publicationRunId) {
     env: { INGESTION_RUN_ID: publicationRunId }
   });
   await runCommand(process.execPath, [
+    "--experimental-strip-types",
+    "--loader",
+    "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
+    "./scripts/run-scoring-diagnostics-v4.mjs"
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs,
+    label: "scoring diagnostics regeneration"
+  });
+  await runCommand(process.execPath, [
     "scripts/audit-cohort-coverage.mjs",
     `--run-dir=${workRoot}`,
     `--output=${publishedCohortAuditPath}`
@@ -2411,6 +2430,8 @@ function repositoryArtifactPaths() {
     "outputs/ingestion-source-delta-history.json",
     "outputs/discovery-attempts-current.json",
     "outputs/source-discovery-paths-current.json",
+    "docs/outputs/scoring-diagnostics-v4-audit.json",
+    "docs/outputs/scoring-diagnostics-v4-report.md",
     "src/lib/social/public-evidence-current.json",
     "src/lib/social/targeted-evidence-current.json",
     "src/lib/social/github-traction.json",
@@ -2668,6 +2689,7 @@ function parseArgs(rawArgs) {
   const value = (name) => rawArgs.find((arg) => arg.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
   return {
     idempotencyKey: value("--idempotency-key"),
+    campaignKey: value("--campaign-key"),
     plan: rawArgs.includes("--plan"),
     resumeSnapshots: rawArgs.includes("--resume-snapshots"),
     skipNetwork: rawArgs.includes("--skip-network"),

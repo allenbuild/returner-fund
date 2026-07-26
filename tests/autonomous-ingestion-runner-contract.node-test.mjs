@@ -45,8 +45,8 @@ describe("autonomous ingestion runner CLI", () => {
     }, {
       idempotencyKey: "plan-contract",
       batches: [
-        { slug: "S2026", companies: 197, founders: 397, accounts: 959 },
-        { slug: "S26", companies: 115, founders: 230, accounts: 551 },
+        { slug: "S2026", companies: 197, founders: 397, accounts: 965 },
+        { slug: "S26", companies: 115, founders: 230, accounts: 552 },
         { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 327 }
       ],
       coverage: { expected: 14_642, queued: 6_735, terminal: 7_907 }
@@ -252,8 +252,26 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(retry, /retryableFailures\.length === 0 \|\| attempt === maxAttempts/);
     assert.ok(retry.includes("args.resumeSnapshots"));
     assert.ok(retry.includes("collector.snapshot_resumed"));
-    assert.ok(retry.includes("terminalCoverage.nonTerminal === 0"));
+    assert.ok(retry.includes("terminalCoverage.nonTerminal === 0 && retryableFailures.length === 0"));
     assert.ok(runner.includes('resumeSnapshots: rawArgs.includes("--resume-snapshots")'));
+  });
+
+  it("reuses a campaign collector ledger across distinct durable sweep runs", () => {
+    const preparation = section("async function prepareBatchDiscoveryState", "async function mergeCollectorDiscoveryState");
+    const shardedPublic = section("async function runShardedPublicCollector", "async function seedShardLedger");
+    const shardedGithub = section("async function runShardedGithubCollector", "function githubShardSearchBudget");
+
+    assert.ok(runner.includes('campaignKey: value("--campaign-key")'));
+    assert.ok(runner.includes('"autonomous-ingestion-campaigns"'));
+    assert.ok(runner.includes("const collectorRoot = args.campaignKey"));
+    assert.ok(runner.includes("join(collectorRoot, `public-${batch.slug.toLowerCase()}.json`)"));
+    assert.ok(runner.includes("join(collectorRoot, `github-${batch.slug.toLowerCase()}.json`)"));
+    assert.ok(runner.includes('const topVoiceOutput = join(collectorRoot, "top-voice-refresh.json")'));
+    assert.ok(preparation.includes("seedShardLedger(discoveryAttemptOutputs.get(batch.slug)"));
+    assert.ok(preparation.includes("seedShardLedger(sourceDiscoveryPathOutputs.get(batch.slug)"));
+    assert.doesNotMatch(preparation, /writeJsonAtomic\(discoveryAttemptOutputs/);
+    assert.ok(shardedPublic.includes("join(collectorRoot"));
+    assert.ok(shardedGithub.includes("collectorRoot"));
   });
 
   it("seeds learned discovery state by explicit batch identity before legacy slug fallback", () => {
@@ -436,18 +454,22 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(collectorRunner.includes("seedShardLedger(shard.sourceDiscoveryPathsPath"));
     assert.ok(collectorRunner.includes("mergePublicEvidenceSnapshots(snapshots"));
     assert.ok(collectorRunner.includes("writeJsonAtomic(outputPath, merged)"));
+    const checkpointRecovery = section("async function runPublicCollectorWithCheckpointRecovery", "async function runTopVoiceCollector");
+    assert.ok(checkpointRecovery.includes("shard ${shardIndex + 1}/${shardCount}"));
   });
 
   it("writes, validates, and durably records the artifact manifest before completion", () => {
     const publicationBuild = section("async function buildAndValidatePublication", "async function synchronizePublicationBase");
+    const scoringDiagnosticsIndex = publicationBuild.indexOf('"./scripts/run-scoring-diagnostics-v4.mjs"');
     const writeIndex = publicationBuild.indexOf('"scripts/write-artifact-manifest.mjs"');
     const validateIndex = publicationBuild.indexOf('["scripts/validate-public-artifacts.mjs"]');
     const persistIndex = runner.indexOf("await persistArtifactManifest(run.id)", runner.indexOf("await buildAndValidatePublication(publicationRunId)"));
     const completionIndex = runner.indexOf('await completeRun("completed"');
     const manifestPersistence = section("async function persistArtifactManifest", "async function buildAndValidatePublication");
 
+    assert.ok(scoringDiagnosticsIndex > -1);
     assert.ok(writeIndex > -1);
-    assert.ok(validateIndex > writeIndex);
+    assert.ok(writeIndex > scoringDiagnosticsIndex && validateIndex > writeIndex);
     assert.ok(persistIndex > runner.indexOf("await buildAndValidatePublication(publicationRunId)"));
     assert.ok(completionIndex > persistIndex);
     assert.ok(manifestPersistence.includes('join(root, "public", "graph", "manifest.json")'));
@@ -466,6 +488,26 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("publishes newly discovered raw Top Voice evidence with the generated graphs", () => {
     const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
     assert.ok(artifactPaths.includes('"src/lib/social/targeted-evidence-current.json"'));
+  });
+
+  it("regenerates and stages scoring diagnostics with each evidence publication", () => {
+    const publicationBuild = section(
+      "async function buildAndValidatePublication",
+      "async function synchronizePublicationBase"
+    );
+    const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
+    const benchmarkIndex = publicationBuild.indexOf('"scripts/update-daily-benchmarks.mjs"');
+    const diagnosticsIndex = publicationBuild.indexOf(
+      '"./scripts/run-scoring-diagnostics-v4.mjs"'
+    );
+    const cohortAuditIndex = publicationBuild.indexOf('"scripts/audit-cohort-coverage.mjs"');
+
+    assert.ok(benchmarkIndex > -1 && diagnosticsIndex > benchmarkIndex);
+    assert.ok(cohortAuditIndex > diagnosticsIndex);
+    assert.ok(publicationBuild.includes("AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs"));
+    assert.ok(publicationBuild.includes('"./scripts/lib/scoring-diagnostics-ts-loader.mjs"'));
+    assert.ok(artifactPaths.includes('"docs/outputs/scoring-diagnostics-v4-audit.json"'));
+    assert.ok(artifactPaths.includes('"docs/outputs/scoring-diagnostics-v4-report.md"'));
   });
 
   it("rebases, rebuilds, validates, and retries a non-fast-forward publication once", () => {
