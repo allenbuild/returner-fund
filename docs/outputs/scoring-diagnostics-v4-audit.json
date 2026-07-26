@@ -40,7 +40,7 @@
     "input_hashes": {
       "scope": "graph, scoring, social, and YC local input envelope plus profiler runtime files; canonical runtime values and effective scoring/calibration/confidence sources are hashed separately",
       "file_count": 79,
-      "combined_sha256": "e6f2de29f58c6408ee581de31b1ce96564d86d8dc0d631d962a94dbebc1adffa",
+      "combined_sha256": "eab119c242285112366eb4a7b086f879cf6d186ed2c290aa175502a30e689c9d",
       "files": [
         {
           "path": "package.json",
@@ -419,8 +419,8 @@
         },
         {
           "path": "src/lib/social/verified-social-overrides.json",
-          "bytes": 51259,
-          "sha256": "5f61abfc56ad30640c4efe7fc69a65cbbb7966ab65112bface071138bfbcbdd9"
+          "bytes": 51486,
+          "sha256": "80b4655d6383fb39fe42e2c1136c5f5a2fa04e41160b1613c93e33d6c62da769"
         },
         {
           "path": "src/lib/yc/spring-2026-companies.json",
@@ -277612,8 +277612,8 @@
       {
         "id": "input_envelope_hash_consistent",
         "passed": true,
-        "expected": "e6f2de29f58c6408ee581de31b1ce96564d86d8dc0d631d962a94dbebc1adffa",
-        "observed": "e6f2de29f58c6408ee581de31b1ce96564d86d8dc0d631d962a94dbebc1adffa"
+        "expected": "eab119c242285112366eb4a7b086f879cf6d186ed2c290aa175502a30e689c9d",
+        "observed": "eab119c242285112366eb4a7b086f879cf6d186ed2c290aa175502a30e689c9d"
       },
       {
         "id": "required_cohort_coverage",
