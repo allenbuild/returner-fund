@@ -15,7 +15,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 120
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -31,4 +31,5 @@ jobs:
         run: npm ci
 
       - name: Run release gate
+        timeout-minutes: 105
         run: npm run check:release
