@@ -4,21 +4,21 @@
     "batchSlug": "A16ZSR006",
     "batchLabel": "a16z Speedrun 006",
     "sourcePath": "src/lib/graph/a16z-speedrun-006-dataset.ts",
-    "fetchedAt": "2026-07-25T12:51:53.026Z",
-    "targetCount": 37,
-    "fetchedCount": 35,
+    "fetchedAt": "2026-07-26T01:13:23.681Z",
+    "targetCount": 33,
+    "fetchedCount": 33,
     "discovery": {
       "explicitTargetCount": 28,
-      "discoveredTargetCount": 9,
-      "websiteTargets": 4,
+      "discoveredTargetCount": 5,
+      "websiteTargets": 0,
       "profileTargets": 5,
       "officialSourceChecks": 318,
       "sourceChecks": [
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-antihero-studios",
+          "entityId": "a16z-speedrun-006-advocate",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/antihero-studios",
+          "sourceUrl": "https://speedrun.a16z.com/companies/advocate",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -33,37 +33,10 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-acceler8-founder-chinmay-chauhan",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/acceler8/chinmay-chauhan",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-advocate",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/advocate",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-acceler8-founder-chinmay-chauhan",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://useacceler8.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "company",
           "entityId": "a16z-speedrun-006-antihero-studios",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://antiherostudios.com/",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/antihero-studios",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -79,6 +52,60 @@
         },
         {
           "entityType": "company",
+          "entityId": "a16z-speedrun-006-advocate",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://advocatewellbeing.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-alike",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://alike.work",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-antihero-studios",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://antiherostudios.com/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-august-founder-tom-tankilevitch",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/august/tom-tankilevitch",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-august",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/august",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-acceler8-founder-chinmay-chauhan",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/acceler8/chinmay-chauhan",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
           "entityId": "a16z-speedrun-006-acceler8",
           "sourceKind": "official_website",
           "sourceUrl": "https://useacceler8.com",
@@ -87,8 +114,89 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-alike",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-august-founder-bar-ittah",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/august/bar-ittah",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-amdahl-founder-annette-sung",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/amdahl/annette-sung",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-acceler8-founder-trisha-pathak",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/acceler8/trisha-pathak",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-acceler8-founder-trisha-pathak",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://useacceler8.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-alike-founder-danial-hussain",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/alike/danial-hussain",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-acceler8-founder-chinmay-chauhan",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://useacceler8.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-advocate-founder-andrew-baran",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/advocate/andrew-baran",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-amdahl-founder-annette-sung",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://amdahl.ai",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "fetch failed"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-august-founder-tom-tankilevitch",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://tryaugust.com",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "fetch failed"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-alike-founder-danial-hussain",
           "sourceKind": "official_website",
           "sourceUrl": "https://alike.work",
           "status": "checked_empty",
@@ -105,37 +213,64 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-acceler8-founder-trisha-pathak",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/acceler8/trisha-pathak",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-august",
+          "entityId": "a16z-speedrun-006-auto",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/august",
+          "sourceUrl": "https://speedrun.a16z.com/companies/auto",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-acceler8-founder-trisha-pathak",
+          "entityId": "a16z-speedrun-006-amdahl-founder-robert-khoury",
           "sourceKind": "official_website",
-          "sourceUrl": "https://useacceler8.com",
+          "sourceUrl": "https://amdahl.ai",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "fetch failed"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-antihero-studios-founder-brice-laville-saint-martin",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/antihero-studios/brice-laville-saint-martin",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-amdahl-founder-annette-sung",
+          "entityId": "a16z-speedrun-006-advocate-founder-andrew-baran",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://advocatewellbeing.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-august-founder-bar-ittah",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://tryaugust.com",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "fetch failed"
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-antihero-studios-founder-frank-yu-yan",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/amdahl/annette-sung",
+          "sourceUrl": "https://speedrun.a16z.com/companies/antihero-studios/frank-yu-yan",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-antihero-studios-founder-brice-laville-saint-martin",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://antiherostudios.com/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -150,46 +285,28 @@
           "error": null
         },
         {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-auto-founder-sam-hare",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/auto/sam-hare",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-advocate",
+          "entityId": "a16z-speedrun-006-august",
           "sourceKind": "official_website",
-          "sourceUrl": "https://advocatewellbeing.com",
+          "sourceUrl": "https://tryaugust.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-august-founder-tom-tankilevitch",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-bilrost",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/august/tom-tankilevitch",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-advocate-founder-andrew-baran",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/advocate/andrew-baran",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-alike-founder-danial-hussain",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/alike/danial-hussain",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-antihero-studios-founder-frank-yu-yan",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/antihero-studios/frank-yu-yan",
+          "sourceUrl": "https://speedrun.a16z.com/companies/bilrost",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -205,90 +322,18 @@
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-august",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://tryaugust.com",
-          "status": "failed",
-          "githubUrls": [],
-          "error": "fetch failed"
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-advocate-founder-andrew-baran",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://advocatewellbeing.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-alike-founder-danial-hussain",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://alike.work",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-august-founder-bar-ittah",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/august/bar-ittah",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-antihero-studios-founder-brice-laville-saint-martin",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/antihero-studios/brice-laville-saint-martin",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-bilrost",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/bilrost",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
           "entityId": "a16z-speedrun-006-auto",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/auto",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-antihero-studios-founder-brice-laville-saint-martin",
           "sourceKind": "official_website",
-          "sourceUrl": "https://antiherostudios.com/",
+          "sourceUrl": "https://auto.inc",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-auto-founder-sam-hare",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-bota",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/auto/sam-hare",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-antihero-studios-founder-frank-yu-yan",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://antiherostudios.com/",
+          "sourceUrl": "https://speedrun.a16z.com/companies/bota",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -298,6 +343,24 @@
           "entityId": "a16z-speedrun-006-bilrost-founder-silvia-chen",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/bilrost/silvia-chen",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-cascade",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/cascade",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-antihero-studios-founder-frank-yu-yan",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://antiherostudios.com/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -314,46 +377,10 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-bilrost",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://bilrost.ai/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-bota-founder-qi-zhang",
+          "entityId": "a16z-speedrun-006-bilrost-founder-peter-hsu",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/bota/qi-zhang",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-bota",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/bota",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-bota-founder-ruming-zhen",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/bota/ruming-zhen",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-august-founder-tom-tankilevitch",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://tryaugust.com",
+          "sourceUrl": "https://speedrun.a16z.com/companies/bilrost/peter-hsu",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -361,15 +388,6 @@
         {
           "entityType": "founder",
           "entityId": "a16z-speedrun-006-auto-founder-sam-hare",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://auto.inc",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-auto",
           "sourceKind": "official_website",
           "sourceUrl": "https://auto.inc",
           "status": "checked_empty",
@@ -386,19 +404,10 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-august-founder-bar-ittah",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://tryaugust.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-cascade",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/cascade",
+          "entityId": "a16z-speedrun-006-bota",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://bota.dev",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -414,18 +423,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-bilrost-founder-peter-hsu",
+          "entityId": "a16z-speedrun-006-bota-founder-ruming-zhen",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/bilrost/peter-hsu",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-cascade-founder-joana-ferreira",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/cascade/joana-ferreira",
+          "sourceUrl": "https://speedrun.a16z.com/companies/bota/ruming-zhen",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -450,6 +450,69 @@
         },
         {
           "entityType": "founder",
+          "entityId": "a16z-speedrun-006-bota-founder-ruming-zhen",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://bota.dev",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-coalition-systems",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/coalition-systems",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-bilrost",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://bilrost.ai/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-cedar-founder-greg-gunn",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/cedar/greg-gunn",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-clair-health",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/clair-health",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-bota-founder-qi-zhang",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/bota/qi-zhang",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-cascade-founder-joana-ferreira",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/cascade/joana-ferreira",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
           "entityId": "a16z-speedrun-006-bota-founder-qi-zhang",
           "sourceKind": "official_website",
           "sourceUrl": "https://bota.dev",
@@ -459,30 +522,36 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-amdahl-founder-robert-khoury",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://amdahl.ai",
-          "status": "found_candidates",
-          "githubUrls": [
-            "https://github.com/amdahl-ai",
-            "https://github.com/amdahlco/amdahl-cookbook"
-          ],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-bota",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://bota.dev",
+          "entityId": "a16z-speedrun-006-clair-health-founder-jenny-duan",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/clair-health/jenny-duan",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-bota-founder-ruming-zhen",
+          "entityId": "a16z-speedrun-006-coalition-systems-founder-vijay-pathak",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/coalition-systems/vijay-pathak",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-cedar",
           "sourceKind": "official_website",
-          "sourceUrl": "https://bota.dev",
+          "sourceUrl": "https://getcedar.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-crebit",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/crebit",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -499,17 +568,17 @@
         {
           "entityType": "company",
           "entityId": "a16z-speedrun-006-clair-health",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/clair-health",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://wearclair.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-cedar",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://getcedar.ai",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-coalition-systems-founder-freddie-wollen",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/coalition-systems/freddie-wollen",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -517,74 +586,8 @@
         {
           "entityType": "company",
           "entityId": "a16z-speedrun-006-coalition-systems",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/coalition-systems",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-amdahl-founder-annette-sung",
           "sourceKind": "official_website",
-          "sourceUrl": "https://amdahl.ai",
-          "status": "found_candidates",
-          "githubUrls": [
-            "https://github.com/amdahl-ai",
-            "https://github.com/amdahlco/amdahl-cookbook"
-          ],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-cedar-founder-greg-gunn",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/cedar/greg-gunn",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-clair-health-founder-jenny-duan",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/clair-health/jenny-duan",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-cedar-founder-greg-gunn",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://getcedar.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-clair-health",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://wearclair.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-crebit",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/crebit",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-clair-health-founder-jenny-duan",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://wearclair.com",
+          "sourceUrl": "https://coalition.systems",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -600,18 +603,27 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-coalition-systems-founder-vijay-pathak",
+          "entityId": "a16z-speedrun-006-concorda-founder-samuel-oh",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/coalition-systems/vijay-pathak",
+          "sourceUrl": "https://speedrun.a16z.com/companies/concorda/samuel-oh",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-concorda",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/concorda",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-coalition-systems-founder-freddie-wollen",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/coalition-systems/freddie-wollen",
+          "entityId": "a16z-speedrun-006-cedar-founder-greg-gunn",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://getcedar.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -627,16 +639,52 @@
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-concorda",
+          "entityId": "a16z-speedrun-006-cascade",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://usecascade.ai/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-crebit-founder-simmi-sen",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/concorda",
+          "sourceUrl": "https://speedrun.a16z.com/companies/crebit/simmi-sen",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-clair-health-founder-jenny-duan",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://wearclair.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-coalition-systems",
+          "entityId": "a16z-speedrun-006-emanate",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/emanate",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-cascade-founder-joana-ferreira",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://usecascade.ai/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-coalition-systems-founder-vijay-pathak",
           "sourceKind": "official_website",
           "sourceUrl": "https://coalition.systems",
           "status": "checked_empty",
@@ -653,100 +701,10 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-concorda-founder-samuel-oh",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/concorda/samuel-oh",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-cascade",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://usecascade.ai/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-cascade-founder-joana-ferreira",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://usecascade.ai/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "company",
           "entityId": "a16z-speedrun-006-hammock",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/hammock",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-emanate",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/emanate",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-crebit",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://crebitpay.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-crebit-founder-simmi-sen",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/crebit/simmi-sen",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-coalition-systems-founder-vijay-pathak",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://coalition.systems",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-coalition-systems-founder-freddie-wollen",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://coalition.systems",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-crebit-founder-jensen-coonradt",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://crebitpay.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-crebit-founder-simmi-sen",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://crebitpay.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -771,18 +729,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-hammock-founder-jesse-rose",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/hammock/jesse-rose",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-concorda-founder-ke-ma",
+          "entityId": "a16z-speedrun-006-coalition-systems-founder-freddie-wollen",
           "sourceKind": "official_website",
-          "sourceUrl": "https://concordahq.com",
+          "sourceUrl": "https://coalition.systems",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -798,54 +747,18 @@
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-hammock",
+          "entityId": "a16z-speedrun-006-crebit",
           "sourceKind": "official_website",
-          "sourceUrl": "https://usehammock.co",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-concorda",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://concordahq.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-hotbox",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/hotbox",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-emanate",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://emanate.ai/",
+          "sourceUrl": "https://crebitpay.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-grove-tax-founder-uday-nandam",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://grove.tax/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-heavi-founder-sanjay-dasari",
+          "entityId": "a16z-speedrun-006-hammock-founder-jesse-rose",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/heavi/sanjay-dasari",
+          "sourceUrl": "https://speedrun.a16z.com/companies/hammock/jesse-rose",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -861,9 +774,18 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-hotbox-founder-harpriya-bagri",
+          "entityId": "a16z-speedrun-006-heavi-founder-sanjay-dasari",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/hotbox/harpriya-bagri",
+          "sourceUrl": "https://speedrun.a16z.com/companies/heavi/sanjay-dasari",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-hotbox",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/hotbox",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -879,9 +801,72 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-idilio-founder-gabriela-tafur",
+          "entityId": "a16z-speedrun-006-grove-tax-founder-uday-nandam",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://grove.tax/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-hotbox-founder-harpriya-bagri",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/idilio/gabriela-tafur",
+          "sourceUrl": "https://speedrun.a16z.com/companies/hotbox/harpriya-bagri",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-emanate",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://emanate.ai/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-crebit-founder-jensen-coonradt",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://crebitpay.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-crebit-founder-simmi-sen",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://crebitpay.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-hammock",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://usehammock.co",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-concorda-founder-ke-ma",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://concordahq.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-emanate-founder-kiara-nirghin",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://emanate.ai/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -905,19 +890,28 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-hammock-founder-will-dennis",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-kaaro",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/kaaro",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-concorda",
           "sourceKind": "official_website",
-          "sourceUrl": "https://usehammock.co",
+          "sourceUrl": "https://concordahq.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-emanate-founder-kiara-nirghin",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://emanate.ai/",
+          "entityId": "a16z-speedrun-006-idilio-founder-gabriela-tafur",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/idilio/gabriela-tafur",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -932,19 +926,19 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-kaaro",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/kaaro",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-heavi-founder-sanjay-dasari",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://heaviai.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-loops-ai",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-hammock-founder-will-dennis",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://usehammock.co",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -959,28 +953,10 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-loops-ai-founder-ari-nazir",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-loops-ai",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai/ari-nazir",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-loops-ai-founder-ilker-zorluoglu",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai/ilker-zorluoglu",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-heavi-founder-sanjay-dasari",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://heaviai.com",
+          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -990,51 +966,6 @@
           "entityId": "a16z-speedrun-006-hotbox",
           "sourceKind": "official_website",
           "sourceUrl": "https://hotbox.app",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-loops-ai-founder-yusuf-bahadir",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai/yusuf-bahadir",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-meridian",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/meridian",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-meridian-founder-kashyap-nathan",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/meridian/kashyap-nathan",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-loops-ai-founder-hakan-bas",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai/hakan-bas",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-miraka",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/miraka",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1050,54 +981,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-meridian-founder-chris-farrington",
+          "entityId": "a16z-speedrun-006-loops-ai-founder-ari-nazir",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/meridian/chris-farrington",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-idilio-founder-gabriela-tafur",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://idilio.tv/en",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://kaaro.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-meridian-founder-kashyap-nathan",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://trymeridian.dev/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-miraka-founder-nolan-abeyta",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/miraka/nolan-abeyta",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-miraka-founder-kazuo-nakamura",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/miraka/kazuo-nakamura",
+          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai/ari-nazir",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1113,9 +999,54 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-hotbox-founder-harpriya-bagri",
+          "entityId": "a16z-speedrun-006-loops-ai-founder-yusuf-bahadir",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai/yusuf-bahadir",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-kaaro-founder-sai-surisetti",
           "sourceKind": "official_website",
-          "sourceUrl": "https://hotbox.app",
+          "sourceUrl": "https://kaaro.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-loops-ai-founder-ilker-zorluoglu",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai/ilker-zorluoglu",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-miraka",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/miraka",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-loops-ai-founder-hakan-bas",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/loops-ai/hakan-bas",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-meridian",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/meridian",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1130,46 +1061,10 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-meridian",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://trymeridian.dev/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-loops-ai-founder-yusuf-bahadir",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://loopsai.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-loops-ai-founder-hakan-bas",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://loopsai.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-loops-ai-founder-ari-nazir",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://loopsai.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-miraka-founder-jesse-abeyta",
+          "entityId": "a16z-speedrun-006-meridian-founder-chris-farrington",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/miraka/jesse-abeyta",
+          "sourceUrl": "https://speedrun.a16z.com/companies/meridian/chris-farrington",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1184,15 +1079,6 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-meridian-founder-chris-farrington",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://trymeridian.dev/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "company",
           "entityId": "a16z-speedrun-006-miraka",
           "sourceKind": "official_website",
@@ -1202,10 +1088,64 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-miraka-founder-nolan-abeyta",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-meridian",
           "sourceKind": "official_website",
-          "sourceUrl": "https://miraka.ai",
+          "sourceUrl": "https://trymeridian.dev/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-mirror-mirror-ai",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/mirror-mirror-ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-hotbox-founder-harpriya-bagri",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://hotbox.app",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-meridian-founder-kashyap-nathan",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/meridian/kashyap-nathan",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-idilio-founder-gabriela-tafur",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://idilio.tv/en",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-meridian-founder-kashyap-nathan",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://trymeridian.dev/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-miraka-founder-kazuo-nakamura",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/miraka/kazuo-nakamura",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1230,6 +1170,51 @@
         },
         {
           "entityType": "founder",
+          "entityId": "a16z-speedrun-006-miraka-founder-nolan-abeyta",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/miraka/nolan-abeyta",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-loops-ai-founder-ari-nazir",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://loopsai.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-miraka-founder-nolan-abeyta",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://miraka.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-meridian-founder-chris-farrington",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://trymeridian.dev/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-miraka-founder-jesse-abeyta",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/miraka/jesse-abeyta",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
           "entityId": "a16z-speedrun-006-miraka-founder-jesse-abeyta",
           "sourceKind": "official_website",
           "sourceUrl": "https://miraka.ai",
@@ -1238,46 +1223,19 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-mirror-mirror-ai",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/mirror-mirror-ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-oasis",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/oasis",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-modern-industrials-founder-austin-mao",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/modern-industrials/austin-mao",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-modern-industrials-founder-vatsal-bhargava",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/modern-industrials/vatsal-bhargava",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-oasis",
+          "entityId": "a16z-speedrun-006-loops-ai-founder-yusuf-bahadir",
           "sourceKind": "official_website",
-          "sourceUrl": "https://joinoasis.com",
+          "sourceUrl": "https://loopsai.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-loops-ai-founder-hakan-bas",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://loopsai.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1287,24 +1245,15 @@
           "entityId": "a16z-speedrun-006-modern-industrials",
           "sourceKind": "official_website",
           "sourceUrl": "https://modernindustrials.com",
-          "status": "checked_empty",
+          "status": "failed",
           "githubUrls": [],
-          "error": null
+          "error": "fetch failed"
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-oasis-founder-stefano-fantini-delmanto",
+          "entityId": "a16z-speedrun-006-modern-industrials-founder-austin-mao",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/oasis/stefano-delmanto",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-oasis-founder-stefano-fantini-delmanto",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://joinoasis.com",
+          "sourceUrl": "https://speedrun.a16z.com/companies/modern-industrials/austin-mao",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1323,6 +1272,24 @@
           "entityId": "a16z-speedrun-006-modern-industrials-founder-austin-mao",
           "sourceKind": "official_website",
           "sourceUrl": "https://modernindustrials.com",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "fetch failed"
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-oasis",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/oasis",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-modern-industrials-founder-vatsal-bhargava",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/modern-industrials/vatsal-bhargava",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1338,45 +1305,36 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-oasis-founder-naveen-sharma",
+          "entityId": "a16z-speedrun-006-modern-industrials-founder-ankit-bhargava",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/oasis/naveen-sharma",
+          "sourceUrl": "https://speedrun.a16z.com/companies/modern-industrials/ankit-bhargava",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-oasiz-founder-jonathan-dinh",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/oasiz/jonathan-dinh",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-oasis-founder-naveen-sharma",
+          "entityId": "a16z-speedrun-006-modern-industrials-founder-ankit-bhargava",
           "sourceKind": "official_website",
-          "sourceUrl": "https://joinoasis.com",
+          "sourceUrl": "https://modernindustrials.com",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "fetch failed"
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-oasiz",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://oasiz.ai/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-partyhat",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/partyhat",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-omi-health-founder-sindu-chaparala",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/omi-health/sindu-chaparala",
+          "entityId": "a16z-speedrun-006-oasis",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://joinoasis.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1392,18 +1350,72 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-omi-health-founder-jakob-spiess",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/omi-health/jakob-spiess",
+          "entityId": "a16z-speedrun-006-modern-industrials-founder-vatsal-bhargava",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://modernindustrials.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-oasiz",
+          "entityId": "a16z-speedrun-006-partyhat",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/partyhat",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-oasis-founder-naveen-sharma",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/oasis/naveen-sharma",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-paypath",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/paypath",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-oasiz-founder-jonathan-dinh",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/oasiz/jonathan-dinh",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-oasis-founder-stefano-fantini-delmanto",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/oasis/stefano-delmanto",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-oasis-founder-naveen-sharma",
           "sourceKind": "official_website",
-          "sourceUrl": "https://oasiz.ai/",
+          "sourceUrl": "https://joinoasis.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-omi-health-founder-jakob-spiess",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/omi-health/jakob-spiess",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1430,36 +1442,63 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-modern-industrials-founder-ankit-bhargava",
+          "entityId": "a16z-speedrun-006-partyhat-founder-jarret-cuisinier",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/modern-industrials/ankit-bhargava",
+          "sourceUrl": "https://speedrun.a16z.com/companies/partyhat/jarret-cuisinier",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-modern-industrials-founder-vatsal-bhargava",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://modernindustrials.com",
+          "entityId": "a16z-speedrun-006-omi-health-founder-sindu-chaparala",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/omi-health/sindu-chaparala",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-paypath",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/paypath",
+          "entityId": "a16z-speedrun-006-omi-health",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://joinomi.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-modern-industrials-founder-ankit-bhargava",
+          "entityId": "a16z-speedrun-006-partyhat-founder-vijay-myneni",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/partyhat/vijay-myneni",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-omi-health-founder-sindu-chaparala",
           "sourceKind": "official_website",
-          "sourceUrl": "https://modernindustrials.com",
+          "sourceUrl": "https://joinomi.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-oasis-founder-stefano-fantini-delmanto",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://joinoasis.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-partyhat",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://getpartyhat.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1475,18 +1514,27 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-partyhat-founder-jarret-cuisinier",
+          "entityId": "a16z-speedrun-006-partyhat-founder-vijay-myneni",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://getpartyhat.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-piper-ai",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/partyhat/jarret-cuisinier",
+          "sourceUrl": "https://speedrun.a16z.com/companies/piper-ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-partyhat-founder-vijay-myneni",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/partyhat/vijay-myneni",
+          "entityId": "a16z-speedrun-006-omi-health-founder-jakob-spiess",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://joinomi.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1511,9 +1559,9 @@
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-piper-ai",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/piper-ai",
+          "entityId": "a16z-speedrun-006-paypath",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://paypath.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1529,33 +1577,6 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-picpet-founder-jimmy-huang",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/picpet/jimmy-huang",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-omi-health-founder-sindu-chaparala",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://joinomi.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-piper-ai-founder-ido-gedanken",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/piper-ai/ido-gedanken",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
           "entityId": "a16z-speedrun-006-paypath-founder-matthew-angelini",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/paypath/matthew-angelini",
@@ -1565,117 +1586,9 @@
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-paypath",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://paypath.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
           "entityId": "a16z-speedrun-006-picpet",
           "sourceKind": "official_website",
           "sourceUrl": "https://picpet.app/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-omi-health",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://joinomi.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-omi-health-founder-jakob-spiess",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://joinomi.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-piper-ai-founder-roi-menzin",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/piper-ai/roi-menzin",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-piper-ai-founder-erez-tepper",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/piper-ai/erez-tepper",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-pluvo",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-partyhat",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://getpartyhat.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-piper-ai",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://piper-ai.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-pluvo-founder-alexandre-labreche",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo/alexandre-labreche",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-picpet-founder-jimmy-huang",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://picpet.app/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-partyhat-founder-vijay-myneni",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://getpartyhat.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-pluvo-founder-andrew-ingram",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo/andrew-ingram",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1691,9 +1604,63 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-pluvo-founder-seb-fallenbuchl",
+          "entityId": "a16z-speedrun-006-partyhat-founder-jarret-cuisinier",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://getpartyhat.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-picpet-founder-jimmy-huang",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo/seb-fallenbuchl",
+          "sourceUrl": "https://speedrun.a16z.com/companies/picpet/jimmy-huang",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-picpet-founder-jimmy-huang",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://picpet.app/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-piper-ai",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://piper-ai.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-piper-ai-founder-ido-gedanken",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/piper-ai/ido-gedanken",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-piper-ai-founder-ido-gedanken",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://piper-ai.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-pluvo",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1709,16 +1676,25 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-pluvo-founder-vanessa-galarneau",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo/vanessa-galarneau",
+          "entityId": "a16z-speedrun-006-paypath-founder-matthew-angelini",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://paypath.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-piper-ai-founder-ido-gedanken",
+          "entityId": "a16z-speedrun-006-piper-ai-founder-roi-menzin",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/piper-ai/roi-menzin",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-piper-ai-founder-roi-menzin",
           "sourceKind": "official_website",
           "sourceUrl": "https://piper-ai.com",
           "status": "checked_empty",
@@ -1727,7 +1703,16 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-piper-ai-founder-roi-menzin",
+          "entityId": "a16z-speedrun-006-piper-ai-founder-erez-tepper",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/piper-ai/erez-tepper",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-piper-ai-founder-erez-tepper",
           "sourceKind": "official_website",
           "sourceUrl": "https://piper-ai.com",
           "status": "checked_empty",
@@ -1745,54 +1730,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-partyhat-founder-jarret-cuisinier",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://getpartyhat.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-prior-foundry-founder-shirin-abrishami-kashani",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/prior-foundry/shirin-abrishami-kashani",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-paypath-founder-matthew-angelini",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://paypath.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-pluvo",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://pluvo.io/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-piper-ai-founder-erez-tepper",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://piper-ai.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
           "entityId": "a16z-speedrun-006-pluvo-founder-alexandre-labreche",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://pluvo.io/",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo/alexandre-labreche",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1808,9 +1748,18 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-prior-foundry-founder-johne-kamphorst",
+          "entityId": "a16z-speedrun-006-pluvo-founder-andrew-ingram",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/prior-foundry/jonne-kamphorst",
+          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo/andrew-ingram",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-pluvo",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://pluvo.io/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1826,27 +1775,18 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-quanto-founder-anderson-petergeorge",
+          "entityId": "a16z-speedrun-006-pluvo-founder-seb-fallenbuchl",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/quanto/anderson-petergeorge",
+          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo/seb-fallenbuchl",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-pluvo-founder-andrew-ingram",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-prior-foundry",
           "sourceKind": "official_website",
-          "sourceUrl": "https://pluvo.io/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-quanto-founder-kajanth-nithiyananthan",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/quanto/kajanth-nithiyananthan",
+          "sourceUrl": "https://priorfoundry.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1856,6 +1796,24 @@
           "entityId": "a16z-speedrun-006-pluvo-founder-seb-fallenbuchl",
           "sourceKind": "official_website",
           "sourceUrl": "https://pluvo.io/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-pluvo-founder-vanessa-galarneau",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/pluvo/vanessa-galarneau",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-prior-foundry-founder-shirin-abrishami-kashani",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/prior-foundry/shirin-abrishami-kashani",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1871,9 +1829,45 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-pluvo-founder-vanessa-galarneau",
+          "entityId": "a16z-speedrun-006-prior-foundry-founder-shirin-abrishami-kashani",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://priorfoundry.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-pluvo-founder-andrew-ingram",
           "sourceKind": "official_website",
           "sourceUrl": "https://pluvo.io/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-pluvo-founder-alexandre-labreche",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://pluvo.io/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-prior-foundry-founder-johne-kamphorst",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/prior-foundry/jonne-kamphorst",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-quanto-founder-kajanth-nithiyananthan",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/quanto/kajanth-nithiyananthan",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1883,6 +1877,33 @@
           "entityId": "a16z-speedrun-006-quinn-founder-ben-anderson",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/quinn/ben-anderson",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-prior-foundry-founder-johne-kamphorst",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://priorfoundry.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-pluvo-founder-vanessa-galarneau",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://pluvo.io/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-quinn-founder-arlen-marmel",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/quinn/arlen-marmel",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1900,20 +1921,18 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-safeworld-founder-kyle-wong",
+          "entityId": "a16z-speedrun-006-quanto-founder-anderson-petergeorge",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/safeworld/kyle-wong",
-          "status": "found_candidates",
-          "githubUrls": [
-            "https://github.com/firetix"
-          ],
+          "sourceUrl": "https://speedrun.a16z.com/companies/quanto/anderson-petergeorge",
+          "status": "checked_empty",
+          "githubUrls": [],
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-quinn-founder-arlen-marmel",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/quinn/arlen-marmel",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-quo-labs",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://withsam.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -1928,44 +1947,6 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-safeworld-founder-ding-zhao",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/safeworld/ding-zhao",
-          "status": "found_candidates",
-          "githubUrls": [
-            "https://github.com/firetix"
-          ],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-prior-foundry-founder-johne-kamphorst",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://priorfoundry.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sellara-founder-charles-andre-jolly",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sellara/charles-andre-jolly",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sellara-founder-ahmad-roumie",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sellara/ahmad-roumie",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "company",
           "entityId": "a16z-speedrun-006-quinn",
           "sourceKind": "official_website",
@@ -1975,35 +1956,8 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-prior-foundry",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://priorfoundry.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sellara-founder-spencer-secord",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sellara/spencer-secord",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-sentra",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sentra",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-quinn-founder-ben-anderson",
+          "entityId": "a16z-speedrun-006-quinn-founder-arlen-marmel",
           "sourceKind": "official_website",
           "sourceUrl": "https://meetquinn.ai",
           "status": "checked_empty",
@@ -2021,18 +1975,58 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sentra-founder-ashwin-gopinath",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sentra/ashwin-gopinath",
+          "entityId": "a16z-speedrun-006-quinn-founder-ben-anderson",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://meetquinn.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-quinn-founder-arlen-marmel",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://meetquinn.ai",
+          "entityId": "a16z-speedrun-006-safeworld-founder-kyle-wong",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/safeworld/kyle-wong",
+          "status": "found_candidates",
+          "githubUrls": [
+            "https://github.com/firetix"
+          ],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-sentra",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sentra",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-safeworld-founder-ding-zhao",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/safeworld/ding-zhao",
+          "status": "found_candidates",
+          "githubUrls": [
+            "https://github.com/firetix"
+          ],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-sellara-founder-charles-andre-jolly",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sellara/charles-andre-jolly",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-sellara-founder-spencer-secord",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sellara/spencer-secord",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2057,18 +2051,18 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sentra-founder-andrey-starenky",
+          "entityId": "a16z-speedrun-006-sellara-founder-ahmad-roumie",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sentra/andrey-starenky",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sellara/ahmad-roumie",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-quo-labs",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://withsam.com",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-sentra-founder-ashwin-gopinath",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sentra/ashwin-gopinath",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2078,6 +2072,15 @@
           "entityId": "a16z-speedrun-006-simula",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/simula",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-sentra-founder-andrey-starenky",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sentra/andrey-starenky",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2093,36 +2096,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-safeworld-founder-kyle-wong",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://safeworld.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-safeworld",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://safeworld.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
           "entityId": "a16z-speedrun-006-simula-founder-yizhen-zhen",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/simula/yizhen-zhen",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-sellara",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://sellara.io",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2146,8 +2122,17 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sellara-founder-charles-andre-jolly",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-smart-bricks",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/smart-bricks",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-sellara",
           "sourceKind": "official_website",
           "sourceUrl": "https://sellara.io",
           "status": "checked_empty",
@@ -2156,9 +2141,27 @@
         },
         {
           "entityType": "company",
-          "entityId": "a16z-speedrun-006-smart-bricks",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/smart-bricks",
+          "entityId": "a16z-speedrun-006-sentra",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://sentra.app/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-sellara-founder-ahmad-roumie",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://sellara.io",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-safeworld",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://safeworld.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2174,18 +2177,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-smart-bricks-founder-mohamed-mohamed",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/smart-bricks/mohamed-mohamed",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sellara-founder-ahmad-roumie",
+          "entityId": "a16z-speedrun-006-sentra-founder-andrey-starenky",
           "sourceKind": "official_website",
-          "sourceUrl": "https://sellara.io",
+          "sourceUrl": "https://sentra.app/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2193,6 +2187,15 @@
         {
           "entityType": "founder",
           "entityId": "a16z-speedrun-006-safeworld-founder-ding-zhao",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://safeworld.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-safeworld-founder-kyle-wong",
           "sourceKind": "official_website",
           "sourceUrl": "https://safeworld.ai",
           "status": "checked_empty",
@@ -2218,28 +2221,37 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-sentra",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://sentra.app/",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-smart-bricks-founder-mohamed-mohamed",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/smart-bricks/mohamed-mohamed",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sentra-founder-ashwin-gopinath",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://sentra.app/",
+          "entityId": "a16z-speedrun-006-snag-founder-niko-georgantas",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/snag/niko-georgantas",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sentra-founder-andrey-starenky",
+          "entityId": "a16z-speedrun-006-snag-founder-selin-sonmez",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/snag/selin-sonmez",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-sellara-founder-charles-andre-jolly",
           "sourceKind": "official_website",
-          "sourceUrl": "https://sentra.app/",
+          "sourceUrl": "https://sellara.io",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2255,18 +2267,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sirius-technology-founder-benazir-toleubekova",
+          "entityId": "a16z-speedrun-006-sentra-founder-ashwin-gopinath",
           "sourceKind": "official_website",
-          "sourceUrl": "https://thesirius.ai/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snag-founder-selin-sonmez",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/snag/selin-sonmez",
+          "sourceUrl": "https://sentra.app/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2281,55 +2284,10 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-simula",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://simula.ad",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snag-founder-niko-georgantas",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/snag/niko-georgantas",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-smart-bricks",
+          "entityId": "a16z-speedrun-006-sirius-technology-founder-benazir-toleubekova",
           "sourceKind": "official_website",
-          "sourceUrl": "https://smart-bricks.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-simula-founder-yizhen-zhen",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://simula.ad",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snag-founder-selin-sonmez",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://snagsublets.com/",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snag-founder-niko-georgantas",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://snagsublets.com/",
+          "sourceUrl": "https://thesirius.ai/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2345,45 +2303,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-smart-bricks-founder-mohamed-mohamed",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://smart-bricks.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-snapp-stats",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://trysnapp.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-sparta",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sparta",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
           "entityId": "a16z-speedrun-006-snapp-stats-founder-shawn-tsao",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/snapp-stats/shawn-tsao",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snapp-stats-founder-shawn-tsao",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://trysnapp.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2408,18 +2330,54 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snapp-stats-founder-alex-marshall",
+          "entityId": "a16z-speedrun-006-smart-bricks-founder-mohamed-mohamed",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://smart-bricks.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-sparta",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/snapp-stats/alex-marshall",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sparta",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snapp-stats-founder-andrew-tamura",
+          "entityId": "a16z-speedrun-006-snag-founder-selin-sonmez",
           "sourceKind": "official_website",
-          "sourceUrl": "https://trysnapp.ai",
+          "sourceUrl": "https://snagsublets.com/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-snag-founder-niko-georgantas",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://snagsublets.com/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-simula-founder-yizhen-zhen",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://simula.ad",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-simula",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://simula.ad",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2434,8 +2392,35 @@
           "error": null
         },
         {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-smart-bricks",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://smart-bricks.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snapp-stats-founder-alex-marshall",
+          "entityId": "a16z-speedrun-006-snapp-stats-founder-shawn-tsao",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://trysnapp.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://trysnapp.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-snapp-stats",
           "sourceKind": "official_website",
           "sourceUrl": "https://trysnapp.ai",
           "status": "checked_empty",
@@ -2452,10 +2437,19 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-sparta",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://usesparta.co",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-sparta-founder-saad-asad",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sparta/saad-asad",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-snapp-stats-founder-alex-marshall",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/snapp-stats/alex-marshall",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2471,9 +2465,27 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-straia-founder-ryan-lau",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/straia/ryan-lau",
+          "entityId": "a16z-speedrun-006-snapp-stats-founder-andrew-tamura",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://trysnapp.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-snapp-stats-founder-alex-marshall",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://trysnapp.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-sparta",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://usesparta.co",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2498,18 +2510,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-snapp-stats-founder-min-park",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://trysnapp.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-sun",
+          "entityId": "a16z-speedrun-006-straia-founder-ryan-lau",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sun",
+          "sourceUrl": "https://speedrun.a16z.com/companies/straia/ryan-lau",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2519,33 +2522,6 @@
           "entityId": "a16z-speedrun-006-sparta-founder-arya-kanna",
           "sourceKind": "official_website",
           "sourceUrl": "https://usesparta.co",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sparta-founder-saad-asad",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/sparta/saad-asad",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-syncere",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/syncere",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-straia-founder-gautam-narasimhan",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/straia/gautam-narasimhan",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2569,24 +2545,6 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-straia",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://straia.io",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-sun",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://sunapp.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
           "entityType": "founder",
           "entityId": "a16z-speedrun-006-sun-founder-matt-gunhan-ertosun",
           "sourceKind": "official_profile",
@@ -2597,9 +2555,9 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-straia-founder-nikki-dansey",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://straia.io",
+          "entityId": "a16z-speedrun-006-straia-founder-gautam-narasimhan",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/straia/gautam-narasimhan",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2614,10 +2572,19 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-straia-founder-ryan-lau",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://straia.io",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-sun",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/sun",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-syncere",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/syncere",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2633,33 +2600,6 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-sun-founder-matt-gunhan-ertosun",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://sunapp.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-straia-founder-gautam-narasimhan",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://straia.io",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-straia-founder-alan-chan",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://straia.io",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
           "entityId": "a16z-speedrun-006-syncere-founder-angus-fung",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/syncere/angus-fung",
@@ -2668,10 +2608,10 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-syncere",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-sun-founder-matt-gunhan-ertosun",
           "sourceKind": "official_website",
-          "sourceUrl": "https://syncere.com",
+          "sourceUrl": "https://sunapp.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2681,24 +2621,6 @@
           "entityId": "a16z-speedrun-006-variantnow",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/variantnow",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-thirdbrain-labs",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://thirdbrainlabs.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-thirdbrain-labs-founder-david-huang",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/thirdbrain-labs/david-huang",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2714,9 +2636,36 @@
         },
         {
           "entityType": "founder",
-          "entityId": "a16z-speedrun-006-syncere-founder-aaron-tan",
+          "entityId": "a16z-speedrun-006-thirdbrain-labs-founder-david-huang",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/thirdbrain-labs/david-huang",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-variantnow-founder-elad-nissenberg",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/variantnow/elad-nissenberg",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-variantnow-founder-ben-segal",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/variantnow/ben-segal",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-straia",
           "sourceKind": "official_website",
-          "sourceUrl": "https://syncere.com",
+          "sourceUrl": "https://straia.io",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2726,6 +2675,123 @@
           "entityId": "a16z-speedrun-006-vereda",
           "sourceKind": "official_profile",
           "sourceUrl": "https://speedrun.a16z.com/companies/vereda",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-straia-founder-nikki-dansey",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://straia.io",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-straia-founder-gautam-narasimhan",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://straia.io",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-thirdbrain-labs",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://thirdbrainlabs.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-sun",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://sunapp.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-straia-founder-alan-chan",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://straia.io",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-straia-founder-ryan-lau",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://straia.io",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-syncere",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://syncere.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-syncere-founder-angus-fung",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://syncere.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-syncere-founder-aaron-tan",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://syncere.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-zerodrift",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/zerodrift",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-vereda-founder-joao-souza",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/vereda/joao-souza",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-vereda-founder-pedro-galindo",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://speedrun.a16z.com/companies/vereda/pedro-galindo",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-thirdbrain-labs-founder-margaret-zhang",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://thirdbrainlabs.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2742,69 +2808,6 @@
         {
           "entityType": "founder",
           "entityId": "a16z-speedrun-006-variantnow-founder-elad-nissenberg",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/variantnow/elad-nissenberg",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-syncere-founder-angus-fung",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://syncere.com",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-variantnow-founder-ben-segal",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/variantnow/ben-segal",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-thirdbrain-labs-founder-margaret-zhang",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://thirdbrainlabs.ai",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-vereda-founder-pedro-galindo",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/vereda/pedro-galindo",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-vereda-founder-joao-souza",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/vereda/joao-souza",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-zerodrift",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://speedrun.a16z.com/companies/zerodrift",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-variantnow",
           "sourceKind": "official_website",
           "sourceUrl": "https://variantnow.com",
           "status": "checked_empty",
@@ -2821,8 +2824,8 @@
           "error": null
         },
         {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-variantnow-founder-elad-nissenberg",
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-variantnow",
           "sourceKind": "official_website",
           "sourceUrl": "https://variantnow.com",
           "status": "checked_empty",
@@ -2834,6 +2837,15 @@
           "entityId": "a16z-speedrun-006-variantnow-founder-ben-segal",
           "sourceKind": "official_website",
           "sourceUrl": "https://variantnow.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null
+        },
+        {
+          "entityType": "company",
+          "entityId": "a16z-speedrun-006-zerodrift",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://zerodrift.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2857,10 +2869,10 @@
           "error": null
         },
         {
-          "entityType": "company",
-          "entityId": "a16z-speedrun-006-zerodrift",
+          "entityType": "founder",
+          "entityId": "a16z-speedrun-006-vereda-founder-joao-souza",
           "sourceKind": "official_website",
-          "sourceUrl": "https://zerodrift.ai",
+          "sourceUrl": "https://vereda.ia.br",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
@@ -2873,24 +2885,6 @@
           "status": "checked_empty",
           "githubUrls": [],
           "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-vereda-founder-joao-souza",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://vereda.ia.br",
-          "status": "checked_empty",
-          "githubUrls": [],
-          "error": null
-        },
-        {
-          "entityType": "founder",
-          "entityId": "a16z-speedrun-006-prior-foundry-founder-shirin-abrishami-kashani",
-          "sourceKind": "official_website",
-          "sourceUrl": "https://priorfoundry.com",
-          "status": "failed",
-          "githubUrls": [],
-          "error": "The operation was aborted due to timeout"
         }
       ],
       "searchTargets": 42,
@@ -2903,10 +2897,9 @@
       "GITHUB_TOKEN is optional and only increases API rate limits; gh auth token can be exported before running.",
       "No stars, follows, forks, issues, pull requests, comments, or account mutations are performed.",
       "a16z Speedrun 006 profiles in the local graph dataset do not include explicit GitHub social links, so official company websites are scanned by default.",
-      "GitHub search discovery is available with --search for conservative same-domain or same-owner matches; use --no-website to disable official website discovery.",
-      "Retained 2 last-good account rows after failed refreshes."
+      "GitHub search discovery is available with --search for conservative same-domain or same-owner matches; use --no-website to disable official website discovery."
     ],
-    "retainedLastGood": 2,
+    "retainedLastGood": 0,
     "activeAccountMappings": [
       {
         "entityType": "founder",
@@ -4557,9 +4550,9 @@
       },
       "aggregate": {
         "repoCount": 20,
-        "totalStars": 207,
+        "totalStars": 209,
         "totalForks": 41,
-        "totalWatchers": 207,
+        "totalWatchers": 209,
         "maxRepoScore": 100,
         "profileScore": 67
       },
@@ -4570,13 +4563,13 @@
           "fullName": "firetix/vibe-coding-penetration-tester",
           "description": "Vibe Coding? Cool story. But your vibe might be \"security breach waiting to happen.\" Introducing VibePenTester, the AI pen-tester who rolls its eyes at your half-baked code, discovers your vulnerabilities faster than your coworkers discover free pizza, and gently bullies your web app into compliance. Less \"vibe check,\" more \"reality check.\"",
           "htmlUrl": "https://github.com/firetix/vibe-coding-penetration-tester",
-          "stars": 172,
+          "stars": 174,
           "forks": 34,
-          "watchers": 172,
+          "watchers": 174,
           "openIssues": 12,
           "language": "Python",
           "pushedAt": "2026-06-08T03:22:56Z",
-          "updatedAt": "2026-07-21T15:49:35Z",
+          "updatedAt": "2026-07-25T16:48:49Z",
           "createdAt": "2025-03-19T07:49:43Z",
           "score": 100
         },
@@ -4914,9 +4907,9 @@
       },
       "aggregate": {
         "repoCount": 20,
-        "totalStars": 207,
+        "totalStars": 209,
         "totalForks": 41,
-        "totalWatchers": 207,
+        "totalWatchers": 209,
         "maxRepoScore": 100,
         "profileScore": 67
       },
@@ -4927,13 +4920,13 @@
           "fullName": "firetix/vibe-coding-penetration-tester",
           "description": "Vibe Coding? Cool story. But your vibe might be \"security breach waiting to happen.\" Introducing VibePenTester, the AI pen-tester who rolls its eyes at your half-baked code, discovers your vulnerabilities faster than your coworkers discover free pizza, and gently bullies your web app into compliance. Less \"vibe check,\" more \"reality check.\"",
           "htmlUrl": "https://github.com/firetix/vibe-coding-penetration-tester",
-          "stars": 172,
+          "stars": 174,
           "forks": 34,
-          "watchers": 172,
+          "watchers": 174,
           "openIssues": 12,
           "language": "Python",
           "pushedAt": "2026-06-08T03:22:56Z",
-          "updatedAt": "2026-07-21T15:49:35Z",
+          "updatedAt": "2026-07-25T16:48:49Z",
           "createdAt": "2025-03-19T07:49:43Z",
           "score": 100
         },
@@ -5271,9 +5264,9 @@
       },
       "aggregate": {
         "repoCount": 20,
-        "totalStars": 207,
+        "totalStars": 209,
         "totalForks": 41,
-        "totalWatchers": 207,
+        "totalWatchers": 209,
         "maxRepoScore": 100,
         "profileScore": 67
       },
@@ -5284,13 +5277,13 @@
           "fullName": "firetix/vibe-coding-penetration-tester",
           "description": "Vibe Coding? Cool story. But your vibe might be \"security breach waiting to happen.\" Introducing VibePenTester, the AI pen-tester who rolls its eyes at your half-baked code, discovers your vulnerabilities faster than your coworkers discover free pizza, and gently bullies your web app into compliance. Less \"vibe check,\" more \"reality check.\"",
           "htmlUrl": "https://github.com/firetix/vibe-coding-penetration-tester",
-          "stars": 172,
+          "stars": 174,
           "forks": 34,
-          "watchers": 172,
+          "watchers": 174,
           "openIssues": 12,
           "language": "Python",
           "pushedAt": "2026-06-08T03:22:56Z",
-          "updatedAt": "2026-07-21T15:49:35Z",
+          "updatedAt": "2026-07-25T16:48:49Z",
           "createdAt": "2025-03-19T07:49:43Z",
           "score": 100
         },
@@ -5628,9 +5621,9 @@
       },
       "aggregate": {
         "repoCount": 20,
-        "totalStars": 207,
+        "totalStars": 209,
         "totalForks": 41,
-        "totalWatchers": 207,
+        "totalWatchers": 209,
         "maxRepoScore": 100,
         "profileScore": 67
       },
@@ -5641,13 +5634,13 @@
           "fullName": "firetix/vibe-coding-penetration-tester",
           "description": "Vibe Coding? Cool story. But your vibe might be \"security breach waiting to happen.\" Introducing VibePenTester, the AI pen-tester who rolls its eyes at your half-baked code, discovers your vulnerabilities faster than your coworkers discover free pizza, and gently bullies your web app into compliance. Less \"vibe check,\" more \"reality check.\"",
           "htmlUrl": "https://github.com/firetix/vibe-coding-penetration-tester",
-          "stars": 172,
+          "stars": 174,
           "forks": 34,
-          "watchers": 172,
+          "watchers": 174,
           "openIssues": 12,
           "language": "Python",
           "pushedAt": "2026-06-08T03:22:56Z",
-          "updatedAt": "2026-07-21T15:49:35Z",
+          "updatedAt": "2026-07-25T16:48:49Z",
           "createdAt": "2025-03-19T07:49:43Z",
           "score": 100
         },
@@ -6551,7 +6544,7 @@
         "publicRepos": 1,
         "publicGists": 0,
         "createdAt": "2025-01-23T16:30:57Z",
-        "updatedAt": "2026-06-25T21:21:00Z"
+        "updatedAt": "2026-07-25T16:45:21Z"
       },
       "aggregate": {
         "repoCount": 1,
@@ -6604,7 +6597,7 @@
         "publicRepos": 1,
         "publicGists": 0,
         "createdAt": "2025-01-23T16:30:57Z",
-        "updatedAt": "2026-06-25T21:21:00Z"
+        "updatedAt": "2026-07-25T16:45:21Z"
       },
       "aggregate": {
         "repoCount": 1,
@@ -6657,7 +6650,7 @@
         "publicRepos": 1,
         "publicGists": 0,
         "createdAt": "2025-01-23T16:30:57Z",
-        "updatedAt": "2026-06-25T21:21:00Z"
+        "updatedAt": "2026-07-25T16:45:21Z"
       },
       "aggregate": {
         "repoCount": 1,

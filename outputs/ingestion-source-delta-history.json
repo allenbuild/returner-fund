@@ -857,5 +857,269 @@
         "postedAt": "2026-07-25T10:19:10.000Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-25-1800",
+    "centralDay": "2026-07-25",
+    "observedAt": "2026-07-26T01:13:24.026Z",
+    "baselinePhysicalSources": 4256,
+    "publishedPhysicalSources": 4285,
+    "newPhysicalSources": 30,
+    "newPhysicalSourcesThisAttempt": 30,
+    "retainedPhysicalSources": 4255,
+    "removedPhysicalSources": 1,
+    "dailyNewPhysicalSources": 33,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_failures:6"
+    ],
+    "mappedExpected": 1837,
+    "mappedSucceeded": 244,
+    "mappedNeedsReview": 1238,
+    "mappedBlockedOrEmpty": 349,
+    "mappedFailures": 6,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.1328,
+    "newestNewSourcePostedAt": "2026-07-25T23:27:16Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:x": 16,
+      "S2026:x": 7,
+      "S26:github": 2,
+      "S26:x": 4,
+      "S26:youtube": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-manufacturingintelligence",
+        "sourceUrl": "https://youtube.com/watch?v=d7nHGB5a-wo",
+        "platformPostId": "d7nHGB5a-wo",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-cedar-founder-beier-cai",
+        "sourceUrl": "https://x.com/beiercai/status/1661930359980982282",
+        "platformPostId": "1661930359980982282",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-oasiz-founder-abel-dagne",
+        "sourceUrl": "https://x.com/abeldagne__/status/1913309542345318812",
+        "platformPostId": "1913309542345318812",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-cascade-founder-hannia-zia",
+        "sourceUrl": "https://x.com/Hannia_zia/status/1967898001218867330",
+        "platformPostId": "1967898001218867330",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-emanate-founder-kiara-nirghin",
+        "sourceUrl": "https://x.com/kiaranirghin/status/2008423849613017398",
+        "platformPostId": "2008423849613017398",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sentra-founder-andrey-starenky",
+        "sourceUrl": "https://x.com/AndreyStarenky/status/2016557381514322325",
+        "platformPostId": "2016557381514322325",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-runharbor-nathan-h-leung-96078",
+        "sourceUrl": "https://x.com/nathanhleung/status/2033587120120729810",
+        "platformPostId": "2033587120120729810",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin",
+        "sourceUrl": "https://x.com/yusan_lin/status/2036116119900262418",
+        "platformPostId": "2036116119900262418",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-alike-founder-addi-haran-diman",
+        "sourceUrl": "https://x.com/AddiHD02/status/2037270564507996217",
+        "platformPostId": "2037270564507996217",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://x.com/ArtinBogdanov/status/2042325710040404326",
+        "platformPostId": "2042325710040404326",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-thirdbrain-labs-founder-margaret-zhang",
+        "sourceUrl": "https://x.com/_margaretzhang/status/2043744628449652767",
+        "platformPostId": "2043744628449652767",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-chronicle-labs-ayman-saleh-251142",
+        "sourceUrl": "https://x.com/sir_aymansaleh/status/2051720862869729372",
+        "platformPostId": "2051720862869729372",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-runharbor-nathan-h-leung-96078",
+        "sourceUrl": "https://x.com/nathanhleung/status/2053868946970021975",
+        "platformPostId": "2053868946970021975",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-mochatrade-chetan-manda-1797347",
+        "sourceUrl": "https://x.com/theblackmanda/status/2054020162144407754",
+        "platformPostId": "2054020162144407754",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-result-aaryan-kushwah-1610709",
+        "sourceUrl": "https://x.com/kushwah_aaryan/status/2055343475185610793",
+        "platformPostId": "2055343475185610793",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-archer-vivek-yanamadula-3172853",
+        "sourceUrl": "https://x.com/VivekYanamadula/status/2056784127404425335",
+        "platformPostId": "2056784127404425335",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-zerodrift-founder-kumesh-aroomoogan",
+        "sourceUrl": "https://x.com/kumesh_a/status/2061836966891565337",
+        "platformPostId": "2061836966891565337",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-safeworld-founder-simo-rachidi",
+        "sourceUrl": "https://x.com/Sim0Rachidi/status/2065122611395240350",
+        "platformPostId": "2065122611395240350",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-syncere-founder-aaron-tan",
+        "sourceUrl": "https://x.com/aaronistan/status/2065462687346352624",
+        "platformPostId": "2065462687346352624",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-truffle-arjun-chaliha-306060",
+        "sourceUrl": "https://x.com/arjunjchaliha/status/2066538064801943686",
+        "platformPostId": "2066538064801943686",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-keyframe-labs-kaahan-radia-569532",
+        "sourceUrl": "https://x.com/kradisme/status/2068044674808606980",
+        "platformPostId": "2068044674808606980",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-palette-2-serena-pei-2687428",
+        "sourceUrl": "https://x.com/spei04/status/2071764500882366714",
+        "platformPostId": "2071764500882366714",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-cova-ansh-tandon-1452184",
+        "sourceUrl": "https://x.com/anshtdn/status/2072143197397266651",
+        "platformPostId": "2072143197397266651",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin",
+        "sourceUrl": "https://x.com/yusan_lin/status/2074567916553462027",
+        "platformPostId": "2074567916553462027",
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-instaplay-gary-wu-1071066",
+        "sourceUrl": "https://x.com/garywu_eth/status/2079336205079200111",
+        "platformPostId": "2079336205079200111",
+        "postedAt": null
+      }
+    ]
   }
 ]
