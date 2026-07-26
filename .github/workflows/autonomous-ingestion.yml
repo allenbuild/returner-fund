@@ -79,6 +79,7 @@ jobs:
     outputs:
       published_commit: ${{ steps.publication_receipt.outputs.published_commit }}
       receipt_status: ${{ steps.publication_receipt.outputs.receipt_status }}
+      receipt_conclusion: ${{ steps.publication_receipt.outputs.receipt_conclusion }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -116,7 +117,7 @@ jobs:
         timeout-minutes: 5
         run: npm run artifacts:validate
 
-      - name: Record successful publication receipt
+      - name: Record publication receipt
         id: publication_receipt
         env:
           SLOT_KEY: ${{ needs.resolve.outputs.slot_key }}
@@ -127,52 +128,8 @@ jobs:
           DAILY_NEW_PHYSICAL_SOURCES: ${{ steps.ingestion.outputs.daily_new_physical_sources }}
           DAILY_SOURCE_HEALTH: ${{ steps.ingestion.outputs.daily_source_health }}
         run: |
-          PUBLISHED_COMMIT="$(git rev-parse HEAD)"
-          if [ "$RUNNER_STATUS" = "already_completed" ]; then
-            if [ "$DAILY_SOURCE_HEALTH" = "stale_day" ]; then
-              RECEIPT_STATUS="noop_stale_day"
-            elif [ "$COLLECTION_HEALTH" = "degraded" ]; then
-              RECEIPT_STATUS="noop_degraded"
-            elif [ "$DAILY_SOURCE_HEALTH" = "awaiting_second_slot" ]; then
-              RECEIPT_STATUS="noop_no_new_sources"
-            elif [ "$DAILY_SOURCE_HEALTH" = "healthy" ]; then
-              RECEIPT_STATUS="noop_completed"
-            else
-              RECEIPT_STATUS="noop_missing_receipt"
-            fi
-          elif [ "$RUNNER_STATUS" = "refreshed" ] && [ "$PUBLICATION_STATUS" = "published" ]; then
-            if [ "$DAILY_SOURCE_HEALTH" = "stale_day" ]; then
-              RECEIPT_STATUS="published_stale_day"
-            elif [ "$COLLECTION_HEALTH" = "degraded" ]; then
-              RECEIPT_STATUS="published_degraded"
-            elif [ "${NEW_PHYSICAL_SOURCES:-0}" = "0" ]; then
-              RECEIPT_STATUS="published_no_new_sources"
-            else
-              RECEIPT_STATUS="published"
-            fi
-          elif [ "$RUNNER_STATUS" = "refreshed" ] && [ "$PUBLICATION_STATUS" = "no_changes" ]; then
-            RECEIPT_STATUS="no_changes"
-          else
-            echo "::error title=Missing ingestion outcome::Runner returned an unknown outcome: ${RUNNER_STATUS:-missing} / ${PUBLICATION_STATUS:-missing}"
-            exit 1
-          fi
-          echo "receipt_status=$RECEIPT_STATUS" >> "$GITHUB_OUTPUT"
-          echo "published_commit=$PUBLISHED_COMMIT" >> "$GITHUB_OUTPUT"
-          {
-            echo "## Autonomous ingestion publication receipt"
-            echo "- Status: $RECEIPT_STATUS"
-            echo "- Slot: $SLOT_KEY"
-            echo "- Commit: $PUBLISHED_COMMIT"
-            echo "- Collection health: ${COLLECTION_HEALTH:-unknown}"
-            echo "- New physical sources this slot: ${NEW_PHYSICAL_SOURCES:-unknown}"
-            echo "- New physical sources this Central day: ${DAILY_NEW_PHYSICAL_SOURCES:-unknown}"
-            echo "- Daily source health: ${DAILY_SOURCE_HEALTH:-unknown}"
-            echo "- Artifact validation: passed"
-          } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$RECEIPT_STATUS" = "published_stale_day" ] || [ "$RECEIPT_STATUS" = "published_degraded" ] || [ "$RECEIPT_STATUS" = "published_no_new_sources" ] || [ "$RECEIPT_STATUS" = "noop_stale_day" ] || [ "$RECEIPT_STATUS" = "noop_degraded" ] || [ "$RECEIPT_STATUS" = "noop_no_new_sources" ] || [ "$RECEIPT_STATUS" = "noop_missing_receipt" ] || [ "$RECEIPT_STATUS" = "no_changes" ]; then
-            echo "::error title=Autonomous ingestion health gate failed::$RECEIPT_STATUS for $SLOT_KEY"
-            exit 1
-          fi
+          export PUBLISHED_COMMIT="$(git rev-parse HEAD)"
+          node scripts/lib/autonomous-ingestion-receipt-policy.mjs
 
   receipt:
     name: Audit refresh outcome
@@ -188,15 +145,16 @@ jobs:
           RESOLVE_RESULT: ${{ needs.resolve.result }}
           INGEST_RESULT: ${{ needs.ingest.result }}
           RECEIPT_STATUS: ${{ needs.ingest.outputs.receipt_status }}
+          RECEIPT_CONCLUSION: ${{ needs.ingest.outputs.receipt_conclusion }}
           PUBLISHED_COMMIT: ${{ needs.ingest.outputs.published_commit }}
         run: |
           if [ "$RESOLVE_RESULT" != "success" ]; then
             STATUS="resolver_failed"
           elif [ "$SHOULD_RUN" != "true" ]; then
             STATUS="inactive_candidate_no_refresh"
-          elif [ "$RECEIPT_STATUS" = "published_stale_day" ] || [ "$RECEIPT_STATUS" = "published_degraded" ] || [ "$RECEIPT_STATUS" = "published_no_new_sources" ] || [ "$RECEIPT_STATUS" = "noop_stale_day" ] || [ "$RECEIPT_STATUS" = "noop_degraded" ] || [ "$RECEIPT_STATUS" = "noop_no_new_sources" ] || [ "$RECEIPT_STATUS" = "noop_missing_receipt" ] || [ "$RECEIPT_STATUS" = "no_changes" ]; then
+          elif [ -n "$RECEIPT_STATUS" ] && { [ "$RECEIPT_CONCLUSION" = "success" ] || [ "$RECEIPT_CONCLUSION" = "warning" ]; } && [ "$INGEST_RESULT" = "success" ]; then
             STATUS="$RECEIPT_STATUS"
-          elif [ "$INGEST_RESULT" = "success" ] && { [ "$RECEIPT_STATUS" = "published" ] || [ "$RECEIPT_STATUS" = "noop_completed" ]; }; then
+          elif [ -n "$RECEIPT_STATUS" ] && [ "$RECEIPT_CONCLUSION" = "failure" ]; then
             STATUS="$RECEIPT_STATUS"
           else
             STATUS="accepted_slot_failed"
@@ -207,9 +165,12 @@ jobs:
             echo "- Slot: ${SLOT_KEY:-none}"
             echo "- Resolver result: $RESOLVE_RESULT"
             echo "- Ingestion result: $INGEST_RESULT"
+            echo "- Receipt conclusion: ${RECEIPT_CONCLUSION:-none}"
             echo "- Published commit: ${PUBLISHED_COMMIT:-none}"
           } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ] || [ "$STATUS" = "published_stale_day" ] || [ "$STATUS" = "published_degraded" ] || [ "$STATUS" = "published_no_new_sources" ] || [ "$STATUS" = "noop_stale_day" ] || [ "$STATUS" = "noop_degraded" ] || [ "$STATUS" = "noop_no_new_sources" ] || [ "$STATUS" = "noop_missing_receipt" ] || [ "$STATUS" = "no_changes" ]; then
+          if [ "$RECEIPT_CONCLUSION" = "warning" ]; then
+            echo "::warning title=Autonomous ingestion completed with warnings::$STATUS for ${SLOT_KEY:-unknown slot}"
+          elif [ "$STATUS" = "resolver_failed" ] || [ "$STATUS" = "accepted_slot_failed" ] || [ "$RECEIPT_CONCLUSION" = "failure" ]; then
             echo "::error title=Autonomous ingestion failed::$STATUS for ${SLOT_KEY:-unknown slot}"
             echo "The upstream resolver or ingestion job is the single failing job for this run."
             exit 0

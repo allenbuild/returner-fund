@@ -83,6 +83,7 @@ try {
       const result = await runCommand([
         autonomousRunnerPath,
         "--skip-publish",
+        "--resume-snapshots",
         `--idempotency-key=${idempotencyKey}`
       ], stopAtMs);
       await recordEvent(result.exitCode === 0 ? "sweep_succeeded" : "sweep_failed", {

@@ -31,6 +31,7 @@ import {
   mergeIngestionSourceDeltaHistory,
   summarizeIngestionSourceDelta
 } from "./lib/ingestion-source-delta.mjs";
+import { resumeValidatedSnapshotOrRun } from "./lib/autonomous-ingestion-resume.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
 
 const root = process.cwd();
@@ -123,7 +124,7 @@ try {
     ].filter(Boolean);
     console.warn(
       `Durable Supabase import skipped because required production configuration is incomplete (${missing.join(", ")}). ` +
-      "File-backed collection and publication will continue, but collection health will be degraded and the workflow receipt will fail."
+      "File-backed collection and publication will continue, and the workflow receipt will report degraded collection health."
     );
   }
   if (run?.status === "completed") {
@@ -180,9 +181,7 @@ try {
       ? [[], null]
       : await Promise.all([
           runCollectors(),
-          args.resumeSnapshots
-            ? readJson(topVoiceOutput, null)
-            : runTopVoiceCollector()
+          resumeTopVoiceRefresh()
         ]);
     assertLeaseHealthy();
     if (!args.skipNetwork) validateAutonomousCollectorMatrix(collectionResults);
@@ -327,9 +326,6 @@ try {
       publicationReceipt = await publishRepositoryArtifacts(publicationRunId, publicationInputs);
     }
 
-    if (!args.skipPublish && publicationReceipt.status === "no_changes") {
-      throw new Error(`Accepted ingestion slot ${idempotencyKey} produced no publication changes.`);
-    }
     if (!args.skipPublish && publicationInputs.sourceDelta.dailySourceHealth === "stale_day") {
       await event(
         "publication.daily_source_stale",
@@ -1550,6 +1546,27 @@ async function runTopVoiceCollector() {
     receipt ?? {}
   );
   return receipt;
+}
+
+async function resumeTopVoiceRefresh() {
+  const result = await resumeValidatedSnapshotOrRun({
+    resume: args.resumeSnapshots,
+    readSnapshot: () => readJson(topVoiceOutput, null),
+    validateSnapshot: assertSuccessfulTopVoiceRefresh,
+    runFresh: runTopVoiceCollector
+  });
+  if (result.resumed) {
+    await event(
+      "top_voice_collection.snapshot_resumed",
+      "info",
+      "Top Voice discovery resumed its validated terminal snapshot without repeating network collection.",
+      {
+        audiences: result.snapshot.audiences.map((audience) => audience.audience),
+        evidenceCount: result.snapshot.isolatedEvidence.evidenceCount
+      }
+    );
+  }
+  return result.snapshot;
 }
 
 async function runCollectorWithRetries(command, maxAttempts = AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts) {

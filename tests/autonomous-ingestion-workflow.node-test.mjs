@@ -16,6 +16,10 @@ const dailyBenchmarkWorkflow = readFileSync(
   path.join(repositoryRoot, ".github", "workflows", "daily-benchmarks.yml"),
   "utf8"
 );
+const receiptPolicy = readFileSync(
+  path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-receipt-policy.mjs"),
+  "utf8"
+);
 
 test("workflow declares exactly the four DST-safe UTC candidates", () => {
   const cronCandidates = Array.from(
@@ -149,33 +153,28 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   assert.match(workflow, /name:\s*Publish accepted slot \$\{\{ needs\.resolve\.outputs\.slot_key \}\}/);
   assert.match(workflow, /STATUS="inactive_candidate_no_refresh"/);
   assert.match(workflow, /STATUS="accepted_slot_failed"/);
-  assert.match(workflow, /RECEIPT_STATUS="noop_completed"/);
-  assert.match(workflow, /RECEIPT_STATUS="noop_stale_day"/);
-  assert.match(workflow, /RECEIPT_STATUS="noop_degraded"/);
-  assert.match(workflow, /RECEIPT_STATUS="noop_no_new_sources"/);
-  assert.match(workflow, /RECEIPT_STATUS="noop_missing_receipt"/);
-  assert.match(workflow, /RECEIPT_STATUS="published"/);
-  assert.match(workflow, /RECEIPT_STATUS="published_degraded"/);
-  assert.match(workflow, /RECEIPT_STATUS="published_no_new_sources"/);
-  assert.match(workflow, /RECEIPT_STATUS="published_stale_day"/);
+  assert.match(workflow, /node scripts\/lib\/autonomous-ingestion-receipt-policy\.mjs/);
+  assert.match(workflow, /receipt_conclusion:\s*\$\{\{ steps\.publication_receipt\.outputs\.receipt_conclusion \}\}/);
+  assert.match(workflow, /RECEIPT_CONCLUSION:\s*\$\{\{ needs\.ingest\.outputs\.receipt_conclusion \}\}/);
   assert.match(workflow, /DAILY_NEW_PHYSICAL_SOURCES/);
   assert.match(workflow, /DAILY_SOURCE_HEALTH/);
-  assert.match(workflow, /receipt_status=\$RECEIPT_STATUS/);
   assert.match(workflow, /RUNNER_STATUS:\s*\$\{\{ steps\.ingestion\.outputs\.runner_status \}\}/);
-  assert.match(workflow, /Published commit:/);
+  assert.match(workflow, /Receipt conclusion:/);
   assert.match(workflow, /if \[ "\$STATUS" = "resolver_failed" \] \|\| \[ "\$STATUS" = "accepted_slot_failed" \]/);
   assert.match(workflow, /upstream resolver or ingestion job is the single failing job/);
-  const publicationReceipt = workflow.match(
-    /- name: Record successful publication receipt([\s\S]*?)(?=\n  receipt:)/
-  )?.[1] ?? "";
-  for (const rejectedStatus of [
+  assert.match(workflow, /::warning title=Autonomous ingestion completed with warnings/);
+  assert.doesNotMatch(workflow, /Autonomous ingestion health gate failed/);
+  for (const warningStatus of [
     "published_degraded",
     "published_no_new_sources",
     "noop_degraded",
     "noop_no_new_sources"
-  ]) {
-    assert.match(publicationReceipt, new RegExp(`\\$RECEIPT_STATUS.*${rejectedStatus}`));
-  }
+  ]) assert.ok(receiptPolicy.includes(`"${warningStatus}"`));
+  for (const failureStatus of [
+    "published_stale_day",
+    "noop_stale_day",
+    "noop_missing_receipt"
+  ]) assert.ok(receiptPolicy.includes(`"${failureStatus}"`));
   const runnerSource = readFileSync(path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs"), "utf8");
   assert.match(runnerSource, /writeRunnerOutcome\(\{\s*status:\s*"already_completed"/);
   assert.match(runnerSource, /writeRunnerOutcome\(\{\s*status:\s*"refreshed"/);

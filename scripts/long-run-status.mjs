@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -7,7 +8,7 @@ const runDir = path.join(root, "outputs", "longrun");
 const activePath = path.join(runDir, "active-run.json");
 const active = await readJson(activePath, null);
 const latest = await latestEventLog();
-const liveCheckpoint = summarizeLiveCheckpoint(await readJson(path.join(root, "work", "public-traction-checkpoint.json"), null));
+const liveCheckpoint = await currentSweepCheckpointSummary(active);
 const statusDoc = existsSync(path.join(root, "docs", "LONG_RUN_STATUS.md"))
   ? await readFile(path.join(root, "docs", "LONG_RUN_STATUS.md"), "utf8")
   : "";
@@ -96,25 +97,106 @@ function elapsedMinutes(value) {
   return Math.max(0, Math.floor((Date.now() - parsed) / 60_000));
 }
 
-function summarizeLiveCheckpoint(checkpoint) {
-  if (!checkpoint) return null;
-  const attempts = Object.values(checkpoint.attempts ?? {});
+async function currentSweepCheckpointSummary(activeRun) {
+  const idempotencyKey = activeRun?.currentSweep?.idempotencyKey;
+  if (!idempotencyKey) return null;
+
+  const workRoot = path.join(
+    root,
+    "work",
+    "autonomous-ingestion",
+    safePathSegment(idempotencyKey)
+  );
+  let entries;
+  try {
+    entries = await readdir(workRoot, { withFileTypes: true });
+  } catch {
+    entries = [];
+  }
+
+  const checkpointFiles = entries
+    .filter(
+      (entry) =>
+        entry.isFile() &&
+        /^checkpoint-public-.+-shard-\d+-of-\d+\.json$/.test(entry.name)
+    )
+    .map((entry) => path.join(workRoot, entry.name))
+    .sort();
+  const checkpoints = (
+    await Promise.all(
+      checkpointFiles.map(async (filePath) => ({
+        filePath,
+        checkpoint: await readJson(filePath, null)
+      }))
+    )
+  ).filter((entry) => entry.checkpoint);
+  const aggregate = summarizeCheckpoints(checkpoints.map((entry) => entry.checkpoint));
+
+  return {
+    idempotencyKey,
+    workRoot,
+    checkpointCount: checkpoints.length,
+    ...aggregate,
+    shards: checkpoints.map(({ filePath, checkpoint }) => ({
+      path: filePath,
+      ...checkpointDescriptor(filePath),
+      ...summarizeCheckpoints([checkpoint])
+    }))
+  };
+}
+
+function summarizeCheckpoints(checkpoints) {
+  const attempts = checkpoints.flatMap((checkpoint) => Object.values(checkpoint.attempts ?? {}));
+  const evidence = checkpoints.flatMap((checkpoint) => checkpoint.evidence ?? []);
+  const needsReview = checkpoints.flatMap((checkpoint) => checkpoint.needsReview ?? []);
+  const failures = checkpoints.flatMap((checkpoint) => checkpoint.failures ?? []);
+  const discoveryAttempts = checkpoints.flatMap(
+    (checkpoint) => checkpoint.discoveryAttempts ?? []
+  );
+  const sourceDiscoveryPaths = checkpoints.flatMap(
+    (checkpoint) => checkpoint.sourceDiscoveryPaths ?? []
+  );
+
   return {
     attemptCount: attempts.length,
     attemptStatusCounts: countBy(attempts, (attempt) => attempt.status ?? "unknown"),
     rows: {
-      evidence: checkpoint.evidence?.length ?? 0,
-      needsReview: checkpoint.needsReview?.length ?? 0,
-      failures: checkpoint.failures?.length ?? 0,
-      discoveryAttempts: checkpoint.discoveryAttempts?.length ?? 0,
-      sourceDiscoveryPaths: checkpoint.sourceDiscoveryPaths?.length ?? 0
+      evidence: evidence.length,
+      needsReview: needsReview.length,
+      failures: failures.length,
+      discoveryAttempts: discoveryAttempts.length,
+      sourceDiscoveryPaths: sourceDiscoveryPaths.length
     },
     platformRows: {
-      evidence: countBy(checkpoint.evidence ?? [], (row) => row.platform ?? "unknown"),
-      needsReview: countBy(checkpoint.needsReview ?? [], (row) => row.platform ?? "unknown"),
-      failures: countBy(checkpoint.failures ?? [], (row) => row.platform ?? "unknown")
+      evidence: countBy(evidence, (row) => row.platform ?? "unknown"),
+      needsReview: countBy(needsReview, (row) => row.platform ?? "unknown"),
+      failures: countBy(failures, (row) => row.platform ?? "unknown")
     }
   };
+}
+
+function checkpointDescriptor(filePath) {
+  const match = path.basename(filePath).match(
+    /^checkpoint-public-(.+)-shard-(\d+)-of-(\d+)\.json$/
+  );
+  return match
+    ? {
+        batchSlug: match[1].toUpperCase(),
+        shardIndex: Number(match[2]),
+        shardCount: Number(match[3])
+      }
+    : {};
+}
+
+function safePathSegment(value) {
+  const source = String(value);
+  const prefix =
+    source
+      .replace(/[^A-Za-z0-9._-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) || "run";
+  const digest = createHash("sha256").update(source).digest("hex").slice(0, 16);
+  return `${prefix}-${digest}`;
 }
 
 function countBy(items, getKey) {

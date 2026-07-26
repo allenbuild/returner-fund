@@ -909,7 +909,7 @@ const MISSING_COLLECTOR_OUTCOME_REASONS = new Set([
   "collector_returned_no_entity_attempt"
 ]);
 const RETRYABLE_COLLECTOR_FAILURE_PATTERN =
-  /(?:rate.?limit|secondary.?limit|\b403\b|forbidden|\b429\b|\b5\d\d\b|timeout|timed out|network|fetch failed|econn|socket|temporar|unavailable)/i;
+  /(?:rate.?limit|secondary.?limit|\b403\b|forbidden|\b429\b|\b5\d\d\b|timeout|timed out|\babort(?:ed|error)?\b|\betimedout\b|network|fetch failed|econn|socket|temporar|unavailable)/i;
 
 export function autonomousCollectorRetryableFailures(snapshot) {
   const sourceChecks = snapshot?.source?.discovery?.sourceChecks ?? [];

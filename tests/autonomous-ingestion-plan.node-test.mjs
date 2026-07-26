@@ -42,7 +42,7 @@ describe("autonomous runner resume contract", () => {
 
     assert.match(
       source,
-      /await Promise\.all\(\[\s*runCollectors\(\),\s*args\.resumeSnapshots\s*\?\s*readJson\(topVoiceOutput,\s*null\)\s*:\s*runTopVoiceCollector\(\)\s*\]\)/
+      /await Promise\.all\(\[\s*runCollectors\(\),\s*resumeTopVoiceRefresh\(\)\s*\]\)/
     );
   });
 });
@@ -885,6 +885,26 @@ describe("autonomous collector task accounting", () => {
     assert.ok(failures.includes("HTTP 503 unavailable"));
     assert.ok(failures.includes("Public endpoint network timeout."));
     assert.ok(failures.includes("socket hang up"));
+  });
+
+  it("retries AbortController and ETIMEDOUT transport failures", () => {
+    const failures = autonomousCollectorRetryableFailures({
+      failures: [{
+        message: "This operation was aborted"
+      }, {
+        message: "AbortError: The operation was aborted"
+      }, {
+        message: "connect ETIMEDOUT 203.0.113.1:443"
+      }, {
+        message: "Unsupported owner URL"
+      }]
+    });
+
+    assert.deepEqual(failures, [
+      "This operation was aborted",
+      "AbortError: The operation was aborted",
+      "connect ETIMEDOUT 203.0.113.1:443"
+    ]);
   });
 
   it("requires explicit terminal outcomes for every planned GitHub and public task", () => {

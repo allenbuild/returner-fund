@@ -86,7 +86,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("allows file-backed recovery without Supabase but explicitly degrades workflow health", () => {
     assert.ok(runner.includes("const durableStorageConfigured = Boolean(url && serviceKey)"));
     assert.doesNotMatch(runner, /SUPABASE_SERVICE_ROLE_KEY are required/);
-    assert.ok(runner.includes("collection health will be degraded and the workflow receipt will fail"));
+    assert.ok(runner.includes("workflow receipt will report degraded collection health"));
+    assert.doesNotMatch(runner, /workflow receipt will fail/);
     assert.ok(runner.includes('status: "skipped"'));
     assert.ok(runner.includes('reason: "supabase_not_configured"'));
     assert.ok(runner.includes('runId: run?.id ?? null'));
@@ -115,6 +116,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const completion = runner.indexOf('await completeRun("completed"');
     assert.ok(staleGate > -1 && completion > staleGate);
     assert.match(runner, /published receipt is recoverable with a replay/);
+  });
+
+  it("does not fail a quiet morning slot merely because publication had no changes", () => {
+    assert.doesNotMatch(
+      runner,
+      /publicationReceipt\.status === "no_changes"[\s\S]{0,200}throw new Error/
+    );
+    assert.match(runner, /publicationStatus: publicationReceipt\.status/);
   });
 
   it("recovers completed-slot freshness metadata from current or historical receipts", () => {
@@ -289,9 +298,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
   it("runs Insider and YC Partner discovery concurrently with every batch collector", () => {
     const parallelStart = runner.search(
-      /await Promise\.all\(\[\s*runCollectors\(\),\s*args\.resumeSnapshots\s*\?\s*readJson\(topVoiceOutput,\s*null\)\s*:\s*runTopVoiceCollector\(\)\s*\]\)/
+      /await Promise\.all\(\[\s*runCollectors\(\),\s*resumeTopVoiceRefresh\(\)\s*\]\)/
     );
-    const topVoiceCollector = section("async function runTopVoiceCollector", "async function runCollectorWithRetries");
+    const topVoiceCollector = section("async function runTopVoiceCollector", "async function resumeTopVoiceRefresh");
+    const topVoiceResume = section("async function resumeTopVoiceRefresh", "async function runCollectorWithRetries");
 
     assert.ok(parallelStart > -1);
     assert.ok(topVoiceCollector.includes('"--audiences=insiders,yc_partners"'));
@@ -300,6 +310,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(topVoiceCollector.includes('"--max-top-voice-x-targets=250"'));
     assert.ok(topVoiceCollector.includes('"--deadline-minutes=10"'));
     assert.ok(topVoiceCollector.includes('"scripts/run-top-voice-ingestion.mjs"'));
+    assert.ok(topVoiceResume.includes("resumeValidatedSnapshotOrRun"));
+    assert.ok(topVoiceResume.includes("validateSnapshot: assertSuccessfulTopVoiceRefresh"));
+    assert.ok(topVoiceResume.includes("runFresh: runTopVoiceCollector"));
     assert.ok(runner.includes("assertSuccessfulTopVoiceRefresh(topVoiceRefresh)"));
     assert.ok(runner.includes('receipt.status !== "completed"'));
     assert.ok(runner.includes('(result.networkRequests ?? 0) <= 0'));
