@@ -1015,6 +1015,7 @@ function githubEvidenceForAccount(account: GithubTractionAccount): EvidenceItem[
         rawEngagement,
         sourceUrl: repo.htmlUrl,
         platformPostId: repoName,
+        platformObjectId: repo.id == null ? null : String(repo.id),
         rawVisibleText: JSON.stringify({ repo }),
         first_seen_at: fetchedAt,
         last_checked_at: fetchedAt,

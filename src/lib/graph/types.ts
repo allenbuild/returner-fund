@@ -113,6 +113,11 @@ export interface EvidenceItem {
   tractionLimitations?: string[];
   sourceUrl: string;
   platformPostId?: string | null;
+  /**
+   * Stable native object identity when a platform exposes one independently
+   * from its mutable URL/slug. GitHub repository IDs are the first consumer.
+   */
+  platformObjectId?: string | null;
   rawVisibleText?: string;
   first_seen_at?: string;
   last_checked_at?: string;

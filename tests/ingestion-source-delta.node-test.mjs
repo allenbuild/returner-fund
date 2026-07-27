@@ -221,3 +221,33 @@ test("tracks GitHub repositories and preserves case-sensitive native IDs", () =>
     physicalSourceKey({ platform: "github", sourceUrl: "https://github.com/owner/newrepo", platformPostId: "owner/newrepo" })
   );
 });
+
+test("uses stable GitHub repository IDs across owner and repository renames", () => {
+  const before = {
+    batchSlug: "S2026",
+    platform: "github",
+    entityType: "company",
+    entityId: "company-interfaze",
+    sourceUrl: "https://github.com/JigsawStack/deep-research",
+    platformPostId: "JigsawStack/deep-research",
+    platformObjectId: "1035391429",
+    postedAt: "2026-07-21T10:00:00Z"
+  };
+  const after = {
+    ...before,
+    sourceUrl: "https://github.com/InterfazeAI/deep-research",
+    platformPostId: "InterfazeAI/deep-research"
+  };
+
+  const receipt = summarizeIngestionSourceDelta({
+    idempotencyKey: "central-2026-07-26-1800",
+    beforeSnapshots: [{ evidence: [before] }],
+    afterSnapshots: [{ evidence: [after] }]
+  });
+
+  assert.equal(physicalSourceKey(before), "github:object:1035391429");
+  assert.equal(physicalSourceKey(after), "github:object:1035391429");
+  assert.equal(receipt.newPhysicalSources, 0);
+  assert.equal(receipt.retainedPhysicalSources, 1);
+  assert.equal(receipt.removedPhysicalSources, 0);
+});

@@ -961,6 +961,7 @@ function canonicalGithubContentIdentityRows(snapshot) {
       platform: "github",
       sourceUrl: repository?.htmlUrl,
       platformPostId: repository?.fullName,
+      platformObjectId: repository?.id == null ? null : String(repository.id),
       accountUrl: account?.account?.htmlUrl ?? account?.githubUrl,
       authorHandle: account?.account?.login ?? account?.login,
       text: repository?.description,

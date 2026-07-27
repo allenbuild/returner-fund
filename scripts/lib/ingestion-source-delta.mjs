@@ -114,6 +114,12 @@ export function mergeIngestionSourceDeltaHistory(previousHistory, receipt) {
 export function physicalSourceKey(row) {
   const platform = normalizePlatform(row?.platform);
   if (!platform) return null;
+  const platformObjectId = String(
+    row?.platformObjectId ?? row?.platform_object_id ?? ""
+  ).trim();
+  if (platform === "github" && /^\d+$/.test(platformObjectId)) {
+    return `github:object:${platformObjectId}`;
+  }
   const identity = physicalPostIdentity({ ...row, platform }).value;
   if (!identity || identity === "row:unknown") return null;
   const normalizedIdentity = ["youtube", "instagram"].includes(platform)
@@ -141,6 +147,7 @@ function sourceSample(row) {
     entityId: row?.entityId ?? row?.entity_id ?? null,
     sourceUrl: row?.sourceUrl ?? row?.source_url ?? null,
     platformPostId: row?.platformPostId ?? row?.platform_post_id ?? null,
+    platformObjectId: row?.platformObjectId ?? row?.platform_object_id ?? null,
     postedAt: row?.postedAt ?? row?.posted_at ?? null
   };
 }

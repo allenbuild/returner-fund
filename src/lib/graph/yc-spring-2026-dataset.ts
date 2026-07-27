@@ -154,6 +154,7 @@ interface GithubAccount {
 }
 
 interface GithubRepo {
+  id?: number;
   name: string;
   fullName: string;
   description: string;
@@ -929,6 +930,8 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
     },
     contributionScore: repo.score,
     sourceUrl: repo.htmlUrl,
+    platformPostId: repo.fullName,
+    platformObjectId: repo.id == null ? null : String(repo.id),
     first_seen_at: sourceSnapshot.source.fetchedAt,
     last_checked_at: sourceSnapshot.source.fetchedAt,
     last_updated_at: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
