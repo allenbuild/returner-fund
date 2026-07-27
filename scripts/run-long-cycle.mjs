@@ -7,23 +7,47 @@ const runDir = path.join(root, "outputs", "longrun");
 const activePath = path.join(runDir, "active-run.json");
 const startedAt = process.env.LONG_RUN_START_AT ?? new Date().toISOString();
 const runId = process.env.LONG_RUN_ID ?? `source-sweep-${new Date().toISOString().replace(/[:.]/g, "-")}`;
-const durationMinutes = numberArg("--minutes") ?? 300;
+const durationMinutes = Math.max(1, numberArg("--minutes") ?? 300);
 const checkpointMinutes = numberArg("--checkpoint-minutes") ?? 5;
+const requestedMinimumSweepMinutes = Math.max(
+  1 / 60_000,
+  numberArg("--minimum-sweep-minutes") ?? 45
+);
 const smoke = hasArg("--smoke");
 const once = hasArg("--once") || smoke;
 const startedAtMs = validDateMs(startedAt) ?? Date.now();
-const stopAtMs = startedAtMs + Math.max(1, durationMinutes) * 60_000;
+const stopAtMs = startedAtMs + durationMinutes * 60_000;
 const deadlineAt = new Date(stopAtMs).toISOString();
 const checkpointEveryMs = Math.max(1, checkpointMinutes) * 60_000;
 const eventLogPath = path.join(runDir, `${runId}.json`);
 const autonomousRunnerPath = path.join("scripts", "run-autonomous-ingestion.mjs");
 const resumeLog = await readJson(eventLogPath, null);
+const persistedMinimumSweepMinutes = Number(resumeLog?.minimumSweepMinutes);
+const minimumSweepMinutes = numberArg("--minimum-sweep-minutes") === null
+  && Number.isFinite(persistedMinimumSweepMinutes)
+  ? Math.max(1 / 60_000, persistedMinimumSweepMinutes)
+  : requestedMinimumSweepMinutes;
+const minimumSweepReserveMs = minimumSweepMinutes * 60_000;
 const eventLog = resumeLog?.runId === runId && Array.isArray(resumeLog.eventLog)
   ? resumeLog.eventLog
   : [];
+const priorFinishedEvent = [...eventLog].reverse().find((event) => event.type === "run_finished");
+if (priorFinishedEvent) {
+  console.log(JSON.stringify({
+    runId,
+    status: "already_finished",
+    finalStatus: priorFinishedEvent.status,
+    eventLog: eventLogPath
+  }, null, 2));
+  process.exit(0);
+}
 let nextCheckpointAtMs = Date.now();
 let activeChild = null;
 let finishing = false;
+let finalizePromise = null;
+let eventWriteQueue = Promise.resolve();
+let activeStateWriteQueue = Promise.resolve();
+let interruptedSignal = null;
 
 await mkdir(runDir, { recursive: true });
 await recordEvent(eventLog.length ? "run_resumed" : "run_started", {
@@ -32,6 +56,7 @@ await recordEvent(eventLog.length ? "run_resumed" : "run_started", {
   deadlineAt,
   durationMinutes,
   checkpointMinutes,
+  minimumSweepMinutes,
   scope: {
     batches: ["S2026", "S26", "A16ZSR006"],
     entities: ["companies", "founders"],
@@ -50,15 +75,15 @@ heartbeatTimer.unref?.();
 
 for (const signal of ["SIGINT", "SIGTERM"]) {
   process.once(signal, () => {
-    if (finishing) return;
-    finishing = true;
+    if (finishing || interruptedSignal) return;
+    interruptedSignal = signal;
     if (activeChild) terminateChildTree(activeChild);
-    void finalize("interrupted").finally(() => process.exit(128));
   });
 }
 
 try {
   if (smoke) {
+    throwIfInterrupted();
     const smokeKey = `${runId}-smoke-plan`;
     const result = await runCommand([
       autonomousRunnerPath,
@@ -66,6 +91,7 @@ try {
       "--skip-publish",
       `--idempotency-key=${smokeKey}`
     ], Math.min(stopAtMs, Date.now() + 120_000));
+    throwIfInterrupted();
     if (result.exitCode !== 0) {
       throw new Error(`Autonomous all-batch plan smoke failed: ${result.stderrTail}`);
     }
@@ -77,47 +103,79 @@ try {
   } else {
     let cycleIndex = resumableCycleIndex(eventLog);
     let attempt = nextAttemptForCycle(eventLog, cycleIndex);
-    while (Date.now() < stopAtMs) {
+    let completionStatus = "complete";
+    while (true) {
+      throwIfInterrupted();
+      const remainingMs = stopAtMs - Date.now();
+      if (remainingMs <= minimumSweepReserveMs) {
+        completionStatus = "deadline_complete";
+        await recordEvent("sweep_skipped_insufficient_time", {
+          cycleIndex,
+          attempt,
+          reason: `Not starting another sweep because the ${formatMinutes(durationMinutes)}-minute source-sweep window does not have the configured useful-time reserve remaining.`,
+          remainingMilliseconds: Math.max(0, remainingMs),
+          minimumSweepReserveMilliseconds: minimumSweepReserveMs,
+          minimumSweepMinutes,
+          deadlineAt
+        });
+        break;
+      }
       const idempotencyKey = `${runId}-sweep-${String(cycleIndex).padStart(3, "0")}`;
       await recordEvent("sweep_started", { cycleIndex, attempt, idempotencyKey });
+      throwIfInterrupted();
       const result = await runCommand([
         autonomousRunnerPath,
         "--skip-publish",
         "--resume-snapshots",
         `--campaign-key=${runId}`,
         `--idempotency-key=${idempotencyKey}`
-      ], stopAtMs);
-      await recordEvent(result.exitCode === 0 ? "sweep_succeeded" : "sweep_failed", {
+      ]);
+      throwIfInterrupted();
+      const eventType = result.exitCode === 0 ? "sweep_succeeded" : "sweep_failed";
+      await recordEvent(eventType, {
         cycleIndex,
         attempt,
         idempotencyKey,
         exitCode: result.exitCode,
+        terminationReason: result.terminationReason,
         stdoutTail: result.stdoutTail,
         stderrTail: result.stderrTail
       });
       await checkpointIfDue(true);
-      if (result.exitCode === 0) {
-        cycleIndex += 1;
-        attempt = 1;
-      } else {
-        attempt += 1;
-        if (Date.now() < stopAtMs) {
-          await delay(Math.min(5_000, stopAtMs - Date.now()));
-        }
+      throwIfInterrupted();
+      if (result.exitCode !== 0) {
+        throw new Error(
+          `Autonomous sweep ${cycleIndex} attempt ${attempt} failed with exit code ${result.exitCode}.`
+        );
       }
+      cycleIndex += 1;
+      attempt = 1;
       if (once) break;
     }
+    throwIfInterrupted();
+    await finalize(completionStatus);
   }
-  await finalize(smoke ? "smoke_complete" : "complete");
+  if (smoke) {
+    throwIfInterrupted();
+    await finalize("smoke_complete");
+  }
 } catch (error) {
-  await recordEvent("run_failed", { error: errorMessage(error) });
-  await finalize("failed");
-  throw error;
+  if (isInterruption(error)) {
+    const signal = interruptedSignal ?? error.signal;
+    await finalize("interrupted", { signal });
+    process.exitCode = signalExitCode(signal);
+  } else {
+    const message = errorMessage(error);
+    await recordEvent("run_failed", { error: message });
+    await finalize("failed", { error: message });
+    process.stderr.write(`Long-run failed: ${message}\n`);
+    process.exitCode = 1;
+  }
 } finally {
   clearInterval(heartbeatTimer);
 }
 
-function runCommand(args, commandDeadlineMs) {
+function runCommand(args, commandDeadlineMs = null) {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, args, {
       cwd: root,
@@ -134,11 +192,17 @@ function runCommand(args, commandDeadlineMs) {
     let stdoutTail = "";
     let stderrTail = "";
     let deadlineReached = false;
-    const deadlineTimer = setTimeout(() => {
-      deadlineReached = true;
-      stderrTail = appendTail(stderrTail, "Stopped command because the 300-minute source-sweep window elapsed.\n");
-      terminateChildTree(child);
-    }, Math.max(0, commandDeadlineMs - Date.now()));
+    let settled = false;
+    const deadlineTimer = Number.isFinite(commandDeadlineMs)
+      ? setTimeout(() => {
+        deadlineReached = true;
+        stderrTail = appendTail(
+          stderrTail,
+          `Stopped command because the ${formatMinutes(durationMinutes)}-minute source-sweep window elapsed.\n`
+        );
+        terminateChildTree(child);
+      }, Math.max(0, commandDeadlineMs - Date.now()))
+      : null;
     child.stdout.on("data", (chunk) => {
       const value = chunk.toString();
       stdoutTail = appendTail(stdoutTail, value);
@@ -149,19 +213,22 @@ function runCommand(args, commandDeadlineMs) {
       stderrTail = appendTail(stderrTail, value);
       process.stderr.write(value);
     });
-    const finish = (exitCode) => {
-      clearTimeout(deadlineTimer);
+    const finish = (exitCode, terminationReason = deadlineReached ? "deadline" : "completed") => {
+      if (settled) return;
+      settled = true;
+      if (deadlineTimer) clearTimeout(deadlineTimer);
       if (activeChild === child) activeChild = null;
       resolve({
         exitCode: deadlineReached ? 124 : exitCode ?? 1,
+        terminationReason: deadlineReached ? "deadline" : terminationReason,
         stdoutTail,
         stderrTail
       });
     };
-    child.once("close", finish);
+    child.once("close", (exitCode) => finish(exitCode));
     child.once("error", (error) => {
       stderrTail = appendTail(stderrTail, `${error.message}\n`);
-      finish(1);
+      finish(1, "spawn_error");
     });
   });
 }
@@ -192,6 +259,7 @@ function terminateChildTree(child) {
 }
 
 async function checkpointIfDue(force) {
+  if (finishing) return;
   if (!force && Date.now() < nextCheckpointAtMs) {
     await writeActiveState("running");
     return;
@@ -201,33 +269,39 @@ async function checkpointIfDue(force) {
     elapsedMinutes: elapsedMinutes(),
     remainingMinutes: Math.max(0, Math.ceil((stopAtMs - Date.now()) / 60_000))
   });
+  if (finishing) return;
   await writeActiveState("running");
 }
 
-async function finalize(status) {
-  if (finishing && status !== "interrupted") return;
+function finalize(status, details = {}) {
+  if (finalizePromise) return finalizePromise;
   finishing = true;
-  await recordEvent("run_finished", {
-    status,
-    elapsedMinutes: elapsedMinutes()
-  });
-  await writeActiveState(status);
-  console.log(JSON.stringify({
-    runId,
-    status,
-    elapsedMinutes: elapsedMinutes(),
-    eventLog: eventLogPath
-  }, null, 2));
+  finalizePromise = (async () => {
+    await recordEvent("run_finished", {
+      status,
+      elapsedMinutes: elapsedMinutes(),
+      ...details
+    });
+    await writeActiveState(status);
+    console.log(JSON.stringify({
+      runId,
+      status,
+      elapsedMinutes: elapsedMinutes(),
+      eventLog: eventLogPath
+    }, null, 2));
+  })();
+  return finalizePromise;
 }
 
-async function recordEvent(type, payload) {
+function recordEvent(type, payload) {
   eventLog.push({
     type,
     at: new Date().toISOString(),
     elapsedMinutes: elapsedMinutes(),
     ...payload
   });
-  await writeRunLog();
+  eventWriteQueue = eventWriteQueue.then(() => writeRunLog());
+  return eventWriteQueue;
 }
 
 async function writeRunLog() {
@@ -236,23 +310,28 @@ async function writeRunLog() {
     startedAt,
     deadlineAt,
     durationMinutes,
+    minimumSweepMinutes,
     eventLog
   });
 }
 
-async function writeActiveState(status) {
-  const current = await readJson(activePath, {});
-  await writeJsonAtomic(activePath, {
-    ...current,
-    runId,
-    pid: process.pid,
-    startedAt,
-    deadlineAt,
-    durationMinutes,
-    lastHeartbeatAt: new Date().toISOString(),
-    currentSweep: currentSweep(eventLog),
-    status
+function writeActiveState(status) {
+  activeStateWriteQueue = activeStateWriteQueue.then(async () => {
+    const current = await readJson(activePath, {});
+    await writeJsonAtomic(activePath, {
+      ...current,
+      runId,
+      pid: process.pid,
+      startedAt,
+      deadlineAt,
+      durationMinutes,
+      minimumSweepMinutes,
+      lastHeartbeatAt: new Date().toISOString(),
+      currentSweep: currentSweep(eventLog),
+      status
+    });
   });
+  return activeStateWriteQueue;
 }
 
 function assertAllBatchPlan(output) {
@@ -295,6 +374,28 @@ function elapsedMinutes() {
   return Math.max(0, Math.floor((Date.now() - startedAtMs) / 60_000));
 }
 
+function throwIfInterrupted() {
+  if (!interruptedSignal) return;
+  const error = new Error(`Long-run interrupted by ${interruptedSignal}.`);
+  error.name = "LongRunInterruptedError";
+  error.signal = interruptedSignal;
+  throw error;
+}
+
+function isInterruption(error) {
+  return error?.name === "LongRunInterruptedError" || Boolean(interruptedSignal);
+}
+
+function signalExitCode(signal) {
+  return signal === "SIGINT" ? 130 : signal === "SIGTERM" ? 143 : 1;
+}
+
+function formatMinutes(value) {
+  return Number.isInteger(value)
+    ? String(value)
+    : String(Number(value.toFixed(3)));
+}
+
 function numberArg(name) {
   const raw = process.argv.find((arg) => arg.startsWith(`${name}=`))?.slice(name.length + 1);
   const parsed = Number(raw);
@@ -312,10 +413,6 @@ function validDateMs(value) {
 
 function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
-}
-
-function delay(milliseconds) {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 async function readJson(filePath, fallback) {

@@ -8,11 +8,22 @@ const runDir = path.join(root, "outputs", "longrun");
 const activePath = path.join(runDir, "active-run.json");
 const requestedMinutes = numberArg("--minutes") ?? 300;
 const checkpointMinutes = numberArg("--checkpoint-minutes") ?? 5;
+const requestedMinimumSweepMinutes = Math.max(
+  1 / 60_000,
+  numberArg("--minimum-sweep-minutes") ?? 45
+);
+const terminalStatuses = new Set([
+  "complete",
+  "smoke_complete",
+  "deadline_complete",
+  "failed",
+  "interrupted"
+]);
 
 await mkdir(runDir, { recursive: true });
 
 const existing = await readJson(activePath, null);
-if (existing?.pid && isProcessRunning(existing.pid)) {
+if (existing?.pid && !terminalStatuses.has(existing?.status) && isProcessRunning(existing.pid)) {
   console.log(JSON.stringify({
     status: "already_running",
     pid: existing.pid,
@@ -26,7 +37,7 @@ const existingDeadlineMs = new Date(existing?.deadlineAt ?? 0).valueOf();
 const canResume =
   existing?.runId &&
   existing?.startedAt &&
-  !["complete", "smoke_complete"].includes(existing?.status) &&
+  !terminalStatuses.has(existing?.status) &&
   Number.isFinite(existingDeadlineMs) &&
   existingDeadlineMs > Date.now();
 const startedAt = canResume
@@ -38,6 +49,10 @@ const runId = canResume
 const durationMinutes = canResume
   ? Number(existing.durationMinutes ?? requestedMinutes)
   : requestedMinutes;
+const existingMinimumSweepMinutes = Number(existing?.minimumSweepMinutes);
+const minimumSweepMinutes = canResume && Number.isFinite(existingMinimumSweepMinutes)
+  ? Math.max(1 / 60_000, existingMinimumSweepMinutes)
+  : requestedMinimumSweepMinutes;
 const stdoutPath = canResume
   ? existing.stdoutPath
   : path.join(runDir, `${runId}.stdout.log`);
@@ -47,7 +62,8 @@ const stderrPath = canResume
 const args = [
   path.join("scripts", "run-long-cycle.mjs"),
   `--minutes=${durationMinutes}`,
-  `--checkpoint-minutes=${checkpointMinutes}`
+  `--checkpoint-minutes=${checkpointMinutes}`,
+  `--minimum-sweep-minutes=${minimumSweepMinutes}`
 ];
 
 const stdoutFd = openSync(stdoutPath, "a");
@@ -78,6 +94,7 @@ const active = {
   startedAt,
   deadlineAt,
   durationMinutes,
+  minimumSweepMinutes,
   launchedAt: new Date().toISOString(),
   lastHeartbeatAt: new Date().toISOString(),
   command: [process.execPath, ...args].join(" "),
