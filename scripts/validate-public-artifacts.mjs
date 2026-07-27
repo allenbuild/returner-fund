@@ -12,6 +12,11 @@ export const EXPECTED_SCORING_MODEL = Object.freeze({
   version: "4.0.1",
   name: "returner-traction-v4-monotonic"
 });
+export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0"]);
+const SUPPORTED_HISTORY_MODEL_VERSIONS = new Set([
+  EXPECTED_SCORING_MODEL.version,
+  ...HISTORICAL_SCORING_MODEL_VERSIONS
+]);
 
 export const GRAPH_ARTIFACTS = Object.freeze([
   graphArtifact("S2026", "s2026.json"),
@@ -511,12 +516,16 @@ export function collectHistoryArtifactViolations(
 
       const hasVersion = hasOwn(entry, "scoringModelVersion");
       const hasInputTime = hasOwn(entry, "inputGeneratedAt");
-      const isCanonicalV4 =
+      const isCurrentCanonical =
         hasVersion &&
         hasInputTime &&
         entry.scoringModelVersion === EXPECTED_SCORING_MODEL.version;
+      const isSupportedVersioned =
+        hasVersion &&
+        hasInputTime &&
+        SUPPORTED_HISTORY_MODEL_VERSIONS.has(entry.scoringModelVersion);
       validateHistoryCompanies(entry.companies, scope, violations, {
-        strictTieRanks: isCanonicalV4
+        strictTieRanks: isSupportedVersioned
       });
       if (hasVersion !== hasInputTime) {
         violations.push(
@@ -526,9 +535,9 @@ export function collectHistoryArtifactViolations(
       }
       if (!hasVersion) continue;
 
-      if (entry.scoringModelVersion !== EXPECTED_SCORING_MODEL.version) {
+      if (!SUPPORTED_HISTORY_MODEL_VERSIONS.has(entry.scoringModelVersion)) {
         violations.push(
-          `${scope}.scoringModelVersion must be ${EXPECTED_SCORING_MODEL.version}, received ${formatValue(entry.scoringModelVersion)}`
+          `${scope}.scoringModelVersion must be ${EXPECTED_SCORING_MODEL.version} or a supported historical version, received ${formatValue(entry.scoringModelVersion)}`
         );
         continue;
       }
@@ -542,6 +551,10 @@ export function collectHistoryArtifactViolations(
       }
       if (recordedAtTime !== null && inputGeneratedAtTime > recordedAtTime) {
         violations.push(`${scope}.inputGeneratedAt must not be later than recordedAt`);
+      }
+
+      if (!isCurrentCanonical) {
+        continue;
       }
 
       if (recordedAtTime !== null) {

@@ -15,19 +15,26 @@ const priorMigrationSql = fs
   .map((fileName) => fs.readFileSync(path.join(migrationsDirectory, fileName), "utf8"))
   .join("\n");
 const normalizedSql = migrationSql.replace(/\s+/g, " ").trim().toLowerCase();
+const legacyV4Config = {
+  ...TRACTION_SCORING_CONFIG,
+  version: "4.0.0",
+  name: "returner-traction-v4-canonical",
+  absoluteEvidenceWeight: 0.85,
+  cohortPercentileWeight: 0.15
+};
 
 describe("traction scoring v4 model registration migration", () => {
-  it("embeds the exact canonical identity, config, and SHA-256", () => {
+  it("keeps the immutable 4.0.0 identity, config, and SHA-256", () => {
     const embeddedConfig = extractEmbeddedConfig(migrationSql);
     const embeddedHash = extractTextConstant(migrationSql, "v4_config_hash");
 
     expect(extractTextConstant(migrationSql, "v4_model_key")).toBe(
-      TRACTION_SCORING_CONFIG.modelId
+      legacyV4Config.modelId
     );
     expect(extractTextConstant(migrationSql, "v4_version")).toBe(
-      TRACTION_SCORING_CONFIG.version
+      legacyV4Config.version
     );
-    expect(embeddedConfig).toEqual(TRACTION_SCORING_CONFIG);
+    expect(embeddedConfig).toEqual(legacyV4Config);
     expect(embeddedHash).toMatch(/^[0-9a-f]{64}$/);
     expect(embeddedHash).toBe(sha256(canonicalJson(embeddedConfig)));
   });

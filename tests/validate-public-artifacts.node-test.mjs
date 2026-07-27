@@ -58,7 +58,7 @@ test("rejects wrong batch, audience, scoring scope, v4 identity, and incomplete 
   assert.match(violations, /mode must be official_snapshot/);
   assert.match(violations, /batch\.slug must be S2026/);
   assert.match(violations, /selectedTopVoiceAudience\.id must be off/);
-  assert.match(violations, /scoringContext\.modelVersion must be 4\.0\.0/);
+  assert.match(violations, /scoringContext\.modelVersion must be 4\.0\.1/);
   assert.match(violations, /scoringContext\.scoreScope must be all_platforms/);
   assert.match(violations, /scoreBreakdown\.confidence must be an object/);
 });
@@ -357,20 +357,28 @@ test("allows legacy history rows but requires valid v4 daily and weekly entries"
     rank: 2
   });
   history.daily.unshift(legacy);
+  const historicalV4 = structuredClone(history.daily[1]);
+  historicalV4.recordedAt = "2026-07-02T12:00:00.000Z";
+  historicalV4.inputGeneratedAt = "2026-07-02T11:59:00.000Z";
+  historicalV4.scoringModelVersion = "4.0.0";
+  history.daily.splice(1, 0, historicalV4);
 
   assert.deepEqual(collectHistoryArtifactViolations(history, descriptor).violations, []);
 
-  delete history.daily[1].scoringModelVersion;
-  delete history.daily[1].inputGeneratedAt;
+  delete history.daily[2].scoringModelVersion;
+  delete history.daily[2].inputGeneratedAt;
   history.weekly[0].scoringModelVersion = "3.0.0";
   const result = collectHistoryArtifactViolations(history, descriptor);
   const violations = result.violations.join("\n");
 
   assert.equal(result.versionedDailyEntries, 0);
   assert.equal(result.versionedWeeklyEntries, 0);
-  assert.match(violations, /daily must contain a returner-traction@4\.0\.0 version-tagged entry/);
-  assert.match(violations, /weekly\[0\]\.scoringModelVersion must be 4\.0\.0/);
-  assert.match(violations, /weekly must contain a returner-traction@4\.0\.0 version-tagged entry/);
+  assert.match(violations, /daily must contain a returner-traction@4\.0\.1 version-tagged entry/);
+  assert.match(
+    violations,
+    /weekly\[0\]\.scoringModelVersion must be 4\.0\.1 or a supported historical version/
+  );
+  assert.match(violations, /weekly must contain a returner-traction@4\.0\.1 version-tagged entry/);
 });
 
 test("rejects future history, non-tied canonical ranks, and stale Central-day entries", () => {
