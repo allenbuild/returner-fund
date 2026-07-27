@@ -112,6 +112,10 @@ test("autonomous runner receives optional durability secrets and owns validated 
   assert.match(runnerStep, /timeout-minutes:\s*330/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
+  assert.match(runnerStep, /GITHUB_TOKEN:\s*\$\{\{ github\.token \}\}/);
+  assert.match(runnerStep, /X_BEARER_TOKEN:\s*\$\{\{ secrets\.X_BEARER_TOKEN \}\}/);
+  assert.match(runnerStep, /EXA_API_KEY:\s*\$\{\{ secrets\.EXA_API_KEY \}\}/);
+  assert.doesNotMatch(runnerStep, /REDDIT_(?:CLIENT_ID|CLIENT_SECRET|USER_AGENT)/);
   assert.doesNotMatch(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\?/);
   assert.doesNotMatch(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\?/);
   assert.match(runnerStep, /node scripts\/run-autonomous-ingestion\.mjs/);

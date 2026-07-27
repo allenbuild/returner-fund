@@ -2064,6 +2064,12 @@ async function ingestReddit(company) {
   const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(`${company.name} ${currentBatchContext.organization}`)}&limit=5&raw_json=1`;
   try {
     const response = await fetchPublic(url, { accept: "application/json" });
+    if (!response.ok) {
+      const accessMessage = [401, 403, 429].includes(response.status)
+        ? "Reddit public access blocked"
+        : "Reddit public search JSON failed";
+      throw new Error(`${accessMessage}: HTTP ${response.status}.`);
+    }
     const data = await response.json();
     const posts = (data.data?.children ?? [])
       .map((child) => child.data)

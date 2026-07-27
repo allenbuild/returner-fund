@@ -128,8 +128,8 @@ export const PLATFORM_REGISTRY = [
     sourceRole: "native_traction",
     appliesTo: BOTH_ENTITY_TYPES,
     accountModel: "community_identity",
-    auth: noAuth("Public Reddit pages only."),
-    collector: collector("available", ["standalone_script"], true, true, true, "The broad public script implements Reddit collection.")
+    auth: noAuth("Public Reddit search JSON only; a reader page diagnoses access blocks but is not a collection fallback."),
+    collector: collector("available", ["standalone_script"], true, true, true, "The broad public script implements unauthenticated Reddit JSON collection and reports blocked access explicitly.")
   }),
   platform({
     platform: "hacker_news",

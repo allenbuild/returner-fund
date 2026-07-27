@@ -106,9 +106,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
-          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-          REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
           INGESTION_IDEMPOTENCY_KEY: ${{ needs.resolve.outputs.slot_key }}
           INGESTION_PUBLICATION_BRANCH: main
         run: node scripts/run-autonomous-ingestion.mjs --idempotency-key="$INGESTION_IDEMPOTENCY_KEY"

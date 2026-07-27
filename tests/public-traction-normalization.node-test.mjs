@@ -620,6 +620,60 @@ test("generic Hacker News company lanes emit exact terminal owner receipts", asy
   assert.equal(receipt.outcomeReason, "collector_checked_blocked_or_empty");
 });
 
+test("Reddit access errors with JSON bodies are explicit blocked outcomes rather than empty searches", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-reddit-blocked-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+globalThis.fetch = async (url) => {
+  if (String(url).startsWith("https://www.reddit.com/search.json")) {
+    return Response.json({ message: "Forbidden" }, { status: 403 });
+  }
+  if (String(url).startsWith("https://r.jina.ai/http")) {
+    return new Response("Title: Reddit Search", { status: 200 });
+  }
+  throw new Error("unexpected request");
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=reddit",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const receipt = snapshot.attempts["reddit:eden-robotics"];
+  assert.equal(receipt.outcomeStatus, "blocked_or_empty");
+  assert.equal(receipt.outcomeReason, "collector_checked_blocked_or_empty");
+  assert.equal(snapshot.evidence.length, 0);
+  assert.ok(snapshot.failures.some(
+    (failure) =>
+      failure.platform === "reddit" &&
+      failure.message === "Reddit public access blocked: HTTP 403."
+  ));
+});
+
 test("platform cooldown skips still write exact terminal receipts for every skipped task", async () => {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-cooldown-receipt-"));
   const output = join(directory, "public-evidence.json");
