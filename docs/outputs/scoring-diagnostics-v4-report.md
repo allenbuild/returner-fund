@@ -3,10 +3,10 @@
 - Frozen clock: `2026-07-17T12:00:00.000Z`
 - Production model: `returner-traction-v4-monotonic` (`returner-traction` v4.0.1)
 - Git SHA: excluded from deterministic artifacts; the runtime command logs the executing revision.
-- Input envelope SHA-256: `ac034cbf813957f43700eba8fdc10e4bad318a2804c8291efcf74c0474a70e64`
+- Input envelope SHA-256: `7709bb40c894596f00590f2be846a15d4fbac54ffbd8f798c36d355a587e027a`
 - Effective versioned scoring-input SHA-256: `48f74ffd609665f3646c074fd5e2b0e96b034bf7efe27fa1222b1e302cb62ae5`
 - Canonical config: 83 leaf parameters across scoring, calibration, and confidence; 8 role-labeled runtime source files.
-- Audit JSON SHA-256: `78b511d80eee42475547bc42ca13cce6dba9fcc6546e5c81631f4fb20084a530`
+- Audit JSON SHA-256: `4b51979a7dab9a53f0cd770d20fc5c62b30fee745c3ce2bf76aaad8e1545db72`
 - Command: `npm run scoring:audit:v4`
 - Direct command: `node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs`
 - Safety: local snapshots only; `fetch` disabled; no API calls, benchmark writes, source edits, or user-data mutation.
@@ -141,7 +141,7 @@ No score or rank changes.
 | --- | --- | --- |
 | versioned_runtime_parameter_hashes_complete | yes | {"category_hash_mismatch_count":0,"parameter_count":83,"parameter_mismatch_count":0} |
 | versioned_source_hashes_complete | yes | {"source_file_count":8,"source_mismatch_count":0} |
-| input_envelope_hash_consistent | yes | "ac034cbf813957f43700eba8fdc10e4bad318a2804c8291efcf74c0474a70e64" |
+| input_envelope_hash_consistent | yes | "7709bb40c894596f00590f2be846a15d4fbac54ffbd8f798c36d355a587e027a" |
 | required_cohort_coverage | yes | ["A16ZSR006","S2026","S26"] |
 | company_rankings_complete_unique_ordered_and_bounded | yes | 0 |
 | cleanup_row_accounting_exact | yes | 0 |
