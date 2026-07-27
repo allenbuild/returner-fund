@@ -1285,5 +1285,292 @@
         "postedAt": "2026-06-24T22:40:57Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-26-1800",
+    "centralDay": "2026-07-26",
+    "observedAt": "2026-07-27T08:00:13.660Z",
+    "baselinePhysicalSources": 7505,
+    "publishedPhysicalSources": 7573,
+    "newPhysicalSources": 69,
+    "newPhysicalSourcesThisAttempt": 69,
+    "retainedPhysicalSources": 7504,
+    "removedPhysicalSources": 1,
+    "dailyNewPhysicalSources": 83,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_success_rate_below_10_percent:0.0428"
+    ],
+    "mappedExpected": 1844,
+    "mappedSucceeded": 79,
+    "mappedNeedsReview": 56,
+    "mappedBlockedOrEmpty": 1709,
+    "mappedFailures": 0,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0428,
+    "newestNewSourcePostedAt": "2026-07-26T21:03:29Z",
+    "insertedByBatchPlatform": {
+      "S2026:github": 65,
+      "S2026:youtube": 1,
+      "S26:github": 3
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S2026",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-useparrot",
+        "sourceUrl": "https://youtube.com/watch?v=HgYZo0yF3mo",
+        "platformPostId": "HgYZo0yF3mo",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-interfaze",
+        "sourceUrl": "https://github.com/InterfazeAI/diffusion-gemma-asr",
+        "platformPostId": "InterfazeAI/diffusion-gemma-asr",
+        "platformObjectId": "1285223822",
+        "postedAt": "2026-06-30T15:40:45Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/ai-video-search-engine",
+        "platformPostId": "yoeven/ai-video-search-engine",
+        "platformObjectId": "723397986",
+        "postedAt": "2023-11-25T14:42:50Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/Mounter-Drive",
+        "platformPostId": "yoeven/Mounter-Drive",
+        "platformObjectId": "128036545",
+        "postedAt": "2018-04-04T09:03:38Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/next-image-processing-api",
+        "platformPostId": "yoeven/next-image-processing-api",
+        "platformObjectId": "780456483",
+        "postedAt": "2024-04-01T14:20:51Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/Low_Poly_Procedural_Trees_and_Vegetations_Project",
+        "platformPostId": "yoeven/Low_Poly_Procedural_Trees_and_Vegetations_Project",
+        "platformObjectId": "119700748",
+        "postedAt": "2018-01-31T14:51:58Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/0cache",
+        "platformPostId": "yoeven/0cache",
+        "platformObjectId": "935483317",
+        "postedAt": "2025-02-19T14:17:21Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/UnitySaveDataManager",
+        "platformPostId": "yoeven/UnitySaveDataManager",
+        "platformObjectId": "147330834",
+        "postedAt": "2018-09-04T10:45:46Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/url-query-json-parser",
+        "platformPostId": "yoeven/url-query-json-parser",
+        "platformObjectId": "479955780",
+        "postedAt": "2022-04-10T08:22:09Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/react-native-multiselect-sortable-flatlist-2",
+        "platformPostId": "yoeven/react-native-multiselect-sortable-flatlist-2",
+        "platformObjectId": "239714477",
+        "postedAt": "2020-02-11T08:41:53Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/mintlify-docs",
+        "platformPostId": "yoeven/mintlify-docs",
+        "platformObjectId": "761619117",
+        "postedAt": "2024-02-22T07:01:53Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/SimpleGesture",
+        "platformPostId": "yoeven/SimpleGesture",
+        "platformObjectId": "135731826",
+        "postedAt": "2018-06-01T15:05:07Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/react-native-multiselect-sortable-flatlist",
+        "platformPostId": "yoeven/react-native-multiselect-sortable-flatlist",
+        "platformObjectId": "225030502",
+        "postedAt": "2019-11-30T15:17:45Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/job-finder",
+        "platformPostId": "yoeven/job-finder",
+        "platformObjectId": "1143133401",
+        "postedAt": "2026-01-27T07:56:58Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/911",
+        "platformPostId": "yoeven/911",
+        "platformObjectId": "973372297",
+        "postedAt": "2025-04-26T21:02:22Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/country-state-city",
+        "platformPostId": "yoeven/country-state-city",
+        "platformObjectId": "927200499",
+        "postedAt": "2025-02-04T15:15:29Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/Browserless",
+        "platformPostId": "yoeven/Browserless",
+        "platformObjectId": "748953810",
+        "postedAt": "2024-01-27T06:18:02Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/jigsawstack-ai-scrape-demo",
+        "platformPostId": "yoeven/jigsawstack-ai-scrape-demo",
+        "platformObjectId": "738362273",
+        "postedAt": "2024-01-03T03:50:34Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/docs",
+        "platformPostId": "yoeven/docs",
+        "platformObjectId": "658193330",
+        "postedAt": "2023-06-25T03:59:52Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/metabase",
+        "platformPostId": "yoeven/metabase",
+        "platformObjectId": "549701554",
+        "postedAt": "2022-10-11T15:44:13Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/react-native-modular-datetime-picker",
+        "platformPostId": "yoeven/react-native-modular-datetime-picker",
+        "platformObjectId": "329905717",
+        "postedAt": "2021-01-15T12:27:30Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-yoeven-d-khemlani-1618136",
+        "sourceUrl": "https://github.com/yoeven/react-native-expo-image-caching",
+        "platformPostId": "yoeven/react-native-expo-image-caching",
+        "platformObjectId": "334150320",
+        "postedAt": "2021-01-29T13:14:25Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-harsha-vardhan-khurdula-2229538",
+        "sourceUrl": "https://github.com/Khurdhula-Harshavardhan/llm-cpp-inference",
+        "platformPostId": "Khurdhula-Harshavardhan/llm-cpp-inference",
+        "platformObjectId": "872158347",
+        "postedAt": "2024-10-13T23:29:35Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-harsha-vardhan-khurdula-2229538",
+        "sourceUrl": "https://github.com/Khurdhula-Harshavardhan/E-FIR",
+        "platformPostId": "Khurdhula-Harshavardhan/E-FIR",
+        "platformObjectId": "237140870",
+        "postedAt": "2020-01-30T04:47:30Z"
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "founder",
+        "entityId": "founder-interfaze-harsha-vardhan-khurdula-2229538",
+        "sourceUrl": "https://github.com/Khurdhula-Harshavardhan/GiveItToUs",
+        "platformPostId": "Khurdhula-Harshavardhan/GiveItToUs",
+        "platformObjectId": "600564791",
+        "postedAt": "2023-02-11T21:57:44Z"
+      }
+    ]
   }
 ]
