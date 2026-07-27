@@ -12,8 +12,12 @@ export function summarizeIngestionSourceDelta({
   collectionCoverage = null,
   credentialGaps = []
 }) {
-  const before = physicalSourceIndex(beforeSnapshots);
-  const after = physicalSourceIndex(afterSnapshots);
+  const githubObjectAliases = githubObjectIdentityAliases([
+    ...beforeSnapshots,
+    ...afterSnapshots
+  ]);
+  const before = physicalSourceIndex(beforeSnapshots, githubObjectAliases);
+  const after = physicalSourceIndex(afterSnapshots, githubObjectAliases);
   const insertedRows = [...after]
     .filter(([key]) => !before.has(key))
     .map(([, row]) => row);
@@ -111,7 +115,7 @@ export function mergeIngestionSourceDeltaHistory(previousHistory, receipt) {
     .slice(-MAX_HISTORY_RECEIPTS);
 }
 
-export function physicalSourceKey(row) {
+export function physicalSourceKey(row, githubObjectAliases = null) {
   const platform = normalizePlatform(row?.platform);
   if (!platform) return null;
   const platformObjectId = String(
@@ -125,18 +129,70 @@ export function physicalSourceKey(row) {
   const normalizedIdentity = ["youtube", "instagram"].includes(platform)
     ? String(identity).trim()
     : String(identity).trim().toLowerCase();
-  return `${platform}:${normalizedIdentity}`;
+  const fallbackKey = `${platform}:${normalizedIdentity}`;
+  if (platform === "github") {
+    return githubObjectAliases?.get(fallbackKey) ?? fallbackKey;
+  }
+  return fallbackKey;
 }
 
-function physicalSourceIndex(snapshots) {
+function physicalSourceIndex(snapshots, githubObjectAliases) {
   const index = new Map();
   for (const snapshot of snapshots ?? []) {
     for (const row of snapshot?.evidence ?? []) {
-      const key = physicalSourceKey(row);
+      const key = physicalSourceKey(row, githubObjectAliases);
       if (key) index.set(key, row);
     }
   }
   return index;
+}
+
+function githubObjectIdentityAliases(snapshots) {
+  const aliases = new Map();
+  const ambiguousAliases = new Set();
+  for (const snapshot of snapshots ?? []) {
+    for (const row of snapshot?.evidence ?? []) {
+      if (normalizePlatform(row?.platform) !== "github") continue;
+      const platformObjectId = String(
+        row?.platformObjectId ?? row?.platform_object_id ?? ""
+      ).trim();
+      if (!/^\d+$/.test(platformObjectId)) continue;
+      const objectKey = `github:object:${platformObjectId}`;
+      for (const alias of githubFallbackIdentityKeys(row)) {
+        if (ambiguousAliases.has(alias)) continue;
+        const previous = aliases.get(alias);
+        if (previous && previous !== objectKey) {
+          aliases.delete(alias);
+          ambiguousAliases.add(alias);
+        } else {
+          aliases.set(alias, objectKey);
+        }
+      }
+    }
+  }
+  return aliases;
+}
+
+function githubFallbackIdentityKeys(row) {
+  const candidates = [
+    row,
+    {
+      ...row,
+      platformPostId: null,
+      platform_post_id: null,
+      platformObjectId: null,
+      platform_object_id: null
+    }
+  ];
+  return new Set(
+    candidates
+      .map((candidate) => {
+        const identity = physicalPostIdentity(candidate).value;
+        if (!identity || identity === "row:unknown") return null;
+        return `github:${String(identity).trim().toLowerCase()}`;
+      })
+      .filter(Boolean)
+  );
 }
 
 function sourceSample(row) {

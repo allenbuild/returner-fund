@@ -251,3 +251,61 @@ test("uses stable GitHub repository IDs across owner and repository renames", ()
   assert.equal(receipt.retainedPhysicalSources, 1);
   assert.equal(receipt.removedPhysicalSources, 0);
 });
+
+test("collapses an ID-less promoted GitHub row into its existing raw repository", () => {
+  const rawRepository = {
+    batchSlug: "S2026",
+    platform: "github",
+    entityType: "company",
+    entityId: "company-interfaze",
+    sourceUrl: "https://github.com/InterfazeAI/deep-research",
+    platformPostId: "InterfazeAI/deep-research",
+    platformObjectId: "1035391429",
+    postedAt: "2026-07-21T10:00:00Z"
+  };
+  const promotedEvidence = {
+    ...rawRepository,
+    platformObjectId: null
+  };
+
+  const receipt = summarizeIngestionSourceDelta({
+    idempotencyKey: "central-2026-07-26-1800",
+    beforeSnapshots: [{ evidence: [rawRepository] }],
+    afterSnapshots: [{ evidence: [rawRepository, promotedEvidence] }]
+  });
+
+  assert.equal(receipt.baselinePhysicalSources, 1);
+  assert.equal(receipt.publishedPhysicalSources, 1);
+  assert.equal(receipt.newPhysicalSources, 0);
+  assert.equal(receipt.retainedPhysicalSources, 1);
+  assert.equal(receipt.removedPhysicalSources, 0);
+});
+
+test("discovers GitHub object aliases from either side of the publication diff", () => {
+  const idlessEvidence = {
+    batchSlug: "S2026",
+    platform: "github",
+    entityType: "company",
+    entityId: "company-interfaze",
+    sourceUrl: "https://github.com/InterfazeAI/deep-research",
+    platformPostId: null,
+    postedAt: "2026-07-21T10:00:00Z"
+  };
+  const rawRepository = {
+    ...idlessEvidence,
+    platformPostId: "InterfazeAI/deep-research",
+    platformObjectId: "1035391429"
+  };
+
+  const receipt = summarizeIngestionSourceDelta({
+    idempotencyKey: "central-2026-07-26-1800",
+    beforeSnapshots: [{ evidence: [idlessEvidence] }],
+    afterSnapshots: [{ evidence: [rawRepository] }]
+  });
+
+  assert.equal(receipt.baselinePhysicalSources, 1);
+  assert.equal(receipt.publishedPhysicalSources, 1);
+  assert.equal(receipt.newPhysicalSources, 0);
+  assert.equal(receipt.retainedPhysicalSources, 1);
+  assert.equal(receipt.removedPhysicalSources, 0);
+});
