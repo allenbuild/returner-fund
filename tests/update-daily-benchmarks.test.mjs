@@ -150,7 +150,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.0\.0/i);
+    ).toThrow(/returner-traction@4\.0\.1/i);
 
     const consistentlyLegacySnapshots = graphSnapshots(generatedAt);
     for (const snapshot of consistentlyLegacySnapshots) {
@@ -164,7 +164,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.0\.0/i);
+    ).toThrow(/returner-traction@4\.0\.1/i);
   });
 
   it("rejects audience node state that drifts from the canonical base snapshot", () => {
@@ -258,7 +258,7 @@ describe("daily benchmark updater", () => {
         validationNow: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).rejects.toThrow(/complete returner-traction@4\.0\.0 score breakdown/i);
+    ).rejects.toThrow(/complete returner-traction@4\.0\.1 score breakdown/i);
 
     expect(fs.readFileSync(sentinelPath, "utf8")).toBe("sentinel\n");
     expect(fs.readdirSync(path.dirname(sentinelPath))).toEqual(["s2026.json"]);

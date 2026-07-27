@@ -758,9 +758,9 @@ function replayedLiveEvidence(
   const replayedByCanonicalKey = new Map<string, EvidenceItem>();
   for (const candidate of liveEvidence) {
     const key = canonicalLiveEvidenceKey(candidate, companyIdForEvidence);
-    const signature = effectiveEvidenceSignature(candidate);
+    const signature = replayObservationSignature(candidate);
     const existing = existingByCanonicalKey.get(key)?.find(
-      (item) => effectiveEvidenceSignature(item) === signature
+      (item) => replayObservationSignature(item) === signature
     );
     if (!existing) {
       return null;
@@ -771,27 +771,22 @@ function replayedLiveEvidence(
   return [...replayedByCanonicalKey.values()].sort(compareEvidence);
 }
 
-function effectiveEvidenceSignature(item: EvidenceItem): string {
+/**
+ * Identifies an already-applied native observation without allowing a sparse
+ * replay payload to replace richer canonical presentation metadata.
+ *
+ * Metadata corrections still apply when they arrive with a newer observation
+ * timestamp. Exact same-freshness metric replays are idempotent.
+ */
+function replayObservationSignature(item: EvidenceItem): string {
   return stableSerialize({
     entityType: item.entityType,
     entityId: item.entityId,
     platform: item.platform,
-    sourceUrl: item.sourceUrl,
-    platformPostId: item.platformPostId ?? null,
     postedAt: item.postedAt,
     publishedAtPrecision: item.publishedAtPrecision === "unknown" ? "unknown" : "known",
-    title: item.title ?? null,
-    text: item.text,
-    mediaUrl: item.mediaUrl ?? null,
-    mediaUrls: item.mediaUrls ?? [],
-    thumbnailUrl: item.thumbnailUrl ?? null,
-    thumbnailSource: item.thumbnailSource ?? null,
-    rawVisibleText: item.rawVisibleText ?? null,
     observedAt: item.observedAt ?? null,
     metricsCheckedAt: item.metricsCheckedAt ?? null,
-    linkStatus: item.linkStatus ?? null,
-    linkCheckedAt: item.linkCheckedAt ?? null,
-    linkFailureReason: item.linkFailureReason ?? null,
     metrics: item.metrics,
     firstSeenAt: item.first_seen_at ?? null,
     lastCheckedAt: item.last_checked_at ?? null,

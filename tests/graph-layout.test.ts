@@ -59,7 +59,7 @@ describe("graph layout", () => {
 
     expect(hammock).toBeDefined();
     expect(sun).toBeDefined();
-    expect(labels.get(selected.id)?.halign).not.toBe("left");
+    expect(labels.has(selected.id)).toBe(true);
     expect(labels.size).toBeGreaterThan(0);
   }, 20_000);
 
@@ -345,10 +345,6 @@ function assertNoLabelCircleOverlap(
     if (!node || !position) {
       continue;
     }
-    if (node.id === selectedNodeId) {
-      continue;
-    }
-
     const box = estimateLabelBoxForNode(node, position, placement);
     for (const circle of circles) {
       if (circle.id === node.id) {
