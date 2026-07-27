@@ -146,6 +146,15 @@ describe("autonomous ingestion runner static safety contracts", () => {
       assert.ok(baselineReader.includes(`"${path}"`));
     }
     assert.ok(baselineReader.includes("canonicalGithubContentIdentityRows(snapshot)"));
+    for (const path of [
+      "src/lib/social/logged-in-evidence-current.json",
+      "src/lib/social/a16z-speedrun-006-social-evidence.json"
+    ]) {
+      assert.ok(
+        baselineReader.includes(`"${path}"`),
+        `${path} must prevent an already-published physical source from being recounted when promoted`
+      );
+    }
 
     const initialMerge = runner.indexOf("await mergePublicationInputs(publicationInputs)");
     const initialDelta = runner.indexOf(

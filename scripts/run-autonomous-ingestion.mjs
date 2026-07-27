@@ -897,7 +897,12 @@ async function readCanonicalLoggedInAttributionReconciliationLedger({ baseRef = 
 async function readPublicationEvidenceBaseline({ baseRef = null } = {}) {
   const evidencePaths = [
     "src/lib/social/public-evidence-current.json",
-    "src/lib/social/targeted-evidence-current.json"
+    "src/lib/social/targeted-evidence-current.json",
+    // These immutable, previously verified layers are already visible in the
+    // published graph. Include them in the physical-source baseline so a row
+    // promoted into the public collector does not masquerade as a new source.
+    "src/lib/social/logged-in-evidence-current.json",
+    "src/lib/social/a16z-speedrun-006-social-evidence.json"
   ];
   const githubPaths = [
     "src/lib/social/github-traction.json",
