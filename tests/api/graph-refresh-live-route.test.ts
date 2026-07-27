@@ -1339,8 +1339,8 @@ function withV4SnapshotContract(
       ) ?? scoredEvidence.length;
       const scoreBreakdown: NonNullable<typeof node.scoreBreakdown> = {
         modelId: "returner-traction",
-        modelVersion: "4.0.0",
-        modelName: "returner-traction-v4-canonical",
+        modelVersion: "4.0.1",
+        modelName: "returner-traction-v4-monotonic",
         totalScore: node.score,
         absoluteScore,
         weightedAvailableScore: existing?.weightedAvailableScore ?? absoluteScore,
@@ -1383,8 +1383,8 @@ function withV4SnapshotContract(
     }),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.0.0",
-      modelName: "returner-traction-v4-canonical",
+      modelVersion: "4.0.1",
+      modelName: "returner-traction-v4-monotonic",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt,

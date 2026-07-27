@@ -48,15 +48,6 @@ export function normalizeEvidenceScores<T extends EvidenceItem>(
   const eligibleItems = rows.filter((row) => row.eligibility.eligible).map((row) => row.item);
   const eligiblePhysicalItems = dedupeEvidenceForScoring(eligibleItems);
   const scoringTime = evidenceReferenceTime(eligiblePhysicalItems, options);
-  const samplesByPlatform = new Map<Platform, number[]>();
-
-  for (const item of eligiblePhysicalItems) {
-    const rawEngagement = computeEvidenceRawEngagement(item.platform, item.metrics);
-    if (rawEngagement <= 0) continue;
-    const samples = samplesByPlatform.get(item.platform) ?? [];
-    samples.push(Math.log1p(rawEngagement));
-    samplesByPlatform.set(item.platform, samples);
-  }
 
   return rows.map(({ item, eligibility, rawEngagement }) => {
     if (eligibility.reason === "unsupported_platform" && isVerifiedNativeUnscoredEvidence(item)) {
@@ -87,12 +78,8 @@ export function normalizeEvidenceScores<T extends EvidenceItem>(
     }
 
     const recency = computeEvidenceRecency(item, scoringTime);
-    const logEngagement = Math.log1p(rawEngagement);
     const absoluteScore = absoluteEvidenceScore(item.platform, rawEngagement);
-    const percentileScore = midrankPercentile(samplesByPlatform.get(item.platform) ?? [], logEngagement);
-    const baseScore =
-      absoluteScore * TRACTION_SCORING_CONFIG.absoluteEvidenceWeight +
-      percentileScore * TRACTION_SCORING_CONFIG.cohortPercentileWeight;
+    const baseScore = absoluteScore;
     const recencyMultiplier =
       TRACTION_SCORING_CONFIG.durableSignalWeight +
       TRACTION_SCORING_CONFIG.momentumSignalWeight * recency.value;
@@ -113,7 +100,7 @@ export function normalizeEvidenceScores<T extends EvidenceItem>(
         `${TRACTION_SCORING_CONFIG.name}: raw ${round(rawEngagement, 2)}, absolute ${round(
           absoluteScore,
           1
-        )}, robust percentile ${round(percentileScore, 1)}, ${recencyText}; scored ${normalizedScore}/100.`
+        )}, cohort evidence adjustment disabled for monotonicity, ${recencyText}; scored ${normalizedScore}/100.`
       )
     };
   });
@@ -305,14 +292,6 @@ function aggregatePlatformEvidenceScore(items: EvidenceItem[]): number {
 function absoluteEvidenceScore(platform: Platform, rawEngagement: number): number {
   const reference = TRACTION_SCORING_CONFIG.platformReferences[platform]?.highEngagement ?? 10_000;
   return clamp((Math.log1p(rawEngagement) / Math.log1p(reference)) * 100, 0, 100);
-}
-
-function midrankPercentile(samples: number[], value: number): number {
-  const finite = samples.filter(Number.isFinite).sort((left, right) => left - right);
-  if (!finite.length || !Number.isFinite(value)) return 0;
-  const less = finite.filter((sample) => sample < value).length;
-  const equal = finite.filter((sample) => sample === value).length;
-  return clamp(((less + equal * 0.5) / finite.length) * 100, 0, 100);
 }
 
 function computeEvidenceRecency(item: EvidenceItem, referenceTime: Date): {

@@ -109,7 +109,7 @@ function benchmarkGraph(
     generatedAt: now.toISOString(),
     scoringContext: {
       modelId: "traction-score",
-      modelVersion: "4.0.0",
+      modelVersion: "4.0.1",
       modelName: "Traction score",
       scoreScope: "all_platforms",
       selectedPlatforms: [],

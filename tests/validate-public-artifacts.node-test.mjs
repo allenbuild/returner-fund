@@ -33,7 +33,7 @@ test("validates the complete nine-graph and three-history manifest without a ser
 
   assert.deepEqual(result, {
     status: "ok",
-    scoringModel: "returner-traction@4.0.0",
+    scoringModel: "returner-traction@4.0.1",
     graphSnapshots: 9,
     historyFiles: 3,
     graphNodes: 9,

@@ -1,6 +1,6 @@
 export const STATIC_GRAPH_SCORING_MODEL_ID = "returner-traction";
-export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.0.0";
-export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-canonical";
+export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.0.1";
+export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-monotonic";
 
 const MAX_ISSUES = 100;
 const DEFAULT_MAX_FUTURE_SKEW_MS = 60_000;

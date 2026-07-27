@@ -1,10 +1,19 @@
 # Scoring v4 Implementation Audit
 
+> Historical baseline: this audit records `4.0.0`. Production `4.0.1`
+> (`returner-traction-v4-monotonic`) removes evidence-level cohort midranks,
+> preserves `4.0.0` as rollback, and is documented in
+> [`SCORING_MODEL.md`](SCORING_MODEL.md).
+
 ## Scope and conclusion
 
 This is a documentation-level code conformance audit of the current working-tree scoring implementation. It covers the canonical configuration, graph scorer, entity- and physical-evidence dedupe, shared company calibration, visibility filters, live overlays, diagnostics, runtime types, and migrations 004 and 007. It does not certify predictive accuracy, statistical calibration, fairness, causal validity, or business outcomes.
 
-The graph path identifies itself as `returner-traction` version `4.0.0`. The formula is deterministic for a fixed ordered input. Each batch graph preserves one calibrated all-platform company score and canonical rank; platform and Top Voice controls change visibility and evidence presentation without creating alternate score scopes.
+The graph path audited here identified itself as `returner-traction` version
+`4.0.0`. The current graph path identifies as `4.0.1`. Each batch graph
+preserves one calibrated all-platform company score and canonical rank;
+platform and Top Voice controls change visibility and evidence presentation
+without creating alternate score scopes.
 
 Canonical sources reviewed:
 

@@ -48,8 +48,9 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             This is a historical-score interpreter for {baseline.modelId} v{baseline.modelVersion}, not the intended
             learned V5 formula. V4 starts with verified native evidence whose configured visible metrics are normalized
             to canonical aliases. It multiplies each raw count by the table value, applies a platform-specific
-            logarithmic reference, and blends {baseline.evidenceBlend.absolutePercent}% absolute signal with {" "}
-            {baseline.evidenceBlend.platformMidrankPercent}% within-platform midrank.
+            logarithmic reference. The current monotonic patch uses {baseline.evidenceBlend.absolutePercent}%
+            reference-anchored absolute signal and {baseline.evidenceBlend.platformMidrankPercent}% evidence-level
+            cohort midrank, so changing one row cannot lower an unchanged same-platform peer.
           </p>
           <p>
             Evidence then blends {baseline.recencyBlend.durablePercent}% durable signal with {" "}

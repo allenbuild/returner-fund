@@ -482,6 +482,40 @@ describe("traction scoring v4 invariants", () => {
     }
   );
 
+  it("keeps Robocurve peer and company scores monotone when a tied GitHub row improves", () => {
+    const peer = evidence(
+      "github-sol-ultra-s26-company-robocurve-robocurve-robocurve-inspect-robots-yam",
+      "github",
+      { stars: 1, forks: 2 },
+      { entityId: "company-robocurve", postedAt: FIXED_TIME }
+    );
+    const target = evidence(
+      "github-sol-ultra-s26-company-robocurve-robocurve-robocurve-kitchenbench",
+      "github",
+      { stars: 1, forks: 1 },
+      { entityId: "company-robocurve", postedAt: FIXED_TIME }
+    );
+    const increasedTarget = { ...target, metrics: { stars: 1, forks: 2 } };
+    const beforeRows = normalizeEvidenceScores([peer, target], { asOf: FIXED_TIME });
+    const afterRows = normalizeEvidenceScores([peer, increasedTarget], { asOf: FIXED_TIME });
+    const beforePeer = beforeRows.find((item) => item.id === peer.id)!;
+    const afterPeer = afterRows.find((item) => item.id === peer.id)!;
+    const beforeTarget = beforeRows.find((item) => item.id === target.id)!;
+    const afterTarget = afterRows.find((item) => item.id === target.id)!;
+    const beforeAggregate = aggregateBalancedTractionScore(beforeRows);
+    const afterAggregate = aggregateBalancedTractionScore(afterRows);
+
+    expect(beforePeer.rawEngagement).toBe(9.5);
+    expect(beforeTarget.rawEngagement).toBe(5.5);
+    expect(afterTarget.rawEngagement).toBe(9.5);
+    expect(afterPeer.contributionScore).toBe(beforePeer.contributionScore);
+    expect(afterTarget.contributionScore).toBeGreaterThanOrEqual(beforeTarget.contributionScore);
+    expect(afterAggregate.platformScores.github).toBeGreaterThanOrEqual(
+      beforeAggregate.platformScores.github ?? 0
+    );
+    expect(afterAggregate.totalScore).toBeGreaterThanOrEqual(beforeAggregate.totalScore);
+  });
+
   it("bounds the effect of an unrelated same-platform extreme outlier", () => {
     const existing = [
       evidence("outlier-low", "x", { views: 1_000, likes: 10 }),

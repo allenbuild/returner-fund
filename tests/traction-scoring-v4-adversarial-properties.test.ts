@@ -92,6 +92,11 @@ describe("canonical v4 adversarial generated properties", () => {
 
           expect(after.rawEngagement, context).toBeGreaterThan(before.rawEngagement ?? 0);
           expect(after.contributionScore, context).toBeGreaterThanOrEqual(before.contributionScore);
+          for (const peer of peers) {
+            expect(requiredEvidence(afterRows, peer.id).contributionScore, context).toBe(
+              requiredEvidence(beforeRows, peer.id).contributionScore
+            );
+          }
           expect(aggregateBalancedTractionScore(afterRows).totalScore, context).toBeGreaterThanOrEqual(
             aggregateBalancedTractionScore(beforeRows).totalScore
           );

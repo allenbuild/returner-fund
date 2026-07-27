@@ -139,7 +139,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.0.0" });
+    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.0.1" });
 
     snapshots[8].graph.scoringContext.modelVersion = "5.0.0";
     snapshots[8].graph.nodes.forEach((node) => {
@@ -320,7 +320,7 @@ describe("daily benchmark updater", () => {
       expect(history.daily[0]).toEqual(legacySnapshot);
       expect(history.daily[1]).toMatchObject({
         recordedAt: recordedAt.toISOString(),
-        scoringModelVersion: "4.0.0",
+        scoringModelVersion: "4.0.1",
         inputGeneratedAt: generatedAt.toISOString()
       });
     }
@@ -348,7 +348,7 @@ describe("daily benchmark updater", () => {
 
     expect(next.daily[0]).toEqual(legacy);
     expect(next.daily).toHaveLength(2);
-    expect(next.daily[1].scoringModelVersion).toBe("4.0.0");
+    expect(next.daily[1].scoringModelVersion).toBe("4.0.1");
   });
 
   it("aborts a graph fetch that exceeds its timeout", async () => {
@@ -728,7 +728,7 @@ function writeSkipHistories(rootDir, { recordedAt, staleBatch, staleInputBatch }
       : snapshotRecordedAt;
     const snapshot = {
       recordedAt: snapshotRecordedAt.toISOString(),
-      scoringModelVersion: "4.0.0",
+      scoringModelVersion: "4.0.1",
       inputGeneratedAt: snapshotInputGeneratedAt.toISOString(),
       companies: []
     };
@@ -790,8 +790,8 @@ function graphFor(descriptor, generatedAt) {
     generatedAt: generatedAt.toISOString(),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.0.0",
-      modelName: "returner-traction-v4-canonical",
+      modelVersion: "4.0.1",
+      modelName: "returner-traction-v4-monotonic",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt.toISOString(),
@@ -804,8 +804,8 @@ function graphFor(descriptor, generatedAt) {
 function v4ScoreBreakdown(score) {
   return {
     modelId: "returner-traction",
-    modelVersion: "4.0.0",
-    modelName: "returner-traction-v4-canonical",
+    modelVersion: "4.0.1",
+    modelName: "returner-traction-v4-monotonic",
     totalScore: score,
     absoluteScore: score,
     weightedAvailableScore: score,

@@ -1,8 +1,17 @@
 # Scoring v4 Final Methodology Report
 
+> Historical baseline: this report records the immutable `4.0.0` methodology.
+> Production `4.0.1` replaces evidence-level cohort midranks with a fully
+> reference-anchored monotonic transform. See
+> [`SCORING_MODEL.md`](SCORING_MODEL.md) for the current contract.
+
 ## 1. Decision and evidence boundary
 
-The final production graph methodology in the current working tree is `returner-traction` version `4.0.0`, named `returner-traction-v4-canonical`. Its canonical configuration is [`src/lib/scoring/traction-config.ts`](../src/lib/scoring/traction-config.ts), its evidence and entity scorer is [`src/lib/graph/traction-scoring.ts`](../src/lib/graph/traction-scoring.ts), and its company batch calibration is [`src/lib/scoring/batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts).
+The methodology audited in this historical report is `returner-traction`
+version `4.0.0`, named `returner-traction-v4-canonical`. It remains the
+immutable rollback target. The current configuration and scorer are
+[`src/lib/scoring/traction-config.ts`](../src/lib/scoring/traction-config.ts)
+and [`src/lib/graph/traction-scoring.ts`](../src/lib/graph/traction-scoring.ts).
 
 The decision is to retain the implemented v4 combination:
 

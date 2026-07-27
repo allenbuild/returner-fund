@@ -406,8 +406,8 @@ function buildCohortContext(slug) {
   };
 }
 
-function scoreCohort(context, inputEvidence) {
-  const evidence = normalizeEvidenceScores(inputEvidence.map(cloneEvidence));
+function scoreCohort(context, inputEvidence, options = {}) {
+  const evidence = normalizeEvidenceScores(inputEvidence.map(cloneEvidence), options);
   return scoreNormalizedCohort(context, evidence);
 }
 
@@ -1352,7 +1352,8 @@ function runMonotonicityAudit(context, before) {
     before,
     sampleLimitPerPlatform
   );
-  const sampleBefore = scoreCohort(context, auditEvidence);
+  const auditAsOf = monotonicityAuditReferenceTime(auditEvidence);
+  const sampleBefore = scoreCohort(context, auditEvidence, { asOf: auditAsOf });
   const rawByPlatform = groupBy(auditEvidence, (item) => item.platform);
   const normalizedByKey = new Map(
     sampleBefore.evidence.map((item) => [item.__auditKey, item])
@@ -1397,7 +1398,9 @@ function runMonotonicityAudit(context, before) {
           }
         : cloneEvidence(item)
     );
-    const normalizedPerturbedPlatform = normalizeEvidenceScores(perturbedPlatformRows);
+    const normalizedPerturbedPlatform = normalizeEvidenceScores(perturbedPlatformRows, {
+      asOf: auditAsOf
+    });
     const replacements = new Map(
       normalizedPerturbedPlatform.map((item) => [item.__auditKey, item])
     );
@@ -1477,6 +1480,19 @@ function runMonotonicityAudit(context, before) {
     passed: failures.length === 0,
     failures
   };
+}
+
+function monotonicityAuditReferenceTime(evidence) {
+  const timestamps = evidence.flatMap((item) => [
+    item.observedAt,
+    item.metricsCheckedAt,
+    item.ingestedAt
+  ]);
+  const latest = timestamps.reduce((latestTime, value) => {
+    const parsed = Date.parse(value ?? "");
+    return Number.isFinite(parsed) && parsed > latestTime ? parsed : latestTime;
+  }, 0);
+  return new Date(latest).toISOString();
 }
 
 function stratifiedMonotonicitySample(eligibleRows, before, limitPerPlatform) {

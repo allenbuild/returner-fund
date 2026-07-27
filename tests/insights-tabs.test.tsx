@@ -937,8 +937,8 @@ function graphResponse(): GraphResponse {
     generatedAt: "2026-06-29T00:00:00.000Z",
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.0.0",
-      modelName: "returner-traction-v4-canonical",
+      modelVersion: "4.0.1",
+      modelName: "returner-traction-v4-monotonic",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: "2026-06-29T00:00:00.000Z",

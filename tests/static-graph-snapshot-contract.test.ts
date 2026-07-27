@@ -455,8 +455,8 @@ function validSnapshot() {
   };
   const scoreBreakdown = {
     modelId: "returner-traction",
-    modelVersion: "4.0.0",
-    modelName: "returner-traction-v4-canonical",
+    modelVersion: "4.0.1",
+    modelName: "returner-traction-v4-monotonic",
     totalScore: 64,
     absoluteScore: 64,
     weightedAvailableScore: 64,
@@ -541,8 +541,8 @@ function validSnapshot() {
     generatedAt: "2026-07-16T05:00:00.000Z",
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.0.0",
-      modelName: "returner-traction-v4-canonical",
+      modelVersion: "4.0.1",
+      modelName: "returner-traction-v4-monotonic",
       scoreScope: "all_platforms",
       selectedPlatforms: [] as string[],
       responseBuiltAt: "2026-07-16T05:00:00.000Z",

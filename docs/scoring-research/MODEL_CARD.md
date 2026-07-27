@@ -4,8 +4,9 @@
 
 **Rejected for insufficient data. Experimental artifact only.** This artifact is
 not served as a production score, supports no platform, contains no fitted
-platform model, and has no company aggregation. Production remains the
-immutable `returner-traction@4.0.0` V4 baseline and rollback path.
+platform model, and has no company aggregation. Production remains
+`returner-traction@4.0.1`; immutable `returner-traction@4.0.0` is retained as
+the rollback path.
 
 ## Intended use
 

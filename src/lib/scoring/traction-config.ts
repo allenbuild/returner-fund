@@ -68,8 +68,8 @@ const NORMALIZED_WEIGHT_TOLERANCE = 1e-9;
  */
 export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
   modelId: "returner-traction",
-  version: "4.0.0",
-  name: "returner-traction-v4-canonical",
+  version: "4.0.1",
+  name: "returner-traction-v4-monotonic",
   platformWeights: {
     x: 0.21,
     instagram: 0.21,
@@ -105,8 +105,8 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
     reddit: { highEngagement: 4_000, halfLifeDays: 60 },
     bilibili: { highEngagement: 35_000, halfLifeDays: 150 }
   },
-  absoluteEvidenceWeight: 0.85,
-  cohortPercentileWeight: 0.15,
+  absoluteEvidenceWeight: 1,
+  cohortPercentileWeight: 0,
   durableSignalWeight: 0.75,
   momentumSignalWeight: 0.25,
   missingDateMomentum: 0.45,
@@ -189,6 +189,13 @@ export function validateTractionScoringConfig(config: TractionScoringConfig): vo
     ["absoluteEvidenceWeight", config.absoluteEvidenceWeight],
     ["cohortPercentileWeight", config.cohortPercentileWeight]
   ]);
+  if (config.absoluteEvidenceWeight !== 1 || config.cohortPercentileWeight !== 0) {
+    invalidConfig(
+      "monotonic evidence blend",
+      "must be fully reference-anchored (absoluteEvidenceWeight=1, cohortPercentileWeight=0)",
+      [config.absoluteEvidenceWeight, config.cohortPercentileWeight]
+    );
+  }
   assertNormalizedWeights("signal blend", [
     ["durableSignalWeight", config.durableSignalWeight],
     ["momentumSignalWeight", config.momentumSignalWeight]

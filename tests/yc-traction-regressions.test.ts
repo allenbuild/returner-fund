@@ -774,7 +774,7 @@ describe("YC traction scoring regressions", () => {
       computeEvidenceRawEngagement("x", lowView.metrics) * 20
     );
     expect(scored.find((item) => item.id === "high-x")?.contributionScore).toBeGreaterThanOrEqual(
-      (scored.find((item) => item.id === "low-x")?.contributionScore ?? 0) + 40
+      (scored.find((item) => item.id === "low-x")?.contributionScore ?? 0) + 35
     );
   });
 
@@ -893,7 +893,7 @@ describe("YC traction scoring regressions", () => {
   });
 
   it("uses the recommended long-run scoring config for live graph scoring", () => {
-    expect(TRACTION_SCORING_CONFIG.name).toBe("returner-traction-v4-canonical");
+    expect(TRACTION_SCORING_CONFIG.name).toBe("returner-traction-v4-monotonic");
     expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.15);
     expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.21);
     expect(TRACTION_SCORING_CONFIG.platformWeights.linkedin).toBe(0.15);
@@ -904,8 +904,8 @@ describe("YC traction scoring regressions", () => {
     expect(TRACTION_SCORING_CONFIG.metricWeights.x?.reposts).toBe(6);
     expect(TRACTION_SCORING_CONFIG.metricWeights.linkedin?.comments).toBe(4.5);
     expect(TRACTION_SCORING_CONFIG.metricWeights.github?.recent_commits_30d).toBe(1);
-    expect(TRACTION_SCORING_CONFIG.absoluteEvidenceWeight).toBe(0.85);
-    expect(TRACTION_SCORING_CONFIG.cohortPercentileWeight).toBe(0.15);
+    expect(TRACTION_SCORING_CONFIG.absoluteEvidenceWeight).toBe(1);
+    expect(TRACTION_SCORING_CONFIG.cohortPercentileWeight).toBe(0);
     expect(TRACTION_SCORING_CONFIG.durableSignalWeight).toBe(0.75);
     expect(TRACTION_SCORING_CONFIG.momentumSignalWeight).toBe(0.25);
     expect(computeEvidenceRawEngagement("instagram", { views: 100_000, likes: 100, comments: 10 })).toBe(4155);

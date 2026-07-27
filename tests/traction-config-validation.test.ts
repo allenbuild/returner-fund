@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   TRACTION_SCORING_CONFIG,
@@ -14,7 +16,10 @@ describe("traction scoring config validation", () => {
 
     expect(() => validateTractionScoringConfig(config)).not.toThrow();
     expect(config).toEqual(original);
-    expect(config.version).toBe("4.0.0");
+    expect(config.version).toBe("4.0.1");
+    expect(config.name).toBe("returner-traction-v4-monotonic");
+    expect(config.absoluteEvidenceWeight).toBe(1);
+    expect(config.cohortPercentileWeight).toBe(0);
   });
 
   it("configures X and Instagram with equal platform importance", () => {
@@ -23,6 +28,26 @@ describe("traction scoring config validation", () => {
     expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(
       TRACTION_SCORING_CONFIG.platformWeights.instagram
     );
+  });
+
+  it("registers the exact monotonic config as immutable model version 4.0.1", () => {
+    const migration = readFileSync(
+      "supabase/migrations/013_register_traction_scoring_v4_0_1.sql",
+      "utf8"
+    );
+    const configJson = migration.match(/v4_config constant jsonb := \$config\$([\s\S]*?)\$config\$/i)?.[1];
+    const registeredHash = migration.match(
+      /v4_config_hash constant text := '([a-f0-9]{64})'/i
+    )?.[1];
+
+    expect(configJson).toBeDefined();
+    expect(JSON.parse(configJson!)).toEqual(TRACTION_SCORING_CONFIG);
+    expect(registeredHash).toBe(
+      createHash("sha256")
+        .update(JSON.stringify(sortKeys(TRACTION_SCORING_CONFIG)))
+        .digest("hex")
+    );
+    expect(migration).toContain("The 4.0.0 row from migration 007 remains untouched");
   });
 
   it("accepts normalized totals inside the deterministic tolerance", () => {
@@ -107,6 +132,14 @@ describe("traction scoring config validation", () => {
         config.absoluteEvidenceWeight = 0.84;
       },
       /evidence blend must sum to 1/
+    ],
+    [
+      "a normalized but cohort-dependent evidence blend",
+      (config) => {
+        config.absoluteEvidenceWeight = 0.85;
+        config.cohortPercentileWeight = 0.15;
+      },
+      /monotonic evidence blend must be fully reference-anchored/
     ],
     [
       "a signal blend weight above one",
@@ -232,4 +265,14 @@ function expectInvalidConfig(mutate: ConfigMutation, expectedMessage: RegExp): v
 
 function cloneConfig(): TractionScoringConfig {
   return structuredClone(TRACTION_SCORING_CONFIG);
+}
+
+function sortKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortKeys);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, entry]) => [key, sortKeys(entry)])
+  );
 }

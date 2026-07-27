@@ -14,7 +14,7 @@ import type {
 } from "@/lib/graph/types";
 
 const V4_MODEL_ID = "returner-traction";
-const V4_MODEL_VERSION = "4.0.0";
+const V4_MODEL_VERSION = "4.0.1";
 
 vi.mock("@/components/CytoscapeGraph", () => ({
   CytoscapeGraph: ({
@@ -1852,7 +1852,7 @@ function graphResponse(
     scoringContext: {
       modelId: V4_MODEL_ID,
       modelVersion: V4_MODEL_VERSION,
-      modelName: "returner-traction-v4-canonical",
+      modelName: "returner-traction-v4-monotonic",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: "2026-06-29T00:00:00.000Z",
@@ -1908,7 +1908,7 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
   return {
     modelId: V4_MODEL_ID,
     modelVersion: V4_MODEL_VERSION,
-    modelName: "returner-traction-v4-canonical",
+    modelName: "returner-traction-v4-monotonic",
     totalScore: node.score,
     absoluteScore: node.score,
     weightedAvailableScore: node.score,

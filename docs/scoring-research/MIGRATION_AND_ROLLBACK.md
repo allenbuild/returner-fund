@@ -4,7 +4,9 @@ Status: **no production migration authorized**.
 
 ## Current state
 
-- Production remains `returner-traction@4.0.0`.
+- Production remains on deterministic V4, now
+  `returner-traction@4.0.1` (`returner-traction-v4-monotonic`).
+- `returner-traction@4.0.0` remains the immutable rollback target.
 - Research artifact `traction-post-forecast-v5@5.0.0-research` is immutable,
   rejected for insufficient data, and supports no platform.
 - No database model-version row, backfill, public graph, benchmark history, API
@@ -31,11 +33,13 @@ Status: **no production migration authorized**.
 
 ## Rollback
 
-Rollback selects the preserved V4 implementation and V4-matched static
+Rollback from `4.0.1` selects the preserved `4.0.0` model row and matching
+static artifacts; it never rewrites either version's history. A future V5
+rollback likewise selects preserved V4 implementation and V4-matched static
 artifacts. It does not rewrite V5 artifacts, reinterpret V5 probabilities as V4
-indices, or compare cross-version momentum. If a future V5 artifact is rolled
-back, any score history rendered during the V5 interval must retain its model ID,
-version, evidence cutoff, cohort, and target semantics.
+indices, or compare cross-version momentum. Any score history rendered under a
+different version must retain its model ID, version, evidence cutoff, cohort,
+and target semantics.
 
 ## Public artifact decision in this worktree
 

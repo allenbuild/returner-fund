@@ -5,8 +5,8 @@
 The production graph scoring model is:
 
 - Model ID: `returner-traction`
-- Version: `4.0.0`
-- Name: `returner-traction-v4-canonical`
+- Version: `4.0.1`
+- Name: `returner-traction-v4-monotonic`
 - Canonical configuration: [`src/lib/scoring/traction-config.ts`](../src/lib/scoring/traction-config.ts)
 - Evidence normalizer and entity aggregate: [`src/lib/graph/traction-scoring.ts`](../src/lib/graph/traction-scoring.ts)
 - Shared company batch calibration: [`src/lib/scoring/batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts)
@@ -27,7 +27,7 @@ For each canonical all-platform scoring run, v4 performs these stages:
 1. Resolve account identity and company/founder attribution, retaining profile, fragment, and comment context without scoring it.
 2. Check whether each evidence row is eligible.
 3. Normalize metric aliases and compute weighted raw engagement.
-4. Blend an absolute platform reference with a within-platform evidence midrank.
+4. Normalize each row against its fixed platform reference. Evidence-level cohort rank is disabled.
 5. Apply recency only to the momentum share of the evidence score.
 6. Deduplicate physical evidence and aggregate the strongest five rows into each platform score.
 7. Aggregate platform scores with configured weights normalized over platforms that have eligible evidence.
@@ -169,27 +169,25 @@ Each platform has an absolute raw-engagement reference `H_p`, a recency half-lif
 
 The platform weights sum to `1` across the complete configuration. At runtime the available-platform aggregate divides by the configured weight present in the eligible set, so missing-platform weight does not penalize the entity.
 
-### Absolute and midrank normalization
+### Reference-anchored monotonic normalization
 
 The absolute evidence score is logarithmic and capped:
 
 ```text
 A = clamp(100 * log1p(R_p) / log1p(H_p), 0, 100)
+B = A
 ```
 
-The evidence midrank is computed among eligible, positive rows of the same platform in the current normalization input. Let `less` be the number of platform samples below the row's `log1p(R_p)`, `equal` the number exactly equal to it, and `N` the platform sample count:
-
-```text
-Q = 100 * (less + 0.5 * equal) / N
-```
-
-This is tie-aware. Equal evidence receives equal rank credit. Because `log1p` is monotone, it does not change ordering, but it matches the scale used by the absolute score. A single eligible row receives a midrank of `50`, and the largest unique row in a finite sample is below `100` because the row is included in its own sample.
-
-The base evidence score preserves mostly absolute meaning while adding limited cohort context:
-
-```text
-B = 0.85 * A + 0.15 * Q
-```
+Version `4.0.1` uses `absoluteEvidenceWeight=1` and
+`cohortPercentileWeight=0`. This is deliberate: an evidence row's normalized
+score depends on its own configured metrics, platform reference, publication
+date, and the shared observation cutoff, not on the metrics or rank of another
+row. Increasing a configured positive metric therefore cannot lower an
+unmodified peer row, the owning platform aggregate, or the owning company
+aggregate. Version `4.0.0` used an `85%` absolute / `15%` within-platform
+midrank blend; it remains registered as the immutable rollback target but is no
+longer the production default because rank crossings could lower a same-owner
+peer enough to violate company-level monotonicity.
 
 ### Durable and momentum recency
 
@@ -393,13 +391,13 @@ Focused regression coverage includes `tests/traction-scoring-v4.test.ts`, `tests
 ## Known limitations
 
 - Metric weights, platform references, slot weights, and confidence weights are product heuristics, not fitted or statistically validated parameters.
-- Within-platform midranks and company calibration depend on the current input cohort. Cohort additions can change scores even when a company's raw evidence does not change.
-- Fixed-slot and cross-platform aggregation are monotone for fixed input scores, but evidence normalization can move when the percentile sample or reference timestamp changes.
+- Company calibration still depends on the current positive-company cohort. Cohort additions can change calibrated company scores even when a company's raw evidence does not change.
+- Evidence, fixed-slot, and cross-platform aggregation are monotone for a fixed observation cutoff. Scores can still move when the reference timestamp changes because recency is an explicit input.
 - Public metric availability and semantics differ by platform. Missing, hidden, deleted, private, estimated, botted, or paid engagement is not fully detectable.
 - Native URL validation is syntactic even though host/path grammar is strict. Unchecked or missing link status may score, and no check proves ownership, liveness, or metric freshness.
 - Entity aggregation physically deduplicates and reruns the full scoring-eligibility check, but it does not call `normalizeEvidenceScores`. It treats each surviving positive `contributionScore` as an already-normalized evidence score, so direct callers must normalize first or deliberately supply values with that meaning.
 - Dedupe identity fallbacks can collide for similar account/author/text content. Replacement completeness counts all finite numeric metric fields, including zero, negative, and unweighted fields, and can outrank freshness. Dedupe freshness excludes `postedAt` and `linkCheckedAt`.
-- The normalizer derives both its percentile sample and implicit reference clock from physically deduplicated eligible winners, but emits one output per input row. A losing duplicate can therefore retain a computed score in the returned collection until rollup dedupe, although it cannot independently move the cohort sample or clock.
+- The normalizer derives its implicit reference clock from physically deduplicated eligible winners, but emits one output per input row. A losing duplicate can therefore retain a computed score in the returned collection until rollup dedupe, although it cannot independently move the reference clock.
 - A present malformed or stale `platformPostId` is treated as an identity conflict with a valid native URL rather than ignored, which can quarantine legacy rows until their explicit ID is corrected or removed.
 - The default normalization clock ignores legacy check/update/first-seen fields. With no parseable `observedAt`, `metricsCheckedAt`, or `ingestedAt`, it falls back to the Unix epoch, causing later publication dates to clamp to age zero unless the caller supplies `asOf`.
 - Missing publication dates use the fixed momentum prior `0.45`; this is not an inferred date distribution.

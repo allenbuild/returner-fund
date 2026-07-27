@@ -9,8 +9,8 @@ import {
 
 export const EXPECTED_SCORING_MODEL = Object.freeze({
   id: "returner-traction",
-  version: "4.0.0",
-  name: "returner-traction-v4-canonical"
+  version: "4.0.1",
+  name: "returner-traction-v4-monotonic"
 });
 
 export const GRAPH_ARTIFACTS = Object.freeze([
