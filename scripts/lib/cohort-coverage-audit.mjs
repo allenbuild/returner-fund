@@ -5,6 +5,7 @@ import {
   buildAutonomousTaskPlan,
   loadAutonomousCatalogs
 } from "./autonomous-ingestion-plan.mjs";
+import { canonicalGithubTargetUrl } from "./github-url.mjs";
 
 export const COVERAGE_AUDIT_SCHEMA_VERSION = "cohort-coverage-audit.v1";
 
@@ -297,8 +298,8 @@ export function canonicalAccountUrl(rawPlatform, rawUrl) {
     const parts = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
 
     if (platform === "github" && host === "github.com") {
-      const handle = parts[0]?.toLowerCase() === "orgs" ? parts[1] : parts[0];
-      return handle ? `https://github.com/${handle.toLowerCase().replace(/\.git$/i, "")}` : null;
+      const canonicalUrl = canonicalGithubTargetUrl(rawUrl);
+      return canonicalUrl ? canonicalUrl.toLowerCase() : null;
     }
     if (platform === "x" && ["x.com", "twitter.com"].includes(host)) {
       return parts[0] ? `https://x.com/${parts[0].toLowerCase()}` : null;

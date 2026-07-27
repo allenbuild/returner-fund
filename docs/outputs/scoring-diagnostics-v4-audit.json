@@ -40,12 +40,12 @@
     "input_hashes": {
       "scope": "graph, scoring, social, and YC local input envelope plus profiler runtime files; canonical runtime values and effective scoring/calibration/confidence sources are hashed separately",
       "file_count": 79,
-      "combined_sha256": "7709bb40c894596f00590f2be846a15d4fbac54ffbd8f798c36d355a587e027a",
+      "combined_sha256": "2572c4186a8e244ea87e0135130eda9744ee9e9ecae4a8af5dc4821cee4431bb",
       "files": [
         {
           "path": "package.json",
-          "bytes": 8868,
-          "sha256": "eaadff254c182f103edb4cc48ce2cc2f6726df0ea9ba5933833a96266915d5fa"
+          "bytes": 9037,
+          "sha256": "1d3e4c5d782181d91ae142de32576dd00ae2cfd2c472e9fe241f5d7036921f30"
         },
         {
           "path": "scripts/lib/scoring-diagnostics-ts-loader.mjs",
@@ -277961,8 +277961,8 @@
       {
         "id": "input_envelope_hash_consistent",
         "passed": true,
-        "expected": "7709bb40c894596f00590f2be846a15d4fbac54ffbd8f798c36d355a587e027a",
-        "observed": "7709bb40c894596f00590f2be846a15d4fbac54ffbd8f798c36d355a587e027a"
+        "expected": "2572c4186a8e244ea87e0135130eda9744ee9e9ecae4a8af5dc4821cee4431bb",
+        "observed": "2572c4186a8e244ea87e0135130eda9744ee9e9ecae4a8af5dc4821cee4431bb"
       },
       {
         "id": "required_cohort_coverage",

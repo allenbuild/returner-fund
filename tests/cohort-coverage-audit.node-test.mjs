@@ -20,8 +20,8 @@ describe("cohort-wide structural coverage audit", () => {
     }));
 
     assert.deepEqual(summary, [
-      { batchSlug: "S2026", companies: 197, founders: 397, mappings: 959 },
-      { batchSlug: "S26", companies: 115, founders: 230, mappings: 551 },
+      { batchSlug: "S2026", companies: 197, founders: 397, mappings: 965 },
+      { batchSlug: "S26", companies: 115, founders: 230, mappings: 552 },
       { batchSlug: "A16ZSR006", companies: 59, founders: 128, mappings: 327 }
     ]);
 
@@ -44,7 +44,7 @@ describe("cohort-wide structural coverage audit", () => {
     assert.equal(audit.structuralFailureCount, 0);
     assert.equal(
       audit.batches.reduce((count, batch) => count + batch.counts.plannedOwnerMappings, 0),
-      1_837
+      1_844
     );
     assert.equal(
       audit.batches.reduce((count, batch) => count + batch.debt.multiAccountOwnerMappings.length, 0),
@@ -55,7 +55,7 @@ describe("cohort-wide structural coverage audit", () => {
   it("canonicalizes account identity without collapsing owners", () => {
     assert.equal(
       canonicalAccountUrl("github", "https://github.com/orgs/Example-Co/repo?tab=readme"),
-      "https://github.com/example-co"
+      "https://github.com/example-co/repo"
     );
     assert.equal(
       canonicalAccountUrl("linkedin", "https://www.linkedin.com/company/Example-Co/admin/dashboard/?viewAsMember=true"),
@@ -79,6 +79,34 @@ describe("cohort-wide structural coverage audit", () => {
       }
     });
     assert.equal(mismatchedDeclaration.mappings[0].platform, "x");
+  });
+
+  it("keeps a retired GitHub repository distinct from its verified owner account", () => {
+    const inventory = buildYcOwnerInventory({
+      batchSlug: "TEST",
+      catalog: {
+        companies: [{
+          id: "1",
+          slug: "repo-rename",
+          name: "Repo Rename",
+          socialLinks: { github: "https://github.com/Example-Co/retired-repo" },
+          founders: []
+        }]
+      },
+      overrides: {
+        "repo-rename": {
+          companySocialLinks: { github: "https://github.com/Example-Co" },
+          rejectedGithub: [{
+            url: "https://github.com/Example-Co/retired-repo"
+          }]
+        }
+      }
+    });
+
+    assert.deepEqual(
+      inventory.mappings.map((mapping) => mapping.canonicalUrl),
+      ["https://github.com/example-co"]
+    );
   });
 
   it("passes attempted-but-inactive owners and fails only a missing owner attempt", () => {
