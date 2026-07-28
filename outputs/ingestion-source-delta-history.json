@@ -1887,5 +1887,161 @@
         "postedAt": "2026-07-27T23:29:25Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-28-0600",
+    "centralDay": "2026-07-28",
+    "observedAt": "2026-07-28T14:08:30.117Z",
+    "baselinePhysicalSources": 7597,
+    "publishedPhysicalSources": 7609,
+    "newPhysicalSources": 12,
+    "newPhysicalSourcesThisAttempt": 12,
+    "retainedPhysicalSources": 7597,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 12,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY"
+    ],
+    "mappedExpected": 1844,
+    "mappedSucceeded": 334,
+    "mappedNeedsReview": 1414,
+    "mappedBlockedOrEmpty": 96,
+    "mappedFailures": 0,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.1811,
+    "newestNewSourcePostedAt": "2025-07-22T20:48:52Z",
+    "insertedByBatchPlatform": {
+      "S2026:x": 2,
+      "S26:github": 2,
+      "S26:x": 8
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-foaster-rapha-l-dabadie-3198551",
+        "sourceUrl": "https://x.com/RaphaelDabadie/status/2081018349274750983",
+        "platformPostId": "2081018349274750983",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-superset-avi-peltz-230159",
+        "sourceUrl": "https://x.com/avimakesrobots/status/2027430183935058219",
+        "platformPostId": "2027430183935058219",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-provenmetal-johnny-doyle-3677443",
+        "sourceUrl": "https://x.com/jdoyleirl/status/2069517402740756713",
+        "platformPostId": "2069517402740756713",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-inkbox-ray-liao-778892",
+        "sourceUrl": "https://x.com/rayruizhiliao/status/2074893783133733039",
+        "platformPostId": "2074893783133733039",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-instance-claire-mao-3107325",
+        "sourceUrl": "https://x.com/clairemao78/status/2076780816760438784",
+        "platformPostId": "2076780816760438784",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-prized-hudson-griffith-2447160",
+        "sourceUrl": "https://x.com/hudson_gri/status/2077037211091144873",
+        "platformPostId": "2077037211091144873",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-mireye-ansh-chokshi-793651",
+        "sourceUrl": "https://x.com/ansh_chokshi/status/2079656957779329046",
+        "platformPostId": "2079656957779329046",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-machine0-barnaby-malet-31731",
+        "sourceUrl": "https://x.com/barnabymalet/status/2081852038707544393",
+        "platformPostId": "2081852038707544393",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-lemonlime-daniela-mu-oz-3671976",
+        "sourceUrl": "https://x.com/dani__munoz/status/2081870775217496431",
+        "platformPostId": "2081870775217496431",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-hoplite-ryan-morrissey-2563241",
+        "sourceUrl": "https://x.com/ryan_morr/status/2081997137454456966",
+        "platformPostId": "2081997137454456966",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-osseus",
+        "sourceUrl": "https://github.com/ManufacturedMotion/Hex",
+        "platformPostId": "ManufacturedMotion/Hex",
+        "platformObjectId": "717609585",
+        "postedAt": "2023-11-12T01:43:10Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-osseus",
+        "sourceUrl": "https://github.com/ManufacturedMotion/Hex1",
+        "platformPostId": "ManufacturedMotion/Hex1",
+        "platformObjectId": "1024523353",
+        "postedAt": "2025-07-22T20:48:52Z"
+      }
+    ]
   }
 ]
