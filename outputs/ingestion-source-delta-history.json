@@ -1650,5 +1650,242 @@
         "postedAt": "2026-07-27T08:57:42Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-27-1800",
+    "centralDay": "2026-07-27",
+    "observedAt": "2026-07-28T01:12:43.294Z",
+    "baselinePhysicalSources": 7577,
+    "publishedPhysicalSources": 7597,
+    "newPhysicalSources": 20,
+    "newPhysicalSourcesThisAttempt": 20,
+    "retainedPhysicalSources": 7577,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 24,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY"
+    ],
+    "mappedExpected": 1844,
+    "mappedSucceeded": 300,
+    "mappedNeedsReview": 1418,
+    "mappedBlockedOrEmpty": 126,
+    "mappedFailures": 0,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.1627,
+    "newestNewSourcePostedAt": "2026-07-27T23:29:25Z",
+    "insertedByBatchPlatform": {
+      "S2026:github": 1,
+      "S26:hacker_news": 1,
+      "S26:x": 16,
+      "S26:youtube": 2
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-shepherd-3",
+        "sourceUrl": "https://youtube.com/watch?v=OWDoNTDA_2k",
+        "platformPostId": "OWDoNTDA_2k",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "hacker_news",
+        "entityType": "company",
+        "entityId": "company-rise-reforming",
+        "sourceUrl": "https://news.ycombinator.com/item?id=49074817",
+        "platformPostId": "49074817",
+        "platformObjectId": null,
+        "postedAt": "2026-07-27T19:58:22Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "youtube",
+        "entityType": "company",
+        "entityId": "company-hardware-intelligence",
+        "sourceUrl": "https://youtube.com/watch?v=5nXvicwWONQ",
+        "platformPostId": "5nXvicwWONQ",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-shepherd-3-philip-meng-2723488",
+        "sourceUrl": "https://x.com/philipxmeng/status/2069203854709969125",
+        "platformPostId": "2069203854709969125",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-opentrade-ojas-kandhare-2384611",
+        "sourceUrl": "https://x.com/ojaskandy/status/2074203926031995001",
+        "platformPostId": "2074203926031995001",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-os3-rishabh-chanana-1427209",
+        "sourceUrl": "https://x.com/risos8200/status/2077305419509469296",
+        "platformPostId": "2077305419509469296",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-tsenta-agnay-srivastava-2788219",
+        "sourceUrl": "https://x.com/AgnaySrivastava/status/2078746722042552571",
+        "platformPostId": "2078746722042552571",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-onecli-jonathan-fishner-406823",
+        "sourceUrl": "https://x.com/jonathanfishner/status/2078978456050946520",
+        "platformPostId": "2078978456050946520",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-assemble-aliyan-ishfaq-1578320",
+        "sourceUrl": "https://x.com/MAliyanIshfaq/status/2079372404149879195",
+        "platformPostId": "2079372404149879195",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-assemble-aliyan-ishfaq-1578320",
+        "sourceUrl": "https://x.com/MAliyanIshfaq/status/2080803193152483729",
+        "platformPostId": "2080803193152483729",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-shepherd-3-philip-meng-2723488",
+        "sourceUrl": "https://x.com/philipxmeng/status/2080807878064316806",
+        "platformPostId": "2080807878064316806",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-tsenta",
+        "sourceUrl": "https://x.com/TsentaAi/status/2080888552783794326",
+        "platformPostId": "2080888552783794326",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-hoplite-ryan-morrissey-2563241",
+        "sourceUrl": "https://x.com/ryan_morr/status/2081179442987287012",
+        "platformPostId": "2081179442987287012",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-hoplite",
+        "sourceUrl": "https://x.com/hoplite_sh/status/2081186372036219254",
+        "platformPostId": "2081186372036219254",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-experiential-labs-silen-naihin-411375",
+        "sourceUrl": "https://x.com/silennai/status/2081503565600985593",
+        "platformPostId": "2081503565600985593",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-markov-harish-ashok-2921049",
+        "sourceUrl": "https://x.com/habril27/status/2081794632120422685",
+        "platformPostId": "2081794632120422685",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-tsenta",
+        "sourceUrl": "https://x.com/TsentaAi/status/2081797087805718850",
+        "platformPostId": "2081797087805718850",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-fabraix",
+        "sourceUrl": "https://x.com/FabraixHQ/status/2081880946400481291",
+        "platformPostId": "2081880946400481291",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-contextdev-yahia-bakour-2538368",
+        "sourceUrl": "https://x.com/mynameisyahia/status/2081900467580526945",
+        "platformPostId": "2081900467580526945",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S2026",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-limrun",
+        "sourceUrl": "https://github.com/limrun-inc/sample-expo57-bun-app",
+        "platformPostId": "limrun-inc/sample-expo57-bun-app",
+        "platformObjectId": "1314357285",
+        "postedAt": "2026-07-27T23:29:25Z"
+      }
+    ]
   }
 ]
