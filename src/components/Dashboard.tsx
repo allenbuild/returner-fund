@@ -56,7 +56,7 @@ import {
   millisecondsUntilNextCentralMidnight
 } from "@/lib/time/central-day";
 import { normalizeTopVoiceAudienceId, topVoiceAudienceSummaries } from "@/lib/social/top-voices";
-import { insiderAccessToken } from "@/lib/social/user-insiders-client";
+import { insiderAccessToken, insiderApiFetch } from "@/lib/social/user-insiders-client";
 import { PLATFORM_VALUES, type GraphResponse, type Platform, type TopVoiceAudienceId } from "@/lib/graph/types";
 
 type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices";
@@ -132,7 +132,7 @@ async function fetchGraphPayload(
         options.timeoutMs ?? API_GRAPH_TIMEOUT_MS,
         async (response) => {
           if (!response.ok) {
-            throw new Error(`Graph request failed with ${response.status}`);
+            throw await graphResponseError(response);
           }
           return enrichGraphTaxonomies((await response.json()) as GraphResponse);
         },
@@ -150,6 +150,60 @@ async function fetchGraphPayload(
   }
 
   throw lastError ?? new Error("Graph request failed");
+}
+
+async function graphResponseError(response: Response): Promise<Error> {
+  const contentType = response.headers?.get?.("content-type")?.toLowerCase() ?? "";
+  const requestId =
+    response.headers?.get?.("x-vercel-id")?.trim() ||
+    response.headers?.get?.("x-request-id")?.trim() ||
+    null;
+  let detail: string | null = null;
+
+  if (contentType.includes("json") || !contentType) {
+    try {
+      detail = graphErrorPayloadDetail(await response.json());
+    } catch {
+      // A proxy or framework error page may claim an empty or incorrect content type.
+    }
+  }
+
+  if (!detail && !contentType.includes("json") && typeof response.text === "function") {
+    try {
+      const body = (await response.text()).replace(/\s+/g, " ").trim();
+      if (body && !/<(?:!doctype|html|head|body)\b/i.test(body)) {
+        detail = body.slice(0, 400);
+      }
+    } catch {
+      // The status and request identifier still provide an actionable failure.
+    }
+  }
+
+  const message = [
+    `Graph request failed with ${response.status}`,
+    detail ? `: ${detail}` : "",
+    requestId ? ` (request ID: ${requestId})` : ""
+  ].join("");
+  return new Error(message);
+}
+
+function graphErrorPayloadDetail(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const record = payload as Record<string, unknown>;
+  if (typeof record.error === "string" && record.error.trim()) {
+    return record.error.trim();
+  }
+  if (record.error && typeof record.error === "object") {
+    const error = record.error as Record<string, unknown>;
+    const code = typeof error.code === "string" ? error.code.trim() : "";
+    const message = typeof error.message === "string" ? error.message.trim() : "";
+    if (code && message) return `[${code}] ${message}`;
+    if (message) return message;
+    if (code) return code;
+  }
+  return typeof record.message === "string" && record.message.trim()
+    ? record.message.trim()
+    : null;
 }
 
 async function fetchGraphPayloadWithStaticSnapshot(
@@ -263,6 +317,18 @@ interface InFlightGraphRequest {
   promise: Promise<GraphPayloadResult>;
 }
 
+interface FetchGraphOptions {
+  background?: boolean;
+  forceApi?: boolean;
+  unfiltered?: boolean;
+  insiderIds?: string[];
+  propagateError?: boolean;
+}
+
+interface InsiderRecomputeResponse {
+  graph?: unknown;
+}
+
 type RefreshStatus = "completed" | "partial" | "failed";
 
 interface RefreshSummary {
@@ -344,6 +410,19 @@ function graphMatchesInsiderSelection(
   insiderIds: readonly string[]
 ): boolean {
   return audience !== "insiders" || sameValues(graph?.selectedInsiderIds ?? [], insiderIds);
+}
+
+function isGraphResponsePayload(value: unknown): value is GraphResponse {
+  if (!value || typeof value !== "object") return false;
+  const graph = value as Partial<GraphResponse>;
+  return Boolean(
+    graph.batch?.slug &&
+    graph.selectedTopVoiceAudience?.id &&
+    Array.isArray(graph.nodes) &&
+    Array.isArray(graph.edges) &&
+    Array.isArray(graph.evidence) &&
+    Array.isArray(graph.leaderboard)
+  );
 }
 
 function normalizeInitialPlatforms(platforms: Platform[] | undefined): Platform[] {
@@ -564,6 +643,7 @@ export function Dashboard({
   const graphFetchSequenceRef = useRef(0);
   const latestGraphFetchIdRef = useRef<Map<string, number>>(new Map());
   const graphInFlightRef = useRef<Map<string, InFlightGraphRequest>>(new Map());
+  const skipNextGraphEffectKeyRef = useRef<string | null>(null);
   const actionRequestIdRef = useRef(0);
   const activeActionAbortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef({ batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds });
@@ -811,9 +891,11 @@ export function Dashboard({
     return request;
   }, []);
 
-  const fetchGraph = useCallback(async (options: { background?: boolean; forceApi?: boolean; unfiltered?: boolean } = {}) => {
+  const fetchGraph = useCallback(async (options: FetchGraphOptions = {}) => {
     const background = options.background === true;
-    const activeInsiderIds = topVoiceAudience === "insiders" ? selectedInsiderIds : [];
+    const activeInsiderIds = topVoiceAudience === "insiders"
+      ? options.insiderIds ?? selectedInsiderIds
+      : [];
     const key = graphCacheKey(batchSlug, topVoiceAudience, activeInsiderIds);
     const requestFilters = options.unfiltered
       ? { platforms: [], industries: [], groupPartners: [], minScore: 0 }
@@ -863,6 +945,9 @@ export function Dashboard({
     try {
       const result = await request.promise;
       if (!isCurrentGraphRequest(request)) {
+        if (options.propagateError) {
+          throw new Error("Personalized score refresh was interrupted. Please retry.");
+        }
         return;
       }
       const payload = result.graph;
@@ -874,6 +959,9 @@ export function Dashboard({
         graphMatchesSelection(payload, selected.batchSlug, selected.topVoiceAudience) &&
         sameValues(payload.selectedInsiderIds ?? [], selected.insiderIds);
       if ((!background && requestId !== graphRequestIdRef.current) || !matchesCurrentSelection) {
+        if (options.propagateError) {
+          throw new Error("Personalized score refresh was interrupted. Please retry.");
+        }
         return;
       }
       if (options.unfiltered) {
@@ -881,15 +969,19 @@ export function Dashboard({
       }
       setGraph(options.unfiltered ? applyClientGraphFilters(payload, currentFiltersRef.current) : payload);
     } catch (caught) {
+      const failure = caught instanceof Error ? caught : new Error("Graph request failed");
       if (!background && requestId !== graphRequestIdRef.current) {
+        if (options.propagateError) throw failure;
         return;
       }
       if (!isCurrentGraphRequest(request) || isAbortError(caught) || request.controller.signal.aborted) {
+        if (options.propagateError) throw failure;
         return;
       }
       if (!background) {
-        setError(caught instanceof Error ? caught.message : "Graph request failed");
+        setError(failure.message);
       }
+      if (options.propagateError) throw failure;
     } finally {
       if (!background && requestId === graphRequestIdRef.current) {
         setLoading(false);
@@ -941,52 +1033,84 @@ export function Dashboard({
       return;
     }
 
-    const pendingKey = graphCacheKey(
-      selection.batchSlug,
-      selection.topVoiceAudience,
-      selection.insiderIds
-    );
-    const pendingRequest = graphInFlightRef.current.get(pendingKey);
-    if (pendingRequest && !pendingRequest.forceApi) {
-      try {
-        await pendingRequest.promise;
-      } catch (error) {
-        if (!isAbortError(error)) {
-          // The forced request below remains the authoritative retry path.
-        }
-      }
-      const latestSelection = selectionRef.current;
-      if (
-        latestSelection.batchSlug !== selection.batchSlug ||
-        latestSelection.topVoiceAudience !== selection.topVoiceAudience ||
-        !sameValues(latestSelection.insiderIds, selection.insiderIds)
-      ) {
-        return;
-      }
-    }
-
     for (const key of [...graphCacheRef.current.keys()]) {
       if (key.includes("::insiders::")) graphCacheRef.current.delete(key);
     }
     invalidateGraphRequests();
 
-    if (selectionRef.current.insiderIds.length) {
-      selectionRef.current = {
-        ...selectionRef.current,
-        insiderIds: []
-      };
+    const targetSelection = {
+      ...selection,
+      insiderIds: [] as string[]
+    };
+    selectionRef.current = targetSelection;
+    if (selection.insiderIds.length) {
+      skipNextGraphEffectKeyRef.current = graphCacheKey(
+        targetSelection.batchSlug,
+        targetSelection.topVoiceAudience,
+        targetSelection.insiderIds
+      );
       setSelectedInsiderIds([]);
-      return;
     }
 
-    await fetchGraph({ forceApi: true, unfiltered: true });
-  }, [fetchGraph, invalidateGraphRequests]);
+    const requestId = graphRequestIdRef.current + 1;
+    graphRequestIdRef.current = requestId;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await insiderApiFetch("/api/insiders/recompute", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          batchSlug: targetSelection.batchSlug,
+          insiderIds: targetSelection.insiderIds
+        })
+      });
+      if (!response.ok) {
+        throw await graphResponseError(response);
+      }
+      const payload = await response.json() as InsiderRecomputeResponse;
+      if (!isGraphResponsePayload(payload.graph)) {
+        throw new Error("The personalized score refresh returned an invalid graph.");
+      }
+      const graph = enrichGraphTaxonomies(payload.graph);
+      if (
+        !graphMatchesSelection(graph, targetSelection.batchSlug, targetSelection.topVoiceAudience) ||
+        !graphMatchesInsiderSelection(graph, targetSelection.topVoiceAudience, targetSelection.insiderIds)
+      ) {
+        throw new Error("The personalized score refresh returned a graph for a different selection.");
+      }
+      const latestSelection = selectionRef.current;
+      if (
+        requestId !== graphRequestIdRef.current ||
+        latestSelection.batchSlug !== targetSelection.batchSlug ||
+        latestSelection.topVoiceAudience !== targetSelection.topVoiceAudience ||
+        !sameValues(latestSelection.insiderIds, targetSelection.insiderIds)
+      ) {
+        throw new Error("Personalized score refresh was interrupted. Please retry.");
+      }
+      rememberGraph(graph, "api");
+      setFilterMetadataGraph(graph);
+      setGraph(applyClientGraphFilters(graph, currentFiltersRef.current));
+    } catch (caught) {
+      const failure = caught instanceof Error ? caught : new Error("Scores could not be recomputed.");
+      if (requestId === graphRequestIdRef.current) {
+        setError(failure.message);
+      }
+      throw failure;
+    } finally {
+      if (requestId === graphRequestIdRef.current) {
+        setLoading(false);
+      }
+    }
+  }, [invalidateGraphRequests, rememberGraph]);
 
   useEffect(() => {
     if (topVoiceAudience !== "insiders") return undefined;
     let cancelled = false;
     void insiderAccessToken().then((accessToken) => {
-      if (!cancelled && accessToken) refreshPersonalizedInsiders();
+      if (!cancelled && accessToken) {
+        void refreshPersonalizedInsiders().catch(() => undefined);
+      }
     });
     return () => {
       cancelled = true;
@@ -1047,9 +1171,16 @@ export function Dashboard({
   }, [fetchGraph, invalidateGraphRequests]);
 
   useEffect(() => {
-    const cachedEntry = graphCacheRef.current.get(
-      graphCacheKey(batchSlug, topVoiceAudience, topVoiceAudience === "insiders" ? selectedInsiderIds : [])
+    const activeGraphKey = graphCacheKey(
+      batchSlug,
+      topVoiceAudience,
+      topVoiceAudience === "insiders" ? selectedInsiderIds : []
     );
+    if (skipNextGraphEffectKeyRef.current === activeGraphKey) {
+      skipNextGraphEffectKeyRef.current = null;
+      return;
+    }
+    const cachedEntry = graphCacheRef.current.get(activeGraphKey);
     const cachedGraph =
       graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience) &&
       graphMatchesInsiderSelection(filterMetadataGraph, topVoiceAudience, selectedInsiderIds)

@@ -4,6 +4,8 @@ import { Dashboard } from "@/components/Dashboard";
 import { COMPANY_VERTICALS } from "@/lib/graph/company-verticals";
 import { validateStaticGraphSnapshotContract } from "@/lib/graph/static-graph-snapshot-contract.mjs";
 import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
+import type { InsiderConfigurationResponse } from "@/lib/social/user-insiders";
+import { defaultInsiderMembers } from "@/lib/social/top-voices";
 import type {
   EvidenceItem,
   GraphNode,
@@ -15,6 +17,28 @@ import type {
 
 const V4_MODEL_ID = "returner-traction";
 const V4_MODEL_VERSION = "4.0.1";
+
+function insiderConfigurationResponse(version = 0, paulGrahamWeight = 5): InsiderConfigurationResponse {
+  const defaults = defaultInsiderMembers();
+  return {
+    authenticated: true,
+    defaultsCount: defaults.length,
+    defaultMembers: defaults,
+    effectiveMembers: defaults.map((member) =>
+      member.personId === "paul-graham"
+        ? { ...member, weight: paulGrahamWeight }
+        : member
+    ),
+    configuration: {
+      version,
+      excludedDefaultIds: [],
+      weightOverrides: paulGrahamWeight === 5 ? {} : { "paul-graham": paulGrahamWeight },
+      addedInsiders: [],
+      createdAt: null,
+      updatedAt: null
+    }
+  };
+}
 
 vi.mock("@/components/CytoscapeGraph", () => ({
   CytoscapeGraph: ({
@@ -1158,6 +1182,120 @@ describe("dashboard filters", () => {
     expect(screen.queryByRole("button", { name: /retry selected graph/i })).not.toBeInTheDocument();
     expect(screen.getByTestId("graph-canvas")).toHaveAttribute("data-focused-company-ids", "company:personalized");
     expect(screen.getByRole("button", { name: "Open leaderboard Personalized Company" })).toBeInTheDocument();
+  });
+
+  it("keeps saved insider weights truthful when recomputation fails, then retries the lightweight refresh", async () => {
+    window.history.replaceState(null, "", "/?insiderIds=paul-graham");
+    const baselineGraph = graphResponse([
+      makeNode("company:baseline", "Baseline Company", "b2b", "#7dd3fc", "Partner A")
+    ]);
+    const selectedPersonalizedGraph = {
+      ...withTopVoiceAudience(
+        graphResponse([
+          makeNode("company:selected", "Selected Insider Company", "fintech", "#2563eb", "Partner B")
+        ]),
+        "insiders"
+      ),
+      selectedInsiderIds: ["paul-graham"]
+    };
+    const recomputedGraph = {
+      ...withTopVoiceAudience(
+        graphResponse([
+          makeNode("company:recomputed", "Recomputed Company", "fintech", "#2563eb", "Partner B")
+        ]),
+        "insiders"
+      ),
+      selectedInsiderIds: []
+    };
+    const initialConfiguration = insiderConfigurationResponse();
+    const savedConfiguration = insiderConfigurationResponse(1, 4);
+    let failRecompute = true;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+      if (url === "/api/insiders" && method === "PUT") {
+        return new Response(JSON.stringify(savedConfiguration), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      if (url === "/api/insiders") {
+        return new Response(JSON.stringify(initialConfiguration), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      if (url === "/api/insiders/recompute") {
+        if (failRecompute) {
+          return new Response(JSON.stringify({
+            error: {
+              code: "GRAPH_RUNTIME_FAILURE",
+              message: "Personalized scoring unavailable"
+            }
+          }), {
+            status: 500,
+            headers: {
+              "content-type": "application/json",
+              "x-vercel-id": "sfo1::insiders-test"
+            }
+          });
+        }
+        return new Response(JSON.stringify({ graph: recomputedGraph }), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      if (url.includes("/api/graph") && url.includes("topVoices=insiders")) {
+        return new Response(JSON.stringify(selectedPersonalizedGraph), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      return new Response(JSON.stringify(baselineGraph), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Dashboard initialGraph={baselineGraph} />);
+    const topVoicesGroup = screen.getByText("Top Voices").closest(".filter-dropdown") as HTMLElement;
+    fireEvent.click(within(topVoicesGroup).getByRole("button", { name: /all voices/i }));
+    fireEvent.click(within(topVoicesGroup).getByRole("menuitemradio", { name: /Insiders/i }));
+
+    expect(await screen.findByRole("button", { name: "Open leaderboard Selected Insider Company" }))
+      .toBeInTheDocument();
+    const decreaseWeight = await screen.findByRole("button", { name: "Decrease Paul Graham weight" });
+    await waitFor(() => expect(decreaseWeight).toBeEnabled());
+    fireEvent.click(decreaseWeight);
+    fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
+
+    expect(await screen.findByText("Weights saved; scores refresh failed")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Graph request failed with 500: [GRAPH_RUNTIME_FAILURE] Personalized scoring unavailable"
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent("request ID: sfo1::insiders-test");
+    const recomputeRequests = () => fetchMock.mock.calls.filter(
+      ([input]) => String(input) === "/api/insiders/recompute"
+    );
+    expect(recomputeRequests()).toHaveLength(1);
+    expect(JSON.parse(String((recomputeRequests()[0]![1] as RequestInit).body))).toEqual({
+      batchSlug: "S2026",
+      insiderIds: []
+    });
+    expect(fetchMock.mock.calls.filter(
+      ([input, init]) => String(input) === "/api/insiders" && (init as RequestInit | undefined)?.method === "PUT"
+    )).toHaveLength(1);
+
+    failRecompute = false;
+    fireEvent.click(screen.getByRole("button", { name: "Retry score refresh" }));
+
+    expect(await screen.findByText("Saved")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open leaderboard Recomputed Company" })).toBeInTheDocument();
+    expect(recomputeRequests()).toHaveLength(2);
+    expect(fetchMock.mock.calls.filter(
+      ([input, init]) => String(input) === "/api/insiders" && (init as RequestInit | undefined)?.method === "PUT"
+    )).toHaveLength(1);
   });
 
   it("renders a successful zero-company response as an empty state instead of a loading failure", async () => {

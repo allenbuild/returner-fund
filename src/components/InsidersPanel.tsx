@@ -70,7 +70,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<"idle" | "saved" | "recomputing" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "saved" | "recomputing" | "recompute-error" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [signInEmail, setSignInEmail] = useState("");
   const [signInSending, setSignInSending] = useState(false);
@@ -158,41 +158,59 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     setSaving(true);
     setError(null);
     setStatus("idle");
+    let configurationSaved = false;
     try {
-      const result = await insiderApiFetch("/api/insiders", {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          expectedVersion: draft.version,
-          excludedDefaultIds: draft.excludedDefaultIds,
-          weightOverrides: draft.weightOverrides,
-          addedInsiders: draft.addedInsiders
-        })
-      });
-      const payload = await result.json() as InsiderConfigurationResponse & {
-        error?: { message?: string };
-      };
-      if (!result.ok) throw new Error(payload.error?.message ?? `Save failed with ${result.status}.`);
-      setResponse(payload);
-      setSaved(cloneConfiguration(payload.configuration));
-      setDraft(cloneConfiguration(payload.configuration));
+      if (dirty) {
+        const result = await insiderApiFetch("/api/insiders", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            expectedVersion: draft.version,
+            excludedDefaultIds: draft.excludedDefaultIds,
+            weightOverrides: draft.weightOverrides,
+            addedInsiders: draft.addedInsiders
+          })
+        });
+        const payload = await result.json() as InsiderConfigurationResponse & {
+          error?: { message?: string };
+        };
+        if (!result.ok) throw new Error(payload.error?.message ?? `Save failed with ${result.status}.`);
+        const configuration = cloneConfiguration(payload.configuration);
+        configurationSaved = true;
+        setResponse(payload);
+        setSaved(configuration);
+        setDraft(cloneConfiguration(configuration));
+      } else if (status !== "recompute-error") {
+        return true;
+      } else {
+        configurationSaved = true;
+      }
+
       setStatus("recomputing");
-      void Promise.resolve(onSaved?.()).then(
-        () => setStatus("saved"),
-        (caught: unknown) => {
-          setError(caught instanceof Error ? caught.message : "Scores could not be recomputed.");
-          setStatus("error");
-        }
-      );
+      try {
+        await onSaved?.();
+      } catch (caught) {
+        const detail = caught instanceof Error ? caught.message : "The graph refresh failed.";
+        setError(`Weights saved, but scores could not be refreshed. ${detail}`);
+        setStatus("recompute-error");
+        return false;
+      }
+      setStatus("saved");
       return true;
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "No changes were saved.");
-      setStatus("error");
+      if (configurationSaved) {
+        const detail = caught instanceof Error ? caught.message : "The graph refresh failed.";
+        setError(`Weights saved, but scores could not be refreshed. ${detail}`);
+        setStatus("recompute-error");
+      } else {
+        setError(caught instanceof Error ? caught.message : "No changes were saved.");
+        setStatus("error");
+      }
       return false;
     } finally {
       setSaving(false);
     }
-  }, [draft, onSaved, response?.authenticated, saving]);
+  }, [dirty, draft, onSaved, response?.authenticated, saving, status]);
 
   async function sendSignInLink() {
     const email = signInEmail.trim();
@@ -572,17 +590,17 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
             <div aria-live="polite">
               {status === "recomputing" ? "Recomputing scores…" : saving ? "Saving…" : status === "saved" ? (
                 <><Check size={14} /> Saved</>
-              ) : status === "error" ? "Not saved" : dirty ? "Unsaved changes" : "No changes"}
+              ) : status === "recompute-error" ? "Weights saved; scores refresh failed" : status === "error" ? "Not saved" : dirty ? "Unsaved changes" : "No changes"}
             </div>
             <div className="insiders-save-actions">
               <button
                 type="button"
                 className="primary-button insiders-save-button"
-                disabled={!dirty || saving || !response.authenticated}
+                disabled={(!dirty && status !== "recompute-error") || saving || !response.authenticated}
                 onClick={() => void save()}
               >
                 {saving ? <LoaderCircle className="spin" size={15} /> : null}
-                Save & recompute
+                {status === "recompute-error" ? "Retry score refresh" : "Save & recompute"}
               </button>
             </div>
           </footer>

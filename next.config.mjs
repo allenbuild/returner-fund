@@ -35,6 +35,14 @@ const graphTraceExcludes = [
   "vercel.json",
   "vitest.config.ts"
 ];
+const insiderRuntimeSnapshots = [
+  "public/graph/s2026.json",
+  "public/graph/s2026-insiders.json",
+  "public/graph/s26.json",
+  "public/graph/s26-insiders.json",
+  "public/graph/a16zsr006.json",
+  "public/graph/a16zsr006-insiders.json"
+];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -42,11 +50,13 @@ const nextConfig = {
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   outputFileTracingIncludes: {
     "/api/graph": graphRuntimeData,
-    "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"]
+    "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"],
+    "/api/insiders/recompute": insiderRuntimeSnapshots
   },
   outputFileTracingExcludes: {
     "/api/graph": graphTraceExcludes,
-    "/api/graph/refresh": graphTraceExcludes
+    "/api/graph/refresh": graphTraceExcludes,
+    "/api/insiders/recompute": graphTraceExcludes
   }
 };
 

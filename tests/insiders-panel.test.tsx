@@ -156,6 +156,46 @@ describe("InsidersPanel", () => {
     expect(await screen.findByText("Saved")).toBeInTheDocument();
   });
 
+  it("keeps a saved configuration truthful and retries only the failed score refresh", async () => {
+    const initial = response();
+    const saved = {
+      ...initial,
+      configuration: {
+        ...initial.configuration,
+        version: 1,
+        weightOverrides: { "paul-graham": 4 }
+      },
+      effectiveMembers: initial.effectiveMembers.map((member) =>
+        member.personId === "paul-graham" ? { ...member, weight: 4 } : member
+      )
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify(initial), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(saved), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const onSaved = vi.fn()
+      .mockRejectedValueOnce(new Error(
+        "Graph request failed with 500: [GRAPH_RUNTIME_FAILURE] Personalized scoring unavailable"
+      ))
+      .mockResolvedValueOnce(undefined);
+
+    render(<InsidersPanel onClose={vi.fn()} onSaved={onSaved} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Decrease Paul Graham weight" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Weights saved, but scores could not be refreshed"
+    );
+    expect(screen.getByText("Weights saved; scores refresh failed")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry score refresh" })).toBeEnabled();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry score refresh" }));
+    expect(await screen.findByText("Saved")).toBeInTheDocument();
+    expect(onSaved).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
   it("resets members and weights to the built-in defaults before saving", async () => {
     const initial = response(3);
     initial.configuration = {

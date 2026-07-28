@@ -7,6 +7,7 @@ const routeTraces = [
   {
     label: "graph",
     manifest: ".next/server/app/api/graph/route.js.nft.json",
+    maxBytes: MAX_TRACE_BYTES,
     forbidden: [
       `${normalize("/public/graph/")}`,
       `${normalize("/src/lib/social/public-evidence-current.json")}`,
@@ -16,9 +17,20 @@ const routeTraces = [
   {
     label: "graph refresh",
     manifest: ".next/server/app/api/graph/refresh/route.js.nft.json",
+    maxBytes: MAX_TRACE_BYTES,
     forbidden: [
       `${normalize("/src/lib/social/public-evidence-current.json")}`,
       `${normalize("/src/lib/social/logged-in-evidence-current.json")}`
+    ]
+  },
+  {
+    label: "insider recompute",
+    manifest: ".next/server/app/api/insiders/recompute/route.js.nft.json",
+    maxBytes: 45 * MEBIBYTE,
+    forbidden: [
+      `${normalize("/src/lib/social/public-evidence-current.json")}`,
+      `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
+      `${normalize("/src/lib/social/targeted-evidence-current.json")}`
     ]
   }
 ];
@@ -47,9 +59,9 @@ for (const route of routeTraces) {
     `${route.label} trace: ${tracedFiles.length} entries, ${(traceBytes / MEBIBYTE).toFixed(1)} MiB`
   );
 
-  if (traceBytes > MAX_TRACE_BYTES) {
+  if (traceBytes > route.maxBytes) {
     console.error(
-      `${route.label} trace exceeds the ${(MAX_TRACE_BYTES / MEBIBYTE).toFixed(0)} MiB deployment budget.`
+      `${route.label} trace exceeds the ${(route.maxBytes / MEBIBYTE).toFixed(0)} MiB deployment budget.`
     );
     failed = true;
   }
