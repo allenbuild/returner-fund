@@ -1,4 +1,5 @@
 import githubTractionSnapshot from "@/lib/social/github-traction-a16z-speedrun-006.json";
+import seededAttributionReconciliationSnapshot from "@/lib/social/a16z-speedrun-006-attribution-reconciliation.json";
 import seededSocialEvidenceSnapshot from "@/lib/social/a16z-speedrun-006-social-evidence.json";
 import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
 import speedrunSocialAccountSnapshot from "@/lib/social/a16z-speedrun-006-social-accounts.json";
@@ -167,6 +168,25 @@ interface SeededSocialEvidenceSnapshot {
     generatedAt: string;
   };
   evidence: SeededSocialEvidenceRecord[];
+}
+
+interface SeededAttributionReconciliationSnapshot {
+  schemaVersion: number;
+  attributionReconciliationLedger: SeededAttributionReconciliationDirective[];
+}
+
+interface SeededAttributionReconciliationDirective {
+  platform: Platform;
+  sourceUrl: string;
+  platformPostId: string;
+  disposition: "quarantined";
+  reason: string;
+  staleAttribution: {
+    batchSlug: string;
+    entityType: "company";
+    entityId: string;
+    attributionType: "subject";
+  };
 }
 
 interface SeededSocialEvidenceRecord {
@@ -783,6 +803,8 @@ const speedrun006Profiles: SpeedrunCompanyProfile[] = [
 const githubSnapshot = githubTractionSnapshot as unknown as GithubTractionSnapshot;
 const publicSnapshot = publicEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
 const seededSocialSnapshot = seededSocialEvidenceSnapshot as unknown as SeededSocialEvidenceSnapshot;
+const seededAttributionReconciliation =
+  seededAttributionReconciliationSnapshot as SeededAttributionReconciliationSnapshot;
 const socialAccountSnapshot = speedrunSocialAccountSnapshot as unknown as SpeedrunSocialAccountSnapshot;
 const speedrunProfileSlugs = new Set(speedrun006Profiles.map((profile) => slugify(profile.name)));
 const speedrunSocialAccountsByEntityId = groupSocialAccountsByEntity();
@@ -946,13 +968,58 @@ function buildSpeedrunEvidenceItems(): A16zSpeedrun006EvidenceItem[] {
     ...publicSnapshot.evidence.flatMap(publicEvidenceItemFromCanonicalAttribution),
     ...PUBLIC_SOCIAL_EVIDENCE_ATTACHMENTS.flatMap(publicEvidenceItemFromAttachment)
   ];
-  const seededSocialEvidence = seededSocialSnapshot.evidence.flatMap(seededSocialEvidenceItem);
+  const seededSocialEvidence = sanitizedSeededSocialEvidence().flatMap(seededSocialEvidenceItem);
 
   return normalizeEvidenceScores(
     dedupeEvidenceItems([...githubEvidence, ...publicEvidence, ...seededSocialEvidence])
       .filter(isNativeSpeedrunEvidenceItem)
       .map(enrichEvidenceThumbnail)
   );
+}
+
+function sanitizedSeededSocialEvidence(): SeededSocialEvidenceRecord[] {
+  if (seededAttributionReconciliation.schemaVersion !== 1) {
+    throw new Error("Unsupported A16Z seeded attribution reconciliation schema.");
+  }
+  const excludedRows = new Set<SeededSocialEvidenceRecord>();
+  for (const directive of seededAttributionReconciliation.attributionReconciliationLedger) {
+    if (
+      directive.disposition !== "quarantined" ||
+      directive.staleAttribution.batchSlug !== A16Z_SPEEDRUN_006_BATCH_SLUG ||
+      directive.staleAttribution.entityType !== "company" ||
+      directive.staleAttribution.attributionType !== "subject" ||
+      !directive.reason
+    ) {
+      throw new Error("Invalid A16Z seeded attribution reconciliation directive.");
+    }
+    const matches = seededSocialSnapshot.evidence.filter((seed) =>
+      seed.platform === directive.platform &&
+      (seed.platformPostId ?? platformPostIdFromUrl(seed.sourceUrl)) === directive.platformPostId &&
+      seed.entityType === directive.staleAttribution.entityType &&
+      companyIdFromSlug(slugify(seed.companySlug)) === directive.staleAttribution.entityId &&
+      canonicalEvidenceUrl(seed.sourceUrl) === canonicalEvidenceUrl(directive.sourceUrl)
+    );
+    if (matches.length !== 1) {
+      throw new Error(
+        `A16Z seeded attribution reconciliation for ${directive.platform}:${directive.platformPostId} ` +
+        `resolved ${matches.length} rows; expected exactly one.`
+      );
+    }
+    excludedRows.add(matches[0]);
+  }
+  return seededSocialSnapshot.evidence.filter((seed) => !excludedRows.has(seed));
+}
+
+function canonicalEvidenceUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    url.hash = "";
+    url.hostname = url.hostname.replace(/^www\./i, "").toLowerCase();
+    url.pathname = url.pathname.replace(/\/+$/, "");
+    return url.toString();
+  } catch {
+    return value.trim();
+  }
 }
 
 function isHighConfidenceGithubAccount(account: GithubTractionAccount): boolean {

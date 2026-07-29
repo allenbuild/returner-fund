@@ -47,7 +47,7 @@ describe("autonomous ingestion runner CLI", () => {
       batches: [
         { slug: "S2026", companies: 197, founders: 397, accounts: 965 },
         { slug: "S26", companies: 115, founders: 230, accounts: 552 },
-        { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 327 }
+        { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
       ],
       coverage: { expected: 14_642, queued: 6_735, terminal: 7_907 }
     });
@@ -171,6 +171,23 @@ describe("autonomous ingestion runner static safety contracts", () => {
       rebasedMerge
     );
     assert.ok(rebasedMerge > -1 && rebasedDelta > rebasedMerge);
+  });
+
+  it("carries the seeded A16Z retirement ledger through initial and rebased durable imports", () => {
+    const reader = section(
+      "async function readCanonicalSeededAttributionReconciliationLedger",
+      "async function readPublicationEvidenceBaseline"
+    );
+    assert.ok(reader.includes('"src/lib/social/a16z-speedrun-006-attribution-reconciliation.json"'));
+    assert.ok(reader.includes("readRequiredCanonicalJson"));
+    assert.ok(reader.includes("readJsonFromGitRef"));
+
+    assert.ok(runner.includes("publicationInputs.seededAttributionReconciliationLedger"));
+    assert.ok(runner.includes("rebasedSeededAttributionReconciliationLedger"));
+    assert.ok(
+      runner.indexOf("publicationInputs.seededAttributionReconciliationLedger") <
+      runner.indexOf("const durableImport = await importDurableEvidence")
+    );
   });
 
   it("isolates work directories with a hash of the exact idempotency key", () => {

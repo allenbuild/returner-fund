@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-07-29T06:15:00.000Z",
+  "campaignKey": "manual-source-sweep-2026-07-29-detached",
+  "inputs": [
+    {
+      "path": "work/autonomous-ingestion-campaigns/manual-source-sweep-2026-07-29-detached-2228cbe49de6e5f0/public-s2026.json",
+      "rows": 223
+    },
+    {
+      "path": "work/autonomous-ingestion-campaigns/manual-source-sweep-2026-07-29-detached-2228cbe49de6e5f0/public-s26.json",
+      "rows": 89
+    },
+    {
+      "path": "work/autonomous-ingestion-campaigns/manual-source-sweep-2026-07-29-detached-2228cbe49de6e5f0/public-a16zsr006.json",
+      "rows": 9
+    },
+    {
+      "path": "work/autonomous-ingestion-campaigns/manual-source-sweep-2026-07-29-detached-2228cbe49de6e5f0/top-voice-targeted-evidence-75015-1785305326127.json",
+      "rows": 5
+    },
+    {
+      "path": "work/autonomous-ingestion-campaigns/manual-source-sweep-2026-07-29-detached-2228cbe49de6e5f0/github-s2026.json",
+      "accounts": 54,
+      "fetchedAccounts": 19,
+      "failedAccounts": 35,
+      "repositoryRows": 130
+    },
+    {
+      "path": "work/autonomous-ingestion-campaigns/manual-source-sweep-2026-07-29-detached-2228cbe49de6e5f0/github-s26.json",
+      "accounts": 32,
+      "fetchedAccounts": 0,
+      "failedAccounts": 32,
+      "repositoryRows": 0
+    },
+    {
+      "path": "work/autonomous-ingestion-campaigns/manual-source-sweep-2026-07-29-detached-2228cbe49de6e5f0/github-a16zsr006.json",
+      "accounts": 32,
+      "fetchedAccounts": 29,
+      "failedAccounts": 3,
+      "repositoryRows": 210
+    }
+  ],
+  "counts": {
+    "collectorRows": 326,
+    "githubRepositoryRowsAuditedSeparately": 340,
+    "githubRepositoryRowsAlreadyCanonical": 340,
+    "githubNewPhysicalRepositories": 0,
+    "duplicateInRequestedCanonicalSnapshots": 303,
+    "newVersusRequestedSnapshots": 23,
+    "duplicateInLoggedInCanonicalEvidence": 5,
+    "newPhysicalSourcesAfterAllCanonicalEvidence": 18,
+    "acceptedStrictCandidates": 17,
+    "rejectedOrQuarantined": 1,
+    "updateCandidates": 0,
+    "acceptedByBatch": {
+      "S2026": 7,
+      "S26": 10,
+      "A16ZSR006": 0
+    },
+    "acceptedByPlatform": {
+      "x": 13,
+      "youtube": 4
+    }
+  },
+  "canonicalReconciliation": {
+    "publicS2026": {
+      "collectorRows": 223,
+      "duplicateInPublicOrTargetedOrA16z": 212,
+      "duplicateInLoggedInOnly": 4,
+      "newPhysicalSources": 7
+    },
+    "publicS26": {
+      "collectorRows": 89,
+      "duplicateInPublicOrTargetedOrA16z": 77,
+      "duplicateInLoggedInOnly": 1,
+      "newPhysicalSources": 11,
+      "accepted": 10,
+      "rejected": 1
+    },
+    "publicA16zSpeedrun006": {
+      "collectorRows": 9,
+      "duplicateInPublicOrTargetedOrA16z": 9,
+      "newPhysicalSources": 0
+    },
+    "topVoiceTargeted": {
+      "collectorRows": 5,
+      "duplicateInPublicOrTargetedOrA16z": 5,
+      "newPhysicalSources": 0
+    },
+    "githubCollectors": {
+      "repositoryRows": 340,
+      "duplicateInCanonicalGithubSnapshots": 340,
+      "newPhysicalRepositories": 0,
+      "accountsAttempted": 118,
+      "accountsFetched": 48,
+      "accountsFailed": 70,
+      "limitation": "GitHub rate-limit or unauthenticated request failures prevented fresh repository enumeration for 70 mapped accounts, including every attempted S26 account. No completeness claim is made for those accounts."
+    }
+  },
+  "loggedInOnlyDuplicates": [
+    {
+      "batchSlug": "S2026",
+      "companyName": "Saudara AI",
+      "entityId": "founder-saudara-ai-edward-haryono-2623220",
+      "platform": "x",
+      "platformPostId": "2060494544526098665",
+      "sourceUrl": "https://x.com/edwardharyono_/status/2060494544526098665",
+      "reason": "same_platform_post_id_in_logged_in_evidence"
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "Chert",
+      "entityId": "founder-chert-gary-gao-2953142",
+      "platform": "x",
+      "platformPostId": "2056644892965912819",
+      "sourceUrl": "https://x.com/GaryGao891219/status/2056644892965912819",
+      "reason": "same_platform_post_id_in_logged_in_evidence"
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "ProjectX",
+      "entityId": "founder-projectx-rounak-adhikary-2936820",
+      "platform": "x",
+      "platformPostId": "2055161580007149850",
+      "sourceUrl": "https://x.com/Rounacc/status/2055161580007149850",
+      "reason": "same_platform_post_id_in_logged_in_evidence"
+    },
+    {
+      "batchSlug": "S2026",
+      "companyName": "tday.com",
+      "entityId": "company-tdaycom",
+      "platform": "x",
+      "platformPostId": "2054093737404325977",
+      "sourceUrl": "https://x.com/designtday/status/2054093737404325977",
+      "reason": "same_platform_post_id_in_logged_in_evidence"
+    },
+    {
+      "batchSlug": "S26",
+      "companyName": "6thSense",
+      "entityId": "founder-6thsense-matt-wulff-2055952",
+      "platform": "x",
+      "platformPostId": "2070035238848491859",
+      "sourceUrl": "https://x.com/makeitmatto/status/2070035238848491859",
+      "reason": "same_platform_post_id_in_logged_in_evidence"
+    }
+  ],
+  "quarantined": [
+    {
+      "batchSlug": "S26",
+      "candidateCompanyName": "HERA",
+      "candidateEntityId": "company-manufacturingintelligence",
+      "platform": "youtube",
+      "platformPostId": "Lwnxr6VW4B8",
+      "sourceUrl": "https://youtube.com/watch?v=Lwnxr6VW4B8",
+      "title": "Hera, Your AI Motion Designer (Demo)",
+      "metrics": {
+        "views": 7787
+      },
+      "actualChannel": {
+        "name": "Hera",
+        "channelId": "UC9F_QDYJm5J1xoco1XsMRGw",
+        "channelUrl": "https://youtube.com/@heravideo"
+      },
+      "reasonCodes": [
+        "wrong_company_identity",
+        "name_only_collision",
+        "unrelated_product_category",
+        "missing_posted_at",
+        "search_result_false_positive"
+      ],
+      "adjudication": "The video is from Hera, an AI motion-design product, not HERA (YC S26), the manufacturing mechanical-design-review company. The search collector matched only the shared brand word and must not score."
+    }
+  ],
+  "integrityChecks": {
+    "checkpointShardUnion": "passed_321_of_321_public_rows_present_once_in_merged_cohort_outputs",
+    "platformPostIdAndNormalizedUrlDedupe": "passed",
+    "nativeAuthorOrOfficialEmbedAttribution": "passed_for_all_accepted_13_x_native_owner_matches_and_4_youtube_official_embed_matches",
+    "positiveVisibleMetrics": "passed_for_all_accepted",
+    "timestampIntegrity": "passed_for_all_accepted",
+    "loginShellRemovedFromAcceptedBodies": "passed",
+    "searchFeedOrWrongIdentityBleed": "one_row_quarantined",
+    "githubRepositoryDedupe": "340_of_340_fetched_repository_rows_already_canonical",
+    "githubFreshnessCoverage": "incomplete_due_to_70_failed_account_fetches"
+  }
+}

@@ -130,8 +130,38 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     assert.deepEqual(catalogs.map(summarizeCatalog), [
       { slug: "S2026", companies: 197, founders: 397, accounts: 965 },
       { slug: "S26", companies: 115, founders: 230, accounts: 552 },
-      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 327 }
+      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
     ]);
+  });
+
+  it("schedules Advocate's official LinkedIn account from both audited mapping layers", async () => {
+    const catalogs = await loadAutonomousCatalogs(repositoryRoot);
+    const a16z = catalogs.find((catalog) => catalog.slug === "A16ZSR006");
+    const advocate = a16z.companies.find(
+      (company) => company.sourceKey === "a16z-speedrun-006-advocate"
+    );
+    assert.deepEqual(
+      advocate.accounts.filter((account) => account.platform === "linkedin").map((account) => account.url),
+      ["https://www.linkedin.com/company/advocate-wellbeing"]
+    );
+
+    const task = buildAutonomousTaskPlan(catalogs, { runKey: "advocate-linkedin-contract" }).find(
+      (candidate) =>
+        candidate.entitySourceKey === advocate.sourceKey &&
+        candidate.platform === "linkedin" &&
+        candidate.account.url === "https://www.linkedin.com/company/advocate-wellbeing"
+    );
+    assert.equal(task.status, "queued");
+    assert.equal(task.terminalReason, null);
+
+    const sourceOfTruth = await readFile(
+      join(repositoryRoot, "scripts/ingest-a16z-speedrun-social-accounts.mjs"),
+      "utf8"
+    );
+    assert.match(
+      sourceOfTruth,
+      /\{ companyName: "Advocate", url: "https:\/\/www\.linkedin\.com\/company\/advocate-wellbeing" \}/
+    );
   });
 
   it("fails closed when the A16Z graph drops an owner from the independent 59/128 roster", async () => {
@@ -620,7 +650,7 @@ globalThis.fetch = async (input) => {
       ),
       0
     );
-    assert.equal(canonicalAccountCount, 1_844);
+    assert.equal(canonicalAccountCount, 1_845);
     assert.equal(first.filter((task) => task.account).length, canonicalAccountCount);
     assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length + 4);
     assert.equal(new Set(first.map((task) => task.checkpointKey)).size, first.length);
@@ -691,8 +721,8 @@ globalThis.fetch = async (input) => {
       expected: 14_642,
       queued: 6_735,
       terminal: 7_907,
-      mapped: 1_844,
-      mappedQueued: 1_844,
+      mapped: 1_845,
+      mappedQueued: 1_845,
       missingMappings: 1_063,
       unsupported: 7_907
     });
@@ -1506,6 +1536,62 @@ describe("autonomous collector task accounting", () => {
     assert.equal(coverage.terminal, 1);
     assert.equal(coverage.nonTerminal, 0);
     assert.equal(coverage.byStatus.blocked_or_empty, 1);
+  });
+
+  it("indexes explicit terminal receipts for URL-less social discovery tasks", () => {
+    const entityId = "founder-6thsense-james-baek-3429291";
+    const baseAttempt = {
+      platform: "x",
+      entityType: "founder",
+      entityId,
+      accountUrl: null,
+      status: "done"
+    };
+    const terminalSnapshot = {
+      evidence: [],
+      needsReview: [],
+      failures: [],
+      attempts: {
+        "x-founder-discovery": {
+          ...baseAttempt,
+          outcomeStatus: "needs_review",
+          outcomeReason: "collector_needs_review"
+        }
+      }
+    };
+    const task = {
+      platform: "x",
+      entityType: "founder",
+      entityId,
+      accountUrl: null
+    };
+
+    const terminalIndex = indexAutonomousCollectorTaskOutcomes(terminalSnapshot, {
+      kind: "public",
+      batchSlug: "S26"
+    });
+    assert.deepEqual(
+      classifyAutonomousCollectorTaskOutcome(terminalIndex, task),
+      { status: "needs_review", reason: "collector_needs_review" }
+    );
+
+    const incompleteIndex = indexAutonomousCollectorTaskOutcomes({
+      ...terminalSnapshot,
+      attempts: {
+        "x-founder-discovery": {
+          ...baseAttempt,
+          outcomeStatus: "running",
+          outcomeReason: null
+        }
+      }
+    }, {
+      kind: "public",
+      batchSlug: "S26"
+    });
+    assert.deepEqual(
+      classifyAutonomousCollectorTaskOutcome(incompleteIndex, task),
+      { status: "nonterminal", reason: "collector_returned_no_entity_attempt" }
+    );
   });
 
   it("prefers validated evidence over review and failure rows for the same task", () => {

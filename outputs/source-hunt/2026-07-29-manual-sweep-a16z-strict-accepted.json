@@ -1,0 +1,11 @@
+{
+  "source": {
+    "label": "Manual autonomous collector adjudication — a16z Speedrun 006",
+    "observedAt": "2026-07-29T06:15:00.000Z",
+    "campaignKey": "manual-source-sweep-2026-07-29-detached",
+    "notes": [
+      "All nine collector rows were already present by platform post ID in canonical public evidence; no new A16ZSR006 physical source remained."
+    ]
+  },
+  "evidence": []
+}

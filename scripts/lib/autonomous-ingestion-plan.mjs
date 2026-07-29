@@ -1200,12 +1200,17 @@ export function indexAutonomousCollectorTaskOutcomes(
     );
   }
   for (const attempt of Object.values(snapshot?.attempts ?? {})) {
-    if (!attempt?.entityId || !attempt?.platform || (!explicitTerminalOnly && !attempt?.accountUrl)) continue;
+    if (!attempt?.entityId || !attempt?.platform) continue;
     const terminalStatus = TERMINAL_COLLECTOR_OUTCOME_STATUSES.has(attempt.outcomeStatus)
       ? attempt.outcomeStatus
       : null;
     const exactReason = nonEmptyCollectorReason(attempt.error ?? attempt.outcomeReason);
     if (explicitTerminalOnly && (!terminalStatus || !exactReason)) continue;
+    // URL-less social discovery is a real queued task. Once the collector has
+    // written an explicit terminal status and reason for that owner/platform,
+    // index it just like a mapped-account attempt. Older URL-less checkpoint
+    // rows without the explicit terminal receipt remain nonterminal.
+    if (!attempt.accountUrl && (!terminalStatus || !exactReason)) continue;
     const status = terminalStatus ?? (attempt.status === "failed"
       ? (isExpectedPublicAccessOrEmptyFailure(attempt) ? "blocked_or_empty" : "failed")
       : "blocked_or_empty");

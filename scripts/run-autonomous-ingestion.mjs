@@ -257,6 +257,8 @@ try {
     );
     publicationInputs.loggedInAttributionReconciliationLedger =
       await readCanonicalLoggedInAttributionReconciliationLedger();
+    publicationInputs.seededAttributionReconciliationLedger =
+      await readCanonicalSeededAttributionReconciliationLedger();
     publicationInputs.sanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
       publicSnapshots,
       { contentIdentityReferenceRows }
@@ -272,7 +274,8 @@ try {
       attributionReconciliationLedger: combineAttributionReconciliationLedgers(
         publicationInputs.sanitizedPublicSnapshot?.attributionReconciliationLedger,
         publicationInputs.sanitizedTargetedSnapshot?.attributionReconciliationLedger,
-        publicationInputs.loggedInAttributionReconciliationLedger
+        publicationInputs.loggedInAttributionReconciliationLedger,
+        publicationInputs.seededAttributionReconciliationLedger
       )
     });
     assertDurableAttributionCompleteness(durableImport);
@@ -888,6 +891,19 @@ async function readCanonicalLoggedInAttributionReconciliationLedger({ baseRef = 
     "Canonical logged-in attribution reconciliation ledger"
   );
   const base = baseRef ? await readJsonFromGitRef(baseRef, loggedInEvidencePath, null) : null;
+  return combineAttributionReconciliationLedgers(
+    base?.attributionReconciliationLedger,
+    current.attributionReconciliationLedger
+  );
+}
+
+async function readCanonicalSeededAttributionReconciliationLedger({ baseRef = null } = {}) {
+  const reconciliationPath = "src/lib/social/a16z-speedrun-006-attribution-reconciliation.json";
+  const current = await readRequiredCanonicalJson(
+    join(root, reconciliationPath),
+    "Canonical A16Z seeded attribution reconciliation ledger"
+  );
+  const base = baseRef ? await readJsonFromGitRef(baseRef, reconciliationPath, null) : null;
   return combineAttributionReconciliationLedgers(
     base?.attributionReconciliationLedger,
     current.attributionReconciliationLedger
@@ -2327,6 +2343,8 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
     );
     const rebasedLoggedInAttributionReconciliationLedger =
       await readCanonicalLoggedInAttributionReconciliationLedger({ baseRef: `origin/${branch}` });
+    const rebasedSeededAttributionReconciliationLedger =
+      await readCanonicalSeededAttributionReconciliationLedger({ baseRef: `origin/${branch}` });
     const rebasedSanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
       publicationInputs.publicSnapshots,
       {
@@ -2353,7 +2371,8 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       attributionReconciliationLedger: combineAttributionReconciliationLedgers(
         rebasedSanitizedPublicSnapshot?.attributionReconciliationLedger,
         rebasedSanitizedTargetedSnapshot?.attributionReconciliationLedger,
-        rebasedLoggedInAttributionReconciliationLedger
+        rebasedLoggedInAttributionReconciliationLedger,
+        rebasedSeededAttributionReconciliationLedger
       )
     });
     assertDurableAttributionCompleteness(retryDurableImport);

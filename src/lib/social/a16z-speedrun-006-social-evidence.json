@@ -1,6 +1,6 @@
 {
   "source": {
-    "generatedAt": "2026-07-24T15:08:49.578Z",
+    "generatedAt": "2026-07-29T07:11:00.000Z",
     "notes": [
       "Seeded native social post evidence for A16Z Speedrun 006 companies when the public traction snapshot does not yet include the post.",
       "Added verified Andrew Chen native X top-voice replies discovered in the 2026-07-15 exhaustive A16Z source audit.",
@@ -53,10 +53,11 @@
       "Imported 1 strict native rows from youtube-owner-native-recent-candidates-2026-07-24.json; refreshed 0 duplicates and rejected 0.",
       "Imported 6 strict native rows from snapp-official-youtube-alias-candidates-2026-07-24.json; refreshed 0 duplicates and rejected 0.",
       "Imported 15 strict native rows from youtube-low-coverage-official-history-maximum-10-candidates-2026-07-24.json; refreshed 0 duplicates and rejected 0.",
-      "Imported 9 strict native rows from snapp-official-youtube-alias-historical-candidates-2026-07-24.json; refreshed 0 duplicates and rejected 0."
+      "Imported 9 strict native rows from snapp-official-youtube-alias-historical-candidates-2026-07-24.json; refreshed 0 duplicates and rejected 0.",
+      "Imported 1 strict native rows from 2026-07-29-a16z-meridian-strict.json; refreshed 0 duplicates and rejected 0."
     ],
-    "sourceHuntImportedAt": "2026-07-24T15:08:49.578Z",
-    "evidenceCount": 988,
+    "sourceHuntImportedAt": "2026-07-29T07:11:00.000Z",
+    "evidenceCount": 989,
     "latestSourceHuntImport": {
       "artifactPath": "outputs/source-hunt/2026-07-19-a16z-second-pass.json",
       "strictCandidatesEvaluated": 34,
@@ -26639,6 +26640,28 @@
       "rawVisibleText": "{\"source\":\"verified_official_company_website_channel_link_plus_youtube_atom_metadata\",\"verifiedOfficialWebsiteUrl\":\"https://www.trysnapp.ai/\",\"discoveredChannelUrl\":\"https://www.youtube.com/@Snappstats\",\"channelId\":\"UCPs6X0xIGVo7k360cBJXgrA\",\"feedUrl\":\"https://www.youtube.com/feeds/videos.xml?channel_id=UCPs6X0xIGVo7k360cBJXgrA\",\"identityReconciliation\":{\"rosterName\":\"Snapp Stats\",\"currentChannelName\":\"Snapp AI\",\"sameOfficialBrand\":true,\"evidence\":\"The exact cohort website trysnapp.ai links @Snappstats, the channel ID is stable, and canonical Snapp Stats Instagram evidence already uses the current native author name Snapp AI on @snappstats.\"},\"post\":{\"id\":\"dcj9LEwgG4k\",\"url\":\"https://www.youtube.com/watch?v=dcj9LEwgG4k\",\"created_at\":\"2026-07-21T04:03:55.000Z\",\"title\":\"This AI Went 23-6 Betting MLB Pitcher Props Last Week\",\"authorName\":\"Snapp AI\",\"authorHandle\":\"Snappstats\"},\"counts\":{\"views\":1,\"likes\":0},\"verification\":{\"status\":\"accepted\",\"checkedAt\":\"2026-07-24T15:08:49.578Z\",\"method\":\"The official cohort company website directly links this exact YouTube channel. Its native Atom entry supplies the channel ID, physical video ID, timestamp, title, current author name, and positive public counters.\",\"metricsVisible\":true,\"notProfileOrSearchPage\":true}}",
       "matchReason": "Exact native YouTube video from the channel directly linked by Snapp Stats' verified official trysnapp.ai website. The stable @Snappstats identity and canonical @snappstats Instagram evidence reconcile the current Snapp AI display name to the roster company.",
       "why": "Imported from work/targeted-source-hunt-2026-07-24-zero-coverage/snapp-official-youtube-alias-historical-candidates-2026-07-24.json after strict native item, metric, attribution, and canonical dedupe validation.",
+      "review_state": "verified"
+    },
+    {
+      "companySlug": "meridian",
+      "companyName": "Meridian",
+      "entityType": "company",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/try-meridian_were-deepening-our-partnership-with-the-activity-7432466461719220224-_vMn",
+      "platformPostId": "7432466461719220224",
+      "accountUrl": "https://linkedin.com/company/try-meridian",
+      "authorName": "Meridian",
+      "authorHandle": "try-meridian",
+      "postedAt": "2026-02-25T16:48:13.023Z",
+      "title": "Meridian deepens its partnership with The Keystone Group",
+      "text": "We're deepening our partnership with The Keystone Group. Excited to continue working alongside their team - helping them spend less time searching and more time doing the work that actually matters.",
+      "mediaType": "text",
+      "metrics": {
+        "reactions": 9
+      },
+      "rawVisibleText": "{\"profile\":{\"name\":\"Meridian\",\"username\":\"try-meridian\",\"url\":\"https://www.linkedin.com/company/try-meridian\"},\"post\":{\"id\":\"7432466461719220224\",\"url\":\"https://www.linkedin.com/posts/try-meridian_were-deepening-our-partnership-with-the-activity-7432466461719220224-_vMn\",\"authorName\":\"Meridian\",\"authorHandle\":\"try-meridian\",\"text\":\"We're deepening our partnership with The Keystone Group. Excited to continue working alongside their team - helping them spend less time searching and more time doing the work that actually matters.\",\"publishedAtDerivedFrom\":\"LinkedIn activity snowflake\"},\"counts\":{\"reactions\":9},\"verification\":{\"status\":\"accepted\",\"checkedAt\":\"2026-07-29T07:11:00.000Z\",\"method\":\"Public native LinkedIn company post page and official company feed.\",\"publicationPrecision\":\"linkedin_activity_snowflake\",\"metricsVisible\":true,\"notProfileOrSearchPage\":true}}",
+      "matchReason": "The native LinkedIn post is authored by Meridian's verified company account @try-meridian, the company feed exposes 9 reactions, and the activity ID supplies the exact publication instant.",
+      "why": "Strict low-coverage recovery for a verified A16Z Speedrun 006 company account.",
       "review_state": "verified"
     }
   ]

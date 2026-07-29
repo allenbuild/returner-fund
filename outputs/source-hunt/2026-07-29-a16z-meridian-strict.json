@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "batchSlug": "A16ZSR006",
+  "observedAt": "2026-07-29T07:11:00.000Z",
+  "accepted": [
+    {
+      "batchSlug": "A16ZSR006",
+      "entityType": "company",
+      "entityId": "a16z-speedrun-006-meridian",
+      "companySlug": "meridian",
+      "companyName": "Meridian",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/try-meridian_were-deepening-our-partnership-with-the-activity-7432466461719220224-_vMn",
+      "platformPostId": "7432466461719220224",
+      "accountUrl": "https://www.linkedin.com/company/try-meridian",
+      "authorName": "Meridian",
+      "authorHandle": "try-meridian",
+      "postedAt": "2026-02-25T16:48:13.023Z",
+      "publishedAtPrecision": "linkedin_activity_snowflake",
+      "observedAt": "2026-07-29T07:11:00.000Z",
+      "title": "Meridian deepens its partnership with The Keystone Group",
+      "text": "We're deepening our partnership with The Keystone Group. Excited to continue working alongside their team - helping them spend less time searching and more time doing the work that actually matters.",
+      "mediaType": "text",
+      "metrics": {
+        "reactions": 9
+      },
+      "rawVisibleText": {
+        "profile": {
+          "name": "Meridian",
+          "username": "try-meridian",
+          "url": "https://www.linkedin.com/company/try-meridian"
+        },
+        "post": {
+          "id": "7432466461719220224",
+          "url": "https://www.linkedin.com/posts/try-meridian_were-deepening-our-partnership-with-the-activity-7432466461719220224-_vMn",
+          "authorName": "Meridian",
+          "authorHandle": "try-meridian",
+          "text": "We're deepening our partnership with The Keystone Group. Excited to continue working alongside their team - helping them spend less time searching and more time doing the work that actually matters.",
+          "publishedAtDerivedFrom": "LinkedIn activity snowflake"
+        },
+        "counts": {
+          "reactions": 9
+        },
+        "verification": {
+          "status": "accepted",
+          "checkedAt": "2026-07-29T07:11:00.000Z",
+          "method": "Public native LinkedIn company post page and official company feed.",
+          "publicationPrecision": "linkedin_activity_snowflake",
+          "metricsVisible": true,
+          "notProfileOrSearchPage": true
+        }
+      },
+      "matchReason": "The native LinkedIn post is authored by Meridian's verified company account @try-meridian, the company feed exposes 9 reactions, and the activity ID supplies the exact publication instant.",
+      "why": "Strict low-coverage recovery for a verified A16Z Speedrun 006 company account.",
+      "review_state": "verified",
+      "linkStatus": "verified"
+    }
+  ]
+}

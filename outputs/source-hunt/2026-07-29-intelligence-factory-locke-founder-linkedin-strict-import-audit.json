@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-07-29T06:31:01.000Z",
+  "target": "src/lib/social/targeted-evidence-current.json",
+  "inputs": [
+    "outputs/source-hunt/2026-07-29-intelligence-factory-locke-founder-linkedin-strict.json"
+  ],
+  "before": 3440,
+  "received": 6,
+  "accepted": 5,
+  "updated": 1,
+  "duplicates": 1,
+  "duplicateRows": [
+    {
+      "input": "outputs/source-hunt/2026-07-29-intelligence-factory-locke-founder-linkedin-strict.json",
+      "row": 5,
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/parth-badhwar_excited-to-share-a-big-update-i-started-activity-7471278925428604928-NlPD",
+      "platformPostId": "7471278925428604928",
+      "duplicateReason": "same_platform_post_id",
+      "existingSource": "src/lib/social/targeted-evidence-current.json#evidence[2083]",
+      "existingId": "source-hunt-96da1694229f890eb47a",
+      "existingEntityId": "founder-justinian-parth-badhwar-2399943",
+      "existingSourceUrl": "https://linkedin.com/posts/parth-badhwar_excited-to-share-a-big-update-i-started-activity-7471278925428604928-NlPD"
+    }
+  ],
+  "includedBatches": [
+    "S2026",
+    "S26"
+  ],
+  "skipped": 0,
+  "skippedRows": [],
+  "rejected": 0,
+  "rejectedRows": [],
+  "after": 3445
+}

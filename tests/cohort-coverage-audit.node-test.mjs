@@ -22,7 +22,7 @@ describe("cohort-wide structural coverage audit", () => {
     assert.deepEqual(summary, [
       { batchSlug: "S2026", companies: 197, founders: 397, mappings: 965 },
       { batchSlug: "S26", companies: 115, founders: 230, mappings: 552 },
-      { batchSlug: "A16ZSR006", companies: 59, founders: 128, mappings: 327 }
+      { batchSlug: "A16ZSR006", companies: 59, founders: 128, mappings: 328 }
     ]);
 
     const spring = cohorts.find((cohort) => cohort.batchSlug === "S2026").catalog;
@@ -44,7 +44,7 @@ describe("cohort-wide structural coverage audit", () => {
     assert.equal(audit.structuralFailureCount, 0);
     assert.equal(
       audit.batches.reduce((count, batch) => count + batch.counts.plannedOwnerMappings, 0),
-      1_844
+      1_845
     );
     assert.equal(
       audit.batches.reduce((count, batch) => count + batch.debt.multiAccountOwnerMappings.length, 0),

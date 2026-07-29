@@ -12,6 +12,7 @@ import type { CompanyRecord, GraphNode, Platform, SocialAccountSummary } from "@
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import socialAccountSeedSnapshot from "@/lib/social/a16z-speedrun-006-social-accounts.json";
 import seededSocialEvidenceSnapshot from "@/lib/social/a16z-speedrun-006-social-evidence.json";
+import seededAttributionReconciliationSnapshot from "@/lib/social/a16z-speedrun-006-attribution-reconciliation.json";
 
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
   "github",
@@ -664,6 +665,41 @@ describe("a16z speedrun 006 dataset", () => {
     expect(crebit?.biggestContribution?.sourceUrl).toMatch(/^https:\/\/(www\.linkedin\.com\/posts\/|www\.youtube\.com\/watch\?v=)/);
     expect(crebit?.biggestContribution?.sourceUrl).not.toContain("speedrun.a16z.com");
     expect(crebit?.biggestContribution?.sourceUrl).not.toContain("a16z.com");
+  });
+
+  it("fail-closed quarantines the enumerated Prior Foundry third-party roundup attribution", () => {
+    const priorFoundryPostId = "7457089172978200578";
+    const seededRows = (seededSocialEvidenceSnapshot as unknown as {
+      evidence: Array<{ platformPostId?: string }>;
+    }).evidence;
+    const reconciliation = seededAttributionReconciliationSnapshot as {
+      schemaVersion: number;
+      attributionReconciliationLedger: Array<{
+        platformPostId: string;
+        disposition: string;
+        reason: string;
+        staleAttribution: { batchSlug: string; entityId: string };
+      }>;
+    };
+
+    expect(seededRows.filter((row) => row.platformPostId === priorFoundryPostId)).toHaveLength(1);
+    expect(
+      a16zSpeedrun006GraphDataset.evidence.filter((row) => row.platformPostId === priorFoundryPostId)
+    ).toHaveLength(0);
+    expect(reconciliation).toEqual({
+      schemaVersion: 1,
+      attributionReconciliationLedger: [
+        expect.objectContaining({
+          platformPostId: priorFoundryPostId,
+          disposition: "quarantined",
+          reason: "third_party_cohort_roundup_list_entry_only",
+          staleAttribution: expect.objectContaining({
+            batchSlug: "A16ZSR006",
+            entityId: "a16z-speedrun-006-prior-foundry"
+          })
+        })
+      ]
+    });
   });
 
   it("scores seeded A16Z YouTube videos from native watch URLs", () => {

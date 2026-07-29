@@ -10,6 +10,13 @@
       }
     ]
   },
+  "advocate": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/advocate-wellbeing"
+    },
+    "sourceUrl": "https://advocatewellbeing.com",
+    "matchReason": "The exact official Advocate website links to this native LinkedIn company page; verified during the A16Z Speedrun 006 low-coverage audit."
+  },
   "allowance": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Allowance; query=\"\"Allowance\" Instagram\".",
     "needsReviewInstagram": [
@@ -159,6 +166,20 @@
         "reason": "Search-derived Instagram handle was not promoted: search-result handle/name matching alone is not enough to prove company/founder identity.",
         "previousMatchReason": "Web Instagram search found exact company/domain handle match for Callab AI; query=\"\"Callab AI\" site:instagram.com\".",
         "source": "search-derived-instagram-quarantine"
+      }
+    ]
+  },
+  "centralcoms": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/trydoberman"
+    },
+    "matchReason": "The CentralComs LinkedIn company URL redirects to the live Try Doberman company page. Preserve company-centralcoms and CentralComs as the stable Spring 2026 cohort identity.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/centralcoms",
+        "rejectedAt": "2026-07-29T06:31:01.000Z",
+        "reason": "The legacy LinkedIn vanity redirects to /company/trydoberman; retire the old collection target without detaching historical evidence.",
+        "source": "public_redirect_identity_resolution"
       }
     ]
   },
@@ -377,6 +398,20 @@
       }
     ]
   },
+  "justinian": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/lockeinc"
+    },
+    "matchReason": "Justinian now operates under the Locke brand at locke.inc and /company/lockeinc. Preserve company-justinian and Justinian as the stable Summer 2026 cohort identity so historical evidence remains attached.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/justinianai/?viewAsMember=true",
+        "rejectedAt": "2026-07-29T06:31:01.000Z",
+        "reason": "The legacy Justinian LinkedIn page redirects to the current Locke company page; retire the old collection target without detaching historical evidence.",
+        "source": "public_redirect_identity_resolution"
+      }
+    ]
+  },
   "juno-chat": {
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://junocompanion.com/.",
     "rejectedInstagram": [
@@ -385,6 +420,20 @@
         "rejectedAt": "2026-06-30T17:04:13.343Z",
         "reason": "Instagram profile identity mismatch for @junocompanion: visible profile name/bio/link did not match Juno.",
         "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "kebra": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/kebra-com"
+    },
+    "matchReason": "The legacy Kebra AI company URL redirects to the live Kebra company page; the current website redirects from kebra.ai to kebra.com. Preserve company-kebra and Kebra as the stable Summer 2026 cohort identity.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/kebra-ai/",
+        "rejectedAt": "2026-07-29T06:31:01.000Z",
+        "reason": "The legacy LinkedIn vanity redirects to the current owner page at /company/kebra-com; retire the old collection target without detaching historical evidence.",
+        "source": "public_redirect_identity_resolution"
       }
     ]
   },

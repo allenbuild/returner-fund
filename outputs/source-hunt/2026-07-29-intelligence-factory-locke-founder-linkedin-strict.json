@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-29T06:31:01.000Z",
+  "scope": "S2026 Intelligence Factory and S26 Justinian/Locke founder-native LinkedIn promotion with exact public structured-data metrics",
+  "policy": {
+    "accepted": "Exact native LinkedIn activity URL plus roster-linked founder author, complete publication timestamp, full native body, and positive native post-level metrics proven by public LinkedIn structured data.",
+    "observation": "All metrics in this artifact were observed from the public native LinkedIn pages at the fixed timestamp 2026-07-29T06:31:01.000Z.",
+    "reconciliation": "Existing needsReview rows remain as non-scoring audit records. Three unique Intelligence Factory company-to-founder physical attributions are carried through the canonical attributionReconciliationLedger so any matching durable stale attribution is explicitly rejected after the exact founder replacement is present. The pre-existing Parth Badhwar review quarantine already has the same founder target as the accepted row, so it must not be emitted as an invalid same-target reattribution; refreshing the accepted observation leaves that quarantine non-scoring."
+  },
+  "evidence": [
+    {
+      "entityType": "founder",
+      "entityId": "founder-intelligence-factory-yash-sinha-3245378",
+      "founderName": "Yash Sinha",
+      "companyName": "Intelligence Factory",
+      "companySlug": "intelligence-factory",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yash-sinha-556b411b3_excited-to-share-that-jalaj-and-i-are-building-activity-7447297212700864512-Lz3c",
+      "platformPostId": "7447297212700864512",
+      "accountUrl": "https://www.linkedin.com/in/yash-sinha-556b411b3",
+      "authorName": "Yash Sinha",
+      "authorHandle": "yash-sinha-556b411b3",
+      "postedAt": "2026-04-07T15:00:19.577Z",
+      "observedAt": "2026-07-29T06:31:01.000Z",
+      "title": "Excited to share that Jalaj and I are building Intelligence Factory and we're backed by Y Combinator and Comma Capital",
+      "text": "Excited to share that Jalaj and I are building Intelligence Factory and we're backed by Y Combinator and Comma Capital.\n\nRobotics is the new paradigm. With hardware converging, Intelligence is the biggest bottleneck. Our world was built for humans and we're giving robots the ability to reason and act like us.\n\nThe way we learn any task - by seeing, doing, and feeling - is how we train robots. We're building general intelligence that works on any robot and fits seamlessly within our world.\n\nIn the coming weeks, we will share more about our approach as we deploy across manufacturing, warehousing, and retail. Stay tuned!\n\nWe'd like to thank Pete Koomen, Max Kolysh, David Ongchoco, Adarsh Bhatt, Allen Gannett, Julien Pache and Wilson Lin for their support",
+      "mediaType": "text",
+      "metrics": {
+        "reactions": 754,
+        "comments": 93
+      },
+      "review_state": "verified",
+      "matchReason": "Public LinkedIn structured data identifies activity 7447297212700864512, exact roster-linked founder Yash Sinha as the Person author, a full native body explicitly announcing Intelligence Factory and YC backing, an exact publication timestamp, and positive native reactions/comments.",
+      "rawNativeProof": {
+        "source": "public_linkedin_structured_data",
+        "schemaType": "SocialMediaPosting",
+        "canonicalId": "https://www.linkedin.com/posts/yash-sinha-556b411b3_excited-to-share-that-jalaj-and-i-are-building-activity-7447297212700864512-Lz3c",
+        "authorType": "Person",
+        "authorName": "Yash Sinha",
+        "authorUrl": "https://www.linkedin.com/in/yash-sinha-556b411b3",
+        "datePublished": "2026-04-07T15:00:19.577Z",
+        "likeActionCount": 754,
+        "commentActionCount": 93,
+        "activityUrn": "urn:li:activity:7447297212700864512",
+        "observedAt": "2026-07-29T06:31:01.000Z"
+      },
+      "dedupeResult": "needs_review_only_no_accepted_physical_post_match"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-intelligence-factory-yash-sinha-3245378",
+      "founderName": "Yash Sinha",
+      "companyName": "Intelligence Factory",
+      "companySlug": "intelligence-factory",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yash-sinha-556b411b3_robots-wont-fail-because-they-cant-see-activity-7454922472535158784-KhDg",
+      "platformPostId": "7454922472535158784",
+      "accountUrl": "https://www.linkedin.com/in/yash-sinha-556b411b3",
+      "authorName": "Yash Sinha",
+      "authorHandle": "yash-sinha-556b411b3",
+      "postedAt": "2026-04-28T16:00:23.197Z",
+      "observedAt": "2026-07-29T06:31:01.000Z",
+      "title": "Robots won't fail because they can't see - they will fail because they can't feel",
+      "text": "Robots won't fail because they can't see - they will fail because they can't feel.\n\nThe sense of touch allows us to differentiate between picking up a plastic wrapper and a phone. It's the reason we're able to work with objects of all shapes, sizes, and structures. Without this information, robots are operating blind in the physical world.\n\nAt Intelligence Factory, Jalaj Shukla and Julien Stocker are building data collection hardware that captures force and tactile feedback from human demonstrations. With this, our models generalize across a wide range of objects.\n\nIf you're an engineer passionate about robotic intelligence and want to help solve this, reach out.",
+      "mediaType": "video",
+      "metrics": {
+        "reactions": 95,
+        "comments": 10
+      },
+      "review_state": "verified",
+      "matchReason": "Public LinkedIn VideoObject structured data identifies activity 7454922472535158784, exact roster-linked founder Yash Sinha as the Person creator, a full native body explicitly describing Intelligence Factory's tactile-feedback work, an exact publication timestamp, and positive native reactions/comments.",
+      "rawNativeProof": {
+        "source": "public_linkedin_structured_data",
+        "schemaType": "VideoObject",
+        "canonicalId": "https://www.linkedin.com/posts/yash-sinha-556b411b3_robots-wont-fail-because-they-cant-see-activity-7454922472535158784-KhDg",
+        "authorType": "Person",
+        "authorName": "Yash Sinha",
+        "authorUrl": "https://www.linkedin.com/in/yash-sinha-556b411b3",
+        "datePublished": "2026-04-28T16:00:23.197Z",
+        "likeActionCount": 95,
+        "commentActionCount": 10,
+        "activityUrn": "urn:li:activity:7454922472535158784",
+        "observedAt": "2026-07-29T06:31:01.000Z"
+      },
+      "dedupeResult": "duplicate_needs_review_rows_no_accepted_physical_post_match"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-intelligence-factory-yash-sinha-3245378",
+      "founderName": "Yash Sinha",
+      "companyName": "Intelligence Factory",
+      "companySlug": "intelligence-factory",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yash-sinha-556b411b3_10b-has-been-invested-in-robotics-but-very-activity-7461082991318970368-YJZc",
+      "platformPostId": "7461082991318970368",
+      "accountUrl": "https://www.linkedin.com/in/yash-sinha-556b411b3",
+      "authorName": "Yash Sinha",
+      "authorHandle": "yash-sinha-556b411b3",
+      "postedAt": "2026-05-15T16:00:05.322Z",
+      "observedAt": "2026-07-29T06:31:01.000Z",
+      "title": "$10B has been invested in robotics, but very little of this technology has reached the customer",
+      "text": "$10B has been invested in robotics, but very little of this technology has reached the customer.\n\nMost robots in the market break with any variation in the environment.\n\nIn the real world, robots don't compete with other robots - they compete with humans. And no business pays for a robot that works 80% of the time when their current system works 100% of the time. This is the deployment gap.\n\nThe standard fix is a data flywheel: deploy, collect data, retrain, redeploy. But this is slow, expensive, and doesn't work in practice.\n\nAt Intelligence Factory, we're making this flywheel dramatically faster. We're soon deploying with customers in warehouses, grocery and data centers.",
+      "mediaType": "text",
+      "metrics": {
+        "reactions": 71,
+        "comments": 5
+      },
+      "review_state": "verified",
+      "matchReason": "Public LinkedIn structured data identifies activity 7461082991318970368, exact roster-linked founder Yash Sinha as the Person author, a full native body explicitly describing Intelligence Factory's deployment work, an exact publication timestamp, and positive native reactions/comments.",
+      "rawNativeProof": {
+        "source": "public_linkedin_structured_data",
+        "schemaType": "SocialMediaPosting",
+        "canonicalId": "https://www.linkedin.com/posts/yash-sinha-556b411b3_10b-has-been-invested-in-robotics-but-very-activity-7461082991318970368-YJZc",
+        "authorType": "Person",
+        "authorName": "Yash Sinha",
+        "authorUrl": "https://www.linkedin.com/in/yash-sinha-556b411b3",
+        "datePublished": "2026-05-15T16:00:05.322Z",
+        "likeActionCount": 71,
+        "commentActionCount": 5,
+        "activityUrn": "urn:li:activity:7461082991318970368",
+        "observedAt": "2026-07-29T06:31:01.000Z"
+      },
+      "dedupeResult": "needs_review_only_no_accepted_physical_post_match"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-intelligence-factory-jalaj-shukla-3417788",
+      "founderName": "Jalaj Shukla",
+      "companyName": "Intelligence Factory",
+      "companySlug": "intelligence-factory",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/jalaj-shukla-635005167_when-i-was-a-kid-in-india-i-had-this-wish-activity-7447474896139370497-sdXu",
+      "platformPostId": "7447474896139370497",
+      "accountUrl": "https://www.linkedin.com/in/jalaj-shukla-635005167",
+      "authorName": "Jalaj Shukla",
+      "authorHandle": "jalaj-shukla-635005167",
+      "postedAt": "2026-04-08T02:46:22.608Z",
+      "observedAt": "2026-07-29T06:31:01.000Z",
+      "title": "When I was a kid in India, I had this wish",
+      "text": "When I was a kid in India, I had this wish.\n\nNot a plan. Not a roadmap. Just a quiet, almost embarrassing wish that one day I would have my own company in Silicon Valley, building something that actually matters to me and to the community.\n\nI did not know how. I just knew I had to keep going.\n\nWhile at University of Pennsylvania there were a lot of times I tried pitching some half-baked idea at The Wharton School, pitching auto-generated sign language captions for YouTube videos Jerome Fisher M&T Program, working with my entrepreneurship professor (Tom Cassel) not really knowing what I was doing. I just knew what I wished for and tried my best in whatever I was doing. I didn't know what I was preparing for. Even in my most rational moments, I would not have imagined what I'd be doing two years down the line, or that it would even be possible.\n\nI just kept doing my best, whether it was an assignment for a course I didn't care about or a random job at a company that felt unrelated to everything. Things just quietly add up. The dots were connecting. I just couldn't see it yet.\n\nToday, Yash Sinha and I are building Intelligence Factory, general intelligence for robots, backed by Y Combinator, Comma Capital, and Allen Gannett. And standing here, I finally see all the dots.\nBut this moment is not mine alone. It belongs to every person in these photos.\n\n- My mentors Nadia Figueroa, Kostas Daniilidis, Ho Jin Choi, Shafagh Keyvanian, Dr. Kirankumar Rushinath jagtap, Ted Solomon who saw something in me before I did.\n- My friends, Pratyush Mallick, Sai Chand Gubbala, Manas Kulkarni Yadnik Bendale, Harsh Yellai, Santosh Yerramsetty, Richal Abhang, Irene Grace Karot Polson who never let me shrink.\n- My family, Palashi Singhal, Aditya Rajeev, Saurav Agrawal, Hardik Shukla, Archis Basangar,Manish Raul ,Mrunal Deshmukh, Radhika Prayage, Devansh Shukla who sacrificed quietly so I could dream loudly.\n\nThis is not my achievement. This is our cumulative effort.\n\nI want to build this the right way; honest, ethical, human. A place where people do meaningful work and go home fulfilled. That's the bigger dream now. And I need you now more than ever !!!\n\ndreams · courage · hope · prayers · family · friends · love · serendipity · gratitude · joy · bliss",
+      "mediaType": "image",
+      "metrics": {
+        "reactions": 431,
+        "comments": 117
+      },
+      "review_state": "verified",
+      "matchReason": "Public LinkedIn structured data identifies activity 7447474896139370497, exact roster-linked founder Jalaj Shukla as the Person author, a full native body explicitly announcing that he and Yash Sinha are building Intelligence Factory with YC backing, an exact publication timestamp, and positive native reactions/comments.",
+      "rawNativeProof": {
+        "source": "public_linkedin_structured_data",
+        "schemaType": "SocialMediaPosting",
+        "canonicalId": "https://www.linkedin.com/posts/jalaj-shukla-635005167_when-i-was-a-kid-in-india-i-had-this-wish-activity-7447474896139370497-sdXu",
+        "authorType": "Person",
+        "authorName": "Jalaj Shukla",
+        "authorUrl": "https://www.linkedin.com/in/jalaj-shukla-635005167",
+        "datePublished": "2026-04-08T02:46:22.608Z",
+        "likeActionCount": 431,
+        "commentActionCount": 117,
+        "activityUrn": "urn:li:activity:7447474896139370497",
+        "observedAt": "2026-07-29T06:31:01.000Z"
+      },
+      "dedupeResult": "new_physical_post_no_accepted_or_needs_review_match"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-intelligence-factory-yash-sinha-3245378",
+      "founderName": "Yash Sinha",
+      "companyName": "Intelligence Factory",
+      "companySlug": "intelligence-factory",
+      "batchSlug": "S2026",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yash-sinha-556b411b3_last-week-jalaj-shukla-and-i-presented-intelligence-activity-7477420662773411840-lwAB",
+      "platformPostId": "7477420662773411840",
+      "accountUrl": "https://www.linkedin.com/in/yash-sinha-556b411b3",
+      "authorName": "Yash Sinha",
+      "authorHandle": "yash-sinha-556b411b3",
+      "postedAt": "2026-06-29T18:00:09.741Z",
+      "observedAt": "2026-07-29T06:31:01.000Z",
+      "title": "Last week Jalaj Shukla and I presented Intelligence Factory at the Y Combinator Demo Day",
+      "text": "Last week Jalaj Shukla and I presented Intelligence Factory at the Y Combinator Demo Day.\n\nIntelligence Factory was born from the experience and insights we've gained over the last 6 years of building and deploying robots.\n\nSince we began in March, we have built the foundation of our technology and the real work of scaling now begins.\n\nWe started Intelligence Factory with only one goal - deploy robots in the real world. We are more excited than ever to make this a reality.\n\nThanks to our YC partners Pete Koomen and Max Kolysh for always pushing us.",
+      "mediaType": "image",
+      "metrics": {
+        "reactions": 155,
+        "comments": 13
+      },
+      "review_state": "verified",
+      "matchReason": "Public LinkedIn structured data identifies activity 7477420662773411840, exact roster-linked founder Yash Sinha as the Person author, a full native body about presenting Intelligence Factory at YC Demo Day, an exact publication timestamp, and positive native reactions/comments.",
+      "rawNativeProof": {
+        "source": "public_linkedin_structured_data",
+        "schemaType": "SocialMediaPosting",
+        "canonicalId": "https://www.linkedin.com/posts/yash-sinha-556b411b3_last-week-jalaj-shukla-and-i-presented-intelligence-activity-7477420662773411840-lwAB",
+        "authorType": "Person",
+        "authorName": "Yash Sinha",
+        "authorUrl": "https://www.linkedin.com/in/yash-sinha-556b411b3",
+        "datePublished": "2026-06-29T18:00:09.741Z",
+        "likeActionCount": 155,
+        "commentActionCount": 13,
+        "activityUrn": "urn:li:activity:7477420662773411840",
+        "observedAt": "2026-07-29T06:31:01.000Z"
+      },
+      "dedupeResult": "new_physical_post_no_accepted_or_needs_review_match"
+    },
+    {
+      "entityType": "founder",
+      "entityId": "founder-justinian-parth-badhwar-2399943",
+      "founderName": "Parth Badhwar",
+      "companyName": "Justinian",
+      "companySlug": "justinian",
+      "batchSlug": "S26",
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/parth-badhwar_excited-to-share-a-big-update-i-started-activity-7471278925428604928-NlPD",
+      "platformPostId": "7471278925428604928",
+      "accountUrl": "https://www.linkedin.com/in/parth-badhwar-8a8037189",
+      "authorName": "Parth Badhwar",
+      "authorHandle": "parth-badhwar",
+      "postedAt": "2026-06-12T19:15:05.448Z",
+      "observedAt": "2026-07-29T06:31:01.000Z",
+      "title": "Excited to share a big update - I started a company and got into Y Combinator",
+      "text": "Excited to share a big update - I started a company and got into Y Combinator!\n\nAfter an incredible year and a half leading GTM at Clipbook, I'm returning to a space I've loved since Mr. Rucker's 8th grade history class: government, politics, and now, how AI will change the way the private sector interacts with our public institutions.\n\nI'll be sharing more soon but for now: we already have our first few partners and have helped them achieve real results, all with a growing pipeline of amazing companies.\n\nWe've also started building our early engineering and policy teams. If you're excited by AI and helping ambitious companies advance the national interest, please reach out!",
+      "mediaType": "text",
+      "metrics": {
+        "reactions": 384,
+        "comments": 85
+      },
+      "review_state": "verified",
+      "matchReason": "Public LinkedIn structured data identifies activity 7471278925428604928, exact roster-linked founder Parth Badhwar as the Person author, a full native body announcing his company and YC acceptance, an exact publication timestamp, and positive native reactions/comments. The public author URL is a redirect alias of the roster profile, and the current company brand is Locke while the canonical S26 cohort identity remains Justinian.",
+      "rawNativeProof": {
+        "source": "public_linkedin_structured_data",
+        "schemaType": "SocialMediaPosting",
+        "canonicalId": "https://www.linkedin.com/posts/parth-badhwar_excited-to-share-a-big-update-i-started-activity-7471278925428604928-NlPD",
+        "authorType": "Person",
+        "authorName": "Parth Badhwar",
+        "authorUrl": "https://www.linkedin.com/in/parth-badhwar",
+        "rosterAuthorUrl": "https://www.linkedin.com/in/parth-badhwar-8a8037189",
+        "datePublished": "2026-06-12T19:15:05.448Z",
+        "likeActionCount": 384,
+        "commentActionCount": 85,
+        "activityUrn": "urn:li:activity:7471278925428604928",
+        "observedAt": "2026-07-29T06:31:01.000Z"
+      },
+      "dedupeResult": "refresh_existing_accepted_founder_observation_and_retire_conflicting_review"
+    }
+  ],
+  "reconciliation": [
+    {
+      "platform": "linkedin",
+      "platformPostId": "7447297212700864512",
+      "acceptedEntityType": "founder",
+      "acceptedEntityId": "founder-intelligence-factory-yash-sinha-3245378",
+      "retireNeedsReviewIds": [
+        "quarantined-web-company-intelligence-factory-www-linkedin-com-posts-activity-7447297212700864512-uj-g-intelligence-factory-backed-by-y-combinator-and-comma-capital"
+      ],
+      "expectedNeedsReviewMatches": 1,
+      "action": "Retain the non-scoring review audit row; use the physical-post ledger entry to reject only an exact matching stale durable company attribution after the founder replacement exists."
+    },
+    {
+      "platform": "linkedin",
+      "platformPostId": "7454922472535158784",
+      "acceptedEntityType": "founder",
+      "acceptedEntityId": "founder-intelligence-factory-yash-sinha-3245378",
+      "retireNeedsReviewIds": [
+        "review-linkedin-company-intelligence-factory-linkedin-com-posts-yash-sinha-556b411b3-robots-wont-fail-because-they-cant-see-activity-7454922472535158784-khdg"
+      ],
+      "expectedNeedsReviewMatches": 2,
+      "action": "Retain both non-scoring review audit rows; one physical-post ledger entry covers both duplicate review receipts and rejects only an exact matching stale durable company attribution."
+    },
+    {
+      "platform": "linkedin",
+      "platformPostId": "7461082991318970368",
+      "acceptedEntityType": "founder",
+      "acceptedEntityId": "founder-intelligence-factory-yash-sinha-3245378",
+      "retireNeedsReviewIds": [
+        "review-linkedin-company-intelligence-factory-linkedin-com-posts-activity-7461082991318970368-ewds"
+      ],
+      "expectedNeedsReviewMatches": 1,
+      "action": "Retain the non-scoring review audit row; use the physical-post ledger entry to reject only an exact matching stale durable company attribution after the founder replacement exists."
+    },
+    {
+      "platform": "linkedin",
+      "platformPostId": "7471278925428604928",
+      "acceptedEntityType": "founder",
+      "acceptedEntityId": "founder-justinian-parth-badhwar-2399943",
+      "retireNeedsReviewIds": [
+        "quarantine-source-hunt-96da1694229f890eb47a-289"
+      ],
+      "expectedNeedsReviewMatches": 1,
+      "action": "Refresh the accepted founder observation with complete metrics. Retain the existing non-scoring quarantine audit row; do not emit an invalid same-target reattribution."
+    }
+  ],
+  "attributionReconciliationLedger": [
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yash-sinha-556b411b3_excited-to-share-that-jalaj-and-i-are-building-activity-7447297212700864512-Lz3c",
+      "platformPostId": "7447297212700864512",
+      "disposition": "reattributed",
+      "reason": "source_hunt_founder_native_structured_data_reconciliation_2026_07_29",
+      "staleAttribution": {
+        "batchSlug": "S2026",
+        "entityType": "company",
+        "entityId": "company-intelligence-factory",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-intelligence-factory-yash-sinha-3245378",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yash-sinha-556b411b3_robots-wont-fail-because-they-cant-see-activity-7454922472535158784-KhDg",
+      "platformPostId": "7454922472535158784",
+      "disposition": "reattributed",
+      "reason": "source_hunt_founder_native_structured_data_reconciliation_2026_07_29",
+      "staleAttribution": {
+        "batchSlug": "S2026",
+        "entityType": "company",
+        "entityId": "company-intelligence-factory",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-intelligence-factory-yash-sinha-3245378",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/yash-sinha-556b411b3_10b-has-been-invested-in-robotics-but-very-activity-7461082991318970368-YJZc",
+      "platformPostId": "7461082991318970368",
+      "disposition": "reattributed",
+      "reason": "source_hunt_founder_native_structured_data_reconciliation_2026_07_29",
+      "staleAttribution": {
+        "batchSlug": "S2026",
+        "entityType": "company",
+        "entityId": "company-intelligence-factory",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S2026",
+        "entityType": "founder",
+        "entityId": "founder-intelligence-factory-yash-sinha-3245378",
+        "attributionType": "subject"
+      }
+    }
+  ],
+  "accountDrift": [
+    {
+      "batchSlug": "S26",
+      "entityId": "company-kebra",
+      "canonicalRosterPath": "src/lib/yc/summer-2026-companies.json",
+      "preserveHistoricalName": "Kebra",
+      "aliases": {
+        "website": {
+          "from": "https://kebra.ai",
+          "to": "https://www.kebra.com/"
+        },
+        "linkedin": {
+          "from": "https://www.linkedin.com/company/kebra-ai/",
+          "to": "https://www.linkedin.com/company/kebra-com"
+        }
+      },
+      "recommendedAction": "Add redirect-resolved website and LinkedIn aliases without changing the stable cohort entity ID or detaching historical evidence."
+    },
+    {
+      "batchSlug": "S2026",
+      "entityId": "company-centralcoms",
+      "canonicalRosterPath": "src/lib/yc/spring-2026-companies.json",
+      "preserveHistoricalName": "CentralComs",
+      "aliases": {
+        "linkedin": {
+          "from": "https://www.linkedin.com/company/centralcoms",
+          "to": "https://www.linkedin.com/company/trydoberman"
+        }
+      },
+      "recommendedAction": "Add the redirect-resolved LinkedIn alias while preserving CentralComs as the stable cohort identity and retaining historical evidence."
+    },
+    {
+      "batchSlug": "S26",
+      "entityId": "company-justinian",
+      "canonicalRosterPath": "src/lib/yc/summer-2026-companies.json",
+      "preserveHistoricalName": "Justinian",
+      "currentBrandName": "Locke",
+      "aliases": {
+        "website": {
+          "from": "https://justinianai.com",
+          "to": "https://locke.inc"
+        },
+        "linkedin": {
+          "from": "https://www.linkedin.com/company/justinianai/?viewAsMember=true",
+          "to": "https://www.linkedin.com/company/lockeinc"
+        }
+      },
+      "recommendedAction": "Record Locke as a current brand/account alias under stable cohort entity company-justinian; do not destructively rename the entity or reassign historical evidence."
+    }
+  ],
+  "verifiedSocialOverridesPatch": {
+    "kebra": {
+      "companySocialLinks": {
+        "linkedin": "https://www.linkedin.com/company/kebra-com"
+      },
+      "matchReason": "The legacy Kebra AI company URL redirects to the live Kebra company page; the current website redirects from kebra.ai to kebra.com. Preserve company-kebra and Kebra as the stable Summer 2026 cohort identity.",
+      "rejectedLinkedin": [
+        {
+          "url": "https://www.linkedin.com/company/kebra-ai/",
+          "rejectedAt": "2026-07-29T06:31:01.000Z",
+          "reason": "The legacy LinkedIn vanity redirects to the current owner page at /company/kebra-com; retire the old collection target without detaching historical evidence.",
+          "source": "public_redirect_identity_resolution"
+        }
+      ]
+    },
+    "centralcoms": {
+      "companySocialLinks": {
+        "linkedin": "https://www.linkedin.com/company/trydoberman"
+      },
+      "matchReason": "The CentralComs LinkedIn company URL redirects to the live Try Doberman company page. Preserve company-centralcoms and CentralComs as the stable Spring 2026 cohort identity.",
+      "rejectedLinkedin": [
+        {
+          "url": "https://www.linkedin.com/company/centralcoms",
+          "rejectedAt": "2026-07-29T06:31:01.000Z",
+          "reason": "The legacy LinkedIn vanity redirects to /company/trydoberman; retire the old collection target without detaching historical evidence.",
+          "source": "public_redirect_identity_resolution"
+        }
+      ]
+    },
+    "justinian": {
+      "companySocialLinks": {
+        "linkedin": "https://www.linkedin.com/company/lockeinc"
+      },
+      "matchReason": "Justinian now operates under the Locke brand at locke.inc and /company/lockeinc. Preserve company-justinian and Justinian as the stable Summer 2026 cohort identity so historical evidence remains attached.",
+      "rejectedLinkedin": [
+        {
+          "url": "https://www.linkedin.com/company/justinianai/?viewAsMember=true",
+          "rejectedAt": "2026-07-29T06:31:01.000Z",
+          "reason": "The legacy Justinian LinkedIn page redirects to the current Locke company page; retire the old collection target without detaching historical evidence.",
+          "source": "public_redirect_identity_resolution"
+        }
+      ]
+    }
+  },
+  "counts": {
+    "verified": 6,
+    "linkedin": 6,
+    "founder": 6,
+    "newAcceptedCandidates": 5,
+    "acceptedObservationRefreshes": 1,
+    "needsReviewAuditPhysicalPosts": 4,
+    "needsReviewAuditRows": 5,
+    "durableReattributionPhysicalPosts": 3,
+    "accountDriftEntities": 3
+  }
+}

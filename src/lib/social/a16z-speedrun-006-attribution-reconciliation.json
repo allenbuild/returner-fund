@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "attributionReconciliationLedger": [
+    {
+      "platform": "linkedin",
+      "sourceUrl": "https://www.linkedin.com/posts/zeen_a16z-speedrun-just-wrapped-their-sixth-cohort-activity-7457089172978200578-wwkG",
+      "platformPostId": "7457089172978200578",
+      "disposition": "quarantined",
+      "reason": "third_party_cohort_roundup_list_entry_only",
+      "staleAttribution": {
+        "batchSlug": "A16ZSR006",
+        "entityType": "company",
+        "entityId": "a16z-speedrun-006-prior-foundry",
+        "attributionType": "subject"
+      }
+    }
+  ]
+}
