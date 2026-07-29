@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "publishedAt": "2026-07-29T07:53:26.366Z",
-  "ingestionRunId": "manual-source-sweep-2026-07-29-detached",
-  "evidenceCollectedAt": "2026-07-29T07:11:00.000Z",
-  "oldestPlatformRefreshAt": "2026-07-28T23:58:44.453Z",
+  "publishedAt": "2026-07-29T13:52:15.257Z",
+  "ingestionRunId": "file:central-2026-07-29-0600",
+  "evidenceCollectedAt": "2026-07-29T13:46:11.795Z",
+  "oldestPlatformRefreshAt": "2026-07-29T07:11:00.000Z",
   "modelVersions": [
     "returner-traction@4.0.1",
     "unknown@4.0.0"
@@ -22,65 +22,65 @@
   "graphArtifacts": [
     {
       "filename": "a16zsr006-insiders.json",
-      "sha256": "bd3232efe8d039622e7aad0a3456c03caeea4adb390c4d1101b20767f25ea249",
-      "byteSize": 102285,
-      "generatedAt": "2026-07-29T07:53:25.892Z",
+      "sha256": "4a59f190caa374f4c6733683f7aaa557a17f52ae7cf0ba96ac4aa5840b4a75f8",
+      "byteSize": 102284,
+      "generatedAt": "2026-07-29T13:50:34.980Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "a16zsr006-yc-partners.json",
-      "sha256": "dd33ac0b09443fc34d412efdc7258674277b8e7475e7c47eb9e58bbbdc78e8e4",
+      "sha256": "7c6ccb3cec993d53f2aa1038b877f14c93cdf9ecd3a1e97ecd5f909870d8e03c",
       "byteSize": 2577,
-      "generatedAt": "2026-07-29T07:53:25.618Z",
+      "generatedAt": "2026-07-29T13:50:34.270Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "a16zsr006.json",
-      "sha256": "58152d8159be9a894a510d7d4c7f1dc2d89b57fae58ab5ce89adcdc4abef8cd8",
-      "byteSize": 3052689,
-      "generatedAt": "2026-07-29T07:53:25.513Z",
+      "sha256": "2eb0eab8fb76aa8f4e02a9bb89ff393b7aec36799da782ac11cc00fff4cba626",
+      "byteSize": 3053461,
+      "generatedAt": "2026-07-29T13:50:34.065Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s2026-insiders.json",
-      "sha256": "c883f68d4b940f55a83d076d181783efd7720e12f84d36a9cc39e2b6484ed384",
-      "byteSize": 546222,
-      "generatedAt": "2026-07-29T07:53:23.091Z",
+      "sha256": "0775e841040bb092da43814f9741c557cefb4cb7b49ef9154c2e38782d5d8317",
+      "byteSize": 547451,
+      "generatedAt": "2026-07-29T13:50:28.701Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s2026-yc-partners.json",
-      "sha256": "1472aeeb36b2fff8a1af377293167318a628f07fdefd4cef2ad64655e1b04492",
-      "byteSize": 1054257,
-      "generatedAt": "2026-07-29T07:53:22.017Z",
+      "sha256": "6a4bd2e0de94544c7e55eea452e35ba4cafba3da5f3340d98e2f2bd5e4e22b7e",
+      "byteSize": 1055701,
+      "generatedAt": "2026-07-29T13:50:26.455Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s2026.json",
-      "sha256": "2d5b695a52c4b3f527c422b2a8e5cf79a47509e69d52d1204b2611fa3b436a93",
-      "byteSize": 12920558,
-      "generatedAt": "2026-07-29T07:53:21.112Z",
+      "sha256": "f258fda2bd8a9a07ad3f55fb8b8d54ed954ec40ddf588957509b1836299f4ec4",
+      "byteSize": 12936370,
+      "generatedAt": "2026-07-29T13:50:24.058Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s26-insiders.json",
-      "sha256": "b11d117f3b4b3215ff1a3150107d4b6ab3462163afaf605e16cc577e23468ddc",
+      "sha256": "a62e1d16053a0939c56112c016e8c102e8055492ce38040833a438757b736ebb",
       "byteSize": 5405,
-      "generatedAt": "2026-07-29T07:53:24.998Z",
+      "generatedAt": "2026-07-29T13:50:32.902Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s26-yc-partners.json",
-      "sha256": "a3876caf4a8d95818755223f587b42473dad7144e447ddcaa0f45d427da29718",
-      "byteSize": 316425,
-      "generatedAt": "2026-07-29T07:53:24.514Z",
+      "sha256": "106b077f09a70060db7cd542127eebdfe72a49f050a27b3799abdc6e152b28d0",
+      "byteSize": 317265,
+      "generatedAt": "2026-07-29T13:50:31.821Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s26.json",
-      "sha256": "0351b08545557b29c9d8dc3e1af9d69c21683e78d481e5be5c72416cdc285cef",
-      "byteSize": 5246600,
-      "generatedAt": "2026-07-29T07:53:24.256Z",
+      "sha256": "5ce90eee0cb415969587aeba1051fb23b911a0227130c139f0c10c563edbd75e",
+      "byteSize": 5249593,
+      "generatedAt": "2026-07-29T13:50:31.296Z",
       "modelVersion": "4.0.1"
     }
   ],
@@ -116,5 +116,5 @@
       "generatedAt": "2026-07-01T05:30:37.139Z"
     }
   ],
-  "contentHash": "2fec428b77ec220c33918415b136f24b178687c55e6a255202f0e3a5d09b8184"
+  "contentHash": "1a41811b56f0403d8206580e5526783903e2f6a810709e30de28376999f1984a"
 }

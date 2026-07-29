@@ -2122,5 +2122,62 @@
         "postedAt": "2026-07-28T00:28:42Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-29-0600",
+    "centralDay": "2026-07-29",
+    "observedAt": "2026-07-29T13:46:12.247Z",
+    "baselinePhysicalSources": 7636,
+    "publishedPhysicalSources": 7637,
+    "newPhysicalSources": 2,
+    "newPhysicalSourcesThisAttempt": 2,
+    "retainedPhysicalSources": 7635,
+    "removedPhysicalSources": 1,
+    "dailyNewPhysicalSources": 2,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_failures:2",
+      "mapped_success_rate_below_10_percent:0.0645"
+    ],
+    "mappedExpected": 1845,
+    "mappedSucceeded": 119,
+    "mappedNeedsReview": 1089,
+    "mappedBlockedOrEmpty": 635,
+    "mappedFailures": 2,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0645,
+    "newestNewSourcePostedAt": "2026-04-25T06:01:10Z",
+    "insertedByBatchPlatform": {
+      "S2026:x": 1,
+      "S26:github": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S2026",
+        "platform": "x",
+        "entityType": "founder",
+        "entityId": "founder-standard-signal-michael-royzen-984097",
+        "sourceUrl": "https://x.com/MichaelRoyzen/status/2082272490148049404",
+        "platformPostId": "2082272490148049404",
+        "platformObjectId": null,
+        "postedAt": null
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-trope",
+        "sourceUrl": "https://github.com/tropeai/trope-cua",
+        "platformPostId": "tropeai/trope-cua",
+        "platformObjectId": "1220632889",
+        "postedAt": "2026-04-25T06:01:10Z"
+      }
+    ]
   }
 ]
