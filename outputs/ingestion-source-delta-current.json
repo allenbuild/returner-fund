@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-07-29-1800",
-  "centralDay": "2026-07-29",
-  "observedAt": "2026-07-30T00:43:18.695Z",
-  "baselinePhysicalSources": 7637,
-  "publishedPhysicalSources": 7639,
-  "newPhysicalSources": 2,
-  "newPhysicalSourcesThisAttempt": 2,
-  "retainedPhysicalSources": 7637,
+  "idempotencyKey": "central-2026-07-30-0600",
+  "centralDay": "2026-07-30",
+  "observedAt": "2026-07-30T13:30:59.609Z",
+  "baselinePhysicalSources": 8261,
+  "publishedPhysicalSources": 8264,
+  "newPhysicalSources": 3,
+  "newPhysicalSourcesThisAttempt": 3,
+  "retainedPhysicalSources": 8261,
   "removedPhysicalSources": 0,
-  "dailyNewPhysicalSources": 4,
+  "dailyNewPhysicalSources": 3,
   "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
   "collectionHealthReasons": [
@@ -17,40 +17,49 @@
     "missing_credential:EXA_API_KEY",
     "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
     "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
-    "mapped_success_rate_below_10_percent:0.0526"
+    "mapped_success_rate_below_10_percent:0.0978"
   ],
-  "mappedExpected": 1845,
-  "mappedSucceeded": 97,
-  "mappedNeedsReview": 1014,
-  "mappedBlockedOrEmpty": 734,
+  "mappedExpected": 1850,
+  "mappedSucceeded": 181,
+  "mappedNeedsReview": 1107,
+  "mappedBlockedOrEmpty": 562,
   "mappedFailures": 0,
   "mappedNonTerminal": 0,
-  "mappedSuccessRate": 0.0526,
-  "newestNewSourcePostedAt": "2026-07-06T16:31:11Z",
+  "mappedSuccessRate": 0.0978,
+  "newestNewSourcePostedAt": null,
   "insertedByBatchPlatform": {
-    "S2026:github": 1,
-    "S26:github": 1
+    "S2026:x": 3
   },
   "insertedSourceSamples": [
     {
       "batchSlug": "S2026",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-zenbu-2",
-      "sourceUrl": "https://github.com/zenbu-labs/terminal-browser",
-      "platformPostId": "zenbu-labs/terminal-browser",
-      "platformObjectId": "1291255325",
-      "postedAt": "2026-07-06T16:31:11Z"
+      "platform": "x",
+      "entityType": "founder",
+      "entityId": "founder-general-aviation-ben-frank-3468328",
+      "sourceUrl": "https://x.com/benjaminsfrank/status/2082290158729048358",
+      "platformPostId": "2082290158729048358",
+      "platformObjectId": null,
+      "postedAt": null
     },
     {
-      "batchSlug": "S26",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-parasma",
-      "sourceUrl": "https://github.com/SeanCole02/doom-neuron",
-      "platformPostId": "SeanCole02/doom-neuron",
-      "platformObjectId": "1100129757",
-      "postedAt": "2025-11-19T21:58:40Z"
+      "batchSlug": "S2026",
+      "platform": "x",
+      "entityType": "founder",
+      "entityId": "founder-miso-labs-cassidy-dalva-2331815",
+      "sourceUrl": "https://x.com/cassidydalva/status/2061499235657510931",
+      "platformPostId": "2061499235657510931",
+      "platformObjectId": null,
+      "postedAt": null
+    },
+    {
+      "batchSlug": "S2026",
+      "platform": "x",
+      "entityType": "founder",
+      "entityId": "founder-tenet-industries-emil-falk-3351069",
+      "sourceUrl": "https://x.com/falkemil_/status/2082792096281272628",
+      "platformPostId": "2082792096281272628",
+      "platformObjectId": null,
+      "postedAt": null
     }
   ]
 }
