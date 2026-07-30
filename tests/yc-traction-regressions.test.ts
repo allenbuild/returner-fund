@@ -699,22 +699,24 @@ describe("YC traction scoring regressions", () => {
     expect(aggregatedEvidenceCount).toBe(uniquePhysicalPosts.length);
   });
 
-  it("keeps LinkedIn profile activity fragments as unscored context with timestamp provenance", () => {
-    const fragment = ycSpring2026GraphDataset.evidence.find(
+  it("never scores LinkedIn profile activity fragments without a stable native post identity", () => {
+    const fragments = ycSpring2026GraphDataset.evidence.filter(
       (item) => item.platform === "linkedin" && item.sourceUrl.includes("/recent-activity/all/#post-")
     );
 
-    expect(fragment).toEqual(
-      expect.objectContaining({
-        contributionScore: 0,
-        publishedAtPrecision: "unknown",
-        observedAt: expect.any(String),
-        metricsCheckedAt: expect.any(String),
-        review_state: "verified"
-      })
-    );
-    expect(fragment?.why).toContain("Stored as context only");
-    expect(fragment?.why).toContain("stable native post identity");
+    for (const fragment of fragments) {
+      expect(fragment).toEqual(
+        expect.objectContaining({
+          contributionScore: 0,
+          publishedAtPrecision: "unknown",
+          observedAt: expect.any(String),
+          metricsCheckedAt: expect.any(String),
+          review_state: "verified"
+        })
+      );
+      expect(fragment.why).toContain("Stored as context only");
+      expect(fragment.why).toContain("stable native post identity");
+    }
   });
 
   it("keeps LinkedIn comments out of regular company and founder score aggregation", () => {
