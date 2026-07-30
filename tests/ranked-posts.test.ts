@@ -130,6 +130,76 @@ describe("ranked posts", () => {
 
     expect(ranked.map((item) => item.evidence.id)).toEqual(["late", "start"]);
   });
+
+  it("keeps legacy missing-precision posts eligible for Today but excludes explicitly unknown dates", () => {
+    const now = new Date("2026-07-20T12:00:00.000Z");
+    const ranked = selectRankedPosts(graph([
+      evidence({
+        id: "legacy-missing-precision",
+        postedAt: "2026-07-20T10:00:00.000Z",
+        publishedAtPrecision: undefined,
+        sourceUrl: "https://x.com/c/status/851",
+        platformPostId: "851"
+      }),
+      evidence({
+        id: "explicitly-unknown-precision",
+        postedAt: "2026-07-20T11:00:00.000Z",
+        publishedAtPrecision: "unknown",
+        sourceUrl: "https://x.com/c/status/852",
+        platformPostId: "852"
+      })
+    ]), { period: "today", now });
+
+    expect(ranked.map((item) => item.evidence.id)).toEqual([
+      "legacy-missing-precision"
+    ]);
+  });
+
+  it("limits Month to the inclusive rolling 30-day window ending at now", () => {
+    const now = new Date("2026-07-20T12:00:00.000Z");
+    const ranked = selectRankedPosts(graph([
+      evidence({
+        id: "before-window",
+        postedAt: "2026-06-20T11:59:59.999Z",
+        sourceUrl: "https://x.com/c/status/901",
+        platformPostId: "901"
+      }),
+      evidence({
+        id: "window-start",
+        postedAt: "2026-06-20T12:00:00.000Z",
+        sourceUrl: "https://x.com/c/status/902",
+        platformPostId: "902"
+      }),
+      evidence({
+        id: "at-now",
+        postedAt: "2026-07-20T12:00:00.000Z",
+        sourceUrl: "https://x.com/c/status/903",
+        platformPostId: "903"
+      }),
+      evidence({
+        id: "future",
+        postedAt: "2026-07-20T12:00:00.001Z",
+        sourceUrl: "https://x.com/c/status/904",
+        platformPostId: "904"
+      }),
+      evidence({
+        id: "unknown-precision",
+        postedAt: "2026-07-19T12:00:00.000Z",
+        publishedAtPrecision: "unknown",
+        sourceUrl: "https://x.com/c/status/905",
+        platformPostId: "905"
+      }),
+      evidence({
+        id: "missing-precision",
+        postedAt: "2026-07-19T12:00:00.000Z",
+        publishedAtPrecision: undefined,
+        sourceUrl: "https://x.com/c/status/906",
+        platformPostId: "906"
+      })
+    ]), { period: "month", now });
+
+    expect(ranked.map((item) => item.evidence.id)).toEqual(["at-now", "window-start"]);
+  });
 });
 
 function graph(evidenceItems: EvidenceItem[]): GraphResponse {
@@ -205,6 +275,7 @@ function evidence(overrides: Partial<EvidenceItem> = {}): EvidenceItem {
     authorName: "Example Company",
     authorHandle: "example",
     postedAt: "2026-07-18T12:00:00.000Z",
+    publishedAtPrecision: "exact",
     text: "We reached 10,000 users.",
     mediaType: "text",
     metrics: { likes: 100 },

@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { GraphResponse } from "@/lib/graph/types";
+import { stableInsiderBaseScore } from "@/lib/graph/insider-scoring";
 import { emptyInsiderConfiguration } from "@/lib/social/user-insiders";
 
 const authenticateInsiderRequest = vi.fn();
@@ -73,7 +76,43 @@ describe("POST /api/insiders/recompute", () => {
     const paulMatch = paulCompany?.insiderScoreBreakdown?.matches.find(
       (match) => match.memberId === "paul-graham"
     );
+    const publishedInsiderGraph = JSON.parse(
+      readFileSync(join(process.cwd(), "public", "graph", "s2026-insiders.json"), "utf8")
+    ) as GraphResponse;
+    const publishedCompany = publishedInsiderGraph.nodes.find(
+      (node) => node.entityId === paulCompany?.entityId
+    );
+    const expectedStableBase = stableInsiderBaseScore(
+      publishedCompany?.score ?? 0,
+      publishedCompany?.topVoiceConnections ?? []
+    );
     expect(paulMatch).toMatchObject({ effectiveWeight: 1, included: true });
+    expect(paulCompany?.insiderScoreBreakdown?.baseScore).toBe(expectedStableBase);
+    expect(paulCompany?.score).toBe(
+      Math.min(
+        100,
+        expectedStableBase +
+          (paulCompany?.insiderScoreBreakdown?.weightedInsiderSubtotal ?? 0)
+      )
+    );
+    loadUserInsiderConfiguration.mockResolvedValue({
+      ...emptyInsiderConfiguration(),
+      version: 9,
+      weightOverrides: { "paul-graham": 5 }
+    });
+    const defaultWeightResponse = await POST(new Request("http://localhost/api/insiders/recompute", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer token",
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({ batchSlug: "S2026", insiderIds: [] })
+    }));
+    const defaultWeightBody = await defaultWeightResponse.json() as { graph: GraphResponse };
+    const defaultWeightCompany = defaultWeightBody.graph.nodes.find(
+      (node) => node.entityId === paulCompany?.entityId
+    );
+    expect(defaultWeightCompany?.score).toBe((paulCompany?.score ?? 0) + 4);
     expect(body.graph.insiderConfigurationVersion).toBe(8);
   }, 30_000);
 

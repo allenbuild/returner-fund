@@ -1,11 +1,17 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
+import {
+  officialCompanyInstagramIdentityDecision
+} from "./lib/instagram-official-identity.mjs";
 
 const root = process.cwd();
-const ycSnapshotPath = join(root, "src", "lib", "yc", "summer-2026-companies.json");
+const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
+const cohortSnapshotPath = batchConfig.snapshotPath;
 const overridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
-const candidatesPath = join(root, "outputs", "instagram-discovery-candidates.json");
+const candidatesPath = resolvePathArg(
+  stringArg("--output") ?? batchConfig.candidatesPath
+);
 
 const write = booleanArg("--write");
 const appendReport = booleanArg("--append");
@@ -28,7 +34,10 @@ const MAX_SECOND_HOP_DISCOVERY_PAGES = 5;
 const LINK_IN_BIO_HOSTS = /(?:^|\.)?(?:linktr\.ee|bio\.link|bio\.site|beacons\.ai|bento\.me|lnk\.bio|solo\.to|taplink\.cc|carrd\.co|allmylinks\.com|linkin\.bio|msha\.ke|hoo\.be|campsite\.bio|withkoji\.com|koji\.to|stan\.store|flow\.page|about\.me)$/i;
 const PUBLIC_PROFILE_DISCOVERY_HOSTS = /(?:^|\.)?(?:x\.com|twitter\.com|mobile\.twitter\.com|linkedin\.com)$/i;
 
-const snapshot = JSON.parse(await readFile(ycSnapshotPath, "utf8"));
+const snapshot = normalizeBatchSnapshot(
+  JSON.parse(await readFile(cohortSnapshotPath, "utf8")),
+  batchConfig
+);
 const overrides = await readJson(overridesPath, {});
 const filteredCompanies = snapshot.companies.filter(
   (company) => !companyFilter || company.slug === companyFilter || company.name.toLowerCase().includes(companyFilter)
@@ -41,10 +50,13 @@ let verifiedCount = 0;
 let verifiedFounderCount = 0;
 
 await runWorkerPool(companies, workers, async (company) => {
-  const existing = overrides[company.slug]?.companySocialLinks?.instagram;
-  const officialLinks = skipOfficialDiscovery ? [] : await discoverFromOfficialPages(company);
-  const selectedOfficialLink = officialLinks[0] ?? null;
-  if (!skipOfficialDiscovery) {
+  const existing = existingCompanyInstagram(company);
+  const shouldDiscoverCompany = forceDiscovery || !existing;
+  const officialLinks =
+    skipOfficialDiscovery || !shouldDiscoverCompany ? [] : await discoverFromOfficialPages(company);
+  const verifiedOfficialLinks = officialLinks.filter((link) => link.review_state === "verified");
+  const selectedOfficialLink = verifiedOfficialLinks[0] ?? null;
+  if (!skipOfficialDiscovery && shouldDiscoverCompany) {
     attempts.push(
       discoveryAttempt({
         company,
@@ -53,32 +65,37 @@ await runWorkerPool(companies, workers, async (company) => {
         query: company.websiteUrl ?? "official website unavailable",
         source: "official-website",
         resultCount: officialLinks.length,
-        usefulResultCount: officialLinks.length,
-        status: officialLinks.length ? "verified" : "no_results",
-        selectedUrl: officialLinks[0]?.url ?? null,
+        usefulResultCount: verifiedOfficialLinks.length,
+        status: verifiedOfficialLinks.length
+          ? "verified"
+          : officialLinks.length
+            ? "needs_review"
+            : "no_results",
+        selectedUrl: selectedOfficialLink?.url ?? officialLinks[0]?.url ?? null,
         failureReason: officialLinks.length ? null : "No Instagram profile link found on official website or linked bio pages."
       })
     );
   }
   for (const link of officialLinks) {
-    candidates.push(candidate(company, link.url, "verified", link.reason, link.sourceUrl));
+    candidates.push(candidate(company, link.url, link.review_state, link.reason, link.sourceUrl));
   }
 
   if (selectedOfficialLink) {
     const existingCanonical = canonicalInstagramProfileUrl(existing);
     const selectedCanonical = canonicalInstagramProfileUrl(selectedOfficialLink.url);
     if (!existingCanonical || existingCanonical !== selectedCanonical || forceDiscovery) {
-      setCompanyOverride(company, selectedOfficialLink.url, selectedOfficialLink.reason);
+      setCompanyOverride(
+        company,
+        selectedOfficialLink.url,
+        selectedOfficialLink.reason,
+        {
+          sourceUrl: selectedOfficialLink.sourceUrl,
+          method: "official_outbound_link"
+        }
+      );
       verifiedCount += 1;
     }
     verifiedFounderCount += await discoverOfficialFounderOverrides(company);
-    return;
-  }
-
-  if (!existing && officialLinks.length) {
-    const selected = officialLinks[0];
-    setCompanyOverride(company, selected.url, selected.reason);
-    verifiedCount += 1;
     return;
   }
 
@@ -125,7 +142,10 @@ await runWorkerPool(companies, workers, async (company) => {
     for (const row of rows) {
       candidates.push(candidate(company, row.url, row.review_state, row.matchReason, "opencli:instagram-search", row));
       if (promoteSearch && row.review_state === "verified") {
-        setCompanyOverride(company, row.url, row.matchReason);
+        setCompanyOverride(company, row.url, row.matchReason, {
+          sourceUrl: row.sourceUrl ?? "opencli:instagram-search",
+          method: "authenticated_profile_identity"
+        });
         verifiedCount += 1;
         break;
       }
@@ -171,7 +191,10 @@ await runWorkerPool(companies, workers, async (company) => {
     for (const row of rows) {
       candidates.push(candidate(company, row.url, row.review_state, row.matchReason, row.sourceUrl ?? row.source ?? "duckduckgo:html", row));
       if (promoteSearch && row.review_state === "verified") {
-        setCompanyOverride(company, row.url, row.matchReason);
+        setCompanyOverride(company, row.url, row.matchReason, {
+          sourceUrl: row.sourceUrl ?? row.source ?? "duckduckgo:html",
+          method: "public_identity_corroboration"
+        });
         verifiedCount += 1;
         break;
       }
@@ -182,8 +205,8 @@ await runWorkerPool(companies, workers, async (company) => {
 
   if (search && includeFounders) {
     for (const founder of company.founders ?? []) {
-      const existingFounderInstagram = existingFounderOverride(company, founder)?.socialLinks?.instagram ?? founder.socialLinks?.instagram;
-      if (existingFounderInstagram && !forceDiscovery) continue;
+      const existingFounderInstagramUrl = existingFounderInstagram(company, founder);
+      if (existingFounderInstagramUrl && !forceDiscovery) continue;
 
       const rows = await searchFounderInstagram(company, founder).catch((error) => {
         attempts.push(
@@ -237,8 +260,8 @@ await runWorkerPool(companies, workers, async (company) => {
 
   if (webSearch && includeFounders) {
     for (const founder of company.founders ?? []) {
-      const existingFounderInstagram = existingFounderOverride(company, founder)?.socialLinks?.instagram ?? founder.socialLinks?.instagram;
-      if (existingFounderInstagram && !forceDiscovery) continue;
+      const existingFounderInstagramUrl = existingFounderInstagram(company, founder);
+      if (existingFounderInstagramUrl && !forceDiscovery) continue;
 
       const result = await webSearchFounderInstagram(company, founder).catch((error) => ({
         rows: [],
@@ -287,6 +310,9 @@ const prunedWebOverrides = pruneWebOverrides ? pruneWebVerifiedCompanyOverrides(
 
 let report = {
   generated_at: now,
+  batch_slug: batchConfig.slug,
+  batch_label: batchConfig.label,
+  source_snapshot: cohortSnapshotPath,
   write_enabled: write,
   append_enabled: appendReport,
   searched_with_opencli: search,
@@ -300,8 +326,11 @@ let report = {
   company_offset: offsetCompanies,
   companies_available: filteredCompanies.length,
   companies_checked: companies.length,
-  verified_company_instagram_profiles: Object.values(overrides).filter((item) => item?.companySocialLinks?.instagram).length,
-  verified_founder_instagram_profiles: Object.values(overrides).flatMap((item) => item?.founders ?? []).filter((founder) => founder?.socialLinks?.instagram).length,
+  verified_company_instagram_profiles: filteredCompanies.filter(existingCompanyInstagram).length,
+  verified_founder_instagram_profiles: filteredCompanies.reduce(
+    (total, company) => total + verifiedFounderInstagramCount(company),
+    0
+  ),
   newly_verified_in_this_run: verifiedCount,
   newly_verified_founders_in_this_run: verifiedFounderCount,
   attempts,
@@ -344,7 +373,7 @@ async function discoverFromOfficialPages(company) {
     await crawlInstagramDiscoverySource(company, source, found, visited);
   }
 
-  return dedupeLinks(found);
+  return evaluateOfficialCompanyLinks(company, dedupeLinks(found));
 }
 
 async function discoverOfficialFounderOverrides(company) {
@@ -352,8 +381,8 @@ async function discoverOfficialFounderOverrides(company) {
   let promotedCount = 0;
 
   for (const founder of company.founders ?? []) {
-    const existingFounderInstagram = existingFounderOverride(company, founder)?.socialLinks?.instagram ?? founder.socialLinks?.instagram;
-    if (existingFounderInstagram && !forceDiscovery) continue;
+    const existingFounderInstagramUrl = existingFounderInstagram(company, founder);
+    if (existingFounderInstagramUrl && !forceDiscovery) continue;
 
     const links = await discoverFromFounderPublicPages(company, founder);
     const verifiedLinks = links.filter((link) => link.review_state === "verified");
@@ -370,7 +399,7 @@ async function discoverOfficialFounderOverrides(company) {
         selectedUrl: verifiedLinks[0]?.url ?? links[0]?.url ?? null,
         failureReason: links.length
           ? null
-          : "No Instagram profile link found on YC-linked founder pages, X/LinkedIn public bios, personal sites, or linked bio pages."
+          : `No Instagram profile link found on ${batchConfig.label}-linked founder pages, X/LinkedIn public bios, personal sites, or linked bio pages.`
       })
     );
 
@@ -387,10 +416,13 @@ async function discoverOfficialFounderOverrides(company) {
     const selected = verifiedLinks[0] ?? null;
     if (!selected) continue;
 
-    const existingCanonical = canonicalInstagramProfileUrl(existingFounderInstagram);
+    const existingCanonical = canonicalInstagramProfileUrl(existingFounderInstagramUrl);
     const selectedCanonical = canonicalInstagramProfileUrl(selected.url);
     if (!existingCanonical || existingCanonical !== selectedCanonical || forceDiscovery) {
-      setFounderOverride(company, founder, selected.url, selected.reason);
+      setFounderOverride(company, founder, selected.url, selected.reason, {
+        sourceUrl: selected.sourceUrl,
+        method: "official_founder_outbound_link"
+      });
       promotedCount += 1;
     }
   }
@@ -467,10 +499,10 @@ async function crawlLinkInBioPages(company, text, baseUrl, rootUrl, sourceLabel,
 function companyOfficialInstagramSources(company) {
   const sources = [];
   addLocalDiscoveryText(sources, {
-    label: "YC company snapshot",
-    sourceUrl: company.ycProfileUrl ?? company.websiteUrl ?? `yc-snapshot:${company.slug}`,
-    rootUrl: company.ycProfileUrl ?? company.websiteUrl ?? `yc-snapshot:${company.slug}`,
-    reason: "Found in YC company snapshot metadata.",
+    label: `${batchConfig.label} company snapshot`,
+    sourceUrl: company.ycProfileUrl ?? company.websiteUrl ?? `cohort-snapshot:${company.slug}`,
+    rootUrl: company.ycProfileUrl ?? company.websiteUrl ?? `cohort-snapshot:${company.slug}`,
+    reason: `Found in ${batchConfig.label} company snapshot metadata.`,
     text: discoveryText([
       company.name,
       company.slug,
@@ -490,16 +522,16 @@ function companyOfficialInstagramSources(company) {
   });
   for (const url of socialUrls(company, "x")) {
     addDiscoveryPage(sources, url, {
-      label: "YC-linked company X public profile",
-      reason: "Found from a YC-linked company X/Twitter public profile or bio.",
+      label: `${batchConfig.label}-linked company X public profile`,
+      reason: `Found from a ${batchConfig.label}-linked company X/Twitter public profile or bio.`,
       rootUrl: url,
       preferReader: true
     });
   }
   for (const url of socialUrls(company, "linkedin")) {
     addDiscoveryPage(sources, url, {
-      label: "YC-linked public LinkedIn company page",
-      reason: "Found from a YC-linked public LinkedIn company page.",
+      label: `${batchConfig.label}-linked public LinkedIn company page`,
+      reason: `Found from a ${batchConfig.label}-linked public LinkedIn company page.`,
       rootUrl: url,
       preferReader: true
     });
@@ -510,10 +542,10 @@ function companyOfficialInstagramSources(company) {
 function founderOfficialInstagramSources(company, founder) {
   const sources = [];
   addLocalDiscoveryText(sources, {
-    label: `YC founder snapshot for ${founder.name}`,
-    sourceUrl: founder.ycProfileUrl ?? company.ycProfileUrl ?? company.websiteUrl ?? `yc-founder:${company.slug}:${slugify(founder.name)}`,
-    rootUrl: founder.ycProfileUrl ?? company.ycProfileUrl ?? company.websiteUrl ?? `yc-founder:${company.slug}:${slugify(founder.name)}`,
-    reason: `Found in YC founder snapshot metadata for ${founder.name}.`,
+    label: `${batchConfig.label} founder snapshot for ${founder.name}`,
+    sourceUrl: founder.ycProfileUrl ?? company.ycProfileUrl ?? company.websiteUrl ?? `cohort-founder:${company.slug}:${slugify(founder.name)}`,
+    rootUrl: founder.ycProfileUrl ?? company.ycProfileUrl ?? company.websiteUrl ?? `cohort-founder:${company.slug}:${slugify(founder.name)}`,
+    reason: `Found in ${batchConfig.label} founder snapshot metadata for ${founder.name}.`,
     text: discoveryText([
       founder.name,
       founder.title,
@@ -525,8 +557,8 @@ function founderOfficialInstagramSources(company, founder) {
     ])
   });
   addDiscoveryPage(sources, founder.ycProfileUrl, {
-    label: `${founder.name} public YC profile`,
-    reason: `Found from ${founder.name}'s public YC founder profile.`,
+    label: `${founder.name} public cohort profile`,
+    reason: `Found from ${founder.name}'s public ${batchConfig.label} founder profile.`,
     rootUrl: founder.ycProfileUrl,
     preferReader: false
   });
@@ -588,12 +620,16 @@ function discoveryText(values) {
 
 function socialUrls(entity, platform = null) {
   const links = entity?.socialLinks ?? {};
+  const accountValues = (entity?.socialAccounts ?? [])
+    .filter((account) => !account?.review_state || account.review_state === "verified")
+    .filter((account) => !platform || normalizePlatform(account?.platform) === normalizePlatform(platform))
+    .map((account) => account?.url);
   const rawValues = platform
     ? platform === "x"
-      ? [links.x, links.twitter, entity?.xUrl, entity?.twitterUrl]
+      ? [links.x, links.twitter, entity?.xUrl, entity?.twitterUrl, ...accountValues]
       : platform === "linkedin"
-        ? [links.linkedin, entity?.linkedinUrl, entity?.linkedInUrl]
-        : [links[platform], entity?.[`${platform}Url`]]
+        ? [links.linkedin, entity?.linkedinUrl, entity?.linkedInUrl, ...accountValues]
+        : [links[platform], entity?.[`${platform}Url`], ...accountValues]
     : [
         links.instagram,
         links.x,
@@ -604,7 +640,8 @@ function socialUrls(entity, platform = null) {
         entity?.xUrl,
         entity?.twitterUrl,
         entity?.linkedinUrl,
-        entity?.linkedInUrl
+        entity?.linkedInUrl,
+        ...accountValues
       ];
   return [...new Set(rawValues.filter(Boolean).map(String))];
 }
@@ -642,6 +679,72 @@ function founderOfficialVerification(company, founder, link) {
   return {
     review_state: "needs_review",
     reason: `Needs review before founder attribution; founderHandleMatch=${founderMatch}, companyLikeHandle=${companyLike}.`
+  };
+}
+
+function evaluateOfficialCompanyLinks(company, links) {
+  const normalizedLinks = dedupeLinks(links);
+  const evaluations = normalizedLinks.map((link) => ({
+    link,
+    identity: companyInstagramIdentityMatch(company, link.url)
+  }));
+  const strongMatches = evaluations.filter(({ identity }) => identity.strongCompanyMatch);
+
+  return evaluations.map(({ link, identity }) => {
+    const explicitlyRejected = isRejectedInstagramCandidate(company, link.url);
+    const snapshotVerified = /company snapshot metadata/i.test(link.reason ?? "");
+    const uniqueOfficialLink = normalizedLinks.length === 1;
+    const uniquelyStrong = identity.strongCompanyMatch && strongMatches.length === 1;
+    const decision = officialCompanyInstagramIdentityDecision({
+      explicitlyRejected,
+      snapshotVerified,
+      uniquelyStrongCompanyHandle: uniquelyStrong,
+      founderLikeHandle: identity.founderLikeHandle
+    });
+    const review_state = decision.reviewState;
+    const reason = review_state === "verified"
+      ? `${link.reason} Official company-ownership gate passed: ${decision.reason}; snapshotVerified=${snapshotVerified}, uniquelyStrongCompanyHandle=${uniquelyStrong}, founderLikeHandle=${identity.founderLikeHandle}.`
+      : explicitlyRejected
+        ? `${link.reason} Needs review before company attribution: this exact Instagram URL is preserved in the explicit identity-rejection ledger and cannot be automatically re-promoted without a new semantic identity adjudication.`
+        : identity.founderLikeHandle
+          ? `${link.reason} Needs review before company attribution: the handle matches a catalog founder identity. A founder profile linked from an official company surface is not company-owner proof.`
+          : `${link.reason} Needs review before company attribution: official-site discovery alone is not exact company-owner proof; uniqueOfficialLink=${uniqueOfficialLink}, strongCompanyMatch=${identity.strongCompanyMatch}, strongMatchCount=${strongMatches.length}.`;
+    return { ...link, review_state, reason };
+  });
+}
+
+function companyInstagramIdentityMatch(company, url) {
+  const handle = normalizeToken(instagramHandleFromUrl(url));
+  const companyTokens = new Set(
+    [
+      company.name,
+      company.slug,
+      hostBase(company.websiteUrl),
+      hostFullToken(company.websiteUrl),
+      ...socialUrls(company, "x").map(socialHandleFromUrl)
+    ]
+      .map(normalizeToken)
+      .filter((token) => token.length >= 4)
+  );
+  const nameTokens = String(company.name ?? "")
+    .split(/[^A-Za-z0-9]+/)
+    .map(normalizeToken)
+    .filter((token) => token.length >= 3);
+  const exactOrContained = [...companyTokens].some(
+    (token) => handle === token || (token.length >= 5 && handle.includes(token))
+  );
+  const allNameTokens =
+    nameTokens.length > 0 && nameTokens.every((token) => handle.includes(token));
+  const founderLikeHandle = (company.founders ?? []).some((founder) => {
+    const founderTokens = String(founder.name ?? "")
+      .split(/[^A-Za-z0-9]+/)
+      .map(normalizeToken)
+      .filter((token) => token.length >= 3);
+    return founderTokens.length > 0 && founderTokens.every((token) => handle.includes(token));
+  });
+  return {
+    strongCompanyMatch: Boolean(handle && (exactOrContained || allNameTokens)),
+    founderLikeHandle
   };
 }
 
@@ -968,16 +1071,16 @@ function companyWebVerification(company, normalizedUsername) {
 function webQueriesForCompany(company) {
   const queries = [
     `"${company.name}" Instagram`,
-    `"${company.name}" "Y Combinator" Instagram`,
     `"${company.name}" site:instagram.com`,
-    `"${company.name}" "YC Summer 2026" Instagram`,
-    `"${company.name}" "YC S26" Instagram`,
     `"${company.name}" site:x.com Instagram`,
     `"${company.name}" site:twitter.com Instagram`,
     `"${company.name}" site:linkedin.com/company Instagram`,
     `"${company.name}" "linktr.ee" Instagram`,
     `"${company.name}" "bio.link" Instagram`
   ];
+  for (const term of batchConfig.searchTerms) {
+    queries.push(`"${company.name}" "${term}" Instagram`);
+  }
   const domain = hostBase(company.websiteUrl);
   if (domain) {
     queries.push(`"${domain}" Instagram`);
@@ -988,16 +1091,19 @@ function webQueriesForCompany(company) {
 }
 
 function webQueriesForFounder(company, founder) {
-  return dedupeQueries([
+  const queries = [
     `"${founder.name}" "${company.name}" Instagram`,
     `"${founder.name}" "${company.name}" site:instagram.com`,
-    `"${founder.name}" "Y Combinator" Instagram`,
     `"${founder.name}" "${company.name}" site:x.com Instagram`,
     `"${founder.name}" "${company.name}" site:twitter.com Instagram`,
     `"${founder.name}" "${company.name}" site:linkedin.com/in Instagram`,
     `"${founder.name}" "${company.name}" "linktr.ee"`,
     `"${founder.name}" "${company.name}" "bio.link"`
-  ]);
+  ];
+  for (const term of batchConfig.searchTerms) {
+    queries.push(`"${founder.name}" "${term}" Instagram`);
+  }
+  return dedupeQueries(queries);
 }
 
 function dedupeQueries(queries) {
@@ -1111,7 +1217,12 @@ async function fetchInstagramProfile(username) {
   return parseJsonOutput(raw)[0] ?? null;
 }
 
-function setCompanyOverride(company, instagramUrl, matchReason) {
+function setCompanyOverride(
+  company,
+  instagramUrl,
+  matchReason,
+  { sourceUrl = null, method = "verified_identity_review" } = {}
+) {
   if (!instagramUrl) return;
   const current = overrides[company.slug] ?? {};
   overrides[company.slug] = {
@@ -1120,11 +1231,22 @@ function setCompanyOverride(company, instagramUrl, matchReason) {
       ...(current.companySocialLinks ?? {}),
       instagram: instagramUrl
     },
+    instagramValidation: {
+      review_state: "verified",
+      method,
+      ...(sourceUrl ? { sourceUrl } : {})
+    },
     matchReason
   };
 }
 
-function setFounderOverride(company, founder, instagramUrl, matchReason) {
+function setFounderOverride(
+  company,
+  founder,
+  instagramUrl,
+  matchReason,
+  { sourceUrl = null, method = "verified_identity_review" } = {}
+) {
   if (!instagramUrl) return;
   const current = overrides[company.slug] ?? {};
   const founders = current.founders ?? [];
@@ -1138,6 +1260,11 @@ function setFounderOverride(company, founder, instagramUrl, matchReason) {
     socialLinks: {
       ...(founders[existingIndex]?.socialLinks ?? {}),
       instagram: instagramUrl
+    },
+    instagramValidation: {
+      review_state: "verified",
+      method,
+      ...(sourceUrl ? { sourceUrl } : {})
     },
     matchReason
   };
@@ -1189,8 +1316,39 @@ function existingFounderOverride(company, founder) {
   return (overrides[company.slug]?.founders ?? []).find((item) => namesMatch(item.name, founder.name));
 }
 
+function existingCompanyInstagram(company) {
+  return (
+    overrides[company.slug]?.companySocialLinks?.instagram ??
+    socialUrls(company, "instagram")[0] ??
+    null
+  );
+}
+
+function existingFounderInstagram(company, founder) {
+  return (
+    existingFounderOverride(company, founder)?.socialLinks?.instagram ??
+    socialUrls(founder, "instagram")[0] ??
+    null
+  );
+}
+
+function verifiedFounderInstagramCount(company) {
+  const identities = new Set();
+  for (const founder of company.founders ?? []) {
+    const url = existingFounderInstagram(company, founder);
+    if (url) identities.add(normalizeToken(founder.name) || canonicalInstagramProfileUrl(url));
+  }
+  for (const founder of overrides[company.slug]?.founders ?? []) {
+    const url = founder?.socialLinks?.instagram;
+    if (url) identities.add(normalizeToken(founder.name) || canonicalInstagramProfileUrl(url));
+  }
+  return identities.size;
+}
+
 function candidate(company, url, reviewState, matchReason, sourceUrl, extra = {}) {
   return {
+    batchSlug: batchConfig.slug,
+    batchLabel: batchConfig.label,
     companySlug: company.slug,
     companyName: company.name,
     entityType: extra.entityType ?? "company",
@@ -1217,6 +1375,8 @@ function discoveryAttempt({
   failureReason
 }) {
   return {
+    batchSlug: batchConfig.slug,
+    batchLabel: batchConfig.label,
     companySlug: company.slug,
     companyName: company.name,
     entityType,
@@ -1606,6 +1766,142 @@ async function writeJson(path, value) {
 
 function sortObject(value) {
   return Object.fromEntries(Object.entries(value).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function resolvePathArg(value) {
+  return resolve(root, value);
+}
+
+function resolveBatchConfig(value) {
+  const normalized = String(value ?? "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "");
+
+  if (["S26", "YCS26", "YCSUMMER2026", "SUMMER2026"].includes(normalized)) {
+    return {
+      slug: "S26",
+      label: "YC Summer 2026 (S26)",
+      snapshotPath: join(root, "src", "lib", "yc", "summer-2026-companies.json"),
+      candidatesPath: join(root, "outputs", "instagram-discovery-candidates.json"),
+      searchTerms: ["Y Combinator", "YC Summer 2026", "YC S26", "S26"]
+    };
+  }
+
+  if (["S2026", "P26", "YCS2026", "YCP26", "YCSPRING2026", "SPRING2026"].includes(normalized)) {
+    return {
+      slug: "S2026",
+      label: "YC Spring 2026 (P26)",
+      snapshotPath: join(root, "src", "lib", "yc", "spring-2026-companies.json"),
+      candidatesPath: join(root, "outputs", "instagram-discovery-candidates-s2026.json"),
+      searchTerms: ["Y Combinator", "YC Spring 2026", "YC S2026", "YC P26", "P26"]
+    };
+  }
+
+  if (["A16ZSR006", "A16ZSPEEDRUN006", "SPEEDRUN006"].includes(normalized)) {
+    return {
+      slug: "A16ZSR006",
+      label: "a16z Speedrun 006",
+      snapshotPath: join(root, "public", "graph", "a16zsr006.json"),
+      candidatesPath: join(root, "outputs", "instagram-discovery-candidates-a16zsr006.json"),
+      searchTerms: ["a16z", "a16z Speedrun", "a16z Speedrun 006", "A16ZSR006"]
+    };
+  }
+
+  throw new Error(`Unsupported --batch=${value}. Supported batches: S26, S2026, A16ZSR006.`);
+}
+
+function normalizeBatchSnapshot(rawSnapshot, config) {
+  if (Array.isArray(rawSnapshot?.companies)) {
+    return {
+      ...rawSnapshot,
+      companies: rawSnapshot.companies.map((company) => ({
+        ...normalizeSnapshotOwner(company),
+        founders: (company.founders ?? []).map(normalizeSnapshotOwner)
+      }))
+    };
+  }
+
+  if (!Array.isArray(rawSnapshot?.nodes)) {
+    throw new Error(`${config.snapshotPath} does not contain companies or graph nodes.`);
+  }
+
+  return {
+    source: {
+      label: `${config.label} public graph catalog`,
+      batchSlug: config.slug,
+      fetchedAt: rawSnapshot.generatedAt ?? null
+    },
+    companies: rawSnapshot.nodes
+      .filter((node) => node?.entityType === "company" && node.entityId && node.label)
+      .map((node) => ({
+        id: node.entityId,
+        objectID: node.entityId,
+        slug: graphCompanySlug(node),
+        name: node.label,
+        batch: config.label,
+        ycProfileUrl: node.sourceUrl ?? node.ycProfileUrl ?? null,
+        websiteUrl: node.websiteUrl ?? null,
+        tagline: node.tagline ?? "",
+        description: node.description ?? "",
+        socialLinks: socialLinksFromAccounts(node.socialAccounts),
+        socialAccounts: verifiedSocialAccounts(node.socialAccounts),
+        founders: (node.founders ?? []).map((founder) => ({
+          id: founder.id ?? founder.entityId ?? `founder-${slugify(founder.name)}`,
+          slug: founder.id ?? founder.entityId ?? slugify(founder.name),
+          name: founder.name,
+          ycProfileUrl: founder.ycProfileUrl ?? founder.sourceUrl ?? null,
+          websiteUrl: founder.websiteUrl ?? null,
+          socialLinks: socialLinksFromAccounts(founder.socialAccounts),
+          socialAccounts: verifiedSocialAccounts(founder.socialAccounts)
+        }))
+      }))
+  };
+}
+
+function normalizeSnapshotOwner(owner) {
+  const accounts = verifiedSocialAccounts(owner?.socialAccounts);
+  const links = { ...(owner?.socialLinks ?? {}) };
+  for (const account of accounts) {
+    if (!links[account.platform]) links[account.platform] = account.url;
+  }
+  return { ...owner, socialLinks: links, socialAccounts: accounts };
+}
+
+function verifiedSocialAccounts(accounts) {
+  return (accounts ?? [])
+    .filter((account) => !account?.review_state || account.review_state === "verified")
+    .filter((account) => normalizePlatform(account?.platform) && account?.url)
+    .map((account) => ({
+      ...account,
+      platform: normalizePlatform(account.platform),
+      url: account.url
+    }));
+}
+
+function socialLinksFromAccounts(accounts) {
+  const links = {};
+  for (const account of verifiedSocialAccounts(accounts)) {
+    if (!links[account.platform]) links[account.platform] = account.url;
+  }
+  return links;
+}
+
+function graphCompanySlug(node) {
+  try {
+    const parts = new URL(node.sourceUrl ?? node.ycProfileUrl).pathname.split("/").filter(Boolean);
+    const companiesIndex = parts.indexOf("companies");
+    if (companiesIndex >= 0 && parts[companiesIndex + 1]) return parts[companiesIndex + 1];
+  } catch {
+    // Use the stable graph identifier below.
+  }
+  return String(node.entityId).replace(/^a16z-speedrun-006-/, "");
+}
+
+function normalizePlatform(value) {
+  const normalized = String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+  if (normalized === "twitter" || normalized === "xcom") return "x";
+  if (normalized === "linked" || normalized === "linkedincom") return "linkedin";
+  return normalized;
 }
 
 function numberArg(name) {

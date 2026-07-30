@@ -150,9 +150,10 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
             </div>
           )}
           {activeTab === "ranked" && (
-            <div className="segmented-toggle" role="group" aria-label="Ranked posts period">
+            <div className="segmented-toggle ranked-posts-period-toggle" role="group" aria-label="Ranked posts period">
               <button type="button" className={rankedPeriod === "all_time" ? "active" : ""} aria-pressed={rankedPeriod === "all_time"} onClick={() => setRankedPeriod("all_time")}>All time</button>
               <button type="button" className={rankedPeriod === "today" ? "active" : ""} aria-pressed={rankedPeriod === "today"} onClick={() => setRankedPeriod("today")}>Today</button>
+              <button type="button" className={rankedPeriod === "month" ? "active" : ""} aria-pressed={rankedPeriod === "month"} onClick={() => setRankedPeriod("month")}>Month</button>
             </div>
           )}
         </div>
@@ -350,8 +351,20 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
           {!rankedPosts.length ? (
             <div className="ranked-posts-empty" role="status">
               <Clock3 size={22} aria-hidden="true" />
-              <strong>{rankedPeriod === "today" ? "No reliably dated posts were published today." : "No eligible scored posts match these filters."}</strong>
-              <span>{rankedPeriod === "today" ? "Posts with unknown or imprecise publication timestamps are excluded from Today." : "Try broadening one or more visibility filters."}</span>
+              <strong>
+                {rankedPeriod === "today"
+                  ? "No reliably dated posts were published today."
+                  : rankedPeriod === "month"
+                    ? "No reliably dated posts were published in the last 30 days."
+                    : "No eligible scored posts match these filters."}
+              </strong>
+              <span>
+                {rankedPeriod === "today"
+                  ? "Posts with unknown or imprecise publication timestamps are excluded from Today."
+                  : rankedPeriod === "month"
+                    ? "Posts with unknown or imprecise publication timestamps are excluded from Month."
+                    : "Try broadening one or more visibility filters."}
+              </span>
             </div>
           ) : (
             <ol className="ranked-posts-list" aria-label="Ranked posts">

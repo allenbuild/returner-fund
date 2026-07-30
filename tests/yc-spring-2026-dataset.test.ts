@@ -322,13 +322,13 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(graph.leaderboard).toHaveLength(115);
     expect(graph.evidence.length).toBeGreaterThan(39);
     expect(new Set(graph.evidence.map((item) => item.platform))).toEqual(
-      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "product_hunt"])
+      new Set(["github", "youtube", "x", "linkedin", "instagram", "hacker_news", "product_hunt"])
     );
     expect(graph.evidence.some((item) => item.platform === "github" && item.thumbnailUrl)).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "youtube" && item.attachedCompanyName === "Archal")).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "x" && item.contributionScore > 0)).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "linkedin" && item.contributionScore > 0)).toBe(true);
-    expect(graph.evidence.some((item) => item.platform === "instagram")).toBe(false);
+    expect(graph.evidence.filter((item) => item.platform === "instagram")).toHaveLength(9);
     expect(graph.leaderboard[0]?.topPlatform).toBeTruthy();
     expect(companyNodes.filter((node) => node.score > 0).length).toBeGreaterThan(6);
     expect(companyNodes.some((node) => node.founders.length > 0)).toBe(true);
@@ -389,6 +389,41 @@ describe("YC Summer 2026 official snapshot", () => {
       expect(summerEntityIds.some((entityId) => entityId === `company-${rename.oldSlug}`)).toBe(false);
       expect(summerEntityIds.some((entityId) => entityId?.startsWith(`founder-${rename.oldSlug}-`))).toBe(false);
     }
+
+    expect(
+      summer.evidence.find(
+        (item) =>
+          item.sourceUrl ===
+          "https://x.com/BenceRedmond/status/2069484935464042689"
+      )
+    ).toMatchObject({
+      entityId: "founder-hoplite-bence-redmond-2614746",
+      attachedCompanyId: "company-hoplite"
+    });
+    expect(
+      summer.evidence.find(
+        (item) =>
+          item.sourceUrl ===
+          "https://x.com/UseBylaw/status/2051128240303955982"
+      )
+    ).toMatchObject({
+      entityId: "company-definite",
+      attachedCompanyId: "company-definite"
+    });
+    expect(
+      summer.evidence.some((item) =>
+        /linkedin\.com\/in\/(?:bence-redmond|ryan-morrissey-834256271|gvaraich)\/recent-activity\/all\/?#post-/i.test(
+          item.sourceUrl
+        )
+      )
+    ).toBe(false);
+    expect(
+      summer.evidence.some(
+        (item) =>
+          item.sourceUrl ===
+          "https://www.linkedin.com/feed/update/urn:li:activity:6924821470124650496/"
+      )
+    ).toBe(false);
 
     const springEntityIds = [
       ...spring.nodes.map((node) => node.entityId),

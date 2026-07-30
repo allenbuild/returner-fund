@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   applyInsiderScenarioScoring,
   computeInsiderScore
 } from "@/lib/graph/insider-scoring";
+import { personalizeInsiderGraphSnapshot } from "@/lib/graph/personalized-insider-snapshot";
 import type {
   EvidenceItem,
   GraphResponse,
@@ -105,6 +108,46 @@ describe("weighted Insider scoring", () => {
     ]);
     expect(scored.nodes.find((node) => node.entityId === "alpha")?.insiderScoreBreakdown)
       .toMatchObject({ baseScore: 10, weightedInsiderSubtotal: 5, configurationVersion: 8 });
+  });
+
+  it("preserves every published Insider score with the default configuration", () => {
+    for (const [baseFilename, insiderFilename] of [
+      ["a16zsr006.json", "a16zsr006-insiders.json"],
+      ["s2026.json", "s2026-insiders.json"],
+      ["s26.json", "s26-insiders.json"]
+    ]) {
+      const baseGraph = publicGraphFixture(baseFilename);
+      const insiderGraph = publicGraphFixture(insiderFilename);
+      const personalized = personalizeInsiderGraphSnapshot({
+        baseGraph,
+        insiderGraph,
+        configuration: emptyInsiderConfiguration()
+      });
+      const publishedNodeScores = new Map(
+        insiderGraph.nodes
+          .filter((node) => node.entityType === "company")
+          .map((node) => [node.entityId, node.score] as const)
+      );
+      const publishedLeaderboardScores = new Map(
+        insiderGraph.leaderboard.map((row) => [row.companyId, row.score] as const)
+      );
+
+      const personalizedCompanyNodes = personalized.nodes.filter(
+        (node) => node.entityType === "company"
+      );
+      expect(personalizedCompanyNodes).toHaveLength(publishedNodeScores.size);
+      for (const node of personalizedCompanyNodes) {
+        expect(node.score, `${insiderFilename}:${node.entityId}:node`).toBe(
+          publishedNodeScores.get(node.entityId)
+        );
+      }
+      expect(personalized.leaderboard).toHaveLength(publishedLeaderboardScores.size);
+      for (const row of personalized.leaderboard) {
+        expect(row.score, `${insiderFilename}:${row.companyId}:leaderboard`).toBe(
+          publishedLeaderboardScores.get(row.companyId)
+        );
+      }
+    }
   });
 });
 
@@ -229,4 +272,10 @@ function graphFixture(): GraphResponse {
     generatedAt: "2026-07-23T00:00:00.000Z",
     mode: "demo"
   };
+}
+
+function publicGraphFixture(filename: string): GraphResponse {
+  return JSON.parse(
+    readFileSync(join(process.cwd(), "public", "graph", filename), "utf8")
+  ) as GraphResponse;
 }

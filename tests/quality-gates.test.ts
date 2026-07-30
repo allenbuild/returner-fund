@@ -61,7 +61,7 @@ function isProfileOrContextOnlyEvidence(item: { platform: string; platformPostId
     const url = new URL(item.sourceUrl);
     const pathAndHash = `${url.pathname}${url.hash}`.toLowerCase();
     if (item.platform === "x") return !/\/status\/\d+/.test(pathAndHash);
-    if (item.platform === "instagram") return !(/^\/(p|reel|tv)\//.test(pathAndHash) || /#post-\d+/.test(pathAndHash));
+    if (item.platform === "instagram") return !/^\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?$/.test(pathAndHash);
     if (item.platform === "linkedin") return !/\/feed\/update\/|\/posts\/|\/recent-activity\/all\/#post-/.test(pathAndHash);
   } catch {
     return true;

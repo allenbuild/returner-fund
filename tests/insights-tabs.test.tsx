@@ -198,12 +198,15 @@ describe("insights tabs", () => {
     expect(rankedTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "insights-tab-ranked");
     const rankedPeriodGroup = screen.getByRole("group", { name: "Ranked posts period" });
+    expect(rankedPeriodGroup).toHaveClass("ranked-posts-period-toggle");
     expect(within(rankedPeriodGroup).getAllByRole("button").map((button) => button.textContent)).toEqual([
       "All time",
-      "Today"
+      "Today",
+      "Month"
     ]);
     expect(screen.getByRole("button", { name: "All time" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Today" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Month" })).toHaveAttribute("aria-pressed", "false");
 
     fireEvent.keyDown(rankedTab, { key: "ArrowRight" });
 
@@ -273,6 +276,9 @@ describe("insights tabs", () => {
     fireEvent.click(screen.getByRole("button", { name: "Today" }));
     expect(screen.getByText("No reliably dated posts were published today.")).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
+    expect(screen.getByText("No reliably dated posts were published in the last 30 days.")).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "All time" }));
     const list = screen.getByRole("list", { name: "Ranked posts" });
     const posts = within(list).getAllByRole("listitem");
@@ -305,6 +311,67 @@ describe("insights tabs", () => {
     expect(rowLink).toHaveAttribute("target", "_blank");
     expect(rowLink).toContainElement(firstPost.querySelector("article.ranked-post-card"));
     expect(firstPost.querySelector(".ranked-post-taxonomies")).not.toBeInTheDocument();
+  });
+
+  it("shows only reliably dated posts inside the rolling Month window", () => {
+    const now = new Date("2026-07-29T18:00:00.000Z");
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const company = graph.nodes.find((node) => node.entityType === "company");
+    expect(company).toBeDefined();
+
+    const monthEvidence = (
+      id: string,
+      title: string,
+      postedAt: string,
+      publishedAtPrecision: "exact" | "unknown" = "exact"
+    ): GraphResponse["evidence"][number] => ({
+      id,
+      batchSlug: "S2026",
+      entityType: "company",
+      entityId: company!.entityId,
+      attachedCompanyId: company!.entityId,
+      attachedCompanyName: company!.label,
+      platform: "x",
+      authorName: "Month test",
+      authorHandle: "monthtest",
+      postedAt,
+      publishedAtPrecision,
+      title,
+      text: title,
+      mediaType: "text",
+      metrics: { views: 1_000, likes: 25 },
+      contributionScore: 70,
+      normalizedScore: 70,
+      tractionStatus: "scored",
+      sourceUrl: `https://x.com/monthtest/status/${id}`,
+      platformPostId: id,
+      why: "Month visibility test",
+      review_state: "verified",
+      linkStatus: "verified"
+    });
+
+    graph.evidence = [
+      monthEvidence("2100000000000000001", "Inside the rolling month", "2026-07-15T12:00:00.000Z"),
+      monthEvidence("2100000000000000002", "Older than the rolling month", "2026-06-20T12:00:00.000Z"),
+      monthEvidence("2100000000000000003", "Future publication", "2026-07-30T12:00:00.000Z"),
+      monthEvidence(
+        "2100000000000000004",
+        "Unknown publication precision",
+        "2026-07-20T12:00:00.000Z",
+        "unknown"
+      )
+    ];
+
+    render(<InsightsTabs graph={graph} now={now} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
+
+    const list = screen.getByRole("list", { name: "Ranked posts" });
+    expect(within(list).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(list).getByText("Inside the rolling month")).toBeInTheDocument();
+    expect(within(list).queryByText("Older than the rolling month")).not.toBeInTheDocument();
+    expect(within(list).queryByText("Future publication")).not.toBeInTheDocument();
+    expect(within(list).queryByText("Unknown publication precision")).not.toBeInTheDocument();
   });
 
   it("keeps every ranked-post label readable instead of clipping it into an ellipsis", () => {

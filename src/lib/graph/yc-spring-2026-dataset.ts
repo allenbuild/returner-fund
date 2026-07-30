@@ -40,6 +40,10 @@ import {
   type AttributionSocialLink
 } from "./evidence-attribution";
 import { isKnownTopVoiceAccountUrl, isKnownTopVoiceNativeIdentity } from "@/lib/social/top-voices";
+import {
+  reconcileLegacySummerEvidenceEntity,
+  reconcileLegacySummerGithubAccount
+} from "./summer-company-rename-reconciliation";
 
 interface RawSnapshot {
   source: {
@@ -350,7 +354,7 @@ const rawPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEv
   .filter(isAcceptedPublicEvidence)
   .map((item) => publicEvidenceItemWithAttributionGuard(item, attributionContext, snapshot.companies));
 const rawGithubEvidenceItems = githubSnapshot.accounts
-  .map(canonicalizeRenamedSummerEntity)
+  .map(reconcileLegacySummerGithubAccount)
   .map((account) => canonicalizeVerifiedFounderEntity(account, summerVerifiedFounderAliases))
   .filter(isKnownSummerGithubAccount)
   .flatMap(githubEvidence)
@@ -1434,28 +1438,13 @@ function isKnownSummerEvidenceRecord(item: PublicEvidenceRecord): boolean {
 function canonicalizeRenamedSummerEntity<
   T extends { entityId: string; companySlug?: string; companyName?: string; entityName?: string }
 >(item: T): T {
-  let entityId = item.entityId;
-  let companySlug = item.companySlug;
-  let companyName = item.companyName;
-  let entityName = item.entityName;
-
-  for (const rename of SUMMER_COMPANY_SLUG_RENAMES) {
-    if (entityId === `company-${rename.from}`) entityId = `company-${rename.to}`;
-    if (entityId.startsWith(`founder-${rename.from}-`)) {
-      entityId = `founder-${rename.to}-${entityId.slice(`founder-${rename.from}-`.length)}`;
-    }
-    if (companySlug === rename.from) companySlug = rename.to;
-    if (companyName === rename.fromName) companyName = rename.toName;
-    if (entityName === rename.fromName) entityName = rename.toName;
-  }
-
-  return {
-    ...item,
-    entityId,
-    ...(companySlug === undefined ? {} : { companySlug }),
-    ...(companyName === undefined ? {} : { companyName }),
-    ...(entityName === undefined ? {} : { entityName })
-  };
+  // A display-name match cannot prove that old evidence belongs to the renamed
+  // company. The explicit alias ledger requires immutable founder/company IDs,
+  // exact account lineage, and a native physical post before remapping. A
+  // quarantined row deliberately retains its stale ID and is filtered out by
+  // the known-entity gate below.
+  const decision = reconcileLegacySummerEvidenceEntity(item);
+  return decision.status === "remapped" ? decision.row : item;
 }
 
 function isKnownSummerNeedsReviewRecord(item: PublicNeedsReviewRecord): boolean {

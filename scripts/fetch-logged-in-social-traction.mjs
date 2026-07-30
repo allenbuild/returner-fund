@@ -2,16 +2,66 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
 import {
-  linkedinAccountSlugFromUrl,
-  linkedinPostIdFromUrl,
-  linkedinPostMatchesAccount
+  linkedinPostIdFromUrl
 } from "./lib/social-native-identity.mjs";
+import {
+  linkedinAdapterSupportsAccountUrl,
+  linkedinCircuitStateTransition,
+  linkedinCollectionAttemptState,
+  linkedinFailureKind,
+  mergeOwnedLinkedInPosts,
+  prioritizeLinkedInTargets
+} from "./lib/logged-in-linkedin-collection.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
 import { finalizeLoggedInEvidenceContent } from "./lib/logged-in-evidence-content-dedupe.mjs";
+import {
+  mergeOwnedXTweetObservations,
+  mergeOwnedXTweets,
+  prioritizeXTargets,
+  xCircuitStateTransition,
+  xCollectionAttemptState,
+  xFailureKind,
+  xTimelinePageState,
+  xTweetIngestionDecision
+} from "./lib/logged-in-x-collection.mjs";
+import {
+  canonicalInstagramPostUrl,
+  instagramAdapterProfileIdentityDecision,
+  instagramBrowserProfileIdentityDecision,
+  instagramCircuitDecision,
+  instagramCollectionAttemptState,
+  instagramEvidenceProvenance,
+  instagramFailureKind,
+  normalizeInstagramDetailObservation,
+  instagramPostIdFromUrl,
+  instagramRecencyDecision,
+  instagramTargetIsVerifiedForIngestion,
+  mergeVerifiedSocialAccountCandidates,
+  prioritizeInstagramTargets
+} from "./lib/logged-in-instagram-collection.mjs";
 import {
   buildLegacyPublicEvidenceBatchResolver,
   loadAutonomousCatalogs
 } from "./lib/autonomous-ingestion-plan.mjs";
+import {
+  reconcileCheckpointOwnerCollisions
+} from "./lib/logged-in-owner-collision-reconciliation.mjs";
+import {
+  partitionCollectionTargetsByOwnerAmbiguity,
+  selectRunnableCollectionTargets
+} from "./lib/logged-in-social-target-selection.mjs";
+import {
+  withOpenCliBrowserSession
+} from "./lib/opencli-browser-session.mjs";
+import {
+  canonicalCheckpointPayloads,
+  checkpointCanonicalRows
+} from "./lib/logged-in-checkpoint-union.mjs";
+
+if (booleanArg("--help") || booleanArg("-h")) {
+  await writeStdout(`${usage()}\n`);
+  process.exit(0);
+}
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -24,7 +74,17 @@ const checkpointPath = join(
     ? "logged-in-social-checkpoint.json"
     : `logged-in-social-checkpoint-${batchConfig.slug.toLowerCase()}.json`
 );
+const checkpointPaths = [
+  join(root, "work", "logged-in-social-checkpoint.json"),
+  join(root, "work", "logged-in-social-checkpoint-s2026.json"),
+  join(root, "work", "logged-in-social-checkpoint-a16zsr006.json")
+];
 const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
+const priorityEvidencePaths = [
+  join(root, "src", "lib", "social", "public-evidence-current.json"),
+  join(root, "src", "lib", "social", "targeted-evidence-current.json"),
+  join(root, "src", "lib", "social", "a16z-speedrun-006-social-evidence.json")
+];
 const now = new Date().toISOString();
 const targetLimit = numberArg("--max-targets") ?? Number.POSITIVE_INFINITY;
 const postLimit = numberArg("--limit") ?? 30;
@@ -39,14 +99,41 @@ const entityFilter = stringArg("--entities") ?? "all"; // all | company | founde
 const companyFilter = stringArg("--company")?.toLowerCase();
 const includeRetweets = booleanArg("--include-retweets");
 const allowXAdapterFallback = booleanArg("--allow-x-adapter-fallback");
+const xCollectionMode = resolveXCollectionMode(
+  stringArg("--x-mode") ?? (allowXAdapterFallback ? "hybrid" : "adapter")
+);
+const maxConsecutiveXFailures = Math.max(
+  1,
+  Math.floor(numberArg("--max-consecutive-x-failures") ?? 8)
+);
 const finalizeOnly = booleanArg("--finalize-only");
 const retryEmpty = booleanArg("--retry-empty");
 const allowLinkedIn = platformFilter.has("linkedin") && booleanArg("--allow-linkedin");
+const linkedinCollectionMode = resolveLinkedInCollectionMode(
+  stringArg("--linkedin-mode") ?? "hybrid"
+);
+const maxConsecutiveLinkedInFailures = Math.max(
+  1,
+  Math.floor(numberArg("--max-consecutive-linkedin-failures") ?? 5)
+);
+const maxConsecutiveInstagramFailures = Math.max(
+  1,
+  Math.floor(numberArg("--max-consecutive-instagram-failures") ?? 3)
+);
 const planOnly = booleanArg("--plan");
 const openCliFormatArgs = ["-f", "json", "--site-session", "persistent"];
 const instagramTractionCutoffMs = Date.parse("2025-01-01T00:00:00.000Z");
 let writeSequence = 0;
 let checkpointWriteChain = Promise.resolve();
+let consecutiveXCollectionFailures = 0;
+let xCircuitOpen = false;
+let xCircuitReason = null;
+let consecutiveLinkedInCollectionFailures = 0;
+let linkedinCircuitOpen = false;
+let linkedinCircuitReason = null;
+let consecutiveInstagramCollectionFailures = 0;
+let instagramCircuitOpen = false;
+let instagramCircuitReason = null;
 
 const ycSnapshot = normalizeCollectorSnapshot(
   JSON.parse(await readFile(ycSnapshotPath, "utf8")),
@@ -59,39 +146,122 @@ const verifiedSocialOverrides = await readRequiredCanonicalJson(
 const resolveLegacyLoggedInEvidenceBatch = buildLegacyPublicEvidenceBatchResolver(
   await loadAutonomousCatalogs(root)
 );
-const checkpoint = await readJson(checkpointPath, { attempts: {}, evidence: [], failures: [], needsReview: [] });
-const currentOutput = await readJson(outputPath, { evidence: [], failures: [], needsReview: [] });
-const attemptMap = new Map(Object.entries(checkpoint.attempts ?? {}));
-const initialContentDedupe = finalizeLoggedInEvidenceContent(
-  dedupeById([...(currentOutput.evidence ?? []), ...(checkpoint.evidence ?? [])]),
-  {
-    defaultBatchSlug: batchConfig.slug,
-    resolveBatchSlug: resolveLegacyLoggedInEvidenceBatch,
-    existingNeedsReview: [...(currentOutput.needsReview ?? []), ...(checkpoint.needsReview ?? [])],
-    existingAttributionReconciliationLedger: [
-      ...(currentOutput.attributionReconciliationLedger ?? []),
-      ...(checkpoint.attributionReconciliationLedger ?? [])
-    ]
-  }
-);
-const evidence = initialContentDedupe.evidence;
-const failures = dedupeById([...(currentOutput.failures ?? []), ...(checkpoint.failures ?? [])]);
-const needsReview = dedupeById([
-  ...initialContentDedupe.needsReview
-]);
-const attributionReconciliationLedger = initialContentDedupe.attributionReconciliationLedger;
-
 const targetCompanies = ycSnapshot.companies.filter(
   (company) =>
     !companyFilter ||
     company.name.toLowerCase().includes(companyFilter) ||
     company.slug.toLowerCase() === companyFilter
 );
-const targets = finalizeOnly ? [] : collectTargets(targetCompanies).slice(0, targetLimit);
+const completeTargetPartition = partitionCollectionTargetsByOwnerAmbiguity(
+  collectTargets(targetCompanies)
+);
+const checkpointEntries = await Promise.all(
+  checkpointPaths.map(async (path) => ({
+    path,
+    payload: await readJson(
+      path,
+      { attempts: {}, evidence: [], failures: [], needsReview: [] }
+    )
+  }))
+);
+const rawCheckpoint =
+  checkpointEntries.find((entry) => entry.path === checkpointPath)?.payload ??
+  { attempts: {}, evidence: [], failures: [], needsReview: [] };
+const {
+  snapshot: checkpoint,
+  summary: ownerCollisionReconciliationSummary
+} = reconcileCheckpointOwnerCollisions(
+  rawCheckpoint,
+  completeTargetPartition.collisions,
+  { observedAt: now }
+);
+const checkpointPayloads = canonicalCheckpointPayloads(checkpointEntries, {
+  activePath: checkpointPath,
+  activeCheckpoint: checkpoint
+});
+const currentOutput = await readJson(outputPath, { evidence: [], failures: [], needsReview: [] });
+const attemptMap = new Map(Object.entries(checkpoint.attempts ?? {}));
+const initialContentDedupe = finalizeLoggedInEvidenceContent(
+  dedupeById([
+    ...(currentOutput.evidence ?? []),
+    ...checkpointCanonicalRows(checkpointPayloads, "evidence")
+  ]),
+  {
+    defaultBatchSlug: batchConfig.slug,
+    resolveBatchSlug: resolveLegacyLoggedInEvidenceBatch,
+    existingNeedsReview: [
+      ...(currentOutput.needsReview ?? []),
+      ...checkpointCanonicalRows(checkpointPayloads, "needsReview")
+    ],
+    existingAttributionReconciliationLedger: [
+      ...(currentOutput.attributionReconciliationLedger ?? []),
+      ...checkpointCanonicalRows(
+        checkpointPayloads,
+        "attributionReconciliationLedger"
+      )
+    ]
+  }
+);
+const evidence = initialContentDedupe.evidence;
+const priorityEvidence = [
+  ...evidence,
+  ...(await Promise.all(
+    priorityEvidencePaths.map((path) =>
+      readJson(path, { evidence: [] })
+    )
+  )).flatMap((payload) => payload.evidence ?? [])
+];
+const failures = dedupeById([
+  ...(currentOutput.failures ?? []),
+  ...checkpointCanonicalRows(checkpointPayloads, "failures")
+]);
+const needsReview = dedupeById([
+  ...initialContentDedupe.needsReview
+]);
+const attributionReconciliationLedger = initialContentDedupe.attributionReconciliationLedger;
+
+const targetPartition = finalizeOnly
+  ? { ...completeTargetPartition, targets: [] }
+  : completeTargetPartition;
+const allTargets = targetPartition.targets;
+addItems(
+  targetPartition.collisions.map(ownerCollisionReviewItem),
+  needsReview
+);
+restoreRetryableXFailures(allTargets);
+const prioritizedTargets = prioritizeInstagramTargets(
+  prioritizeLinkedInTargets(
+    prioritizeXTargets(allTargets, {
+      evidence: priorityEvidence,
+      attempts: attemptMap,
+      attemptKey: attemptKeyFor
+    }),
+    {
+      evidence: priorityEvidence,
+      attempts: attemptMap,
+      attemptKey: attemptKeyFor
+    }
+  ),
+  {
+    evidence: priorityEvidence,
+    attempts: attemptMap,
+    attemptKey: attemptKeyFor
+  },
+);
+const runnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
+  attempts: attemptMap,
+  attemptKey: attemptKeyFor,
+  force,
+  retryEmpty,
+  limit: targetLimit
+});
+// The plan is a canonical account map and must not shrink as checkpoints
+// complete. Only runtime execution uses the bounded runnable subset.
+const targets = planOnly ? prioritizedTargets : runnableTargets;
 console.log(`Logged-in social targets: ${targets.length} (${workers} workers, up to ${postLimit} posts each, ${scrollPasses} scroll passes).`);
 
 if (planOnly) {
-  const coverage = socialTargetCoverage(targetCompanies, targets);
+  const coverage = socialTargetCoverage(targetCompanies, prioritizedTargets);
   const planPayload = JSON.stringify({
     batchSlug: batchConfig.slug,
     snapshotPath: ycSnapshotPath,
@@ -100,6 +270,39 @@ if (planOnly) {
     companyCount: new Set(coverage.filter((row) => row.entityType === "company").map((row) => row.entityId)).size,
     founderCount: new Set(coverage.filter((row) => row.entityType === "founder").map((row) => row.entityId)).size,
     coverage,
+    xCollectionMode,
+    linkedinCollectionMode,
+    quarantinedTargetCount: targetPartition.quarantinedTargets.length,
+    ownerCollisionReconciliationSummary,
+    ownerAccountCollisions: targetPartition.collisions.map((collision) => ({
+      batchSlug: collision.batchSlug,
+      platform: collision.platform,
+      accountIdentity: collision.accountIdentity,
+      entityIds: collision.entityIds,
+      targets: collision.targets.map((target) => ({
+        companySlug: target.companySlug,
+        companyName: target.companyName,
+        entityType: target.entityType,
+        entityId: target.entityId,
+        entityName: target.name,
+        platform: target.platform,
+        accountUrl: target.url,
+        checkpointKey: attemptKeyFor(target)
+      }))
+    })),
+    runnableTargetCount: runnableTargets.length,
+    runnableTargets: runnableTargets.map((target) => ({
+      batchSlug: target.batchSlug,
+      companySlug: target.companySlug,
+      companyName: target.companyName,
+      entityType: target.entityType,
+      entityId: target.entityId,
+      entityName: target.name,
+      platform: target.platform,
+      accountUrl: target.url,
+      activityUrl: target.platform === "linkedin" ? linkedInActivityUrl(target.url) : target.url,
+      checkpointKey: attemptKeyFor(target)
+    })),
     targets: targets.map((target) => ({
       batchSlug: target.batchSlug,
       companySlug: target.companySlug,
@@ -118,6 +321,10 @@ if (planOnly) {
 }
 
 await runWorkerPool(targets, workers, async (target, workerIndex) => {
+  if (target.platform === "x" && xCircuitOpen) return;
+  if (target.platform === "linkedin" && linkedinCircuitOpen) return;
+  if (target.platform === "instagram" && instagramCircuitOpen) return;
+
   const attemptKey = attemptKeyFor(target);
   const existingAttempt = attemptMap.get(attemptKey);
   if (!force && existingAttempt?.status === "done" && !(retryEmpty && existingAttempt.count === 0)) return;
@@ -134,17 +341,78 @@ await runWorkerPool(targets, workers, async (target, workerIndex) => {
     addItems(result.evidence, evidence);
     addItems(result.failures, failures);
     addItems(result.needsReview, needsReview);
-    attemptMap.set(attemptKey, { status: "done", checkedAt: now, count: result.evidence.length });
-    console.log(`${target.platform} ${target.companyName} / ${target.name}: ${result.evidence.length} posts`);
+    const attemptStatus = result.collectionFailed ? "failed" : "done";
+    attemptMap.set(
+      attemptKey,
+      attemptStatus === "failed"
+        ? {
+            status: "failed",
+            checkedAt: now,
+            count: 0,
+            error: result.failures.map((item) => item.message).join(" | ")
+          }
+        : { status: "done", checkedAt: now, count: result.evidence.length }
+    );
+    if (target.platform === "x") {
+      updateXCircuitState(result, target);
+    } else if (target.platform === "linkedin") {
+      updateLinkedInCircuitState(result, target);
+    } else if (target.platform === "instagram") {
+      updateInstagramCircuitState(result, target);
+    }
+    const log = attemptStatus === "failed" ? console.warn : console.log;
+    log(`${target.platform} ${target.companyName} / ${target.name}: ${result.evidence.length} posts (${attemptStatus})`);
   } catch (error) {
-    failures.push(failure(target, errorMessage(error)));
-    attemptMap.set(attemptKey, { status: "failed", checkedAt: now, error: errorMessage(error) });
-    console.warn(`${target.platform} ${target.companyName} / ${target.name}: ${errorMessage(error)}`);
+    const message = errorMessage(error);
+    failures.push(failure(target, message));
+    attemptMap.set(attemptKey, { status: "failed", checkedAt: now, error: message });
+    if (target.platform === "instagram") {
+      const classifiedFailure = instagramFailureKind(message);
+      updateInstagramCircuitState(
+        {
+          collectionFailed: true,
+          failureKind:
+            classifiedFailure === "other" || classifiedFailure === "empty"
+              ? "command_or_profile"
+              : classifiedFailure,
+          failures: [{ message }]
+        },
+        target
+      );
+    } else if (target.platform === "x") {
+      updateXCircuitState(
+        {
+          collectionFailed: true,
+          failures: [{ message }]
+        },
+        target
+      );
+    }
+    console.warn(`${target.platform} ${target.companyName} / ${target.name}: ${message}`);
   }
 
   await writeCheckpoint();
   await delay(delayMs);
 });
+
+if (xCircuitOpen) {
+  console.warn(
+    `X collection circuit opened after repeated authenticated-session failures. ` +
+    `Remaining targets were left untouched and retryable. ${xCircuitReason}`
+  );
+}
+if (linkedinCircuitOpen) {
+  console.warn(
+    `LinkedIn collection circuit opened after authenticated-read failures. ` +
+    `Remaining LinkedIn targets were left untouched and retryable. ${linkedinCircuitReason}`
+  );
+}
+if (instagramCircuitOpen) {
+  console.warn(
+    `Instagram collection circuit opened after authenticated-read failures. ` +
+    `Remaining Instagram targets were left untouched and retryable. ${instagramCircuitReason}`
+  );
+}
 
 const payloadFailures = dedupeById(failures).filter((item) => !isObsoleteToolFailure(item.message));
 const contentDedupe = finalizeLoggedInEvidenceContent(dedupeById(evidence), {
@@ -165,8 +433,11 @@ const payload = {
       "Read-only browser automation through the user's authenticated OpenCLI browser session.",
       "No likes, follows, comments, messages, saves, stars, subscriptions, profile edits, or other mutations are performed.",
       "Instagram profile grids and X profile timelines are treated as opt-in authenticated/read-only sources when explicitly targeted.",
-      "X ingestion uses visible browser timeline parsing by default; high-level adapter fallback is disabled unless --allow-x-adapter-fallback is passed.",
-      "Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed.",
+      `X ingestion mode: ${xCollectionMode}. Browser, adapter, and hybrid modes are read-only; hybrid prefers the authenticated adapter and uses the DOM only to fill incomplete results.`,
+      `LinkedIn ingestion mode: ${linkedinCollectionMode}. Personal /in/ profiles may use the authenticated adapter; company /company/ pages always retain DOM collection support.`,
+      "Logged-in LinkedIn activity scraping is disabled unless both --platforms=linkedin and --allow-linkedin are passed. Auth and rate-limit failures open a circuit so untouched targets remain retryable.",
+      "Instagram login, challenge, and rate-limit failures open a circuit immediately; repeated command or profile failures open it after three consecutive failed targets. Legitimate empty native timelines remain completed empty checks.",
+      `Checkpoint owner-collision reconciliation: ${ownerCollisionReconciliationSummary.reattributedCount} stale company rows reattributed, ${ownerCollisionReconciliationSummary.quarantinedCount} quarantined.`,
       "Each target is checkpointed independently; blocked or timed-out profiles are logged and do not stop the batch."
     ]
   },
@@ -243,6 +514,7 @@ function socialAccountsFromGraphAccounts(accounts) {
   return (accounts ?? [])
     .filter((account) => !account?.review_state || account.review_state === "verified")
     .map((account) => ({
+      ...account,
       platform: socialPlatformForUrl(account?.platform, account?.url),
       url: account?.url
     }))
@@ -266,12 +538,24 @@ function collectTargets(companies) {
       for (const account of companyAccounts) {
         if (!platformFilter.has(account.platform)) continue;
         if (account.platform === "linkedin" && !allowLinkedIn) continue;
+        const instagramTargetVerified =
+          account.platform !== "instagram" ||
+          instagramTargetIsVerifiedForIngestion({
+            account,
+            override: companyOverride,
+            matchReason:
+              account.matchReason ??
+              companyOverride.matchReason ??
+              company.matchReason
+          });
+        if (!instagramTargetVerified) continue;
         targets.push(targetFor(
           company,
           { ...company, matchReason: companyOverride.matchReason ?? company.matchReason },
           "company",
           account.platform,
-          account.url
+          account.url,
+          { instagramTargetVerified }
         ));
       }
     }
@@ -299,12 +583,24 @@ function collectTargets(companies) {
         for (const account of founderAccounts) {
           if (!platformFilter.has(account.platform)) continue;
           if (account.platform === "linkedin" && !allowLinkedIn) continue;
+          const instagramTargetVerified =
+            account.platform !== "instagram" ||
+            instagramTargetIsVerifiedForIngestion({
+              account,
+              override: verifiedFounder,
+              matchReason:
+                account.matchReason ??
+                verifiedFounder?.matchReason ??
+                founder.matchReason
+            });
+          if (!instagramTargetVerified) continue;
           targets.push(targetFor(
             company,
             verifiedFounder ? targetFounder : founder,
             "founder",
             account.platform,
-            account.url
+            account.url,
+            { instagramTargetVerified }
           ));
         }
       }
@@ -326,6 +622,7 @@ function verifiedOwnerSocialAccounts(owner = {}, positiveLinks = {}, ownerOverri
   );
   const candidates = [
     ...(owner.socialAccounts ?? []).map((account) => ({
+      ...account,
       platform: socialPlatformForUrl(account?.platform, account?.url),
       url: account?.url
     })),
@@ -340,14 +637,7 @@ function verifiedOwnerSocialAccounts(owner = {}, positiveLinks = {}, ownerOverri
   ]
     .filter((account) => ["x", "linkedin", "instagram"].includes(account.platform) && account.url)
     .filter((account) => !retiredKeys.has(`${account.platform}:${normalizeComparableUrl(account.url)}`));
-  return [
-    ...new Map(
-      candidates.map((account) => [
-        `${account.platform}:${normalizeComparableUrl(account.url)}`,
-        account
-      ])
-    ).values()
-  ];
+  return mergeVerifiedSocialAccountCandidates(candidates);
 }
 
 function retiredOwnerSocialAccounts(ownerOverride) {
@@ -445,7 +735,14 @@ function socialTargetCoverage(companies, plannedTargets) {
   return coverage;
 }
 
-function targetFor(company, entity, entityType, platform, url) {
+function targetFor(
+  company,
+  entity,
+  entityType,
+  platform,
+  url,
+  { instagramTargetVerified = false } = {}
+) {
   return {
     platform,
     url,
@@ -457,7 +754,9 @@ function targetFor(company, entity, entityType, platform, url) {
     entityType,
     entityId: collectorEntityId(company, entity, entityType),
     name: entityType === "company" ? company.name : entity.name,
-    matchReason: entity.matchReason ?? null
+    matchReason: entity.matchReason ?? null,
+    instagramTargetVerified:
+      platform === "instagram" ? instagramTargetVerified === true : undefined
   };
 }
 
@@ -470,7 +769,13 @@ function manualTargetsForCompany(company) {
     for (const [platform, url] of Object.entries(override.companySocialLinks ?? override.company ?? {})) {
       if (platformFilter.has(platform)) {
         if (platform === "linkedin" && !allowLinkedIn) continue;
-        if (platform === "instagram" && !instagramOverrideIsVerifiedForIngestion(override)) {
+        if (
+          platform === "instagram" &&
+          !instagramTargetIsVerifiedForIngestion({
+            override,
+            matchReason: override.matchReason
+          })
+        ) {
           continue;
         }
         targets.push(
@@ -484,7 +789,8 @@ function manualTargetsForCompany(company) {
             },
             "company",
             platform,
-            url
+            url,
+            { instagramTargetVerified: platform === "instagram" }
           )
         );
       }
@@ -514,10 +820,25 @@ function manualTargetsForCompany(company) {
         const url = founder.socialLinks?.[platform] ?? founder[platform];
         if (url && platformFilter.has(platform)) {
           if (platform === "linkedin" && !allowLinkedIn) continue;
-          if (platform === "instagram" && !instagramMatchReasonIsVerifiedForIngestion(founder.matchReason)) {
+          if (
+            platform === "instagram" &&
+            !instagramTargetIsVerifiedForIngestion({
+              override: founderOverride,
+              matchReason: founder.matchReason
+            })
+          ) {
             continue;
           }
-          targets.push(targetFor(company, founder, "founder", platform, url));
+          targets.push(
+            targetFor(
+              company,
+              founder,
+              "founder",
+              platform,
+              url,
+              { instagramTargetVerified: platform === "instagram" }
+            )
+          );
         }
       }
     }
@@ -539,37 +860,126 @@ function dedupeTargets(targets) {
 
 async function fetchLinkedInPosts(target, workerIndex) {
   if (!urlMatchesPlatform(target.url, "linkedin")) {
-    return { evidence: [], failures: [failure(target, "LinkedIn URL host did not match linkedin.com.")], needsReview: [] };
+    return {
+      evidence: [],
+      failures: [failure(target, "LinkedIn URL host did not match linkedin.com.")],
+      needsReview: [],
+      collectionFailed: true
+    };
   }
 
   const activityUrl = linkedInActivityUrl(target.url);
   if (!activityUrl) {
-    return { evidence: [], failures: [failure(target, "Unsupported LinkedIn URL shape.")], needsReview: [] };
+    return {
+      evidence: [],
+      failures: [failure(target, "Unsupported LinkedIn URL shape.")],
+      needsReview: [],
+      collectionFailed: true
+    };
   }
 
-  const session = `yc-li-${workerIndex}`;
-  await runOpenCli(["browser", session, "open", activityUrl], { timeoutMs: perTargetTimeoutMs });
-  await runOpenCli(["browser", session, "wait", "time", "5"], { timeoutMs: 12_000 });
-  for (let index = 0; index < 2; index += 1) {
-    await runOpenCli(["browser", session, "scroll", "down", "--amount", "1200"], { timeoutMs: 12_000 }).catch(() => null);
-    await runOpenCli(["browser", session, "wait", "time", "2"], { timeoutMs: 8_000 }).catch(() => null);
+  const adapterSupported = linkedinAdapterSupportsAccountUrl(target.url);
+  const postGroups = [];
+  const sourceFailures = [];
+  let attemptedSourceCount = 0;
+  let completedSourceCount = 0;
+
+  if (
+    adapterSupported &&
+    (linkedinCollectionMode === "adapter" || linkedinCollectionMode === "hybrid")
+  ) {
+    attemptedSourceCount += 1;
+    try {
+      const adapterPosts = await fetchLinkedInPostsFromAdapter(target);
+      postGroups.push(adapterPosts);
+      const attributableAdapterPosts = mergeOwnedLinkedInPosts(
+        [adapterPosts],
+        {
+          accountUrl: target.url,
+          targetName: target.name,
+          limit: postLimit
+        }
+      );
+      if (!adapterPosts.length || attributableAdapterPosts.length) {
+        completedSourceCount += 1;
+      }
+    } catch (error) {
+      const message = errorMessage(error);
+      if (linkedinFailureKind(message) === "empty") {
+        completedSourceCount += 1;
+      } else {
+        sourceFailures.push(
+          failure(target, `LinkedIn adapter failed: ${message}`, target.url)
+        );
+      }
+    }
   }
 
-  const raw = await runOpenCli(["browser", session, "eval", linkedInExtractJs()], { timeoutMs: perTargetTimeoutMs });
-  const expectedAccountSlug = linkedinAccountSlugFromUrl(target.url);
-  const posts = parseJsonOutput(raw)
-    .filter((post) => !isLinkedInRepost(post, target.name))
-    // A feed/update URN has no author in its URL. Require the requested
-    // account to appear in the extracted card, otherwise a previous profile's
-    // card left in the browser session can be attributed to the wrong entity.
-    .filter((post) => expectedAccountSlug && (post.authorUrls ?? []).some(
-      (authorUrl) => linkedinAccountSlugFromUrl(authorUrl) === expectedAccountSlug
-    ))
-    .filter((post) => linkedInCardHeaderMatchesTarget(post.rawText, target.name))
-    .filter((post) => linkedinPostMatchesAccount(post.url, target.url))
-    .slice(0, postLimit);
+  // OpenCLI's LinkedIn adapter only accepts /in/ profiles. Keep the DOM path
+  // for every /company/ page even when adapter mode is requested.
+  if (
+    linkedinCollectionMode === "browser" ||
+    linkedinCollectionMode === "hybrid" ||
+    !adapterSupported
+  ) {
+    attemptedSourceCount += 1;
+    try {
+      const browserPosts = await fetchLinkedInPostsFromBrowser(
+        target,
+        workerIndex,
+        activityUrl
+      );
+      postGroups.push(browserPosts);
+      const attributableBrowserPosts = mergeOwnedLinkedInPosts(
+        [browserPosts],
+        {
+          accountUrl: target.url,
+          targetName: target.name,
+          limit: postLimit
+        }
+      );
+      if (!browserPosts.length || attributableBrowserPosts.length) {
+        completedSourceCount += 1;
+      }
+    } catch (error) {
+      const message = errorMessage(error);
+      if (linkedinFailureKind(message) === "empty") {
+        completedSourceCount += 1;
+      } else {
+        sourceFailures.push(
+          failure(target, `LinkedIn browser DOM extractor failed: ${message}`, activityUrl)
+        );
+      }
+    }
+  }
+
+  const posts = mergeOwnedLinkedInPosts(
+    postGroups,
+    {
+      accountUrl: target.url,
+      targetName: target.name,
+      limit: postLimit
+    }
+  );
+  const attemptState = linkedinCollectionAttemptState({
+    postCount: posts.length,
+    attemptedSourceCount,
+    completedSourceCount,
+    failedSourceCount: sourceFailures.length
+  });
   if (!posts.length) {
-    return { evidence: [], failures: [failure(target, "No original visible LinkedIn posts found on activity page.", activityUrl)], needsReview: [] };
+    return {
+      evidence: [],
+      failures: sourceFailures.length
+        ? sourceFailures
+        : [failure(
+            target,
+            `No attributable original LinkedIn posts were visible in ${linkedinCollectionMode} mode.`,
+            activityUrl
+          )],
+      needsReview: [],
+      collectionFailed: attemptState.collectionFailed
+    };
   }
 
   return {
@@ -582,7 +992,7 @@ async function fetchLinkedInPosts(target, workerIndex) {
         title: `${target.name} LinkedIn post`,
         text: post.body || post.rawText || `${target.name} LinkedIn post`,
         rawVisibleText: post.rawText || post.body || "",
-        postedAt: null,
+        postedAt: parseDateOrNull(post.postedAt),
         metrics: {
           likes: numberOrNull(post.reactions),
           comments: numberOrNull(post.comments),
@@ -596,25 +1006,66 @@ async function fetchLinkedInPosts(target, workerIndex) {
           reposts: numberOrNull(post.reposts),
           views: numberOrNull(post.impressions)
         }),
-        matchReason: `Opt-in logged-in LinkedIn activity-page original post scrape from ${target.entityType} URL.`
+        matchReason:
+          `Opt-in authenticated read-only LinkedIn ${linkedinCollectionMode} collection from ` +
+          `${target.entityType} URL; the native activity ID and author identity were both verified.`
       })
     ),
-    failures: [],
-    needsReview: []
+    failures: sourceFailures,
+    needsReview: [],
+    collectionFailed: attemptState.collectionFailed
   };
 }
 
-function linkedInCardHeaderMatchesTarget(rawText, targetName) {
-  const normalize = (value) => String(value ?? "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
-  const target = normalize(targetName);
-  if (!target) return false;
-  // The header contains the post author before the body. Checking only this
-  // region prevents profile/sidebar links from validating a stale feed card.
-  const header = normalize(String(rawText ?? "").slice(0, 320));
-  return header.includes(target);
+async function fetchLinkedInPostsFromAdapter(target) {
+  const raw = await runOpenCli(
+    [
+      "linkedin",
+      "posts",
+      "--profile-url",
+      target.url,
+      "--limit",
+      String(postLimit),
+      "-f",
+      "json",
+      "--site-session",
+      "ephemeral",
+      "--keep-tab",
+      "false"
+    ],
+    { timeoutMs: Math.min(perTargetTimeoutMs, 45_000) }
+  );
+  return parseJsonOutput(raw);
+}
+
+async function fetchLinkedInPostsFromBrowser(target, workerIndex, activityUrl) {
+  const session =
+    `yc-li-${workerIndex}-${slugify(target.entityId || target.name)}-${Date.now()}`;
+  return withOpenCliBrowserSession({
+    session,
+    runOpenCli,
+    operation: async () => {
+      await runOpenCli(["browser", session, "open", activityUrl], {
+        timeoutMs: perTargetTimeoutMs
+      });
+      await runOpenCli(["browser", session, "wait", "time", "5"], {
+        timeoutMs: 12_000
+      });
+      for (let index = 0; index < scrollPasses; index += 1) {
+        await runOpenCli(["browser", session, "scroll", "down", "--amount", "1200"], {
+          timeoutMs: 12_000
+        }).catch(() => null);
+        await runOpenCli(["browser", session, "wait", "time", "2"], {
+          timeoutMs: 8_000
+        }).catch(() => null);
+      }
+      const raw = await runOpenCli(
+        ["browser", session, "eval", linkedInExtractJs()],
+        { timeoutMs: perTargetTimeoutMs }
+      );
+      return parseJsonOutput(raw);
+    }
+  });
 }
 
 async function fetchInstagramPosts(target, workerIndex) {
@@ -628,63 +1079,111 @@ async function fetchInstagramPosts(target, workerIndex) {
   }
 
   const adapterFailures = [];
+  let profileAdapterCompleted = false;
+  let timelineAdapterCompleted = false;
+  let browserGridCompleted = false;
   const [profileRaw, postsRaw, gridUrls] = await Promise.all([
-    runOpenCli(["instagram", "profile", handle, ...openCliFormatArgs], { timeoutMs: perTargetTimeoutMs }).catch((error) => {
-      adapterFailures.push(failure(target, `Instagram profile adapter failed: ${errorMessage(error)}`));
-      return "[]";
-    }),
+    runOpenCli(
+      ["instagram", "profile", handle, ...openCliFormatArgs],
+      { timeoutMs: perTargetTimeoutMs }
+    )
+      .then((raw) => {
+        profileAdapterCompleted = true;
+        return raw;
+      })
+      .catch((error) => {
+        adapterFailures.push(failure(target, `Instagram profile adapter failed: ${errorMessage(error)}`));
+        return "[]";
+      }),
     runOpenCli(["instagram", "user", handle, "--limit", String(postLimit), ...openCliFormatArgs], {
       timeoutMs: perTargetTimeoutMs
-    }).catch((error) => {
-      adapterFailures.push(failure(target, `Instagram user adapter failed: ${errorMessage(error)}`));
-      return "[]";
-    }),
-    fetchInstagramGridUrls(handle, workerIndex, postLimit).catch((error) => {
-      adapterFailures.push(failure(target, `Instagram browser grid extractor failed: ${errorMessage(error)}`));
-      return [];
     })
+      .then((raw) => {
+        timelineAdapterCompleted = true;
+        return raw;
+      })
+      .catch((error) => {
+        adapterFailures.push(failure(target, `Instagram user adapter failed: ${errorMessage(error)}`));
+        return "[]";
+      }),
+    fetchInstagramGridUrls(handle, workerIndex, postLimit)
+      .then((items) => {
+        browserGridCompleted = true;
+        return items;
+      })
+      .catch((error) => {
+        adapterFailures.push(failure(target, `Instagram browser grid extractor failed: ${errorMessage(error)}`));
+        return [];
+      })
   ]);
 
   const profile = parseJsonOutput(profileRaw)[0] ?? null;
   const posts = parseJsonOutput(postsRaw).slice(0, postLimit);
-  if (profile && !instagramProfileMatchesTarget(target, handle, profile)) {
+  const profileIdentity = instagramAdapterProfileIdentityDecision({
+    requestedHandle: handle,
+    profile,
+    targetVerified: target.instagramTargetVerified === true
+  });
+  // A completed grid read already passed the browser's exact-profile identity
+  // gate inside fetchInstagramGridUrls. Do not turn that independently proven,
+  // legitimately empty profile into a retryable failure just because the
+  // redundant profile adapter was unavailable.
+  const profileIdentityOk =
+    (profileAdapterCompleted && profileIdentity.ok) || browserGridCompleted;
+  if (!profileIdentityOk) {
+    const identityFailure = failure(
+      target,
+      `Instagram profile identity was not proven for @${handle}: ${profileIdentity.reason}.`
+    );
+    const targetFailures = [...adapterFailures, identityFailure];
+    const attemptState = instagramCollectionAttemptState({
+      evidenceCount: 0,
+      completedTimelineSourceCount:
+        Number(timelineAdapterCompleted) + Number(browserGridCompleted),
+      profileIdentityOk: false,
+      failureMessages: targetFailures.map((item) => item.message)
+    });
     return {
       evidence: [],
-      failures: [
-        ...adapterFailures,
-        failure(
-          target,
-          `Instagram profile identity mismatch for @${handle}: visible profile name/bio/link did not match ${target.entityType === "company" ? target.companyName : target.name}.`
-        )
-      ],
-      needsReview: []
+      failures: targetFailures,
+      needsReview: [],
+      collectionFailed: attemptState.collectionFailed,
+      failureKind: attemptState.failureKind
     };
   }
   const detailItems = instagramFetchDetails
     ? await fetchInstagramPostDetails(handle, gridUrls, workerIndex).catch(() => [])
     : [];
-  const detailsByUrl = new Map(detailItems.map((item) => [canonicalInstagramPostUrl(item.url), item]));
-  const adapterEvidence = posts.map((post, index) => {
-    const gridItem = instagramGridItemForPost(gridUrls, post, index);
-    const gridUrl = gridItem?.href ?? null;
-    const sourceUrl =
-      canonicalInstagramPostUrl(post.url) ??
-      canonicalInstagramPostUrl(gridUrl) ??
-      `https://www.instagram.com/${handle}/#post-${post.index ?? index + 1}`;
-    const detail = detailsByUrl.get(canonicalInstagramPostUrl(sourceUrl));
+  let rejectedAdapterIdentityCount = 0;
+  const adapterEvidence = posts.flatMap((post) => {
+    const provenance = instagramEvidenceProvenance({
+      post,
+      gridItems: gridUrls,
+      detailItems
+    });
+    if (!provenance) {
+      rejectedAdapterIdentityCount += 1;
+      return [];
+    }
+    const {
+      sourceUrl,
+      platformPostId,
+      gridItem,
+      detail
+    } = provenance;
     const metrics = {
       likes: maxMetric(post.likes, detail?.likes, gridItem?.likes),
       comments: maxMetric(post.comments, detail?.comments, gridItem?.comments),
       views: maxMetric(post.views, detail?.views, gridItem?.views)
     };
     const caption = bestInstagramCaption(post.caption, gridItem?.caption, detail?.caption);
-    return socialEvidenceItem({
+    return [socialEvidenceItem({
       target,
       sourceUrl,
-      platformPostId: instagramPostIdFromUrl(sourceUrl) ?? `${handle}-${post.index ?? index + 1}`,
+      platformPostId,
       title: caption || `${handle} Instagram ${post.type ?? "post"}`,
       text: caption || `${handle} Instagram ${post.type ?? "post"}`,
-      rawVisibleText: JSON.stringify({ profile, post, gridUrl: gridItem, detail }),
+      rawVisibleText: JSON.stringify({ profile, post, gridItem, detail }),
       postedAt: parseInstagramDateOrNull(post.date) ?? detail?.postedAt ?? null,
       metrics,
       mediaUrls: detail?.mediaUrls ?? gridItem?.mediaUrls ?? [],
@@ -692,7 +1191,7 @@ async function fetchInstagramPosts(target, workerIndex) {
       matchReason:
         target.matchReason ??
         `Opt-in read-only Instagram profile scrape for @${handle}; metrics came from visible post grid/profile/detail data.`
-    });
+    })];
   });
   const seenPostIds = new Set(adapterEvidence.map((item) => item.platformPostId).filter(Boolean));
   const gridEvidence = gridUrls
@@ -701,9 +1200,12 @@ async function fetchInstagramPosts(target, workerIndex) {
       const postId = instagramPostIdFromUrl(sourceUrl);
       return sourceUrl && postId && !seenPostIds.has(postId);
     })
-    .map((gridUrl, index) => {
+    .map((gridUrl) => {
       const sourceUrl = canonicalInstagramPostUrl(gridUrl.href);
-      const detail = detailsByUrl.get(sourceUrl);
+      const postId = instagramPostIdFromUrl(sourceUrl);
+      const detail = detailItems.find(
+        (item) => instagramPostIdFromUrl(item?.url) === postId
+      );
       const metrics = {
         likes: maxMetric(detail?.likes, gridUrl.likes),
         comments: maxMetric(detail?.comments, gridUrl.comments),
@@ -713,7 +1215,7 @@ async function fetchInstagramPosts(target, workerIndex) {
       return socialEvidenceItem({
         target,
         sourceUrl,
-        platformPostId: instagramPostIdFromUrl(sourceUrl) ?? `${handle}-grid-${index + 1}`,
+        platformPostId: postId,
         title: caption || `${handle} Instagram post`,
         text: caption || `${handle} Instagram post`,
         rawVisibleText: JSON.stringify({ profile, gridUrl, detail }),
@@ -726,24 +1228,77 @@ async function fetchInstagramPosts(target, workerIndex) {
           `Opt-in read-only Instagram grid/detail scrape for @${handle}; adapter did not return this visible grid item.`
       });
     });
-  const evidenceItems = dedupeById([...adapterEvidence, ...gridEvidence])
-    .filter(hasScoredTraction)
-    .filter(isRelevantInstagramTraction);
+  const scoredCandidates = dedupeById([...adapterEvidence, ...gridEvidence])
+    .filter(hasScoredTraction);
+  const recencyFailures = [];
+  const evidenceItems = scoredCandidates.filter((item) => {
+    const decision = instagramRecencyDecision(
+      item.postedAt,
+      instagramTractionCutoffMs
+    );
+    if (decision.eligible) return true;
+    if (
+      decision.reason === "missing_publication_date" ||
+      decision.reason === "invalid_publication_date"
+    ) {
+      recencyFailures.push(
+        failure(
+          target,
+          `Instagram native post omitted because recency could not be proven: ${decision.reason}.`,
+          item.sourceUrl
+        )
+      );
+    }
+    return false;
+  });
+  const nativeIdentityFailures = rejectedAdapterIdentityCount
+    ? [
+        failure(
+          target,
+          `Rejected ${rejectedAdapterIdentityCount} Instagram adapter row(s) without an independently proven native post/reel/tv shortcode.`
+        )
+      ]
+    : [];
+  const targetFailures = [
+    ...adapterFailures,
+    ...nativeIdentityFailures,
+    ...recencyFailures
+  ];
   if (!evidenceItems.length) {
+    const emptyFailure = failure(
+      target,
+      "No scored recent Instagram posts found with adapter or browser grid/detail extractor."
+    );
+    const failuresWithEmpty = [...targetFailures, emptyFailure];
+    const attemptState = instagramCollectionAttemptState({
+      evidenceCount: 0,
+      completedTimelineSourceCount:
+        Number(timelineAdapterCompleted) + Number(browserGridCompleted),
+      profileIdentityOk,
+      failureMessages: failuresWithEmpty.map((item) => item.message)
+    });
     return {
       evidence: [],
-      failures: [
-        ...adapterFailures,
-        failure(target, "No scored recent Instagram posts found with adapter or browser grid/detail extractor.")
-      ],
-      needsReview: []
+      failures: failuresWithEmpty,
+      needsReview: [],
+      collectionFailed: attemptState.collectionFailed,
+      failureKind: attemptState.failureKind
     };
   }
 
+  const attemptState = instagramCollectionAttemptState({
+    evidenceCount: evidenceItems.length,
+    completedTimelineSourceCount:
+      Number(timelineAdapterCompleted) + Number(browserGridCompleted),
+    profileIdentityOk,
+    failureMessages: targetFailures.map((item) => item.message)
+  });
   return {
     evidence: evidenceItems,
-    failures: adapterFailures,
-    needsReview: []
+    failures: targetFailures,
+    needsReview: [],
+    collectionFailed: attemptState.collectionFailed,
+    failureKind: attemptState.failureKind
   };
 }
 
@@ -757,132 +1312,89 @@ async function fetchXTweets(target, workerIndex) {
     return { evidence: [], failures: [failure(target, "Could not parse X/Twitter handle.")], needsReview: [] };
   }
 
-  const browserResult = await fetchXTweetsFromBrowser(target, handle, workerIndex).catch((error) => ({
-    evidence: [],
-    failures: [failure(target, `X browser DOM extractor failed: ${errorMessage(error)}`)],
-    needsReview: []
-  }));
-  if (browserResult.evidence.length) {
-    return browserResult;
+  const failures = [];
+  let attemptedSourceCount = 0;
+  let completedSourceCount = 0;
+  let adapterTweets = [];
+  let browserTweets = [];
+  let eligibleAdapterTweetCount = 0;
+
+  if (xCollectionMode !== "browser") {
+    attemptedSourceCount += 1;
+    try {
+      adapterTweets = await fetchXTweetsFromAdapter(handle);
+      eligibleAdapterTweetCount = mergeOwnedXTweets(
+        [adapterTweets],
+        { handle, includeRetweets, limit: postLimit }
+      ).length;
+      if (!adapterTweets.length || eligibleAdapterTweetCount) {
+        completedSourceCount += 1;
+      }
+    } catch (error) {
+      failures.push(failure(target, `X authenticated adapter failed: ${errorMessage(error)}`));
+    }
   }
-  if (!allowXAdapterFallback) {
-    return browserResult.failures.length
-      ? browserResult
-      : { evidence: [], failures: [failure(target, "No original visible X posts found; high-level X adapter fallback disabled.")], needsReview: [] };
+  if (
+    xCollectionMode === "browser" ||
+    (xCollectionMode === "hybrid" && eligibleAdapterTweetCount < postLimit)
+  ) {
+    attemptedSourceCount += 1;
+    try {
+      browserTweets = await fetchXTweetsFromBrowser(handle, workerIndex);
+      const eligibleBrowserTweetCount = mergeOwnedXTweets(
+        [browserTweets],
+        { handle, includeRetweets, limit: postLimit }
+      ).length;
+      if (!browserTweets.length || eligibleBrowserTweetCount) {
+        completedSourceCount += 1;
+      }
+    } catch (error) {
+      failures.push(failure(target, `X browser DOM extractor failed: ${errorMessage(error)}`));
+    }
   }
 
-  const raw = await runOpenCli(
-    ["twitter", "tweets", handle, "--limit", String(postLimit), "--top-by-engagement", String(postLimit), ...openCliFormatArgs],
-    { timeoutMs: Math.min(perTargetTimeoutMs, 35_000) }
+  const tweets = mergeOwnedXTweets(
+    [adapterTweets, browserTweets],
+    { handle, includeRetweets, limit: postLimit }
   );
-  const tweets = parseJsonOutput(raw)
-    .filter((tweet) => includeRetweets || !tweet.is_retweet)
-    .slice(0, postLimit);
+  const xEligibilityFailures = mergeOwnedXTweetObservations(
+    [adapterTweets, browserTweets],
+    { handle }
+  ).flatMap((tweet) => {
+    const decision = xTweetIngestionDecision(tweet, {
+      handle,
+      includeRetweets
+    });
+    return decision.eligible
+      ? []
+      : [
+          failure(
+            target,
+            `X native post ${tweet.id} omitted: ${decision.reason}.`,
+            tweet.url
+          )
+        ];
+  });
+  const attemptState = xCollectionAttemptState({
+    tweetCount: tweets.length,
+    attemptedSourceCount,
+    completedSourceCount,
+    failedSourceCount: failures.length
+  });
   if (!tweets.length) {
-    return { evidence: [], failures: [failure(target, "No original visible X posts returned by OpenCLI tweets adapter.")], needsReview: [] };
-  }
-
-  return {
-    evidence: tweets.map((tweet) =>
-      socialEvidenceItem({
-        target,
-        sourceUrl: tweet.url || `https://x.com/${handle}`,
-        title: descriptiveXTitle(tweet.text, tweet.author || target.name),
-        text: tweet.text || "",
-        rawVisibleText: JSON.stringify(tweet),
-        postedAt: parseXDateLabel(tweet.created_at) ?? parseDateOrNull(tweet.created_at),
-        metrics: {
-          likes: numberOrNull(tweet.likes),
-          reposts: numberOrNull(tweet.retweets),
-          comments: numberOrNull(tweet.replies),
-          views: numberOrNull(tweet.views)
-        },
-        mediaUrls: [...(tweet.media_urls ?? []), ...(tweet.media_posters ?? [])].filter(Boolean),
-        contributionScore: scoreMetrics("x", {
-          likes: numberOrNull(tweet.likes),
-          reposts: numberOrNull(tweet.retweets),
-          comments: numberOrNull(tweet.replies),
-          views: numberOrNull(tweet.views)
-        }),
-        matchReason: `Opt-in logged-in X profile timeline read for @${handle}.`
-      })
-    ),
-    failures: [],
-    needsReview: []
-  };
-}
-
-async function fetchInstagramGridUrls(handle, workerIndex, desiredCount) {
-  const session = `yc-ig-${workerIndex}-${slugify(handle)}-${Date.now()}`;
-  await runOpenCli(["browser", session, "open", `https://www.instagram.com/${handle}/`], { timeoutMs: perTargetTimeoutMs });
-  await runOpenCli(["browser", session, "wait", "time", "4"], { timeoutMs: 10_000 }).catch(() => null);
-  const byUrl = new Map();
-  for (let index = 0; index <= scrollPasses && byUrl.size < desiredCount; index += 1) {
-    const raw = await runOpenCli(["browser", session, "eval", instagramGridExtractJs()], { timeoutMs: perTargetTimeoutMs });
-    for (const item of parseJsonOutput(raw)) {
-      if (item?.href) byUrl.set(item.href, item);
-    }
-    if (byUrl.size >= desiredCount || index === scrollPasses) break;
-    await runOpenCli(["browser", session, "scroll", "down", "--amount", "1100"], { timeoutMs: 10_000 }).catch(() => null);
-    await runOpenCli(["browser", session, "eval", instagramProfileScrollJs(index)], { timeoutMs: 10_000 }).catch(() => null);
-    await runOpenCli(["browser", session, "wait", "time", "1.5"], { timeoutMs: 8_000 }).catch(() => null);
-  }
-  return [...byUrl.values()].slice(0, desiredCount);
-}
-
-async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
-  const session = `yc-ig-detail-${workerIndex}-${slugify(handle)}-${Date.now()}`;
-  const details = [];
-  const urls = gridUrls
-    .map((item) => canonicalInstagramPostUrl(item.href))
-    .filter(Boolean)
-    .slice(0, postLimit);
-
-  for (const url of urls) {
-    await runOpenCli(["browser", session, "open", url], { timeoutMs: perTargetTimeoutMs }).catch(() => null);
-    await runOpenCli(["browser", session, "wait", "time", "2.5"], { timeoutMs: 8_000 }).catch(() => null);
-    const raw = await runOpenCli(["browser", session, "eval", instagramPostDetailExtractJs()], {
-      timeoutMs: perTargetTimeoutMs
-    }).catch(() => "[]");
-    const parsed = parseJsonOutput(raw)[0] ?? parseJsonOutput(raw);
-    if (parsed?.url || parsed?.description || parsed?.caption) {
-      details.push({
-        url,
-        caption: parsed.caption ?? null,
-        rawText: parsed.text ?? parsed.description ?? "",
-        description: parsed.description ?? null,
-        postedAt: parseInstagramDateOrNull(parsed.dateLabel),
-        likes: numberOrNull(parsed.likes),
-        comments: numberOrNull(parsed.comments),
-        views: numberOrNull(parsed.views),
-        mediaUrls: parsed.mediaUrls ?? []
-      });
-    }
-    await delay(Math.min(delayMs, 1200));
-  }
-
-  return details;
-}
-
-async function fetchXTweetsFromBrowser(target, handle, workerIndex) {
-  const session = `yc-x-${workerIndex}`;
-  await runOpenCli(["browser", session, "open", `https://x.com/${handle}`], { timeoutMs: perTargetTimeoutMs });
-  await runOpenCli(["browser", session, "wait", "time", "5"], { timeoutMs: 12_000 }).catch(() => null);
-  const byId = new Map();
-  for (let index = 0; index <= scrollPasses && byId.size < postLimit; index += 1) {
-    const raw = await runOpenCli(["browser", session, "eval", xTimelineExtractJs()], { timeoutMs: perTargetTimeoutMs });
-    for (const item of parseJsonOutput(raw)) {
-      if (item?.id) byId.set(item.id, item);
-    }
-    if (byId.size >= postLimit || index === scrollPasses) break;
-    await runOpenCli(["browser", session, "scroll", "down", "--amount", "900"], { timeoutMs: 10_000 }).catch(() => null);
-    await runOpenCli(["browser", session, "wait", "time", "2"], { timeoutMs: 8_000 }).catch(() => null);
-  }
-  const tweets = [...byId.values()]
-    .filter((tweet) => includeRetweets || !tweet.is_retweet)
-    .slice(0, postLimit);
-  if (!tweets.length) {
-    return { evidence: [], failures: [failure(target, "No original visible X posts found with browser DOM extractor.")], needsReview: [] };
+    return {
+      evidence: [],
+      failures: [
+        ...failures,
+        ...xEligibilityFailures,
+        failure(
+          target,
+          `No scored recent original X posts found in ${xCollectionMode} mode.`
+        )
+      ],
+      needsReview: [],
+      collectionFailed: attemptState.collectionFailed
+    };
   }
 
   return {
@@ -901,7 +1413,7 @@ async function fetchXTweetsFromBrowser(target, handle, workerIndex) {
           comments: numberOrNull(tweet.replies),
           views: numberOrNull(tweet.views)
         },
-        mediaUrls: tweet.media_urls ?? [],
+        mediaUrls: [...new Set([...(tweet.media_urls ?? []), ...(tweet.media_posters ?? [])].filter(Boolean))],
         contributionScore: scoreMetrics("x", {
           likes: numberOrNull(tweet.likes),
           reposts: numberOrNull(tweet.retweets),
@@ -910,12 +1422,222 @@ async function fetchXTweetsFromBrowser(target, handle, workerIndex) {
         }),
         matchReason:
           target.matchReason ??
-          `Opt-in read-only X browser timeline scrape for @${handle}; metrics came from visible aria-label post controls.`
+          `Opt-in authenticated read-only X ${xCollectionMode} timeline collection for @${handle}; native author and status URL were both verified against the mapped account.`
       })
     ),
-    failures: [],
-    needsReview: []
+    failures: [
+      ...failures,
+      ...xEligibilityFailures
+    ],
+    needsReview: [],
+    collectionFailed: attemptState.collectionFailed
   };
+}
+
+async function fetchXTweetsFromAdapter(handle, limit = postLimit) {
+  const raw = await runOpenCli(
+    ["twitter", "tweets", handle, "--limit", String(limit), "--top-by-engagement", String(limit), ...openCliFormatArgs],
+    { timeoutMs: Math.min(perTargetTimeoutMs, 35_000) }
+  );
+  return parseJsonOutput(raw);
+}
+
+function updateXCircuitState(result, target) {
+  const messages = (result.failures ?? [])
+    .map((item) => item?.message)
+    .filter(Boolean)
+    .join(" | ");
+  const failureKind = xFailureKind(messages);
+  const decision = xCircuitStateTransition({
+    previousConsecutiveFailures: consecutiveXCollectionFailures,
+    collectionFailed: result.collectionFailed,
+    maxConsecutiveFailures: maxConsecutiveXFailures,
+    failureKind
+  });
+  consecutiveXCollectionFailures = decision.consecutiveFailures;
+  if (!decision.open || xCircuitOpen) return;
+
+  xCircuitOpen = true;
+  xCircuitReason =
+    `${decision.reason ?? failureKind} after ${target.name}: ` +
+    `${messages || "unknown X authenticated-read failure"}`;
+}
+
+function updateLinkedInCircuitState(result, target) {
+  const messages = result.failures
+    .map((item) => item?.message)
+    .filter(Boolean)
+    .join(" | ");
+  const failureKind = linkedinFailureKind(messages);
+  const decision = linkedinCircuitStateTransition({
+    previousConsecutiveFailures: consecutiveLinkedInCollectionFailures,
+    collectionFailed: result.collectionFailed,
+    maxConsecutiveFailures: maxConsecutiveLinkedInFailures,
+    failureKind
+  });
+  consecutiveLinkedInCollectionFailures = decision.consecutiveFailures;
+  if (!decision.open) return;
+
+  linkedinCircuitOpen = true;
+  linkedinCircuitReason =
+    `${decision.reason ?? failureKind} after ${target.name}: ${messages || "unknown LinkedIn read failure"}`;
+}
+
+function updateInstagramCircuitState(result, target) {
+  if (!result.collectionFailed) {
+    consecutiveInstagramCollectionFailures = 0;
+    return;
+  }
+
+  consecutiveInstagramCollectionFailures += 1;
+  const messages = (result.failures ?? [])
+    .map((item) => item?.message)
+    .filter(Boolean)
+    .join(" | ");
+  const classifiedFailure = result.failureKind ?? instagramFailureKind(messages);
+  const failureKind =
+    classifiedFailure === "other" || classifiedFailure === "empty"
+      ? "command_or_profile"
+      : classifiedFailure;
+  const decision = instagramCircuitDecision({
+    consecutiveFailures: consecutiveInstagramCollectionFailures,
+    maxConsecutiveFailures: maxConsecutiveInstagramFailures,
+    failureKind
+  });
+  if (!decision.open) return;
+
+  instagramCircuitOpen = true;
+  instagramCircuitReason =
+    `${decision.reason ?? failureKind} after ${target.name}: ` +
+    `${messages || "unknown Instagram authenticated-read failure"}`;
+}
+
+async function fetchInstagramGridUrls(handle, workerIndex, desiredCount) {
+  const session = `yc-ig-${workerIndex}-${slugify(handle)}-${Date.now()}`;
+  return withOpenCliBrowserSession({
+    session,
+    runOpenCli,
+    operation: async () => {
+      await runOpenCli(["browser", session, "open", `https://www.instagram.com/${handle}/`], { timeoutMs: perTargetTimeoutMs });
+      await runOpenCli(["browser", session, "wait", "time", "4"], { timeoutMs: 10_000 }).catch(() => null);
+      const identityRaw = await runOpenCli(
+        ["browser", session, "eval", instagramBrowserProfileIdentityExtractJs()],
+        { timeoutMs: perTargetTimeoutMs }
+      );
+      const identity = parseJsonOutput(identityRaw)[0] ?? null;
+      const identityDecision = instagramBrowserProfileIdentityDecision({
+        requestedHandle: handle,
+        ...(identity ?? {})
+      });
+      if (!identityDecision.ok) {
+        throw new Error(
+          `Instagram browser profile identity was not proven for @${handle}: ${identityDecision.reason}.`
+        );
+      }
+      const byUrl = new Map();
+      for (let index = 0; index <= scrollPasses && byUrl.size < desiredCount; index += 1) {
+        const raw = await runOpenCli(["browser", session, "eval", instagramGridExtractJs()], { timeoutMs: perTargetTimeoutMs });
+        for (const item of parseJsonOutput(raw)) {
+          if (item?.href) byUrl.set(item.href, item);
+        }
+        if (byUrl.size >= desiredCount || index === scrollPasses) break;
+        await runOpenCli(["browser", session, "scroll", "down", "--amount", "1100"], { timeoutMs: 10_000 }).catch(() => null);
+        await runOpenCli(["browser", session, "eval", instagramProfileScrollJs(index)], { timeoutMs: 10_000 }).catch(() => null);
+        await runOpenCli(["browser", session, "wait", "time", "1.5"], { timeoutMs: 8_000 }).catch(() => null);
+      }
+      return [...byUrl.values()].slice(0, desiredCount);
+    }
+  });
+}
+
+async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
+  const session = `yc-ig-detail-${workerIndex}-${slugify(handle)}-${Date.now()}`;
+  return withOpenCliBrowserSession({
+    session,
+    runOpenCli,
+    operation: async () => {
+      const details = [];
+      const urls = gridUrls
+        .map((item) => canonicalInstagramPostUrl(item.href))
+        .filter(Boolean)
+        .slice(0, postLimit);
+
+      for (const url of urls) {
+        await runOpenCli(["browser", session, "open", url], { timeoutMs: perTargetTimeoutMs }).catch(() => null);
+        await runOpenCli(["browser", session, "wait", "time", "2.5"], { timeoutMs: 8_000 }).catch(() => null);
+        const raw = await runOpenCli(["browser", session, "eval", instagramPostDetailExtractJs()], {
+          timeoutMs: perTargetTimeoutMs
+        }).catch(() => "[]");
+        const extracted = parseJsonOutput(raw)[0] ?? parseJsonOutput(raw);
+        const parsed = normalizeInstagramDetailObservation(extracted);
+        if (parsed?.url || parsed?.description || parsed?.caption) {
+          details.push({
+            url,
+            caption: parsed.caption ?? null,
+            rawText: parsed.text ?? parsed.description ?? "",
+            description: parsed.description ?? null,
+            postedAt: parseInstagramDateOrNull(parsed.dateLabel),
+            likes: numberOrNull(parsed.likes),
+            comments: numberOrNull(parsed.comments),
+            views: numberOrNull(parsed.views),
+            mediaUrls: parsed.mediaUrls ?? []
+          });
+        }
+        await delay(Math.min(delayMs, 1200));
+      }
+
+      return details;
+    }
+  });
+}
+
+async function fetchXTweetsFromBrowser(handle, workerIndex) {
+  const session = `yc-x-${workerIndex}-${slugify(handle)}-${Date.now()}`;
+  return withOpenCliBrowserSession({
+    session,
+    runOpenCli,
+    operation: async () => {
+      await runOpenCli(["browser", session, "open", `https://x.com/${handle}`], {
+        timeoutMs: perTargetTimeoutMs
+      });
+      await runOpenCli(["browser", session, "wait", "time", "5"], {
+        timeoutMs: 12_000
+      }).catch(() => null);
+      const byId = new Map();
+      for (let index = 0; index <= scrollPasses && byId.size < postLimit; index += 1) {
+        const raw = await runOpenCli(
+          ["browser", session, "eval", xTimelineExtractJs()],
+          { timeoutMs: perTargetTimeoutMs }
+        );
+        for (const item of parseJsonOutput(raw)) {
+          if (item?.id) byId.set(item.id, item);
+        }
+        if (byId.size >= postLimit || index === scrollPasses) break;
+        await runOpenCli(
+          ["browser", session, "scroll", "down", "--amount", "900"],
+          { timeoutMs: 10_000 }
+        ).catch(() => null);
+        await runOpenCli(["browser", session, "wait", "time", "2"], {
+          timeoutMs: 8_000
+        }).catch(() => null);
+      }
+      const tweets = [...byId.values()].slice(0, postLimit);
+      if (!tweets.length) {
+        const bodyText = await runOpenCli(
+          ["browser", session, "eval", "document.body?.innerText?.slice(0, 5000) ?? ''"],
+          { timeoutMs: 10_000 }
+        ).catch(() => "");
+        if (xTimelinePageState(bodyText, 0) === "failed") {
+          const pageFailureKind = xFailureKind(bodyText);
+          throw new Error(
+            `X timeline DOM did not expose any attributable posts for @${handle}; ` +
+            `X_TIMELINE_FAILURE:${pageFailureKind}.`
+          );
+        }
+      }
+      return tweets;
+    }
+  });
 }
 
 function linkedInActivityUrl(url) {
@@ -952,15 +1674,6 @@ function instagramHandleFromUrl(url) {
   } catch {
     return null;
   }
-}
-
-function instagramGridItemForPost(gridUrls, post, fallbackIndex) {
-  const postUrl = canonicalInstagramPostUrl(post?.url);
-  const postId = instagramPostIdFromUrl(postUrl);
-  const byPostId = postId
-    ? gridUrls.find((item) => instagramPostIdFromUrl(item.href) === postId)
-    : null;
-  return byPostId ?? gridUrls[fallbackIndex] ?? null;
 }
 
 function socialEvidenceItem(input) {
@@ -1013,20 +1726,6 @@ function cleanLinkedInPostText(text, authorName) {
   return value || text;
 }
 
-function isLinkedInRepost(post, authorName) {
-  const value = cleanText(`${post?.body ?? ""} ${post?.rawText ?? ""}`);
-  const firstChunk = value.slice(0, 700);
-  if (/\breposted this\b/i.test(firstChunk)) {
-    return true;
-  }
-
-  if (authorName) {
-    return new RegExp(`\\b${escapeRegExp(authorName)}\\s+reposted\\b`, "i").test(firstChunk);
-  }
-
-  return false;
-}
-
 function failure(target, message, sourceUrl = target.url) {
   return {
     id: stableId(`failure:${target.platform}:${target.entityId}:${sourceUrl}:${message}`),
@@ -1034,9 +1733,11 @@ function failure(target, message, sourceUrl = target.url) {
     companySlug: target.companySlug,
     companyName: target.companyName,
     entityType: target.entityType,
+    entityId: target.entityId,
     entityName: target.name,
     batch: target.batch,
     batchSlug: target.batchSlug,
+    accountUrl: target.url,
     sourceUrl,
     message,
     checkedAt: now
@@ -1047,7 +1748,7 @@ async function runOpenCli(args, options = {}) {
   try {
     return await executeOpenCli(args, {
       cwd: root,
-      timeout: options.timeoutMs ?? perTargetTimeoutMs,
+      timeoutMs: options.timeoutMs ?? perTargetTimeoutMs,
       maxBuffer: 20 * 1024 * 1024
     });
   } catch (error) {
@@ -1122,81 +1823,6 @@ function hasScoredTraction(item) {
   return Number(item?.contributionScore ?? 0) > 0 && Object.values(item?.metrics ?? {}).some((value) => Number(value) > 0);
 }
 
-function isRelevantInstagramTraction(item) {
-  if (item?.platform !== "instagram" || !item.postedAt) return true;
-  const postedAtMs = Date.parse(item.postedAt);
-  return !Number.isFinite(postedAtMs) || postedAtMs >= instagramTractionCutoffMs;
-}
-
-function instagramProfileMatchesTarget(target, handle, profile) {
-  const displayName = normalizeIdentityText(profile?.name);
-  const externalText = normalizeIdentityText([profile?.externalUrl, profile?.website].filter(Boolean).join(" "));
-  const bioText = normalizeIdentityText(profile?.bio);
-  const entityName = normalizeIdentityText(target.entityType === "company" ? target.companyName : target.name);
-  const companyName = normalizeIdentityText(target.companyName);
-  const domainToken = normalizeIdentityText(domainIdentityToken(target.companyWebsiteUrl));
-
-  const externalTokens = [companyName, domainToken].filter((token) => token.length >= 4);
-  if (externalText && externalTokens.some((token) => externalText.includes(token))) return true;
-
-  const exactDisplayName = displayName && (displayName === entityName || displayName === companyName);
-  if (!exactDisplayName) return false;
-
-  const officialSiteDiscovered = /official company website|official website outbound|source chain starts/i.test(
-    target.matchReason ?? ""
-  );
-  const validatedOverride = /live instagram identity validation|manual verified|visible read-only social profiles/i.test(
-    target.matchReason ?? ""
-  );
-  const searchDerived = /(?:Web Instagram search|OpenCLI Instagram search)/i.test(target.matchReason ?? "");
-  if (searchDerived && !validatedOverride) {
-    return false;
-  }
-  if (target.entityType === "company" && officialSiteDiscovered) {
-    return true;
-  }
-
-  const rawName = target.entityType === "company" ? target.companyName : target.name;
-  const wordCount = String(rawName ?? "").trim().split(/\s+/).filter(Boolean).length;
-  if (target.entityType === "company") {
-    const followerCount = numberOrNull(profile?.followers);
-    return wordCount >= 2 && (followerCount === null || followerCount >= 100);
-  }
-
-  const founderContextTokens = [companyName, domainToken].filter((token) => token.length >= 4);
-  return wordCount >= 2 || founderContextTokens.some((token) => bioText.includes(token));
-}
-
-function instagramOverrideIsVerifiedForIngestion(override) {
-  if (override?.instagramValidation?.review_state === "verified") return true;
-  return instagramMatchReasonIsVerifiedForIngestion(override?.matchReason);
-}
-
-function instagramMatchReasonIsVerifiedForIngestion(matchReason) {
-  const reason = String(matchReason ?? "");
-  if (/official company website|official website outbound|source chain starts/i.test(reason)) return true;
-  if (/live instagram identity validation|manual verified|visible read-only social profiles/i.test(reason)) return true;
-  return !/(?:Web Instagram search|OpenCLI Instagram search)/i.test(reason);
-}
-
-function normalizeIdentityText(value) {
-  return String(value ?? "")
-    .toLowerCase()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "");
-}
-
-function domainIdentityToken(url) {
-  try {
-    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
-    const parts = host.split(".");
-    if (parts.length >= 2 && parts.at(-2) === "co" && parts.at(-1)?.length === 2) return parts.at(-3) ?? parts[0];
-    return parts[0] ?? "";
-  } catch {
-    return "";
-  }
-}
-
 function bestInstagramCaption(...values) {
   return (
     values
@@ -1267,30 +1893,6 @@ function normalizeComparableUrl(url) {
     return parsed.toString().toLowerCase();
   } catch {
     return String(url ?? "").toLowerCase();
-  }
-}
-
-function canonicalInstagramPostUrl(url) {
-  if (!url) return null;
-  try {
-    const parsed = new URL(url);
-    const parts = parsed.pathname.split("/").filter(Boolean);
-    const postIndex = parts.findIndex((part) => /^(p|reel|tv)$/i.test(part));
-    if (postIndex < 0 || !parts[postIndex + 1]) return null;
-    return `https://www.instagram.com/${parts[postIndex].toLowerCase()}/${parts[postIndex + 1]}/`;
-  } catch {
-    return null;
-  }
-}
-
-function instagramPostIdFromUrl(url) {
-  try {
-    const parsed = new URL(url);
-    const parts = parsed.pathname.split("/").filter(Boolean);
-    const postIndex = parts.findIndex((part) => /^(p|reel|tv)$/i.test(part));
-    return postIndex >= 0 ? parts[postIndex + 1] ?? null : null;
-  } catch {
-    return null;
   }
 }
 
@@ -1406,6 +2008,55 @@ function collectorEntityId(company, entity, entityType) {
     : `founder-${company.slug}-${slugify(entity.name)}-${entity.id}`;
 }
 
+function ownerCollisionReviewItem(collision) {
+  const targets = collision.targets.map((target) => ({
+    companySlug: target.companySlug,
+    companyName: target.companyName,
+    entityType: target.entityType,
+    entityId: target.entityId,
+    entityName: target.name,
+    accountUrl: target.url,
+    checkpointKey: attemptKeyFor(target)
+  }));
+  const reviewTarget =
+    collision.targets.find(
+      (target) => target.entityType === "company" && target.entityId
+    ) ??
+    collision.targets.find((target) => target.entityId) ??
+    collision.targets[0];
+  return {
+    id: stableId([
+      "native-account-owner-collision",
+      collision.batchSlug,
+      collision.platform,
+      collision.accountIdentity,
+      ...collision.entityIds
+    ].join(":")),
+    batchSlug: collision.batchSlug,
+    entityType: reviewTarget?.entityType ?? "company",
+    entityId:
+      reviewTarget?.entityId ??
+      `unresolved-native-owner-${stableId(collision.accountIdentity)}`,
+    entityName:
+      reviewTarget?.name ??
+      reviewTarget?.companyName ??
+      collision.accountIdentity,
+    companySlug: reviewTarget?.companySlug ?? null,
+    companyName: reviewTarget?.companyName ?? null,
+    platform: collision.platform,
+    candidateUrl: reviewTarget?.url ?? null,
+    review_state: "needs_review",
+    quarantineReasons: ["ambiguous_native_account_owner_mapping"],
+    matchReason:
+      "Collection target quarantined before ingestion because one native account is mapped to multiple canonical owners.",
+    nativeAccountOwnerCollision: {
+      accountIdentity: collision.accountIdentity,
+      entityIds: collision.entityIds,
+      targets
+    }
+  };
+}
+
 function addItems(items = [], target) {
   for (const item of items) target.push(item);
 }
@@ -1425,6 +2076,28 @@ function removeTargetFailures(target) {
     if (item.platform === target.platform && item.entityType === target.entityType && item.entityName === target.name) {
       failures.splice(index, 1);
     }
+  }
+}
+
+function restoreRetryableXFailures(plannedTargets) {
+  for (const target of plannedTargets) {
+    if (target.platform !== "x") continue;
+    const key = attemptKeyFor(target);
+    const attempt = attemptMap.get(key);
+    if (attempt?.status !== "done" || attempt.count !== 0) continue;
+    const transientFailure = failures.find((item) =>
+      item.platform === "x" &&
+      item.companySlug === target.companySlug &&
+      item.entityType === target.entityType &&
+      (item.entityId ? item.entityId === target.entityId : item.entityName === target.name) &&
+      /X authenticated adapter failed|X browser DOM extractor failed/i.test(item.message ?? "")
+    );
+    if (!transientFailure) continue;
+    attemptMap.set(key, {
+      ...attempt,
+      status: "failed",
+      error: transientFailure.message
+    });
   }
 }
 
@@ -1490,6 +2163,53 @@ function booleanArg(name) {
   return process.argv.includes(name);
 }
 
+function usage() {
+  return [
+    "Usage: node scripts/fetch-logged-in-social-traction.mjs [options]",
+    "",
+    "Options:",
+    "  --batch=S26|S2026|A16ZSR006",
+    "  --batch-slug=S26|S2026|A16ZSR006",
+    "  --platforms=x,linkedin,instagram",
+    "  --entities=all|company|founder",
+    "  --company=NAME",
+    "  --max-targets=N",
+    "  --workers=N",
+    "  --limit=N",
+    "  --scrolls=N",
+    "  --timeout-ms=N",
+    "  --delay-ms=N",
+    "  --allow-linkedin",
+    "  --linkedin-mode=browser|adapter|hybrid",
+    "  --x-mode=browser|adapter|hybrid",
+    "  --allow-x-adapter-fallback",
+    "  --include-retweets",
+    "  --skip-instagram-details",
+    "  --max-consecutive-x-failures=N",
+    "  --max-consecutive-linkedin-failures=N",
+    "  --max-consecutive-instagram-failures=N",
+    "  --retry-empty",
+    "  --force",
+    "  --plan                     Print the read-only target plan and exit",
+    "  --finalize-only             Rebuild evidence from checkpoints without collection",
+    "  --help, -h"
+  ].join("\n");
+}
+
+function resolveXCollectionMode(value) {
+  const mode = String(value ?? "").trim().toLowerCase();
+  if (["browser", "adapter", "hybrid"].includes(mode)) return mode;
+  throw new Error(`Unsupported --x-mode=${value}. Supported modes: browser, adapter, hybrid.`);
+}
+
+function resolveLinkedInCollectionMode(value) {
+  const mode = String(value ?? "").trim().toLowerCase();
+  if (["browser", "adapter", "hybrid"].includes(mode)) return mode;
+  throw new Error(
+    `Unsupported --linkedin-mode=${value}. Supported modes: browser, adapter, hybrid.`
+  );
+}
+
 function resolveBatchConfig(value) {
   const normalized = String(value ?? "")
     .trim()
@@ -1521,6 +2241,44 @@ function resolveBatchConfig(value) {
 
 function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function instagramBrowserProfileIdentityExtractJs() {
+  return `(() => {
+  const bodyText = document.body?.innerText ?? "";
+  const canonicalUrl =
+    document.querySelector('link[rel="canonical"]')?.href ??
+    document.querySelector('meta[property="og:url"]')?.content ??
+    null;
+  const identityTexts = [
+    document.querySelector('meta[property="og:title"]')?.content,
+    ...Array.from(
+      document.querySelectorAll(
+        "main header h1, main header h2, main header a, header h1, header h2"
+      )
+    ).map((node) => node.textContent)
+  ].filter(Boolean);
+  const visibleHandles = [];
+  for (const text of identityTexts) {
+    const value = String(text).trim();
+    if (/^@?[A-Za-z0-9._]+$/.test(value)) {
+      visibleHandles.push(value.replace(/^@/, ""));
+    }
+    for (const match of value.matchAll(/@([A-Za-z0-9._]+)/g)) {
+      visibleHandles.push(match[1]);
+    }
+  }
+  return [{
+    currentUrl: location.href,
+    canonicalUrl,
+    visibleHandles: [...new Set(visibleHandles)],
+    loginWall: /log in|sign up to see|create an account/i.test(bodyText.slice(0, 5000)),
+    challenge:
+      /challenge|confirm it'?s you|suspicious login|security code/i.test(
+        location.pathname + " " + bodyText.slice(0, 5000)
+      )
+  }];
+})()`;
 }
 
 function instagramGridExtractJs() {
@@ -1638,18 +2396,18 @@ function instagramPostDetailExtractJs() {
   const description = meta('meta[name="description"]') || meta('meta[property="og:description"]') || "";
   const text = document.body?.innerText || "";
   const metricText = description || text;
-  const likes = jsonNumber("like_count") ?? parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+likes?/i) || [])[1]);
-  const comments = jsonNumber("comment_count") ?? parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+comments?/i) || [])[1]);
+  const likes = parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+likes?/i) || [])[1]) ?? jsonNumber("like_count");
+  const comments = parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+comments?/i) || [])[1]) ?? jsonNumber("comment_count");
   const views =
+    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+(?:views?|plays?)/i) || [])[1]) ??
     jsonNumber("view_count") ??
     jsonNumber("play_count") ??
-    jsonNumber("video_view_count") ??
-    parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+views?/i) || [])[1]);
+    jsonNumber("video_view_count");
   const dateLabel = (description.match(/\\bon\\s+([^:]+):\\s*"/i) || [])[1] || null;
   const takenAt = jsonNumber("taken_at");
   const caption =
-    jsonString("text") ||
     (description.match(/:\\s*"([\\s\\S]*?)"\\.?\\s*$/) || [])[1] ||
+    jsonString("text") ||
     Array.from(document.querySelectorAll('img[alt]')).map((img) => img.alt).find((alt) => alt && !/profile picture|^user avatar$/i.test(alt)) ||
     "";
   const mediaUrls = [
@@ -1662,7 +2420,7 @@ function instagramPostDetailExtractJs() {
     description,
     text: text.slice(0, 3000),
     caption,
-    dateLabel: takenAt ? new Date(takenAt * 1000).toISOString() : dateLabel,
+    dateLabel: dateLabel || (takenAt ? new Date(takenAt * 1000).toISOString() : null),
     likes,
     comments,
     views,
@@ -1769,6 +2527,21 @@ function linkedInExtractJs() {
     try { return new URL(href, location.origin).toString(); } catch { return href || null; }
   };
   const nativePostUrl = (card) => {
+    // Prefer the activity identity attached to the outer card itself. A
+    // nested reshare can contain an embedded original-post permalink; scanning
+    // descendant anchors first incorrectly assigns that parent's ID and body
+    // to every outer profile that commented on it.
+    const rootValues = [
+      card.getAttribute?.("data-urn"),
+      card.getAttribute?.("data-id"),
+      card.getAttribute?.("data-activity-urn")
+    ];
+    const rootActivityId = rootValues
+      .join(" ")
+      .match(/urn:li:activity:(\d{10,})/i)?.[1];
+    if (rootActivityId) {
+      return "https://www.linkedin.com/feed/update/urn:li:activity:" + rootActivityId + "/";
+    }
     const href = Array.from(card.querySelectorAll("a[href]"))
       .map((link) => absolute(link.getAttribute("href")))
       .find((value) => /\\/feed\\/update\\/urn:li:activity:\\d+|\\/posts\\/[^?#]*activity-\\d+/i.test(value || ""));
@@ -1780,7 +2553,7 @@ function linkedInExtractJs() {
         return parsed.toString();
       } catch { return href; }
     }
-    const urnNodes = [card, ...Array.from(card.querySelectorAll("[data-urn], [data-id], [data-activity-urn]"))];
+    const urnNodes = Array.from(card.querySelectorAll("[data-urn], [data-id], [data-activity-urn]"));
     for (const node of urnNodes) {
       const values = [node.getAttribute?.("data-urn"), node.getAttribute?.("data-id"), node.getAttribute?.("data-activity-urn")];
       const activityId = values.join(" ").match(/urn:li:activity:(\d{10,})/i)?.[1];

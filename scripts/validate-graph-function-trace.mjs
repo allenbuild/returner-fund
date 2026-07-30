@@ -27,6 +27,14 @@ const routeTraces = [
     label: "insider recompute",
     manifest: ".next/server/app/api/insiders/recompute/route.js.nft.json",
     maxBytes: 45 * MEBIBYTE,
+    required: [
+      "public/graph/s2026.json",
+      "public/graph/s2026-insiders.json",
+      "public/graph/s26.json",
+      "public/graph/s26-insiders.json",
+      "public/graph/a16zsr006.json",
+      "public/graph/a16zsr006-insiders.json"
+    ],
     forbidden: [
       `${normalize("/src/lib/social/public-evidence-current.json")}`,
       `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
@@ -54,6 +62,12 @@ for (const route of routeTraces) {
   const forbiddenFiles = tracedFiles.filter((filePath) =>
     route.forbidden.some((fragment) => normalize(filePath).includes(fragment))
   );
+  const missingRequiredFiles = (route.required ?? []).filter((requiredPath) => {
+    const resolvedRequiredPath = normalize(resolve(requiredPath));
+    return !tracedFiles.some(
+      (filePath) => normalize(filePath) === resolvedRequiredPath
+    );
+  });
 
   console.log(
     `${route.label} trace: ${tracedFiles.length} entries, ${(traceBytes / MEBIBYTE).toFixed(1)} MiB`
@@ -68,6 +82,12 @@ for (const route of routeTraces) {
   if (forbiddenFiles.length) {
     console.error(
       `${route.label} trace contains oversized runtime artifacts:\n${forbiddenFiles.join("\n")}`
+    );
+    failed = true;
+  }
+  if (missingRequiredFiles.length) {
+    console.error(
+      `${route.label} trace is missing required runtime snapshots:\n${missingRequiredFiles.join("\n")}`
     );
     failed = true;
   }

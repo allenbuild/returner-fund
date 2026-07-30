@@ -1,8 +1,7 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { NextResponse } from "next/server";
 import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
 import { personalizeInsiderGraphSnapshot } from "@/lib/graph/personalized-insider-snapshot";
+import { readRuntimeGraphSnapshotFile } from "@/lib/graph/runtime-graph-snapshot-file";
 import type { GraphResponse } from "@/lib/graph/types";
 import {
   authenticateInsiderRequest,
@@ -19,6 +18,14 @@ const BATCH_FILES = {
   A16ZSR006: "a16zsr006"
 } as const;
 type SupportedBatchSlug = keyof typeof BATCH_FILES;
+const GRAPH_SNAPSHOT_MAX_BYTES = 20 * 1024 * 1024;
+const GRAPH_SNAPSHOT_FETCH_TIMEOUT_MS = 12_000;
+const ALLOWED_GRAPH_SNAPSHOTS = new Set(
+  Object.values(BATCH_FILES).flatMap((filename) => [
+    `${filename}.json`,
+    `${filename}-insiders.json`
+  ])
+);
 
 export async function POST(request: Request) {
   const authenticated = await authenticateInsiderRequest(request);
@@ -35,8 +42,8 @@ export async function POST(request: Request) {
     const filename = BATCH_FILES[input.batchSlug];
     const [configuration, insiderGraph, baseGraph] = await Promise.all([
       loadUserInsiderConfiguration(authenticated.client, authenticated.userId),
-      loadGraphSnapshot(`${filename}-insiders.json`),
-      loadGraphSnapshot(`${filename}.json`)
+      loadGraphSnapshot(`${filename}-insiders.json`, input.batchSlug, "insiders"),
+      loadGraphSnapshot(`${filename}.json`, input.batchSlug, "off")
     ]);
     const enabledIds = new Set(
       effectiveInsiderMembers(configuration).map((member) => member.personId)
@@ -173,20 +180,101 @@ function invalidRecomputeInput(message = "The recompute request was invalid."): 
   };
 }
 
-async function loadGraphSnapshot(filename: string): Promise<GraphResponse> {
-  const raw = await readFile(join(process.cwd(), "public", "graph", filename), "utf8");
-  const graph = JSON.parse(raw) as GraphResponse;
+async function loadGraphSnapshot(
+  filename: string,
+  expectedBatchSlug: SupportedBatchSlug,
+  expectedAudienceId: "insiders" | "off"
+): Promise<GraphResponse> {
+  if (!ALLOWED_GRAPH_SNAPSHOTS.has(filename)) {
+    throw new Error(`Published graph snapshot ${filename} is not allowlisted.`);
+  }
+  let raw: string;
+  try {
+    raw = await readRuntimeGraphSnapshotFile(filename);
+  } catch (fileError) {
+    const snapshotUrl = new URL(`/graph/${filename}`, trustedDeploymentOrigin());
+    let response: Response;
+    try {
+      response = await fetch(snapshotUrl, {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(GRAPH_SNAPSHOT_FETCH_TIMEOUT_MS)
+      });
+    } catch (fetchError) {
+      throw new AggregateError(
+        [fileError, fetchError],
+        `Published graph snapshot ${filename} was unavailable from disk and CDN.`
+      );
+    }
+    if (!response.ok) {
+      throw new AggregateError(
+        [fileError, new Error(`HTTP ${response.status} from ${snapshotUrl.pathname}`)],
+        `Published graph snapshot ${filename} could not be loaded.`
+      );
+    }
+    const contentLength = Number(response.headers.get("content-length") ?? "0");
+    if (contentLength > GRAPH_SNAPSHOT_MAX_BYTES) {
+      throw new Error(
+        `Published graph snapshot ${filename} exceeded the ${GRAPH_SNAPSHOT_MAX_BYTES}-byte limit.`
+      );
+    }
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (bytes.byteLength > GRAPH_SNAPSHOT_MAX_BYTES) {
+      throw new Error(
+        `Published graph snapshot ${filename} exceeded the ${GRAPH_SNAPSHOT_MAX_BYTES}-byte limit.`
+      );
+    }
+    raw = bytes.toString("utf8");
+  }
+  if (Buffer.byteLength(raw) > GRAPH_SNAPSHOT_MAX_BYTES) {
+    throw new Error(
+      `Published graph snapshot ${filename} exceeded the ${GRAPH_SNAPSHOT_MAX_BYTES}-byte limit.`
+    );
+  }
+  let graph: GraphResponse;
+  try {
+    graph = JSON.parse(raw) as GraphResponse;
+  } catch (error) {
+    throw new Error(`Published graph snapshot ${filename} contained invalid JSON.`, {
+      cause: error
+    });
+  }
   if (
     !graph ||
     !Array.isArray(graph.nodes) ||
     !Array.isArray(graph.evidence) ||
     !Array.isArray(graph.leaderboard) ||
-    !graph.batch?.slug ||
-    !graph.selectedTopVoiceAudience?.id
+    graph.batch?.slug !== expectedBatchSlug ||
+    graph.selectedTopVoiceAudience?.id !== expectedAudienceId
   ) {
     throw new Error(`Published graph snapshot ${filename} was invalid.`);
   }
   return graph;
+}
+
+function trustedDeploymentOrigin(): URL {
+  const vercelHost = process.env.VERCEL_URL?.trim();
+  if (vercelHost) {
+    try {
+      return new URL(
+        vercelHost.startsWith("http://") || vercelHost.startsWith("https://")
+          ? vercelHost
+          : `https://${vercelHost}`
+      );
+    } catch {
+      // Fall through to the configured public origin.
+    }
+  }
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured) {
+    try {
+      const url = new URL(configured);
+      if (url.protocol === "https:" || url.protocol === "http:") return url;
+    } catch {
+      // Fall through to the canonical production origin.
+    }
+  }
+  return new URL("https://www.returner.fund");
 }
 
 function json(body: unknown, status = 200) {

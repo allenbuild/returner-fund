@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "aliases": [
+    {
+      "companyId": "32089",
+      "fromSlug": "blueprints",
+      "fromName": "Blueprints",
+      "toSlug": "hoplite",
+      "toName": "Hoplite",
+      "companyAccounts": {
+        "github": [
+          "https://github.com/CarbonCopyInc"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "2563241",
+          "name": "Ryan Morrissey",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/ryan-morrissey-834256271/"
+            ],
+            "x": [
+              "https://x.com/ryan_morr"
+            ]
+          }
+        },
+        {
+          "founderId": "2614746",
+          "name": "Bence Redmond",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/bence-redmond"
+            ],
+            "x": [
+              "https://x.com/benceredmond"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "companyId": "32286",
+      "fromSlug": "bylaw",
+      "fromName": "Bylaw",
+      "toSlug": "definite",
+      "toName": "Definite",
+      "companyAccounts": {
+        "github": [
+          "https://github.com/UseBylaw"
+        ],
+        "linkedin": [
+          "https://www.linkedin.com/company/usebylaw"
+        ],
+        "x": [
+          "https://x.com/UseBylaw"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "2947432",
+          "name": "Mazin Al-Ani",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/mazinalani/"
+            ]
+          }
+        },
+        {
+          "founderId": "1563459",
+          "name": "Farhan Ur Rehman",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/farhan-ur-rehman/"
+            ]
+          }
+        },
+        {
+          "founderId": "2947446",
+          "name": "Gurshabd Singh Varaich",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/gvaraich/"
+            ],
+            "x": [
+              "https://x.com/gurshabdv"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

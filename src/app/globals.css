@@ -4412,6 +4412,10 @@ td button {
     border-radius: var(--control-radius);
   }
 
+  .ranked-posts-period-toggle {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .segmented-toggle button {
     min-height: 28px;
     padding: 0 8px;

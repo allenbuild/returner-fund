@@ -128,8 +128,8 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     const catalogs = await loadAutonomousCatalogs(repositoryRoot);
 
     assert.deepEqual(catalogs.map(summarizeCatalog), [
-      { slug: "S2026", companies: 197, founders: 397, accounts: 965 },
-      { slug: "S26", companies: 115, founders: 230, accounts: 552 },
+      { slug: "S2026", companies: 197, founders: 397, accounts: 968 },
+      { slug: "S26", companies: 115, founders: 230, accounts: 554 },
       { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
     ]);
   });
@@ -650,7 +650,7 @@ globalThis.fetch = async (input) => {
       ),
       0
     );
-    assert.equal(canonicalAccountCount, 1_845);
+    assert.equal(canonicalAccountCount, 1_850);
     assert.equal(first.filter((task) => task.account).length, canonicalAccountCount);
     assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length + 4);
     assert.equal(new Set(first.map((task) => task.checkpointKey)).size, first.length);
@@ -721,8 +721,8 @@ globalThis.fetch = async (input) => {
       expected: 14_642,
       queued: 6_735,
       terminal: 7_907,
-      mapped: 1_845,
-      mappedQueued: 1_845,
+      mapped: 1_850,
+      mappedQueued: 1_850,
       missingMappings: 1_063,
       unsupported: 7_907
     });

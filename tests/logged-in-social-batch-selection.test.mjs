@@ -75,9 +75,9 @@ describe("logged-in social batch selection", () => {
   });
 
   it.each([
-    ["S2026", 197, 397, 1_783, 2_971, 953],
-    ["S26", 115, 230, 1_035, 1_725, 529],
-    ["A16ZSR006", 59, 128, 564, 938, 288]
+    ["S2026", 197, 397, 1_783, 2_971, 956],
+    ["S26", 115, 230, 1_035, 1_725, 531],
+    ["A16ZSR006", 59, 128, 564, 938, 289]
   ])("covers every exact %s account target and matches the public plan", (
     batchSlug,
     companyCount,
@@ -104,23 +104,34 @@ describe("logged-in social batch selection", () => {
     expect(publicPlan.companyCount).toBe(companyCount);
     expect(publicPlan.founderCount).toBe(founderCount);
     expect(publicPlan.socialCoverage).toHaveLength(publicCoverageCount);
-    expect(logged.targets).toHaveLength(targetCount);
+    expect(logged.targets).toHaveLength(
+      targetCount - logged.quarantinedTargetCount
+    );
     expect(publicPlan.socialTargets).toHaveLength(targetCount);
 
     const ownerPlatformAccount = logged.coverage.map((row) =>
       `${row.entityId}:${row.platform}:${row.accountUrl?.toLowerCase().replace(/\/$/, "") ?? "unmapped"}`
     );
     expect(new Set(ownerPlatformAccount).size).toBe(ownerPlatformAccount.length);
-    expect(logged.coverage.filter((row) => row.status === "mapped_target")).toHaveLength(targetCount);
-    expect(new Set(logged.targets.map((target) => target.checkpointKey)).size).toBe(targetCount);
-
+    expect(logged.coverage.filter((row) => row.status === "mapped_target")).toHaveLength(
+      targetCount - logged.quarantinedTargetCount
+    );
     const targetKey = (target) => [
       target.entityType,
       target.entityId,
       target.platform,
       target.accountUrl.toLowerCase().replace(/\/$/, "")
     ].join(":");
-    expect(logged.targets.map(targetKey).sort()).toEqual(publicPlan.socialTargets.map(targetKey).sort());
+    const quarantinedTargets = logged.ownerAccountCollisions.flatMap(
+      (collision) => collision.targets
+    );
+    expect(quarantinedTargets).toHaveLength(logged.quarantinedTargetCount);
+    expect(
+      [...logged.targets, ...quarantinedTargets].map(targetKey).sort()
+    ).toEqual(publicPlan.socialTargets.map(targetKey).sort());
+    expect(new Set(logged.targets.map((target) => target.checkpointKey)).size).toBe(
+      targetCount - logged.quarantinedTargetCount
+    );
     if (batchSlug === "A16ZSR006") {
       expect(logged.targets.every((target) => target.entityId.startsWith("a16z-speedrun-006-"))).toBe(true);
       expect(logged.targets.some((target) => target.entityId.startsWith("company-"))).toBe(false);
@@ -146,6 +157,73 @@ describe("logged-in social batch selection", () => {
     expect(spring.targets.some(
       (target) => target.companySlug === "playablai" && /instagram\.com\/playabl_ai/i.test(target.accountUrl)
     )).toBe(false);
+    expect(spring.targets).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        companySlug: "allowance",
+        platform: "instagram",
+        accountUrl: "https://www.instagram.com/useallowance/"
+      }),
+      expect.objectContaining({
+        companySlug: "hub",
+        platform: "instagram",
+        accountUrl: "https://www.instagram.com/hubxyz_official/"
+      }),
+      expect.objectContaining({
+        companySlug: "surtr-defense-systems",
+        platform: "instagram",
+        accountUrl: "https://www.instagram.com/surtrdefense/"
+      })
+    ]));
+    for (const [companySlug, rejectedHandle] of [
+      ["amboras", "amboras.ai"],
+      ["arzana", "arzana_automation"],
+      ["juno-chat", "junocompanion"],
+      ["playablai", "playabl_ai"],
+      ["projectx", "projectx.cloud"]
+    ]) {
+      expect(spring.targets.some(
+        (target) =>
+          target.companySlug === companySlug &&
+          target.platform === "instagram" &&
+          target.accountUrl.includes(rejectedHandle)
+      )).toBe(false);
+    }
+
+    const summer = runPlan([
+      "--batch=S26",
+      "--entities=all",
+      "--platforms=instagram"
+    ]);
+    expect(summer.targets).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        companySlug: "control-seat",
+        accountUrl: "https://www.instagram.com/controlseat/"
+      }),
+      expect.objectContaining({
+        companySlug: "talentpluto",
+        accountUrl: "https://www.instagram.com/talentpluto_/"
+      })
+    ]));
+  });
+
+  it("reports the explicit LinkedIn mode while retaining company DOM targets", () => {
+    const plan = runPlan([
+      "--batch=S2026",
+      "--company=eden-robotics",
+      "--entities=company",
+      "--platforms=linkedin",
+      "--allow-linkedin",
+      "--linkedin-mode=adapter"
+    ]);
+
+    expect(plan.linkedinCollectionMode).toBe("adapter");
+    expect(plan.targets).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        platform: "linkedin",
+        accountUrl: expect.stringContaining("/company/"),
+        activityUrl: expect.stringContaining("/company/")
+      })
+    ]));
   });
 });
 

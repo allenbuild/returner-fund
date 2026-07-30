@@ -150,7 +150,8 @@ export function personalizeInsiderGraphSnapshot(input: {
 
   return applyInsiderScenarioScoring(personalizedBase, {
     selectedInsiderIds,
-    configurationVersion: input.configuration.version
+    configurationVersion: input.configuration.version,
+    publishedInsiderGraph: input.insiderGraph
   });
 }
 

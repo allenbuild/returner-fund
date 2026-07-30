@@ -18,7 +18,16 @@
     "matchReason": "The exact official Advocate website links to this native LinkedIn company page; verified during the A16Z Speedrun 006 low-coverage audit."
   },
   "allowance": {
-    "matchReason": "Web Instagram search found exact company/domain handle match for Allowance; query=\"\"Allowance\" Instagram\".",
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/useallowance/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_outbound_link",
+      "sourceUrl": "https://useallowance.com/"
+    },
+    "sourceUrl": "https://useallowance.com/",
+    "matchReason": "The exact official Allowance website links directly to this native Instagram company profile; verified during the batch-aware Instagram discovery audit.",
     "needsReviewInstagram": [
       {
         "url": "https://www.instagram.com/allowance_/",
@@ -210,6 +219,18 @@
       }
     ]
   },
+  "control-seat": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/controlseat/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_outbound_link",
+      "sourceUrl": "https://www.controlseat.com/"
+    },
+    "sourceUrl": "https://www.controlseat.com/",
+    "matchReason": "The exact official Control Seat website links directly to this native Instagram company profile; verified during the batch-aware Instagram discovery audit."
+  },
   "datost": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Datost; query=\"\"datost\" Instagram\".",
     "rejectedInstagram": [
@@ -246,6 +267,18 @@
         "reason": "Visible Instagram profile is Eden Robotics Club, not YC Eden Robotics."
       }
     ]
+  },
+  "hub": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/hubxyz_official/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "verified_social_profile_link",
+      "sourceUrl": "https://linktr.ee/hubxyz"
+    },
+    "sourceUrl": "https://linktr.ee/hubxyz",
+    "matchReason": "The Hub X profile linked by the Spring 2026 cohort record points to this public link-in-bio page, which uniquely links the native Hub Instagram company profile."
   },
   "enjamb-labs": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Enjamb Labs; query=\"\"enjamb\" Instagram\".",
@@ -1135,6 +1168,30 @@
         "source": "github-public-api-identity-guard"
       }
     ]
+  },
+  "surtr-defense-systems": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/surtrdefense/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "verified_social_profile_link",
+      "sourceUrl": "https://x.com/surtrdefense"
+    },
+    "sourceUrl": "https://x.com/surtrdefense",
+    "matchReason": "The Surtr Defense X profile linked by the Spring 2026 cohort record directly identifies and links this native Instagram company profile."
+  },
+  "talentpluto": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/talentpluto_/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_outbound_link",
+      "sourceUrl": "https://talentpluto.com/"
+    },
+    "sourceUrl": "https://talentpluto.com/",
+    "matchReason": "The exact official Pluto website links directly to this native Instagram company profile; verified during the batch-aware Instagram discovery audit."
   },
   "coasty": {
     "matchReason": "The official Coasty repository remains coasty-ai/open-cowork; the similarly named anthropics repository is third-party and must never be attributed to Coasty.",

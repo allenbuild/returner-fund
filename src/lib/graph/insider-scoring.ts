@@ -1,8 +1,10 @@
 import type {
   GraphResponse,
   InsiderScoreBreakdown,
+  MomentumDelta,
   TopVoiceConnectionPreview
 } from "./types";
+import { momentumSort } from "./benchmarks";
 
 const COMPANY_RADIUS = { min: 5, max: 68 };
 
@@ -59,17 +61,30 @@ export function applyInsiderScenarioScoring(
   input: {
     selectedInsiderIds?: string[];
     configurationVersion?: number | null;
+    /**
+     * The immutable published/default Insider slice. Its connections define
+     * the default weight already included in each published company score.
+     */
+    publishedInsiderGraph?: GraphResponse;
   } = {}
 ): GraphResponse {
   if (graph.selectedTopVoiceAudience.id !== "insiders") return graph;
 
+  const publishedConnectionsByCompany = new Map(
+    (input.publishedInsiderGraph?.nodes ?? [])
+      .filter((node) => node.entityType === "company")
+      .map((node) => [node.entityId, node.topVoiceConnections ?? []] as const)
+  );
   const breakdownByCompany = new Map(
     graph.nodes
       .filter((node) => node.entityType === "company")
       .map((node) => [
         node.entityId,
         computeInsiderScore({
-          baseScore: node.score,
+          baseScore: stableInsiderBaseScore(
+            node.score,
+            publishedConnectionsByCompany.get(node.entityId) ?? []
+          ),
           connections: node.topVoiceConnections ?? [],
           selectedInsiderIds: input.selectedInsiderIds,
           configurationVersion: input.configurationVersion
@@ -114,16 +129,72 @@ export function applyInsiderScenarioScoring(
     previousScore = row.score;
     return { ...row, rank: tiedRank };
   });
+  const scoredRowByCompany = new Map(
+    leaderboard.map((row) => [row.companyId, row] as const)
+  );
+  const fastestGaining = graph.fastestGaining
+    .map((row) => {
+      const scoredRow = scoredRowByCompany.get(row.companyId);
+      if (!scoredRow || !breakdownByCompany.has(row.companyId)) return row;
+      return {
+        ...row,
+        dod: recomputeMomentumDelta(row.dod, scoredRow.score, scoredRow.rank),
+        wow: recomputeMomentumDelta(row.wow, scoredRow.score, scoredRow.rank)
+      };
+    })
+    .sort(momentumSort("dod"))
+    .map((row, index) => ({ ...row, rank: index + 1 }));
 
   return {
     ...graph,
     nodes,
     leaderboard,
+    fastestGaining,
     selectedInsiderIds: [...new Set(input.selectedInsiderIds ?? [])].sort(),
     insiderConfigurationVersion: input.configurationVersion ?? null,
     scoringContext: graph.scoringContext
       ? { ...graph.scoringContext, scoreScope: "top_voice" }
       : graph.scoringContext
+  };
+}
+
+/**
+ * Published Insider scores already include each default member weight once.
+ * Subtract that immutable subtotal before applying the effective saved
+ * configuration, preserving default scores while making weight edits visible.
+ */
+export function stableInsiderBaseScore(
+  publishedScore: number,
+  publishedConnections: TopVoiceConnectionPreview[]
+): number {
+  const uniquePublishedWeights = new Map(
+    publishedConnections.map((connection) => [
+      connection.memberId,
+      connection.weight
+    ] as const)
+  );
+  const publishedInsiderSubtotal = [...uniquePublishedWeights.values()]
+    .reduce((total, weight) => total + weight, 0);
+  return round(Math.max(0, publishedScore - publishedInsiderSubtotal));
+}
+
+function recomputeMomentumDelta(
+  stored: MomentumDelta,
+  currentScore: number,
+  currentRank: number
+): MomentumDelta {
+  const scoreDelta = stored.baselineScore === null
+    ? 0
+    : round(currentScore - stored.baselineScore);
+  return {
+    ...stored,
+    scoreDelta,
+    percentDelta: stored.baselineScore === null
+      ? 0
+      : round((scoreDelta / Math.max(stored.baselineScore, 1)) * 100),
+    rankDelta: stored.baselineRank === null ? 0 : stored.baselineRank - currentRank,
+    currentScore,
+    currentRank
   };
 }
 

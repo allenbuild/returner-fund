@@ -4,8 +4,9 @@ import type { EvidenceItem, GraphNode, GraphResponse } from "./types";
 import { isCurrentCentralDay } from "../time/central-day";
 
 export const RANKED_POSTS_LIMIT = 100;
+export const RANKED_POSTS_MONTH_WINDOW_MS = 30 * 24 * 60 * 60 * 1_000;
 
-export type RankedPostsPeriod = "today" | "all_time";
+export type RankedPostsPeriod = "today" | "month" | "all_time";
 export type RankedPostSourceKind = "company" | "founder" | "top_voice";
 
 export interface RankedPost {
@@ -56,6 +57,15 @@ export function selectRankedPosts(
       (evidence.publishedAtPrecision === "unknown" ||
         publishedAt === null ||
         !isCurrentCentralDay(new Date(publishedAt), now))
+    ) {
+      continue;
+    }
+    if (
+      options.period === "month" &&
+      (!hasKnownPublicationPrecision(evidence.publishedAtPrecision) ||
+        publishedAt === null ||
+        publishedAt < now.getTime() - RANKED_POSTS_MONTH_WINDOW_MS ||
+        publishedAt > now.getTime())
     ) {
       continue;
     }
@@ -128,6 +138,12 @@ function publicationTimestamp(value: string | null | undefined): number | null {
   if (!value) return null;
   const timestamp = Date.parse(value);
   return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function hasKnownPublicationPrecision(
+  value: EvidenceItem["publishedAtPrecision"]
+): value is "exact" | "day" {
+  return value === "exact" || value === "day";
 }
 
 function publicationSortValue(value: string | null | undefined): number {

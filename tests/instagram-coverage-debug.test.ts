@@ -28,31 +28,39 @@ describe("instagram coverage debug report", () => {
     expect(report.companyCount).toBe(115);
     expect(report.profiles.snapshotCompanyProfiles).toBe(0);
     expect(report.profiles.snapshotFounderProfiles).toBe(0);
-    expect(report.profiles.verifiedCompanyOverrides).toBe(0);
-    expect(report.evidence.rows).toBe(0);
-    expect(report.evidence.companiesWithScoredEvidence).toBe(0);
-    expect(report.feedCompanies).toEqual([]);
-    expect(report.missingCompanies).toHaveLength(115);
+    expect(report.profiles.verifiedCompanyOverrides).toBe(2);
+    expect(report.evidence.rows).toBe(9);
+    expect(report.evidence.scoredRows).toBe(9);
+    expect(report.evidence.companiesWithScoredEvidence).toBe(2);
+    expect(report.feedCompanies.map((item) => item.companyName).sort()).toEqual([
+      "Control Seat",
+      "Pluto"
+    ]);
+    expect(report.missingCompanies).toHaveLength(113);
     expect(report.rootCause).toEqual(
       expect.arrayContaining([
         "The current YC snapshot has zero company-level Instagram profile URLs.",
         "The current YC snapshot has zero founder-level Instagram profile URLs.",
-        "No verified company Instagram overrides exist for the current YC snapshot.",
-        "No current Instagram evidence rows are attached to the graph."
+        "The last Instagram discovery report did not run a broad Instagram search; it only crawled official websites."
       ])
     );
+    expect(report.rootCause).not.toContain("No current Instagram evidence rows are attached to the graph.");
   });
 
-  it("does not leak old Spring Instagram companies into the Summer graph", () => {
+  it("does not leak old Spring Instagram companies while retaining verified Summer rows", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const instagramRows = graph.evidence.filter((item) => item.platform === "instagram");
 
     expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(115);
     expect(graph.nodes.some((node) => ["HeyClicky", "Synphony", "ANORIA"].includes(node.label))).toBe(false);
-    expect(graph.evidence.some((item) => item.platform === "instagram")).toBe(false);
+    expect(instagramRows).toHaveLength(9);
+    expect(new Set(instagramRows.map((item) => item.attachedCompanyName))).toEqual(
+      new Set(["Control Seat", "Pluto"])
+    );
     expect(graph.evidence.some((item) => item.attachedCompanyName === "HeyClicky")).toBe(false);
   });
 
-  it("keeps Instagram out of Summer scoring while allowing verified public social rows", () => {
+  it("keeps only verified Instagram rows in Summer scoring with other public social rows", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const platforms = new Set(graph.evidence.map((item) => item.platform));
     const githubRows = graph.evidence.filter((item) => item.platform === "github");
@@ -63,11 +71,11 @@ describe("instagram coverage debug report", () => {
     );
 
     expect(platforms).toEqual(
-      new Set(["github", "youtube", "x", "linkedin", "hacker_news", "product_hunt"])
+      new Set(["github", "youtube", "x", "linkedin", "instagram", "hacker_news", "product_hunt"])
     );
     expect(platforms.has("x")).toBe(true);
     expect(platforms.has("linkedin")).toBe(true);
-    expect(platforms.has("instagram")).toBe(false);
+    expect(platforms.has("instagram")).toBe(true);
     expect(youtubeRows.length).toBeGreaterThan(0);
     expect(officialGithubSlugs.size).toBe(21);
     expect(githubRows.length).toBeGreaterThan(21);
