@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-07-28-1800",
-  "centralDay": "2026-07-28",
-  "observedAt": "2026-07-29T00:40:55.502Z",
-  "baselinePhysicalSources": 7609,
-  "publishedPhysicalSources": 7613,
-  "newPhysicalSources": 4,
-  "newPhysicalSourcesThisAttempt": 4,
-  "retainedPhysicalSources": 7609,
-  "removedPhysicalSources": 0,
-  "dailyNewPhysicalSources": 16,
+  "idempotencyKey": "central-2026-07-29-0600",
+  "centralDay": "2026-07-29",
+  "observedAt": "2026-07-29T13:46:12.247Z",
+  "baselinePhysicalSources": 7636,
+  "publishedPhysicalSources": 7637,
+  "newPhysicalSources": 2,
+  "newPhysicalSourcesThisAttempt": 2,
+  "retainedPhysicalSources": 7635,
+  "removedPhysicalSources": 1,
+  "dailyNewPhysicalSources": 2,
   "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
   "collectionHealthReasons": [
@@ -17,63 +17,41 @@
     "missing_credential:EXA_API_KEY",
     "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
     "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
-    "mapped_failures:3",
-    "mapped_success_rate_below_10_percent:0.0515"
+    "mapped_failures:2",
+    "mapped_success_rate_below_10_percent:0.0645"
   ],
-  "mappedExpected": 1844,
-  "mappedSucceeded": 95,
-  "mappedNeedsReview": 1011,
-  "mappedBlockedOrEmpty": 735,
-  "mappedFailures": 3,
+  "mappedExpected": 1845,
+  "mappedSucceeded": 119,
+  "mappedNeedsReview": 1089,
+  "mappedBlockedOrEmpty": 635,
+  "mappedFailures": 2,
   "mappedNonTerminal": 0,
-  "mappedSuccessRate": 0.0515,
-  "newestNewSourcePostedAt": "2026-07-28T22:16:48.000Z",
+  "mappedSuccessRate": 0.0645,
+  "newestNewSourcePostedAt": "2026-04-25T06:01:10Z",
   "insertedByBatchPlatform": {
-    "S2026:github": 1,
-    "S2026:youtube": 1,
-    "S26:github": 1,
-    "S26:x": 1
+    "S2026:x": 1,
+    "S26:github": 1
   },
   "insertedSourceSamples": [
     {
       "batchSlug": "S2026",
-      "platform": "youtube",
-      "entityType": "company",
-      "entityId": "company-sazabi",
-      "sourceUrl": "https://youtube.com/watch?v=i7Iuum1aDMQ",
-      "platformPostId": "i7Iuum1aDMQ",
+      "platform": "x",
+      "entityType": "founder",
+      "entityId": "founder-standard-signal-michael-royzen-984097",
+      "sourceUrl": "https://x.com/MichaelRoyzen/status/2082272490148049404",
+      "platformPostId": "2082272490148049404",
       "platformObjectId": null,
       "postedAt": null
     },
     {
       "batchSlug": "S26",
-      "platform": "x",
-      "entityType": "company",
-      "entityId": "company-hop-aero",
-      "sourceUrl": "https://x.com/bosmeny/status/2082228809512935534",
-      "platformPostId": "2082228809512935534",
-      "platformObjectId": null,
-      "postedAt": "2026-07-28T22:16:48.000Z"
-    },
-    {
-      "batchSlug": "S2026",
       "platform": "github",
       "entityType": "company",
-      "entityId": "company-smol-machines",
-      "sourceUrl": "https://github.com/smol-machines/smol",
-      "platformPostId": "smol-machines/smol",
-      "platformObjectId": "1283959364",
-      "postedAt": "2026-06-29T11:49:43Z"
-    },
-    {
-      "batchSlug": "S26",
-      "platform": "github",
-      "entityType": "company",
-      "entityId": "company-mireye",
-      "sourceUrl": "https://github.com/Mireye-Labs/cold-chain-fragility",
-      "platformPostId": "Mireye-Labs/cold-chain-fragility",
-      "platformObjectId": "1314387817",
-      "postedAt": "2026-07-28T00:28:42Z"
+      "entityId": "company-trope",
+      "sourceUrl": "https://github.com/tropeai/trope-cua",
+      "platformPostId": "tropeai/trope-cua",
+      "platformObjectId": "1220632889",
+      "postedAt": "2026-04-25T06:01:10Z"
     }
   ]
 }
