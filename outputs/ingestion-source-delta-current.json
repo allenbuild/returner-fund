@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-07-29-0600",
+  "idempotencyKey": "central-2026-07-29-1800",
   "centralDay": "2026-07-29",
-  "observedAt": "2026-07-29T13:46:12.247Z",
-  "baselinePhysicalSources": 7636,
-  "publishedPhysicalSources": 7637,
+  "observedAt": "2026-07-30T00:43:18.695Z",
+  "baselinePhysicalSources": 7637,
+  "publishedPhysicalSources": 7639,
   "newPhysicalSources": 2,
   "newPhysicalSourcesThisAttempt": 2,
-  "retainedPhysicalSources": 7635,
-  "removedPhysicalSources": 1,
-  "dailyNewPhysicalSources": 2,
+  "retainedPhysicalSources": 7637,
+  "removedPhysicalSources": 0,
+  "dailyNewPhysicalSources": 4,
   "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
   "collectionHealthReasons": [
@@ -17,41 +17,40 @@
     "missing_credential:EXA_API_KEY",
     "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
     "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
-    "mapped_failures:2",
-    "mapped_success_rate_below_10_percent:0.0645"
+    "mapped_success_rate_below_10_percent:0.0526"
   ],
   "mappedExpected": 1845,
-  "mappedSucceeded": 119,
-  "mappedNeedsReview": 1089,
-  "mappedBlockedOrEmpty": 635,
-  "mappedFailures": 2,
+  "mappedSucceeded": 97,
+  "mappedNeedsReview": 1014,
+  "mappedBlockedOrEmpty": 734,
+  "mappedFailures": 0,
   "mappedNonTerminal": 0,
-  "mappedSuccessRate": 0.0645,
-  "newestNewSourcePostedAt": "2026-04-25T06:01:10Z",
+  "mappedSuccessRate": 0.0526,
+  "newestNewSourcePostedAt": "2026-07-06T16:31:11Z",
   "insertedByBatchPlatform": {
-    "S2026:x": 1,
+    "S2026:github": 1,
     "S26:github": 1
   },
   "insertedSourceSamples": [
     {
       "batchSlug": "S2026",
-      "platform": "x",
-      "entityType": "founder",
-      "entityId": "founder-standard-signal-michael-royzen-984097",
-      "sourceUrl": "https://x.com/MichaelRoyzen/status/2082272490148049404",
-      "platformPostId": "2082272490148049404",
-      "platformObjectId": null,
-      "postedAt": null
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-zenbu-2",
+      "sourceUrl": "https://github.com/zenbu-labs/terminal-browser",
+      "platformPostId": "zenbu-labs/terminal-browser",
+      "platformObjectId": "1291255325",
+      "postedAt": "2026-07-06T16:31:11Z"
     },
     {
       "batchSlug": "S26",
       "platform": "github",
       "entityType": "company",
-      "entityId": "company-trope",
-      "sourceUrl": "https://github.com/tropeai/trope-cua",
-      "platformPostId": "tropeai/trope-cua",
-      "platformObjectId": "1220632889",
-      "postedAt": "2026-04-25T06:01:10Z"
+      "entityId": "company-parasma",
+      "sourceUrl": "https://github.com/SeanCole02/doom-neuron",
+      "platformPostId": "SeanCole02/doom-neuron",
+      "platformObjectId": "1100129757",
+      "postedAt": "2025-11-19T21:58:40Z"
     }
   ]
 }
