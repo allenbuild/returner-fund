@@ -3150,8 +3150,31 @@ progress::-webkit-progress-value {
   box-shadow: 0 1px 5px rgba(16, 24, 40, 0.14);
 }
 
+.segmented-toggle button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
 .momentum-value-compact {
   display: none;
+}
+
+.momentum-history-notice {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 2px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  background: var(--neutral-100);
+  color: var(--neutral-700);
+  font-size: 0.78rem;
+}
+
+.momentum-history-notice strong {
+  color: var(--neutral-900);
+  font-weight: 700;
 }
 
 .momentum-stat-cell {

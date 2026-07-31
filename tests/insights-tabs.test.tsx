@@ -489,11 +489,17 @@ describe("insights tabs", () => {
     expect(within(table).getByText("+7")).toBeInTheDocument();
   });
 
-  it("shows the intended benchmark date when the exact snapshot is still pending", () => {
+  it("labels a company absent from an otherwise valid prior snapshot without implying a pending job", () => {
     const graph = graphResponse();
     const dodBenchmarkAt = new Date(2026, 6, 12).toISOString();
     const wowBenchmarkAt = new Date(2026, 6, 6).toISOString();
-    graph.fastestGaining[0] = {
+    const completeRow = {
+      ...graph.fastestGaining[0]!,
+      rank: 2,
+      companyId: "company-b",
+      companyName: "Company B"
+    };
+    const missingPriorRow = {
       ...graph.fastestGaining[0]!,
       dod: {
         ...graph.fastestGaining[0]!.dod,
@@ -508,36 +514,143 @@ describe("insights tabs", () => {
         benchmarkedAt: wowBenchmarkAt
       }
     };
+    graph.fastestGaining = [missingPriorRow, completeRow];
 
     render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
     fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
 
-    const awaitingDod = screen.getByText(
-      `Awaiting ${new Date(dodBenchmarkAt).toLocaleDateString()} snapshot`
+    const missingDod = screen.getByText(
+      `Not in ${new Date(dodBenchmarkAt).toLocaleDateString()} snapshot`
     );
-    const dodCells = awaitingDod.closest("tr")?.querySelectorAll("td");
-    expect(awaitingDod).toBeInTheDocument();
-    expect(dodCells?.[2]).toHaveTextContent("Awaiting snapshot");
+    const dodCells = missingDod.closest("tr")?.querySelectorAll("td");
+    expect(missingDod).toBeInTheDocument();
+    expect(dodCells?.[2]).toHaveTextContent("Score —");
     expect(dodCells?.[3]).toHaveTextContent("+3");
     expect(
-      awaitingDod.closest("tr")?.querySelector(".momentum-stat-cell:last-child .momentum-value-compact")
+      missingDod.closest("tr")?.querySelector(".momentum-stat-cell:last-child .momentum-value-compact")
     ).toHaveTextContent(
-      `Awaiting ${new Date(dodBenchmarkAt).toLocaleDateString(undefined, {
+      `Not in ${new Date(dodBenchmarkAt).toLocaleDateString(undefined, {
         month: "numeric",
         day: "numeric"
-      })} snapshot`
+      })}`
     );
-    expect(screen.queryByText(/^Pending/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Awaiting snapshot/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Week over week" }));
 
-    const awaitingWow = screen.getByText(
-      `Awaiting ${new Date(wowBenchmarkAt).toLocaleDateString()} snapshot`
+    const missingWow = screen.getByText(
+      `Not in ${new Date(wowBenchmarkAt).toLocaleDateString()} snapshot`
     );
-    const wowCells = awaitingWow.closest("tr")?.querySelectorAll("td");
-    expect(awaitingWow).toBeInTheDocument();
+    const wowCells = missingWow.closest("tr")?.querySelectorAll("td");
+    expect(missingWow).toBeInTheDocument();
     expect(wowCells?.[2]).toHaveTextContent("+9 pts (+18%)");
-    expect(wowCells?.[3]).toHaveTextContent("Awaiting snapshot");
+    expect(wowCells?.[3]).toHaveTextContent("Rank —");
+    expect(screen.queryByText(/Awaiting snapshot/)).not.toBeInTheDocument();
+  });
+
+  it("keeps an unavailable same-model period unselectable and shows the valid period instead", () => {
+    const graph = graphResponse();
+    graph.fastestGaining = graph.fastestGaining.map((row) => ({
+      ...row,
+      wow: {
+        ...row.wow,
+        scoreDelta: 0,
+        percentDelta: 0,
+        rankDelta: 0,
+        baselineScore: null,
+        baselineRank: null,
+        benchmarkedAt: null
+      }
+    }));
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
+
+    const dayToggle = screen.getByRole("button", { name: "Day over day" });
+    const weekToggle = screen.getByRole("button", { name: "Week over week" });
+    expect(dayToggle).toBeEnabled();
+    expect(dayToggle).toHaveAttribute("aria-pressed", "true");
+    expect(weekToggle).toBeDisabled();
+    expect(weekToggle).toHaveAttribute(
+      "title",
+      "Available after an observed snapshot exists from seven Central days earlier under this scoring model."
+    );
+    expect(screen.getByText("+5 pts (+10%)")).toBeInTheDocument();
+    expect(screen.queryByText(/Awaiting/)).not.toBeInTheDocument();
+  });
+
+  it("falls back to current standings without inventing deltas when momentum history is unavailable", () => {
+    const graph = graphResponse();
+    graph.fastestGaining = [];
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
+
+    expect(screen.getByRole("button", { name: "Day over day" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Week over week" })).toBeDisabled();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Historical comparison is not available for this scoring model yet."
+    );
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Showing current scores and overall ranks. No historical deltas are inferred."
+    );
+    const zetaRow = screen.getByRole("button", { name: "Zeta Labs" }).closest("tr");
+    expect(zetaRow).toBeInTheDocument();
+    const cells = zetaRow?.querySelectorAll("td");
+    expect(cells?.[2]).toHaveTextContent("Score —");
+    expect(cells?.[3]).toHaveTextContent("Rank —");
+    expect(cells?.[4]).toHaveTextContent("91 pts / #1");
+    expect(cells?.[5]).toHaveTextContent("Not benchmarked");
+    expect(zetaRow).not.toHaveTextContent("Awaiting snapshot");
+  });
+
+  it("keeps measured momentum ahead of unbenchmarked rows", () => {
+    const graph = graphResponse();
+    const measured = graph.fastestGaining[0]!;
+    graph.fastestGaining = [
+      {
+        ...measured,
+        rank: 2,
+        companyId: "unbenchmarked",
+        companyName: "Unbenchmarked Current Leader",
+        dod: {
+          ...measured.dod,
+          scoreDelta: 0,
+          percentDelta: 0,
+          rankDelta: 0,
+          currentScore: 100,
+          currentRank: 1,
+          baselineScore: null,
+          baselineRank: null,
+          benchmarkedAt: null
+        }
+      },
+      {
+        ...measured,
+        rank: 1,
+        companyId: "measured",
+        companyName: "Measured Decline",
+        dod: {
+          ...measured.dod,
+          scoreDelta: -2,
+          percentDelta: -4,
+          rankDelta: -1,
+          currentScore: 48,
+          currentRank: 12,
+          baselineScore: 50,
+          baselineRank: 11
+        }
+      }
+    ];
+
+    render(<InsightsTabs graph={graph} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Hottest" }));
+
+    const rows = screen.getAllByRole("row").slice(1);
+    expect(rows[0]).toHaveTextContent("Measured Decline");
+    expect(rows[0]).toHaveTextContent("-2 pts (-4%)");
+    expect(rows[1]).toHaveTextContent("Unbenchmarked Current Leader");
+    expect(rows[1]).toHaveTextContent("Not benchmarked");
   });
 
   it("breaks equal hottest score deltas by percentage growth", () => {

@@ -68,9 +68,21 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
     key: "rank",
     direction: "asc"
   });
+  const momentumAvailability = useMemo(
+    () => ({
+      dod: graph.fastestGaining.some((row) => momentumHasCompleteComparison(row.dod)),
+      wow: graph.fastestGaining.some((row) => momentumHasCompleteComparison(row.wow))
+    }),
+    [graph.fastestGaining]
+  );
+  const resolvedMomentumPeriod = resolveMomentumPeriod(momentumPeriod, momentumAvailability);
   const momentumRows = useMemo(
-    () => [...graph.fastestGaining].sort(momentumRowSort(momentumPeriod)),
-    [graph.fastestGaining, momentumPeriod]
+    () => momentumRowsForDisplay(graph, resolvedMomentumPeriod),
+    [graph, resolvedMomentumPeriod]
+  );
+  const momentumComparisonCount = useMemo(
+    () => momentumRows.filter((row) => momentumHasCompleteComparison(row[resolvedMomentumPeriod])).length,
+    [momentumRows, resolvedMomentumPeriod]
   );
   const overviewRows = useMemo(
     () => [...graph.leaderboard].sort(overviewRowSort(overviewSort)),
@@ -145,8 +157,26 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
         >
           {activeTab === "gaining" && (
             <div className="segmented-toggle" role="group" aria-label="Momentum period">
-              <button type="button" className={momentumPeriod === "dod" ? "active" : ""} aria-pressed={momentumPeriod === "dod"} onClick={() => setMomentumPeriod("dod")}>Day over day</button>
-              <button type="button" className={momentumPeriod === "wow" ? "active" : ""} aria-pressed={momentumPeriod === "wow"} onClick={() => setMomentumPeriod("wow")}>Week over week</button>
+              <button
+                type="button"
+                className={resolvedMomentumPeriod === "dod" ? "active" : ""}
+                aria-pressed={resolvedMomentumPeriod === "dod"}
+                disabled={!momentumAvailability.dod}
+                title={!momentumAvailability.dod ? unavailableMomentumTitle("dod") : undefined}
+                onClick={() => setMomentumPeriod("dod")}
+              >
+                Day over day
+              </button>
+              <button
+                type="button"
+                className={resolvedMomentumPeriod === "wow" ? "active" : ""}
+                aria-pressed={resolvedMomentumPeriod === "wow"}
+                disabled={!momentumAvailability.wow}
+                title={!momentumAvailability.wow ? unavailableMomentumTitle("wow") : undefined}
+                onClick={() => setMomentumPeriod("wow")}
+              >
+                Week over week
+              </button>
             </div>
           )}
           {activeTab === "ranked" && (
@@ -262,6 +292,22 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
           role="tabpanel"
           aria-labelledby="insights-tab-gaining"
         >
+          {momentumPeriod !== resolvedMomentumPeriod && momentumComparisonCount > 0 && (
+            <div className="momentum-history-notice" role="status">
+              <strong>
+                {momentumPeriod === "wow" ? "Week-over-week" : "Day-over-day"} comparison is not available for this scoring model yet.
+              </strong>
+              <span>
+                Showing {resolvedMomentumPeriod === "wow" ? "week-over-week" : "day-over-day"} instead.
+              </span>
+            </div>
+          )}
+          {momentumRows.length > 0 && momentumComparisonCount === 0 && (
+            <div className="momentum-history-notice" role="status">
+              <strong>Historical comparison is not available for this scoring model yet.</strong>
+              <span>Showing current scores and overall ranks. No historical deltas are inferred.</span>
+            </div>
+          )}
           <table className="momentum-table">
             <thead>
               <tr>
@@ -284,7 +330,7 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
                 </tr>
               )}
               {momentumRows.map((row) => {
-                const delta = row[momentumPeriod];
+                const delta = row[resolvedMomentumPeriod];
                 return (
                   <tr key={row.companyId}>
                     <td className="insight-rank-cell">
@@ -929,21 +975,21 @@ function MetricIcon({ metric }: { metric: string }) {
 
 function formatScoreDelta(delta: MomentumDelta): string {
   if (delta.baselineScore === null) {
-    return "Awaiting snapshot";
+    return "—";
   }
   return `${signed(delta.scoreDelta)} pts (${signed(delta.percentDelta)}%)`;
 }
 
 function formatScoreDeltaCompact(delta: MomentumDelta): string {
   if (delta.baselineScore === null) {
-    return "Awaiting snapshot";
+    return "—";
   }
   return `${signed(delta.scoreDelta)} (${signed(delta.percentDelta)}%)`;
 }
 
 function formatRankDelta(delta: MomentumDelta): string {
   if (delta.baselineRank === null) {
-    return "Awaiting snapshot";
+    return "—";
   }
   const { rankDelta } = delta;
   if (rankDelta === 0) {
@@ -955,7 +1001,7 @@ function formatRankDelta(delta: MomentumDelta): string {
 function formatBenchmark(delta: MomentumDelta): string {
   const benchmarkDate = formatBenchmarkDate(delta.benchmarkedAt);
   if (delta.baselineScore === null || delta.baselineRank === null) {
-    return benchmarkDate ? `Awaiting ${benchmarkDate} snapshot` : "Awaiting same-model snapshot";
+    return benchmarkDate ? `Not in ${benchmarkDate} snapshot` : "Not benchmarked";
   }
   return `${delta.baselineScore} pts / #${delta.baselineRank} on ${benchmarkDate ?? "prior snapshot"}`;
 }
@@ -963,7 +1009,7 @@ function formatBenchmark(delta: MomentumDelta): string {
 function formatBenchmarkCompact(delta: MomentumDelta): string {
   const benchmarkDate = formatBenchmarkDate(delta.benchmarkedAt, { month: "numeric", day: "numeric" });
   if (delta.baselineScore === null || delta.baselineRank === null) {
-    return benchmarkDate ? `Awaiting ${benchmarkDate} snapshot` : "Awaiting snapshot";
+    return benchmarkDate ? `Not in ${benchmarkDate}` : "Not benchmarked";
   }
   return `${delta.baselineScore} / #${delta.baselineRank} · ${benchmarkDate ?? "prior"}`;
 }
@@ -990,15 +1036,71 @@ function signed(value: number): string {
   return `${value >= 0 ? "+" : ""}${value}`;
 }
 
+function momentumRowsForDisplay(graph: GraphResponse, period: MomentumPeriod): FastestGainingRow[] {
+  const rows = graph.fastestGaining.length
+    ? graph.fastestGaining
+    : graph.leaderboard.map((row) => ({
+        companyId: row.companyId,
+        companyName: row.companyName,
+        rank: row.rank,
+        score: row.score,
+        dod: currentOnlyMomentum(row.score, row.rank),
+        wow: currentOnlyMomentum(row.score, row.rank)
+      }));
+
+  return [...rows].sort(momentumRowSort(period));
+}
+
+function currentOnlyMomentum(currentScore: number, currentRank: number): MomentumDelta {
+  return {
+    currentScore,
+    baselineScore: null,
+    scoreDelta: 0,
+    percentDelta: 0,
+    currentRank,
+    baselineRank: null,
+    rankDelta: 0,
+    benchmarkedAt: null
+  };
+}
+
+function momentumHasCompleteComparison(delta: MomentumDelta): boolean {
+  return delta.baselineScore !== null && delta.baselineRank !== null;
+}
+
+function resolveMomentumPeriod(
+  requested: MomentumPeriod,
+  availability: Record<MomentumPeriod, boolean>
+): MomentumPeriod {
+  if (availability[requested]) {
+    return requested;
+  }
+  if (availability.dod) {
+    return "dod";
+  }
+  if (availability.wow) {
+    return "wow";
+  }
+  return "dod";
+}
+
+function unavailableMomentumTitle(period: MomentumPeriod): string {
+  return period === "dod"
+    ? "Available after an observed snapshot exists for the prior Central day under this scoring model."
+    : "Available after an observed snapshot exists from seven Central days earlier under this scoring model.";
+}
+
 function momentumRowSort(period: MomentumPeriod) {
   return (left: FastestGainingRow, right: FastestGainingRow): number => {
     const leftDelta = left[period];
     const rightDelta = right[period];
     return (
+      Number(momentumHasCompleteComparison(rightDelta)) - Number(momentumHasCompleteComparison(leftDelta)) ||
       rightDelta.scoreDelta - leftDelta.scoreDelta ||
       rightDelta.percentDelta - leftDelta.percentDelta ||
       rightDelta.rankDelta - leftDelta.rankDelta ||
       rightDelta.currentScore - leftDelta.currentScore ||
+      leftDelta.currentRank - rightDelta.currentRank ||
       left.companyName.localeCompare(right.companyName)
     );
   };
