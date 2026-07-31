@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "publishedAt": "2026-07-30T13:37:26.196Z",
-  "ingestionRunId": "file:central-2026-07-30-0600",
-  "evidenceCollectedAt": "2026-07-30T13:30:59.153Z",
+  "publishedAt": "2026-07-31T01:12:58.195Z",
+  "ingestionRunId": "file:central-2026-07-30-1800",
+  "evidenceCollectedAt": "2026-07-31T01:06:43.542Z",
   "oldestPlatformRefreshAt": "2026-07-29T07:11:00.000Z",
   "modelVersions": [
     "returner-traction@4.0.1",
@@ -22,65 +22,65 @@
   "graphArtifacts": [
     {
       "filename": "a16zsr006-insiders.json",
-      "sha256": "d49d39c90a6e95c97ea991cc9382b5ea3755d7da37ee0c498ce9ffa8ccaf7423",
-      "byteSize": 102277,
-      "generatedAt": "2026-07-30T13:35:40.971Z",
+      "sha256": "3f320cdc1a85a76044a43cab00e9f178ef771e6942889a70933cafe29334c2bd",
+      "byteSize": 102281,
+      "generatedAt": "2026-07-31T01:11:16.559Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "a16zsr006-yc-partners.json",
-      "sha256": "ec04fc00ddedb84d275d02306206ead2b63753145319bb1139dfce57d2f396ac",
+      "sha256": "e50754900a95c9bf39db4312a59bec11571b22578dc329c7b096be1333f2ba40",
       "byteSize": 2577,
-      "generatedAt": "2026-07-30T13:35:40.308Z",
+      "generatedAt": "2026-07-31T01:11:15.906Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "a16zsr006.json",
-      "sha256": "29f0e28849f814a735a8d743c037179aadf5a112d64698345c7140f213dce632",
-      "byteSize": 3053452,
-      "generatedAt": "2026-07-30T13:35:40.130Z",
+      "sha256": "52c5077eb79415fc4c099b5cf721d5857c9e1b40abac86c203e06a2ce7329311",
+      "byteSize": 3053483,
+      "generatedAt": "2026-07-31T01:11:15.713Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s2026-insiders.json",
-      "sha256": "95cbd1e701c1a2ab3e64b8a9f0c60a480e9c1fae6d758ed8ccda08ebbace1492",
-      "byteSize": 555351,
-      "generatedAt": "2026-07-30T13:35:34.423Z",
+      "sha256": "647183e0e7f8c5edd7d964ef5c1880a5a24e2513ead663f478a97aedb89aa271",
+      "byteSize": 558468,
+      "generatedAt": "2026-07-31T01:11:10.079Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s2026-yc-partners.json",
-      "sha256": "e1a69325d7cf0fdff70083c6ad4d4fed37386148047c817821bea3da17fbc65c",
-      "byteSize": 1074594,
-      "generatedAt": "2026-07-30T13:35:32.003Z",
+      "sha256": "1f3302ff436362ba827909b7a11a464e3fe62a851587c5ebaaa59723a6a96bf8",
+      "byteSize": 1084604,
+      "generatedAt": "2026-07-31T01:11:07.694Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s2026.json",
-      "sha256": "614c0c1dad725a7a06a4a8975c686399b24cc1a595817b924c630400df30b1bc",
-      "byteSize": 14221059,
-      "generatedAt": "2026-07-30T13:35:29.432Z",
+      "sha256": "94f7db3e595676c5cebf7a069aadce4817d7a977f88c827f195ea4539a10bab8",
+      "byteSize": 14264051,
+      "generatedAt": "2026-07-31T01:11:05.133Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s26-insiders.json",
-      "sha256": "1e0bc8750e66dd8c4a713a8b100bdee34349a1fe8ac263f7891fa0ca21363327",
+      "sha256": "eab704e0074a508d8b9cdf63c1dc74c21c9736d7f23ff1abd1b9e53355497f96",
       "byteSize": 5405,
-      "generatedAt": "2026-07-30T13:35:38.900Z",
+      "generatedAt": "2026-07-31T01:11:14.494Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s26-yc-partners.json",
-      "sha256": "771ec3471916f2976ac0599c1dabb38d7251cc92645cf3c0abc8541de6afc3f7",
-      "byteSize": 350211,
-      "generatedAt": "2026-07-30T13:35:37.774Z",
+      "sha256": "27a45bece4acdea9743b185007c7eb7c9a408faf98f7d5f80075893aa55606f9",
+      "byteSize": 353947,
+      "generatedAt": "2026-07-31T01:11:13.371Z",
       "modelVersion": "4.0.1"
     },
     {
       "filename": "s26.json",
-      "sha256": "6289877805668c93a2e4d6b86cffea7f0f4914f508b9b519c4153c8b96610363",
-      "byteSize": 5917339,
-      "generatedAt": "2026-07-30T13:35:37.183Z",
+      "sha256": "cc4f430cc13d3f460d6be26fdb180c30e58d68774753db08461e60f0c2d3daa4",
+      "byteSize": 5984706,
+      "generatedAt": "2026-07-31T01:11:12.828Z",
       "modelVersion": "4.0.1"
     }
   ],
@@ -116,5 +116,5 @@
       "generatedAt": "2026-07-01T05:30:37.139Z"
     }
   ],
-  "contentHash": "55792c2fa47c187f53c4df07468194746651e15cc7cfed04b0916f143c380485"
+  "contentHash": "0cd781ee29da5c5f82c2b934ae2132deab7cb058c2ee6f36d22b00986a6edc49"
 }
