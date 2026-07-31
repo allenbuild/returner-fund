@@ -2527,5 +2527,82 @@
         "postedAt": null
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-31-0600",
+    "centralDay": "2026-07-31",
+    "observedAt": "2026-07-31T13:42:37.300Z",
+    "baselinePhysicalSources": 8283,
+    "publishedPhysicalSources": 8285,
+    "newPhysicalSources": 4,
+    "newPhysicalSourcesThisAttempt": 4,
+    "retainedPhysicalSources": 8281,
+    "removedPhysicalSources": 2,
+    "dailyNewPhysicalSources": 4,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_failures:9",
+      "mapped_success_rate_below_10_percent:0.0595"
+    ],
+    "mappedExpected": 1850,
+    "mappedSucceeded": 110,
+    "mappedNeedsReview": 1098,
+    "mappedBlockedOrEmpty": 633,
+    "mappedFailures": 9,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0595,
+    "newestNewSourcePostedAt": "2026-07-31T05:21:07Z",
+    "insertedByBatchPlatform": {
+      "S26:github": 3,
+      "S26:x": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S26",
+        "platform": "x",
+        "entityType": "company",
+        "entityId": "company-greypoint-industries",
+        "sourceUrl": "https://x.com/bosmeny/status/2082985678179324156",
+        "platformPostId": "2082985678179324156",
+        "platformObjectId": null,
+        "postedAt": "2026-07-31T00:24:20.000Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-experiential-labs",
+        "sourceUrl": "https://github.com/experientiallabs/coding-router",
+        "platformPostId": "experientiallabs/coding-router",
+        "platformObjectId": "1317959284",
+        "postedAt": "2026-07-31T05:10:12Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-conifer",
+        "sourceUrl": "https://github.com/ConiferKit/conifer",
+        "platformPostId": "ConiferKit/conifer",
+        "platformObjectId": "1317966310",
+        "postedAt": "2026-07-31T05:21:07Z"
+      },
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-mireye",
+        "sourceUrl": "https://github.com/Mireye-Labs/solar-carport-siting",
+        "platformPostId": "Mireye-Labs/solar-carport-siting",
+        "platformObjectId": "1317832072",
+        "postedAt": "2026-07-31T02:00:08Z"
+      }
+    ]
   }
 ]
