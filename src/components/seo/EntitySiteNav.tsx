@@ -8,8 +8,8 @@ export function EntitySiteNav({ className }: { className?: string }) {
         Returner
       </Link>
       <div className="entity-site-links">
-        <Link href={"/yc-network-map" as Route}>YC map</Link>
-        <Link href={"/a16z-network-map" as Route}>a16z map</Link>
+        <Link href={"/" as Route}>YC map</Link>
+        <Link href={"/?batch=A16ZSR006" as Route}>a16z map</Link>
         <Link href={"/companies" as Route}>Companies</Link>
         <Link href={"/founders" as Route}>Founders</Link>
         <Link href={"/" as Route}>Network map</Link>

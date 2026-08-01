@@ -134,7 +134,7 @@ describe("live evidence overlay", () => {
     expect(liveEvidenceCacheVersion([corrected])).not.toBe(liveEvidenceCacheVersion([original]));
   });
 
-  it("keeps a null publication date unknown so observation time cannot inflate momentum or confidence", () => {
+  it("keeps a null publication date unknown without changing its traction score", () => {
     const observedAt = "2035-07-14T17:00:00.000Z";
     const undated = liveEvidenceRecordToEvidenceItem(
       screenpipeRecord({
@@ -172,9 +172,12 @@ describe("live evidence overlay", () => {
       metricsCheckedAt: observedAt,
       last_updated_at: observedAt
     });
-    expect(scoredUndated.contributionScore).toBeLessThan(scoredDated.contributionScore);
+    expect(scoredUndated.normalizedScore).toBe(scoredDated.normalizedScore);
+    expect(scoredUndated.contributionScore).toBe(scoredDated.contributionScore);
+    expect(undatedBreakdown.platformScores).toEqual(datedBreakdown.platformScores);
+    expect(undatedBreakdown.totalScore).toBe(datedBreakdown.totalScore);
     expect(undatedBreakdown.signalFamilyScores.momentum).toBe(0);
-    expect(datedBreakdown.signalFamilyScores.momentum).toBeGreaterThan(0);
+    expect(datedBreakdown.signalFamilyScores.momentum).toBe(0);
     expect(undatedBreakdown.confidence.datedEvidenceCount).toBe(0);
     expect(datedBreakdown.confidence.datedEvidenceCount).toBe(1);
     expect(undatedBreakdown.confidence.value).toBeLessThan(datedBreakdown.confidence.value);
@@ -258,9 +261,8 @@ describe("live evidence overlay", () => {
       expect(node.score).toBe(node.scoreBreakdown?.totalScore);
       expect(calibration?.cohortSize).toBe(positiveCohortSize);
       expect(calibration?.inputScore).toBe(node.scoreBreakdown?.absoluteScore);
-      expect(calibration?.method).toBe(
-        (node.scoreBreakdown?.absoluteScore ?? 0) > 0 ? "tie_aware_percentile_blend" : "none"
-      );
+      expect(calibration?.method).toBe("none");
+      expect(calibration?.percentile).toBeNull();
       expect(node.scoreDelta).toBe(Math.round(node.score - before.score));
       if (node.score === before.score) {
         expect(node.scoreDelta).toBe(0);

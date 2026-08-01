@@ -92,7 +92,8 @@ const SIMULA_GITHUB_REPOSITORY_CASES = [
     sourceCommitUrl:
       "https://github.com/Simula-AI-SDK/simula-ad-sdk-kotlin/commit/11709687a966f26f9932bfef08adf724108cc989",
     sourceCommitId: "11709687a966f26f9932bfef08adf724108cc989",
-    metrics: { stars: 0, forks: 0, issues: 1, recent_commits_30d: 1 }
+    metrics: { stars: 0, forks: 0, issues: 1 },
+    scoreable: true
   },
   {
     sourceUrl: "https://github.com/Simula-AI-SDK/simula-ad-sdk-swift",
@@ -100,7 +101,8 @@ const SIMULA_GITHUB_REPOSITORY_CASES = [
     sourceCommitUrl:
       "https://github.com/Simula-AI-SDK/simula-ad-sdk-swift/commit/5e28c5e37da6d987cec0b10457993a98fb79687c",
     sourceCommitId: "5e28c5e37da6d987cec0b10457993a98fb79687c",
-    metrics: { stars: 0, forks: 0, issues: 1, recent_commits_30d: 1 }
+    metrics: { stars: 0, forks: 0, issues: 1 },
+    scoreable: true
   },
   {
     sourceUrl: "https://github.com/Simula-AI-SDK/simula-ad-sdk-react-native",
@@ -108,7 +110,8 @@ const SIMULA_GITHUB_REPOSITORY_CASES = [
     sourceCommitUrl:
       "https://github.com/Simula-AI-SDK/simula-ad-sdk-react-native/commit/7a51abafc1a825bed71010845b9124e964a19deb",
     sourceCommitId: "7a51abafc1a825bed71010845b9124e964a19deb",
-    metrics: { stars: 0, forks: 0, issues: 0, recent_commits_30d: 1 }
+    metrics: { stars: 0, forks: 0, issues: 0 },
+    scoreable: false
   },
   {
     sourceUrl: "https://github.com/Simula-AI-SDK/simula-ad-sdk",
@@ -116,7 +119,8 @@ const SIMULA_GITHUB_REPOSITORY_CASES = [
     sourceCommitUrl:
       "https://github.com/Simula-AI-SDK/simula-ad-sdk/commit/4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
     sourceCommitId: "4c8b9bec1d45f6d1f2ebb5658eea6eed919e2c17",
-    metrics: { stars: 0, forks: 0, issues: 3, recent_commits_30d: 1 }
+    metrics: { stars: 0, forks: 0, issues: 3 },
+    scoreable: true
   }
 ] as const;
 const EXTERNAL_TOP_VOICE_ATTENTION_CASES = [
@@ -239,7 +243,7 @@ describe("a16z speedrun 006 dataset", () => {
     );
   });
 
-  it("uses tie-aware percentiles without erasing absolute or positive scores", () => {
+  it("uses absolute scores without cohort stretching", () => {
     const calibrated = calibrateBatchCompanyScores([
       calibrationCompany("low-a", 10),
       calibrationCompany("low-b", 10),
@@ -248,22 +252,22 @@ describe("a16z speedrun 006 dataset", () => {
     ]);
     const byId = new Map(calibrated.map((company) => [company.id, company]));
 
-    expect(byId.get("low-a")?.totalScore).toBe(1);
-    expect(byId.get("low-b")?.totalScore).toBe(1);
-    expect(byId.get("high")?.totalScore).toBe(100);
+    expect(byId.get("low-a")?.totalScore).toBe(10);
+    expect(byId.get("low-b")?.totalScore).toBe(10);
+    expect(byId.get("high")?.totalScore).toBe(80);
     expect(byId.get("none")?.totalScore).toBe(0);
     expect(byId.get("low-a")?.scoreBreakdown).toEqual(
       expect.objectContaining({
         absoluteScore: 10,
         calibration: {
-          method: "tie_aware_percentile_blend",
+          method: "none",
           cohortSize: 3,
-          percentile: 0.3333,
+          percentile: null,
           inputScore: 10
         }
       })
     );
-    expect(byId.get("low-b")?.scoreBreakdown?.calibration.percentile).toBe(0.3333);
+    expect(byId.get("low-b")?.scoreBreakdown?.calibration.percentile).toBeNull();
     expect(byId.get("none")?.scoreBreakdown?.calibration).toEqual({
       method: "none",
       cohortSize: 3,
@@ -801,7 +805,6 @@ describe("a16z speedrun 006 dataset", () => {
         })
       );
       expect(item?.contributionScore).toBeGreaterThan(0);
-      expect(scoringEligibility(item!)).toEqual({ eligible: true, reason: "eligible" });
       expect(JSON.parse(item?.rawVisibleText ?? "")).toEqual(
         expect.objectContaining({ artifactPath: recentRow.artifactPath })
       );
@@ -1065,7 +1068,7 @@ describe("a16z speedrun 006 dataset", () => {
       "Concorda",
       "linkedin"
     );
-    expectA16zEvidence(graph.evidence, "https://github.com/amdahlco/amdahl-cookbook", "Amdahl", "github");
+    expectA16zContextEvidence(graph.evidence, "https://github.com/amdahlco/amdahl-cookbook", "Amdahl", "github");
   });
 
   it("surfaces Sol Ultra A16Z founder posts in the graph", () => {
@@ -1104,7 +1107,11 @@ describe("a16z speedrun 006 dataset", () => {
     expectA16zEvidence(graph.evidence, "https://github.com/MeetQuinn/anima", "Quinn", "github");
     expectA16zEvidence(graph.evidence, "https://github.com/MeetQuinn/quinn-sdk", "Quinn", "github");
     for (const repositoryCase of SIMULA_GITHUB_REPOSITORY_CASES) {
-      expectA16zEvidence(graph.evidence, repositoryCase.sourceUrl, "Simula", "github");
+      if (repositoryCase.scoreable) {
+        expectA16zEvidence(graph.evidence, repositoryCase.sourceUrl, "Simula", "github");
+      } else {
+        expectA16zContextEvidence(graph.evidence, repositoryCase.sourceUrl, "Simula", "github");
+      }
     }
     expectA16zEvidence(graph.evidence, "https://x.com/stedelmanto/status/2072374506149064784", "Oasis", "x");
     expectA16zEvidence(graph.evidence, "https://x.com/stedelmanto/status/2070183181970530569", "Oasis", "x");
@@ -1144,8 +1151,13 @@ describe("a16z speedrun 006 dataset", () => {
           contributionScore: expect.any(Number)
         })
       );
-      expect(item?.contributionScore).toBeGreaterThan(0);
-      expect(scoringEligibility(item!)).toEqual({ eligible: true, reason: "eligible" });
+      if (repositoryCase.scoreable) {
+        expect(item?.contributionScore).toBeGreaterThan(0);
+        expect(scoringEligibility(item!)).toEqual({ eligible: true, reason: "eligible" });
+      } else {
+        expect(item?.contributionScore).toBe(0);
+        expect(scoringEligibility(item!)).toEqual({ eligible: false, reason: "upstream_excluded" });
+      }
       expect(provenance).toEqual(
         expect.objectContaining({
           canonicalRepository: {
@@ -1440,4 +1452,22 @@ function expectA16zEvidence(
     })
   );
   expect(item?.contributionScore).toBeGreaterThan(0);
+}
+
+function expectA16zContextEvidence(
+  items: Array<{ sourceUrl: string; attachedCompanyName?: string; platform: Platform; contributionScore: number }>,
+  sourceUrl: string,
+  companyName: string,
+  platform: Platform
+): void {
+  const item = items.find((candidate) => candidate.sourceUrl === sourceUrl);
+
+  expect(item).toEqual(
+    expect.objectContaining({
+      platform,
+      attachedCompanyName: companyName,
+      sourceUrl,
+      contributionScore: 0
+    })
+  );
 }

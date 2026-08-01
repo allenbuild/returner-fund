@@ -9,11 +9,22 @@ import { momentumSort } from "./benchmarks";
 const COMPANY_RADIUS = { min: 5, max: 68 };
 
 export const INSIDER_SCORE_FORMULA =
-  "base_plus_unique_weighted_insiders_capped_100" as const;
+  "published_score_plus_quadratic_insider_adjustments_capped_0_100" as const;
+
+/**
+ * Weight is an editorial confidence level, not a one-point bonus. Squaring it
+ * gives each step visible leverage while keeping the 1..5 control intuitive:
+ * 1, 4, 9, 16, and 25 influence points.
+ */
+export function insiderWeightInfluence(weight: number): number {
+  const normalized = Number.isFinite(weight) ? Math.max(0, weight) : 0;
+  return round(normalized ** 2);
+}
 
 export function computeInsiderScore(input: {
   baseScore: number;
   connections: TopVoiceConnectionPreview[];
+  publishedConnections?: TopVoiceConnectionPreview[];
   selectedInsiderIds?: string[];
   configurationVersion?: number | null;
 }): InsiderScoreBreakdown {
@@ -22,32 +33,57 @@ export function computeInsiderScore(input: {
   const uniqueConnections = new Map(
     input.connections.map((connection) => [connection.memberId, connection] as const)
   );
-  const matches = [...uniqueConnections.values()]
-    .map((connection) => {
-      const included = !hasSelection || selected.has(connection.memberId);
+  const publishedConnections = new Map(
+    (input.publishedConnections ?? []).map((connection) => [connection.memberId, connection] as const)
+  );
+  const memberIds = new Set([...uniqueConnections.keys(), ...publishedConnections.keys()]);
+  const matches = [...memberIds]
+    .map((memberId) => {
+      const connection = uniqueConnections.get(memberId);
+      const published = publishedConnections.get(memberId);
+      const included = Boolean(connection) && (!hasSelection || selected.has(memberId));
+      const effectiveWeight = included ? connection?.weight ?? 0 : 0;
+      const publishedWeight = published?.weight ?? 0;
+      const influenceScore = insiderWeightInfluence(effectiveWeight);
+      const publishedInfluenceScore = insiderWeightInfluence(publishedWeight);
       return {
-        memberId: connection.memberId,
-        displayName: connection.displayName,
-        effectiveWeight: connection.weight,
-        evidenceCount: connection.evidenceCount,
+        memberId,
+        displayName: connection?.displayName ?? published?.displayName ?? memberId,
+        effectiveWeight,
+        influenceScore,
+        publishedWeight,
+        publishedInfluenceScore,
+        adjustment: round(influenceScore - publishedInfluenceScore),
+        evidenceCount: connection?.evidenceCount ?? published?.evidenceCount ?? 0,
         included,
-        exclusionReason: included ? null : "not_selected" as const
+        exclusionReason: included
+          ? null
+          : connection && hasSelection
+            ? "not_selected" as const
+            : "disabled" as const
       };
     })
     .sort((left, right) =>
       Number(right.included) - Number(left.included) ||
-      right.effectiveWeight - left.effectiveWeight ||
+      right.influenceScore - left.influenceScore ||
+      right.publishedInfluenceScore - left.publishedInfluenceScore ||
       left.displayName.localeCompare(right.displayName)
     );
-  const weightedInsiderSubtotal = matches
-    .filter((match) => match.included)
-    .reduce((total, match) => total + match.effectiveWeight, 0);
+  const publishedInsiderInfluence = round(
+    matches.reduce((total, match) => total + match.publishedInfluenceScore, 0)
+  );
+  const weightedInsiderSubtotal = round(
+    matches.reduce((total, match) => total + match.influenceScore, 0)
+  );
+  const insiderScoreAdjustment = round(weightedInsiderSubtotal - publishedInsiderInfluence);
   const baseScore = round(input.baseScore);
-  const finalScore = round(Math.min(100, Math.max(0, baseScore + weightedInsiderSubtotal)));
+  const finalScore = round(Math.min(100, Math.max(0, baseScore + insiderScoreAdjustment)));
 
   return {
     baseScore,
+    publishedInsiderInfluence,
     weightedInsiderSubtotal,
+    insiderScoreAdjustment,
     finalScore,
     selectedInsiderIds: [...selected].sort(),
     configurationVersion: input.configurationVersion ?? null,
@@ -62,8 +98,9 @@ export function applyInsiderScenarioScoring(
     selectedInsiderIds?: string[];
     configurationVersion?: number | null;
     /**
-     * The immutable published/default Insider slice. Its connections define
-     * the default weight already included in each published company score.
+     * The immutable, published/default Insider slice. Its connections define
+     * the baseline influence before a user changed weights or excluded
+     * members.
      */
     publishedInsiderGraph?: GraphResponse;
   } = {}
@@ -71,7 +108,7 @@ export function applyInsiderScenarioScoring(
   if (graph.selectedTopVoiceAudience.id !== "insiders") return graph;
 
   const publishedConnectionsByCompany = new Map(
-    (input.publishedInsiderGraph?.nodes ?? [])
+    (input.publishedInsiderGraph ?? graph).nodes
       .filter((node) => node.entityType === "company")
       .map((node) => [node.entityId, node.topVoiceConnections ?? []] as const)
   );
@@ -81,11 +118,9 @@ export function applyInsiderScenarioScoring(
       .map((node) => [
         node.entityId,
         computeInsiderScore({
-          baseScore: stableInsiderBaseScore(
-            node.score,
-            publishedConnectionsByCompany.get(node.entityId) ?? []
-          ),
+          baseScore: node.score,
           connections: node.topVoiceConnections ?? [],
+          publishedConnections: publishedConnectionsByCompany.get(node.entityId) ?? [],
           selectedInsiderIds: input.selectedInsiderIds,
           configurationVersion: input.configurationVersion
         })
@@ -156,26 +191,6 @@ export function applyInsiderScenarioScoring(
       ? { ...graph.scoringContext, scoreScope: "top_voice" }
       : graph.scoringContext
   };
-}
-
-/**
- * Published Insider scores already include each default member weight once.
- * Subtract that immutable subtotal before applying the effective saved
- * configuration, preserving default scores while making weight edits visible.
- */
-export function stableInsiderBaseScore(
-  publishedScore: number,
-  publishedConnections: TopVoiceConnectionPreview[]
-): number {
-  const uniquePublishedWeights = new Map(
-    publishedConnections.map((connection) => [
-      connection.memberId,
-      connection.weight
-    ] as const)
-  );
-  const publishedInsiderSubtotal = [...uniquePublishedWeights.values()]
-    .reduce((total, weight) => total + weight, 0);
-  return round(Math.max(0, publishedScore - publishedInsiderSubtotal));
 }
 
 function recomputeMomentumDelta(

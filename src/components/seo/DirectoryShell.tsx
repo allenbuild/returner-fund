@@ -29,10 +29,8 @@ export function DirectoryShell({
           Returner
         </DirectoryLink>
         <nav className="rf-directory-nav" aria-label="Public directory">
-          <DirectoryLink href="/yc-network-map">YC map</DirectoryLink>
-          <DirectoryLink href="/a16z-network-map">a16z map</DirectoryLink>
-          <DirectoryLink href="/yc-social-traction">YC traction</DirectoryLink>
-          <DirectoryLink href="/a16z-social-traction">a16z traction</DirectoryLink>
+          <DirectoryLink href="/">YC map</DirectoryLink>
+          <DirectoryLink href="/?batch=A16ZSR006">a16z map</DirectoryLink>
           <DirectoryLink href="/cohorts">Cohorts</DirectoryLink>
           <DirectoryLink href="/industries">Industries</DirectoryLink>
           <DirectoryLink href="/platforms">Platforms</DirectoryLink>

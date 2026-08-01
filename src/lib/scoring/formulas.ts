@@ -17,12 +17,12 @@ import type {
 import { percentileRank } from "./percentiles";
 import { TRACTION_SCORING_CONFIG } from "./traction-config";
 
-const DEFAULT_PLATFORM_REFERENCE = TRACTION_SCORING_CONFIG.platformReferences.x!;
+const LEGACY_NEUTRAL_WINDOW_DAYS = 1;
 
 /** @deprecated Use TRACTION_SCORING_CONFIG directly for new scoring code. */
 export const DEFAULT_SCORING_CONFIG: ScoringConfig = {
-  halfLifeDays: DEFAULT_PLATFORM_REFERENCE.halfLifeDays,
-  reviewWindowDays: DEFAULT_PLATFORM_REFERENCE.halfLifeDays,
+  halfLifeDays: LEGACY_NEUTRAL_WINDOW_DAYS,
+  reviewWindowDays: LEGACY_NEUTRAL_WINDOW_DAYS,
   topKPosts: TRACTION_SCORING_CONFIG.platformEvidenceSlots.length
 };
 
@@ -72,11 +72,9 @@ export function computeWeightedRawEngagement(
 }
 
 export function computeRecencyWeight(ageDays: number, halfLifeDays: number): number {
-  if (!Number.isFinite(ageDays) || ageDays < 0) {
-    return 1;
-  }
-
-  return Math.pow(0.5, ageDays / Math.max(halfLifeDays, 1));
+  void ageDays;
+  void halfLifeDays;
+  return 1;
 }
 
 /** @deprecated New production callers should use normalizeEvidenceScores. */
@@ -96,14 +94,7 @@ export function scorePost(input: PostScoreInput): PostScoreResult {
   const ageDays = postedAt
     ? Math.max(0, (collectedAt.getTime() - postedAt.getTime()) / 86_400_000)
     : null;
-  const halfLifeDays = canonicalPlatform
-    ? TRACTION_SCORING_CONFIG.platformReferences[canonicalPlatform]?.halfLifeDays ??
-      DEFAULT_SCORING_CONFIG.halfLifeDays
-    : DEFAULT_SCORING_CONFIG.halfLifeDays;
-  const recencyWeight =
-    ageDays === null
-      ? TRACTION_SCORING_CONFIG.missingDateMomentum
-      : computeRecencyWeight(ageDays, halfLifeDays);
+  const recencyWeight = 1;
   const followerCount = input.followerCount ?? null;
   const engagementRate =
     followerCount === null ? null : rawEngagement / Math.max(Math.abs(followerCount), 1);
@@ -119,10 +110,6 @@ export function scorePost(input: PostScoreInput): PostScoreResult {
 
   if (engagementRate === null) {
     limitations.push("Follower count unavailable; engagement rate is diagnostic only in canonical v4.");
-  }
-
-  if (ageDays === null) {
-    limitations.push("Post timestamp unavailable; canonical v4 uses its configured missing-date momentum.");
   }
 
   if (input.percentileSamples) {

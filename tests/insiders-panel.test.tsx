@@ -1,8 +1,21 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { InsidersPanel } from "@/components/InsidersPanel";
 import type { InsiderConfigurationResponse } from "@/lib/social/user-insiders";
 import { defaultInsiderMembers } from "@/lib/social/top-voices";
+
+const { authHandlers } = vi.hoisted(() => ({
+  authHandlers: new Set<() => void>()
+}));
+
+vi.mock("@/lib/social/user-insiders-client", () => ({
+  insiderApiFetch: (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init),
+  requestInsiderSignInLink: vi.fn(),
+  subscribeToInsiderAuth: (handler: () => void) => {
+    authHandlers.add(handler);
+    return () => authHandlers.delete(handler);
+  }
+}));
 
 function response(version = 0): InsiderConfigurationResponse {
   const defaults = defaultInsiderMembers();
@@ -23,6 +36,10 @@ function response(version = 0): InsiderConfigurationResponse {
 }
 
 describe("InsidersPanel", () => {
+  beforeEach(() => {
+    authHandlers.clear();
+  });
+
   it("renders the built-in list immediately while private overrides load", () => {
     vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>(() => undefined)));
 
@@ -32,6 +49,47 @@ describe("InsidersPanel", () => {
     expect(screen.getByText("Paul Graham")).toBeInTheDocument();
     expect(screen.queryByText("Loading your list…")).not.toBeInTheDocument();
     expect(screen.queryByText("Your private audience for personalized attention scoring.")).not.toBeInTheDocument();
+  });
+
+  it("ignores an older configuration load that resolves after a newer auth load", async () => {
+    const older = deferred<Response>();
+    const newer = deferred<Response>();
+    const olderConfiguration = response(1);
+    olderConfiguration.configuration.weightOverrides = { "paul-graham": 4 };
+    olderConfiguration.effectiveMembers = olderConfiguration.effectiveMembers.map((member) =>
+      member.personId === "paul-graham" ? { ...member, weight: 4 } : member
+    );
+    const newerConfiguration = response(2);
+    newerConfiguration.configuration.weightOverrides = { "paul-graham": 1 };
+    newerConfiguration.effectiveMembers = newerConfiguration.effectiveMembers.map((member) =>
+      member.personId === "paul-graham" ? { ...member, weight: 1 } : member
+    );
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => older.promise)
+      .mockImplementationOnce(() => newer.promise);
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<InsidersPanel onClose={vi.fn()} />);
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(authHandlers.size).toBe(1);
+    });
+    act(() => {
+      for (const handler of authHandlers) handler();
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      newer.resolve(new Response(JSON.stringify(newerConfiguration), { status: 200 }));
+      await newer.promise;
+    });
+    expect(await screen.findByLabelText("Paul Graham weight")).toHaveTextContent("1");
+
+    await act(async () => {
+      older.resolve(new Response(JSON.stringify(olderConfiguration), { status: 200 }));
+      await older.promise;
+    });
+    expect(screen.getByLabelText("Paul Graham weight")).toHaveTextContent("1");
   });
 
   it("offers an email sign-in path when the private editor has no session", async () => {
@@ -151,7 +209,7 @@ describe("InsidersPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save & recompute" }));
 
     expect(await screen.findByText("Recomputing scores…")).toBeInTheDocument();
-    expect(onSaved).toHaveBeenCalledOnce();
+    expect(onSaved).toHaveBeenCalledWith(1);
     finishRecompute?.();
     expect(await screen.findByText("Saved")).toBeInTheDocument();
   });
@@ -193,6 +251,8 @@ describe("InsidersPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retry score refresh" }));
     expect(await screen.findByText("Saved")).toBeInTheDocument();
     expect(onSaved).toHaveBeenCalledTimes(2);
+    expect(onSaved).toHaveBeenNthCalledWith(1, 1);
+    expect(onSaved).toHaveBeenNthCalledWith(2, 1);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
@@ -291,3 +351,11 @@ describe("InsidersPanel", () => {
     expect(screen.getByRole("button", { name: "Save & recompute" })).toBeEnabled();
   });
 });
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+}

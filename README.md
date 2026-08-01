@@ -151,7 +151,7 @@ This currently fails closed with a clear error unless Supabase is configured and
 The scoring model is transparent and explainable:
 
 - Post raw engagement uses documented weights.
-- Scores use log scaling, recency decay, engagement-rate context when available, and percentile normalization.
+- Scores use date-invariant log scaling over durable visible engagement metrics.
 - Platform scores aggregate top posts, consistency, and account metrics.
 - Company scores combine company accounts and founder accounts, then normalize relative to the selected batch.
 - Missing platforms are re-normalized and recorded in score limitations.

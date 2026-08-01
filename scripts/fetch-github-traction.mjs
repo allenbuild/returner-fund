@@ -644,14 +644,13 @@ function repoScore(repo) {
   const forks = repo.forks_count ?? 0;
   const watchers = repo.watchers_count ?? 0;
   const issues = repo.open_issues_count ?? 0;
-  const recent = daysSince(repo.pushed_at) <= 45 ? 8 : daysSince(repo.pushed_at) <= 180 ? 3 : 0;
-  return clamp(Math.round(Math.log1p(stars) * 14 + Math.log1p(forks) * 9 + Math.log1p(watchers) * 3 + Math.log1p(issues) * 1.5 + recent), 1, 100);
+  return clamp(Math.round(Math.log1p(stars) * 14 + Math.log1p(forks) * 9 + Math.log1p(watchers) * 3 + Math.log1p(issues) * 1.5), 1, 100);
 }
 
 function profileScore(account, repos) {
   const topRepos = repos.slice(0, 5);
-  const repoMomentum = topRepos.reduce((sumScore, repo) => sumScore + repo.score, 0) / Math.max(topRepos.length, 1);
-  return clamp(Math.round(Math.log1p(account.followers ?? 0) * 7 + Math.log1p(account.public_repos ?? 0) * 2 + repoMomentum * 0.7), 1, 100);
+  const repoQuality = topRepos.reduce((sumScore, repo) => sumScore + repo.score, 0) / Math.max(topRepos.length, 1);
+  return clamp(Math.round(Math.log1p(account.followers ?? 0) * 7 + Math.log1p(account.public_repos ?? 0) * 2 + repoQuality * 0.7), 1, 100);
 }
 
 async function runWorkerPool(items, concurrency, fn) {
@@ -714,11 +713,6 @@ function sameHost(a, b) {
   } catch {
     return false;
   }
-}
-
-function daysSince(value) {
-  if (!value) return Number.POSITIVE_INFINITY;
-  return (Date.now() - new Date(value).getTime()) / 86_400_000;
 }
 
 function sum(items, key) {

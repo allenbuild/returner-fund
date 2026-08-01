@@ -15,8 +15,45 @@ import type {
   TopVoiceAudienceId
 } from "@/lib/graph/types";
 
+const insiderAuthHarness = vi.hoisted(() => ({
+  token: null as string | null,
+  userId: null as string | null,
+  listeners: new Set<(change: {
+    event: "INITIAL_SESSION" | "SIGNED_IN" | "SIGNED_OUT" | "USER_UPDATED";
+    userId: string | null;
+  }) => void>()
+}));
+
+vi.mock("@/lib/social/user-insiders-client", () => ({
+  insiderAccessToken: vi.fn(async () => insiderAuthHarness.token),
+  insiderApiFetch: vi.fn(async (input: RequestInfo | URL, init: RequestInit = {}) => {
+    const headers = new Headers(init.headers);
+    if (insiderAuthHarness.token) {
+      headers.set("authorization", `Bearer ${insiderAuthHarness.token}`);
+    }
+    return fetch(input, { ...init, headers });
+  }),
+  requestInsiderSignInLink: vi.fn(async () => undefined),
+  subscribeToInsiderAuth: (
+    handler: (change: {
+      event: "INITIAL_SESSION" | "SIGNED_IN" | "SIGNED_OUT" | "USER_UPDATED";
+      userId: string | null;
+    }) => void,
+    options: { emitInitial?: boolean } = {}
+  ) => {
+    insiderAuthHarness.listeners.add(handler);
+    if (options.emitInitial) {
+      handler({
+        event: "INITIAL_SESSION",
+        userId: insiderAuthHarness.userId
+      });
+    }
+    return () => insiderAuthHarness.listeners.delete(handler);
+  }
+}));
+
 const V4_MODEL_ID = "returner-traction";
-const V4_MODEL_VERSION = "4.0.1";
+const V4_MODEL_VERSION = "4.1.0";
 
 function insiderConfigurationResponse(version = 0, paulGrahamWeight = 5): InsiderConfigurationResponse {
   const defaults = defaultInsiderMembers();
@@ -53,6 +90,7 @@ vi.mock("@/components/CytoscapeGraph", () => ({
       data-focus-active={focus.active ? "true" : "false"}
       data-focused-company-ids={focus.companyNodeIds.join("|")}
       data-focus-signature={focus.signature}
+      data-node-scores={nodes.map((node) => `${node.entityId}:${node.score}`).join("|")}
     >
       {nodes.map((node) => (
         <span key={node.id}>{node.label}</span>
@@ -66,6 +104,7 @@ vi.mock("@/components/InsightsTabs", () => ({
     const leader = graph.leaderboard[0];
     return (
       <div data-testid="insights-tabs">
+        {leader && <output data-testid="leaderboard-score">{leader.score}</output>}
         {leader && (
           <button type="button" onClick={() => onSelectNode(`company:${leader.companyId}`)}>
             Open leaderboard {leader.companyName}
@@ -89,6 +128,9 @@ describe("dashboard filters", () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();
+    insiderAuthHarness.token = null;
+    insiderAuthHarness.userId = null;
+    insiderAuthHarness.listeners.clear();
     window.history.replaceState(null, "", "/");
     document.title = "YC Network Map";
   });
@@ -603,7 +645,7 @@ describe("dashboard filters", () => {
     expect(options[2]).toHaveValue("A16ZSR006");
   });
 
-  it("uses a16z speedrun branding without overwriting route metadata", () => {
+  it("uses exact a16z speedrun branding in the page and browser tab", () => {
     const speedrunGraph = graphResponse(
       [makeNode("company:sun", "SUN", "consumer", "#76F7EF", "a16z speedrun")],
       { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
@@ -614,7 +656,6 @@ describe("dashboard filters", () => {
       vi.fn(() => new Promise(() => undefined))
     );
 
-    document.title = "a16z route metadata | Returner.fund";
     const { container } = render(<Dashboard initialGraph={speedrunGraph} />);
 
     expect(screen.getByRole("heading", { name: "a16z Network Map" })).toBeInTheDocument();
@@ -626,7 +667,7 @@ describe("dashboard filters", () => {
       within(groupPartnerGroup).queryByRole("menuitemcheckbox", { name: /a16z speedrun\s*\(1\)/i })
     ).not.toBeInTheDocument();
     expect(container.querySelector(".dashboard-a16z")).toBeInTheDocument();
-    expect(document.title).toBe("a16z route metadata | Returner.fund");
+    expect(document.title).toBe("a16z Network Map");
   });
 
   it("fetches only the selected Top Voices snapshot", async () => {
@@ -975,10 +1016,10 @@ describe("dashboard filters", () => {
       makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100)
     ]);
     const speedrunGraph = withBenchmarkDates(
-      graphResponse(
+      staticGraphFixture(graphResponse(
         [makeNode("company:sun", "SUN", "consumer", "#88CCF6", "Partner A", 100)],
         { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
-      ),
+      )),
       localDateIso(-1),
       localDateIso(-7)
     );
@@ -995,7 +1036,9 @@ describe("dashboard filters", () => {
     render(<Dashboard initialGraph={springGraph} />);
 
     expect(within(screen.getByTestId("graph-canvas")).getByText("screenpipe")).toBeInTheDocument();
+    expect(document.title).toBe("YC Network Map");
     fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "A16ZSR006" } });
+    expect(document.title).toBe("a16z Network Map");
 
     const resultsRegion = screen.getByRole("region", { name: "Network map results" });
     expect(resultsRegion).toHaveAttribute("aria-busy", "true");
@@ -1025,16 +1068,17 @@ describe("dashboard filters", () => {
     ).toHaveLength(1);
     fireEvent.change(screen.getByRole("combobox", { name: /batch/i }), { target: { value: "S2026" } });
     expect(screen.getByText("Loading YC map...")).toBeInTheDocument();
+    expect(document.title).toBe("YC Network Map");
   });
 
   it("keeps the old graph and clears scope-specific filters while an uncached scope loads", async () => {
     const springGraph = graphResponse([
       makeNode("company:fintech", "Spring Fintech", "fintech", "#2563eb", "Partner A")
     ]);
-    const speedrunGraph = graphResponse(
+    const speedrunGraph = staticGraphFixture(graphResponse(
       [makeNode("company:consumer", "Speedrun Consumer", "consumer", "#88CCF6", "Partner B")],
       { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
-    );
+    ));
     let resolveSpeedrun!: (response: { ok: boolean; json: () => Promise<GraphResponse> }) => void;
     const speedrunResponse = new Promise<{ ok: boolean; json: () => Promise<GraphResponse> }>((resolve) => {
       resolveSpeedrun = resolve;
@@ -1192,7 +1236,7 @@ describe("dashboard filters", () => {
     const selectedPersonalizedGraph = {
       ...withTopVoiceAudience(
         graphResponse([
-          makeNode("company:selected", "Selected Insider Company", "fintech", "#2563eb", "Partner B")
+          makeNode("company:selected", "Selected Insider Company", "fintech", "#2563eb", "Partner B", 76)
         ]),
         "insiders"
       ),
@@ -1201,15 +1245,17 @@ describe("dashboard filters", () => {
     const recomputedGraph = {
       ...withTopVoiceAudience(
         graphResponse([
-          makeNode("company:recomputed", "Recomputed Company", "fintech", "#2563eb", "Partner B")
+          makeNode("company:recomputed", "Recomputed Company", "fintech", "#2563eb", "Partner B", 84)
         ]),
         "insiders"
       ),
-      selectedInsiderIds: []
+      selectedInsiderIds: ["paul-graham"],
+      insiderConfigurationVersion: 1
     };
     const initialConfiguration = insiderConfigurationResponse();
     const savedConfiguration = insiderConfigurationResponse(1, 4);
     let failRecompute = true;
+    let recomputeVersion = 0;
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       const method = init?.method ?? "GET";
@@ -1240,7 +1286,13 @@ describe("dashboard filters", () => {
             }
           });
         }
-        return new Response(JSON.stringify({ graph: recomputedGraph }), {
+        return new Response(JSON.stringify({
+          configurationVersion: recomputeVersion,
+          graph: {
+            ...recomputedGraph,
+            insiderConfigurationVersion: recomputeVersion
+          }
+        }), {
           status: 200,
           headers: { "content-type": "application/json" }
         });
@@ -1281,8 +1333,9 @@ describe("dashboard filters", () => {
     expect(recomputeRequests()).toHaveLength(1);
     expect(JSON.parse(String((recomputeRequests()[0]![1] as RequestInit).body))).toEqual({
       batchSlug: "S2026",
-      insiderIds: []
+      insiderIds: ["paul-graham"]
     });
+    expect(window.location.search).toContain("insiderIds=paul-graham");
     expect(fetchMock.mock.calls.filter(
       ([input, init]) => String(input) === "/api/insiders" && (init as RequestInit | undefined)?.method === "PUT"
     )).toHaveLength(1);
@@ -1290,12 +1343,149 @@ describe("dashboard filters", () => {
     failRecompute = false;
     fireEvent.click(screen.getByRole("button", { name: "Retry score refresh" }));
 
+    expect(await screen.findByText("Weights saved; scores refresh failed")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("stale Insider configuration");
+    expect(screen.queryByRole("button", { name: "Open leaderboard Recomputed Company" }))
+      .not.toBeInTheDocument();
+
+    recomputeVersion = 1;
+    fireEvent.click(screen.getByRole("button", { name: "Retry score refresh" }));
+
     expect(await screen.findByText("Saved")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Open leaderboard Recomputed Company" })).toBeInTheDocument();
-    expect(recomputeRequests()).toHaveLength(2);
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute(
+      "data-node-scores",
+      "baseline:50|recomputed:84"
+    );
+    expect(within(screen.getByTestId("graph-canvas")).getByText("Baseline Company")).toBeInTheDocument();
+    expect(screen.getByTestId("leaderboard-score")).toHaveTextContent("84");
+    expect(window.location.search).toContain("insiderIds=paul-graham");
+    expect(recomputeRequests()).toHaveLength(3);
     expect(fetchMock.mock.calls.filter(
       ([input, init]) => String(input) === "/api/insiders" && (init as RequestInit | undefined)?.method === "PUT"
     )).toHaveLength(1);
+  });
+
+  it("drops personalized graph versions and caches when the authenticated user changes", async () => {
+    const baselineGraph = graphResponse([
+      makeNode("company:baseline", "Baseline Company", "b2b", "#7dd3fc", "Partner A", 50)
+    ]);
+    const userAGraph = {
+      ...withTopVoiceAudience(
+        graphResponse([
+          makeNode("company:user-a", "User A Company", "fintech", "#2563eb", "Partner B", 96)
+        ]),
+        "insiders"
+      ),
+      insiderConfigurationVersion: 8
+    };
+    const anonymousGraph = {
+      ...withTopVoiceAudience(
+        graphResponse([
+          makeNode("company:anonymous", "Anonymous Company", "b2b", "#7dd3fc", "Partner A", 61)
+        ]),
+        "insiders"
+      ),
+      insiderConfigurationVersion: 0
+    };
+    const userBGraph = {
+      ...withTopVoiceAudience(
+        graphResponse([
+          makeNode("company:user-b", "User B Company", "healthcare", "#ec4899", "Partner C", 72)
+        ]),
+        "insiders"
+      ),
+      insiderConfigurationVersion: 1
+    };
+    insiderAuthHarness.token = "token-a";
+    insiderAuthHarness.userId = "user-a";
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      const headers = new Headers(init?.headers);
+      if (url === "/api/insiders/recompute") {
+        return new Response(JSON.stringify({
+          configurationVersion: 8,
+          graph: userAGraph
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      if (url === "/api/insiders") {
+        return new Response(JSON.stringify(insiderConfigurationResponse(8)), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      if (url.startsWith("/api/graph")) {
+        const authorization = headers.get("authorization");
+        const responseGraph = authorization === "Bearer token-b"
+          ? userBGraph
+          : authorization === "Bearer token-a"
+            ? userAGraph
+            : anonymousGraph;
+        return new Response(JSON.stringify(responseGraph), {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        });
+      }
+      return new Response(JSON.stringify(baselineGraph), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <Dashboard
+        initialGraph={userAGraph}
+        initialTopVoiceAudience="insiders"
+      />
+    );
+    expect(await screen.findByTestId("leaderboard-score")).toHaveTextContent("96");
+    await waitFor(() => expect(fetchMock.mock.calls.some(
+      ([input]) => String(input) === "/api/insiders/recompute"
+    )).toBe(true));
+
+    insiderAuthHarness.token = null;
+    insiderAuthHarness.userId = null;
+    act(() => {
+      for (const listener of insiderAuthHarness.listeners) {
+        listener({ event: "SIGNED_OUT", userId: null });
+      }
+    });
+    await waitFor(() => expect(screen.getByTestId("leaderboard-score")).toHaveTextContent("61"));
+
+    insiderAuthHarness.token = "token-b";
+    insiderAuthHarness.userId = "user-b";
+    act(() => {
+      for (const listener of insiderAuthHarness.listeners) {
+        listener({ event: "SIGNED_IN", userId: "user-b" });
+      }
+    });
+    await waitFor(() => expect(screen.getByTestId("leaderboard-score")).toHaveTextContent("72"));
+    expect(screen.queryByText(/stale Insider scores/i)).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input, init]) =>
+      String(input).startsWith("/api/graph") &&
+      new Headers((init as RequestInit | undefined)?.headers).get("authorization") === "Bearer token-b"
+    )).toBe(true);
+
+    const graphRequestCount = fetchMock.mock.calls.filter(
+      ([input]) => String(input).startsWith("/api/graph")
+    ).length;
+    act(() => {
+      for (const listener of insiderAuthHarness.listeners) {
+        listener({ event: "USER_UPDATED", userId: "user-b" });
+        listener({ event: "SIGNED_IN", userId: "user-b" });
+      }
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(fetchMock.mock.calls.filter(
+      ([input]) => String(input).startsWith("/api/graph")
+    )).toHaveLength(graphRequestCount);
   });
 
   it("renders a successful zero-company response as an empty state instead of a loading failure", async () => {
@@ -1317,7 +1507,9 @@ describe("dashboard filters", () => {
   it("renders a stale static graph immediately, then refreshes it through the API", async () => {
     vi.useFakeTimers();
     const staleGraph = withBenchmarkDates(
-      graphResponse([makeNode("company:stale", "Stale Snapshot", "b2b", "#7dd3fc", "Partner A")]),
+      staticGraphFixture(
+        graphResponse([makeNode("company:stale", "Stale Snapshot", "b2b", "#7dd3fc", "Partner A")])
+      ),
       localDateIso(-2),
       localDateIso(-8)
     );
@@ -1364,10 +1556,10 @@ describe("dashboard filters", () => {
   it("uses a fresh static graph for filtered first paint while revalidating unfiltered", async () => {
     vi.useFakeTimers();
     const staticGraph = withBenchmarkDates(
-      graphResponse([
+      staticGraphFixture(graphResponse([
         makeNode("company:x-only", "Static X Only", "b2b", "#7dd3fc", "Partner A", 80, "x"),
         makeNode("company:github-only", "GitHub Only", "fintech", "#2563eb", "Partner B", 70, "github")
-      ]),
+      ])),
       localDateIso(-1),
       localDateIso(-7)
     );
@@ -1402,7 +1594,9 @@ describe("dashboard filters", () => {
   it("downloads a successful fresh static graph once and revalidates the API once", async () => {
     vi.useFakeTimers();
     const staticGraph = withBenchmarkDates(
-      graphResponse([makeNode("company:static", "Static First Paint", "b2b", "#7dd3fc", "Partner A")]),
+      staticGraphFixture(
+        graphResponse([makeNode("company:static", "Static First Paint", "b2b", "#7dd3fc", "Partner A")])
+      ),
       localDateIso(-1),
       localDateIso(-7)
     );
@@ -1990,7 +2184,7 @@ function graphResponse(
     scoringContext: {
       modelId: V4_MODEL_ID,
       modelVersion: V4_MODEL_VERSION,
-      modelName: "returner-traction-v4-monotonic",
+      modelName: "returner-traction-v4-absolute-fixed-platform",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: "2026-06-29T00:00:00.000Z",
@@ -2043,23 +2237,24 @@ function unbenchmarkedMomentum(currentScore: number, currentRank: number) {
 function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
   const platform = node.topPlatform ?? "github";
   const platformScore = node.platformScores[platform] ?? node.score;
+  const configuredWeight = TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0;
   return {
     modelId: V4_MODEL_ID,
     modelVersion: V4_MODEL_VERSION,
-    modelName: "returner-traction-v4-monotonic",
+    modelName: "returner-traction-v4-absolute-fixed-platform",
     totalScore: node.score,
     absoluteScore: node.score,
-    weightedAvailableScore: node.score,
-    coverageFactor: 1,
+    weightedAvailableScore: platformScore,
+    coverageFactor: configuredWeight,
     platformsWithEvidence: 1,
-    totalSupportedPlatforms: 1,
+    totalSupportedPlatforms: 9,
     platformScores: { ...node.platformScores },
     weightedPlatforms: [{
       platform,
       score: platformScore,
-      configuredWeight: TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0,
-      appliedWeight: 1,
-      contribution: platformScore,
+      configuredWeight,
+      appliedWeight: configuredWeight,
+      contribution: Math.round(platformScore * configuredWeight * 100) / 100,
       evidenceCount: 1
     }],
     signalFamilyScores: {
@@ -2086,6 +2281,46 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
     limitations: [],
     evidenceAsOf: "2026-06-29T00:00:00.000Z",
     explanation: "Dashboard v4 contract fixture."
+  };
+}
+
+function staticGraphFixture(graph: GraphResponse): GraphResponse {
+  const nodes = graph.nodes.map((node) => {
+    const platform = node.topPlatform ?? "github";
+    const platformScore = node.platformScores[platform] ?? node.score;
+    const configuredWeight = TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0;
+    const fixedScoreValue = platformScore * configuredWeight;
+    const fixedScore = fixedScoreValue > 0 ? Math.max(1, Math.round(fixedScoreValue)) : 0;
+    const adjustedNode = {
+      ...node,
+      score: fixedScore,
+      previousScore: fixedScore,
+      scoreDelta: 0
+    };
+    return {
+      ...adjustedNode,
+      scoreBreakdown: testScoreBreakdown(adjustedNode)
+    };
+  });
+  const nodesByEntityId = new Map(nodes.map((node) => [node.entityId, node]));
+  const leaderboard = graph.leaderboard.map((row) => ({
+    ...row,
+    score: nodesByEntityId.get(row.companyId)?.score ?? row.score
+  }));
+
+  return {
+    ...graph,
+    nodes,
+    leaderboard,
+    fastestGaining: graph.fastestGaining.map((row) => {
+      const leaderboardRow = leaderboard.find((candidate) => candidate.companyId === row.companyId);
+      const score = leaderboardRow?.score ?? row.dod.currentScore;
+      return {
+        ...row,
+        dod: unbenchmarkedMomentum(score, row.rank),
+        wow: unbenchmarkedMomentum(score, row.rank)
+      };
+    })
   };
 }
 

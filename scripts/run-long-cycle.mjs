@@ -163,7 +163,10 @@ const persistedFailure = [...eventLog].reverse().find(
   (event) => event.type === "run_failed" || event.type === "sweep_failed"
 );
 
-await recordEvent(eventLog.length ? "run_resumed" : "run_started", {
+const hasLifecycleEvent = eventLog.some(
+  (event) => event?.type === "run_started" || event?.type === "run_resumed"
+);
+await recordEvent(hasLifecycleEvent ? "run_resumed" : "run_started", {
   runId,
   startedAt,
   deadlineAt,
@@ -179,7 +182,7 @@ await recordEvent(eventLog.length ? "run_resumed" : "run_started", {
   },
   smoke
 });
-await writeActiveState(eventLog.length > 1 ? "resuming" : "running");
+await writeActiveState(hasLifecycleEvent ? "resuming" : "running");
 
 const heartbeatTimer = setInterval(() => {
   void checkpointIfDue(false).catch((error) => {

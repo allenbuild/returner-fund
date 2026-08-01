@@ -2,7 +2,16 @@
 
 import { createBrowserSupabaseClient } from "@/lib/db/client";
 
-export type InsiderAuthChangeHandler = () => void;
+export interface InsiderAuthChange {
+  event: "INITIAL_SESSION" | "SIGNED_IN" | "SIGNED_OUT" | "USER_UPDATED";
+  userId: string | null;
+}
+
+export type InsiderAuthChangeHandler = (change: InsiderAuthChange) => void;
+
+export interface SubscribeToInsiderAuthOptions {
+  emitInitial?: boolean;
+}
 
 const ACCESS_TOKEN_EXPIRY_LEEWAY_MS = 30_000;
 let cachedAccessToken: { value: string; expiresAtMs: number } | null = null;
@@ -44,14 +53,25 @@ export async function requestInsiderSignInLink(email: string): Promise<void> {
   if (error) throw error;
 }
 
-export function subscribeToInsiderAuth(handler: InsiderAuthChangeHandler): () => void {
+export function subscribeToInsiderAuth(
+  handler: InsiderAuthChangeHandler,
+  options: SubscribeToInsiderAuthOptions = {}
+): () => void {
   const client = createBrowserSupabaseClient();
   if (!client) return () => undefined;
   const { data } = client.auth.onAuthStateChange((event, session) => {
     if (session?.access_token) rememberAccessToken(session.access_token, session.expires_at);
-    else if (event === "SIGNED_OUT") cachedAccessToken = null;
-    if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
-      handler();
+    else cachedAccessToken = null;
+    if (
+      event === "SIGNED_IN" ||
+      event === "SIGNED_OUT" ||
+      event === "USER_UPDATED" ||
+      (event === "INITIAL_SESSION" && options.emitInitial)
+    ) {
+      handler({
+        event,
+        userId: session?.user?.id ?? null
+      });
     }
   });
   return () => data.subscription.unsubscribe();

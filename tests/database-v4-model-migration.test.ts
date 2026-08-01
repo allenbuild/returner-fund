@@ -2,7 +2,6 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
 
 const migrationsDirectory = path.join(process.cwd(), "supabase", "migrations");
 const migrationSql = fs.readFileSync(
@@ -15,27 +14,26 @@ const priorMigrationSql = fs
   .map((fileName) => fs.readFileSync(path.join(migrationsDirectory, fileName), "utf8"))
   .join("\n");
 const normalizedSql = migrationSql.replace(/\s+/g, " ").trim().toLowerCase();
-const legacyV4Config = {
-  ...TRACTION_SCORING_CONFIG,
-  version: "4.0.0",
-  name: "returner-traction-v4-canonical",
-  absoluteEvidenceWeight: 0.85,
-  cohortPercentileWeight: 0.15
-};
-
 describe("traction scoring v4 model registration migration", () => {
   it("keeps the immutable 4.0.0 identity, config, and SHA-256", () => {
     const embeddedConfig = extractEmbeddedConfig(migrationSql);
     const embeddedHash = extractTextConstant(migrationSql, "v4_config_hash");
 
-    expect(extractTextConstant(migrationSql, "v4_model_key")).toBe(
-      legacyV4Config.modelId
+    expect(extractTextConstant(migrationSql, "v4_model_key")).toBe("returner-traction");
+    expect(extractTextConstant(migrationSql, "v4_version")).toBe("4.0.0");
+    expect(embeddedConfig).toEqual(
+      expect.objectContaining({
+        modelId: "returner-traction",
+        version: "4.0.0",
+        name: "returner-traction-v4-canonical",
+        absoluteEvidenceWeight: 0.85,
+        cohortPercentileWeight: 0.15,
+        durableSignalWeight: 0.75,
+        momentumSignalWeight: 0.25,
+        missingDateMomentum: 0.45
+      })
     );
-    expect(extractTextConstant(migrationSql, "v4_version")).toBe(
-      legacyV4Config.version
-    );
-    expect(embeddedConfig).toEqual(legacyV4Config);
-    expect(embeddedHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(embeddedHash).toBe("708d75ea78431142aba3295abc5c7bb996ba638d21e63bb7b58037225a7c4b7c");
     expect(embeddedHash).toBe(sha256(canonicalJson(embeddedConfig)));
   });
 

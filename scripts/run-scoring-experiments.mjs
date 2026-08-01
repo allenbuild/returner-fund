@@ -85,7 +85,7 @@ const NORMALIZATION_VARIANTS = [
     percentileWeight: 0,
     canonical: false,
     description:
-      "Uses the canonical platform raw-engagement reference and recency multiplier without a peer-percentile component."
+      "Uses the canonical date-invariant platform raw-engagement reference without a peer-percentile component."
   },
   {
     id: "percentile-heavy",
@@ -206,7 +206,7 @@ const experimentReport = {
       "Configured metric weights and alias collapsing",
       "Eligibility and native-post identity checks",
       "Physical-post dedupe",
-      "Platform references and recency behavior",
+      "Date-invariant platform references",
       "Canonical v4 confidence and caveats",
       "Canonical v4 strongest/diversified cross-platform blend",
       "Canonical v4 tie-aware company batch calibration"
@@ -452,15 +452,10 @@ function normalizeCandidateEvidence(items, normalization, asOf) {
       (samplesByPlatform.get(original.platform) ?? []).map((sample) => sample.logEngagement),
       Math.log1p(rawEngagement)
     );
-    const recency = evidenceRecency(original, referenceTime);
-    const recencyMultiplier =
-      TRACTION_SCORING_CONFIG.durableSignalWeight +
-      TRACTION_SCORING_CONFIG.momentumSignalWeight * recency;
     const reconstructedCanonical = Math.round(
       clamp(
-        (absoluteScore * TRACTION_SCORING_CONFIG.absoluteEvidenceWeight +
-          percentileScore * TRACTION_SCORING_CONFIG.cohortPercentileWeight) *
-          recencyMultiplier,
+        absoluteScore * TRACTION_SCORING_CONFIG.absoluteEvidenceWeight +
+          percentileScore * TRACTION_SCORING_CONFIG.cohortPercentileWeight,
         1,
         100
       )
@@ -477,9 +472,8 @@ function normalizeCandidateEvidence(items, normalization, asOf) {
 
     const candidateScore = Math.round(
       clamp(
-        (absoluteScore * normalization.absoluteWeight +
-          percentileScore * normalization.percentileWeight) *
-          recencyMultiplier,
+        absoluteScore * normalization.absoluteWeight +
+          percentileScore * normalization.percentileWeight,
         1,
         100
       )
@@ -492,10 +486,7 @@ function normalizeCandidateEvidence(items, normalization, asOf) {
       why: `${canonicalRow.why} Experiment-only ${normalization.id}: absolute ${round(
         absoluteScore,
         1
-      )}, physical-post percentile ${round(percentileScore, 1)}, recency multiplier ${round(
-        recencyMultiplier,
-        3
-      )}; scored ${candidateScore}/100.`
+      )}, physical-post percentile ${round(percentileScore, 1)}, publication age excluded; scored ${candidateScore}/100.`
     };
   });
 }
@@ -1062,7 +1053,7 @@ function renderDetailedMarkdown(report, jsonSha256) {
       return `| ${escapeMarkdown(normalization?.label ?? candidate.normalization)} | ${formatPercent(normalization?.absolute_weight ?? 0)} | ${formatPercent(normalization?.percentile_weight ?? 0)} | ${escapeMarkdown(candidate.aggregation)} | ${candidate.is_v4_baseline ? "yes" : "no"} |`;
     }),
     "",
-    "Max and mean vary only within-platform reduction. All candidates retain canonical v4 metric aliases/weights, eligibility, native identity, physical dedupe, recency, cross-platform aggregation, confidence, and company batch calibration.",
+    "Max and mean vary only within-platform reduction. All candidates retain canonical v4 metric aliases/weights, eligibility, native identity, physical dedupe, date-invariant scoring, cross-platform aggregation, confidence, and company batch calibration.",
     "",
     "## Diagnostic Ranking",
     "",
@@ -1158,7 +1149,7 @@ function renderSummaryMarkdown(report, jsonSha256) {
     "",
     "## Candidates",
     "",
-    "Normalization compares absolute-only, percentile-heavy (35/65), and the imported v4 robust blend. Platform aggregation compares max, mean of the canonical top-K window, and imported v4 decaying slots. Metric aliases/weights, eligibility, identity, physical dedupe, recency, cross-platform aggregation, confidence, and company batch calibration remain canonical.",
+    "Normalization compares absolute-only, percentile-heavy (35/65), and the imported v4 robust blend. Platform aggregation compares max, mean of the canonical top-K window, and imported v4 decaying slots. Metric aliases/weights, eligibility, identity, physical dedupe, date-invariant scoring, cross-platform aggregation, confidence, and company batch calibration remain canonical.",
     "",
     "## Deterministic Diagnostic Order",
     "",
@@ -1274,18 +1265,6 @@ function scaleConfiguredMetrics(item) {
   }
 
   return { ...cloneEvidence(item), metrics };
-}
-
-function evidenceRecency(item, referenceTime) {
-  if (item.publishedAtPrecision === "unknown") {
-    return TRACTION_SCORING_CONFIG.missingDateMomentum;
-  }
-  const postedAt = parseDate(item.postedAt);
-  if (!postedAt) return TRACTION_SCORING_CONFIG.missingDateMomentum;
-  const ageDays = Math.max(0, (referenceTime.getTime() - postedAt.getTime()) / 86_400_000);
-  const halfLifeDays =
-    TRACTION_SCORING_CONFIG.platformReferences[item.platform]?.halfLifeDays ?? 90;
-  return Math.pow(0.5, ageDays / Math.max(halfLifeDays, 1));
 }
 
 function midrankPercentile(samples, value) {

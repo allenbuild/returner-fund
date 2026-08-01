@@ -13,7 +13,6 @@ import {
   type CompanyVertical
 } from "@/lib/graph/company-verticals";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
-import { applyInsiderScenarioScoring } from "@/lib/graph/insider-scoring";
 import { enrichGraphTaxonomies } from "@/lib/graph/graph-taxonomies";
 import {
   getOrBuildCachedGraphResponse,
@@ -21,6 +20,7 @@ import {
 } from "@/lib/graph/graph-response-cache";
 import { datasetWithLiveEvidence, liveEvidenceCacheVersion } from "@/lib/graph/live-evidence-dataset";
 import { overlayLiveEvidenceOnGraph } from "@/lib/graph/live-evidence-overlay";
+import { personalizeInsiderGraphSnapshot } from "@/lib/graph/personalized-insider-snapshot";
 import { POST_TOPIC_SLUGS, normalizePostTopic, type PostTopic } from "@/lib/graph/post-topics";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
@@ -28,7 +28,11 @@ import { loadLiveEvidenceRecords } from "@/lib/ingestion/live-source-refresh";
 import { centralDayKey, millisecondsUntilNextCentralMidnight } from "@/lib/time/central-day";
 import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import type { BusinessModel, EdgeType, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
-import { effectiveInsiderMembers } from "@/lib/social/user-insiders";
+import {
+  effectiveInsiderMembers,
+  emptyInsiderConfiguration,
+  type UserInsiderConfiguration
+} from "@/lib/social/user-insiders";
 import {
   authenticateInsiderRequest,
   loadUserInsiderConfiguration
@@ -209,17 +213,16 @@ export async function GET(request: Request) {
     insiderIds: query.insiderIds
   };
   let insiderMembers: ReturnType<typeof effectiveInsiderMembers> | undefined;
-  let insiderConfigurationVersion: number | null = null;
   let insiderConfigurationCacheKey = "built-in";
   let hasPersonalizedInsiderConfiguration = false;
+  let insiderConfiguration: UserInsiderConfiguration = emptyInsiderConfiguration();
   if (query.topVoices === "insiders") {
     const authenticated = await authenticateInsiderRequest(request);
     if (authenticated) {
       try {
-        const configuration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
-        insiderMembers = effectiveInsiderMembers(configuration);
-        insiderConfigurationVersion = configuration.version;
-        insiderConfigurationCacheKey = `${authenticated.userId}:${configuration.version}`;
+        insiderConfiguration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
+        insiderMembers = effectiveInsiderMembers(insiderConfiguration);
+        insiderConfigurationCacheKey = `${authenticated.userId}:${insiderConfiguration.version}`;
         hasPersonalizedInsiderConfiguration = true;
       } catch (error) {
         console.error("Personalized Insiders configuration load failed", error);
@@ -300,19 +303,13 @@ export async function GET(request: Request) {
         ? canonicalGraph
         : (() => {
             const selectedInsiderIds = query.insiderIds ?? [];
-            const selectedInsiderIdSet = new Set(selectedInsiderIds);
-            const membersForScenario = filters.topVoices === "insiders" && selectedInsiderIds.length
-              ? insiderMembers?.filter((member) => selectedInsiderIdSet.has(member.personId))
-              : insiderMembers;
             const inherited = inheritCanonicalCompanyScoring(
               buildGraphResponse(
                 {
                   batchSlug,
-                  topVoices: filters.topVoices,
-                  insiderIds: selectedInsiderIds
+                  topVoices: filters.topVoices
                 },
-                datasetWithLiveEvidence(dataset, liveEvidence),
-                { insiderMembers: membersForScenario }
+                datasetWithLiveEvidence(dataset, liveEvidence)
               ),
               canonicalGraph
             );
@@ -325,16 +322,11 @@ export async function GET(request: Request) {
             if (!hasPersonalizedInsiderConfiguration && selectedInsiderIds.length === 0) {
               return inherited;
             }
-            return applyInsiderScenarioScoring({
-              ...inherited,
-              insiderFilterOptions: (insiderMembers ?? []).map((member) => ({
-                memberId: member.personId,
-                displayName: member.displayName,
-                weight: member.weight
-              }))
-            }, {
-              selectedInsiderIds,
-              configurationVersion: insiderConfigurationVersion
+            return personalizeInsiderGraphSnapshot({
+              insiderGraph: inherited,
+              baseGraph: canonicalGraph,
+              configuration: insiderConfiguration,
+              selectedInsiderIds
             });
           })();
       const filteredGraph = applyClientGraphFilters(enrichGraphTaxonomies(graphForAudience), {

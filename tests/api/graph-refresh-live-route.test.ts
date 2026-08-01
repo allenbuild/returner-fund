@@ -71,6 +71,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
     vi.doUnmock("@/lib/graph/graph-builder");
     vi.doUnmock("@/lib/graph/yc-spring-2026-dataset");
     vi.doUnmock("@/lib/ingestion/live-source-refresh");
+    vi.doUnmock("@/lib/social/user-insiders-server");
     vi.unstubAllEnvs();
     vi.resetModules();
     vi.restoreAllMocks();
@@ -82,6 +83,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
     vi.doUnmock("@/lib/graph/graph-builder");
     vi.doUnmock("@/lib/graph/yc-spring-2026-dataset");
     vi.doUnmock("@/lib/ingestion/live-source-refresh");
+    vi.doUnmock("@/lib/social/user-insiders-server");
     vi.unstubAllEnvs();
     vi.resetModules();
     vi.restoreAllMocks();
@@ -1013,6 +1015,68 @@ describe("POST /api/graph/refresh live evidence validation", () => {
     expect(JSON.stringify(body.graph.evidence)).toContain("2077000000000000001");
   });
 
+  it("keeps authenticated saved Insider weights stable when a refresh rebuilds a saturated graph", async () => {
+    const [baseGraph, insiderGraph] = await Promise.all([
+      graphFixture("s2026.json"),
+      graphFixture("s2026-insiders.json")
+    ]);
+    const root = await mkdtemp(join(tmpdir(), "returner-fund-authenticated-insider-refresh-"));
+    generatedSnapshotRoots.push(root);
+    vi.spyOn(process, "cwd").mockReturnValue(root);
+
+    vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => ({
+      ...(await importOriginal<typeof import("@/lib/ingestion/live-source-refresh")>()),
+      runLiveSourceRefresh: vi.fn(async () => emptyRefreshResult()),
+      loadLiveEvidenceRecords: vi.fn(async () => [])
+    }));
+    vi.doMock("@/lib/social/user-insiders-server", () => ({
+      authenticateInsiderRequest: vi.fn(async () => ({ client: {}, userId: "user-a" })),
+      loadUserInsiderConfiguration: vi.fn(async () => ({
+        version: 8,
+        excludedDefaultIds: [],
+        weightOverrides: { "paul-graham": 1 },
+        addedInsiders: [],
+        createdAt: null,
+        updatedAt: null
+      }))
+    }));
+    const buildGraphResponse = vi.fn((options?: { topVoices?: string }) =>
+      structuredClone(options?.topVoices === "off" ? baseGraph : insiderGraph)
+    );
+    mockFallbackGraphModules(buildGraphResponse);
+
+    const { POST } = await import("../../src/app/api/graph/refresh/route");
+    const response = await POST(jsonRequest(
+      {
+        action: "refresh",
+        batchSlug: "S2026",
+        platforms: ["x"],
+        topVoices: "insiders"
+      },
+      { Authorization: "Bearer token" }
+    ));
+    const body = await response.json() as { graph: GraphResponse };
+    const ploy = body.graph.nodes.find((node) => node.entityId === "company-ploy");
+    const ployRow = body.graph.leaderboard.find((row) => row.companyId === "company-ploy");
+
+    expect(response.status).toBe(200);
+    expect(buildGraphResponse).toHaveBeenCalledTimes(2);
+    expect(body.graph.insiderConfigurationVersion).toBe(8);
+    expect(ploy?.insiderScoreBreakdown).toMatchObject({
+      publishedInsiderInfluence: 25,
+      weightedInsiderSubtotal: 1,
+      insiderScoreAdjustment: -24,
+      configurationVersion: 8
+    });
+    const expectedFinalScore = Math.max(
+      0,
+      (ploy?.insiderScoreBreakdown?.baseScore ?? 0) - 24
+    );
+    expect(ploy?.insiderScoreBreakdown?.finalScore).toBe(expectedFinalScore);
+    expect(ploy?.score).toBe(expectedFinalScore);
+    expect(ployRow?.score).toBe(expectedFinalScore);
+  });
+
   it("rebuilds safely for missing, stale, legacy, incomplete, and invalid generated snapshots", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(FROZEN_ROUTE_NOW));
@@ -1339,8 +1403,8 @@ function withV4SnapshotContract(
       ) ?? scoredEvidence.length;
       const scoreBreakdown: NonNullable<typeof node.scoreBreakdown> = {
         modelId: "returner-traction",
-        modelVersion: "4.0.1",
-        modelName: "returner-traction-v4-monotonic",
+        modelVersion: "4.1.0",
+        modelName: "returner-traction-v4-absolute-fixed-platform",
         totalScore: node.score,
         absoluteScore,
         weightedAvailableScore: existing?.weightedAvailableScore ?? absoluteScore,
@@ -1383,8 +1447,8 @@ function withV4SnapshotContract(
     }),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.0.1",
-      modelName: "returner-traction-v4-monotonic",
+      modelVersion: "4.1.0",
+      modelName: "returner-traction-v4-absolute-fixed-platform",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt,
@@ -1393,7 +1457,9 @@ function withV4SnapshotContract(
   };
 }
 
-function mockFallbackGraphModules(buildGraphResponse: () => GraphResponse): void {
+function mockFallbackGraphModules(
+  buildGraphResponse: (options?: { topVoices?: string }) => GraphResponse
+): void {
   vi.doMock("@/lib/graph/graph-builder", () => ({
     buildGraphResponse,
     clearTopVoiceRollupCache: vi.fn()

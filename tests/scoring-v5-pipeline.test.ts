@@ -42,14 +42,12 @@ describe("scoring v5 deterministic training pipeline", () => {
     expect(V5_FROZEN_CANDIDATE_GRID.every((candidate) => Object.isFrozen(candidate))).toBe(true);
     expect(V5_FROZEN_CANDIDATE_GRID.map((candidate) => candidate.id)).toEqual([
       "equal-log-sum",
-      "age-only-logistic-l2-0.01",
       "metric-logistic-l2-0",
       "metric-logistic-l2-0.01",
       "metric-logistic-l2-0.1",
-      "metric-logistic-l2-1",
-      "metric-age-logistic-l2-0.01",
-      "metric-age-logistic-l2-0.1"
+      "metric-logistic-l2-1"
     ]);
+    expect(V5_FROZEN_CANDIDATE_GRID.every((candidate) => candidate.includeAge === false)).toBe(true);
   });
 
   it("emits a deterministic insufficient-data rejection without inventing benchmark rows", () => {
@@ -330,6 +328,19 @@ describe("scoring v5 deterministic training pipeline", () => {
     });
     expect(result).not.toHaveProperty("calibratedProbability");
     expect(result).not.toHaveProperty("score");
+
+    const oldPublication = predictV5(run.model, {
+      ...input,
+      publishedAt: "2000-01-01T00:00:00.000Z"
+    }, {
+      allowExperimental: true,
+      trustedObservationCutoff: observationAt
+    });
+    expect(oldPublication).toMatchObject({
+      status: "experimental_unvalidated",
+      rawModelOutput: result.status === "experimental_unvalidated" ? result.rawModelOutput : undefined,
+      explanation: result.status === "experimental_unvalidated" ? result.explanation : undefined
+    });
   });
 
   it("leaves unsupported platforms and missing publication dates visibly unscored", () => {

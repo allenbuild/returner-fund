@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { applyStoredBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
 import { personalizeInsiderGraphSnapshot } from "@/lib/graph/personalized-insider-snapshot";
 import { readRuntimeGraphSnapshotFile } from "@/lib/graph/runtime-graph-snapshot-file";
@@ -60,9 +61,15 @@ export async function POST(request: Request) {
         400
       );
     }
+    // Static graph files can lag the benchmark store while a daily publisher
+    // or deployment is converging. Rehydrate the canonical company momentum
+    // with the exact scoring-model history before applying private weights so
+    // a personalized recompute cannot silently turn an observed baseline into
+    // "Awaiting same-model snapshot".
+    const benchmarkedBaseGraph = applyStoredBenchmarkMomentum(baseGraph);
     const graph = personalizeInsiderGraphSnapshot({
       insiderGraph,
-      baseGraph,
+      baseGraph: benchmarkedBaseGraph,
       configuration,
       selectedInsiderIds: input.insiderIds
     });

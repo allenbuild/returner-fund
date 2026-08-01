@@ -2,24 +2,14 @@ import { Dashboard } from "@/components/Dashboard";
 import type { Metadata } from "next";
 import { HomeStructuredData } from "@/components/seo/HomeDiscovery";
 import { findCohort, getCatalog, type PublicCohort } from "@/lib/seo/catalog";
-import { publicMetadata, SITE_NAME, truncateDescription } from "@/lib/seo/site";
+import { publicMetadata, truncateDescription } from "@/lib/seo/site";
+import { networkMapTitle } from "@/lib/graph/network-map-branding";
 import type { Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 import { normalizeTopVoiceAudienceId } from "@/lib/social/top-voices";
 import { COMPANY_VERTICALS, isCompanyVertical, type CompanyVertical } from "@/lib/graph/company-verticals";
 import { normalizePostTopics, type PostTopic } from "@/lib/graph/post-topics";
 
 const DEFAULT_BATCH_SLUG = "S2026";
-const GRAPH_STATE_QUERY_KEYS = new Set([
-  "batch",
-  "groupPartners",
-  "industries",
-  "minScore",
-  "node",
-  "platforms",
-  "topVoices",
-  "topics",
-  "verticals"
-]);
 const queryPlatforms: Platform[] = [
   "github",
   "x",
@@ -43,32 +33,23 @@ interface PageProps {
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const params = (await searchParams) ?? {};
   const requestedBatch = singleQueryValue(params.batch);
-  const requestedCohort = requestedBatch ? findCohort(requestedBatch) : undefined;
   const cohort = selectedCohort(requestedBatch);
   const isQueryView = Object.values(params).some((value) => value !== undefined);
-  const hasRecognizedGraphState = Object.entries(params).some(([key, value]) =>
-    GRAPH_STATE_QUERY_KEYS.has(key) && singleQueryValue(value)?.trim()
-  );
-  const canonicalCohort = hasRecognizedGraphState && (!requestedBatch || requestedCohort)
-    ? cohort
-    : undefined;
+  const title = networkMapTitle(cohort.batchSlug);
   const description = truncateDescription(
     `${cohort.label} startup traction map with ${cohort.companies.length} companies and ${cohort.evidenceCount.toLocaleString("en-US")} public evidence records.`
   );
 
   const metadata = publicMetadata({
-    title: canonicalCohort
-      ? `${cohort.label} network map and social traction | ${SITE_NAME}`
-      : `${SITE_NAME} startup maps and traction intelligence`,
-    description: canonicalCohort
-      ? description
-      : "Explore YC and a16z Speedrun startup network maps, company rankings, founders, industries, and evidence-linked public social traction.",
-    path: canonicalCohort ? `/cohorts/${cohort.slug}` : "/",
+    title,
+    description,
+    path: "/",
     index: !isQueryView
   });
 
   return {
     ...metadata,
+    title: { absolute: title },
     robots: {
       index: !isQueryView,
       follow: true,

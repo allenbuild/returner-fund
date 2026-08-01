@@ -486,15 +486,8 @@ function collectNodeScoreViolations(
   const calibration = breakdown.calibration;
   mismatch(violations, `${nodeScope} calibration inputScore`, calibration.inputScore, breakdown.absoluteScore);
   mismatch(violations, `${nodeScope} calibration cohortSize`, calibration.cohortSize, positiveCalibrationCohort);
-  if (breakdown.absoluteScore > 0) {
-    mismatch(violations, `${nodeScope} calibration method`, calibration.method, "tie_aware_percentile_blend");
-    if (calibration.percentile === null || calibration.percentile < 0 || calibration.percentile > 1) {
-      violations.push(`${nodeScope} has invalid calibration percentile ${String(calibration.percentile)}`);
-    }
-  } else {
-    mismatch(violations, `${nodeScope} zero-score calibration method`, calibration.method, "none");
-    mismatch(violations, `${nodeScope} zero-score calibration percentile`, calibration.percentile, null);
-  }
+  mismatch(violations, `${nodeScope} calibration method`, calibration.method, "none");
+  mismatch(violations, `${nodeScope} calibration percentile`, calibration.percentile, null);
 }
 
 function collectLeaderboardViolations(

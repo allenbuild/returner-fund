@@ -33,7 +33,7 @@ test("validates the complete nine-graph and three-history manifest without a ser
 
   assert.deepEqual(result, {
     status: "ok",
-    scoringModel: "returner-traction@4.0.1",
+    scoringModel: "returner-traction@4.1.0",
     graphSnapshots: 9,
     historyFiles: 3,
     graphNodes: 9,
@@ -58,7 +58,7 @@ test("rejects wrong batch, audience, scoring scope, v4 identity, and incomplete 
   assert.match(violations, /mode must be official_snapshot/);
   assert.match(violations, /batch\.slug must be S2026/);
   assert.match(violations, /selectedTopVoiceAudience\.id must be off/);
-  assert.match(violations, /scoringContext\.modelVersion must be 4\.0\.1/);
+  assert.match(violations, /scoringContext\.modelVersion must be 4\.1\.0/);
   assert.match(violations, /scoringContext\.scoreScope must be all_platforms/);
   assert.match(violations, /scoreBreakdown\.confidence must be an object/);
 });
@@ -373,12 +373,12 @@ test("allows legacy history rows but requires valid v4 daily and weekly entries"
 
   assert.equal(result.versionedDailyEntries, 0);
   assert.equal(result.versionedWeeklyEntries, 0);
-  assert.match(violations, /daily must contain a returner-traction@4\.0\.1 version-tagged entry/);
+  assert.match(violations, /daily must contain a returner-traction@4\.1\.0 version-tagged entry/);
   assert.match(
     violations,
-    /weekly\[0\]\.scoringModelVersion must be 4\.0\.1 or a supported historical version/
+    /weekly\[0\]\.scoringModelVersion must be 4\.1\.0 or a supported historical version/
   );
-  assert.match(violations, /weekly must contain a returner-traction@4\.0\.1 version-tagged entry/);
+  assert.match(violations, /weekly must contain a returner-traction@4\.1\.0 version-tagged entry/);
 });
 
 test("rejects future history, non-tied canonical ranks, and stale Central-day entries", () => {
@@ -480,13 +480,13 @@ function makeGraph(descriptor, serial) {
     "x",
     "https://x.com/returner"
   );
-  const absoluteScore = 70;
-  const totalScore = 66;
+  const absoluteScore = 15;
+  const totalScore = absoluteScore;
   const selectedTopVoiceAudience = { id: audience };
   const calibration = {
-    method: "tie_aware_percentile_blend",
+    method: "none",
     cohortSize: 1,
-    percentile: 0.5,
+    percentile: null,
     inputScore: absoluteScore
   };
   const scoreBreakdown = {
@@ -496,7 +496,7 @@ function makeGraph(descriptor, serial) {
     totalScore,
     absoluteScore,
     weightedAvailableScore: 70,
-    coverageFactor: 1,
+    coverageFactor: 0.21,
     platformsWithEvidence: 1,
     totalSupportedPlatforms: 9,
     platformScores: { x: 70 },
@@ -505,8 +505,8 @@ function makeGraph(descriptor, serial) {
         platform: "x",
         score: 70,
         configuredWeight: 0.21,
-        appliedWeight: 1,
-        contribution: 54.04,
+        appliedWeight: 0.21,
+        contribution: 14.7,
         evidenceCount: 1
       }
     ],
@@ -515,7 +515,7 @@ function makeGraph(descriptor, serial) {
       engagement: 70,
       developerAdoption: 0,
       launchAndCommunity: 0,
-      momentum: 70
+      momentum: 0
     },
     confidence: {
       level: "medium",
@@ -675,10 +675,8 @@ function addTiedCompany(graph) {
   };
 
   graph.batch.companyCountObserved = 2;
-  if (node.scoreBreakdown.calibration.method === "tie_aware_percentile_blend") {
-    firstNode.scoreBreakdown.calibration.cohortSize = 2;
-    node.scoreBreakdown.calibration.cohortSize = 2;
-  }
+  firstNode.scoreBreakdown.calibration.cohortSize = 2;
+  node.scoreBreakdown.calibration.cohortSize = 2;
   graph.evidence.push(evidence);
   graph.nodes.push(node);
   graph.leaderboard.push({

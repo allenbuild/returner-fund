@@ -14,6 +14,7 @@ import { clearGraphResponseCache } from "@/lib/graph/graph-response-cache";
 import { applyInsiderScenarioScoring } from "@/lib/graph/insider-scoring";
 import { datasetWithLiveEvidence } from "@/lib/graph/live-evidence-dataset";
 import { overlayLiveEvidenceOnGraph, type LiveEvidenceOverlayResult } from "@/lib/graph/live-evidence-overlay";
+import { personalizeInsiderGraphSnapshot } from "@/lib/graph/personalized-insider-snapshot";
 import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
 import {
   formatStaticGraphSnapshotContractIssue,
@@ -30,7 +31,10 @@ import {
 } from "@/lib/ingestion/live-source-refresh";
 import { isCurrentCentralDay } from "@/lib/time/central-day";
 import type { EdgeType, GraphResponse, Platform, TopVoiceAudienceId, TopVoiceMember } from "@/lib/graph/types";
-import { effectiveInsiderMembers } from "@/lib/social/user-insiders";
+import {
+  effectiveInsiderMembers,
+  type UserInsiderConfiguration
+} from "@/lib/social/user-insiders";
 import {
   authenticateInsiderRequest,
   loadUserInsiderConfiguration
@@ -149,7 +153,7 @@ const snapshotScoreConfidenceSchema = z
   .passthrough();
 const snapshotScoreCalibrationSchema = z
   .object({
-    method: z.enum(["none", "tie_aware_percentile_blend"]),
+    method: z.literal("none"),
     cohortSize: z.number().int().nonnegative(),
     percentile: z.number().min(0).max(1).nullable(),
     inputScore: z.number().min(0).max(100)
@@ -325,14 +329,15 @@ export async function POST(request: Request) {
 
   const body = parsed.data;
   let insiderMembers: TopVoiceMember[] | undefined;
+  let insiderConfiguration: UserInsiderConfiguration | undefined;
   let insiderRequestScope = "built-in";
   if (body.topVoices === "insiders") {
     const authenticated = await authenticateInsiderRequest(request);
     if (authenticated) {
       try {
-        const configuration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
-        insiderMembers = effectiveInsiderMembers(configuration);
-        insiderRequestScope = `${authenticated.userId}:${configuration.version}`;
+        insiderConfiguration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
+        insiderMembers = effectiveInsiderMembers(insiderConfiguration);
+        insiderRequestScope = `${authenticated.userId}:${insiderConfiguration.version}`;
       } catch (error) {
         console.error("Personalized Insiders refresh configuration load failed", error);
         return errorResponse(
@@ -379,7 +384,13 @@ export async function POST(request: Request) {
   const startedAt = new Date().toISOString();
   const abortController = new AbortController();
   const unlinkRequestSignal = forwardAbortSignal(request.signal, abortController);
-  const executionPromise = executeRefresh(body, observability, abortController.signal, insiderMembers).catch((error) =>
+  const executionPromise = executeRefresh(
+    body,
+    observability,
+    abortController.signal,
+    insiderMembers,
+    insiderConfiguration
+  ).catch((error) =>
     request.signal.aborted
       ? cancelledRefreshFailure(observability, requestKey)
       : unexpectedRefreshFailure(error, observability, requestKey)
@@ -406,7 +417,8 @@ async function executeRefresh(
   body: RefreshRequest,
   observability: RefreshExecutionObservability,
   signal: AbortSignal,
-  insiderMembers?: TopVoiceMember[]
+  insiderMembers?: TopVoiceMember[],
+  insiderConfiguration?: UserInsiderConfiguration
 ): Promise<RefreshRouteResult> {
   const routeStartedAt = observability.routeStartedAt;
   const action = body.action;
@@ -451,7 +463,13 @@ async function executeRefresh(
     });
   }
   throwIfRefreshAborted(signal);
-  const graphResolution = await resolveGraph(batchSlug, topVoices, liveEvidenceRecords, insiderMembers);
+  const graphResolution = await resolveGraph(
+    batchSlug,
+    topVoices,
+    liveEvidenceRecords,
+    insiderMembers,
+    insiderConfiguration
+  );
   throwIfRefreshAborted(signal);
   const filteredGraph = applyRefreshClientFilters(graphResolution.overlay.graph, body);
   const sanitizedGraph = sanitizeGraphResponse(filteredGraph);
@@ -1108,7 +1126,8 @@ async function resolveGraph(
   batchSlug: string,
   topVoices: TopVoiceAudienceId,
   liveEvidenceRecords: LiveEvidenceRecord[],
-  insiderMembers?: TopVoiceMember[]
+  insiderMembers?: TopVoiceMember[],
+  insiderConfiguration?: UserInsiderConfiguration
 ): Promise<GraphResolution> {
   const snapshot = insiderMembers
     ? { graph: null, fallbackReason: "top_voice_live_evidence_requires_rebuild" as const }
@@ -1188,19 +1207,25 @@ async function resolveGraph(
         graphBuilder.buildGraphResponse(
           { batchSlug, topVoices },
           datasetWithLiveEvidence(dataset, liveEvidenceRecords),
-          { insiderMembers }
+          { insiderMembers: insiderConfiguration ? undefined : insiderMembers }
         ),
         canonicalGraph
       );
   const graphWithBenchmarks = topVoices === "insiders"
-    ? applyInsiderScenarioScoring({
-        ...graphWithBenchmarksBase,
-        insiderFilterOptions: (insiderMembers ?? []).map((member) => ({
-          memberId: member.personId,
-          displayName: member.displayName,
-          weight: member.weight
-        }))
-      })
+    ? insiderConfiguration
+      ? personalizeInsiderGraphSnapshot({
+          insiderGraph: graphWithBenchmarksBase,
+          baseGraph: canonicalGraph,
+          configuration: insiderConfiguration
+        })
+      : applyInsiderScenarioScoring({
+          ...graphWithBenchmarksBase,
+          insiderFilterOptions: (insiderMembers ?? []).map((member) => ({
+            memberId: member.personId,
+            displayName: member.displayName,
+            weight: member.weight
+          }))
+        })
     : graphWithBenchmarksBase;
 
   return {

@@ -174,7 +174,7 @@ let exaFailureCount = 0;
 let checkpointWriteChain = Promise.resolve();
 const platformCooldowns = new Map();
 const INGEST_METRIC_WEIGHTS = {
-  github: { stars: 1.5, forks: 4, watchers: 2, issues: 0.5, open_issues: 0.5, recent_commits_30d: 1 },
+  github: { stars: 1.5, forks: 4, watchers: 2, issues: 0.5, open_issues: 0.5 },
   x: { views: 0.02, likes: 1, replies: 3, comments: 3, reposts: 4, shares: 4, quotes: 4 },
   linkedin: { views: 0.02, likes: 1, reactions: 1, comments: 3, reposts: 4, shares: 4 },
   instagram: { views: 0.02, likes: 1, comments: 3, shares: 4, reposts: 4, saves: 4 },

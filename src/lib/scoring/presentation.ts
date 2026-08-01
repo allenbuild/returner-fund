@@ -16,17 +16,11 @@ export interface ScoringMethodologyPresentation {
     absolutePercent: number;
     platformMidrankPercent: number;
   };
-  recencyBlend: {
-    durablePercent: number;
-    momentumPercent: number;
-    missingDateMomentum: number;
-  };
   postSlotPercents: number[];
   platformWeights: Array<{ platform: Platform; percent: number }>;
   platformReferences: Array<{
     platform: Platform;
     highEngagement: number;
-    halfLifeDays: number;
   }>;
   platformBlend: {
     strongestPercent: number;
@@ -72,17 +66,12 @@ export function buildScoringMethodologyPresentation(
       absolutePercent: percent(config.absoluteEvidenceWeight),
       platformMidrankPercent: percent(config.cohortPercentileWeight)
     },
-    recencyBlend: {
-      durablePercent: percent(config.durableSignalWeight),
-      momentumPercent: percent(config.momentumSignalWeight),
-      missingDateMomentum: config.missingDateMomentum
-    },
     postSlotPercents: config.platformEvidenceSlots.map(percent),
     platformWeights: weightedPlatforms,
     platformReferences: weightedPlatforms.flatMap(({ platform }) => {
       const reference = config.platformReferences[platform];
       return reference
-        ? [{ platform, highEngagement: reference.highEngagement, halfLifeDays: reference.halfLifeDays }]
+        ? [{ platform, highEngagement: reference.highEngagement }]
         : [];
     }),
     platformBlend: {

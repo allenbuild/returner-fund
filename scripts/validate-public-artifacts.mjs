@@ -9,10 +9,10 @@ import {
 
 export const EXPECTED_SCORING_MODEL = Object.freeze({
   id: "returner-traction",
-  version: "4.0.1",
-  name: "returner-traction-v4-monotonic"
+  version: "4.1.0",
+  name: "returner-traction-v4-absolute-fixed-platform"
 });
-export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0"]);
+export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0", "4.0.1", "4.0.2"]);
 const SUPPORTED_HISTORY_MODEL_VERSIONS = new Set([
   EXPECTED_SCORING_MODEL.version,
   ...HISTORICAL_SCORING_MODEL_VERSIONS
@@ -376,14 +376,6 @@ export function collectCanonicalGraphSetViolations(entries) {
         );
       }
     }
-    if (positiveCompanyNodes.length > 1) {
-      const positiveScores = positiveCompanyNodes.map((node) => node.score);
-      if (Math.min(...positiveScores) !== 1 || Math.max(...positiveScores) !== 100) {
-        violations.push(
-          `canonical graph ${formatValue(entry.graph.batch?.slug)}: positive company scores must span the full 1-100 range`
-        );
-      }
-    }
     const zeroEvidenceNodes = companyNodes.filter(
       (node) => Number(node?.scoreBreakdown?.absoluteScore) === 0
     );
@@ -726,6 +718,34 @@ function validateScoreBreakdown(breakdown, nodeScore, scope, violations) {
       `${scope} scoreBreakdown.platformScores and weightedPlatforms must cover the same platforms`
     );
   }
+  const contributionTotal = weightedPlatforms.reduce(
+    (sum, row) =>
+      sum +
+      (isFiniteNumber(row.score) && isFiniteNumber(row.configuredWeight)
+        ? row.score * row.configuredWeight
+        : 0),
+    0
+  );
+  const configuredCoverage = weightedPlatforms.reduce(
+    (sum, row) => sum + (isFiniteNumber(row.configuredWeight) ? row.configuredWeight : 0),
+    0
+  );
+  const expectedAbsoluteScore = contributionTotal > 0 ? Math.max(1, Math.round(contributionTotal)) : 0;
+  if (!numbersEqual(breakdown.absoluteScore, expectedAbsoluteScore)) {
+    violations.push(`${scope} scoreBreakdown.absoluteScore must equal the rounded fixed contribution total`);
+  }
+  if (!numbersEqual(breakdown.totalScore, breakdown.absoluteScore)) {
+    violations.push(`${scope} scoreBreakdown.totalScore must equal absoluteScore`);
+  }
+  if (!numbersEqual(breakdown.coverageFactor, configuredCoverage)) {
+    violations.push(`${scope} scoreBreakdown.coverageFactor must equal present configured platform weight`);
+  }
+  const expectedWeightedAvailableScore = configuredCoverage > 0
+    ? contributionTotal / configuredCoverage
+    : 0;
+  if (Math.abs(breakdown.weightedAvailableScore - expectedWeightedAvailableScore) > 0.011) {
+    violations.push(`${scope} scoreBreakdown.weightedAvailableScore must be the present-platform weighted average`);
+  }
 
   if (!isRecord(breakdown.signalFamilyScores)) {
     violations.push(`${scope} scoreBreakdown.signalFamilyScores must be an object`);
@@ -782,6 +802,13 @@ function validateWeightedPlatforms(value, platformScores, scope, violations) {
       if (platformScores && !numbersEqual(row.score, platformScores[row.platform])) {
         violations.push(`${rowScope}.score must match scoreBreakdown.platformScores`);
       }
+      if (!numbersEqual(row.appliedWeight, row.configuredWeight)) {
+        violations.push(`${rowScope}.appliedWeight must equal configuredWeight`);
+      }
+      const expectedContribution = Math.round(row.score * row.configuredWeight * 100) / 100;
+      if (!numbersEqual(row.contribution, expectedContribution)) {
+        violations.push(`${rowScope}.contribution must equal score multiplied by configuredWeight`);
+      }
     }
     validateScore(row.score, `${rowScope}.score`, violations, { integer: true });
     validateUnitInterval(row.appliedWeight, `${rowScope}.appliedWeight`, violations);
@@ -831,18 +858,14 @@ function validateCalibration(calibration, absoluteScore, scope, violations) {
     violations.push(`${scope} scoreBreakdown.calibration must be an object`);
     return;
   }
-  if (!["none", "tie_aware_percentile_blend"].includes(calibration.method)) {
-    violations.push(`${scope} scoreBreakdown.calibration.method is invalid`);
+  if (calibration.method !== "none") {
+    violations.push(`${scope} scoreBreakdown.calibration.method must be none`);
   }
   if (!isNonNegativeInteger(calibration.cohortSize)) {
     violations.push(`${scope} scoreBreakdown.calibration.cohortSize must be a non-negative integer`);
   }
   if (calibration.percentile !== null) {
-    validateUnitInterval(
-      calibration.percentile,
-      `${scope} scoreBreakdown.calibration.percentile`,
-      violations
-    );
+    violations.push(`${scope} scoreBreakdown.calibration.percentile must be null`);
   }
   if (!numbersEqual(calibration.inputScore, absoluteScore)) {
     violations.push(`${scope} scoreBreakdown.calibration.inputScore must equal absoluteScore`);
@@ -866,15 +889,8 @@ function validateCalibrationModes(breakdowns, expectedAudience, artifactPath, vi
         `${scope} calibration.cohortSize must be ${positiveCohortSize} for ${artifactPath}`
       );
     }
-    if (breakdown.absoluteScore > 0) {
-      if (
-        calibration.method !== "tie_aware_percentile_blend" ||
-        !isFiniteNumber(calibration.percentile)
-      ) {
-        violations.push(`${scope} positive base score must use tie-aware percentile calibration`);
-      }
-    } else if (calibration.method !== "none" || calibration.percentile !== null) {
-      violations.push(`${scope} zero base score must use calibration method none and null percentile`);
+    if (calibration.method !== "none" || calibration.percentile !== null) {
+      violations.push(`${scope} score must use absolute calibration mode none and null percentile`);
     }
   }
 }

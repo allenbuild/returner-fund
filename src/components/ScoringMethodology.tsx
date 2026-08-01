@@ -7,14 +7,14 @@ export interface ScoringMethodologyProps {
 
 /**
  * Model-governance copy intentionally contains no duplicated scoring constants.
- * V4 remains available as a frozen baseline, while learned-model claims stay
+ * The deterministic scorer remains the production baseline, while learned-model claims stay
  * blocked until the versioned research acceptance artifact clears every gate.
  */
 export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
   const baseline = buildScoringMethodologyPresentation();
   const modelLabel = currentModel
     ? `${currentModel.modelName} · ${currentModel.modelId} v${currentModel.modelVersion}`
-    : "Frozen v4 traction baseline";
+    : "Deterministic traction baseline";
 
   return (
     <section className="scoring-methodology" aria-labelledby="scoring-methodology-title">
@@ -29,7 +29,7 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
       <div className="scoring-methodology-notice" role="status">
         <strong>The learned scorer has not been promoted.</strong>
         <p>
-          The score currently visible in the graph is the immutable v4 deterministic index and rollback baseline. It
+          The score currently visible in the graph is the production deterministic index and rollback baseline. It
           is not a calibrated probability, a causal estimate, or a learned prediction of company quality. V5 will
           replace it only after compatible longitudinal data, leakage-safe held-out evaluation, calibration,
           reproducibility, subgroup, and runtime-parity gates all pass.
@@ -42,31 +42,30 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
       </div>
 
       <details className="scoring-baseline-interpreter">
-        <summary>How the currently displayed V4 baseline is calculated</summary>
+        <summary>How the currently displayed deterministic baseline is calculated</summary>
         <div className="scoring-baseline-content">
           <p>
-            This is a historical-score interpreter for {baseline.modelId} v{baseline.modelVersion}, not the intended
-            learned V5 formula. V4 starts with verified native evidence whose configured visible metrics are normalized
-            to canonical aliases. It multiplies each raw count by the table value, applies a platform-specific
+            This explains {baseline.modelId} v{baseline.modelVersion}, not the intended learned V5 formula. The model
+            starts with verified native evidence whose configured visible metrics are normalized
+            to canonical aliases. It multiplies each raw count by the table value, then applies a platform-specific
             logarithmic reference. The current monotonic patch uses {baseline.evidenceBlend.absolutePercent}%
             reference-anchored absolute signal and {baseline.evidenceBlend.platformMidrankPercent}% evidence-level
             cohort midrank, so changing one row cannot lower an unchanged same-platform peer.
           </p>
           <p>
-            Evidence then blends {baseline.recencyBlend.durablePercent}% durable signal with {" "}
-            {baseline.recencyBlend.momentumPercent}% recency momentum. A missing publication date uses the historical
-            momentum value {baseline.recencyBlend.missingDateMomentum}. Duplicate physical posts count once; only the
+            Publication date and post age do not raise or lower an evidence score: identical visible metrics receive
+            the same score regardless of when they were published. Duplicate physical posts count once; only the
             strongest {baseline.postSlotPercents.length} posts per platform contribute, at {" "}
             {baseline.postSlotPercents.join("%, ")}% by slot. Posts are therefore not simply summed without limit.
           </p>
           <p>
-            Platform results use the configured platform shares below; breadth is not a separate bonus in this V4
-            configuration ({baseline.platformBlend.strongestPercent}% strongest-platform blend and {" "}
-            {baseline.platformBlend.diversifiedPercent}% configured diversified blend). Company calibration blends {" "}
-            {baseline.calibration.absolutePercent}% absolute score with {" "}
-            {baseline.calibration.cohortPercentilePercent}% tie-aware cohort percentile, then stretches the positive
-            company cohort across the 1–100 range (companies without eligible evidence remain 0). Filters only change
-            visibility and never recompute this canonical result.
+            Platform results use the fixed configured shares below. A platform with no eligible evidence contributes
+            zero at its configured share; present platforms are never renormalized to fill the missing weight. Breadth
+            is not a separate bonus ({baseline.platformBlend.strongestPercent}% strongest-platform blend and {" "}
+            {baseline.platformBlend.diversifiedPercent}% fixed-share blend). The resulting absolute score is the
+            headline company score ({baseline.calibration.absolutePercent}% absolute and {" "}
+            {baseline.calibration.cohortPercentilePercent}% cohort calibration); cohort rank never stretches or changes
+            it. Filters only change visibility and never recompute this canonical result.
           </p>
 
           <div className="scoring-baseline-table-wrap">
@@ -77,7 +76,6 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
                   <th scope="col">Platform</th>
                   <th scope="col">Share</th>
                   <th scope="col">Log reference</th>
-                  <th scope="col">Half-life</th>
                   <th scope="col">Raw metric weights before normalization</th>
                 </tr>
               </thead>
@@ -90,7 +88,6 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
                       <th scope="row">{formatPlatform(platform)}</th>
                       <td>{percent}%</td>
                       <td>{reference?.highEngagement.toLocaleString() ?? "—"}</td>
-                      <td>{reference ? `${reference.halfLifeDays} days` : "—"}</td>
                       <td>{metrics.map(({ metric, weight }) => `${metric} × ${weight}`).join(" · ") || "None"}</td>
                     </tr>
                   );
@@ -105,8 +102,8 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             platform breadth ({baseline.confidence.platformBreadthPercent}%), publication-date coverage ({" "}
             {baseline.confidence.publicationDatePercent}%), and verified links ({baseline.confidence.verifiedLinkPercent}%).
             Medium/high labels begin at {baseline.confidence.mediumThresholdPercent}%/{baseline.confidence.highThresholdPercent}%.
-            These weights, references, half-lives, slot shares, missing-date behavior, and calibration blend are
-            product heuristics preserved only for V4 history and rollback; they are not fitted V5 parameters.
+            Publication-date coverage affects this separate confidence metadata, never the score. These weights,
+            references and slot shares are product heuristics; they are not fitted V5 parameters.
           </p>
         </div>
       </details>
@@ -151,11 +148,11 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
           points. Visibility filters never recompute a canonical score.
         </MethodQuestion>
 
-        <MethodQuestion title="7. Is there a maximum and how is recency handled?">
-          Any promoted output will document its bounds and exact semantics. A future frozen search may compare
-          recency-free and learned age-effect candidates, but the current rejected artifact fitted no temporal curve.
-          No manually chosen half-life or guessed missing-date prior is permitted. Unknown publication dates remain
-          unscored unless a separately validated path exists.
+        <MethodQuestion title="7. Is there a maximum and does recency affect the score?">
+          The displayed deterministic index is bounded from 0 to 100. Publication date and post age do not affect its
+          score, so an older post is not discounted and a newer post receives no freshness bonus. Date completeness may
+          be reported separately as confidence metadata. Any future learned age effect would require its own held-out
+          validation before it could change a score.
         </MethodQuestion>
 
         <MethodQuestion title="8. How is uncertainty represented?">

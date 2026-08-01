@@ -1313,8 +1313,7 @@ function canonicalGithubRepositoryMetrics(metrics: EvidenceMetrics): EvidenceMet
     stars: visibleGithubMetric(metrics.stars),
     forks: visibleGithubMetric(metrics.forks),
     watchers: visibleGithubMetric(metrics.watchers),
-    issues: maximumVisibleGithubMetric(metrics.issues, metrics.open_issues, metrics.openIssues),
-    recent_commits_30d: visibleGithubMetric(metrics.recent_commits_30d)
+    issues: maximumVisibleGithubMetric(metrics.issues, metrics.open_issues, metrics.openIssues)
   };
 
   return Object.fromEntries(

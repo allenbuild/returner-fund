@@ -8,6 +8,8 @@ const runDir = path.join(root, "outputs", "longrun");
 const activePath = path.join(runDir, "active-run.json");
 const active = await readJson(activePath, null);
 const latest = await latestEventLog();
+const activeEventLog = await eventLogForActive(active);
+const orphanedTerminalOutputs = await terminalOutputsWithoutEventLogs();
 const liveCheckpoint = await currentSweepCheckpointSummary(active);
 const statusDoc = existsSync(path.join(root, "docs", "LONG_RUN_STATUS.md"))
   ? await readFile(path.join(root, "docs", "LONG_RUN_STATUS.md"), "utf8")
@@ -25,6 +27,16 @@ const payload = {
       }
     : null,
   latestEventLog: latest,
+  activeEventLog,
+  stateIntegrity: {
+    activeMatchesLatest:
+      !active?.runId || !latest?.runId || active.runId === latest.runId,
+    activeEventLogPresent: !active?.runId || Boolean(activeEventLog),
+    activeRunId: active?.runId ?? null,
+    latestRunId: latest?.runId ?? null,
+    orphanedTerminalOutputCount: orphanedTerminalOutputs.length
+  },
+  orphanedTerminalOutputs,
   liveIngestionCheckpoint: liveCheckpoint,
   longRunStatusExcerpt: statusDoc.slice(0, 2200)
 };
@@ -48,6 +60,7 @@ async function latestEventLog() {
     const eventLog = payload?.eventLog ?? [];
     return {
       path: latest.filePath,
+      runId: payload?.runId ?? null,
       eventCount: eventLog.length,
       lastEvent: eventLog.at(-1) ?? null,
       runningCommand: currentCommand(eventLog),
@@ -57,6 +70,77 @@ async function latestEventLog() {
   } catch {
     return null;
   }
+}
+
+async function eventLogForActive(activeRun) {
+  if (!activeRun?.runId) return null;
+  const filePath = path.join(runDir, `${activeRun.runId}.json`);
+  const payload = await readJson(filePath, null);
+  if (!payload || payload.runId !== activeRun.runId) return null;
+  const eventLog = Array.isArray(payload.eventLog) ? payload.eventLog : [];
+  return {
+    path: filePath,
+    runId: payload.runId,
+    eventCount: eventLog.length,
+    lastEvent: eventLog.at(-1) ?? null
+  };
+}
+
+async function terminalOutputsWithoutEventLogs() {
+  let entries;
+  try {
+    entries = await readdir(runDir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  const results = await Promise.all(
+    entries
+      .filter((entry) =>
+        entry.isFile()
+        && /^source-sweep-[A-Za-z0-9._-]+\.stdout\.log$/u.test(entry.name)
+      )
+      .map(async (entry) => {
+        const runId = entry.name.slice(0, -".stdout.log".length);
+        if (existsSync(path.join(runDir, `${runId}.json`))) return null;
+        const stdoutPath = path.join(runDir, entry.name);
+        const terminal = parseTerminalRunSummary(await tailFile(stdoutPath, 64_000));
+        return terminal?.runId === runId
+          ? {
+              runId,
+              status: terminal.status,
+              elapsedMinutes: terminal.elapsedMinutes,
+              stdoutPath,
+              expectedEventLogPath: path.join(runDir, `${runId}.json`)
+            }
+          : null;
+      })
+  );
+  return results.filter(Boolean);
+}
+
+function parseTerminalRunSummary(stdout) {
+  const tail = String(stdout).trim();
+  for (
+    let index = tail.lastIndexOf("\n{");
+    index >= -1;
+    index = index > 0 ? tail.lastIndexOf("\n{", index - 1) : -2
+  ) {
+    try {
+      const parsed = JSON.parse(tail.slice(index + 1));
+      if (
+        typeof parsed?.runId === "string"
+        && ["complete", "smoke_complete", "deadline_complete", "failed", "interrupted"]
+          .includes(parsed?.status)
+        && Number.isFinite(Number(parsed?.elapsedMinutes))
+      ) {
+        return parsed;
+      }
+    } catch {
+      // Continue to the previous JSON object in the captured tail.
+    }
+    if (index === -1) break;
+  }
+  return null;
 }
 
 function currentCommand(eventLog) {

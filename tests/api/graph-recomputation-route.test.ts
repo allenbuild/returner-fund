@@ -9,6 +9,7 @@ describe("GET /api/graph recomputation order", () => {
   afterEach(() => {
     vi.doUnmock("@/lib/graph/yc-spring-2026-dataset");
     vi.doUnmock("@/lib/ingestion/live-source-refresh");
+    vi.doUnmock("@/lib/social/user-insiders-server");
     vi.resetModules();
     vi.restoreAllMocks();
   });
@@ -127,7 +128,71 @@ describe("GET /api/graph recomputation order", () => {
     expect(samOnly.evidence[0]?.topVoice?.memberId).toBe("sam-altman");
     expect(samOnly.scoringContext?.scoreScope).toBe("top_voice");
     expect(samOnly.nodes.find((node) => node.entityId === "alpha")?.insiderScoreBreakdown)
-      .toMatchObject({ weightedInsiderSubtotal: 4 });
+      .toMatchObject({ weightedInsiderSubtotal: 16 });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
+
+  it("keeps an authenticated saved weight change stable across later GET graph fetches", async () => {
+    const dataset = routeDataset();
+    dataset.companies[0] = company({
+      ...dataset.companies[0],
+      id: "alpha",
+      name: "Alpha",
+      totalScore: 100,
+      previousScore: 100,
+      primaryIndustry: "keep"
+    });
+    const paulRecord = topVoiceLiveXRecord(
+      "paulg",
+      "Paul Graham",
+      "1000000000000000007"
+    );
+    vi.doMock("@/lib/graph/yc-spring-2026-dataset", async (importOriginal) => ({
+      ...(await importOriginal<typeof import("@/lib/graph/yc-spring-2026-dataset")>()),
+      YC_SPRING_2026_BATCH_SLUG: "S2026",
+      yc2026GraphDataset: dataset,
+      ycSpring2026GraphDataset: dataset
+    }));
+    vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => ({
+      ...(await importOriginal<typeof import("@/lib/ingestion/live-source-refresh")>()),
+      loadLiveEvidenceRecords: vi.fn(async () => [paulRecord])
+    }));
+    vi.doMock("@/lib/social/user-insiders-server", () => ({
+      authenticateInsiderRequest: vi.fn(async () => ({ client: {}, userId: "user-a" })),
+      loadUserInsiderConfiguration: vi.fn(async () => ({
+        version: 8,
+        excludedDefaultIds: [],
+        weightOverrides: { "paul-graham": 1 },
+        addedInsiders: [],
+        createdAt: null,
+        updatedAt: null
+      }))
+    }));
+
+    const { clearGraphResponseCache } = await import("@/lib/graph/graph-response-cache");
+    const { GET } = await import("@/app/api/graph/route");
+    clearGraphResponseCache();
+    const response = await GET(new Request(
+      "http://localhost/api/graph?batch=S2026&topVoices=insiders",
+      { headers: { Authorization: "Bearer token" } }
+    ));
+    const graph = await response.json() as GraphResponse;
+    const alpha = graph.nodes.find((node) => node.entityId === "alpha");
+    const alphaRow = graph.leaderboard.find((row) => row.companyId === "alpha");
+
+    expect(response.status).toBe(200);
+    expect(alpha?.insiderScoreBreakdown).toMatchObject({
+      publishedInsiderInfluence: 25,
+      weightedInsiderSubtotal: 1,
+      insiderScoreAdjustment: -24,
+      configurationVersion: 8
+    });
+    const expectedFinalScore = Math.max(
+      0,
+      (alpha?.insiderScoreBreakdown?.baseScore ?? 0) - 24
+    );
+    expect(alpha?.insiderScoreBreakdown?.finalScore).toBe(expectedFinalScore);
+    expect(alpha?.score).toBe(expectedFinalScore);
+    expect(alphaRow?.score).toBe(expectedFinalScore);
   }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 });
 

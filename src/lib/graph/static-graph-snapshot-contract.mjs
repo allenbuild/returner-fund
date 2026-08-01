@@ -1,11 +1,11 @@
 export const STATIC_GRAPH_SCORING_MODEL_ID = "returner-traction";
-export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.0.1";
-export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-monotonic";
+export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.1.0";
+export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-absolute-fixed-platform";
 
 const MAX_ISSUES = 100;
 const DEFAULT_MAX_FUTURE_SKEW_MS = 60_000;
 const CONFIDENCE_LEVELS = new Set(["low", "medium", "high"]);
-const CALIBRATION_METHODS = new Set(["none", "tie_aware_percentile_blend"]);
+const CALIBRATION_METHODS = new Set(["none"]);
 const EDGE_TYPES = new Set(["industry_similarity", "same_group_partner"]);
 const CANONICAL_ACCOUNT_ID_WWW_PLATFORMS = new Set([
   "instagram",
@@ -328,12 +328,23 @@ function validateNodes(nodes, evidenceById, context, addIssue) {
       `${path}.scoreBreakdown.absoluteScore`,
       addIssue
     );
-    validateScore(
+    if (
+      totalScoreIsValid &&
+      absoluteScoreIsValid &&
+      breakdown.totalScore !== breakdown.absoluteScore
+    ) {
+      addIssue(
+        `${path}.scoreBreakdown.totalScore`,
+        "must equal the absolute score; cohort calibration is disabled"
+      );
+    }
+    const weightedAvailableScoreIsValid = validateScore(
       breakdown.weightedAvailableScore,
       `${path}.scoreBreakdown.weightedAvailableScore`,
       addIssue
     );
-    if (!isNonNegativeFiniteNumber(breakdown.coverageFactor)) {
+    const coverageFactorIsValid = isNonNegativeFiniteNumber(breakdown.coverageFactor);
+    if (!coverageFactorIsValid) {
       addIssue(`${path}.scoreBreakdown.coverageFactor`, "must be finite and non-negative");
     }
     validateScoreMap(breakdown.platformScores, `${path}.scoreBreakdown.platformScores`, addIssue, true);
@@ -342,6 +353,58 @@ function validateNodes(nodes, evidenceById, context, addIssue) {
       `${path}.scoreBreakdown.weightedPlatforms`,
       addIssue
     );
+    if (Array.isArray(breakdown.weightedPlatforms)) {
+      const fixedContributionTotal = breakdown.weightedPlatforms.reduce(
+        (sum, row) =>
+          sum +
+          (isRecord(row) &&
+          typeof row.score === "number" &&
+          Number.isFinite(row.score) &&
+          typeof row.configuredWeight === "number" &&
+          Number.isFinite(row.configuredWeight)
+            ? row.score * row.configuredWeight
+            : 0),
+        0
+      );
+      const configuredCoverage = breakdown.weightedPlatforms.reduce(
+        (sum, row) =>
+          sum +
+          (isRecord(row) &&
+          typeof row.configuredWeight === "number" &&
+          Number.isFinite(row.configuredWeight)
+            ? row.configuredWeight
+            : 0),
+        0
+      );
+      const expectedAbsoluteScore =
+        fixedContributionTotal > 0 ? Math.max(1, Math.round(fixedContributionTotal)) : 0;
+      if (absoluteScoreIsValid && breakdown.absoluteScore !== expectedAbsoluteScore) {
+        addIssue(
+          `${path}.scoreBreakdown.absoluteScore`,
+          `must equal the rounded fixed platform contribution total (${expectedAbsoluteScore})`
+        );
+      }
+      if (
+        coverageFactorIsValid &&
+        Math.abs(breakdown.coverageFactor - configuredCoverage) > 0.001
+      ) {
+        addIssue(
+          `${path}.scoreBreakdown.coverageFactor`,
+          "must equal the configured weight of present platforms"
+        );
+      }
+      const expectedWeightedAvailableScore =
+        configuredCoverage > 0 ? fixedContributionTotal / configuredCoverage : 0;
+      if (
+        weightedAvailableScoreIsValid &&
+        Math.abs(breakdown.weightedAvailableScore - expectedWeightedAvailableScore) > 0.011
+      ) {
+        addIssue(
+          `${path}.scoreBreakdown.weightedAvailableScore`,
+          "must equal the present-platform weighted average diagnostic"
+        );
+      }
+    }
     if (
       isRecord(node.platformScores) &&
       isRecord(breakdown.platformScores) &&
@@ -1114,9 +1177,9 @@ function validateCalibration(value, absoluteScore, absoluteScoreIsValid, path, a
 
   const methodIsValid = CALIBRATION_METHODS.has(value.method);
   if (!methodIsValid) {
-    addIssue(`${path}.method`, "must be none or tie_aware_percentile_blend");
+    addIssue(`${path}.method`, "must be none");
   }
-  const cohortSizeIsValid = validateNonNegativeInteger(value.cohortSize, `${path}.cohortSize`, addIssue);
+  validateNonNegativeInteger(value.cohortSize, `${path}.cohortSize`, addIssue);
   const inputScoreIsValid = validateScore(value.inputScore, `${path}.inputScore`, addIssue);
   if (absoluteScoreIsValid && inputScoreIsValid && value.inputScore !== absoluteScore) {
     addIssue(`${path}.inputScore`, "must equal scoreBreakdown.absoluteScore");
@@ -1126,14 +1189,6 @@ function validateCalibration(value, absoluteScore, absoluteScoreIsValid, path, a
     value.percentile === null || validateUnitInterval(value.percentile, `${path}.percentile`, addIssue);
   if (methodIsValid && value.method === "none" && value.percentile !== null) {
     addIssue(`${path}.percentile`, "must be null when calibration method is none");
-  }
-  if (methodIsValid && value.method === "tie_aware_percentile_blend") {
-    if (value.percentile === null) {
-      addIssue(`${path}.percentile`, "must be present for tie-aware calibration");
-    }
-    if (cohortSizeIsValid && value.cohortSize === 0) {
-      addIssue(`${path}.cohortSize`, "must be positive for tie-aware calibration");
-    }
   }
   return percentileIsValid;
 }
@@ -1183,8 +1238,40 @@ function validateWeightedPlatforms(value, path, addIssue) {
         );
       }
     }
-    validateUnitInterval(row.appliedWeight, `${rowPath}.appliedWeight`, addIssue);
-    validateScore(row.contribution, `${rowPath}.contribution`, addIssue);
+    const appliedWeightIsValid = validateUnitInterval(
+      row.appliedWeight,
+      `${rowPath}.appliedWeight`,
+      addIssue
+    );
+    if (
+      appliedWeightIsValid &&
+      configuredWeightIsValid &&
+      row.appliedWeight !== row.configuredWeight
+    ) {
+      addIssue(
+        `${rowPath}.appliedWeight`,
+        "must equal configuredWeight; present platforms are not renormalized"
+      );
+    }
+    const contributionIsValid = validateScore(
+      row.contribution,
+      `${rowPath}.contribution`,
+      addIssue
+    );
+    if (
+      contributionIsValid &&
+      configuredWeightIsValid &&
+      typeof row.score === "number" &&
+      Number.isFinite(row.score)
+    ) {
+      const expectedContribution = Math.round(row.score * row.configuredWeight * 100) / 100;
+      if (Math.abs(row.contribution - expectedContribution) > 0.001) {
+        addIssue(
+          `${rowPath}.contribution`,
+          `must equal score * configuredWeight (${expectedContribution})`
+        );
+      }
+    }
     if (validateNonNegativeInteger(row.evidenceCount, `${rowPath}.evidenceCount`, addIssue)) {
       evidenceCountTotal += row.evidenceCount;
     } else {

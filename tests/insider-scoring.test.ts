@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   applyInsiderScenarioScoring,
-  computeInsiderScore
+  computeInsiderScore,
+  insiderWeightInfluence
 } from "@/lib/graph/insider-scoring";
 import { personalizeInsiderGraphSnapshot } from "@/lib/graph/personalized-insider-snapshot";
 import type {
@@ -22,7 +23,7 @@ import {
 } from "@/lib/social/top-voices";
 
 describe("weighted Insider scoring", () => {
-  it("sums unique matched weights once and preserves the base component", () => {
+  it("sums unique quadratic influence once and preserves the published component", () => {
     const score = computeInsiderScore({
       baseScore: 20,
       connections: [
@@ -31,8 +32,9 @@ describe("weighted Insider scoring", () => {
         connection("paul-graham", "Paul Graham", 5, 7)
       ]
     });
-    expect(score.weightedInsiderSubtotal).toBe(7);
-    expect(score.finalScore).toBe(27);
+    expect(score.weightedInsiderSubtotal).toBe(29);
+    expect(score.insiderScoreAdjustment).toBe(29);
+    expect(score.finalScore).toBe(49);
     expect(score.baseScore).toBe(20);
     expect(score.matches).toHaveLength(2);
   });
@@ -42,16 +44,29 @@ describe("weighted Insider scoring", () => {
       connection("paul-graham", "Paul Graham", 5),
       connection("ashton-kutcher", "Ashton Kutcher", 2)
     ];
-    expect(computeInsiderScore({ baseScore: 10, connections }).weightedInsiderSubtotal).toBe(7);
+    expect(computeInsiderScore({ baseScore: 10, connections }).weightedInsiderSubtotal).toBe(29);
     const selected = computeInsiderScore({
       baseScore: 10,
       connections,
       selectedInsiderIds: ["paul-graham"]
     });
-    expect(selected.weightedInsiderSubtotal).toBe(5);
-    expect(selected.finalScore).toBe(15);
+    expect(selected.weightedInsiderSubtotal).toBe(25);
+    expect(selected.finalScore).toBe(35);
     expect(selected.matches.find((match) => match.memberId === "ashton-kutcher"))
       .toMatchObject({ included: false, exclusionReason: "not_selected" });
+  });
+
+  it("makes each lower Insider weight dramatically reduce an anchored score", () => {
+    const published = connection("paul-graham", "Paul Graham", 5);
+    const results = [5, 4, 3, 2, 1].map((weight) => computeInsiderScore({
+      baseScore: 100,
+      publishedConnections: [published],
+      connections: [connection("paul-graham", "Paul Graham", weight)]
+    }));
+
+    expect(results.map((result) => result.finalScore)).toEqual([100, 91, 84, 79, 76]);
+    expect(results.map((result) => result.insiderScoreAdjustment)).toEqual([0, -9, -16, -21, -24]);
+    expect([1, 2, 3, 4, 5].map(insiderWeightInfluence)).toEqual([1, 4, 9, 16, 25]);
   });
 
   it("disabled and removed identities contribute zero while their stored configuration remains", () => {
@@ -100,17 +115,76 @@ describe("weighted Insider scoring", () => {
   it("re-sorts and tie-ranks every score surface from the effective score", () => {
     const graph = graphFixture();
     const scored = applyInsiderScenarioScoring(graph, {
-      configurationVersion: 8
+      configurationVersion: 8,
+      publishedInsiderGraph: {
+        ...graph,
+        nodes: graph.nodes.map((node) => ({ ...node, topVoiceConnections: [] }))
+      }
     });
     expect(scored.leaderboard.map((row) => [row.companyId, row.score, row.rank])).toEqual([
-      ["beta", 24, 1],
-      ["alpha", 15, 2]
+      ["beta", 36, 1],
+      ["alpha", 35, 2]
+    ]);
+    expect(scored.fastestGaining).toEqual([
+      expect.objectContaining({
+        rank: 1,
+        companyId: "alpha",
+        dod: expect.objectContaining({
+          currentScore: 35,
+          currentRank: 2,
+          baselineScore: 8,
+          baselineRank: 1,
+          scoreDelta: 27,
+          percentDelta: 337.5,
+          rankDelta: -1
+        }),
+        wow: expect.objectContaining({
+          currentScore: 35,
+          currentRank: 2,
+          baselineScore: 10,
+          baselineRank: 2,
+          scoreDelta: 25,
+          percentDelta: 250,
+          rankDelta: 0
+        })
+      }),
+      expect.objectContaining({
+        rank: 2,
+        companyId: "beta",
+        dod: expect.objectContaining({
+          currentScore: 36,
+          currentRank: 1,
+          baselineScore: 23,
+          baselineRank: 2,
+          scoreDelta: 13,
+          percentDelta: 56.52,
+          rankDelta: 1
+        })
+      })
     ]);
     expect(scored.nodes.find((node) => node.entityId === "alpha")?.insiderScoreBreakdown)
-      .toMatchObject({ baseScore: 10, weightedInsiderSubtotal: 5, configurationVersion: 8 });
+      .toMatchObject({
+        baseScore: 10,
+        publishedInsiderInfluence: 0,
+        weightedInsiderSubtotal: 25,
+        insiderScoreAdjustment: 25,
+        configurationVersion: 8
+      });
   });
 
-  it("preserves every published Insider score with the default configuration", () => {
+  it("treats the current graph as the published anchor when no separate anchor is supplied", () => {
+    const graph = graphFixture();
+    const scored = applyInsiderScenarioScoring(graph);
+
+    expect(scored.leaderboard.map((row) => [row.companyId, row.score])).toEqual(
+      graph.leaderboard.map((row) => [row.companyId, row.score])
+    );
+    expect(scored.nodes.map((node) => [node.entityId, node.score])).toEqual(
+      graph.nodes.map((node) => [node.entityId, node.score])
+    );
+  });
+
+  it("preserves every published Insider node and leaderboard score with the default configuration", () => {
     for (const [baseFilename, insiderFilename] of [
       ["a16zsr006.json", "a16zsr006-insiders.json"],
       ["s2026.json", "s2026-insiders.json"],
@@ -146,6 +220,48 @@ describe("weighted Insider scoring", () => {
         expect(row.score, `${insiderFilename}:${row.companyId}:leaderboard`).toBe(
           publishedLeaderboardScores.get(row.companyId)
         );
+      }
+    }
+  });
+
+  it("applies the quadratic decrease to every affected company in every published batch", () => {
+    for (const [baseFilename, insiderFilename] of [
+      ["a16zsr006.json", "a16zsr006-insiders.json"],
+      ["s2026.json", "s2026-insiders.json"],
+      ["s26.json", "s26-insiders.json"]
+    ]) {
+      const baseGraph = publicGraphFixture(baseFilename);
+      const insiderGraph = publicGraphFixture(insiderFilename);
+      const candidate = insiderGraph.nodes
+        .flatMap((node) => node.topVoiceConnections ?? [])
+        .find((connection) => connection.weight > 1);
+      if (!candidate) {
+        expect(insiderGraph.nodes.filter((node) => node.entityType === "company")).toHaveLength(0);
+        continue;
+      }
+      const loweredWeight = candidate.weight - 1;
+      const personalized = personalizeInsiderGraphSnapshot({
+        baseGraph,
+        insiderGraph,
+        configuration: {
+          ...emptyInsiderConfiguration(),
+          version: 1,
+          weightOverrides: { [candidate.memberId]: loweredWeight }
+        }
+      });
+      const expectedDrop = insiderWeightInfluence(candidate.weight) - insiderWeightInfluence(loweredWeight);
+
+      for (const publishedNode of insiderGraph.nodes.filter((node) => node.entityType === "company")) {
+        const personalizedNode = personalized.nodes.find((node) => node.entityId === publishedNode.entityId);
+        const affected = publishedNode.topVoiceConnections?.some(
+          (connection) => connection.memberId === candidate.memberId
+        );
+        expect(personalizedNode?.score, `${insiderFilename}:${publishedNode.entityId}`).toBe(
+          affected ? Math.max(0, publishedNode.score - expectedDrop) : publishedNode.score
+        );
+        expect(
+          personalized.leaderboard.find((row) => row.companyId === publishedNode.entityId)?.score
+        ).toBe(personalizedNode?.score);
       }
     }
   });
@@ -254,7 +370,22 @@ function graphFixture(): GraphResponse {
         topVoiceConnections: [alphaConnection]
       }
     ],
-    fastestGaining: [],
+    fastestGaining: [
+      {
+        rank: 1,
+        companyId: "beta",
+        companyName: "beta",
+        dod: momentum(20, 1, 23, 2),
+        wow: momentum(20, 1, 20, 1)
+      },
+      {
+        rank: 2,
+        companyId: "alpha",
+        companyName: "alpha",
+        dod: momentum(10, 2, 8, 1),
+        wow: momentum(10, 2, 10, 2)
+      }
+    ],
     needsReview: [],
     evidence: [],
     platformStatus: [],
@@ -278,4 +409,23 @@ function publicGraphFixture(filename: string): GraphResponse {
   return JSON.parse(
     readFileSync(join(process.cwd(), "public", "graph", filename), "utf8")
   ) as GraphResponse;
+}
+
+function momentum(
+  currentScore: number,
+  currentRank: number,
+  baselineScore: number | null,
+  baselineRank: number | null
+) {
+  const scoreDelta = baselineScore === null ? 0 : currentScore - baselineScore;
+  return {
+    scoreDelta,
+    percentDelta: baselineScore === null ? 0 : (scoreDelta / Math.max(baselineScore, 1)) * 100,
+    rankDelta: baselineRank === null ? 0 : baselineRank - currentRank,
+    currentScore,
+    currentRank,
+    baselineScore,
+    baselineRank,
+    benchmarkedAt: "2026-07-22T00:00:00.000Z"
+  };
 }

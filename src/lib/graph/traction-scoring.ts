@@ -45,10 +45,6 @@ export function normalizeEvidenceScores<T extends EvidenceItem>(
     const rawEngagement = computeEvidenceRawEngagement(item.platform, item.metrics);
     return { item, eligibility, rawEngagement };
   });
-  const eligibleItems = rows.filter((row) => row.eligibility.eligible).map((row) => row.item);
-  const eligiblePhysicalItems = dedupeEvidenceForScoring(eligibleItems);
-  const scoringTime = evidenceReferenceTime(eligiblePhysicalItems, options);
-
   return rows.map(({ item, eligibility, rawEngagement }) => {
     if (eligibility.reason === "unsupported_platform" && isVerifiedNativeUnscoredEvidence(item)) {
       const limitation = `No calibrated traction model is configured for ${item.platform}; verified native evidence is retained but unscored.`;
@@ -77,16 +73,8 @@ export function normalizeEvidenceScores<T extends EvidenceItem>(
       };
     }
 
-    const recency = computeEvidenceRecency(item, scoringTime);
     const absoluteScore = absoluteEvidenceScore(item.platform, rawEngagement);
-    const baseScore = absoluteScore;
-    const recencyMultiplier =
-      TRACTION_SCORING_CONFIG.durableSignalWeight +
-      TRACTION_SCORING_CONFIG.momentumSignalWeight * recency.value;
-    const normalizedScore = Math.round(clamp(baseScore * recencyMultiplier, 1, 100));
-    const recencyText = recency.hasPublishedDate
-      ? `${round(recency.value, 3)} recency at ${round(recency.ageDays ?? 0, 1)} days`
-      : `${round(recency.value, 3)} conservative momentum because publication date is unavailable`;
+    const normalizedScore = Math.round(clamp(absoluteScore, 1, 100));
 
     return {
       ...item,
@@ -100,7 +88,7 @@ export function normalizeEvidenceScores<T extends EvidenceItem>(
         `${TRACTION_SCORING_CONFIG.name}: raw ${round(rawEngagement, 2)}, absolute ${round(
           absoluteScore,
           1
-        )}, cohort evidence adjustment disabled for monotonicity, ${recencyText}; scored ${normalizedScore}/100.`
+        )}, cohort evidence adjustment disabled for monotonicity, publication age excluded; scored ${normalizedScore}/100.`
       )
     };
   });
@@ -150,20 +138,22 @@ export function aggregateBalancedTractionScore(items: EvidenceItem[]): ScoreBrea
   const scoredEvidenceCount = uniqueItems.length;
   const strongestPlatformScore = Math.max(0, ...Object.values(platformScores));
   const availableWeight = weightedPlatforms.reduce((sum, item) => sum + item.configuredWeight, 0);
-  const diversifiedScore =
+  const weightedAvailableScore =
     availableWeight > 0
       ? weightedPlatforms.reduce((sum, item) => sum + item.score * item.configuredWeight, 0) / availableWeight
       : 0;
-  const absoluteScore = Math.round(
-    clamp(
-      strongestPlatformScore * TRACTION_SCORING_CONFIG.strongestPlatformWeight +
-        diversifiedScore * TRACTION_SCORING_CONFIG.diversifiedPlatformWeight,
-      0,
-      100
-    )
+  const fixedPlatformScore = weightedPlatforms.reduce(
+    (sum, item) => sum + item.score * item.configuredWeight,
+    0
   );
-  const weightedAvailableScore = diversifiedScore;
-  const coverageFactor = weightedAvailableScore > 0 ? absoluteScore / weightedAvailableScore : 0;
+  const absoluteScoreValue = clamp(
+    strongestPlatformScore * TRACTION_SCORING_CONFIG.strongestPlatformWeight +
+      fixedPlatformScore * TRACTION_SCORING_CONFIG.diversifiedPlatformWeight,
+    0,
+    100
+  );
+  const absoluteScore = absoluteScoreValue > 0 ? Math.max(1, Math.round(absoluteScoreValue)) : 0;
+  const coverageFactor = availableWeight;
   const confidence = scoreConfidence(uniqueItems, platformsWithEvidence);
   const limitations = scoreLimitations(uniqueItems, platformsWithEvidence);
   const unscoredPlatforms = [...new Set(
@@ -180,7 +170,7 @@ export function aggregateBalancedTractionScore(items: EvidenceItem[]): ScoreBrea
     ? `${topPlatform.platform} is the largest contribution at ${round(topPlatform.contribution, 1)} points. ` +
       `${scoredEvidenceCount} unique native evidence row${scoredEvidenceCount === 1 ? "" : "s"} across ` +
       `${platformsWithEvidence}/${SUPPORTED_PLATFORM_COUNT} supported platforms produce ${absoluteScore}/100 ` +
-      `before cohort calibration.`
+      `with absent platforms contributing zero; cohort rank does not change the score.`
     : "No verified native evidence with visible traction metrics was eligible for scoring.";
 
   return {
@@ -228,34 +218,17 @@ function weightedPlatformScores(
   evidenceCounts: Map<Platform, number>
 ): WeightedPlatformScore[] {
   const entries = Object.entries(platformScores) as Array<[Platform, number]>;
-  const availableWeight = entries.reduce(
-    (sum, [platform]) => sum + (TRACTION_PLATFORM_WEIGHTS[platform] ?? 0),
-    0
-  );
-  const maxScore = Math.max(0, ...entries.map(([, score]) => score));
-  const topPlatform = entries
-    .filter(([, score]) => score === maxScore)
-    .sort(
-      ([left], [right]) =>
-        (TRACTION_PLATFORM_WEIGHTS[right] ?? 0) - (TRACTION_PLATFORM_WEIGHTS[left] ?? 0) ||
-        left.localeCompare(right)
-    )[0]?.[0];
   const contributions = entries.map(([platform, score]) => {
     const configuredWeight = TRACTION_PLATFORM_WEIGHTS[platform] ?? 0;
-    const contribution =
-      (availableWeight > 0
-        ? (score * configuredWeight * TRACTION_SCORING_CONFIG.diversifiedPlatformWeight) / availableWeight
-        : 0) +
-      (platform === topPlatform ? maxScore * TRACTION_SCORING_CONFIG.strongestPlatformWeight : 0);
+    const contribution = score * configuredWeight;
     return { platform, score, configuredWeight, contribution };
   });
-  const totalContribution = contributions.reduce((sum, item) => sum + item.contribution, 0);
 
   return contributions
     .filter((item) => item.configuredWeight > 0)
     .map((item) => ({
       ...item,
-      appliedWeight: totalContribution > 0 ? round(item.contribution / totalContribution, 4) : 0,
+      appliedWeight: item.configuredWeight,
       contribution: round(item.contribution, 2),
       evidenceCount: evidenceCounts.get(item.platform) ?? 0
     }))
@@ -292,32 +265,6 @@ function aggregatePlatformEvidenceScore(items: EvidenceItem[]): number {
 function absoluteEvidenceScore(platform: Platform, rawEngagement: number): number {
   const reference = TRACTION_SCORING_CONFIG.platformReferences[platform]?.highEngagement ?? 10_000;
   return clamp((Math.log1p(rawEngagement) / Math.log1p(reference)) * 100, 0, 100);
-}
-
-function computeEvidenceRecency(item: EvidenceItem, referenceTime: Date): {
-  value: number;
-  hasPublishedDate: boolean;
-  ageDays: number | null;
-} {
-  if (item.publishedAtPrecision === "unknown") {
-    return { value: TRACTION_SCORING_CONFIG.missingDateMomentum, hasPublishedDate: false, ageDays: null };
-  }
-  const postedAt = parseDate(item.postedAt);
-  if (!postedAt) {
-    return { value: TRACTION_SCORING_CONFIG.missingDateMomentum, hasPublishedDate: false, ageDays: null };
-  }
-  const ageDays = Math.max(0, (referenceTime.getTime() - postedAt.getTime()) / 86_400_000);
-  const halfLifeDays = TRACTION_SCORING_CONFIG.platformReferences[item.platform]?.halfLifeDays ?? 90;
-  return { value: Math.pow(0.5, ageDays / Math.max(halfLifeDays, 1)), hasPublishedDate: true, ageDays };
-}
-
-function evidenceReferenceTime(
-  items: EvidenceItem[],
-  options: EvidenceScoreNormalizationOptions | string | Date
-): Date {
-  const explicitAsOf = normalizeExplicitAsOf(options);
-  if (explicitAsOf) return explicitAsOf;
-  return latestPhysicalObservation(items) ?? new Date(0);
 }
 
 function scoreConfidence(items: EvidenceItem[], platformsWithEvidence: number): ScoreConfidence {
@@ -389,7 +336,10 @@ function signalFamilyScores(items: EvidenceItem[]): ScoreBreakdown["signalFamily
     })),
     developerAdoption: familyScore(items.filter((item) => item.platform === "github")),
     launchAndCommunity: familyScore(items.filter((item) => ["product_hunt", "hacker_news", "reddit"].includes(item.platform))),
-    momentum: familyScore(items.filter((item) => item.publishedAtPrecision !== "unknown" && Boolean(parseDate(item.postedAt))))
+    // Publication age is deliberately excluded from scoring. Keep the legacy
+    // response field at a neutral zero until a non-temporal momentum signal is
+    // defined and calibrated.
+    momentum: 0
   };
 }
 

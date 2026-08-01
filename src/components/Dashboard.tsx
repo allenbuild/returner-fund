@@ -42,6 +42,7 @@ import {
   companyVerticalCounts,
   enrichGraphTaxonomies
 } from "@/lib/graph/graph-taxonomies";
+import { networkMapTitle } from "@/lib/graph/network-map-branding";
 import {
   normalizePostTopics,
   POST_TOPIC_TAXONOMY,
@@ -56,7 +57,11 @@ import {
   millisecondsUntilNextCentralMidnight
 } from "@/lib/time/central-day";
 import { normalizeTopVoiceAudienceId, topVoiceAudienceSummaries } from "@/lib/social/top-voices";
-import { insiderAccessToken, insiderApiFetch } from "@/lib/social/user-insiders-client";
+import {
+  insiderAccessToken,
+  insiderApiFetch,
+  subscribeToInsiderAuth
+} from "@/lib/social/user-insiders-client";
 import { PLATFORM_VALUES, type GraphResponse, type Platform, type TopVoiceAudienceId } from "@/lib/graph/types";
 
 type FilterMenuId = "platform" | "topics" | "verticals" | "industry" | "groupPartner" | "topVoices";
@@ -87,7 +92,7 @@ const defaultBatches = [
 ];
 const DEFAULT_BATCH_SLUG = "S2026";
 const A16Z_SPEEDRUN_BATCH_SLUG = "A16ZSR006";
-const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-19-metric-integrity";
+const STATIC_GRAPH_SNAPSHOT_VERSION = "2026-07-31-date-invariant-scoring";
 const MIDNIGHT_REFRESH_DELAY_MS = 90_000;
 const STATIC_GRAPH_TIMEOUT_MS = 8_000;
 const API_GRAPH_TIMEOUT_MS = 20_000;
@@ -326,6 +331,7 @@ interface FetchGraphOptions {
 }
 
 interface InsiderRecomputeResponse {
+  configurationVersion?: unknown;
   graph?: unknown;
 }
 
@@ -410,6 +416,40 @@ function graphMatchesInsiderSelection(
   insiderIds: readonly string[]
 ): boolean {
   return audience !== "insiders" || sameValues(graph?.selectedInsiderIds ?? [], insiderIds);
+}
+
+function overlayPersonalizedGraphOnBaseline(
+  baselineGraph: GraphResponse,
+  personalizedGraph: GraphResponse
+): GraphResponse {
+  const personalizedNodesById = new Map(
+    personalizedGraph.nodes.map((node) => [node.id, node])
+  );
+  const baselineNodeIds = new Set(baselineGraph.nodes.map((node) => node.id));
+  const nodes = baselineGraph.nodes.map(
+    (node) => personalizedNodesById.get(node.id) ?? node
+  );
+  for (const node of personalizedGraph.nodes) {
+    if (!baselineNodeIds.has(node.id)) nodes.push(node);
+  }
+
+  const personalizedEdgesById = new Map(
+    personalizedGraph.edges.map((edge) => [edge.id, edge])
+  );
+  const baselineEdgeIds = new Set(baselineGraph.edges.map((edge) => edge.id));
+  const edges = baselineGraph.edges.map(
+    (edge) => personalizedEdgesById.get(edge.id) ?? edge
+  );
+  for (const edge of personalizedGraph.edges) {
+    if (!baselineEdgeIds.has(edge.id)) edges.push(edge);
+  }
+
+  return {
+    ...baselineGraph,
+    ...personalizedGraph,
+    nodes,
+    edges
+  };
 }
 
 function isGraphResponsePayload(value: unknown): value is GraphResponse {
@@ -643,10 +683,13 @@ export function Dashboard({
   const graphFetchSequenceRef = useRef(0);
   const latestGraphFetchIdRef = useRef<Map<string, number>>(new Map());
   const graphInFlightRef = useRef<Map<string, InFlightGraphRequest>>(new Map());
-  const skipNextGraphEffectKeyRef = useRef<string | null>(null);
   const actionRequestIdRef = useRef(0);
   const activeActionAbortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef({ batchSlug, topVoiceAudience, insiderIds: selectedInsiderIds });
+  const insiderConfigurationVersionRef = useRef<number | null>(
+    preparedInitialGraph?.insiderConfigurationVersion ?? null
+  );
+  const insiderAuthUserIdRef = useRef<string | null | undefined>(undefined);
   const initialGraphHydratedRef = useRef(Boolean(preparedInitialGraph));
   const lastSubmittedQueryRef = useRef("");
   const currentFilters = useMemo<ClientGraphFilters>(
@@ -935,7 +978,9 @@ export function Dashboard({
       batchSlug,
       topVoiceAudience,
       staticSnapshotUrl:
-        options.unfiltered && activeInsiderIds.length === 0
+        options.unfiltered &&
+        activeInsiderIds.length === 0 &&
+        !(topVoiceAudience === "insiders" && insiderConfigurationVersionRef.current !== null)
           ? staticGraphSnapshotUrl(batchSlug, topVoiceAudience)
           : null,
       apiUrl: `/api/graph?${params.toString()}`,
@@ -951,6 +996,26 @@ export function Dashboard({
         return;
       }
       const payload = result.graph;
+      if (topVoiceAudience === "insiders") {
+        const minimumConfigurationVersion = insiderConfigurationVersionRef.current;
+        const payloadConfigurationVersion =
+          typeof payload.insiderConfigurationVersion === "number" &&
+          Number.isInteger(payload.insiderConfigurationVersion)
+            ? payload.insiderConfigurationVersion
+            : null;
+        if (
+          minimumConfigurationVersion !== null &&
+          (payloadConfigurationVersion === null ||
+            payloadConfigurationVersion < minimumConfigurationVersion)
+        ) {
+          throw new Error(
+            "The graph service returned stale Insider scores. Please retry."
+          );
+        }
+        if (payloadConfigurationVersion !== null) {
+          insiderConfigurationVersionRef.current = payloadConfigurationVersion;
+        }
+      }
       if (options.unfiltered) {
         rememberGraph(payload, result.source);
       }
@@ -1027,10 +1092,19 @@ export function Dashboard({
     }
   }, [getOrStartGraphRequest, isCurrentGraphRequest, rememberGraph]);
 
-  const refreshPersonalizedInsiders = useCallback(async () => {
+  const refreshPersonalizedInsiders = useCallback(async (expectedConfigurationVersion?: number) => {
     const selection = selectionRef.current;
     if (selection.topVoiceAudience !== "insiders") {
       return;
+    }
+    if (
+      expectedConfigurationVersion !== undefined &&
+      (!Number.isInteger(expectedConfigurationVersion) || expectedConfigurationVersion < 0)
+    ) {
+      throw new Error("The saved Insider configuration version was invalid.");
+    }
+    if (expectedConfigurationVersion !== undefined) {
+      insiderConfigurationVersionRef.current = expectedConfigurationVersion;
     }
 
     for (const key of [...graphCacheRef.current.keys()]) {
@@ -1038,19 +1112,7 @@ export function Dashboard({
     }
     invalidateGraphRequests();
 
-    const targetSelection = {
-      ...selection,
-      insiderIds: [] as string[]
-    };
-    selectionRef.current = targetSelection;
-    if (selection.insiderIds.length) {
-      skipNextGraphEffectKeyRef.current = graphCacheKey(
-        targetSelection.batchSlug,
-        targetSelection.topVoiceAudience,
-        targetSelection.insiderIds
-      );
-      setSelectedInsiderIds([]);
-    }
+    const targetSelection = selection;
 
     const requestId = graphRequestIdRef.current + 1;
     graphRequestIdRef.current = requestId;
@@ -1073,6 +1135,29 @@ export function Dashboard({
         throw new Error("The personalized score refresh returned an invalid graph.");
       }
       const graph = enrichGraphTaxonomies(payload.graph);
+      const responseConfigurationVersion =
+        typeof payload.configurationVersion === "number" &&
+        Number.isInteger(payload.configurationVersion)
+          ? payload.configurationVersion
+          : null;
+      const graphConfigurationVersion =
+        typeof graph.insiderConfigurationVersion === "number" &&
+        Number.isInteger(graph.insiderConfigurationVersion)
+          ? graph.insiderConfigurationVersion
+          : null;
+      const minimumConfigurationVersion =
+        expectedConfigurationVersion ?? insiderConfigurationVersionRef.current;
+      if (
+        responseConfigurationVersion === null ||
+        graphConfigurationVersion === null ||
+        responseConfigurationVersion !== graphConfigurationVersion ||
+        (minimumConfigurationVersion !== null &&
+          graphConfigurationVersion < minimumConfigurationVersion)
+      ) {
+        throw new Error(
+          "The personalized score refresh returned a stale Insider configuration. Please retry."
+        );
+      }
       if (
         !graphMatchesSelection(graph, targetSelection.batchSlug, targetSelection.topVoiceAudience) ||
         !graphMatchesInsiderSelection(graph, targetSelection.topVoiceAudience, targetSelection.insiderIds)
@@ -1089,6 +1174,7 @@ export function Dashboard({
         throw new Error("Personalized score refresh was interrupted. Please retry.");
       }
       rememberGraph(graph, "api");
+      insiderConfigurationVersionRef.current = graphConfigurationVersion;
       setFilterMetadataGraph(graph);
       setGraph(applyClientGraphFilters(graph, currentFiltersRef.current));
     } catch (caught) {
@@ -1103,6 +1189,42 @@ export function Dashboard({
       }
     }
   }, [invalidateGraphRequests, rememberGraph]);
+
+  useEffect(() => subscribeToInsiderAuth(({ userId }) => {
+    const previousUserId = insiderAuthUserIdRef.current;
+    insiderAuthUserIdRef.current = userId;
+    if (previousUserId === undefined || previousUserId === userId) {
+      return;
+    }
+
+    insiderConfigurationVersionRef.current = null;
+    for (const key of [...graphCacheRef.current.keys()]) {
+      if (key.includes("::insiders::")) graphCacheRef.current.delete(key);
+    }
+    graphRequestIdRef.current += 1;
+
+    const selection = selectionRef.current;
+    if (selection.topVoiceAudience !== "insiders") {
+      return;
+    }
+
+    invalidateGraphRequests();
+    actionRequestIdRef.current += 1;
+    activeActionAbortRef.current?.abort();
+    activeActionAbortRef.current = null;
+    setActionLoading(null);
+    setRefreshError(null);
+    setRefreshNotice(null);
+    setFilterMetadataGraph((current) =>
+      current?.selectedTopVoiceAudience?.id === "insiders" ? null : current
+    );
+    setGraph((current) =>
+      current?.selectedTopVoiceAudience?.id === "insiders" ? null : current
+    );
+    setError(null);
+    setLoading(true);
+    void fetchGraph({ forceApi: true, unfiltered: true }).catch(() => undefined);
+  }, { emitInitial: true }), [fetchGraph, invalidateGraphRequests]);
 
   useEffect(() => {
     if (topVoiceAudience !== "insiders") return undefined;
@@ -1176,10 +1298,6 @@ export function Dashboard({
       topVoiceAudience,
       topVoiceAudience === "insiders" ? selectedInsiderIds : []
     );
-    if (skipNextGraphEffectKeyRef.current === activeGraphKey) {
-      skipNextGraphEffectKeyRef.current = null;
-      return;
-    }
     const cachedEntry = graphCacheRef.current.get(activeGraphKey);
     const cachedGraph =
       graphMatchesSelection(filterMetadataGraph, batchSlug, topVoiceAudience) &&
@@ -1241,7 +1359,14 @@ export function Dashboard({
   const filterCatalogGraph = scopedMapMetadataGraph ?? scopedFilterMetadataGraph;
   const mapGraph = useMemo(
     () => {
-      const source = scopedMapMetadataGraph ?? scopedFilterMetadataGraph ?? graph;
+      const personalizedSource = scopedFilterMetadataGraph ?? graph;
+      const source =
+        topVoiceAudience === "insiders" &&
+        insiderConfigurationVersionRef.current !== null &&
+        scopedMapMetadataGraph &&
+        personalizedSource
+          ? overlayPersonalizedGraphOnBaseline(scopedMapMetadataGraph, personalizedSource)
+          : scopedMapMetadataGraph ?? personalizedSource;
       return source
         ? applyClientGraphFilters(source, {
             platforms: [],
@@ -1252,7 +1377,7 @@ export function Dashboard({
             minScore
           })
         : null;
-    }, [graph, minScore, scopedFilterMetadataGraph, scopedMapMetadataGraph]
+    }, [graph, minScore, scopedFilterMetadataGraph, scopedMapMetadataGraph, topVoiceAudience]
   );
   const fallbackGraphActive = graphScopeMismatch && !graphBusy && Boolean(mapGraph);
   const interactiveGraph = settledGraph ?? (fallbackGraphActive ? mapGraph : null);
@@ -1775,8 +1900,12 @@ export function Dashboard({
       ? `${graph?.selectedTopVoiceAudience?.displayName ?? "This Top Voices audience"} has no visible company evidence in this snapshot.`
       : graph?.batch.label ?? "The selected graph contains no company records.";
   const isA16zSpeedrunBatch = batchSlug === A16Z_SPEEDRUN_BATCH_SLUG;
-  const brandTitle = isA16zSpeedrunBatch ? "a16z Network Map" : "YC Network Map";
+  const brandTitle = networkMapTitle(batchSlug);
   const loadingMapLabel = isA16zSpeedrunBatch ? "a16z" : "YC";
+
+  useEffect(() => {
+    document.title = brandTitle;
+  }, [brandTitle]);
 
   return (
     <main className={`dashboard${isA16zSpeedrunBatch ? " dashboard-a16z" : ""}`}>

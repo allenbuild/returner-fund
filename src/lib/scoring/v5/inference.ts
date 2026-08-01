@@ -42,6 +42,13 @@ export function predictV5(
   if (!model || !platformTarget || growthThreshold === undefined) {
     return unscored(platform, "unsupported_platform", "No compatible held-out training data supports this platform.");
   }
+  if (model.featureNames.includes("post_age_hours")) {
+    return unscored(
+      platform,
+      "feature_schema_mismatch",
+      "Publication age is not an allowed scoring feature."
+    );
+  }
   if (input.featureSchemaVersion !== artifact.featureSchemaVersion) {
     return unscored(
       platform,

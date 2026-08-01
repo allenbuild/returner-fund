@@ -219,7 +219,7 @@ describe("canonical v4 adversarial generated properties", () => {
     }
   });
 
-  it("penalizes missing dates for generated positive evidence on every scored platform", () => {
+  it("keeps generated positive evidence score-neutral to missing or invalid dates on every scored platform", () => {
     for (const [platformIndex, platform] of SUPPORTED_PLATFORMS.entries()) {
       const metric = primaryMetric(platform);
       const rng = deterministicRng(PROPERTY_SEED ^ stableNumber(`missing-date:${platform}`));
@@ -247,7 +247,7 @@ describe("canonical v4 adversarial generated properties", () => {
           ],
           { asOf: FIXED_TIME }
         )[0];
-        const context = propertyContext("missing-date-penalty", trial, {
+        const context = propertyContext("missing-date-neutrality", trial, {
           platform,
           platformIndex,
           metric,
@@ -256,8 +256,10 @@ describe("canonical v4 adversarial generated properties", () => {
 
         expect(unknown?.rawEngagement, context).toBe(fresh?.rawEngagement);
         expect(invalid?.rawEngagement, context).toBe(fresh?.rawEngagement);
-        expect(unknown?.contributionScore, context).toBeLessThan(fresh?.contributionScore ?? 0);
-        expect(invalid?.contributionScore, context).toBeLessThan(fresh?.contributionScore ?? 0);
+        expect(unknown?.normalizedScore, context).toBe(fresh?.normalizedScore);
+        expect(invalid?.normalizedScore, context).toBe(fresh?.normalizedScore);
+        expect(unknown?.contributionScore, context).toBe(fresh?.contributionScore);
+        expect(invalid?.contributionScore, context).toBe(fresh?.contributionScore);
       }
     }
   });
@@ -362,7 +364,7 @@ describe("canonical v4 adversarial generated properties", () => {
     );
   });
 
-  it("never rounds a positive generated calibration input down to zero", () => {
+  it("preserves every finite generated absolute input exactly", () => {
     const rng = deterministicRng(PROPERTY_SEED ^ 0xca11_ba7e);
 
     for (let trial = 0; trial < 160; trial += 1) {
@@ -379,13 +381,9 @@ describe("canonical v4 adversarial generated properties", () => {
 
       expect(calibrated.map((company) => company.id), context).toEqual(companies.map((company) => company.id));
       for (const [index, company] of calibrated.entries()) {
-        if (scores[index]! > 0) {
-          expect(company.totalScore, context).toBeGreaterThanOrEqual(1);
-          expect(company.scoreBreakdown?.calibration.method, context).toBe("tie_aware_percentile_blend");
-        } else {
-          expect(company.totalScore, context).toBe(0);
-          expect(company.scoreBreakdown?.calibration.method, context).toBe("none");
-        }
+        expect(company.totalScore, context).toBe(scores[index]);
+        expect(company.scoreBreakdown?.calibration.method, context).toBe("none");
+        expect(company.scoreBreakdown?.calibration.percentile, context).toBeNull();
       }
 
       const positive = calibrated
@@ -400,7 +398,7 @@ describe("canonical v4 adversarial generated properties", () => {
     }
   });
 
-  it("uses tie-aware percentiles and stable competition ranks across generated permutations", () => {
+  it("keeps absolute scores and stable competition ranks across generated permutations", () => {
     const rng = deterministicRng(PROPERTY_SEED ^ 0x71e0_a4e5);
 
     for (let trial = 0; trial < 48; trial += 1) {
@@ -417,14 +415,9 @@ describe("canonical v4 adversarial generated properties", () => {
       const companies = rawScores.map((score, index) => companyWithAbsoluteScore(`rank-${trial}-${index}`, score));
       const baseline = calibrateBatchCompanyScores(companies);
       const expectedById = calibrationProjection(baseline);
-      const positiveScores = rawScores.filter((score) => score > 0);
-      const expectedTiePercentile =
-        (positiveScores.filter((score) => score < tiedScore).length +
-          positiveScores.filter((score) => score === tiedScore).length / 2) /
-        positiveScores.length;
-
       for (const tied of baseline.filter((company) => company.scoreBreakdown?.absoluteScore === tiedScore)) {
-        expect(tied.scoreBreakdown?.calibration.percentile).toBeCloseTo(expectedTiePercentile, 4);
+        expect(tied.scoreBreakdown?.calibration.percentile).toBeNull();
+        expect(tied.totalScore).toBe(tiedScore);
       }
 
       for (let shuffleIndex = 0; shuffleIndex < 20; shuffleIndex += 1) {

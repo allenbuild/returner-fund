@@ -1,16 +1,17 @@
 # Scoring v4 Implementation Audit
 
-> Historical baseline: this audit records `4.0.0`. Production `4.0.1`
-> (`returner-traction-v4-monotonic`) removes evidence-level cohort midranks,
-> preserves `4.0.0` as rollback, and is documented in
+> Historical baseline: this audit records `4.0.0`. Production `4.1.0`
+> (`returner-traction-v4-absolute-fixed-platform`) removes publication-age and
+> recent-commit scoring, uses fixed platform shares with missing coverage worth zero,
+> publishes the absolute score without cohort stretching, preserves prior versions as rollback targets, and is documented in
 > [`SCORING_MODEL.md`](SCORING_MODEL.md).
 
 ## Scope and conclusion
 
-This is a documentation-level code conformance audit of the current working-tree scoring implementation. It covers the canonical configuration, graph scorer, entity- and physical-evidence dedupe, shared company calibration, visibility filters, live overlays, diagnostics, runtime types, and migrations 004 and 007. It does not certify predictive accuracy, statistical calibration, fairness, causal validity, or business outcomes.
+This is a historical documentation-level code conformance audit of the `4.0.0` scoring implementation. It covers the canonical configuration, graph scorer, entity- and physical-evidence dedupe, shared company calibration, visibility filters, live overlays, diagnostics, runtime types, and migrations 004 and 007. It does not describe the date-invariant `4.0.2` evidence formula and does not certify predictive accuracy, statistical calibration, fairness, causal validity, or business outcomes.
 
 The graph path audited here identified itself as `returner-traction` version
-`4.0.0`. The current graph path identifies as `4.0.1`. Each batch graph
+`4.0.0`. The current graph path identifies as `4.0.2`. Each batch graph
 preserves one calibrated all-platform company score and canonical rank;
 platform and Top Voice controls change visibility and evidence presentation
 without creating alternate score scopes.
@@ -37,7 +38,7 @@ Compatibility-only paths were also checked: [`src/lib/graph/build.ts`](../src/li
 
 ## Conformance summary
 
-| Concern | Current v4 behavior | Audit result |
+| Concern | Audited 4.0.0 behavior | Audit result |
 | --- | --- | --- |
 | Canonical configuration | Model identity, platform/metric weights, references, evidence/recency/platform blends, slots, batch calibration, and confidence live in `src/lib/scoring/traction-config.ts` | Canonical; `src/lib/graph/traction-scoring-config.ts` is only a re-export |
 | Eligibility | Positive-weight platform; review state exactly `verified`; link not `invalid`/`blocked`; finite positive contribution flag; strict native URL identity; no URL/explicit-ID conflict; positive configured engagement | Implemented in normalization and rerun by entity aggregation; runtime compatibility fields may be optional, but missing review state does not score |

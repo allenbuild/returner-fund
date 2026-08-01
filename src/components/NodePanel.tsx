@@ -131,22 +131,36 @@ function InsiderContributions({ node }: { node: GraphNode }) {
   const breakdown = node.insiderScoreBreakdown!;
   return (
     <section className="score-platform-section insider-score-section" aria-label="Insider score breakdown">
-      <h3>Insider score</h3>
+      <h3>Insider adjustment</h3>
       <p>
-        Base {formatScore(breakdown.baseScore)} + weighted insiders{" "}
-        {formatScore(breakdown.weightedInsiderSubtotal)} ={" "}
-        <strong>{formatScore(breakdown.finalScore)}</strong>
+        Published score {formatScore(breakdown.baseScore)}. Insider adjustment{" "}
+        {formatSignedScore(breakdown.insiderScoreAdjustment)}. Result{" "}
+        <strong>{formatScore(breakdown.finalScore)}</strong>.
       </p>
+      <small>
+        Each matched insider contributes weight² influence and counts once, even with multiple posts. Published{" "}
+        influence {formatScore(breakdown.publishedInsiderInfluence)} → current influence{" "}
+        {formatScore(breakdown.weightedInsiderSubtotal)}.
+      </small>
       <ol className="score-platform-contributions">
-        {breakdown.matches.map((match) => (
-          <li key={match.memberId} className={match.included ? "" : "excluded"}>
-            <span>{match.displayName}</span>
-            <span className="score-platform-contribution">
-              <strong>{match.included ? `+${match.effectiveWeight}` : "Excluded"}</strong>
-              <small>{formatItemCount(match.evidenceCount)}</small>
-            </span>
-          </li>
-        ))}
+        {breakdown.matches.map((match) => {
+          return (
+            <li key={match.memberId} className={match.included ? "" : "excluded"}>
+              <span>{match.displayName}</span>
+              <span className="score-platform-contribution">
+                <strong>
+                  {match.included
+                    ? `Weight ${match.effectiveWeight}² = ${formatScore(match.influenceScore)} influence`
+                    : "Excluded"}
+                </strong>
+                <small>
+                  Published {match.publishedWeight}² = {formatScore(match.publishedInfluenceScore)} · adjustment{" "}
+                  {formatSignedScore(match.adjustment)} · {formatItemCount(match.evidenceCount)}
+                </small>
+              </span>
+            </li>
+          );
+        })}
       </ol>
       {breakdown.selectedInsiderIds.length > 0 && (
         <small>Visible score uses the selected Insider subset.</small>
@@ -161,7 +175,7 @@ function PlatformContributions({ node }: { node: GraphNode }) {
   ]
     .filter((platform) => numberValue(platform?.contribution) !== null && platform.contribution > 0)
     .sort((left, right) => right.contribution - left.contribution);
-  const platformContributions = allocateCalibrationAcrossPlatforms(node, rawPlatformContributions);
+  const platformContributions = rawPlatformContributions;
 
   return (
     <section className="score-platform-section" aria-labelledby={`score-platforms-${node.id}`}>
@@ -185,39 +199,6 @@ function PlatformContributions({ node }: { node: GraphNode }) {
   );
 }
 
-type WeightedPlatformContribution = NonNullable<GraphNode["scoreBreakdown"]>["weightedPlatforms"][number];
-
-function allocateCalibrationAcrossPlatforms(
-  node: GraphNode,
-  platforms: WeightedPlatformContribution[]
-): WeightedPlatformContribution[] {
-  const calibration = node.scoreBreakdown?.calibration;
-  const rawTotal = platforms.reduce((sum, platform) => sum + platform.contribution, 0);
-  if (!calibration || calibration.method === "none" || rawTotal <= 0 || node.score <= 0) {
-    return platforms;
-  }
-
-  const targetTenths = Math.round(node.score * 10);
-  const allocations = platforms.map((platform, index) => {
-    const exactTenths = (platform.contribution / rawTotal) * targetTenths;
-    const floorTenths = Math.floor(exactTenths);
-    return { index, exactTenths, tenths: floorTenths };
-  });
-  let remainder = targetTenths - allocations.reduce((sum, allocation) => sum + allocation.tenths, 0);
-  const remainderOrder = [...allocations].sort(
-    (left, right) =>
-      right.exactTenths - right.tenths - (left.exactTenths - left.tenths) || left.index - right.index
-  );
-  for (let index = 0; index < remainderOrder.length && remainder > 0; index += 1, remainder -= 1) {
-    remainderOrder[index].tenths += 1;
-  }
-
-  return platforms.map((platform, index) => ({
-    ...platform,
-    contribution: allocations[index].tenths / 10
-  }));
-}
-
 function isScoredEvidence(item: EvidenceItem): boolean {
   return item.contributionScore > 0 && item.tractionStatus !== "unscored";
 }
@@ -232,4 +213,9 @@ function formatItemCount(count: number): string {
 
 function formatScore(score: number): string {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(score);
+}
+
+function formatSignedScore(score: number): string {
+  if (score === 0) return "0";
+  return `${score > 0 ? "+" : "−"}${formatScore(Math.abs(score))}`;
 }
