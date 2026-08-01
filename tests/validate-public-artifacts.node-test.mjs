@@ -8,9 +8,11 @@ import {
   GRAPH_ARTIFACTS,
   HISTORY_ARTIFACTS,
   PublicArtifactValidationError,
+  S26_CATALOG_PATH,
   collectCanonicalGraphSetViolations,
   collectGraphArtifactViolations,
   collectHistoryArtifactViolations,
+  collectS26GraphCensusViolations,
   nativeEvidenceIdentityFromUrl,
   runPublicArtifactValidationCli,
   validatePublicArtifacts
@@ -33,7 +35,7 @@ test("validates the complete nine-graph and three-history manifest without a ser
 
   assert.deepEqual(result, {
     status: "ok",
-    scoringModel: "returner-traction@4.1.0",
+    scoringModel: "returner-traction@4.2.0",
     graphSnapshots: 9,
     historyFiles: 3,
     graphNodes: 9,
@@ -41,6 +43,96 @@ test("validates the complete nine-graph and three-history manifest without a ser
     versionedDailyEntries: 3,
     versionedWeeklyEntries: 3
   });
+});
+
+test("enforces the S26 catalog count and exact base ID/slug census across graph artifacts", () => {
+  const catalog = makeS26Catalog([
+    { id: "32552", slug: "s26" },
+    { id: "32583", slug: "graphify-labs" }
+  ]);
+
+  let entries = makeS26CensusEntries(catalog);
+  assert.deepEqual(collectS26GraphCensusViolations(catalog, entries), []);
+
+  entries = makeS26CensusEntries(catalog);
+  entries[1].graph.batch.companyCountObserved = 1;
+  let violations = collectS26GraphCensusViolations(catalog, entries).join("\n");
+  assert.match(
+    violations,
+    /s26-yc-partners\.json: batch\.companyCountObserved must match the S26 catalog count 2, received 1/
+  );
+
+  entries = makeS26CensusEntries(catalog);
+  entries[0].graph.nodes.pop();
+  violations = collectS26GraphCensusViolations(catalog, entries).join("\n");
+  assert.match(violations, /base snapshot has 1 company nodes for the 2-company S26 catalog/);
+  assert.match(violations, /company entityId census must match the S26 catalog; missing company-graphify-labs/);
+  assert.match(violations, /company slug census must match the S26 catalog; missing graphify-labs/);
+
+  entries = makeS26CensusEntries(catalog);
+  entries[2].graph.nodes[0] = {
+    entityType: "company",
+    entityId: "company-graphify-labs",
+    ycProfileUrl: "https://www.ycombinator.com/companies/s26"
+  };
+  entries[1].graph.nodes.push({
+    entityType: "company",
+    entityId: "company-not-in-catalog",
+    ycProfileUrl: "https://www.ycombinator.com/companies/not-in-catalog"
+  });
+  violations = collectS26GraphCensusViolations(catalog, entries).join("\n");
+  assert.match(
+    violations,
+    /pairs entityId company-graphify-labs with YC slug s26; the S26 catalog maps it to graphify-labs/
+  );
+  assert.match(violations, /entityId company-not-in-catalog is absent from the S26 catalog/);
+  assert.match(violations, /ycProfileUrl slug not-in-catalog is absent from the S26 catalog/);
+});
+
+test("rejects internally inconsistent S26 catalog IDs, slugs, and source counts", () => {
+  const catalog = makeS26Catalog([
+    { id: "32552", slug: "s26" },
+    { id: "32583", slug: "graphify-labs" }
+  ]);
+  catalog.source.observedCompanyCount = 3;
+  catalog.companies[1].id = "32552";
+  catalog.companies[1].objectID = "99999";
+  catalog.companies[1].slug = "s26";
+  catalog.companies[1].ycProfileUrl = "https://www.ycombinator.com/companies/graphify-labs";
+
+  const violations = collectS26GraphCensusViolations(catalog, []).join("\n");
+  assert.match(violations, /source\.observedCompanyCount must equal the 2-company catalog/);
+  assert.match(violations, /objectID must equal id 32552, received "99999"/);
+  assert.match(violations, /id duplicates companies\[0\]\.id 32552/);
+  assert.match(violations, /slug duplicates .*companies\[0\]\.slug s26/);
+});
+
+test("validatePublicArtifacts rejects stale S26 census metadata in an audience graph", async () => {
+  const rootDir = await writeValidArtifactTree();
+  const descriptor = GRAPH_ARTIFACTS.find(
+    (artifact) => artifact.batch === "S26" && artifact.audience === "yc_partners"
+  );
+  assert.ok(descriptor);
+  const graphPath = path.join(rootDir, descriptor.path);
+  const graph = JSON.parse(await readFile(graphPath, "utf8"));
+  graph.batch.companyCountExpected = 115;
+  graph.batch.companyCountObserved = 115;
+  await writeJson(rootDir, descriptor.path, graph);
+
+  await assert.rejects(
+    validatePublicArtifacts({ rootDir }),
+    (error) => {
+      assert.ok(error instanceof PublicArtifactValidationError);
+      assert.ok(
+        error.violations.some((violation) =>
+          /s26-yc-partners\.json: batch\.companyCountObserved must match the S26 catalog count 1, received 115/.test(
+            violation
+          )
+        )
+      );
+      return true;
+    }
+  );
 });
 
 test("rejects wrong batch, audience, scoring scope, v4 identity, and incomplete breakdowns", () => {
@@ -58,7 +150,7 @@ test("rejects wrong batch, audience, scoring scope, v4 identity, and incomplete 
   assert.match(violations, /mode must be official_snapshot/);
   assert.match(violations, /batch\.slug must be S2026/);
   assert.match(violations, /selectedTopVoiceAudience\.id must be off/);
-  assert.match(violations, /scoringContext\.modelVersion must be 4\.1\.0/);
+  assert.match(violations, /scoringContext\.modelVersion must be 4\.2\.0/);
   assert.match(violations, /scoringContext\.scoreScope must be all_platforms/);
   assert.match(violations, /scoreBreakdown\.confidence must be an object/);
 });
@@ -71,6 +163,7 @@ test("rejects impossible score values and internally inconsistent score surfaces
   graph.nodes[0].scoreBreakdown.absoluteScore = -1;
   graph.nodes[0].scoreBreakdown.confidence.value = 1.1;
   graph.nodes[0].scoreBreakdown.weightedPlatforms[0].configuredWeight = 0.99;
+  graph.nodes[0].scoreBreakdown.calibration.method = "none";
   graph.leaderboard[0].score = 101;
 
   const violations = collectGraphArtifactViolations(graph, descriptor).join("\n");
@@ -80,6 +173,7 @@ test("rejects impossible score values and internally inconsistent score surfaces
   assert.match(violations, /absoluteScore must be an integer from 0 through 100/);
   assert.match(violations, /confidence\.value must be a finite number from 0 through 1/);
   assert.match(violations, /configuredWeight must be 0\.21/);
+  assert.match(violations, /calibration\.method must be global_best_ratio/);
   assert.match(violations, /leaderboard\[0\]\.score must be an integer from 0 through 100/);
 });
 
@@ -107,6 +201,22 @@ test("rejects canonical audience state that drifts from its base artifact", () =
   assert.match(violations, /s2026-yc-partners\.json: node company-s2026 must preserve canonical radius/);
 });
 
+test("rejects per-batch or audience-specific global benchmark signatures", () => {
+  const entries = GRAPH_ARTIFACTS.map((descriptor, index) => ({
+    descriptor,
+    graph: makeGraph(descriptor, index + 1)
+  }));
+  entries.find(({ descriptor }) => descriptor.batch === "S26" && descriptor.audience === "off")
+    .graph.nodes[0].scoreBreakdown.calibration.cohortSize = 1;
+  entries.find(({ descriptor }) => descriptor.batch === "A16ZSR006" && descriptor.audience === "insiders")
+    .graph.nodes[0].scoreBreakdown.calibration.benchmarkScore = 99;
+
+  const violations = collectCanonicalGraphSetViolations(entries).join("\n");
+
+  assert.match(violations, /calibration\.cohortSize must be global count 3/);
+  assert.match(violations, /calibration\.benchmarkScore must be global maximum 15/);
+});
+
 test("detects duplicate native posts across URL aliases and explicit identity conflicts", () => {
   const descriptor = GRAPH_ARTIFACTS[0];
   const graph = makeGraph(descriptor, 3);
@@ -130,6 +240,105 @@ test("detects duplicate native posts across URL aliases and explicit identity co
   duplicate.platformPostId = "999999999999999999";
   const conflicted = collectGraphArtifactViolations(graph, descriptor).join("\n");
   assert.match(conflicted, /conflicting x native identities/);
+});
+
+test("rejects GitHub repository publication dates sourced from refresh or commit activity", () => {
+  const descriptor = GRAPH_ARTIFACTS[0];
+  const makeGithubGraph = (overrides = {}) => {
+    const graph = makeGraph(descriptor, 1);
+    const evidence = graph.evidence[0];
+    Object.assign(evidence, {
+      platform: "github",
+      sourceUrl: "https://github.com/returner/example-repository",
+      platformPostId: "returner/example-repository",
+      mediaType: "repo",
+      socialAccountId: null,
+      ...overrides
+    });
+    graph.nodes[0].socialAccounts = [];
+    return graph;
+  };
+  const publicationViolations = (graph) =>
+    collectGraphArtifactViolations(graph, descriptor, { now: VALIDATION_NOW })
+      .filter((violation) => /GitHub repository publication/.test(violation))
+      .join("\n");
+
+  const nativeCreation = "2025-01-02T03:04:05.000Z";
+  const updatedAt = "2026-07-14T10:00:00.000Z";
+  const pushedAt = "2026-07-15T10:00:00.000Z";
+  const matchingCreation = makeGithubGraph({
+    postedAt: nativeCreation,
+    publishedAtPrecision: "exact",
+    observedAt: GENERATED_AT,
+    metricsCheckedAt: GENERATED_AT,
+    last_updated_at: pushedAt,
+    rawVisibleText: JSON.stringify({
+      repositoryTimestamps: {
+        createdAt: nativeCreation,
+        updatedAt,
+        pushedAt,
+        observedAt: GENERATED_AT
+      }
+    })
+  });
+  assert.equal(publicationViolations(matchingCreation), "");
+
+  const pushedAsPublication = makeGithubGraph({
+    postedAt: pushedAt,
+    publishedAtPrecision: "exact",
+    observedAt: GENERATED_AT,
+    metricsCheckedAt: GENERATED_AT,
+    last_updated_at: pushedAt,
+    rawVisibleText: JSON.stringify({
+      repositoryTimestamps: {
+        createdAt: nativeCreation,
+        updatedAt,
+        pushedAt,
+        observedAt: GENERATED_AT
+      }
+    })
+  });
+  assert.match(
+    publicationViolations(pushedAsPublication),
+    /must use native createdAt .*exact postedAt .*matches pushedAt instead/
+  );
+
+  const checkedWithoutCreation = makeGithubGraph({
+    postedAt: pushedAt,
+    publishedAtPrecision: "exact",
+    observedAt: GENERATED_AT,
+    metricsCheckedAt: pushedAt,
+    last_checked_at: pushedAt
+  });
+  assert.match(
+    publicationViolations(checkedWithoutCreation),
+    /derived from .*metricsCheckedAt.*last_checked_at.*has no auditable native createdAt; publishedAtPrecision must be unknown/
+  );
+  checkedWithoutCreation.evidence[0].publishedAtPrecision = "unknown";
+  assert.equal(publicationViolations(checkedWithoutCreation), "");
+
+  const commitDerivedRepository = makeGithubGraph({
+    postedAt: "2026-07-14T13:21:30.000Z",
+    publishedAtPrecision: "exact",
+    last_updated_at: "2026-07-14T13:21:30.000Z",
+    rawVisibleText: JSON.stringify({
+      canonicalRepository: {
+        sourceUrl: "https://github.com/returner/example-repository",
+        platformPostId: "returner/example-repository"
+      },
+      sourceProvenance: {
+        kind: "github_commit",
+        sourceUrl:
+          "https://github.com/returner/example-repository/commit/11709687a966f26f9932bfef08adf724108cc989"
+      }
+    })
+  });
+  assert.match(
+    publicationViolations(commitDerivedRepository),
+    /derived from commit provenance, last_updated_at has no auditable native createdAt; publishedAtPrecision must be unknown/
+  );
+  commitDerivedRepository.evidence[0].publishedAtPrecision = "unknown";
+  assert.equal(publicationViolations(commitDerivedRepository), "");
 });
 
 test("accepts locale LinkedIn hosts but rejects lookalike domains", () => {
@@ -360,7 +569,7 @@ test("allows legacy history rows but requires valid v4 daily and weekly entries"
   const historicalV4 = structuredClone(history.daily[1]);
   historicalV4.recordedAt = "2026-07-02T12:00:00.000Z";
   historicalV4.inputGeneratedAt = "2026-07-02T11:59:00.000Z";
-  historicalV4.scoringModelVersion = "4.0.0";
+  historicalV4.scoringModelVersion = "4.1.0";
   history.daily.splice(1, 0, historicalV4);
 
   assert.deepEqual(collectHistoryArtifactViolations(history, descriptor).violations, []);
@@ -373,12 +582,12 @@ test("allows legacy history rows but requires valid v4 daily and weekly entries"
 
   assert.equal(result.versionedDailyEntries, 0);
   assert.equal(result.versionedWeeklyEntries, 0);
-  assert.match(violations, /daily must contain a returner-traction@4\.1\.0 version-tagged entry/);
+  assert.match(violations, /daily must contain a returner-traction@4\.2\.0 version-tagged entry/);
   assert.match(
     violations,
-    /weekly\[0\]\.scoringModelVersion must be 4\.1\.0 or a supported historical version/
+    /weekly\[0\]\.scoringModelVersion must be 4\.2\.0 or a supported historical version/
   );
-  assert.match(violations, /weekly must contain a returner-traction@4\.1\.0 version-tagged entry/);
+  assert.match(violations, /weekly must contain a returner-traction@4\.2\.0 version-tagged entry/);
 });
 
 test("rejects future history, non-tied canonical ranks, and stale Central-day entries", () => {
@@ -447,9 +656,17 @@ test("reports missing committed artifacts as one deterministic validation error"
     validatePublicArtifacts({ rootDir }),
     (error) => {
       assert.ok(error instanceof PublicArtifactValidationError);
-      assert.equal(error.violations.length, GRAPH_ARTIFACTS.length + HISTORY_ARTIFACTS.length);
-      assert.match(error.message, /Public artifact validation failed with 12 violation\(s\)/);
+      assert.equal(
+        error.violations.length,
+        GRAPH_ARTIFACTS.length + HISTORY_ARTIFACTS.length + 1
+      );
+      assert.match(error.message, /Public artifact validation failed with 13 violation\(s\)/);
       assert.match(error.violations[0], /public\/graph\/s2026\.json: could not be read/);
+      assert.ok(
+        error.violations.some((violation) =>
+          violation === `${S26_CATALOG_PATH}: could not be read (ENOENT)`
+        )
+      );
       return true;
     }
   );
@@ -459,6 +676,8 @@ async function writeValidArtifactTree() {
   const rootDir = await mkdtemp(path.join(tmpdir(), "returner-artifacts-valid-"));
   temporaryRoots.push(rootDir);
 
+  await writeJson(rootDir, S26_CATALOG_PATH, makeS26Catalog());
+
   for (const [index, descriptor] of GRAPH_ARTIFACTS.entries()) {
     await writeJson(rootDir, descriptor.path, makeGraph(descriptor, index + 1));
   }
@@ -466,6 +685,46 @@ async function writeValidArtifactTree() {
     await writeJson(rootDir, descriptor.path, makeHistory(descriptor));
   }
   return rootDir;
+}
+
+function makeS26Catalog(companies = [{ id: "32552", slug: "s26" }]) {
+  return {
+    source: {
+      observedCompanyCount: companies.length,
+      expectedCompanyCount: companies.length
+    },
+    companies: companies.map((company) => ({
+      id: company.id,
+      objectID: company.id,
+      slug: company.slug,
+      name: `Fixture ${company.slug}`,
+      ycProfileUrl: `https://www.ycombinator.com/companies/${company.slug}`
+    }))
+  };
+}
+
+function makeS26CensusEntries(catalog) {
+  const companyNodes = catalog.companies.map((company) => ({
+    entityType: "company",
+    entityId: `company-${company.slug}`,
+    ycProfileUrl: company.ycProfileUrl
+  }));
+  return GRAPH_ARTIFACTS.filter((descriptor) => descriptor.batch === "S26").map(
+    (descriptor) => ({
+      descriptor,
+      graph: {
+        batch: {
+          slug: "S26",
+          companyCountExpected: catalog.companies.length,
+          companyCountObserved: catalog.companies.length
+        },
+        nodes:
+          descriptor.audience === "off"
+            ? structuredClone(companyNodes)
+            : structuredClone(companyNodes.slice(0, 1))
+      }
+    })
+  );
 }
 
 function makeGraph(descriptor, serial) {
@@ -481,13 +740,18 @@ function makeGraph(descriptor, serial) {
     "https://x.com/returner"
   );
   const absoluteScore = 15;
-  const totalScore = absoluteScore;
+  const benchmarkScore = absoluteScore;
+  const totalScore = 100;
   const selectedTopVoiceAudience = { id: audience };
   const calibration = {
-    method: "none",
-    cohortSize: 1,
+    method: "global_best_ratio",
+    cohortSize: 3,
     percentile: null,
-    inputScore: absoluteScore
+    inputScore: absoluteScore,
+    benchmarkScore,
+    scaleFactor: 100 / benchmarkScore,
+    benchmarkScope: "all_supported_batches",
+    benchmarkPopulation: "current_company_snapshot"
   };
   const scoreBreakdown = {
     modelId: EXPECTED_SCORING_MODEL.id,
@@ -560,7 +824,7 @@ function makeGraph(descriptor, serial) {
   }
 
   return {
-    batch: { slug: descriptor.batch, companyCountObserved: 1 },
+    batch: { slug: descriptor.batch, companyCountExpected: 1, companyCountObserved: 1 },
     edges: [],
     nodes: [
       {
@@ -580,6 +844,7 @@ function makeGraph(descriptor, serial) {
         evidenceIds: [evidenceId],
         relatedEntityIds: [],
         founders: [],
+        ycProfileUrl: `https://www.ycombinator.com/companies/${descriptor.batch.toLowerCase()}`,
         ...(audience === "off"
           ? {}
           : {

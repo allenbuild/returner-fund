@@ -22,6 +22,7 @@ import type {
   Platform,
   SocialAccountSummary
 } from "./types";
+import { githubRepositoryEvidenceTimestamps } from "./github-repository-timestamps";
 
 export const A16Z_SPEEDRUN_006_BATCH_SLUG = "A16ZSR006";
 export const A16Z_SPEEDRUN_006_BATCH_LABEL = "a16z speedrun 006";
@@ -801,6 +802,7 @@ const speedrun006Profiles: SpeedrunCompanyProfile[] = [
 ];
 
 const githubSnapshot = githubTractionSnapshot as unknown as GithubTractionSnapshot;
+const githubRepositoriesByIdentity = buildGithubRepositoryIndex(githubSnapshot);
 const publicSnapshot = publicEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
 const seededSocialSnapshot = seededSocialEvidenceSnapshot as unknown as SeededSocialEvidenceSnapshot;
 const seededAttributionReconciliation =
@@ -1059,8 +1061,7 @@ function githubEvidenceForAccount(account: GithubTractionAccount): EvidenceItem[
       const repoName = repo.fullName;
       const description = repo.description?.trim() || "GitHub repository.";
       const accountUrl = account.account?.htmlUrl ?? `https://github.com/${handle}`;
-      const publishedAt = repo.pushedAt ?? repo.updatedAt ?? repo.createdAt ?? fetchedAt;
-      const hasRepositoryTimestamp = Boolean(repo.pushedAt ?? repo.updatedAt ?? repo.createdAt);
+      const timestamps = githubRepositoryEvidenceTimestamps(repo, fetchedAt);
 
       return {
         id: `github-a16z-${companySlug}-${slugify(repoName)}`,
@@ -1069,8 +1070,8 @@ function githubEvidenceForAccount(account: GithubTractionAccount): EvidenceItem[
         platform: "github" as const,
         authorName: account.account?.name ?? account.companyName,
         authorHandle: handle,
-        postedAt: publishedAt,
-        publishedAtPrecision: hasRepositoryTimestamp ? publicationTimestampPrecision(publishedAt) : "unknown",
+        postedAt: timestamps.postedAt,
+        publishedAtPrecision: timestamps.publishedAtPrecision,
         observedAt: fetchedAt,
         metricsCheckedAt: fetchedAt,
         title: `${repoName}: ${description}`,
@@ -1083,10 +1084,10 @@ function githubEvidenceForAccount(account: GithubTractionAccount): EvidenceItem[
         sourceUrl: repo.htmlUrl,
         platformPostId: repoName,
         platformObjectId: repo.id == null ? null : String(repo.id),
-        rawVisibleText: JSON.stringify({ repo }),
+        rawVisibleText: JSON.stringify({ repo, repositoryTimestamps: timestamps.provenance }),
         first_seen_at: fetchedAt,
         last_checked_at: fetchedAt,
-        last_updated_at: fetchedAt,
+        last_updated_at: timestamps.lastUpdatedAt,
         why: `Verified public GitHub repository for ${account.companyName}.`,
         attachedCompanyId: companyId,
         attachedCompanyName: account.companyName,
@@ -1147,6 +1148,19 @@ function publicEvidenceItemFromSource(
   const accountUrl = normalizedAccount?.url ?? null;
   const handle = source.authorHandle ?? normalizedAccount?.handle ?? handleFromUrl(accountUrl);
   const isLinkedInActivityFragment = isLinkedInProfileActivityFragmentUrl(source.platform, source.sourceUrl);
+  const observedAt = source.observedAt ?? source.first_seen_at ?? publicSnapshot.source.fetchedAt;
+  const githubRepository = resolveGithubRepository(
+    source.platform,
+    source.sourceUrl,
+    source.platformPostId,
+    source.rawVisibleText
+  );
+  const githubTimestamps = githubRepository
+    ? githubRepositoryEvidenceTimestamps(githubRepository, observedAt)
+    : null;
+  const nativeGithubTimestamps = githubTimestamps?.publishedAtPrecision === "unknown"
+    ? null
+    : githubTimestamps;
 
   return [
     {
@@ -1154,17 +1168,24 @@ function publicEvidenceItemFromSource(
       id: `${source.platform}-a16z-${attachment.companySlug}-${slugify(source.platformPostId ?? source.sourceUrl)}`,
       entityType: "company",
       entityId: companyId,
-      postedAt: source.postedAt ?? publicSnapshot.source.fetchedAt,
-      publishedAtPrecision: source.postedAt
-        ? source.publishedAtPrecision ?? publicationTimestampPrecision(source.postedAt)
-        : "unknown",
-      observedAt: source.observedAt ?? source.first_seen_at ?? publicSnapshot.source.fetchedAt,
+      postedAt: nativeGithubTimestamps?.postedAt ?? source.postedAt ?? publicSnapshot.source.fetchedAt,
+      publishedAtPrecision: source.platform === "github"
+        ? nativeGithubTimestamps?.publishedAtPrecision ?? "unknown"
+        : source.postedAt
+          ? source.publishedAtPrecision ?? publicationTimestampPrecision(source.postedAt)
+          : "unknown",
+      observedAt,
       metricsCheckedAt: source.metricsCheckedAt ?? source.last_checked_at ?? publicSnapshot.source.fetchedAt,
       authorHandle: handle,
       contributionScore: isLinkedInActivityFragment ? 0 : source.contributionScore ?? 1,
       first_seen_at: source.first_seen_at ?? publicSnapshot.source.fetchedAt,
       last_checked_at: source.last_checked_at ?? publicSnapshot.source.fetchedAt,
-      last_updated_at: source.last_updated_at ?? publicSnapshot.source.fetchedAt,
+      last_updated_at: githubTimestamps?.lastUpdatedAt ?? source.last_updated_at ?? publicSnapshot.source.fetchedAt,
+      platformObjectId:
+        source.platformObjectId ?? (githubRepository?.id == null ? null : String(githubRepository.id)),
+      rawVisibleText: githubTimestamps
+        ? githubRawVisibleText(source.rawVisibleText, githubTimestamps.provenance)
+        : source.rawVisibleText,
       why: isLinkedInActivityFragment
         ? "Stored as context only. LinkedIn profile activity fragments lack a stable native post identity and are not counted as post-level traction."
         : `${source.why ?? source.matchReason ?? "Verified public native evidence."} Reattached to ${attachment.companyName} from explicit a16z speedrun attribution.`,
@@ -1185,6 +1206,8 @@ function seededSocialEvidenceItem(seed: SeededSocialEvidenceRecord): A16zSpeedru
   if (!speedrunProfileSlugs.has(companySlug)) return [];
 
   const normalizedSeed = normalizeSeededGithubRepository(seed);
+  const isCommitDerivedGithubRepository =
+    seed.platform === "github" && normalizedSeed.sourceUrl !== seed.sourceUrl;
   const companyId = companyIdFromSlug(companySlug);
   const normalizedAccount = normalizeNativeAccountRoot(normalizedSeed.platform, normalizedSeed.accountUrl ?? null);
   const accountUrl = normalizedAccount?.url ?? null;
@@ -1194,6 +1217,18 @@ function seededSocialEvidenceItem(seed: SeededSocialEvidenceRecord): A16zSpeedru
     normalizedSeed.platform,
     normalizedSeed.sourceUrl
   );
+  const githubRepository = resolveGithubRepository(
+    normalizedSeed.platform,
+    normalizedSeed.sourceUrl,
+    normalizedSeed.platformPostId,
+    normalizedSeed.rawVisibleText
+  );
+  const githubTimestamps = githubRepository
+    ? githubRepositoryEvidenceTimestamps(githubRepository, seededSocialSnapshot.source.generatedAt)
+    : null;
+  const nativeGithubTimestamps = githubTimestamps?.publishedAtPrecision === "unknown"
+    ? null
+    : githubTimestamps;
 
   return [
     {
@@ -1203,8 +1238,14 @@ function seededSocialEvidenceItem(seed: SeededSocialEvidenceRecord): A16zSpeedru
       platform: normalizedSeed.platform,
       authorName: normalizedSeed.authorName,
       authorHandle: handle,
-      postedAt: normalizedSeed.postedAt,
-      publishedAtPrecision: publicationTimestampPrecision(normalizedSeed.postedAt),
+      postedAt: nativeGithubTimestamps?.postedAt ?? normalizedSeed.postedAt,
+      // The seed timestamp belongs to the source commit, not to the repository
+      // that this row is canonicalized onto. Preserve it as activity metadata,
+      // but fail closed for Today/Month instead of presenting the commit as the
+      // repository's native publication event.
+      publishedAtPrecision: normalizedSeed.platform === "github"
+        ? nativeGithubTimestamps?.publishedAtPrecision ?? "unknown"
+        : publicationTimestampPrecision(normalizedSeed.postedAt),
       observedAt: seededSocialSnapshot.source.generatedAt,
       metricsCheckedAt: seededSocialSnapshot.source.generatedAt,
       title: normalizedSeed.title,
@@ -1219,14 +1260,19 @@ function seededSocialEvidenceItem(seed: SeededSocialEvidenceRecord): A16zSpeedru
       sourceUrl: normalizedSeed.sourceUrl,
       platformPostId:
         normalizedSeed.platformPostId ?? platformPostIdFromUrl(normalizedSeed.sourceUrl),
-      rawVisibleText: normalizedSeed.rawVisibleText ?? JSON.stringify({
-        title: normalizedSeed.title,
-        metrics: normalizedSeed.metrics,
-        seededFrom: "a16z-speedrun-006-social-evidence"
-      }),
+      platformObjectId: githubRepository?.id == null ? null : String(githubRepository.id),
+      rawVisibleText: githubTimestamps
+        ? githubRawVisibleText(normalizedSeed.rawVisibleText, githubTimestamps.provenance)
+        : normalizedSeed.rawVisibleText ?? JSON.stringify({
+            title: normalizedSeed.title,
+            metrics: normalizedSeed.metrics,
+            seededFrom: "a16z-speedrun-006-social-evidence"
+          }),
       first_seen_at: seededSocialSnapshot.source.generatedAt,
       last_checked_at: seededSocialSnapshot.source.generatedAt,
-      last_updated_at: seededSocialSnapshot.source.generatedAt,
+      last_updated_at: githubTimestamps?.lastUpdatedAt ?? (isCommitDerivedGithubRepository
+        ? normalizedSeed.postedAt
+        : seededSocialSnapshot.source.generatedAt),
       why: isLinkedInActivityFragment
         ? "Stored as context only. LinkedIn profile activity fragments lack a stable native post identity and are not counted as post-level traction."
         : normalizedSeed.why,
@@ -1341,6 +1387,191 @@ function parseRawVisibleText(value: string | undefined): unknown {
   } catch {
     return value;
   }
+}
+
+function buildGithubRepositoryIndex(snapshot: GithubTractionSnapshot): Map<string, GithubRepo> {
+  const repositories = new Map<string, GithubRepo>();
+  for (const account of snapshot.accounts ?? []) {
+    for (const repository of account.repos ?? []) {
+      const identity = githubRepoKey(repository.htmlUrl || repository.fullName);
+      if (!identity) continue;
+      const existing = repositories.get(identity);
+      repositories.set(identity, existing ? mergeIndexedGithubRepository(existing, repository) : repository);
+    }
+  }
+  return repositories;
+}
+
+function mergeIndexedGithubRepository(left: GithubRepo, right: GithubRepo): GithubRepo {
+  const leftActivity = Math.max(Date.parse(left.updatedAt ?? "") || 0, Date.parse(left.pushedAt ?? "") || 0);
+  const rightActivity = Math.max(Date.parse(right.updatedAt ?? "") || 0, Date.parse(right.pushedAt ?? "") || 0);
+  const base = rightActivity >= leftActivity ? right : left;
+  return {
+    ...base,
+    createdAt: earliestValidTimestamp(left.createdAt, right.createdAt) ?? undefined,
+    updatedAt: latestValidTimestamp(left.updatedAt, right.updatedAt) ?? undefined,
+    pushedAt: latestValidTimestamp(left.pushedAt, right.pushedAt) ?? undefined
+  };
+}
+
+function earliestValidTimestamp(...values: Array<string | null | undefined>): string | null {
+  return values
+    .filter((value): value is string => Boolean(value && Number.isFinite(Date.parse(value))))
+    .sort((left, right) => Date.parse(left) - Date.parse(right))[0] ?? null;
+}
+
+function latestValidTimestamp(...values: Array<string | null | undefined>): string | null {
+  return values
+    .filter((value): value is string => Boolean(value && Number.isFinite(Date.parse(value))))
+    .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
+}
+
+function resolveGithubRepository(
+  platform: Platform,
+  sourceUrl: string,
+  platformPostId: string | null | undefined,
+  rawVisibleText: string | undefined
+): GithubRepo | null {
+  if (platform !== "github") return null;
+  const identity = githubRepoKey(sourceUrl || platformPostId || "");
+  if (!identity || !/^[^/]+\/[^/]+$/.test(identity)) return null;
+
+  const embedded = githubRepositoryFromRawVisibleText(rawVisibleText, identity);
+  if (embedded?.createdAt) return embedded;
+  const canonical = githubRepositoriesByIdentity.get(identity);
+  return canonical?.createdAt ? canonical : embedded ?? canonical ?? null;
+}
+
+function githubRepositoryFromRawVisibleText(
+  rawVisibleText: string | undefined,
+  expectedIdentity: string
+): GithubRepo | null {
+  const parsed = parseRawVisibleText(rawVisibleText);
+  if (!isUnknownRecord(parsed)) return null;
+  const commitDerived = githubCommitProvenance(parsed);
+  const candidates = [
+    { value: parsed.repository, requireIdentity: false },
+    { value: parsed.repo, requireIdentity: false },
+    { value: parsed.canonicalRepository, requireIdentity: false },
+    { value: parsed.post, requireIdentity: true }
+  ];
+
+  for (const candidate of candidates) {
+    if (!isUnknownRecord(candidate.value)) continue;
+    if (candidate.requireIdentity && commitDerived) continue;
+    const record = candidate.value;
+    const recordUrl = recordString(record, "sourceUrl", "url", "htmlUrl", "html_url");
+    const fullName = recordString(record, "platformPostId", "fullName", "full_name", "id");
+    const identity = githubRepoKey(recordUrl ?? fullName ?? "");
+    if ((candidate.requireIdentity && !identity) || (identity && identity !== expectedIdentity)) continue;
+
+    const timestamps = isUnknownRecord(record.repositoryTimestamps)
+      ? record.repositoryTimestamps
+      : null;
+    const createdAt = recordTimestamp(
+      record,
+      "createdAt",
+      "created_at",
+      "repositoryCreatedAt",
+      "repository_created_at"
+    ) ?? recordTimestamp(
+      timestamps,
+      "createdAt",
+      "created_at",
+      "repositoryCreatedAt",
+      "repository_created_at"
+    );
+    const updatedAt = recordTimestamp(record, "updatedAt", "updated_at") ??
+      recordTimestamp(timestamps, "updatedAt", "updated_at");
+    const pushedAt = recordTimestamp(record, "pushedAt", "pushed_at") ??
+      recordTimestamp(timestamps, "pushedAt", "pushed_at");
+    if (!createdAt && !updatedAt && !pushedAt) continue;
+
+    const [owner, repoName] = expectedIdentity.split("/");
+    const idValue = typeof record.id === "number" && Number.isFinite(record.id) ? record.id : undefined;
+    return {
+      ...(idValue === undefined ? {} : { id: idValue }),
+      name: repoName,
+      fullName: fullName ?? expectedIdentity,
+      description: recordString(record, "description"),
+      htmlUrl: recordUrl ?? `https://github.com/${owner}/${repoName}`,
+      stars: 0,
+      forks: 0,
+      watchers: 0,
+      openIssues: 0,
+      language: null,
+      ...(createdAt ? { createdAt } : {}),
+      ...(updatedAt ? { updatedAt } : {}),
+      ...(pushedAt ? { pushedAt } : {}),
+      score: 0
+    };
+  }
+
+  const directTimestamps = isUnknownRecord(parsed.repositoryTimestamps)
+    ? parsed.repositoryTimestamps
+    : parsed;
+  const createdAt = recordTimestamp(
+    directTimestamps,
+    "createdAt",
+    "created_at",
+    "repositoryCreatedAt",
+    "repository_created_at"
+  );
+  if (!createdAt) return null;
+  const [owner, repoName] = expectedIdentity.split("/");
+  return {
+    name: repoName,
+    fullName: expectedIdentity,
+    htmlUrl: `https://github.com/${owner}/${repoName}`,
+    stars: 0,
+    forks: 0,
+    watchers: 0,
+    openIssues: 0,
+    language: null,
+    createdAt,
+    updatedAt: recordTimestamp(directTimestamps, "updatedAt", "updated_at") ?? undefined,
+    pushedAt: recordTimestamp(directTimestamps, "pushedAt", "pushed_at") ?? undefined,
+    score: 0
+  };
+}
+
+function githubRawVisibleText(
+  rawVisibleText: string | undefined,
+  repositoryTimestamps: ReturnType<typeof githubRepositoryEvidenceTimestamps>["provenance"]
+): string {
+  const parsed = parseRawVisibleText(rawVisibleText);
+  if (isUnknownRecord(parsed)) return JSON.stringify({ ...parsed, repositoryTimestamps });
+  return JSON.stringify({
+    repositoryTimestamps,
+    ...(rawVisibleText ? { sourceEvidence: rawVisibleText } : {})
+  });
+}
+
+function githubCommitProvenance(raw: Record<string, unknown>): boolean {
+  const provenance = isUnknownRecord(raw.sourceProvenance) ? raw.sourceProvenance : null;
+  const kind = recordString(provenance, "kind")?.toLowerCase();
+  if (kind === "github_commit") return true;
+  return [
+    recordString(provenance, "sourceUrl", "url"),
+    recordString(isUnknownRecord(raw.post) ? raw.post : null, "sourceUrl", "url", "htmlUrl", "html_url")
+  ].some((value) => /\/commit\/[0-9a-f]+(?:[/?#]|$)/i.test(value ?? ""));
+}
+
+function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function recordString(record: Record<string, unknown> | null, ...keys: string[]): string | null {
+  for (const key of keys) {
+    const value = record?.[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+function recordTimestamp(record: Record<string, unknown> | null, ...keys: string[]): string | null {
+  const value = recordString(record, ...keys);
+  return value && Number.isFinite(Date.parse(value)) ? value : null;
 }
 
 function seededSocialEvidenceAttribution(

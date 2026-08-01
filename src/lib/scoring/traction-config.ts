@@ -64,8 +64,8 @@ const NORMALIZED_WEIGHT_TOLERANCE = 1e-9;
  */
 export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
   modelId: "returner-traction",
-  version: "4.1.0",
-  name: "returner-traction-v4-absolute-fixed-platform",
+  version: "4.2.0",
+  name: "returner-traction-v4-absolute-fixed-platform-global-best",
   platformWeights: {
     x: 0.21,
     instagram: 0.21,

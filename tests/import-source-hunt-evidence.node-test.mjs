@@ -41,6 +41,191 @@ test("imports verified native evidence and preserves case-sensitive post ids", a
   assert.equal(target.source.evidenceCount, 1);
 });
 
+test("uses GitHub repository creation as publication and keeps pushes as activity metadata", async () => {
+  const createdAt = "2024-10-05T21:50:44.000Z";
+  const pushedAt = "2026-07-31T23:35:40.000Z";
+  const updatedAt = "2026-08-01T00:35:40.000Z";
+  const fixture = await fixtureFiles({ source: {}, evidence: [] }, {
+    evidence: [{
+      entityType: "company",
+      entityId: "company-heyclicky",
+      companyName: "HeyClicky",
+      platform: "github",
+      sourceUrl: "https://github.com/heyclicky/example",
+      platformPostId: "heyclicky/example",
+      postedAt: pushedAt,
+      title: "heyclicky/example",
+      metrics: { stars: 3, watchers: 3, forks: 0, issues: 0 },
+      rawVisibleText: JSON.stringify({
+        repository: { createdAt, pushedAt, updatedAt }
+      }),
+      review_state: "verified",
+      matchReason: "Native repository on the verified company account."
+    }]
+  });
+
+  const result = runImporter(fixture, "--strict", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const target = JSON.parse(await readFile(fixture.target, "utf8"));
+  assert.equal(target.evidence[0].postedAt, createdAt);
+  assert.equal(target.evidence[0].last_updated_at, updatedAt);
+});
+
+test("fails GitHub repository publication closed when native creation is unavailable", async () => {
+  const pushedAt = "2026-07-31T23:35:40.000Z";
+  const fixture = await fixtureFiles({ source: {}, evidence: [] }, {
+    evidence: [{
+      entityType: "company",
+      entityId: "company-heyclicky",
+      companyName: "HeyClicky",
+      platform: "github",
+      sourceUrl: "https://github.com/heyclicky/undated",
+      platformPostId: "heyclicky/undated",
+      postedAt: pushedAt,
+      last_updated_at: pushedAt,
+      title: "heyclicky/undated",
+      metrics: { stars: 2, watchers: 2, forks: 0, issues: 0 },
+      rawVisibleText: JSON.stringify({
+        repository: { pushedAt }
+      }),
+      review_state: "verified",
+      matchReason: "Native repository on the verified company account."
+    }]
+  });
+
+  const result = runImporter(fixture, "--strict", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const target = JSON.parse(await readFile(fixture.target, "utf8"));
+  assert.equal(target.evidence[0].postedAt, null);
+  assert.equal(target.evidence[0].last_updated_at, pushedAt);
+});
+
+test("supports canonical GitHub creation provenance shapes and snake_case fields", async () => {
+  const fixtures = [
+    {
+      repo: "direct-timestamps",
+      createdAt: "2024-01-01T00:00:00.000Z",
+      raw: { repositoryTimestamps: { created_at: "2024-01-01T00:00:00.000Z" } }
+    },
+    {
+      repo: "nested-repo-timestamps",
+      createdAt: "2024-02-01T00:00:00.000Z",
+      raw: {
+        repo: {
+          full_name: "heyclicky/nested-repo-timestamps",
+          repositoryTimestamps: { repository_created_at: "2024-02-01T00:00:00.000Z" }
+        }
+      }
+    },
+    {
+      repo: "canonical-repository",
+      createdAt: "2024-03-01T00:00:00.000Z",
+      raw: {
+        canonicalRepository: {
+          fullName: "heyclicky/canonical-repository",
+          repositoryCreatedAt: "2024-03-01T00:00:00.000Z"
+        }
+      }
+    },
+    {
+      repo: "top-level-created",
+      createdAt: "2024-04-01T00:00:00.000Z",
+      raw: { repository_created_at: "2024-04-01T00:00:00.000Z" }
+    },
+    {
+      repo: "post-activity",
+      createdAt: "2024-05-01T00:00:00.000Z",
+      raw: {
+        post: {
+          fullName: "heyclicky/post-activity",
+          url: "https://github.com/heyclicky/post-activity",
+          repositoryCreatedAt: "2024-05-01T00:00:00.000Z",
+          pushed_at: "2026-07-30T00:00:00.000Z",
+          updated_at: "2026-07-31T00:00:00.000Z"
+        }
+      }
+    }
+  ];
+  const fixture = await fixtureFiles({ source: {}, evidence: [] }, {
+    evidence: fixtures.map(({ repo, raw }) => ({
+      entityType: "company",
+      entityId: "company-heyclicky",
+      companyName: "HeyClicky",
+      platform: "github",
+      sourceUrl: `https://github.com/heyclicky/${repo}`,
+      platformPostId: `heyclicky/${repo}`,
+      postedAt: "2026-07-31T23:35:40.000Z",
+      title: `heyclicky/${repo}`,
+      metrics: { stars: 2, watchers: 2, forks: 0, issues: 0 },
+      rawVisibleText: JSON.stringify(raw),
+      review_state: "verified",
+      matchReason: "Native repository on the verified company account."
+    }))
+  });
+
+  const result = runImporter(fixture, "--strict", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const target = JSON.parse(await readFile(fixture.target, "utf8"));
+  assert.deepEqual(
+    target.evidence.map((row) => [row.platformPostId, row.postedAt]).sort(),
+    fixtures.map(({ repo, createdAt }) => [`heyclicky/${repo}`, createdAt]).sort()
+  );
+  const postActivity = target.evidence.find((row) => row.platformPostId === "heyclicky/post-activity");
+  assert.equal(postActivity.last_updated_at, "2026-07-31T00:00:00.000Z");
+});
+
+test("does not treat a GitHub commit timestamp as repository publication", async () => {
+  const commitAt = "2026-07-31T23:35:40.000Z";
+  const cases = [
+    {
+      repo: "commit-kind",
+      raw: {
+        sourceProvenance: { kind: "github_commit" },
+        post: {
+          id: "heyclicky/commit-kind",
+          url: "https://github.com/heyclicky/commit-kind",
+          created_at: commitAt
+        }
+      }
+    },
+    {
+      repo: "commit-url",
+      raw: {
+        sourceProvenance: {
+          sourceUrl: "https://github.com/heyclicky/commit-url/commit/abcdef123456"
+        },
+        post: {
+          fullName: "heyclicky/commit-url",
+          url: "https://github.com/heyclicky/commit-url/commit/abcdef123456",
+          created_at: commitAt
+        }
+      }
+    }
+  ];
+  const fixture = await fixtureFiles({ source: {}, evidence: [] }, {
+    evidence: cases.map(({ repo, raw }) => ({
+      entityType: "company",
+      entityId: "company-heyclicky",
+      companyName: "HeyClicky",
+      platform: "github",
+      sourceUrl: `https://github.com/heyclicky/${repo}`,
+      platformPostId: `heyclicky/${repo}`,
+      postedAt: commitAt,
+      title: `heyclicky/${repo}`,
+      metrics: { stars: 2, watchers: 2, forks: 0, issues: 0 },
+      rawVisibleText: JSON.stringify(raw),
+      review_state: "verified",
+      matchReason: "Commit-derived repository evidence."
+    }))
+  });
+
+  const result = runImporter(fixture, "--strict", "--write");
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const target = JSON.parse(await readFile(fixture.target, "utf8"));
+  assert.equal(target.evidence.length, cases.length);
+  assert.ok(target.evidence.every((row) => row.postedAt === null));
+});
+
 test("strict mode rejects profile pages and leaves the target untouched", async () => {
   const initial = { source: { label: "fixture" }, evidence: [] };
   const fixture = await fixtureFiles(initial, {
@@ -295,7 +480,13 @@ test("target=a16z dedupes repositories from every canonical GitHub snapshot", as
         platformPostId: `withoasis/${githubFile.replace(/\.json$/, "")}`,
         accountUrl: "https://github.com/withoasis",
         metrics: { stars: 12, forks: 2 },
-        mediaType: "repo"
+        mediaType: "repo",
+        rawVisibleText: JSON.stringify({
+          repository: {
+            fullName: `withoasis/${githubFile.replace(/\.json$/, "")}`,
+            createdAt: "2026-07-18T10:17:43Z"
+          }
+        })
       })]
     }, {
       [githubFile]: {

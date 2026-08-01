@@ -62,10 +62,13 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             Platform results use the fixed configured shares below. A platform with no eligible evidence contributes
             zero at its configured share; present platforms are never renormalized to fill the missing weight. Breadth
             is not a separate bonus ({baseline.platformBlend.strongestPercent}% strongest-platform blend and {" "}
-            {baseline.platformBlend.diversifiedPercent}% fixed-share blend). The resulting absolute score is the
-            headline company score ({baseline.calibration.absolutePercent}% absolute and {" "}
-            {baseline.calibration.cohortPercentilePercent}% cohort calibration); cohort rank never stretches or changes
-            it. Filters only change visibility and never recompute this canonical result.
+            {baseline.platformBlend.diversifiedPercent}% fixed-share blend). That raw absolute score remains the
+            auditable benchmark input ({baseline.calibration.absolutePercent}% absolute and {" "}
+            {baseline.calibration.cohortPercentilePercent}% cohort-percentile signal). The displayed headline uses one
+            ratio shared by every supported batch: the strongest current company&apos;s absolute score maps to 100 and
+            every other company receives the same multiplier. There is no per-batch min/max stretch, and platform
+            contributions themselves are never inflated. Filters only change visibility and never recompute this
+            canonical global factor.
           </p>
 
           <div className="scoring-baseline-table-wrap">

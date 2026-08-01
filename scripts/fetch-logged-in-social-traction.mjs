@@ -22,7 +22,8 @@ import {
   xCollectionAttemptState,
   xFailureKind,
   xTimelinePageState,
-  xTweetIngestionDecision
+  xTweetIngestionDecision,
+  xTweetPublicationDate
 } from "./lib/logged-in-x-collection.mjs";
 import {
   canonicalInstagramPostUrl,
@@ -1398,15 +1399,17 @@ async function fetchXTweets(target, workerIndex) {
   }
 
   return {
-    evidence: tweets.map((tweet) =>
-      socialEvidenceItem({
+    evidence: tweets.map((tweet) => {
+      const publication = xTweetPublicationDate(tweet.created_at);
+      return socialEvidenceItem({
         target,
         sourceUrl: tweet.url || `https://x.com/${handle}`,
         platformPostId: tweet.id ?? null,
         title: descriptiveXTitle(tweet.text, tweet.author || target.name),
         text: tweet.text || "",
         rawVisibleText: JSON.stringify(tweet),
-        postedAt: parseXDateLabel(tweet.created_at) ?? parseDateOrNull(tweet.created_at),
+        postedAt: publication.postedAt,
+        publishedAtPrecision: publication.publishedAtPrecision,
         metrics: {
           likes: numberOrNull(tweet.likes),
           reposts: numberOrNull(tweet.retweets),
@@ -1423,8 +1426,8 @@ async function fetchXTweets(target, workerIndex) {
         matchReason:
           target.matchReason ??
           `Opt-in authenticated read-only X ${xCollectionMode} timeline collection for @${handle}; native author and status URL were both verified against the mapped account.`
-      })
-    ),
+      });
+    }),
     failures: [
       ...failures,
       ...xEligibilityFailures
@@ -1697,6 +1700,7 @@ function socialEvidenceItem(input) {
     text: sanitizePublicText(textValue).slice(0, 900),
     rawVisibleText: rawVisibleText.slice(0, 8000),
     postedAt: input.postedAt ?? null,
+    publishedAtPrecision: input.publishedAtPrecision ?? (input.postedAt ? "exact" : "unknown"),
     metrics,
     mediaUrls: input.mediaUrls ?? [],
     contributionScore: input.contributionScore ?? scoreMetrics(input.target.platform, metrics),
@@ -1848,27 +1852,6 @@ function parseInstagramDateOrNull(value) {
   if (!value) return null;
   const parsed = Date.parse(value);
   return Number.isFinite(parsed) ? new Date(parsed).toISOString() : null;
-}
-
-function parseXDateLabel(value) {
-  const text = String(value ?? "").trim();
-  if (!text) return null;
-  const relative = text.match(/^(\d+)\s*(m|h|d|minutes?|hours?|days?)\s*(?:ago)?$/i);
-  if (relative) {
-    const amount = Number(relative[1]);
-    const unit = relative[2].toLowerCase()[0];
-    const ms = unit === "m" ? amount * 60_000 : unit === "h" ? amount * 3_600_000 : amount * 86_400_000;
-    return new Date(Date.now() - ms).toISOString();
-  }
-
-  const monthDay = text.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})$/i);
-  if (monthDay) {
-    const currentYear = new Date().getUTCFullYear();
-    const parsed = Date.parse(`${monthDay[1]} ${monthDay[2]}, ${currentYear} UTC`);
-    return Number.isFinite(parsed) ? new Date(parsed).toISOString() : null;
-  }
-
-  return parseDateOrNull(text);
 }
 
 function urlMatchesPlatform(url, platform) {

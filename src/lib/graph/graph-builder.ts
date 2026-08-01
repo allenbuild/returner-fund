@@ -2,6 +2,7 @@ import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "./yc-spring-2026-
 import { graphNodeMatchesSearchQuery } from "./search";
 import { enrichCompanyRecordVerticals, enrichGraphTaxonomies } from "./graph-taxonomies";
 import { withForwardCompatiblePlatformStatus } from "./platform-status";
+import { getNodeRadius } from "./score-radius";
 import { TRACTION_SCORING_CONFIG } from "./traction-scoring-config";
 import {
   matchEvidenceToTopVoice,
@@ -33,8 +34,6 @@ import type {
   TopVoiceMember
 } from "./types";
 
-const COMPANY_RADIUS = { min: 5, max: 68 };
-const FOUNDER_RADIUS = { min: 4, max: 38 };
 const DEFAULT_SIMILARITY_THRESHOLD = 0.28;
 const MAX_SIMILARITY_EDGES = 140;
 const MAX_SIMILARITY_EDGES_PER_COMPANY = 2;
@@ -265,15 +264,7 @@ export function buildGraphEdges(
   ];
 }
 
-export function getNodeRadius(
-  score: number,
-  peerScores: number[],
-  entityType: "company" | "founder"
-): number {
-  const bounds = entityType === "company" ? COMPANY_RADIUS : FOUNDER_RADIUS;
-  const percentile = scorePercentile(score, peerScores);
-  return round(bounds.min + Math.pow(percentile, 2.2) * (bounds.max - bounds.min));
-}
+export { getNodeRadius } from "./score-radius";
 
 export function nodeId(entityType: "company" | "founder", id: string): string {
   return `${entityType}:${id}`;
@@ -1196,21 +1187,6 @@ function getTopPlatform(platformScores: Partial<Record<Platform, number>>): Plat
 
 function getWeightedTopPlatform(company: CompanyRecord): Platform | null {
   return company.scoreBreakdown?.weightedPlatforms[0]?.platform ?? getTopPlatform(company.platformScores);
-}
-
-function scorePercentile(score: number, peerScores: number[]): number {
-  if (peerScores.length <= 1) {
-    return 0.5;
-  }
-
-  const min = Math.min(...peerScores);
-  const max = Math.max(...peerScores);
-
-  if (max === min) {
-    return 0.5;
-  }
-
-  return (score - min) / (max - min);
 }
 
 interface CompanySimilarityProfile {

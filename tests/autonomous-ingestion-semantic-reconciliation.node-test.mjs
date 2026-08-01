@@ -944,7 +944,7 @@ describe("autonomous ingestion semantic attribution contracts", () => {
         candidate.quarantineReasons
       ]).sort(),
       [
-        ["generic-short-brand-collision", ["generic_youtube_channel_brand_only_without_production_entity_signal"]],
+        ["generic-short-brand-collision", ["semantic_attribution:collision_prone_name_without_independent_anchor"]],
         ["generic-university-collision", ["generic_youtube_channel_brand_only_without_production_entity_signal"]]
       ]
     );

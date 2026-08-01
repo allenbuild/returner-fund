@@ -290,7 +290,7 @@ export async function GET(request: Request) {
       const baseGraph = buildGraphResponse({ batchSlug, topVoices: "off" }, dataset);
       const liveBaseGraph = overlayLiveEvidenceOnGraph(baseGraph, liveEvidence, {
         topVoices: "off",
-        calibrationCohort: dataset.companies.filter((company) => company.batchSlug === batchSlug)
+        calibrationCohort: dataset.companies
       }).graph;
       let canonicalGraph = liveBaseGraph;
       try {

@@ -8,11 +8,13 @@ import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import { scoringEligibility } from "@/lib/graph/traction-scoring";
+import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
 import type { CompanyRecord, GraphNode, Platform, SocialAccountSummary } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import socialAccountSeedSnapshot from "@/lib/social/a16z-speedrun-006-social-accounts.json";
 import seededSocialEvidenceSnapshot from "@/lib/social/a16z-speedrun-006-social-evidence.json";
 import seededAttributionReconciliationSnapshot from "@/lib/social/a16z-speedrun-006-attribution-reconciliation.json";
+import githubTractionSnapshot from "@/lib/social/github-traction-a16z-speedrun-006.json";
 
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
   "github",
@@ -1131,6 +1133,9 @@ describe("a16z speedrun 006 dataset", () => {
 
     for (const repositoryCase of SIMULA_GITHUB_REPOSITORY_CASES) {
       const item = githubEvidence.find((candidate) => candidate.sourceUrl === repositoryCase.sourceUrl);
+      const sourceSeed = seededSocialEvidenceSnapshot.evidence.find(
+        (candidate) => candidate.sourceUrl === repositoryCase.sourceCommitUrl
+      );
       const provenance = JSON.parse(item?.rawVisibleText ?? "null") as {
         canonicalRepository?: unknown;
         sourceProvenance?: {
@@ -1145,12 +1150,17 @@ describe("a16z speedrun 006 dataset", () => {
         expect.objectContaining({
           sourceUrl: repositoryCase.sourceUrl,
           platformPostId: repositoryCase.platformPostId,
+          postedAt: sourceSeed?.postedAt,
+          publishedAtPrecision: "unknown",
+          last_updated_at: sourceSeed?.postedAt,
           mediaType: "repo",
           mediaUrl: repositoryCase.sourceUrl,
           metrics: repositoryCase.metrics,
           contributionScore: expect.any(Number)
         })
       );
+      expect(sourceSeed).toBeDefined();
+      expect(isCrediblyPublishedToday(item!, new Date(sourceSeed!.postedAt))).toBe(false);
       if (repositoryCase.scoreable) {
         expect(item?.contributionScore).toBeGreaterThan(0);
         expect(scoringEligibility(item!)).toEqual({ eligible: true, reason: "eligible" });
@@ -1190,6 +1200,72 @@ describe("a16z speedrun 006 dataset", () => {
     expect(simula?.platformScores.github).toBeGreaterThan(0);
     expect(simula?.scoreBreakdown?.absoluteScore).toBeGreaterThan(0);
     expect(simula?.score).toBeGreaterThan(0);
+  });
+
+  it("uses GitHub repository creation—not later activity or collection—as publication time", () => {
+    const repository = githubTractionSnapshot.accounts
+      .flatMap((account) => account.repos ?? [])
+      .find((repo) => repo.htmlUrl === "https://github.com/modaic-ai/modaic");
+    const evidence = a16zSpeedrun006GraphDataset.evidence.find(
+      (item) => item.sourceUrl === "https://github.com/modaic-ai/modaic"
+    );
+
+    expect(repository).toBeDefined();
+    expect(repository?.createdAt).not.toBe(repository?.pushedAt);
+    expect(evidence).toEqual(
+      expect.objectContaining({
+        postedAt: repository?.createdAt,
+        publishedAtPrecision: "exact",
+        observedAt: githubTractionSnapshot.source.fetchedAt,
+        last_updated_at: repository?.updatedAt
+      })
+    );
+    expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
+      expect.objectContaining({
+        repositoryTimestamps: {
+          createdAt: repository?.createdAt,
+          updatedAt: repository?.updatedAt,
+          pushedAt: repository?.pushedAt,
+          observedAt: githubTractionSnapshot.source.fetchedAt
+        }
+      })
+    );
+  });
+
+  it("reconciles seeded repository rows to canonical GitHub creation provenance", () => {
+    const sourceUrl = "https://github.com/amdahlco/amdahl-cookbook";
+    const repositories = githubTractionSnapshot.accounts
+      .flatMap((account) => account.repos ?? [])
+      .filter((repo) => repo.htmlUrl === sourceUrl);
+    const createdAt = repositories.map((repo) => repo.createdAt).filter(Boolean)
+      .sort((left, right) => Date.parse(left!) - Date.parse(right!))[0];
+    const updatedAt = repositories.map((repo) => repo.updatedAt).filter(Boolean)
+      .sort((left, right) => Date.parse(right!) - Date.parse(left!))[0];
+    const pushedAt = repositories.map((repo) => repo.pushedAt).filter(Boolean)
+      .sort((left, right) => Date.parse(right!) - Date.parse(left!))[0];
+    const repositoryId = repositories.find((repo) => repo.id != null)?.id;
+    const evidence = a16zSpeedrun006GraphDataset.evidence.find(
+      (item) => item.sourceUrl === sourceUrl
+    );
+
+    expect(createdAt).toBeTruthy();
+    expect(createdAt).not.toBe(updatedAt);
+    expect(evidence).toEqual(expect.objectContaining({
+      postedAt: createdAt,
+      publishedAtPrecision: "exact",
+      platformObjectId: String(repositoryId),
+      last_updated_at: updatedAt
+    }));
+    expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
+      expect.objectContaining({
+        repositoryTimestamps: {
+          createdAt,
+          updatedAt,
+          pushedAt,
+          observedAt: seededSocialEvidenceSnapshot.source.generatedAt
+        }
+      })
+    );
   });
 
   it("keeps external Top Voice attention on the company while retaining its founder target", () => {

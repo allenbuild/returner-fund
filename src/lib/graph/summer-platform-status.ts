@@ -24,8 +24,8 @@ export function enrichSummerPlatformStatus(graph: GraphResponse): GraphResponse 
         return {
           ...item,
           status: evidenceCounts.linkedin ? "working" : item.status,
-          authMethod: "Opt-in authenticated browser session plus public profile discovery",
-          notes: `Found ${officialCounts.linkedin.company} company and ${officialCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles. ${evidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available; prior Spring rows remain excluded.`
+          authMethod: "Public unauthenticated profile and post discovery only",
+          notes: `Found ${officialCounts.linkedin.company} company and ${officialCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles. ${evidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available; no account login, cookies, browser session, or auth headers are used, and prior Spring rows remain excluded.`
         };
       }
       if (item.platform === "instagram") {

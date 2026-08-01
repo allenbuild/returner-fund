@@ -9,14 +9,15 @@ import {
   labelBoxOverlapsCircle
 } from "@/lib/graph/layout";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import companiesSnapshot from "@/lib/yc/summer-2026-companies.json";
 
 describe("graph layout", () => {
   it("places the Summer 2026 company circles without visual overlap", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const positions = buildClusterPositions(graph.nodes);
 
-    expect(graph.nodes).toHaveLength(115);
-    expect(positions.size).toBe(115);
+    expect(graph.nodes).toHaveLength(companiesSnapshot.companies.length);
+    expect(positions.size).toBe(companiesSnapshot.companies.length);
 
     for (let leftIndex = 0; leftIndex < graph.nodes.length; leftIndex += 1) {
       for (let rightIndex = leftIndex + 1; rightIndex < graph.nodes.length; rightIndex += 1) {
@@ -220,7 +221,7 @@ describe("graph layout", () => {
     });
 
     expect(filtered.nodes.length).toBeLessThan(restored.nodes.length);
-    expect(restored.nodes).toHaveLength(115);
+    expect(restored.nodes).toHaveLength(companiesSnapshot.companies.length);
 
     assertNoCircleOverlap(restored.nodes);
   }, 20_000);

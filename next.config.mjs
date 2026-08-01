@@ -51,6 +51,10 @@ const insiderRuntimeSnapshots = [
 const nextConfig = {
   typedRoutes: true,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  // Graph routes import the complete multi-batch evidence snapshot. Limiting
+  // static-generation workers prevents each worker from materializing the
+  // large catalog concurrently and exhausting local or Vercel build memory.
+  experimental: { cpus: 2 },
   async redirects() {
     return [
       {

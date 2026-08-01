@@ -247,8 +247,8 @@ function collectEntityAndRollupViolations(
     canonicalGraph.nodes.map((node) => [node.entityId, node])
   );
   const canonicalRollupsByCompanyId = companyEvidenceRollups(canonicalGraph);
-  const positiveCalibrationCohort = canonicalGraph.nodes.filter(
-    (node) => (node.scoreBreakdown?.absoluteScore ?? 0) > 0
+  const positiveCalibrationCohort = yc2026GraphDataset.companies.filter(
+    (company) => (company.scoreBreakdown?.absoluteScore ?? 0) > 0
   ).length;
 
   for (const node of graph.nodes) {
@@ -486,8 +486,26 @@ function collectNodeScoreViolations(
   const calibration = breakdown.calibration;
   mismatch(violations, `${nodeScope} calibration inputScore`, calibration.inputScore, breakdown.absoluteScore);
   mismatch(violations, `${nodeScope} calibration cohortSize`, calibration.cohortSize, positiveCalibrationCohort);
-  mismatch(violations, `${nodeScope} calibration method`, calibration.method, "none");
+  mismatch(violations, `${nodeScope} calibration method`, calibration.method, "global_best_ratio");
   mismatch(violations, `${nodeScope} calibration percentile`, calibration.percentile, null);
+  mismatch(
+    violations,
+    `${nodeScope} calibration benchmarkScope`,
+    calibration.benchmarkScope,
+    "all_supported_batches"
+  );
+  mismatch(
+    violations,
+    `${nodeScope} calibration benchmarkPopulation`,
+    calibration.benchmarkPopulation,
+    "current_company_snapshot"
+  );
+  mismatch(
+    violations,
+    `${nodeScope} global headline score`,
+    node.score,
+    Math.round((breakdown.absoluteScore / (calibration.benchmarkScore ?? 100)) * 100)
+  );
 }
 
 function collectLeaderboardViolations(

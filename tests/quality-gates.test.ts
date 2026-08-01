@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import companiesSnapshot from "@/lib/yc/summer-2026-companies.json";
 
 describe("quality gates", () => {
   const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
 
   it("keeps Summer 2026 graph publication-safe", () => {
-    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(115);
+    expect(graph.nodes.filter((node) => node.entityType === "company")).toHaveLength(
+      companiesSnapshot.companies.length
+    );
     expect(graph.nodes.some((node) => node.entityType === "founder")).toBe(false);
   });
 

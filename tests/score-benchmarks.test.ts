@@ -11,6 +11,7 @@ import {
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import type { GraphResponse } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import { TRACTION_SCORING_CONFIG } from "@/lib/scoring/traction-config";
 
 describe("score benchmarks", () => {
   it("records only observed snapshots and attaches model/input metadata", () => {
@@ -167,8 +168,8 @@ describe("score benchmarks", () => {
 
   it("never compares scores from explicitly different scoring model versions", () => {
     const { graph, firstCompany, storePath } = benchmarkFixture();
-    const oldModelGraph = withModelVersion(graph, "old-model");
-    const newModelGraph = withModelVersion(graph, "new-model");
+    const oldModelGraph = withModelVersion(graph, "4.1.0");
+    const newModelGraph = withModelVersion(graph, TRACTION_SCORING_CONFIG.version);
 
     recordBenchmarkMomentum(oldModelGraph, {
       storePath,

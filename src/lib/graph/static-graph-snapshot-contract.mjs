@@ -1,11 +1,11 @@
 export const STATIC_GRAPH_SCORING_MODEL_ID = "returner-traction";
-export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.1.0";
-export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-absolute-fixed-platform";
+export const STATIC_GRAPH_SCORING_MODEL_VERSION = "4.2.0";
+export const STATIC_GRAPH_SCORING_MODEL_NAME = "returner-traction-v4-absolute-fixed-platform-global-best";
 
 const MAX_ISSUES = 100;
 const DEFAULT_MAX_FUTURE_SKEW_MS = 60_000;
 const CONFIDENCE_LEVELS = new Set(["low", "medium", "high"]);
-const CALIBRATION_METHODS = new Set(["none"]);
+const CALIBRATION_METHODS = new Set(["global_best_ratio"]);
 const EDGE_TYPES = new Set(["industry_similarity", "same_group_partner"]);
 const CANONICAL_ACCOUNT_ID_WWW_PLATFORMS = new Set([
   "instagram",
@@ -331,11 +331,12 @@ function validateNodes(nodes, evidenceById, context, addIssue) {
     if (
       totalScoreIsValid &&
       absoluteScoreIsValid &&
+      breakdown.calibration?.method === "none" &&
       breakdown.totalScore !== breakdown.absoluteScore
     ) {
       addIssue(
         `${path}.scoreBreakdown.totalScore`,
-        "must equal the absolute score; cohort calibration is disabled"
+        "must equal the absolute score when no global benchmark is applied"
       );
     }
     const weightedAvailableScoreIsValid = validateScore(
@@ -479,6 +480,7 @@ function validateNodes(nodes, evidenceById, context, addIssue) {
     }
     validateCalibration(
       breakdown.calibration,
+      breakdown.totalScore,
       breakdown.absoluteScore,
       absoluteScoreIsValid,
       `${path}.scoreBreakdown.calibration`,
@@ -1169,7 +1171,7 @@ function validateConfidence(value, path, addIssue) {
   return scoredIsValid && datedIsValid && verifiedIsValid ? value : null;
 }
 
-function validateCalibration(value, absoluteScore, absoluteScoreIsValid, path, addIssue) {
+function validateCalibration(value, totalScore, absoluteScore, absoluteScoreIsValid, path, addIssue) {
   if (!isRecord(value)) {
     addIssue(path, "must be a complete calibration object");
     return;
@@ -1177,7 +1179,7 @@ function validateCalibration(value, absoluteScore, absoluteScoreIsValid, path, a
 
   const methodIsValid = CALIBRATION_METHODS.has(value.method);
   if (!methodIsValid) {
-    addIssue(`${path}.method`, "must be none");
+    addIssue(`${path}.method`, "must be global_best_ratio for the 4.2 scoring model");
   }
   validateNonNegativeInteger(value.cohortSize, `${path}.cohortSize`, addIssue);
   const inputScoreIsValid = validateScore(value.inputScore, `${path}.inputScore`, addIssue);
@@ -1189,6 +1191,42 @@ function validateCalibration(value, absoluteScore, absoluteScoreIsValid, path, a
     value.percentile === null || validateUnitInterval(value.percentile, `${path}.percentile`, addIssue);
   if (methodIsValid && value.method === "none" && value.percentile !== null) {
     addIssue(`${path}.percentile`, "must be null when calibration method is none");
+  }
+  if (methodIsValid && value.method === "global_best_ratio") {
+    if (value.percentile !== null) {
+      addIssue(`${path}.percentile`, "must be null for the global ratio benchmark");
+    }
+    const benchmarkScoreIsValid = validateScore(
+      value.benchmarkScore,
+      `${path}.benchmarkScore`,
+      addIssue
+    );
+    const scaleFactorIsValid = isNonNegativeFiniteNumber(value.scaleFactor);
+    if (!scaleFactorIsValid) {
+      addIssue(`${path}.scaleFactor`, "must be finite and non-negative");
+    }
+    expectEqual(value.benchmarkScope, "all_supported_batches", `${path}.benchmarkScope`, addIssue);
+    expectEqual(
+      value.benchmarkPopulation,
+      "current_company_snapshot",
+      `${path}.benchmarkPopulation`,
+      addIssue
+    );
+    if (benchmarkScoreIsValid && scaleFactorIsValid) {
+      const expectedFactor = value.benchmarkScore > 0 ? 100 / value.benchmarkScore : 0;
+      if (Math.abs(value.scaleFactor - expectedFactor) > 1e-9) {
+        addIssue(`${path}.scaleFactor`, "must equal 100 divided by benchmarkScore");
+      }
+      const expectedTotal = value.benchmarkScore > 0 && absoluteScore > 0
+        ? Math.max(1, Math.min(100, Math.round((absoluteScore / value.benchmarkScore) * 100)))
+        : 0;
+      if (totalScore !== expectedTotal) {
+        addIssue(`${path}`, `must map absoluteScore to global headline ${expectedTotal}`);
+      }
+      if ((value.benchmarkScore > 0) !== (value.cohortSize > 0)) {
+        addIssue(`${path}.cohortSize`, "must be positive exactly when the global benchmark is positive");
+      }
+    }
   }
   return percentileIsValid;
 }

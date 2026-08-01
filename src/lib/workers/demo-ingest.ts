@@ -44,7 +44,9 @@ export function buildDemoGraph(request: IngestBatchRequest, generatedAt = new Da
     batch: {
       slug: batchSlug,
       label: batchLabel(batchSlug),
-      expectedCompanyCount: batchSlug === "S26" ? 115 : undefined,
+      // Demo mode is a deliberately tiny fake fixture and cannot establish
+      // the live cohort census. Production graphs carry the dynamic count.
+      expectedCompanyCount: undefined,
       observedCompanyCount: companies.length
     },
     nodes: companyNodes,

@@ -10,7 +10,8 @@ import {
   xTimelinePageState,
   xTweetBelongsToHandle,
   xTweetId,
-  xTweetIngestionDecision
+  xTweetIngestionDecision,
+  xTweetPublicationDate
 } from "../scripts/lib/logged-in-x-collection.mjs";
 
 describe("logged-in X collection", () => {
@@ -216,6 +217,32 @@ describe("logged-in X collection", () => {
     );
 
     assert.deepEqual(merged.map((tweet) => tweet.id), ["300"]);
+  });
+
+  it("never promotes relative X labels to exact native publication timestamps", () => {
+    assert.deepEqual(
+      xTweetPublicationDate("2h", Date.parse("2026-08-01T06:30:00.000Z")),
+      { postedAt: null, publishedAtPrecision: "unknown" }
+    );
+    assert.deepEqual(
+      xTweetPublicationDate("1 day ago", Date.parse("2026-08-01T06:30:00.000Z")),
+      { postedAt: null, publishedAtPrecision: "unknown" }
+    );
+  });
+
+  it("preserves native day and exact X date precision without inventing a timezone", () => {
+    assert.deepEqual(
+      xTweetPublicationDate("Jul 31", Date.parse("2026-08-01T06:30:00.000Z")),
+      { postedAt: "2026-07-31", publishedAtPrecision: "day" }
+    );
+    assert.deepEqual(
+      xTweetPublicationDate("Wed Jul 29 03:27:14 +0000 2026"),
+      { postedAt: "2026-07-29T03:27:14.000Z", publishedAtPrecision: "exact" }
+    );
+    assert.deepEqual(
+      xTweetPublicationDate("2026-07-31T03:27:14"),
+      { postedAt: null, publishedAtPrecision: "unknown" }
+    );
   });
 
   it("keeps successful empty reads done but leaves command failures retryable", () => {

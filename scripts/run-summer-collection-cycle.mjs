@@ -5,7 +5,7 @@ import path from "node:path";
 const startedAt = new Date();
 const runId = `s26-collection-${startedAt.toISOString().replace(/[:.]/g, "-")}`;
 const durationMinutes = numberArg("--minutes") ?? 120;
-const maxCompanies = numberArg("--max-companies") ?? 115;
+const requestedMaxCompanies = numberArg("--max-companies");
 const workers = numberArg("--workers") ?? 8;
 const delayMs = numberArg("--delay-ms") ?? 900;
 const checkpointEveryMinutes = numberArg("--checkpoint-minutes") ?? 15;
@@ -17,16 +17,18 @@ let nextCheckpointAtMs = startedAt.getTime();
 const eventLog = [];
 
 await mkdir(path.join("outputs", "longrun"), { recursive: true });
-const summerSnapshot = await readJson("src/lib/yc/summer-2026-companies.json", { companies: [] });
-const summerCompanySlugs = new Set((summerSnapshot.companies ?? []).map((company) => company.slug).filter(Boolean));
+let summerCompanySlugs = new Set();
+let maxCompanies = requestedMaxCompanies;
 await record("run_started", { runId, durationMinutes, maxCompanies, workers, delayMs });
 
-const phases = [
-  phase("refresh-official-yc-snapshot", [
-    command("scripts/fetch-yc-spring-2026.mjs")
-  ]),
+const refreshPhase = phase("refresh-official-yc-snapshot", [
+  command("scripts/fetch-yc-spring-2026.mjs")
+], { required: true });
+
+function collectionPhases() {
+  return [
   phase("github-official-links", [
-    command("scripts/fetch-github-traction.mjs")
+    command("scripts/fetch-github-traction.mjs", [`--max-companies=${maxCompanies}`])
   ]),
   phase("instagram-link-discovery", [
     command("scripts/discover-instagram-overrides.mjs", [
@@ -62,7 +64,7 @@ const phases = [
     command("scripts/fetch-logged-in-social-traction.mjs", [
       "--platforms=x",
       "--entities=all",
-      `--max-targets=${numberArg("--x-targets") ?? 220}`,
+      ...optionalTargetLimit("--x-targets"),
       `--workers=${Math.min(3, workers)}`,
       "--limit=30",
       "--scrolls=8",
@@ -76,27 +78,12 @@ const phases = [
     command("scripts/fetch-logged-in-social-traction.mjs", [
       "--platforms=instagram",
       "--entities=all",
-      `--max-targets=${numberArg("--instagram-targets") ?? 120}`,
+      ...optionalTargetLimit("--instagram-targets"),
       "--workers=1",
       "--limit=30",
       "--scrolls=16",
       "--timeout-ms=90000",
       "--delay-ms=2200",
-      "--retry-empty",
-      ...(forceLoggedIn ? ["--force"] : [])
-    ])
-  ]),
-  phase("logged-in-linkedin", [
-    command("scripts/fetch-logged-in-social-traction.mjs", [
-      "--platforms=linkedin",
-      "--allow-linkedin",
-      "--entities=all",
-      `--max-targets=${numberArg("--linkedin-targets") ?? 120}`,
-      "--workers=1",
-      "--limit=15",
-      "--scrolls=3",
-      "--timeout-ms=90000",
-      "--delay-ms=2600",
       "--retry-empty",
       ...(forceLoggedIn ? ["--force"] : [])
     ])
@@ -107,13 +94,16 @@ const phases = [
     command("scripts/debug-instagram-coverage.mjs"),
     command("scripts/debug-duplicates-report.mjs")
   ])
-];
+  ];
+}
 
 let loop = 0;
 while (Date.now() < stopAtMs) {
   loop += 1;
   await record("loop_started", { loop });
-  for (const currentPhase of phases) {
+  await runPhase(refreshPhase);
+  await reloadSummerSnapshot();
+  for (const currentPhase of collectionPhases()) {
     if (Date.now() >= stopAtMs) break;
     await runPhase(currentPhase);
   }
@@ -124,8 +114,8 @@ await record("run_finished", { elapsedMinutes: elapsedMinutes() });
 await writeRunLog();
 console.log(JSON.stringify({ runId, elapsedMinutes: elapsedMinutes(), eventLogPath: eventLogPath(), status: "complete" }, null, 2));
 
-function phase(name, commands) {
-  return { name, commands };
+function phase(name, commands, { required = false } = {}) {
+  return { name, commands, required };
 }
 
 function command(script, args = []) {
@@ -139,13 +129,13 @@ async function runPhase(currentPhase) {
   await record("phase_started", { phase: currentPhase.name });
   for (const task of currentPhase.commands) {
     if (Date.now() >= stopAtMs) break;
-    await runCommand(task, currentPhase.name);
+    await runCommand(task, currentPhase.name, currentPhase.required);
     await checkpoint(false);
   }
   await record("phase_finished", { phase: currentPhase.name });
 }
 
-async function runCommand(task, phaseName) {
+async function runCommand(task, phaseName, required = false) {
   const started = Date.now();
   await record("command_started", { phase: phaseName, command: commandLine(task) });
   const result = await exec(task);
@@ -157,6 +147,11 @@ async function runCommand(task, phaseName) {
     stdoutTail: tail(result.stdout),
     stderrTail: tail(result.stderr)
   });
+  if (required && result.exitCode !== 0) {
+    throw new Error(
+      `${phaseName} failed with exit code ${result.exitCode}; refusing to collect against a stale catalog.`
+    );
+  }
 }
 
 function exec(task) {
@@ -207,6 +202,32 @@ async function summarizeArtifacts() {
     benchmarks: await readJson("outputs/benchmarks/s26-score-benchmarks.json", null)
   };
   await writeFile(path.join("outputs", "longrun", `${runId}.summary.json`), JSON.stringify(summary, null, 2));
+}
+
+async function reloadSummerSnapshot() {
+  const summerSnapshot = await readJson("src/lib/yc/summer-2026-companies.json", { companies: [] });
+  const companies = summerSnapshot.companies ?? [];
+  const expected = summerSnapshot.source?.expectedCompanyCount;
+  const observed = summerSnapshot.source?.observedCompanyCount;
+  summerCompanySlugs = new Set(companies.map((company) => company.slug).filter(Boolean));
+  if (
+    expected !== companies.length ||
+    observed !== companies.length ||
+    summerCompanySlugs.size !== companies.length
+  ) {
+    throw new Error(
+      `Refreshed Summer catalog is incomplete or duplicated: ` +
+      `expected=${expected}, observed=${observed}, companies=${companies.length}, ` +
+      `uniqueSlugs=${summerCompanySlugs.size}.`
+    );
+  }
+  if (requestedMaxCompanies === null) {
+    maxCompanies = summerCompanySlugs.size;
+  }
+  await record("summer_snapshot_reloaded", {
+    companyCount: summerCompanySlugs.size,
+    maxCompanies
+  });
 }
 
 function summarizeEvidence(snapshot) {
@@ -279,6 +300,11 @@ function numberArg(name) {
   const raw = process.argv.find((arg) => arg.startsWith(`${name}=`))?.split("=").slice(1).join("=");
   const parsed = Number(raw);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function optionalTargetLimit(name) {
+  const value = numberArg(name);
+  return value === null ? [] : [`--max-targets=${value}`];
 }
 
 function hasArg(name) {

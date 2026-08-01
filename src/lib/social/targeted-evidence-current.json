@@ -1,7 +1,7 @@
 {
   "source": {
     "label": "Targeted long-run public evidence",
-    "fetchedAt": "2026-08-01T00:03:10.345Z",
+    "fetchedAt": "2026-08-01T06:22:08Z",
     "notes": [
       "Read-only public search/result snippets and accessible pages only.",
       "No Instagram login actions, likes, saves, follows, comments, DMs, or CAPTCHA bypassing.",
@@ -99,9 +99,11 @@
       "Imported 4 strict native rows from verified-hacker-news-candidates-2023-04-01-through-2023-06-30.json; refreshed 0 duplicates and rejected 0.",
       "Imported 5 strict native rows from 2026-07-29-intelligence-factory-locke-founder-linkedin-strict.json; refreshed 1 duplicates and rejected 0.",
       "Imported 7 strict native rows from 2026-07-29-manual-sweep-s2026-strict-accepted.json; refreshed 0 duplicates and rejected 0.",
-      "Imported 10 strict native rows from 2026-07-29-manual-sweep-s26-strict-accepted.json; refreshed 0 duplicates and rejected 0."
+      "Imported 10 strict native rows from 2026-07-29-manual-sweep-s26-strict-accepted.json; refreshed 0 duplicates and rejected 0.",
+      "Imported 1 strict native rows from graphify-public-linkedin-evidence.json; refreshed 0 duplicates and rejected 0.",
+      "Imported 1 strict native rows from graphify-hn-evidence.json; refreshed 0 duplicates and rejected 0."
     ],
-    "sourceHuntImportedAt": "2026-07-29T07:11:00.000Z",
+    "sourceHuntImportedAt": "2026-08-01T06:22:08Z",
     "generatedAt": "2026-07-16T02:18:38.478Z",
     "cleanup": {
       "generatedAt": "2026-07-16T02:18:38.478Z",
@@ -111,23 +113,92 @@
       "pidBackfilled": 1
     },
     "targetedMergeAudit": {
-      "mergedAt": "2026-08-01T00:45:06.241Z",
+      "mergedAt": "2026-08-01T07:37:20.142Z",
       "existingSnapshots": 1,
-      "existingInputRows": 3462,
-      "isolatedRunInputRows": 5,
-      "acceptedRunRows": 5,
-      "duplicateRows": 5,
+      "existingInputRows": 3464,
+      "isolatedRunInputRows": 0,
+      "acceptedRunRows": 0,
+      "duplicateRows": 0,
       "quarantinedRows": 0,
-      "canonicalReattributedRows": 12,
+      "canonicalReattributedRows": 19,
       "quarantineReasonCounts": {},
-      "attributionReconciliationCount": 59,
-      "outputEvidenceRows": 3462,
+      "attributionReconciliationCount": 66,
+      "outputEvidenceRows": 3464,
       "outputNeedsReviewRows": 48
     },
     "attributionReconciledAt": "2026-07-24T13:50:16.000Z",
-    "evidenceCount": 3462
+    "evidenceCount": 3464
   },
   "evidence": [
+    {
+      "companyName": "Graphify Labs",
+      "companySlug": "graphify-labs",
+      "entityType": "founder",
+      "entityId": "founder-graphify-labs-safi-shamsi-3674994",
+      "entityName": "Safi Shamsi",
+      "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/safi-shamsi_6000-stars-in-2-days-i-did-not-expect-activity-7447394137814745088-Vhqz",
+      "platformPostId": "7447394137814745088",
+      "accountUrl": "https://www.linkedin.com/in/safi-shamsi/",
+      "authorName": "Safi Shamsi",
+      "authorHandle": "safi-shamsi",
+      "postedAt": "2026-04-07T21:25:28.317Z",
+      "title": "6,000 stars in 2 days.",
+      "text": "6,000 stars in 2 days. I did not expect that. Karpathy posted about his /raw folder on April 2nd. He drops everything into it. Papers, tweets, code, notes. His idea: your knowledge should be queryable, not scattered across tabs you forgot about. I stayed up and built it. Graphify turns any folder into a digital twin of your knowledge. In 2 days: 6,000+ stars and 600+ forks.",
+      "metrics": {
+        "reactions": 143,
+        "comments": 16
+      },
+      "rawVisibleText": "{\"source\":\"linkedin_public_post_json_ld\",\"checkedAt\":\"2026-08-01T06:22:08Z\",\"type\":\"SocialMediaPosting\",\"headline\":\"6,000 stars in 2 days.\",\"datePublished\":\"2026-04-07T21:25:28.317Z\",\"author\":{\"name\":\"Safi Shamsi\",\"url\":\"https://uk.linkedin.com/in/safi-shamsi\"},\"commentCount\":16,\"interactionStatistic\":{\"reactions\":143,\"comments\":16}}",
+      "matchReason": "Public unauthenticated LinkedIn post JSON-LD exposes the exact native activity ID, Safi Shamsi as author, complete Graphify product text, publication timestamp, and positive post-level reaction/comment counters; Safi's LinkedIn account is listed on Graphify Labs' official YC profile.",
+      "why": "Collected from LinkedIn's public unauthenticated post page; no signed-in LinkedIn session was used.",
+      "review_state": "verified",
+      "id": "source-hunt-ad9111eba71fa6f5d4f9",
+      "contributionScore": 1,
+      "first_seen_at": "2026-08-01T06:22:08Z",
+      "last_checked_at": "2026-08-01T06:22:08Z",
+      "last_updated_at": "2026-04-07T21:25:28.317Z",
+      "attachedCompanyId": "company-graphify-labs",
+      "batchSlug": "S26"
+    },
+    {
+      "companyName": "Graphify Labs",
+      "companySlug": "graphify-labs",
+      "entityType": "founder",
+      "entityId": "founder-graphify-labs-safi-shamsi-3674994",
+      "entityName": "Safi Shamsi",
+      "platform": "hacker_news",
+      "sourceUrl": "https://news.ycombinator.com/item?id=47682798",
+      "platformPostId": "47682798",
+      "accountUrl": "https://news.ycombinator.com/user?id=safishamsi",
+      "authorName": "Safi Shamsi",
+      "authorHandle": "safishamsi",
+      "postedAt": "2026-04-07T23:45:59.000Z",
+      "title": "AI coding assistant skill (Claude Code, Codex, OpenCode, OpenClaw, Factory Droid",
+      "text": "AI coding assistant skill (Claude Code, Codex, OpenCode, OpenClaw, Factory Droid",
+      "metrics": {
+        "upvotes": 2,
+        "comments": 0
+      },
+      "rawVisibleText": "{\"source\":\"hacker_news_firebase_native_item\",\"checkedAt\":\"2026-08-01T06:22:08Z\",\"id\":47682798,\"by\":\"safishamsi\",\"score\":2,\"descendants\":0,\"time\":1775605559,\"url\":\"https://github.com/safishamsi/graphify\"}",
+      "matchReason": "Native Hacker News item is authored by Safi Shamsi's exact handle and links to his original Graphify repository, which now redirects to the official Graphify-Labs organization; Safi is the immutable YC-listed founder.",
+      "attributionVersion": 3,
+      "attributionStatus": "verified",
+      "attributionMode": "account_owner",
+      "attributionSignals": [
+        "immutable_yc_founder_native_author",
+        "official_repository_redirect"
+      ],
+      "why": "Collected from the public Hacker News Firebase API and native item page.",
+      "review_state": "verified",
+      "id": "source-hunt-f06fcaf223df9bbfaf18",
+      "contributionScore": 1,
+      "first_seen_at": "2026-08-01T06:22:08Z",
+      "last_checked_at": "2026-08-01T06:22:08Z",
+      "last_updated_at": "2026-04-07T23:45:59.000Z",
+      "attachedCompanyId": "company-graphify-labs",
+      "batchSlug": "S26"
+    },
     {
       "id": "live-x-top-voice-brad-flora-onecli-2080356091746197598",
       "entityType": "company",
@@ -400,9 +471,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-truffle-arjun-chaliha-306060",
-      "companySlug": "truffle",
-      "companyName": "Truffle",
+      "entityId": "founder-joinmarble-arjun-chaliha-306060",
+      "companySlug": "joinmarble",
+      "companyName": "Marble",
       "entityName": "Arjun Chaliha",
       "platform": "x",
       "sourceUrl": "https://x.com/arjunjchaliha/status/2082200803625070771",
@@ -428,7 +499,15 @@
       "first_seen_at": "2026-07-29T07:11:00.000Z",
       "last_checked_at": "2026-07-29T07:11:00.000Z",
       "last_updated_at": "2026-07-28T20:25:31.661Z",
-      "attachedCompanyId": "company-truffle",
+      "attachedCompanyId": "company-joinmarble",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-truffle-arjun-chaliha-306060",
+        "companySlug": "truffle",
+        "companyName": "Truffle"
+      },
+      "attributionReconciliationReason": "canonical_targeted_unique_native_founder",
       "batchSlug": "S26"
     },
     {
@@ -38405,6 +38484,18 @@
       "last_updated_at": "2026-06-25T20:54:50.000Z",
       "companySlug": "mireye",
       "attachedCompanyId": "company-mireye",
+      "historicalOwner": {
+        "status": "retired_founder",
+        "currentRosterMember": false,
+        "entityType": "founder",
+        "entityId": "founder-mireye-shashwat-kapoor-678147",
+        "entityName": "Shashwat Kapoor",
+        "companySlug": "mireye",
+        "companyName": "Mireye",
+        "platform": "x",
+        "accountUrl": "https://x.com/shshwt_"
+      },
+      "historicalAttributionReason": "targeted_historical_owner_v1:mireye_retired_founder_shashwat_kapoor",
       "batchSlug": "S26"
     },
     {
@@ -38819,6 +38910,18 @@
       "last_updated_at": "2026-06-30T08:32:39.000Z",
       "companySlug": "mireye",
       "attachedCompanyId": "company-mireye",
+      "historicalOwner": {
+        "status": "retired_founder",
+        "currentRosterMember": false,
+        "entityType": "founder",
+        "entityId": "founder-mireye-shashwat-kapoor-678147",
+        "entityName": "Shashwat Kapoor",
+        "companySlug": "mireye",
+        "companyName": "Mireye",
+        "platform": "x",
+        "accountUrl": "https://x.com/shshwt_"
+      },
+      "historicalAttributionReason": "targeted_historical_owner_v1:mireye_retired_founder_shashwat_kapoor",
       "batchSlug": "S26"
     },
     {
@@ -40061,6 +40164,18 @@
       "last_updated_at": "2026-06-26T23:20:32.000Z",
       "companySlug": "mireye",
       "attachedCompanyId": "company-mireye",
+      "historicalOwner": {
+        "status": "retired_founder",
+        "currentRosterMember": false,
+        "entityType": "founder",
+        "entityId": "founder-mireye-shashwat-kapoor-678147",
+        "entityName": "Shashwat Kapoor",
+        "companySlug": "mireye",
+        "companyName": "Mireye",
+        "platform": "x",
+        "accountUrl": "https://x.com/shshwt_"
+      },
+      "historicalAttributionReason": "targeted_historical_owner_v1:mireye_retired_founder_shashwat_kapoor",
       "batchSlug": "S26"
     },
     {
@@ -69593,6 +69708,18 @@
       "last_updated_at": "2026-07-13T08:18:07.000Z",
       "companySlug": "mireye",
       "attachedCompanyId": "company-mireye",
+      "historicalOwner": {
+        "status": "retired_founder",
+        "currentRosterMember": false,
+        "entityType": "founder",
+        "entityId": "founder-mireye-shashwat-kapoor-678147",
+        "entityName": "Shashwat Kapoor",
+        "companySlug": "mireye",
+        "companyName": "Mireye",
+        "platform": "x",
+        "accountUrl": "https://x.com/shshwt_"
+      },
+      "historicalAttributionReason": "targeted_historical_owner_v1:mireye_retired_founder_shashwat_kapoor",
       "batchSlug": "S26"
     },
     {
@@ -84675,8 +84802,8 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-justinian-parth-badhwar-2399943",
-      "companyName": "Justinian",
+      "entityId": "founder-locke-parth-badhwar-2399943",
+      "companyName": "Locke",
       "platform": "x",
       "sourceUrl": "https://x.com/parth_badhwar/status/2067806455047041262",
       "platformPostId": "2067806455047041262",
@@ -84702,8 +84829,16 @@
       "last_checked_at": "2026-07-24T10:55:00.000Z",
       "last_updated_at": "2026-06-19T03:07:31.000Z",
       "entityName": "Parth Badhwar",
-      "companySlug": "justinian",
-      "attachedCompanyId": "company-justinian",
+      "companySlug": "locke",
+      "attachedCompanyId": "company-locke",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-justinian-parth-badhwar-2399943",
+        "companySlug": "justinian",
+        "companyName": "Justinian"
+      },
+      "attributionReconciliationReason": "canonical_targeted_unique_native_founder",
       "batchSlug": "S26"
     },
     {
@@ -87797,9 +87932,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-truffle-arjun-chaliha-306060",
-      "companyName": "Truffle",
-      "companySlug": "truffle",
+      "entityId": "founder-joinmarble-arjun-chaliha-306060",
+      "companyName": "Marble",
+      "companySlug": "joinmarble",
       "platform": "x",
       "sourceUrl": "https://x.com/arjunjchaliha/status/2070016125606519183",
       "platformPostId": "2070016125606519183",
@@ -87825,7 +87960,15 @@
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-06-25T05:27:58.000Z",
       "entityName": "Arjun Chaliha",
-      "attachedCompanyId": "company-truffle",
+      "attachedCompanyId": "company-joinmarble",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-truffle-arjun-chaliha-306060",
+        "companySlug": "truffle",
+        "companyName": "Truffle"
+      },
+      "attributionReconciliationReason": "canonical_targeted_unique_native_founder",
       "batchSlug": "S26"
     },
     {
@@ -88019,9 +88162,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-truffle-arjun-chaliha-306060",
-      "companyName": "Truffle",
-      "companySlug": "truffle",
+      "entityId": "founder-joinmarble-arjun-chaliha-306060",
+      "companyName": "Marble",
+      "companySlug": "joinmarble",
       "platform": "x",
       "sourceUrl": "https://x.com/arjunjchaliha/status/2075008782913208525",
       "platformPostId": "2075008782913208525",
@@ -88047,7 +88190,15 @@
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-09T00:07:00.000Z",
       "entityName": "Arjun Chaliha",
-      "attachedCompanyId": "company-truffle",
+      "attachedCompanyId": "company-joinmarble",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-truffle-arjun-chaliha-306060",
+        "companySlug": "truffle",
+        "companyName": "Truffle"
+      },
+      "attributionReconciliationReason": "canonical_targeted_unique_native_founder",
       "batchSlug": "S26"
     },
     {
@@ -88303,9 +88454,9 @@
     },
     {
       "entityType": "founder",
-      "entityId": "founder-truffle-aakar-khanna-1278164",
-      "companyName": "Truffle",
-      "companySlug": "truffle",
+      "entityId": "founder-joinmarble-aakar-khanna-1278164",
+      "companyName": "Marble",
+      "companySlug": "joinmarble",
       "platform": "linkedin",
       "sourceUrl": "https://linkedin.com/posts/aakarkhanna_im-very-excited-to-share-that-arjun-chaliha-activity-7472302432853688320-9ePA",
       "platformPostId": "7472302432853688320",
@@ -88329,7 +88480,15 @@
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-06-15T15:02:08.658Z",
       "entityName": "Aakar Khanna",
-      "attachedCompanyId": "company-truffle",
+      "attachedCompanyId": "company-joinmarble",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-truffle-aakar-khanna-1278164",
+        "companySlug": "truffle",
+        "companyName": "Truffle"
+      },
+      "attributionReconciliationReason": "canonical_targeted_unique_native_founder",
       "batchSlug": "S26"
     },
     {
@@ -88427,9 +88586,9 @@
     },
     {
       "entityType": "company",
-      "entityId": "company-truffle",
-      "companyName": "Truffle",
-      "companySlug": "truffle",
+      "entityId": "company-joinmarble",
+      "companyName": "Marble",
+      "companySlug": "joinmarble",
       "platform": "x",
       "sourceUrl": "https://x.com/pinchoftruffle/status/2076105028398461223",
       "platformPostId": "2076105028398461223",
@@ -88454,8 +88613,16 @@
       "first_seen_at": "2026-07-23T02:45:00.000Z",
       "last_checked_at": "2026-07-23T02:45:00.000Z",
       "last_updated_at": "2026-07-12T00:43:05.000Z",
-      "entityName": "Truffle",
-      "attachedCompanyId": "company-truffle",
+      "entityName": "Marble",
+      "attachedCompanyId": "company-joinmarble",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-truffle",
+        "companySlug": "truffle",
+        "companyName": "Truffle"
+      },
+      "attributionReconciliationReason": "targeted_historical_reconciliation_v1:truffle_to_marble",
       "batchSlug": "S26"
     },
     {
@@ -113852,9 +114019,9 @@
     },
     {
       "entityType": "company",
-      "entityId": "company-notyfi",
-      "companyName": "Notyfi",
-      "companySlug": "notyfi",
+      "entityId": "company-perceptron-ml",
+      "companyName": "Perceptron ML",
+      "companySlug": "perceptron-ml",
       "platform": "x",
       "sourceUrl": "https://x.com/PerceptronML/status/2076784195847008510",
       "platformPostId": "2076784195847008510",
@@ -113917,8 +114084,16 @@
       "first_seen_at": "2026-07-19T06:35:00.000Z",
       "last_checked_at": "2026-07-19T06:35:00.000Z",
       "last_updated_at": "2026-07-13T21:41:51.000Z",
-      "entityName": "Notyfi",
-      "attachedCompanyId": "company-notyfi",
+      "entityName": "Perceptron ML",
+      "attachedCompanyId": "company-perceptron-ml",
+      "previousAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-notyfi",
+        "companySlug": "notyfi",
+        "companyName": "Notyfi"
+      },
+      "attributionReconciliationReason": "targeted_historical_reconciliation_v1:notyfi_to_perceptron_ml",
       "batchSlug": "S26"
     },
     {
@@ -147480,6 +147655,25 @@
     },
     {
       "platform": "linkedin",
+      "sourceUrl": "https://linkedin.com/posts/aakarkhanna_im-very-excited-to-share-that-arjun-chaliha-activity-7472302432853688320-9ePA",
+      "platformPostId": "7472302432853688320",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_unique_native_founder",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-truffle-aakar-khanna-1278164",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-joinmarble-aakar-khanna-1278164",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "linkedin",
       "sourceUrl": "https://linkedin.com/posts/tarof_if-youre-coming-to-y-combinator-demo-day-activity-7472317066167885824-BALa",
       "platformPostId": "7472317066167885824",
       "disposition": "quarantined",
@@ -147637,6 +147831,120 @@
         "batchSlug": "S26",
         "entityType": "founder",
         "entityId": "founder-dialogus-rodrigo-ter-n-3047141",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/parth_badhwar/status/2067806455047041262",
+      "platformPostId": "2067806455047041262",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_unique_native_founder",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-justinian-parth-badhwar-2399943",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-locke-parth-badhwar-2399943",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/arjunjchaliha/status/2070016125606519183",
+      "platformPostId": "2070016125606519183",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_unique_native_founder",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-truffle-arjun-chaliha-306060",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-joinmarble-arjun-chaliha-306060",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/arjunjchaliha/status/2075008782913208525",
+      "platformPostId": "2075008782913208525",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_unique_native_founder",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-truffle-arjun-chaliha-306060",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-joinmarble-arjun-chaliha-306060",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/pinchoftruffle/status/2076105028398461223",
+      "platformPostId": "2076105028398461223",
+      "disposition": "reattributed",
+      "reason": "targeted_historical_reconciliation_v1:truffle_to_marble",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-truffle",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-joinmarble",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/PerceptronML/status/2076784195847008510",
+      "platformPostId": "2076784195847008510",
+      "disposition": "reattributed",
+      "reason": "targeted_historical_reconciliation_v1:notyfi_to_perceptron_ml",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-notyfi",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "company",
+        "entityId": "company-perceptron-ml",
+        "attributionType": "subject"
+      }
+    },
+    {
+      "platform": "x",
+      "sourceUrl": "https://x.com/arjunjchaliha/status/2082200803625070771",
+      "platformPostId": "2082200803625070771",
+      "disposition": "reattributed",
+      "reason": "canonical_targeted_unique_native_founder",
+      "staleAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-truffle-arjun-chaliha-306060",
+        "attributionType": "subject"
+      },
+      "replacementAttribution": {
+        "batchSlug": "S26",
+        "entityType": "founder",
+        "entityId": "founder-joinmarble-arjun-chaliha-306060",
         "attributionType": "subject"
       }
     }

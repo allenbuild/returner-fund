@@ -2,25 +2,28 @@ import { describe, expect, it } from "vitest";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import { buildDuplicateReport, buildWorkerTasks, PUBLIC_CONNECTOR_PLATFORMS } from "@/lib/ingestion/public-data-debug";
+import companiesSnapshot from "@/lib/yc/summer-2026-companies.json";
 
 describe("public data debug instrumentation", () => {
   it("creates one checkpointed public connector task per company and platform", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const tasks = buildWorkerTasks(graph);
 
-    expect(graph.nodes).toHaveLength(115);
+    expect(graph.nodes).toHaveLength(companiesSnapshot.companies.length);
     expect(graph.nodes.every((node) => node.entityType === "company")).toBe(true);
     expect(tasks).toHaveLength(graph.nodes.length * PUBLIC_CONNECTOR_PLATFORMS.length);
     expect(tasks.every((task) => task.checkpointKey.includes(task.companyId))).toBe(true);
   });
 
-  it("marks LinkedIn working when scored logged-in rows are available", () => {
+  it("marks LinkedIn working while keeping collection public and unauthenticated", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const linkedin = graph.platformStatus.find((item) => item.platform === "linkedin");
     const x = graph.platformStatus.find((item) => item.platform === "x");
 
     expect(linkedin?.status).toBe("working");
-    expect(linkedin?.authMethod.toLowerCase()).toContain("authenticated browser session");
+    expect(linkedin?.authMethod.toLowerCase()).toContain("public unauthenticated");
+    expect(linkedin?.authMethod.toLowerCase()).not.toContain("authenticated browser session");
+    expect(linkedin?.notes.toLowerCase()).toContain("no account login, cookies, browser session, or auth headers");
     expect(x?.status).toBe("public_only");
     expect(x?.authMethod.toLowerCase()).toContain("official yc profile links");
   });

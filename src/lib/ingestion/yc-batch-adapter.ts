@@ -13,7 +13,7 @@ import type {
   YcSearchResult
 } from "./types";
 
-export const YC_SUMMER_2026_EXPECTED_COMPANY_COUNT = 115;
+export const YC_SUMMER_2026_MINIMUM_COMPANY_COUNT = 167;
 
 interface YcBatchAdapterOptions {
   fetchImpl?: typeof fetch;
@@ -141,7 +141,7 @@ function applyMaxCompanies<T>(companies: T[], maxCompanies?: number): T[] {
 }
 
 export function expectedCompanyCountForBatch(batchSlugInput: string): number | null {
-  return normalizeBatchSlug(batchSlugInput) === "S26" ? YC_SUMMER_2026_EXPECTED_COMPANY_COUNT : null;
+  return normalizeBatchSlug(batchSlugInput) === "S26" ? YC_SUMMER_2026_MINIMUM_COMPANY_COUNT : null;
 }
 
 function validateExpectedCompanyCount(
@@ -156,14 +156,17 @@ function validateExpectedCompanyCount(
     return { expectedCompanyCount, warnings: [] };
   }
 
-  if (observedCompanyCount === expectedCompanyCount) {
-    return { expectedCompanyCount, warnings: [] };
+  if (observedCompanyCount >= expectedCompanyCount) {
+    // 167 is a completeness floor, not a permanent cohort size. Once the
+    // official directory grows, expose the complete observed census instead
+    // of reporting a misleading 167/168 expected/observed pair.
+    return { expectedCompanyCount: observedCompanyCount, warnings: [] };
   }
 
   return {
     expectedCompanyCount,
     warnings: [
-      `Expected ${expectedCompanyCount} companies for YC Summer 2026 (${batchSlug}); parsed ${observedCompanyCount}.`
+      `Expected at least ${expectedCompanyCount} companies for YC Summer 2026 (${batchSlug}); parsed ${observedCompanyCount}.`
     ]
   };
 }

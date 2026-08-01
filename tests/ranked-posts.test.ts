@@ -113,11 +113,11 @@ describe("ranked posts", () => {
     const ranked = selectRankedPosts(graph([
       evidence({ id: "before-midnight", postedAt: "2026-07-20T04:59:59.999Z", sourceUrl: "https://x.com/c/status/701", platformPostId: "701" }),
       evidence({ id: "at-midnight", postedAt: "2026-07-20T05:00:00.000Z", sourceUrl: "https://x.com/c/status/702", platformPostId: "702" }),
-      evidence({ id: "end-of-day", postedAt: "2026-07-21T04:59:59.999Z", sourceUrl: "https://x.com/c/status/703", platformPostId: "703" }),
+      evidence({ id: "later-today", postedAt: "2026-07-21T04:59:59.999Z", sourceUrl: "https://x.com/c/status/703", platformPostId: "703" }),
       evidence({ id: "unknown", postedAt: "unknown", sourceUrl: "https://x.com/c/status/704", platformPostId: "704" })
     ]), { period: "today", now });
 
-    expect(ranked.map((item) => item.evidence.id)).toEqual(["end-of-day", "at-midnight"]);
+    expect(ranked.map((item) => item.evidence.id)).toEqual(["at-midnight"]);
   });
 
   it("handles the Central daylight-saving boundary by calendar day", () => {
@@ -125,13 +125,13 @@ describe("ranked posts", () => {
     const ranked = selectRankedPosts(graph([
       evidence({ id: "prior", postedAt: "2026-03-08T05:59:59.999Z", sourceUrl: "https://x.com/c/status/801", platformPostId: "801" }),
       evidence({ id: "start", postedAt: "2026-03-08T06:00:00.000Z", sourceUrl: "https://x.com/c/status/802", platformPostId: "802" }),
-      evidence({ id: "late", postedAt: "2026-03-09T04:59:59.999Z", sourceUrl: "https://x.com/c/status/803", platformPostId: "803" })
+      evidence({ id: "later-today", postedAt: "2026-03-09T04:59:59.999Z", sourceUrl: "https://x.com/c/status/803", platformPostId: "803" })
     ]), { period: "today", now });
 
-    expect(ranked.map((item) => item.evidence.id)).toEqual(["late", "start"]);
+    expect(ranked.map((item) => item.evidence.id)).toEqual(["start"]);
   });
 
-  it("keeps legacy missing-precision posts eligible for Today but excludes explicitly unknown dates", () => {
+  it("fails closed for both missing and explicitly unknown publication precision", () => {
     const now = new Date("2026-07-20T12:00:00.000Z");
     const ranked = selectRankedPosts(graph([
       evidence({
@@ -150,9 +150,27 @@ describe("ranked posts", () => {
       })
     ]), { period: "today", now });
 
-    expect(ranked.map((item) => item.evidence.id)).toEqual([
-      "legacy-missing-precision"
-    ]);
+    expect(ranked).toEqual([]);
+  });
+
+  it("does not use refresh or observation clocks as the publication date", () => {
+    const now = new Date("2026-07-20T12:00:00.000Z");
+    const ranked = selectRankedPosts(graph([
+      evidence({
+        id: "refreshed-today",
+        postedAt: "",
+        publishedAtPrecision: "unknown",
+        observedAt: "2026-07-20T10:00:00.000Z",
+        metricsCheckedAt: "2026-07-20T10:00:00.000Z",
+        first_seen_at: "2026-07-20T10:00:00.000Z",
+        last_checked_at: "2026-07-20T10:00:00.000Z",
+        last_updated_at: "2026-07-20T10:00:00.000Z",
+        sourceUrl: "https://x.com/c/status/853",
+        platformPostId: "853"
+      })
+    ]), { period: "today", now });
+
+    expect(ranked).toEqual([]);
   });
 
   it("limits Month to the inclusive rolling 30-day window ending at now", () => {

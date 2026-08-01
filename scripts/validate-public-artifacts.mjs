@@ -9,10 +9,10 @@ import {
 
 export const EXPECTED_SCORING_MODEL = Object.freeze({
   id: "returner-traction",
-  version: "4.1.0",
-  name: "returner-traction-v4-absolute-fixed-platform"
+  version: "4.2.0",
+  name: "returner-traction-v4-absolute-fixed-platform-global-best"
 });
-export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0", "4.0.1", "4.0.2"]);
+export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0", "4.0.1", "4.0.2", "4.1.0"]);
 const SUPPORTED_HISTORY_MODEL_VERSIONS = new Set([
   EXPECTED_SCORING_MODEL.version,
   ...HISTORICAL_SCORING_MODEL_VERSIONS
@@ -35,6 +35,13 @@ export const HISTORY_ARTIFACTS = Object.freeze([
   historyArtifact("S26", "s26-score-benchmarks.json"),
   historyArtifact("A16ZSR006", "a16zsr006-score-benchmarks.json")
 ]);
+
+export const S26_CATALOG_PATH = path.posix.join(
+  "src",
+  "lib",
+  "yc",
+  "summer-2026-companies.json"
+);
 
 const PLATFORM_WEIGHTS = Object.freeze({
   x: 0.21,
@@ -81,6 +88,15 @@ const REDDIT_ID = /^[A-Za-z0-9]+$/;
 const GITHUB_REPO = /^[A-Za-z0-9_.-]+$/;
 const GITHUB_OWNER = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
 const BLUESKY_RECORD_KEY = /^[A-Za-z0-9._~:-]{1,512}$/;
+const YC_COMPANY_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const GITHUB_REPOSITORY_ACTIVITY_FIELDS = Object.freeze([
+  "observedAt",
+  "metricsCheckedAt",
+  "linkCheckedAt",
+  "first_seen_at",
+  "last_checked_at",
+  "last_updated_at"
+]);
 const GITHUB_RESERVED_OWNERS = new Set([
   "collections",
   "codespaces",
@@ -138,6 +154,10 @@ export async function validatePublicArtifacts({
     graphNodes += Array.isArray(graph?.nodes) ? graph.nodes.length : 0;
     evidenceRows += Array.isArray(graph?.evidence) ? graph.evidence.length : 0;
   }
+  const s26Catalog = await readJsonArtifact(rootDir, S26_CATALOG_PATH, violations);
+  if (s26Catalog !== null) {
+    violations.push(...collectS26GraphCensusViolations(s26Catalog, graphArtifacts));
+  }
   violations.push(...collectCanonicalGraphSetViolations(graphArtifacts));
 
   for (const descriptor of HISTORY_ARTIFACTS) {
@@ -166,6 +186,157 @@ export async function validatePublicArtifacts({
     versionedDailyEntries,
     versionedWeeklyEntries
   };
+}
+
+export function collectS26GraphCensusViolations(catalog, graphArtifacts) {
+  const violations = [];
+  if (!isRecord(catalog)) {
+    return [`${S26_CATALOG_PATH}: expected a JSON object`];
+  }
+  if (!Array.isArray(catalog.companies) || catalog.companies.length === 0) {
+    return [`${S26_CATALOG_PATH}: companies must be a non-empty array`];
+  }
+
+  const catalogCount = catalog.companies.length;
+  for (const sourceCountField of ["observedCompanyCount", "expectedCompanyCount"]) {
+    const sourceCount = catalog.source?.[sourceCountField];
+    if (
+      (sourceCountField === "observedCompanyCount" || sourceCount !== undefined) &&
+      sourceCount !== catalogCount
+    ) {
+      violations.push(
+        `${S26_CATALOG_PATH}: source.${sourceCountField} must equal the ${catalogCount}-company catalog, received ${formatValue(sourceCount)}`
+      );
+    }
+  }
+
+  const catalogByEntityId = new Map();
+  const catalogBySlug = new Map();
+  const catalogIds = new Map();
+  const catalogObjectIds = new Map();
+  for (const [index, company] of catalog.companies.entries()) {
+    const scope = `${S26_CATALOG_PATH}: companies[${index}]`;
+    if (!isRecord(company)) {
+      violations.push(`${scope} must be an object`);
+      continue;
+    }
+    const companyId = nonEmptyString(company.id);
+    const objectId = nonEmptyString(company.objectID);
+    const slug = validCompanySlug(company.slug);
+    if (!companyId) {
+      violations.push(`${scope}.id must be a non-empty string`);
+    }
+    if (!objectId) {
+      violations.push(`${scope}.objectID must be a non-empty string`);
+    } else if (companyId && objectId !== companyId) {
+      violations.push(`${scope}.objectID must equal id ${companyId}, received ${formatValue(objectId)}`);
+    }
+    if (!slug) {
+      violations.push(`${scope}.slug must be a canonical company slug`);
+    }
+    if (companyId) {
+      const previousIndex = catalogIds.get(companyId);
+      if (previousIndex !== undefined) {
+        violations.push(`${scope}.id duplicates companies[${previousIndex}].id ${companyId}`);
+      } else {
+        catalogIds.set(companyId, index);
+      }
+    }
+    if (objectId) {
+      const previousIndex = catalogObjectIds.get(objectId);
+      if (previousIndex !== undefined) {
+        violations.push(`${scope}.objectID duplicates companies[${previousIndex}].objectID ${objectId}`);
+      } else {
+        catalogObjectIds.set(objectId, index);
+      }
+    }
+    if (!slug) continue;
+
+    const entityId = `company-${slug}`;
+    const previousEntity = catalogByEntityId.get(entityId);
+    if (previousEntity) {
+      violations.push(`${scope}.slug duplicates ${previousEntity.scope}.slug ${slug}`);
+      continue;
+    }
+    const profileSlug = ycCompanySlugFromUrl(company.ycProfileUrl);
+    if (profileSlug !== slug) {
+      violations.push(
+        `${scope}.ycProfileUrl must identify slug ${slug}, received ${formatValue(company.ycProfileUrl)}`
+      );
+    }
+    const entry = { companyId, entityId, slug, scope };
+    catalogByEntityId.set(entityId, entry);
+    catalogBySlug.set(slug, entry);
+  }
+
+  for (const entry of Array.isArray(graphArtifacts) ? graphArtifacts : []) {
+    const descriptor = entry?.descriptor;
+    const graph = entry?.graph;
+    if (descriptor?.batch !== "S26" || !isRecord(graph)) continue;
+    const artifactPath = descriptor.path;
+    for (const countField of ["companyCountObserved", "companyCountExpected"]) {
+      const graphCount = graph.batch?.[countField];
+      if (graphCount !== undefined && graphCount !== catalogCount) {
+        violations.push(
+          `${artifactPath}: batch.${countField} must match the S26 catalog count ${catalogCount}, received ${formatValue(graphCount)}`
+        );
+      }
+    }
+
+    const companyNodes = (Array.isArray(graph.nodes) ? graph.nodes : []).filter(
+      (node) => node?.entityType === "company"
+    );
+    const graphEntityIds = new Set();
+    const graphSlugs = new Set();
+    for (const [index, node] of companyNodes.entries()) {
+      const scope = `${artifactPath}: nodes[${index}]`;
+      const entityId = nonEmptyString(node?.entityId);
+      const slug = ycCompanySlugFromUrl(node?.ycProfileUrl);
+      if (entityId) graphEntityIds.add(entityId);
+      if (slug) graphSlugs.add(slug);
+
+      const catalogCompany = entityId ? catalogByEntityId.get(entityId) : null;
+      if (entityId && !catalogCompany) {
+        violations.push(`${scope}.entityId ${entityId} is absent from the S26 catalog`);
+      }
+      if (!slug) {
+        violations.push(`${scope}.ycProfileUrl must contain a canonical YC company slug`);
+      } else if (!catalogBySlug.has(slug)) {
+        violations.push(`${scope}.ycProfileUrl slug ${slug} is absent from the S26 catalog`);
+      }
+      if (catalogCompany && slug && catalogCompany.slug !== slug) {
+        violations.push(
+          `${scope} pairs entityId ${entityId} with YC slug ${slug}; the S26 catalog maps it to ${catalogCompany.slug}`
+        );
+      }
+    }
+
+    // Audience snapshots intentionally contain only companies connected to the
+    // selected Top Voice cohort. Their included companies must still be a clean
+    // catalog subset, while the base snapshot must materialize the full census.
+    if ((descriptor.audience ?? "off") !== "off") continue;
+    if (companyNodes.length !== catalogCount) {
+      violations.push(
+        `${artifactPath}: base snapshot has ${companyNodes.length} company nodes for the ${catalogCount}-company S26 catalog`
+      );
+    }
+    appendSetCensusViolation(
+      violations,
+      artifactPath,
+      "company entityId",
+      new Set(catalogByEntityId.keys()),
+      graphEntityIds
+    );
+    appendSetCensusViolation(
+      violations,
+      artifactPath,
+      "company slug",
+      new Set(catalogBySlug.keys()),
+      graphSlugs
+    );
+  }
+
+  return violations;
 }
 
 export function collectGraphArtifactViolations(
@@ -357,23 +528,42 @@ export function collectCanonicalGraphSetViolations(entries) {
     );
   }
 
-  for (const [key, entry] of graphByBatchAndAudience.entries()) {
-    if (!key.endsWith(":off") || !isRecord(entry.graph)) continue;
+  const baseCompanyNodes = [...graphByBatchAndAudience.entries()]
+    .filter(([key, entry]) => key.endsWith(":off") && isRecord(entry.graph))
+    .flatMap(([, entry]) =>
+      (Array.isArray(entry.graph.nodes) ? entry.graph.nodes : []).filter(
+        (node) => node?.entityType === "company"
+      )
+    );
+  const positiveBaseCompanyNodes = baseCompanyNodes.filter(
+    (node) => isFiniteNumber(node?.scoreBreakdown?.absoluteScore) && node.scoreBreakdown.absoluteScore > 0
+  );
+  const expectedCohortSize = positiveBaseCompanyNodes.length;
+  const expectedBenchmarkScore = expectedCohortSize > 0
+    ? Math.max(...positiveBaseCompanyNodes.map((node) => node.scoreBreakdown.absoluteScore))
+    : 0;
+  const expectedScaleFactor = expectedBenchmarkScore > 0 ? 100 / expectedBenchmarkScore : 0;
+
+  for (const entry of graphByBatchAndAudience.values()) {
+    if (!isRecord(entry.graph)) continue;
     const companyNodes = (Array.isArray(entry.graph.nodes) ? entry.graph.nodes : []).filter(
       (node) => node?.entityType === "company"
     );
-    const positiveCompanyNodes = companyNodes.filter(
-      (node) => isFiniteNumber(node?.scoreBreakdown?.absoluteScore) && node.scoreBreakdown.absoluteScore > 0
-    );
-    const expectedCohortSize = positiveCompanyNodes.length;
-
     for (const node of companyNodes) {
       const calibration = node?.scoreBreakdown?.calibration;
       if (!isRecord(calibration)) continue;
+      const scope = `canonical graph ${formatValue(entry.graph.batch?.slug)}: node ${formatValue(node.entityId)}`;
       if (calibration.cohortSize !== expectedCohortSize) {
-        violations.push(
-          `canonical graph ${formatValue(entry.graph.batch?.slug)}: node ${formatValue(node.entityId)} calibration.cohortSize must be ${expectedCohortSize}`
-        );
+        violations.push(`${scope} calibration.cohortSize must be global count ${expectedCohortSize}`);
+      }
+      if (!numbersEqual(calibration.benchmarkScore, expectedBenchmarkScore)) {
+        violations.push(`${scope} calibration.benchmarkScore must be global maximum ${expectedBenchmarkScore}`);
+      }
+      if (
+        !isFiniteNumber(calibration.scaleFactor) ||
+        Math.abs(calibration.scaleFactor - expectedScaleFactor) > 1e-9
+      ) {
+        violations.push(`${scope} calibration.scaleFactor must use the one global factor ${expectedScaleFactor}`);
       }
     }
     const zeroEvidenceNodes = companyNodes.filter(
@@ -734,8 +924,11 @@ function validateScoreBreakdown(breakdown, nodeScore, scope, violations) {
   if (!numbersEqual(breakdown.absoluteScore, expectedAbsoluteScore)) {
     violations.push(`${scope} scoreBreakdown.absoluteScore must equal the rounded fixed contribution total`);
   }
-  if (!numbersEqual(breakdown.totalScore, breakdown.absoluteScore)) {
-    violations.push(`${scope} scoreBreakdown.totalScore must equal absoluteScore`);
+  if (
+    breakdown.calibration?.method === "none" &&
+    !numbersEqual(breakdown.totalScore, breakdown.absoluteScore)
+  ) {
+    violations.push(`${scope} scoreBreakdown.totalScore must equal absoluteScore without a global benchmark`);
   }
   if (!numbersEqual(breakdown.coverageFactor, configuredCoverage)) {
     violations.push(`${scope} scoreBreakdown.coverageFactor must equal present configured platform weight`);
@@ -760,7 +953,13 @@ function validateScoreBreakdown(breakdown, nodeScore, scope, violations) {
     }
   }
   validateConfidence(breakdown.confidence, scope, violations);
-  validateCalibration(breakdown.calibration, breakdown.absoluteScore, scope, violations);
+  validateCalibration(
+    breakdown.calibration,
+    breakdown.totalScore,
+    breakdown.absoluteScore,
+    scope,
+    violations
+  );
 
   if (!Array.isArray(breakdown.limitations) || !breakdown.limitations.every(isString)) {
     violations.push(`${scope} scoreBreakdown.limitations must be an array of strings`);
@@ -853,13 +1052,15 @@ function validateConfidence(confidence, scope, violations) {
   }
 }
 
-function validateCalibration(calibration, absoluteScore, scope, violations) {
+function validateCalibration(calibration, totalScore, absoluteScore, scope, violations) {
   if (!isRecord(calibration)) {
     violations.push(`${scope} scoreBreakdown.calibration must be an object`);
     return;
   }
-  if (calibration.method !== "none") {
-    violations.push(`${scope} scoreBreakdown.calibration.method must be none`);
+  if (calibration.method !== "global_best_ratio") {
+    violations.push(
+      `${scope} scoreBreakdown.calibration.method must be global_best_ratio for the 4.2 scoring model`
+    );
   }
   if (!isNonNegativeInteger(calibration.cohortSize)) {
     violations.push(`${scope} scoreBreakdown.calibration.cohortSize must be a non-negative integer`);
@@ -870,6 +1071,39 @@ function validateCalibration(calibration, absoluteScore, scope, violations) {
   if (!numbersEqual(calibration.inputScore, absoluteScore)) {
     violations.push(`${scope} scoreBreakdown.calibration.inputScore must equal absoluteScore`);
   }
+  if (calibration.method === "global_best_ratio") {
+    validateScore(
+      calibration.benchmarkScore,
+      `${scope} scoreBreakdown.calibration.benchmarkScore`,
+      violations
+    );
+    if (!isFiniteNumber(calibration.scaleFactor) || calibration.scaleFactor < 0) {
+      violations.push(`${scope} scoreBreakdown.calibration.scaleFactor must be finite and non-negative`);
+    }
+    if (calibration.benchmarkScope !== "all_supported_batches") {
+      violations.push(`${scope} scoreBreakdown.calibration.benchmarkScope must be all_supported_batches`);
+    }
+    if (calibration.benchmarkPopulation !== "current_company_snapshot") {
+      violations.push(`${scope} scoreBreakdown.calibration.benchmarkPopulation must be current_company_snapshot`);
+    }
+    if (isFiniteNumber(calibration.benchmarkScore) && isFiniteNumber(calibration.scaleFactor)) {
+      const expectedFactor = calibration.benchmarkScore > 0
+        ? 100 / calibration.benchmarkScore
+        : 0;
+      if (Math.abs(calibration.scaleFactor - expectedFactor) > 1e-9) {
+        violations.push(`${scope} scoreBreakdown.calibration.scaleFactor must equal 100 / benchmarkScore`);
+      }
+      const expectedTotal = calibration.benchmarkScore > 0 && absoluteScore > 0
+        ? Math.max(1, Math.min(100, Math.round((absoluteScore / calibration.benchmarkScore) * 100)))
+        : 0;
+      if (!numbersEqual(totalScore, expectedTotal)) {
+        violations.push(`${scope} scoreBreakdown.totalScore must equal global benchmark score ${expectedTotal}`);
+      }
+      if ((calibration.benchmarkScore > 0) !== (calibration.cohortSize > 0)) {
+        violations.push(`${scope} scoreBreakdown.calibration.cohortSize must match benchmark availability`);
+      }
+    }
+  }
 }
 
 function validateCalibrationModes(breakdowns, expectedAudience, artifactPath, violations) {
@@ -877,6 +1111,7 @@ function validateCalibrationModes(breakdowns, expectedAudience, artifactPath, vi
     ({ breakdown }) => isFiniteNumber(breakdown.absoluteScore) && breakdown.absoluteScore > 0
   ).length;
 
+  const globalSignatures = new Set();
   for (const { scope, breakdown } of breakdowns) {
     const calibration = breakdown.calibration;
     if (!isRecord(calibration)) continue;
@@ -884,14 +1119,30 @@ function validateCalibrationModes(breakdowns, expectedAudience, artifactPath, vi
       continue;
     }
 
-    if (calibration.cohortSize !== positiveCohortSize) {
-      violations.push(
-        `${scope} calibration.cohortSize must be ${positiveCohortSize} for ${artifactPath}`
-      );
+    if (calibration.method === "none") {
+      if (calibration.cohortSize !== positiveCohortSize) {
+        violations.push(
+          `${scope} calibration.cohortSize must be ${positiveCohortSize} for ${artifactPath}`
+        );
+      }
+    } else if (calibration.method === "global_best_ratio") {
+      if (calibration.cohortSize < positiveCohortSize) {
+        violations.push(`${scope} global calibration.cohortSize cannot be smaller than the visible batch`);
+      }
+      globalSignatures.add(JSON.stringify({
+        cohortSize: calibration.cohortSize,
+        benchmarkScore: calibration.benchmarkScore,
+        scaleFactor: calibration.scaleFactor,
+        benchmarkScope: calibration.benchmarkScope,
+        benchmarkPopulation: calibration.benchmarkPopulation
+      }));
     }
-    if (calibration.method !== "none" || calibration.percentile !== null) {
-      violations.push(`${scope} score must use absolute calibration mode none and null percentile`);
+    if (calibration.percentile !== null) {
+      violations.push(`${scope} score calibration percentile must be null`);
     }
+  }
+  if (globalSignatures.size > 1) {
+    violations.push(`${artifactPath} nodes must share exactly one global company benchmark factor`);
   }
 }
 
@@ -1004,6 +1255,8 @@ function validateEvidence(evidence, nodes, expectedAudience, artifactPath, viola
       violations.push(`${scope}.contributionScore must not apply a Top Voice member weight`);
     }
 
+    validateGithubRepositoryPublication(item, scope, violations);
+
     const identities = evidenceNativeIdentities(item);
     if (identities.conflict) {
       violations.push(
@@ -1047,6 +1300,144 @@ function validateEvidence(evidence, nodes, expectedAudience, artifactPath, viola
       violations.push(`${artifactPath}: evidence ${evidenceId} is not referenced by a node`);
     }
   }
+}
+
+function validateGithubRepositoryPublication(item, scope, violations) {
+  if (
+    item.platform !== "github" ||
+    nativeEvidenceIdentityFromUrl("github", item.sourceUrl) === null
+  ) {
+    return;
+  }
+
+  const provenance = githubRepositoryPublicationProvenance(item);
+  const postedAtMs = timestampMs(item.postedAt);
+
+  if (
+    item.publishedAtPrecision === "exact" &&
+    provenance.createdAt !== null &&
+    postedAtMs !== provenance.createdAt.timestamp
+  ) {
+    const matchingActivity = provenance.activityTimestamps.find(
+      ({ timestamp }) => timestamp === postedAtMs
+    );
+    violations.push(
+      `${scope} GitHub repository publication must use native createdAt ${formatValue(provenance.createdAt.value)}; ` +
+        `exact postedAt ${formatValue(item.postedAt)}` +
+        `${matchingActivity ? ` matches ${matchingActivity.label} instead` : " differs from native creation"}`
+    );
+    return;
+  }
+
+  if (
+    provenance.createdAt === null &&
+    provenance.activityDerived &&
+    item.publishedAtPrecision !== "unknown"
+  ) {
+    violations.push(
+      `${scope} GitHub repository publication derived from ${provenance.activityLabels.join(", ")} ` +
+        `has no auditable native createdAt; publishedAtPrecision must be unknown`
+    );
+  }
+}
+
+function githubRepositoryPublicationProvenance(item) {
+  const raw = parseJsonRecord(item.rawVisibleText);
+  const sourceProvenance = recordAt(raw, "sourceProvenance");
+  const sourceProvenanceUrl = nonEmptyString(sourceProvenance?.sourceUrl);
+  const commitDerived =
+    sourceProvenance?.kind === "github_commit" ||
+    (sourceProvenanceUrl !== null && /\/commit\/[a-f0-9]{7,64}(?:\/|$)/i.test(sourceProvenanceUrl));
+  const timestampRecords = [
+    recordAt(raw, "repositoryTimestamps"),
+    recordAt(recordAt(raw, "repo"), "repositoryTimestamps"),
+    recordAt(raw, "repo"),
+    recordAt(raw, "repository"),
+    recordAt(recordAt(raw, "canonicalRepository"), "repositoryTimestamps"),
+    recordAt(raw, "canonicalRepository")
+  ].filter(Boolean);
+  if (!commitDerived) {
+    const postRecord = recordAt(raw, "post");
+    if (postRecord) timestampRecords.push(postRecord);
+  }
+
+  const createdAt = firstTimestamp(timestampRecords, [
+    "createdAt",
+    "created_at",
+    "repositoryCreatedAt",
+    "repository_created_at"
+  ]);
+  const activityTimestamps = [];
+  for (const record of timestampRecords) {
+    appendTimestamp(activityTimestamps, record, "updatedAt", "updatedAt");
+    appendTimestamp(activityTimestamps, record, "updated_at", "updatedAt");
+    appendTimestamp(activityTimestamps, record, "pushedAt", "pushedAt");
+    appendTimestamp(activityTimestamps, record, "pushed_at", "pushedAt");
+    appendTimestamp(activityTimestamps, record, "observedAt", "observedAt");
+    appendTimestamp(activityTimestamps, record, "observed_at", "observedAt");
+  }
+  for (const field of GITHUB_REPOSITORY_ACTIVITY_FIELDS) {
+    appendTimestamp(activityTimestamps, item, field, field);
+  }
+
+  const postedAtMs = timestampMs(item.postedAt);
+  const matchingActivityLabels = activityTimestamps
+    .filter(({ timestamp }) => timestamp === postedAtMs)
+    .map(({ label }) => label);
+  const activityLabels = [...new Set([
+    ...(commitDerived ? ["commit provenance"] : []),
+    ...matchingActivityLabels,
+    ...(createdAt === null && timestampRecords.length > 0
+      ? activityTimestamps.map(({ label }) => label)
+      : [])
+  ])];
+
+  return {
+    createdAt,
+    activityTimestamps,
+    activityDerived: activityLabels.length > 0,
+    activityLabels
+  };
+}
+
+function parseJsonRecord(value) {
+  if (isRecord(value)) return value;
+  if (typeof value !== "string" || !value.trim().startsWith("{")) return null;
+  try {
+    const parsed = JSON.parse(value);
+    return isRecord(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function recordAt(record, key) {
+  return isRecord(record?.[key]) ? record[key] : null;
+}
+
+function firstTimestamp(records, keys) {
+  for (const record of records) {
+    for (const key of keys) {
+      const value = nonEmptyString(record?.[key]);
+      const timestamp = timestampMs(value);
+      if (value !== null && timestamp !== null) return { value, timestamp };
+    }
+  }
+  return null;
+}
+
+function appendTimestamp(target, record, key, label) {
+  const value = nonEmptyString(record?.[key]);
+  const timestamp = timestampMs(value);
+  if (value === null || timestamp === null) return;
+  if (target.some((entry) => entry.label === label && entry.timestamp === timestamp)) return;
+  target.push({ label, value, timestamp });
+}
+
+function timestampMs(value) {
+  if (typeof value !== "string" || !value.trim()) return null;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
 }
 
 function validateHistoryCompanies(companies, scope, violations, { strictTieRanks = false } = {}) {
@@ -1300,6 +1691,42 @@ function identitiesMatch(platform, urlId, explicitId) {
   const forum = urlId.match(/^p\/([^/]+)$/);
   if (forum) aliases.add(forum[1]);
   return aliases.has(explicitId);
+}
+
+function nonEmptyString(value) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function validCompanySlug(value) {
+  const slug = nonEmptyString(value);
+  return slug && YC_COMPANY_SLUG.test(slug) ? slug : null;
+}
+
+function ycCompanySlugFromUrl(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    if (normalizedHost(url) !== "ycombinator.com") return null;
+    return validCompanySlug(normalizedPath(url).match(/^\/companies\/([^/]+)$/)?.[1]);
+  } catch {
+    return null;
+  }
+}
+
+function appendSetCensusViolation(
+  violations,
+  artifactPath,
+  label,
+  expectedValues,
+  observedValues
+) {
+  const missing = [...expectedValues].filter((value) => !observedValues.has(value)).sort();
+  const unexpected = [...observedValues].filter((value) => !expectedValues.has(value)).sort();
+  if (missing.length === 0 && unexpected.length === 0) return;
+  violations.push(
+    `${artifactPath}: ${label} census must match the S26 catalog` +
+      `${missing.length ? `; missing ${missing.join(", ")}` : ""}` +
+      `${unexpected.length ? `; unexpected ${unexpected.join(", ")}` : ""}`
+  );
 }
 
 function graphArtifact(batch, filename, audience = "off") {

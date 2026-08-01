@@ -87,7 +87,7 @@ const platformOptions: Platform[] = [...PLATFORM_VALUES];
 
 const defaultBatches = [
   { slug: "S2026", label: "YC Spring 2026 (P26)", companyCountExpected: 197, companyCountObserved: 197 },
-  { slug: "S26", label: "YC Summer 2026 (S26)", companyCountExpected: 115, companyCountObserved: 115 },
+  { slug: "S26", label: "YC Summer 2026 (S26)" },
   { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
 ];
 const DEFAULT_BATCH_SLUG = "S2026";

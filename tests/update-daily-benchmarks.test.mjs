@@ -139,7 +139,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.1.0" });
+    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.2.0" });
 
     snapshots[8].graph.scoringContext.modelVersion = "5.0.0";
     snapshots[8].graph.nodes.forEach((node) => {
@@ -150,7 +150,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.1\.0/i);
+    ).toThrow(/returner-traction@4\.2\.0/i);
 
     const consistentlyLegacySnapshots = graphSnapshots(generatedAt);
     for (const snapshot of consistentlyLegacySnapshots) {
@@ -164,7 +164,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.1\.0/i);
+    ).toThrow(/returner-traction@4\.2\.0/i);
   });
 
   it("rejects audience node state that drifts from the canonical base snapshot", () => {
@@ -258,7 +258,7 @@ describe("daily benchmark updater", () => {
         validationNow: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).rejects.toThrow(/complete returner-traction@4\.1\.0 score breakdown/i);
+    ).rejects.toThrow(/complete returner-traction@4\.2\.0 score breakdown/i);
 
     expect(fs.readFileSync(sentinelPath, "utf8")).toBe("sentinel\n");
     expect(fs.readdirSync(path.dirname(sentinelPath))).toEqual(["s2026.json"]);
@@ -320,7 +320,7 @@ describe("daily benchmark updater", () => {
       expect(history.daily[0]).toEqual(legacySnapshot);
       expect(history.daily[1]).toMatchObject({
         recordedAt: recordedAt.toISOString(),
-        scoringModelVersion: "4.1.0",
+        scoringModelVersion: "4.2.0",
         inputGeneratedAt: generatedAt.toISOString()
       });
     }
@@ -348,7 +348,7 @@ describe("daily benchmark updater", () => {
 
     expect(next.daily[0]).toEqual(legacy);
     expect(next.daily).toHaveLength(2);
-    expect(next.daily[1].scoringModelVersion).toBe("4.1.0");
+    expect(next.daily[1].scoringModelVersion).toBe("4.2.0");
   });
 
   it("aborts a graph fetch that exceeds its timeout", async () => {
@@ -728,7 +728,7 @@ function writeSkipHistories(rootDir, { recordedAt, staleBatch, staleInputBatch }
       : snapshotRecordedAt;
     const snapshot = {
       recordedAt: snapshotRecordedAt.toISOString(),
-      scoringModelVersion: "4.1.0",
+      scoringModelVersion: "4.2.0",
       inputGeneratedAt: snapshotInputGeneratedAt.toISOString(),
       companies: []
     };
@@ -793,8 +793,8 @@ function graphFor(descriptor, generatedAt) {
     generatedAt: generatedAt.toISOString(),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.1.0",
-      modelName: "returner-traction-v4-absolute-fixed-platform",
+      modelVersion: "4.2.0",
+      modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt.toISOString(),
@@ -807,8 +807,8 @@ function graphFor(descriptor, generatedAt) {
 function v4ScoreBreakdown(score, platformScore) {
   return {
     modelId: "returner-traction",
-    modelVersion: "4.1.0",
-    modelName: "returner-traction-v4-absolute-fixed-platform",
+    modelVersion: "4.2.0",
+    modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
     totalScore: score,
     absoluteScore: score,
     weightedAvailableScore: platformScore,

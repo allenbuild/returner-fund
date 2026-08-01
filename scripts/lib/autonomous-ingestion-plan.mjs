@@ -39,8 +39,12 @@ export const AUTONOMOUS_BATCHES = Object.freeze([
     graphFile: "s26.json",
     catalogFile: "src/lib/yc/summer-2026-companies.json",
     catalogFormat: "yc_snapshot",
-    expectedCompanyCount: 115,
-    expectedFounderCount: 230,
+    minimumCompanyCount: 167,
+    minimumFounderCount: 325,
+    minimumAccountCount: 790,
+    dynamicCatalogCounts: true,
+    expectedCompanyCount: null,
+    expectedFounderCount: null,
     githubSourcePath: "src/lib/yc/summer-2026-companies.json"
   },
   {
@@ -191,7 +195,9 @@ export async function loadAutonomousCatalogs(root) {
         if (!Array.isArray(source.companies)) {
           throw new Error(`${batch.catalogFile} does not contain a company array.`);
         }
-        if (source.companies.length !== batch.expectedCompanyCount) {
+        if (batch.dynamicCatalogCounts) {
+          validateDynamicYcSnapshot(source, batch);
+        } else if (source.companies.length !== batch.expectedCompanyCount) {
           throw new Error(
             `${batch.catalogFile} contains ${source.companies.length} companies; expected ${batch.expectedCompanyCount}.`
           );
@@ -199,6 +205,9 @@ export async function loadAutonomousCatalogs(root) {
         const companies = source.companies.map((company) => normalizeYcCompany(company, batch));
         return {
           ...batch,
+          expectedCompanyCount: batch.dynamicCatalogCounts
+            ? source.companies.length
+            : batch.expectedCompanyCount,
           sourcePath: path,
           generatedAt: source.source?.fetchedAt ?? null,
           companies
@@ -229,9 +238,87 @@ export async function loadAutonomousCatalogs(root) {
       verifiedSocialOverrides,
       catalog
     );
-    validateFixedCatalogCounts(companies, catalog, catalog.catalogFile ?? catalog.graphFile);
-    return { ...catalog, companies };
+    if (catalog.dynamicCatalogCounts) {
+      validateDynamicCatalogInventory(companies, catalog);
+    }
+    const resolvedCatalog = catalog.dynamicCatalogCounts
+      ? {
+          ...catalog,
+          expectedCompanyCount: companies.length,
+          expectedFounderCount: companies.reduce(
+            (count, company) => count + company.founders.length,
+            0
+          )
+        }
+      : catalog;
+    validateFixedCatalogCounts(
+      companies,
+      resolvedCatalog,
+      resolvedCatalog.catalogFile ?? resolvedCatalog.graphFile
+    );
+    return { ...resolvedCatalog, companies };
   });
+}
+
+function validateDynamicCatalogInventory(companies, batch) {
+  const founderCount = companies.reduce(
+    (count, company) => count + company.founders.length,
+    0
+  );
+  const accountCount = companies.reduce(
+    (count, company) => count + company.accounts.length + company.founders.reduce(
+      (founderCount, founder) => founderCount + founder.accounts.length,
+      0
+    ),
+    0
+  );
+  const minimumFounderCount = Number(batch.minimumFounderCount ?? 0);
+  const minimumAccountCount = Number(batch.minimumAccountCount ?? 0);
+  if (founderCount < minimumFounderCount || accountCount < minimumAccountCount) {
+    throw new Error(
+      `${batch.catalogFile ?? batch.graphFile} lost canonical owner inventory: ` +
+      `companies=${companies.length}, founders=${founderCount}/${minimumFounderCount}, ` +
+      `accounts=${accountCount}/${minimumAccountCount}.`
+    );
+  }
+}
+
+function validateDynamicYcSnapshot(source, batch) {
+  const sourceExpected = Number(source?.source?.expectedCompanyCount);
+  const sourceObserved = Number(source?.source?.observedCompanyCount);
+  const minimum = Number(batch.minimumCompanyCount ?? 0);
+  if (!Number.isInteger(sourceExpected) || sourceExpected < minimum) {
+    throw new Error(
+      `${batch.catalogFile} declares ${sourceExpected || "no"} expected companies; ` +
+      `at least ${minimum} are required.`
+    );
+  }
+  if (sourceExpected !== source.companies.length || sourceObserved !== source.companies.length) {
+    throw new Error(
+      `${batch.catalogFile} is incomplete: expected=${sourceExpected}, observed=${sourceObserved}, ` +
+      `companies=${source.companies.length}.`
+    );
+  }
+  const ids = new Set();
+  const slugs = new Set();
+  for (const company of source.companies) {
+    const id = String(company?.id ?? "").trim();
+    const slug = String(company?.slug ?? "").trim();
+    if (!id || !slug) {
+      throw new Error(`${batch.catalogFile} contains a company without an immutable ID or slug.`);
+    }
+    if (company.batch !== "Summer 2026") {
+      throw new Error(
+        `${batch.catalogFile} contains ${slug} in ${company.batch ?? "an unknown batch"}; ` +
+        "expected Summer 2026."
+      );
+    }
+    if (ids.has(id) || slugs.has(slug)) {
+      throw new Error(`${batch.catalogFile} contains duplicate company identity ${id}/${slug}.`);
+    }
+    ids.add(id);
+    slugs.add(slug);
+  }
 }
 
 export function buildAutonomousPublicNativeAuthorResolver(catalogs) {
@@ -1469,6 +1556,15 @@ export function mergePublicEvidenceSnapshots(
     ),
     evidence
   );
+  const acceptedReviewResolutions = new Map(
+    evidence.flatMap((row) => {
+      const sourceEvidenceId = String(row?.id ?? "").trim();
+      const physicalIdentity = reconciliationPhysicalIdentity(row);
+      return sourceEvidenceId && physicalIdentity
+        ? [[`${rowBatchScope(row)}:${sourceEvidenceId}`, physicalIdentity]]
+        : [];
+    })
+  );
   const needsReview = dedupeReviewRows(
     [
       ...snapshots.flatMap((snapshot) =>
@@ -1477,7 +1573,21 @@ export function mergePublicEvidenceSnapshots(
       ...quarantinedEvidence
     ],
     reviewEvidenceKey
-  ).map(stableJsonObjectKeyOrder);
+  )
+    .filter((row) => {
+      // A later canonical roster can resolve a previously quarantined source
+      // row (for example, after its native author joins the mutable cohort).
+      // Remove only that exact source-row/physical-post quarantine; unrelated
+      // reviews for the same URL or another batch remain fail-closed.
+      const sourceEvidenceId = String(row?.sourceEvidenceId ?? "").trim();
+      if (!sourceEvidenceId) return true;
+      const acceptedPhysicalIdentity = acceptedReviewResolutions.get(
+        `${rowBatchScope(row)}:${sourceEvidenceId}`
+      );
+      return !acceptedPhysicalIdentity ||
+        acceptedPhysicalIdentity !== reconciliationPhysicalIdentity(row);
+    })
+    .map(stableJsonObjectKeyOrder);
   const failures = dedupeRows(
     snapshots.flatMap((snapshot) =>
       (snapshot.failures ?? []).map((row) => withSnapshotRowBatch(row, snapshot, resolveBatchSlug))

@@ -738,6 +738,10 @@ function validatePersistedLiveEvidenceRecord(
   if (!post?.id || String(post.id) !== record.platformPostId) {
     return { ok: false, reason: "raw_post_id_mismatch" };
   }
+  const publicationValidation = validateNativeXTweetPublication(record, post);
+  if (!publicationValidation.ok) {
+    return { ok: false, reason: publicationValidation.reason };
+  }
   if (invalidXTweetMetric(post)) {
     return { ok: false, reason: "invalid_visible_metrics" };
   }
@@ -1508,6 +1512,19 @@ async function refreshSingleTopVoiceXTarget(
       continue;
     }
 
+    if (!nativeXTweetPublicationTimestamp(tweetResult.tweet)) {
+      options.log({
+        stage: "dropped",
+        platform: "x",
+        target: target.handle,
+        sourceUrl: `https://x.com/${target.handle}/status/${postId}`,
+        reason: "missing_native_publication_date",
+        message: `Dropped top-voice X status ${postId} because the native response had no valid creation timestamp.`
+      });
+      missReasons.push("missing_native_publication_date");
+      continue;
+    }
+
     const matches = matchTopVoiceTweetToCompanies(tweetResult.tweet, matchTargets);
     if (!matches.length) {
       options.log({
@@ -1775,6 +1792,18 @@ async function refreshDirectTopVoiceXSourceUrls(
       return;
     }
 
+    if (!nativeXTweetPublicationTimestamp(tweetResult.tweet)) {
+      options.log({
+        stage: "dropped",
+        platform: "x",
+        target: target.handle,
+        sourceUrl: reference.sourceUrl,
+        reason: "missing_native_publication_date",
+        message: `Dropped direct top-voice X status ${reference.postId} because the native response had no valid creation timestamp.`
+      });
+      return;
+    }
+
     const matches = matchTopVoiceTweetToCompanies(tweetResult.tweet, matchTargets);
     if (!matches.length) {
       options.log({
@@ -1992,9 +2021,7 @@ function xTweetToEvidenceRecord(
   const mediaUrls = mediaItems.map((item) => item.url).filter((url): url is string => Boolean(url));
   const thumbnailUrl = mediaItems.find((item) => item.thumbnail_url)?.thumbnail_url ?? null;
   const metrics = xTweetMetrics(tweet);
-  const postedAt = tweet.created_timestamp
-    ? new Date(tweet.created_timestamp * 1000).toISOString()
-    : parseDate(tweet.created_at)?.toISOString() ?? now.toISOString();
+  const postedAt = nativeXTweetPublicationTimestamp(tweet);
   const text = String(tweet.text ?? "").trim() || `X post by @${authorHandle || target.handle}`;
   const rawVisibleText = JSON.stringify({
     source: "live_x_profile",
@@ -2041,7 +2068,7 @@ function xTweetToEvidenceRecord(
         : `Live manual refresh verified a native X post from founder @${target.handle} mentioning ${target.companyName}. Visible metrics were available from public post JSON.`,
     first_seen_at: now.toISOString(),
     last_checked_at: now.toISOString(),
-    last_updated_at: postedAt
+    last_updated_at: postedAt ?? now.toISOString()
   };
 }
 
@@ -2058,9 +2085,7 @@ function topVoiceTweetToEvidenceRecord(
   const mediaUrls = mediaItems.map((item) => item.url).filter((url): url is string => Boolean(url));
   const thumbnailUrl = mediaItems.find((item) => item.thumbnail_url)?.thumbnail_url ?? null;
   const metrics = xTweetMetrics(tweet);
-  const postedAt = tweet.created_timestamp
-    ? new Date(tweet.created_timestamp * 1000).toISOString()
-    : parseDate(tweet.created_at)?.toISOString() ?? now.toISOString();
+  const postedAt = nativeXTweetPublicationTimestamp(tweet);
   const text = String(tweet.text ?? "").trim() || `X post by @${authorHandle || target.handle}`;
   const rawVisibleText = JSON.stringify({
     source: "live_x_top_voice_profile",
@@ -2102,7 +2127,7 @@ function topVoiceTweetToEvidenceRecord(
     matchReason: `Live manual refresh verified a native X post from top voice ${target.member.displayName} (@${target.handle}) mentioning ${match.companyName}. Visible metrics were available from public post JSON.`,
     first_seen_at: now.toISOString(),
     last_checked_at: now.toISOString(),
-    last_updated_at: postedAt
+    last_updated_at: postedAt ?? now.toISOString()
   };
 }
 
@@ -2160,6 +2185,10 @@ function validateXEvidenceRecord(
     };
   }
   const parsedPost = parseLiveRawVisibleText(record.rawVisibleText)?.post;
+  const publicationValidation = validateNativeXTweetPublication(record, parsedPost);
+  if (!publicationValidation.ok) {
+    return publicationValidation;
+  }
   const invalidMetric = invalidXTweetMetric(parsedPost);
   if (invalidMetric) {
     return {
@@ -3097,6 +3126,47 @@ function parseDate(value: string | undefined): Date | null {
   }
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function nativeXTweetPublicationTimestamp(tweet: FxTweet | undefined): string | null {
+  const rawEpochSeconds: unknown = tweet?.created_timestamp;
+  const epochSeconds =
+    typeof rawEpochSeconds === "number" ||
+    (typeof rawEpochSeconds === "string" && rawEpochSeconds.trim())
+      ? Number(rawEpochSeconds)
+      : Number.NaN;
+  if (Number.isFinite(epochSeconds) && epochSeconds > 0) {
+    const timestamp = new Date(epochSeconds * 1_000);
+    if (Number.isFinite(timestamp.getTime())) {
+      return timestamp.toISOString();
+    }
+  }
+
+  return parseDate(tweet?.created_at)?.toISOString() ?? null;
+}
+
+function validateNativeXTweetPublication(
+  record: Pick<LiveEvidenceRecord, "postedAt" | "sourceUrl">,
+  tweet: FxTweet | undefined
+): { ok: true } | { ok: false; reason: string; message: string } {
+  const nativePostedAt = nativeXTweetPublicationTimestamp(tweet);
+  if (!nativePostedAt) {
+    return {
+      ok: false,
+      reason: "missing_native_publication_date",
+      message: `Dropped ${record.sourceUrl} because the native X response had no valid creation timestamp.`
+    };
+  }
+
+  if (timestampValue(record.postedAt) !== Date.parse(nativePostedAt)) {
+    return {
+      ok: false,
+      reason: "native_publication_date_mismatch",
+      message: `Dropped ${record.sourceUrl} because its publication timestamp did not match the native X response.`
+    };
+  }
+
+  return { ok: true };
 }
 
 function timestampValue(value: string | null | undefined): number | null {

@@ -237,7 +237,7 @@ describe("live evidence overlay", () => {
     expect(row?.metrics.views).toBe(250000);
   });
 
-  it("batch-calibrates the full company cohort atomically after live evidence changes", () => {
+  it("reuses the published global benchmark atomically after live evidence changes", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const beforeByCompanyId = new Map(graph.nodes.map((node) => [node.entityId, node]));
     const record = screenpipeRecord({
@@ -249,8 +249,8 @@ describe("live evidence overlay", () => {
       linkCheckedAt: "2030-07-14T17:00:00.000Z"
     });
     const result = overlayLiveEvidenceOnGraph(graph, [record]);
-    const positiveCohortSize = result.graph.nodes.filter(
-      (node) => (node.scoreBreakdown?.absoluteScore ?? 0) > 0
+    const positiveCohortSize = ycSpring2026GraphDataset.companies.filter(
+      (company) => (company.scoreBreakdown?.absoluteScore ?? 0) > 0
     ).length;
 
     expect(positiveCohortSize).toBeGreaterThan(1);
@@ -261,8 +261,10 @@ describe("live evidence overlay", () => {
       expect(node.score).toBe(node.scoreBreakdown?.totalScore);
       expect(calibration?.cohortSize).toBe(positiveCohortSize);
       expect(calibration?.inputScore).toBe(node.scoreBreakdown?.absoluteScore);
-      expect(calibration?.method).toBe("none");
+      expect(calibration?.method).toBe("global_best_ratio");
       expect(calibration?.percentile).toBeNull();
+      expect(calibration?.benchmarkScope).toBe("all_supported_batches");
+      expect(calibration?.benchmarkPopulation).toBe("current_company_snapshot");
       expect(node.scoreDelta).toBe(Math.round(node.score - before.score));
       if (node.score === before.score) {
         expect(node.scoreDelta).toBe(0);

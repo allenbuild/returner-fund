@@ -1403,8 +1403,8 @@ function withV4SnapshotContract(
       ) ?? scoredEvidence.length;
       const scoreBreakdown: NonNullable<typeof node.scoreBreakdown> = {
         modelId: "returner-traction",
-        modelVersion: "4.1.0",
-        modelName: "returner-traction-v4-absolute-fixed-platform",
+        modelVersion: "4.2.0",
+        modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
         totalScore: node.score,
         absoluteScore,
         weightedAvailableScore: existing?.weightedAvailableScore ?? absoluteScore,
@@ -1434,10 +1434,14 @@ function withV4SnapshotContract(
           verifiedLinkCount: scoredEvidence.filter((item) => item.linkStatus === "verified").length
         },
         calibration: {
-          method: "none",
-          cohortSize: 0,
+          method: "global_best_ratio",
+          cohortSize: 1,
           percentile: null,
-          inputScore: absoluteScore
+          inputScore: absoluteScore,
+          benchmarkScore: 100,
+          scaleFactor: 1,
+          benchmarkScope: "all_supported_batches",
+          benchmarkPopulation: "current_company_snapshot"
         },
         limitations: existing?.limitations ?? [],
         evidenceAsOf: null,
@@ -1447,8 +1451,8 @@ function withV4SnapshotContract(
     }),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.1.0",
-      modelName: "returner-traction-v4-absolute-fixed-platform",
+      modelVersion: "4.2.0",
+      modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt,

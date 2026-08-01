@@ -151,18 +151,43 @@ const snapshotScoreConfidenceSchema = z
     verifiedLinkCount: z.number().int().nonnegative()
   })
   .passthrough();
-const snapshotScoreCalibrationSchema = z
+const snapshotGlobalScoreCalibrationSchema = z
   .object({
-    method: z.literal("none"),
+    method: z.literal("global_best_ratio"),
     cohortSize: z.number().int().nonnegative(),
-    percentile: z.number().min(0).max(1).nullable(),
-    inputScore: z.number().min(0).max(100)
+    percentile: z.null(),
+    inputScore: z.number().min(0).max(100),
+    benchmarkScore: z.number().min(0).max(100),
+    scaleFactor: z.number().nonnegative(),
+    benchmarkScope: z.literal("all_supported_batches"),
+    benchmarkPopulation: z.literal("current_company_snapshot")
   })
-  .passthrough();
+  .passthrough()
+  .superRefine((calibration, context) => {
+    const expectedFactor = calibration.benchmarkScore > 0
+      ? 100 / calibration.benchmarkScore
+      : 0;
+    if (Math.abs(calibration.scaleFactor - expectedFactor) > 1e-9) {
+      context.addIssue({
+        code: "custom",
+        path: ["scaleFactor"],
+        message: "Global scaleFactor must equal 100 / benchmarkScore."
+      });
+    }
+    if ((calibration.benchmarkScore > 0) !== (calibration.cohortSize > 0)) {
+      context.addIssue({
+        code: "custom",
+        path: ["cohortSize"],
+        message: "Global cohortSize must be positive exactly when benchmarkScore is positive."
+      });
+    }
+  });
+const snapshotScoreCalibrationSchema = snapshotGlobalScoreCalibrationSchema;
 const snapshotScoreBreakdownSchema = z
   .object({
     modelId: z.literal(STATIC_GRAPH_SCORING_MODEL_ID),
     modelVersion: z.literal(STATIC_GRAPH_SCORING_MODEL_VERSION),
+    totalScore: z.number().min(0).max(100),
     absoluteScore: z.number().min(0).max(100),
     confidence: snapshotScoreConfidenceSchema,
     calibration: snapshotScoreCalibrationSchema
@@ -174,6 +199,24 @@ const snapshotScoreBreakdownSchema = z
         code: "custom",
         path: ["calibration", "inputScore"],
         message: "Calibration inputScore must match absoluteScore."
+      });
+    }
+    const expectedTotal = breakdown.calibration.benchmarkScore > 0 && breakdown.absoluteScore > 0
+      ? Math.max(
+          1,
+          Math.min(
+            100,
+            Math.round(
+              (breakdown.absoluteScore / breakdown.calibration.benchmarkScore) * 100
+            )
+          )
+        )
+      : 0;
+    if (breakdown.totalScore !== expectedTotal) {
+      context.addIssue({
+        code: "custom",
+        path: ["totalScore"],
+        message: `Score breakdown totalScore must equal ${expectedTotal}.`
       });
     }
   });
@@ -1140,9 +1183,7 @@ async function resolveGraph(
         ? liveEvidenceNotCapturedBySnapshot(snapshot.graph, liveEvidenceRecords)
         : liveEvidenceRecords;
       const calibrationCohort = overlayRecords.length > 0 && topVoices === "off"
-        ? (await import("@/lib/graph/yc-spring-2026-dataset")).yc2026GraphDataset.companies.filter(
-            (company) => company.batchSlug === batchSlug
-          )
+        ? (await import("@/lib/graph/yc-spring-2026-dataset")).yc2026GraphDataset.companies
         : undefined;
       const overlay = overlayLiveEvidenceOnGraph(snapshot.graph, overlayRecords, {
         topVoices,
@@ -1184,14 +1225,14 @@ async function resolveGraph(
     const overlayRecords = liveEvidenceNotCapturedBySnapshot(canonicalSnapshot.graph, liveEvidenceRecords);
     liveBaseOverlay = overlayLiveEvidenceOnGraph(canonicalSnapshot.graph, overlayRecords, {
       topVoices: "off",
-      calibrationCohort: dataset.companies.filter((company) => company.batchSlug === batchSlug)
+      calibrationCohort: dataset.companies
     });
     canonicalGraph = liveBaseOverlay.graph;
   } else {
     const baseGraph = graphBuilder.buildGraphResponse({ batchSlug, topVoices: "off" }, dataset);
     liveBaseOverlay = overlayLiveEvidenceOnGraph(baseGraph, liveEvidenceRecords, {
       topVoices: "off",
-      calibrationCohort: dataset.companies.filter((company) => company.batchSlug === batchSlug)
+      calibrationCohort: dataset.companies
     });
     canonicalGraph = liveBaseOverlay.graph;
     try {
@@ -1236,7 +1277,7 @@ async function resolveGraph(
         }
       : overlayLiveEvidenceOnGraph(graphWithBenchmarks, liveEvidenceRecords, {
           topVoices,
-          calibrationCohort: dataset.companies.filter((company) => company.batchSlug === batchSlug)
+          calibrationCohort: dataset.companies
         }),
     source: "rebuild",
     fallbackReason: fallbackReason ?? "missing_or_unreadable"

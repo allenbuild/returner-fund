@@ -5,6 +5,7 @@ type LegacyPlatform = "github" | "instagram" | "linkedin" | "x" | "youtube";
 interface AliasFounder {
   founderId: string;
   name: string;
+  toName?: string;
   accounts: Partial<Record<LegacyPlatform, string[]>>;
 }
 
@@ -140,11 +141,23 @@ function legacyAliasForRow(row: LegacySummerEvidenceRow): AliasEntry | null {
   const entityId = clean(row.entityId);
   return (
     SUMMER_COMPANY_ALIAS_LEDGER.aliases.find(
-      (candidate) =>
-        slug === candidate.fromSlug ||
-        name === candidate.fromName ||
-        entityId === `company-${candidate.fromSlug}` ||
-        entityId.startsWith(`founder-${candidate.fromSlug}-`)
+      (candidate) => {
+        const slugChanged = candidate.fromSlug !== candidate.toSlug;
+        const matchesLegacySlug =
+          slug === candidate.fromSlug ||
+          entityId === `company-${candidate.fromSlug}` ||
+          entityId.startsWith(`founder-${candidate.fromSlug}-`);
+        const matchesFormerName =
+          name === candidate.fromName &&
+          (!slug || slug === candidate.fromSlug) &&
+          (!entityId ||
+            entityId === `company-${candidate.fromSlug}` ||
+            entityId.startsWith(`founder-${candidate.fromSlug}-`));
+        // A name-only change retains the live slug/entity ID, so matching on
+        // that mutable slug alone would incorrectly classify current rows as
+        // legacy forever. Require the former name for those transitions.
+        return (slugChanged && matchesLegacySlug) || matchesFormerName;
+      }
     ) ?? null
   );
 }
@@ -322,20 +335,64 @@ function remapLegacyEntity<
   alias: AliasEntry,
   owner: ReturnType<typeof legacyOwner> & {}
 ): T {
+  const terminal = terminalAlias(alias);
+  const founderName =
+    owner.kind === "founder"
+      ? terminalFounderName(alias, owner.founder.founderId, owner.founder.name)
+      : "";
   const entityId =
     owner.kind === "company"
-      ? `company-${alias.toSlug}`
-      : `founder-${alias.toSlug}-${slugify(owner.founder.name)}-${owner.founder.founderId}`;
+      ? `company-${terminal.toSlug}`
+      : `founder-${terminal.toSlug}-${slugify(founderName)}-${owner.founder.founderId}`;
   return {
     ...row,
     entityId,
-    companySlug: alias.toSlug,
-    companyName: alias.toName,
-    ...(row.entityName === alias.fromName ? { entityName: alias.toName } : {}),
+    companySlug: terminal.toSlug,
+    companyName: terminal.toName,
+    ...(row.entityName === alias.fromName ? { entityName: terminal.toName } : {}),
     ...(row.attachedCompanyId === `company-${alias.fromSlug}`
-      ? { attachedCompanyId: `company-${alias.toSlug}` }
+      ? { attachedCompanyId: `company-${terminal.toSlug}` }
       : {})
   };
+}
+
+function terminalAlias(initial: AliasEntry): AliasEntry {
+  let current = initial;
+  const seen = new Set<string>();
+  while (true) {
+    const state = `${current.companyId}\u0000${current.toSlug}\u0000${current.toName}`;
+    if (seen.has(state)) return current;
+    seen.add(state);
+    const next = SUMMER_COMPANY_ALIAS_LEDGER.aliases.find(
+      (candidate) =>
+        candidate.companyId === current.companyId &&
+        candidate.fromSlug === current.toSlug &&
+        candidate.fromName === current.toName
+    );
+    if (!next) return current;
+    current = next;
+  }
+}
+
+function terminalFounderName(initial: AliasEntry, founderId: string, initialName: string): string {
+  let name = initialName;
+  let current = initial;
+  const seen = new Set<string>();
+  while (true) {
+    const founder = current.founders.find((candidate) => candidate.founderId === founderId);
+    if (founder?.toName) name = founder.toName;
+    const state = `${current.companyId}\u0000${current.toSlug}\u0000${current.toName}`;
+    if (seen.has(state)) return name;
+    seen.add(state);
+    const next = SUMMER_COMPANY_ALIAS_LEDGER.aliases.find(
+      (candidate) =>
+        candidate.companyId === current.companyId &&
+        candidate.fromSlug === current.toSlug &&
+        candidate.fromName === current.toName
+    );
+    if (!next) return name;
+    current = next;
+  }
 }
 
 function clean(value: unknown): string {

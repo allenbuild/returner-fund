@@ -53,7 +53,7 @@ vi.mock("@/lib/social/user-insiders-client", () => ({
 }));
 
 const V4_MODEL_ID = "returner-traction";
-const V4_MODEL_VERSION = "4.1.0";
+const V4_MODEL_VERSION = "4.2.0";
 
 function insiderConfigurationResponse(version = 0, paulGrahamWeight = 5): InsiderConfigurationResponse {
   const defaults = defaultInsiderMembers();
@@ -2184,7 +2184,7 @@ function graphResponse(
     scoringContext: {
       modelId: V4_MODEL_ID,
       modelVersion: V4_MODEL_VERSION,
-      modelName: "returner-traction-v4-absolute-fixed-platform",
+      modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: "2026-06-29T00:00:00.000Z",
@@ -2241,7 +2241,7 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
   return {
     modelId: V4_MODEL_ID,
     modelVersion: V4_MODEL_VERSION,
-    modelName: "returner-traction-v4-absolute-fixed-platform",
+    modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
     totalScore: node.score,
     absoluteScore: node.score,
     weightedAvailableScore: platformScore,

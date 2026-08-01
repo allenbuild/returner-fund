@@ -110,6 +110,56 @@ export function xTweetDateIsOnOrAfter(
   );
 }
 
+/**
+ * Converts only a platform-native X publication label into ranking-safe date
+ * metadata. Relative labels are useful for collection recency, but they are
+ * observations rather than exact publication timestamps and therefore fail
+ * closed for Today/Month ranking.
+ */
+export function xTweetPublicationDate(value, now = Date.now()) {
+  const text = String(value ?? "").trim();
+  if (!text) return { postedAt: null, publishedAtPrecision: "unknown" };
+
+  if (/^(\d+)\s*(m|h|d|minutes?|hours?|days?)\s*(?:ago)?$/i.test(text)) {
+    return { postedAt: null, publishedAtPrecision: "unknown" };
+  }
+
+  const canonicalDay = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (canonicalDay && validCalendarDay(...canonicalDay.slice(1).map(Number))) {
+    return { postedAt: canonicalDay[0], publishedAtPrecision: "day" };
+  }
+
+  const namedDay = text.match(
+    /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})(?:,?\s+(\d{4}))?$/i
+  );
+  if (namedDay) {
+    const month = MONTH_NUMBER_BY_NAME[namedDay[1].toLowerCase()];
+    const day = Number(namedDay[2]);
+    let year = namedDay[3] ? Number(namedDay[3]) : new Date(now).getUTCFullYear();
+    let candidate = Date.UTC(year, month - 1, day, 12);
+    // A yearless timeline label around New Year belongs to the preceding year,
+    // not to a future publication date.
+    if (!namedDay[3] && candidate > now + 24 * 60 * 60 * 1_000) {
+      year -= 1;
+      candidate = Date.UTC(year, month - 1, day, 12);
+    }
+    if (validCalendarDay(year, month, day)) {
+      return {
+        postedAt: new Date(candidate).toISOString().slice(0, 10),
+        publishedAtPrecision: "day"
+      };
+    }
+  }
+
+  const hasExplicitTimeAndZone =
+    /\d{1,2}:\d{2}(?::\d{2})?/.test(text) &&
+    /(?:Z|[+-]\d{2}:?\d{2}|\b(?:UTC|GMT)\b)/i.test(text);
+  const timestamp = hasExplicitTimeAndZone ? Date.parse(text) : Number.NaN;
+  return Number.isFinite(timestamp)
+    ? { postedAt: new Date(timestamp).toISOString(), publishedAtPrecision: "exact" }
+    : { postedAt: null, publishedAtPrecision: "unknown" };
+}
+
 export function xTweetBelongsToHandle(tweet, expectedHandle) {
   const normalizedExpected = normalizeHandle(expectedHandle);
   if (!normalizedExpected) return false;
@@ -424,6 +474,28 @@ function xTweetTimestamp(value, now = Date.now()) {
   if (!monthDay) return Number.NaN;
   const year = new Date(now).getUTCFullYear();
   return Date.parse(`${monthDay[1]} ${monthDay[2]}, ${year} UTC`);
+}
+
+const MONTH_NUMBER_BY_NAME = Object.freeze({
+  jan: 1,
+  feb: 2,
+  mar: 3,
+  apr: 4,
+  may: 5,
+  jun: 6,
+  jul: 7,
+  aug: 8,
+  sep: 9,
+  oct: 10,
+  nov: 11,
+  dec: 12
+});
+
+function validCalendarDay(year, month, day) {
+  if (![year, month, day].every(Number.isInteger) || month < 1 || month > 12 || day < 1) {
+    return false;
+  }
+  return day <= new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
 
 function finiteNonnegativeInteger(value) {
