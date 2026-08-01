@@ -201,8 +201,49 @@ describe("traction scoring v4 invariants", () => {
     const laterAsOf = normalizeEvidenceScores([target], { asOf: "2027-07-15T12:00:00.000Z" })[0];
 
     expect(poisoned?.contributionScore).toBe(baseline?.contributionScore);
-    expect(laterAsOf?.contributionScore).toBeLessThan(baseline?.contributionScore ?? 0);
+    expect(laterAsOf?.contributionScore).toBe(baseline?.contributionScore);
   });
+
+  it.each(SUPPORTED_PLATFORMS)(
+    "keeps $platform evidence and aggregate scores invariant to publication age and date availability",
+    (platform) => {
+      const primaryMetric = Object.entries(TRACTION_SCORING_CONFIG.metricWeights[platform] ?? {})
+        .find(([, weight]) => Number(weight) > 0)?.[0];
+      expect(primaryMetric).toBeDefined();
+      const metrics = { [primaryMetric!]: 10_000 };
+      const variants = [
+        evidence(`recency-fresh-${platform}`, platform, metrics, {
+          postedAt: FIXED_TIME,
+          publishedAtPrecision: "exact"
+        }),
+        evidence(`recency-old-${platform}`, platform, metrics, {
+          postedAt: "2000-01-01T00:00:00.000Z",
+          publishedAtPrecision: "exact"
+        }),
+        evidence(`recency-unknown-${platform}`, platform, metrics, {
+          postedAt: "",
+          publishedAtPrecision: "unknown"
+        }),
+        evidence(`recency-invalid-${platform}`, platform, metrics, {
+          postedAt: "not-a-date",
+          publishedAtPrecision: "exact"
+        })
+      ];
+      const scored = variants.map((variant) =>
+        normalizeEvidenceScores([variant], { asOf: FIXED_TIME })[0]!
+      );
+      const projections = scored.map((item) => ({
+        rawEngagement: item.rawEngagement,
+        normalizedScore: item.normalizedScore,
+        contributionScore: item.contributionScore,
+        platformScore: aggregateBalancedTractionScore([item]).platformScores[platform],
+        totalScore: aggregateBalancedTractionScore([item]).totalScore
+      }));
+
+      expect(projections.every((projection) => projection.contributionScore > 0)).toBe(true);
+      expect(projections).toEqual(projections.map(() => projections[0]));
+    }
+  );
 
   it("is independent of Date.now and bounds future observations with an explicit scoring clock", () => {
     const target = evidence("wall-clock-target", "x", { views: 80_000, likes: 500 }, {
@@ -299,11 +340,10 @@ describe("traction scoring v4 invariants", () => {
     const first = normalizeEvidenceScores([original], { asOf: FIXED_TIME })[0]!;
     const rescored = normalizeEvidenceScores([first], { asOf: "2028-07-15T12:00:00.000Z" })[0]!;
 
-    expect(rescored.contributionScore).toBeLessThan(first.contributionScore);
+    expect(rescored.contributionScore).toBe(first.contributionScore);
     expect(rescored.why).toContain("Original source provenance remains visible.");
     expect(rescored.why.match(new RegExp(TRACTION_SCORING_CONFIG.name, "g"))).toHaveLength(1);
     expect(rescored.why).toContain(`scored ${rescored.contributionScore}/100.`);
-    expect(rescored.why).not.toContain(`scored ${first.contributionScore}/100.`);
   });
 
   it("builds percentiles from eligible physical posts rather than attribution rows", () => {
@@ -541,7 +581,7 @@ describe("traction scoring v4 invariants", () => {
     }
   });
 
-  it("scores a missing-date singleton more conservatively than an equally engaged fresh singleton", () => {
+  it("scores a missing-date singleton identically to an equally engaged dated singleton", () => {
     const metrics = { views: 80_000, likes: 700, comments: 35 };
     const fresh = normalizeEvidenceScores([
       evidence("fresh-singleton", "instagram", metrics, {
@@ -557,8 +597,11 @@ describe("traction scoring v4 invariants", () => {
     ])[0];
 
     expect(missingDate?.rawEngagement).toBe(fresh?.rawEngagement);
-    expect(missingDate?.contributionScore).toBeLessThan(fresh?.contributionScore ?? 0);
-    expect(missingDate?.why).toContain("conservative momentum");
+    expect(missingDate?.normalizedScore).toBe(fresh?.normalizedScore);
+    expect(missingDate?.contributionScore).toBe(fresh?.contributionScore);
+    expect(aggregateBalancedTractionScore([missingDate!]).totalScore).toBe(
+      aggregateBalancedTractionScore([fresh!]).totalScore
+    );
   });
 
   it("does not penalize a saturated platform because unrelated platforms are absent", () => {

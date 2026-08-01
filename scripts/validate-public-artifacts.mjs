@@ -9,10 +9,10 @@ import {
 
 export const EXPECTED_SCORING_MODEL = Object.freeze({
   id: "returner-traction",
-  version: "4.0.1",
-  name: "returner-traction-v4-monotonic"
+  version: "4.0.2",
+  name: "returner-traction-v4-date-invariant"
 });
-export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0"]);
+export const HISTORICAL_SCORING_MODEL_VERSIONS = Object.freeze(["4.0.0", "4.0.1"]);
 const SUPPORTED_HISTORY_MODEL_VERSIONS = new Set([
   EXPECTED_SCORING_MODEL.version,
   ...HISTORICAL_SCORING_MODEL_VERSIONS

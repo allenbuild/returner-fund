@@ -6,12 +6,10 @@ The codebase now exposes crawlable, server-rendered pages for the main search in
 
 - Keep `https://www.returner.fund` as the Vercel primary domain while the apex permanently redirects there.
 - Set `NEXT_PUBLIC_SITE_URL=https://www.returner.fund` in the production environment.
-- Deploy and confirm that the following URLs return `200` directly, declare themselves canonical, and contain `index, follow`:
-  - `https://www.returner.fund/`
-  - `https://www.returner.fund/yc-network-map`
-  - `https://www.returner.fund/a16z-network-map`
-  - `https://www.returner.fund/yc-social-traction`
-  - `https://www.returner.fund/a16z-social-traction`
+- Deploy and confirm that `https://www.returner.fund/` returns `200` directly, declares itself canonical, and contains `index, follow`.
+- Confirm that the retired intent URLs permanently redirect into the live map:
+  - `/yc-network-map` and `/yc-social-traction` → `/`
+  - `/a16z-network-map` and `/a16z-social-traction` → `/?batch=A16ZSR006`
 - Confirm that `https://returner.fund/*` performs one permanent redirect to the matching `www` URL.
 
 ## 2. Verify Google Search Console
@@ -28,7 +26,7 @@ The codebase now exposes crawlable, server-rendered pages for the main search in
 
 ## 4. Request priority indexing
 
-Use URL Inspection, run **Test live URL**, and request indexing for the homepage plus the four intent pages above. Use the sitemap for the remaining company, founder, cohort, industry, platform, partner, and ranking pages.
+Use URL Inspection, run **Test live URL**, and request indexing for the homepage. Use the sitemap for the remaining company, founder, cohort, industry, platform, partner, and ranking pages. Do not submit the four retired redirect URLs.
 
 ## 5. Monitor after deployment
 
@@ -46,7 +44,7 @@ Use URL Inspection, run **Test live URL**, and request indexing for the homepage
 
 ## 6. Improve discovery beyond technical SEO
 
-Link the canonical intent pages from public profiles and launch announcements that Returner.fund controls. Earned, relevant links and useful original content are ranking inputs that code and sitemap submission cannot manufacture.
+Link the canonical live map from public profiles and launch announcements that Returner.fund controls. Earned, relevant links and useful original content are ranking inputs that code and sitemap submission cannot manufacture.
 
 ## Official Google references
 

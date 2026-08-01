@@ -18,6 +18,7 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState
 } from "react";
 import type { Platform, TopVoiceMember } from "@/lib/graph/types";
@@ -44,7 +45,7 @@ export interface InsidersPanelHandle {
 interface InsidersPanelProps {
   onClose: () => void;
   onDirtyChange?: (dirty: boolean) => void;
-  onSaved?: () => void | Promise<void>;
+  onSaved?: (configurationVersion: number) => void | Promise<void>;
 }
 
 interface PendingLeave {
@@ -81,8 +82,11 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
   const [addWeight, setAddWeight] = useState("1");
   const [addHandles, setAddHandles] = useState<Partial<Record<Platform, string>>>({});
   const [pendingLeave, setPendingLeave] = useState<PendingLeave | null>(null);
+  const loadEpochRef = useRef(0);
 
   const load = useCallback(async () => {
+    const loadEpoch = loadEpochRef.current + 1;
+    loadEpochRef.current = loadEpoch;
     setLoading(true);
     setError(null);
     try {
@@ -92,6 +96,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
       if (!isInsiderConfigurationResponse(payload)) {
         throw new Error("The Insiders service returned an invalid configuration.");
       }
+      if (loadEpoch !== loadEpochRef.current) return;
       const configuration = cloneConfiguration(payload.configuration);
       setResponse(payload);
       setSaved(configuration);
@@ -101,14 +106,20 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
           .map((member) => member.personId)
       );
     } catch (caught) {
+      if (loadEpoch !== loadEpochRef.current) return;
       setError(caught instanceof Error ? caught.message : "Your Insiders list could not be loaded.");
     } finally {
-      setLoading(false);
+      if (loadEpoch === loadEpochRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     void load();
+    return () => {
+      loadEpochRef.current += 1;
+    };
   }, [load]);
 
   useEffect(() => subscribeToInsiderAuth(() => {
@@ -159,6 +170,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     setError(null);
     setStatus("idle");
     let configurationSaved = false;
+    let savedConfigurationVersion = saved.version;
     try {
       if (dirty) {
         const result = await insiderApiFetch("/api/insiders", {
@@ -177,6 +189,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
         if (!result.ok) throw new Error(payload.error?.message ?? `Save failed with ${result.status}.`);
         const configuration = cloneConfiguration(payload.configuration);
         configurationSaved = true;
+        savedConfigurationVersion = configuration.version;
         setResponse(payload);
         setSaved(configuration);
         setDraft(cloneConfiguration(configuration));
@@ -188,7 +201,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
 
       setStatus("recomputing");
       try {
-        await onSaved?.();
+        await onSaved?.(savedConfigurationVersion);
       } catch (caught) {
         const detail = caught instanceof Error ? caught.message : "The graph refresh failed.";
         setError(`Weights saved, but scores could not be refreshed. ${detail}`);
@@ -210,7 +223,7 @@ export const InsidersPanel = forwardRef<InsidersPanelHandle, InsidersPanelProps>
     } finally {
       setSaving(false);
     }
-  }, [dirty, draft, onSaved, response?.authenticated, saving, status]);
+  }, [dirty, draft, onSaved, response?.authenticated, saved.version, saving, status]);
 
   async function sendSignInLink() {
     const email = signInEmail.trim();

@@ -1,5 +1,8 @@
-const graphRuntimeData = [
+const benchmarkRuntimeData = [
   "outputs/benchmarks/**/*.json",
+];
+const graphRuntimeData = [
+  ...benchmarkRuntimeData,
   "src/lib/social/targeted-evidence-current.json",
   "src/lib/social/a16z-speedrun-006-social-accounts.json",
   "src/lib/social/verified-social-overrides.json",
@@ -48,10 +51,34 @@ const insiderRuntimeSnapshots = [
 const nextConfig = {
   typedRoutes: true,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  async redirects() {
+    return [
+      {
+        source: "/yc-network-map",
+        destination: "/",
+        permanent: true
+      },
+      {
+        source: "/yc-social-traction",
+        destination: "/",
+        permanent: true
+      },
+      {
+        source: "/a16z-network-map",
+        destination: "/?batch=A16ZSR006",
+        permanent: true
+      },
+      {
+        source: "/a16z-social-traction",
+        destination: "/?batch=A16ZSR006",
+        permanent: true
+      }
+    ];
+  },
   outputFileTracingIncludes: {
     "/api/graph": graphRuntimeData,
     "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"],
-    "/api/insiders/recompute": insiderRuntimeSnapshots
+    "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData]
   },
   outputFileTracingExcludes: {
     "/api/graph": graphTraceExcludes,

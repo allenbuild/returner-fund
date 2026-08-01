@@ -15,13 +15,10 @@ import {
 
 const V5_CANDIDATE_GRID_DEFINITION = [
   { id: "equal-log-sum", family: "baseline", lambda: null, includeAge: false },
-  { id: "age-only-logistic-l2-0.01", family: "nonnegative_logistic", lambda: 0.01, includeAge: true },
   { id: "metric-logistic-l2-0", family: "nonnegative_logistic", lambda: 0, includeAge: false },
   { id: "metric-logistic-l2-0.01", family: "nonnegative_logistic", lambda: 0.01, includeAge: false },
   { id: "metric-logistic-l2-0.1", family: "nonnegative_logistic", lambda: 0.1, includeAge: false },
-  { id: "metric-logistic-l2-1", family: "nonnegative_logistic", lambda: 1, includeAge: false },
-  { id: "metric-age-logistic-l2-0.01", family: "nonnegative_logistic", lambda: 0.01, includeAge: true },
-  { id: "metric-age-logistic-l2-0.1", family: "nonnegative_logistic", lambda: 0.1, includeAge: true }
+  { id: "metric-logistic-l2-1", family: "nonnegative_logistic", lambda: 1, includeAge: false }
 ] as const;
 
 export const V5_FROZEN_CANDIDATE_GRID = Object.freeze(
@@ -45,13 +42,7 @@ export function trainAndSelectCandidate(
       metric,
       missingFeatureName(metric)
     ]);
-    let features: V5FeatureName[];
-    if (gridPoint.id.startsWith("age-only")) features = ["post_age_hours"];
-    else {
-      features = gridPoint.includeAge
-        ? [...metricAndMissingFeatures, "post_age_hours"]
-        : metricAndMissingFeatures;
-    }
+    const features: V5FeatureName[] = metricAndMissingFeatures;
     const parameters = roundParameters(
       gridPoint.family === "baseline"
         ? equalLogSumParameters(metricFeatures)

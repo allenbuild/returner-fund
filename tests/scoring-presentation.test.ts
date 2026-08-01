@@ -11,12 +11,12 @@ describe("scoring methodology presentation", () => {
       TRACTION_SCORING_CONFIG.platformEvidenceSlots.map((weight) => weight * 100)
     );
     expect(presentation.calibration).toEqual({ absolutePercent: 82, cohortPercentilePercent: 18 });
-    expect(presentation.recencyBlend.missingDateMomentum).toBe(TRACTION_SCORING_CONFIG.missingDateMomentum);
     expect(presentation.platformReferences.find((row) => row.platform === "x")).toEqual({
       platform: "x",
-      highEngagement: 120_000,
-      halfLifeDays: 45
+      highEngagement: 120_000
     });
+    expect(presentation).not.toHaveProperty("recencyBlend");
+    expect(presentation.platformReferences.every((row) => !("halfLifeDays" in row))).toBe(true);
     expect(presentation.confidence.highThresholdPercent).toBe(75);
     expect(presentation.metricWeights.find((row) => row.platform === "x")?.metrics).toEqual([
       { metric: "views", weight: 0.04 },

@@ -1,20 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import type { GraphResponse } from "@/lib/graph/types";
-import { stableInsiderBaseScore } from "@/lib/graph/insider-scoring";
 import { emptyInsiderConfiguration } from "@/lib/social/user-insiders";
 
 const authenticateInsiderRequest = vi.fn();
 const loadUserInsiderConfiguration = vi.fn();
 const clearGraphResponseCache = vi.fn();
 const reportGenerator = vi.fn();
+const applyStoredBenchmarkMomentum = vi.fn((graph: GraphResponse) => graph);
 
 vi.mock("@/lib/social/user-insiders-server", () => ({
   authenticateInsiderRequest,
   loadUserInsiderConfiguration
 }));
 vi.mock("@/lib/graph/graph-response-cache", () => ({ clearGraphResponseCache }));
+vi.mock("@/lib/graph/benchmarks", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/graph/benchmarks")>()),
+  applyStoredBenchmarkMomentum
+}));
 
 describe("POST /api/insiders/recompute", () => {
   beforeEach(() => vi.clearAllMocks());
@@ -45,9 +47,65 @@ describe("POST /api/insiders/recompute", () => {
       selectedTopVoiceAudience: { id: "insiders" },
       insiderConfigurationVersion: 7
     });
+    const ploy = (body.graph as GraphResponse).nodes.find(
+      (node) => node.entityId === "company-ploy"
+    );
+    expect(ploy?.insiderScoreBreakdown).toMatchObject({
+      publishedInsiderInfluence: 25,
+      weightedInsiderSubtotal: 25,
+      insiderScoreAdjustment: 0,
+      configurationVersion: 7
+    });
+    expect(ploy?.insiderScoreBreakdown?.finalScore).toBe(
+      ploy?.insiderScoreBreakdown?.baseScore
+    );
+    expect(ploy?.score).toBe(ploy?.insiderScoreBreakdown?.finalScore);
     expect(Buffer.byteLength(JSON.stringify(body.graph))).toBeLessThan(4 * 1024 * 1024);
+    expect(applyStoredBenchmarkMomentum).toHaveBeenCalledOnce();
     expect(clearGraphResponseCache).toHaveBeenCalledOnce();
     expect(reportGenerator).not.toHaveBeenCalled();
+  }, 30_000);
+
+  it("hydrates exact-model benchmark history before personalizing scores", async () => {
+    authenticateInsiderRequest.mockResolvedValue({ client: {}, userId: "user-a" });
+    loadUserInsiderConfiguration.mockResolvedValue({
+      ...emptyInsiderConfiguration(),
+      version: 11,
+      weightOverrides: { "paul-graham": 1 }
+    });
+    const benchmarkedAt = "2026-07-27T07:36:27.759Z";
+    applyStoredBenchmarkMomentum.mockImplementationOnce((graph) => ({
+      ...graph,
+      fastestGaining: graph.fastestGaining.map((row) => ({
+        ...row,
+        dod: {
+          ...row.dod,
+          baselineScore: row.dod.currentScore - 2,
+          baselineRank: row.dod.currentRank + 1,
+          benchmarkedAt
+        }
+      }))
+    }));
+    const { POST } = await import("@/app/api/insiders/recompute/route");
+
+    const response = await POST(new Request("http://localhost/api/insiders/recompute", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer token",
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({ batchSlug: "S2026", insiderIds: [] })
+    }));
+    const body = await response.json() as { graph: GraphResponse };
+
+    expect(response.status).toBe(200);
+    expect(applyStoredBenchmarkMomentum).toHaveBeenCalledOnce();
+    expect(body.graph.fastestGaining.length).toBeGreaterThan(0);
+    expect(body.graph.fastestGaining.every((row) =>
+      row.dod.baselineScore !== null &&
+      row.dod.baselineRank !== null &&
+      row.dod.benchmarkedAt === benchmarkedAt
+    )).toBe(true);
   }, 30_000);
 
   it("applies saved weights to the returned graph without importing the full graph builder", async () => {
@@ -76,43 +134,22 @@ describe("POST /api/insiders/recompute", () => {
     const paulMatch = paulCompany?.insiderScoreBreakdown?.matches.find(
       (match) => match.memberId === "paul-graham"
     );
-    const publishedInsiderGraph = JSON.parse(
-      readFileSync(join(process.cwd(), "public", "graph", "s2026-insiders.json"), "utf8")
-    ) as GraphResponse;
-    const publishedCompany = publishedInsiderGraph.nodes.find(
-      (node) => node.entityId === paulCompany?.entityId
-    );
-    const expectedStableBase = stableInsiderBaseScore(
-      publishedCompany?.score ?? 0,
-      publishedCompany?.topVoiceConnections ?? []
-    );
     expect(paulMatch).toMatchObject({ effectiveWeight: 1, included: true });
-    expect(paulCompany?.insiderScoreBreakdown?.baseScore).toBe(expectedStableBase);
-    expect(paulCompany?.score).toBe(
-      Math.min(
-        100,
-        expectedStableBase +
-          (paulCompany?.insiderScoreBreakdown?.weightedInsiderSubtotal ?? 0)
-      )
-    );
-    loadUserInsiderConfiguration.mockResolvedValue({
-      ...emptyInsiderConfiguration(),
-      version: 9,
-      weightOverrides: { "paul-graham": 5 }
+    const ploy = body.graph.nodes.find((node) => node.entityId === "company-ploy");
+    const ployRow = body.graph.leaderboard.find((row) => row.companyId === "company-ploy");
+    expect(ploy?.insiderScoreBreakdown).toMatchObject({
+      publishedInsiderInfluence: 25,
+      weightedInsiderSubtotal: 1,
+      insiderScoreAdjustment: -24,
+      configurationVersion: 8
     });
-    const defaultWeightResponse = await POST(new Request("http://localhost/api/insiders/recompute", {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer token",
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({ batchSlug: "S2026", insiderIds: [] })
-    }));
-    const defaultWeightBody = await defaultWeightResponse.json() as { graph: GraphResponse };
-    const defaultWeightCompany = defaultWeightBody.graph.nodes.find(
-      (node) => node.entityId === paulCompany?.entityId
+    const expectedFinalScore = Math.max(
+      0,
+      (ploy?.insiderScoreBreakdown?.baseScore ?? 0) - 24
     );
-    expect(defaultWeightCompany?.score).toBe((paulCompany?.score ?? 0) + 4);
+    expect(ploy?.insiderScoreBreakdown?.finalScore).toBe(expectedFinalScore);
+    expect(ploy?.score).toBe(expectedFinalScore);
+    expect(ployRow?.score).toBe(expectedFinalScore);
     expect(body.graph.insiderConfigurationVersion).toBe(8);
   }, 30_000);
 

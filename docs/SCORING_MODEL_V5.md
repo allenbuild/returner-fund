@@ -3,7 +3,7 @@
 Status: **research artifact rejected for insufficient data; not a production model**
 Artifact ID: `traction-post-forecast-v5@5.0.0-research`
 Target protocol: `returner-post-performance-v5-prereg-2026-07-20`
-Production default: `returner-traction@4.0.1` (`returner-traction-v4-monotonic`)
+Production default: `returner-traction@4.0.2` (`returner-traction-v4-date-invariant`)
 Rollback target: `returner-traction@4.0.0` (`returner-traction-v4-canonical`)
 
 ## Executive decision
@@ -66,7 +66,7 @@ The offline TypeScript pipeline provides:
 - prospective time splits and a deterministic SHA-256 unseen-entity holdout;
 - training-only platform thresholds;
 - a frozen equal-log-sum and constrained-logistic candidate grid;
-- nonnegative native-counter effects and a non-increasing age coefficient;
+- nonnegative native-counter effects with publication age excluded;
 - validation-only selection and Platt calibration;
 - an untouched final-test path and deterministic entity-clustered bootstrap;
 - compact JSON artifacts and TypeScript runtime inference parity;

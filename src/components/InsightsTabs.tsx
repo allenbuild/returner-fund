@@ -295,17 +295,21 @@ export function InsightsTabs({ graph, statsGraph = graph, onSelectNode, now }: I
           {momentumPeriod !== resolvedMomentumPeriod && momentumComparisonCount > 0 && (
             <div className="momentum-history-notice" role="status">
               <strong>
-                {momentumPeriod === "wow" ? "Week-over-week" : "Day-over-day"} comparison is not available for this scoring model yet.
+                {momentumPeriod === "dod" ? "Day-over-day" : "Week-over-week"} comparison is not available for this scoring model yet.
               </strong>
               <span>
-                Showing {resolvedMomentumPeriod === "wow" ? "week-over-week" : "day-over-day"} instead.
+                Showing {resolvedMomentumPeriod === "dod" ? "day-over-day" : "week-over-week"} instead.
               </span>
             </div>
           )}
           {momentumRows.length > 0 && momentumComparisonCount === 0 && (
             <div className="momentum-history-notice" role="status">
-              <strong>Historical comparison is not available for this scoring model yet.</strong>
-              <span>Showing current scores and overall ranks. No historical deltas are inferred.</span>
+              <strong>
+                Historical comparison is not available for this scoring model yet.
+              </strong>
+              <span>
+                Showing current scores and overall ranks. No historical deltas are inferred.
+              </span>
             </div>
           )}
           <table className="momentum-table">
@@ -1036,30 +1040,32 @@ function signed(value: number): string {
   return `${value >= 0 ? "+" : ""}${value}`;
 }
 
-function momentumRowsForDisplay(graph: GraphResponse, period: MomentumPeriod): FastestGainingRow[] {
+function momentumRowsForDisplay(
+  graph: GraphResponse,
+  period: MomentumPeriod
+): FastestGainingRow[] {
   const rows = graph.fastestGaining.length
     ? graph.fastestGaining
     : graph.leaderboard.map((row) => ({
+        rank: row.rank,
         companyId: row.companyId,
         companyName: row.companyName,
-        rank: row.rank,
         score: row.score,
         dod: currentOnlyMomentum(row.score, row.rank),
         wow: currentOnlyMomentum(row.score, row.rank)
       }));
-
   return [...rows].sort(momentumRowSort(period));
 }
 
 function currentOnlyMomentum(currentScore: number, currentRank: number): MomentumDelta {
   return {
-    currentScore,
-    baselineScore: null,
     scoreDelta: 0,
     percentDelta: 0,
-    currentRank,
-    baselineRank: null,
     rankDelta: 0,
+    currentScore,
+    currentRank,
+    baselineScore: null,
+    baselineRank: null,
     benchmarkedAt: null
   };
 }

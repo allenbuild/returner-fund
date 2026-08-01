@@ -202,19 +202,27 @@ export interface InsiderScoreMatch {
   memberId: string;
   displayName: string;
   effectiveWeight: number;
+  influenceScore: number;
+  publishedWeight: number;
+  publishedInfluenceScore: number;
+  adjustment: number;
   evidenceCount: number;
   included: boolean;
   exclusionReason: "disabled" | "not_selected" | null;
 }
 
 export interface InsiderScoreBreakdown {
+  /** The immutable score in the published Insider snapshot. */
   baseScore: number;
+  publishedInsiderInfluence: number;
+  /** Current quadratic influence points after configuration and selection. */
   weightedInsiderSubtotal: number;
+  insiderScoreAdjustment: number;
   finalScore: number;
   selectedInsiderIds: string[];
   configurationVersion: number | null;
   matches: InsiderScoreMatch[];
-  formula: "base_plus_unique_weighted_insiders_capped_100";
+  formula: "published_score_plus_quadratic_insider_adjustments_capped_0_100";
 }
 
 export interface ScoringContext {

@@ -548,6 +548,7 @@ describe("YC Summer 2026 official snapshot", () => {
         .map((item) => item.id)
         .sort()
     ).toEqual([
+      "evidence-github-profile-founder-smol-machines-binbin-he-1655532-binsquare",
       "evidence-github-profile-founder-smol-machines-binbin-he-1655532-containers",
       "evidence-github-profile-founder-smol-machines-binbin-he-1655532-smol-machines"
     ]);

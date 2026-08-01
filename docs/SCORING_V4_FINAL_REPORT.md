@@ -1,8 +1,8 @@
 # Scoring v4 Final Methodology Report
 
 > Historical baseline: this report records the immutable `4.0.0` methodology.
-> Production `4.0.1` replaces evidence-level cohort midranks with a fully
-> reference-anchored monotonic transform. See
+> Production `4.0.2` uses a reference-anchored monotonic transform and removes
+> publication-age and recent-commit scoring. See
 > [`SCORING_MODEL.md`](SCORING_MODEL.md) for the current contract.
 
 ## 1. Decision and evidence boundary

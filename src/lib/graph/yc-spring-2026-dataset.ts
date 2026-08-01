@@ -21,6 +21,7 @@ import type {
 } from "./types";
 import {
   aggregateBalancedTractionScore,
+  computeEvidenceRawEngagement,
   normalizeEvidenceScores
 } from "./traction-scoring";
 import {
@@ -912,41 +913,43 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
   }
   const accountUrl = account.account?.htmlUrl ?? account.githubUrl;
   const matchReason = account.matchReason ?? "GitHub account verified from a YC-linked or official company source.";
-  const repoItems: EvidenceItem[] = (account.repos ?? []).map((repo) => ({
-    id: `evidence-github-repo-${account.entityId}-${slugify(repo.fullName)}`,
-    entityType: account.entityType,
-    entityId: account.entityId,
-    platform: "github" as const,
-    authorName: repo.fullName,
-    authorHandle: account.login,
-    postedAt: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
-    publishedAtPrecision: repo.pushedAt ? publicationTimestampPrecision(repo.pushedAt) : "unknown",
-    observedAt: sourceSnapshot.source.fetchedAt,
-    metricsCheckedAt: sourceSnapshot.source.fetchedAt,
-    text: `${repo.fullName}: ${repo.description || "GitHub repository"}${repo.language ? ` (${repo.language})` : ""}.`,
-    mediaType: "repo" as const,
-    metrics: {
+  const repoItems: EvidenceItem[] = (account.repos ?? []).map((repo) => {
+    const metrics: EvidenceMetrics = {
       stars: repo.stars,
       forks: repo.forks,
       watchers: repo.watchers,
-      issues: repo.openIssues,
-      recent_commits_30d: isRecentGithubPushForSnapshot(repo.pushedAt, sourceSnapshot.source.fetchedAt) ? 1 : 0
-    },
-    contributionScore: repo.score,
-    sourceUrl: repo.htmlUrl,
-    platformPostId: repo.fullName,
-    platformObjectId: repo.id == null ? null : String(repo.id),
-    first_seen_at: sourceSnapshot.source.fetchedAt,
-    last_checked_at: sourceSnapshot.source.fetchedAt,
-    last_updated_at: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
-    why: "Repository traction measured from public GitHub stars, forks, watchers, open issues, and recent push activity.",
-    attachedCompanyId: attachedCompanyIdForGithub(account),
-    attachedCompanyName: account.companyName,
-    socialAccountId: null,
-    accountUrl,
-    matchReason,
-    review_state: "verified" as const
-  }));
+      issues: repo.openIssues
+    };
+    return {
+      id: `evidence-github-repo-${account.entityId}-${slugify(repo.fullName)}`,
+      entityType: account.entityType,
+      entityId: account.entityId,
+      platform: "github" as const,
+      authorName: repo.fullName,
+      authorHandle: account.login,
+      postedAt: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
+      publishedAtPrecision: repo.pushedAt ? publicationTimestampPrecision(repo.pushedAt) : "unknown",
+      observedAt: sourceSnapshot.source.fetchedAt,
+      metricsCheckedAt: sourceSnapshot.source.fetchedAt,
+      text: `${repo.fullName}: ${repo.description || "GitHub repository"}${repo.language ? ` (${repo.language})` : ""}.`,
+      mediaType: "repo" as const,
+      metrics,
+      contributionScore: computeEvidenceRawEngagement("github", metrics),
+      sourceUrl: repo.htmlUrl,
+      platformPostId: repo.fullName,
+      platformObjectId: repo.id == null ? null : String(repo.id),
+      first_seen_at: sourceSnapshot.source.fetchedAt,
+      last_checked_at: sourceSnapshot.source.fetchedAt,
+      last_updated_at: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
+      why: "Repository traction measured from public GitHub stars, forks, watchers, and open issues.",
+      attachedCompanyId: attachedCompanyIdForGithub(account),
+      attachedCompanyName: account.companyName,
+      socialAccountId: null,
+      accountUrl,
+      matchReason,
+      review_state: "verified" as const
+    };
+  });
   const hasRepoLevelEvidence = repoItems.length > 0;
 
   const profile: EvidenceItem = {
@@ -965,8 +968,7 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
     metrics: {
       stars: account.aggregate.totalStars,
       forks: account.aggregate.totalForks,
-      watchers: account.aggregate.totalWatchers,
-      recent_commits_30d: recentGithubRepoCountForSnapshot(account.repos ?? [], sourceSnapshot.source.fetchedAt)
+      watchers: account.aggregate.totalWatchers
     },
     contributionScore: hasRepoLevelEvidence ? 0 : account.aggregate.profileScore,
     sourceUrl: accountUrl,
@@ -988,39 +990,6 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
     .map(enrichEvidenceThumbnail)
     .sort((a, b) => b.contributionScore - a.contributionScore)
     .slice(0, 20);
-}
-
-function recentGithubRepoCount(repos: GithubRepo[]): number {
-  return recentGithubRepoCountForSnapshot(repos, githubSnapshot.source.fetchedAt);
-}
-
-function isRecentGithubPush(pushedAt: string | null | undefined): boolean {
-  return isRecentGithubPushForSnapshot(pushedAt, githubSnapshot.source.fetchedAt);
-}
-
-function recentGithubRepoCountForSnapshot(repos: GithubRepo[], checkedAt: string): number {
-  return repos.filter((repo) => isRecentGithubPushForSnapshot(repo.pushedAt, checkedAt)).length;
-}
-
-function isRecentGithubPushForSnapshot(pushedAt: string | null | undefined, checkedAt: string): boolean {
-  const pushed = parseDate(pushedAt);
-  const checked = parseDate(checkedAt) ?? new Date();
-
-  if (!pushed) {
-    return false;
-  }
-
-  const ageDays = Math.max(0, (checked.getTime() - pushed.getTime()) / 86_400_000);
-  return ageDays <= 30;
-}
-
-function parseDate(value: string | null | undefined): Date | null {
-  if (!value) {
-    return null;
-  }
-
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 function publicationTimestampPrecision(value: string): EvidenceItem["publishedAtPrecision"] {

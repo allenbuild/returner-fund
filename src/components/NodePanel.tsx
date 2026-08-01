@@ -131,22 +131,36 @@ function InsiderContributions({ node }: { node: GraphNode }) {
   const breakdown = node.insiderScoreBreakdown!;
   return (
     <section className="score-platform-section insider-score-section" aria-label="Insider score breakdown">
-      <h3>Insider score</h3>
+      <h3>Insider adjustment</h3>
       <p>
-        Base {formatScore(breakdown.baseScore)} + weighted insiders{" "}
-        {formatScore(breakdown.weightedInsiderSubtotal)} ={" "}
-        <strong>{formatScore(breakdown.finalScore)}</strong>
+        Published score {formatScore(breakdown.baseScore)}. Insider adjustment{" "}
+        {formatSignedScore(breakdown.insiderScoreAdjustment)}. Result{" "}
+        <strong>{formatScore(breakdown.finalScore)}</strong>.
       </p>
+      <small>
+        Each matched insider contributes weight² influence and counts once, even with multiple posts. Published{" "}
+        influence {formatScore(breakdown.publishedInsiderInfluence)} → current influence{" "}
+        {formatScore(breakdown.weightedInsiderSubtotal)}.
+      </small>
       <ol className="score-platform-contributions">
-        {breakdown.matches.map((match) => (
-          <li key={match.memberId} className={match.included ? "" : "excluded"}>
-            <span>{match.displayName}</span>
-            <span className="score-platform-contribution">
-              <strong>{match.included ? `+${match.effectiveWeight}` : "Excluded"}</strong>
-              <small>{formatItemCount(match.evidenceCount)}</small>
-            </span>
-          </li>
-        ))}
+        {breakdown.matches.map((match) => {
+          return (
+            <li key={match.memberId} className={match.included ? "" : "excluded"}>
+              <span>{match.displayName}</span>
+              <span className="score-platform-contribution">
+                <strong>
+                  {match.included
+                    ? `Weight ${match.effectiveWeight}² = ${formatScore(match.influenceScore)} influence`
+                    : "Excluded"}
+                </strong>
+                <small>
+                  Published {match.publishedWeight}² = {formatScore(match.publishedInfluenceScore)} · adjustment{" "}
+                  {formatSignedScore(match.adjustment)} · {formatItemCount(match.evidenceCount)}
+                </small>
+              </span>
+            </li>
+          );
+        })}
       </ol>
       {breakdown.selectedInsiderIds.length > 0 && (
         <small>Visible score uses the selected Insider subset.</small>
@@ -232,4 +246,9 @@ function formatItemCount(count: number): string {
 
 function formatScore(score: number): string {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(score);
+}
+
+function formatSignedScore(score: number): string {
+  if (score === 0) return "0";
+  return `${score > 0 ? "+" : "−"}${formatScore(Math.abs(score))}`;
 }

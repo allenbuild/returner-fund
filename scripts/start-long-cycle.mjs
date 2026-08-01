@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { closeSync, existsSync, openSync, realpathSync } from "node:fs";
-import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import {
@@ -75,7 +75,10 @@ if (configurationError) {
 
 async function launchWithClaim(token) {
   const forcedRunId = process.env.LONG_RUN_ID ?? null;
-  let existing = await readJson(activePath, null);
+  await recoverTerminalRunLogsFromStdout();
+  let existing = await reconcileActiveFromLatestRunLog(
+    await readJson(activePath, null)
+  );
   if (existing?.runId && !isSafeRunId(existing.runId)) {
     throw new Error(`Active run has unsafe runId ${JSON.stringify(existing.runId)}.`);
   }
@@ -336,6 +339,7 @@ async function launchWithClaim(token) {
   const stdoutFd = openSync(stdoutPath, "a");
   const stderrFd = openSync(stderrPath, "a");
   let child;
+  await ensureAdmissionRunLog(provisional);
   await writeJsonAtomic(activePath, provisional);
   try {
     child = spawn(process.execPath, args, {
@@ -633,14 +637,227 @@ async function publishLaunchFailure({ childPid, error, runId, token }) {
   ) {
     return;
   }
+  const failedAt = new Date().toISOString();
+  const eventLogPath = resolveEventLogPath(active);
+  const runLog = await readJson(eventLogPath, null);
+  if (!runLog || runLog.runId !== runId) {
+    throw new Error(`Cannot finalize launch failure without the admitted run log for ${runId}.`);
+  }
+  const events = Array.isArray(runLog.eventLog) ? [...runLog.eventLog] : [];
+  const message = errorMessage(error);
+  if (!latestEvent(events, "run_failed")) {
+    events.push({
+      type: "run_failed",
+      at: failedAt,
+      elapsedMinutes: elapsedSince(runLog.startedAt ?? active.startedAt),
+      error: message,
+      failedBeforeAcknowledgement: true
+    });
+  }
+  if (!latestEvent(events, "run_finished")) {
+    events.push({
+      type: "run_finished",
+      at: failedAt,
+      elapsedMinutes: elapsedSince(runLog.startedAt ?? active.startedAt),
+      status: "failed",
+      error: message,
+      failedBeforeAcknowledgement: true
+    });
+  }
+  await writeJsonAtomic(eventLogPath, {
+    ...runLog,
+    eventLog: events
+  });
   await writeJsonAtomic(activePath, {
     ...active,
     pid: null,
     failedChildPid: childPid ?? null,
-    launchFailedAt: new Date().toISOString(),
-    launchError: errorMessage(error),
+    launchFailedAt: failedAt,
+    launchError: message,
     status: "failed"
   });
+}
+
+async function ensureAdmissionRunLog(provisional) {
+  const eventLogPath = resolveEventLogPath(provisional);
+  const existing = await readJson(eventLogPath, null);
+  if (existing) {
+    if (existing.runId !== provisional.runId) {
+      throw new Error(
+        `Event log identity mismatch for admitted run ${JSON.stringify(provisional.runId)}.`
+      );
+    }
+    return;
+  }
+  await writeJsonAtomic(eventLogPath, {
+    runId: provisional.runId,
+    startedAt: provisional.startedAt,
+    deadlineAt: provisional.deadlineAt,
+    durationMinutes: provisional.durationMinutes,
+    minimumSweepMinutes: provisional.minimumSweepMinutes,
+    mode: provisional.mode,
+    eventLog: [{
+      type: "run_admitted",
+      at: provisional.launchedAt,
+      elapsedMinutes: elapsedSince(provisional.startedAt),
+      launcherPid: process.pid,
+      launchToken: provisional.launchToken
+    }]
+  });
+}
+
+async function reconcileActiveFromLatestRunLog(active) {
+  const latest = await latestRunLog();
+  if (!latest) return active;
+  const activeStartedAt = validDateMs(active?.startedAt);
+  const latestStartedAt = validDateMs(latest.runLog.startedAt);
+  if (
+    active?.runId === latest.runLog.runId
+    || !Number.isFinite(latestStartedAt)
+    || (Number.isFinite(activeStartedAt) && latestStartedAt <= activeStartedAt)
+  ) {
+    return active;
+  }
+  const finished = latestEvent(latest.runLog.eventLog, "run_finished");
+  const reconciled = {
+    runId: latest.runLog.runId,
+    pid: null,
+    terminalPid: null,
+    processFingerprint: null,
+    startedAt: latest.runLog.startedAt,
+    deadlineAt: latest.runLog.deadlineAt,
+    durationMinutes: latest.runLog.durationMinutes,
+    minimumSweepMinutes: latest.runLog.minimumSweepMinutes,
+    mode: persistedRunMode(latest.runLog),
+    launchedAt: latest.runLog.eventLog?.[0]?.at ?? latest.runLog.startedAt,
+    lastHeartbeatAt: latest.runLog.eventLog?.at(-1)?.at ?? latest.runLog.startedAt,
+    eventLogPath: latest.path,
+    status: finished?.status ?? "stale",
+    reconciledAt: new Date().toISOString(),
+    reconciledFromEventLog: true
+  };
+  await writeJsonAtomic(activePath, reconciled);
+  return reconciled;
+}
+
+async function latestRunLog() {
+  let entries;
+  try {
+    entries = await readdir(runDir, { withFileTypes: true });
+  } catch {
+    return null;
+  }
+  const candidates = await Promise.all(
+    entries
+      .filter((entry) =>
+        entry.isFile()
+        && /^source-sweep-[A-Za-z0-9._-]+\.json$/u.test(entry.name)
+      )
+      .map(async (entry) => {
+        const filePath = path.join(runDir, entry.name);
+        const [details, runLog] = await Promise.all([
+          stat(filePath),
+          readJson(filePath, null)
+        ]);
+        return runLog?.runId && Array.isArray(runLog.eventLog)
+          ? { path: filePath, stat: details, runLog }
+          : null;
+      })
+  );
+  return candidates
+    .filter(Boolean)
+    .sort((left, right) => {
+      const startedDelta =
+        (validDateMs(right.runLog.startedAt) ?? 0)
+        - (validDateMs(left.runLog.startedAt) ?? 0);
+      return startedDelta || right.stat.mtimeMs - left.stat.mtimeMs;
+    })[0] ?? null;
+}
+
+async function recoverTerminalRunLogsFromStdout() {
+  let entries;
+  try {
+    entries = await readdir(runDir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    if (
+      !entry.isFile()
+      || !/^source-sweep-[A-Za-z0-9._-]+\.stdout\.log$/u.test(entry.name)
+    ) {
+      continue;
+    }
+    const stdoutPath = path.join(runDir, entry.name);
+    const runId = entry.name.slice(0, -".stdout.log".length);
+    const eventLogPath = path.join(runDir, `${runId}.json`);
+    if (existsSync(eventLogPath)) continue;
+    const [stdout, details] = await Promise.all([
+      readFile(stdoutPath, "utf8"),
+      stat(stdoutPath)
+    ]);
+    const terminal = parseTerminalRunSummary(stdout);
+    if (
+      terminal?.runId !== runId
+      || !terminalStatuses.has(terminal.status)
+    ) {
+      continue;
+    }
+    const elapsed = positiveNumber(terminal.elapsedMinutes) ?? requestedMinutes;
+    const finishedAt = details.mtime.toISOString();
+    const startedAt = new Date(
+      Math.max(0, details.mtimeMs - elapsed * 60_000)
+    ).toISOString();
+    await writeJsonAtomic(eventLogPath, {
+      runId,
+      startedAt,
+      deadlineAt: finishedAt,
+      durationMinutes: elapsed,
+      minimumSweepMinutes: compatibleDefaultReserve(elapsed),
+      mode: "continuous",
+      recoveredFromStdout: true,
+      eventLog: [
+        {
+          type: "run_recovered_from_stdout",
+          at: finishedAt,
+          elapsedMinutes: elapsed,
+          stdoutPath
+        },
+        {
+          type: "run_finished",
+          at: finishedAt,
+          elapsedMinutes: elapsed,
+          status: terminal.status,
+          recoveredFromStdout: true
+        }
+      ]
+    });
+  }
+}
+
+function parseTerminalRunSummary(stdout) {
+  const tail = String(stdout).slice(-64_000).trim();
+  for (
+    let index = tail.lastIndexOf("\n{");
+    index >= -1;
+    index = index > 0 ? tail.lastIndexOf("\n{", index - 1) : -2
+  ) {
+    const candidate = tail.slice(index + 1);
+    try {
+      const parsed = JSON.parse(candidate);
+      if (
+        isSafeRunId(parsed?.runId)
+        && terminalStatuses.has(parsed?.status)
+        && Number.isFinite(Number(parsed?.elapsedMinutes))
+      ) {
+        return parsed;
+      }
+    } catch {
+      // Continue to the previous JSON object in the captured tail.
+    }
+    if (index === -1) break;
+  }
+  return null;
 }
 
 function latestEvent(events, type) {

@@ -17,6 +17,7 @@ const sharedRepositoryRoot = path.dirname(
 const dependencyRoot = path.join(sharedRepositoryRoot, "node_modules");
 const runnerPath = path.join(repositoryRoot, "scripts", "run-long-cycle.mjs");
 const launcherPath = path.join(repositoryRoot, "scripts", "start-long-cycle.mjs");
+const statusPath = path.join(repositoryRoot, "scripts", "long-run-status.mjs");
 const claimLeasePath = path.join(repositoryRoot, "scripts", "long-cycle-claim-lease.mjs");
 const terminalRunStatuses = new Set([
   "complete",
@@ -139,6 +140,145 @@ describe("five-hour source sweep orchestrator", () => {
     );
     assert.equal(active.status, "smoke_complete");
     assert.ok(active.lastHeartbeatAt);
+  });
+
+  it("durably records admission and terminal failure when the child cannot acknowledge", async () => {
+    const root = await createStubRoot("");
+    const runId = "admission-child-missing";
+    const result = await runLauncherAsync(root, {
+      args: ["--minutes=1", "--minimum-sweep-minutes=0.001"],
+      env: { LONG_RUN_ID: runId }
+    }).completion;
+
+    assert.notEqual(result.code, 0);
+    const active = await readActiveRun(root);
+    assert.equal(active.runId, runId);
+    assert.equal(active.status, "failed");
+    assert.equal(active.pid, null);
+    const runLog = await readRunLog(root, runId);
+    assert.equal(runLog.eventLog[0]?.type, "run_admitted");
+    assert.equal(runLog.eventLog.filter((event) => event.type === "run_failed").length, 1);
+    assertSingleFinishedEvent(runLog, "failed");
+  });
+
+  it("starts an admitted run instead of misclassifying it as a resumed run", async () => {
+    const root = await createStubRoot("");
+    const runId = "admitted-lifecycle";
+    const startedAt = new Date().toISOString();
+    await seedRunLog(root, {
+      runId,
+      startedAt,
+      deadlineAt: new Date(Date.now() + 60_000).toISOString(),
+      durationMinutes: 1,
+      minimumSweepMinutes: 0.001,
+      mode: "once",
+      eventLog: [{ type: "run_admitted", at: startedAt }]
+    });
+
+    const result = runFixture(root, {
+      runId,
+      startedAt,
+      args: ["--once", "--minutes=1", "--minimum-sweep-minutes=0.001"]
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    const runLog = await readRunLog(root, runId);
+    assert.equal(runLog.eventLog.filter((event) => event.type === "run_started").length, 1);
+    assert.equal(runLog.eventLog.some((event) => event.type === "run_resumed"), false);
+    assertSingleFinishedEvent(runLog, "complete");
+  });
+
+  it("reports stale active state separately from the latest durable run log", async () => {
+    const root = await createStubRoot("");
+    const runDir = path.join(root, "outputs", "longrun");
+    const oldStartedAt = new Date(Date.now() - 120_000).toISOString();
+    const latestStartedAt = new Date(Date.now() - 60_000).toISOString();
+    await seedRunLog(root, {
+      runId: "source-sweep-old",
+      startedAt: oldStartedAt,
+      eventLog: [{ type: "run_finished", at: oldStartedAt, status: "complete" }]
+    });
+    await seedRunLog(root, {
+      runId: "source-sweep-latest",
+      startedAt: latestStartedAt,
+      eventLog: [{ type: "run_finished", at: latestStartedAt, status: "complete" }]
+    });
+    await writeFile(path.join(runDir, "active-run.json"), JSON.stringify({
+      runId: "source-sweep-old",
+      startedAt: oldStartedAt,
+      status: "complete"
+    }));
+
+    const result = spawnSync(process.execPath, [statusPath], {
+      cwd: root,
+      encoding: "utf8"
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const status = JSON.parse(result.stdout);
+    assert.equal(status.activeEventLog.runId, "source-sweep-old");
+    assert.equal(status.latestEventLog.runId, "source-sweep-latest");
+    assert.equal(status.stateIntegrity.activeMatchesLatest, false);
+    assert.equal(status.stateIntegrity.activeEventLogPresent, true);
+  });
+
+  it("reports a terminal stdout receipt whose event log was removed", async () => {
+    const root = await createStubRoot("");
+    const runId = "source-sweep-orphaned-status";
+    const runDir = path.join(root, "outputs", "longrun");
+    await mkdir(runDir, { recursive: true });
+    await writeFile(
+      path.join(runDir, `${runId}.stdout.log`),
+      `collector output\n${JSON.stringify({
+        runId,
+        status: "complete",
+        elapsedMinutes: 300,
+        eventLog: path.join(runDir, `${runId}.json`)
+      }, null, 2)}\n`
+    );
+
+    const result = spawnSync(process.execPath, [statusPath], {
+      cwd: root,
+      encoding: "utf8"
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const status = JSON.parse(result.stdout);
+    assert.equal(status.stateIntegrity.orphanedTerminalOutputCount, 1);
+    assert.equal(status.orphanedTerminalOutputs[0].runId, runId);
+    assert.equal(status.orphanedTerminalOutputs[0].status, "complete");
+  });
+
+  it("recovers a removed event log and active record from the terminal stdout receipt", async () => {
+    const root = await createLauncherRoot("");
+    const runId = "source-sweep-recovered-terminal";
+    const runDir = path.join(root, "outputs", "longrun");
+    await mkdir(runDir, { recursive: true });
+    await writeFile(
+      path.join(runDir, `${runId}.stdout.log`),
+      `collector output\n${JSON.stringify({
+        runId,
+        status: "complete",
+        elapsedMinutes: 300,
+        eventLog: path.join(runDir, `${runId}.json`)
+      }, null, 2)}\n`
+    );
+
+    const result = await runLauncherAsync(root, {
+      args: [],
+      env: { LONG_RUN_ID: runId }
+    }).completion;
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).status, "already_finished");
+    const runLog = await readRunLog(root, runId);
+    assert.equal(runLog.recoveredFromStdout, true);
+    assert.equal(
+      runLog.eventLog.some((event) => event.type === "run_recovered_from_stdout"),
+      true
+    );
+    assertSingleFinishedEvent(runLog, "complete");
+    const active = await readActiveRun(root);
+    assert.equal(active.runId, runId);
+    assert.equal(active.status, "complete");
+    assert.equal(active.reconciledFromEventLog, true);
   });
 
   it("does not spawn a sweep when less than the configured useful-time reserve remains", async () => {
@@ -1448,6 +1588,9 @@ describe("five-hour source sweep orchestrator", () => {
       const log = await readRunLog(root, runId);
       return log.eventLog.some((event) => event.type === "run_finished");
     });
+    await waitFor(async () =>
+      terminalRunStatuses.has((await readActiveRun(root)).status)
+    );
     const runLog = await readRunLog(root, runId);
     assert.equal(runLog.startedAt, startedAt);
     assert.equal(runLog.deadlineAt, deadlineAt);

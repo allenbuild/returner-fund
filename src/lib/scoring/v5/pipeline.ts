@@ -317,8 +317,8 @@ function supportFailures(
 
 function assertMonotonicParameters(model: V5PlatformModel): void {
   for (const [feature, coefficient] of Object.entries(model.parameters.coefficients)) {
-    if (feature === "post_age_hours" && (coefficient ?? 0) > 0) {
-      throw new Error(`${model.platform} age coefficient violates the non-increasing constraint.`);
+    if (feature === "post_age_hours") {
+      throw new Error(`${model.platform} publication age is not an allowed scoring feature.`);
     }
     if (feature !== "post_age_hours" && !metricForMissingFeature(feature) && (coefficient ?? 0) < 0) {
       throw new Error(`${model.platform} metric coefficient violates the nonnegative constraint.`);

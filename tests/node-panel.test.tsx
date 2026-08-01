@@ -169,6 +169,51 @@ describe("NodePanel", () => {
     expect(document.querySelector(".node-panel details")).not.toBeInTheDocument();
   });
 
+  it("explains quadratic Insider influence and the adjustment from the published score", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
+    const node = graph.nodes.find((item) => item.label === "Conifer");
+
+    expect(node).toBeDefined();
+    const insiderScoreBreakdown = {
+      baseScore: 100,
+      publishedInsiderInfluence: 25,
+      weightedInsiderSubtotal: 1,
+      insiderScoreAdjustment: -24,
+      finalScore: 76,
+      selectedInsiderIds: [],
+      configurationVersion: 3,
+      matches: [{
+        memberId: "paul-graham",
+        displayName: "Paul Graham",
+        effectiveWeight: 1,
+        evidenceCount: 3,
+        included: true,
+        exclusionReason: null,
+        influenceScore: 1,
+        publishedWeight: 5,
+        publishedInfluenceScore: 25,
+        adjustment: -24
+      }],
+      formula: "published_score_plus_quadratic_insider_adjustments_capped_0_100"
+    } satisfies NonNullable<GraphNode["insiderScoreBreakdown"]>;
+
+    render(
+      <NodePanel
+        node={{ ...node!, score: 76, insiderScoreBreakdown }}
+        relatedNodes={[]}
+        evidence={[]}
+      />
+    );
+
+    const section = screen.getByRole("heading", { name: "Insider adjustment" }).closest("section");
+    expect(section).toHaveTextContent("Published score 100. Insider adjustment −24. Result 76.");
+    expect(section).toHaveTextContent("Each matched insider contributes weight² influence and counts once");
+    expect(section).toHaveTextContent("Published influence 25 → current influence 1");
+    expect(section).toHaveTextContent("Paul Graham");
+    expect(section).toHaveTextContent("Weight 1² = 1 influence");
+    expect(section).toHaveTextContent("Published 5² = 25 · adjustment −24 · 3 items");
+  });
+
   it("counts and renders only evidence that contributes to the score", () => {
     const graph = buildGraphResponse({ batchSlug: "S26", query: "Conifer" }, ycSpring2026GraphDataset);
     const node = graph.nodes.find((item) => item.label === "Conifer");

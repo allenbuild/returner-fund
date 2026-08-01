@@ -20,8 +20,9 @@ export interface PlatformMetricWeights {
 }
 
 export interface PlatformScoringReference {
-  /** Raw weighted engagement expected to land near 100 before percentile and recency blending. */
+  /** Raw weighted engagement expected to land near 100. */
   highEngagement: number;
+  /** @deprecated Publication age is not part of scoring as of model 4.0.2. */
   halfLifeDays: number;
 }
 
@@ -68,8 +69,8 @@ const NORMALIZED_WEIGHT_TOLERANCE = 1e-9;
  */
 export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
   modelId: "returner-traction",
-  version: "4.0.1",
-  name: "returner-traction-v4-monotonic",
+  version: "4.0.2",
+  name: "returner-traction-v4-date-invariant",
   platformWeights: {
     x: 0.21,
     instagram: 0.21,
@@ -82,7 +83,7 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
     bilibili: 0.02
   },
   metricWeights: {
-    github: { stars: 1.5, forks: 4, recent_commits_30d: 1, issues: 0.5 },
+    github: { stars: 1.5, forks: 4, issues: 0.5 },
     x: { views: 0.04, likes: 1.4, replies: 4.5, reposts: 6, quotes: 6 },
     linkedin: { views: 0.04, reactions: 1.4, comments: 4.5, reposts: 6 },
     instagram: { views: 0.04, likes: 1.1, comments: 4.5, shares: 5, saves: 4 },
@@ -107,9 +108,9 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
   },
   absoluteEvidenceWeight: 1,
   cohortPercentileWeight: 0,
-  durableSignalWeight: 0.75,
-  momentumSignalWeight: 0.25,
-  missingDateMomentum: 0.45,
+  durableSignalWeight: 1,
+  momentumSignalWeight: 0,
+  missingDateMomentum: 1,
   strongestPlatformWeight: 0,
   diversifiedPlatformWeight: 1,
   platformEvidenceSlots: [0.82, 0.08, 0.05, 0.03, 0.02],
@@ -201,6 +202,17 @@ export function validateTractionScoringConfig(config: TractionScoringConfig): vo
     ["momentumSignalWeight", config.momentumSignalWeight]
   ]);
   assertUnitWeight("missingDateMomentum", config.missingDateMomentum);
+  if (
+    config.durableSignalWeight !== 1 ||
+    config.momentumSignalWeight !== 0 ||
+    config.missingDateMomentum !== 1
+  ) {
+    invalidConfig(
+      "date-invariant signal blend",
+      "must disable publication-age scoring (durableSignalWeight=1, momentumSignalWeight=0, missingDateMomentum=1)",
+      [config.durableSignalWeight, config.momentumSignalWeight, config.missingDateMomentum]
+    );
+  }
   assertNormalizedWeights("platform blend", [
     ["strongestPlatformWeight", config.strongestPlatformWeight],
     ["diversifiedPlatformWeight", config.diversifiedPlatformWeight]
@@ -349,8 +361,7 @@ export function normalizeMetricsForScoring(platform: Platform, metrics: Evidence
       forks: cleaned.forks,
       // GitHub's watchers_count is ordinarily the same field as stargazers_count.
       watchers: cleaned.watchers === cleaned.stars ? undefined : cleaned.watchers,
-      issues: maxMetric(cleaned.issues, cleaned.open_issues),
-      recent_commits_30d: cleaned.recent_commits_30d
+      issues: maxMetric(cleaned.issues, cleaned.open_issues)
     };
   }
 

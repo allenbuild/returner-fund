@@ -7,14 +7,10 @@ import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { HomeStructuredData } from "@/components/seo/HomeDiscovery";
 import { DirectoryCompanyList } from "@/components/seo/DirectoryCompanyList";
-import YcNetworkMapPage, { metadata as ycNetworkMapMetadata } from "@/app/yc-network-map/page";
-import A16zNetworkMapPage, { metadata as a16zNetworkMapMetadata } from "@/app/a16z-network-map/page";
-import YcSocialTractionPage, { metadata as ycSocialTractionMetadata } from "@/app/yc-social-traction/page";
-import A16zSocialTractionPage, { metadata as a16zSocialTractionMetadata } from "@/app/a16z-social-traction/page";
 import { generateMetadata as generateHomeMetadata } from "@/app/page";
 
 const CANONICAL_ORIGIN = "https://www.returner.fund";
-const INTENT_PATHS = [
+const REDIRECTED_INTENT_PATHS = [
   "/yc-network-map",
   "/a16z-network-map",
   "/yc-social-traction",
@@ -112,7 +108,7 @@ describe("crawl metadata routes", () => {
 
     expect(urls).toContain(`${CANONICAL_ORIGIN}/`);
     expect(urls.every((url) => url.startsWith(`${CANONICAL_ORIGIN}/`))).toBe(true);
-    expect(INTENT_PATHS.every((path) => urls.includes(`${CANONICAL_ORIGIN}${path}`))).toBe(true);
+    expect(REDIRECTED_INTENT_PATHS.every((path) => !urls.includes(`${CANONICAL_ORIGIN}${path}`))).toBe(true);
     expect(urls.some((url) => url.includes("/admin/") || url.includes("/debug/") || url.includes("?"))).toBe(false);
     expect(new Set(urls).size).toBe(urls.length);
   });
@@ -153,66 +149,38 @@ describe("crawl metadata routes", () => {
     expect(linkedIndustryPaths.every((path) => generatedIndustryPaths.has(path))).toBe(true);
   });
 
-  it("renders four distinct, self-canonical intent pages with valid structured data", () => {
-    const pages = [
-      { path: "/yc-network-map", Page: YcNetworkMapPage, metadata: ycNetworkMapMetadata },
-      { path: "/a16z-network-map", Page: A16zNetworkMapPage, metadata: a16zNetworkMapMetadata },
-      { path: "/yc-social-traction", Page: YcSocialTractionPage, metadata: ycSocialTractionMetadata },
-      { path: "/a16z-social-traction", Page: A16zSocialTractionPage, metadata: a16zSocialTractionMetadata }
-    ];
-    const titles = new Set<string>();
-
-    for (const page of pages) {
-      const title = String(page.metadata.title);
-      const markup = renderToStaticMarkup(createElement(page.Page));
-      const jsonLdBlocks = [...markup.matchAll(/<script type="application\/ld\+json">([^<]+)<\/script>/g)];
-
-      titles.add(title);
-      expect(page.metadata.alternates?.canonical).toBe(`${CANONICAL_ORIGIN}${page.path}`);
-      expect(markup).toContain("<h1>");
-      expect(markup).toContain("independent public-data project");
-      expect(jsonLdBlocks.length).toBeGreaterThanOrEqual(2);
-      expect(jsonLdBlocks.every((match) => {
-        try {
-          JSON.parse(match[1]);
-          return true;
-        } catch {
-          return false;
-        }
-      })).toBe(true);
-      const structuredData = jsonLdBlocks
-        .flatMap((match) => JSON.parse(match[1]) as Array<Record<string, unknown>>);
-      const dataset = structuredData.find((item) => item["@type"] === "Dataset");
-      const cohortDatasets = dataset?.hasPart as Array<Record<string, unknown>>;
-
-      expect(cohortDatasets.length).toBeGreaterThan(0);
-      expect(dataset).toMatchObject({
-        description: expect.any(String),
-        creator: expect.objectContaining({ "@type": "Organization", name: "Returner.fund" }),
-        license: expect.objectContaining({
-          "@type": "CreativeWork",
-          url: `${CANONICAL_ORIGIN}/data-sources#dataset-use`
-        })
-      });
-      expect(cohortDatasets.every((item) => typeof item.description === "string" && item.description.length > 0)).toBe(true);
-      expect(cohortDatasets.every((item) => typeof item.creator === "object" && item.creator !== null)).toBe(true);
-      expect(cohortDatasets.every((item) => typeof item.license === "object" && item.license !== null)).toBe(true);
-    }
-
-    expect(titles.size).toBe(pages.length);
-  });
-
-  it("consolidates graph state to stable canonicals without indexing query URLs", async () => {
+  it("uses exact map titles and consolidates graph state to the live map canonical", async () => {
+    const ycView = await generateHomeMetadata({
+      searchParams: Promise.resolve({})
+    });
     const a16zView = await generateHomeMetadata({
-      searchParams: Promise.resolve({ batch: "A16ZSR006" })
+      searchParams: Promise.resolve({ batch: "A16ZSR006", platforms: "x" })
+    });
+    const summerView = await generateHomeMetadata({
+      searchParams: Promise.resolve({ batch: "S26" })
     });
     const trackingView = await generateHomeMetadata({
       searchParams: Promise.resolve({ utm_source: "seo-test" })
     });
+    const invalidBatchView = await generateHomeMetadata({
+      searchParams: Promise.resolve({ batch: "not-a-real-batch" })
+    });
 
+    expect(ycView.title).toEqual({ absolute: "YC Network Map" });
+    expect(ycView.openGraph?.title).toBe("YC Network Map");
+    expect(ycView.twitter?.title).toBe("YC Network Map");
+    expect(ycView.alternates?.canonical).toBe(`${CANONICAL_ORIGIN}/`);
+    expect(ycView.robots).toMatchObject({ index: true, follow: true });
+    expect(a16zView.title).toEqual({ absolute: "a16z Network Map" });
+    expect(a16zView.openGraph?.title).toBe("a16z Network Map");
+    expect(a16zView.twitter?.title).toBe("a16z Network Map");
     expect(a16zView.robots).toMatchObject({ index: false, follow: true });
-    expect(a16zView.alternates?.canonical).toBe(`${CANONICAL_ORIGIN}/cohorts/a16z-speedrun-006`);
+    expect(a16zView.alternates?.canonical).toBe(`${CANONICAL_ORIGIN}/`);
+    expect(summerView.title).toEqual({ absolute: "YC Network Map" });
+    expect(summerView.alternates?.canonical).toBe(`${CANONICAL_ORIGIN}/`);
     expect(trackingView.robots).toMatchObject({ index: false, follow: true });
     expect(trackingView.alternates?.canonical).toBe(`${CANONICAL_ORIGIN}/`);
+    expect(invalidBatchView.title).toEqual({ absolute: "YC Network Map" });
+    expect(invalidBatchView.alternates?.canonical).toBe(`${CANONICAL_ORIGIN}/`);
   });
 });

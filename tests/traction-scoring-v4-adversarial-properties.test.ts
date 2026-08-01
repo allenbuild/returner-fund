@@ -219,7 +219,7 @@ describe("canonical v4 adversarial generated properties", () => {
     }
   });
 
-  it("penalizes missing dates for generated positive evidence on every scored platform", () => {
+  it("keeps generated positive evidence score-neutral to missing or invalid dates on every scored platform", () => {
     for (const [platformIndex, platform] of SUPPORTED_PLATFORMS.entries()) {
       const metric = primaryMetric(platform);
       const rng = deterministicRng(PROPERTY_SEED ^ stableNumber(`missing-date:${platform}`));
@@ -247,7 +247,7 @@ describe("canonical v4 adversarial generated properties", () => {
           ],
           { asOf: FIXED_TIME }
         )[0];
-        const context = propertyContext("missing-date-penalty", trial, {
+        const context = propertyContext("missing-date-neutrality", trial, {
           platform,
           platformIndex,
           metric,
@@ -256,8 +256,10 @@ describe("canonical v4 adversarial generated properties", () => {
 
         expect(unknown?.rawEngagement, context).toBe(fresh?.rawEngagement);
         expect(invalid?.rawEngagement, context).toBe(fresh?.rawEngagement);
-        expect(unknown?.contributionScore, context).toBeLessThan(fresh?.contributionScore ?? 0);
-        expect(invalid?.contributionScore, context).toBeLessThan(fresh?.contributionScore ?? 0);
+        expect(unknown?.normalizedScore, context).toBe(fresh?.normalizedScore);
+        expect(invalid?.normalizedScore, context).toBe(fresh?.normalizedScore);
+        expect(unknown?.contributionScore, context).toBe(fresh?.contributionScore);
+        expect(invalid?.contributionScore, context).toBe(fresh?.contributionScore);
       }
     }
   });

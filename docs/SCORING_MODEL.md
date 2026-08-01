@@ -5,8 +5,8 @@
 The production graph scoring model is:
 
 - Model ID: `returner-traction`
-- Version: `4.0.1`
-- Name: `returner-traction-v4-monotonic`
+- Version: `4.0.2`
+- Name: `returner-traction-v4-date-invariant`
 - Canonical configuration: [`src/lib/scoring/traction-config.ts`](../src/lib/scoring/traction-config.ts)
 - Evidence normalizer and entity aggregate: [`src/lib/graph/traction-scoring.ts`](../src/lib/graph/traction-scoring.ts)
 - Shared company batch calibration: [`src/lib/scoring/batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts)
@@ -28,7 +28,8 @@ For each canonical all-platform scoring run, v4 performs these stages:
 2. Check whether each evidence row is eligible.
 3. Normalize metric aliases and compute weighted raw engagement.
 4. Normalize each row against its fixed platform reference. Evidence-level cohort rank is disabled.
-5. Apply recency only to the momentum share of the evidence score.
+5. Keep the evidence score date-invariant: publication age, missing dates, and
+   recent-activity proxy metrics do not change it.
 6. Deduplicate physical evidence and aggregate the strongest five rows into each platform score.
 7. Aggregate platform scores with configured weights normalized over platforms that have eligible evidence.
 8. In full-batch dataset assembly, calibrate positive company scores against their batch with tie-aware percentiles. A material live-overlay rebuild recalculates that same canonical all-platform company score before any response filters are applied.
@@ -140,32 +141,32 @@ Only the following canonical metrics have nonzero v4 weights:
 | X | `views*0.04 + likes*1.4 + replies*4.5 + reposts*6 + quotes*6` |
 | Instagram | `views*0.04 + likes*1.1 + comments*4.5 + shares*5 + saves*4` |
 | LinkedIn | `views*0.04 + reactions*1.4 + comments*4.5 + reposts*6` |
-| GitHub | `stars*1.5 + forks*4 + issues*0.5 + recent_commits_30d*1` |
+| GitHub | `stars*1.5 + forks*4 + issues*0.5` |
 | YouTube | `views*0.025 + likes*1 + comments*3.5` |
 | Product Hunt | `upvotes*2 + comments*3.5` |
 | Hacker News | `upvotes*2 + comments*3.5` |
 | Reddit | `upvotes*2 + comments*3.5` |
 | Bilibili | `views*0.025 + likes*1 + comments*3.5 + shares*4` |
 
-GitHub `watchers` is retained only when it differs from stars, but it has no nonzero v4 weight and therefore does not affect raw engagement. Followers, subscribers, and other unconfigured fields also do not score. V4 does not compute follower-adjusted engagement rate.
+GitHub `watchers` is retained only when it differs from stars, but it has no nonzero v4 weight and therefore does not affect raw engagement. `recent_commits_30d` may remain in historical evidence for provenance, but it is not a scoring metric. Followers, subscribers, and other unconfigured fields also do not score. V4 does not compute follower-adjusted engagement rate.
 
 ## Evidence score
 
 ### Platform references
 
-Each platform has an absolute raw-engagement reference `H_p`, a recency half-life `L_p`, and a company diversification weight `w_p`.
+Each platform has an absolute raw-engagement reference `H_p` and a company diversification weight `w_p`.
 
-| Platform | `H_p` high engagement | `L_p` days | `w_p` |
-| --- | ---: | ---: | ---: |
-| X | 120,000 | 45 | 0.21 |
-| Instagram | 80,000 | 60 | 0.21 |
-| LinkedIn | 18,000 | 75 | 0.15 |
-| GitHub | 40,000 | 365 | 0.15 |
-| YouTube | 35,000 | 150 | 0.10 |
-| Product Hunt | 4,000 | 120 | 0.07 |
-| Hacker News | 2,500 | 60 | 0.05 |
-| Reddit | 4,000 | 60 | 0.04 |
-| Bilibili | 35,000 | 150 | 0.02 |
+| Platform | `H_p` high engagement | `w_p` |
+| --- | ---: | ---: |
+| X | 120,000 | 0.21 |
+| Instagram | 80,000 | 0.21 |
+| LinkedIn | 18,000 | 0.15 |
+| GitHub | 40,000 | 0.15 |
+| YouTube | 35,000 | 0.10 |
+| Product Hunt | 4,000 | 0.07 |
+| Hacker News | 2,500 | 0.05 |
+| Reddit | 4,000 | 0.04 |
+| Bilibili | 35,000 | 0.02 |
 
 The platform weights sum to `1` across the complete configuration. At runtime the available-platform aggregate divides by the configured weight present in the eligible set, so missing-platform weight does not penalize the entity.
 
@@ -178,36 +179,28 @@ A = clamp(100 * log1p(R_p) / log1p(H_p), 0, 100)
 B = A
 ```
 
-Version `4.0.1` uses `absoluteEvidenceWeight=1` and
+Version `4.0.2` uses `absoluteEvidenceWeight=1` and
 `cohortPercentileWeight=0`. This is deliberate: an evidence row's normalized
-score depends on its own configured metrics, platform reference, publication
-date, and the shared observation cutoff, not on the metrics or rank of another
-row. Increasing a configured positive metric therefore cannot lower an
+score depends on its own durable configured metrics and platform reference,
+not on its publication date or the metrics or rank of another row. Increasing
+a configured positive metric therefore cannot lower an
 unmodified peer row, the owning platform aggregate, or the owning company
 aggregate. Version `4.0.0` used an `85%` absolute / `15%` within-platform
 midrank blend; it remains registered as the immutable rollback target but is no
 longer the production default because rank crossings could lower a same-owner
 peer enough to violate company-level monotonicity.
 
-### Durable and momentum recency
-
-The caller may pass an explicit `asOf` string or `Date`; an invalid explicit value throws. Without one, reference time `T` is the latest `observedAt`, `metricsCheckedAt`, or optional `ingestedAt` across the physically deduplicated eligible rows. `last_checked_at`, `last_updated_at`, `first_seen_at`, `linkCheckedAt`, and `postedAt` are not default reference-clock inputs. If no physical observation parses, `T` is the Unix epoch. The wall clock is never consulted. For a usable publication date:
+### Date-invariant evidence score
 
 ```text
-age_days = max(0, T - posted_at in days)
-M = 0.5 ^ (age_days / L_p)
+E = round(clamp(B, 1, 100))
 ```
 
-If `publishedAtPrecision` is `unknown`, or `postedAt` cannot be parsed, `M = 0.45`.
-
-Recency controls only the 25% momentum share. The durable floor remains:
-
-```text
-recency_multiplier = 0.75 + 0.25 * M
-E = round(clamp(B * recency_multiplier, 1, 100))
-```
-
-For dated evidence, the multiplier ranges from `0.75` for extremely old evidence to `1` for evidence at the reference time. Missing-date evidence uses `0.8625`. An eligible positive row receives at least `1`; an ineligible row receives exactly `0`.
+Publication time, publication precision, missing-date status, and observation age
+do not enter this formula. The optional `asOf` cutoff remains an anti-leakage
+eligibility boundary: evidence observed after an explicit cutoff is excluded,
+but older eligible evidence is not discounted. An eligible positive row
+receives at least `1`; an ineligible row receives exactly `0`.
 
 ## Platform aggregation
 
@@ -392,7 +385,7 @@ Focused regression coverage includes `tests/traction-scoring-v4.test.ts`, `tests
 
 - Metric weights, platform references, slot weights, and confidence weights are product heuristics, not fitted or statistically validated parameters.
 - Company calibration still depends on the current positive-company cohort. Cohort additions can change calibrated company scores even when a company's raw evidence does not change.
-- Evidence, fixed-slot, and cross-platform aggregation are monotone for a fixed observation cutoff. Scores can still move when the reference timestamp changes because recency is an explicit input.
+- Evidence, fixed-slot, and cross-platform aggregation are monotone and publication-date invariant. An explicit observation cutoff can still exclude evidence that was not yet available.
 - Public metric availability and semantics differ by platform. Missing, hidden, deleted, private, estimated, botted, or paid engagement is not fully detectable.
 - Native URL validation is syntactic even though host/path grammar is strict. Unchecked or missing link status may score, and no check proves ownership, liveness, or metric freshness.
 - Entity aggregation physically deduplicates and reruns the full scoring-eligibility check, but it does not call `normalizeEvidenceScores`. It treats each surviving positive `contributionScore` as an already-normalized evidence score, so direct callers must normalize first or deliberately supply values with that meaning.

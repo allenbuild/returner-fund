@@ -458,7 +458,13 @@ describe("YC traction scoring regressions", () => {
       "product_hunt"
     );
     expectGraphEvidence(springGraph.evidence, "https://www.youtube.com/watch?v=vI8shNqqmRE", "Ontora", "youtube");
-    expectGraphEvidence(springGraph.evidence, "https://github.com/Aradotso/ara-agent-integrations", "Ara", "github");
+    expectGraphContextEvidence(
+      springGraph.evidence,
+      "https://github.com/Aradotso/ara-agent-integrations",
+      "Ara",
+      "github",
+      "no_visible_metrics"
+    );
     expectGraphEvidence(summerGraph.evidence, "https://x.com/ShubhamInTech/status/2063985390852419613", "Agnost AI", "x");
     expectGraphEvidence(summerGraph.evidence, "https://x.com/louis030195/status/2056360011631313167", "screenpipe", "x");
     expectGraphEvidence(
@@ -484,7 +490,13 @@ describe("YC traction scoring regressions", () => {
       "linkedin"
     );
     expectGraphEvidence(springGraph.evidence, "https://www.youtube.com/watch?v=K_xNXWnlf98", "Klarify", "youtube");
-    expectGraphEvidence(springGraph.evidence, "https://github.com/Aradotso/ara-mcp", "Ara", "github");
+    expectGraphContextEvidence(
+      springGraph.evidence,
+      "https://github.com/Aradotso/ara-mcp",
+      "Ara",
+      "github",
+      "no_visible_metrics"
+    );
     expectGraphEvidence(springGraph.evidence, "https://x.com/DraftedAI/status/2060402050635387083", "Drafted", "x");
     expectGraphEvidence(summerGraph.evidence, "https://x.com/archal_labs/status/2059499757400465804", "Archal", "x");
     expectGraphEvidence(
@@ -597,11 +609,12 @@ describe("YC traction scoring regressions", () => {
     );
     expectGraphEvidence(summerGraph.evidence, "https://x.com/jackbeecher23/status/2074887641623880138", "Denta", "x");
     expectGraphEvidence(summerGraph.evidence, "https://x.com/hursheybar2/status/2074530139606745589", "Edviro", "x");
-    expectGraphEvidence(
+    expectGraphContextEvidence(
       summerGraph.evidence,
       "https://github.com/Care-AI-Inc/careai-corina-service-releases",
       "Care GP",
-      "github"
+      "github",
+      "no_visible_metrics"
     );
     expectGraphEvidence(
       springGraph.evidence,
@@ -780,7 +793,7 @@ describe("YC traction scoring regressions", () => {
     );
   });
 
-  it("applies recency as a bounded momentum modifier", () => {
+  it("keeps identical engagement score-neutral to publication age", () => {
     const oldPost = {
       ...evidence("old-instagram", "instagram", { views: 100_000, likes: 500, comments: 20 }),
       postedAt: "2025-06-01T00:00:00Z",
@@ -795,10 +808,12 @@ describe("YC traction scoring regressions", () => {
     };
     const scored = normalizeEvidenceScores([oldPost, freshPost]);
 
-    expect(scored.find((item) => item.id === "fresh-instagram")?.contributionScore).toBeGreaterThan(
-      (scored.find((item) => item.id === "old-instagram")?.contributionScore ?? 0) + 10
-    );
-    expect(scored.find((item) => item.id === "fresh-instagram")?.why).toContain("recency");
+    const oldScore = scored.find((item) => item.id === "old-instagram");
+    const freshScore = scored.find((item) => item.id === "fresh-instagram");
+    expect(oldScore?.rawEngagement).toBe(freshScore?.rawEngagement);
+    expect(oldScore?.normalizedScore).toBe(freshScore?.normalizedScore);
+    expect(oldScore?.contributionScore).toBe(freshScore?.contributionScore);
+    expect(freshScore?.why).not.toContain("recency");
   });
 
   it("keeps visible LinkedIn engagement ahead of freshness-only signals", () => {
@@ -895,7 +910,7 @@ describe("YC traction scoring regressions", () => {
   });
 
   it("uses the recommended long-run scoring config for live graph scoring", () => {
-    expect(TRACTION_SCORING_CONFIG.name).toBe("returner-traction-v4-monotonic");
+    expect(TRACTION_SCORING_CONFIG.name).toBe("returner-traction-v4-date-invariant");
     expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.15);
     expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.21);
     expect(TRACTION_SCORING_CONFIG.platformWeights.linkedin).toBe(0.15);
@@ -905,11 +920,11 @@ describe("YC traction scoring regressions", () => {
     expect(TRACTION_SCORING_CONFIG.metricWeights.youtube?.views).toBe(0.025);
     expect(TRACTION_SCORING_CONFIG.metricWeights.x?.reposts).toBe(6);
     expect(TRACTION_SCORING_CONFIG.metricWeights.linkedin?.comments).toBe(4.5);
-    expect(TRACTION_SCORING_CONFIG.metricWeights.github?.recent_commits_30d).toBe(1);
+    expect(TRACTION_SCORING_CONFIG.metricWeights.github?.recent_commits_30d).toBeUndefined();
     expect(TRACTION_SCORING_CONFIG.absoluteEvidenceWeight).toBe(1);
     expect(TRACTION_SCORING_CONFIG.cohortPercentileWeight).toBe(0);
-    expect(TRACTION_SCORING_CONFIG.durableSignalWeight).toBe(0.75);
-    expect(TRACTION_SCORING_CONFIG.momentumSignalWeight).toBe(0.25);
+    expect(TRACTION_SCORING_CONFIG.durableSignalWeight).toBe(1);
+    expect(TRACTION_SCORING_CONFIG.momentumSignalWeight).toBe(0);
     expect(computeEvidenceRawEngagement("instagram", { views: 100_000, likes: 100, comments: 10 })).toBe(4155);
     expect(computeEvidenceRawEngagement("x", { views: 1_000_000, likes: 1_000, comments: 100, reposts: 100 })).toBe(42450);
     expect(computeEvidenceRawEngagement("linkedin", { views: 100_000, reactions: 100, comments: 20, reposts: 10 })).toBe(4290);
@@ -917,14 +932,14 @@ describe("YC traction scoring regressions", () => {
     expect(computeEvidenceRawEngagement("linkedin", { likes: 100, reactions: 140, comments: 10 })).toBe(241);
   });
 
-  it("carries GitHub recent activity into scoring experiments", () => {
+  it("keeps GitHub freshness metadata out of traction scoring", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const githubRows = graph.evidence.filter((item) => item.platform === "github");
 
-    expect(githubRows.some((item) => item.metrics.recent_commits_30d !== undefined)).toBe(true);
+    expect(githubRows.some((item) => Boolean(item.postedAt && item.last_updated_at))).toBe(true);
     expect(
       computeEvidenceRawEngagement("github", { stars: 10, forks: 2, watchers: 1, recent_commits_30d: 8 })
-    ).toBeGreaterThan(computeEvidenceRawEngagement("github", { stars: 10, forks: 2, watchers: 1, recent_commits_30d: 0 }));
+    ).toBe(computeEvidenceRawEngagement("github", { stars: 10, forks: 2, watchers: 1, recent_commits_30d: 0 }));
   });
 });
 
@@ -1021,14 +1036,15 @@ function expectGraphEvidence(
     })
   );
   expect(canonicalSourceIdentity(item?.sourceUrl ?? "")).toBe(expectedSourceIdentity);
-  expect(item?.contributionScore).toBeGreaterThan(0);
+  expect(item?.contributionScore, sourceUrl).toBeGreaterThan(0);
 }
 
 function expectGraphContextEvidence(
   items: EvidenceItem[],
   sourceUrl: string,
   companyName: string,
-  platform: Platform
+  platform: Platform,
+  exclusionReason = "not_native_evidence"
 ): void {
   const item = items.find((candidate) => candidate.sourceUrl === sourceUrl);
 
@@ -1040,7 +1056,7 @@ function expectGraphContextEvidence(
       contributionScore: 0
     })
   );
-  expect(item?.why).toContain("not_native_evidence");
+  expect(item?.why).toContain(exclusionReason);
 }
 
 function canonicalSourceIdentity(rawUrl: string): string {

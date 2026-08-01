@@ -13,7 +13,6 @@ import {
   DEFAULT_PLATFORM_WEIGHTS as CANONICAL_PLATFORM_WEIGHTS
 } from "./aggregation";
 import {
-  computeRecencyWeight,
   computeWeightedRawEngagement,
   ENGAGEMENT_WEIGHTS,
   scorePost as scoreCompatibilityPost
@@ -71,20 +70,21 @@ export function calculateRecencyWeight(
   collectedAt: string,
   halfLifeDays: number
 ): { ageDays: number | null; recencyWeight: number } {
+  void halfLifeDays;
   const postedDate = validDate(postedAt);
   const collectedDate = validDate(collectedAt);
 
   if (!postedDate || !collectedDate) {
     return {
       ageDays: null,
-      recencyWeight: TRACTION_SCORING_CONFIG.missingDateMomentum
+      recencyWeight: 1
     };
   }
 
   const ageDays = Math.max(0, (collectedDate.getTime() - postedDate.getTime()) / 86_400_000);
   return {
     ageDays,
-    recencyWeight: computeRecencyWeight(ageDays, halfLifeDays)
+    recencyWeight: 1
   };
 }
 
@@ -97,15 +97,10 @@ export function scorePost(
   account?: SocialAccount,
   config?: ScoringConfig
 ): PostScore {
-  const canonicalHalfLife =
-    post.platform === "tiktok" || post.platform === "bluesky"
-      ? DEFAULT_SCORING_CONFIG.halfLifeDays
-      : TRACTION_SCORING_CONFIG.platformReferences[post.platform]?.halfLifeDays ??
-        DEFAULT_SCORING_CONFIG.halfLifeDays;
   const { recencyWeight } = calculateRecencyWeight(
     post.postedAt,
     metrics.collectedAt,
-    canonicalHalfLife
+    config?.halfLifeDays ?? DEFAULT_SCORING_CONFIG.halfLifeDays
   );
   const logSample = platformRawEngagementSample
     .filter((value) => Number.isFinite(value) && value >= 0)

@@ -16,8 +16,8 @@ describe("traction scoring config validation", () => {
 
     expect(() => validateTractionScoringConfig(config)).not.toThrow();
     expect(config).toEqual(original);
-    expect(config.version).toBe("4.0.1");
-    expect(config.name).toBe("returner-traction-v4-monotonic");
+    expect(config.version).toBe("4.0.2");
+    expect(config.name).toBe("returner-traction-v4-date-invariant");
     expect(config.absoluteEvidenceWeight).toBe(1);
     expect(config.cohortPercentileWeight).toBe(0);
   });
@@ -30,9 +30,9 @@ describe("traction scoring config validation", () => {
     );
   });
 
-  it("registers the exact monotonic config as immutable model version 4.0.1", () => {
+  it("registers the exact date-invariant config as immutable model version 4.0.2", () => {
     const migration = readFileSync(
-      "supabase/migrations/013_register_traction_scoring_v4_0_1.sql",
+      "supabase/migrations/014_register_traction_scoring_v4_0_2.sql",
       "utf8"
     );
     const configJson = migration.match(/v4_config constant jsonb := \$config\$([\s\S]*?)\$config\$/i)?.[1];
@@ -47,7 +47,7 @@ describe("traction scoring config validation", () => {
         .update(JSON.stringify(sortKeys(TRACTION_SCORING_CONFIG)))
         .digest("hex")
     );
-    expect(migration).toContain("The 4.0.0 row from migration 007 remains untouched");
+    expect(migration).toContain("The 4.0.1 and 4.0.0 rows remain untouched");
   });
 
   it("accepts normalized totals inside the deterministic tolerance", () => {

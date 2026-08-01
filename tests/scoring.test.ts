@@ -84,6 +84,28 @@ describe("scoring formulas", () => {
     expect(result.explanationJson.limitations.join(" ")).toContain("canonical v4 computes the score");
   });
 
+  it("keeps the legacy formula wrapper score invariant to publication age and missing dates", () => {
+    const baseInput = {
+      postId: "recency-neutral-legacy-formula",
+      platform: "x" as const,
+      metrics: { views: 50_000, likes: 250, comments: 20, reposts: 5 },
+      collectedAt: "2026-07-01T00:00:00.000Z"
+    };
+    const scores = [
+      scorePost({ ...baseInput, postedAt: baseInput.collectedAt }),
+      scorePost({ ...baseInput, postedAt: "2000-01-01T00:00:00.000Z" }),
+      scorePost({ ...baseInput, postedAt: null })
+    ];
+    const scoreProjection = scores.map((score) => ({
+      rawEngagement: score.rawEngagement,
+      normalizedScore: score.normalizedScore,
+      contributionScore: score.contributionScore
+    }));
+
+    expect(scoreProjection.every((score) => score.contributionScore > 0)).toBe(true);
+    expect(scoreProjection).toEqual(scoreProjection.map(() => scoreProjection[0]));
+  });
+
   it("uses mid-rank percentiles and batch-relative scores", () => {
     expect(percentileRank([10, 20, 20, 40], 20)).toBe(0.5);
 
@@ -303,6 +325,20 @@ describe("legacy domain scoring compatibility", () => {
       evidence: {}
     };
     const postScore = scoreLegacyPost(post, metrics, [], [], account);
+    const oldPostScore = scoreLegacyPost(
+      { ...post, postedAt: "2000-01-01T00:00:00.000Z" },
+      metrics,
+      [],
+      [],
+      account
+    );
+    const undatedPostScore = scoreLegacyPost(
+      { ...post, postedAt: null },
+      metrics,
+      [],
+      [],
+      account
+    );
     const platformScore = aggregateLegacyPlatformScore("x", [postScore], "verified");
     const entityScore = aggregateLegacyEntityScore("company", "company-1", [platformScore]);
 
@@ -315,6 +351,10 @@ describe("legacy domain scoring compatibility", () => {
       })
     );
     expect(postScore.normalizedScore).toBeGreaterThan(0);
+    expect(oldPostScore.normalizedScore).toBe(postScore.normalizedScore);
+    expect(oldPostScore.contributionScore).toBe(postScore.contributionScore);
+    expect(undatedPostScore.normalizedScore).toBe(postScore.normalizedScore);
+    expect(undatedPostScore.contributionScore).toBe(postScore.contributionScore);
     expect(postScore.explanation.qualitySignals.modelVersion).toBe(TRACTION_SCORING_CONFIG.version);
     expect(platformScore.score).toBe(canonicalPlatformAggregate("x", [postScore.normalizedScore]));
     expect(entityScore.totalScore).toBe(canonicalEntityAggregate({ x: platformScore.score }).absoluteScore);

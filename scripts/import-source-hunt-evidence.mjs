@@ -19,7 +19,7 @@ const DISPLAY_METRICS = {
 };
 
 const SCORING_METRICS = {
-  github: new Set(["stars", "forks", "recent_commits_30d", "issues"]),
+  github: new Set(["stars", "forks", "issues"]),
   x: new Set(["views", "likes", "replies", "reposts", "quotes"]),
   linkedin: new Set(["views", "reactions", "comments", "reposts"]),
   instagram: new Set(["views", "likes", "comments", "shares", "saves"]),

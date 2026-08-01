@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Telemetry } from "@/components/Telemetry";
+import { YC_NETWORK_MAP_TITLE } from "@/lib/graph/network-map-branding";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/seo/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl("/")),
   title: {
-    default: `${SITE_NAME} | Startup network maps and social traction`,
+    // The root layout is the fallback title while query-aware home metadata is
+    // streaming. Keep it on-brand so the map never flashes the generic site
+    // title before the Dashboard applies its cohort-specific title.
+    default: YC_NETWORK_MAP_TITLE,
     template: `%s | ${SITE_NAME}`
   },
   description: SITE_DESCRIPTION,
