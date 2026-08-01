@@ -2604,5 +2604,51 @@
         "postedAt": "2026-07-31T02:00:08Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "central-2026-07-31-1800",
+    "centralDay": "2026-07-31",
+    "observedAt": "2026-08-01T00:45:11.401Z",
+    "baselinePhysicalSources": 8285,
+    "publishedPhysicalSources": 8285,
+    "newPhysicalSources": 1,
+    "newPhysicalSourcesThisAttempt": 1,
+    "retainedPhysicalSources": 8284,
+    "removedPhysicalSources": 1,
+    "dailyNewPhysicalSources": 5,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "degraded",
+    "collectionHealthReasons": [
+      "missing_credential:X_BEARER_TOKEN",
+      "missing_credential:EXA_API_KEY",
+      "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
+      "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
+      "mapped_failures:1",
+      "mapped_success_rate_below_10_percent:0.0465"
+    ],
+    "mappedExpected": 1850,
+    "mappedSucceeded": 86,
+    "mappedNeedsReview": 995,
+    "mappedBlockedOrEmpty": 768,
+    "mappedFailures": 1,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.0465,
+    "newestNewSourcePostedAt": "2026-07-31T19:28:39Z",
+    "insertedByBatchPlatform": {
+      "S26:github": 1
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "S26",
+        "platform": "github",
+        "entityType": "company",
+        "entityId": "company-robocurve",
+        "sourceUrl": "https://github.com/robocurve/clapboardbench",
+        "platformPostId": "robocurve/clapboardbench",
+        "platformObjectId": "1318688063",
+        "postedAt": "2026-07-31T19:28:39Z"
+      }
+    ]
   }
 ]
