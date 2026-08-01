@@ -2273,10 +2273,14 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
       verifiedLinkCount: 1
     },
     calibration: {
-      method: "none",
-      cohortSize: 0,
+      method: "global_best_ratio",
+      cohortSize: 1,
       percentile: null,
-      inputScore: node.score
+      inputScore: node.score,
+      benchmarkScore: 100,
+      scaleFactor: 1,
+      benchmarkScope: "all_supported_batches",
+      benchmarkPopulation: "current_company_snapshot"
     },
     limitations: [],
     evidenceAsOf: "2026-06-29T00:00:00.000Z",

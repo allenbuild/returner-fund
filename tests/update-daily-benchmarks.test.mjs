@@ -840,10 +840,14 @@ function v4ScoreBreakdown(score, platformScore) {
       verifiedLinkCount: 1
     },
     calibration: {
-      method: "none",
-      cohortSize: 0,
+      method: "global_best_ratio",
+      cohortSize: 6,
       percentile: null,
-      inputScore: score
+      inputScore: score,
+      benchmarkScore: 100,
+      scaleFactor: 1,
+      benchmarkScope: "all_supported_batches",
+      benchmarkPopulation: "current_company_snapshot"
     },
     limitations: [],
     evidenceAsOf: null,

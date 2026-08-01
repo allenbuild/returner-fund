@@ -4,7 +4,6 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { liveEvidenceRecordToEvidenceItem } from "@/lib/graph/live-evidence-overlay";
-import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import type { GraphResponse } from "@/lib/graph/types";
 import type { LiveEvidenceRecord, LiveSourceRefreshResult } from "@/lib/ingestion/live-source-refresh";
 
@@ -1392,62 +1391,13 @@ function withV4SnapshotContract(
       wow: { ...row.wow, benchmarkedAt: null }
     })),
     nodes: graph.nodes.map((node) => {
-      const absoluteScore = node.score;
       const existing = node.scoreBreakdown;
-      const referencedEvidence = graph.evidence.filter((item) => node.evidenceIds.includes(item.id));
-      const scoredEvidence = referencedEvidence.filter((item) => item.contributionScore > 0);
-      const platformsWithEvidence = existing?.platformsWithEvidence ?? Object.keys(node.platformScores).length;
-      const scoredEvidenceCount = existing?.weightedPlatforms.reduce(
-        (sum, platform) => sum + platform.evidenceCount,
-        0
-      ) ?? scoredEvidence.length;
-      const scoreBreakdown: NonNullable<typeof node.scoreBreakdown> = {
-        modelId: "returner-traction",
-        modelVersion: "4.2.0",
-        modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
-        totalScore: node.score,
-        absoluteScore,
-        weightedAvailableScore: existing?.weightedAvailableScore ?? absoluteScore,
-        coverageFactor: existing?.coverageFactor ?? (absoluteScore > 0 ? 1 : 0),
-        platformsWithEvidence,
-        totalSupportedPlatforms: existing?.totalSupportedPlatforms ?? 0,
-        platformScores: existing?.platformScores ?? node.platformScores,
-        weightedPlatforms: (existing?.weightedPlatforms ?? []).map((platform) => ({
-          ...platform,
-          configuredWeight: TRACTION_SCORING_CONFIG.platformWeights[platform.platform] ?? 0
-        })),
-        signalFamilyScores: existing?.signalFamilyScores ?? {
-          reach: 0,
-          engagement: 0,
-          developerAdoption: 0,
-          launchAndCommunity: 0,
-          momentum: 0
-        },
-        confidence: {
-          level: scoredEvidence.length ? "medium" : "low",
-          value: scoredEvidence.length ? 0.5 : 0,
-          reasons: [],
-          scoredEvidenceCount: Math.max(scoredEvidenceCount, platformsWithEvidence),
-          datedEvidenceCount: scoredEvidence.filter(
-            (item) => item.publishedAtPrecision !== "unknown" && Number.isFinite(Date.parse(item.postedAt))
-          ).length,
-          verifiedLinkCount: scoredEvidence.filter((item) => item.linkStatus === "verified").length
-        },
-        calibration: {
-          method: "global_best_ratio",
-          cohortSize: 1,
-          percentile: null,
-          inputScore: absoluteScore,
-          benchmarkScore: 100,
-          scaleFactor: 1,
-          benchmarkScope: "all_supported_batches",
-          benchmarkPopulation: "current_company_snapshot"
-        },
-        limitations: existing?.limitations ?? [],
-        evidenceAsOf: null,
-        explanation: existing?.explanation ?? "Refresh route v4 contract fixture."
+      return {
+        ...node,
+        scoreBreakdown: existing
+          ? { ...existing, evidenceAsOf: null }
+          : existing
       };
-      return { ...node, scoreBreakdown };
     }),
     scoringContext: {
       modelId: "returner-traction",
