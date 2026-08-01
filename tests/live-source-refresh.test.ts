@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, it, vi } from "vitest";
+import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
 import { loadLiveEvidenceRecords, runLiveSourceRefresh, type LiveEvidenceRecord } from "@/lib/ingestion/live-source-refresh";
 
 const X_PROVIDER_RESPONSE_CASES = [
@@ -1268,6 +1269,34 @@ describe("live source refresh", () => {
     }
   });
 
+  it.each([
+    { label: "missing", createdAt: undefined },
+    { label: "unparseable", createdAt: "not-a-native-date" }
+  ])("fails closed when a direct X response has a $label native creation timestamp", async ({ createdAt }) => {
+    const postId = createdAt ? "2077045452579778765" : "2077045452579778764";
+    const payload = providerPayload("fxtwitter_tweet", {
+      returnedPostId: postId,
+      canonicalPostId: postId
+    });
+    const tweet = payload.tweet as Record<string, unknown>;
+    delete tweet.created_timestamp;
+    if (createdAt) tweet.created_at = createdAt;
+
+    const result = await runDirectProviderPayload("fxtwitter_tweet", payload, postId);
+    const refreshTime = new Date("2026-07-16T21:00:00.000Z");
+
+    expect(result.acceptedEvidence).toEqual([]);
+    expect(result.failureReasonCounts.missing_native_publication_date).toBe(1);
+    expect(
+      result.acceptedEvidence.some((record) =>
+        isCrediblyPublishedToday({
+          postedAt: record.postedAt ?? "",
+          publishedAtPrecision: record.postedAt ? "exact" : "unknown"
+        }, refreshTime)
+      )
+    ).toBe(false);
+  });
+
   it("scopes a single-batch refresh to that batch instead of scanning every default YC batch", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "returner-live-refresh-scope-"));
     const targetedEvidencePath = join(tempDir, "targeted-evidence-current.json");
@@ -2121,12 +2150,34 @@ describe("live source refresh", () => {
         text: "screenpipe update with invalid metrics"
       })
     });
+    const refreshDatedWithoutNativePublication = liveXRecord({
+      id: "live-x-refresh-dated-without-native-publication",
+      sourceUrl: "https://x.com/screenpipe/status/2077045452579778673",
+      platformPostId: "2077045452579778673",
+      postedAt: "2026-07-14T17:00:00.000Z",
+      rawVisibleText: liveRawText({
+        id: "2077045452579778673",
+        source: "live_x_profile",
+        handle: "screenpipe",
+        text: "screenpipe update with no native creation timestamp",
+        extraPost: { created_timestamp: undefined, created_at: "not-a-native-date" }
+      })
+    });
 
     await writeFile(
       targetedEvidencePath,
       JSON.stringify({
         source: { fetchedAt: "2026-07-14T00:00:00.000Z" },
-        evidence: [invalidLink, spoofedHost, authorMismatch, repost, negativeMetrics, nonfiniteMetrics, good],
+        evidence: [
+          invalidLink,
+          spoofedHost,
+          authorMismatch,
+          repost,
+          negativeMetrics,
+          nonfiniteMetrics,
+          refreshDatedWithoutNativePublication,
+          good
+        ],
         needsReview: []
       })
     );
@@ -2226,7 +2277,7 @@ function liveXRecord(overrides: Partial<LiveEvidenceRecord> = {}): LiveEvidenceR
     linkStatus: "verified",
     linkCheckedAt: "2026-07-14T17:00:00.000Z",
     rawVisibleText,
-    postedAt: "2026-07-14T16:00:00.000Z",
+    postedAt: "2026-07-14T15:00:00.000Z",
     metrics: {
       views: 116000,
       likes: 697,
@@ -2239,7 +2290,7 @@ function liveXRecord(overrides: Partial<LiveEvidenceRecord> = {}): LiveEvidenceR
     matchReason: "Live manual refresh verified a native X post from official @screenpipe for screenpipe.",
     first_seen_at: "2026-07-14T17:00:00.000Z",
     last_checked_at: "2026-07-14T17:00:00.000Z",
-    last_updated_at: "2026-07-14T16:00:00.000Z",
+    last_updated_at: "2026-07-14T15:00:00.000Z",
     ...overrides
   };
 }

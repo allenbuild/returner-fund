@@ -16,8 +16,8 @@ describe("traction scoring config validation", () => {
 
     expect(() => validateTractionScoringConfig(config)).not.toThrow();
     expect(config).toEqual(original);
-    expect(config.version).toBe("4.1.0");
-    expect(config.name).toBe("returner-traction-v4-absolute-fixed-platform");
+    expect(config.version).toBe("4.2.0");
+    expect(config.name).toBe("returner-traction-v4-absolute-fixed-platform-global-best");
     expect(config.absoluteEvidenceWeight).toBe(1);
     expect(config.cohortPercentileWeight).toBe(0);
     expect(config).not.toHaveProperty("durableSignalWeight");
@@ -36,9 +36,9 @@ describe("traction scoring config validation", () => {
     );
   });
 
-  it("registers the exact absolute fixed-platform config as immutable model version 4.1.0", () => {
+  it("registers the exact global-best headline config as immutable model version 4.2.0", () => {
     const migration = readFileSync(
-      "supabase/migrations/015_register_traction_scoring_v4_1_0.sql",
+      "supabase/migrations/016_register_traction_scoring_v4_2_0.sql",
       "utf8"
     );
     const configJson = migration.match(/v4_config constant jsonb := \$config\$([\s\S]*?)\$config\$/i)?.[1];

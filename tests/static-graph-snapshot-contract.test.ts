@@ -209,6 +209,13 @@ describe("canonical v4 static graph snapshot contract", () => {
       mutate: (graph: ValidSnapshot) => { graph.nodes[0]!.scoreBreakdown.calibration.inputScore = 101; }
     },
     {
+      name: "4.2 identity calibration",
+      path: "nodes[0].scoreBreakdown.calibration.method",
+      mutate: (graph: ValidSnapshot) => {
+        (graph.nodes[0]!.scoreBreakdown.calibration as { method: string }).method = "none";
+      }
+    },
+    {
       name: "out-of-range calibration percentile",
       path: "nodes[0].scoreBreakdown.calibration.percentile",
       mutate: (graph: ValidSnapshot) => {
@@ -457,8 +464,8 @@ function validSnapshot() {
   };
   const scoreBreakdown = {
     modelId: "returner-traction",
-    modelVersion: "4.1.0",
-    modelName: "returner-traction-v4-absolute-fixed-platform",
+    modelVersion: "4.2.0",
+    modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
     totalScore: 13,
     absoluteScore: 13,
     weightedAvailableScore: 64,
@@ -490,10 +497,14 @@ function validSnapshot() {
       verifiedLinkCount: 1
     },
     calibration: {
-      method: "none",
+      method: "global_best_ratio",
       cohortSize: 1,
       percentile: null,
-      inputScore: 13
+      inputScore: 13,
+      benchmarkScore: 100,
+      scaleFactor: 1,
+      benchmarkScope: "all_supported_batches",
+      benchmarkPopulation: "current_company_snapshot"
     },
     limitations: [],
     evidenceAsOf: "2026-07-16T05:00:00.000Z",
@@ -543,8 +554,8 @@ function validSnapshot() {
     generatedAt: "2026-07-16T05:00:00.000Z",
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.1.0",
-      modelName: "returner-traction-v4-absolute-fixed-platform",
+      modelVersion: "4.2.0",
+      modelName: "returner-traction-v4-absolute-fixed-platform-global-best",
       scoreScope: "all_platforms",
       selectedPlatforms: [] as string[],
       responseBuiltAt: "2026-07-16T05:00:00.000Z",

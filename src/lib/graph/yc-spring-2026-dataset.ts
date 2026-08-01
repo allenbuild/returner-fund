@@ -7,7 +7,9 @@ import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.js
 import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 import verifiedSocialOverridesJson from "@/lib/social/verified-social-overrides.json";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
+import { benchmarkGlobalCompanyScores } from "@/lib/scoring/global-score-benchmark";
 import { a16zSpeedrun006GraphDataset } from "./a16z-speedrun-006-dataset";
+import { githubRepositoryEvidenceTimestamps } from "./github-repository-timestamps";
 import type {
   BusinessModel,
   CompanyRecord,
@@ -169,7 +171,9 @@ interface GithubRepo {
   watchers: number;
   openIssues: number;
   language: string | null;
-  pushedAt: string;
+  pushedAt?: string;
+  updatedAt?: string;
+  createdAt?: string;
   score: number;
 }
 
@@ -207,6 +211,8 @@ interface PublicEvidenceRecord {
   linkFailureReason?: string | null;
   rawVisibleText: string;
   postedAt: string | null;
+  publishedAtPrecision?: EvidenceItem["publishedAtPrecision"];
+  platformObjectId?: string | null;
   metrics: EvidenceMetrics;
   contributionScore: number;
   review_state: "verified" | "needs_review" | "rejected";
@@ -317,6 +323,10 @@ const snapshot = ycSummer2026Snapshot as RawSnapshot;
 const springSnapshot = ycSpring2026Snapshot as RawSnapshot;
 const githubSnapshot = githubTractionSnapshot as GithubSnapshot;
 const springGithubSnapshot = springGithubTractionSnapshot as GithubSnapshot;
+const githubRepositoriesByIdentity = buildGithubRepositoryIndex([
+  githubSnapshot,
+  springGithubSnapshot
+]);
 const publicSnapshot = publicEvidenceSnapshot as PublicEvidenceSnapshot;
 const loggedInSnapshot = loggedInEvidenceSnapshot as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as PublicEvidenceSnapshot;
@@ -383,7 +393,7 @@ const allEvidenceItems = resolveEvidenceSocialAccountIds(
   founderRecordList
 );
 
-export const ycSummer2026GraphDataset: DemoGraphDataset = {
+const rawYcSummer2026GraphDataset: DemoGraphDataset = {
   mode: "official_snapshot",
   batches: [
     {
@@ -423,8 +433,8 @@ export const ycSummer2026GraphDataset: DemoGraphDataset = {
       platform: "linkedin",
       batchSlugs: [YC_SUMMER_2026_BATCH_SLUG],
       status: summerEvidenceCounts.linkedin ? "working" : "public_only",
-      authMethod: "Opt-in authenticated browser session plus public profile discovery",
-      notes: `Found ${officialSocialLinkCounts.linkedin.company} company and ${officialSocialLinkCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles. ${summerEvidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available; prior Spring rows remain excluded.`
+      authMethod: "Public unauthenticated profile and post discovery only",
+      notes: `Found ${officialSocialLinkCounts.linkedin.company} company and ${officialSocialLinkCounts.linkedin.founder} founder LinkedIn URLs on official Summer 2026 YC profiles. ${summerEvidenceCounts.linkedin ?? 0} scored Summer LinkedIn post rows are currently available; no account login, cookies, browser session, or auth headers are used, and prior Spring rows remain excluded.`
     },
     {
       platform: "instagram",
@@ -480,6 +490,22 @@ export const ycSummer2026GraphDataset: DemoGraphDataset = {
 };
 
 const springDataset = buildSpring2026GraphDataset();
+const rawGlobalCompanyPopulation = [
+  ...rawYcSummer2026GraphDataset.companies,
+  ...springDataset.companies,
+  ...a16zSpeedrun006GraphDataset.companies
+];
+const globallyBenchmarkedCompanies = benchmarkGlobalCompanyScores(
+  rawGlobalCompanyPopulation,
+  rawGlobalCompanyPopulation
+);
+
+export const ycSummer2026GraphDataset: DemoGraphDataset = {
+  ...rawYcSummer2026GraphDataset,
+  companies: globallyBenchmarkedCompanies.filter(
+    (company) => company.batchSlug === YC_SUMMER_2026_BATCH_SLUG
+  )
+};
 
 export const yc2026GraphDataset: DemoGraphDataset = {
   mode: "official_snapshot",
@@ -488,11 +514,7 @@ export const yc2026GraphDataset: DemoGraphDataset = {
     ...ycSummer2026GraphDataset.batches,
     ...a16zSpeedrun006GraphDataset.batches
   ],
-  companies: [
-    ...ycSummer2026GraphDataset.companies,
-    ...springDataset.companies,
-    ...a16zSpeedrun006GraphDataset.companies
-  ],
+  companies: globallyBenchmarkedCompanies,
   founders: [
     ...ycSummer2026GraphDataset.founders,
     ...springDataset.founders,
@@ -636,8 +658,8 @@ function spring2026PlatformStatus({
       platform: "linkedin",
       batchSlugs,
       status: evidenceCounts.linkedin ? "working" : "public_only",
-      authMethod: "Opt-in authenticated browser session plus public profile discovery",
-      notes: `Found ${officialLinks.linkedin.company} company and ${officialLinks.linkedin.founder} founder LinkedIn URLs on official Spring 2026 YC profiles. ${evidenceCounts.linkedin ?? 0} scored Spring LinkedIn post rows are currently available.`
+      authMethod: "Public unauthenticated profile and post discovery only",
+      notes: `Found ${officialLinks.linkedin.company} company and ${officialLinks.linkedin.founder} founder LinkedIn URLs on official Spring 2026 YC profiles. ${evidenceCounts.linkedin ?? 0} scored Spring LinkedIn post rows are currently available; no account login, cookies, browser session, or auth headers are used.`
     },
     {
       platform: "instagram",
@@ -914,6 +936,7 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
   const accountUrl = account.account?.htmlUrl ?? account.githubUrl;
   const matchReason = account.matchReason ?? "GitHub account verified from a YC-linked or official company source.";
   const repoItems: EvidenceItem[] = (account.repos ?? []).map((repo) => {
+    const timestamps = githubRepositoryEvidenceTimestamps(repo, sourceSnapshot.source.fetchedAt);
     const metrics: EvidenceMetrics = {
       stars: repo.stars,
       forks: repo.forks,
@@ -927,8 +950,8 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
       platform: "github" as const,
       authorName: repo.fullName,
       authorHandle: account.login,
-      postedAt: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
-      publishedAtPrecision: repo.pushedAt ? publicationTimestampPrecision(repo.pushedAt) : "unknown",
+      postedAt: timestamps.postedAt,
+      publishedAtPrecision: timestamps.publishedAtPrecision,
       observedAt: sourceSnapshot.source.fetchedAt,
       metricsCheckedAt: sourceSnapshot.source.fetchedAt,
       text: `${repo.fullName}: ${repo.description || "GitHub repository"}${repo.language ? ` (${repo.language})` : ""}.`,
@@ -938,9 +961,10 @@ function githubEvidenceForSnapshot(account: GithubAccount, sourceSnapshot: Githu
       sourceUrl: repo.htmlUrl,
       platformPostId: repo.fullName,
       platformObjectId: repo.id == null ? null : String(repo.id),
+      rawVisibleText: JSON.stringify({ repositoryTimestamps: timestamps.provenance }),
       first_seen_at: sourceSnapshot.source.fetchedAt,
       last_checked_at: sourceSnapshot.source.fetchedAt,
-      last_updated_at: repo.pushedAt ?? sourceSnapshot.source.fetchedAt,
+      last_updated_at: timestamps.lastUpdatedAt,
       why: "Repository traction measured from public GitHub stars, forks, watchers, and open issues.",
       attachedCompanyId: attachedCompanyIdForGithub(account),
       attachedCompanyName: account.companyName,
@@ -996,6 +1020,32 @@ function publicationTimestampPrecision(value: string): EvidenceItem["publishedAt
   return /^\d{4}-\d{2}-\d{2}$/.test(value.trim()) ? "day" : "exact";
 }
 
+function sourcePublicationTimestampPrecision(
+  item: Pick<PublicEvidenceRecord, "platform" | "postedAt" | "publishedAtPrecision" | "rawVisibleText">
+): EvidenceItem["publishedAtPrecision"] {
+  const value: unknown = item.publishedAtPrecision;
+  if (value !== undefined && value !== null) {
+    return value === "exact" || value === "day" ? value : "unknown";
+  }
+  if (item.platform === "x" && hasRelativeXPublicationLabel(item.rawVisibleText)) {
+    return "unknown";
+  }
+  return item.postedAt ? publicationTimestampPrecision(item.postedAt) : "unknown";
+}
+
+function hasRelativeXPublicationLabel(rawVisibleText: string): boolean {
+  try {
+    const parsed = JSON.parse(rawVisibleText) as {
+      created_at?: unknown;
+      post?: { created_at?: unknown };
+    };
+    const value = parsed.created_at ?? parsed.post?.created_at;
+    return /^(\d+)\s*(m|h|d|minutes?|hours?|days?)\s*(?:ago)?$/i.test(String(value ?? "").trim());
+  } catch {
+    return false;
+  }
+}
+
 function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
   const isRetweet = item.platform === "x" && /"is_retweet"\s*:\s*true/i.test(item.rawVisibleText ?? "");
   const isProfileContext = isProfileOnlySocialEvidence(item);
@@ -1017,6 +1067,15 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     ...(item.media_urls ?? [])
   ].filter(Boolean);
   const displayTitle = evidenceDisplayText(item, item.companyName);
+  const observedAt = item.first_seen_at ?? item.last_checked_at ?? publicSnapshot.source.fetchedAt;
+  const githubRepository = resolveGithubRepository(item);
+  const githubTimestamps = githubRepository
+    ? githubRepositoryEvidenceTimestamps(githubRepository, observedAt)
+    : null;
+  const nativeGithubTimestamps =
+    item.platform === "github" && githubTimestamps?.publishedAtPrecision !== "unknown"
+      ? githubTimestamps
+      : null;
 
   return enrichEvidenceThumbnail({
     id: item.id,
@@ -1026,9 +1085,17 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     platform: item.platform,
     authorName: nativeAuthor.name ?? item.authorName ?? item.title ?? item.companyName,
     authorHandle: nativeAuthor.handle ?? item.authorHandle ?? null,
-    postedAt: item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
-    publishedAtPrecision: item.postedAt ? publicationTimestampPrecision(item.postedAt) : "unknown",
-    observedAt: item.first_seen_at ?? item.last_checked_at ?? publicSnapshot.source.fetchedAt,
+    postedAt: nativeGithubTimestamps
+      ? nativeGithubTimestamps.postedAt
+      : item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
+    publishedAtPrecision: item.platform === "github"
+      ? nativeGithubTimestamps
+        ? nativeGithubTimestamps.publishedAtPrecision
+        : "unknown"
+      : item.postedAt
+        ? sourcePublicationTimestampPrecision(item)
+        : "unknown",
+    observedAt,
     metricsCheckedAt: item.last_checked_at ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
     title: displayTitle,
     text: item.text || displayTitle,
@@ -1049,10 +1116,14 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
         : isLinkedInCommentContext
           ? null
           : item.platformPostId ?? platformPostIdFromUrl(item.platform, item.sourceUrl),
-    rawVisibleText: item.rawVisibleText,
+    platformObjectId:
+      item.platformObjectId ?? (githubRepository?.id == null ? null : String(githubRepository.id)),
+    rawVisibleText: githubTimestamps
+      ? githubRawVisibleText(item.rawVisibleText, githubTimestamps.provenance)
+      : item.rawVisibleText,
     first_seen_at: item.first_seen_at,
     last_checked_at: item.last_checked_at,
-    last_updated_at: item.last_updated_at,
+    last_updated_at: githubTimestamps?.lastUpdatedAt ?? item.last_updated_at,
     why: isRetweet
       ? "Stored as context only. Retweets are not counted as original post traction."
       : linkedInActivity.kind === "native_comment"
@@ -1078,6 +1149,158 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
           ? "needs_review"
           : item.review_state
   });
+}
+
+function buildGithubRepositoryIndex(snapshots: GithubSnapshot[]): Map<string, GithubRepo> {
+  const repositories = new Map<string, GithubRepo>();
+
+  for (const snapshot of snapshots) {
+    for (const account of snapshot.accounts ?? []) {
+      for (const repository of account.repos ?? []) {
+        const identity = githubRepositoryIdentity(repository.htmlUrl, repository.fullName);
+        if (!identity) continue;
+        const existing = repositories.get(identity);
+        repositories.set(
+          identity,
+          existing ? mergeIndexedGithubRepository(existing, repository) : repository
+        );
+      }
+    }
+  }
+
+  return repositories;
+}
+
+function mergeIndexedGithubRepository(left: GithubRepo, right: GithubRepo): GithubRepo {
+  const leftActivity = Math.max(Date.parse(left.updatedAt ?? "") || 0, Date.parse(left.pushedAt ?? "") || 0);
+  const rightActivity = Math.max(Date.parse(right.updatedAt ?? "") || 0, Date.parse(right.pushedAt ?? "") || 0);
+  const base = rightActivity >= leftActivity ? right : left;
+  return {
+    ...base,
+    createdAt: indexedTimestamp("earliest", left.createdAt, right.createdAt) ?? undefined,
+    updatedAt: indexedTimestamp("latest", left.updatedAt, right.updatedAt) ?? undefined,
+    pushedAt: indexedTimestamp("latest", left.pushedAt, right.pushedAt) ?? undefined
+  };
+}
+
+function indexedTimestamp(
+  direction: "earliest" | "latest",
+  ...values: Array<string | null | undefined>
+): string | null {
+  const timestamps = values.filter(
+    (value): value is string => Boolean(value && Number.isFinite(Date.parse(value)))
+  );
+  timestamps.sort((left, right) =>
+    direction === "earliest" ? Date.parse(left) - Date.parse(right) : Date.parse(right) - Date.parse(left)
+  );
+  return timestamps[0] ?? null;
+}
+
+function githubRawVisibleText(
+  rawVisibleText: string | undefined,
+  repositoryTimestamps: ReturnType<typeof githubRepositoryEvidenceTimestamps>["provenance"]
+): string {
+  if (rawVisibleText?.trim().startsWith("{")) {
+    try {
+      const parsed = JSON.parse(rawVisibleText) as unknown;
+      if (isUnknownRecord(parsed)) {
+        return JSON.stringify({ ...parsed, repositoryTimestamps });
+      }
+    } catch {
+      // Preserve malformed or plain-text source evidence below.
+    }
+  }
+
+  return JSON.stringify({
+    repositoryTimestamps,
+    ...(rawVisibleText ? { sourceEvidence: rawVisibleText } : {})
+  });
+}
+
+function resolveGithubRepository(item: PublicEvidenceRecord): GithubRepo | null {
+  if (item.platform !== "github") return null;
+  const identity = githubRepositoryIdentity(item.sourceUrl, item.platformPostId);
+  if (!identity) return null;
+
+  const embeddedRepository = githubRepositoryFromRawVisibleText(item.rawVisibleText, identity);
+  if (embeddedRepository?.createdAt) return embeddedRepository;
+
+  const canonicalRepository = githubRepositoriesByIdentity.get(identity);
+  return canonicalRepository?.createdAt ? canonicalRepository : embeddedRepository ?? canonicalRepository ?? null;
+}
+
+function githubRepositoryIdentity(sourceUrl: string | null | undefined, platformPostId?: string | null): string | null {
+  const urlIdentity = sourceUrl ? nativeEvidenceIdentityFromUrl("github", sourceUrl) : null;
+  if (urlIdentity) return urlIdentity.toLowerCase();
+
+  const candidate = String(platformPostId ?? "").trim().replace(/^\/+|\/+$/g, "");
+  return /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(candidate)
+    ? candidate.toLowerCase()
+    : null;
+}
+
+function githubRepositoryFromRawVisibleText(
+  rawVisibleText: string | undefined,
+  expectedIdentity: string
+): GithubRepo | null {
+  if (!rawVisibleText?.trim().startsWith("{")) return null;
+
+  try {
+    const parsed = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    const records = [
+      { value: parsed.repository, requireNativeIdentity: false },
+      { value: parsed.repo, requireNativeIdentity: false },
+      { value: parsed.post, requireNativeIdentity: true }
+    ].filter((candidate): candidate is { value: Record<string, unknown>; requireNativeIdentity: boolean } =>
+      isUnknownRecord(candidate.value)
+    );
+    for (const { value: record, requireNativeIdentity } of records) {
+      const recordUrl = stringRecordValue(record, "url") ?? stringRecordValue(record, "htmlUrl");
+      const fullName = stringRecordValue(record, "fullName") ?? stringRecordValue(record, "full_name");
+      const identity = githubRepositoryIdentity(recordUrl, fullName);
+      if ((requireNativeIdentity && !identity) || (identity && identity !== expectedIdentity)) continue;
+
+      const createdAt = timestampRecordValue(record, "createdAt", "created_at");
+      const updatedAt = timestampRecordValue(record, "updatedAt", "updated_at");
+      const pushedAt = timestampRecordValue(record, "pushedAt", "pushed_at");
+      if (!createdAt && !updatedAt && !pushedAt) continue;
+
+      const [owner, repoName] = expectedIdentity.split("/");
+      const id = finiteRecordNumber(record, "id");
+      return {
+        ...(id == null ? {} : { id }),
+        name: repoName,
+        fullName: fullName ?? expectedIdentity,
+        description: stringRecordValue(record, "description") ?? "",
+        htmlUrl: recordUrl ?? `https://github.com/${owner}/${repoName}`,
+        stars: 0,
+        forks: 0,
+        watchers: 0,
+        openIssues: 0,
+        language: null,
+        ...(createdAt ? { createdAt } : {}),
+        ...(updatedAt ? { updatedAt } : {}),
+        ...(pushedAt ? { pushedAt } : {}),
+        score: 0
+      };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function timestampRecordValue(record: Record<string, unknown>, ...keys: string[]): string | null {
+  for (const key of keys) {
+    const value = stringRecordValue(record, key);
+    if (value && Number.isFinite(Date.parse(value))) return value;
+  }
+  return null;
 }
 
 function publicEvidenceItemWithAttributionGuard(
@@ -2201,7 +2424,13 @@ function socialLinksWithoutOverrides(base: RawSocialLinks, overrides: RawSocialL
 }
 
 function retiredSocialAccountKeys(
-  override: SocialAccountRetirements | null | undefined
+  override:
+    | (SocialAccountRetirements & {
+        companySocialLinks?: RawSocialLinks;
+        socialLinks?: RawSocialLinks;
+      })
+    | null
+    | undefined
 ): Set<string> {
   const records: Array<{ platform: RetirableSocialPlatform; url: string }> = [];
   const rejectedByPlatform: Array<[
@@ -2227,7 +2456,18 @@ function retiredSocialAccountKeys(
     }
   }
 
-  return new Set(records.map(({ platform, url }) => socialAccountKey(platform, url)));
+  const retiredKeys = new Set(records.map(({ platform, url }) => socialAccountKey(platform, url)));
+
+  // A rejected URL can be a nested surface of the verified replacement
+  // (for example `/company/acme/posts`). Both URLs intentionally collapse to
+  // the same owner identity, so the explicit replacement must remain active.
+  for (const links of [override?.companySocialLinks, override?.socialLinks]) {
+    for (const [platform, url] of Object.entries(links ?? {})) {
+      if (url) retiredKeys.delete(socialAccountKey(platform, url));
+    }
+  }
+
+  return retiredKeys;
 }
 
 function socialAccountKey(platform: string, rawUrl: string): string {

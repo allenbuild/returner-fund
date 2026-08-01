@@ -1,37 +1,67 @@
 import * as cheerio from "cheerio";
-import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
+import {
+  publishCatalogAndAliasLedger,
+  readJson,
+  reconcileMutableYcRoster
+} from "./lib/yc-mutable-roster-refresh.mjs";
 
 const DEFAULT_BATCH_NAME = "Summer 2026";
 const DIRECTORY_URL_BASE = "https://www.ycombinator.com/companies";
 const ALGOLIA_QUERIES_URL = "https://45BWZJ1SGC-dsn.algolia.net/1/indexes/*/queries";
-const EXPECTED_COUNT = 115;
+const MINIMUM_COUNT = 167;
+const ALGOLIA_PAGE_SIZE = 250;
 const DEFAULT_OUT_PATH = "src/lib/yc/summer-2026-companies.json";
+const DEFAULT_ALIAS_LEDGER_PATH = "src/lib/yc/summer-2026-company-aliases.json";
 const CONCURRENCY = 6;
+const REQUEST_TIMEOUT_MS = 30_000;
+const REFRESH_TIMEOUT_MS = 5 * 60_000;
 
 async function main() {
-  const config = parseArgs(process.argv.slice(2));
-  const directoryHtml = await fetchText(config.directoryUrl);
+  const config = {
+    ...parseArgs(process.argv.slice(2)),
+    signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS)
+  };
+  const directoryHtml = await fetchText(config.directoryUrl, config.signal);
+  const [previousCatalog, previousAliasLedger] = await Promise.all([
+    readJson(config.outPath, "existing YC catalog"),
+    readJson(config.aliasLedgerPath, "existing YC alias ledger")
+  ]);
   const algolia = extractAlgoliaOptions(directoryHtml);
   const listing = await fetchCompanyListing(algolia, config);
 
-  if (listing.hits.length !== config.expectedCount) {
+  if (!Number.isInteger(listing.nbHits) || listing.nbHits < config.minimumCount) {
     throw new Error(
-      `Expected ${config.expectedCount} ${config.batchName} companies from YC Algolia; got nbHits=${listing.nbHits}, hits=${listing.hits.length}.`
+      `Expected at least ${config.minimumCount} ${config.batchName} companies from YC Algolia; got nbHits=${listing.nbHits}.`
     );
   }
-  if (listing.nbHits !== config.expectedCount) {
-    console.warn(
-      `YC Algolia nbHits reported ${listing.nbHits}, but ${listing.hits.length} ${config.batchName} companies were returned and will be used.`
+  if (listing.hits.length !== listing.nbHits) {
+    throw new Error(
+      `YC Algolia returned an incomplete ${config.batchName} page: nbHits=${listing.nbHits}, hits=${listing.hits.length}.`
     );
   }
+  if (config.expectedCount !== null && listing.nbHits !== config.expectedCount) {
+    throw new Error(
+      `Expected exactly ${config.expectedCount} ${config.batchName} companies from YC Algolia; got ${listing.nbHits}.`
+    );
+  }
+  validateListing(listing, config);
 
   const companies = await mapLimit(listing.hits, CONCURRENCY, async (hit, index) => {
-    const detail = await fetchCompanyDetail(hit.slug);
+    const detail = await fetchCompanyDetail(hit.slug, config.signal);
+    const hitId = String(hit.id ?? hit.objectID ?? "").trim();
+    const detailId = String(detail.id ?? "").trim();
+    if (hitId !== detailId || (detail.slug && detail.slug !== hit.slug)) {
+      throw new Error(
+        `YC detail identity mismatch for ${hit.slug}: ` +
+        `listing=${hitId}/${hit.slug}, detail=${detailId}/${detail.slug ?? "missing"}.`
+      );
+    }
     return sanitizeCompany(hit, detail, index, config);
   });
 
   companies.sort((left, right) => left.name.localeCompare(right.name));
+  validateCompanies(companies, listing, config);
 
   const payload = {
     source: {
@@ -40,8 +70,9 @@ async function main() {
       algoliaIndex: "YCCompany_production",
       algoliaFilter: `batch:"${config.batchName}"`,
       fetchedAt: new Date().toISOString(),
-      expectedCompanyCount: config.expectedCount,
+      expectedCompanyCount: listing.nbHits,
       observedCompanyCount: companies.length,
+      minimumCompanyCount: config.minimumCount,
       notes: [
         "Generated from public, unauthenticated YC pages.",
         "Signed image URLs, CSRF tokens, cookies, emails, and session-specific fields are intentionally not stored."
@@ -50,17 +81,32 @@ async function main() {
     companies
   };
 
-  await mkdir(dirname(config.outPath), { recursive: true });
-  await writeFile(config.outPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  const reconciliation = reconcileMutableYcRoster({
+    previousCatalog,
+    nextCatalog: payload,
+    aliasLedger: previousAliasLedger
+  });
+  await publishCatalogAndAliasLedger({
+    catalogPath: config.outPath,
+    aliasLedgerPath: config.aliasLedgerPath,
+    catalog: payload,
+    aliasLedger: reconciliation.aliasLedger
+  });
 
-  console.log(`Wrote ${companies.length} YC ${config.batchName} companies to ${config.outPath}`);
+  console.log(
+    `Wrote ${companies.length} YC ${config.batchName} companies and ` +
+      `${reconciliation.appended.length} immutable-ID company alias transition(s), ` +
+      `${reconciliation.appendedFounderTransitions.length} founder roster transition(s) to ${config.outPath}`
+  );
 }
 
 function parseArgs(args) {
   const options = {
     batchName: DEFAULT_BATCH_NAME,
-    expectedCount: EXPECTED_COUNT,
+    expectedCount: null,
+    minimumCount: MINIMUM_COUNT,
     outPath: DEFAULT_OUT_PATH,
+    aliasLedgerPath: DEFAULT_ALIAS_LEDGER_PATH,
     directoryUrl: null
   };
 
@@ -89,8 +135,17 @@ function parseArgs(args) {
           throw new Error(`Invalid --expected-count value: ${value}`);
         }
         break;
+      case "--minimum-count":
+        options.minimumCount = Number.parseInt(value, 10);
+        if (!Number.isInteger(options.minimumCount) || options.minimumCount < 1) {
+          throw new Error(`Invalid --minimum-count value: ${value}`);
+        }
+        break;
       case "--out":
         options.outPath = value;
+        break;
+      case "--alias-ledger":
+        options.aliasLedgerPath = value;
         break;
       case "--directory-url":
         options.directoryUrl = value;
@@ -103,17 +158,19 @@ function parseArgs(args) {
   return {
     ...options,
     outPath: resolve(options.outPath),
+    aliasLedgerPath: resolve(options.aliasLedgerPath),
     directoryUrl:
       options.directoryUrl ??
       `${DIRECTORY_URL_BASE}?batch=${encodeURIComponent(options.batchName)}`
   };
 }
 
-async function fetchText(url) {
+async function fetchText(url, signal) {
   const response = await fetch(url, {
     headers: {
       "user-agent": "yc-network-intelligence-readonly"
-    }
+    },
+    signal: requestSignal(signal)
   });
   if (!response.ok) {
     throw new Error(`GET ${url} failed with HTTP ${response.status}`);
@@ -130,10 +187,39 @@ function extractAlgoliaOptions(html) {
 }
 
 async function fetchCompanyListing(algolia, config) {
+  const first = await fetchCompanyListingPage(algolia, config, 0, ALGOLIA_PAGE_SIZE);
+  if (first.exhaustiveNbHits === false) {
+    throw new Error(`YC Algolia returned a non-exhaustive ${config.batchName} result set.`);
+  }
+  const hits = [...first.hits];
+  for (let page = 1; page < first.nbPages; page += 1) {
+    const result = await fetchCompanyListingPage(algolia, config, page, ALGOLIA_PAGE_SIZE);
+    if (result.nbHits !== first.nbHits || result.nbPages !== first.nbPages) {
+      throw new Error(
+        `YC Algolia ${config.batchName} census changed during pagination: ` +
+        `initial nbHits=${first.nbHits}, page ${page} nbHits=${result.nbHits}.`
+      );
+    }
+    if (result.exhaustiveNbHits === false) {
+      throw new Error(`YC Algolia returned a non-exhaustive ${config.batchName} page ${page}.`);
+    }
+    hits.push(...result.hits);
+  }
+  const confirmation = await fetchCompanyListingPage(algolia, config, 0, 1);
+  if (confirmation.nbHits !== first.nbHits) {
+    throw new Error(
+      `YC Algolia ${config.batchName} census changed after pagination: ` +
+      `initial nbHits=${first.nbHits}, final nbHits=${confirmation.nbHits}.`
+    );
+  }
+  return { ...first, hits };
+}
+
+async function fetchCompanyListingPage(algolia, config, page, hitsPerPage) {
   const params = new URLSearchParams({
     query: "",
-    hitsPerPage: String(config.expectedCount),
-    page: "0",
+    hitsPerPage: String(hitsPerPage),
+    page: String(page),
     filters: `batch:"${config.batchName}"`
   });
   const body = {
@@ -151,7 +237,8 @@ async function fetchCompanyListing(algolia, config) {
       "x-algolia-application-id": algolia.app,
       "x-algolia-api-key": algolia.key
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
+    signal: requestSignal(config.signal)
   });
   if (!response.ok) {
     throw new Error(`Algolia query failed with HTTP ${response.status}`);
@@ -160,8 +247,48 @@ async function fetchCompanyListing(algolia, config) {
   return json.results[0];
 }
 
-async function fetchCompanyDetail(slug) {
-  const html = await fetchText(`https://www.ycombinator.com/companies/${slug}`);
+function validateListing(listing, config) {
+  const seenObjectIds = new Set();
+  const seenSlugs = new Set();
+  for (const hit of listing.hits) {
+    const objectId = String(hit?.objectID ?? hit?.id ?? "").trim();
+    const slug = String(hit?.slug ?? "").trim();
+    if (!objectId || !slug) {
+      throw new Error(`YC Algolia returned a ${config.batchName} hit without an immutable ID or slug.`);
+    }
+    if (seenObjectIds.has(objectId) || seenSlugs.has(slug)) {
+      throw new Error(`YC Algolia returned duplicate ${config.batchName} identity: ${objectId}/${slug}.`);
+    }
+    seenObjectIds.add(objectId);
+    seenSlugs.add(slug);
+  }
+}
+
+function validateCompanies(companies, listing, config) {
+  const ids = new Set();
+  const slugs = new Set();
+  for (const company of companies) {
+    if (company.batch !== config.batchName) {
+      throw new Error(
+        `YC detail page ${company.slug} belongs to ${company.batch ?? "an unknown batch"}; ` +
+        `expected ${config.batchName}.`
+      );
+    }
+    if (ids.has(company.id) || slugs.has(company.slug)) {
+      throw new Error(`YC detail pages returned duplicate identity: ${company.id}/${company.slug}.`);
+    }
+    ids.add(company.id);
+    slugs.add(company.slug);
+  }
+  if (companies.length !== listing.nbHits) {
+    throw new Error(
+      `YC detail crawl is incomplete: nbHits=${listing.nbHits}, companies=${companies.length}.`
+    );
+  }
+}
+
+async function fetchCompanyDetail(slug, signal) {
+  const html = await fetchText(`https://www.ycombinator.com/companies/${slug}`, signal);
   const $ = cheerio.load(html);
   const dataPage = $("[data-page]").attr("data-page");
   if (!dataPage) {
@@ -169,6 +296,10 @@ async function fetchCompanyDetail(slug) {
   }
   const page = JSON.parse(dataPage);
   return page.props.company;
+}
+
+function requestSignal(overallSignal) {
+  return AbortSignal.any([overallSignal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)]);
 }
 
 function sanitizeCompany(hit, detail, index, config) {
@@ -213,8 +344,7 @@ function sanitizeCompany(hit, detail, index, config) {
           approvedAt: launch.approved_at ?? null
         }
       : null,
-    sourceUrls: [ycUrl, config.directoryUrl],
-    sourceOrdinal: index
+    sourceUrls: [ycUrl, config.directoryUrl]
   };
 }
 

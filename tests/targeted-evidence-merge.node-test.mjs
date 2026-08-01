@@ -245,7 +245,7 @@ describe("targeted Top Voice evidence publication merge", () => {
     assert.deepEqual(second.attributionReconciliationLedger, first.attributionReconciliationLedger);
   });
 
-  it("applies only the four versioned native-post historical attribution overrides", () => {
+  it("applies only the six versioned native-post historical reattribution overrides", () => {
     const rows = [
       legacyGitHubRow({
         id: "blueprints-carboncopy-mcp",
@@ -278,7 +278,29 @@ describe("targeted Top Voice evidence publication merge", () => {
         entityId: "company-blueprints",
         postId: "CarbonCopyInc/docs",
         sourceUrl: "https://github.com/CarbonCopyInc/docs"
-      })
+      }),
+      {
+        ...trustedRow({
+          id: "notyfi-to-perceptron",
+          batchSlug: "S26",
+          entityId: "company-notyfi",
+          companyName: "Notyfi",
+          postId: "2076784195847008510",
+          sourceUrl: "https://x.com/PerceptronML/status/2076784195847008510"
+        }),
+        companySlug: "notyfi"
+      },
+      {
+        ...trustedRow({
+          id: "truffle-to-marble",
+          batchSlug: "S26",
+          entityId: "company-truffle",
+          companyName: "Truffle",
+          postId: "2076105028398461223",
+          sourceUrl: "https://x.com/pinchoftruffle/status/2076105028398461223"
+        }),
+        companySlug: "truffle"
+      }
     ];
 
     const merged = mergeTargetedEvidenceSnapshots([snapshot(rows)], snapshot([]), { mergedAt: CHECKED_AT });
@@ -303,7 +325,84 @@ describe("targeted Top Voice evidence publication merge", () => {
       ["founder", "founder-vestris-joshua-tang-verified-joshua-tang", "company-vestris"]
     );
     assert.equal(byId.get("blueprints-near-miss").entityId, "company-blueprints");
-    assert.equal(merged.attributionReconciliationLedger.filter((row) => row.disposition === "reattributed").length, 4);
+    assert.deepEqual(
+      [
+        byId.get("notyfi-to-perceptron").entityId,
+        byId.get("notyfi-to-perceptron").entityName,
+        byId.get("notyfi-to-perceptron").companySlug,
+        byId.get("notyfi-to-perceptron").companyName
+      ],
+      ["company-perceptron-ml", "Perceptron ML", "perceptron-ml", "Perceptron ML"]
+    );
+    assert.deepEqual(
+      [
+        byId.get("truffle-to-marble").entityId,
+        byId.get("truffle-to-marble").entityName,
+        byId.get("truffle-to-marble").companySlug,
+        byId.get("truffle-to-marble").companyName
+      ],
+      ["company-joinmarble", "Marble", "joinmarble", "Marble"]
+    );
+    assert.equal(merged.attributionReconciliationLedger.filter((row) => row.disposition === "reattributed").length, 6);
+  });
+
+  it("preserves only four exact retired Mireye founder posts without making the founder current", async () => {
+    const catalogs = await loadAutonomousCatalogs(process.cwd());
+    const resolveBatchSlug = buildLegacyPublicEvidenceBatchResolver(catalogs);
+    const resolveEntityAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
+    const validateEntityAttribution = canonicalTargetedValidator(catalogs);
+    const postIds = [
+      "2070249380159082981",
+      "2071874544202404180",
+      "2070648435456540856",
+      "2076581927717642379"
+    ];
+    const rows = postIds.map((postId) => retiredMireyeFounderRow(postId));
+    const options = {
+      mergedAt: CHECKED_AT,
+      resolveBatchSlug,
+      resolveEntityAttribution,
+      validateEntityAttribution
+    };
+
+    const merged = mergeTargetedEvidenceSnapshots([snapshot(rows)], snapshot([]), options);
+
+    assert.equal(merged.evidence.length, 4);
+    assert.equal(merged.needsReview.length, 0);
+    assert.equal(merged.attributionReconciliationLedger.length, 0);
+    assert.ok(merged.evidence.every((row) =>
+      row.entityId === "founder-mireye-shashwat-kapoor-678147" &&
+      row.historicalOwner?.status === "retired_founder" &&
+      row.historicalOwner?.currentRosterMember === false &&
+      row.historicalOwner?.accountUrl === "https://x.com/shshwt_"
+    ));
+    const currentMireye = catalogs
+      .find((catalog) => catalog.slug === "S26")
+      ?.companies.find((company) => company.name === "Mireye");
+    assert.ok(currentMireye);
+    assert.ok(currentMireye.founders.every((founder) => founder.name !== "Shashwat Kapoor"));
+
+    const replayed = mergeTargetedEvidenceSnapshots([merged], snapshot([]), options);
+    assert.deepEqual(replayed.evidence, merged.evidence);
+    assert.deepEqual(replayed.attributionReconciliationLedger, merged.attributionReconciliationLedger);
+
+    const conflictingAuthor = retiredMireyeFounderRow(postIds[0]);
+    conflictingAuthor.sourceUrl = `https://x.com/not_shashwat/status/${postIds[0]}`;
+    conflictingAuthor.accountUrl = "https://x.com/not_shashwat";
+    conflictingAuthor.authorHandle = "not_shashwat";
+    conflictingAuthor.rawVisibleText = JSON.stringify({
+      profile: { username: "not_shashwat" },
+      post: { id: postIds[0], authorHandle: "not_shashwat" }
+    });
+    const rejected = mergeTargetedEvidenceSnapshots(
+      [snapshot([conflictingAuthor])],
+      snapshot([]),
+      options
+    );
+    assert.equal(rejected.evidence.length, 0);
+    assert.deepEqual(rejected.needsReview[0].quarantineReasons, [
+      "entity_not_in_canonical_batch_catalog"
+    ]);
   });
 
   it("repairs the eight legacy-unscoped, stale-ID, and stale-display-name closure rows without broad founder matching", async () => {
@@ -529,11 +628,70 @@ describe("targeted Top Voice evidence publication merge", () => {
     assert.equal(reviews.length, 46);
     assert.equal(ledger.length, 46);
     assert.equal(merged.evidence.length, canonical.evidence.length);
-    assert.deepEqual(merged.evidence, canonical.evidence);
-    assert.deepEqual(merged.needsReview, canonical.needsReview);
+    const canonicalById = new Map(canonical.evidence.map((row) => [row.id, row]));
+    const mergedById = new Map(merged.evidence.map((row) => [row.id, row]));
+    assert.deepEqual(new Set(mergedById.keys()), new Set(canonicalById.keys()));
     assert.deepEqual(
-      merged.attributionReconciliationLedger,
-      canonical.attributionReconciliationLedger
+      new Set([...canonicalById].filter(([id, row]) =>
+        !deepEqualEvidence(row, mergedById.get(id))
+      ).map(([id]) => id)),
+      new Set(),
+      "the normalized canonical evidence must replay without row mutations"
+    );
+    for (const id of [
+      "source-hunt-63a018d8b14f37be525f",
+      "source-hunt-69bea9a01d3debf5beb9",
+      "source-hunt-8c99bde07e857af47fb0",
+      "source-hunt-fb275080d3d15fffb41c"
+    ]) {
+      assert.deepEqual(mergedById.get(id)?.historicalOwner, {
+        status: "retired_founder",
+        currentRosterMember: false,
+        entityType: "founder",
+        entityId: "founder-mireye-shashwat-kapoor-678147",
+        entityName: "Shashwat Kapoor",
+        companySlug: "mireye",
+        companyName: "Mireye",
+        platform: "x",
+        accountUrl: "https://x.com/shshwt_"
+      });
+      assert.equal(
+        mergedById.get(id)?.historicalAttributionReason,
+        "targeted_historical_owner_v1:mireye_retired_founder_shashwat_kapoor"
+      );
+    }
+    assert.deepEqual(
+      [
+        mergedById.get("source-hunt-900af970068880c2199b")?.entityId,
+        mergedById.get("source-hunt-900af970068880c2199b")?.entityName,
+        mergedById.get("source-hunt-900af970068880c2199b")?.companySlug,
+        mergedById.get("source-hunt-900af970068880c2199b")?.companyName
+      ],
+      ["company-perceptron-ml", "Perceptron ML", "perceptron-ml", "Perceptron ML"]
+    );
+    assert.deepEqual(
+      [
+        mergedById.get("source-hunt-fd1dc8e3628afbd25b21")?.entityId,
+        mergedById.get("source-hunt-fd1dc8e3628afbd25b21")?.entityName,
+        mergedById.get("source-hunt-fd1dc8e3628afbd25b21")?.companySlug,
+        mergedById.get("source-hunt-fd1dc8e3628afbd25b21")?.companyName
+      ],
+      ["company-joinmarble", "Marble", "joinmarble", "Marble"]
+    );
+    assert.deepEqual(merged.needsReview, canonical.needsReview);
+    const canonicalLedgerRows = new Set(
+      canonical.attributionReconciliationLedger.map(stableJson)
+    );
+    const mergedLedgerRows = new Set(
+      merged.attributionReconciliationLedger.map(stableJson)
+    );
+    assert.deepEqual(mergedLedgerRows, canonicalLedgerRows);
+    assert.deepEqual(
+      new Set(merged.attributionReconciliationLedger
+        .filter((row) => row.reason?.startsWith("targeted_historical_reconciliation_v1:notyfi_to_") ||
+          row.reason?.startsWith("targeted_historical_reconciliation_v1:truffle_to_"))
+        .map((row) => row.platformPostId)),
+      new Set(["2076784195847008510", "2076105028398461223"])
     );
     assert.ok(merged.evidence.every((row) => ["S2026", "S26", "A16ZSR006"].includes(row.batchSlug)));
     assert.deepEqual(
@@ -557,7 +715,6 @@ describe("targeted Top Voice evidence publication merge", () => {
       row.staleAttribution.entityId
     ));
     assert.ok(merged.evidence.some((row) => row.platformPostId === "7473269455783948288"));
-    assert.ok(merged.evidence.some((row) => row.platformPostId === "7473616064967266304"));
     assert.equal(
       merged.evidence.find((row) => row.platformPostId === "7473269455783948288")?.batchSlug,
       "S26"
@@ -667,6 +824,30 @@ function legacyGitHubRow({ id, entityId, postId, sourceUrl }) {
   };
 }
 
+function retiredMireyeFounderRow(postId) {
+  return {
+    ...trustedRow({
+      id: `retired-mireye-${postId}`,
+      batchSlug: "S26",
+      entityType: "founder",
+      entityId: "founder-mireye-shashwat-kapoor-678147",
+      companyName: "Mireye",
+      postId,
+      sourceUrl: `https://x.com/shshwt_/status/${postId}`
+    }),
+    entityName: "Shashwat Kapoor",
+    companySlug: "mireye",
+    attachedCompanyId: "company-mireye",
+    accountUrl: "https://x.com/shshwt_",
+    authorHandle: "shshwt_",
+    rawVisibleText: JSON.stringify({
+      source: "fxtwitter_native_profile_timeline",
+      profile: { name: "Shashwat", username: "shshwt_", url: "https://x.com/shshwt_" },
+      post: { id: postId, authorName: "Shashwat", authorHandle: "shshwt_" }
+    })
+  };
+}
+
 function canonicalTargetedValidator(catalogs) {
   return (row, batchSlug) => {
     const catalog = catalogs.find((candidate) => candidate.slug === batchSlug);
@@ -681,4 +862,20 @@ function canonicalTargetedValidator(catalogs) {
         : company.founders.some((founder) => founder.sourceKey === entityId);
     });
   };
+}
+
+function deepEqualEvidence(left, right) {
+  return stableJson(left) === stableJson(right);
+}
+
+function stableJson(value) {
+  return JSON.stringify(sortObjectKeys(value));
+}
+
+function sortObjectKeys(value) {
+  if (Array.isArray(value)) return value.map(sortObjectKeys);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.keys(value).sort().map((key) => [key, sortObjectKeys(value[key])])
+  );
 }

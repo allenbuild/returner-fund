@@ -10,11 +10,16 @@ import type {
   GraphNode,
   GraphResponse,
   Platform,
+  ScoreCalibration,
   SocialAccountSummary,
   TopVoiceAudienceId
 } from "./types";
 import type { LiveEvidenceRecord } from "@/lib/ingestion/live-source-refresh";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
+import {
+  benchmarkCompanyScoresWithPublishedGlobalFactor,
+  benchmarkGlobalCompanyScores
+} from "@/lib/scoring/global-score-benchmark";
 
 export interface LiveEvidenceOverlayResult {
   graph: GraphResponse;
@@ -30,6 +35,7 @@ export interface LiveEvidenceOverlayResult {
 interface LiveEvidenceOverlayOptions {
   selectedPlatforms?: Platform[];
   topVoices?: TopVoiceAudienceId;
+  /** Full current-company population across every supported batch. */
   calibrationCohort?: CompanyRecord[];
 }
 
@@ -490,13 +496,18 @@ function rebuildGraphScoreSurfaces(
       const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(companyEvidence));
       return companyRecordForCalibration(node, scoreBreakdown);
     });
-  const scoredCompanies =
-    overlayScoreScope(graph, selectedPlatforms) === "all_platforms"
-      ? calibrateBatchCompanyScores(
+  const publishedBenchmark = publishedGlobalCalibration(graph);
+  const scoreScope = overlayScoreScope(graph, selectedPlatforms);
+  const scoredCompanies = scoreScope === "all_platforms" && calibrationCohort
+    ? benchmarkGlobalCompanyScores(absoluteCompanies, calibrationCohort)
+    : publishedBenchmark
+      ? benchmarkCompanyScoresWithPublishedGlobalFactor(
           absoluteCompanies,
-          calibrationCohort ?? absoluteCompanies
+          publishedBenchmark
         )
-      : absoluteCompanies;
+      : calibrationCohort
+        ? benchmarkGlobalCompanyScores(absoluteCompanies, calibrationCohort)
+        : calibrateBatchCompanyScores(absoluteCompanies, absoluteCompanies);
   const scoredCompanyById = new Map(scoredCompanies.map((company) => [company.id, company]));
 
   const scoredNodes = graph.nodes.map((node) => {
@@ -629,6 +640,29 @@ function companyRecordForCalibration(
     topVoiceConnections: node.topVoiceConnections,
     selectedTopVoiceAudience: node.selectedTopVoiceAudience
   };
+}
+
+function publishedGlobalCalibration(graph: GraphResponse): ScoreCalibration | null {
+  const calibrations = graph.nodes
+    .map((node) => node.scoreBreakdown?.calibration)
+    .filter((calibration): calibration is ScoreCalibration =>
+      calibration?.method === "global_best_ratio"
+    );
+  if (calibrations.length === 0) return null;
+
+  const benchmarkSignatures = new Set(calibrations.map((calibration) => JSON.stringify({
+    method: calibration.method,
+    cohortSize: calibration.cohortSize,
+    percentile: calibration.percentile,
+    benchmarkScore: calibration.benchmarkScore,
+    scaleFactor: calibration.scaleFactor,
+    benchmarkScope: calibration.benchmarkScope,
+    benchmarkPopulation: calibration.benchmarkPopulation
+  })));
+  if (benchmarkSignatures.size !== 1) {
+    throw new Error("Graph nodes disagree on the published global company benchmark.");
+  }
+  return calibrations[0] ?? null;
 }
 
 function rebuildFastestGaining(

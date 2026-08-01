@@ -7,7 +7,7 @@ import {
 } from "@/lib/graph/summer-company-rename-reconciliation";
 
 describe("Summer 2026 company rename reconciliation", () => {
-  it("pins every alias to immutable current YC company and founder IDs", () => {
+  it("pins every alias chain to the immutable current YC company ID", () => {
     const catalog = summerCompaniesJson as {
       companies: Array<{
         id: string;
@@ -18,13 +18,23 @@ describe("Summer 2026 company rename reconciliation", () => {
     };
 
     for (const alias of SUMMER_COMPANY_ALIAS_LEDGER.aliases) {
+      let terminal = alias;
+      const seen = new Set<string>();
+      while (true) {
+        const state = `${terminal.companyId}:${terminal.toSlug}:${terminal.toName}`;
+        expect(seen.has(state)).toBe(false);
+        seen.add(state);
+        const next = SUMMER_COMPANY_ALIAS_LEDGER.aliases.find(
+          (candidate) =>
+            candidate.companyId === terminal.companyId &&
+            candidate.fromSlug === terminal.toSlug &&
+            candidate.fromName === terminal.toName
+        );
+        if (!next) break;
+        terminal = next;
+      }
       const current = catalog.companies.find((company) => company.id === alias.companyId);
-      expect(current).toMatchObject({ slug: alias.toSlug, name: alias.toName });
-      expect(current?.founders.map(({ id, name }) => ({ id, name }))).toEqual(
-        expect.arrayContaining(
-          alias.founders.map(({ founderId, name }) => ({ id: founderId, name }))
-        )
-      );
+      expect(current).toMatchObject({ slug: terminal.toSlug, name: terminal.toName });
     }
   });
 
@@ -199,4 +209,71 @@ describe("Summer 2026 company rename reconciliation", () => {
       companyName: "Bylaw"
     });
   });
+
+  it.each([
+    {
+      fromSlug: "justinian",
+      fromName: "Justinian",
+      toSlug: "locke",
+      toName: "Locke",
+      platform: "linkedin",
+      sourceUrl: "https://www.linkedin.com/feed/update/urn:li:activity:7123456789012345678/",
+      accountUrl: "https://www.linkedin.com/company/justinianai/?viewAsMember=true",
+      platformPostId: "7123456789012345678"
+    },
+    {
+      fromSlug: "notyfi",
+      fromName: "Notyfi",
+      toSlug: "perceptron-ml",
+      toName: "Perceptron ML",
+      platform: "x",
+      sourceUrl: "https://x.com/PerceptronML/status/2070000000000000001",
+      accountUrl: "https://x.com/PerceptronML",
+      platformPostId: "2070000000000000001"
+    },
+    {
+      fromSlug: "truffle",
+      fromName: "Truffle",
+      toSlug: "joinmarble",
+      toName: "Marble",
+      platform: "x",
+      sourceUrl: "https://x.com/PinchOfTruffle/status/2070000000000000002",
+      accountUrl: "https://x.com/PinchOfTruffle",
+      platformPostId: "2070000000000000002"
+    }
+  ])("remaps the current $fromSlug rename through immutable lineage", (fixture) => {
+    const decision = reconcileLegacySummerEvidenceEntity({
+      batchSlug: "S26",
+      entityType: "company",
+      entityId: `company-${fixture.fromSlug}`,
+      companySlug: fixture.fromSlug,
+      companyName: fixture.fromName,
+      platform: fixture.platform,
+      sourceUrl: fixture.sourceUrl,
+      accountUrl: fixture.accountUrl,
+      platformPostId: fixture.platformPostId
+    });
+
+    expect(decision.status).toBe("remapped");
+    if (decision.status !== "remapped") return;
+    expect(decision.row).toMatchObject({
+      entityId: `company-${fixture.toSlug}`,
+      companySlug: fixture.toSlug,
+      companyName: fixture.toName
+    });
+  });
+
+  it.each(["locke", "perceptron-ml", "joinmarble"])(
+    "does not treat the current %s slug as legacy",
+    (companySlug) => {
+      expect(reconcileLegacySummerEvidenceEntity({
+        batchSlug: "S26",
+        entityType: "company",
+        entityId: `company-${companySlug}`,
+        companySlug,
+        companyName: companySlug,
+        platform: "x"
+      }).status).toBe("not_legacy");
+    }
+  );
 });

@@ -251,8 +251,13 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
   const entityId = cleanString(row?.entityId) ?? inferredAttribution?.entityId ?? null;
   const entity = entityId ? entitiesById.get(entityId) : null;
   const entityType = cleanString(row?.entityType) ?? inferredAttribution?.entityType ?? null;
-  const postedAt = validTimestamp(row?.postedAt ?? row?.publishedAt);
   const rawVisibleText = serializedVisibleText(row?.rawVisibleText);
+  const postedAt = nativePublicationTimestamp(
+    platform,
+    row?.postedAt ?? row?.publishedAt,
+    rawVisibleText,
+    sourceUrl
+  );
   const rawAuthor = authorFromRawVisibleText(rawVisibleText);
   const authorName = cleanString(row?.authorName ?? row?.voiceName ?? row?.author?.name) ?? rawAuthor.name;
   const matchReason = cleanString(row?.matchReason ?? row?.evidenceReason ?? row?.verificationNotes);
@@ -378,7 +383,11 @@ function normalizeEvidence(row, inputPath, rowIndex, entitiesById, targetKind) {
     matchReason: matchReason ?? "Native activity URL from a verified company or founder account with visible metrics.",
     first_seen_at: validTimestamp(row.first_seen_at) ?? observedAt,
     last_checked_at: checkedAt,
-    last_updated_at: postedAt ?? checkedAt
+    last_updated_at:
+      nativeRepositoryActivityTimestamp(platform, rawVisibleText, sourceUrl) ??
+      validTimestamp(row.last_updated_at) ??
+      postedAt ??
+      checkedAt
   };
 
   return {
@@ -452,17 +461,25 @@ function findDuplicate(row, entityId) {
 
 function evidenceContentIdentity(row, entityId) {
   const entity = entityId ? entitiesById.get(entityId) : null;
-  const rawAuthor = authorFromRawVisibleText(serializedVisibleText(row?.rawVisibleText));
+  const rawVisibleText = serializedVisibleText(row?.rawVisibleText);
+  const rawAuthor = authorFromRawVisibleText(rawVisibleText);
+  const platform = normalizePlatform(row?.platform) ?? row?.platform;
+  const sourceUrl = canonicalUrl(row?.sourceUrl ?? row?.url ?? row?.canonicalUrl);
   return sourceContentIdentity({
-    platform: normalizePlatform(row?.platform) ?? row?.platform,
+    platform,
     authorName: cleanString(row?.authorName ?? row?.voiceName ?? row?.author?.name) ?? rawAuthor.name,
     authorHandle: cleanString(row?.authorHandle ?? row?.author?.handle ?? row?.author?.username) ?? rawAuthor.handle,
     authorUrl: cleanString(row?.authorUrl ?? row?.author?.url),
     accountUrl: cleanString(row?.accountUrl),
-    sourceUrl: canonicalUrl(row?.sourceUrl ?? row?.url ?? row?.canonicalUrl),
+    sourceUrl,
     fallbackAuthorName: entity?.founderName ?? entity?.companyName,
     body: cleanString(row?.text ?? row?.content ?? row?.body),
-    postedAt: validTimestamp(row?.postedAt ?? row?.publishedAt)
+    postedAt: nativePublicationTimestamp(
+      platform,
+      row?.postedAt ?? row?.publishedAt,
+      rawVisibleText,
+      sourceUrl
+    )
   });
 }
 
@@ -490,6 +507,198 @@ function resolveInputAttribution(row, entitiesById, targetKind) {
 function serializedVisibleText(value) {
   if (value && typeof value === "object") return JSON.stringify(value);
   return cleanString(value);
+}
+
+/**
+ * A repository's publication date is its native creation timestamp. Push,
+ * update, observation, and import clocks are activity metadata and must never
+ * make an existing repository look newly published.
+ */
+function nativePublicationTimestamp(platform, suppliedValue, rawVisibleText, sourceUrl) {
+  if (platform !== "github") return validTimestamp(suppliedValue);
+
+  const raw = parsedVisibleText(rawVisibleText);
+  const expectedIdentity = githubRepositoryIdentity(sourceUrl);
+  const repository = matchingGithubRepositoryRecord(raw?.repository, expectedIdentity, false);
+  const repo = matchingGithubRepositoryRecord(raw?.repo, expectedIdentity, false);
+  const canonicalRepository = matchingGithubRepositoryRecord(
+    raw?.canonicalRepository,
+    expectedIdentity,
+    false
+  );
+  const post = matchingGithubRepositoryRecord(
+    raw?.post,
+    expectedIdentity,
+    true,
+    raw
+  );
+  return firstValidTimestamp(
+    repository?.createdAt,
+    repository?.created_at,
+    repository?.repositoryCreatedAt,
+    repository?.repository_created_at,
+    repository?.repositoryTimestamps?.createdAt,
+    repository?.repositoryTimestamps?.created_at,
+    repository?.repositoryTimestamps?.repositoryCreatedAt,
+    repository?.repositoryTimestamps?.repository_created_at,
+    repo?.createdAt,
+    repo?.created_at,
+    repo?.repositoryCreatedAt,
+    repo?.repository_created_at,
+    repo?.repositoryTimestamps?.createdAt,
+    repo?.repositoryTimestamps?.created_at,
+    repo?.repositoryTimestamps?.repositoryCreatedAt,
+    repo?.repositoryTimestamps?.repository_created_at,
+    canonicalRepository?.createdAt,
+    canonicalRepository?.created_at,
+    canonicalRepository?.repositoryCreatedAt,
+    canonicalRepository?.repository_created_at,
+    canonicalRepository?.repositoryTimestamps?.createdAt,
+    canonicalRepository?.repositoryTimestamps?.created_at,
+    canonicalRepository?.repositoryTimestamps?.repositoryCreatedAt,
+    canonicalRepository?.repositoryTimestamps?.repository_created_at,
+    post?.createdAt,
+    post?.created_at,
+    post?.repositoryCreatedAt,
+    post?.repository_created_at,
+    post?.repositoryTimestamps?.createdAt,
+    post?.repositoryTimestamps?.created_at,
+    post?.repositoryTimestamps?.repositoryCreatedAt,
+    post?.repositoryTimestamps?.repository_created_at,
+    raw?.repositoryTimestamps?.createdAt,
+    raw?.repositoryTimestamps?.created_at,
+    raw?.repositoryTimestamps?.repositoryCreatedAt,
+    raw?.repositoryTimestamps?.repository_created_at,
+    raw?.repositoryCreatedAt,
+    raw?.repository_created_at
+  );
+}
+
+function nativeRepositoryActivityTimestamp(platform, rawVisibleText, sourceUrl) {
+  if (platform !== "github") return null;
+  const raw = parsedVisibleText(rawVisibleText);
+  const expectedIdentity = githubRepositoryIdentity(sourceUrl);
+  const repository = matchingGithubRepositoryRecord(raw?.repository, expectedIdentity, false);
+  const repo = matchingGithubRepositoryRecord(raw?.repo, expectedIdentity, false);
+  const canonicalRepository = matchingGithubRepositoryRecord(
+    raw?.canonicalRepository,
+    expectedIdentity,
+    false
+  );
+  const post = matchingGithubRepositoryRecord(
+    raw?.post,
+    expectedIdentity,
+    true,
+    raw
+  );
+  return latestValidTimestamp(
+    repository?.pushedAt,
+    repository?.pushed_at,
+    repository?.updatedAt,
+    repository?.updated_at,
+    repository?.repositoryTimestamps?.pushedAt,
+    repository?.repositoryTimestamps?.pushed_at,
+    repository?.repositoryTimestamps?.updatedAt,
+    repository?.repositoryTimestamps?.updated_at,
+    repo?.pushedAt,
+    repo?.pushed_at,
+    repo?.updatedAt,
+    repo?.updated_at,
+    repo?.repositoryTimestamps?.pushedAt,
+    repo?.repositoryTimestamps?.pushed_at,
+    repo?.repositoryTimestamps?.updatedAt,
+    repo?.repositoryTimestamps?.updated_at,
+    canonicalRepository?.pushedAt,
+    canonicalRepository?.pushed_at,
+    canonicalRepository?.updatedAt,
+    canonicalRepository?.updated_at,
+    canonicalRepository?.repositoryTimestamps?.pushedAt,
+    canonicalRepository?.repositoryTimestamps?.pushed_at,
+    canonicalRepository?.repositoryTimestamps?.updatedAt,
+    canonicalRepository?.repositoryTimestamps?.updated_at,
+    post?.pushedAt,
+    post?.pushed_at,
+    post?.updatedAt,
+    post?.updated_at,
+    post?.repositoryTimestamps?.pushedAt,
+    post?.repositoryTimestamps?.pushed_at,
+    post?.repositoryTimestamps?.updatedAt,
+    post?.repositoryTimestamps?.updated_at,
+    raw?.repositoryTimestamps?.pushedAt,
+    raw?.repositoryTimestamps?.pushed_at,
+    raw?.repositoryTimestamps?.updatedAt,
+    raw?.repositoryTimestamps?.updated_at,
+    raw?.repositoryPushedAt,
+    raw?.repository_pushed_at,
+    raw?.repositoryUpdatedAt,
+    raw?.repository_updated_at
+  );
+}
+
+function matchingGithubRepositoryRecord(value, expectedIdentity, requireIdentity, raw = null) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (requireIdentity && githubCommitProvenance(raw, value)) return null;
+
+  const identity = githubRepositoryIdentity(
+    value.url ?? value.htmlUrl ?? value.html_url,
+    value.fullName ?? value.full_name ?? value.id
+  );
+  if (identity && expectedIdentity && identity !== expectedIdentity) return null;
+  if (requireIdentity && (!identity || !expectedIdentity || identity !== expectedIdentity)) return null;
+  return value;
+}
+
+function githubCommitProvenance(raw, record = null) {
+  const kind = cleanString(raw?.sourceProvenance?.kind ?? raw?.provenance?.kind)?.toLowerCase();
+  if (kind === "github_commit") return true;
+
+  return [
+    raw?.sourceProvenance?.sourceUrl,
+    raw?.sourceProvenance?.url,
+    raw?.provenance?.sourceUrl,
+    raw?.provenance?.url,
+    record?.sourceUrl,
+    record?.url,
+    record?.htmlUrl,
+    record?.html_url
+  ].some((value) => /\/commit\/[0-9a-f]+(?:[/?#]|$)/i.test(String(value ?? "")));
+}
+
+function githubRepositoryIdentity(sourceUrl, platformPostId = null) {
+  const canonicalSourceUrl = canonicalUrl(sourceUrl);
+  const native = nativeIdentity("github", canonicalSourceUrl);
+  if (native?.postId) return native.postId.toLowerCase();
+
+  const candidate = cleanString(platformPostId)?.replace(/^\/+|\/+$/g, "");
+  return /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(candidate ?? "")
+    ? candidate.toLowerCase()
+    : null;
+}
+
+function parsedVisibleText(value) {
+  const text = cleanString(value);
+  if (!text?.startsWith("{")) return null;
+  try {
+    const parsed = JSON.parse(text);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function firstValidTimestamp(...values) {
+  for (const value of values) {
+    const timestamp = validTimestamp(value);
+    if (timestamp) return timestamp;
+  }
+  return null;
+}
+
+function latestValidTimestamp(...values) {
+  return values
+    .map((value) => validTimestamp(value))
+    .filter(Boolean)
+    .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
 }
 
 function nativeIdentity(platform, sourceUrl) {

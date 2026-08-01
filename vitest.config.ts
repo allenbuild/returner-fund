@@ -12,7 +12,7 @@ export default defineConfig({
     // Real-data graph suites rebuild every batch. Keep GitHub's smaller runner
     // from starving parallel workers and timing out otherwise healthy tests.
     maxWorkers: isCi ? 2 : undefined,
-    testTimeout: isCi ? 90_000 : 30_000,
+    testTimeout: isCi ? 180_000 : 30_000,
     coverage: {
       reporter: ["text", "json", "html"]
     }

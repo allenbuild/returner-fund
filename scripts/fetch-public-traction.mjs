@@ -26,6 +26,12 @@ import {
   publicEvidenceAttributionText
 } from "./lib/public-evidence-attribution.mjs";
 import { dedupePublicNeedsReviewItems } from "./lib/public-review-dedupe.mjs";
+import { preferUniqueSameCompanyFounder } from "./lib/native-owner-resolution.mjs";
+import {
+  canonicalSocialAccountUrl,
+  retiredSocialAccountKey,
+  socialAccountIdentityKey
+} from "./lib/social-account-url.mjs";
 import {
   extractEmbeddedYouTubeIds,
   extractProductHuntLinks,
@@ -219,11 +225,28 @@ const ATTRIBUTION_DESCRIPTOR_STOP_WORDS = new Set([
   "that", "the", "their", "they", "this", "through", "using", "with", "your"
 ]);
 const DISCOVERABLE_SOCIAL_PLATFORMS = Object.freeze(["x", "linkedin", "instagram"]);
+const PUBLIC_COLLECTION_PLATFORMS = Object.freeze([
+  "x",
+  "linkedin",
+  "instagram",
+  "product_hunt",
+  "youtube",
+  "web",
+  "rss",
+  "hacker_news",
+  "reddit"
+]);
 const MAPPED_ACCOUNT_PLATFORMS = Object.freeze([
   ...DISCOVERABLE_SOCIAL_PLATFORMS,
   "youtube",
   "product_hunt"
 ]);
+
+function attemptedPlatformsForRun() {
+  return platformFilter.size > 0
+    ? PUBLIC_COLLECTION_PLATFORMS.filter((platform) => platformFilter.has(platform))
+    : [...PUBLIC_COLLECTION_PLATFORMS];
+}
 // Keep explicit attribution demotions independently from the mutable evidence
 // arrays. Successful replacement collection removes prior platform rows, but
 // must never erase a target-specific durable retirement directive.
@@ -323,17 +346,7 @@ const payload = {
       },
       exa: { configured: Boolean(exaApiKey), errorCount: exaFailureCount }
     },
-    platformsAttempted: [
-      "x",
-      "linkedin",
-      "instagram",
-      "product_hunt",
-      "youtube",
-      "web",
-      "rss",
-      "hacker_news",
-      "reddit"
-    ],
+    platformsAttempted: attemptedPlatformsForRun(),
     notes: [
       "Read-only public requests only.",
       "No account login, cookies, browser sessions, or mutations.",
@@ -744,13 +757,14 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     const searchCandidates = discoverMissingSocial
       ? await discoverSocialCandidates(company, platform, entityType === "founder" ? entity : null)
       : [];
-    const candidates = dedupeSocialCandidates([...discoveredPathCandidates, ...searchCandidates]);
+    const candidates = dedupeSocialCandidates([...discoveredPathCandidates, ...searchCandidates], platform);
     if (candidates.length) {
-      const verifiedPostResults = [];
-      const postCandidates = candidates.filter((candidate) => isSocialPostUrl(candidate.url, platform)).slice(0, 2);
-      for (const candidate of postCandidates) {
-        verifiedPostResults.push(await verifyPublicSocialPostCandidate(company, platform, candidate));
-      }
+      const postCandidates = selectPublicSocialCandidates(
+        candidates.filter((candidate) => isSocialPostUrl(candidate.url, platform)),
+        platform,
+        2
+      );
+      const verifiedPostResults = await verifyPublicSocialPostCandidates(company, platform, postCandidates);
       const rawVerifiedPosts = verifiedPostResults.flatMap((result) => result.evidence ?? []);
       const attributedPosts = attributePostEvidenceToEntity(
         company,
@@ -1701,9 +1715,7 @@ async function discoverSocialCandidates(company, platform, entity = null) {
       if (response.status >= 400) continue;
       const html = await response.text();
       const $ = cheerio.load(html);
-      $(".result")
-        .toArray()
-        .slice(0, 8)
+      selectPublicSocialCandidates($(".result").toArray(), platform, 8)
         .forEach((node) => {
           const item = $(node);
           const title = cleanText(item.find(".result__title").text());
@@ -1756,17 +1768,35 @@ async function discoverSocialCandidates(company, platform, entity = null) {
     }
   }
 
-  return firstSocialCandidatePerUrl(
+  return selectPublicSocialCandidates(firstSocialCandidatePerUrl(
     candidates.filter((candidate) => !isLowValueSocialUrl(candidate.url, platform))
-  ).slice(0, 5);
+  ), platform, 5);
 }
 
-function dedupeSocialCandidates(candidates) {
-  return firstSocialCandidatePerUrl(
+function dedupeSocialCandidates(candidates, platform = null) {
+  return selectPublicSocialCandidates(firstSocialCandidatePerUrl(
     candidates
       .filter((candidate) => candidate?.url)
       .filter((candidate) => !isLowValueSocialUrl(candidate.url, platformFromUrl(candidate.url)))
-  ).slice(0, 8);
+  ), platform, 8);
+}
+
+function selectPublicSocialCandidates(candidates, platform, limit) {
+  // LinkedIn's public reader/search responses are already bounded by the finite
+  // response body and query count. Process every native URL they expose instead
+  // of silently discarding later posts; retain the legacy caps for other lanes.
+  return platform === "linkedin" ? candidates : candidates.slice(0, limit);
+}
+
+async function verifyPublicSocialPostCandidates(company, platform, candidates) {
+  const results = [];
+  for (let index = 0; index < candidates.length; index += 1) {
+    results.push(await verifyPublicSocialPostCandidate(company, platform, candidates[index]));
+    if (platform === "linkedin" && requestDelayMs > 0 && index < candidates.length - 1) {
+      await delay(requestDelayMs);
+    }
+  }
+  return results;
 }
 
 function firstSocialCandidatePerUrl(candidates) {
@@ -2195,10 +2225,12 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     };
   }
 
-  const postResults = [];
-  for (const candidate of extractSocialPostCandidates(page.text, platform, company).slice(0, 3)) {
-    postResults.push(await verifyPublicSocialPostCandidate(company, platform, candidate));
-  }
+  const profilePostCandidates = selectPublicSocialCandidates(
+    extractSocialPostCandidates(page.text, platform, company),
+    platform,
+    3
+  );
+  const postResults = await verifyPublicSocialPostCandidates(company, platform, profilePostCandidates);
   const postEvidence = postResults.flatMap((result) => result.evidence ?? []);
   const attributedPosts = attributePostEvidenceToEntity(company, entity, entityType, platform, postEvidence);
   const zeroPostFallback =
@@ -2290,12 +2322,13 @@ async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, 
     platform,
     entityType === "founder" ? entity : null
   );
-  const candidates = dedupeSocialCandidates([...pathCandidates, ...searchCandidates]);
-  const postCandidates = candidates.filter((candidate) => isSocialPostUrl(candidate.url, platform)).slice(0, 3);
-  const postResults = [];
-  for (const candidate of postCandidates) {
-    postResults.push(await verifyPublicSocialPostCandidate(company, platform, candidate));
-  }
+  const candidates = dedupeSocialCandidates([...pathCandidates, ...searchCandidates], platform);
+  const postCandidates = selectPublicSocialCandidates(
+    candidates.filter((candidate) => isSocialPostUrl(candidate.url, platform)),
+    platform,
+    3
+  );
+  const postResults = await verifyPublicSocialPostCandidates(company, platform, postCandidates);
   const postEvidence = postResults.flatMap((result) => result.evidence ?? []);
   const attributedPosts = attributePostEvidenceToEntity(company, entity, entityType, platform, postEvidence);
   const verifiedPostUrls = new Set(attributedPosts.evidence.map((item) => item.sourceUrl));
@@ -3793,8 +3826,10 @@ function normalizeSnapshotOwnerLinks(owner) {
   for (const [declaredPlatform, url] of Object.entries(owner?.socialLinks ?? {})) {
     if (typeof url !== "string" || !url.trim()) continue;
     const platform = platformFromUrl(url) ?? normalizePlatformArg(declaredPlatform);
-    accounts.push({ platform, url });
-    if (!links[platform]) links[platform] = url;
+    const canonicalUrl = canonicalSocialAccountUrl(platform, url);
+    if (!canonicalUrl) continue;
+    accounts.push({ platform, url: canonicalUrl });
+    if (!links[platform]) links[platform] = canonicalUrl;
   }
   return {
     ...owner,
@@ -3869,14 +3904,12 @@ function mergeVerifiedSocialOverrides(companies, overrides) {
 function mergeVerifiedOwnerSocialLinks(baseLinks = {}, positiveLinks = {}, ownerOverride = {}) {
   const retiredKeys = new Set(
     retiredOwnerSocialAccounts(ownerOverride)
-      .map(({ platform, url }) => `${normalizePlatformArg(platform)}:${canonicalProfileUrl(url, normalizePlatformArg(platform)).toLowerCase()}`)
+      .map(({ platform, url }) => retiredSocialAccountKey(platform, url))
   );
   return {
     ...Object.fromEntries(
       Object.entries(baseLinks ?? {}).filter(([platform, url]) =>
-        !retiredKeys.has(
-          `${normalizePlatformArg(platform)}:${canonicalProfileUrl(url, normalizePlatformArg(platform)).toLowerCase()}`
-        )
+        !retiredKeys.has(retiredSocialAccountKey(platform, url))
       )
     ),
     ...(positiveLinks ?? {})
@@ -3886,20 +3919,26 @@ function mergeVerifiedOwnerSocialLinks(baseLinks = {}, positiveLinks = {}, owner
 function mergeVerifiedOwnerSocialAccounts(baseAccounts = [], baseLinks = {}, positiveLinks = {}, ownerOverride = {}) {
   const retiredKeys = new Set(
     retiredOwnerSocialAccounts(ownerOverride)
-      .map(({ platform, url }) => socialAccountKey(platform, url))
-      .filter(Boolean)
+      .map(({ platform, url }) => retiredSocialAccountKey(platform, url))
   );
-  const accounts = [
+  const baseAccountRows = [
     ...(baseAccounts ?? []),
-    ...Object.entries(baseLinks ?? {}).map(([platform, url]) => ({ platform, url })),
-    ...Object.entries(positiveLinks ?? {}).map(([platform, url]) => ({ platform, url }))
+    ...Object.entries(baseLinks ?? {}).map(([platform, url]) => ({ platform, url }))
   ];
   const byIdentity = new Map();
-  for (const account of accounts) {
+  for (const account of baseAccountRows) {
     const platform = normalizePlatformArg(account?.platform);
     const key = socialAccountKey(platform, account?.url);
-    if (!key || retiredKeys.has(key)) continue;
-    byIdentity.set(key, { ...account, platform, url: account.url });
+    if (!key || retiredKeys.has(retiredSocialAccountKey(platform, account?.url))) continue;
+    const canonicalUrl = canonicalSocialAccountUrl(platform, account?.url);
+    byIdentity.set(key, { ...account, platform, url: canonicalUrl });
+  }
+  for (const [rawPlatform, url] of Object.entries(positiveLinks ?? {})) {
+    const platform = normalizePlatformArg(rawPlatform);
+    const key = socialAccountKey(platform, url);
+    const canonicalUrl = canonicalSocialAccountUrl(platform, url);
+    if (!key || !canonicalUrl) continue;
+    byIdentity.set(key, { platform, url: canonicalUrl });
   }
   return [...byIdentity.values()];
 }
@@ -3995,13 +4034,16 @@ function socialAccountUrls(entity, platform) {
       .filter((account) => normalizePlatformArg(account?.platform) === platform)
       .map((account) => account.url),
     entity?.socialLinks?.[platform]
-  ].filter(Boolean);
+  ].filter(Boolean).flatMap((url) => {
+    const canonicalUrl = canonicalSocialAccountUrl(platform, url);
+    return canonicalUrl ? [canonicalUrl] : [];
+  });
   return [...new Map(urls.map((url) => [socialAccountKey(platform, url), url])).values()];
 }
 
 function socialAccountKey(platform, url) {
   if (!platform || typeof url !== "string" || !url.trim()) return null;
-  return `${normalizePlatformArg(platform)}:${canonicalProfileUrl(url, normalizePlatformArg(platform)).toLowerCase()}`;
+  return socialAccountIdentityKey(normalizePlatformArg(platform), url);
 }
 
 function buildNativeOwnerIndex(companies) {
@@ -4041,12 +4083,13 @@ function resolveCurrentBatchNativeOwner(item) {
   if (!identity) {
     return { status: "unavailable", reason: "native_author_identity_unavailable" };
   }
-  const candidates = [...new Map(
+  let candidates = [...new Map(
     (currentBatchNativeOwnerIndex.get(`${platform}:${identity}`) ?? []).map((owner) => [
       `${owner.entityType}:${owner.entityId}`,
       owner
     ])
   ).values()];
+  candidates = preferUniqueSameCompanyFounder(candidates);
   if (candidates.length === 0) {
     return { status: "unmatched", reason: "native_author_not_in_current_batch_roster", author: { platform, key: identity } };
   }

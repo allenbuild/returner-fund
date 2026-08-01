@@ -102,6 +102,10 @@ const VERSIONED_INPUT_SOURCE_ROLES = [
     path: "src/lib/scoring/batch-calibration.ts"
   },
   {
+    role: "global_company_headline_benchmark_algorithm",
+    path: "src/lib/scoring/global-score-benchmark.ts"
+  },
+  {
     role: "tie_aware_percentile_algorithm",
     path: "src/lib/scoring/percentiles.ts"
   },

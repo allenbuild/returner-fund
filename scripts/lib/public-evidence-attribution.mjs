@@ -53,7 +53,12 @@ export function isCollisionProneCompanyName(companyName) {
   const words = String(companyName ?? "").toLowerCase().match(/[a-z0-9]+/g) ?? [];
   if (words.length !== 1) return false;
   const [word] = words;
-  return word.length <= 3 || COLLISION_PRONE_SINGLE_TOKEN_NAMES.has(word);
+  // Four-character brands are still too short to trust merely because the
+  // token appears somewhere in a native channel name. For example, YC's Kara
+  // must not inherit videos from "Kaiser & Kara's World". These names remain
+  // eligible when the post has an exact cohort marker, a distinctive catalog
+  // phrase, a mapped owner, or a roster-founder channel identity.
+  return word.length <= 4 || COLLISION_PRONE_SINGLE_TOKEN_NAMES.has(word);
 }
 
 export function organizationQualifiedBatchMarker(batchSlug, text) {

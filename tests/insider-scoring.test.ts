@@ -6,6 +6,7 @@ import {
   computeInsiderScore,
   insiderWeightInfluence
 } from "@/lib/graph/insider-scoring";
+import { getNodeRadius } from "@/lib/graph/score-radius";
 import { personalizeInsiderGraphSnapshot } from "@/lib/graph/personalized-insider-snapshot";
 import type {
   EvidenceItem,
@@ -170,6 +171,9 @@ describe("weighted Insider scoring", () => {
         insiderScoreAdjustment: 25,
         configurationVersion: 8
       });
+    for (const node of scored.nodes.filter((candidate) => candidate.entityType === "company")) {
+      expect(node.radius).toBe(getNodeRadius(node.score, [0, 100], "company"));
+    }
   });
 
   it("treats the current graph as the published anchor when no separate anchor is supplied", () => {

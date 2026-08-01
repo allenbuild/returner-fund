@@ -1,7 +1,10 @@
 import { canonicalEvidenceUrl, canonicalPostKey, dedupeEvidenceForScoring } from "./dedupe";
+import {
+  isCrediblyPublishedToday,
+  isCrediblyPublishedWithinWindow
+} from "./native-publication-date";
 import { scoringEligibility } from "./traction-scoring";
 import type { EvidenceItem, GraphNode, GraphResponse } from "./types";
-import { isCurrentCentralDay } from "../time/central-day";
 
 export const RANKED_POSTS_LIMIT = 100;
 export const RANKED_POSTS_MONTH_WINDOW_MS = 30 * 24 * 60 * 60 * 1_000;
@@ -50,22 +53,15 @@ export function selectRankedPosts(
   const candidates: RankedPostCandidate[] = [];
 
   for (const evidence of eligibleEvidence) {
-
-    const publishedAt = publicationTimestamp(evidence.postedAt);
     if (
       options.period === "today" &&
-      (evidence.publishedAtPrecision === "unknown" ||
-        publishedAt === null ||
-        !isCurrentCentralDay(new Date(publishedAt), now))
+      !isCrediblyPublishedToday(evidence, now)
     ) {
       continue;
     }
     if (
       options.period === "month" &&
-      (!hasKnownPublicationPrecision(evidence.publishedAtPrecision) ||
-        publishedAt === null ||
-        publishedAt < now.getTime() - RANKED_POSTS_MONTH_WINDOW_MS ||
-        publishedAt > now.getTime())
+      !isCrediblyPublishedWithinWindow(evidence, now, RANKED_POSTS_MONTH_WINDOW_MS)
     ) {
       continue;
     }
@@ -138,12 +134,6 @@ function publicationTimestamp(value: string | null | undefined): number | null {
   if (!value) return null;
   const timestamp = Date.parse(value);
   return Number.isFinite(timestamp) ? timestamp : null;
-}
-
-function hasKnownPublicationPrecision(
-  value: EvidenceItem["publishedAtPrecision"]
-): value is "exact" | "day" {
-  return value === "exact" || value === "day";
 }
 
 function publicationSortValue(value: string | null | undefined): number {

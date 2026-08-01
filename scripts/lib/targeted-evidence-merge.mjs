@@ -44,17 +44,59 @@ export const TARGETED_HISTORICAL_ATTRIBUTION_RECONCILIATIONS_V1 = Object.freeze(
     replacementCompanyName: "Vestris",
     replacementAttachedCompanyId: "company-vestris",
     reason: "targeted_historical_reconciliation_v1:vestris_company_to_joshua_tang"
+  }),
+  historicalReconciliation({
+    platform: "x",
+    platformPostId: "2076784195847008510",
+    staleEntityId: "company-notyfi",
+    replacementEntityId: "company-perceptron-ml",
+    replacementEntityName: "Perceptron ML",
+    replacementCompanySlug: "perceptron-ml",
+    replacementCompanyName: "Perceptron ML",
+    reason: "targeted_historical_reconciliation_v1:notyfi_to_perceptron_ml"
+  }),
+  historicalReconciliation({
+    platform: "x",
+    platformPostId: "2076105028398461223",
+    staleEntityId: "company-truffle",
+    replacementEntityId: "company-joinmarble",
+    replacementEntityName: "Marble",
+    replacementCompanySlug: "joinmarble",
+    replacementCompanyName: "Marble",
+    reason: "targeted_historical_reconciliation_v1:truffle_to_marble"
   })
 ]);
 
+export const TARGETED_HISTORICAL_OWNER_PRESERVATIONS_V1 = Object.freeze([
+  "2070249380159082981",
+  "2071874544202404180",
+  "2070648435456540856",
+  "2076581927717642379"
+].map((platformPostId) => historicalOwnerPreservation({
+  platform: "x",
+  platformPostId,
+  entityId: "founder-mireye-shashwat-kapoor-678147",
+  entityName: "Shashwat Kapoor",
+  companySlug: "mireye",
+  companyName: "Mireye",
+  expectedAuthorHandle: "shshwt_",
+  accountUrl: "https://x.com/shshwt_",
+  reason: "targeted_historical_owner_v1:mireye_retired_founder_shashwat_kapoor"
+})));
+
+const TARGETED_HISTORICAL_ACTIONS_V1 = Object.freeze([
+  ...TARGETED_HISTORICAL_ATTRIBUTION_RECONCILIATIONS_V1,
+  ...TARGETED_HISTORICAL_OWNER_PRESERVATIONS_V1
+]);
+
 const TARGETED_HISTORICAL_ATTRIBUTION_BY_KEY = new Map(
-  TARGETED_HISTORICAL_ATTRIBUTION_RECONCILIATIONS_V1.map((entry) => [
+  TARGETED_HISTORICAL_ACTIONS_V1.map((entry) => [
     historicalReconciliationKey(entry),
     entry
   ])
 );
 const TARGETED_HISTORICAL_ATTRIBUTION_BY_UNSCOPED_KEY = uniqueHistoricalReconciliationIndex(
-  TARGETED_HISTORICAL_ATTRIBUTION_RECONCILIATIONS_V1,
+  TARGETED_HISTORICAL_ACTIONS_V1,
   historicalReconciliationUnscopedKey
 );
 
@@ -88,13 +130,14 @@ export function mergeTargetedEvidenceSnapshots(
   const accept = (row, { strictRun = false, ordinal = 0 } = {}) => {
     const staleBatchSlug = resolveBatchSlug ? resolveBatchSlug(row) : explicitBatchSlug(row);
     const reconciliation = targetedHistoricalAttributionReconciliation(row, staleBatchSlug);
+    const preservesRetiredHistoricalOwner = reconciliation?.action === "preserve_historical_owner";
     const historicalCandidateRow = reconciliation
       ? applyTargetedHistoricalAttributionReconciliation(row, reconciliation)
       : row;
     const historicalBatchSlug = resolveBatchSlug
       ? resolveBatchSlug(historicalCandidateRow)
       : explicitBatchSlug(historicalCandidateRow);
-    const entityResolution = typeof resolveEntityAttribution === "function"
+    const entityResolution = !preservesRetiredHistoricalOwner && typeof resolveEntityAttribution === "function"
       ? resolveEntityAttribution(historicalCandidateRow, historicalBatchSlug)
       : null;
     const candidateRow = entityResolution?.rejected
@@ -113,7 +156,12 @@ export function mergeTargetedEvidenceSnapshots(
             resolveBatchSlug,
             validateEntityAttribution
           )
-        : validateLegacyTargetedRow(scopedRow, batchSlug, identity, validateEntityAttribution);
+        : validateLegacyTargetedRow(
+            scopedRow,
+            batchSlug,
+            identity,
+            preservesRetiredHistoricalOwner ? null : validateEntityAttribution
+          );
 
     if (reasons.length > 0) {
       quarantines.push(quarantineRow(scopedRow, batchSlug, reasons, ordinal));
@@ -128,7 +176,7 @@ export function mergeTargetedEvidenceSnapshots(
       duplicateRows += 1;
       evidenceByKey.set(key, fresherEvidence(previous, scopedRow));
     }
-    if (reconciliation) {
+    if (reconciliation && !preservesRetiredHistoricalOwner) {
       reattributions.push(targetedHistoricalReconciliationDirective(row, scopedRow, reconciliation));
     } else if (entityResolution?.changedTarget) {
       reattributions.push(targetedCanonicalReconciliationDirective(
@@ -289,6 +337,7 @@ function historicalReconciliation({
 }) {
   return Object.freeze({
     version: 1,
+    action: "reattribute",
     platform,
     platformPostId,
     staleAttribution: Object.freeze({
@@ -309,6 +358,42 @@ function historicalReconciliation({
   });
 }
 
+function historicalOwnerPreservation({
+  platform,
+  platformPostId,
+  entityId,
+  entityName,
+  companySlug,
+  companyName,
+  expectedAuthorHandle,
+  accountUrl,
+  reason
+}) {
+  return Object.freeze({
+    version: 1,
+    action: "preserve_historical_owner",
+    platform,
+    platformPostId,
+    staleAttribution: Object.freeze({
+      batchSlug: "S26",
+      entityType: "founder",
+      entityId
+    }),
+    historicalOwner: Object.freeze({
+      status: "retired_founder",
+      currentRosterMember: false,
+      entityType: "founder",
+      entityId,
+      entityName,
+      companySlug,
+      companyName,
+      expectedAuthorHandle,
+      accountUrl
+    }),
+    reason
+  });
+}
+
 function targetedHistoricalAttributionReconciliation(row, batchSlug) {
   const nativePostId = exactHistoricalNativePostId(row);
   if (!nativePostId) return null;
@@ -321,11 +406,15 @@ function targetedHistoricalAttributionReconciliation(row, batchSlug) {
       entityId: row?.entityId ?? row?.entity_id
     }
   };
-  return (batchSlug
+  const reconciliation = (batchSlug
     ? TARGETED_HISTORICAL_ATTRIBUTION_BY_KEY.get(historicalReconciliationKey(partial))
     : TARGETED_HISTORICAL_ATTRIBUTION_BY_UNSCOPED_KEY.get(
         historicalReconciliationUnscopedKey(partial)
       )) ?? null;
+  return reconciliation?.action === "preserve_historical_owner" &&
+    !historicalOwnerSignalsMatch(row, reconciliation.historicalOwner)
+    ? null
+    : reconciliation;
 }
 
 function historicalReconciliationKey(entry) {
@@ -370,6 +459,39 @@ function exactHistoricalNativePostId(row) {
   return native;
 }
 
+function historicalOwnerSignalsMatch(row, historicalOwner) {
+  const expected = normalizeHistoricalHandle(historicalOwner?.expectedAuthorHandle);
+  if (!expected) return false;
+  const raw = parseJsonObject(row?.rawVisibleText);
+  const handles = new Set([
+    historicalXAuthorFromUrl(row?.sourceUrl ?? row?.source_url),
+    historicalXAuthorFromUrl(row?.accountUrl ?? row?.account_url),
+    row?.authorHandle,
+    row?.author_handle,
+    raw?.profile?.username,
+    raw?.profile?.handle,
+    raw?.post?.authorHandle,
+    raw?.post?.author_handle
+  ].map(normalizeHistoricalHandle).filter(Boolean));
+  return handles.size === 1 && handles.has(expected);
+}
+
+function historicalXAuthorFromUrl(rawUrl) {
+  try {
+    const url = new URL(String(rawUrl ?? ""));
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+    if (!["x.com", "twitter.com", "mobile.twitter.com"].includes(host)) return null;
+    const handle = decodeURIComponent(url.pathname).split("/").filter(Boolean)[0];
+    return handle?.toLowerCase() === "i" ? null : handle;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeHistoricalHandle(value) {
+  return String(value ?? "").normalize("NFKC").trim().replace(/^@/, "").toLowerCase() || null;
+}
+
 function nativeGithubRepositoryIdentity(rawUrl) {
   try {
     const url = new URL(String(rawUrl ?? ""));
@@ -381,6 +503,31 @@ function nativeGithubRepositoryIdentity(rawUrl) {
 }
 
 function applyTargetedHistoricalAttributionReconciliation(row, reconciliation) {
+  if (reconciliation.action === "preserve_historical_owner") {
+    const historicalOwner = reconciliation.historicalOwner;
+    return {
+      ...row,
+      batchSlug: "S26",
+      entityType: historicalOwner.entityType,
+      entityId: historicalOwner.entityId,
+      entityName: historicalOwner.entityName,
+      companySlug: historicalOwner.companySlug,
+      companyName: historicalOwner.companyName,
+      attachedCompanyId: `company-${historicalOwner.companySlug}`,
+      historicalOwner: {
+        status: historicalOwner.status,
+        currentRosterMember: historicalOwner.currentRosterMember,
+        entityType: historicalOwner.entityType,
+        entityId: historicalOwner.entityId,
+        entityName: historicalOwner.entityName,
+        companySlug: historicalOwner.companySlug,
+        companyName: historicalOwner.companyName,
+        platform: reconciliation.platform,
+        accountUrl: historicalOwner.accountUrl
+      },
+      historicalAttributionReason: reconciliation.reason
+    };
+  }
   const replacement = reconciliation.replacementAttribution;
   return {
     ...row,

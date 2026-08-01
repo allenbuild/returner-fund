@@ -166,10 +166,17 @@ export interface ScoreConfidence {
 }
 
 export interface ScoreCalibration {
-  method: "none";
+  method: "none" | "global_best_ratio";
   cohortSize: number;
   percentile: number | null;
   inputScore: number;
+  /** Raw absolute score of the strongest current company across all supported batches. */
+  benchmarkScore?: number;
+  /** One multiplicative factor shared by every batch and audience. */
+  scaleFactor?: number;
+  benchmarkScope?: "all_supported_batches";
+  /** Explicitly excludes retired companies, historical outcomes, and future labels. */
+  benchmarkPopulation?: "current_company_snapshot";
 }
 
 export interface ScoreBreakdown {

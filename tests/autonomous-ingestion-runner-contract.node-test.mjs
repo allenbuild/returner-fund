@@ -34,23 +34,16 @@ describe("autonomous ingestion runner CLI", () => {
     assert.equal(result.status, 0, result.stderr);
     assert.equal(result.stderr, "");
     const plan = JSON.parse(result.stdout);
-    assert.deepEqual({
-      idempotencyKey: plan.idempotencyKey,
-      batches: plan.batches,
-      coverage: {
-        expected: plan.coverage.expected,
-        queued: plan.coverage.queued,
-        terminal: plan.coverage.terminal
-      }
-    }, {
-      idempotencyKey: "plan-contract",
-      batches: [
-        { slug: "S2026", companies: 197, founders: 397, accounts: 965 },
-        { slug: "S26", companies: 115, founders: 230, accounts: 552 },
-        { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
-      ],
-      coverage: { expected: 14_642, queued: 6_735, terminal: 7_907 }
-    });
+    assert.equal(plan.idempotencyKey, "plan-contract");
+    assert.deepEqual(plan.batches.filter((batch) => batch.slug !== "S26"), [
+      { slug: "S2026", companies: 197, founders: 397, accounts: 968 },
+      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
+    ]);
+    const summer = plan.batches.find((batch) => batch.slug === "S26");
+    assert.ok(summer.companies >= 167);
+    assert.ok(summer.founders > 0);
+    assert.ok(summer.accounts > 0);
+    assert.equal(plan.coverage.expected, plan.coverage.queued + plan.coverage.terminal);
   });
 
   it("refuses to complete file-backed mode when collection was explicitly skipped", async () => {
@@ -201,6 +194,16 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.doesNotMatch(collectors, /fetch-logged-in-social-traction|ingest:logged-social|logged[-_ ]?in/i);
     assert.ok(collectors.includes('"scripts/fetch-public-traction.mjs"'));
     assert.ok(collectors.includes('"scripts/fetch-github-traction.mjs"'));
+  });
+
+  it("refreshes and publishes the mutable Summer catalog before planning", () => {
+    const refreshIndex = runner.indexOf("await refreshMutableYcCatalog()");
+    const planningIndex = runner.indexOf("const catalogs = await loadAutonomousCatalogs(root)");
+    const artifactPaths = section("function repositoryArtifactPaths", "async function refreshMutableYcCatalog");
+
+    assert.ok(refreshIndex > -1 && refreshIndex < planningIndex);
+    assert.ok(artifactPaths.includes('"src/lib/yc/summer-2026-companies.json"'));
+    assert.ok(artifactPaths.includes('"src/lib/yc/summer-2026-company-aliases.json"'));
   });
 
   it("carries the batch-resolved logged-in quarantine ledger into initial and rebased durable imports", () => {

@@ -9,12 +9,13 @@ import {
 import { demoGraphDataset } from "@/lib/graph/demo-data";
 import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
+import companiesSnapshot from "@/lib/yc/summer-2026-companies.json";
 import type { CompanyRecord, DemoGraphDataset, EvidenceItem, FounderRecord } from "@/lib/graph/types";
 
 const graphBuilderBenchmark = process.env.RUN_GRAPH_BUILDER_BENCHMARK === "1" ? it : it.skip;
 
 describe("graph builder", () => {
-  it("sizes company and founder nodes relative to peers with caps", () => {
+  it("sizes company and founder nodes from the global headline score, independent of peers", () => {
     const smallCompany = getNodeRadius(10, [10, 40, 90], "company");
     const largeCompany = getNodeRadius(90, [10, 40, 90], "company");
     const smallFounder = getNodeRadius(10, [10, 40, 90], "founder");
@@ -22,10 +23,16 @@ describe("graph builder", () => {
 
     expect(largeCompany).toBeGreaterThan(smallCompany);
     expect(largeFounder).toBeGreaterThan(smallFounder);
-    expect(smallCompany).toBe(5);
-    expect(largeCompany).toBe(68);
-    expect(smallFounder).toBe(4);
-    expect(largeFounder).toBe(38);
+    expect(getNodeRadius(0, [90, 100], "company")).toBe(5);
+    expect(getNodeRadius(100, [0, 10], "company")).toBe(68);
+    expect(getNodeRadius(0, [90, 100], "founder")).toBe(4);
+    expect(getNodeRadius(100, [0, 10], "founder")).toBe(38);
+    expect(getNodeRadius(55, [50, 55, 60], "company")).toBe(
+      getNodeRadius(55, [0, 10, 100], "company")
+    );
+    expect(getNodeRadius(55, [50, 55, 60], "founder")).toBe(
+      getNodeRadius(55, [0, 10, 100], "founder")
+    );
   });
 
   it("keeps founders out of the rendered graph edge set", () => {
@@ -425,7 +432,7 @@ describe("graph builder", () => {
     const bannedIdentityQualityField = ["con", "fidence"].join("");
 
     expect(graph.batch.label).toBe("YC Summer 2026 (S26)");
-    expect(graph.batch.companyCountExpected).toBe(115);
+    expect(graph.batch.companyCountExpected).toBe(companiesSnapshot.source.expectedCompanyCount);
     expect(graph.nodes.every((node) => !(bannedIdentityQualityField in node))).toBe(true);
     expect(
       graph.nodes.every((node) =>

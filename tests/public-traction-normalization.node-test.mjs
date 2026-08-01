@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { loadAutonomousCatalogs } from "../scripts/lib/autonomous-ingestion-plan.mjs";
+import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs";
 
 const root = process.cwd();
 
@@ -78,11 +79,11 @@ test("public collection independently plans every active verified Eden account",
   ], { cwd: root, encoding: "utf8" }));
 
   const targets = plan.socialTargets.map((target) => `${target.entityType}:${target.platform}:${target.accountUrl}`);
-  assert.ok(targets.includes("company:linkedin:https://www.linkedin.com/company/eden-ai-robotics"));
+  assert.ok(targets.includes("company:linkedin:https://linkedin.com/company/eden-ai-robotics"));
   assert.ok(targets.includes("company:x:https://x.com/thefinalcompany"));
-  assert.ok(targets.includes("founder:linkedin:https://www.linkedin.com/in/stamatis-floratos-535b19244"));
+  assert.ok(targets.includes("founder:linkedin:https://linkedin.com/in/stamatis-floratos-535b19244"));
   assert.ok(targets.includes("founder:x:https://x.com/cybermetheus"));
-  assert.ok(targets.includes("founder:x:https://x.com/StamatisTWIY"));
+  assert.ok(targets.includes("founder:x:https://x.com/stamatistwiy"));
   assert.equal(targets.filter((target) => target.startsWith("founder:x:")).length, 2);
 });
 
@@ -125,7 +126,10 @@ test("public collector plans every canonical public account mapping across all c
       [company, ...company.founders].flatMap((entity) =>
         entity.accounts
           .filter((account) => publicPlatforms.has(account.platform))
-          .map((account) => `${entity.sourceKey}:${account.platform}:${account.url.toLowerCase().replace(/\/$/, "")}`)
+          .flatMap((account) => {
+            const canonicalUrl = canonicalSocialAccountUrl(account.platform, account.url);
+            return canonicalUrl ? [`${entity.sourceKey}:${account.platform}:${canonicalUrl}`] : [];
+          })
       )
     ).sort();
     const actual = plan.socialTargets.map(
@@ -183,7 +187,7 @@ globalThis.fetch = async () => new Response("Title: Log in / X\\nLog in to X to 
   assert.equal(attempts.length, 2);
   assert.deepEqual(
     attempts.map((attempt) => attempt.accountUrl).sort(),
-    ["https://x.com/StamatisTWIY", "https://x.com/cybermetheus"].sort()
+    ["https://x.com/stamatistwiy", "https://x.com/cybermetheus"].sort()
   );
   assert.ok(attempts.every(
     (attempt) => ["completed", "needs_review", "blocked_or_empty", "failed"].includes(attempt.outcomeStatus)
@@ -426,7 +430,7 @@ test("fresh mapped LinkedIn receipts below the attribution contract version reru
   const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
   const preload = join(directory, "blocked-linkedin.mjs");
   const noFetchPreload = join(directory, "no-fetch.mjs");
-  const accountUrl = "https://www.linkedin.com/company/eden-ai-robotics";
+  const accountUrl = "https://linkedin.com/company/eden-ai-robotics";
   const attemptKey = `linkedin:company:company-eden-robotics:${accountUrl}`;
   const legacyCheckedAt = new Date().toISOString();
   const legacyAttempt = {
@@ -504,7 +508,7 @@ test("fresh failed YouTube receipts retry into blocked-or-empty and then skip id
   const preload = join(directory, "empty-youtube.mjs");
   const noFetchPreload = join(directory, "no-fetch.mjs");
   const entityId = "a16z-speedrun-006-antihero-studios";
-  const accountUrl = "https://www.youtube.com/@Antihero_Studios";
+  const accountUrl = "https://youtube.com/@antihero_studios";
   const attemptKey = `youtube:company:${entityId}:${accountUrl}`;
   await Promise.all([
     writeFile(discoveryAttempts, "[]\n"),
@@ -939,13 +943,13 @@ test("mapped YouTube and Product Hunt URLs get direct account-attributed attempt
     company: "crebit",
     platform: "youtube",
     expectedEntityId: "a16z-speedrun-006-crebit-founder-jensen-coonradt",
-    expectedAccountUrl: "https://www.youtube.com/@roborebel6031",
+    expectedAccountUrl: "https://youtube.com/@roborebel6031",
     body: `<script>{"videoId":"abcdefghijk","title":{"runs":[{"text":"Crebit founder update"}]},"viewCountText":{"simpleText":"123 views"}}</script>`
   }, {
     company: "quanto",
     platform: "product_hunt",
     expectedEntityId: "a16z-speedrun-006-quanto",
-    expectedAccountUrl: "https://www.producthunt.com/products/quanto",
+    expectedAccountUrl: "https://producthunt.com/products/quanto",
     body: "Title: Quanto | Product Hunt\nQuanto helps teams move money. 42 upvotes 3 comments"
   }];
 
@@ -1071,6 +1075,99 @@ globalThis.fetch = async (url) => {
     assert.ok(row, `${fixture.platform} official source was not accepted`);
     assert.ok(Object.values(row.metrics).some((value) => Number(value) > 0));
   }
+});
+
+test("generic YouTube discovery rejects embedded short-name channel collisions", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-youtube-short-name-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const falsePositiveId = "1SwM7Pb8gdQ";
+  const strongCompanyId = "KaraStrong1";
+  const youtubeResult = ({ videoId, title, channelName, channelId, channelPath, views }) =>
+    JSON.stringify({
+      videoId,
+      title: { runs: [{ text: title }] },
+      viewCountText: { simpleText: `${views} views` },
+      descriptionSnippet: { runs: [{ text: title }] },
+      ownerText: { runs: [{ text: channelName }] },
+      browseEndpoint: { browseId: channelId },
+      canonicalBaseUrl: channelPath
+    });
+  const searchBody = [
+    youtubeResult({
+      videoId: falsePositiveId,
+      title: "Kara's Toy Kingdom Experience Summer 2026",
+      channelName: "Kaiser & Kara's World",
+      channelId: "UCKaiserAndKara",
+      channelPath: "/@kaikaraworld",
+      views: 108
+    }),
+    youtubeResult({
+      videoId: strongCompanyId,
+      title: "Kara (YC S26): Making diamond an engineering material",
+      channelName: "Kara Labs",
+      channelId: "UCKaraLabsOfficial",
+      channelPath: "/@karalabs",
+      views: 240
+    })
+  ].join("");
+
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+const searchBody = ${JSON.stringify(searchBody)};
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value.includes("youtube.com/results")) {
+    return new Response(searchBody, { status: 200 });
+  }
+  return new Response("<html></html>", { status: 200 });
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S26",
+    "--company=kara",
+    "--platforms=youtube",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: {
+      ...process.env,
+      X_BEARER_TOKEN: "",
+      EXA_API_KEY: "",
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+    },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  assert.equal(
+    snapshot.evidence.some((row) => row.platformPostId === falsePositiveId),
+    false
+  );
+  const rejected = snapshot.needsReview.find((row) => row.platformPostId === falsePositiveId);
+  assert.ok(rejected);
+  assert.equal(rejected.semanticAttributionReason, "collision_prone_name_without_independent_anchor");
+  assert.match(rejected.matchReason, /semantic youtube attribution rejected/i);
+
+  const accepted = snapshot.evidence.find((row) => row.platformPostId === strongCompanyId);
+  assert.ok(accepted);
+  assert.equal(accepted.attributionStatus, "verified");
+  assert.match(accepted.matchReason, /independent_identity_anchor|exact_company_and_expected_cohort/);
 });
 
 test("official X recent search becomes exact mapped-owner evidence", async () => {
@@ -1289,6 +1386,168 @@ globalThis.fetch = async (input) => {
   assert.ok(attempts.length > 0 && attempts.every((row) => row.batch_slug === "S2026"));
   assert.ok(normalized.sourceDiscoveryPaths.every((row) => row.batch_slug === "S2026"));
   assert.ok(normalized.discoveryAttempts.every((row) => row.batch_slug === "S2026"));
+});
+
+test("public LinkedIn search verifies every native post exposed by a bounded response", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-linkedin-search-exhaustive-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const postUrls = Array.from({ length: 10 }, (_, index) =>
+    `https://www.linkedin.com/posts/russellhowardsmith_nine-mothers-activity-${8000000000000000000n + BigInt(index)}-public-${index}`
+  );
+  const canonicalPostUrls = postUrls.map((url) => url.replace("www.linkedin.com", "linkedin.com"));
+
+  await Promise.all([
+    writeFile(output, `${JSON.stringify({ source: {}, evidence: [], needsReview: [], failures: [] }, null, 2)}\n`),
+    writeFile(checkpoint, `${JSON.stringify({ attempts: {}, evidence: [], needsReview: [], failures: [], discoveryAttempts: [], sourceDiscoveryPaths: [] }, null, 2)}\n`),
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+const postUrls = ${JSON.stringify(postUrls)};
+const response = (body) => new Response(body, { status: 200, headers: { "content-type": "text/html" } });
+globalThis.fetch = async (input) => {
+  const rawUrl = String(input);
+  if (rawUrl.startsWith("https://duckduckgo.com/html/")) {
+    const query = new URL(rawUrl).searchParams.get("q") ?? "";
+    if (!query.includes("Russell Smith")) return response("<html></html>");
+    return response("<html><body>" + postUrls.map((postUrl, index) =>
+      '<div class="result"><h2 class="result__title"><a class="result__a" href="' + postUrl + '">Russell Smith at 9 Mothers update ' + index + '</a></h2><div class="result__snippet">9 Mothers founder public startup update</div></div>'
+    ).join("") + "</body></html>");
+  }
+  const postUrl = postUrls.find((candidate) => rawUrl.includes(candidate.match(/activity-(\\d+)/)[1]));
+  if (postUrl) {
+    return response([
+      "Title: Russell Smith update | LinkedIn",
+      "URL Source: " + postUrl,
+      "Markdown Content:",
+      "# Russell Smith's Post",
+      "[Report this post](https://linkedin.com/guest?guestReportContentType=POST)",
+      "Russell Smith at 9 Mothers shares a public startup update.",
+      "[![Image 1](https://static.licdn.com/a) 20](https://linkedin.com/signup)[2 Comments](https://linkedin.com/signup)",
+      "[Like](https://linkedin.com/signup)[Comment](https://linkedin.com/signup) Share"
+    ].join("\\n"));
+  }
+  if (rawUrl.includes("linkedin.com/in/russellhowardsmith")) {
+    return response("Title: Russell Smith | LinkedIn\\nRussell Smith is a founder at 9 Mothers. No native activity links are visible here.");
+  }
+  return response("Title: Unmatched LinkedIn profile\\nThis readable profile does not match the requested entity.");
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=9-mothers-corporation",
+    "--platforms=linkedin",
+    "--social=all",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: {
+      ...process.env,
+      EXA_API_KEY: "",
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+    },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const founderId = "founder-9-mothers-corporation-russell-smith-1373";
+  const sourceUrls = snapshot.evidence
+    .filter((row) => row.entityId === founderId && row.platformPostId)
+    .map((row) => row.sourceUrl)
+    .sort();
+  assert.deepEqual(sourceUrls, canonicalPostUrls.sort());
+});
+
+test("public LinkedIn profiles verify every native post URL exposed in the profile response", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-linkedin-profile-exhaustive-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const postUrls = Array.from({ length: 6 }, (_, index) =>
+    `https://www.linkedin.com/posts/russellhowardsmith_profile-activity-${8100000000000000000n + BigInt(index)}-public-${index}`
+  );
+  const canonicalPostUrls = postUrls.map((url) => url.replace("www.linkedin.com", "linkedin.com"));
+
+  await Promise.all([
+    writeFile(output, `${JSON.stringify({ source: {}, evidence: [], needsReview: [], failures: [] }, null, 2)}\n`),
+    writeFile(checkpoint, `${JSON.stringify({ attempts: {}, evidence: [], needsReview: [], failures: [], discoveryAttempts: [], sourceDiscoveryPaths: [] }, null, 2)}\n`),
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+const postUrls = ${JSON.stringify(postUrls)};
+const response = (body) => new Response(body, { status: 200, headers: { "content-type": "text/html" } });
+globalThis.fetch = async (input) => {
+  const rawUrl = String(input);
+  if (rawUrl.startsWith("https://duckduckgo.com/html/")) return response("<html></html>");
+  const postUrl = postUrls.find((candidate) => rawUrl.includes(candidate.match(/activity-(\\d+)/)[1]));
+  if (postUrl) {
+    return response([
+      "Title: Russell Smith update | LinkedIn",
+      "URL Source: " + postUrl,
+      "Markdown Content:",
+      "# Russell Smith's Post",
+      "[Report this post](https://linkedin.com/guest?guestReportContentType=POST)",
+      "Russell Smith at 9 Mothers shares a public startup update.",
+      "[![Image 1](https://static.licdn.com/a) 20](https://linkedin.com/signup)[2 Comments](https://linkedin.com/signup)",
+      "[Like](https://linkedin.com/signup)[Comment](https://linkedin.com/signup) Share"
+    ].join("\\n"));
+  }
+  if (rawUrl.includes("linkedin.com/in/russellhowardsmith")) {
+    return response([
+      "Title: Russell Smith | LinkedIn",
+      "Russell Smith is a founder at 9 Mothers.",
+      ...postUrls.map((url, index) => "[Public post " + index + "](" + url + ")")
+    ].join("\\n"));
+  }
+  return response("Title: Unmatched LinkedIn profile\\nThis readable profile does not match the requested entity.");
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=9-mothers-corporation",
+    "--platforms=linkedin",
+    "--social=all",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: {
+      ...process.env,
+      EXA_API_KEY: "",
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${preload}`].filter(Boolean).join(" ")
+    },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const founderId = "founder-9-mothers-corporation-russell-smith-1373";
+  const sourceUrls = snapshot.evidence
+    .filter((row) => row.entityId === founderId && row.platformPostId)
+    .map((row) => row.sourceUrl)
+    .sort();
+  assert.deepEqual(sourceUrls, canonicalPostUrls.sort());
 });
 
 test("verified LinkedIn vanity aliases keep Eden founder discovery eligible", async () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { canonicalPostKey } from "@/lib/graph/dedupe";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
+import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
 import { scoringEligibility } from "@/lib/graph/traction-scoring";
 import {
   evidenceMatchesBatchScope,
@@ -10,6 +11,10 @@ import {
   ycSpring2026GraphDataset
 } from "@/lib/graph/yc-spring-2026-dataset";
 import type { SocialAccountSummary } from "@/lib/graph/types";
+import springGithubSnapshot from "@/lib/social/github-traction.json";
+import summerGithubSnapshot from "@/lib/social/github-traction-summer-2026.json";
+import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
+import summerCompaniesSnapshot from "@/lib/yc/summer-2026-companies.json";
 
 const EXPLICIT_S2026_HACKER_NEWS_POST_IDS = [
   "46868675",
@@ -46,6 +51,167 @@ const VERIFIED_S26_LINKEDIN_POST_IDS = [
 ] as const;
 
 describe("YC Summer 2026 official snapshot", () => {
+  it("uses GitHub repository creation—not a later refresh or push—as publication time", () => {
+    const repository = summerGithubSnapshot.accounts
+      .flatMap((account) => account.repos ?? [])
+      .find((repo) => repo.htmlUrl === "https://github.com/screenpipe/screenpipe");
+    const evidence = ycSummer2026GraphDataset.evidence.find(
+      (item) => item.sourceUrl === "https://github.com/screenpipe/screenpipe"
+    );
+
+    expect(repository).toBeDefined();
+    expect(repository?.createdAt).not.toBe(repository?.pushedAt);
+    expect(evidence).toEqual(
+      expect.objectContaining({
+        postedAt: repository?.createdAt,
+        publishedAtPrecision: "exact",
+        observedAt: summerGithubSnapshot.source.fetchedAt,
+        last_updated_at: repository?.pushedAt
+      })
+    );
+    expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual({
+      repositoryTimestamps: {
+        createdAt: repository?.createdAt,
+        updatedAt: repository?.updatedAt,
+        pushedAt: repository?.pushedAt,
+        observedAt: summerGithubSnapshot.source.fetchedAt
+      }
+    });
+  });
+
+  it("reconciles duplicate and targeted GitHub rows to native repository creation", () => {
+    const springCases = [
+      "https://github.com/superset-sh/superset",
+      "https://github.com/MisoLabsAI/MisoTTS"
+    ];
+    for (const sourceUrl of springCases) {
+      const repository = springGithubSnapshot.accounts
+        .flatMap((account) => account.repos ?? [])
+        .find((repo) => repo.htmlUrl.toLowerCase() === sourceUrl.toLowerCase());
+      const evidence = ycSpring2026GraphDataset.evidence.find(
+        (item) => item.sourceUrl.toLowerCase() === sourceUrl.toLowerCase()
+      );
+
+      expect(repository?.createdAt).toBeTruthy();
+      expect(evidence).toEqual(
+        expect.objectContaining({
+          postedAt: repository?.createdAt,
+          publishedAtPrecision: "exact",
+          platformObjectId: String(repository?.id)
+        })
+      );
+      expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
+        expect.objectContaining({
+          repositoryTimestamps: expect.objectContaining({
+            createdAt: repository?.createdAt,
+            observedAt: expect.any(String)
+          })
+        })
+      );
+      expect(evidence?.postedAt).not.toBe("2026-07-15T22:30:00.000Z");
+    }
+
+    const embeddedCreationCases = [
+      "https://github.com/coasty-ai/coasty-osworld",
+      "https://github.com/coasty-ai/llmhub-api",
+      "https://github.com/coasty-ai/.github",
+      "https://github.com/onecli/onecli-plugin"
+    ];
+    for (const sourceUrl of embeddedCreationCases) {
+      const source = targetedEvidenceSnapshot.evidence.find(
+        (item) => item.sourceUrl.toLowerCase() === sourceUrl.toLowerCase()
+      );
+      const raw = JSON.parse(source?.rawVisibleText ?? "null") as {
+        repository?: { id?: number; createdAt?: string; pushedAt?: string };
+      };
+      const evidence = ycSpring2026GraphDataset.evidence.find(
+        (item) => item.sourceUrl.toLowerCase() === sourceUrl.toLowerCase()
+      );
+
+      expect(raw.repository?.createdAt).toBeTruthy();
+      expect(raw.repository?.createdAt).not.toBe(raw.repository?.pushedAt);
+      expect(evidence).toEqual(
+        expect.objectContaining({
+          postedAt: raw.repository?.createdAt,
+          publishedAtPrecision: "exact",
+          platformObjectId: String(raw.repository?.id)
+        })
+      );
+      expect(JSON.parse(evidence?.rawVisibleText ?? "null")).toEqual(
+        expect.objectContaining({
+          repositoryTimestamps: {
+            createdAt: raw.repository?.createdAt,
+            updatedAt: null,
+            pushedAt: raw.repository?.pushedAt,
+            observedAt: expect.any(String)
+          }
+        })
+      );
+      expect(evidence?.postedAt).not.toBe(source?.postedAt);
+    }
+  });
+
+  it("fails closed when a GitHub repository row has no auditable native creation time", () => {
+    const unauditedRepositories = [
+      "https://github.com/experientiallabs/world-model-harness",
+      "https://github.com/onecli/node-sdk",
+      "https://github.com/onecli/onecli-cli",
+      "https://github.com/understudylabs/lowermyaibill"
+    ];
+
+    for (const sourceUrl of unauditedRepositories) {
+      const evidence = ycSpring2026GraphDataset.evidence.find(
+        (item) => item.sourceUrl.toLowerCase() === sourceUrl.toLowerCase()
+      );
+
+      expect(evidence).toEqual(expect.objectContaining({ publishedAtPrecision: "unknown" }));
+      expect(isCrediblyPublishedToday(evidence!, new Date(evidence!.postedAt))).toBe(false);
+    }
+  });
+
+  it("preserves upstream publication precision and rejects inferred relative-display dates", () => {
+    const inferredProductHunt = ycSpring2026GraphDataset.evidence.find(
+      (item) => item.id === "source-hunt-24552534f0e54f7ca54c"
+    );
+    expect(inferredProductHunt).toEqual(expect.objectContaining({
+      platform: "product_hunt",
+      publishedAtPrecision: "unknown"
+    }));
+    expect(isCrediblyPublishedToday(inferredProductHunt!, new Date(inferredProductHunt!.postedAt))).toBe(false);
+
+    const materializedRelativeX = ycSpring2026GraphDataset.evidence.find(
+      (item) => item.sourceUrl === "https://x.com/screenpipe/status/2082126608345788464"
+    );
+    expect(materializedRelativeX).toEqual(expect.objectContaining({
+      platform: "x",
+      publishedAtPrecision: "unknown"
+    }));
+  });
+
+  it("publishes Graphify's verified GitHub, public LinkedIn, and Hacker News evidence", () => {
+    const graphifyEvidence = ycSpring2026GraphDataset.evidence.filter(
+      (item) => item.attachedCompanyId === "company-graphify-labs"
+    );
+
+    expect(graphifyEvidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          platform: "github",
+          sourceUrl: "https://github.com/Graphify-Labs/graphify",
+          contributionScore: 100
+        }),
+        expect.objectContaining({
+          platform: "linkedin",
+          platformPostId: "7447394137814745088"
+        }),
+        expect.objectContaining({
+          platform: "hacker_news",
+          platformPostId: "47682798"
+        })
+      ])
+    );
+  });
+
   it("uses explicit batch provenance to isolate evidence for entities shared by Spring and Summer", () => {
     const sharedCompanyId = "company-textsidekick";
     const sharedFounderId = "founder-textsidekick-justin-so-3332767";
@@ -276,8 +442,8 @@ describe("YC Summer 2026 official snapshot", () => {
       {
         slug: "S26",
         label: "YC Summer 2026 (S26)",
-        companyCountExpected: 115,
-        companyCountObserved: 115
+        companyCountExpected: summerCompaniesSnapshot.source.expectedCompanyCount,
+        companyCountObserved: summerCompaniesSnapshot.source.observedCompanyCount
       },
       {
         slug: "A16ZSR006",
@@ -315,11 +481,11 @@ describe("YC Summer 2026 official snapshot", () => {
     const founderNodes = graph.nodes.filter((node) => node.entityType === "founder");
 
     expect(graph.mode).toBe("official_snapshot");
-    expect(graph.batch.companyCountExpected).toBe(115);
-    expect(graph.batch.companyCountObserved).toBe(115);
-    expect(companyNodes).toHaveLength(115);
+    expect(graph.batch.companyCountExpected).toBe(summerCompaniesSnapshot.source.expectedCompanyCount);
+    expect(graph.batch.companyCountObserved).toBe(summerCompaniesSnapshot.source.observedCompanyCount);
+    expect(companyNodes).toHaveLength(summerCompaniesSnapshot.companies.length);
     expect(founderNodes).toHaveLength(0);
-    expect(graph.leaderboard).toHaveLength(115);
+    expect(graph.leaderboard).toHaveLength(summerCompaniesSnapshot.companies.length);
     expect(graph.evidence.length).toBeGreaterThan(39);
     expect(new Set(graph.evidence.map((item) => item.platform))).toEqual(
       new Set(["github", "youtube", "x", "linkedin", "instagram", "hacker_news", "product_hunt"])
@@ -367,11 +533,26 @@ describe("YC Summer 2026 official snapshot", () => {
         ]
       },
       {
-        oldSlug: "perceptron-ml",
-        newSlug: "notyfi",
+        oldSlug: "notyfi",
+        newSlug: "perceptron-ml",
         founderIds: [
-          "founder-notyfi-michael-marcotte-3087509",
-          "founder-notyfi-peyton-marcotte-3122328"
+          "founder-perceptron-ml-michael-marcotte-3087509",
+          "founder-perceptron-ml-peyton-marcotte-3122328"
+        ]
+      },
+      {
+        oldSlug: "justinian",
+        newSlug: "locke",
+        founderIds: [
+          "founder-locke-parth-badhwar-2399943"
+        ]
+      },
+      {
+        oldSlug: "truffle",
+        newSlug: "joinmarble",
+        founderIds: [
+          "founder-joinmarble-arjun-chaliha-306060",
+          "founder-joinmarble-aakar-khanna-1278164"
         ]
       }
     ] as const;
@@ -641,9 +822,9 @@ describe("YC Summer 2026 official snapshot", () => {
       ["https://www.linkedin.com/company/108252929/admin/dashboard/", "108252929"],
       ["https://www.linkedin.com/company/mountyc26/posts/?feedView=all", "mountyc26"],
       ["https://www.linkedin.com/company/111953568/admin/dashboard/", "111953568"],
-      ["https://www.linkedin.com/company/coniferbuild/posts/?feedView=all", "coniferbuild"],
-      ["https://www.linkedin.com/company/131464079/admin/dashboard/", "131464079"],
-      ["https://www.linkedin.com/company/130274179/admin/dashboard/", "130274179"]
+      ["https://www.linkedin.com/company/coniferbuild", "coniferbuild"],
+      ["https://www.linkedin.com/company/131464079", "131464079"],
+      ["https://www.linkedin.com/company/130274179", "130274179"]
     ]);
     const socialAccounts = [
       ...ycSpring2026GraphDataset.companies.flatMap((company) => company.socialAccounts),

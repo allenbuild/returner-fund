@@ -134,9 +134,51 @@ describe("YC batch parser", () => {
     expect(result.mode).toBe("fallback");
     expect(result.companies).toHaveLength(1);
     expect(result.companies[0].review_state).toBe("needs_review");
-    expect(result.expectedCompanyCount).toBe(115);
+    expect(result.expectedCompanyCount).toBe(167);
     expect(result.observedCompanyCount).toBe(1);
     expect(result.warnings.join(" ")).toContain("Fallback search results require review");
-    expect(result.warnings.join(" ")).toContain("Expected 115 companies for YC Summer 2026");
+    expect(result.warnings.join(" ")).toContain("Expected at least 167 companies for YC Summer 2026");
+  });
+
+  it("treats the Summer 2026 count as a floor and accepts a larger official census", async () => {
+    const companies = Array.from({ length: 168 }, (_, index) => ({
+      name: `Future Company ${index + 1}`,
+      batch: "Summer 2026",
+      slug: `future-company-${index + 1}`
+    }));
+    const adapter = new YcBatchAdapter({
+      fetchImpl: async () => new Response(
+        `<script id="__NEXT_DATA__" type="application/json">${JSON.stringify({
+          props: { companies }
+        })}</script>`,
+        { status: 200 }
+      )
+    });
+
+    const result = await adapter.fetchBatch("S26");
+
+    expect(result.mode).toBe("official");
+    expect(result.observedCompanyCount).toBe(168);
+    expect(result.expectedCompanyCount).toBe(168);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it("warns when an unbounded official Summer 2026 census falls below the floor", async () => {
+    const adapter = new YcBatchAdapter({
+      fetchImpl: async () => new Response(`
+        <script id="__NEXT_DATA__" type="application/json">
+          {"props":{"companies":[{"name":"Only Company","batch":"Summer 2026","slug":"only-company"}]}}
+        </script>
+      `, { status: 200 })
+    });
+
+    const result = await adapter.fetchBatch("S26");
+
+    expect(result.mode).toBe("official");
+    expect(result.expectedCompanyCount).toBe(167);
+    expect(result.observedCompanyCount).toBe(1);
+    expect(result.warnings.join(" ")).toContain(
+      "Expected at least 167 companies for YC Summer 2026"
+    );
   });
 });

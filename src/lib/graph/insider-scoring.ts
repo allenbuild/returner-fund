@@ -5,8 +5,7 @@ import type {
   TopVoiceConnectionPreview
 } from "./types";
 import { momentumSort } from "./benchmarks";
-
-const COMPANY_RADIUS = { min: 5, max: 68 };
+import { getNodeRadius } from "./score-radius";
 
 export const INSIDER_SCORE_FORMULA =
   "published_score_plus_quadratic_insider_adjustments_capped_0_100" as const;
@@ -126,7 +125,6 @@ export function applyInsiderScenarioScoring(
         })
       ] as const)
   );
-  const peerScores = [...breakdownByCompany.values()].map((breakdown) => breakdown.finalScore);
   const nodes = graph.nodes.map((node) => {
     if (node.entityType !== "company") return node;
     const breakdown = breakdownByCompany.get(node.entityId);
@@ -135,7 +133,7 @@ export function applyInsiderScenarioScoring(
       ...node,
       score: breakdown.finalScore,
       scoreDelta: round(breakdown.finalScore - node.previousScore),
-      radius: getCompanyRadius(breakdown.finalScore, peerScores),
+      radius: getNodeRadius(breakdown.finalScore, [], "company"),
       topVoiceScore: breakdown.weightedInsiderSubtotal,
       insiderScoreBreakdown: breakdown
     };
@@ -215,20 +213,4 @@ function recomputeMomentumDelta(
 
 function round(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-function getCompanyRadius(score: number, peerScores: number[]): number {
-  const percentile = scorePercentile(score, peerScores);
-  return round(
-    COMPANY_RADIUS.min +
-    Math.pow(percentile, 2.2) * (COMPANY_RADIUS.max - COMPANY_RADIUS.min)
-  );
-}
-
-function scorePercentile(score: number, peerScores: number[]): number {
-  if (peerScores.length <= 1) return 0.5;
-  const min = Math.min(...peerScores);
-  const max = Math.max(...peerScores);
-  if (max === min) return 0.5;
-  return (score - min) / (max - min);
 }

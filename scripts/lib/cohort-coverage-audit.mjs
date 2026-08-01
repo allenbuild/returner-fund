@@ -5,7 +5,7 @@ import {
   buildAutonomousTaskPlan,
   loadAutonomousCatalogs
 } from "./autonomous-ingestion-plan.mjs";
-import { canonicalGithubTargetUrl } from "./github-url.mjs";
+import { canonicalSocialAccountUrl } from "./social-account-url.mjs";
 
 export const COVERAGE_AUDIT_SCHEMA_VERSION = "cohort-coverage-audit.v1";
 
@@ -290,55 +290,7 @@ export function reportHasStructuralFailures(report) {
 }
 
 export function canonicalAccountUrl(rawPlatform, rawUrl) {
-  const platform = normalizePlatform(rawPlatform);
-  if (!platform || typeof rawUrl !== "string" || !rawUrl.trim()) return null;
-  try {
-    const url = new URL(rawUrl.trim());
-    const host = url.hostname.toLowerCase().replace(/^www\./, "");
-    const parts = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
-
-    if (platform === "github" && host === "github.com") {
-      const canonicalUrl = canonicalGithubTargetUrl(rawUrl);
-      return canonicalUrl ? canonicalUrl.toLowerCase() : null;
-    }
-    if (platform === "x" && ["x.com", "twitter.com"].includes(host)) {
-      return parts[0] ? `https://x.com/${parts[0].toLowerCase()}` : null;
-    }
-    if (platform === "linkedin" && host.endsWith("linkedin.com")) {
-      const namespaceIndex = parts.findIndex((part) => ["company", "in", "school", "showcase"].includes(part.toLowerCase()));
-      const namespace = namespaceIndex >= 0 ? parts[namespaceIndex]?.toLowerCase() : null;
-      const identity = namespaceIndex >= 0 ? parts[namespaceIndex + 1] : null;
-      return namespace && identity
-        ? `https://linkedin.com/${namespace}/${identity.toLowerCase()}`
-        : null;
-    }
-    if (platform === "instagram" && host === "instagram.com") {
-      return parts[0] ? `https://instagram.com/${parts[0].toLowerCase()}` : null;
-    }
-    if (platform === "youtube" && ["youtube.com", "m.youtube.com"].includes(host)) {
-      if (!parts[0]) return null;
-      if (parts[0].startsWith("@")) return `https://youtube.com/@${parts[0].slice(1).toLowerCase()}`;
-      if (["channel", "c", "user"].includes(parts[0].toLowerCase()) && parts[1]) {
-        return `https://youtube.com/${parts[0].toLowerCase()}/${parts[1].toLowerCase()}`;
-      }
-      return `https://youtube.com/${parts[0].toLowerCase()}`;
-    }
-    if (platform === "product_hunt" && host === "producthunt.com") {
-      return parts[0] && parts[1]
-        ? `https://producthunt.com/${parts[0].toLowerCase()}/${parts[1].toLowerCase()}`
-        : parts[0]
-          ? `https://producthunt.com/${parts[0].toLowerCase()}`
-          : null;
-    }
-
-    url.hash = "";
-    url.search = "";
-    url.hostname = host;
-    url.pathname = `/${parts.join("/")}`.replace(/\/$/, "");
-    return url.toString().replace(/\/$/, "");
-  } catch {
-    return null;
-  }
+  return canonicalSocialAccountUrl(normalizePlatform(rawPlatform), rawUrl);
 }
 
 export function ownerMappingKey(mapping) {
@@ -831,7 +783,7 @@ function mergeOwnerLinks(baseLinks = {}, overrideLinks = {}, retiredAccounts = [
     const platform = platformForUrl(rawPlatform, url);
     const canonicalUrl = canonicalAccountUrl(platform, url);
     const key = ownerAccountCanonicalKey(platform, url);
-    if (!platform || !canonicalUrl || !key || retiredKeys.has(key)) continue;
+    if (!platform || !canonicalUrl || !key) continue;
     byIdentity.set(key, {
       platform,
       url,

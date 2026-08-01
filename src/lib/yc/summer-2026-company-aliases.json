@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "aliases": [
     {
       "companyId": "32089",
@@ -88,6 +88,158 @@
           }
         }
       ]
+    },
+    {
+      "companyId": "33283",
+      "fromSlug": "justinian",
+      "fromName": "Justinian",
+      "toSlug": "locke",
+      "toName": "Locke",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/justinianai/?viewAsMember=true"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "2399943",
+          "name": "Parth Badhwar",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/parth-badhwar-8a8037189/"
+            ],
+            "x": [
+              "https://x.com/parth_badhwar"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "companyId": "32127",
+      "fromSlug": "notyfi",
+      "fromName": "Notyfi",
+      "toSlug": "perceptron-ml",
+      "toName": "Perceptron ML",
+      "companyAccounts": {
+        "linkedin": [
+          "https://linkedin.com/company/notyfi"
+        ],
+        "x": [
+          "https://x.com/PerceptronML"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "3087509",
+          "name": "Michael Marcotte",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/marcottemichael"
+            ]
+          }
+        },
+        {
+          "founderId": "3122328",
+          "name": "Peyton Marcotte",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/peytonmarcotte/"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "companyId": "32223",
+      "fromSlug": "truffle",
+      "fromName": "Truffle",
+      "toSlug": "joinmarble",
+      "toName": "Marble",
+      "companyAccounts": {
+        "linkedin": [
+          "https://www.linkedin.com/company/usetruffle/"
+        ],
+        "x": [
+          "https://x.com/PinchOfTruffle"
+        ]
+      },
+      "founders": [
+        {
+          "founderId": "306060",
+          "name": "Arjun Chaliha",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/achaliha/"
+            ],
+            "x": [
+              "https://x.com/arjunjchaliha"
+            ]
+          }
+        },
+        {
+          "founderId": "1278164",
+          "name": "Aakar Khanna",
+          "accounts": {
+            "linkedin": [
+              "https://www.linkedin.com/in/aakarkhanna/"
+            ],
+            "x": [
+              "https://x.com/khannauno"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "founderTransitions": [
+    {
+      "companyId": "33573",
+      "companySlug": "hardware-intelligence",
+      "companyName": "hardware intelligence",
+      "founderId": "2565323",
+      "change": "added",
+      "fromName": null,
+      "toName": "Rishov Sarkar",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/rishovsarkar/"
+        ],
+        "x": [
+          "https://twitter.com/ArkaneMoose"
+        ]
+      }
+    },
+    {
+      "companyId": "31340",
+      "companySlug": "illume-labs",
+      "companyName": "Illume Labs",
+      "founderId": "1230814",
+      "change": "added",
+      "fromName": null,
+      "toName": "Jin Wong",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/jinwong01/"
+        ]
+      }
+    },
+    {
+      "companyId": "33052",
+      "companySlug": "mireye",
+      "companyName": "Mireye",
+      "founderId": "678147",
+      "change": "removed",
+      "fromName": "Shashwat Kapoor",
+      "toName": null,
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/shashkap/"
+        ],
+        "x": [
+          "https://x.com/shshwt_"
+        ]
+      }
     }
   ]
 }

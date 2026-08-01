@@ -90,6 +90,9 @@ await Promise.all([
   mkdir(workRoot, { recursive: true }),
   mkdir(collectorRoot, { recursive: true })
 ]);
+if (!args.plan && !args.skipNetwork) {
+  await refreshMutableYcCatalog();
+}
 const catalogs = await loadAutonomousCatalogs(root);
 const resolvePublicNativeAuthor = buildAutonomousPublicNativeAuthorResolver(catalogs);
 const resolveCanonicalTargetedAttribution = buildCanonicalTargetedAttributionResolver(catalogs);
@@ -2448,6 +2451,8 @@ async function stageRepositoryArtifacts() {
 
 function repositoryArtifactPaths() {
   return [
+    "src/lib/yc/summer-2026-companies.json",
+    "src/lib/yc/summer-2026-company-aliases.json",
     "public/graph",
     "outputs/benchmarks",
     "outputs/cohort-coverage-current.json",
@@ -2463,6 +2468,36 @@ function repositoryArtifactPaths() {
     "src/lib/social/github-traction-summer-2026.json",
     "src/lib/social/github-traction-a16z-speedrun-006.json"
   ];
+}
+
+async function refreshMutableYcCatalog() {
+  await new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, ["scripts/fetch-yc-spring-2026.mjs"], {
+      cwd: root,
+      env: process.env,
+      stdio: ["ignore", "inherit", "inherit"]
+    });
+    const timer = setTimeout(() => {
+      child.kill("SIGTERM");
+    }, 6 * 60_000);
+    child.once("error", (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.once("exit", (code, signal) => {
+      clearTimeout(timer);
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(
+        new Error(
+          `Official mutable YC catalog refresh failed with ${code ?? signal ?? "unknown status"}; ` +
+          "refusing to plan against a stale roster."
+        )
+      );
+    });
+  });
 }
 
 function publicationBranch() {

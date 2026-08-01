@@ -3,6 +3,10 @@ import { dirname, normalize, resolve } from "node:path";
 
 const MEBIBYTE = 1024 * 1024;
 const MAX_TRACE_BYTES = 140 * MEBIBYTE;
+// The refresh route intentionally carries the nine static graph fallbacks.
+// The 52-company S26 census expansion increases only those bounded artifacts,
+// so retain a separate ceiling while staying well below the deployment limit.
+const MAX_REFRESH_TRACE_BYTES = 150 * MEBIBYTE;
 const routeTraces = [
   {
     label: "graph",
@@ -17,7 +21,7 @@ const routeTraces = [
   {
     label: "graph refresh",
     manifest: ".next/server/app/api/graph/refresh/route.js.nft.json",
-    maxBytes: MAX_TRACE_BYTES,
+    maxBytes: MAX_REFRESH_TRACE_BYTES,
     forbidden: [
       `${normalize("/src/lib/social/public-evidence-current.json")}`,
       `${normalize("/src/lib/social/logged-in-evidence-current.json")}`

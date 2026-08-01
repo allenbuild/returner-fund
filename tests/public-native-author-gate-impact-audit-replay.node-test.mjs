@@ -91,13 +91,27 @@ describe("public native-author gate-impact artifact replay", () => {
       );
     }
 
+    const newlyResolvedSubjects = unresolvedSubjects.filter((record) =>
+      replay.resolveNativeAuthor(replay.candidateByCanonicalId.get(record.canonicalRowId))?.status === "matched"
+    );
+    assert.deepEqual(newlyResolvedSubjects.map((record) => record.physicalId), [
+      "7484347612448587776"
+    ]);
+    const newlyResolved = replay.acceptedByCanonicalId.get(newlyResolvedSubjects[0].canonicalRowId);
+    assert.deepEqual(
+      [newlyResolved.batchSlug, newlyResolved.entityType, newlyResolved.entityId],
+      ["S26", "founder", "founder-gutgutgoose-leon-mojarrabi-991771"]
+    );
+
     const falseAccepts = unresolvedSubjects
+      .filter((record) => !newlyResolvedSubjects.includes(record))
       .filter((record) => replay.acceptedByCanonicalId.has(record.canonicalRowId))
       .map((record) => record.physicalId)
       .sort();
     assert.deepEqual(falseAccepts, []);
     assert.deepEqual(
       unresolvedSubjects
+        .filter((record) => !newlyResolvedSubjects.includes(record))
         .filter((record) => !replay.reviewByCanonicalId.has(record.canonicalRowId))
         .map((record) => record.physicalId)
         .sort(),
@@ -156,6 +170,61 @@ describe("public native-author gate-impact artifact replay", () => {
         expected.get(record.physicalId)
       );
     }
+  });
+
+  it("reassigns Leon Mojarrabi's public post and removes the exact stale Inkbox quarantine", async () => {
+    const replay = await replayPromise;
+    const physicalId = "7484347612448587776";
+    const record = replay.auditByPhysicalId.get(physicalId);
+    const staleReview = replay.canonicalById.get(record.canonicalRowId);
+    const candidate = replay.candidateByCanonicalId.get(record.canonicalRowId);
+    const priorLedger = replay.canonical.attributionReconciliationLedger.filter(
+      (entry) => String(entry.platformPostId) === physicalId
+    );
+
+    const merged = mergePublicEvidenceSnapshots([
+      {
+        source: { batchSlugs: ["S26"] },
+        evidence: [],
+        needsReview: [staleReview],
+        failures: [],
+        attributionReconciliationLedger: priorLedger
+      },
+      {
+        source: { batchSlugs: ["S26"] },
+        evidence: [candidate],
+        needsReview: [],
+        failures: []
+      }
+    ], {
+      fetchedAt: "2026-07-20T00:00:00.000Z",
+      resolveNativeAuthor: replay.resolveNativeAuthor
+    });
+
+    const accepted = merged.evidence.filter((row) => row.platformPostId === physicalId);
+    assert.equal(accepted.length, 1);
+    assert.deepEqual(
+      [accepted[0].batchSlug, accepted[0].entityType, accepted[0].entityId],
+      ["S26", "founder", "founder-gutgutgoose-leon-mojarrabi-991771"]
+    );
+    assert.equal(
+      merged.needsReview.some((row) => String(row.platformPostId) === physicalId),
+      false
+    );
+    assert.ok(merged.attributionReconciliationLedger.some((entry) =>
+      entry.platform === "linkedin" &&
+      entry.platformPostId === physicalId &&
+      entry.disposition === "reattributed" &&
+      entry.staleAttribution?.entityId === "founder-inkbox-ray-liao-778892" &&
+      entry.replacementAttribution?.entityId === "founder-gutgutgoose-leon-mojarrabi-991771"
+    ));
+
+    const replayed = mergePublicEvidenceSnapshots([merged], {
+      fetchedAt: "2026-07-20T00:00:00.000Z",
+      resolveNativeAuthor: replay.resolveNativeAuthor
+    });
+    assert.equal(replayed.evidence.filter((row) => row.platformPostId === physicalId).length, 1);
+    assert.equal(replayed.needsReview.some((row) => String(row.platformPostId) === physicalId), false);
   });
 
   it("rejects related-post chrome, a conflicting suffix, and cross-company ambiguity", async () => {
@@ -338,6 +407,7 @@ async function replayUnresolvedAuthorAudit() {
     auditByPhysicalId: new Map(auditRecords.map((record) => [record.physicalId, record])),
     candidateByCanonicalId: new Map(rows.map((row) => [row.id, row])),
     canonicalById,
+    canonical,
     resolveNativeAuthor,
     merged,
     acceptedByCanonicalId: new Map(

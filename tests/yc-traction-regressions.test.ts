@@ -659,8 +659,10 @@ describe("YC traction scoring regressions", () => {
 
     expect(careGp?.score).toBeLessThan(70);
     expect(screenpipe?.score).toBeGreaterThan(careGp?.score ?? 0);
-    expect(careGp?.scoreBreakdown?.calibration.method).toBe("none");
+    expect(careGp?.scoreBreakdown?.calibration.method).toBe("global_best_ratio");
     expect(careGp?.scoreBreakdown?.calibration.inputScore).toBe(careGp?.scoreBreakdown?.absoluteScore);
+    expect(careGp?.scoreBreakdown?.calibration.benchmarkScope).toBe("all_supported_batches");
+    expect(careGp?.scoreBreakdown?.calibration.benchmarkPopulation).toBe("current_company_snapshot");
     expect(careGp?.scoreBreakdown?.explanation).not.toContain("Evidence-depth factor");
     expect(careGp?.scoreBreakdown?.weightedPlatforms[0]?.evidenceCount).toBeGreaterThanOrEqual(1);
   });
@@ -674,8 +676,8 @@ describe("YC traction scoring regressions", () => {
 
     expect(nori).toBeTruthy();
     expect(screenpipe).toBeTruthy();
-    expect(nori?.score).toBe(nori?.scoreBreakdown?.absoluteScore);
-    expect(screenpipe?.score).toBe(screenpipe?.scoreBreakdown?.absoluteScore);
+    expect(nori?.score).toBeGreaterThan(nori?.scoreBreakdown?.absoluteScore ?? 0);
+    expect(screenpipe?.score).toBeGreaterThan(screenpipe?.scoreBreakdown?.absoluteScore ?? 0);
     expect(nori?.scoreBreakdown?.coverageFactor).toBe(0.21);
     expect(screenpipe?.scoreBreakdown?.coverageFactor).toBeGreaterThan(
       nori?.scoreBreakdown?.coverageFactor ?? 0
@@ -687,7 +689,14 @@ describe("YC traction scoring regressions", () => {
         (sum, row) => sum + row.score * row.configuredWeight,
         0
       );
-      expect(company.score).toBe(Math.round(fixedContributionTotal));
+      expect(company.scoreBreakdown?.absoluteScore).toBe(Math.round(fixedContributionTotal));
+      expect(company.score).toBe(
+        Math.round(
+          (company.scoreBreakdown!.absoluteScore /
+            company.scoreBreakdown!.calibration.benchmarkScore!) *
+            100
+        )
+      );
       expect(
         company.scoreBreakdown!.weightedPlatforms.every(
           (row) => row.appliedWeight === row.configuredWeight
@@ -696,7 +705,15 @@ describe("YC traction scoring regressions", () => {
     }
   });
 
-  it("uses absolute scores independently in S2026, S26, and A16Z", () => {
+  it("uses one global current-company benchmark across S2026, S26, and A16Z", () => {
+    const globalPositiveCompanies = ycSpring2026GraphDataset.companies.filter(
+      (company) => (company.scoreBreakdown?.absoluteScore ?? 0) > 0
+    );
+    const globalBenchmarkScore = Math.max(
+      ...globalPositiveCompanies.map((company) => company.scoreBreakdown!.absoluteScore)
+    );
+    const globalScaleFactor = 100 / globalBenchmarkScore;
+
     for (const batchSlug of ["S2026", "S26", "A16ZSR006"]) {
       const companies = ycSpring2026GraphDataset.companies.filter((company) => company.batchSlug === batchSlug);
       const positiveCompanies = companies.filter((company) => (company.scoreBreakdown?.absoluteScore ?? 0) > 0);
@@ -707,13 +724,19 @@ describe("YC traction scoring regressions", () => {
       expect(Math.max(...positiveScores)).toBeLessThanOrEqual(100);
       for (const company of positiveCompanies) {
         expect(company.totalScore).toBeGreaterThan(0);
-        expect(company.totalScore).toBe(company.scoreBreakdown?.absoluteScore);
+        expect(company.totalScore).toBe(
+          Math.round(company.scoreBreakdown!.absoluteScore * globalScaleFactor)
+        );
         expect(company.scoreBreakdown?.calibration).toEqual(
           expect.objectContaining({
-            method: "none",
-            cohortSize: positiveCompanies.length,
+            method: "global_best_ratio",
+            cohortSize: globalPositiveCompanies.length,
             percentile: null,
-            inputScore: company.scoreBreakdown?.absoluteScore
+            inputScore: company.scoreBreakdown?.absoluteScore,
+            benchmarkScore: globalBenchmarkScore,
+            scaleFactor: globalScaleFactor,
+            benchmarkScope: "all_supported_batches",
+            benchmarkPopulation: "current_company_snapshot"
           })
         );
       }
@@ -949,7 +972,9 @@ describe("YC traction scoring regressions", () => {
   });
 
   it("uses the recommended long-run scoring config for live graph scoring", () => {
-    expect(TRACTION_SCORING_CONFIG.name).toBe("returner-traction-v4-absolute-fixed-platform");
+    expect(TRACTION_SCORING_CONFIG.name).toBe(
+      "returner-traction-v4-absolute-fixed-platform-global-best"
+    );
     expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.15);
     expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.21);
     expect(TRACTION_SCORING_CONFIG.platformWeights.linkedin).toBe(0.15);

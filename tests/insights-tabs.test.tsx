@@ -374,6 +374,112 @@ describe("insights tabs", () => {
     expect(within(list).queryByText("Unknown publication precision")).not.toBeInTheDocument();
   });
 
+  it("uses native publication time for Today across platforms and ignores refresh timestamps", () => {
+    const now = new Date("2026-07-31T18:00:00.000Z");
+    const graph = buildGraphResponse({ batchSlug: "S2026" }, ycSpring2026GraphDataset);
+    const company = graph.nodes.find((node) => node.entityType === "company");
+    expect(company).toBeDefined();
+
+    const platforms = [
+      {
+        platform: "github" as const,
+        sourceUrl: "https://github.com/native-date-test/repository",
+        platformPostId: "native-date-test/repository",
+        todaySourceUrl: "https://github.com/native-date-test/repository-new",
+        todayPostId: "native-date-test/repository-new",
+        metrics: { stars: 250 },
+        mediaType: "repo" as const
+      },
+      {
+        platform: "x" as const,
+        sourceUrl: "https://x.com/nativedatetest/status/2100000000000000101",
+        platformPostId: "2100000000000000101",
+        todaySourceUrl: "https://x.com/nativedatetest/status/2100000000000000201",
+        todayPostId: "2100000000000000201",
+        metrics: { views: 2_500, likes: 80 },
+        mediaType: "text" as const
+      },
+      {
+        platform: "linkedin" as const,
+        sourceUrl: "https://www.linkedin.com/feed/update/urn:li:activity:2100000000000000102",
+        platformPostId: "2100000000000000102",
+        todaySourceUrl: "https://www.linkedin.com/feed/update/urn:li:activity:2100000000000000202",
+        todayPostId: "2100000000000000202",
+        metrics: { reactions: 90 },
+        mediaType: "text" as const
+      },
+      {
+        platform: "instagram" as const,
+        sourceUrl: "https://www.instagram.com/p/NativeDateTest/",
+        platformPostId: "NativeDateTest",
+        todaySourceUrl: "https://www.instagram.com/p/NativeDateToday/",
+        todayPostId: "NativeDateToday",
+        metrics: { views: 3_000, likes: 120 },
+        mediaType: "image" as const
+      }
+    ];
+    const refreshedAt = "2026-07-31T17:00:00.000Z";
+    const evidence = platforms.flatMap((record) => {
+      const base = {
+        batchSlug: "S2026",
+        entityType: "company" as const,
+        entityId: company!.entityId,
+        attachedCompanyId: company!.entityId,
+        attachedCompanyName: company!.label,
+        platform: record.platform,
+        authorName: "Native date test",
+        authorHandle: "native_date_test",
+        publishedAtPrecision: "exact" as const,
+        mediaType: record.mediaType,
+        metrics: record.metrics,
+        contributionScore: 70,
+        normalizedScore: 70,
+        tractionStatus: "scored" as const,
+        sourceUrl: record.sourceUrl,
+        platformPostId: record.platformPostId,
+        observedAt: refreshedAt,
+        metricsCheckedAt: refreshedAt,
+        first_seen_at: refreshedAt,
+        last_checked_at: refreshedAt,
+        last_updated_at: refreshedAt,
+        why: "Native publication date visibility test",
+        review_state: "verified" as const,
+        linkStatus: "verified" as const
+      };
+      return [
+        {
+          ...base,
+          id: `old-refreshed-${record.platform}`,
+          postedAt: "2026-06-15T12:00:00.000Z",
+          title: `Old ${record.platform} item refreshed today`,
+          text: `Old ${record.platform} item refreshed today`
+        },
+        {
+          ...base,
+          id: `native-today-${record.platform}`,
+          sourceUrl: record.todaySourceUrl,
+          platformPostId: record.todayPostId,
+          postedAt: "2026-07-31T12:00:00.000Z",
+          title: `New ${record.platform} item published today`,
+          text: `New ${record.platform} item published today`
+        }
+      ];
+    });
+
+    graph.evidence = evidence;
+
+    render(<InsightsTabs graph={graph} now={now} onSelectNode={vi.fn()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Ranked Posts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Today" }));
+
+    const list = screen.getByRole("list", { name: "Ranked posts" });
+    for (const { platform } of platforms) {
+      expect(within(list).getByText(`New ${platform} item published today`)).toBeInTheDocument();
+      expect(within(list).queryByText(`Old ${platform} item refreshed today`)).not.toBeInTheDocument();
+    }
+    expect(within(list).getAllByRole("listitem")).toHaveLength(platforms.length);
+  });
+
   it("keeps every ranked-post label readable instead of clipping it into an ellipsis", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
     const rankedPostRules = css.slice(
