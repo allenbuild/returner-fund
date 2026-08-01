@@ -9,12 +9,6 @@
     },
     {
       "family": "nonnegative_logistic",
-      "id": "age-only-logistic-l2-0.01",
-      "includeAge": true,
-      "lambda": 0.01
-    },
-    {
-      "family": "nonnegative_logistic",
       "id": "metric-logistic-l2-0",
       "includeAge": false,
       "lambda": 0
@@ -36,18 +30,6 @@
       "id": "metric-logistic-l2-1",
       "includeAge": false,
       "lambda": 1
-    },
-    {
-      "family": "nonnegative_logistic",
-      "id": "metric-age-logistic-l2-0.01",
-      "includeAge": true,
-      "lambda": 0.01
-    },
-    {
-      "family": "nonnegative_logistic",
-      "id": "metric-age-logistic-l2-0.1",
-      "includeAge": true,
-      "lambda": 0.1
     }
   ],
   "platforms": {},
