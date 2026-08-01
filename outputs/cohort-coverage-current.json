@@ -12,8 +12,8 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-31-1800-a5cf03ca399cfdeb/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-31-1800-a5cf03ca399cfdeb/github-a16zsr006.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-0600-94335685bea6ad59/public-a16zsr006.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-0600-94335685bea6ad59/github-a16zsr006.json"
       },
       "counts": {
         "companies": 59,
@@ -23,7 +23,7 @@
         "catalogOwnerPlatformGroups": 325,
         "plannedOwnerMappings": 328,
         "multiAccountOwnerMappings": 3,
-        "graphEvidence": 1003,
+        "graphEvidence": 1001,
         "graphNeedsReview": 0
       },
       "structural": {
@@ -214,6 +214,11 @@
           {
             "entityId": "a16z-speedrun-006-alike",
             "name": "Alike",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-amdahl",
+            "name": "Amdahl",
             "companyName": null
           },
           {
@@ -554,8 +559,8 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-31-1800-a5cf03ca399cfdeb/public-s2026.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-31-1800-a5cf03ca399cfdeb/github-s2026.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-0600-94335685bea6ad59/public-s2026.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-0600-94335685bea6ad59/github-s2026.json"
       },
       "counts": {
         "companies": 197,
@@ -565,8 +570,8 @@
         "catalogOwnerPlatformGroups": 967,
         "plannedOwnerMappings": 968,
         "multiAccountOwnerMappings": 1,
-        "graphEvidence": 3836,
-        "graphNeedsReview": 5058
+        "graphEvidence": 3823,
+        "graphNeedsReview": 5064
       },
       "structural": {
         "status": "pass",
@@ -2314,8 +2319,8 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-31-1800-a5cf03ca399cfdeb/public-s26.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-07-31-1800-a5cf03ca399cfdeb/github-s26.json"
+        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-0600-94335685bea6ad59/public-s26.json",
+        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-0600-94335685bea6ad59/github-s26.json"
       },
       "counts": {
         "companies": 115,
@@ -2325,8 +2330,8 @@
         "catalogOwnerPlatformGroups": 554,
         "plannedOwnerMappings": 554,
         "multiAccountOwnerMappings": 0,
-        "graphEvidence": 1553,
-        "graphNeedsReview": 2411
+        "graphEvidence": 1532,
+        "graphNeedsReview": 2416
       },
       "structural": {
         "status": "pass",
@@ -2582,6 +2587,11 @@
           {
             "entityId": "company-ooak-data",
             "name": "Ooak Data",
+            "companyName": null
+          },
+          {
+            "entityId": "company-openrelay",
+            "name": "OpenRelay",
             "companyName": null
           },
           {
@@ -3071,6 +3081,11 @@
           {
             "entityId": "company-ooak-data",
             "name": "Ooak Data",
+            "companyName": null
+          },
+          {
+            "entityId": "company-openrelay",
+            "name": "OpenRelay",
             "companyName": null
           },
           {
