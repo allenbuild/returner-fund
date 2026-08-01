@@ -46,7 +46,7 @@ The after view is a diagnostic simulation only. It does not update the productio
 | Cohort | Platform | Evidence B/A | Nonzero companies B/A | Mean score B/A | Score changes | Rank changes | Max score delta | Max rank shift |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | S2026 | bilibili | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
-| S2026 | github | 325/145 | 27/27 | 0.8883/0.8883 | 0 | 0 | 0 | 0 |
+| S2026 | github | 326/145 | 27/27 | 0.8883/0.8883 | 0 | 0 | 0 | 0 |
 | S2026 | hacker_news | 607/42 | 25/25 | 0.3401/0.3401 | 0 | 0 | 0 | 0 |
 | S2026 | instagram | 166/165 | 12/12 | 0.7817/0.7817 | 0 | 0 | 0 | 0 |
 | S2026 | linkedin | 371/363 | 142/142 | 5.4365/5.4365 | 0 | 0 | 0 | 0 |

@@ -78,11 +78,11 @@
           "retryable": false
         },
         {
-          "attemptKey": "discovery:founder:founder-6thsense-james-baek-3429291:official_profile:https://www.ycombinator.com/people/james-baek",
+          "attemptKey": "discovery:founder:founder-aktoria-robotics-jaskaran-singh-walia-3108880:official_profile:https://www.ycombinator.com/people/jaskaran-singh-walia",
           "entityType": "founder",
-          "entityId": "founder-6thsense-james-baek-3429291",
+          "entityId": "founder-aktoria-robotics-jaskaran-singh-walia-3108880",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/people/james-baek",
+          "sourceUrl": "https://www.ycombinator.com/people/jaskaran-singh-walia",
           "status": "failed",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/james-baek: 404 HTTP error",
@@ -149,6 +149,50 @@
           "entityId": "company-agency-tool-company",
           "sourceKind": "official_profile",
           "sourceUrl": "https://www.ycombinator.com/companies/agency-tool-company",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:founder:founder-billow-ai-labs-joanathan-mcintosh-983067:official_profile:https://www.ycombinator.com/people/joanathan-mcintosh",
+          "entityType": "founder",
+          "entityId": "founder-billow-ai-labs-joanathan-mcintosh-983067",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/people/joanathan-mcintosh",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/joanathan-mcintosh: 404 Not Found",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:founder:founder-baud-eric-taylor-3805085:official_profile:https://www.ycombinator.com/people/eric-taylor",
+          "entityType": "founder",
+          "entityId": "founder-baud-eric-taylor-3805085",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/people/eric-taylor",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/eric-taylor: 404 Not Found",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:founder:founder-billow-ai-labs-philip-moniaga-548009:official_profile:https://www.ycombinator.com/people/philip-moniaga",
+          "entityType": "founder",
+          "entityId": "founder-billow-ai-labs-philip-moniaga-548009",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/people/philip-moniaga",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/philip-moniaga: 404 Not Found",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-aktoria-robotics:official_profile:https://www.ycombinator.com/companies/aktoria-robotics",
+          "entityType": "company",
+          "entityId": "company-aktoria-robotics",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/aktoria-robotics",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -575,9 +619,9 @@
         {
           "attemptKey": "discovery:founder:founder-atlas-discovery-sanjukta-bhattacharya-3437717:official_profile:https://www.ycombinator.com/people/sanjukta-bhattacharya",
           "entityType": "founder",
-          "entityId": "founder-atlas-discovery-sanjukta-bhattacharya-3437717",
+          "entityId": "founder-cerenovus-jonathan-waldorf-3502381",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/people/sanjukta-bhattacharya",
+          "sourceUrl": "https://www.ycombinator.com/people/jonathan-waldorf",
           "status": "failed",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/sanjukta-bhattacharya: 404 HTTP error",
@@ -1068,11 +1112,11 @@
           "retryable": false
         },
         {
-          "attemptKey": "discovery:company:company-contextdev:official_profile:https://www.ycombinator.com/companies/contextdev",
+          "attemptKey": "discovery:company:company-cosmic-robotics:official_profile:https://www.ycombinator.com/companies/cosmic-robotics",
           "entityType": "company",
-          "entityId": "company-contextdev",
+          "entityId": "company-cosmic-robotics",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/contextdev",
+          "sourceUrl": "https://www.ycombinator.com/companies/cosmic-robotics",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -1662,6 +1706,17 @@
           "retryable": false
         },
         {
+          "attemptKey": "discovery:company:company-baud:official_website:https://baudlabs.ai",
+          "entityType": "company",
+          "entityId": "company-baud",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://baudlabs.ai",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
           "attemptKey": "discovery:founder:founder-floracene-jonah-kaye-1225540:official_profile:https://www.ycombinator.com/people/jonah-kaye",
           "entityType": "founder",
           "entityId": "founder-floracene-jonah-kaye-1225540",
@@ -1783,11 +1838,11 @@
           "retryable": false
         },
         {
-          "attemptKey": "discovery:company:company-flowmanual:official_profile:https://www.ycombinator.com/companies/flowmanual",
+          "attemptKey": "discovery:company:company-assemble:official_profile:https://www.ycombinator.com/companies/assemble",
           "entityType": "company",
-          "entityId": "company-flowmanual",
+          "entityId": "company-assemble",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/flowmanual",
+          "sourceUrl": "https://www.ycombinator.com/companies/assemble",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -1849,6 +1904,28 @@
           "retryable": false
         },
         {
+          "attemptKey": "discovery:company:company-atlas-discovery:official_profile:https://www.ycombinator.com/companies/atlas-discovery",
+          "entityType": "company",
+          "entityId": "company-atlas-discovery",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/atlas-discovery",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-daqstra:official_website:https://www.daqstra.com",
+          "entityType": "company",
+          "entityId": "company-daqstra",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://www.daqstra.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
           "attemptKey": "discovery:founder:founder-greypoint-industries-nic-chu-3676391:official_profile:https://www.ycombinator.com/people/nic-chu",
           "entityType": "founder",
           "entityId": "founder-greypoint-industries-nic-chu-3676391",
@@ -1857,6 +1934,17 @@
           "status": "failed",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/nic-chu: 404 HTTP error",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-floracene:official_profile:https://www.ycombinator.com/companies/floracene",
+          "entityType": "company",
+          "entityId": "company-floracene",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/floracene",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
           "retryable": false
         },
         {
@@ -1871,11 +1959,11 @@
           "retryable": false
         },
         {
-          "attemptKey": "discovery:company:company-greypoint-industries:official_profile:https://www.ycombinator.com/companies/greypoint-industries",
+          "attemptKey": "discovery:company:company-donkey:official_profile:https://www.ycombinator.com/companies/donkey",
           "entityType": "company",
-          "entityId": "company-greypoint-industries",
+          "entityId": "company-donkey",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/greypoint-industries",
+          "sourceUrl": "https://www.ycombinator.com/companies/donkey",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -1978,6 +2066,28 @@
           "status": "failed",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/rishov-sarkar: 404 HTTP error",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-flowmanual:official_profile:https://www.ycombinator.com/companies/flowmanual",
+          "entityType": "company",
+          "entityId": "company-flowmanual",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/flowmanual",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-edviro:official_website:https://edviroenergy.com",
+          "entityType": "company",
+          "entityId": "company-edviro",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://edviroenergy.com",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
           "retryable": false
         },
         {
@@ -2249,7 +2359,7 @@
           "entityType": "company",
           "entityId": "company-hyperprobe",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/hyperprobe",
+          "sourceUrl": "https://www.ycombinator.com/companies/hardware-intelligence",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -2289,6 +2399,17 @@
           "retryable": false
         },
         {
+          "attemptKey": "discovery:founder:founder-inkbox-ray-liao-778892:official_profile:https://www.ycombinator.com/people/ray-liao",
+          "entityType": "founder",
+          "entityId": "founder-inkbox-ray-liao-778892",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/people/ray-liao",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/ray-liao: 404 Not Found",
+          "retryable": false
+        },
+        {
           "attemptKey": "discovery:founder:founder-inkbox-alex-wilcox-2773563:official_profile:https://www.ycombinator.com/people/alex-wilcox",
           "entityType": "founder",
           "entityId": "founder-inkbox-alex-wilcox-2773563",
@@ -2319,6 +2440,39 @@
           "status": "failed",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/lucy-cai: 404 HTTP error",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-hop-aero:official_profile:https://www.ycombinator.com/companies/hop-aero",
+          "entityType": "company",
+          "entityId": "company-hop-aero",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/hop-aero",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-atlas-discovery:official_website:https://atlasdiscovery.bio",
+          "entityType": "company",
+          "entityId": "company-atlas-discovery",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://atlasdiscovery.bio",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-assemble:official_website:https://www.assemble.ai/",
+          "entityType": "company",
+          "entityId": "company-assemble",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://www.assemble.ai/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
           "retryable": false
         },
         {
@@ -2462,6 +2616,17 @@
           "status": "failed",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/aarin-jhaveri: 404 HTTP error",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-contextdev:official_website:https://context.dev",
+          "entityType": "company",
+          "entityId": "company-contextdev",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://context.dev",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
           "retryable": false
         },
         {
@@ -2960,12 +3125,12 @@
           "retryable": false
         },
         {
-          "attemptKey": "discovery:founder:founder-mireye-ansh-chokshi-793651:official_profile:https://www.ycombinator.com/people/ansh-chokshi",
-          "entityType": "founder",
-          "entityId": "founder-mireye-ansh-chokshi-793651",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/people/ansh-chokshi",
-          "status": "failed",
+          "attemptKey": "discovery:company:company-hardware-intelligence:official_website:https://hardwareintelligence.ai",
+          "entityType": "company",
+          "entityId": "company-hardware-intelligence",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://hardwareintelligence.ai",
+          "status": "checked_empty",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/ansh-chokshi: 404 HTTP error",
           "retryable": false
@@ -3004,6 +3169,28 @@
           "retryable": false
         },
         {
+          "attemptKey": "discovery:company:company-isengard-industries-inc:official_profile:https://www.ycombinator.com/companies/isengard-industries-inc",
+          "entityType": "company",
+          "entityId": "company-isengard-industries-inc",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/isengard-industries-inc",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-libra-robotics:official_profile:https://www.ycombinator.com/companies/libra-robotics",
+          "entityType": "company",
+          "entityId": "company-libra-robotics",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/libra-robotics",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
           "attemptKey": "discovery:founder:founder-nebula-security-eten-zou-1626290:official_profile:https://www.ycombinator.com/people/eten-zou",
           "entityType": "founder",
           "entityId": "founder-nebula-security-eten-zou-1626290",
@@ -3012,6 +3199,17 @@
           "status": "failed",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/eten-zou: 404 HTTP error",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-machine0:official_profile:https://www.ycombinator.com/companies/machine0",
+          "entityType": "company",
+          "entityId": "company-machine0",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/machine0",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
           "retryable": false
         },
         {
@@ -3180,6 +3378,17 @@
           "retryable": false
         },
         {
+          "attemptKey": "discovery:company:company-donkey:official_website:https://donkey.trade",
+          "entityType": "company",
+          "entityId": "company-donkey",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://donkey.trade",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
           "attemptKey": "discovery:company:company-noril1:official_profile:https://www.ycombinator.com/companies/noril1",
           "entityType": "company",
           "entityId": "company-noril1",
@@ -3309,6 +3518,17 @@
           "status": "failed",
           "githubUrls": [],
           "error": "Official source fetch failed for https://www.ycombinator.com/people/ethan-phillips: 404 HTTP error",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-greypoint-industries:official_website:https://greypointindustries.ca/",
+          "entityType": "company",
+          "entityId": "company-greypoint-industries",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://greypointindustries.ca/",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
           "retryable": false
         },
         {
@@ -3532,11 +3752,11 @@
           "retryable": false
         },
         {
-          "attemptKey": "discovery:company:company-parasma:official_profile:https://www.ycombinator.com/companies/parasma",
+          "attemptKey": "discovery:company:company-hop-aero:official_website:https://hop-aero.com",
           "entityType": "company",
-          "entityId": "company-parasma",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/parasma",
+          "entityId": "company-hop-aero",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://hop-aero.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -3625,6 +3845,17 @@
           "entityId": "company-petrarch",
           "sourceKind": "official_profile",
           "sourceUrl": "https://www.ycombinator.com/companies/petrarch",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-parasma:official_profile:https://www.ycombinator.com/companies/parasma",
+          "entityType": "company",
+          "entityId": "company-parasma",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/parasma",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -3873,11 +4104,22 @@
           "retryable": false
         },
         {
-          "attemptKey": "discovery:company:company-rapidfolio:official_profile:https://www.ycombinator.com/companies/rapidfolio",
-          "entityType": "company",
-          "entityId": "company-rapidfolio",
+          "attemptKey": "discovery:founder:founder-rapidfolio-naveen-qureshi-334623:official_profile:https://www.ycombinator.com/people/naveen-qureshi",
+          "entityType": "founder",
+          "entityId": "founder-rapidfolio-naveen-qureshi-334623",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/rapidfolio",
+          "sourceUrl": "https://www.ycombinator.com/people/naveen-qureshi",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/naveen-qureshi: 404 Not Found",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-kebra:official_website:https://kebra.ai",
+          "entityType": "company",
+          "entityId": "company-kebra",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://kebra.ai",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -3983,6 +4225,17 @@
           "retryable": false
         },
         {
+          "attemptKey": "discovery:founder:founder-realpact-erik-peterson-2392871:official_profile:https://www.ycombinator.com/people/erik-peterson",
+          "entityType": "founder",
+          "entityId": "founder-realpact-erik-peterson-2392871",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/people/erik-peterson",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/erik-peterson: 404 Not Found",
+          "retryable": false
+        },
+        {
           "attemptKey": "discovery:founder:founder-rex-inc-merlin-kafka-466573:official_profile:https://www.ycombinator.com/people/merlin-kafka",
           "entityType": "founder",
           "entityId": "founder-rex-inc-merlin-kafka-466573",
@@ -4031,7 +4284,7 @@
           "entityType": "company",
           "entityId": "company-rex-inc",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/rex-inc",
+          "sourceUrl": "https://www.ycombinator.com/companies/rapidfolio",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -4097,7 +4350,18 @@
           "entityType": "company",
           "entityId": "company-rise-reforming",
           "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/rise-reforming",
+          "sourceUrl": "https://www.ycombinator.com/people/george-rose",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/george-rose: 404 Not Found",
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-denta:official_website:https://trydenta.com",
+          "entityType": "company",
+          "entityId": "company-denta",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://trydenta.com",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -4269,6 +4533,17 @@
           "retryable": false
         },
         {
+          "attemptKey": "discovery:founder:founder-screenpipe-louis-beaumont-716431:official_profile:https://www.ycombinator.com/people/louis-beaumont",
+          "entityType": "founder",
+          "entityId": "founder-screenpipe-louis-beaumont-716431",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/people/louis-beaumont",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/louis-beaumont: 404 Not Found",
+          "retryable": false
+        },
+        {
           "attemptKey": "discovery:founder:founder-speko-beknazar-abdikamalov-451241:official_profile:https://www.ycombinator.com/people/beknazar-abdikamalov",
           "entityType": "founder",
           "entityId": "founder-speko-beknazar-abdikamalov-451241",
@@ -4302,11 +4577,11 @@
           "retryable": false
         },
         {
-          "attemptKey": "discovery:company:company-textsidekick:official_profile:https://www.ycombinator.com/companies/textsidekick",
+          "attemptKey": "discovery:company:company-praxis-ai-2:official_website:https://www.praxisrobotics.io",
           "entityType": "company",
-          "entityId": "company-textsidekick",
-          "sourceKind": "official_profile",
-          "sourceUrl": "https://www.ycombinator.com/companies/textsidekick",
+          "entityId": "company-praxis-ai-2",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://www.praxisrobotics.io",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -4711,6 +4986,28 @@
           "retryable": false
         },
         {
+          "attemptKey": "discovery:company:company-torus:official_profile:https://www.ycombinator.com/companies/torus",
+          "entityType": "company",
+          "entityId": "company-torus",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/companies/torus",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:founder:founder-trustai-hannah-chung-2573695:official_profile:https://www.ycombinator.com/people/hannah-chung",
+          "entityType": "founder",
+          "entityId": "founder-trustai-hannah-chung-2573695",
+          "sourceKind": "official_profile",
+          "sourceUrl": "https://www.ycombinator.com/people/hannah-chung",
+          "status": "failed",
+          "githubUrls": [],
+          "error": "Official source fetch failed for https://www.ycombinator.com/people/hannah-chung: 404 Not Found",
+          "retryable": false
+        },
+        {
           "attemptKey": "discovery:company:company-trope:official_profile:https://www.ycombinator.com/companies/trope",
           "entityType": "company",
           "entityId": "company-trope",
@@ -5057,6 +5354,17 @@
           "entityId": "company-zomma",
           "sourceKind": "official_profile",
           "sourceUrl": "https://www.ycombinator.com/companies/zomma",
+          "status": "checked_empty",
+          "githubUrls": [],
+          "error": null,
+          "retryable": false
+        },
+        {
+          "attemptKey": "discovery:company:company-opentrade:official_website:https://opentrade.live/",
+          "entityType": "company",
+          "entityId": "company-opentrade",
+          "sourceKind": "official_website",
+          "sourceUrl": "https://opentrade.live/",
           "status": "checked_empty",
           "githubUrls": [],
           "error": null,
@@ -5585,9 +5893,9 @@
       },
       "aggregate": {
         "repoCount": 2,
-        "totalStars": 1208,
-        "totalForks": 346,
-        "totalWatchers": 1208,
+        "totalStars": 1209,
+        "totalForks": 349,
+        "totalWatchers": 1209,
         "maxRepoScore": 100,
         "profileScore": 84
       },
@@ -5598,13 +5906,13 @@
           "fullName": "NebuSec/CyberMeowfia",
           "description": "PoCs and exploits for CVEs discovered by VEGA. ",
           "htmlUrl": "https://github.com/NebuSec/CyberMeowfia",
-          "stars": 1204,
-          "forks": 345,
-          "watchers": 1204,
+          "stars": 1205,
+          "forks": 348,
+          "watchers": 1205,
           "openIssues": 54,
           "language": "C",
           "pushedAt": "2026-07-19T07:04:09Z",
-          "updatedAt": "2026-07-31T22:54:03Z",
+          "updatedAt": "2026-08-01T10:16:55Z",
           "createdAt": "2026-07-01T08:55:52Z",
           "score": 100
         },
@@ -5747,7 +6055,7 @@
         "totalForks": 10,
         "totalWatchers": 268,
         "maxRepoScore": 100,
-        "profileScore": 58
+        "profileScore": 55
       },
       "repos": [
         {
@@ -5780,7 +6088,7 @@
           "pushedAt": "2026-07-31T19:07:12Z",
           "updatedAt": "2026-07-31T14:46:14Z",
           "createdAt": "2026-06-07T09:41:56Z",
-          "score": 8
+          "score": 1
         },
         {
           "id": 1317966310,
@@ -5796,7 +6104,7 @@
           "pushedAt": "2026-07-31T05:21:20Z",
           "updatedAt": "2026-07-31T05:21:40Z",
           "createdAt": "2026-07-31T05:21:07Z",
-          "score": 8
+          "score": 1
         }
       ],
       "attemptKey": "account:company:company-conifer:https://github.com/ConiferKit",
@@ -5958,9 +6266,9 @@
           "stars": 3,
           "forks": 1,
           "watchers": 3,
-          "openIssues": 0,
+          "openIssues": 1,
           "language": "TypeScript",
-          "pushedAt": "2026-07-31T02:21:06Z",
+          "pushedAt": "2026-08-01T11:56:00Z",
           "updatedAt": "2026-07-31T02:21:11Z",
           "createdAt": "2026-07-09T06:52:38Z",
           "score": 30
@@ -6036,7 +6344,7 @@
         "type": "Organization",
         "htmlUrl": "https://github.com/robocurve",
         "bio": "",
-        "followers": 28,
+        "followers": 29,
         "following": 0,
         "publicRepos": 12,
         "publicGists": 0,
@@ -6045,9 +6353,9 @@
       },
       "aggregate": {
         "repoCount": 12,
-        "totalStars": 126,
+        "totalStars": 128,
         "totalForks": 26,
-        "totalWatchers": 126,
+        "totalWatchers": 128,
         "maxRepoScore": 100,
         "profileScore": 66
       },
@@ -6058,13 +6366,13 @@
           "fullName": "robocurve/inspect-robots",
           "description": "Open source evals for physical AI. Run any LLM/VLA on any arm/humanoid against any real/sim benchmark.",
           "htmlUrl": "https://github.com/robocurve/inspect-robots",
-          "stars": 104,
+          "stars": 106,
           "forks": 13,
           "watchers": 104,
           "openIssues": 23,
           "language": "Python",
           "pushedAt": "2026-07-31T05:28:38Z",
-          "updatedAt": "2026-07-31T23:50:56Z",
+          "updatedAt": "2026-08-01T12:17:07Z",
           "createdAt": "2026-06-26T06:55:29Z",
           "score": 100
         },
@@ -6629,8 +6937,8 @@
         "totalStars": 0,
         "totalForks": 0,
         "totalWatchers": 0,
-        "maxRepoScore": 8,
-        "profileScore": 19
+        "maxRepoScore": 1,
+        "profileScore": 17
       },
       "repos": [
         {
@@ -6647,7 +6955,7 @@
           "pushedAt": "2026-07-30T04:27:40Z",
           "updatedAt": "2026-07-30T03:23:15Z",
           "createdAt": "2025-07-04T03:02:32Z",
-          "score": 8
+          "score": 1
         },
         {
           "id": 1013509545,
@@ -6663,7 +6971,7 @@
           "pushedAt": "2026-07-30T05:21:52Z",
           "updatedAt": "2026-07-29T07:18:47Z",
           "createdAt": "2025-07-04T03:02:02Z",
-          "score": 8
+          "score": 1
         },
         {
           "id": 997263229,
@@ -7294,8 +7602,8 @@
           "watchers": 3,
           "openIssues": 8,
           "language": "Python",
-          "pushedAt": "2026-07-29T16:42:29Z",
-          "updatedAt": "2026-07-29T16:52:30Z",
+          "pushedAt": "2026-08-01T07:04:23Z",
+          "updatedAt": "2026-08-01T07:05:07Z",
           "createdAt": "2026-07-22T01:26:21Z",
           "score": 33
         },
@@ -7310,8 +7618,8 @@
           "watchers": 3,
           "openIssues": 1,
           "language": "Python",
-          "pushedAt": "2026-07-29T16:38:25Z",
-          "updatedAt": "2026-07-29T16:48:48Z",
+          "pushedAt": "2026-08-01T07:02:07Z",
+          "updatedAt": "2026-08-01T07:02:52Z",
           "createdAt": "2026-07-22T04:00:38Z",
           "score": 31
         },
@@ -7326,8 +7634,8 @@
           "watchers": 3,
           "openIssues": 0,
           "language": "Python",
-          "pushedAt": "2026-07-29T16:42:01Z",
-          "updatedAt": "2026-07-29T16:42:06Z",
+          "pushedAt": "2026-08-01T07:03:39Z",
+          "updatedAt": "2026-08-01T07:04:13Z",
           "createdAt": "2026-07-22T03:21:41Z",
           "score": 30
         },
@@ -7434,11 +7742,11 @@
       },
       "aggregate": {
         "repoCount": 5,
-        "totalStars": 759,
+        "totalStars": 762,
         "totalForks": 71,
-        "totalWatchers": 759,
+        "totalWatchers": 762,
         "maxRepoScore": 100,
-        "profileScore": 44
+        "profileScore": 40
       },
       "repos": [
         {
@@ -7447,13 +7755,13 @@
           "fullName": "AlmanacCode/codealmanac",
           "description": "A codebase wiki for AI coding agents. Captures what the code can't say: decisions, flows, invariants, gotchas.",
           "htmlUrl": "https://github.com/AlmanacCode/codealmanac",
-          "stars": 753,
+          "stars": 756,
           "forks": 69,
-          "watchers": 753,
+          "watchers": 756,
           "openIssues": 41,
           "language": "TypeScript",
           "pushedAt": "2026-07-25T00:00:46Z",
-          "updatedAt": "2026-07-31T18:25:08Z",
+          "updatedAt": "2026-08-01T12:03:15Z",
           "createdAt": "2026-04-16T05:31:42Z",
           "score": 100
         },
@@ -7471,7 +7779,7 @@
           "pushedAt": "2026-07-16T21:42:46Z",
           "updatedAt": "2026-07-27T10:40:23Z",
           "createdAt": "2026-07-04T06:02:03Z",
-          "score": 48
+          "score": 40
         },
         {
           "id": 1313627416,
@@ -7487,7 +7795,7 @@
           "pushedAt": "2026-07-27T09:43:15Z",
           "updatedAt": "2026-07-27T10:40:21Z",
           "createdAt": "2026-07-27T08:57:42Z",
-          "score": 20
+          "score": 12
         },
         {
           "id": 1176384593,
@@ -7503,7 +7811,7 @@
           "pushedAt": "2026-05-02T22:40:02Z",
           "updatedAt": "2026-05-13T09:59:17Z",
           "createdAt": "2026-03-09T01:01:22Z",
-          "score": 15
+          "score": 12
         },
         {
           "id": 1287911877,
@@ -7519,7 +7827,7 @@
           "pushedAt": "2026-07-03T05:43:19Z",
           "updatedAt": "2026-07-03T05:43:22Z",
           "createdAt": "2026-07-03T05:39:05Z",
-          "score": 8
+          "score": 1
         }
       ],
       "attemptKey": "account:company:company-almanac:https://github.com/AlmanacCode",
@@ -9443,11 +9751,11 @@
       },
       "aggregate": {
         "repoCount": 4,
-        "totalStars": 702,
+        "totalStars": 703,
         "totalForks": 74,
-        "totalWatchers": 702,
+        "totalWatchers": 703,
         "maxRepoScore": 100,
-        "profileScore": 71
+        "profileScore": 68
       },
       "repos": [
         {
@@ -9456,13 +9764,13 @@
           "fullName": "codag-megalith/codag-visualizer",
           "description": "Visualize AI/LLM workflows in your codebase.",
           "htmlUrl": "https://github.com/codag-megalith/codag-visualizer",
-          "stars": 638,
+          "stars": 639,
           "forks": 59,
-          "watchers": 638,
+          "watchers": 639,
           "openIssues": 1,
           "language": "TypeScript",
           "pushedAt": "2026-02-11T01:52:33Z",
-          "updatedAt": "2026-07-27T17:31:41Z",
+          "updatedAt": "2026-08-01T07:29:24Z",
           "createdAt": "2025-11-14T22:53:29Z",
           "score": 100
         },
@@ -9480,7 +9788,7 @@
           "pushedAt": "2026-05-24T09:26:15Z",
           "updatedAt": "2026-07-26T01:02:28Z",
           "createdAt": "2026-05-22T19:58:17Z",
-          "score": 90
+          "score": 87
         },
         {
           "id": 1241642905,
@@ -9496,7 +9804,7 @@
           "pushedAt": "2026-07-23T21:32:29Z",
           "updatedAt": "2026-07-24T18:13:14Z",
           "createdAt": "2026-05-17T16:35:02Z",
-          "score": 81
+          "score": 73
         },
         {
           "id": 1291599434,
@@ -9512,7 +9820,7 @@
           "pushedAt": "2026-07-09T14:36:05Z",
           "updatedAt": "2026-07-09T14:37:31Z",
           "createdAt": "2026-07-07T00:13:47Z",
-          "score": 8
+          "score": 1
         }
       ],
       "attemptKey": "account:company:company-codag:https://github.com/codag-megalith",
@@ -9889,8 +10197,8 @@
         "totalStars": 14,
         "totalForks": 2,
         "totalWatchers": 14,
-        "maxRepoScore": 64,
-        "profileScore": 61
+        "maxRepoScore": 56,
+        "profileScore": 55
       },
       "repos": [
         {
@@ -9907,7 +10215,7 @@
           "pushedAt": "2026-07-25T00:27:42Z",
           "updatedAt": "2026-07-31T17:32:17Z",
           "createdAt": "2026-04-25T13:00:48Z",
-          "score": 64
+          "score": 56
         }
       ],
       "attemptKey": "account:company:company-machine0:https://github.com/fdmtl/machine0-nixos",
@@ -11106,8 +11414,8 @@
         "totalStars": 1,
         "totalForks": 1,
         "totalWatchers": 1,
-        "maxRepoScore": 27,
-        "profileScore": 35
+        "maxRepoScore": 19,
+        "profileScore": 29
       },
       "repos": [
         {
@@ -11124,7 +11432,7 @@
           "pushedAt": "2026-07-13T14:21:37Z",
           "updatedAt": "2026-07-12T05:54:46Z",
           "createdAt": "2026-02-23T10:52:27Z",
-          "score": 27
+          "score": 19
         }
       ],
       "attemptKey": "account:company:company-machine0:https://github.com/fdmtl/machine0-ubuntu",
@@ -11790,8 +12098,8 @@
         "totalStars": 2,
         "totalForks": 0,
         "totalWatchers": 2,
-        "maxRepoScore": 27,
-        "profileScore": 14
+        "maxRepoScore": 19,
+        "profileScore": 9
       },
       "repos": [
         {
@@ -11808,7 +12116,7 @@
           "pushedAt": "2026-07-25T07:53:24Z",
           "updatedAt": "2026-07-25T07:53:36Z",
           "createdAt": "2026-07-16T21:50:22Z",
-          "score": 27
+          "score": 19
         },
         {
           "id": 1312368790,
@@ -11824,7 +12132,7 @@
           "pushedAt": "2026-07-31T10:13:40Z",
           "updatedAt": "2026-07-31T10:15:03Z",
           "createdAt": "2026-07-25T23:27:16Z",
-          "score": 8
+          "score": 1
         }
       ],
       "attemptKey": "account:company:company-rindler:https://github.com/rindler-ai",
@@ -12422,8 +12730,8 @@
         "totalStars": 55,
         "totalForks": 4,
         "totalWatchers": 55,
-        "maxRepoScore": 94,
-        "profileScore": 82
+        "maxRepoScore": 86,
+        "profileScore": 76
       },
       "repos": [
         {
@@ -12440,7 +12748,7 @@
           "pushedAt": "2026-07-30T13:34:28Z",
           "updatedAt": "2026-07-30T07:55:19Z",
           "createdAt": "2023-11-12T01:43:10Z",
-          "score": 94
+          "score": 86
         }
       ],
       "attemptKey": "account:company:company-osseus:https://github.com/ManufacturedMotion/Hex",
@@ -12532,8 +12840,8 @@
         "totalStars": 27,
         "totalForks": 4,
         "totalWatchers": 27,
-        "maxRepoScore": 79,
-        "profileScore": 84
+        "maxRepoScore": 71,
+        "profileScore": 79
       },
       "repos": [
         {
@@ -12550,7 +12858,7 @@
           "pushedAt": "2026-07-21T04:13:26Z",
           "updatedAt": "2026-07-21T04:13:32Z",
           "createdAt": "2026-04-25T06:01:10Z",
-          "score": 79
+          "score": 71
         }
       ],
       "attemptKey": "account:company:company-trope:https://github.com/voctory/trope-cua",
@@ -12575,7 +12883,7 @@
         "type": "User",
         "htmlUrl": "https://github.com/SeanCole02",
         "bio": "",
-        "followers": 63,
+        "followers": 64,
         "following": 0,
         "publicRepos": 19,
         "publicGists": 0,
