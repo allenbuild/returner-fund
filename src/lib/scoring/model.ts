@@ -45,8 +45,8 @@ export interface ScoringConfig {
 
 /** @deprecated Canonical v4 owns production score configuration. */
 export const DEFAULT_SCORING_CONFIG: ScoringConfig = {
-  halfLifeDays: TRACTION_SCORING_CONFIG.platformReferences.x!.halfLifeDays,
-  lowSamplePenalty: TRACTION_SCORING_CONFIG.durableSignalWeight
+  halfLifeDays: 1,
+  lowSamplePenalty: 1
 };
 
 export function clamp(value: number, min = 0, max = 100): number {

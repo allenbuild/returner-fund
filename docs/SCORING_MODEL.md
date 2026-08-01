@@ -5,18 +5,18 @@
 The production graph scoring model is:
 
 - Model ID: `returner-traction`
-- Version: `4.0.2`
-- Name: `returner-traction-v4-date-invariant`
+- Version: `4.1.0`
+- Name: `returner-traction-v4-absolute-fixed-platform`
 - Canonical configuration: [`src/lib/scoring/traction-config.ts`](../src/lib/scoring/traction-config.ts)
 - Evidence normalizer and entity aggregate: [`src/lib/graph/traction-scoring.ts`](../src/lib/graph/traction-scoring.ts)
-- Shared company batch calibration: [`src/lib/scoring/batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts)
+- Shared company score finalization: [`src/lib/scoring/batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts)
 - Physical-evidence dedupe: [`src/lib/graph/dedupe.ts`](../src/lib/graph/dedupe.ts)
 - YC attribution guard: [`src/lib/graph/evidence-attribution.ts`](../src/lib/graph/evidence-attribution.ts)
 - Canonical-score graph assembly and visibility filters: [`src/lib/graph/graph-builder.ts`](../src/lib/graph/graph-builder.ts) and [`src/lib/graph/client-filters.ts`](../src/lib/graph/client-filters.ts)
 - Live refresh overlay: [`src/lib/graph/live-evidence-overlay.ts`](../src/lib/graph/live-evidence-overlay.ts)
 - Runtime score types: [`src/lib/graph/types.ts`](../src/lib/graph/types.ts)
 
-The compatibility module at `src/lib/graph/traction-scoring-config.ts` only re-exports the canonical configuration; it defines no independent weights. The canonical object includes the evidence, platform, batch-calibration, and confidence parameters and validates normalized totals, scored-platform references and metrics, slot ordering, finite weights, and confidence thresholds at import time. The production `buildGraphResponse` path uses `traction-config.ts` and `batch-calibration.ts` under `src/lib/scoring/`, and batch calibration depends on `percentiles.ts`. A separate legacy demo-domain path in `src/lib/graph/build.ts` still imports `src/lib/scoring/model.ts`, which in turn uses the compatibility APIs in `aggregation.ts` and `formulas.ts`; that is not the v4 graph-response scorer documented here.
+The compatibility module at `src/lib/graph/traction-scoring-config.ts` only re-exports the canonical configuration; it defines no independent weights. The canonical object includes the evidence, platform, score-finalization, and confidence parameters and validates normalized totals, scored-platform references and metrics, slot ordering, finite weights, and confidence thresholds at import time. The production `buildGraphResponse` path uses `traction-config.ts` and the identity finalizer in `batch-calibration.ts` under `src/lib/scoring/`. A separate legacy demo-domain path in `src/lib/graph/build.ts` still imports `src/lib/scoring/model.ts`, which in turn uses the compatibility APIs in `aggregation.ts` and `formulas.ts`; those compatibility APIs also return fixed-weight absolute totals and do not use peer scores.
 
 The score is a deterministic traction index on a `0..100` scale. It is not a probability, valuation, company-quality judgment, or statistically calibrated prediction of an outcome. See [`SCORING_V4_AUDIT.md`](SCORING_V4_AUDIT.md) for the v3 retirement rationale, migration notes, and validation boundary.
 
@@ -31,8 +31,8 @@ For each canonical all-platform scoring run, v4 performs these stages:
 5. Keep the evidence score date-invariant: publication age, missing dates, and
    recent-activity proxy metrics do not change it.
 6. Deduplicate physical evidence and aggregate the strongest five rows into each platform score.
-7. Aggregate platform scores with configured weights normalized over platforms that have eligible evidence.
-8. In full-batch dataset assembly, calibrate positive company scores against their batch with tie-aware percentiles. A material live-overlay rebuild recalculates that same canonical all-platform company score before any response filters are applied.
+7. Aggregate platform scores at their fixed configured weights. A missing platform contributes zero; present platforms are never renormalized upward.
+8. Publish the absolute company or founder score directly. Cohort rank, cohort size, and peer scores do not change it. A material live-overlay rebuild recalculates that same canonical all-platform score before any response filters are applied.
 9. Report confidence, limitations, model identity, and evidence timestamps separately from the traction score.
 
 Company rollups may include both company evidence and founder evidence attached to that company. Founder records are also scored separately from their own evidence. Attribution is an upstream data decision; the scoring formula does not infer company or founder identity.
@@ -112,7 +112,7 @@ Both dedupe functions use the same replacement order. The candidate replaces the
 
 An exact final tie with the same ID retains the row encountered first. The comparator can retain an older but more scoreable, identity-consistent, or metric-complete row over a fresher sparse row.
 
-Dataset builders call entity-scoped dedupe before `normalizeEvidenceScores`, and entity aggregation applies physical dedupe again before platform rollup. Inside the normalizer, both the same-platform percentile samples and the implicit reference clock come from the same physically deduplicated eligible winners. The normalizer still returns one scored/excluded output per original input row, so a losing duplicate can receive a score and remain in the returned collection until rollup dedupe, but its metrics and timestamp do not independently enter the sample or clock. A duplicate can affect those shared inputs only by winning the canonical replacement comparison.
+Dataset builders call entity-scoped dedupe before `normalizeEvidenceScores`, and entity aggregation applies physical dedupe again before platform rollup. The normalizer still returns one scored/excluded output per original input row, so a losing duplicate can receive a score and remain in the returned collection until rollup dedupe. Only the physical dedupe winner can contribute to the entity score. Publication time and cohort samples are not score inputs.
 
 Comment rows remain available as contextual evidence but do not enter the physical scoring rollup. When a comment locator and its native parent share a canonical parent identity, the eligible parent wins; a fresher comment cannot replace the parent's metrics.
 
@@ -168,7 +168,7 @@ Each platform has an absolute raw-engagement reference `H_p` and a company diver
 | Reddit | 4,000 | 0.04 |
 | Bilibili | 35,000 | 0.02 |
 
-The platform weights sum to `1` across the complete configuration. At runtime the available-platform aggregate divides by the configured weight present in the eligible set, so missing-platform weight does not penalize the entity.
+The platform weights sum to `1` across the complete configuration. They are fixed shares of the headline score. Missing platforms contribute zero at their configured share, and the weight of a present platform is never expanded to fill missing coverage.
 
 ### Reference-anchored monotonic normalization
 
@@ -179,7 +179,7 @@ A = clamp(100 * log1p(R_p) / log1p(H_p), 0, 100)
 B = A
 ```
 
-Version `4.0.2` uses `absoluteEvidenceWeight=1` and
+Version `4.1.0` uses `absoluteEvidenceWeight=1` and
 `cohortPercentileWeight=0`. This is deliberate: an evidence row's normalized
 score depends on its own durable configured metrics and platform reference,
 not on its publication date or the metrics or rank of another row. Increasing
@@ -222,65 +222,50 @@ Runtime slot count is controlled by `platformEvidenceSlots.length`; there is no 
 
 ## Cross-platform aggregation
 
-Let `A` be the sum of configured weights for platforms with eligible evidence, and let:
+Let `A` be the sum of configured weights for platforms with eligible evidence. The fixed-weight entity score is:
 
 ```text
-D = sum(w_p * P_p) / A
+U = round(clamp(sum(w_p * P_p), 0, 100))
 ```
 
-The pre-calibration absolute entity score is:
+Missing platforms contribute zero because their platform score is zero. The present-platform normalized average is retained only as a diagnostic:
 
 ```text
-U = round(clamp(D, 0, 100))
+D = sum(w_p * P_p) / A    when A > 0, otherwise 0
 ```
 
-Available platforms are normalized by their configured weights. Platforms with equal configured weights therefore receive equal base influence and differ only through their platform scores. Missing platforms do not penalize a company, and for fixed platform scores, increasing any platform cannot lower `U`.
+Platforms with equal configured weights receive equal base influence and differ only through their platform scores. Missing coverage lowers the attainable total rather than reallocating its weight to the platforms that happen to be present. For fixed platform scores, increasing any platform cannot lower `U`.
 
-`aggregateBalancedTractionScore` returns `totalScore = absoluteScore = U` before any batch calibration. It also returns two compatibility diagnostics:
+`aggregateBalancedTractionScore` returns `totalScore = absoluteScore = U`. It also returns two diagnostics:
 
-- `weightedAvailableScore` is the same normalized weighted average before integer rounding.
-- `coverageFactor` is the derived ratio `U / weightedAvailableScore` when that denominator is positive and should remain approximately `1` apart from rounding.
+- `weightedAvailableScore` is `D`, the normalized average among present platforms. It is not the headline score.
+- `coverageFactor` is `A`, the configured share covered by present platforms.
 
-`coverageFactor` is not a v4 multiplier and can sit just above or below `1` because `U` is rounded. In `weightedPlatforms`, `contribution` decomposes the normalized configured-weight formula, and `appliedWeight` is that platform's share of total v4 contribution.
+In `weightedPlatforms`, `contribution = w_p * P_p`, and `appliedWeight = configuredWeight = w_p`. These rows add up to the unrounded absolute score; the UI displays them directly and does not inflate them to match a rounded or calibrated total.
 
 Contribution rows are ordered by contribution, then platform score, configured weight, and platform ID for deterministic display.
 
-## Tie-aware company calibration
+## Absolute company and founder totals
 
-Batch dataset builders can calibrate company scores after absolute aggregation. The exported aggregate scorer itself does not calibrate, and founder scores are not batch-calibrated by this path.
-
-The calibration cohort contains only records whose score breakdown matches the canonical model ID and version, using their finite clamped absolute scores greater than zero. Legacy or foreign-model records neither enter the cohort nor change. For canonical company score `U`, the tie-aware percentile is:
+Batch dataset builders pass company records through a shared finalizer so every ingestion and live-refresh path records the same metadata. The finalizer is an identity operation:
 
 ```text
-C_percentile = (count(peer < U) + 0.5 * count(peer = U)) / positive_cohort_size
+published totalScore = previousScore = absoluteScore
+calibration.method = "none"
+calibration.percentile = null
 ```
 
-First compute the configured blend for every positive company:
-
-```text
-B = 0.82 * U + 0.18 * 100 * C_percentile
-```
-
-Let `B_min` and `B_max` be the minimum and maximum blended values in the positive cohort. The published score stretches that positive cohort to the complete integer range:
-
-```text
-C = round(1 + 99 * (B - B_min) / (B_max - B_min))  when B_max > B_min
-C = round(clamp(B, 1, 100))                         for a degenerate tied cohort
-```
-
-Equal absolute scores receive equal percentile and equal calibrated score. Canonical companies with zero absolute score stay at zero, are excluded from the positive calibration cohort, and record calibration method `none`. Positive calibrated rows record method `tie_aware_percentile_blend`, cohort size, percentile, and input absolute score. The blend uses the unrounded percentile and stores it rounded to four decimals; its full-range stretch uses the unrounded cohort blends. The helper sets both `totalScore` and `previousScore` to the calibrated value; it leaves a record with no canonical v4 `scoreBreakdown` unchanged.
-
-The 82/18 calibration is implemented once in [`src/lib/scoring/batch-calibration.ts`](../src/lib/scoring/batch-calibration.ts). The A16Z and YC dataset builders import that shared helper; its percentile calculation comes from [`src/lib/scoring/percentiles.ts`](../src/lib/scoring/percentiles.ts). The helper reads both blend weights from `TRACTION_SCORING_CONFIG.batchCalibration`.
+The positive canonical cohort size may be retained as provenance, but it has no numeric influence. `TRACTION_SCORING_CONFIG.batchCalibration` is fixed at `absoluteScoreWeight=1` and `percentileWeight=0`. Founders, companies, batches, static artifacts, APIs, and live overlays therefore share the same absolute semantics.
 
 ## Canonical score and response filters
 
-There is one company score: the calibrated all-platform score assembled for the complete batch. Positive company rows use `tie_aware_percentile_blend`; zero rows use `none`. Founder records remain absolute. Every canonical graph and static snapshot carries `scoringContext.scoreScope = "all_platforms"` and `scoringContext.selectedPlatforms = []`.
+There is one company score: the absolute fixed-weight all-platform score assembled for the complete batch. Every company and founder row records calibration method `none`. Every canonical graph and static snapshot carries `scoringContext.scoreScope = "all_platforms"` and `scoringContext.selectedPlatforms = []`.
 
 Platform and Top Voice controls are visibility filters, not scoring modes:
 
 - A platform filter narrows visible companies, evidence, review items, edges, and each visible node's evidence IDs. It preserves the source node's score, previous score, radius, rank, momentum, top platform, platform-score map, and complete score breakdown.
 - A Top Voice filter requires post-level evidence with visible metrics, excludes repost-like X rows, requires a visible target mention, and matches the native author identity to the selected audience. It uses the matching rows to decide visibility and to populate connection/evidence metadata while preserving the same canonical company score and rank.
-- A platform filter can further narrow the evidence shown within a Top Voice result. It still does not recompute evidence normalization, entity aggregation, calibration, rank, or momentum.
+- A platform filter can further narrow the evidence shown within a Top Voice result. It still does not recompute evidence normalization, entity aggregation, rank, or momentum.
 
 `TopVoiceMember.weight` remains provenance metadata on the match and connection. It does not multiply `contributionScore`, and the graph does not emit a separate Top Voice or platform-filtered company score. The optional legacy `topVoiceScore` transport field is not populated by the canonical graph path.
 
@@ -294,9 +279,9 @@ The current graph and refresh API paths build or update the canonical all-platfo
 2. Treats the request as a replay when every visible live row has both a matching company-plus-`canonicalPostKey` and the same effective evidence signature as an existing row. That signature covers identity, content/media, observation and link fields, metrics, review state, and whether scoring is enabled. A replay returns the incoming graph unchanged and reports the matching existing rows as visible evidence.
 3. Otherwise groups existing and live rows by company identity plus `canonicalPostKey`. This merge comparator is separate from `dedupe.ts`: it first compares the maximum of `metricsCheckedAt`, `observedAt`, `last_checked_at`, `linkCheckedAt`, `last_updated_at`, and `first_seen_at`; if no such field parses, `postedAt` forms a lower freshness tier. It then prefers a live row over an existing row and finally uses stable serialization. It preserves an existing row ID when possible and the earliest valid `first_seen_at`.
 4. Preserves the winning row's upstream contribution flag, including an explicit zero-score correction, then calls `normalizeEvidenceScores` across the merged canonical evidence. A fresh lower observation can lower a stale score; visible metrics cannot resurrect a context-only row.
-5. Recomputes every company node present in the incoming canonical graph, not only companies that received a live row, and passes the positive company cohort through `calibrateBatchCompanyScores`. It updates node score surfaces, company radii, company/founder evidence IDs and founder platform scores, leaderboard scores/order, benchmark momentum, `generatedAt`, and `scoringContext` including `evidenceAsOf`.
+5. Recomputes every company node present in the incoming canonical graph, not only companies that received a live row, and passes the records through the identity finalizer. It updates node score surfaces, company radii, company/founder evidence IDs and founder platform scores, leaderboard scores/order, benchmark momentum, `generatedAt`, and `scoringContext` including `evidenceAsOf`.
 
-A non-replay rebuild therefore calibrates positive company scores among the company nodes in the incoming canonical graph. Platform and Top Voice filters run afterward and preserve those score surfaces. On rebuild, each company node's `previousScore` becomes its incoming `score`, and `scoreDelta` is the rounded difference from that value. Company radii, leaderboard ranks, momentum, and provenance are rebuilt atomically. Founder evidence IDs and platform scores are refreshed inside company nodes, but non-company graph nodes and standalone founder totals/radii are not rescored. Evidence normalization uses only the incoming graph's merged evidence. `generatedAt` and `scoringContext.responseBuiltAt` advance to the maximum of the prior `generatedAt` and visible live-evidence freshness; they are not set from the wall clock. Canonical responses retain `scoreScope = "all_platforms"` and an empty selected-platform list.
+A non-replay rebuild therefore recomputes absolute company scores without cohort stretching. Platform and Top Voice filters run afterward and preserve those score surfaces. On rebuild, each company node's `previousScore` becomes its incoming `score`, and `scoreDelta` is the rounded difference from that value. Company radii, leaderboard ranks, momentum, and provenance are rebuilt atomically. Founder evidence IDs and platform scores are refreshed inside company nodes, but non-company graph nodes and standalone founder totals/radii are not rescored. Evidence normalization uses only the incoming graph's merged evidence. `generatedAt` and `scoringContext.responseBuiltAt` advance to the maximum of the prior `generatedAt` and visible live-evidence freshness; they are not set from the wall clock. Canonical responses retain `scoreScope = "all_platforms"` and an empty selected-platform list.
 
 ## Confidence and limitations
 
@@ -356,7 +341,7 @@ Migration [`004_traction_scoring_evidence_lineage.sql`](../supabase/migrations/0
 
 The nullable version tuple `scoring_model_version_id`, `as_of_at`, and `input_observed_through` must be supplied together, with the observation cutoff no later than the run's as-of time. A new completed run additionally requires non-null `input_fingerprint` and `run_key`. A trigger makes those completed-run provenance fields immutable, and another trigger prevents changes to a model definition after a completed run references it; the foreign key also restricts deletion of a referenced model version. Model rows can still be corrected before their first completed use. `metric_observations` is described as append-only, but migration 004 does not add an update/delete prevention trigger for that table. A completed score should never be relabeled from v3 to v4; publish a new model-version row and a new scoring run.
 
-The migration is additive and leaves legacy posts, post scores, runs, and snapshots readable. Version fields and snapshot run links are nullable so pre-v4 rows remain valid. Migration 004 does not backfill old rows or insert the v4 model-version record; migration [`007_register_traction_scoring_v4.sql`](../supabase/migrations/007_register_traction_scoring_v4.sql) now registers the exact canonical model/config when applied and rejects drift on rerun. Neither file proves deployment or an end-to-end runtime writer. Operational rollout and rollback details are in [`SCORING_V4_AUDIT.md`](SCORING_V4_AUDIT.md).
+The migration is additive and leaves legacy posts, post scores, runs, and snapshots readable. Version fields and snapshot run links are nullable so pre-v4 rows remain valid. Migration 004 does not backfill old rows or insert the v4 model-version record; migration [`015_register_traction_scoring_v4_1_0.sql`](../supabase/migrations/015_register_traction_scoring_v4_1_0.sql) registers the exact `4.1.0` canonical model/config when applied and rejects drift on rerun. Earlier immutable model rows remain available as rollback targets. Neither file proves deployment or an end-to-end runtime writer. Operational rollout and rollback details are in [`SCORING_V4_AUDIT.md`](SCORING_V4_AUDIT.md).
 
 ## Artifacts and reproducibility
 
@@ -365,7 +350,7 @@ The local diagnostic entry point is [`scripts/run-scoring-diagnostics-v4.mjs`](.
 - [`docs/outputs/scoring-diagnostics-v4-audit.json`](outputs/scoring-diagnostics-v4-audit.json)
 - [`docs/outputs/scoring-diagnostics-v4-report.md`](outputs/scoring-diagnostics-v4-report.md)
 
-The script inventories canonical duplicates, metric aliases, URL categories, missing data, and platform concentration. It also performs deterministic reverse-order, metric-increase, timestamp-shift, and sampled monotonicity perturbations. Its before/after scoring calls the evidence normalizer and absolute aggregate, not shared batch calibration; already-published calibrated company scores are retained only as a separate reference. Its "after" view is an in-memory cleanup simulation that uses production eligibility and metric normalization, entity-scoped canonical dedupe, and the production physical comparator only for eligible rows with one unambiguous company owner. It is not a migration or persisted score update.
+The script inventories canonical duplicates, metric aliases, URL categories, missing data, and platform concentration. It also performs deterministic reverse-order, metric-increase, timestamp-shift, and sampled monotonicity perturbations. Its before/after scoring calls the evidence normalizer and absolute aggregate; historical published totals are retained only as a separate reference. Its "after" view is an in-memory cleanup simulation that uses production eligibility and metric normalization, entity-scoped canonical dedupe, and the production physical comparator only for eligible rows with one unambiguous company owner. It is not a migration or persisted score update.
 
 The current checked-in diagnostic is frozen at `2026-07-17T12:00:00.000Z`. Its JSON SHA-256 is `15ebc273d209022a7fb9a59829dbaa197ef11b1cebed440bf590c0c23b4b9177`; the rendered report SHA-256 is `e70062c98ddf19db6723e29098016819646a0999679b7b5fa4ba1259e8b35114`. The audit records a 52-file input-envelope hash of `0c2595d3c061037ffe6480cfbe624f5bfb2aa1de5a70e3e5c11d294dddd66ac5`, all 83 canonical config leaves with config hash `708d75ea78431142aba3295abc5c7bb996ba638d21e63bb7b58037225a7c4b7c`, eight role-labeled scoring sources with combined hash `f6b76ec41fc6ac9b836f67f729c63d360e1fa456007d27a6f41991bd0596c9c9`, and a combined versioned-scoring-input hash of `3bc4182861dfb6a08ff4c219a197ecffcc0a1431715d43c2a75e1713ad3f933d`. The reproducibility test regenerated both artifacts byte-for-byte and separately confirmed that an input-envelope mismatch exits nonzero without replacing them. These hashes establish artifact identity and current parity for the recorded local inputs, but not predictive validity, deployment, or external-source liveness.
 
@@ -373,7 +358,7 @@ The current checked-in diagnostic is frozen at `2026-07-17T12:00:00.000Z`. Its J
 
 The public publication set is separate: nine graph files under [`public/graph`](../public/graph) cover three batches across the unfiltered, YC Partners, and Insiders visibility variants, with three history files under [`outputs/benchmarks`](../outputs/benchmarks). [`scripts/validate-public-artifacts.mjs`](../scripts/validate-public-artifacts.mjs) checks canonical v4 model identity, complete score breakdowns, canonical all-platform scoring context, evidence references, ranking surfaces, timestamps, and history shape. Runtime consumers also validate static snapshots: `Dashboard` falls back to `/api/graph` when the shared contract or requested batch/audience identity fails and starts background API revalidation after every accepted static response, while the refresh route dynamically rebuilds when its stricter structure, identity, audience, or current-Central-day freshness checks fail. The release gate requires every graph and a canonical daily history entry to fall on the current `America/Chicago` day, so structural validity alone does not imply release freshness. Public graph files carry `generatedAt` and `evidenceAsOf` but no complete input fingerprint, so they are not a substitute for the diagnostic input manifest or proof of deployment/source liveness.
 
-Exact score replay requires the canonical model/config version, exact evidence and metric rows, attribution and owner-scoped account mapping, normalization cohort, physical observation cutoff or explicit `asOf`, and company calibration cohort. Reproducing a filtered response additionally requires the platform selection or Top Voice audience used for visibility, but those controls are not score inputs. Exact output-byte replay also requires stable input order for otherwise exact same-ID dedupe ties, a frozen response clock, benchmark history, and the same sanitization/publication path. The diagnostic runner accepts `--expect-input-sha256` to fail before scoring when its full input envelope differs.
+Exact score replay requires the canonical model/config version, exact evidence and metric rows, attribution and owner-scoped account mapping, and the physical observation cutoff or explicit `asOf`. It does not require the peer cohort because peer rows do not change the score. Reproducing a filtered response additionally requires the platform selection or Top Voice audience used for visibility, but those controls are not score inputs. Exact output-byte replay also requires stable input order for otherwise exact same-ID dedupe ties, a frozen response clock, benchmark history, and the same sanitization/publication path. The diagnostic runner accepts `--expect-input-sha256` to fail before scoring when its full input envelope differs.
 
 None of the diagnostic, experiment, migration, static graph, or benchmark artifacts proves that a database migration was deployed, that a runtime writer persisted v4 lineage, or that any external collector succeeded. The real-time refresh route has an implemented X branch; the presence of historical rows or platform types must not be presented as a current live-source check.
 
@@ -384,7 +369,7 @@ Focused regression coverage includes `tests/traction-scoring-v4.test.ts`, `tests
 ## Known limitations
 
 - Metric weights, platform references, slot weights, and confidence weights are product heuristics, not fitted or statistically validated parameters.
-- Company calibration still depends on the current positive-company cohort. Cohort additions can change calibrated company scores even when a company's raw evidence does not change.
+- Company and founder headline totals are cohort-independent; rank remains a separate descriptive surface that can change when peers change.
 - Evidence, fixed-slot, and cross-platform aggregation are monotone and publication-date invariant. An explicit observation cutoff can still exclude evidence that was not yet available.
 - Public metric availability and semantics differ by platform. Missing, hidden, deleted, private, estimated, botted, or paid engagement is not fully detectable.
 - Native URL validation is syntactic even though host/path grammar is strict. Unchecked or missing link status may score, and no check proves ownership, liveness, or metric freshness.
@@ -392,16 +377,15 @@ Focused regression coverage includes `tests/traction-scoring-v4.test.ts`, `tests
 - Dedupe identity fallbacks can collide for similar account/author/text content. Replacement completeness counts all finite numeric metric fields, including zero, negative, and unweighted fields, and can outrank freshness. Dedupe freshness excludes `postedAt` and `linkCheckedAt`.
 - The normalizer derives its implicit reference clock from physically deduplicated eligible winners, but emits one output per input row. A losing duplicate can therefore retain a computed score in the returned collection until rollup dedupe, although it cannot independently move the reference clock.
 - A present malformed or stale `platformPostId` is treated as an identity conflict with a valid native URL rather than ignored, which can quarantine legacy rows until their explicit ID is corrected or removed.
-- The default normalization clock ignores legacy check/update/first-seen fields. With no parseable `observedAt`, `metricsCheckedAt`, or `ingestedAt`, it falls back to the Unix epoch, causing later publication dates to clamp to age zero unless the caller supplies `asOf`.
-- Missing publication dates use the fixed momentum prior `0.45`; this is not an inferred date distribution.
+- Publication dates and normalization-clock age do not change evidence, platform, company, or founder scores. Observation cutoffs can still exclude evidence collected after an explicit `asOf` boundary.
 - Runtime date "verification" text is stronger than the actual completeness check, which only requires non-`unknown` precision and a parseable `postedAt`; it does not externally verify the publication timestamp. Runtime scoring does, however, require `review_state` to be exactly `verified`.
 - Follower count and account size do not adjust v4 traction. The score measures visible weighted response, not engagement efficiency.
 - Stored `platform_baselines` are not consulted by the graph v4 formula; its absolute references are the heuristic values in the canonical config.
-- Batch-calibration and confidence weights are canonical config fields, but changing them still requires a new model version and replay to compare scores meaningfully.
+- Absolute-finalization and confidence weights are canonical config fields, but changing them still requires a new model version and replay to compare scores meaningfully.
 - Platform and Top Voice filters can make the visible evidence set narrower than the evidence behind the displayed canonical score. They deliberately preserve all-platform scores, source ranks, radii, momentum, top-platform metadata, and score breakdowns; consumers must not reinterpret filtered evidence as a separately recomputed total.
 - A material live overlay rebuilds companies represented in the incoming canonical graph evidence, including company radii, leaderboard, benchmark momentum, and scoring context, but standalone founder graph-node totals and radii remain unchanged. The current API overlays the full all-platform graph before client filtering, and an exact effective replay leaves the graph unchanged.
 - Native-proof attribution intentionally favors false negatives over accepting generated/provenance metadata as evidence. Legitimate relationships visible only in omitted metadata require review or better native capture.
 - Checked-in diagnostics and experiments are point-in-time fixture results, not live-source checks. The diagnostic's full 52-file envelope currently matches and regenerates byte-for-byte; the experiment manifest is narrower and must be rerun after changes to unmanifested inputs before its examples are treated as current.
-- The separate `src/lib/graph/build.ts` demo path and its `src/lib/scoring/model.ts` compatibility helpers expose older follower-rate, average, and re-normalized-weight formulas. Their outputs must not be mixed with `buildGraphResponse` v4 outputs.
+- The separate `src/lib/graph/build.ts` demo path and its `src/lib/scoring/model.ts` compatibility helpers retain older follower-rate and average diagnostics. Their headline compatibility aggregate is fixed-weight and cohort-independent, but its diagnostic fields must not be mixed with `buildGraphResponse` v4 outputs.
 - Migration 004 protects completed-run provenance, blocks model-version rewrites after completed use, and restricts deletion of referenced model versions. Its append-only description for `metric_observations` is not enforced by an update/delete prevention trigger.
-- Score changes across model versions are not longitudinal traction changes unless the same model, configuration, evidence cutoff, and cohort are replayed.
+- Score changes across model versions are not longitudinal traction changes unless the same model, configuration, and evidence cutoff are replayed.

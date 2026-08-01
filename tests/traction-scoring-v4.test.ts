@@ -604,16 +604,17 @@ describe("traction scoring v4 invariants", () => {
     );
   });
 
-  it("does not penalize a saturated platform because unrelated platforms are absent", () => {
+  it("keeps missing platform weights at zero instead of renormalizing a saturated platform", () => {
     const onePlatformRows = perfectPlatformRows("x");
     const allPlatformRows = SUPPORTED_PLATFORMS.flatMap((platform) => perfectPlatformRows(platform));
     const onePlatform = aggregateBalancedTractionScore(onePlatformRows);
     const allPlatforms = aggregateBalancedTractionScore(allPlatformRows);
 
     expect(onePlatform.platformScores.x).toBe(100);
-    expect(onePlatform.totalScore).toBe(allPlatforms.totalScore);
-    expect(onePlatform.totalScore).toBe(100);
+    expect(onePlatform.totalScore).toBe(21);
+    expect(onePlatform.totalScore).toBeLessThan(allPlatforms.totalScore);
     expect(allPlatforms.totalScore).toBe(100);
+    expect(onePlatform.coverageFactor).toBe(0.21);
     expect(allPlatforms.coverageFactor).toBe(1);
   });
 
@@ -631,11 +632,13 @@ describe("traction scoring v4 invariants", () => {
     expect(lowPositive.absoluteScore).toBeGreaterThan(0);
     expect(positiveRows).toHaveLength(2);
     expect(positiveRows.every((company) => company.totalScore >= 1)).toBe(true);
-    expect(positiveRows.map((company) => company.totalScore).sort((a, b) => a - b)).toEqual([1, 100]);
-    expect(positiveRows.every((company) => company.scoreBreakdown?.calibration.method === "tie_aware_percentile_blend")).toBe(true);
+    expect(positiveRows.map((company) => company.totalScore).sort((a, b) => a - b)).toEqual(
+      [lowPositive.absoluteScore, highPositive.absoluteScore].sort((a, b) => a - b)
+    );
+    expect(positiveRows.every((company) => company.scoreBreakdown?.calibration.method === "none")).toBe(true);
   });
 
-  it("calibrates a selected batch against the shared global cohort", () => {
+  it("keeps a selected company absolute against the shared global cohort", () => {
     const low = scoreCohort([evidence("global-low", "x", { likes: 1 })]).aggregate;
     const middle = scoreCohort([evidence("global-middle", "x", { views: 50_000, likes: 250 })]).aggregate;
     const high = aggregateBalancedTractionScore(
@@ -648,9 +651,9 @@ describe("traction scoring v4 invariants", () => {
     ];
     const [calibratedMiddle] = calibrateBatchCompanyScores([cohort[1]!], cohort);
 
-    expect(calibratedMiddle?.totalScore).toBeGreaterThan(1);
-    expect(calibratedMiddle?.totalScore).toBeLessThan(100);
+    expect(calibratedMiddle?.totalScore).toBe(middle.absoluteScore);
     expect(calibratedMiddle?.scoreBreakdown?.calibration.cohortSize).toBe(3);
+    expect(calibratedMiddle?.scoreBreakdown?.calibration.percentile).toBeNull();
   });
 
   it("does not let legacy companies without canonical breakdowns distort calibration", () => {

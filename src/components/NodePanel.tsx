@@ -175,7 +175,7 @@ function PlatformContributions({ node }: { node: GraphNode }) {
   ]
     .filter((platform) => numberValue(platform?.contribution) !== null && platform.contribution > 0)
     .sort((left, right) => right.contribution - left.contribution);
-  const platformContributions = allocateCalibrationAcrossPlatforms(node, rawPlatformContributions);
+  const platformContributions = rawPlatformContributions;
 
   return (
     <section className="score-platform-section" aria-labelledby={`score-platforms-${node.id}`}>
@@ -197,39 +197,6 @@ function PlatformContributions({ node }: { node: GraphNode }) {
       )}
     </section>
   );
-}
-
-type WeightedPlatformContribution = NonNullable<GraphNode["scoreBreakdown"]>["weightedPlatforms"][number];
-
-function allocateCalibrationAcrossPlatforms(
-  node: GraphNode,
-  platforms: WeightedPlatformContribution[]
-): WeightedPlatformContribution[] {
-  const calibration = node.scoreBreakdown?.calibration;
-  const rawTotal = platforms.reduce((sum, platform) => sum + platform.contribution, 0);
-  if (!calibration || calibration.method === "none" || rawTotal <= 0 || node.score <= 0) {
-    return platforms;
-  }
-
-  const targetTenths = Math.round(node.score * 10);
-  const allocations = platforms.map((platform, index) => {
-    const exactTenths = (platform.contribution / rawTotal) * targetTenths;
-    const floorTenths = Math.floor(exactTenths);
-    return { index, exactTenths, tenths: floorTenths };
-  });
-  let remainder = targetTenths - allocations.reduce((sum, allocation) => sum + allocation.tenths, 0);
-  const remainderOrder = [...allocations].sort(
-    (left, right) =>
-      right.exactTenths - right.tenths - (left.exactTenths - left.tenths) || left.index - right.index
-  );
-  for (let index = 0; index < remainderOrder.length && remainder > 0; index += 1, remainder -= 1) {
-    remainderOrder[index].tenths += 1;
-  }
-
-  return platforms.map((platform, index) => ({
-    ...platform,
-    contribution: allocations[index].tenths / 10
-  }));
 }
 
 function isScoredEvidence(item: EvidenceItem): boolean {

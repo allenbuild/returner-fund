@@ -17,12 +17,12 @@ import type {
 import { percentileRank } from "./percentiles";
 import { TRACTION_SCORING_CONFIG } from "./traction-config";
 
-const DEFAULT_PLATFORM_REFERENCE = TRACTION_SCORING_CONFIG.platformReferences.x!;
+const LEGACY_NEUTRAL_WINDOW_DAYS = 1;
 
 /** @deprecated Use TRACTION_SCORING_CONFIG directly for new scoring code. */
 export const DEFAULT_SCORING_CONFIG: ScoringConfig = {
-  halfLifeDays: DEFAULT_PLATFORM_REFERENCE.halfLifeDays,
-  reviewWindowDays: DEFAULT_PLATFORM_REFERENCE.halfLifeDays,
+  halfLifeDays: LEGACY_NEUTRAL_WINDOW_DAYS,
+  reviewWindowDays: LEGACY_NEUTRAL_WINDOW_DAYS,
   topKPosts: TRACTION_SCORING_CONFIG.platformEvidenceSlots.length
 };
 

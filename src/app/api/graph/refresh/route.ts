@@ -153,7 +153,7 @@ const snapshotScoreConfidenceSchema = z
   .passthrough();
 const snapshotScoreCalibrationSchema = z
   .object({
-    method: z.enum(["none", "tie_aware_percentile_blend"]),
+    method: z.literal("none"),
     cohortSize: z.number().int().nonnegative(),
     percentile: z.number().min(0).max(1).nullable(),
     inputScore: z.number().min(0).max(100)

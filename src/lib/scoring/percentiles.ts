@@ -10,7 +10,7 @@ export function safeNumber(value: number | null | undefined): number {
   return Number.isFinite(value) ? Number(value) : 0;
 }
 
-/** Shared tie-aware primitive used by canonical v4 batch calibration. */
+/** Legacy/research percentile primitive; canonical 4.1 headline scores do not use cohort rank. */
 export function percentileRank(samples: number[] | undefined, value: number): number {
   const finiteSamples = (samples ?? []).filter(Number.isFinite).sort((a, b) => a - b);
 
@@ -32,7 +32,7 @@ export function percentileRank(samples: number[] | undefined, value: number): nu
   return clamp((lessThan + equalTo / 2) / finiteSamples.length);
 }
 
-/** @deprecated Compatibility presentation helper; production blending lives in batch-calibration.ts. */
+/** @deprecated Compatibility presentation helper; production headline scoring is absolute-only. */
 export function batchPercentileScores<T>(
   rows: T[],
   getValue: (row: T) => number

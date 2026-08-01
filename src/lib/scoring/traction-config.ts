@@ -22,8 +22,6 @@ export interface PlatformMetricWeights {
 export interface PlatformScoringReference {
   /** Raw weighted engagement expected to land near 100. */
   highEngagement: number;
-  /** @deprecated Publication age is not part of scoring as of model 4.0.2. */
-  halfLifeDays: number;
 }
 
 export interface BatchCalibrationConfig {
@@ -51,9 +49,6 @@ export interface TractionScoringConfig {
   platformReferences: Partial<Record<Platform, PlatformScoringReference>>;
   absoluteEvidenceWeight: number;
   cohortPercentileWeight: number;
-  durableSignalWeight: number;
-  momentumSignalWeight: number;
-  missingDateMomentum: number;
   strongestPlatformWeight: number;
   diversifiedPlatformWeight: number;
   platformEvidenceSlots: number[];
@@ -69,8 +64,8 @@ const NORMALIZED_WEIGHT_TOLERANCE = 1e-9;
  */
 export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
   modelId: "returner-traction",
-  version: "4.0.2",
-  name: "returner-traction-v4-date-invariant",
+  version: "4.1.0",
+  name: "returner-traction-v4-absolute-fixed-platform",
   platformWeights: {
     x: 0.21,
     instagram: 0.21,
@@ -96,27 +91,24 @@ export const TRACTION_SCORING_CONFIG: TractionScoringConfig = {
     rss: {}
   },
   platformReferences: {
-    github: { highEngagement: 40_000, halfLifeDays: 365 },
-    x: { highEngagement: 120_000, halfLifeDays: 45 },
-    linkedin: { highEngagement: 18_000, halfLifeDays: 75 },
-    instagram: { highEngagement: 80_000, halfLifeDays: 60 },
-    product_hunt: { highEngagement: 4_000, halfLifeDays: 120 },
-    youtube: { highEngagement: 35_000, halfLifeDays: 150 },
-    hacker_news: { highEngagement: 2_500, halfLifeDays: 60 },
-    reddit: { highEngagement: 4_000, halfLifeDays: 60 },
-    bilibili: { highEngagement: 35_000, halfLifeDays: 150 }
+    github: { highEngagement: 40_000 },
+    x: { highEngagement: 120_000 },
+    linkedin: { highEngagement: 18_000 },
+    instagram: { highEngagement: 80_000 },
+    product_hunt: { highEngagement: 4_000 },
+    youtube: { highEngagement: 35_000 },
+    hacker_news: { highEngagement: 2_500 },
+    reddit: { highEngagement: 4_000 },
+    bilibili: { highEngagement: 35_000 }
   },
   absoluteEvidenceWeight: 1,
   cohortPercentileWeight: 0,
-  durableSignalWeight: 1,
-  momentumSignalWeight: 0,
-  missingDateMomentum: 1,
   strongestPlatformWeight: 0,
   diversifiedPlatformWeight: 1,
   platformEvidenceSlots: [0.82, 0.08, 0.05, 0.03, 0.02],
   batchCalibration: {
-    absoluteScoreWeight: 0.82,
-    cohortPercentileWeight: 0.18
+    absoluteScoreWeight: 1,
+    cohortPercentileWeight: 0
   },
   confidence: {
     base: 0.2,
@@ -157,7 +149,6 @@ export function validateTractionScoringConfig(config: TractionScoringConfig): vo
       invalidConfig(`platformReferences.${platform}`, "must be a scoring reference", reference);
     }
     assertPositiveFinite(`platformReferences.${platform}.highEngagement`, reference.highEngagement);
-    assertPositiveFinite(`platformReferences.${platform}.halfLifeDays`, reference.halfLifeDays);
   }
 
   for (const [platform, weight] of platformWeights) {
@@ -197,26 +188,17 @@ export function validateTractionScoringConfig(config: TractionScoringConfig): vo
       [config.absoluteEvidenceWeight, config.cohortPercentileWeight]
     );
   }
-  assertNormalizedWeights("signal blend", [
-    ["durableSignalWeight", config.durableSignalWeight],
-    ["momentumSignalWeight", config.momentumSignalWeight]
-  ]);
-  assertUnitWeight("missingDateMomentum", config.missingDateMomentum);
-  if (
-    config.durableSignalWeight !== 1 ||
-    config.momentumSignalWeight !== 0 ||
-    config.missingDateMomentum !== 1
-  ) {
-    invalidConfig(
-      "date-invariant signal blend",
-      "must disable publication-age scoring (durableSignalWeight=1, momentumSignalWeight=0, missingDateMomentum=1)",
-      [config.durableSignalWeight, config.momentumSignalWeight, config.missingDateMomentum]
-    );
-  }
   assertNormalizedWeights("platform blend", [
     ["strongestPlatformWeight", config.strongestPlatformWeight],
     ["diversifiedPlatformWeight", config.diversifiedPlatformWeight]
   ]);
+  if (config.strongestPlatformWeight !== 0 || config.diversifiedPlatformWeight !== 1) {
+    invalidConfig(
+      "fixed platform blend",
+      "must use only configured platform shares (strongestPlatformWeight=0, diversifiedPlatformWeight=1)",
+      [config.strongestPlatformWeight, config.diversifiedPlatformWeight]
+    );
+  }
 
   if (!Array.isArray(config.platformEvidenceSlots) || config.platformEvidenceSlots.length === 0) {
     invalidConfig("platformEvidenceSlots", "must be a non-empty array", config.platformEvidenceSlots);
@@ -237,6 +219,19 @@ export function validateTractionScoringConfig(config: TractionScoringConfig): vo
     ["batchCalibration.absoluteScoreWeight", config.batchCalibration.absoluteScoreWeight],
     ["batchCalibration.cohortPercentileWeight", config.batchCalibration.cohortPercentileWeight]
   ]);
+  if (
+    config.batchCalibration.absoluteScoreWeight !== 1 ||
+    config.batchCalibration.cohortPercentileWeight !== 0
+  ) {
+    invalidConfig(
+      "absolute company score",
+      "must disable cohort calibration (absoluteScoreWeight=1, cohortPercentileWeight=0)",
+      [
+        config.batchCalibration.absoluteScoreWeight,
+        config.batchCalibration.cohortPercentileWeight
+      ]
+    );
+  }
 
   const confidenceWeights: Array<readonly [string, number]> = [
     ["confidence.base", config.confidence.base],

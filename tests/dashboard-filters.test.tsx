@@ -53,7 +53,7 @@ vi.mock("@/lib/social/user-insiders-client", () => ({
 }));
 
 const V4_MODEL_ID = "returner-traction";
-const V4_MODEL_VERSION = "4.0.2";
+const V4_MODEL_VERSION = "4.1.0";
 
 function insiderConfigurationResponse(version = 0, paulGrahamWeight = 5): InsiderConfigurationResponse {
   const defaults = defaultInsiderMembers();
@@ -1016,10 +1016,10 @@ describe("dashboard filters", () => {
       makeNode("company:screenpipe", "screenpipe", "b2b", "#7dd3fc", "Partner A", 100)
     ]);
     const speedrunGraph = withBenchmarkDates(
-      graphResponse(
+      staticGraphFixture(graphResponse(
         [makeNode("company:sun", "SUN", "consumer", "#88CCF6", "Partner A", 100)],
         { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
-      ),
+      )),
       localDateIso(-1),
       localDateIso(-7)
     );
@@ -1075,10 +1075,10 @@ describe("dashboard filters", () => {
     const springGraph = graphResponse([
       makeNode("company:fintech", "Spring Fintech", "fintech", "#2563eb", "Partner A")
     ]);
-    const speedrunGraph = graphResponse(
+    const speedrunGraph = staticGraphFixture(graphResponse(
       [makeNode("company:consumer", "Speedrun Consumer", "consumer", "#88CCF6", "Partner B")],
       { slug: "A16ZSR006", label: "a16z speedrun 006", companyCountExpected: 59, companyCountObserved: 59 }
-    );
+    ));
     let resolveSpeedrun!: (response: { ok: boolean; json: () => Promise<GraphResponse> }) => void;
     const speedrunResponse = new Promise<{ ok: boolean; json: () => Promise<GraphResponse> }>((resolve) => {
       resolveSpeedrun = resolve;
@@ -1507,7 +1507,9 @@ describe("dashboard filters", () => {
   it("renders a stale static graph immediately, then refreshes it through the API", async () => {
     vi.useFakeTimers();
     const staleGraph = withBenchmarkDates(
-      graphResponse([makeNode("company:stale", "Stale Snapshot", "b2b", "#7dd3fc", "Partner A")]),
+      staticGraphFixture(
+        graphResponse([makeNode("company:stale", "Stale Snapshot", "b2b", "#7dd3fc", "Partner A")])
+      ),
       localDateIso(-2),
       localDateIso(-8)
     );
@@ -1554,10 +1556,10 @@ describe("dashboard filters", () => {
   it("uses a fresh static graph for filtered first paint while revalidating unfiltered", async () => {
     vi.useFakeTimers();
     const staticGraph = withBenchmarkDates(
-      graphResponse([
+      staticGraphFixture(graphResponse([
         makeNode("company:x-only", "Static X Only", "b2b", "#7dd3fc", "Partner A", 80, "x"),
         makeNode("company:github-only", "GitHub Only", "fintech", "#2563eb", "Partner B", 70, "github")
-      ]),
+      ])),
       localDateIso(-1),
       localDateIso(-7)
     );
@@ -1592,7 +1594,9 @@ describe("dashboard filters", () => {
   it("downloads a successful fresh static graph once and revalidates the API once", async () => {
     vi.useFakeTimers();
     const staticGraph = withBenchmarkDates(
-      graphResponse([makeNode("company:static", "Static First Paint", "b2b", "#7dd3fc", "Partner A")]),
+      staticGraphFixture(
+        graphResponse([makeNode("company:static", "Static First Paint", "b2b", "#7dd3fc", "Partner A")])
+      ),
       localDateIso(-1),
       localDateIso(-7)
     );
@@ -2180,7 +2184,7 @@ function graphResponse(
     scoringContext: {
       modelId: V4_MODEL_ID,
       modelVersion: V4_MODEL_VERSION,
-      modelName: "returner-traction-v4-date-invariant",
+      modelName: "returner-traction-v4-absolute-fixed-platform",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: "2026-06-29T00:00:00.000Z",
@@ -2233,23 +2237,24 @@ function unbenchmarkedMomentum(currentScore: number, currentRank: number) {
 function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
   const platform = node.topPlatform ?? "github";
   const platformScore = node.platformScores[platform] ?? node.score;
+  const configuredWeight = TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0;
   return {
     modelId: V4_MODEL_ID,
     modelVersion: V4_MODEL_VERSION,
-    modelName: "returner-traction-v4-date-invariant",
+    modelName: "returner-traction-v4-absolute-fixed-platform",
     totalScore: node.score,
     absoluteScore: node.score,
-    weightedAvailableScore: node.score,
-    coverageFactor: 1,
+    weightedAvailableScore: platformScore,
+    coverageFactor: configuredWeight,
     platformsWithEvidence: 1,
-    totalSupportedPlatforms: 1,
+    totalSupportedPlatforms: 9,
     platformScores: { ...node.platformScores },
     weightedPlatforms: [{
       platform,
       score: platformScore,
-      configuredWeight: TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0,
-      appliedWeight: 1,
-      contribution: platformScore,
+      configuredWeight,
+      appliedWeight: configuredWeight,
+      contribution: Math.round(platformScore * configuredWeight * 100) / 100,
       evidenceCount: 1
     }],
     signalFamilyScores: {
@@ -2276,6 +2281,46 @@ function testScoreBreakdown(node: GraphNode): ScoreBreakdown {
     limitations: [],
     evidenceAsOf: "2026-06-29T00:00:00.000Z",
     explanation: "Dashboard v4 contract fixture."
+  };
+}
+
+function staticGraphFixture(graph: GraphResponse): GraphResponse {
+  const nodes = graph.nodes.map((node) => {
+    const platform = node.topPlatform ?? "github";
+    const platformScore = node.platformScores[platform] ?? node.score;
+    const configuredWeight = TRACTION_SCORING_CONFIG.platformWeights[platform] ?? 0;
+    const fixedScoreValue = platformScore * configuredWeight;
+    const fixedScore = fixedScoreValue > 0 ? Math.max(1, Math.round(fixedScoreValue)) : 0;
+    const adjustedNode = {
+      ...node,
+      score: fixedScore,
+      previousScore: fixedScore,
+      scoreDelta: 0
+    };
+    return {
+      ...adjustedNode,
+      scoreBreakdown: testScoreBreakdown(adjustedNode)
+    };
+  });
+  const nodesByEntityId = new Map(nodes.map((node) => [node.entityId, node]));
+  const leaderboard = graph.leaderboard.map((row) => ({
+    ...row,
+    score: nodesByEntityId.get(row.companyId)?.score ?? row.score
+  }));
+
+  return {
+    ...graph,
+    nodes,
+    leaderboard,
+    fastestGaining: graph.fastestGaining.map((row) => {
+      const leaderboardRow = leaderboard.find((candidate) => candidate.companyId === row.companyId);
+      const score = leaderboardRow?.score ?? row.dod.currentScore;
+      return {
+        ...row,
+        dod: unbenchmarkedMomentum(score, row.rank),
+        wow: unbenchmarkedMomentum(score, row.rank)
+      };
+    })
   };
 }
 

@@ -69,9 +69,9 @@ describe("NodePanel", () => {
           verifiedLinkCount: 14
         },
         calibration: {
-          method: "tie_aware_percentile_blend",
+          method: "none",
           cohortSize: 83,
-          percentile: 0.91,
+          percentile: null,
           inputScore: 67
         },
         limitations: [
@@ -99,10 +99,10 @@ describe("NodePanel", () => {
       contributionRows.map((row) => row.querySelector(".platform-identity > span")?.textContent)
     ).toEqual(["GitHub", "X", "LinkedIn", "Instagram"]);
     [
-      ["34.7 pts", "7 items"],
-      ["22.9 pts", "6 items"],
-      ["15.7 pts", "3 items"],
-      ["8.7 pts", "2 items"]
+      ["12.4 pts", "7 items"],
+      ["8.2 pts", "6 items"],
+      ["5.6 pts", "3 items"],
+      ["3.1 pts", "2 items"]
     ].forEach(([points, count], index) => {
       expect(contributionRows[index]).toHaveTextContent(points);
       expect(contributionRows[index]).toHaveTextContent(count);
@@ -111,7 +111,7 @@ describe("NodePanel", () => {
       const value = Number.parseFloat(row.querySelector("strong")?.textContent ?? "0");
       return sum + value;
     }, 0);
-    expect(displayedTotal).toBe(82);
+    expect(displayedTotal).toBeCloseTo(29.3, 5);
     expect(within(section!).queryByText("YouTube")).not.toBeInTheDocument();
     expect(within(section!).queryByText("Reddit")).not.toBeInTheDocument();
 

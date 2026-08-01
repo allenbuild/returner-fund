@@ -181,15 +181,18 @@ describe("GET /api/graph recomputation order", () => {
 
     expect(response.status).toBe(200);
     expect(alpha?.insiderScoreBreakdown).toMatchObject({
-      baseScore: 100,
       publishedInsiderInfluence: 25,
       weightedInsiderSubtotal: 1,
       insiderScoreAdjustment: -24,
-      finalScore: 76,
       configurationVersion: 8
     });
-    expect(alpha?.score).toBe(76);
-    expect(alphaRow?.score).toBe(76);
+    const expectedFinalScore = Math.max(
+      0,
+      (alpha?.insiderScoreBreakdown?.baseScore ?? 0) - 24
+    );
+    expect(alpha?.insiderScoreBreakdown?.finalScore).toBe(expectedFinalScore);
+    expect(alpha?.score).toBe(expectedFinalScore);
+    expect(alphaRow?.score).toBe(expectedFinalScore);
   }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 });
 

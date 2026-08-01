@@ -3,7 +3,6 @@ import {
   platformScoresFromEvidence
 } from "@/lib/graph/traction-scoring";
 import type {
-  CompanyRecord,
   EvidenceItem,
   Platform as CanonicalPlatform
 } from "@/lib/graph/types";
@@ -18,7 +17,6 @@ import type {
   PlatformScoreResult,
   ReviewState
 } from "./types";
-import { calibrateBatchCompanyScores } from "./batch-calibration";
 import { clamp, roundScore } from "./percentiles";
 import { TRACTION_SCORING_CONFIG } from "./traction-config";
 
@@ -243,11 +241,6 @@ export function aggregateEntityScores(
   const platformCoverage =
     totalConfiguredWeight <= 0 ? 0 : clamp(availableWeight / totalConfiguredWeight);
   const review_state = entityReviewState(input.platformScores);
-  const calibration = calibrateLegacyScore(
-    input.entityId,
-    canonicalBreakdown.absoluteScore,
-    input.batchPeerCompositeScores
-  );
   const platformScoresJson: PlatformBreakdown[] = presentScores.map((score) => {
     const canonicalPlatform = toCanonicalPlatform(score.platform);
     const canonicalScore = canonicalPlatform
@@ -276,21 +269,17 @@ export function aggregateEntityScores(
     limitations.push("Canonical v4 coverage is incomplete across supported platforms.");
   }
 
-  if (input.batchPeerCompositeScores === undefined) {
-    limitations.push("Batch peer scores unavailable; total score is the canonical absolute score.");
-  }
-
   return {
     entityId: input.entityId,
     batchSlug: input.batchSlug,
-    totalScore: calibration.totalScore,
+    totalScore: canonicalBreakdown.absoluteScore,
     review_state,
     platformScoresJson,
     scoreExplanationJson: {
       entityId: input.entityId,
       batchSlug: input.batchSlug,
       absoluteCompositeScore: canonicalBreakdown.absoluteScore,
-      batchPercentile: calibration.percentile,
+      batchPercentile: null,
       platformCoverage,
       defaultPlatformWeights: DEFAULT_PLATFORM_WEIGHTS,
       platformBreakdown: platformScoresJson,
@@ -419,72 +408,6 @@ function stableCompatibilityNumber(value: string): number {
   }
 
   return (hash >>> 0) + 1;
-}
-
-function calibrateLegacyScore(
-  entityId: string,
-  absoluteScore: number,
-  peerScores: number[] | undefined
-): { totalScore: number; percentile: number | null } {
-  if (peerScores === undefined) {
-    return { totalScore: absoluteScore, percentile: null };
-  }
-
-  const rows = [absoluteScore, ...peerScores.filter(Number.isFinite)].map((score, index) =>
-    compatibilityCompanyRecord(index === 0 ? entityId : `${entityId}:peer:${index}`, score)
-  );
-  const calibrated = calibrateBatchCompanyScores(rows)[0];
-  const calibration = calibrated?.scoreBreakdown?.calibration;
-
-  if (!calibrated || !calibration) {
-    return { totalScore: absoluteScore, percentile: null };
-  }
-
-  return {
-    totalScore: calibrated.totalScore,
-    percentile: calibration.percentile
-  };
-}
-
-function compatibilityCompanyRecord(id: string, score: number): CompanyRecord {
-  const sourceUrl = `https://legacy.invalid/calibration/${encodeURIComponent(id)}`;
-  const scoreBreakdown = {
-    ...aggregateBalancedTractionScore([]),
-    modelId: TRACTION_SCORING_CONFIG.modelId,
-    modelVersion: TRACTION_SCORING_CONFIG.version,
-    modelName: TRACTION_SCORING_CONFIG.name,
-    totalScore: score,
-    absoluteScore: score,
-    calibration: {
-      method: "none" as const,
-      cohortSize: 0,
-      percentile: null,
-      inputScore: score
-    },
-    explanation: "Adapted from a legacy peer score for canonical batch calibration."
-  };
-
-  return {
-    id,
-    batchSlug: "legacy-compatibility",
-    name: id,
-    ycProfileUrl: sourceUrl,
-    websiteUrl: sourceUrl,
-    tagline: "Legacy compatibility calibration row",
-    description: scoreBreakdown.explanation,
-    groupPartner: null,
-    primaryIndustry: "unknown",
-    businessModel: "b2b",
-    review_state: "verified",
-    sourceUrl,
-    industries: [],
-    founderIds: [],
-    socialAccounts: [],
-    totalScore: score,
-    previousScore: score,
-    platformScores: scoreBreakdown.platformScores,
-    scoreBreakdown
-  };
 }
 
 function configuredPlatformWeight(platform: Platform): number {

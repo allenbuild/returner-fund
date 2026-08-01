@@ -243,7 +243,7 @@ describe("a16z speedrun 006 dataset", () => {
     );
   });
 
-  it("uses tie-aware percentiles without erasing absolute or positive scores", () => {
+  it("uses absolute scores without cohort stretching", () => {
     const calibrated = calibrateBatchCompanyScores([
       calibrationCompany("low-a", 10),
       calibrationCompany("low-b", 10),
@@ -252,22 +252,22 @@ describe("a16z speedrun 006 dataset", () => {
     ]);
     const byId = new Map(calibrated.map((company) => [company.id, company]));
 
-    expect(byId.get("low-a")?.totalScore).toBe(1);
-    expect(byId.get("low-b")?.totalScore).toBe(1);
-    expect(byId.get("high")?.totalScore).toBe(100);
+    expect(byId.get("low-a")?.totalScore).toBe(10);
+    expect(byId.get("low-b")?.totalScore).toBe(10);
+    expect(byId.get("high")?.totalScore).toBe(80);
     expect(byId.get("none")?.totalScore).toBe(0);
     expect(byId.get("low-a")?.scoreBreakdown).toEqual(
       expect.objectContaining({
         absoluteScore: 10,
         calibration: {
-          method: "tie_aware_percentile_blend",
+          method: "none",
           cohortSize: 3,
-          percentile: 0.3333,
+          percentile: null,
           inputScore: 10
         }
       })
     );
-    expect(byId.get("low-b")?.scoreBreakdown?.calibration.percentile).toBe(0.3333);
+    expect(byId.get("low-b")?.scoreBreakdown?.calibration.percentile).toBeNull();
     expect(byId.get("none")?.scoreBreakdown?.calibration).toEqual({
       method: "none",
       cohortSize: 3,

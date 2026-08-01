@@ -490,12 +490,11 @@ describe("YC traction scoring regressions", () => {
       "linkedin"
     );
     expectGraphEvidence(springGraph.evidence, "https://www.youtube.com/watch?v=K_xNXWnlf98", "Klarify", "youtube");
-    expectGraphContextEvidence(
+    expectGraphEvidence(
       springGraph.evidence,
       "https://github.com/Aradotso/ara-mcp",
       "Ara",
-      "github",
-      "no_visible_metrics"
+      "github"
     );
     expectGraphEvidence(springGraph.evidence, "https://x.com/DraftedAI/status/2060402050635387083", "Drafted", "x");
     expectGraphEvidence(summerGraph.evidence, "https://x.com/archal_labs/status/2059499757400465804", "Archal", "x");
@@ -660,31 +659,63 @@ describe("YC traction scoring regressions", () => {
 
     expect(careGp?.score).toBeLessThan(70);
     expect(screenpipe?.score).toBeGreaterThan(careGp?.score ?? 0);
-    expect(careGp?.scoreBreakdown?.calibration.method).toBe("tie_aware_percentile_blend");
+    expect(careGp?.scoreBreakdown?.calibration.method).toBe("none");
     expect(careGp?.scoreBreakdown?.calibration.inputScore).toBe(careGp?.scoreBreakdown?.absoluteScore);
     expect(careGp?.scoreBreakdown?.explanation).not.toContain("Evidence-depth factor");
     expect(careGp?.scoreBreakdown?.weightedPlatforms[0]?.evidenceCount).toBeGreaterThanOrEqual(1);
   });
 
-  it("uses the full positive score range independently in S2026, S26, and A16Z", () => {
+  it("keeps screenpipe above one-platform Nori using actual fixed platform contributions", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const nori = graph.nodes.find((node) => node.entityType === "company" && node.label === "Nori");
+    const screenpipe = graph.nodes.find(
+      (node) => node.entityType === "company" && node.label === "screenpipe"
+    );
+
+    expect(nori).toBeTruthy();
+    expect(screenpipe).toBeTruthy();
+    expect(nori?.score).toBe(nori?.scoreBreakdown?.absoluteScore);
+    expect(screenpipe?.score).toBe(screenpipe?.scoreBreakdown?.absoluteScore);
+    expect(nori?.scoreBreakdown?.coverageFactor).toBe(0.21);
+    expect(screenpipe?.scoreBreakdown?.coverageFactor).toBeGreaterThan(
+      nori?.scoreBreakdown?.coverageFactor ?? 0
+    );
+    expect(screenpipe?.score).toBeGreaterThan(nori?.score ?? 0);
+
+    for (const company of [nori!, screenpipe!]) {
+      const fixedContributionTotal = company.scoreBreakdown!.weightedPlatforms.reduce(
+        (sum, row) => sum + row.score * row.configuredWeight,
+        0
+      );
+      expect(company.score).toBe(Math.round(fixedContributionTotal));
+      expect(
+        company.scoreBreakdown!.weightedPlatforms.every(
+          (row) => row.appliedWeight === row.configuredWeight
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("uses absolute scores independently in S2026, S26, and A16Z", () => {
     for (const batchSlug of ["S2026", "S26", "A16ZSR006"]) {
       const companies = ycSpring2026GraphDataset.companies.filter((company) => company.batchSlug === batchSlug);
       const positiveCompanies = companies.filter((company) => (company.scoreBreakdown?.absoluteScore ?? 0) > 0);
       const positiveScores = positiveCompanies.map((company) => company.totalScore);
 
       expect(positiveCompanies.length).toBeGreaterThan(0);
-      expect(Math.min(...positiveScores)).toBe(1);
-      expect(Math.max(...positiveScores)).toBe(100);
+      expect(Math.min(...positiveScores)).toBeGreaterThanOrEqual(1);
+      expect(Math.max(...positiveScores)).toBeLessThanOrEqual(100);
       for (const company of positiveCompanies) {
         expect(company.totalScore).toBeGreaterThan(0);
+        expect(company.totalScore).toBe(company.scoreBreakdown?.absoluteScore);
         expect(company.scoreBreakdown?.calibration).toEqual(
           expect.objectContaining({
-            method: "tie_aware_percentile_blend",
+            method: "none",
             cohortSize: positiveCompanies.length,
+            percentile: null,
             inputScore: company.scoreBreakdown?.absoluteScore
           })
         );
-        expect(company.scoreBreakdown?.calibration.percentile).toBeGreaterThan(0);
       }
     }
 
@@ -840,7 +871,7 @@ describe("YC traction scoring regressions", () => {
     expect(scored[0]?.contributionScore).toBeGreaterThan(scored[2]?.contributionScore ?? 0);
   });
 
-  it("does not add a hidden diversity bonus to cross-platform traction", () => {
+  it("uses only fixed platform contributions without a hidden diversity bonus", () => {
     const githubOnly = aggregateBalancedTractionScore([evidence("github-only", "github", {}, 100)]);
     const crossPlatform = aggregateBalancedTractionScore([
       evidence("x", "x", {}, 98),
@@ -850,8 +881,13 @@ describe("YC traction scoring regressions", () => {
       evidence("youtube", "youtube", {}, 98)
     ]);
 
-    expect(crossPlatform.totalScore).toBeLessThan(githubOnly.totalScore);
-    expect(crossPlatform.totalScore).toBe(crossPlatform.weightedAvailableScore);
+    expect(githubOnly.totalScore).toBe(
+      Math.round(githubOnly.weightedPlatforms.reduce((sum, row) => sum + row.contribution, 0))
+    );
+    expect(crossPlatform.totalScore).toBe(
+      Math.round(crossPlatform.weightedPlatforms.reduce((sum, row) => sum + row.contribution, 0))
+    );
+    expect(crossPlatform.totalScore).toBeLessThan(crossPlatform.weightedAvailableScore);
   });
 
   it("does not average away a viral view-heavy social post", () => {
@@ -864,11 +900,13 @@ describe("YC traction scoring regressions", () => {
     ]);
 
     expect(score.platformScores.x).toBeGreaterThanOrEqual(80);
-    expect(score.totalScore).toBeGreaterThanOrEqual(60);
+    expect(score.totalScore).toBe(
+      Math.round(score.weightedPlatforms.reduce((sum, row) => sum + row.contribution, 0))
+    );
     expect(score.totalScore).toBe(score.absoluteScore);
   });
 
-  it("does not penalize companies for platforms where they have no evidence", () => {
+  it("treats missing platforms as zero instead of renormalizing present platforms", () => {
     const onePlatform = aggregateBalancedTractionScore([evidence("x", "x", {}, 100)]);
     const allConfiguredPlatforms = aggregateBalancedTractionScore([
       evidence("x", "x", {}, 100),
@@ -882,10 +920,11 @@ describe("YC traction scoring regressions", () => {
       evidence("bilibili", "bilibili", {}, 100)
     ]);
 
-    expect(onePlatform.coverageFactor).toBe(allConfiguredPlatforms.coverageFactor);
+    expect(onePlatform.coverageFactor).toBe(0.21);
     expect(allConfiguredPlatforms.coverageFactor).toBe(1);
-    expect(onePlatform.totalScore).toBe(82);
-    expect(allConfiguredPlatforms.totalScore).toBe(onePlatform.totalScore);
+    expect(onePlatform.totalScore).toBe(17);
+    expect(allConfiguredPlatforms.totalScore).toBe(82);
+    expect(onePlatform.totalScore).toBeLessThan(allConfiguredPlatforms.totalScore);
   });
 
   it("orders score explanations by configured-weight contribution", () => {
@@ -910,7 +949,7 @@ describe("YC traction scoring regressions", () => {
   });
 
   it("uses the recommended long-run scoring config for live graph scoring", () => {
-    expect(TRACTION_SCORING_CONFIG.name).toBe("returner-traction-v4-date-invariant");
+    expect(TRACTION_SCORING_CONFIG.name).toBe("returner-traction-v4-absolute-fixed-platform");
     expect(TRACTION_SCORING_CONFIG.platformWeights.github).toBe(0.15);
     expect(TRACTION_SCORING_CONFIG.platformWeights.x).toBe(0.21);
     expect(TRACTION_SCORING_CONFIG.platformWeights.linkedin).toBe(0.15);
@@ -923,8 +962,10 @@ describe("YC traction scoring regressions", () => {
     expect(TRACTION_SCORING_CONFIG.metricWeights.github?.recent_commits_30d).toBeUndefined();
     expect(TRACTION_SCORING_CONFIG.absoluteEvidenceWeight).toBe(1);
     expect(TRACTION_SCORING_CONFIG.cohortPercentileWeight).toBe(0);
-    expect(TRACTION_SCORING_CONFIG.durableSignalWeight).toBe(1);
-    expect(TRACTION_SCORING_CONFIG.momentumSignalWeight).toBe(0);
+    expect(TRACTION_SCORING_CONFIG.batchCalibration).toEqual({
+      absoluteScoreWeight: 1,
+      cohortPercentileWeight: 0
+    });
     expect(computeEvidenceRawEngagement("instagram", { views: 100_000, likes: 100, comments: 10 })).toBe(4155);
     expect(computeEvidenceRawEngagement("x", { views: 1_000_000, likes: 1_000, comments: 100, reposts: 100 })).toBe(42450);
     expect(computeEvidenceRawEngagement("linkedin", { views: 100_000, reactions: 100, comments: 20, reposts: 10 })).toBe(4290);

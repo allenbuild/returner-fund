@@ -59,13 +59,13 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             {baseline.postSlotPercents.join("%, ")}% by slot. Posts are therefore not simply summed without limit.
           </p>
           <p>
-            Platform results use the configured platform shares below; breadth is not a separate bonus in this V4
-            configuration ({baseline.platformBlend.strongestPercent}% strongest-platform blend and {" "}
-            {baseline.platformBlend.diversifiedPercent}% configured diversified blend). Company calibration blends {" "}
-            {baseline.calibration.absolutePercent}% absolute score with {" "}
-            {baseline.calibration.cohortPercentilePercent}% tie-aware cohort percentile, then stretches the positive
-            company cohort across the 1–100 range (companies without eligible evidence remain 0). Filters only change
-            visibility and never recompute this canonical result.
+            Platform results use the fixed configured shares below. A platform with no eligible evidence contributes
+            zero at its configured share; present platforms are never renormalized to fill the missing weight. Breadth
+            is not a separate bonus ({baseline.platformBlend.strongestPercent}% strongest-platform blend and {" "}
+            {baseline.platformBlend.diversifiedPercent}% fixed-share blend). The resulting absolute score is the
+            headline company score ({baseline.calibration.absolutePercent}% absolute and {" "}
+            {baseline.calibration.cohortPercentilePercent}% cohort calibration); cohort rank never stretches or changes
+            it. Filters only change visibility and never recompute this canonical result.
           </p>
 
           <div className="scoring-baseline-table-wrap">
@@ -103,7 +103,7 @@ export function ScoringMethodology({ currentModel }: ScoringMethodologyProps) {
             {baseline.confidence.publicationDatePercent}%), and verified links ({baseline.confidence.verifiedLinkPercent}%).
             Medium/high labels begin at {baseline.confidence.mediumThresholdPercent}%/{baseline.confidence.highThresholdPercent}%.
             Publication-date coverage affects this separate confidence metadata, never the score. These weights,
-            references, slot shares, and calibration blend are product heuristics; they are not fitted V5 parameters.
+            references and slot shares are product heuristics; they are not fitted V5 parameters.
           </p>
         </div>
       </details>

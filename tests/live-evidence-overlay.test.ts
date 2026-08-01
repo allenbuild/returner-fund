@@ -261,9 +261,8 @@ describe("live evidence overlay", () => {
       expect(node.score).toBe(node.scoreBreakdown?.totalScore);
       expect(calibration?.cohortSize).toBe(positiveCohortSize);
       expect(calibration?.inputScore).toBe(node.scoreBreakdown?.absoluteScore);
-      expect(calibration?.method).toBe(
-        (node.scoreBreakdown?.absoluteScore ?? 0) > 0 ? "tie_aware_percentile_blend" : "none"
-      );
+      expect(calibration?.method).toBe("none");
+      expect(calibration?.percentile).toBeNull();
       expect(node.scoreDelta).toBe(Math.round(node.score - before.score));
       if (node.score === before.score) {
         expect(node.scoreDelta).toBe(0);

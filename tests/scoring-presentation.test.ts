@@ -10,7 +10,7 @@ describe("scoring methodology presentation", () => {
     expect(presentation.postSlotPercents).toEqual(
       TRACTION_SCORING_CONFIG.platformEvidenceSlots.map((weight) => weight * 100)
     );
-    expect(presentation.calibration).toEqual({ absolutePercent: 82, cohortPercentilePercent: 18 });
+    expect(presentation.calibration).toEqual({ absolutePercent: 100, cohortPercentilePercent: 0 });
     expect(presentation.platformReferences.find((row) => row.platform === "x")).toEqual({
       platform: "x",
       highEngagement: 120_000

@@ -211,7 +211,9 @@ describe("canonical v4 static graph snapshot contract", () => {
     {
       name: "out-of-range calibration percentile",
       path: "nodes[0].scoreBreakdown.calibration.percentile",
-      mutate: (graph: ValidSnapshot) => { graph.nodes[0]!.scoreBreakdown.calibration.percentile = 1.1; }
+      mutate: (graph: ValidSnapshot) => {
+        (graph.nodes[0]!.scoreBreakdown.calibration as { percentile: number | null }).percentile = 1.1;
+      }
     },
     {
       name: "out-of-range platform score",
@@ -455,12 +457,12 @@ function validSnapshot() {
   };
   const scoreBreakdown = {
     modelId: "returner-traction",
-    modelVersion: "4.0.2",
-    modelName: "returner-traction-v4-date-invariant",
-    totalScore: 64,
-    absoluteScore: 64,
+    modelVersion: "4.1.0",
+    modelName: "returner-traction-v4-absolute-fixed-platform",
+    totalScore: 13,
+    absoluteScore: 13,
     weightedAvailableScore: 64,
-    coverageFactor: 1,
+    coverageFactor: 0.21,
     platformsWithEvidence: 1,
     totalSupportedPlatforms: 9,
     platformScores: { x: 64 },
@@ -468,8 +470,8 @@ function validSnapshot() {
       platform: "x",
       score: 64,
       configuredWeight: 0.21,
-      appliedWeight: 1,
-      contribution: 64,
+      appliedWeight: 0.21,
+      contribution: 13.44,
       evidenceCount: 1
     }],
     signalFamilyScores: {
@@ -488,10 +490,10 @@ function validSnapshot() {
       verifiedLinkCount: 1
     },
     calibration: {
-      method: "tie_aware_percentile_blend",
+      method: "none",
       cohortSize: 1,
-      percentile: 0.5,
-      inputScore: 64
+      percentile: null,
+      inputScore: 13
     },
     limitations: [],
     evidenceAsOf: "2026-07-16T05:00:00.000Z",
@@ -503,7 +505,7 @@ function validSnapshot() {
     entityId: "company-1",
     label: "Company One",
     batchSlug: "S2026",
-    score: 64,
+    score: 13,
     topPlatform: "x",
     platformScores: { x: 64 },
     scoreBreakdown,
@@ -522,7 +524,7 @@ function validSnapshot() {
       rank: 1,
       companyId: "company-1",
       companyName: "Company One",
-      score: 64,
+      score: 13,
       topPlatform: "x",
       biggestContribution: evidence
     }],
@@ -530,8 +532,8 @@ function validSnapshot() {
       rank: 1,
       companyId: "company-1",
       companyName: "Company One",
-      dod: momentum(64, 1),
-      wow: momentum(64, 1)
+      dod: momentum(13, 1),
+      wow: momentum(13, 1)
     }],
     needsReview: [],
     evidence: [evidence],
@@ -541,8 +543,8 @@ function validSnapshot() {
     generatedAt: "2026-07-16T05:00:00.000Z",
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.0.2",
-      modelName: "returner-traction-v4-date-invariant",
+      modelVersion: "4.1.0",
+      modelName: "returner-traction-v4-absolute-fixed-platform",
       scoreScope: "all_platforms",
       selectedPlatforms: [] as string[],
       responseBuiltAt: "2026-07-16T05:00:00.000Z",
@@ -595,7 +597,7 @@ function addTiedCompany(graph: ValidSnapshot) {
     rank: 1,
     companyId: "company-2",
     companyName: "Company Two",
-    score: 64,
+    score: 13,
     topPlatform: "x",
     biggestContribution: evidence
   });
@@ -603,8 +605,8 @@ function addTiedCompany(graph: ValidSnapshot) {
     rank: 2,
     companyId: "company-2",
     companyName: "Company Two",
-    dod: momentum(64, 1),
-    wow: momentum(64, 1)
+    dod: momentum(13, 1),
+    wow: momentum(13, 1)
   });
 }
 

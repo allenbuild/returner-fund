@@ -1,8 +1,9 @@
 # Scoring v4 Implementation Audit
 
-> Historical baseline: this audit records `4.0.0`. Production `4.0.2`
-> (`returner-traction-v4-date-invariant`) also removes publication-age and
-> recent-commit scoring, preserves the prior versions as rollback targets, and is documented in
+> Historical baseline: this audit records `4.0.0`. Production `4.1.0`
+> (`returner-traction-v4-absolute-fixed-platform`) removes publication-age and
+> recent-commit scoring, uses fixed platform shares with missing coverage worth zero,
+> publishes the absolute score without cohort stretching, preserves prior versions as rollback targets, and is documented in
 > [`SCORING_MODEL.md`](SCORING_MODEL.md).
 
 ## Scope and conclusion

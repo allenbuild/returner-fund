@@ -186,7 +186,7 @@ describe("scoring formulas", () => {
     expect(platform.explanationJson.limitations.join(" ")).toContain("excluded from canonical scoring");
   });
 
-  it("adapts company and founder scores to canonical aggregation and calibration", () => {
+  it("adapts company and founder scores to canonical fixed-weight aggregation", () => {
     const officialX = {
       entityId: "company-1",
       platform: "x" as const,

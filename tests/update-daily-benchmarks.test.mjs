@@ -139,7 +139,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.0.2" });
+    ).toEqual({ scoringModelId: "returner-traction", scoringModelVersion: "4.1.0" });
 
     snapshots[8].graph.scoringContext.modelVersion = "5.0.0";
     snapshots[8].graph.nodes.forEach((node) => {
@@ -150,7 +150,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.0\.2/i);
+    ).toThrow(/returner-traction@4\.1\.0/i);
 
     const consistentlyLegacySnapshots = graphSnapshots(generatedAt);
     for (const snapshot of consistentlyLegacySnapshots) {
@@ -164,7 +164,7 @@ describe("daily benchmark updater", () => {
         now: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).toThrow(/returner-traction@4\.0\.2/i);
+    ).toThrow(/returner-traction@4\.1\.0/i);
   });
 
   it("rejects audience node state that drifts from the canonical base snapshot", () => {
@@ -258,7 +258,7 @@ describe("daily benchmark updater", () => {
         validationNow: new Date("2026-07-16T05:01:00.000Z"),
         windowStart: new Date("2026-07-16T05:00:00.000Z")
       })
-    ).rejects.toThrow(/complete returner-traction@4\.0\.2 score breakdown/i);
+    ).rejects.toThrow(/complete returner-traction@4\.1\.0 score breakdown/i);
 
     expect(fs.readFileSync(sentinelPath, "utf8")).toBe("sentinel\n");
     expect(fs.readdirSync(path.dirname(sentinelPath))).toEqual(["s2026.json"]);
@@ -310,7 +310,7 @@ describe("daily benchmark updater", () => {
         selectedPlatforms: []
       }));
       if (descriptor.topVoices) {
-        expect(publishedGraph.leaderboard[0]).toEqual(expect.objectContaining({ score: 90, rank: 1 }));
+        expect(publishedGraph.leaderboard[0]).toEqual(expect.objectContaining({ score: 19, rank: 1 }));
       }
     }
     for (const slug of ["s2026", "s26", "a16zsr006"]) {
@@ -320,7 +320,7 @@ describe("daily benchmark updater", () => {
       expect(history.daily[0]).toEqual(legacySnapshot);
       expect(history.daily[1]).toMatchObject({
         recordedAt: recordedAt.toISOString(),
-        scoringModelVersion: "4.0.2",
+        scoringModelVersion: "4.1.0",
         inputGeneratedAt: generatedAt.toISOString()
       });
     }
@@ -348,7 +348,7 @@ describe("daily benchmark updater", () => {
 
     expect(next.daily[0]).toEqual(legacy);
     expect(next.daily).toHaveLength(2);
-    expect(next.daily[1].scoringModelVersion).toBe("4.0.2");
+    expect(next.daily[1].scoringModelVersion).toBe("4.1.0");
   });
 
   it("aborts a graph fetch that exceeds its timeout", async () => {
@@ -728,7 +728,7 @@ function writeSkipHistories(rootDir, { recordedAt, staleBatch, staleInputBatch }
       : snapshotRecordedAt;
     const snapshot = {
       recordedAt: snapshotRecordedAt.toISOString(),
-      scoringModelVersion: "4.0.2",
+      scoringModelVersion: "4.1.0",
       inputGeneratedAt: snapshotInputGeneratedAt.toISOString(),
       companies: []
     };
@@ -749,8 +749,11 @@ function writeSkipHistories(rootDir, { recordedAt, staleBatch, staleInputBatch }
 function graphFor(descriptor, generatedAt) {
   const topVoices = descriptor.topVoices ?? "off";
   const rows = topVoices === "off"
-    ? [leaderboardRow("company-1", "Company 1", 90, 1), leaderboardRow("company-2", "Company 2", 80, 2)]
-    : [leaderboardRow("company-1", "Company 1", 90, 1)];
+    ? [
+        leaderboardRow("company-1", "Company 1", 19, 1, 90),
+        leaderboardRow("company-2", "Company 2", 17, 2, 81)
+      ]
+    : [leaderboardRow("company-1", "Company 1", 19, 1, 90)];
   const evidence = rows.map((row) => benchmarkEvidence(row, generatedAt, topVoices));
   return {
     batch: {
@@ -767,10 +770,10 @@ function graphFor(descriptor, generatedAt) {
       label: row.companyName,
       batchSlug: descriptor.slug,
       score: row.score,
-      platformScores: { x: row.score },
+      platformScores: { x: row.platformScore },
       topPlatform: "x",
       evidenceIds: [benchmarkEvidenceId(row)],
-      scoreBreakdown: v4ScoreBreakdown(row.score),
+      scoreBreakdown: v4ScoreBreakdown(row.score, row.platformScore),
       ...(topVoices === "off" ? {} : { selectedTopVoiceAudience: { id: topVoices } })
     })),
     edges: [],
@@ -790,8 +793,8 @@ function graphFor(descriptor, generatedAt) {
     generatedAt: generatedAt.toISOString(),
     scoringContext: {
       modelId: "returner-traction",
-      modelVersion: "4.0.2",
-      modelName: "returner-traction-v4-date-invariant",
+      modelVersion: "4.1.0",
+      modelName: "returner-traction-v4-absolute-fixed-platform",
       scoreScope: "all_platforms",
       selectedPlatforms: [],
       responseBuiltAt: generatedAt.toISOString(),
@@ -801,24 +804,24 @@ function graphFor(descriptor, generatedAt) {
   };
 }
 
-function v4ScoreBreakdown(score) {
+function v4ScoreBreakdown(score, platformScore) {
   return {
     modelId: "returner-traction",
-    modelVersion: "4.0.2",
-    modelName: "returner-traction-v4-date-invariant",
+    modelVersion: "4.1.0",
+    modelName: "returner-traction-v4-absolute-fixed-platform",
     totalScore: score,
     absoluteScore: score,
-    weightedAvailableScore: score,
-    coverageFactor: 1,
+    weightedAvailableScore: platformScore,
+    coverageFactor: 0.21,
     platformsWithEvidence: 1,
-    totalSupportedPlatforms: 1,
-    platformScores: { x: score },
+    totalSupportedPlatforms: 9,
+    platformScores: { x: platformScore },
     weightedPlatforms: [{
       platform: "x",
-      score,
+      score: platformScore,
       configuredWeight: 0.21,
-      appliedWeight: 1,
-      contribution: score,
+      appliedWeight: 0.21,
+      contribution: Math.round(platformScore * 0.21 * 100) / 100,
       evidenceCount: 1
     }],
     signalFamilyScores: {
@@ -848,12 +851,13 @@ function v4ScoreBreakdown(score) {
   };
 }
 
-function leaderboardRow(companyId, companyName, score, rank) {
+function leaderboardRow(companyId, companyName, score, rank, platformScore) {
   return {
     rank,
     companyId,
     companyName,
     score,
+    platformScore,
     topPlatform: "x",
     socialAccounts: [],
     biggestContribution: null
@@ -873,8 +877,8 @@ function benchmarkEvidence(row, generatedAt, topVoices) {
     postedAt: generatedAt.toISOString(),
     publishedAtPrecision: "exact",
     metrics: { views: 1_000 },
-    contributionScore: row.score,
-    normalizedScore: row.score,
+    contributionScore: row.platformScore,
+    normalizedScore: row.platformScore,
     sourceUrl: `https://x.com/${row.companyId}/status/${row.rank}`,
     review_state: "verified",
     linkStatus: "verified",
@@ -883,7 +887,7 @@ function benchmarkEvidence(row, generatedAt, topVoices) {
       : {
           topVoice: {
             audienceId: topVoices,
-            originalContributionScore: row.score
+            originalContributionScore: row.platformScore
           }
         })
   };

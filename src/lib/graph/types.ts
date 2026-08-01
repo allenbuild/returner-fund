@@ -166,7 +166,7 @@ export interface ScoreConfidence {
 }
 
 export interface ScoreCalibration {
-  method: "none" | "tie_aware_percentile_blend";
+  method: "none";
   cohortSize: number;
   percentile: number | null;
   inputScore: number;
