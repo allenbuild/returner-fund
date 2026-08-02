@@ -254,6 +254,86 @@ describe("timeline artifact store", () => {
     expect(result).toEqual(baseline);
   });
 
+  it("serves last-good public artifacts when the optional database company schema is unavailable", async () => {
+    const artifactOnlyClient = readOnlyTimelineClient({ companies: [] });
+    const baselineTimeline = await listPublishedTimelineEvents(
+      { companyId: "company-conifer", limit: 100 },
+      artifactOnlyClient,
+    );
+    const baselineCoverage = await listTimelineCoverage({ q: "conifer", limit: 100 }, artifactOnlyClient);
+    const client = readOnlyTimelineClient({}, {
+      companies: { message: "Could not find the table 'public.companies' in the schema cache" },
+    });
+
+    const timeline = await listPublishedTimelineEvents({ companyId: "company-conifer", limit: 100 }, client);
+    const coverage = await listTimelineCoverage({ q: "conifer", limit: 100 }, client);
+
+    expect(timeline).toEqual(baselineTimeline);
+    expect(coverage).toEqual(baselineCoverage);
+  });
+
+  it("uses one coherent artifact snapshot while any required live projection is not migrated", async () => {
+    const baseline = await listPublishedTimelineEvents(
+      { companyId: "company-conifer", limit: 100 },
+      readOnlyTimelineClient({ companies: [] }),
+    );
+    const tables = {
+      companies: [{ id: "00000000-0000-4000-8000-000000000001", source_key: "company-conifer" }],
+      published_timeline_events: [{
+        id: "00000000-0000-4000-8000-000000000002",
+        primary_company_id: "00000000-0000-4000-8000-000000000001",
+      }],
+      published_timeline_source_metadata: [],
+      published_timeline_post_metadata: [],
+    };
+
+    for (const missingTable of [
+      "published_timeline_events",
+      "published_timeline_source_metadata",
+      "published_timeline_post_metadata",
+    ]) {
+      const client = readOnlyTimelineClient(tables, {
+        [missingTable]: { code: "PGRST205", message: `${missingTable} is not in the schema cache` },
+      });
+
+      await expect(
+        listPublishedTimelineEvents({ companyId: "company-conifer", limit: 100 }, client),
+      ).resolves.toEqual(baseline);
+    }
+  });
+
+  it("fails closed instead of masking non-migration database errors", async () => {
+    const client = readOnlyTimelineClient({}, {
+      companies: { code: "42501", message: "permission denied for table companies" },
+    });
+
+    await expect(
+      listPublishedTimelineEvents({ companyId: "company-conifer", limit: 100 }, client),
+    ).rejects.toMatchObject({ code: "42501" });
+  });
+
+  it("fails closed when a migration gap and a non-migration projection error happen together", async () => {
+    const tables = {
+      companies: [{ id: "00000000-0000-4000-8000-000000000001", source_key: "company-conifer" }],
+      published_timeline_events: [{
+        id: "00000000-0000-4000-8000-000000000002",
+        primary_company_id: "00000000-0000-4000-8000-000000000001",
+      }],
+    };
+    const errors = {
+      published_timeline_source_metadata: { code: "PGRST205", message: "source projection is not in the schema cache" },
+      published_timeline_post_metadata: { code: "42501", message: "permission denied for post projection" },
+    };
+    const client = readOnlyTimelineClient(tables, errors);
+
+    await expect(
+      listPublishedTimelineEvents({ companyId: "company-conifer", limit: 100 }, client),
+    ).rejects.toMatchObject({ code: "42501" });
+    await expect(
+      getPublishedTimelineEventDetail("tldb-00000000-0000-4000-8000-000000000002", client),
+    ).rejects.toMatchObject({ code: "42501" });
+  });
+
   it("keeps company-only admin audits valid while forbidding dual event/candidate targets", () => {
     const migration = readFileSync(
       join(process.cwd(), "supabase", "migrations", "017_company_timeline.sql"),

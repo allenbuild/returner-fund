@@ -395,14 +395,14 @@ describe("a16z speedrun 006 dataset", () => {
       entityId: "a16z-speedrun-006-snapp-stats",
       attachedCompanyId: "a16z-speedrun-006-snapp-stats",
       authorHandle: "snappstats",
-      accountUrl: "https://instagram.com/snappstats"
+      accountUrl: "https://www.instagram.com/snappstats"
     }));
     expect(artinFounderPost).toEqual(expect.objectContaining({
       entityType: "founder",
       entityId: "a16z-speedrun-006-sun-founder-artin-bogdanov",
       attachedCompanyId: "a16z-speedrun-006-sun",
       authorHandle: "artinbogdanov",
-      accountUrl: "https://instagram.com/artinbogdanov"
+      accountUrl: "https://www.instagram.com/artinbogdanov"
     }));
     expect(canonicalAndSeededPhysicalPost).toHaveLength(1);
     expect(canonicalAndSeededPhysicalPost[0]).toEqual(expect.objectContaining({

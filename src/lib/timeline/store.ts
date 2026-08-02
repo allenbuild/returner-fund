@@ -806,6 +806,7 @@ async function overlayLiveTimelineCoverage(
 ): Promise<TimelineCompanyCoverageSummary[]> {
   if (!client) return artifactItems;
   const companiesResponse = await client.from<Record<string, unknown>>("companies").select("id,source_key");
+  if (companiesResponse.error && isTimelineMigrationUnavailable(companiesResponse.error)) return artifactItems;
   if (companiesResponse.error) throw dbReadError("resolve Timeline coverage companies", companiesResponse.error);
   const canonicalIdBySourceKey = new Map<string, string>();
   for (const row of companiesResponse.data ?? []) {
@@ -948,6 +949,7 @@ async function loadLiveTimelineCompany(
   if (!client) return null;
   const companyResponse = await client.from<Record<string, unknown>>("companies")
     .select("id,source_key").eq("source_key", companySourceKey);
+  if (companyResponse.error && isTimelineMigrationUnavailable(companyResponse.error)) return null;
   if (companyResponse.error) throw dbReadError("resolve live timeline company", companyResponse.error);
   const databaseCompanyIds = (companyResponse.data ?? []).map((row) => String(row.id));
   if (!databaseCompanyIds.length) return null;
@@ -968,12 +970,16 @@ async function loadLiveTimelineCompany(
     client.from<Record<string, unknown>>("published_timeline_post_metadata")
       .select("*").in("event_id", eventIds),
   ]);
-  if (sourcesResponse.error) throw dbReadError("read live published timeline evidence", sourcesResponse.error);
-  if (postsResponse.error && !isTimelineMigrationUnavailable(postsResponse.error)) {
-    throw dbReadError("read live published timeline posts", postsResponse.error);
+  const projectionErrors: Array<[string, DbError | null]> = [
+    ["read live published timeline evidence", sourcesResponse.error],
+    ["read live published timeline posts", postsResponse.error],
+  ];
+  for (const [operation, error] of projectionErrors) {
+    if (error && !isTimelineMigrationUnavailable(error)) throw dbReadError(operation, error);
   }
+  if (projectionErrors.some(([, error]) => error !== null)) return null;
   const sourcesByEvent = groupRows(sourcesResponse.data ?? [], "event_id");
-  const postsByEvent = groupRows(postsResponse.error ? [] : postsResponse.data ?? [], "event_id");
+  const postsByEvent = groupRows(postsResponse.data ?? [], "event_id");
   const events = eventRows.map((row) => timelineDatabaseEventBundleFromRows(
     row,
     sourcesByEvent.get(String(row.id)) ?? [],
@@ -1009,11 +1015,15 @@ async function loadLiveTimelineEvent(
     client.from<Record<string, unknown>>("companies")
       .select("source_key").eq("id", String(eventResponse.data.primary_company_id)).maybeSingle(),
   ]);
-  if (sourceResponse.error) throw dbReadError("read live published timeline event evidence", sourceResponse.error);
-  if (postResponse.error && !isTimelineMigrationUnavailable(postResponse.error)) {
-    throw dbReadError("read live published timeline event posts", postResponse.error);
+  const projectionErrors: Array<[string, DbError | null]> = [
+    ["read live published timeline event evidence", sourceResponse.error],
+    ["read live published timeline event posts", postResponse.error],
+    ["resolve live timeline event company", companyResponse.error],
+  ];
+  for (const [operation, error] of projectionErrors) {
+    if (error && !isTimelineMigrationUnavailable(error)) throw dbReadError(operation, error);
   }
-  if (companyResponse.error) throw dbReadError("resolve live timeline event company", companyResponse.error);
+  if (projectionErrors.some(([, error]) => error !== null)) return null;
   const companySourceKey = stringOrNull(companyResponse.data?.source_key);
   if (!companySourceKey) {
     throw new TimelineStoreError("Live timeline event company has no canonical source key.", "database_contract_error");
@@ -1024,7 +1034,7 @@ async function loadLiveTimelineEvent(
     bundle: timelineDatabaseEventBundleFromRows(
       eventResponse.data,
       sourceResponse.data ?? [],
-      postResponse.error ? [] : postResponse.data ?? [],
+      postResponse.data ?? [],
     ),
   };
 }
@@ -1105,7 +1115,7 @@ function groupRows(
 
 function isTimelineMigrationUnavailable(error: DbError): boolean {
   return ["42P01", "PGRST205", "PGRST204"].includes(String(error.code ?? ""))
-    || /(?:published_timeline_(?:events|source_metadata|post_metadata)|timeline_(?:company_state|source_coverage|artifact_invalidations)).*(?:not found|does not exist|schema cache)/i.test(error.message);
+    || /(?:companies|published_timeline_(?:events|source_metadata|post_metadata)|timeline_(?:company_state|source_coverage|artifact_invalidations)).*(?:not found|does not exist|schema cache)/i.test(error.message);
 }
 
 function dbReadError(operation: string, error: DbError): TimelineStoreError {
