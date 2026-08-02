@@ -2,7 +2,8 @@ import { readFileSync, statSync } from "node:fs";
 import { dirname, normalize, resolve } from "node:path";
 
 const MEBIBYTE = 1024 * 1024;
-const MAX_TRACE_BYTES = 140 * MEBIBYTE;
+const MAX_TRACE_BYTES = 55 * MEBIBYTE;
+const MAX_FULL_GRAPH_TRACE_BYTES = 140 * MEBIBYTE;
 // The refresh route intentionally carries the nine static graph fallbacks.
 // The 52-company S26 census expansion increases only those bounded artifacts,
 // so retain a separate ceiling while staying well below the deployment limit.
@@ -12,6 +13,27 @@ const routeTraces = [
     label: "graph",
     manifest: ".next/server/app/api/graph/route.js.nft.json",
     maxBytes: MAX_TRACE_BYTES,
+    required: [
+      "public/graph/s2026.json",
+      "public/graph/s2026-yc-partners.json",
+      "public/graph/s2026-insiders.json",
+      "public/graph/s26.json",
+      "public/graph/s26-yc-partners.json",
+      "public/graph/s26-insiders.json",
+      "public/graph/a16zsr006.json",
+      "public/graph/a16zsr006-yc-partners.json",
+      "public/graph/a16zsr006-insiders.json"
+    ],
+    forbidden: [
+      `${normalize("/src/lib/social/public-evidence-current.json")}`,
+      `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
+      `${normalize("/src/lib/social/targeted-evidence-current.json")}`
+    ]
+  },
+  {
+    label: "full graph diagnostics",
+    manifest: ".next/server/app/api/graph/full/route.js.nft.json",
+    maxBytes: MAX_FULL_GRAPH_TRACE_BYTES,
     forbidden: [
       `${normalize("/public/graph/")}`,
       `${normalize("/src/lib/social/public-evidence-current.json")}`,

@@ -1,5 +1,6 @@
-import { YC_SUMMER_2026_BATCH_SLUG } from "./yc-spring-2026-dataset";
 import type { GraphResponse, Platform } from "./types";
+
+const YC_SUMMER_2026_BATCH_SLUG = "S26";
 
 type SocialPlatform = Extract<Platform, "github" | "x" | "linkedin" | "instagram" | "youtube">;
 

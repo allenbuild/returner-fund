@@ -38,6 +38,10 @@ const graphTraceExcludes = [
   "vercel.json",
   "vitest.config.ts"
 ];
+const fullGraphTraceExcludes = [
+  ...graphTraceExcludes,
+  "public/graph/**/*"
+];
 const insiderRuntimeSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s2026-insiders.json",
@@ -46,6 +50,21 @@ const insiderRuntimeSnapshots = [
   "public/graph/a16zsr006.json",
   "public/graph/a16zsr006-insiders.json"
 ];
+const publishedGraphRuntimeSnapshots = [
+  "public/graph/s2026.json",
+  "public/graph/s2026-yc-partners.json",
+  "public/graph/s2026-insiders.json",
+  "public/graph/s26.json",
+  "public/graph/s26-yc-partners.json",
+  "public/graph/s26-insiders.json",
+  "public/graph/a16zsr006.json",
+  "public/graph/a16zsr006-yc-partners.json",
+  "public/graph/a16zsr006-insiders.json"
+];
+// Next matches trace keys with substring semantics. The negative extglob keeps
+// the lightweight graph snapshot bundle from leaking into /api/graph/full and
+// /api/graph/refresh while still matching the canonical /api/graph route.
+const canonicalGraphTraceKey = "/api/graph!(/**)";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -80,12 +99,14 @@ const nextConfig = {
     ];
   },
   outputFileTracingIncludes: {
-    "/api/graph": graphRuntimeData,
+    [canonicalGraphTraceKey]: [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
+    "/api/graph/full": graphRuntimeData,
     "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"],
     "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData]
   },
   outputFileTracingExcludes: {
-    "/api/graph": graphTraceExcludes,
+    [canonicalGraphTraceKey]: graphTraceExcludes,
+    "/api/graph/full": fullGraphTraceExcludes,
     "/api/graph/refresh": graphTraceExcludes,
     "/api/insiders/recompute": graphTraceExcludes
   }
