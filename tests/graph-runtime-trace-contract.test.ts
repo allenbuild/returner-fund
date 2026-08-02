@@ -48,6 +48,23 @@ describe("graph runtime trace contract", () => {
     expect(result.output).toContain("trace-leak-sentinel.json");
   });
 
+  it("does not treat the GitHub Actions work parent as a repository leak", () => {
+    const result = runValidator({ runUnderWorkParent: true });
+
+    expect(result.status, result.output).toBe(0);
+  });
+
+  it("still rejects a repository-local work directory under the GitHub Actions parent", () => {
+    const result = runValidator({
+      runUnderWorkParent: true,
+      leakRepositoryWorkFileIntoFull: true
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("full graph diagnostics trace contains forbidden runtime artifacts:");
+    expect(result.output).toContain("trace-leak-sentinel.json");
+  });
+
   it("keeps Turbopack ignore directives on both dynamic path construction and filesystem consumers", () => {
     for (const file of [
       "src/lib/graph/a16z-speedrun-006-dataset.ts",
@@ -64,17 +81,31 @@ describe("graph runtime trace contract", () => {
 function runValidator(options: {
   missingFromFull?: string;
   leakWholeRepositoryFileIntoFull?: boolean;
+  leakRepositoryWorkFileIntoFull?: boolean;
+  runUnderWorkParent?: boolean;
 } = {}) {
-  const root = mkdtempSync(join(tmpdir(), "graph-trace-contract-"));
+  const fixtureRoot = mkdtempSync(join(tmpdir(), "graph-trace-contract-"));
+  const root = options.runUnderWorkParent
+    ? join(fixtureRoot, "home", "runner", "work", "returner-fund", "returner-fund")
+    : fixtureRoot;
   try {
+    mkdirSync(root, { recursive: true });
     for (const file of [...publishedGraphSnapshots, ...graphRuntimeProjections]) {
       writeFixtureFile(root, file);
     }
 
     writeManifest(root, ".next/server/app/api/graph/route.js.nft.json", publishedGraphSnapshots);
     const fullTraceFiles = graphRuntimeProjections.filter((file) => file !== options.missingFromFull);
+    const allowedPackageScript = "node_modules/trace-fixture/scripts/allowed.js";
+    writeFixtureFile(root, allowedPackageScript);
+    fullTraceFiles.push(allowedPackageScript);
     if (options.leakWholeRepositoryFileIntoFull) {
       const leakPath = "public/timelines/companies/trace-leak-sentinel.json";
+      writeFixtureFile(root, leakPath);
+      fullTraceFiles.push(leakPath);
+    }
+    if (options.leakRepositoryWorkFileIntoFull) {
+      const leakPath = "work/trace-leak-sentinel.json";
       writeFixtureFile(root, leakPath);
       fullTraceFiles.push(leakPath);
     }
@@ -117,7 +148,7 @@ function runValidator(options: {
       output: `${result.stdout ?? ""}${result.stderr ?? ""}`
     };
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    rmSync(fixtureRoot, { recursive: true, force: true });
   }
 }
 

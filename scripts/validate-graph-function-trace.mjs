@@ -1,5 +1,5 @@
 import { readFileSync, statSync } from "node:fs";
-import { dirname, normalize, resolve } from "node:path";
+import { dirname, isAbsolute, normalize, relative, resolve, sep } from "node:path";
 
 const MEBIBYTE = 1024 * 1024;
 const MAX_TRACE_BYTES = 55 * MEBIBYTE;
@@ -12,6 +12,7 @@ const MAX_DEBUG_TRACE_BYTES = 85 * MEBIBYTE;
 // The 52-company S26 census expansion increases only those bounded artifacts,
 // so retain a separate ceiling while staying well below the deployment limit.
 const MAX_REFRESH_TRACE_BYTES = 150 * MEBIBYTE;
+const REPOSITORY_ROOT = resolve(".");
 const GRAPH_RUNTIME_PROJECTIONS = [
   "generated-runtime/graph/public-evidence-current.json",
   "generated-runtime/graph/logged-in-evidence-current.json",
@@ -139,9 +140,10 @@ for (const route of routeTraces) {
       return total;
     }
   }, 0);
-  const forbiddenFiles = tracedFiles.filter((filePath) =>
-    route.forbidden.some((fragment) => normalize(filePath).includes(fragment))
-  );
+  const forbiddenFiles = tracedFiles.filter((filePath) => {
+    const policyPath = repositoryRelativePolicyPath(filePath);
+    return policyPath !== null && route.forbidden.some((fragment) => matchesRepositoryPolicy(policyPath, fragment));
+  });
   const missingRequiredFiles = (route.required ?? []).filter((requiredPath) => {
     const resolvedRequiredPath = normalize(resolve(requiredPath));
     return !tracedFiles.some(
@@ -175,4 +177,26 @@ for (const route of routeTraces) {
 
 if (failed) {
   process.exitCode = 1;
+}
+
+function repositoryRelativePolicyPath(filePath) {
+  const relativePath = relative(REPOSITORY_ROOT, filePath);
+  if (
+    relativePath === "" ||
+    relativePath === ".." ||
+    relativePath.startsWith(`..${sep}`) ||
+    isAbsolute(relativePath)
+  ) {
+    return null;
+  }
+  return normalize(`/${relativePath}`);
+}
+
+function matchesRepositoryPolicy(policyPath, fragment) {
+  const normalizedFragment = normalize(fragment);
+  if (!normalizedFragment.endsWith(sep)) {
+    return policyPath === normalizedFragment;
+  }
+  const directoryPath = normalizedFragment.slice(0, -sep.length);
+  return policyPath === directoryPath || policyPath.startsWith(`${directoryPath}${sep}`);
 }
