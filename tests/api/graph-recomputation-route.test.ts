@@ -29,8 +29,16 @@ describe("GET /api/graph recomputation order", () => {
     }));
 
     const { clearGraphResponseCache } = await import("@/lib/graph/graph-response-cache");
-    const { GET } = await import("@/app/api/graph/route");
+    const { GET } = await import("@/app/api/graph/full/route");
     clearGraphResponseCache();
+
+    const accidentalDirectCall = await GET(new Request(
+      "http://localhost/api/graph/full?batch=S2026"
+    ));
+    await expect(accidentalDirectCall.json()).resolves.toMatchObject({
+      error: { code: "diagnostic_flags_required" }
+    });
+    expect(accidentalDirectCall.status).toBe(400);
 
     const full = await graphResponse(GET, "http://localhost/api/graph?batch=S2026");
     const industry = await graphResponse(
@@ -98,7 +106,7 @@ describe("GET /api/graph recomputation order", () => {
     }));
 
     const { clearGraphResponseCache } = await import("@/lib/graph/graph-response-cache");
-    const { GET } = await import("@/app/api/graph/route");
+    const { GET } = await import("@/app/api/graph/full/route");
     clearGraphResponseCache();
 
     const [base, insiders, samOnly, ycPartners] = await Promise.all([
@@ -169,10 +177,10 @@ describe("GET /api/graph recomputation order", () => {
     }));
 
     const { clearGraphResponseCache } = await import("@/lib/graph/graph-response-cache");
-    const { GET } = await import("@/app/api/graph/route");
+    const { GET } = await import("@/app/api/graph/full/route");
     clearGraphResponseCache();
     const response = await GET(new Request(
-      "http://localhost/api/graph?batch=S2026&topVoices=insiders",
+      "http://localhost/api/graph/full?batch=S2026&topVoices=insiders&includeWhy=1",
       { headers: { Authorization: "Bearer token" } }
     ));
     const graph = await response.json() as GraphResponse;
@@ -200,7 +208,9 @@ async function graphResponse(
   GET: (request: Request) => Promise<Response>,
   url: string
 ): Promise<GraphResponse> {
-  const response = await GET(new Request(url));
+  const diagnosticUrl = new URL(url);
+  diagnosticUrl.searchParams.set("includeWhy", "1");
+  const response = await GET(new Request(diagnosticUrl));
   expect(response.status).toBe(200);
   return response.json() as Promise<GraphResponse>;
 }

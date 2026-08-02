@@ -32,7 +32,7 @@ describe("GET /api/graph response-cache concurrency", () => {
       loadLiveEvidenceRecords: vi.fn(async () => [])
     }));
 
-    const { GET } = await import("@/app/api/graph/route");
+    const { GET } = await import("@/app/api/graph/full/route");
     clearGraphResponseCache();
 
     const xUrl = "http://localhost/api/graph?batch=S2026&topVoices=insiders&platforms=x";
@@ -72,7 +72,9 @@ async function graphResponse(
   GET: (request: Request) => Promise<Response>,
   url: string
 ): Promise<GraphResponse> {
-  const response = await GET(new Request(url));
+  const diagnosticUrl = new URL(url);
+  diagnosticUrl.searchParams.set("includeWhy", "1");
+  const response = await GET(new Request(diagnosticUrl));
   expect(response.status).toBe(200);
   return response.json() as Promise<GraphResponse>;
 }

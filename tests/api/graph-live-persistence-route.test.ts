@@ -24,8 +24,10 @@ describe("GET /api/graph live persistence reliability", () => {
     }));
     vi.spyOn(console, "error").mockImplementation(() => undefined);
 
-    const { GET } = await import("@/app/api/graph/route");
-    const response = await GET(new Request("http://localhost/api/graph?batch=S2026"));
+    const { GET } = await import("@/app/api/graph/full/route");
+    const response = await GET(new Request(
+      "http://localhost/api/graph/full?batch=S2026&includeWhy=1"
+    ));
     const body = await response.json();
 
     expect(response.status).toBe(500);
@@ -53,8 +55,10 @@ describe("GET /api/graph live persistence reliability", () => {
       })
     }));
 
-    const { GET } = await import("@/app/api/graph/route");
-    const response = await GET(new Request("http://localhost/api/graph?batch=S2026"));
+    const { GET } = await import("@/app/api/graph/full/route");
+    const response = await GET(new Request(
+      "http://localhost/api/graph/full?batch=S2026&includeWhy=1"
+    ));
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual(graph);

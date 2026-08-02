@@ -1,6 +1,6 @@
 import { momentumSort } from "./benchmarks";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
-import { getNodeRadius } from "./graph-builder";
+import { getNodeRadius } from "./score-radius";
 import { canonicalPostKey, dedupeEvidenceForScoring } from "./dedupe";
 import { aggregateBalancedTractionScore, normalizeEvidenceScores } from "./traction-scoring";
 import { TRACTION_SCORING_CONFIG } from "./traction-scoring-config";

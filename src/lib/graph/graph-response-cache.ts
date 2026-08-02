@@ -15,6 +15,7 @@ interface GetOrBuildGraphResponseOptions {
   ttlMs: number;
   scope: GraphResponseCacheScope;
   build: () => GraphResponse | Promise<GraphResponse>;
+  retainResult?: boolean;
 }
 
 interface CachedGraphResponse {
@@ -78,10 +79,13 @@ export function getOrBuildCachedGraphResponse({
   cacheKey,
   ttlMs,
   scope,
-  build
+  build,
+  retainResult = true
 }: GetOrBuildGraphResponseOptions): Promise<GraphResponse> {
   const requestScope = copyScope(scope);
-  const cached = getCachedGraphResponse(cacheKey, ttlMs, requestScope);
+  const cached = retainResult
+    ? getCachedGraphResponse(cacheKey, ttlMs, requestScope)
+    : null;
   if (cached) {
     return Promise.resolve(cached);
   }
@@ -98,7 +102,7 @@ export function getOrBuildCachedGraphResponse({
     promise: Promise.resolve()
       .then(build)
       .then((graph) => {
-        if (!flight.invalidated && flights.get(identity) === flight) {
+        if (retainResult && !flight.invalidated && flights.get(identity) === flight) {
           setCachedGraphResponseForScope(cacheKey, graph, requestScope);
         }
         return graph;

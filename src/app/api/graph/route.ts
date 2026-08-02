@@ -1,33 +1,22 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import {
-  applyBenchmarkMomentumRows,
-  benchmarkStoreVersion,
-  ensureBenchmarkMomentum,
-  inheritCanonicalCompanyScoring
-} from "@/lib/graph/benchmarks";
+import { applyStoredBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 import {
   COMPANY_VERTICALS,
   isCompanyVertical,
   type CompanyVertical
 } from "@/lib/graph/company-verticals";
-import { buildGraphResponse } from "@/lib/graph/graph-builder";
-import { enrichGraphTaxonomies } from "@/lib/graph/graph-taxonomies";
-import {
-  getOrBuildCachedGraphResponse,
-  type GraphResponseCacheScope
-} from "@/lib/graph/graph-response-cache";
-import { datasetWithLiveEvidence, liveEvidenceCacheVersion } from "@/lib/graph/live-evidence-dataset";
-import { overlayLiveEvidenceOnGraph } from "@/lib/graph/live-evidence-overlay";
 import { personalizeInsiderGraphSnapshot } from "@/lib/graph/personalized-insider-snapshot";
 import { POST_TOPIC_SLUGS, normalizePostTopic, type PostTopic } from "@/lib/graph/post-topics";
-import { sanitizeGraphResponse } from "@/lib/graph/response-sanitizer";
+import {
+  isPublishedGraphBatchSlug,
+  loadPublishedGraphSnapshot,
+  PUBLISHED_GRAPH_BATCH_FILES,
+  type PublishedGraphBatchSlug
+} from "@/lib/graph/published-graph-snapshot";
 import { enrichSummerPlatformStatus } from "@/lib/graph/summer-platform-status";
-import { loadLiveEvidenceRecords } from "@/lib/ingestion/live-source-refresh";
-import { centralDayKey, millisecondsUntilNextCentralMidnight } from "@/lib/time/central-day";
-import { YC_SPRING_2026_BATCH_SLUG, yc2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
-import type { BusinessModel, EdgeType, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
+import type { BusinessModel, EdgeType, GraphResponse, Platform, TopVoiceAudienceId } from "@/lib/graph/types";
 import {
   effectiveInsiderMembers,
   emptyInsiderConfiguration,
@@ -37,6 +26,7 @@ import {
   authenticateInsiderRequest,
   loadUserInsiderConfiguration
 } from "@/lib/social/user-insiders-server";
+import { streamJsonResponse } from "@/lib/http/stream-json-response";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -57,7 +47,6 @@ const platforms = [
   "tiktok",
   "bluesky"
 ] as const satisfies readonly Platform[];
-
 const edgeTypes = [
   "founder_of",
   "industry_similarity",
@@ -79,10 +68,9 @@ const businessModels = [
 ] as const satisfies readonly BusinessModel[];
 const topVoiceAudiences = ["off", "yc_partners", "insiders"] as const satisfies readonly TopVoiceAudienceId[];
 
-const GRAPH_RESPONSE_CACHE_TTL_MS = 60_000;
-const DEFAULT_BATCH_SLUG = YC_SPRING_2026_BATCH_SLUG;
+const DEFAULT_BATCH_SLUG: PublishedGraphBatchSlug = "S2026";
 const MAX_FILTER_VALUES = 64;
-const batchSlugs = new Set(yc2026GraphDataset.batches.map((batch) => batch.slug));
+const batchSlugs = Object.keys(PUBLISHED_GRAPH_BATCH_FILES) as PublishedGraphBatchSlug[];
 const commaSeparatedValuesSchema = z.string().transform((value) =>
   value.split(",").map((item) => item.trim())
 );
@@ -157,8 +145,8 @@ const graphQuerySchema = z.object({
     .string()
     .trim()
     .min(1)
-    .refine((value) => batchSlugs.has(value), {
-      message: `Must be one of: ${[...batchSlugs].join(", ")}.`
+    .refine(isPublishedGraphBatchSlug, {
+      message: `Must be one of: ${batchSlugs.join(", ")}.`
     })
     .default(DEFAULT_BATCH_SLUG),
   platforms: platformListSchema.optional(),
@@ -185,62 +173,134 @@ const graphQuerySchema = z.object({
   }
 });
 
+type GraphQuery = z.infer<typeof graphQuerySchema> & { batch: PublishedGraphBatchSlug };
+
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const parsedQuery = graphQuerySchema.safeParse(graphQueryInput(params));
   if (!parsedQuery.success) {
     return invalidQueryResponse(parsedQuery.error);
   }
+  const query = parsedQuery.data as GraphQuery;
 
-  const query = parsedQuery.data;
-  const batchSlug = query.batch;
-  const dataset = yc2026GraphDataset;
-  const includeRaw = query.includeRaw;
-  const includeNonScoring = query.includeNonScoring;
-  const includeWhy = query.includeWhy;
-  const filters = {
-    batchSlug,
-    platforms: query.platforms,
-    edgeTypes: query.edgeTypes,
-    minScore: query.minScore,
-    industries: query.industries,
-    groupPartners: query.groupPartners,
-    topics: query.topics,
-    verticals: query.verticals,
-    businessModels: query.businessModels,
-    query: query.q,
-    topVoices: query.topVoices,
-    insiderIds: query.insiderIds
-  };
-  let insiderMembers: ReturnType<typeof effectiveInsiderMembers> | undefined;
-  let insiderConfigurationCacheKey = "built-in";
+  // Raw and diagnostic responses are intentionally kept behind a lazy import.
+  // The normal dashboard path must never materialize the full multi-batch
+  // evidence corpus in a serverless process.
+  if (query.includeRaw || query.includeNonScoring || query.includeWhy) {
+    const diagnosticUrl = new URL(request.url);
+    diagnosticUrl.pathname = "/api/graph/full";
+    return NextResponse.redirect(diagnosticUrl, 307);
+  }
+
+  let insiderConfiguration = emptyInsiderConfiguration();
   let hasPersonalizedInsiderConfiguration = false;
-  let insiderConfiguration: UserInsiderConfiguration = emptyInsiderConfiguration();
   if (query.topVoices === "insiders") {
-    const authenticated = await authenticateInsiderRequest(request);
-    if (authenticated) {
-      try {
-        insiderConfiguration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
-        insiderMembers = effectiveInsiderMembers(insiderConfiguration);
-        insiderConfigurationCacheKey = `${authenticated.userId}:${insiderConfiguration.version}`;
-        hasPersonalizedInsiderConfiguration = true;
-      } catch (error) {
-        console.error("Personalized Insiders configuration load failed", error);
-        return NextResponse.json(
+    const personalized = await resolveInsiderConfiguration(request, query, insiderConfiguration);
+    if (!personalized.ok) return personalized.response;
+    insiderConfiguration = personalized.configuration;
+    hasPersonalizedInsiderConfiguration = personalized.authenticated;
+  }
+
+  const now = new Date();
+  const filters = {
+    platforms: query.platforms ?? [],
+    edgeTypes: query.edgeTypes ?? [],
+    minScore: query.minScore ?? 0,
+    industries: query.industries ?? [],
+    groupPartners: query.groupPartners ?? [],
+    topics: query.topics ?? [],
+    verticals: query.verticals ?? [],
+    businessModels: query.businessModels ?? [],
+    query: query.q
+  };
+  try {
+    const canonical = await buildPublishedGraph({
+      query,
+      now,
+      insiderConfiguration,
+      hasPersonalizedInsiderConfiguration
+    });
+    const graph = hasActiveGraphFilters(query)
+      ? enrichSummerPlatformStatus(applyClientGraphFilters(canonical, filters))
+      : canonical;
+    return noStoreJson(graph, { source: "published_snapshot" });
+  } catch (error) {
+    console.error("Published graph response failed", error);
+    return publishedGraphFailureResponse();
+  }
+}
+
+async function buildPublishedGraph(input: {
+  query: GraphQuery;
+  now: Date;
+  insiderConfiguration: UserInsiderConfiguration;
+  hasPersonalizedInsiderConfiguration: boolean;
+}): Promise<GraphResponse> {
+  const { query, now } = input;
+  if (query.topVoices !== "insiders") {
+    const graph = await loadPublishedGraphSnapshot({
+      batchSlug: query.batch,
+      audienceId: query.topVoices
+    });
+    return applyStoredBenchmarkMomentum(graph, { now });
+  }
+
+  const insiderGraph = await loadPublishedGraphSnapshot({
+    batchSlug: query.batch,
+    audienceId: "insiders"
+  });
+  const selectedInsiderIds = query.insiderIds ?? [];
+  if (!input.hasPersonalizedInsiderConfiguration && selectedInsiderIds.length === 0) {
+    return applyStoredBenchmarkMomentum(insiderGraph, { now });
+  }
+
+  const baseGraph = applyStoredBenchmarkMomentum(
+    await loadPublishedGraphSnapshot({ batchSlug: query.batch, audienceId: "off" }),
+    { now }
+  );
+  return personalizeInsiderGraphSnapshot({
+    insiderGraph,
+    baseGraph,
+    configuration: input.insiderConfiguration,
+    selectedInsiderIds
+  });
+}
+
+async function resolveInsiderConfiguration(
+  request: Request,
+  query: GraphQuery,
+  fallback: UserInsiderConfiguration
+): Promise<
+  | { ok: true; configuration: UserInsiderConfiguration; authenticated: boolean }
+  | { ok: false; response: Response }
+> {
+  let configuration = fallback;
+  let authenticatedConfiguration = false;
+  const authenticated = await authenticateInsiderRequest(request);
+  if (authenticated) {
+    try {
+      configuration = await loadUserInsiderConfiguration(authenticated.client, authenticated.userId);
+      authenticatedConfiguration = true;
+    } catch (error) {
+      console.error("Personalized Insiders configuration load failed", error);
+      return {
+        ok: false,
+        response: NextResponse.json(
           { error: { code: "insider_configuration_load_failed", message: "Your private Insiders list could not be loaded." } },
           { status: 500, headers: { "Cache-Control": "private, no-store, max-age=0" } }
-        );
-      }
+        )
+      };
     }
-    insiderMembers ??= effectiveInsiderMembers({
-      excludedDefaultIds: [],
-      weightOverrides: {},
-      addedInsiders: []
-    });
-    const enabledIds = new Set(insiderMembers.map((member) => member.personId));
-    const unknownSelection = (query.insiderIds ?? []).find((personId) => !enabledIds.has(personId));
-    if (unknownSelection) {
-      return NextResponse.json(
+  }
+
+  const enabledIds = new Set(
+    effectiveInsiderMembers(configuration).map((member) => member.personId)
+  );
+  const unknownSelection = (query.insiderIds ?? []).find((personId) => !enabledIds.has(personId));
+  if (unknownSelection) {
+    return {
+      ok: false,
+      response: NextResponse.json(
         {
           error: {
             code: "invalid_insider_selection",
@@ -248,144 +308,51 @@ export async function GET(request: Request) {
           }
         },
         { status: 400, headers: { "Cache-Control": "private, no-store, max-age=0" } }
-      );
-    }
+      )
+    };
   }
-  let liveEvidence: Awaited<ReturnType<typeof loadLiveEvidenceRecords>>;
-  try {
-    liveEvidence = await loadLiveEvidenceRecords();
-  } catch (error) {
-    if (isMissingLiveEvidenceSnapshotError(error)) {
-      liveEvidence = [];
-    } else {
-      console.error("Graph live evidence overlay load failed", error);
-      return liveEvidenceReloadFailureResponse();
-    }
-  }
-  const now = new Date();
-  const cacheKey = JSON.stringify({
-    filters,
-    includeRaw,
-    includeNonScoring,
-    includeWhy,
-    dataset: "yc-2026-official",
-    benchmarkCentralDay: centralDayKey(now),
-    benchmarkStore: benchmarkStoreVersion(batchSlug),
-    liveEvidence: liveEvidenceCacheVersion(liveEvidence),
-    insiderConfiguration: insiderConfigurationCacheKey
-  });
-  const cacheTtlMs = Math.min(
-    GRAPH_RESPONSE_CACHE_TTL_MS,
-    millisecondsUntilNextCentralMidnight(now)
-  );
-  const cacheScope = {
-    batchSlug,
-    topVoices: filters.topVoices
-  } satisfies GraphResponseCacheScope;
-  const graph = await getOrBuildCachedGraphResponse({
-    cacheKey,
-    ttlMs: cacheTtlMs,
-    scope: cacheScope,
-    build: () => {
-      const baseGraph = buildGraphResponse({ batchSlug, topVoices: "off" }, dataset);
-      const liveBaseGraph = overlayLiveEvidenceOnGraph(baseGraph, liveEvidence, {
-        topVoices: "off",
-        calibrationCohort: dataset.companies
-      }).graph;
-      let canonicalGraph = liveBaseGraph;
-      try {
-        const benchmarkRows = ensureBenchmarkMomentum(liveBaseGraph).graph.fastestGaining;
-        canonicalGraph = applyBenchmarkMomentumRows(liveBaseGraph, benchmarkRows);
-      } catch (error) {
-        console.error("Graph benchmark momentum failed; returning graph without persisted benchmark deltas", error);
-      }
-      const graphForAudience = filters.topVoices === "off"
-        ? canonicalGraph
-        : (() => {
-            const selectedInsiderIds = query.insiderIds ?? [];
-            const inherited = inheritCanonicalCompanyScoring(
-              buildGraphResponse(
-                {
-                  batchSlug,
-                  topVoices: filters.topVoices
-                },
-                datasetWithLiveEvidence(dataset, liveEvidence)
-              ),
-              canonicalGraph
-            );
-            if (filters.topVoices !== "insiders") return inherited;
-            // The unauthenticated, unfiltered Insiders graph is a canonical
-            // audience slice used by the static daily benchmark publisher. It
-            // must keep the all-platform company scores it inherited above.
-            // Personalized configurations and explicit member selections are
-            // scenarios, so those are dynamically rescored.
-            if (!hasPersonalizedInsiderConfiguration && selectedInsiderIds.length === 0) {
-              return inherited;
-            }
-            return personalizeInsiderGraphSnapshot({
-              insiderGraph: inherited,
-              baseGraph: canonicalGraph,
-              configuration: insiderConfiguration,
-              selectedInsiderIds
-            });
-          })();
-      const filteredGraph = applyClientGraphFilters(enrichGraphTaxonomies(graphForAudience), {
-        platforms: filters.platforms ?? [],
-        industries: filters.industries ?? [],
-        groupPartners: filters.groupPartners ?? [],
-        topics: filters.topics ?? [],
-        verticals: filters.verticals ?? [],
-        minScore: filters.minScore ?? 0,
-        businessModels: filters.businessModels ?? [],
-        edgeTypes: filters.edgeTypes ?? [],
-        query: filters.query
-      });
-      return enrichSummerPlatformStatus(
-        sanitizeGraphResponse(filteredGraph, {
-          includeRaw,
-          includeNonScoring,
-          includeWhy
-        })
-      );
-    }
-  });
-
-  return noStoreJson(graph);
+  return {
+    ok: true,
+    configuration,
+    authenticated: authenticatedConfiguration
+  };
 }
 
-function noStoreJson(body: unknown) {
-  return NextResponse.json(body, {
+function noStoreJson(body: unknown, metadata?: { source: string }) {
+  return streamJsonResponse(body, {
     headers: {
-      "Cache-Control": "no-store, max-age=0"
+      "Cache-Control": "no-store, max-age=0",
+      ...(metadata ? { "X-Graph-Source": metadata.source } : {})
     }
   });
 }
 
-function liveEvidenceReloadFailureResponse() {
+function hasActiveGraphFilters(query: GraphQuery): boolean {
+  return Boolean(
+    query.platforms?.length ||
+    query.edgeTypes?.length ||
+    query.minScore !== undefined ||
+    query.industries?.length ||
+    query.groupPartners?.length ||
+    query.topics?.length ||
+    query.verticals?.length ||
+    query.businessModels?.length ||
+    query.q
+  );
+}
+
+function publishedGraphFailureResponse() {
   return NextResponse.json(
     {
       status: "failed",
       logs: [],
-      errors: [
-        "Persisted live evidence could not be reloaded, so the graph was not generated without it."
-      ],
-      error: { code: "live_evidence_reload_failed" }
+      errors: ["The published graph snapshot could not be loaded."],
+      error: { code: "published_graph_unavailable" }
     },
     {
-      status: 500,
-      headers: {
-        "Cache-Control": "no-store, max-age=0"
-      }
+      status: 503,
+      headers: { "Cache-Control": "no-store, max-age=0" }
     }
-  );
-}
-
-function isMissingLiveEvidenceSnapshotError(error: unknown): boolean {
-  return Boolean(
-    error &&
-    typeof error === "object" &&
-    "code" in error &&
-    error.code === "ENOENT"
   );
 }
 
@@ -407,22 +374,16 @@ function invalidQueryResponse(error: z.ZodError) {
     path: issue.path.map(String).join(".") || "query",
     message: issue.message
   }));
-
   return NextResponse.json(
     {
       status: "failed",
       logs: [],
       errors: details.map((detail) => `${detail.path}: ${detail.message}`),
-      error: {
-        code: "invalid_query",
-        details
-      }
+      error: { code: "invalid_query", details }
     },
     {
       status: 400,
-      headers: {
-        "Cache-Control": "no-store, max-age=0"
-      }
+      headers: { "Cache-Control": "no-store, max-age=0" }
     }
   );
 }

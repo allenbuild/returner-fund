@@ -145,6 +145,27 @@ describe("graph response cache", () => {
     expect(graphTag(await getOrBuild(xFilterKey, springOff, retryBuild))).toBe("retry");
     expect(retryBuild).toHaveBeenCalledTimes(1);
   });
+
+  it("can coalesce a build without retaining the completed graph", async () => {
+    const build = vi.fn(async () => taggedGraph("diagnostic"));
+    const options = {
+      cacheKey: xFilterKey,
+      ttlMs: TTL_MS,
+      scope: springOff,
+      retainResult: false,
+      build
+    };
+
+    const firstPair = await Promise.all([
+      getOrBuildCachedGraphResponse(options),
+      getOrBuildCachedGraphResponse(options)
+    ]);
+    expect(firstPair.map(graphTag)).toEqual(["diagnostic", "diagnostic"]);
+    expect(build).toHaveBeenCalledTimes(1);
+
+    await getOrBuildCachedGraphResponse(options);
+    expect(build).toHaveBeenCalledTimes(2);
+  });
 });
 
 function getOrBuild(
