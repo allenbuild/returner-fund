@@ -4,9 +4,9 @@
     "directoryUrl": "https://www.ycombinator.com/companies?batch=Summer%202026",
     "algoliaIndex": "YCCompany_production",
     "algoliaFilter": "batch:\"Summer 2026\"",
-    "fetchedAt": "2026-08-01T06:50:16.762Z",
-    "expectedCompanyCount": 167,
-    "observedCompanyCount": 167,
+    "fetchedAt": "2026-08-01T23:58:45.642Z",
+    "expectedCompanyCount": 168,
+    "observedCompanyCount": 168,
     "minimumCompanyCount": 167,
     "notes": [
       "Generated from public, unauthenticated YC pages.",
@@ -2410,7 +2410,8 @@
           "bio": "Founder at Definite (YC S26). Previous SWE at Meta (Instagram reels recommendation). Studied Statistics at University of Waterloo.",
           "ycProfileUrl": "https://www.ycombinator.com/people/farhan-ur-rehman",
           "socialLinks": {
-            "linkedin": "https://www.linkedin.com/in/farhan-ur-rehman/"
+            "linkedin": "https://www.linkedin.com/in/farhan-ur-rehman/",
+            "x": "https://x.com/re__farhan"
           }
         },
         {
@@ -3726,7 +3727,7 @@
       "batch": "Summer 2026",
       "ycProfileUrl": "https://www.ycombinator.com/companies/gutgutgoose",
       "websiteUrl": "https://gutgutgoose.com/",
-      "tagline": "AI training infrastructure via custom probiotics",
+      "tagline": "Personalized probiotics, guaranteed to colonize.",
       "description": "Most data companies pay for their data. Ours pays for itself.\r\nCustomers send us a stool sample. We sequence it, build a metabolic model of that gut, and simulate whether each probiotic strain has an open niche it can colonize. We formulate the best candidates, then re-sequence 90 days later to see what actually took hold and what changed. Each cycle gives us the baseline gut, the intervention, and the outcome. At scale, the endgame is models that predict chronic disease years before symptoms.",
       "industry": "Healthcare",
       "subindustry": "Healthcare",
@@ -8350,6 +8351,53 @@
       ]
     },
     {
+      "id": "32517",
+      "objectID": "32517",
+      "slug": "standard-machines",
+      "name": "Standard Machines",
+      "batch": "Summer 2026",
+      "ycProfileUrl": "https://www.ycombinator.com/companies/standard-machines",
+      "websiteUrl": "https://standardmachines.com",
+      "tagline": "Environments For Chip Design",
+      "description": "We build environments and evaluations to teach AI to design chips.",
+      "industry": "B2B",
+      "subindustry": "B2B",
+      "industries": [
+        "B2B"
+      ],
+      "tags": [
+        "Semiconductors",
+        "AI"
+      ],
+      "location": "San Francisco",
+      "teamSize": null,
+      "status": "Active",
+      "groupPartner": "Ankit Gupta",
+      "groupPartnerUrl": "https://www.ycombinator.com/people/ankit-gupta",
+      "socialLinks": {
+        "linkedin": "https://www.linkedin.com/company/standardmachines/",
+        "x": "https://x.com/stanmachines"
+      },
+      "founders": [
+        {
+          "id": "1978488",
+          "name": "Jacob Peake",
+          "title": "Founder",
+          "bio": "Founder at Standard Machines. \nEx GPU Architect at Apple.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/jacob-peake",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/jacob-peake/",
+            "x": "https://x.com/jacobpeake"
+          }
+        }
+      ],
+      "launch": null,
+      "sourceUrls": [
+        "https://www.ycombinator.com/companies/standard-machines",
+        "https://www.ycombinator.com/companies?batch=Summer%202026"
+      ]
+    },
+    {
       "id": "32225",
       "objectID": "32225",
       "slug": "stoa",
@@ -8678,6 +8726,27 @@
           "socialLinks": {
             "linkedin": "https://www.linkedin.com/in/nathanborshell/",
             "x": "https://x.com/nathanborshell"
+          }
+        },
+        {
+          "id": "3101812",
+          "name": "John Ohannesian",
+          "title": "Founder",
+          "bio": "Co-Founder @ tash, Ex-IB & UC Berkeley, working towards bringing collectibles to the public markets ",
+          "ycProfileUrl": "https://www.ycombinator.com/people/john-ohannesian",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/johnohannesian/"
+          }
+        },
+        {
+          "id": "3232492",
+          "name": "Victor Shammas",
+          "title": "Founder",
+          "bio": "UC Berkeley Business & Data Science, Co-Founder @ tash, building the public markets for collectibles.",
+          "ycProfileUrl": "https://www.ycombinator.com/people/victor-shammas",
+          "socialLinks": {
+            "linkedin": "https://www.linkedin.com/in/victorshammas/",
+            "x": "https://x.com/victorshammas"
           }
         },
         {

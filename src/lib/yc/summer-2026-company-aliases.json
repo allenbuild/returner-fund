@@ -240,6 +240,37 @@
           "https://x.com/shshwt_"
         ]
       }
+    },
+    {
+      "companyId": "31923",
+      "companySlug": "tash",
+      "companyName": "tash",
+      "founderId": "3101812",
+      "change": "added",
+      "fromName": null,
+      "toName": "John Ohannesian",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/johnohannesian/"
+        ]
+      }
+    },
+    {
+      "companyId": "31923",
+      "companySlug": "tash",
+      "companyName": "tash",
+      "founderId": "3232492",
+      "change": "added",
+      "fromName": null,
+      "toName": "Victor Shammas",
+      "accounts": {
+        "linkedin": [
+          "https://www.linkedin.com/in/victorshammas/"
+        ],
+        "x": [
+          "https://x.com/victorshammas"
+        ]
+      }
     }
   ]
 }

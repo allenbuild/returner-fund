@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "idempotencyKey": "central-2026-08-01-0600",
+  "idempotencyKey": "central-2026-08-01-1800",
   "centralDay": "2026-08-01",
-  "observedAt": "2026-08-01T12:47:12.938Z",
-  "baselinePhysicalSources": 8285,
-  "publishedPhysicalSources": 8287,
-  "newPhysicalSources": 2,
-  "newPhysicalSourcesThisAttempt": 2,
-  "retainedPhysicalSources": 8285,
+  "observedAt": "2026-08-02T00:54:58.482Z",
+  "baselinePhysicalSources": 8371,
+  "publishedPhysicalSources": 8394,
+  "newPhysicalSources": 23,
+  "newPhysicalSourcesThisAttempt": 23,
+  "retainedPhysicalSources": 8371,
   "removedPhysicalSources": 0,
-  "dailyNewPhysicalSources": 2,
+  "dailyNewPhysicalSources": 25,
   "dailySourceHealth": "healthy",
   "collectionHealth": "degraded",
   "collectionHealthReasons": [
@@ -17,22 +17,32 @@
     "missing_credential:EXA_API_KEY",
     "missing_credential:NEXT_PUBLIC_SUPABASE_URL",
     "missing_credential:SUPABASE_SERVICE_ROLE_KEY",
-    "mapped_failures:1",
-    "mapped_success_rate_below_10_percent:0.0497"
+    "mapped_success_rate_below_10_percent:0.0492"
   ],
-  "mappedExpected": 1850,
-  "mappedSucceeded": 92,
-  "mappedNeedsReview": 1059,
-  "mappedBlockedOrEmpty": 698,
-  "mappedFailures": 1,
+  "mappedExpected": 2094,
+  "mappedSucceeded": 103,
+  "mappedNeedsReview": 1106,
+  "mappedBlockedOrEmpty": 885,
+  "mappedFailures": 0,
   "mappedNonTerminal": 0,
-  "mappedSuccessRate": 0.0497,
+  "mappedSuccessRate": 0.0492,
   "newestNewSourcePostedAt": "2026-08-01T00:55:53.000Z",
   "insertedByBatchPlatform": {
-    "S2026:github": 1,
-    "S26:x": 1
+    "S26:github": 21,
+    "S26:x": 1,
+    "S26:youtube": 1
   },
   "insertedSourceSamples": [
+    {
+      "batchSlug": "S26",
+      "platform": "youtube",
+      "entityType": "company",
+      "entityId": "company-ai-coach",
+      "sourceUrl": "https://youtube.com/watch?v=2ymAD7HQzDA",
+      "platformPostId": "2ymAD7HQzDA",
+      "platformObjectId": null,
+      "postedAt": null
+    },
     {
       "batchSlug": "S26",
       "platform": "x",
@@ -44,14 +54,214 @@
       "postedAt": "2026-08-01T00:55:53.000Z"
     },
     {
-      "batchSlug": "S2026",
+      "batchSlug": "S26",
       "platform": "github",
       "entityType": "company",
-      "entityId": "company-limrun",
-      "sourceUrl": "https://github.com/limrun-inc/rust-ios-example",
-      "platformPostId": "limrun-inc/rust-ios-example",
-      "platformObjectId": "1172072894",
-      "postedAt": "2026-03-03T23:10:46Z"
+      "entityId": "company-egoist-machines",
+      "sourceUrl": "https://github.com/Egoist-Machines/LodeDB",
+      "platformPostId": "Egoist-Machines/LodeDB",
+      "platformObjectId": "1269241394",
+      "postedAt": "2026-06-14T13:26:27Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-egoist-machines",
+      "sourceUrl": "https://github.com/Egoist-Machines/etchplan",
+      "platformPostId": "Egoist-Machines/etchplan",
+      "platformObjectId": "1269599544",
+      "postedAt": "2026-06-14T23:02:36Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-egoist-machines",
+      "sourceUrl": "https://github.com/Egoist-Machines/swift-lodedb",
+      "platformPostId": "Egoist-Machines/swift-lodedb",
+      "platformObjectId": "1285214267",
+      "postedAt": "2026-06-30T15:30:29Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-ai-coach",
+      "sourceUrl": "https://github.com/coach-ltd/skills",
+      "platformPostId": "coach-ltd/skills",
+      "platformObjectId": "1251298403",
+      "postedAt": "2026-05-27T12:48:01Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/erdos-co-researcher",
+      "platformPostId": "xa8zz/erdos-co-researcher",
+      "platformObjectId": "1218906699",
+      "postedAt": "2026-04-23T10:33:25Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/erdos-harness",
+      "platformPostId": "xa8zz/erdos-harness",
+      "platformObjectId": "1212104475",
+      "postedAt": "2026-04-16T04:11:40Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/technopoly",
+      "platformPostId": "xa8zz/technopoly",
+      "platformObjectId": "942306985",
+      "postedAt": "2025-03-03T22:45:21Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/tpotracer-2",
+      "platformPostId": "xa8zz/tpotracer-2",
+      "platformObjectId": "1118008918",
+      "postedAt": "2025-12-17T06:10:41Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/clawcraft",
+      "platformPostId": "xa8zz/clawcraft",
+      "platformObjectId": "1150175375",
+      "postedAt": "2026-02-05T01:04:16Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/saki",
+      "platformPostId": "xa8zz/saki",
+      "platformObjectId": "942564292",
+      "postedAt": "2025-03-04T09:57:07Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/solo-leveling-narrative-engine",
+      "platformPostId": "xa8zz/solo-leveling-narrative-engine",
+      "platformObjectId": "1069083553",
+      "postedAt": "2025-10-03T11:29:39Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/financialplanner",
+      "platformPostId": "xa8zz/financialplanner",
+      "platformObjectId": "948752215",
+      "postedAt": "2025-03-14T22:33:16Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-olam-labs",
+      "sourceUrl": "https://github.com/xa8zz/Stock-Scraper",
+      "platformPostId": "xa8zz/Stock-Scraper",
+      "platformObjectId": "489508830",
+      "postedAt": "2022-05-06T22:27:27Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-datoric",
+      "sourceUrl": "https://github.com/ArzuleDev/arzule-ingest",
+      "platformPostId": "ArzuleDev/arzule-ingest",
+      "platformObjectId": "1122140338",
+      "postedAt": "2025-12-24T07:01:46Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-datoric",
+      "sourceUrl": "https://github.com/ArzuleDev/docs",
+      "platformPostId": "ArzuleDev/docs",
+      "platformObjectId": "1123101410",
+      "postedAt": "2025-12-26T07:25:07Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-dock",
+      "sourceUrl": "https://github.com/try-dock-ai/cli",
+      "platformPostId": "try-dock-ai/cli",
+      "platformObjectId": "1213947796",
+      "postedAt": "2026-04-17T23:58:57Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-dock",
+      "sourceUrl": "https://github.com/try-dock-ai/dock-ui",
+      "platformPostId": "try-dock-ai/dock-ui",
+      "platformObjectId": "1231401714",
+      "postedAt": "2026-05-06T23:38:53Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-dock",
+      "sourceUrl": "https://github.com/try-dock-ai/.github",
+      "platformPostId": "try-dock-ai/.github",
+      "platformObjectId": "1216359282",
+      "postedAt": "2026-04-20T20:32:54Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-dock",
+      "sourceUrl": "https://github.com/try-dock-ai/mcp",
+      "platformPostId": "try-dock-ai/mcp",
+      "platformObjectId": "1213947897",
+      "postedAt": "2026-04-17T23:59:13Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-dock",
+      "sourceUrl": "https://github.com/try-dock-ai/brand",
+      "platformPostId": "try-dock-ai/brand",
+      "platformObjectId": "1216464449",
+      "postedAt": "2026-04-20T23:53:03Z"
+    },
+    {
+      "batchSlug": "S26",
+      "platform": "github",
+      "entityType": "company",
+      "entityId": "company-dock",
+      "sourceUrl": "https://github.com/try-dock-ai/examples",
+      "platformPostId": "try-dock-ai/examples",
+      "platformObjectId": "1213947959",
+      "postedAt": "2026-04-17T23:59:23Z"
     }
   ]
 }
