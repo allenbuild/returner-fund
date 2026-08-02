@@ -4,6 +4,10 @@ import { dirname, normalize, resolve } from "node:path";
 const MEBIBYTE = 1024 * 1024;
 const MAX_TRACE_BYTES = 55 * MEBIBYTE;
 const MAX_FULL_GRAPH_TRACE_BYTES = 140 * MEBIBYTE;
+// Vercel traces both the glibc and musl Sharp binary families for these
+// server-rendered debug pages, while local macOS builds trace one native
+// family. Keep a route-specific ceiling with headroom for that platform delta.
+const MAX_DEBUG_TRACE_BYTES = 85 * MEBIBYTE;
 // The refresh route intentionally carries the nine static graph fallbacks.
 // The 52-company S26 census expansion increases only those bounded artifacts,
 // so retain a separate ceiling while staying well below the deployment limit.
@@ -38,7 +42,7 @@ const debugRouteTraces = [
 ].map((route) => ({
   label: `debug ${route}`,
   manifest: `.next/server/app/debug/${route}/page.js.nft.json`,
-  maxBytes: 65 * MEBIBYTE,
+  maxBytes: MAX_DEBUG_TRACE_BYTES,
   required: GRAPH_RUNTIME_PROJECTIONS,
   forbidden: [...WHOLE_REPOSITORY_TRACE_FRAGMENTS, ...RAW_EVIDENCE_FRAGMENTS]
 }));
