@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-chert",
+    "slug": "chert",
+    "name": "Chert"
+  },
+  "event": {
+    "id": "tle-e13b344d5664753d372d3014",
+    "eventDate": "2026-05-25",
+    "eventDateType": "announcement_date",
+    "title": "Chert launched on Hacker News",
+    "summary": "Launch HN: Chert (YC P26) – Twilio for iMessage.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-881b04a54b4e6a58db5bbb10",
+        "title": "Launch HN: Chert (YC P26) – Twilio for iMessage",
+        "publisher": "garygao",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-25T15:12:33Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48267829"
+      },
+      {
+        "id": "src-3bec964f0219486686dd11aa",
+        "title": "Hey everyone, @Cherthq is now live on Product Hunt! https:// producthunt.com/products/chert Try out our agent builder, which lets you build and deploy conversational iMessage agents for customer service, inbound lead capture, and more by…",
+        "publisher": "GaryGao891219 X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/GaryGao891219/status/2056644892965912819"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-881b04a54b4e6a58db5bbb10",
+        "title": "Launch HN: Chert (YC P26) – Twilio for iMessage",
+        "publisher": "garygao",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-25T15:12:33Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48267829",
+        "publicationDate": "2026-05-25T15:12:33Z",
+        "excerpt": "Hey HN! We’re Gary and Ian, and we’re building Chert ( https: www.trychert.com ), an API for businesses to send, receive, and automate iMessage conversations at scale. Check out our demo: https: www.youtube.com watch?v=SRdwvVxMMoI . We originally started by building products on top of iMessage because the blue bubble interface, typing indicators, and reactions made agentic conversations feel more human than ones on SMS RCS. These included a one-shot iMessage agent builder that reached 2,000…",
+        "sourceEventDate": "2026-05-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-3bec964f0219486686dd11aa",
+        "title": "Hey everyone, @Cherthq is now live on Product Hunt! https:// producthunt.com/products/chert Try out our agent builder, which lets you build and deploy conversational iMessage agents for customer service, inbound lead capture, and more by…",
+        "publisher": "GaryGao891219 X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/GaryGao891219/status/2056644892965912819",
+        "publicationDate": "2026-05-19T00:00:00.000Z",
+        "excerpt": "Hey everyone, @Cherthq is now live on Product Hunt! https:// producthunt.com/products/chert Try out our agent builder, which lets you build and deploy conversational iMessage agents for customer service, inbound lead capture, and more by simply configuring the system prompt and tone. Show more Chert: Build AI agents that text customers in iMessage | Product Hunt From producthunt.com",
+        "sourceEventDate": "2026-05-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5a8528f88d91805432bdaef4",
+        "platform": "hacker_news",
+        "account": "garygao",
+        "postDate": "2026-05-25",
+        "excerpt": "Hey HN! We’re Gary and Ian, and we’re building Chert ( https: www.trychert.com ), an API for businesses to send, receive, and automate iMessage conversations at scale. Check out our demo: https: www.youtube.com watch?v=SRdwvVxMMoI . We originally started by building products on top of iMessage because the blue bubble interface, typing indicators, and reactions made agentic conversations feel more human than ones on SMS RCS. These included a one-shot iMessage agent builder that reached 2,000…",
+        "url": "https://news.ycombinator.com/item?id=48267829",
+        "metrics": {
+          "points": 62,
+          "upvotes": 62,
+          "comments": 200
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-76447872a467969ac9f73b0f",
+        "platform": "x",
+        "account": "GaryGao891219 X post",
+        "postDate": "2026-05-25",
+        "excerpt": "Hey everyone, @Cherthq is now live on Product Hunt! https:// producthunt.com/products/chert Try out our agent builder, which lets you build and deploy conversational iMessage agents for customer service, inbound lead capture, and more by simply configuring the system prompt and tone. Show more Chert: Build AI agents that text customers in iMessage | Product Hunt From producthunt.com",
+        "url": "https://x.com/GaryGao891219/status/2056644892965912819",
+        "metrics": {
+          "likes": 5,
+          "reposts": 0,
+          "comments": 2,
+          "views": 252
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

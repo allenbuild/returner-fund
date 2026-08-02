@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-textsidekick",
+    "slug": "sidekick",
+    "name": "Sidekick"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-2ecfc837045b990d6ed6f5c5",
+      "eventDate": "2026-07-15",
+      "eventDateType": "announcement_date",
+      "title": "Sidekick released Sidekick is live across 20+ plants",
+      "summary": "Sidekick is live across 20+ plants.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7cfe60bb962532f03aa4b4c9",
+          "title": "Sidekick is live across 20+ plants",
+          "publisher": "textsidekick",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-15T18:45:01.871Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/textsidekick_sidekick-is-live-20-plants-600-frontline-activity-7483230160142409730-2ZJU"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

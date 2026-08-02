@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-synphony",
+    "slug": "synphony",
+    "name": "Synphony"
+  },
+  "event": {
+    "id": "tle-718f0ba205c19c53190cc138",
+    "eventDate": "2026-05-21",
+    "eventDateType": "announcement_date",
+    "title": "Synphony announced its public launch",
+    "summary": "Synphony announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a692e240679147e1bb551293",
+        "title": "Synphony(YC P26) Launch Video",
+        "publisher": "Synphony(YC P26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-21T10:13:06-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=2DJM9p5Lnk4"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a692e240679147e1bb551293",
+        "title": "Synphony(YC P26) Launch Video",
+        "publisher": "Synphony(YC P26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-21T10:13:06-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=2DJM9p5Lnk4",
+        "publicationDate": "2026-05-21T10:13:06-07:00",
+        "excerpt": "Embedded in the official Synphony YC company page.",
+        "sourceEventDate": "2026-05-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ce62e9451236db78228d54ce",
+        "platform": "youtube",
+        "account": "Synphony(YC P26) Launch Video",
+        "postDate": "2026-05-21",
+        "excerpt": "Embedded in the official Synphony YC company page.",
+        "url": "https://youtube.com/watch?v=2DJM9p5Lnk4",
+        "metrics": {
+          "views": 614,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

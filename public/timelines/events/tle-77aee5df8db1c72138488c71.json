@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-contextdev",
+    "slug": "context-dev",
+    "name": "Context.dev"
+  },
+  "event": {
+    "id": "tle-77aee5df8db1c72138488c71",
+    "eventDate": "2026-07-09",
+    "eventDateType": "announcement_date",
+    "title": "Context.dev launched on Hacker News",
+    "summary": "Launch HN: Context.dev (YC S26) – API to get structured data from any website.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e2d0bc40d203392c29a47c0c",
+        "title": "Launch HN: Context.dev (YC S26) – API to get structured data from any website",
+        "publisher": "TheYahiaBakour",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-09T15:28:39Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48847562"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e2d0bc40d203392c29a47c0c",
+        "title": "Launch HN: Context.dev (YC S26) – API to get structured data from any website",
+        "publisher": "TheYahiaBakour",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-09T15:28:39Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48847562",
+        "publicationDate": "2026-07-09T15:28:39Z",
+        "excerpt": "Hi Hacker News, I’m Yahia. I built Context.dev ( https: www.context.dev ) to make it really easy to integrate web data into your products and agents. Here’s a demo video: https: www.tella.tv video build-faster-with-context-dev-api... Since it’s an API, here are the docs: https: docs.context.dev quickstart . You can send us a URL and get back clean Markdown, rendered HTML, screenshots, extracted images, etc.. You can also send us a domain and get company or brand context: name, description,…",
+        "sourceEventDate": "2026-07-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-aeb768c8f61761a8da67dca7",
+        "platform": "hacker_news",
+        "account": "TheYahiaBakour",
+        "postDate": "2026-07-09",
+        "excerpt": "Hi Hacker News, I’m Yahia. I built Context.dev ( https: www.context.dev ) to make it really easy to integrate web data into your products and agents. Here’s a demo video: https: www.tella.tv video build-faster-with-context-dev-api... Since it’s an API, here are the docs: https: docs.context.dev quickstart . You can send us a URL and get back clean Markdown, rendered HTML, screenshots, extracted images, etc.. You can also send us a domain and get company or brand context: name, description,…",
+        "url": "https://news.ycombinator.com/item?id=48847562",
+        "metrics": {
+          "points": 119,
+          "upvotes": 119,
+          "comments": 86
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

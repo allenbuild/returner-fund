@@ -4,18 +4,24 @@ import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import { buildInstagramCoverageReport } from "@/lib/ingestion/instagram-debug";
 import companiesSnapshot from "@/lib/yc/summer-2026-companies.json";
 import overridesSnapshot from "@/lib/social/verified-social-overrides.json";
-import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
-import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.json";
-import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 
 describe("instagram coverage debug report", () => {
   it("explains the current Summer 2026 Instagram coverage without counting old Spring overrides", () => {
+    const currentCompanySlugs = new Set(companiesSnapshot.companies.map((company) => company.slug));
+    const allVerifiedCompanyOverrides = Object.entries(overridesSnapshot).filter(([, override]) =>
+      "companySocialLinks" in override &&
+      override.companySocialLinks &&
+      "instagram" in override.companySocialLinks &&
+      Boolean(override.companySocialLinks.instagram)
+    );
+    const currentVerifiedCompanyOverrides = allVerifiedCompanyOverrides.filter(([slug]) =>
+      currentCompanySlugs.has(slug)
+    );
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const report = buildInstagramCoverageReport({
       graph,
       companies: companiesSnapshot.companies,
       overrides: overridesSnapshot,
-      snapshots: [publicEvidenceSnapshot, loggedInEvidenceSnapshot, targetedEvidenceSnapshot],
       discovery: {
         companies_checked: companiesSnapshot.companies.length,
         searched_with_opencli: false,
@@ -28,7 +34,9 @@ describe("instagram coverage debug report", () => {
     expect(report.companyCount).toBe(companiesSnapshot.companies.length);
     expect(report.profiles.snapshotCompanyProfiles).toBe(0);
     expect(report.profiles.snapshotFounderProfiles).toBe(0);
-    expect(report.profiles.verifiedCompanyOverrides).toBe(2);
+    expect(currentVerifiedCompanyOverrides.length).toBeGreaterThan(0);
+    expect(allVerifiedCompanyOverrides.length).toBeGreaterThan(currentVerifiedCompanyOverrides.length);
+    expect(report.profiles.verifiedCompanyOverrides).toBe(currentVerifiedCompanyOverrides.length);
     expect(report.evidence.rows).toBe(9);
     expect(report.evidence.scoredRows).toBe(9);
     expect(report.evidence.companiesWithScoredEvidence).toBe(2);

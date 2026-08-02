@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-e473500d7e83288a7c4d6f64",
+    "eventDate": "2026-06-05",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy added support for testing on Android",
+    "summary": "TesterArmy now supports testing on Android.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6896d9fc77bdf9e69b19ccc5",
+        "title": "TesterArmy now supports testing on Android.",
+        "publisher": "TesterArmy",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-05T23:42:46Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TesterArmy/status/2063043884759085112"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6896d9fc77bdf9e69b19ccc5",
+        "title": "TesterArmy now supports testing on Android.",
+        "publisher": "TesterArmy",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-05T23:42:46Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TesterArmy/status/2063043884759085112",
+        "publicationDate": "2026-06-05T23:42:46Z",
+        "excerpt": "TesterArmy now supports testing on Android. The official account announces Android APK testing. The native post says users can upload an APK and start testing in minutes. Visible metrics: 32 likes, 4 reposts, 2 quotes.",
+        "sourceEventDate": "2026-06-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a7c7299b6823be67056446b9",
+        "platform": "x",
+        "account": "TesterArmy",
+        "postDate": "2026-06-05",
+        "excerpt": "TesterArmy now supports testing on Android. The official account announces Android APK testing. The native post says users can upload an APK and start testing in minutes. Visible metrics: 32 likes, 4 reposts, 2 quotes.",
+        "url": "https://x.com/TesterArmy/status/2063043884759085112",
+        "metrics": {
+          "likes": 32,
+          "reposts": 4,
+          "quotes": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

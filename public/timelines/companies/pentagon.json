@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-pentagon",
+    "slug": "pentagon",
+    "name": "Pentagon"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-95b39bf1797685aed1597086",
+      "eventDate": "2026-05-19",
+      "eventDateType": "announcement_date",
+      "title": "Pentagon was introduced",
+      "summary": "Pentagon introduced Pentagon: a coordination layer for humans and agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a1d647f9f88fb5fff90f03cb",
+          "title": "Introducing Pentagon: a coordination layer for humans and agents. ASI yields two futures: 1. AI replaces us. 2. AI empowers us to do our greatest work. We're building for the latter. Our first product is Pentagon Studio: https://…",
+          "publisher": "edgarpavlovsky X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-19T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/edgarpavlovsky/status/2056867039860625431"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

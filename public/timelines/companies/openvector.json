@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-openvector",
+    "slug": "openvector",
+    "name": "OpenVector"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-b233a1760797e3a4677c7749",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "OpenVector announced its public launch",
+      "summary": "OpenVector announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-c0daa2ac8c13d80618c875c7",
+          "title": "OpenVector Launch Video",
+          "publisher": "OpenVector Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-29T17:26:57-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=36OaIJ4FPZ8"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

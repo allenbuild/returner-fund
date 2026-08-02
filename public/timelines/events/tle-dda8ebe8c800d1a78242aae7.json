@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-memory-store",
+    "slug": "memory-store",
+    "name": "Memory Store"
+  },
+  "event": {
+    "id": "tle-dda8ebe8c800d1a78242aae7",
+    "eventDate": "2026-05-19",
+    "eventDateType": "announcement_date",
+    "title": "Memory Store announced its public launch",
+    "summary": "Memory Store announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a139d1a2e388f0e7ac804585",
+        "title": "Memory Store YC P26 Launch Video",
+        "publisher": "Memory Store",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T03:54:35-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=vncrqtgEPdY"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a139d1a2e388f0e7ac804585",
+        "title": "Memory Store YC P26 Launch Video",
+        "publisher": "Memory Store",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T03:54:35-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=vncrqtgEPdY",
+        "publicationDate": "2026-05-19T03:54:35-07:00",
+        "excerpt": "Memory Store - Shared team context",
+        "sourceEventDate": "2026-05-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0ab96cae799536b1de5e5045",
+        "platform": "youtube",
+        "account": "Memory Store",
+        "postDate": "2026-05-19",
+        "excerpt": "Memory Store - Shared team context",
+        "url": "https://youtube.com/watch?v=vncrqtgEPdY",
+        "metrics": {
+          "views": 1180,
+          "likes": 55,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

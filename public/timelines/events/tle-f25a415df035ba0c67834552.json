@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-zerodrift",
+    "slug": "zerodrift",
+    "name": "ZeroDrift"
+  },
+  "event": {
+    "id": "tle-f25a415df035ba0c67834552",
+    "eventDate": "2026-02-10",
+    "eventDateType": "announcement_date",
+    "title": "ZeroDrift was introduced",
+    "summary": "ZeroDrift introduced ZeroDrift.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-bec4241ca864977b741184ab",
+        "title": "Introducing ZeroDrift",
+        "publisher": "ZeroDrift-AI",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-02-10T04:43:43-08:00",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=EMT2VhGFidw"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-bec4241ca864977b741184ab",
+        "title": "Introducing ZeroDrift",
+        "publisher": "ZeroDrift-AI",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-02-10T04:43:43-08:00",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=EMT2VhGFidw",
+        "publicationDate": "2026-02-10T04:43:43-08:00",
+        "excerpt": "ZeroDrift published a native product video on its official channel.",
+        "sourceEventDate": "2026-02-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-050992148d4d415caa4fec94",
+        "platform": "youtube",
+        "account": "ZeroDrift-AI",
+        "postDate": "2026-02-10",
+        "excerpt": "ZeroDrift published a native product video on its official channel.",
+        "url": "https://www.youtube.com/watch?v=EMT2VhGFidw",
+        "metrics": {
+          "views": 163
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

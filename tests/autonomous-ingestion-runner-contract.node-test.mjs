@@ -44,6 +44,13 @@ describe("autonomous ingestion runner CLI", () => {
     assert.ok(summer.founders > 0);
     assert.ok(summer.accounts > 0);
     assert.equal(plan.coverage.expected, plan.coverage.queued + plan.coverage.terminal);
+    assert.deepEqual(plan.concurrency, {
+      publicShardProcesses: 2,
+      publicTasksPerProcess: 8,
+      publicTasksAcrossProcesses: 16,
+      publicSocialLanePerProcess: 1,
+      publicSocialLaneAcrossProcesses: 2
+    });
   });
 
   it("refuses to complete file-backed mode when collection was explicitly skipped", async () => {
@@ -222,7 +229,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     );
   });
 
-  it("starts public batches in parallel and rate-limits exhaustive GitHub batches through one queue", () => {
+  it("bounds public shard processes globally and rate-limits exhaustive GitHub batches through one queue", () => {
     const collectors = section("async function runCollectors()", "async function runTopVoiceCollector");
     const shardedCollector = section(
       "async function runShardedPublicCollector",
@@ -240,6 +247,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(collectors.includes("run: () => runShardedGithubCollector({"));
     assert.ok(collectors.includes("totalCompanyCount: companyCount"));
     assert.ok(collectors.includes("command.promise = runCollectorWithRetries(command)"));
+    assert.ok(runner.includes("const PUBLIC_SHARD_PROCESS_CONCURRENCY = 2"));
+    assert.ok(runner.includes("const PUBLIC_COLLECTOR_TASK_CONCURRENCY = 8"));
+    assert.ok(runner.includes("const PUBLIC_SOCIAL_LANE_CONCURRENCY = 1"));
+    assert.ok(shardedCollector.includes("runWithPublicShardProcessSlot(() =>"));
     assert.ok(collectors.includes("let githubQueue = Promise.resolve()"));
     assert.ok(collectors.includes("command.promise = githubQueue.then(() => runCollectorWithRetries(command))"));
     assert.ok(collectors.includes("runShardedGithubCollector"));
@@ -254,9 +265,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(shardedCollector.includes("`--discovery-attempts=${shard.discoveryAttemptsPath}`"));
     assert.ok(shardedCollector.includes("`--source-discovery-paths=${shard.sourceDiscoveryPathsPath}`"));
     assert.ok(shardedCollector.includes('label: "Public unauthenticated platform/page ingestion"'));
-    assert.ok(collectors.includes('"--workers=16"'));
-    assert.ok(collectors.includes('"--linkedin-workers=4"'));
-    assert.ok(collectors.includes('"--instagram-workers=8"'));
+    assert.ok(collectors.includes('`--workers=${PUBLIC_COLLECTOR_TASK_CONCURRENCY}`'));
+    assert.ok(collectors.includes('`--x-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`'));
+    assert.ok(collectors.includes('`--linkedin-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`'));
+    assert.ok(collectors.includes('`--instagram-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`'));
     assert.ok(collectors.includes('"--search-workers=1"'));
     assert.ok(collectors.includes('process.env.GITHUB_TOKEN?.trim() ? "--search" : "--no-search"'));
     assert.ok(collectors.includes("githubSearchArg"));
@@ -467,7 +479,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(collectorRunner.includes("collector.timeout_checkpoint_flush"));
     assert.ok(collectorRunner.includes('"--max-companies=0"'));
     assert.ok(collectorRunner.includes("AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs"));
-    assert.match(runner, /"--x-workers=4"/);
+    assert.match(runner, /`--x-workers=\$\{PUBLIC_SOCIAL_LANE_CONCURRENCY\}`/);
   });
 
   it("shards large public cohorts and merges shard checkpoints before coverage", () => {
@@ -475,6 +487,8 @@ describe("autonomous ingestion runner static safety contracts", () => {
 
     assert.ok(runner.includes("S2026: 4"));
     assert.ok(runner.includes("S26: 2"));
+    assert.ok(runner.includes("PUBLIC_SHARD_PROCESS_CONCURRENCY = 2"));
+    assert.ok(collectorRunner.includes("runWithPublicShardProcessSlot"));
     assert.ok(collectorRunner.includes("--company-shard-count="));
     assert.ok(collectorRunner.includes("--company-shard-index="));
     assert.ok(collectorRunner.includes("Promise.allSettled"));
@@ -539,6 +553,24 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(artifactPaths.includes('"docs/outputs/scoring-diagnostics-v4-report.md"'));
   });
 
+  it("builds current graph inputs before starting the benchmark publication server", () => {
+    const publicationBuild = section(
+      "async function buildAndValidatePublication",
+      "async function synchronizePublicationBase"
+    );
+    const prepareIndex = publicationBuild.indexOf(
+      'label: "pre-publication compact graph runtime preparation"'
+    );
+    const buildIndex = publicationBuild.indexOf(
+      'label: "pre-publication production build"'
+    );
+    const benchmarkIndex = publicationBuild.indexOf(
+      '"scripts/update-daily-benchmarks.mjs"'
+    );
+
+    assert.ok(prepareIndex > -1 && buildIndex > prepareIndex && benchmarkIndex > buildIndex);
+  });
+
   it("rebases, rebuilds, validates, and retries a non-fast-forward publication once", () => {
     const publication = section("async function publishRepositoryArtifacts", "async function stageRepositoryArtifacts");
     assert.ok(publication.includes('["push", "origin", `HEAD:${branch}`]'));
@@ -556,7 +588,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const retryImportIndex = publication.indexOf("const retryDurableImport = await importDurableEvidence");
     const guardIndex = publication.indexOf("assertDurableAttributionCompleteness(retryDurableImport)");
     const samePlanMergeIndex = publication.indexOf("await mergePublicationInputs(rebasedPublicationInputs");
-    const rebuildIndex = publication.indexOf("await buildAndValidatePublication(publicationRunId)", samePlanMergeIndex);
+    const rebuildIndex = publication.indexOf(
+      "await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState)",
+      samePlanMergeIndex,
+    );
     assert.ok(
       rebaseIndex < prepareIndex &&
       prepareIndex < retryImportIndex &&
@@ -564,7 +599,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
       guardIndex < samePlanMergeIndex &&
       samePlanMergeIndex < rebuildIndex
     );
-    assert.ok(publication.includes("await buildAndValidatePublication(publicationRunId)"));
+    assert.ok(publication.includes(
+      "await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState)",
+    ));
     assert.ok(publication.includes("await stageRepositoryArtifacts()"));
     assert.ok(publication.includes('label: "retry refreshed artifact push"'));
   });

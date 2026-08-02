@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-a97b6ace2c0a1d43f2648b68",
+      "eventDate": "2026-07-10",
+      "eventDateType": "announcement_date",
+      "title": "Graphify Labs reported almost 200 developers",
+      "summary": "Graphify Labs reached almost 200 developers just one week after launching the Discord server.",
+      "category": "traction_milestone",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-efee199c3e6fe9cbc94cdd17",
+          "title": "We’ve reached almost 200 developers in Graphify Labs just one week after launching the Discord server.",
+          "publisher": "We’ve reached almost 200 developers in Graphify Labs just one week after launching the Discord server.",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-10T21:19:55.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/safishamsii/status/2075691513099481374"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

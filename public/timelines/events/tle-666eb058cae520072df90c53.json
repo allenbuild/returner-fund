@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-walter",
+    "slug": "walter",
+    "name": "Walter"
+  },
+  "event": {
+    "id": "tle-666eb058cae520072df90c53",
+    "eventDate": "2026-06-02",
+    "eventDateType": "announcement_date",
+    "title": "Walter launched on Y Combinator",
+    "summary": "Walter just launched on @ycombinator 's Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-20ba5998d648db1ee81a8a99",
+        "title": "Walter just launched on @ycombinator 's Launch YC!",
+        "publisher": "Walter just launched on @ycombinator 's Launch YC!",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-02T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/walterindustry/status/2061882176145387562"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-20ba5998d648db1ee81a8a99",
+        "title": "Walter just launched on @ycombinator 's Launch YC!",
+        "publisher": "Walter just launched on @ycombinator 's Launch YC!",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-02T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/walterindustry/status/2061882176145387562",
+        "publicationDate": "2026-06-02T00:00:00.000Z",
+        "excerpt": "Walter just launched on @ycombinator 's Launch YC! Walter: AI Employee for the Manufacturing Back Office. Check them out: https:// ycombinator.com/launches/Qdh-w alter-ai-employee-for-the-manufacturing-back-office ...",
+        "sourceEventDate": "2026-06-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-044ceedf87f5a2f858af2862",
+        "platform": "x",
+        "account": "Walter just launched on @ycombinator 's Launch YC!",
+        "postDate": "2026-06-02",
+        "excerpt": "Walter just launched on @ycombinator 's Launch YC! Walter: AI Employee for the Manufacturing Back Office. Check them out: https:// ycombinator.com/launches/Qdh-w alter-ai-employee-for-the-manufacturing-back-office ...",
+        "url": "https://x.com/walterindustry/status/2061882176145387562",
+        "metrics": {
+          "likes": 3,
+          "reposts": 0,
+          "comments": 0,
+          "views": 406
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

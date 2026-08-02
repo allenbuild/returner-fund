@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-snag",
+    "slug": "snag",
+    "name": "snag"
+  },
+  "event": {
+    "id": "tle-c6c482e135835468314821de",
+    "eventDate": "2025-04-17",
+    "eventDateType": "announcement_date",
+    "title": "snag released SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+    "summary": "SNAG IS LIVE.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5aace73e54ceff1cfbf742f7",
+        "title": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+        "publisher": "subletgirl",
+        "domain": "instagram.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-04-17T22:40:17Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/DIkJC8Vp-Gl"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5aace73e54ceff1cfbf742f7",
+        "title": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+        "publisher": "subletgirl",
+        "domain": "instagram.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2025-04-17T22:40:17Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/DIkJC8Vp-Gl",
+        "publicationDate": "2025-04-17T22:40:17Z",
+        "excerpt": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨ SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+        "sourceEventDate": "2025-04-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e9d4aaeed1b583a4f01a87b5",
+        "platform": "instagram",
+        "account": "subletgirl",
+        "postDate": "2025-04-17",
+        "excerpt": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨ SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+        "url": "https://www.instagram.com/reel/DIkJC8Vp-Gl",
+        "metrics": {
+          "likes": 152,
+          "comments": 95
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-14b31b87c2fcedc08bd1dc14",
+    "eventDate": "2026-05-12",
+    "eventDateType": "announcement_date",
+    "title": "Superlog released Superlog - YC launch",
+    "summary": "Superlog - YC launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-060c627c90a08b8b53eab4fc",
+        "title": "Superlog - YC launch",
+        "publisher": "Superlog - YC launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-12T00:12:36-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=AeX3pnHCMHg"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-060c627c90a08b8b53eab4fc",
+        "title": "Superlog - YC launch",
+        "publisher": "Superlog - YC launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-12T00:12:36-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=AeX3pnHCMHg",
+        "publicationDate": "2026-05-12T00:12:36-07:00",
+        "excerpt": "Embedded in the official Superlog YC company page.",
+        "sourceEventDate": "2026-05-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7985af604d984af0e3d47a9a",
+        "platform": "youtube",
+        "account": "Superlog - YC launch",
+        "postDate": "2026-05-12",
+        "excerpt": "Embedded in the official Superlog YC company page.",
+        "url": "https://youtube.com/watch?v=AeX3pnHCMHg",
+        "metrics": {
+          "views": 297,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

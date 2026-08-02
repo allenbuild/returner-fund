@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-prototypingio",
+    "slug": "prototyping-io",
+    "name": "Prototyping.io"
+  },
+  "event": {
+    "id": "tle-1aaebf43848eec81de62345f",
+    "eventDate": "2026-03-25",
+    "eventDateType": "announcement_date",
+    "title": "Prototyping.io was accepted into Y Combinator",
+    "summary": "Prototyping.io got into Y Combinator (P26).",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5969a041cf82d570c7c120b3",
+        "title": "We got into Y Combinator (P26)!",
+        "publisher": "revanth279",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-25T15:45:43.091Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5969a041cf82d570c7c120b3",
+        "title": "We got into Y Combinator (P26)!",
+        "publisher": "revanth279",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-25T15:45:43.091Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX",
+        "publicationDate": "2026-03-25T15:45:43.091Z",
+        "excerpt": "We got into Y Combinator (P26)! The founder names Prototyping.io. The post says it moves mechanical engineers from design to prototype parts to production faster. Visible metrics: 481 likes, 481 reactions, 94 comments.",
+        "sourceEventDate": "2026-03-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-975c9d88bfa5e7f4b82352d5",
+        "platform": "linkedin",
+        "account": "revanth279",
+        "postDate": "2026-03-25",
+        "excerpt": "We got into Y Combinator (P26)! The founder names Prototyping.io. The post says it moves mechanical engineers from design to prototype parts to production faster. Visible metrics: 481 likes, 481 reactions, 94 comments.",
+        "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX",
+        "metrics": {
+          "likes": 481,
+          "comments": 94,
+          "reactions": 481
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

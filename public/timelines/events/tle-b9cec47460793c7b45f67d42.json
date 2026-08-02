@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-drafted",
+    "slug": "drafted",
+    "name": "Drafted"
+  },
+  "event": {
+    "id": "tle-b9cec47460793c7b45f67d42",
+    "eventDate": "2026-06-15",
+    "eventDateType": "announcement_date",
+    "title": "Drafted launched on Hacker News",
+    "summary": "Launch HN: Drafted (YC P26) – Models for residential architecture.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-faa713d39d2a6c5dc87be973",
+        "title": "Launch HN: Drafted (YC P26) – Models for residential architecture",
+        "publisher": "PrimalNick",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-15T16:47:21Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48543908"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-faa713d39d2a6c5dc87be973",
+        "title": "Launch HN: Drafted (YC P26) – Models for residential architecture",
+        "publisher": "PrimalNick",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-15T16:47:21Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48543908",
+        "publicationDate": "2026-06-15T16:47:21Z",
+        "excerpt": "I’m Nick, founder of Drafted ( https: www.drafted.ai ). We’re training models that generate residential architecture from structured design constraints. Product demo: https: www.youtube.com watch?v=8QkJ7jNU9y4 Residential architecture is still one of the most expensive, slow, and inaccessible creative processes in the world. Designing a custom home typically costs $10,000–$50,000 or more, takes months, and requires making major decisions before most people can even visualize the outcome. As a…",
+        "sourceEventDate": "2026-06-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-edce6f149467e4cd6275ea8b",
+        "platform": "hacker_news",
+        "account": "PrimalNick",
+        "postDate": "2026-06-15",
+        "excerpt": "I’m Nick, founder of Drafted ( https: www.drafted.ai ). We’re training models that generate residential architecture from structured design constraints. Product demo: https: www.youtube.com watch?v=8QkJ7jNU9y4 Residential architecture is still one of the most expensive, slow, and inaccessible creative processes in the world. Designing a custom home typically costs $10,000–$50,000 or more, takes months, and requires making major decisions before most people can even visualize the outcome. As a…",
+        "url": "https://news.ycombinator.com/item?id=48543908",
+        "metrics": {
+          "points": 60,
+          "upvotes": 60,
+          "comments": 63
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-superlog",
+    "slug": "superlog",
+    "name": "Superlog"
+  },
+  "event": {
+    "id": "tle-d2a7d075e13f9e7dc831a956",
+    "eventDate": "2026-06-08",
+    "eventDateType": "announcement_date",
+    "title": "Superlog released an open-source project",
+    "summary": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8b8f33d5aaca9dd5e6fc103d",
+        "title": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
+        "publisher": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-08T16:59:41Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48447904"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8b8f33d5aaca9dd5e6fc103d",
+        "title": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
+        "publisher": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-08T16:59:41Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48447904",
+        "publicationDate": "2026-06-08T16:59:41Z",
+        "excerpt": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
+        "sourceEventDate": "2026-06-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-345ea4c5e73731f225eb111a",
+        "platform": "hacker_news",
+        "account": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
+        "postDate": "2026-06-08",
+        "excerpt": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
+        "url": "https://news.ycombinator.com/item?id=48447904",
+        "metrics": {
+          "upvotes": 3,
+          "comments": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -89,9 +89,30 @@ test("daily benchmarks synchronize, rebuild on push races, and verify main", () 
     updateJob.matchAll(/^\s{8}timeout-minutes:\s*(\d+)/gm),
     (match) => Number(match[1])
   );
-  assert.equal(jobTimeout, 110);
-  assert.deepEqual(stepTimeouts, [10, 10, 15, 10, 5, 45]);
+  assert.equal(jobTimeout, 120);
+  assert.deepEqual(stepTimeouts, [10, 10, 15, 10, 10, 5, 45]);
   assert.ok(stepTimeouts.reduce((total, timeout) => total + timeout, 0) < jobTimeout);
+});
+
+test("daily benchmarks preserve legacy publication without timeline database secrets", () => {
+  const updateJob = dailyBenchmarkWorkflow.match(/\n  update:[\s\S]*?(?=\n  receipt:)/)?.[0] ?? "";
+  const benchmarkStep = updateJob.match(
+    /- name: Update daily benchmark snapshots([\s\S]*?)(?=\n\s{6}- name:)/
+  )?.[1] ?? "";
+  const timelineStep = updateJob.match(
+    /- name: Rebuild database-backed timeline artifacts([\s\S]*?)(?=\n\s{6}- name:)/
+  )?.[1] ?? "";
+
+  assert.doesNotMatch(benchmarkStep, /SUPABASE|TIMELINE_REQUIRE_DATABASE|exit 1/);
+  assert.match(updateJob, /id:\s*timeline_database/);
+  assert.match(updateJob, /configured=false/);
+  assert.match(updateJob, /preserving the last-good public timeline artifacts/);
+  assert.match(timelineStep, /if:\s*steps\.timeline_database\.outputs\.configured == 'true'/);
+  assert.match(timelineStep, /TIMELINE_REQUIRE_DATABASE:\s*"true"/);
+  assert.match(timelineStep, /npm run timeline:backfill/);
+  assert.match(updateJob, /if \[ "\$TIMELINE_DATABASE_CONFIGURED" = "true" \]; then\s*\n\s*benchmark_files\+=\(public\/timelines\)/);
+  assert.match(updateJob, /npm run artifacts:validate/);
+  assert.match(updateJob, /npm run artifacts:manifest:validate/);
 });
 
 test("workflow gates work through the schedule helper and stable key", () => {

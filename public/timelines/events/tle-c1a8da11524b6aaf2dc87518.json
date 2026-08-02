@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-projectx",
+    "slug": "projectx",
+    "name": "ProjectX"
+  },
+  "event": {
+    "id": "tle-c1a8da11524b6aaf2dc87518",
+    "eventDate": "2026-05-28",
+    "eventDateType": "announcement_date",
+    "title": "ProjectX released InfinityOS",
+    "summary": "ProjectX just launched InfinityOS with YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4971bdff4693824c6a1ae356",
+        "title": "We just launched InfinityOS with YC! Run Robotics Sims, 3d modelling tools with as much compute as you want with any gpus that you want ...",
+        "publisher": "runallapps",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-28T04:22:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/runallapps/status/2059852802982396351"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4971bdff4693824c6a1ae356",
+        "title": "We just launched InfinityOS with YC! Run Robotics Sims, 3d modelling tools with as much compute as you want with any gpus that you want ...",
+        "publisher": "runallapps",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-28T04:22:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/runallapps/status/2059852802982396351",
+        "publicationDate": "2026-05-28T04:22:33.000Z",
+        "excerpt": "We just launched InfinityOS with YC! Run Robotics Sims, 3d modelling tools with as much compute as you want with any gpus that you want per app. You can sign up at projectx(.)cloud to test it out.",
+        "sourceEventDate": "2026-05-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2ffcd403805d3228053f4dcd",
+        "platform": "x",
+        "account": "runallapps",
+        "postDate": "2026-05-28",
+        "excerpt": "We just launched InfinityOS with YC! Run Robotics Sims, 3d modelling tools with as much compute as you want with any gpus that you want per app. You can sign up at projectx(.)cloud to test it out.",
+        "url": "https://x.com/runallapps/status/2059852802982396351",
+        "metrics": {
+          "views": 198,
+          "likes": 3,
+          "replies": 3,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

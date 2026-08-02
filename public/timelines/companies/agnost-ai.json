@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-agnost-ai",
+    "slug": "agnost-ai",
+    "name": "Agnost AI"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-7410baa8e85723d72ffa4b3b",
+      "eventDate": "2026-07-14",
+      "eventDateType": "announcement_date",
+      "title": "Agnost AI launched on Hacker News",
+      "summary": "Launch HN: Agnost AI (YC S26) – Extract user feedback from agent conversations.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ef9573034a5b168a90a29be6",
+          "title": "Launch HN: Agnost AI (YC S26) – Extract user feedback from agent conversations",
+          "publisher": "laalshaitaan",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-14T16:06:18Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48908950"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

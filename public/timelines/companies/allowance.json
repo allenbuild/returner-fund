@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-allowance",
+    "slug": "allowance",
+    "name": "Allowance"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-8c9fdd4b376df44e0afcc173",
+      "eventDate": "2026-06-04",
+      "eventDateType": "announcement_date",
+      "title": "Allowance announced its public launch",
+      "summary": "This week, Allowance launched Chat tab.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8ee961f5502bee0435a3c9a8",
+          "title": "This week, Allowance launched Chat tab. No technical set up required to make agentic purchases. Describe what you want to buy, and an AI agent can complete the purchase for you—with spend limits, merchant controls, and approvals built in.…",
+          "publisher": "useallowance",
+          "domain": "instagram.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-04T16:45:40.000Z",
+          "evidenceRole": "primary",
+          "url": "https://instagram.com/reel/DZK6ormuvro"
+        }
+      ]
+    },
+    {
+      "id": "tle-51714c4fb8f1244a5030b571",
+      "eventDate": "2026-06-01",
+      "eventDateType": "announcement_date",
+      "title": "Allowance released Chat tab",
+      "summary": "Allowance introduced Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-795bf6cf71c013edd99fd96d",
+          "title": "Introducing Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat.",
+          "publisher": "Introducing Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat.",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-01T18:27:06.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/dasmersingh/status/2061514893355000219"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

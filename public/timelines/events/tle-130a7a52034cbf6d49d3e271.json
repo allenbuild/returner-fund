@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-whitespace",
+    "slug": "whitespace",
+    "name": "Whitespace"
+  },
+  "event": {
+    "id": "tle-130a7a52034cbf6d49d3e271",
+    "eventDate": "2026-07-15",
+    "eventDateType": "announcement_date",
+    "title": "Whitespace released Whitespace Launch",
+    "summary": "Whitespace Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-45ce294aa65ccbc1b3e7e647",
+        "title": "Whitespace Launch",
+        "publisher": "Whitespace Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-15T16:52:11-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=4UxlKKXrgfI"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-45ce294aa65ccbc1b3e7e647",
+        "title": "Whitespace Launch",
+        "publisher": "Whitespace Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-15T16:52:11-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=4UxlKKXrgfI",
+        "publicationDate": "2026-07-15T16:52:11-07:00",
+        "excerpt": "Whitespace gives wholesale distributors AI agents that learn the business and do work across existing systems. We're already helping customers automate inventory planning, customer service, and order processing. Wholesale distribution is a $60 trillion global industry, yet it still runs largely manually. Staff spend their days on email, spreadsheets, and legacy systems, relying on tribal knowledge in their heads. With Whitespace, wholesale distributors can grow without adding headcount and…",
+        "sourceEventDate": "2026-07-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-931dede220a6409a0b460582",
+        "platform": "youtube",
+        "account": "Whitespace Launch",
+        "postDate": "2026-07-15",
+        "excerpt": "Whitespace gives wholesale distributors AI agents that learn the business and do work across existing systems. We're already helping customers automate inventory planning, customer service, and order processing. Wholesale distribution is a $60 trillion global industry, yet it still runs largely manually. Staff spend their days on email, spreadsheets, and legacy systems, relying on tribal knowledge in their heads. With Whitespace, wholesale distributors can grow without adding headcount and…",
+        "url": "https://youtube.com/watch?v=4UxlKKXrgfI",
+        "metrics": {
+          "views": 159,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

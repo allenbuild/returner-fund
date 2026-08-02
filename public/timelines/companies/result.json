@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-result",
+    "slug": "result",
+    "name": "Result"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-c20a0f16f5d15d8075e4dc26",
+      "eventDate": "2026-05-16",
+      "eventDateType": "announcement_date",
+      "title": "Result released operating system",
+      "summary": "Result reported announcing The operating system for the next generation of internet companies.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-bc3b7765ce5d4895220a91a9",
+          "title": "Announcing http://Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and gro...",
+          "publisher": "saviomartin7",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-16T16:30:30.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/saviomartin7/status/2055687342812488107"
+        }
+      ]
+    },
+    {
+      "id": "tle-03198c14d382f9fd6749a6ab",
+      "eventDate": "2026-05-15",
+      "eventDateType": "announcement_date",
+      "title": "Result was accepted into Y Combinator",
+      "summary": "Result got into Y Combinator (P26) After scaling SimpleClaw to $40k MRR in <3 weeks, we learnt what our users were trying to accomplish - build companies with agents.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 3,
+      "sourcePreview": [
+        {
+          "id": "src-3459dc54fa8adb76e487a123",
+          "title": "We got into Y Combinator (P26) After scaling SimpleClaw to $40k MRR in <3 weeks, we learnt what our users were trying to accomplish - bu...",
+          "publisher": "saviomartin7",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-15T17:40:38.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/saviomartin7/status/2055342607753203731"
+        },
+        {
+          "id": "src-584e2b4fa8b357ace76c9895",
+          "title": "We got into Y Combinator P26 as some of the youngest Indians ever to get in.",
+          "publisher": "aaryan-kushwah",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-15T17:49:52.462Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/aaryan-kushwah_we-got-into-y-combinator-p26-as-some-of-the-activity-7461110619740487681-qQOY"
+        },
+        {
+          "id": "src-e5ddd6fc10ea111dcd982b41",
+          "title": "We got into Y Combinator (P26).",
+          "publisher": "saviomartin",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-15T17:50:20.409Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-datoric",
+    "slug": "datoric",
+    "name": "Datoric"
+  },
+  "event": {
+    "id": "tle-918c4e6f03f771b86df3da90",
+    "eventDate": "2026-07-28",
+    "eventDateType": "announcement_date",
+    "title": "Datoric released Datoric Launch",
+    "summary": "Datoric Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1c300c431702d079b6ab83bb",
+        "title": "Datoric Launch",
+        "publisher": "Datoric Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-28T12:21:30-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=GXuyd2PfsAY"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1c300c431702d079b6ab83bb",
+        "title": "Datoric Launch",
+        "publisher": "Datoric Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-28T12:21:30-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=GXuyd2PfsAY",
+        "publicationDate": "2026-07-28T12:21:30-07:00",
+        "excerpt": "Embedded in the official Datoric YC company page.",
+        "sourceEventDate": "2026-07-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-fdf6b0d0090ffc8073717e64",
+        "platform": "youtube",
+        "account": "Datoric Launch",
+        "postDate": "2026-07-28",
+        "excerpt": "Embedded in the official Datoric YC company page.",
+        "url": "https://youtube.com/watch?v=GXuyd2PfsAY",
+        "metrics": {
+          "views": 26,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

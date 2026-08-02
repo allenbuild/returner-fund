@@ -387,7 +387,11 @@ npm run build
 npm run benchmarks:daily -- --port=3100
 
 # Use an already-running graph API instead of starting the production server.
-GRAPH_API_BASE_URL=http://127.0.0.1:3120 npm run benchmarks:daily
+# GRAPH_DIAGNOSTICS_SECRET must equal that server's ADMIN_INGESTION_SECRET or
+# REFRESH_SECRET. A loopback server may instead share a per-run
+# GRAPH_PUBLICATION_BUILD_TOKEN with this command.
+GRAPH_API_BASE_URL=http://127.0.0.1:3120 \
+  GRAPH_DIAGNOSTICS_SECRET=<server-secret> npm run benchmarks:daily
 
 # Frozen, network-disabled v4 recomputation/diagnostics. Writes only the two
 # files under docs/outputs named by the script.

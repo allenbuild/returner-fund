@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-verdant",
+    "slug": "verdant",
+    "name": "Verdant"
+  },
+  "event": {
+    "id": "tle-a7ff16c5f6838419c90243ec",
+    "eventDate": "2026-06-30",
+    "eventDateType": "announcement_date",
+    "title": "Verdant was accepted into Y Combinator",
+    "summary": "share that Verdant has been accepted into Y Combinator for the Summer 26 batch.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-eb6ad5b0d5620c5ebafeabae",
+        "title": "Excited to share that Verdant has been accepted into Y Combinator for the Summer 26 batch!",
+        "publisher": "jason-yi1",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-30T01:05:40.056Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-eb6ad5b0d5620c5ebafeabae",
+        "title": "Excited to share that Verdant has been accepted into Y Combinator for the Summer 26 batch!",
+        "publisher": "jason-yi1",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-30T01:05:40.056Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg",
+        "publicationDate": "2026-06-30T01:05:40.056Z",
+        "excerpt": "Excited to share that Verdant has been accepted into Y Combinator for the Summer 26 batch! The founder names Verdant, Summer 26, cofounder Aidan Ng, and their planning and permitting software. The YC S26 roster lists Jason Yi as a Verdant founder. The founder names Verdant, Summer 26, cofounder Aidan Ng, and their planning and permitting software.",
+        "sourceEventDate": "2026-06-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5786c8afacbb10d14ba23883",
+        "platform": "linkedin",
+        "account": "jason-yi1",
+        "postDate": "2026-06-30",
+        "excerpt": "Excited to share that Verdant has been accepted into Y Combinator for the Summer 26 batch! The founder names Verdant, Summer 26, cofounder Aidan Ng, and their planning and permitting software. The YC S26 roster lists Jason Yi as a Verdant founder. The founder names Verdant, Summer 26, cofounder Aidan Ng, and their planning and permitting software.",
+        "url": "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg",
+        "metrics": {
+          "reactions": 401,
+          "comments": 91
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-conifer",
+    "slug": "conifer",
+    "name": "Conifer"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-4785581ab00c0baf9787c3c4",
+      "eventDate": "2026-07-15",
+      "eventDateType": "announcement_date",
+      "title": "Conifer released Juniper",
+      "summary": "Conifer just launched Juniper.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-83de38b4a9b781289db55b34",
+          "title": "We just launched Juniper! Try it at http://conifer.build",
+          "publisher": "charles_v11",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-15T23:01:57.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/charles_v11/status/2077529127796498840"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-bentolabs-ai",
+    "slug": "bentolabs-ai",
+    "name": "BentoLabs AI"
+  },
+  "event": {
+    "id": "tle-582cc743bc7fb59607a6f6a9",
+    "eventDate": "2026-06-01",
+    "eventDateType": "announcement_date",
+    "title": "BentoLabs AI launched on Y Combinator",
+    "summary": "BentoLabs AI is live on @ycombinator .",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-aaad26a0c12255349afa55a1",
+        "title": "We are live on @ycombinator ! Building the monitoring and learning layer for long-running agents. Quote Y Combinator @ycombinator · Jun 1 .@BentoLabsAI is the monitoring and learning layer for long-running agents. Their learning layer…",
+        "publisher": "BentoLabsAI X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/BentoLabsAI/status/2061421239378591870"
+      },
+      {
+        "id": "src-11617e416ec46aff5bcf7a1a",
+        "title": "Bentolabs AI Launch Video",
+        "publisher": "Bentolabs AI Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-30T19:46:02-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=nu6Oir3OGSM"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-aaad26a0c12255349afa55a1",
+        "title": "We are live on @ycombinator ! Building the monitoring and learning layer for long-running agents. Quote Y Combinator @ycombinator · Jun 1 .@BentoLabsAI is the monitoring and learning layer for long-running agents. Their learning layer…",
+        "publisher": "BentoLabsAI X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/BentoLabsAI/status/2061421239378591870",
+        "publicationDate": "2026-06-01T00:00:00.000Z",
+        "excerpt": "We are live on @ycombinator ! Building the monitoring and learning layer for long-running agents. Quote Y Combinator @ycombinator · Jun 1 .@BentoLabsAI is the monitoring and learning layer for long-running agents. Their learning layer gives agents model-jump gains: Sonnet 4.5 went 42.2%→52.4% on TB2 (Internal). Congrats on the launch, @Abhinavv_soni & @kacppian! https:// ycombinator.com/launches/Qcw-b entolabs-ai-monitoring-and-learning-layer-for-long-running-agents ... 0:12 / 1:58",
+        "sourceEventDate": "2026-06-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-11617e416ec46aff5bcf7a1a",
+        "title": "Bentolabs AI Launch Video",
+        "publisher": "Bentolabs AI Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-30T19:46:02-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=nu6Oir3OGSM",
+        "publicationDate": "2026-05-30T19:46:02-07:00",
+        "excerpt": "Embedded in the official BentoLabs AI YC company page.",
+        "sourceEventDate": "2026-06-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4d6512ab1e4bb3125df45a33",
+        "platform": "x",
+        "account": "BentoLabsAI X post",
+        "postDate": "2026-06-01",
+        "excerpt": "We are live on @ycombinator ! Building the monitoring and learning layer for long-running agents. Quote Y Combinator @ycombinator · Jun 1 .@BentoLabsAI is the monitoring and learning layer for long-running agents. Their learning layer gives agents model-jump gains: Sonnet 4.5 went 42.2%→52.4% on TB2 (Internal). Congrats on the launch, @Abhinavv_soni & @kacppian! https:// ycombinator.com/launches/Qcw-b entolabs-ai-monitoring-and-learning-layer-for-long-running-agents ... 0:12 / 1:58",
+        "url": "https://x.com/BentoLabsAI/status/2061421239378591870",
+        "metrics": {
+          "likes": 10,
+          "reposts": 1,
+          "views": 985
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-4f27928db971b1f77c0cf12e",
+        "platform": "youtube",
+        "account": "Bentolabs AI Launch Video",
+        "postDate": "2026-06-01",
+        "excerpt": "Embedded in the official BentoLabs AI YC company page.",
+        "url": "https://youtube.com/watch?v=nu6Oir3OGSM",
+        "metrics": {
+          "views": 176,
+          "likes": 5,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

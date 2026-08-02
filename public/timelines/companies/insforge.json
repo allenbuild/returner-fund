@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-ec10341e516973989f23fe12",
+      "eventDate": "2026-07-15",
+      "eventDateType": "occurrence_date",
+      "title": "InsForge launched Backend Branching on Product Hunt",
+      "summary": "InsForge Backend Branching.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-bf9adde99e349fa39acfda53",
+          "title": "InsForge Backend Branching",
+          "publisher": "InsForge",
+          "domain": "producthunt.com",
+          "sourceType": "product_hunt",
+          "publishedAt": "2026-07-15T22:30:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-backend-branching"
+        }
+      ]
+    },
+    {
+      "id": "tle-e7a8400e04c470e1fb36ec36",
+      "eventDate": "2026-07-15",
+      "eventDateType": "occurrence_date",
+      "title": "InsForge launched on Product Hunt",
+      "summary": "InsForge - Give agents everything they need to ship fullstack apps.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-cd99d78a242cad3f8e24e4f8",
+          "title": "InsForge YC Launch Video",
+          "publisher": "InsForge YC Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-18T00:05:55-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=7Bax5qz0IfM"
+        },
+        {
+          "id": "src-00c9dfe1e52710ecc1f638de",
+          "title": "InsForge - Give agents everything they need to ship fullstack apps",
+          "publisher": "InsForge",
+          "domain": "producthunt.com",
+          "sourceType": "product_hunt",
+          "publishedAt": "2026-07-15T22:30:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

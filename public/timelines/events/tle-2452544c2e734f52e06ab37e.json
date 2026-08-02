@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-manicule",
+    "slug": "manicule",
+    "name": "Manicule"
+  },
+  "event": {
+    "id": "tle-2452544c2e734f52e06ab37e",
+    "eventDate": "2026-05-12",
+    "eventDateType": "announcement_date",
+    "title": "Manicule launched on Y Combinator",
+    "summary": "Manicule Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b1f99e1fdc50fcfd18bebb31",
+        "title": "Manicule Launch YC",
+        "publisher": "Manicule Launch YC",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-11T17:38:03-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=JIHAMiuHLls"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b1f99e1fdc50fcfd18bebb31",
+        "title": "Manicule Launch YC",
+        "publisher": "Manicule Launch YC",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-11T17:38:03-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=JIHAMiuHLls",
+        "publicationDate": "2026-05-11T17:38:03-07:00",
+        "excerpt": "Embedded in the official Manicule YC company page.",
+        "sourceEventDate": "2026-05-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9d98c64a8bf30a056af810ae",
+        "platform": "youtube",
+        "account": "Manicule Launch YC",
+        "postDate": "2026-05-12",
+        "excerpt": "Embedded in the official Manicule YC company page.",
+        "url": "https://youtube.com/watch?v=JIHAMiuHLls",
+        "metrics": {
+          "views": 114,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-avea-robotics",
+    "slug": "avea-robotics",
+    "name": "Avea Robotics"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-7212ec7837843ff86cd96a48",
+      "eventDate": "2026-05-26",
+      "eventDateType": "announcement_date",
+      "title": "Avea Robotics announced a product update",
+      "summary": "Avea Robotics just shipped a crazy update to Sentinel- we doubled the quality of video without affecting latency.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2f239b7f08db1e50250a15da",
+          "title": "We just shipped a crazy update to Sentinel- we doubled the quality of video without affecting latency. This is teleoperation from ~2k miles away. Scaling teleop is now possible @AveaRobotics",
+          "publisher": "aryind_ X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-26T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/aryind_/status/2059303554754707569"
+        }
+      ]
+    },
+    {
+      "id": "tle-802f45493d6775b7a5f16da8",
+      "eventDate": "2026-05-19",
+      "eventDateType": "announcement_date",
+      "title": "Avea Robotics launched Sentinel",
+      "summary": "Avea Robotics introduced Sentinel in a dated launch video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7d22b301fcf245d3d75abf1f",
+          "title": "Sentinel Launch Video",
+          "publisher": "Sentinel Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-19T15:42:29-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=dKEbWlZocJQ"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

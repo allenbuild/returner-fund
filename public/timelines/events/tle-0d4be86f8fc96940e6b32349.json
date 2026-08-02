@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-screenpipe",
+    "slug": "screenpipe",
+    "name": "screenpipe"
+  },
+  "event": {
+    "id": "tle-0d4be86f8fc96940e6b32349",
+    "eventDate": "2026-05-18",
+    "eventDateType": "announcement_date",
+    "title": "screenpipe was accepted into Y Combinator S26",
+    "summary": "Louis Beaumont screenpipe got into YC S26 post.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-56b4aa9b5d60bcbf0e23e1b9",
+        "title": "Louis Beaumont screenpipe got into YC S26 post",
+        "publisher": "louis030195",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-18T13:03:26.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/louis030195/status/2056360011631313167"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-56b4aa9b5d60bcbf0e23e1b9",
+        "title": "Louis Beaumont screenpipe got into YC S26 post",
+        "publisher": "louis030195",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-18T13:03:26.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/louis030195/status/2056360011631313167",
+        "publicationDate": "2026-05-18T13:03:26.000Z",
+        "excerpt": "Founder post says @screenpipe got into YC S26 and describes screenpipe as AI that already knows what you are working on.",
+        "sourceEventDate": "2026-05-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a86fe919f9d26f79ba1b46f0",
+        "platform": "x",
+        "account": "louis030195",
+        "postDate": "2026-05-18",
+        "excerpt": "Founder post says @screenpipe got into YC S26 and describes screenpipe as AI that already knows what you are working on.",
+        "url": "https://x.com/louis030195/status/2056360011631313167",
+        "metrics": {
+          "views": 12876,
+          "likes": 60,
+          "replies": 22,
+          "reposts": 3,
+          "quotes": 3,
+          "bookmarks": 4,
+          "comments": 22,
+          "saves": 4
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

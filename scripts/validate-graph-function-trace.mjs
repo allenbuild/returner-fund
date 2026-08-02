@@ -8,6 +8,40 @@ const MAX_FULL_GRAPH_TRACE_BYTES = 140 * MEBIBYTE;
 // The 52-company S26 census expansion increases only those bounded artifacts,
 // so retain a separate ceiling while staying well below the deployment limit.
 const MAX_REFRESH_TRACE_BYTES = 150 * MEBIBYTE;
+const GRAPH_RUNTIME_PROJECTIONS = [
+  "generated-runtime/graph/public-evidence-current.json",
+  "generated-runtime/graph/logged-in-evidence-current.json",
+  "generated-runtime/graph/targeted-evidence-current.json"
+];
+const WHOLE_REPOSITORY_TRACE_FRAGMENTS = [
+  `${normalize("/artifacts/")}`,
+  `${normalize("/docs/")}`,
+  `${normalize("/public/timelines/")}`,
+  `${normalize("/scripts/")}`,
+  `${normalize("/supabase/")}`,
+  `${normalize("/tests/")}`,
+  `${normalize("/work/")}`,
+  `${normalize("/next.config.mjs")}`
+];
+const RAW_EVIDENCE_FRAGMENTS = [
+  `${normalize("/src/lib/social/public-evidence-current.json")}`,
+  `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
+  `${normalize("/src/lib/social/targeted-evidence-current.json")}`
+];
+const debugRouteTraces = [
+  "duplicates",
+  "evidence",
+  "instagram-coverage",
+  "scoring",
+  "thumbnails",
+  "workers"
+].map((route) => ({
+  label: `debug ${route}`,
+  manifest: `.next/server/app/debug/${route}/page.js.nft.json`,
+  maxBytes: 65 * MEBIBYTE,
+  required: GRAPH_RUNTIME_PROJECTIONS,
+  forbidden: [...WHOLE_REPOSITORY_TRACE_FRAGMENTS, ...RAW_EVIDENCE_FRAGMENTS]
+}));
 const routeTraces = [
   {
     label: "graph",
@@ -34,19 +68,21 @@ const routeTraces = [
     label: "full graph diagnostics",
     manifest: ".next/server/app/api/graph/full/route.js.nft.json",
     maxBytes: MAX_FULL_GRAPH_TRACE_BYTES,
+    required: GRAPH_RUNTIME_PROJECTIONS,
     forbidden: [
       `${normalize("/public/graph/")}`,
-      `${normalize("/src/lib/social/public-evidence-current.json")}`,
-      `${normalize("/src/lib/social/logged-in-evidence-current.json")}`
+      ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
+      ...RAW_EVIDENCE_FRAGMENTS
     ]
   },
   {
     label: "graph refresh",
     manifest: ".next/server/app/api/graph/refresh/route.js.nft.json",
     maxBytes: MAX_REFRESH_TRACE_BYTES,
+    required: GRAPH_RUNTIME_PROJECTIONS,
     forbidden: [
-      `${normalize("/src/lib/social/public-evidence-current.json")}`,
-      `${normalize("/src/lib/social/logged-in-evidence-current.json")}`
+      ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
+      ...RAW_EVIDENCE_FRAGMENTS
     ]
   },
   {
@@ -66,7 +102,21 @@ const routeTraces = [
       `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
       `${normalize("/src/lib/social/targeted-evidence-current.json")}`
     ]
-  }
+  },
+  {
+    label: "admin ingestion diagnostics",
+    manifest: ".next/server/app/api/admin/ingestion/route.js.nft.json",
+    maxBytes: 12 * MEBIBYTE,
+    required: [],
+    forbidden: [
+      ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
+      ...RAW_EVIDENCE_FRAGMENTS,
+      `${normalize("/generated-runtime/")}`,
+      `${normalize("/outputs/")}`,
+      `${normalize("/public/graph/")}`
+    ]
+  },
+  ...debugRouteTraces
 ];
 
 let failed = false;
@@ -107,7 +157,7 @@ for (const route of routeTraces) {
   }
   if (forbiddenFiles.length) {
     console.error(
-      `${route.label} trace contains oversized runtime artifacts:\n${forbiddenFiles.join("\n")}`
+      `${route.label} trace contains forbidden runtime artifacts:\n${forbiddenFiles.join("\n")}`
     );
     failed = true;
   }

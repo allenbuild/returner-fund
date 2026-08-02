@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-00aa21008c1af07b506db315",
+    "eventDate": "2026-07-12",
+    "eventDateType": "announcement_date",
+    "title": "Ara released in Slack",
+    "summary": "Ara launched in Slack.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-93d2a8db0b765e601dcfa58d",
+        "title": "Ara launched in Slack",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-12",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2076339955148992764"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-93d2a8db0b765e601dcfa58d",
+        "title": "Ara launched in Slack",
+        "publisher": "aradotso",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-12",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2076339955148992764",
+        "publicationDate": "2026-07-12",
+        "excerpt": "Ara launched in Slack",
+        "sourceEventDate": "2026-07-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-59f3b98fec2231402ab77022",
+        "platform": "x",
+        "account": "aradotso",
+        "postDate": "2026-07-12",
+        "excerpt": "Ara launched in Slack",
+        "url": "https://x.com/aradotso/status/2076339955148992764",
+        "metrics": {
+          "views": 33240,
+          "likes": 177,
+          "replies": 10,
+          "reposts": 39
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

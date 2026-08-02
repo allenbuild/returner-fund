@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-rudus",
+    "slug": "rudus",
+    "name": "Rudus"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-b866c7050cdf152cc0eed5d4",
+      "eventDate": "2026-06-02",
+      "eventDateType": "announcement_date",
+      "title": "Rudus launched on Hacker News",
+      "summary": "Launch HN: Rudus (YC P26) – AI for concrete contractors.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-557d149438550095d6b3ca80",
+          "title": "Launch HN: Rudus (YC P26) – AI for concrete contractors",
+          "publisher": "rishipankhaniya",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-02T18:51:09Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48374528"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

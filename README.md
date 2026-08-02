@@ -36,6 +36,18 @@ Open `http://localhost:3000`.
 - `npm run test` runs Vitest.
 - `npm run build` builds the app.
 - `npm run check` runs typecheck, tests, and build.
+- `npm run timeline:backfill:dry-run` previews the canonical all-company timeline backfill.
+- `npm run timeline:backfill` resumes the evidence-backed timeline backfill and rebuilds public artifacts.
+- `npm run timeline:discover:public` advances the bounded database-free official-site, institutional, archive, and optional public-search discovery cache.
+- `npm run timeline:validate` verifies inventory coverage, exact dates, evidence, hashes, chronology, and payload bounds.
+- `npm run timeline:audit` runs the deterministic company/event quality sample.
+- `npm run timeline:benchmark -- --base-url=http://127.0.0.1:3000` measures cold/warm timeline APIs.
+
+## Company Timeline
+
+Every company panel includes a URL-backed Posts/Timeline switch. Public timeline requests read only prebuilt, versioned artifacts; crawling, search, clustering, and classification stay off the request path. Each published event requires a direct public source and an evidence-supported exact date. Search snippets are discovery leads only, unresolved candidates remain private, and companies with no qualifying evidence still receive an explicit terminal coverage record instead of fabricated filler.
+
+The additive schema and attribution hardening are in migrations `017` through `020` under `supabase/migrations/`; apply them in numerical order. Product, evidence, security, backfill, admin, recovery, and performance operations are documented in `docs/company-timeline.md`.
 
 ## Agent Reach
 
@@ -90,6 +102,9 @@ Optional tooling/API variables:
 - `REDDIT_CLIENT_SECRET`
 - `REDDIT_USER_AGENT`
 - `EXA_API_KEY`
+- `BRAVE_SEARCH_API_KEY`
+- `SERPER_API_KEY`
+- `TAVILY_API_KEY`
 - `YOUTUBE_COOKIES_PATH`
 - `PLATFORM_COOKIES_PATH`
 

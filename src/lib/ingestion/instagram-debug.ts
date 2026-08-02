@@ -1,4 +1,4 @@
-import type { EvidenceItem, GraphResponse, NeedsReviewItem, Platform } from "@/lib/graph/types";
+import type { EvidenceItem, GraphResponse } from "@/lib/graph/types";
 
 export interface RawInstagramSnapshotCompany {
   slug: string;
@@ -8,29 +8,6 @@ export interface RawInstagramSnapshotCompany {
   founders?: Array<{
     name: string;
     socialLinks?: Record<string, string | null | undefined>;
-  }>;
-}
-
-export interface RawInstagramEvidenceSnapshot {
-  evidence?: Array<Record<string, unknown> & {
-    companySlug?: string;
-    companyName?: string;
-    review_state?: string;
-    thumbnailUrl?: string | null;
-    thumbnailSource?: string | null;
-  }>;
-  needsReview?: Array<Record<string, unknown> & {
-    companySlug?: string;
-    companyName?: string;
-    review_state?: string;
-  }>;
-  failures?: Array<{
-    companySlug?: string;
-    companyName?: string;
-    platform?: Platform | string;
-    message?: string;
-    failureReason?: string;
-    url?: string | null;
   }>;
 }
 
@@ -132,7 +109,6 @@ export function buildInstagramCoverageReport(input: {
   graph: GraphResponse;
   companies: RawInstagramSnapshotCompany[];
   overrides: RawInstagramOverrides;
-  snapshots: RawInstagramEvidenceSnapshot[];
   discovery?: RawInstagramDiscoveryReport | null;
 }): InstagramCoverageReport {
   const evidence = input.graph.evidence.filter((item) => item.platform === "instagram");

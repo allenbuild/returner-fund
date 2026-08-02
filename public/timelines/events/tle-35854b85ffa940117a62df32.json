@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-almanac",
+    "slug": "almanac",
+    "name": "Almanac"
+  },
+  "event": {
+    "id": "tle-35854b85ffa940117a62df32",
+    "eventDate": "2026-03-16",
+    "eventDateType": "announcement_date",
+    "title": "Almanac enabled Monday update: you to edit articles directly on OpenAlmanac using Quill",
+    "summary": "Almanac reported monday update:, so users can now edit articles directly on OpenAlmanac using Quill.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-133695894bdfa3ad568077e7",
+        "title": "Monday update: you can now edit articles directly on OpenAlmanac using Quill.",
+        "publisher": "usealmanac",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-16T23:55:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/usealmanac/status/2033693731552170192"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-133695894bdfa3ad568077e7",
+        "title": "Monday update: you can now edit articles directly on OpenAlmanac using Quill.",
+        "publisher": "usealmanac",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-03-16T23:55:44.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/usealmanac/status/2033693731552170192",
+        "publicationDate": "2026-03-16T23:55:44.000Z",
+        "excerpt": "Monday update: you can now edit articles directly on OpenAlmanac using Quill.",
+        "sourceEventDate": "2026-03-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e0030817999320df9953bdef",
+        "platform": "x",
+        "account": "usealmanac",
+        "postDate": "2026-03-16",
+        "excerpt": "Monday update: you can now edit articles directly on OpenAlmanac using Quill.",
+        "url": "https://x.com/usealmanac/status/2033693731552170192",
+        "metrics": {
+          "views": 1575,
+          "likes": 7,
+          "replies": 3,
+          "reposts": 1,
+          "quotes": 1,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

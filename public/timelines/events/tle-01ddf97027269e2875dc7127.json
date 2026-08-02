@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-archer",
+    "slug": "archer",
+    "name": "Archer"
+  },
+  "event": {
+    "id": "tle-01ddf97027269e2875dc7127",
+    "eventDate": "2026-05-19",
+    "eventDateType": "announcement_date",
+    "title": "Archer launched on Y Combinator",
+    "summary": "Archer just launched on @ycombinator 's Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-670898f025e35e94faa1d4a9",
+        "title": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
+        "publisher": "VivekYanamadula X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/VivekYanamadula/status/2056782680235413703"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-670898f025e35e94faa1d4a9",
+        "title": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
+        "publisher": "VivekYanamadula X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/VivekYanamadula/status/2056782680235413703",
+        "publicationDate": "2026-05-19T00:00:00.000Z",
+        "excerpt": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
+        "sourceEventDate": "2026-05-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-abfe48876fde2495b7ed9ef2",
+        "platform": "x",
+        "account": "VivekYanamadula X post",
+        "postDate": "2026-05-19",
+        "excerpt": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
+        "url": "https://x.com/VivekYanamadula/status/2056782680235413703",
+        "metrics": {
+          "likes": 5,
+          "reposts": 0,
+          "comments": 0,
+          "views": 57
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

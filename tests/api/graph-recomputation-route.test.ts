@@ -7,6 +7,7 @@ const HEAVY_GRAPH_TEST_TIMEOUT_MS = 90_000;
 
 describe("GET /api/graph recomputation order", () => {
   afterEach(() => {
+    vi.unstubAllEnvs();
     vi.doUnmock("@/lib/graph/yc-spring-2026-dataset");
     vi.doUnmock("@/lib/ingestion/live-source-refresh");
     vi.doUnmock("@/lib/social/user-insiders-server");
@@ -39,6 +40,44 @@ describe("GET /api/graph recomputation order", () => {
       error: { code: "diagnostic_flags_required" }
     });
     expect(accidentalDirectCall.status).toBe(400);
+
+    const publicationToken = "test-publication-token-with-sufficient-entropy";
+    vi.stubEnv("GRAPH_PUBLICATION_BUILD_TOKEN", publicationToken);
+    const publicationResponse = await GET(new Request(
+      "http://localhost/api/graph/full?batch=S2026",
+      { headers: { "x-returner-publication-build": publicationToken } }
+    ));
+    expect(publicationResponse.status).toBe(200);
+    await expect(publicationResponse.json()).resolves.toMatchObject({
+      batch: { slug: "S2026" },
+      scoringContext: { scoreScope: "all_platforms" }
+    });
+
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL", "");
+    vi.stubEnv("ADMIN_INGESTION_SECRET", "");
+    vi.stubEnv("REFRESH_SECRET", "");
+    const staticHeaderResponse = await GET(new Request(
+      "http://127.0.0.1/api/graph/full?batch=S2026",
+      { headers: { "x-returner-publication-build": "1" } }
+    ));
+    expect(staticHeaderResponse.status).toBe(503);
+
+    const productionPublicationResponse = await GET(new Request(
+      "http://127.0.0.1/api/graph/full?batch=S2026",
+      { headers: { "x-returner-publication-build": publicationToken } }
+    ));
+    expect(productionPublicationResponse.status).toBe(200);
+
+    const spoofedHostResponse = await GET(new Request(
+      "http://publisher.example/api/graph/full?batch=S2026",
+      { headers: {
+        host: "127.0.0.1",
+        "x-returner-publication-build": publicationToken
+      } }
+    ));
+    expect(spoofedHostResponse.status).toBe(503);
+    vi.unstubAllEnvs();
 
     const full = await graphResponse(GET, "http://localhost/api/graph?batch=S2026");
     const industry = await graphResponse(

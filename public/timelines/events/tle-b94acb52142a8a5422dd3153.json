@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-machine0",
+    "slug": "machine0",
+    "name": "machine0"
+  },
+  "event": {
+    "id": "tle-b94acb52142a8a5422dd3153",
+    "eventDate": "2026-07-01",
+    "eventDateType": "announcement_date",
+    "title": "machine0 released Environments",
+    "summary": "machine0 just launched Environments, which allows you to inject variables into VMs at creation time.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1479e87fa2b632542882b882",
+        "title": "We just launched Environments, which allows you to inject variables into VMs at creation time.",
+        "publisher": "We just launched Environments, which allows you to inject variables into VMs at creation time.",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-01T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/machine__0/status/2072344325686755678"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1479e87fa2b632542882b882",
+        "title": "We just launched Environments, which allows you to inject variables into VMs at creation time.",
+        "publisher": "We just launched Environments, which allows you to inject variables into VMs at creation time.",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-01T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/machine__0/status/2072344325686755678",
+        "publicationDate": "2026-07-01T00:00:00.000Z",
+        "excerpt": "We just launched Environments, which allows you to inject variables into VMs at creation time. Profiles - [ m0 ] DOCUMENTATION From docs.machine0.io",
+        "sourceEventDate": "2026-07-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a5413d00c0c68d833edee988",
+        "platform": "x",
+        "account": null,
+        "postDate": "2026-07-01",
+        "excerpt": "We just launched Environments, which allows you to inject variables into VMs at creation time. Profiles - [ m0 ] DOCUMENTATION From docs.machine0.io",
+        "url": "https://x.com/machine__0/status/2072344325686755678",
+        "metrics": {
+          "likes": 3,
+          "reposts": 1,
+          "comments": 0,
+          "views": 200
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

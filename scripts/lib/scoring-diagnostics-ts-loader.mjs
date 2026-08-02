@@ -8,6 +8,12 @@ const A16Z_DATASET_PATH = path.join(REPOSITORY_ROOT, "src", "lib", "graph", "a16
 const RESOLUTION_SUFFIXES = ["", ".ts", ".tsx", ".js", ".mjs", ".json"];
 
 export async function resolve(specifier, context, nextResolve) {
+  // Next's compile-time server boundary marker has no runtime payload. Node
+  // ingestion CLIs execute the same server-only modules outside Next, so map
+  // the marker to an inert module while retaining it for application builds.
+  if (specifier === "server-only") {
+    return { url: "data:text/javascript,export%20default%20undefined%3B", shortCircuit: true };
+  }
   const candidate = localCandidate(specifier, context.parentURL);
   if (!candidate) {
     return nextResolve(specifier, context);

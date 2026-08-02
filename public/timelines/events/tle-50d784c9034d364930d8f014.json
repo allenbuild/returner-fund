@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-coasty",
+    "slug": "coasty",
+    "name": "Coasty"
+  },
+  "event": {
+    "id": "tle-50d784c9034d364930d8f014",
+    "eventDate": "2026-02-19",
+    "eventDateType": "announcement_date",
+    "title": "Coasty was introduced",
+    "summary": "Coasty introduced Coasty, A State-Of-The-Art Computer Using Agent.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-3376b34785a226b253b3793f",
+        "title": "Introducing Coasty, A State-Of-The-Art Computer Using Agent. Run agents without worrying about them deleting files or installing malware, in an Isolated Virtual Machine on our platform. No Session Limits. Starting at $19.99 a month. 0:01…",
+        "publisher": "coastyai X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-19T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/coastyai/status/2024558453063028745"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3376b34785a226b253b3793f",
+        "title": "Introducing Coasty, A State-Of-The-Art Computer Using Agent. Run agents without worrying about them deleting files or installing malware, in an Isolated Virtual Machine on our platform. No Session Limits. Starting at $19.99 a month. 0:01…",
+        "publisher": "coastyai X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-19T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/coastyai/status/2024558453063028745",
+        "publicationDate": "2026-02-19T00:00:00.000Z",
+        "excerpt": "Introducing Coasty, A State-Of-The-Art Computer Using Agent. Run agents without worrying about them deleting files or installing malware, in an Isolated Virtual Machine on our platform. No Session Limits. Starting at $19.99 a month. 0:01 / 0:34",
+        "sourceEventDate": "2026-02-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a7a019cf117a1b52ac034e48",
+        "platform": "x",
+        "account": "coastyai X post",
+        "postDate": "2026-02-19",
+        "excerpt": "Introducing Coasty, A State-Of-The-Art Computer Using Agent. Run agents without worrying about them deleting files or installing malware, in an Isolated Virtual Machine on our platform. No Session Limits. Starting at $19.99 a month. 0:01 / 0:34",
+        "url": "https://x.com/coastyai/status/2024558453063028745",
+        "metrics": {
+          "likes": 7,
+          "reposts": 5,
+          "comments": 8,
+          "views": 1761
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

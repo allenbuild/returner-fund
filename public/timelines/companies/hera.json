@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-manufacturingintelligence",
+    "slug": "hera",
+    "name": "HERA"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-fcf5c2694860f6a90ab78d8c",
+      "eventDate": "2026-07-14",
+      "eventDateType": "announcement_date",
+      "title": "HERA released Today we're launching Hera",
+      "summary": "HERA announced it was launching Hera.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2fef4094318e6ad5f6efda03",
+          "title": "Today we're launching Hera",
+          "publisher": "HERA",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-14T00:42:55.545Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/heraengineer_today-were-launching-hera-engineering-activity-7482595451624505344-ccd1"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

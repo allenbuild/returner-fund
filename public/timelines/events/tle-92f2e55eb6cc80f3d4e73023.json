@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-saffron",
+    "slug": "saffron",
+    "name": "Saffron"
+  },
+  "event": {
+    "id": "tle-92f2e55eb6cc80f3d4e73023",
+    "eventDate": "2026-04-28",
+    "eventDateType": "announcement_date",
+    "title": "Saffron was introduced",
+    "summary": "Saffron introduced Saffron.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-69719adf292d39a46a17c57c",
+        "title": "Introducing Saffron",
+        "publisher": "Introducing Saffron",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-28T11:56:24-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=pJHXqTKKMRQ"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-69719adf292d39a46a17c57c",
+        "title": "Introducing Saffron",
+        "publisher": "Introducing Saffron",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-28T11:56:24-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=pJHXqTKKMRQ",
+        "publicationDate": "2026-04-28T11:56:24-07:00",
+        "excerpt": "Saffron gives candidates a real codebase and ability to use any AI tooling they'd use on the job. We capture every prompt, diff, and decision in a sandboxed environment that gets scored automatically. Teams can now get structured metrics on how candidates actually build, not just whether the final output compiles. Book an onboarding call here: www.trysaffron.ai",
+        "sourceEventDate": "2026-04-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1385e2e4cfe958c7f4ca0cfb",
+        "platform": "youtube",
+        "account": "Introducing Saffron",
+        "postDate": "2026-04-28",
+        "excerpt": "Saffron gives candidates a real codebase and ability to use any AI tooling they'd use on the job. We capture every prompt, diff, and decision in a sandboxed environment that gets scored automatically. Teams can now get structured metrics on how candidates actually build, not just whether the final output compiles. Book an onboarding call here: www.trysaffron.ai",
+        "url": "https://youtube.com/watch?v=pJHXqTKKMRQ",
+        "metrics": {
+          "views": 2063,
+          "likes": 13,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

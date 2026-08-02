@@ -1,0 +1,141 @@
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, relative } from "node:path";
+import { spawnSync } from "node:child_process";
+import { describe, expect, it } from "vitest";
+
+const validatorPath = join(process.cwd(), "scripts/validate-graph-function-trace.mjs");
+const graphRuntimeProjections = [
+  "generated-runtime/graph/public-evidence-current.json",
+  "generated-runtime/graph/logged-in-evidence-current.json",
+  "generated-runtime/graph/targeted-evidence-current.json"
+];
+const publishedGraphSnapshots = [
+  "public/graph/s2026.json",
+  "public/graph/s2026-yc-partners.json",
+  "public/graph/s2026-insiders.json",
+  "public/graph/s26.json",
+  "public/graph/s26-yc-partners.json",
+  "public/graph/s26-insiders.json",
+  "public/graph/a16zsr006.json",
+  "public/graph/a16zsr006-yc-partners.json",
+  "public/graph/a16zsr006-insiders.json"
+];
+
+describe("graph runtime trace contract", () => {
+  it("accepts full and refresh traces containing every compact evidence projection", () => {
+    const result = runValidator();
+
+    expect(result.status, result.output).toBe(0);
+    expect(result.output).toContain("full graph diagnostics trace:");
+    expect(result.output).toContain("graph refresh trace:");
+  });
+
+  it("rejects a full graph trace that omits one compact evidence projection", () => {
+    const missing = graphRuntimeProjections[2];
+    const result = runValidator({ missingFromFull: missing });
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("full graph diagnostics trace is missing required runtime snapshots:");
+    expect(result.output).toContain(missing);
+  });
+
+  it("rejects semantic whole-repository leaks even when they fit below byte budgets", () => {
+    const result = runValidator({ leakWholeRepositoryFileIntoFull: true });
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("full graph diagnostics trace contains forbidden runtime artifacts:");
+    expect(result.output).toContain("trace-leak-sentinel.json");
+  });
+
+  it("keeps Turbopack ignore directives on both dynamic path construction and filesystem consumers", () => {
+    for (const file of [
+      "src/lib/graph/a16z-speedrun-006-dataset.ts",
+      "src/lib/graph/yc-spring-2026-dataset.ts"
+    ]) {
+      const source = readFileSync(join(process.cwd(), file), "utf8");
+      expect(source).toContain("join(/* turbopackIgnore: true */ root, relativePath)");
+      expect(source).toContain("existsSync(/* turbopackIgnore: true */ runtimePath)");
+      expect(source).toContain("readFileSync(/* turbopackIgnore: true */ runtimePath");
+    }
+  });
+});
+
+function runValidator(options: {
+  missingFromFull?: string;
+  leakWholeRepositoryFileIntoFull?: boolean;
+} = {}) {
+  const root = mkdtempSync(join(tmpdir(), "graph-trace-contract-"));
+  try {
+    for (const file of [...publishedGraphSnapshots, ...graphRuntimeProjections]) {
+      writeFixtureFile(root, file);
+    }
+
+    writeManifest(root, ".next/server/app/api/graph/route.js.nft.json", publishedGraphSnapshots);
+    const fullTraceFiles = graphRuntimeProjections.filter((file) => file !== options.missingFromFull);
+    if (options.leakWholeRepositoryFileIntoFull) {
+      const leakPath = "public/timelines/companies/trace-leak-sentinel.json";
+      writeFixtureFile(root, leakPath);
+      fullTraceFiles.push(leakPath);
+    }
+    writeManifest(
+      root,
+      ".next/server/app/api/graph/full/route.js.nft.json",
+      fullTraceFiles
+    );
+    writeManifest(root, ".next/server/app/api/graph/refresh/route.js.nft.json", graphRuntimeProjections);
+    writeManifest(root, ".next/server/app/api/insiders/recompute/route.js.nft.json", [
+      "public/graph/s2026.json",
+      "public/graph/s2026-insiders.json",
+      "public/graph/s26.json",
+      "public/graph/s26-insiders.json",
+      "public/graph/a16zsr006.json",
+      "public/graph/a16zsr006-insiders.json"
+    ]);
+    writeManifest(root, ".next/server/app/api/admin/ingestion/route.js.nft.json", []);
+    for (const route of [
+      "duplicates",
+      "evidence",
+      "instagram-coverage",
+      "scoring",
+      "thumbnails",
+      "workers"
+    ]) {
+      writeManifest(
+        root,
+        `.next/server/app/debug/${route}/page.js.nft.json`,
+        graphRuntimeProjections,
+      );
+    }
+
+    const result = spawnSync(process.execPath, [validatorPath], {
+      cwd: root,
+      encoding: "utf8"
+    });
+    return {
+      status: result.status,
+      output: `${result.stdout ?? ""}${result.stderr ?? ""}`
+    };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function writeFixtureFile(root: string, relativePath: string) {
+  const filePath = join(root, relativePath);
+  mkdirSync(dirname(filePath), { recursive: true });
+  writeFileSync(filePath, "{}\n", "utf8");
+}
+
+function writeManifest(root: string, relativePath: string, files: string[]) {
+  const manifestPath = join(root, relativePath);
+  mkdirSync(dirname(manifestPath), { recursive: true });
+  writeFileSync(
+    manifestPath,
+    `${JSON.stringify({
+      version: 1,
+      files: files.map((file) => relative(dirname(manifestPath), join(root, file)))
+    })}\n`,
+    "utf8"
+  );
+}

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hyperprobe",
+    "slug": "hyperprobe",
+    "name": "HyperProbe"
+  },
+  "event": {
+    "id": "tle-458c9009c6e6dd6f0281554e",
+    "eventDate": "2026-07-02",
+    "eventDateType": "announcement_date",
+    "title": "HyperProbe released HyperProbe Demo | YC BF Launch",
+    "summary": "HyperProbe Demo | YC BF Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8e0c0bebaf531b79bcab9cac",
+        "title": "HyperProbe Demo | YC BF Launch",
+        "publisher": "KaranRaina95",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-02T15:31:10-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=ivV7I--ta5c"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8e0c0bebaf531b79bcab9cac",
+        "title": "HyperProbe Demo | YC BF Launch",
+        "publisher": "KaranRaina95",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-02T15:31:10-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=ivV7I--ta5c",
+        "publicationDate": "2026-07-02T15:31:10-07:00",
+        "excerpt": "Demo on how to use HyperProbe to debug live production issues using AI.",
+        "sourceEventDate": "2026-07-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-181bd8aa0e774aa17cf2c334",
+        "platform": "youtube",
+        "account": "KaranRaina95",
+        "postDate": "2026-07-02",
+        "excerpt": "Demo on how to use HyperProbe to debug live production issues using AI.",
+        "url": "https://youtube.com/watch?v=ivV7I--ta5c",
+        "metrics": {
+          "views": 91
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

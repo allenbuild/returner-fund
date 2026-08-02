@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-keyframe-labs",
+    "slug": "keyframe-labs",
+    "name": "Keyframe Labs"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-76697c166af471af2b1b0543",
+      "eventDate": "2026-04-29",
+      "eventDateType": "announcement_date",
+      "title": "Keyframe Labs enabled AI personas to join Zoom, Google Meet, and Microsoft Teams",
+      "summary": "Keyframe Labs reported AI personas can now join Zoom, Google Meet, and Microsoft Teams.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-bdf4f61556963cd779902e26",
+          "title": "AI personas can now join Zoom, Google Meet, and Microsoft Teams. They look real. They sound real. They show up on time. Powered by our SOTA real-time video model, persona-1.5-live 0:10 / 0:19",
+          "publisher": "KeyframeLabs X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-29T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/KeyframeLabs/status/2049576532948250897"
+        }
+      ]
+    },
+    {
+      "id": "tle-bf02240e48280cf303f661fb",
+      "eventDate": "2026-02-11",
+      "eventDateType": "announcement_date",
+      "title": "Keyframe Labs announced its public launch",
+      "summary": "Keyframe Labs introduced the world's most expressive, conversational AI humans.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-821034a9a37629e5f4496ac3",
+          "title": "Introducing the world's most expressive, conversational AI humans. Runs in real-time at just $0.06 per minute. Watch Cosmo move fluidly through emotions in an unedited conversation with our CTO. 0:07 / 1:19",
+          "publisher": "KeyframeLabs X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-02-11T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/KeyframeLabs/status/2021779113678405689"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        },
+        {
+          "month": "2026-02",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

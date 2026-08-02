@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-neuron-industries",
+    "slug": "neuron-industries",
+    "name": "Neuron Industries"
+  },
+  "event": {
+    "id": "tle-5b1d8be4b9aa7d585fd9636f",
+    "eventDate": "2026-07-25",
+    "eventDateType": "announcement_date",
+    "title": "Neuron Industries announced its public launch",
+    "summary": "Launching Neuron Industries.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5859117d36eca2578410aed1",
+        "title": "Launching Neuron Industries",
+        "publisher": "Launching Neuron Industries",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-24T17:45:04-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=uey-UwwKSw8"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5859117d36eca2578410aed1",
+        "title": "Launching Neuron Industries",
+        "publisher": "Launching Neuron Industries",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-24T17:45:04-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=uey-UwwKSw8",
+        "publicationDate": "2026-07-24T17:45:04-07:00",
+        "excerpt": "Picture a $5,000 computer with 5MB of memory, programmable only in languages frozen in 1993. That's the PLC available today: the brain of every machine in every factory. Neuron Industries (YC S26) is replacing it with the first industrial controller purpose-built for the AI era. Describe your process in plain English, and Neuron turns it into production control logic with the test and verification guardrails industrial applications demand. It's already running in customers' plants: pilots span…",
+        "sourceEventDate": "2026-07-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-84c8836c7fca6612ba950a2e",
+        "platform": "youtube",
+        "account": "Launching Neuron Industries",
+        "postDate": "2026-07-25",
+        "excerpt": "Picture a $5,000 computer with 5MB of memory, programmable only in languages frozen in 1993. That's the PLC available today: the brain of every machine in every factory. Neuron Industries (YC S26) is replacing it with the first industrial controller purpose-built for the AI era. Describe your process in plain English, and Neuron turns it into production control logic with the test and verification guardrails industrial applications demand. It's already running in customers' plants: pilots span…",
+        "url": "https://youtube.com/watch?v=uey-UwwKSw8",
+        "metrics": {
+          "views": 156,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

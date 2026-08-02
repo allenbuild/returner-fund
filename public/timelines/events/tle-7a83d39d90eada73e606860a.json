@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-pairio",
+    "slug": "pairio",
+    "name": "Pairio"
+  },
+  "event": {
+    "id": "tle-7a83d39d90eada73e606860a",
+    "eventDate": "2026-04-16",
+    "eventDateType": "announcement_date",
+    "title": "Pairio was introduced",
+    "summary": "Pairio introduced Pairio.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e289af787af71976f4e8291b",
+        "title": "Introducing Pairio",
+        "publisher": "Introducing Pairio",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-15T19:06:01-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=kmUBOkAU33M"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e289af787af71976f4e8291b",
+        "title": "Introducing Pairio",
+        "publisher": "Introducing Pairio",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-15T19:06:01-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=kmUBOkAU33M",
+        "publicationDate": "2026-04-15T19:06:01-07:00",
+        "excerpt": "Pairio (YC P26) – Fix broken equipment in factories faster Machine downtime in manufacturing is expensive. Pairio helps technicians and operators resolve faults faster with voice AI.",
+        "sourceEventDate": "2026-04-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2e89f6e84d32185c4385a323",
+        "platform": "youtube",
+        "account": "Introducing Pairio",
+        "postDate": "2026-04-16",
+        "excerpt": "Pairio (YC P26) – Fix broken equipment in factories faster Machine downtime in manufacturing is expensive. Pairio helps technicians and operators resolve faults faster with voice AI.",
+        "url": "https://youtube.com/watch?v=kmUBOkAU33M",
+        "metrics": {
+          "views": 390,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-keyframe-labs",
+    "slug": "keyframe-labs",
+    "name": "Keyframe Labs"
+  },
+  "event": {
+    "id": "tle-76697c166af471af2b1b0543",
+    "eventDate": "2026-04-29",
+    "eventDateType": "announcement_date",
+    "title": "Keyframe Labs enabled AI personas to join Zoom, Google Meet, and Microsoft Teams",
+    "summary": "Keyframe Labs reported AI personas can now join Zoom, Google Meet, and Microsoft Teams.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-bdf4f61556963cd779902e26",
+        "title": "AI personas can now join Zoom, Google Meet, and Microsoft Teams. They look real. They sound real. They show up on time. Powered by our SOTA real-time video model, persona-1.5-live 0:10 / 0:19",
+        "publisher": "KeyframeLabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-29T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KeyframeLabs/status/2049576532948250897"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-bdf4f61556963cd779902e26",
+        "title": "AI personas can now join Zoom, Google Meet, and Microsoft Teams. They look real. They sound real. They show up on time. Powered by our SOTA real-time video model, persona-1.5-live 0:10 / 0:19",
+        "publisher": "KeyframeLabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-29T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KeyframeLabs/status/2049576532948250897",
+        "publicationDate": "2026-04-29T00:00:00.000Z",
+        "excerpt": "AI personas can now join Zoom, Google Meet, and Microsoft Teams. They look real. They sound real. They show up on time. Powered by our SOTA real-time video model, persona-1.5-live 0:10 / 0:19",
+        "sourceEventDate": "2026-04-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c54c7aadf205948c6d145ebe",
+        "platform": "x",
+        "account": "KeyframeLabs X post",
+        "postDate": "2026-04-29",
+        "excerpt": "AI personas can now join Zoom, Google Meet, and Microsoft Teams. They look real. They sound real. They show up on time. Powered by our SOTA real-time video model, persona-1.5-live 0:10 / 0:19",
+        "url": "https://x.com/KeyframeLabs/status/2049576532948250897",
+        "metrics": {
+          "likes": 13,
+          "reposts": 2,
+          "comments": 5,
+          "views": 1506
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

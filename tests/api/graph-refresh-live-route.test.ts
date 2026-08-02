@@ -267,6 +267,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
   });
 
   it("requires a configured secret outside local development and normalizes bounded direct targets", async () => {
+    await mockV4GeneratedSnapshot("s2026.json");
     vi.stubEnv("NODE_ENV", "test");
     vi.stubEnv("GRAPH_REFRESH_SECRET", "route-test-secret");
     const runLiveSourceRefresh = vi.fn(async () => emptyRefreshResult());
@@ -316,6 +317,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
   });
 
   it("keeps loopback development refresh usable without exposing or sending the configured secret", async () => {
+    await mockV4GeneratedSnapshot("s2026.json");
     vi.stubEnv("NODE_ENV", "development");
     vi.stubEnv("GRAPH_REFRESH_SECRET", "server-only-development-secret");
     const runLiveSourceRefresh = vi.fn(async () => emptyRefreshResult());
@@ -404,7 +406,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
   });
 
   it("times out identical joiners, aborts ingestion, releases the slot, and permits a later refresh", async () => {
-    vi.useFakeTimers();
+    await mockV4GeneratedSnapshot("s2026.json");
     let invocation = 0;
     let firstSignal: AbortSignal | undefined;
     const runLiveSourceRefresh = vi.fn((options: { signal?: AbortSignal }) => {
@@ -450,6 +452,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
   });
 
   it("joins an identical in-flight refresh instead of running ingestion twice", async () => {
+    await mockV4GeneratedSnapshot("s2026.json");
     const refreshGate = deferred<ReturnType<typeof emptyRefreshResult>>();
     const runLiveSourceRefresh = vi.fn(() => refreshGate.promise);
     vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => ({
@@ -462,7 +465,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
     const firstResponsePromise = POST(jsonRequest({ action: "refresh", platforms: ["x"] }));
     await vi.waitFor(() => expect(runLiveSourceRefresh).toHaveBeenCalledTimes(1));
     const joinedResponsePromise = POST(jsonRequest({ platforms: ["x"], action: "refresh" }));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await vi.advanceTimersByTimeAsync(0);
     expect(runLiveSourceRefresh).toHaveBeenCalledTimes(1);
 
     refreshGate.resolve(emptyRefreshResult());
@@ -479,6 +482,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
   });
 
   it("returns 429 for a different request while a refresh is in flight", async () => {
+    await mockV4GeneratedSnapshot("s2026.json");
     const refreshGate = deferred<ReturnType<typeof emptyRefreshResult>>();
     const runLiveSourceRefresh = vi.fn(() => refreshGate.promise);
     vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => ({
@@ -901,6 +905,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
 
   it("lets live top-voice evidence participate in the top-voice graph instead of being hidden after filtering", async () => {
     const record = insiderScreenpipeRecord();
+    const rebuiltGraph = await insiderGraphWithRecord(record);
     await mockV4GeneratedSnapshot("s26-insiders.json");
     vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => {
       const actual = await importOriginal<typeof import("@/lib/ingestion/live-source-refresh")>();
@@ -933,6 +938,8 @@ describe("POST /api/graph/refresh live evidence validation", () => {
         loadLiveEvidenceRecords: vi.fn(async () => [record])
       };
     });
+    const buildGraphResponse = vi.fn(() => rebuiltGraph);
+    mockFallbackGraphModules(buildGraphResponse);
 
     const { POST } = await import("../../src/app/api/graph/refresh/route");
     const response = await POST(jsonRequest({ action: "refresh", batchSlug: "S26", platforms: ["x"], topVoices: "insiders" }));
@@ -1004,7 +1011,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(buildGraphResponse).toHaveBeenCalledTimes(2);
+    expect(buildGraphResponse).toHaveBeenCalledTimes(1);
     expect(body.refreshSummary.fastPath).toBeUndefined();
     expect(body.refreshSummary).toMatchObject({
       graphSource: "rebuild",
@@ -1194,6 +1201,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
   });
 
   it("returns failed when live refresh completes without accepted evidence", async () => {
+    await mockV4GeneratedSnapshot("s26.json");
     vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => {
       const actual = await importOriginal<typeof import("@/lib/ingestion/live-source-refresh")>();
       return {
@@ -1249,6 +1257,7 @@ describe("POST /api/graph/refresh live evidence validation", () => {
   });
 
   it("returns failed and reports unsupported platforms when no requested adapter is wired", async () => {
+    await mockV4GeneratedSnapshot("s26.json");
     vi.doMock("@/lib/ingestion/live-source-refresh", async (importOriginal) => {
       const actual = await importOriginal<typeof import("@/lib/ingestion/live-source-refresh")>();
       return {
@@ -1361,6 +1370,18 @@ async function mockV4GeneratedSnapshot(filename: string): Promise<GraphResponse>
   const snapshotDirectory = join(root, "public", "graph");
   await mkdir(snapshotDirectory, { recursive: true });
   await writeFile(join(snapshotDirectory, filename), JSON.stringify(snapshot), "utf8");
+  const baseFilename = filename.replace(/-(?:insiders|founders)(?=\.json$)/, "");
+  if (baseFilename !== filename) {
+    const baseSnapshot = withV4SnapshotContract(
+      await graphFixture(baseFilename),
+      FROZEN_SNAPSHOT_GENERATED_AT
+    );
+    await writeFile(
+      join(snapshotDirectory, baseFilename),
+      JSON.stringify(baseSnapshot),
+      "utf8"
+    );
+  }
   generatedSnapshotRoots.push(root);
   vi.spyOn(process, "cwd").mockReturnValue(root);
   return snapshot;

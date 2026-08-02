@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-runtime",
+    "slug": "runtime",
+    "name": "Runtime"
+  },
+  "event": {
+    "id": "tle-0034c657443d838fabd6b04a",
+    "eventDate": "2026-03-19",
+    "eventDateType": "announcement_date",
+    "title": "Runtime was accepted into Y Combinator",
+    "summary": "Runtime reported i got into YC twice.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-784774caf19b8c602d5091d7",
+        "title": "I got into YC twice.",
+        "publisher": "I got into YC twice.",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-19T16:18:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/gustrigos/status/2034665819800834268"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-784774caf19b8c602d5091d7",
+        "title": "I got into YC twice.",
+        "publisher": "I got into YC twice.",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-19T16:18:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/gustrigos/status/2034665819800834268",
+        "publicationDate": "2026-03-19T16:18:28.000Z",
+        "excerpt": "I got into YC twice. The first time, we got acquired. Runtime (P26) is part of @ycombinator. After Mentum's acquisition, I shipped 4 full-stack products at Nuvocargo in 3 months, then enabled the rest of the team to do the same. I obsessed over making it so easy and safe that anyone can spin up an environment in milliseconds, prompt, deploy, and create PRs. At Runtime, we give teams guardrails and observability to enable anyone to ship with coding agents (Claude Code, Codex, OpenCode, Copilot,…",
+        "sourceEventDate": "2026-03-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-721a3e9fa7f7e1387515d278",
+        "platform": "x",
+        "account": "I got into YC twice.",
+        "postDate": "2026-03-19",
+        "excerpt": "I got into YC twice. The first time, we got acquired. Runtime (P26) is part of @ycombinator. After Mentum's acquisition, I shipped 4 full-stack products at Nuvocargo in 3 months, then enabled the rest of the team to do the same. I obsessed over making it so easy and safe that anyone can spin up an environment in milliseconds, prompt, deploy, and create PRs. At Runtime, we give teams guardrails and observability to enable anyone to ship with coding agents (Claude Code, Codex, OpenCode, Copilot,…",
+        "url": "https://x.com/gustrigos/status/2034665819800834268",
+        "metrics": {
+          "likes": 103,
+          "reposts": 2,
+          "comments": 21,
+          "views": 5856
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

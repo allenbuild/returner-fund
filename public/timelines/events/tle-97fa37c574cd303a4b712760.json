@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-asterlab",
+    "slug": "aster",
+    "name": "Aster"
+  },
+  "event": {
+    "id": "tle-97fa37c574cd303a4b712760",
+    "eventDate": "2026-06-22",
+    "eventDateType": "announcement_date",
+    "title": "Aster published new research",
+    "summary": "Aster reported in 2 days, we set the record on Andrej Karpathy's NanoChat benchmark, with 1000x less funding than competitors.",
+    "category": "research",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-96265e75045f7a7535680357",
+        "title": "In 2 days, we set the record on Andrej Karpathy’s NanoChat benchmark, with 1000x less funding than competitors. We used massively parallelized research agents to set this record as well as discover novel circuit-based LLM architectures…",
+        "publisher": "asterailabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-22T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/asterailabs/status/2069128901620867254"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-96265e75045f7a7535680357",
+        "title": "In 2 days, we set the record on Andrej Karpathy’s NanoChat benchmark, with 1000x less funding than competitors. We used massively parallelized research agents to set this record as well as discover novel circuit-based LLM architectures…",
+        "publisher": "asterailabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-22T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/asterailabs/status/2069128901620867254",
+        "publicationDate": "2026-06-22T00:00:00.000Z",
+        "excerpt": "In 2 days, we set the record on Andrej Karpathy’s NanoChat benchmark, with 1000x less funding than competitors. We used massively parallelized research agents to set this record as well as discover novel circuit-based LLM architectures and achieve the top score on ProteinGym. Show more",
+        "sourceEventDate": "2026-06-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9ea7252307d6a122f2d839d9",
+        "platform": "x",
+        "account": "asterailabs X post",
+        "postDate": "2026-06-22",
+        "excerpt": "In 2 days, we set the record on Andrej Karpathy’s NanoChat benchmark, with 1000x less funding than competitors. We used massively parallelized research agents to set this record as well as discover novel circuit-based LLM architectures and achieve the top score on ProteinGym. Show more",
+        "url": "https://x.com/asterailabs/status/2069128901620867254",
+        "metrics": {
+          "likes": 28,
+          "reposts": 5,
+          "comments": 5,
+          "views": 1006
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

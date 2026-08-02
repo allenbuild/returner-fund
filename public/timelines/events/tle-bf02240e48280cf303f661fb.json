@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-keyframe-labs",
+    "slug": "keyframe-labs",
+    "name": "Keyframe Labs"
+  },
+  "event": {
+    "id": "tle-bf02240e48280cf303f661fb",
+    "eventDate": "2026-02-11",
+    "eventDateType": "announcement_date",
+    "title": "Keyframe Labs announced its public launch",
+    "summary": "Keyframe Labs introduced the world's most expressive, conversational AI humans.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-821034a9a37629e5f4496ac3",
+        "title": "Introducing the world's most expressive, conversational AI humans. Runs in real-time at just $0.06 per minute. Watch Cosmo move fluidly through emotions in an unedited conversation with our CTO. 0:07 / 1:19",
+        "publisher": "KeyframeLabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-11T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KeyframeLabs/status/2021779113678405689"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-821034a9a37629e5f4496ac3",
+        "title": "Introducing the world's most expressive, conversational AI humans. Runs in real-time at just $0.06 per minute. Watch Cosmo move fluidly through emotions in an unedited conversation with our CTO. 0:07 / 1:19",
+        "publisher": "KeyframeLabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-02-11T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KeyframeLabs/status/2021779113678405689",
+        "publicationDate": "2026-02-11T00:00:00.000Z",
+        "excerpt": "Introducing the world's most expressive, conversational AI humans. Runs in real-time at just $0.06 per minute. Watch Cosmo move fluidly through emotions in an unedited conversation with our CTO. 0:07 / 1:19",
+        "sourceEventDate": "2026-02-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c8bd45bb2e97f17b0d310925",
+        "platform": "x",
+        "account": "KeyframeLabs X post",
+        "postDate": "2026-02-11",
+        "excerpt": "Introducing the world's most expressive, conversational AI humans. Runs in real-time at just $0.06 per minute. Watch Cosmo move fluidly through emotions in an unedited conversation with our CTO. 0:07 / 1:19",
+        "url": "https://x.com/KeyframeLabs/status/2021779113678405689",
+        "metrics": {
+          "likes": 16,
+          "reposts": 2,
+          "comments": 7,
+          "views": 908
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

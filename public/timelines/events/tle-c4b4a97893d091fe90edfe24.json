@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-zenbu-2",
+    "slug": "zenbu",
+    "name": "Zenbu"
+  },
+  "event": {
+    "id": "tle-c4b4a97893d091fe90edfe24",
+    "eventDate": "2026-05-11",
+    "eventDateType": "announcement_date",
+    "title": "Zenbu released Zenbu.js - The framework for hackable software",
+    "summary": "Zenbu introduced Zenbu.js - The framework for hackable software.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-890483abe67e64f7cc81be95",
+        "title": "Introducing Zenbu.js - The framework for hackable software",
+        "publisher": "RobKnight__",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-11T16:00:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/RobKnight__/status/2053867901028110592"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-890483abe67e64f7cc81be95",
+        "title": "Introducing Zenbu.js - The framework for hackable software",
+        "publisher": "RobKnight__",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-11T16:00:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/RobKnight__/status/2053867901028110592",
+        "publicationDate": "2026-05-11T16:00:41.000Z",
+        "excerpt": "Introducing Zenbu.js - The framework for hackable software",
+        "sourceEventDate": "2026-05-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ad28d14c4af9eb0d9ac52e13",
+        "platform": "x",
+        "account": "RobKnight__",
+        "postDate": "2026-05-11",
+        "excerpt": "Introducing Zenbu.js - The framework for hackable software",
+        "url": "https://x.com/RobKnight__/status/2053867901028110592",
+        "metrics": {
+          "views": 49928,
+          "likes": 554,
+          "replies": 53,
+          "retweets": 41,
+          "quotes": 14,
+          "bookmarks": 427,
+          "comments": 53,
+          "reposts": 41,
+          "saves": 427
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

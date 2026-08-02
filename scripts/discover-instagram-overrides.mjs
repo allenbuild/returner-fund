@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
 import {
   officialCompanyInstagramIdentityDecision
@@ -312,7 +312,7 @@ let report = {
   generated_at: now,
   batch_slug: batchConfig.slug,
   batch_label: batchConfig.label,
-  source_snapshot: cohortSnapshotPath,
+  source_snapshot: repositoryRelativePath(cohortSnapshotPath),
   write_enabled: write,
   append_enabled: appendReport,
   searched_with_opencli: search,
@@ -1770,6 +1770,20 @@ function sortObject(value) {
 
 function resolvePathArg(value) {
   return resolve(root, value);
+}
+
+function repositoryRelativePath(value) {
+  const absolutePath = resolve(value);
+  const relativePath = relative(root, absolutePath);
+  if (
+    !relativePath ||
+    relativePath === ".." ||
+    relativePath.startsWith(`..${sep}`) ||
+    resolve(root, relativePath) !== absolutePath
+  ) {
+    throw new Error("Instagram discovery source snapshots must remain inside the repository.");
+  }
+  return relativePath.split(sep).join("/");
 }
 
 function resolveBatchConfig(value) {

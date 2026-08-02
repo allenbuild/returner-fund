@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-lamina-labs",
+    "slug": "lamina-labs",
+    "name": "Lamina Labs"
+  },
+  "event": {
+    "id": "tle-de38df40176816720babff7d",
+    "eventDate": "2026-06-04",
+    "eventDateType": "announcement_date",
+    "title": "Lamina Labs released Simi",
+    "summary": "Lamina Labs just launched Simi.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-53ef3ccaa52568527bd5094f",
+        "title": "We just launched Simi! It's the fastest infra for turning your docs and prompts into whiteboard explainer videos instantly.",
+        "publisher": "mk314k",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-04T17:39:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/mk314k/status/2062590182524903642"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-53ef3ccaa52568527bd5094f",
+        "title": "We just launched Simi! It's the fastest infra for turning your docs and prompts into whiteboard explainer videos instantly.",
+        "publisher": "mk314k",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-04T17:39:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/mk314k/status/2062590182524903642",
+        "publicationDate": "2026-06-04T17:39:55.000Z",
+        "excerpt": "We just launched Simi! It's the fastest infra for turning your docs and prompts into whiteboard explainer videos instantly.",
+        "sourceEventDate": "2026-06-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-14fb1b70f4e269b0aaca9442",
+        "platform": "x",
+        "account": "mk314k",
+        "postDate": "2026-06-04",
+        "excerpt": "We just launched Simi! It's the fastest infra for turning your docs and prompts into whiteboard explainer videos instantly.",
+        "url": "https://x.com/mk314k/status/2062590182524903642",
+        "metrics": {
+          "views": 544,
+          "likes": 7,
+          "replies": 2,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 2,
+          "comments": 2,
+          "reposts": 0,
+          "saves": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

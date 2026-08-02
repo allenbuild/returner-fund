@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-graphify-labs",
+    "slug": "graphify-labs",
+    "name": "Graphify Labs"
+  },
+  "event": {
+    "id": "tle-a97b6ace2c0a1d43f2648b68",
+    "eventDate": "2026-07-10",
+    "eventDateType": "announcement_date",
+    "title": "Graphify Labs reported almost 200 developers",
+    "summary": "Graphify Labs reached almost 200 developers just one week after launching the Discord server.",
+    "category": "traction_milestone",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-efee199c3e6fe9cbc94cdd17",
+        "title": "We’ve reached almost 200 developers in Graphify Labs just one week after launching the Discord server.",
+        "publisher": "We’ve reached almost 200 developers in Graphify Labs just one week after launching the Discord server.",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-10T21:19:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2075691513099481374"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-efee199c3e6fe9cbc94cdd17",
+        "title": "We’ve reached almost 200 developers in Graphify Labs just one week after launching the Discord server.",
+        "publisher": "We’ve reached almost 200 developers in Graphify Labs just one week after launching the Discord server.",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-10T21:19:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/safishamsii/status/2075691513099481374",
+        "publicationDate": "2026-07-10T21:19:55.000Z",
+        "excerpt": "We’ve reached almost 200 developers in Graphify Labs just one week after launching the Discord server. If you’re building with AI agents, knowledge graphs or neurosymbolic AI, come join the chat and share what you’re working on. https://t.co/fsAJYvN3ZP https://t.co/gkvF4Agzvj",
+        "sourceEventDate": "2026-07-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f752c7e53fcd467563844b08",
+        "platform": "x",
+        "account": null,
+        "postDate": "2026-07-10",
+        "excerpt": "We’ve reached almost 200 developers in Graphify Labs just one week after launching the Discord server. If you’re building with AI agents, knowledge graphs or neurosymbolic AI, come join the chat and share what you’re working on. https://t.co/fsAJYvN3ZP https://t.co/gkvF4Agzvj",
+        "url": "https://x.com/safishamsii/status/2075691513099481374",
+        "metrics": {
+          "likes": 39,
+          "reposts": 0,
+          "comments": 12,
+          "views": 5737
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

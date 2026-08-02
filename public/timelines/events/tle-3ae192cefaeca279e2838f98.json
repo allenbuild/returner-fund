@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-humwork",
+    "slug": "humwork",
+    "name": "Humwork"
+  },
+  "event": {
+    "id": "tle-3ae192cefaeca279e2838f98",
+    "eventDate": "2026-04-15",
+    "eventDateType": "announcement_date",
+    "title": "Humwork released Humwork (YC P26)",
+    "summary": "Humwork introduced Humwork (YC P26).",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-bfd39d7fab5b705184c7393c",
+        "title": "Introducing Humwork (YC P26)",
+        "publisher": "Introducing Humwork (YC P26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-14T22:15:08-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=Bqw_qP_jubA"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-bfd39d7fab5b705184c7393c",
+        "title": "Introducing Humwork (YC P26)",
+        "publisher": "Introducing Humwork (YC P26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-14T22:15:08-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=Bqw_qP_jubA",
+        "publicationDate": "2026-04-14T22:15:08-07:00",
+        "excerpt": "Humwork lets AI agents chat with human experts in real-time. When AI agents like Claude Code or OpenClaw hit a wall, Humwork's MCP server connects them to a verified domain expert in under 30 seconds. Our experts include senior engineers, lawyers, marketers, designers, and more.",
+        "sourceEventDate": "2026-04-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d064fa92b936e5b073fe31ca",
+        "platform": "youtube",
+        "account": "Introducing Humwork (YC P26)",
+        "postDate": "2026-04-15",
+        "excerpt": "Humwork lets AI agents chat with human experts in real-time. When AI agents like Claude Code or OpenClaw hit a wall, Humwork's MCP server connects them to a verified domain expert in under 30 seconds. Our experts include senior engineers, lawyers, marketers, designers, and more.",
+        "url": "https://youtube.com/watch?v=Bqw_qP_jubA",
+        "metrics": {
+          "views": 1627,
+          "likes": 34,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

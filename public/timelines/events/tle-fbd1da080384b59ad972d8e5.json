@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-talentpluto",
+    "slug": "pluto",
+    "name": "Pluto"
+  },
+  "event": {
+    "id": "tle-fbd1da080384b59ad972d8e5",
+    "eventDate": "2026-07-16",
+    "eventDateType": "announcement_date",
+    "title": "Pluto announced its public launch",
+    "summary": "Launching Pluto - an AI voice agent that helps professionals get discovered.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-926716dec61733fdd1999e1f",
+        "title": "Launching Pluto - an AI voice agent that helps professionals get discovered. Pluto learns your story in 10 minutes, makes you discoverable to AI agents, and connects you with the right people. Your career needs an agent.",
+        "publisher": "talentpluto_",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-16T17:46:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/Da3NNO7PeeH"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-926716dec61733fdd1999e1f",
+        "title": "Launching Pluto - an AI voice agent that helps professionals get discovered. Pluto learns your story in 10 minutes, makes you discoverable to AI agents, and connects you with the right people. Your career needs an agent.",
+        "publisher": "talentpluto_",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-16T17:46:11.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/Da3NNO7PeeH",
+        "publicationDate": "2026-07-16T17:46:11.000Z",
+        "excerpt": "Launching Pluto - an AI voice agent that helps professionals get discovered. Pluto learns your story in 10 minutes, makes you discoverable to AI agents, and connects you with the right people. Your career needs an agent.",
+        "sourceEventDate": "2026-07-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-52985de712e94004effcddf8",
+        "platform": "instagram",
+        "account": "talentpluto_",
+        "postDate": "2026-07-16",
+        "excerpt": "Launching Pluto - an AI voice agent that helps professionals get discovered. Pluto learns your story in 10 minutes, makes you discoverable to AI agents, and connects you with the right people. Your career needs an agent.",
+        "url": "https://www.instagram.com/reel/Da3NNO7PeeH",
+        "metrics": {
+          "likes": 14,
+          "comments": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

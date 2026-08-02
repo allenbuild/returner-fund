@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-heyclicky",
+    "slug": "heyclicky",
+    "name": "HeyClicky"
+  },
+  "event": {
+    "id": "tle-720a77cfcb138926d9dee7fe",
+    "eventDate": "2026-05-16",
+    "eventDateType": "announcement_date",
+    "title": "HeyClicky became publicly available",
+    "summary": "Available today, and free to try: @heyclicky.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d84fadd6399885753f6a3531",
+        "title": "Available today, and free to try: @heyclicky",
+        "publisher": "FarzaTV X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-16T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FarzaTV/status/2055798794428846572"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d84fadd6399885753f6a3531",
+        "title": "Available today, and free to try: @heyclicky",
+        "publisher": "FarzaTV X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-16T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FarzaTV/status/2055798794428846572",
+        "publicationDate": "2026-05-16T00:00:00.000Z",
+        "excerpt": "Available today, and free to try: @heyclicky",
+        "sourceEventDate": "2026-05-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b07b24ec0b096813cc835cfd",
+        "platform": "x",
+        "account": "FarzaTV X post",
+        "postDate": "2026-05-16",
+        "excerpt": "Available today, and free to try: @heyclicky",
+        "url": "https://x.com/FarzaTV/status/2055798794428846572",
+        "metrics": {
+          "likes": 44,
+          "reposts": 0,
+          "comments": 3,
+          "views": 14825
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

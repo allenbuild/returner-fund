@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-runtime",
+    "slug": "runtime",
+    "name": "Runtime"
+  },
+  "event": {
+    "id": "tle-fe858265fc8c6afa4836fef3",
+    "eventDate": "2026-04-14",
+    "eventDateType": "announcement_date",
+    "title": "Runtime launched on Hacker News",
+    "summary": "Launch HN: Runtime (YC P26) - Sandboxed coding agents for everyone on a team.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-4850b168eb677509b940cc32",
+        "title": "Launch HN: Runtime (YC P26) - Sandboxed coding agents for everyone on a team",
+        "publisher": "gustrigos",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-21T16:07:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48225040"
+      },
+      {
+        "id": "src-b1ff038e6e321a4967647bbb",
+        "title": "We just launched Runtime.",
+        "publisher": "We just launched Runtime.",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-14T18:25:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/gustrigos/status/2044119905625362592"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4850b168eb677509b940cc32",
+        "title": "Launch HN: Runtime (YC P26) - Sandboxed coding agents for everyone on a team",
+        "publisher": "gustrigos",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-21T16:07:13.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48225040",
+        "publicationDate": "2026-05-21T16:07:13.000Z",
+        "excerpt": "Launch HN: Runtime (YC P26) - Sandboxed coding agents for everyone on a team",
+        "sourceEventDate": "2026-05-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-b1ff038e6e321a4967647bbb",
+        "title": "We just launched Runtime.",
+        "publisher": "We just launched Runtime.",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-14T18:25:38.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/gustrigos/status/2044119905625362592",
+        "publicationDate": "2026-04-14T18:25:38.000Z",
+        "excerpt": "We just launched Runtime. Sandboxes, harnesses, and observability for any coding agent, any model, any infra. Already serving teams from Series A to a unicorn. It's run time!",
+        "sourceEventDate": "2026-04-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-673cb1fc1c3c5ba06dc1eb52",
+        "platform": "hacker_news",
+        "account": "gustrigos",
+        "postDate": "2026-05-21",
+        "excerpt": "Launch HN: Runtime (YC P26) - Sandboxed coding agents for everyone on a team",
+        "url": "https://news.ycombinator.com/item?id=48225040",
+        "metrics": {
+          "points": 103,
+          "comments": 30,
+          "upvotes": 103
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-df07ee9b78732aa27d544cc5",
+        "platform": "x",
+        "account": "We just launched Runtime.",
+        "postDate": "2026-04-14",
+        "excerpt": "We just launched Runtime. Sandboxes, harnesses, and observability for any coding agent, any model, any infra. Already serving teams from Series A to a unicorn. It's run time!",
+        "url": "https://x.com/gustrigos/status/2044119905625362592",
+        "metrics": {
+          "likes": 33,
+          "reposts": 2,
+          "comments": 8,
+          "views": 3061
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

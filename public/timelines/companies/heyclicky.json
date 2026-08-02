@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-heyclicky",
+    "slug": "heyclicky",
+    "name": "HeyClicky"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-77f93837028afe22fcf028cc",
+      "eventDate": "2026-07-14",
+      "eventDateType": "announcement_date",
+      "title": "HeyClicky released screen-aware dictation",
+      "summary": "HeyClicky announced it was shipping screen-aware dictation.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-f01cef9038173e9d8254d435",
+          "title": "Today we're shipping screen-aware dictation. First, we built a speedy speech-to-text (very fast, ~450ms). But, many products do this! So...",
+          "publisher": "farzatv",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-14T20:37:25.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/FarzaTV/status/2077130366230639022"
+        },
+        {
+          "id": "src-273382fd80635e669ae184e8",
+          "title": "introducing screen-aware dictation.",
+          "publisher": "heyclicky",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-14T14:38:07-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=km54y7Xd_7g"
+        }
+      ]
+    },
+    {
+      "id": "tle-304b5ba711c7fe0496c16ff1",
+      "eventDate": "2026-06-27",
+      "eventDateType": "announcement_date",
+      "title": "HeyClicky reached $10k mrr",
+      "summary": "HeyClicky reported reaching $10k mrr at a gas station.",
+      "category": "revenue_milestone",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-f13bfd4f68dc4337f057ca9b",
+          "title": "i am celebrating $10k mrr at a gas station",
+          "publisher": "_heyclicky",
+          "domain": "instagram.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-27T22:15:55.000Z",
+          "evidenceRole": "primary",
+          "url": "https://instagram.com/reel/DaGxCB0Sm5N"
+        }
+      ]
+    },
+    {
+      "id": "tle-202294bb1700c178f3d143cd",
+      "eventDate": "2026-06-09",
+      "eventDateType": "announcement_date",
+      "title": "HeyClicky added drag-and-drop file chat",
+      "summary": "HeyClicky reported drag your files in and start chatting available now.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-45171f81598493eac1769907",
+          "title": "drag your files in and start chatting available now",
+          "publisher": "heyclicky X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-09T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/heyclicky/status/2064520227455705579"
+        }
+      ]
+    },
+    {
+      "id": "tle-720a77cfcb138926d9dee7fe",
+      "eventDate": "2026-05-16",
+      "eventDateType": "announcement_date",
+      "title": "HeyClicky became publicly available",
+      "summary": "Available today, and free to try: @heyclicky.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-d84fadd6399885753f6a3531",
+          "title": "Available today, and free to try: @heyclicky",
+          "publisher": "FarzaTV X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-16T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/FarzaTV/status/2055798794428846572"
+        }
+      ]
+    },
+    {
+      "id": "tle-65f8d37a84080e58a1de1299",
+      "eventDate": "2026-04-07",
+      "eventDateType": "announcement_date",
+      "title": "HeyClicky released Clicky as open source",
+      "summary": "HeyClicky is open-sourcing Clicky.",
+      "category": "open_source",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-dfaeaa1c11ce751f03903016",
+          "title": "Hey, I'm open-sourcing Clicky. Go forth into the wild and build the future of education and the future of AI interfaces, my friends. I'm happy to have given a spark. Enjoy! https:// github.com/farzaa/clicky Quote Farza @FarzaTV · Apr 6 I…",
+          "publisher": "FarzaTV X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-04-07T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/FarzaTV/status/2041691382008705321"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 2
+        },
+        {
+          "month": "2026-05",
+          "count": 1
+        },
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

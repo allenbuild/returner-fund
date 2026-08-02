@@ -1,5 +1,9 @@
 const X_RECENT_SEARCH_ENDPOINT = "https://api.x.com/2/tweets/search/recent";
 const EXA_SEARCH_ENDPOINT = "https://api.exa.ai/search";
+const DEFAULT_X_LOOKBACK_HOURS = 72;
+const MAX_X_LOOKBACK_HOURS = 24 * 7;
+const DEFAULT_X_MAX_PAGES_PER_GROUP = 5;
+const MAX_X_PAGES_PER_GROUP = 10;
 
 export function xUsernameFromUrl(rawUrl) {
   try {
@@ -43,9 +47,10 @@ export async function fetchRecentXPostsForTargets({
   bearerToken,
   fetchImpl = fetch,
   now = new Date(),
-  lookbackHours = 26,
+  lookbackHours = DEFAULT_X_LOOKBACK_HOURS,
   handlesPerRequest = 8,
-  concurrency = 2
+  concurrency = 2,
+  maxPagesPerGroup = DEFAULT_X_MAX_PAGES_PER_GROUP
 }) {
   const handles = [...new Set(
     (targets ?? [])
@@ -63,15 +68,25 @@ export async function fetchRecentXPostsForTargets({
     };
   }
 
-  const groups = chunks(handles, Math.max(1, handlesPerRequest));
+  const groups = chunks(handles, Math.max(1, Math.floor(handlesPerRequest)));
   const postsByHandle = new Map(handles.map((handle) => [handle, []]));
+  const postIdsByHandle = new Map(handles.map((handle) => [handle, new Set()]));
   const errors = [];
+  let requestCount = 0;
   let successfulRequestCount = 0;
-  const startTime = new Date(now.getTime() - lookbackHours * 60 * 60 * 1000).toISOString();
+  const boundedLookbackHours = Math.min(
+    MAX_X_LOOKBACK_HOURS,
+    Math.max(1, Number.isFinite(lookbackHours) ? lookbackHours : DEFAULT_X_LOOKBACK_HOURS)
+  );
+  const boundedMaxPages = Math.min(
+    MAX_X_PAGES_PER_GROUP,
+    Math.max(1, Math.floor(Number.isFinite(maxPagesPerGroup) ? maxPagesPerGroup : DEFAULT_X_MAX_PAGES_PER_GROUP))
+  );
+  const startTime = new Date(now.getTime() - boundedLookbackHours * 60 * 60 * 1000).toISOString();
 
   await mapWithConcurrency(groups, concurrency, async (group) => {
     const query = `(${group.map((handle) => `from:${handle}`).join(" OR ")}) -is:retweet`;
-    const params = new URLSearchParams({
+    const baseParams = new URLSearchParams({
       query,
       start_time: startTime,
       max_results: "100",
@@ -79,46 +94,79 @@ export async function fetchRecentXPostsForTargets({
       expansions: "author_id",
       "user.fields": "name,username"
     });
-    try {
-      const response = await fetchImpl(`${X_RECENT_SEARCH_ENDPOINT}?${params}`, {
-        headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          Accept: "application/json"
+    const seenPaginationTokens = new Set();
+    let nextToken = null;
+
+    for (let page = 1; page <= boundedMaxPages; page += 1) {
+      const params = new URLSearchParams(baseParams);
+      if (nextToken) params.set("next_token", nextToken);
+      requestCount += 1;
+
+      try {
+        const response = await fetchImpl(`${X_RECENT_SEARCH_ENDPOINT}?${params}`, {
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+            Accept: "application/json"
+          }
+        });
+        const payload = await safeJson(response);
+        if (!response.ok) {
+          errors.push({
+            handles: group,
+            page,
+            status: response.status,
+            reason: apiError(payload, `X recent search returned HTTP ${response.status}.`)
+          });
+          return;
         }
-      });
-      const payload = await safeJson(response);
-      if (!response.ok) {
+        successfulRequestCount += 1;
+        const usersById = new Map((payload?.includes?.users ?? []).map((user) => [String(user.id), user]));
+        for (const post of payload?.data ?? []) {
+          const user = usersById.get(String(post.author_id));
+          const handle = String(user?.username ?? "").toLowerCase();
+          if (!postsByHandle.has(handle)) continue;
+          const postId = String(post?.id ?? "");
+          if (postId && postIdsByHandle.get(handle).has(postId)) continue;
+          if (postId) postIdsByHandle.get(handle).add(postId);
+          postsByHandle.get(handle).push({ ...post, author: user });
+        }
+
+        const returnedNextToken = cleanText(payload?.meta?.next_token ?? "");
+        if (!returnedNextToken) return;
+        if (seenPaginationTokens.has(returnedNextToken)) {
+          errors.push({
+            handles: group,
+            page,
+            status: 206,
+            reason: `X recent search repeated pagination token after page ${page}; collection stopped safely.`
+          });
+          return;
+        }
+        seenPaginationTokens.add(returnedNextToken);
+        nextToken = returnedNextToken;
+      } catch (error) {
         errors.push({
           handles: group,
-          status: response.status,
-          reason: apiError(payload, `X recent search returned HTTP ${response.status}.`)
+          page,
+          status: null,
+          reason: errorMessage(error)
         });
         return;
       }
-      successfulRequestCount += 1;
-      const usersById = new Map((payload?.includes?.users ?? []).map((user) => [String(user.id), user]));
-      for (const post of payload?.data ?? []) {
-        const user = usersById.get(String(post.author_id));
-        const handle = String(user?.username ?? "").toLowerCase();
-        if (!postsByHandle.has(handle)) continue;
-        postsByHandle.get(handle).push({ ...post, author: user });
-      }
-      if (payload?.meta?.next_token) {
-        errors.push({
-          handles: group,
-          status: 206,
-          reason: "X recent search returned more than 100 posts for this owner group; the next run must use a smaller group."
-        });
-      }
-    } catch (error) {
-      errors.push({ handles: group, status: null, reason: errorMessage(error) });
     }
+
+    errors.push({
+      handles: group,
+      page: boundedMaxPages,
+      status: 206,
+      reason: `X recent search reached the ${boundedMaxPages}-page safety limit for this owner group; additional results remain.`
+    });
   });
 
   return {
     configured: true,
     handlesRequested: handles.length,
-    requestCount: groups.length,
+    requestCount,
     successfulRequestCount,
     postsByHandle,
     errors

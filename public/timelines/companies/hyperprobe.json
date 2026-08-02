@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-hyperprobe",
+    "slug": "hyperprobe",
+    "name": "HyperProbe"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-458c9009c6e6dd6f0281554e",
+      "eventDate": "2026-07-02",
+      "eventDateType": "announcement_date",
+      "title": "HyperProbe released HyperProbe Demo | YC BF Launch",
+      "summary": "HyperProbe Demo | YC BF Launch.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8e0c0bebaf531b79bcab9cac",
+          "title": "HyperProbe Demo | YC BF Launch",
+          "publisher": "KaranRaina95",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-02T15:31:10-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=ivV7I--ta5c"
+        }
+      ]
+    },
+    {
+      "id": "tle-0b53887a864fcba608837b6b",
+      "eventDate": "2026-06-30",
+      "eventDateType": "announcement_date",
+      "title": "HyperProbe was accepted into Y Combinator S26",
+      "summary": "HyperProbe announced that we got into YC S26.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4d0d9bc35859d5233fb748ad",
+          "title": "We are excited to announce that we got into YC S26!",
+          "publisher": "shailendra-singh-shekhawat",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-30T03:00:02.138Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

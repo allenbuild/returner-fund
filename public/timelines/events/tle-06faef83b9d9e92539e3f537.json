@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-vendo",
+    "slug": "vendo",
+    "name": "Vendo"
+  },
+  "event": {
+    "id": "tle-06faef83b9d9e92539e3f537",
+    "eventDate": "2026-07-21",
+    "eventDateType": "announcement_date",
+    "title": "Vendo released Vendo (YC S26): Let your Users Build Their Own Features",
+    "summary": "Launching Vendo (YC S26): Let your Users Build Their Own Features.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-afe12230466f334eacd82a67",
+        "title": "Launching Vendo (YC S26): Let your Users Build Their Own Features",
+        "publisher": "Launching Vendo (YC S26): Let your Users Build Their Own Features",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-21T01:07:01-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=JjtDhA7DZw8"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-afe12230466f334eacd82a67",
+        "title": "Launching Vendo (YC S26): Let your Users Build Their Own Features",
+        "publisher": "Launching Vendo (YC S26): Let your Users Build Their Own Features",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-21T01:07:01-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=JjtDhA7DZw8",
+        "publicationDate": "2026-07-21T01:07:01-07:00",
+        "excerpt": "Embedded in the official Vendo YC company page.",
+        "sourceEventDate": "2026-07-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b95c7b45b2c90c7c8ecfff0b",
+        "platform": "youtube",
+        "account": "Launching Vendo (YC S26): Let your Users Build Their Own Features",
+        "postDate": "2026-07-21",
+        "excerpt": "Embedded in the official Vendo YC company page.",
+        "url": "https://youtube.com/watch?v=JjtDhA7DZw8",
+        "metrics": {
+          "views": 195,
+          "likes": 3,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

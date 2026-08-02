@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-deep-interactions",
+    "slug": "deep-interactions",
+    "name": "Deep Interactions"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-10b03b776e9f1238313d4187",
+      "eventDate": "2026-04-08",
+      "eventDateType": "announcement_date",
+      "title": "Deep Interactions released Deep Interactions (YC P26), a collaborative AI builder for teams",
+      "summary": "Deep Interactions introduced Deep Interactions (YC P26), a collaborative AI builder for teams.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-15e34900f11914249f885599",
+          "title": "Introducing Deep Interactions (YC P26), a collaborative AI builder for teams.",
+          "publisher": "sruvis",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-04-08T19:07:59.174Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/sruvis_when-i-started-a-phd-at-oxford-trying-to-activity-7447721926220750848-WCmT"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

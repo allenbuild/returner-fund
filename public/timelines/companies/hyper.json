@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-hyper-4",
+    "slug": "hyper",
+    "name": "Hyper"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-39c9b9305ffa51218cb174a3",
+      "eventDate": "2026-05-11",
+      "eventDateType": "announcement_date",
+      "title": "Hyper launched on Hacker News",
+      "summary": "Launch HN: Hyper (YC P26) – Company brain to power agentic development.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-b1225ef90bd26e8ae02ef4f0",
+          "title": "we just launched hyper: it's how every company of the future will be run. https://t.co/BghNbht01k",
+          "publisher": "_shalinshah_ X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-11T20:07:10.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/_shalinshah_/status/2053929929981755673"
+        },
+        {
+          "id": "src-385cc3fb7cae892ae5882f76",
+          "title": "Launch HN: Hyper (YC P26) – Company brain to power agentic development",
+          "publisher": "shalinshah",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-03T17:39:53Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48387095"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

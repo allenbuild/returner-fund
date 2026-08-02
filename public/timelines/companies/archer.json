@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-archer",
+    "slug": "archer",
+    "name": "Archer"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-01ddf97027269e2875dc7127",
+      "eventDate": "2026-05-19",
+      "eventDateType": "announcement_date",
+      "title": "Archer launched on Y Combinator",
+      "summary": "Archer just launched on @ycombinator 's Launch YC.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-670898f025e35e94faa1d4a9",
+          "title": "Archer just launched on @ycombinator 's Launch YC! Archer: Reward. Anything.. Check them out: https:// ycombinator.com/launches/QLx-a rcher-reward-anything ...",
+          "publisher": "VivekYanamadula X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-19T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/VivekYanamadula/status/2056782680235413703"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

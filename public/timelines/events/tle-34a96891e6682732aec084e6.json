@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-salem-robotics-inc",
+    "slug": "salem-robotics-inc",
+    "name": "Salem Robotics Inc"
+  },
+  "event": {
+    "id": "tle-34a96891e6682732aec084e6",
+    "eventDate": "2026-07-01",
+    "eventDateType": "announcement_date",
+    "title": "Salem Robotics Inc was accepted into Y Combinator S26",
+    "summary": "Salem Robotics Inc reported share that Salem Robotics (YC S26) has joined Y Combinator.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b4facc66ee67282dbd13fe9e",
+        "title": "We're excited to share that Salem Robotics (YC S26) has joined Y Combinator.",
+        "publisher": "caleb-horan",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-01T04:03:58.036Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tFKV"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b4facc66ee67282dbd13fe9e",
+        "title": "We're excited to share that Salem Robotics (YC S26) has joined Y Combinator.",
+        "publisher": "caleb-horan",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-01T04:03:58.036Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tFKV",
+        "publicationDate": "2026-07-01T04:03:58.036Z",
+        "excerpt": "We're excited to share that Salem Robotics (YC S26) has joined Y Combinator. The founder names Salem Robotics, YC S26, its autonomy layer for hazardous environments, and cofounder Janak Panthi. The YC S26 roster lists Caleb Horan as a Salem Robotics Inc founder. The founder names Salem Robotics, YC S26, its autonomy layer for hazardous environments, and cofounder Janak Panthi.",
+        "sourceEventDate": "2026-07-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-01fcebb7aed7f69d4268e391",
+        "platform": "linkedin",
+        "account": "caleb-horan",
+        "postDate": "2026-07-01",
+        "excerpt": "We're excited to share that Salem Robotics (YC S26) has joined Y Combinator. The founder names Salem Robotics, YC S26, its autonomy layer for hazardous environments, and cofounder Janak Panthi. The YC S26 roster lists Caleb Horan as a Salem Robotics Inc founder. The founder names Salem Robotics, YC S26, its autonomy layer for hazardous environments, and cofounder Janak Panthi.",
+        "url": "https://www.linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tFKV",
+        "metrics": {
+          "reactions": 62,
+          "comments": 6
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

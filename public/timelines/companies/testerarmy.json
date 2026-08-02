@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-0fcf85b4721faaf868938cad",
+      "eventDate": "2026-07-27",
+      "eventDateType": "announcement_date",
+      "title": "TesterArmy released TesterArmy Agent",
+      "summary": "TesterArmy introduced TesterArmy Agent: ask an agent to create a project, define tests, analyze results, improve existing tests, and expand test coverage with one prompt.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-34af9dc8d92c4029cc1f349e",
+          "title": "Introducing TesterArmy Agent",
+          "publisher": "TesterArmy",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-27T17:05:14.859Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/TesterArmy/status/2081788013638484261"
+        }
+      ]
+    },
+    {
+      "id": "tle-04a1bae0ef35dbe6e0162012",
+      "eventDate": "2026-06-18",
+      "eventDateType": "announcement_date",
+      "title": "TesterArmy launched on Hacker News",
+      "summary": "Launch HN: TesterArmy (YC P26) – Agents that test web and mobile apps.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-21c1b8d7db0d6402e112b87f",
+          "title": "Launch HN: TesterArmy (YC P26) – Agents that test web and mobile apps",
+          "publisher": "okwasniewski",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-18T14:49:44Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48586299"
+        }
+      ]
+    },
+    {
+      "id": "tle-e473500d7e83288a7c4d6f64",
+      "eventDate": "2026-06-05",
+      "eventDateType": "announcement_date",
+      "title": "TesterArmy added support for testing on Android",
+      "summary": "TesterArmy now supports testing on Android.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6896d9fc77bdf9e69b19ccc5",
+          "title": "TesterArmy now supports testing on Android.",
+          "publisher": "TesterArmy",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-05T23:42:46Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/TesterArmy/status/2063043884759085112"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

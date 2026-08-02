@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "a16z-speedrun-006-zerodrift",
+    "slug": "zerodrift",
+    "name": "ZeroDrift"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-93fc5100da82f56da1f47f06",
+      "eventDate": "2026-06-02",
+      "eventDateType": "announcement_date",
+      "title": "ZeroDrift announced $10,000,000 seed round",
+      "summary": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out of stealth.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7db3c7478dc72497cc79d6c2",
+          "title": "ZeroDrift raised an oversubscribed $10,000,000 seed round to enforce compliance on AI communications, just 3 months after launching out o...",
+          "publisher": "kumesh_a",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-02T15:46:54.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/kumesh_a/status/2061836966891565337"
+        }
+      ]
+    },
+    {
+      "id": "tle-f25a415df035ba0c67834552",
+      "eventDate": "2026-02-10",
+      "eventDateType": "announcement_date",
+      "title": "ZeroDrift was introduced",
+      "summary": "ZeroDrift introduced ZeroDrift.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-bec4241ca864977b741184ab",
+          "title": "Introducing ZeroDrift",
+          "publisher": "ZeroDrift-AI",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-02-10T04:43:43-08:00",
+          "evidenceRole": "primary",
+          "url": "https://www.youtube.com/watch?v=EMT2VhGFidw"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        },
+        {
+          "month": "2026-02",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

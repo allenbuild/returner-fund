@@ -33,6 +33,7 @@ import {
   instagramCollectionAttemptState,
   instagramEvidenceProvenance,
   instagramFailureKind,
+  instagramPublicationDate,
   normalizeInstagramDetailObservation,
   instagramPostIdFromUrl,
   instagramRecencyDecision,
@@ -48,6 +49,8 @@ import {
   reconcileCheckpointOwnerCollisions
 } from "./lib/logged-in-owner-collision-reconciliation.mjs";
 import {
+  DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS,
+  collectionTargetShouldRun,
   partitionCollectionTargetsByOwnerAmbiguity,
   selectRunnableCollectionTargets
 } from "./lib/logged-in-social-target-selection.mjs";
@@ -120,6 +123,10 @@ const maxConsecutiveLinkedInFailures = Math.max(
 const maxConsecutiveInstagramFailures = Math.max(
   1,
   Math.floor(numberArg("--max-consecutive-instagram-failures") ?? 3)
+);
+const freshForHours = Math.max(
+  0,
+  numberArg("--fresh-for-hours") ?? DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS
 );
 const planOnly = booleanArg("--plan");
 const openCliFormatArgs = ["-f", "json", "--site-session", "persistent"];
@@ -254,6 +261,8 @@ const runnableTargets = selectRunnableCollectionTargets(prioritizedTargets, {
   attemptKey: attemptKeyFor,
   force,
   retryEmpty,
+  freshForHours,
+  now,
   limit: targetLimit
 });
 // The plan is a canonical account map and must not shrink as checkpoints
@@ -327,8 +336,16 @@ await runWorkerPool(targets, workers, async (target, workerIndex) => {
   if (target.platform === "instagram" && instagramCircuitOpen) return;
 
   const attemptKey = attemptKeyFor(target);
-  const existingAttempt = attemptMap.get(attemptKey);
-  if (!force && existingAttempt?.status === "done" && !(retryEmpty && existingAttempt.count === 0)) return;
+  if (
+    !collectionTargetShouldRun(target, {
+      attempts: attemptMap,
+      attemptKey: attemptKeyFor,
+      force,
+      retryEmpty,
+      freshForHours,
+      now
+    })
+  ) return;
 
   try {
     const result =
@@ -1185,7 +1202,9 @@ async function fetchInstagramPosts(target, workerIndex) {
       title: caption || `${handle} Instagram ${post.type ?? "post"}`,
       text: caption || `${handle} Instagram ${post.type ?? "post"}`,
       rawVisibleText: JSON.stringify({ profile, post, gridItem, detail }),
-      postedAt: parseInstagramDateOrNull(post.date) ?? detail?.postedAt ?? null,
+      postedAt:
+        instagramPublicationDate(post, now).postedAt ??
+        instagramPublicationDate(detail, now).postedAt,
       metrics,
       mediaUrls: detail?.mediaUrls ?? gridItem?.mediaUrls ?? [],
       contributionScore: scoreMetrics("instagram", metrics),
@@ -1573,13 +1592,14 @@ async function fetchInstagramPostDetails(handle, gridUrls, workerIndex) {
         }).catch(() => "[]");
         const extracted = parseJsonOutput(raw)[0] ?? parseJsonOutput(raw);
         const parsed = normalizeInstagramDetailObservation(extracted);
+        const publication = instagramPublicationDate(parsed, now);
         if (parsed?.url || parsed?.description || parsed?.caption) {
           details.push({
             url,
             caption: parsed.caption ?? null,
             rawText: parsed.text ?? parsed.description ?? "",
             description: parsed.description ?? null,
-            postedAt: parseInstagramDateOrNull(parsed.dateLabel),
+            postedAt: publication.postedAt,
             likes: numberOrNull(parsed.likes),
             comments: numberOrNull(parsed.comments),
             views: numberOrNull(parsed.views),
@@ -1846,12 +1866,6 @@ function isGenericInstagramAlt(value) {
 function parseDateOrNull(value) {
   const timestamp = Date.parse(value ?? "");
   return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
-}
-
-function parseInstagramDateOrNull(value) {
-  if (!value) return null;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) ? new Date(parsed).toISOString() : null;
 }
 
 function urlMatchesPlatform(url, platform) {
@@ -2171,6 +2185,7 @@ function usage() {
     "  --max-consecutive-x-failures=N",
     "  --max-consecutive-linkedin-failures=N",
     "  --max-consecutive-instagram-failures=N",
+    `  --fresh-for-hours=N        Re-run completed targets after N hours (default: ${DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS})`,
     "  --retry-empty",
     "  --force",
     "  --plan                     Print the read-only target plan and exit",
@@ -2378,6 +2393,7 @@ function instagramPostDetailExtractJs() {
   };
   const description = meta('meta[name="description"]') || meta('meta[property="og:description"]') || "";
   const text = document.body?.innerText || "";
+  const semanticDate = document.querySelector('time[datetime]')?.getAttribute("datetime") || null;
   const metricText = description || text;
   const likes = parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+likes?/i) || [])[1]) ?? jsonNumber("like_count");
   const comments = parseNumber((metricText.match(/([0-9,.]+\\s*[KMB]?)\\s+comments?/i) || [])[1]) ?? jsonNumber("comment_count");
@@ -2403,7 +2419,7 @@ function instagramPostDetailExtractJs() {
     description,
     text: text.slice(0, 3000),
     caption,
-    dateLabel: dateLabel || (takenAt ? new Date(takenAt * 1000).toISOString() : null),
+    dateLabel: semanticDate || dateLabel || (takenAt ? new Date(takenAt * 1000).toISOString() : null),
     likes,
     comments,
     views,

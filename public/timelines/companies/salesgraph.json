@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-salesgraph",
+    "slug": "salesgraph",
+    "name": "Salesgraph"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-956ebb20588856af1e1d1142",
+      "eventDate": "2026-04-27",
+      "eventDateType": "announcement_date",
+      "title": "Salesgraph released Salesgraph Launch",
+      "summary": "Salesgraph Launch.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ee6fcf15630909e95830fca5",
+          "title": "Salesgraph Launch",
+          "publisher": "Salesgraph Launch",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-04-27T08:57:05-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=fO6c2wIPwIw"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

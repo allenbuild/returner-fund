@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-arga-labs",
+    "slug": "arga-labs",
+    "name": "Arga Labs"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-f82e3ee62642159b0d1a1830",
+      "eventDate": "2026-04-13",
+      "eventDateType": "announcement_date",
+      "title": "Arga Labs announced its public launch",
+      "summary": "Arga Labs announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-545dc47a365b79dc38ab9f69",
+          "title": "Arga Labs Launch Video",
+          "publisher": "Arga Labs Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-04-13T12:14:15-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=OzEk5pYTvak"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

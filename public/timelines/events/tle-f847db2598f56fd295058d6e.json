@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-dialogus",
+    "slug": "dialogus",
+    "name": "Dialogus"
+  },
+  "event": {
+    "id": "tle-f847db2598f56fd295058d6e",
+    "eventDate": "2026-06-27",
+    "eventDateType": "announcement_date",
+    "title": "Dialogus was accepted into Y Combinator S26",
+    "summary": "share that Dialogus (YC S26) has been accepted into Y Combinator S26 The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c2718a7409381f2308e12db7",
+        "title": "We're excited to share that Dialogus (YC S26) has been accepted into Y Combinator S26",
+        "publisher": "rodrigoteranhdz",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-27T20:32:03.800Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c2718a7409381f2308e12db7",
+        "title": "We're excited to share that Dialogus (YC S26) has been accepted into Y Combinator S26",
+        "publisher": "rodrigoteranhdz",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-27T20:32:03.800Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4",
+        "publicationDate": "2026-06-27T20:32:03.800Z",
+        "excerpt": "We're excited to share that Dialogus (YC S26) has been accepted into Y Combinator S26 The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra. The YC S26 roster lists Rodrigo Terán as a Dialogus founder. The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra.",
+        "sourceEventDate": "2026-06-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-380ed342f2a2fa6cb5e1ae7b",
+        "platform": "linkedin",
+        "account": "rodrigoteranhdz",
+        "postDate": "2026-06-27",
+        "excerpt": "We're excited to share that Dialogus (YC S26) has been accepted into Y Combinator S26 The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra. The YC S26 roster lists Rodrigo Terán as a Dialogus founder. The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra.",
+        "url": "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4",
+        "metrics": {
+          "reactions": 210,
+          "comments": 28
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

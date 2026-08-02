@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-machine0",
+    "slug": "machine0",
+    "name": "machine0"
+  },
+  "event": {
+    "id": "tle-abedd2756da6f6e33f1318e0",
+    "eventDate": "2026-07-24",
+    "eventDateType": "announcement_date",
+    "title": "machine0 released Profiles Define MCP servers",
+    "summary": "machine0 introduced Profiles Define MCP servers, credentials, and prompts once.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-3d07c263c2bcec6289e88f14",
+        "title": "Introducing Profiles Define MCP servers, credentials, and prompts once. Inject them into your machine0 VM. Claude and Codex pick them up...",
+        "publisher": "barnabymalet",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-24T03:05:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/barnabymalet/status/2080489569334759889"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3d07c263c2bcec6289e88f14",
+        "title": "Introducing Profiles Define MCP servers, credentials, and prompts once. Inject them into your machine0 VM. Claude and Codex pick them up...",
+        "publisher": "barnabymalet",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-24T03:05:41.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/barnabymalet/status/2080489569334759889",
+        "publicationDate": "2026-07-24T03:05:41.000Z",
+        "excerpt": "Introducing Profiles Define MCP servers, credentials, and prompts once. Inject them into your machine0 VM. Claude and Codex pick them up automatically. https://docs.machine0.io/platform/profiles",
+        "sourceEventDate": "2026-07-24",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7bb9070871286fdaabfbf7e6",
+        "platform": "x",
+        "account": "barnabymalet",
+        "postDate": "2026-07-24",
+        "excerpt": "Introducing Profiles Define MCP servers, credentials, and prompts once. Inject them into your machine0 VM. Claude and Codex pick them up automatically. https://docs.machine0.io/platform/profiles",
+        "url": "https://x.com/barnabymalet/status/2080489569334759889",
+        "metrics": {
+          "views": 84,
+          "likes": 2,
+          "replies": 0,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

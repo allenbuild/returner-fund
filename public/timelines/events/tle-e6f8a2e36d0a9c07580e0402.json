@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-asterlab",
+    "slug": "aster",
+    "name": "Aster"
+  },
+  "event": {
+    "id": "tle-e6f8a2e36d0a9c07580e0402",
+    "eventDate": "2026-07-16",
+    "eventDateType": "announcement_date",
+    "title": "Aster released Aster Inference",
+    "summary": "Launching Aster Inference.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-46e430ad2061ad837001f062",
+        "title": "Launching Aster Inference",
+        "publisher": "asterailabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-16",
+        "evidenceRole": "primary",
+        "url": "https://x.com/asterailabs/status/2077556435085574429"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-46e430ad2061ad837001f062",
+        "title": "Launching Aster Inference",
+        "publisher": "asterailabs",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-16",
+        "evidenceRole": "primary",
+        "url": "https://x.com/asterailabs/status/2077556435085574429",
+        "publicationDate": "2026-07-16",
+        "excerpt": "Launching Aster Inference",
+        "sourceEventDate": "2026-07-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-81e52a431f149e45fada970e",
+        "platform": "x",
+        "account": "asterailabs",
+        "postDate": "2026-07-16",
+        "excerpt": "Launching Aster Inference",
+        "url": "https://x.com/asterailabs/status/2077556435085574429",
+        "metrics": {
+          "views": 64762,
+          "likes": 684,
+          "replies": 37,
+          "reposts": 44
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

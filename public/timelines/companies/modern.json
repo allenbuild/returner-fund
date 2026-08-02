@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-modern",
+    "slug": "modern",
+    "name": "Modern"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-626773014ab76ec72f7f36a9",
+      "eventDate": "2026-04-08",
+      "eventDateType": "announcement_date",
+      "title": "Modern was accepted into Y Combinator P26",
+      "summary": "Modern reported i joined Y Combinator P26 batch with Seb.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-eb4b09df01eef17e3d8cb32b",
+          "title": "I joined Y Combinator P26 batch with Seb!",
+          "publisher": "atomovski",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-04-08T23:48:05.356Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/atomovski_i-joined-y-combinator-p26-batch-with-seb-activity-7447792416444743680-ioTb"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

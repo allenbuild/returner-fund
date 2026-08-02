@@ -232,6 +232,9 @@ export function assessLinkedInPrimaryPostBody(row) {
     return { verified: false, reason: "linkedin_primary_body_activity_id_unavailable", text: null };
   }
 
+  const structured = assessLinkedInStructuredPrimaryPostBody(row, rawVisibleText, expectedId);
+  if (structured) return structured;
+
   const sourceMatch = rawVisibleText.match(/\bURL\s+Source\s*:\s*(https?:\/\/\S+)/i);
   const sourceId = linkedinPostIdFromUrl(sourceMatch?.[1] ?? "");
   if (!sourceId) {
@@ -286,6 +289,51 @@ export function assessLinkedInPrimaryPostBody(row) {
     return { verified: false, reason: "linkedin_primary_body_empty", text: null };
   }
   return { verified: true, reason: "linkedin_primary_body_complete", text };
+}
+
+function assessLinkedInStructuredPrimaryPostBody(row, rawVisibleText, expectedId) {
+  let receipt;
+  try {
+    receipt = JSON.parse(rawVisibleText);
+  } catch {
+    return null;
+  }
+  if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)) {
+    return { verified: false, reason: "linkedin_structured_primary_body_invalid", text: null };
+  }
+
+  const receiptId = linkedinPostIdFromUrl(receipt?.post?.url ?? "") ??
+    (/^\d{10,}$/.test(String(receipt?.post?.id ?? "")) ? String(receipt.post.id) : null);
+  const accepted = receipt?.verification?.status === "accepted" &&
+    receipt?.verification?.notProfileOrSearchPage === true &&
+    receipt?.verification?.activityIdMatched === true &&
+    receipt?.verification?.authorMatched === true;
+  if (!accepted || receiptId !== expectedId) {
+    return { verified: false, reason: "linkedin_structured_primary_body_identity_unverified", text: null };
+  }
+
+  const receiptAuthorSlug = String(receipt?.post?.author?.slug ?? "")
+    .trim()
+    .replace(/^@/, "")
+    .replace(/\/$/, "")
+    .toLowerCase();
+  const authorSlug = linkedinAccountSlugFromUrl(receipt?.post?.author?.url ?? "") ??
+    (receiptAuthorSlug || null);
+  const expectedAuthorSlug = linkedinNativeAuthorSlugFromUrl(row?.sourceUrl ?? "") ??
+    linkedinAccountSlugFromUrl(row?.accountUrl ?? "");
+  if (!authorSlug || !expectedAuthorSlug || authorSlug !== expectedAuthorSlug) {
+    return { verified: false, reason: "linkedin_structured_primary_body_author_unverified", text: null };
+  }
+
+  const text = String(receipt?.post?.articleBody ?? receipt?.post?.text ?? "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\t ]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  if (!text || text.length > 25_000) {
+    return { verified: false, reason: "linkedin_structured_primary_body_empty", text: null };
+  }
+  return { verified: true, reason: "linkedin_structured_primary_body_verified", text };
 }
 
 export function extractLinkedInPrimaryPostText(row) {

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-heyclicky",
+    "slug": "heyclicky",
+    "name": "HeyClicky"
+  },
+  "event": {
+    "id": "tle-304b5ba711c7fe0496c16ff1",
+    "eventDate": "2026-06-27",
+    "eventDateType": "announcement_date",
+    "title": "HeyClicky reached $10k mrr",
+    "summary": "HeyClicky reported reaching $10k mrr at a gas station.",
+    "category": "revenue_milestone",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f13bfd4f68dc4337f057ca9b",
+        "title": "i am celebrating $10k mrr at a gas station",
+        "publisher": "_heyclicky",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-27T22:15:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/reel/DaGxCB0Sm5N"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f13bfd4f68dc4337f057ca9b",
+        "title": "i am celebrating $10k mrr at a gas station",
+        "publisher": "_heyclicky",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-27T22:15:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/reel/DaGxCB0Sm5N",
+        "publicationDate": "2026-06-27T22:15:55.000Z",
+        "excerpt": "i am celebrating $10k mrr at a gas station",
+        "sourceEventDate": "2026-06-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9f065bf124bf79c3402cef4f",
+        "platform": "instagram",
+        "account": "_heyclicky",
+        "postDate": "2026-06-27",
+        "excerpt": "i am celebrating $10k mrr at a gas station",
+        "url": "https://instagram.com/reel/DaGxCB0Sm5N",
+        "metrics": {
+          "likes": 673,
+          "comments": 36,
+          "views": 5300
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

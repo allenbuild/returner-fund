@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-datost",
+    "slug": "datost",
+    "name": "Datost"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-f54d557607fd3e0af9adee2e",
+      "eventDate": "2026-04-15",
+      "eventDateType": "announcement_date",
+      "title": "Datost announced its public launch",
+      "summary": "Datost announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6397145759fa5cfe7493e745",
+          "title": "Datost - Y-combinator - Launch Video",
+          "publisher": "Datost - Y-combinator - Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-04-15T12:37:28-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=iIxir5wtX44"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-drafted",
+    "slug": "drafted",
+    "name": "Drafted"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-21f9fe1d74498b265e148232",
+      "eventDate": "2026-07-23",
+      "eventDateType": "announcement_date",
+      "title": "Drafted released Projects & Collaborators in Drafted",
+      "summary": "Drafted introduced Projects & Collaborators in Drafted.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-056d1c337ea40b2d1866bd63",
+          "title": "Introducing Projects &amp; Collaborators in Drafted. Create a project, invite collaborators, design together in one shared space, and approve or reject designs as a team.",
+          "publisher": "DraftedAI",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-23T17:05:03.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/DraftedAI/status/2080338414675902844"
+        }
+      ]
+    },
+    {
+      "id": "tle-b9cec47460793c7b45f67d42",
+      "eventDate": "2026-06-15",
+      "eventDateType": "announcement_date",
+      "title": "Drafted launched on Hacker News",
+      "summary": "Launch HN: Drafted (YC P26) – Models for residential architecture.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-faa713d39d2a6c5dc87be973",
+          "title": "Launch HN: Drafted (YC P26) – Models for residential architecture",
+          "publisher": "PrimalNick",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-15T16:47:21Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48543908"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

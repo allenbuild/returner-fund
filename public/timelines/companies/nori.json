@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-noril1",
+    "slug": "nori",
+    "name": "Nori"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-15f2a94ff03ca84752ad6129",
+      "eventDate": "2026-06-30",
+      "eventDateType": "announcement_date",
+      "title": "Nori released Nori L2",
+      "summary": "Nori introduced Nori L2 The most capable robot under $1288 Made in America, shipping right now.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-8f087c583390e30bf99a86c4",
+          "title": "Introducing Nori L2 The most capable robot under $1288 Made in America, shipping right now.",
+          "publisher": "antoniositongli",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-30T18:37:13.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/AntonioSitongLi/status/2072026687169323274"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

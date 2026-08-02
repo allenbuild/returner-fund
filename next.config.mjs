@@ -1,9 +1,23 @@
 const benchmarkRuntimeData = [
   "outputs/benchmarks/**/*.json",
 ];
+const graphEvidenceRuntimeData = [
+  "generated-runtime/graph/public-evidence-current.json",
+  "generated-runtime/graph/logged-in-evidence-current.json",
+  "generated-runtime/graph/targeted-evidence-current.json",
+];
+const timelineRuntimeData = [
+  "public/timelines/**/*.json",
+];
+const timelineInternalRuntimeData = [
+  "artifacts/company-timeline/coverage.json",
+];
 const graphRuntimeData = [
   ...benchmarkRuntimeData,
-  "src/lib/social/targeted-evidence-current.json",
+  ...graphEvidenceRuntimeData,
+  "src/lib/social/github-traction-a16z-speedrun-006.json",
+  "src/lib/social/a16z-speedrun-006-attribution-reconciliation.json",
+  "src/lib/social/a16z-speedrun-006-social-evidence.json",
   "src/lib/social/a16z-speedrun-006-social-accounts.json",
   "src/lib/social/verified-social-overrides.json",
   "src/lib/yc/summer-2026-companies.json",
@@ -13,6 +27,7 @@ const graphRuntimeData = [
 const graphTraceExcludes = [
   ".git/**/*",
   ".github/**/*",
+  "artifacts/**/*",
   "docs/**/*",
   "outputs/*.*",
   "outputs/attribution-feedback-loop/**/*",
@@ -21,7 +36,11 @@ const graphTraceExcludes = [
   "outputs/source-hunt/**/*",
   "public/brand/**/*",
   "public/evidence-thumbnails/**/*",
+  "public/timelines/**/*",
   "scripts/**/*",
+  "src/lib/social/logged-in-evidence-current.json",
+  "src/lib/social/public-evidence-current.json",
+  "src/lib/social/targeted-evidence-current.json",
   "src/**/*.{css,ts,tsx}",
   "supabase/**/*",
   "tests/**/*",
@@ -37,6 +56,36 @@ const graphTraceExcludes = [
   "tsconfig.tsbuildinfo",
   "vercel.json",
   "vitest.config.ts"
+];
+const debugGraphTraceExcludes = [
+  ".git/**/*",
+  ".github/**/*",
+  "artifacts/**/*",
+  "docs/**/*",
+  "public/brand/**/*",
+  "public/evidence-thumbnails/**/*",
+  "public/timelines/**/*",
+  "scripts/**/*",
+  "src/lib/social/logged-in-evidence-current.json",
+  "src/lib/social/public-evidence-current.json",
+  "src/lib/social/targeted-evidence-current.json",
+  "supabase/**/*",
+  "tests/**/*",
+  "work/**/*"
+];
+const adminDiagnosticsTraceExcludes = [
+  ".git/**/*",
+  ".github/**/*",
+  "artifacts/**/*",
+  "docs/**/*",
+  "generated-runtime/**/*",
+  "outputs/**/*",
+  "public/**/*",
+  "scripts/**/*",
+  "src/**/*.json",
+  "supabase/**/*",
+  "tests/**/*",
+  "work/**/*"
 ];
 const fullGraphTraceExcludes = [
   ...graphTraceExcludes,
@@ -102,13 +151,32 @@ const nextConfig = {
     [canonicalGraphTraceKey]: [...benchmarkRuntimeData, ...publishedGraphRuntimeSnapshots],
     "/api/graph/full": graphRuntimeData,
     "/api/graph/refresh": [...graphRuntimeData, "public/graph/*.json"],
-    "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData]
+    "/debug/duplicates": graphRuntimeData,
+    "/debug/evidence": graphRuntimeData,
+    "/debug/instagram-coverage": [
+      ...graphRuntimeData,
+      "outputs/instagram-discovery-candidates.json"
+    ],
+    "/debug/scoring": graphRuntimeData,
+    "/debug/thumbnails": graphRuntimeData,
+    "/debug/workers": graphRuntimeData,
+    "/api/insiders/recompute": [...insiderRuntimeSnapshots, ...benchmarkRuntimeData],
+    "/api/companies/[slug]/timeline": [...timelineRuntimeData, ...timelineInternalRuntimeData],
+    "/api/timeline/events/[eventId]": [...timelineRuntimeData, ...timelineInternalRuntimeData],
+    "/api/admin/timeline/**/*": [...timelineRuntimeData, ...timelineInternalRuntimeData]
   },
   outputFileTracingExcludes: {
     [canonicalGraphTraceKey]: graphTraceExcludes,
     "/api/graph/full": fullGraphTraceExcludes,
     "/api/graph/refresh": graphTraceExcludes,
-    "/api/insiders/recompute": graphTraceExcludes
+    "/api/insiders/recompute": graphTraceExcludes,
+    "/api/admin/ingestion": adminDiagnosticsTraceExcludes,
+    "/debug/duplicates": debugGraphTraceExcludes,
+    "/debug/evidence": debugGraphTraceExcludes,
+    "/debug/instagram-coverage": debugGraphTraceExcludes,
+    "/debug/scoring": debugGraphTraceExcludes,
+    "/debug/thumbnails": debugGraphTraceExcludes,
+    "/debug/workers": debugGraphTraceExcludes
   }
 };
 

@@ -1,10 +1,14 @@
+export const DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS = 12;
+
 export function collectionTargetShouldRun(
   target,
   {
     attempts = new Map(),
     attemptKey = defaultAttemptKey,
     force = false,
-    retryEmpty = false
+    retryEmpty = false,
+    freshForHours = DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS,
+    now = Date.now()
   } = {}
 ) {
   if (force) return true;
@@ -12,7 +16,8 @@ export function collectionTargetShouldRun(
     attempts instanceof Map ? attempts : new Map(Object.entries(attempts ?? {}));
   const attempt = attemptMap.get(attemptKey(target));
   if (!attempt || attempt.status !== "done") return true;
-  return retryEmpty && Number(attempt.count ?? 0) === 0;
+  if (retryEmpty && Number(attempt.count ?? 0) === 0) return true;
+  return !completedAttemptIsFresh(attempt, { freshForHours, now });
 }
 
 export function selectRunnableCollectionTargets(
@@ -22,6 +27,8 @@ export function selectRunnableCollectionTargets(
     attemptKey = defaultAttemptKey,
     force = false,
     retryEmpty = false,
+    freshForHours = DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS,
+    now = Date.now(),
     limit = Number.POSITIVE_INFINITY
   } = {}
 ) {
@@ -34,10 +41,35 @@ export function selectRunnableCollectionTargets(
         attempts,
         attemptKey,
         force,
-        retryEmpty
+        retryEmpty,
+        freshForHours,
+        now
       })
     )
     .slice(0, normalizedLimit);
+}
+
+function completedAttemptIsFresh(
+  attempt,
+  { freshForHours = DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS, now = Date.now() } = {}
+) {
+  const checkedAtMs = timestampMillis(attempt?.checkedAt);
+  const nowMs = timestampMillis(now);
+  if (!Number.isFinite(checkedAtMs) || !Number.isFinite(nowMs)) return false;
+
+  const configuredHours = Number(freshForHours);
+  const normalizedHours = Number.isFinite(configuredHours)
+    ? Math.max(0, configuredHours)
+    : DEFAULT_LOGGED_IN_SOCIAL_FRESH_FOR_HOURS;
+  if (normalizedHours === 0) return false;
+
+  return nowMs - checkedAtMs < normalizedHours * 60 * 60 * 1000;
+}
+
+function timestampMillis(value) {
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === "number") return value;
+  return Date.parse(String(value ?? ""));
 }
 
 /**

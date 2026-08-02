@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-506573f769677aa9537729fc",
+      "eventDate": "2026-07-23",
+      "eventDateType": "announcement_date",
+      "title": "Ara released Searchable Skills and Plugins in Ara",
+      "summary": "Ara introduced Searchable Skills and Plugins in Ara, powered by from @vercel Ara skills have over 500,000 downloads on the platform.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-31f655714aa2f9f22859fba1",
+          "title": "Introducing Searchable Skills and Plugins in Ara, powered by https://t.co/duhFcYCm8r from @vercel Ara skills have over 500,000 downloads on the platform! Try it yourself today in Ara for free. The future of ai coding with skills.",
+          "publisher": "xadisingh",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-23T14:59:51.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/xadisingh/status/2080306905486930027"
+        }
+      ]
+    },
+    {
+      "id": "tle-00aa21008c1af07b506db315",
+      "eventDate": "2026-07-12",
+      "eventDateType": "announcement_date",
+      "title": "Ara released in Slack",
+      "summary": "Ara launched in Slack.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-93d2a8db0b765e601dcfa58d",
+          "title": "Ara launched in Slack",
+          "publisher": "aradotso",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-12",
+          "evidenceRole": "primary",
+          "url": "https://x.com/aradotso/status/2076339955148992764"
+        }
+      ]
+    },
+    {
+      "id": "tle-16b275316019559f59a89807",
+      "eventDate": "2026-06-01",
+      "eventDateType": "announcement_date",
+      "title": "Ara released AraBrowser",
+      "summary": "Ara introduced AraBrowser a browser built into the IDE for product work open GitHub, docs, profiles, and live sites without leaving the agent loop keep the page, chat, and project context visible while you build with cookies imported so your api/mcp logins are instant.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-cd867a461d795304a5dc710b",
+          "title": "introducing AraBrowser a browser built into the IDE for product work open GitHub, docs, profiles, and live sites without leaving the agent loop keep the page, chat, and project context visible while you build with cookies imported so your…",
+          "publisher": "aradotso X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-01T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/aradotso/status/2061335553292009531"
+        }
+      ]
+    },
+    {
+      "id": "tle-9433eaa82cf2483d7cf7df07",
+      "eventDate": "2026-05-31",
+      "eventDateType": "announcement_date",
+      "title": "Ara released Autosuggest",
+      "summary": "Ara introduced Autosuggest imagine an IDE that surfaces the next useful thing to build before you ask hover to preview the task, inspect the plan, then start the run when it feels right for anyone who wants the product loop to move faster follow the changelog and more here.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-fd39997da505c75623216ace",
+          "title": "introducing Autosuggest imagine an IDE that surfaces the next useful thing to build before you ask hover to preview the task, inspect the plan, then start the run when it feels right for anyone who wants the product loop to move faster…",
+          "publisher": "aradotso X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-31T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/aradotso/status/2061179503830053354"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 2
+        },
+        {
+          "month": "2026-06",
+          "count": 1
+        },
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

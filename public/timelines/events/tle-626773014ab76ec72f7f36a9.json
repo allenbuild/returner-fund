@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-modern",
+    "slug": "modern",
+    "name": "Modern"
+  },
+  "event": {
+    "id": "tle-626773014ab76ec72f7f36a9",
+    "eventDate": "2026-04-08",
+    "eventDateType": "announcement_date",
+    "title": "Modern was accepted into Y Combinator P26",
+    "summary": "Modern reported i joined Y Combinator P26 batch with Seb.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-eb4b09df01eef17e3d8cb32b",
+        "title": "I joined Y Combinator P26 batch with Seb!",
+        "publisher": "atomovski",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-08T23:48:05.356Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/atomovski_i-joined-y-combinator-p26-batch-with-seb-activity-7447792416444743680-ioTb"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-eb4b09df01eef17e3d8cb32b",
+        "title": "I joined Y Combinator P26 batch with Seb!",
+        "publisher": "atomovski",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-08T23:48:05.356Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/atomovski_i-joined-y-combinator-p26-batch-with-seb-activity-7447792416444743680-ioTb",
+        "publicationDate": "2026-04-08T23:48:05.356Z",
+        "excerpt": "I joined Y Combinator P26 batch with Seb! Twelve years ago I was sitting in a cafe in Vilnius watching YC Startup School videos, wondering if building a YC worthy company was even possible for someone like me. Today I'm in San Francisco building Modern (YC P26), one agent layer across IT, HR, Legal, and Finance. Check it out at: https://getmodern.ai/ The version of me in that cafe would not believe it. If you're somewhere at the beginning of that journey keep going ❤️",
+        "sourceEventDate": "2026-04-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-de00c9c4c7bf1aab806a4931",
+        "platform": "linkedin",
+        "account": "atomovski",
+        "postDate": "2026-04-08",
+        "excerpt": "I joined Y Combinator P26 batch with Seb! Twelve years ago I was sitting in a cafe in Vilnius watching YC Startup School videos, wondering if building a YC worthy company was even possible for someone like me. Today I'm in San Francisco building Modern (YC P26), one agent layer across IT, HR, Legal, and Finance. Check it out at: https://getmodern.ai/ The version of me in that cafe would not believe it. If you're somewhere at the beginning of that journey keep going ❤️",
+        "url": "https://linkedin.com/posts/atomovski_i-joined-y-combinator-p26-batch-with-seb-activity-7447792416444743680-ioTb",
+        "metrics": {
+          "reactions": 293,
+          "comments": 75
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

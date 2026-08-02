@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-e7a8400e04c470e1fb36ec36",
+    "eventDate": "2026-07-15",
+    "eventDateType": "occurrence_date",
+    "title": "InsForge launched on Product Hunt",
+    "summary": "InsForge - Give agents everything they need to ship fullstack apps.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-cd99d78a242cad3f8e24e4f8",
+        "title": "InsForge YC Launch Video",
+        "publisher": "InsForge YC Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-18T00:05:55-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=7Bax5qz0IfM"
+      },
+      {
+        "id": "src-00c9dfe1e52710ecc1f638de",
+        "title": "InsForge - Give agents everything they need to ship fullstack apps",
+        "publisher": "InsForge",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-07-15T22:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-cd99d78a242cad3f8e24e4f8",
+        "title": "InsForge YC Launch Video",
+        "publisher": "InsForge YC Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-18T00:05:55-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=7Bax5qz0IfM",
+        "publicationDate": "2026-05-18T00:05:55-07:00",
+        "excerpt": "What exactly is InsForge + demo showcase",
+        "sourceEventDate": "2026-05-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-00c9dfe1e52710ecc1f638de",
+        "title": "InsForge - Give agents everything they need to ship fullstack apps",
+        "publisher": "InsForge",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-07-15T22:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3",
+        "publicationDate": "2026-07-15T22:30:00.000Z",
+        "excerpt": "InsForge - Give agents everything they need to ship fullstack apps. Product Hunt launch page is native to InsForge, links company info to insforge.dev, and marks InsForge as Y Combinator; YC S2026 snapshot lists InsForge.",
+        "sourceEventDate": "2026-07-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-198a1625c5c3ea3dba0d0758",
+        "platform": "youtube",
+        "account": "InsForge YC Launch Video",
+        "postDate": "2026-05-18",
+        "excerpt": "What exactly is InsForge + demo showcase",
+        "url": "https://youtube.com/watch?v=7Bax5qz0IfM",
+        "metrics": {
+          "views": 1234,
+          "likes": 12,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-c29a31136e6489dc036cf070",
+        "platform": "product_hunt",
+        "account": "InsForge",
+        "postDate": "2026-07-15",
+        "excerpt": "InsForge - Give agents everything they need to ship fullstack apps. Product Hunt launch page is native to InsForge, links company info to insforge.dev, and marks InsForge as Y Combinator; YC S2026 snapshot lists InsForge.",
+        "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3",
+        "metrics": {
+          "upvotes": 637,
+          "comments": 127
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

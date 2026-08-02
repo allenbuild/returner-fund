@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   A16Z_SPEEDRUN_006_BATCH_LABEL,
   A16Z_SPEEDRUN_006_BATCH_SLUG,
@@ -9,12 +11,35 @@ import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { TRACTION_SCORING_CONFIG } from "@/lib/graph/traction-scoring-config";
 import { scoringEligibility } from "@/lib/graph/traction-scoring";
 import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
-import type { CompanyRecord, GraphNode, Platform, SocialAccountSummary } from "@/lib/graph/types";
+import type { CompanyRecord, EvidenceItem, GraphNode, Platform, SocialAccountSummary } from "@/lib/graph/types";
 import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
-import socialAccountSeedSnapshot from "@/lib/social/a16z-speedrun-006-social-accounts.json";
-import seededSocialEvidenceSnapshot from "@/lib/social/a16z-speedrun-006-social-evidence.json";
-import seededAttributionReconciliationSnapshot from "@/lib/social/a16z-speedrun-006-attribution-reconciliation.json";
-import githubTractionSnapshot from "@/lib/social/github-traction-a16z-speedrun-006.json";
+
+interface SeededSocialEvidenceSnapshot {
+  source: { generatedAt: string } & Record<string, unknown>;
+  evidence: EvidenceItem[];
+}
+
+interface GithubTractionSnapshot {
+  source: { fetchedAt: string };
+  accounts: Array<{
+    repos?: Array<{
+      id?: string | number | null;
+      htmlUrl: string;
+      createdAt?: string | null;
+      updatedAt?: string | null;
+      pushedAt?: string | null;
+    }>;
+  }>;
+}
+
+const socialAccountSeedSnapshot = readTestJson("src/lib/social/a16z-speedrun-006-social-accounts.json");
+const seededSocialEvidenceSnapshot = readTestJson<SeededSocialEvidenceSnapshot>("src/lib/social/a16z-speedrun-006-social-evidence.json");
+const seededAttributionReconciliationSnapshot = readTestJson("src/lib/social/a16z-speedrun-006-attribution-reconciliation.json");
+const githubTractionSnapshot = readTestJson<GithubTractionSnapshot>("src/lib/social/github-traction-a16z-speedrun-006.json");
+
+function readTestJson<T = unknown>(relativePath: string): T {
+  return JSON.parse(readFileSync(join(process.cwd(), relativePath), "utf8")) as T;
+}
 
 const A16Z_NATIVE_SOCIAL_TRACTION_PLATFORM_LIST: Platform[] = [
   "github",
@@ -348,6 +373,43 @@ describe("a16z speedrun 006 dataset", () => {
     expect(evidence.every((item) => item.entityId.startsWith("a16z-speedrun-006-"))).toBe(true);
     expect(evidence.every((item) => item.entityId === item.attachedCompanyId)).toBe(true);
     expect(evidence.every((item) => scoringEligibility(item).eligible)).toBe(true);
+  });
+
+  it("merges canonical A16Z company and founder posts with native attribution and physical-post dedupe", () => {
+    const graph = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
+      ycSpring2026GraphDataset
+    );
+    const snappCompanyPost = graph.evidence.find(
+      (item) => item.platform === "instagram" && item.platformPostId === "DbbrfntyA_Z"
+    );
+    const artinFounderPost = graph.evidence.find(
+      (item) => item.platform === "instagram" && item.platformPostId === "DbEK7IUp53P"
+    );
+    const canonicalAndSeededPhysicalPost = graph.evidence.filter(
+      (item) => item.platform === "instagram" && item.platformPostId === "Da5r6ONJJvs"
+    );
+
+    expect(snappCompanyPost).toEqual(expect.objectContaining({
+      entityType: "company",
+      entityId: "a16z-speedrun-006-snapp-stats",
+      attachedCompanyId: "a16z-speedrun-006-snapp-stats",
+      authorHandle: "snappstats",
+      accountUrl: "https://instagram.com/snappstats"
+    }));
+    expect(artinFounderPost).toEqual(expect.objectContaining({
+      entityType: "founder",
+      entityId: "a16z-speedrun-006-sun-founder-artin-bogdanov",
+      attachedCompanyId: "a16z-speedrun-006-sun",
+      authorHandle: "artinbogdanov",
+      accountUrl: "https://instagram.com/artinbogdanov"
+    }));
+    expect(canonicalAndSeededPhysicalPost).toHaveLength(1);
+    expect(canonicalAndSeededPhysicalPost[0]).toEqual(expect.objectContaining({
+      entityType: "founder",
+      entityId: "a16z-speedrun-006-sun-founder-artin-bogdanov",
+      attachedCompanyId: "a16z-speedrun-006-sun"
+    }));
   });
 
   it("scores Quanto only from the exact founder post, not its Product Hunt product profile", () => {

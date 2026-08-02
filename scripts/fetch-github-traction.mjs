@@ -7,6 +7,11 @@ import {
   parseGithubTargetUrl,
   sameGithubTargetUrl
 } from "./lib/github-url.mjs";
+import {
+  DEFAULT_GITHUB_COLLECTION_PAGE_LIMIT,
+  fetchGithubCollectionPages,
+  MAX_GITHUB_COLLECTION_PAGE_LIMIT
+} from "./lib/github-api-pagination.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -14,6 +19,13 @@ const outputPath = resolveOutputPath(stringArg("--output") ?? stringArg("--out")
 const apiBase = "https://api.github.com";
 const workers = Math.max(1, Math.min(numberArg("--workers") ?? 6, 16));
 const searchWorkers = Math.max(1, Math.min(numberArg("--search-workers") ?? 1, 4));
+const maxRepositoryPages = Math.max(
+  1,
+  Math.min(
+    Math.floor(numberArg("--max-repo-pages") ?? DEFAULT_GITHUB_COLLECTION_PAGE_LIMIT),
+    MAX_GITHUB_COLLECTION_PAGE_LIMIT
+  )
+);
 const companyLimit = numberArg("--max-companies") ?? Number.POSITIVE_INFINITY;
 const companyShardCount = Math.max(1, Math.floor(numberArg("--company-shard-count") ?? 1));
 const companyShardIndex = Math.floor(numberArg("--company-shard-index") ?? 0);
@@ -67,11 +79,26 @@ const results = [];
 await runWorkerPool(githubTargets, workers, async (target) => {
   try {
     const account = await fetchJson(`${apiBase}/users/${target.login}`);
-    const repos = target.repo
-      ? [await fetchJson(`${apiBase}/repos/${target.login}/${target.repo}`)]
-      : await fetchJson(`${apiBase}/users/${target.login}/repos?sort=updated&per_page=100&type=owner`);
+    const repositoryCollection = target.repo
+      ? {
+          items: [await fetchJson(`${apiBase}/repos/${target.login}/${target.repo}`)],
+          pagesFetched: 1,
+          truncated: false
+        }
+      : await fetchGithubCollectionPages(
+          `${apiBase}/users/${target.login}/repos?sort=updated&per_page=100&type=owner`,
+          {
+            fetchPage: fetchJsonResponse,
+            maxPages: maxRepositoryPages,
+            allowedOrigin: new URL(apiBase).origin
+          }
+        );
     results.push({
-      ...normalizeTarget(target, account, repos),
+      ...normalizeTarget(target, account, repositoryCollection.items, {
+        pagesFetched: repositoryCollection.pagesFetched,
+        pageLimit: target.repo ? 1 : maxRepositoryPages,
+        truncated: repositoryCollection.truncated
+      }),
       attemptKey: githubTargetAttemptKey(target),
       retryable: false
     });
@@ -101,6 +128,7 @@ const payload = {
     companyShardIndex,
     targetCount: githubTargets.length,
     fetchedCount: results.filter((result) => result.fetched).length,
+    repositoryPageLimit: maxRepositoryPages,
     activeAccountMappings: owners.flatMap((owner) => owner.mappedUrls.map((url) => ({
       entityType: owner.entityType,
       entityId: owner.entityId,
@@ -563,6 +591,10 @@ function githubUrlFromParsed(parsed) {
 }
 
 async function fetchJson(url) {
+  return (await fetchJsonResponse(url)).data;
+}
+
+async function fetchJsonResponse(url) {
   const headers = {
     accept: "application/vnd.github+json",
     "user-agent": "yc-network-intelligence-readonly"
@@ -573,7 +605,12 @@ async function fetchJson(url) {
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const response = await fetch(url, { headers });
-    if (response.ok) return response.json();
+    if (response.ok) {
+      return {
+        data: await response.json(),
+        headers: response.headers
+      };
+    }
     if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0") {
       const resetAt = Number(response.headers.get("x-ratelimit-reset") ?? 0) * 1000;
       const waitMs = Math.min(Math.max(resetAt - Date.now() + 1_000, 5_000), 65_000);
@@ -589,7 +626,7 @@ async function fetchJson(url) {
   throw new Error("GitHub request failed after retries.");
 }
 
-function normalizeTarget(target, account, repos) {
+function normalizeTarget(target, account, repos, repositoryPagination) {
   const normalizedRepos = repos
     .filter(Boolean)
     .filter((repo) => !repo.fork)
@@ -635,6 +672,7 @@ function normalizeTarget(target, account, repos) {
       maxRepoScore: normalizedRepos[0]?.score ?? 0,
       profileScore: profileScore(account, normalizedRepos)
     },
+    repositoryPagination,
     repos: normalizedRepos.slice(0, 20)
   };
 }

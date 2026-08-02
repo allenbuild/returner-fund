@@ -11,6 +11,7 @@ import {
   instagramFailureKind,
   instagramMetaDescriptionFields,
   instagramPostIdFromUrl,
+  instagramPublicationDate,
   instagramRecencyDecision,
   instagramTargetIsVerifiedForIngestion,
   mergeVerifiedSocialAccountCandidates,
@@ -318,6 +319,105 @@ describe("logged-in Instagram collection", () => {
           matchReason: "Verified graph account"
         }
       ]
+    );
+  });
+
+  it("normalizes every adapter and detail publication-date field", () => {
+    const now = Date.parse("2026-08-02T20:00:00.000Z");
+    const exact = "2026-07-31T18:04:57.270Z";
+    const exactResult = {
+      postedAt: exact,
+      publishedAtPrecision: "exact"
+    };
+
+    for (const field of ["date", "timestamp", "publishedAt", "postedAt"]) {
+      assert.deepEqual(
+        instagramPublicationDate({ [field]: exact }, now),
+        exactResult,
+        field
+      );
+    }
+
+    const epochMs = Date.parse(exact);
+    assert.deepEqual(
+      instagramPublicationDate({ taken_at: epochMs / 1_000 }, now),
+      exactResult
+    );
+    assert.deepEqual(
+      instagramPublicationDate({ takenAt: String(epochMs / 1_000) }, now),
+      exactResult
+    );
+    assert.deepEqual(
+      instagramPublicationDate({ timestamp: epochMs }, now),
+      exactResult
+    );
+    assert.deepEqual(
+      instagramPublicationDate({ date: String(epochMs) }, now),
+      exactResult
+    );
+    assert.deepEqual(
+      instagramPublicationDate({ dateLabel: "July 31, 2026" }, now),
+      { postedAt: "2026-07-31", publishedAtPrecision: "day" }
+    );
+    assert.deepEqual(
+      instagramPublicationDate("2026-07-31", now),
+      { postedAt: "2026-07-31", publishedAtPrecision: "day" }
+    );
+    assert.deepEqual(
+      instagramPublicationDate({ timestamp: "2026-07-31T18:04:57.270+0000" }, now),
+      exactResult
+    );
+  });
+
+  it("prefers native exact timestamps to display labels", () => {
+    const now = Date.parse("2026-08-02T20:00:00.000Z");
+    const exact = "2026-07-31T18:04:57.000Z";
+    const exactSeconds = Date.parse(exact) / 1_000;
+
+    assert.deepEqual(
+      instagramPublicationDate({
+        date: "July 30, 2026",
+        dateLabel: "July 29, 2026",
+        taken_at: exactSeconds
+      }, now),
+      { postedAt: exact, publishedAtPrecision: "exact" }
+    );
+    assert.deepEqual(
+      instagramPublicationDate({
+        postedAt: exact,
+        taken_at: Date.parse("2026-07-30T00:00:00.000Z") / 1_000
+      }, now),
+      { postedAt: exact, publishedAtPrecision: "exact" }
+    );
+  });
+
+  it("fails closed on malformed, impossible, pre-Instagram, and future dates", () => {
+    const now = Date.parse("2026-08-02T20:00:00.000Z");
+    const unknown = { postedAt: null, publishedAtPrecision: "unknown" };
+    const rejected = [
+      null,
+      {},
+      "not-a-date",
+      "2026-07-31T18:04:57",
+      "2026-02-30",
+      "February 30, 2026",
+      0,
+      -1,
+      12_345,
+      Date.parse("2009-12-31T23:59:59.999Z"),
+      { timestamp: now + 1 },
+      { taken_at: Math.floor(now / 1_000) + 1 },
+      { date: "2026-08-03" },
+      { dateLabel: "August 3, 2026" },
+      { postedAt: "not-a-date", taken_at: Date.parse("2026-07-31T00:00:00.000Z") / 1_000 }
+    ];
+
+    for (const value of rejected) {
+      assert.deepEqual(instagramPublicationDate(value, now), unknown, String(value));
+    }
+    assert.deepEqual(
+      instagramPublicationDate({ postedAt: "2026-07-31T00:00:00.000Z" }, Number.NaN),
+      unknown
     );
   });
 

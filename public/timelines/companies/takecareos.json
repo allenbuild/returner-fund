@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-takecareos",
+    "slug": "takecareos",
+    "name": "TakeCareOS"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-0fd851d6181324bc58258253",
+      "eventDate": "2026-05-13",
+      "eventDateType": "announcement_date",
+      "title": "TakeCareOS released TakeCareOS | The Care Management Platform that you can put to work",
+      "summary": "Launching TakeCareOS | The Care Management Platform that you can put to work.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-09a4d30e3ac03eec17b944c1",
+          "title": "Launching TakeCareOS | The Care Management Platform that you can put to work",
+          "publisher": "Launching TakeCareOS | The Care Management Platform that you can put to work",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-12T22:25:44-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=6G3sDJdRLc4"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

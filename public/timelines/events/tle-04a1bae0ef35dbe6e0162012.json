@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-04a1bae0ef35dbe6e0162012",
+    "eventDate": "2026-06-18",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy launched on Hacker News",
+    "summary": "Launch HN: TesterArmy (YC P26) – Agents that test web and mobile apps.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-21c1b8d7db0d6402e112b87f",
+        "title": "Launch HN: TesterArmy (YC P26) – Agents that test web and mobile apps",
+        "publisher": "okwasniewski",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-18T14:49:44Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48586299"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-21c1b8d7db0d6402e112b87f",
+        "title": "Launch HN: TesterArmy (YC P26) – Agents that test web and mobile apps",
+        "publisher": "okwasniewski",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-18T14:49:44Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48586299",
+        "publicationDate": "2026-06-18T14:49:44Z",
+        "excerpt": "Hey HN - we’re Oskar, Szymon, and Piotr, and we’re building TesterArmy ( https: tester.army ). TesterArmy is an agentic testing platform that runs end-to-end checks before deployment and in production. Instead of wasting hours on manual testing or maintaining static scripts, we let you specify your tests in natural language and handle everything in between. We ve built the platform fully around agents. Our agent will reliably execute the tests, but your coding agent can manage everything in…",
+        "sourceEventDate": "2026-06-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f46aeb0953a8c3c49c2beaa7",
+        "platform": "hacker_news",
+        "account": "okwasniewski",
+        "postDate": "2026-06-18",
+        "excerpt": "Hey HN - we’re Oskar, Szymon, and Piotr, and we’re building TesterArmy ( https: tester.army ). TesterArmy is an agentic testing platform that runs end-to-end checks before deployment and in production. Instead of wasting hours on manual testing or maintaining static scripts, we let you specify your tests in natural language and handle everything in between. We ve built the platform fully around agents. Our agent will reliably execute the tests, but your coding agent can manage everything in…",
+        "url": "https://news.ycombinator.com/item?id=48586299",
+        "metrics": {
+          "points": 132,
+          "upvotes": 132,
+          "comments": 69
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

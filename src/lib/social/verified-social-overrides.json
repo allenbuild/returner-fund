@@ -38,6 +38,17 @@
       }
     ]
   },
+  "amboras": {
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://amboras.com.",
+    "rejectedInstagram": [
+      {
+        "url": "https://www.instagram.com/amboras.ai/",
+        "rejectedAt": "2026-06-30T17:04:13.343Z",
+        "reason": "Instagram profile identity mismatch for @amboras.ai: visible profile name/bio/link did not match Amboras.",
+        "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
   "amdahl": {
     "companySocialLinks": {
       "github": "https://github.com/amdahlco"
@@ -49,17 +60,6 @@
         "rejectedAt": "2026-07-20T00:00:00.000Z",
         "reason": "GitHub account returns 404; retired so it cannot remain a scheduled owner mapping.",
         "source": "github-public-api-identity-guard"
-      }
-    ]
-  },
-  "amboras": {
-    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://amboras.com.",
-    "rejectedInstagram": [
-      {
-        "url": "https://www.instagram.com/amboras.ai/",
-        "rejectedAt": "2026-06-30T17:04:13.343Z",
-        "reason": "Instagram profile identity mismatch for @amboras.ai: visible profile name/bio/link did not match Amboras.",
-        "source": "logged-in-instagram-identity-guard"
       }
     ]
   },
@@ -209,6 +209,36 @@
       }
     ]
   },
+  "coasty": {
+    "matchReason": "The official Coasty repository remains coasty-ai/open-cowork; the similarly named anthropics repository is third-party and must never be attributed to Coasty.",
+    "rejectedGithub": [
+      {
+        "url": "https://github.com/anthropics/open-computer-use",
+        "rejectedAt": "2026-07-26T00:00:00.000Z",
+        "reason": "Repository returns 404 and belongs to a third-party organization, not Coasty.",
+        "source": "github-public-api-identity-guard"
+      }
+    ]
+  },
+  "codag": {
+    "companySocialLinks": {
+      "github": "https://github.com/codag-megalith"
+    },
+    "founders": [
+      {
+        "id": "verified-michael-zhou",
+        "name": "Michael Zhou",
+        "ycProfileUrl": "https://www.ycombinator.com/companies/codag",
+        "sourceUrl": "https://www.ycombinator.com/companies/codag",
+        "socialLinks": {
+          "linkedin": "https://www.linkedin.com/in/mzxzhou",
+          "github": "https://github.com/michaelzixizhou"
+        },
+        "matchReason": "Eighth-pass source hunt verified live YC Codag founder identity and founder-linked native LinkedIn/GitHub/Product Hunt evidence."
+      }
+    ],
+    "matchReason": "Verified social override for Codag based on eighth-pass source hunt and live YC founder attribution."
+  },
   "cohesion": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Cohesion; query=\"\"Cohesion\" Instagram\".",
     "rejectedInstagram": [
@@ -216,6 +246,21 @@
         "url": "https://www.instagram.com/cohesion._/",
         "rejectedAt": "2026-06-30T11:06:04.099Z",
         "reason": "Visible Instagram profile is a band/music account, not YC Cohesion."
+      }
+    ]
+  },
+  "conifer": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/coniferbuild"
+    },
+    "sourceUrl": "https://www.conifer.build",
+    "matchReason": "The official Conifer website links /company/coniferbuild. YC supplied the same identity with a /posts feed suffix, which is not a stable account collection target.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/coniferbuild/posts/?feedView=all",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "Retire the LinkedIn posts surface in favor of the canonical company profile.",
+        "source": "official-social-url-audit"
       }
     ]
   },
@@ -241,6 +286,17 @@
         "source": "logged-in-instagram-identity-guard"
       }
     ]
+  },
+  "dock": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/trydockai/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_outbound_link",
+      "sourceUrl": "https://trydock.ai/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://trydock.ai. Official company-ownership gate passed: unique_strong_company_handle; snapshotVerified=false, uniquelyStrongCompanyHandle=true, founderLikeHandle=false."
   },
   "eden-robotics": {
     "companySocialLinks": {
@@ -268,17 +324,26 @@
       }
     ]
   },
-  "hub": {
+  "egoist-machines": {
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/hubxyz_official/"
+      "linkedin": "https://www.linkedin.com/company/egoistmachines",
+      "instagram": "https://www.instagram.com/egoistmachines/"
     },
+    "sourceUrl": "https://ego.ist/",
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://ego.ist/. Official company-ownership gate passed: unique_strong_company_handle; snapshotVerified=false, uniquelyStrongCompanyHandle=true, founderLikeHandle=false.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/130104210/",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "Retire the numeric LinkedIn alias in favor of the vanity linked by the official company website.",
+        "source": "official-social-url-audit"
+      }
+    ],
     "instagramValidation": {
       "review_state": "verified",
-      "method": "verified_social_profile_link",
-      "sourceUrl": "https://linktr.ee/hubxyz"
-    },
-    "sourceUrl": "https://linktr.ee/hubxyz",
-    "matchReason": "The Hub X profile linked by the Spring 2026 cohort record points to this public link-in-bio page, which uniquely links the native Hub Instagram company profile."
+      "method": "official_outbound_link",
+      "sourceUrl": "https://ego.ist/"
+    }
   },
   "enjamb-labs": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Enjamb Labs; query=\"\"enjamb\" Instagram\".",
@@ -347,6 +412,17 @@
       }
     ]
   },
+  "gutgutgoose": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/gutgutgoose/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_outbound_link",
+      "sourceUrl": "https://gutgutgoose.com/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://gutgutgoose.com/. Official company-ownership gate passed: unique_strong_company_handle; snapshotVerified=false, uniquelyStrongCompanyHandle=true, founderLikeHandle=false."
+  },
   "heyclicky": {
     "companySocialLinks": {
       "instagram": "https://www.instagram.com/_heyclicky/",
@@ -372,6 +448,18 @@
       "method": "explicit_keep_search_derived",
       "reason": "Explicitly kept after user-visible profile review for HeyClicky."
     }
+  },
+  "hub": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/hubxyz_official/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "verified_social_profile_link",
+      "sourceUrl": "https://linktr.ee/hubxyz"
+    },
+    "sourceUrl": "https://linktr.ee/hubxyz",
+    "matchReason": "The Hub X profile linked by the Spring 2026 cohort record points to this public link-in-bio page, which uniquely links the native Hub Instagram company profile."
   },
   "huscarl": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Huscarl; query=\"\"huscarl\" Instagram\".",
@@ -405,6 +493,21 @@
       }
     ]
   },
+  "inkbox": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/inkbox-ai"
+    },
+    "sourceUrl": "https://inkbox.ai",
+    "matchReason": "The official Inkbox website directly links /company/inkbox-ai; prefer it over YC's numeric alias for stable native-author matching.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/107396441",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "Retire the numeric LinkedIn alias in favor of the vanity linked by the official company website.",
+        "source": "official-social-url-audit"
+      }
+    ]
+  },
   "insforge": {
     "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (insforge) for InsForge; query=\"\"insforge\" Instagram\".",
     "rejectedInstagram": [
@@ -431,17 +534,37 @@
       }
     ]
   },
-  "locke": {
+  "interfaze": {
     "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/lockeinc"
+      "github": "https://github.com/InterfazeAI"
     },
-    "matchReason": "Justinian now operates under the Locke brand at locke.inc and /company/lockeinc. Use Locke as the current Summer 2026 identity while the immutable-ID alias ledger preserves historical Justinian evidence.",
-    "rejectedLinkedin": [
+    "founders": [
       {
-        "url": "https://www.linkedin.com/company/justinianai/?viewAsMember=true",
-        "rejectedAt": "2026-07-29T06:31:01.000Z",
-        "reason": "The legacy Justinian LinkedIn page redirects to the current Locke company page; retire the old collection target without detaching historical evidence.",
-        "source": "public_redirect_identity_resolution"
+        "id": "1618136",
+        "name": "Yoeven D Khemlani",
+        "sourceUrl": "https://github.com/yoeven",
+        "socialLinks": {
+          "github": "https://github.com/yoeven"
+        },
+        "matchReason": "GitHub profile identifies Yoeven D Khemlani and JigsawStack, the prior Interfaze identity."
+      },
+      {
+        "id": "2229538",
+        "name": "Harsha Vardhan Khurdula",
+        "sourceUrl": "https://github.com/Khurdhula-Harshavardhan",
+        "socialLinks": {
+          "github": "https://github.com/Khurdhula-Harshavardhan"
+        },
+        "matchReason": "GitHub profile identifies Harsha Vardhan Khurdula and JigsawStack, the prior Interfaze identity."
+      }
+    ],
+    "matchReason": "JigsawStack repositories redirect to the live InterfazeAI organization, whose profile links interfaze.ai.",
+    "rejectedGithub": [
+      {
+        "url": "https://github.com/JigsawStack",
+        "rejectedAt": "2026-07-26T00:00:00.000Z",
+        "reason": "GitHub organization returns 404 and its repositories redirect to the owner-verified InterfazeAI organization.",
+        "source": "github-public-api-identity-guard"
       }
     ]
   },
@@ -553,6 +676,21 @@
       }
     ]
   },
+  "lato": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/latoio"
+    },
+    "sourceUrl": "https://www.latolabs.io/",
+    "matchReason": "The official LATO website directly links the current /company/latoio page, superseding YC's stale /company/latolabs mapping.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/latolabs",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "The official company website links the current latoio vanity; retire the stale latolabs collection target without detaching historical evidence.",
+        "source": "official-social-url-audit"
+      }
+    ]
+  },
   "lattice-health": {
     "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (latticehealth) for Lattice Health; query=\"\"Lattice Health\" site:instagram.com\".",
     "rejectedInstagram": [
@@ -586,6 +724,41 @@
       }
     ]
   },
+  "locke": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/lockeinc"
+    },
+    "matchReason": "Justinian now operates under the Locke brand at locke.inc and /company/lockeinc. Use Locke as the current Summer 2026 identity while the immutable-ID alias ledger preserves historical Justinian evidence.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/justinianai/?viewAsMember=true",
+        "rejectedAt": "2026-07-29T06:31:01.000Z",
+        "reason": "The legacy Justinian LinkedIn page redirects to the current Locke company page; retire the old collection target without detaching historical evidence.",
+        "source": "public_redirect_identity_resolution"
+      }
+    ]
+  },
+  "lumeria": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/lumeriaskin",
+      "instagram": "https://www.instagram.com/lumeria.skin/"
+    },
+    "sourceUrl": "https://lumeria.skin",
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://lumeria.skin. Official company-ownership gate passed: unique_strong_company_handle; snapshotVerified=false, uniquelyStrongCompanyHandle=true, founderLikeHandle=false.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://linkedin.com/lumeriaskin",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "Malformed LinkedIn path lacks an account namespace; retire it in favor of the official /company/lumeriaskin URL.",
+        "source": "official-social-url-audit"
+      }
+    ],
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_outbound_link",
+      "sourceUrl": "https://lumeria.skin/"
+    }
+  },
   "madrone": {
     "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (madrone) for Madrone; query=\"\"madrone\" Instagram\".",
     "rejectedInstagram": [
@@ -605,6 +778,21 @@
         "rejectedAt": "2026-06-30T11:45:57.779Z",
         "reason": "Instagram profile identity mismatch for @manicule: visible profile name/bio/link did not match Manicule.",
         "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "manufacturingintelligence": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/heraengineer"
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/manufacturingintelligence",
+    "matchReason": "YC identifies HERA's LinkedIn owner as heraengineer but supplies a /posts feed URL. Preserve the exact owner identity while canonicalizing it to the public company profile.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/heraengineer/posts/?feedView=all",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "Retire the LinkedIn posts surface in favor of the canonical company profile.",
+        "source": "official-social-url-audit"
       }
     ]
   },
@@ -715,6 +903,21 @@
       }
     ]
   },
+  "openvector": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/openvectorlabs"
+    },
+    "sourceUrl": "https://openvector.com",
+    "matchReason": "The official OpenVector website directly links /company/openvectorlabs. YC supplied the unrelated linked.com host and a personal-profile namespace.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://linked.com/in/openvectorlabs",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "Wrong host and namespace; retire the malformed URL in favor of the official LinkedIn company page.",
+        "source": "official-social-url-audit"
+      }
+    ]
+  },
   "openwork": {
     "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (openwork) for OpenWork; query=\"\"OpenWork\" site:instagram.com\".",
     "rejectedInstagram": [
@@ -745,6 +948,21 @@
         "rejectedAt": "2026-06-30T11:45:57.779Z",
         "reason": "Instagram profile identity mismatch for @pairio: visible profile name/bio/link did not match Pairio.",
         "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "palette-2": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/palette-technology"
+    },
+    "sourceUrl": "https://palettelabs.com/",
+    "matchReason": "The official Palette website directly links the current /company/palette-technology page, superseding YC's stale palette-labs-1 vanity.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/palette-labs-1",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "Retire the stale LinkedIn vanity in favor of the page linked by the official company website.",
+        "source": "official-social-url-audit"
       }
     ]
   },
@@ -790,6 +1008,21 @@
     },
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://pops.fyi."
   },
+  "praxis-ai-2": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/130274179"
+    },
+    "sourceUrl": "https://www.ycombinator.com/companies/praxis-ai-2",
+    "matchReason": "The canonical LinkedIn company URL removes YC's signed-in-only /admin/dashboard suffix while preserving the exact numeric company identity.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/130274179/admin/dashboard/",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "YC supplied a signed-in admin dashboard route instead of the public company profile.",
+        "source": "official-social-url-audit"
+      }
+    ]
+  },
   "projectx": {
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.projectx.cloud/.",
     "rejectedInstagram": [
@@ -826,6 +1059,17 @@
         "rejectedAt": "2026-06-30T11:45:57.779Z",
         "reason": "Instagram profile identity mismatch for @raspire: visible profile name/bio/link did not match RASPIRE.",
         "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "rekursivai": {
+    "matchReason": "YC maps @hyperparticle to both rekursiv.ai and founder Dan Kondratyuk. Retire the duplicate company owner mapping and preserve the explicit founder account so native posts resolve deterministically without weakening cross-company ambiguity guards.",
+    "rejectedX": [
+      {
+        "url": "https://x.com/hyperparticle",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "The same handle is explicitly assigned to founder Dan Kondratyuk; the duplicate company mapping makes native-owner resolution ambiguous.",
+        "source": "official-social-url-audit"
       }
     ]
   },
@@ -889,6 +1133,40 @@
       }
     ]
   },
+  "stage": {
+    "companySocialLinks": {
+      "github": "https://github.com/ReviewStage"
+    },
+    "founders": [
+      {
+        "id": "1219322",
+        "name": "Dean Stratakos",
+        "sourceUrl": "https://github.com/dastratakos",
+        "socialLinks": {
+          "github": "https://github.com/dastratakos"
+        },
+        "matchReason": "GitHub profile identifies Dean Stratakos and Stage, and links the official stagereview.app domain."
+      },
+      {
+        "id": "327595",
+        "name": "Charles Pan",
+        "sourceUrl": "https://github.com/charleslpan",
+        "socialLinks": {
+          "github": "https://github.com/charleslpan"
+        },
+        "matchReason": "GitHub profile identifies Charles Pan and states that he is building stagereview.app."
+      }
+    ],
+    "matchReason": "The live ReviewStage organization links stagereview.app and supersedes the dead stage-review account.",
+    "rejectedGithub": [
+      {
+        "url": "https://github.com/stage-review",
+        "rejectedAt": "2026-07-26T00:00:00.000Z",
+        "reason": "GitHub account returns 404; replaced by the owner-verified ReviewStage organization.",
+        "source": "github-public-api-identity-guard"
+      }
+    ]
+  },
   "standout": {
     "matchReason": "Web Instagram search found a full official-domain Instagram handle match (standoutwork) for Standout; query=\"\"Standout\" site:instagram.com\".",
     "rejectedInstagram": [
@@ -897,6 +1175,21 @@
         "rejectedAt": "2026-06-30T17:04:13.343Z",
         "reason": "Instagram profile identity mismatch for @standout.work: visible profile name/bio/link did not match Standout.",
         "source": "logged-in-instagram-identity-guard"
+      }
+    ]
+  },
+  "stoa": {
+    "companySocialLinks": {
+      "linkedin": "https://www.linkedin.com/company/stoaexchange"
+    },
+    "sourceUrl": "https://www.stoaexchange.com",
+    "matchReason": "The official Stoa website links /company/stoaexchange, superseding YC's stale /company/stoamarkets mapping.",
+    "rejectedLinkedin": [
+      {
+        "url": "https://www.linkedin.com/company/stoamarkets/",
+        "rejectedAt": "2026-08-01T06:54:23.000Z",
+        "reason": "Retire the stale LinkedIn vanity in favor of the page linked by the official company website.",
+        "source": "official-social-url-audit"
       }
     ]
   },
@@ -922,6 +1215,18 @@
       }
     ]
   },
+  "surtr-defense-systems": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/surtrdefense/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "verified_social_profile_link",
+      "sourceUrl": "https://x.com/surtrdefense"
+    },
+    "sourceUrl": "https://x.com/surtrdefense",
+    "matchReason": "The Surtr Defense X profile linked by the Spring 2026 cohort record directly identifies and links this native Instagram company profile."
+  },
   "synphony": {
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.synphony.co/.",
     "rejectedInstagram": [
@@ -946,6 +1251,29 @@
         "source": "logged-in-instagram-identity-guard"
       }
     ]
+  },
+  "talentpluto": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/talentpluto_/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_outbound_link",
+      "sourceUrl": "https://talentpluto.com/"
+    },
+    "sourceUrl": "https://talentpluto.com/",
+    "matchReason": "The exact official Pluto website links directly to this native Instagram company profile; verified during the batch-aware Instagram discovery audit."
+  },
+  "tash": {
+    "companySocialLinks": {
+      "instagram": "https://www.instagram.com/tash.cards/"
+    },
+    "instagramValidation": {
+      "review_state": "verified",
+      "method": "official_outbound_link",
+      "sourceUrl": "https://www.tash.cards/"
+    },
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.tash.cards/. Official company-ownership gate passed: unique_strong_company_handle; snapshotVerified=false, uniquelyStrongCompanyHandle=true, founderLikeHandle=false."
   },
   "tasklet-2": {
     "matchReason": "Web Instagram search found a full official-domain Instagram handle match (taskletai) for Tasklet; query=\"\"tasklet\" Instagram\".",
@@ -1102,288 +1430,5 @@
     "companySocialLinks": {
       "instagram": "https://www.instagram.com/youart_studio/"
     }
-  },
-  "codag": {
-    "companySocialLinks": {
-      "github": "https://github.com/codag-megalith"
-    },
-    "founders": [
-      {
-        "id": "verified-michael-zhou",
-        "name": "Michael Zhou",
-        "ycProfileUrl": "https://www.ycombinator.com/companies/codag",
-        "sourceUrl": "https://www.ycombinator.com/companies/codag",
-        "socialLinks": {
-          "linkedin": "https://www.linkedin.com/in/mzxzhou",
-          "github": "https://github.com/michaelzixizhou"
-        },
-        "matchReason": "Eighth-pass source hunt verified live YC Codag founder identity and founder-linked native LinkedIn/GitHub/Product Hunt evidence."
-      }
-    ],
-    "matchReason": "Verified social override for Codag based on eighth-pass source hunt and live YC founder attribution."
-  },
-  "stage": {
-    "companySocialLinks": {
-      "github": "https://github.com/ReviewStage"
-    },
-    "founders": [
-      {
-        "id": "1219322",
-        "name": "Dean Stratakos",
-        "sourceUrl": "https://github.com/dastratakos",
-        "socialLinks": {
-          "github": "https://github.com/dastratakos"
-        },
-        "matchReason": "GitHub profile identifies Dean Stratakos and Stage, and links the official stagereview.app domain."
-      },
-      {
-        "id": "327595",
-        "name": "Charles Pan",
-        "sourceUrl": "https://github.com/charleslpan",
-        "socialLinks": {
-          "github": "https://github.com/charleslpan"
-        },
-        "matchReason": "GitHub profile identifies Charles Pan and states that he is building stagereview.app."
-      }
-    ],
-    "matchReason": "The live ReviewStage organization links stagereview.app and supersedes the dead stage-review account.",
-    "rejectedGithub": [
-      {
-        "url": "https://github.com/stage-review",
-        "rejectedAt": "2026-07-26T00:00:00.000Z",
-        "reason": "GitHub account returns 404; replaced by the owner-verified ReviewStage organization.",
-        "source": "github-public-api-identity-guard"
-      }
-    ]
-  },
-  "interfaze": {
-    "companySocialLinks": {
-      "github": "https://github.com/InterfazeAI"
-    },
-    "founders": [
-      {
-        "id": "1618136",
-        "name": "Yoeven D Khemlani",
-        "sourceUrl": "https://github.com/yoeven",
-        "socialLinks": {
-          "github": "https://github.com/yoeven"
-        },
-        "matchReason": "GitHub profile identifies Yoeven D Khemlani and JigsawStack, the prior Interfaze identity."
-      },
-      {
-        "id": "2229538",
-        "name": "Harsha Vardhan Khurdula",
-        "sourceUrl": "https://github.com/Khurdhula-Harshavardhan",
-        "socialLinks": {
-          "github": "https://github.com/Khurdhula-Harshavardhan"
-        },
-        "matchReason": "GitHub profile identifies Harsha Vardhan Khurdula and JigsawStack, the prior Interfaze identity."
-      }
-    ],
-    "matchReason": "JigsawStack repositories redirect to the live InterfazeAI organization, whose profile links interfaze.ai.",
-    "rejectedGithub": [
-      {
-        "url": "https://github.com/JigsawStack",
-        "rejectedAt": "2026-07-26T00:00:00.000Z",
-        "reason": "GitHub organization returns 404 and its repositories redirect to the owner-verified InterfazeAI organization.",
-        "source": "github-public-api-identity-guard"
-      }
-    ]
-  },
-  "surtr-defense-systems": {
-    "companySocialLinks": {
-      "instagram": "https://www.instagram.com/surtrdefense/"
-    },
-    "instagramValidation": {
-      "review_state": "verified",
-      "method": "verified_social_profile_link",
-      "sourceUrl": "https://x.com/surtrdefense"
-    },
-    "sourceUrl": "https://x.com/surtrdefense",
-    "matchReason": "The Surtr Defense X profile linked by the Spring 2026 cohort record directly identifies and links this native Instagram company profile."
-  },
-  "talentpluto": {
-    "companySocialLinks": {
-      "instagram": "https://www.instagram.com/talentpluto_/"
-    },
-    "instagramValidation": {
-      "review_state": "verified",
-      "method": "official_outbound_link",
-      "sourceUrl": "https://talentpluto.com/"
-    },
-    "sourceUrl": "https://talentpluto.com/",
-    "matchReason": "The exact official Pluto website links directly to this native Instagram company profile; verified during the batch-aware Instagram discovery audit."
-  },
-  "conifer": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/coniferbuild"
-    },
-    "sourceUrl": "https://www.conifer.build",
-    "matchReason": "The official Conifer website links /company/coniferbuild. YC supplied the same identity with a /posts feed suffix, which is not a stable account collection target.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://www.linkedin.com/company/coniferbuild/posts/?feedView=all",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "Retire the LinkedIn posts surface in favor of the canonical company profile.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "egoist-machines": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/egoistmachines"
-    },
-    "sourceUrl": "https://ego.ist/",
-    "matchReason": "The official Egoist Machines website directly links the /company/egoistmachines vanity; prefer it over YC's numeric alias for stable native-author matching.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://www.linkedin.com/company/130104210/",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "Retire the numeric LinkedIn alias in favor of the vanity linked by the official company website.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "inkbox": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/inkbox-ai"
-    },
-    "sourceUrl": "https://inkbox.ai",
-    "matchReason": "The official Inkbox website directly links /company/inkbox-ai; prefer it over YC's numeric alias for stable native-author matching.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://www.linkedin.com/company/107396441",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "Retire the numeric LinkedIn alias in favor of the vanity linked by the official company website.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "lato": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/latoio"
-    },
-    "sourceUrl": "https://www.latolabs.io/",
-    "matchReason": "The official LATO website directly links the current /company/latoio page, superseding YC's stale /company/latolabs mapping.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://www.linkedin.com/company/latolabs",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "The official company website links the current latoio vanity; retire the stale latolabs collection target without detaching historical evidence.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "lumeria": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/lumeriaskin"
-    },
-    "sourceUrl": "https://lumeria.skin",
-    "matchReason": "The official Lumeria website links /company/lumeriaskin. YC omitted the required LinkedIn /company namespace.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://linkedin.com/lumeriaskin",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "Malformed LinkedIn path lacks an account namespace; retire it in favor of the official /company/lumeriaskin URL.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "manufacturingintelligence": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/heraengineer"
-    },
-    "sourceUrl": "https://www.ycombinator.com/companies/manufacturingintelligence",
-    "matchReason": "YC identifies HERA's LinkedIn owner as heraengineer but supplies a /posts feed URL. Preserve the exact owner identity while canonicalizing it to the public company profile.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://www.linkedin.com/company/heraengineer/posts/?feedView=all",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "Retire the LinkedIn posts surface in favor of the canonical company profile.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "openvector": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/openvectorlabs"
-    },
-    "sourceUrl": "https://openvector.com",
-    "matchReason": "The official OpenVector website directly links /company/openvectorlabs. YC supplied the unrelated linked.com host and a personal-profile namespace.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://linked.com/in/openvectorlabs",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "Wrong host and namespace; retire the malformed URL in favor of the official LinkedIn company page.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "palette-2": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/palette-technology"
-    },
-    "sourceUrl": "https://palettelabs.com/",
-    "matchReason": "The official Palette website directly links the current /company/palette-technology page, superseding YC's stale palette-labs-1 vanity.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://www.linkedin.com/company/palette-labs-1",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "Retire the stale LinkedIn vanity in favor of the page linked by the official company website.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "praxis-ai-2": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/130274179"
-    },
-    "sourceUrl": "https://www.ycombinator.com/companies/praxis-ai-2",
-    "matchReason": "The canonical LinkedIn company URL removes YC's signed-in-only /admin/dashboard suffix while preserving the exact numeric company identity.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://www.linkedin.com/company/130274179/admin/dashboard/",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "YC supplied a signed-in admin dashboard route instead of the public company profile.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "rekursivai": {
-    "matchReason": "YC maps @hyperparticle to both rekursiv.ai and founder Dan Kondratyuk. Retire the duplicate company owner mapping and preserve the explicit founder account so native posts resolve deterministically without weakening cross-company ambiguity guards.",
-    "rejectedX": [
-      {
-        "url": "https://x.com/hyperparticle",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "The same handle is explicitly assigned to founder Dan Kondratyuk; the duplicate company mapping makes native-owner resolution ambiguous.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "stoa": {
-    "companySocialLinks": {
-      "linkedin": "https://www.linkedin.com/company/stoaexchange"
-    },
-    "sourceUrl": "https://www.stoaexchange.com",
-    "matchReason": "The official Stoa website links /company/stoaexchange, superseding YC's stale /company/stoamarkets mapping.",
-    "rejectedLinkedin": [
-      {
-        "url": "https://www.linkedin.com/company/stoamarkets/",
-        "rejectedAt": "2026-08-01T06:54:23.000Z",
-        "reason": "Retire the stale LinkedIn vanity in favor of the page linked by the official company website.",
-        "source": "official-social-url-audit"
-      }
-    ]
-  },
-  "coasty": {
-    "matchReason": "The official Coasty repository remains coasty-ai/open-cowork; the similarly named anthropics repository is third-party and must never be attributed to Coasty.",
-    "rejectedGithub": [
-      {
-        "url": "https://github.com/anthropics/open-computer-use",
-        "rejectedAt": "2026-07-26T00:00:00.000Z",
-        "reason": "Repository returns 404 and belongs to a third-party organization, not Coasty.",
-        "source": "github-public-api-identity-guard"
-      }
-    ]
   }
 }

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-dialogus",
+    "slug": "dialogus",
+    "name": "Dialogus"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-f847db2598f56fd295058d6e",
+      "eventDate": "2026-06-27",
+      "eventDateType": "announcement_date",
+      "title": "Dialogus was accepted into Y Combinator S26",
+      "summary": "share that Dialogus (YC S26) has been accepted into Y Combinator S26 The founder names Dialogus, YC S26, its enterprise voice-agent infrastructure, and cofounders Juberth Rodriguez and Hans Ibarra.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-c2718a7409381f2308e12db7",
+          "title": "We're excited to share that Dialogus (YC S26) has been accepted into Y Combinator S26",
+          "publisher": "rodrigoteranhdz",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-27T20:32:03.800Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/rodrigoteranhdz_ycombinator-yc-dialogus-activity-7476734114193240064-SbX4"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

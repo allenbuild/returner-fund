@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-fabraix",
+    "slug": "fabraix",
+    "name": "Fabraix"
+  },
+  "event": {
+    "id": "tle-bb2d1a469f2b27f0f21723c8",
+    "eventDate": "2026-07-18",
+    "eventDateType": "announcement_date",
+    "title": "Fabraix released Nyx",
+    "summary": "Fabraix reported launching Nyx: The World's Frontier Hacker for AI Agents.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-0c0ea587f14ef2fb01611300",
+        "title": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "publisher": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-17T22:48:35-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=WHmJIMIuAEM"
+      },
+      {
+        "id": "src-83ba0ae807450f5995182b56",
+        "title": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+        "publisher": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-20T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/fabraixhq/status/2079227721905999970"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0c0ea587f14ef2fb01611300",
+        "title": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "publisher": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-17T22:48:35-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=WHmJIMIuAEM",
+        "publicationDate": "2026-07-17T22:48:35-07:00",
+        "excerpt": "Embedded in the official Fabraix YC company page.",
+        "sourceEventDate": "2026-07-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-83ba0ae807450f5995182b56",
+        "title": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+        "publisher": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-20T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/fabraixhq/status/2079227721905999970",
+        "publicationDate": "2026-07-20T00:00:00.000Z",
+        "excerpt": "Introducing Nyx, the world’s frontier hacker of AI agents. On AgentHarm, Nyx achieved a 78% attack success rate - compared with 67% for GPT-5.6 Sol. Here’s more about how it works 0:01 / 1:14",
+        "sourceEventDate": "2026-07-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7bd0b55352f3ac23bfb34e85",
+        "platform": "youtube",
+        "account": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+        "postDate": "2026-07-18",
+        "excerpt": "Embedded in the official Fabraix YC company page.",
+        "url": "https://youtube.com/watch?v=WHmJIMIuAEM",
+        "metrics": {
+          "views": 117,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-9720e9243c141844e919c903",
+        "platform": "x",
+        "account": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+        "postDate": "2026-07-18",
+        "excerpt": "Introducing Nyx, the world’s frontier hacker of AI agents. On AgentHarm, Nyx achieved a 78% attack success rate - compared with 67% for GPT-5.6 Sol. Here’s more about how it works 0:01 / 1:14",
+        "url": "https://x.com/fabraixhq/status/2079227721905999970",
+        "metrics": {
+          "likes": 346,
+          "reposts": 57,
+          "comments": 85,
+          "views": 36216
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

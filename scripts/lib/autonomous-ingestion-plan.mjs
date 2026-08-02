@@ -69,6 +69,8 @@ export const AUTONOMOUS_PROCESS_BUDGETS = Object.freeze({
   topVoiceCollectorMs: 22 * MINUTE_MS,
   productionBuildMs: 10 * MINUTE_MS,
   benchmarkPublicationMs: 6 * MINUTE_MS,
+  timelineDiscoveryMs: 4 * MINUTE_MS,
+  timelineBackfillMs: 4 * MINUTE_MS,
   scoringDiagnosticsMs: 3 * MINUTE_MS,
   artifactManifestMs: MINUTE_MS,
   artifactValidationMs: 4 * MINUTE_MS,
@@ -119,6 +121,8 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
   const publicationWindow =
     budgets.productionBuildMs +
     budgets.benchmarkPublicationMs +
+    budgets.timelineDiscoveryMs +
+    budgets.timelineBackfillMs +
     budgets.scoringDiagnosticsMs +
     budgets.artifactManifestMs +
     (2 * budgets.artifactValidationMs) + // cohort audit + public artifact validation
@@ -132,6 +136,8 @@ export function maxAutonomousRunnerProcessBudgetMs(budgets = AUTONOMOUS_PROCESS_
     (2 * budgets.gitPushMs) + // fetch + rebase
     budgets.productionBuildMs +
     budgets.benchmarkPublicationMs +
+    budgets.timelineDiscoveryMs +
+    budgets.timelineBackfillMs +
     budgets.scoringDiagnosticsMs +
     budgets.artifactManifestMs +
     (2 * budgets.artifactValidationMs) + // cohort audit + public artifact validation

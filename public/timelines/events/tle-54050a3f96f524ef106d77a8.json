@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-clawvisor",
+    "slug": "clawvisor",
+    "name": "Clawvisor"
+  },
+  "event": {
+    "id": "tle-54050a3f96f524ef106d77a8",
+    "eventDate": "2026-05-06",
+    "eventDateType": "announcement_date",
+    "title": "Clawvisor announced its public launch",
+    "summary": "Clawvisor announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-6bb005f9b8ddcebd8f077f20",
+        "title": "Clawvisor Launch Video",
+        "publisher": "Clawvisor Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-06T08:25:49-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=2UWv557dg6M"
+      },
+      {
+        "id": "src-77c7ed514a4969c8a55af655",
+        "title": "Introducing Clawvisor, the authorization layer for AI agents. Before today, giving access to your agents was all-or-nothing. Now, you can give your agents access that is scoped to your specific task. If your agent drifts or is…",
+        "publisher": "clawvisor X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-07T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/clawvisor/status/2052452770775699505"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6bb005f9b8ddcebd8f077f20",
+        "title": "Clawvisor Launch Video",
+        "publisher": "Clawvisor Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-06T08:25:49-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=2UWv557dg6M",
+        "publicationDate": "2026-05-06T08:25:49-07:00",
+        "excerpt": "Clawvisor is the authorization layer for AI agents. Approve a task once, and Clawvisor enforces it on every request — so your agent can use Gmail, Slack, and Google Drive without going rogue or ever seeing your credentials. ✅ No credential exposure — keys stay in a vault ✅ Real-time policy enforcement ✅ Context-aware guardrails ✅ Full audit trail ✅ Agent-agnostic (OpenClaw, Claude Code, Cowork, Hermes, Perplexity Computer) Get started → https://clawvisor.com Self-host or read the source →…",
+        "sourceEventDate": "2026-05-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-77c7ed514a4969c8a55af655",
+        "title": "Introducing Clawvisor, the authorization layer for AI agents. Before today, giving access to your agents was all-or-nothing. Now, you can give your agents access that is scoped to your specific task. If your agent drifts or is…",
+        "publisher": "clawvisor X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-07T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/clawvisor/status/2052452770775699505",
+        "publicationDate": "2026-05-07T00:00:00.000Z",
+        "excerpt": "Introducing Clawvisor, the authorization layer for AI agents. Before today, giving access to your agents was all-or-nothing. Now, you can give your agents access that is scoped to your specific task. If your agent drifts or is compromised, it's blocked. Try it today for free. 0:18 / 1:10",
+        "sourceEventDate": "2026-05-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a59a6883c870d74616666b72",
+        "platform": "youtube",
+        "account": "Clawvisor Launch Video",
+        "postDate": "2026-05-06",
+        "excerpt": "Clawvisor is the authorization layer for AI agents. Approve a task once, and Clawvisor enforces it on every request — so your agent can use Gmail, Slack, and Google Drive without going rogue or ever seeing your credentials. ✅ No credential exposure — keys stay in a vault ✅ Real-time policy enforcement ✅ Context-aware guardrails ✅ Full audit trail ✅ Agent-agnostic (OpenClaw, Claude Code, Cowork, Hermes, Perplexity Computer) Get started → https://clawvisor.com Self-host or read the source →…",
+        "url": "https://youtube.com/watch?v=2UWv557dg6M",
+        "metrics": {
+          "views": 1993,
+          "likes": 11,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-5d7b9a34e69b934b06f08af1",
+        "platform": "x",
+        "account": "clawvisor X post",
+        "postDate": "2026-05-06",
+        "excerpt": "Introducing Clawvisor, the authorization layer for AI agents. Before today, giving access to your agents was all-or-nothing. Now, you can give your agents access that is scoped to your specific task. If your agent drifts or is compromised, it's blocked. Try it today for free. 0:18 / 1:10",
+        "url": "https://x.com/clawvisor/status/2052452770775699505",
+        "metrics": {
+          "likes": 30,
+          "reposts": 6,
+          "comments": 6,
+          "views": 2903
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

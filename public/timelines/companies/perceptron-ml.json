@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-perceptron-ml",
+    "slug": "perceptron-ml",
+    "name": "Perceptron ML"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-6db6792ce9a46dc756bbd0a9",
+      "eventDate": "2026-07-13",
+      "eventDateType": "announcement_date",
+      "title": "Perceptron ML released Notyfi (YC S26)",
+      "summary": "Perceptron ML reported launching Notyfi (YC S26), track anything you want happening in the world.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-16bb4ae15cb591bd92305d01",
+          "title": "Launching Notyfi (YC S26), track anything you want happening in the world. Start for free. We watch the internet and feed the context to you or your agents, by email or webhook,...",
+          "publisher": "PerceptronML",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-13T21:41:51.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/PerceptronML/status/2076784195847008510"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

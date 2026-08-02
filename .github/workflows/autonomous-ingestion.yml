@@ -112,7 +112,9 @@ jobs:
 
       - name: Validate generated public artifacts
         timeout-minutes: 5
-        run: npm run artifacts:validate
+        run: |
+          npm run artifacts:validate
+          npm run timeline:validate
 
       - name: Record publication receipt
         id: publication_receipt

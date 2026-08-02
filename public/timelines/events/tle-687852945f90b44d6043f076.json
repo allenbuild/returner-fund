@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hevn-inc",
+    "slug": "hevn-inc",
+    "name": "HEVN, inc"
+  },
+  "event": {
+    "id": "tle-687852945f90b44d6043f076",
+    "eventDate": "2026-04-29",
+    "eventDateType": "announcement_date",
+    "title": "HEVN, inc announced its public launch",
+    "summary": "HEVN, inc announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7b60913c192195e7a9aedb98",
+        "title": "HEVN (YC P26): Launch video",
+        "publisher": "HEVN",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-29T14:13:25-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=RBr87D4AZKk"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7b60913c192195e7a9aedb98",
+        "title": "HEVN (YC P26): Launch video",
+        "publisher": "HEVN",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-29T14:13:25-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=RBr87D4AZKk",
+        "publicationDate": "2026-04-29T14:13:25-07:00",
+        "excerpt": "HEVN is a B2B financial platform that lets global internet companies operate in USD. Join HEVN: hevn.io ● Run your business in USD with corporate cards and global payments with 0% FX fees ● Get named local accounts in EU, US, HK and UAE banks in 1 day ● Send and receive ACH / SEPA / USDC / wires worldwide",
+        "sourceEventDate": "2026-04-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8a7973315f9d217223a8c79e",
+        "platform": "youtube",
+        "account": "HEVN",
+        "postDate": "2026-04-29",
+        "excerpt": "HEVN is a B2B financial platform that lets global internet companies operate in USD. Join HEVN: hevn.io ● Run your business in USD with corporate cards and global payments with 0% FX fees ● Get named local accounts in EU, US, HK and UAE banks in 1 day ● Send and receive ACH / SEPA / USDC / wires worldwide",
+        "url": "https://youtube.com/watch?v=RBr87D4AZKk",
+        "metrics": {
+          "views": 262,
+          "likes": 4,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-control-seat",
+    "slug": "control-seat",
+    "name": "Control Seat"
+  },
+  "event": {
+    "id": "tle-a06007f3f462973f208bcb9e",
+    "eventDate": "2026-07-07",
+    "eventDateType": "announcement_date",
+    "title": "Control Seat was introduced",
+    "summary": "Control Seat introduced Control Seat.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c8a38a0f7d3975d6405a7784",
+        "title": "Introducing Control Seat",
+        "publisher": "Introducing Control Seat",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-07T00:00:01-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=DfSQ8L7d0BM"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c8a38a0f7d3975d6405a7784",
+        "title": "Introducing Control Seat",
+        "publisher": "Introducing Control Seat",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-07T00:00:01-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=DfSQ8L7d0BM",
+        "publicationDate": "2026-07-07T00:00:01-07:00",
+        "excerpt": "Today we're launching Control Seat. Industrial control software has barely changed in decades. Manufacturers still spend weeks stitching together PLCs, SCADA, HMIs, databases, and custom integrations just to get systems running. Control Seat is an AI-native industrial platform built to unify the control stack. We start with modern SCADA software and are building toward a fully integrated controls platform spanning PLCs, edge infrastructure, and the devices on the factory floor. Our mission is…",
+        "sourceEventDate": "2026-07-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-09af7a59c8826c5aded52b39",
+        "platform": "youtube",
+        "account": "Introducing Control Seat",
+        "postDate": "2026-07-07",
+        "excerpt": "Today we're launching Control Seat. Industrial control software has barely changed in decades. Manufacturers still spend weeks stitching together PLCs, SCADA, HMIs, databases, and custom integrations just to get systems running. Control Seat is an AI-native industrial platform built to unify the control stack. We start with modern SCADA software and are building toward a fully integrated controls platform spanning PLCs, edge infrastructure, and the devices on the factory floor. Our mission is…",
+        "url": "https://youtube.com/watch?v=DfSQ8L7d0BM",
+        "metrics": {
+          "views": 258,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

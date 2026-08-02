@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "a16z-speedrun-006-belong",
+    "slug": "belong",
+    "name": "Belong"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-f29104cdd97ce60d0bbe844f",
+      "eventDate": "2026-01-06",
+      "eventDateType": "announcement_date",
+      "title": "Belong announced $2.7M Seed",
+      "summary": "Belong reported share that @belongrewards has raised $2.7M in Seed capital 🚀 Grateful to be backed by an incredible group of investors, including a16z Speedrun, Lakestar, Backwards Capital, and Prevail, alongside an outstanding group of angel operators and entrepreneurs.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2ce26d8609f0cbb1edacbaad",
+          "title": "Excited to share that @belongrewards has raised $2.7M in Seed capital 🚀 Grateful to be backed by an incredible group of investors, incl...",
+          "publisher": "nickmanic",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-01-06T06:02:28.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/nickmanic/status/2008418873540817239"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-01",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

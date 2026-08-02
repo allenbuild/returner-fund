@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-zolvo",
+    "slug": "zolvo",
+    "name": "Zolvo"
+  },
+  "event": {
+    "id": "tle-d4fbf8954ec28f6d447c15ff",
+    "eventDate": "2026-04-29",
+    "eventDateType": "announcement_date",
+    "title": "Zolvo released Zolvo YC Launch YCP26",
+    "summary": "Zolvo YC Launch YCP26.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-54daa4c19d63d54c50c51452",
+        "title": "Zolvo YC Launch YCP26",
+        "publisher": "Zolvo YC Launch YCP26",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-28T17:13:42-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=Mku41_sYeXk"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-54daa4c19d63d54c50c51452",
+        "title": "Zolvo YC Launch YCP26",
+        "publisher": "Zolvo YC Launch YCP26",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-28T17:13:42-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=Mku41_sYeXk",
+        "publicationDate": "2026-04-28T17:13:42-07:00",
+        "excerpt": "Zolvo automates commercial lending back offices so firms manage reconciliation, collections, and monitoring at 80% lower operational cost per dollar.",
+        "sourceEventDate": "2026-04-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9fcc32ceca64e0b7469489dd",
+        "platform": "youtube",
+        "account": "Zolvo YC Launch YCP26",
+        "postDate": "2026-04-29",
+        "excerpt": "Zolvo automates commercial lending back offices so firms manage reconciliation, collections, and monitoring at 80% lower operational cost per dollar.",
+        "url": "https://youtube.com/watch?v=Mku41_sYeXk",
+        "metrics": {
+          "views": 304,
+          "likes": 5,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -181,7 +181,13 @@ export async function GET(request: Request) {
   }
 
   const query = parsedQuery.data;
-  if (!query.includeRaw && !query.includeNonScoring && !query.includeWhy) {
+  const publicationRequest = isLocalPublicationRequest(request);
+  if (
+    !publicationRequest &&
+    !query.includeRaw &&
+    !query.includeNonScoring &&
+    !query.includeWhy
+  ) {
     return diagnosticFlagsRequiredResponse();
   }
 
@@ -413,6 +419,15 @@ function diagnosticFlagsRequiredResponse() {
 }
 
 function authorizeFullGraphRequest(request: Request): NextResponse | null {
+  // The on-host publication worker recomputes canonical graphs through this
+  // route while `next start` is running in production mode. Keep this
+  // exception narrower than the general development loopback allowance: it
+  // requires a loopback URL, the private publication header, and must never
+  // apply inside Vercel Functions.
+  if (isLocalPublicationRequest(request)) {
+    return null;
+  }
+
   // Local report-generation scripts intentionally use the full route. Vercel
   // requests must authenticate even if a caller forges a loopback-looking URL.
   const insecureLoopbackAllowed =
@@ -495,6 +510,17 @@ function isLoopbackRequest(request: Request): boolean {
   } catch {
     return false;
   }
+}
+
+function isLocalPublicationRequest(request: Request): boolean {
+  const expected = process.env.GRAPH_PUBLICATION_BUILD_TOKEN?.trim();
+  const provided = request.headers.get("x-returner-publication-build")?.trim();
+  if (!expected || !provided) return false;
+  return (
+    !process.env.VERCEL &&
+    isLoopbackRequest(request) &&
+    secretsMatch(provided, expected)
+  );
 }
 
 function secretsMatch(provided: string, expected: string): boolean {

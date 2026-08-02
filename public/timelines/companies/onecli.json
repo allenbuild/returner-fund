@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-onecli",
+    "slug": "onecli",
+    "name": "OneCLI"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-8e5cf189d732fa866dba0386",
+      "eventDate": "2026-07-23",
+      "eventDateType": "announcement_date",
+      "title": "OneCLI was introduced",
+      "summary": "OneCLI introduced OneCLI, lets AI agents do real work in companies without storing passwords.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-31f516eb636b3ced46cebdec",
+          "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+          "publisher": "jonathanfishner",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-23T14:51:46.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/jonathanfishner/status/2080304874282258697"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

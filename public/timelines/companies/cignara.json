@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-cignara",
+    "slug": "cignara",
+    "name": "Cignara"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-c7d1292510e0c196c7188b49",
+      "eventDate": "2026-05-28",
+      "eventDateType": "announcement_date",
+      "title": "Cignara announced its public launch",
+      "summary": "Cignara announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-acdf3df687987f1fbf0c02d4",
+          "title": "Cignara - YC Product launch video",
+          "publisher": "Cignara - YC Product launch video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-28T10:28:26-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=eBVqdW-yJ7I"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

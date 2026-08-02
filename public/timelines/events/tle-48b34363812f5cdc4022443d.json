@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-mount",
+    "slug": "mount",
+    "name": "Mount"
+  },
+  "event": {
+    "id": "tle-48b34363812f5cdc4022443d",
+    "eventDate": "2026-05-22",
+    "eventDateType": "announcement_date",
+    "title": "Mount released Mount Launch - AI Liability Insurance",
+    "summary": "Mount Launch - AI Liability Insurance.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-1c19441f3deea3e35d819881",
+        "title": "Mount Launch - AI Liability Insurance",
+        "publisher": "Mount Launch - AI Liability Insurance",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-22T13:25:25-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=xo3zVH_pAsc"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-1c19441f3deea3e35d819881",
+        "title": "Mount Launch - AI Liability Insurance",
+        "publisher": "Mount Launch - AI Liability Insurance",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-22T13:25:25-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=xo3zVH_pAsc",
+        "publicationDate": "2026-05-22T13:25:25-07:00",
+        "excerpt": "Embedded in the official Mount YC company page.",
+        "sourceEventDate": "2026-05-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-61dd4dd49d9f0ca847130039",
+        "platform": "youtube",
+        "account": "Mount Launch - AI Liability Insurance",
+        "postDate": "2026-05-22",
+        "excerpt": "Embedded in the official Mount YC company page.",
+        "url": "https://youtube.com/watch?v=xo3zVH_pAsc",
+        "metrics": {
+          "views": 379,
+          "likes": 4,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

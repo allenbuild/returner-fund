@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-verdant",
+    "slug": "verdant",
+    "name": "Verdant"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-a7ff16c5f6838419c90243ec",
+      "eventDate": "2026-06-30",
+      "eventDateType": "announcement_date",
+      "title": "Verdant was accepted into Y Combinator",
+      "summary": "share that Verdant has been accepted into Y Combinator for the Summer 26 batch.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-eb6ad5b0d5620c5ebafeabae",
+          "title": "Excited to share that Verdant has been accepted into Y Combinator for the Summer 26 batch!",
+          "publisher": "jason-yi1",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-30T01:05:40.056Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/jason-yi1_excited-to-share-that-verdant-has-been-accepted-activity-7477527744684171264-8gZg"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

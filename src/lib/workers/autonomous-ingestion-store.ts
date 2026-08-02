@@ -23,6 +23,7 @@ export interface SupabaseQuery<T = unknown> extends PromiseLike<SupabaseResponse
   eq(column: string, value: unknown): SupabaseQuery<T>;
   gt(column: string, value: unknown): SupabaseQuery<T>;
   in(column: string, values: readonly unknown[]): SupabaseQuery<T>;
+  limit(value: number): SupabaseQuery<T>;
   is(column: string, value: null): SupabaseQuery<T>;
   not(column: string, operator: string, value: unknown): SupabaseQuery<T>;
   single(): SupabaseQuery<T>;
@@ -317,13 +318,15 @@ export class AutonomousIngestionConcurrencyError extends Error {
 }
 
 export class AutonomousIngestionStore {
+  private readonly client: SupabaseLikeClient;
   private readonly now: () => Date;
   private readonly createLeaseToken: () => string;
 
   constructor(
-    private readonly client: SupabaseLikeClient,
+    client: SupabaseLikeClient,
     options: AutonomousIngestionStoreOptions = {}
   ) {
+    this.client = client;
     this.now = options.now ?? (() => new Date());
     this.createLeaseToken = options.createLeaseToken ?? (() => crypto.randomUUID());
   }

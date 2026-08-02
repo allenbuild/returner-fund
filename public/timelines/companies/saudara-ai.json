@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-saudara-ai",
+    "slug": "saudara-ai",
+    "name": "Saudara AI"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-b43f853f488b581da13cb2dd",
+      "eventDate": "2026-04-30",
+      "eventDateType": "announcement_date",
+      "title": "Saudara AI announced its public launch",
+      "summary": "Saudara AI just launched on @ycombinator.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-9e18a51f62f9ae766dfd5dd5",
+          "title": "We just launched on @ycombinator . 🚀 We're an AI broker connecting US brands with Indonesia's best factories — real humans doing the work, supercharged by AI, at 10x the speed and a fraction of the cost of a traditional sourcing agent.…",
+          "publisher": "saudara.ai",
+          "domain": "instagram.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-30T05:30:34.000Z",
+          "evidenceRole": "primary",
+          "url": "https://www.instagram.com/reel/DXvlr5dOecC"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

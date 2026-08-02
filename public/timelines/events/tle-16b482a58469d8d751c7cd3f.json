@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-traceforce",
+    "slug": "traceforce",
+    "name": "Traceforce"
+  },
+  "event": {
+    "id": "tle-16b482a58469d8d751c7cd3f",
+    "eventDate": "2026-07-16",
+    "eventDateType": "announcement_date",
+    "title": "Traceforce launched on Hacker News",
+    "summary": "Launch HN: Traceforce (YC S26) – Company-wide security monitoring for AI apps.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-28d55e56193a0b15b84e0a6a",
+        "title": "Launch HN: Traceforce (YC S26) – Company-wide security monitoring for AI apps",
+        "publisher": "Launch HN: Traceforce (YC S26) – Company-wide security monitoring for AI apps",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-16T16:52:16Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48937020"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-28d55e56193a0b15b84e0a6a",
+        "title": "Launch HN: Traceforce (YC S26) – Company-wide security monitoring for AI apps",
+        "publisher": "Launch HN: Traceforce (YC S26) – Company-wide security monitoring for AI apps",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-16T16:52:16Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48937020",
+        "publicationDate": "2026-07-16T16:52:16Z",
+        "excerpt": "Launch HN: Traceforce (YC S26) – Company-wide security monitoring for AI apps",
+        "sourceEventDate": "2026-07-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e231b45e1be0434e72d11860",
+        "platform": "hacker_news",
+        "account": "Launch HN: Traceforce (YC S26) – Company-wide security monitoring for AI apps",
+        "postDate": "2026-07-16",
+        "excerpt": "Launch HN: Traceforce (YC S26) – Company-wide security monitoring for AI apps",
+        "url": "https://news.ycombinator.com/item?id=48937020",
+        "metrics": {
+          "upvotes": 44,
+          "comments": 28
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

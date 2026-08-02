@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-gojiberry-ai",
+    "slug": "gojiberry-ai",
+    "name": "Gojiberry AI"
+  },
+  "event": {
+    "id": "tle-f26204be62aa29cf7f2676a0",
+    "eventDate": "2026-04-07",
+    "eventDateType": "announcement_date",
+    "title": "Gojiberry AI was accepted into Y Combinator P26",
+    "summary": "Gojiberry AI joined YC P26 at $70K MRR.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-04455c9e72ca7a5803a306b2",
+        "title": "We joined YC P26 at $70K MRR",
+        "publisher": "Ecstatic-Tough6503",
+        "domain": "reddit.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-07",
+        "evidenceRole": "primary",
+        "url": "https://www.reddit.com/r/micro_saas/comments/1sfb9cq/we_joined_yc_p26_at_70k_mrr"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-04455c9e72ca7a5803a306b2",
+        "title": "We joined YC P26 at $70K MRR",
+        "publisher": "Ecstatic-Tough6503",
+        "domain": "reddit.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-07",
+        "evidenceRole": "primary",
+        "url": "https://www.reddit.com/r/micro_saas/comments/1sfb9cq/we_joined_yc_p26_at_70k_mrr",
+        "publicationDate": "2026-04-07",
+        "excerpt": "We joined YC P26 at $70K MRR We joined YC P26 at $70K MRR. The post identifies Gojiberry AI and gojiberry.ai and is signed by Romàn.",
+        "sourceEventDate": "2026-04-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6e542dc9d92949fed1719efd",
+        "platform": "reddit",
+        "account": "Ecstatic-Tough6503",
+        "postDate": "2026-04-07",
+        "excerpt": "We joined YC P26 at $70K MRR We joined YC P26 at $70K MRR. The post identifies Gojiberry AI and gojiberry.ai and is signed by Romàn.",
+        "url": "https://www.reddit.com/r/micro_saas/comments/1sfb9cq/we_joined_yc_p26_at_70k_mrr",
+        "metrics": {
+          "upvotes": 20
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

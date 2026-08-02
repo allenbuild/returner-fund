@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-astraea",
+    "slug": "astraea",
+    "name": "Astraea"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-58b0e067b91907104ee17bde",
+      "eventDate": "2026-05-14",
+      "eventDateType": "announcement_date",
+      "title": "Astraea launched on Y Combinator",
+      "summary": "Astraea just launched on @ycombinator's Launch YC.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-4c69dab93581eebd575eb369",
+          "title": "Astraea just launched on @ycombinator's Launch YC!",
+          "publisher": "joshwqngsr",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-14T18:39:36.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/joshwqngsr/status/2054995057518989535"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

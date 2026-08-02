@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-provenmetal",
+    "slug": "provenmetal",
+    "name": "ProvenMetal"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-43ca8d07d730805fc77ef004",
+      "eventDate": "2026-07-13",
+      "eventDateType": "announcement_date",
+      "title": "ProvenMetal launched on Y Combinator",
+      "summary": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-9c2603ea222290f38e35399a",
+          "title": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator!",
+          "publisher": "CarknerWill",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-13T17:37:43.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/CarknerWill/status/2076722758155964636"
+        },
+        {
+          "id": "src-e2cc2a8b40ca382b044f5a58",
+          "title": "ProvenMetal Launch",
+          "publisher": "ProvenMetal Launch",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-12T11:48:56-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=TH0XImuvNbc"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}
