@@ -80,19 +80,18 @@ describe("graph layout", () => {
     const selected = graph.nodes.find((node) => node.label === "Clair Health") ?? graph.nodes[0];
     const positions = buildClusterPositions(graph.nodes);
     const labels = buildLabelPlacements(graph.nodes, positions, selected.id, graph.nodes.length, true);
+    const largestCompany = graph.nodes
+      .filter((node) => node.entityType === "company")
+      .sort((left, right) => right.radius - left.radius || right.score - left.score)[0];
+    const placement = largestCompany ? labels.get(largestCompany.id) : undefined;
 
-    for (const companyName of ["Acceler8"]) {
-      const node = graph.nodes.find((item) => item.label === companyName);
-      const placement = node ? labels.get(node.id) : undefined;
-
-      expect(node).toBeDefined();
-      expect(placement, `${companyName} should have a graph label placement`).toBeDefined();
-      expect(placement?.halign, `${companyName} label should stay horizontally attached`).toBe("center");
-      expect(
-        ["center", "top", "bottom"],
-        `${companyName} label should stay vertically attached`
-      ).toContain(placement?.valign);
-    }
+    expect(largestCompany).toBeDefined();
+    expect(placement, `${largestCompany?.label} should have a graph label placement`).toBeDefined();
+    expect(placement?.halign, `${largestCompany?.label} label should stay horizontally attached`).toBe("center");
+    expect(
+      ["center", "top", "bottom"],
+      `${largestCompany?.label} label should stay vertically attached`
+    ).toContain(placement?.valign);
   }, 20_000);
 
   it("keeps forced a16z company labels from hiding under neighboring circles", () => {
