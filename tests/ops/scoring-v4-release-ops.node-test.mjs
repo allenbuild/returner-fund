@@ -262,6 +262,7 @@ test("package scripts expose honest v4 operations and no false S2026 collector a
   assert.match(packageJson.scripts["check:release"], /check:release:artifacts/);
   assert.match(packageJson.scripts["check:release:scoring"], /test:scoring:experiments:v4/);
   assert.match(packageJson.scripts["check:release:scoring"], /test:scoring:audit:v4/);
+  assert.match(packageJson.scripts["check:release:artifacts"], /prepare:graph-runtime/);
   assert.match(packageJson.scripts["check:release:artifacts"], /test:cohort-coverage/);
   assert.match(packageJson.scripts["check:release:artifacts"], /artifacts:manifest:validate/);
   assert.match(packageJson.scripts["test:cohort-coverage"], /cohort-coverage-audit\.node-test\.mjs/);
