@@ -5,31 +5,21 @@
     "slug": "provenmetal",
     "name": "ProvenMetal"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
   "events": [
     {
-      "id": "tle-43ca8d07d730805fc77ef004",
-      "eventDate": "2026-07-13",
+      "id": "tle-d39d4efd225990f66908a970",
+      "eventDate": "2026-07-12",
       "eventDateType": "announcement_date",
-      "title": "ProvenMetal launched on Y Combinator",
-      "summary": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator.",
+      "title": "ProvenMetal released ProvenMetal Launch",
+      "summary": "ProvenMetal Launch.",
       "category": "product_launch",
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
       "evidenceCount": 2,
       "sourcePreview": [
-        {
-          "id": "src-9c2603ea222290f38e35399a",
-          "title": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator!",
-          "publisher": "CarknerWill",
-          "domain": "x.com",
-          "sourceType": "founder_post",
-          "publishedAt": "2026-07-13T17:37:43.000Z",
-          "evidenceRole": "primary",
-          "url": "https://x.com/CarknerWill/status/2076722758155964636"
-        },
         {
           "id": "src-e2cc2a8b40ca382b044f5a58",
           "title": "ProvenMetal Launch",
@@ -39,6 +29,16 @@
           "publishedAt": "2026-07-12T11:48:56-07:00",
           "evidenceRole": "primary",
           "url": "https://youtube.com/watch?v=TH0XImuvNbc"
+        },
+        {
+          "id": "src-9c2603ea222290f38e35399a",
+          "title": "long live the late nights building circuit boards @provenmetal is now live on @ycombinator!",
+          "publisher": "CarknerWill",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-13T17:37:43.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/CarknerWill/status/2076722758155964636"
         }
       ]
     }
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

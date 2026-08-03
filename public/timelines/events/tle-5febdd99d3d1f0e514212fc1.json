@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-wondering",
+    "slug": "wondering",
+    "name": "Wondering"
+  },
+  "event": {
+    "id": "tle-5febdd99d3d1f0e514212fc1",
+    "eventDate": "2026-07-24",
+    "eventDateType": "announcement_date",
+    "title": "Wondering was accepted into Y Combinator",
+    "summary": "Wondering announced it was excited to share that Wondering joined Y Combinator.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f7795a2307d980c37f660e4e",
+        "title": "Today we are excited to share that Wondering joined Y Combinator!",
+        "publisher": "wondering-app",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-24T18:09:13.380Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/wondering-app_today-we-are-excited-to-share-that-wondering-activity-7486482639583891456-tZSX"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f7795a2307d980c37f660e4e",
+        "title": "Today we are excited to share that Wondering joined Y Combinator!",
+        "publisher": "wondering-app",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-24T18:09:13.380Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/wondering-app_today-we-are-excited-to-share-that-wondering-activity-7486482639583891456-tZSX",
+        "publicationDate": "2026-07-24T18:09:13.380Z",
+        "excerpt": "Today we are excited to share that Wondering joined Y Combinator! Almost everyone has something they gave up on learning. Maybe the subject felt too complicated. Maybe life was just too busy. Somewhere along the way, “I want to learn this” quietly became “I guess I never will.” We’re building Wondering to change that. Wondering turns any complex topic into a structured path of short, visual, interactive lessons, personalized to your background, learning style, and how deep you want to go.…",
+        "sourceEventDate": "2026-07-24",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f0fb5a92d5ce83918153345c",
+        "platform": "linkedin",
+        "account": "wondering-app",
+        "postDate": "2026-07-24",
+        "excerpt": "Today we are excited to share that Wondering joined Y Combinator! Almost everyone has something they gave up on learning. Maybe the subject felt too complicated. Maybe life was just too busy. Somewhere along the way, “I want to learn this” quietly became “I guess I never will.” We’re building Wondering to change that. Wondering turns any complex topic into a structured path of short, visual, interactive lessons, personalized to your background, learning style, and how deep you want to go.…",
+        "url": "https://linkedin.com/posts/wondering-app_today-we-are-excited-to-share-that-wondering-activity-7486482639583891456-tZSX",
+        "metrics": {
+          "reactions": 371,
+          "comments": 18
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

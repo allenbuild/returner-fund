@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-reasonblocks",
+    "slug": "reasonblocks",
+    "name": "ReasonBlocks"
+  },
+  "event": {
+    "id": "tle-0bd1c296b8e0e7ac4f9114ed",
+    "eventDate": "2026-04-08",
+    "eventDateType": "announcement_date",
+    "title": "ReasonBlocks released We're launching ReasonBlocks",
+    "summary": "ReasonBlocks is launching ReasonBlocks.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-82f49298b607ae18d7a27c01",
+        "title": "We're launching ReasonBlocks!",
+        "publisher": "reason-blocks",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-08T01:43:32.545Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/reason-blocks_reasonblocks-activity-7447459083332411392-iQux"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-82f49298b607ae18d7a27c01",
+        "title": "We're launching ReasonBlocks!",
+        "publisher": "reason-blocks",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-08T01:43:32.545Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/reason-blocks_reasonblocks-activity-7447459083332411392-iQux",
+        "publicationDate": "2026-04-08T01:43:32.545Z",
+        "excerpt": "We're launching ReasonBlocks! Every AI agent call starts from scratch — your agent solves a problem and immediately forgets how it got to the solution. Next time it sees the same type of task, it explores from zero again. Multiply that across code gen, finance dashboards, pen testing, ops automation, anything where agents do similar tasks repeatedly, and you're paying for the same reasoning over and over. No compounding improvement: your 1000th call is no smarter than your 1st. We built…",
+        "sourceEventDate": "2026-04-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f0e51df1f2336698a3432db8",
+        "platform": "linkedin",
+        "account": "reason-blocks",
+        "postDate": "2026-04-08",
+        "excerpt": "We're launching ReasonBlocks! Every AI agent call starts from scratch — your agent solves a problem and immediately forgets how it got to the solution. Next time it sees the same type of task, it explores from zero again. Multiply that across code gen, finance dashboards, pen testing, ops automation, anything where agents do similar tasks repeatedly, and you're paying for the same reasoning over and over. No compounding improvement: your 1000th call is no smarter than your 1st. We built…",
+        "url": "https://linkedin.com/posts/reason-blocks_reasonblocks-activity-7447459083332411392-iQux",
+        "metrics": {
+          "reactions": 87,
+          "comments": 8
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

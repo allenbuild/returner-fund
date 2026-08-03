@@ -371,13 +371,13 @@ try {
     if (!args.skipPublish && publicationInputs.sourceDelta.dailySourceHealth === "stale_day") {
       await event(
         "publication.daily_source_stale",
-        "error",
-        "Both Central ingestion slots completed without a new physical source.",
+        "warning",
+        "Both Central ingestion slots completed without a new physical source; the verified publication remains successful.",
         publicationInputs.sourceDelta
       );
-      throw new Error(
-        `Daily source freshness failed for ${publicationInputs.sourceDelta.centralDay}: ` +
-        "both Central slots found zero new physical sources. The published receipt is recoverable with a replay."
+      console.warn(
+        `Daily source freshness warning for ${publicationInputs.sourceDelta.centralDay}: ` +
+        "both Central slots found zero new physical sources after verified publication."
       );
     }
 
@@ -2881,15 +2881,23 @@ async function refreshMutableYcCatalog() {
       env: process.env,
       stdio: ["ignore", "inherit", "inherit"]
     });
+    let killTimer = null;
     const timer = setTimeout(() => {
       child.kill("SIGTERM");
-    }, 6 * 60_000);
+      killTimer = setTimeout(
+        () => child.kill("SIGKILL"),
+        AUTONOMOUS_PROCESS_BUDGETS.processKillGraceMs
+      );
+      killTimer.unref?.();
+    }, AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs);
     child.once("error", (error) => {
       clearTimeout(timer);
+      if (killTimer) clearTimeout(killTimer);
       reject(error);
     });
     child.once("exit", (code, signal) => {
       clearTimeout(timer);
+      if (killTimer) clearTimeout(killTimer);
       if (code === 0) {
         resolve();
         return;

@@ -47,14 +47,14 @@
     ],
     "posts": [
       {
-        "id": "post-ed0afdc5035454918ba0aa54",
+        "id": "post-ce3ef4badcd53592d3d7a4e3",
         "platform": "youtube",
         "account": "Proprio Robotics - YC Launch Video",
         "postDate": "2026-07-22",
         "excerpt": "Proprio Robotics builds physical AI models to build, maintain, and decomission data center hardware.",
         "url": "https://youtube.com/watch?v=999uFeKGyVY",
         "metrics": {
-          "views": 129,
+          "views": 131,
           "likes": 1,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

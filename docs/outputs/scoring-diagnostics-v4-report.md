@@ -3,10 +3,10 @@
 - Frozen clock: `2026-07-17T12:00:00.000Z`
 - Production model: `returner-traction-v4-absolute-fixed-platform-global-best` (`returner-traction` v4.2.0)
 - Git SHA: excluded from deterministic artifacts; the runtime command logs the executing revision.
-- Input envelope SHA-256: `600f9d025aadef810ee31aa73d83036889881b7478e5fc93b095e16627923940`
-- Effective versioned scoring-input SHA-256: `881b6e97ad9bf226e3d53473cf1e82822331bf87c14538cf3e711968d1cb02c4`
+- Input envelope SHA-256: `a7a087f148ad4d6a502b1d78b532a3e951ab8e74bc054303a6edbe4689691e94`
+- Effective versioned scoring-input SHA-256: `d83fc0c182b51cc652b510a93aa3d471e8534cd3888e8871ab4adee555c88b21`
 - Canonical config: 70 leaf parameters across scoring, calibration, and confidence; 9 role-labeled runtime source files.
-- Audit JSON SHA-256: `f609b49c582e2e9374c270f34be4de7ef56f308276e465b6fe35a5758eef2824`
+- Audit JSON SHA-256: `f91f4776d7a2fe2b2c081af83961a485919d9faede2d21db9f8e6f5afe4abd38`
 - Command: `npm run scoring:audit:v4`
 - Direct command: `node --experimental-strip-types --loader ./scripts/lib/scoring-diagnostics-ts-loader.mjs ./scripts/run-scoring-diagnostics-v4.mjs`
 - Safety: local snapshots only; `fetch` disabled; no API calls, benchmark writes, source edits, or user-data mutation.
@@ -14,12 +14,12 @@
 
 ## Executive summary
 
-- 427 companies across 3 cohorts were inspected with 8164 cohort-scoped evidence rows.
+- 427 companies across 3 cohorts were inspected with 8946 cohort-scoped evidence rows.
 - Global canonical duplicates: 1 company-ID groups, 1 founder-ID groups, 5 social-account URL groups, 0 physical-post groups, and 0 evidence URL groups.
-- Alias diagnostics found 584 overlaps across 484 scored rows.
-- Production eligibility rejected 1491 rows, including 0 rows whose incoming contribution flag was positive.
-- URL diagnostics found 0 scored profile/search/non-native rows. Publication-date metadata gaps affect 451 scored rows; metric gaps affect 0.
-- Robust fences flagged 184 eligible evidence rows and 5/5 company scores before/after.
+- Alias diagnostics found 570 overlaps across 470 scored rows.
+- Production eligibility rejected 1645 rows, including 0 rows whose incoming contribution flag was positive.
+- URL diagnostics found 0 scored profile/search/non-native rows. Publication-date metadata gaps affect 505 scored rows; metric gaps affect 0.
+- Robust fences flagged 180 eligible evidence rows and 4/4 company scores before/after.
 - Monotonicity produced 0 failing company tests. Cleanup changed ranks in 0/3 cohorts and scores in 0/27 batch/platform slices; maximum overall/platform rank shifts were 0/0.
 - Invariants: 13/13 passed. Any violation exits nonzero before artifact writes.
 
@@ -29,17 +29,17 @@ The after view is a diagnostic simulation only. It does not update the productio
 
 | Cohort | Companies | Evidence before | Evidence after | Published mean | Diagnostic before mean | Diagnostic after mean | Rank changes | Max shift |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| S2026 | 197 | 5010 | 3826 | 35.5482 | 18.533 | 18.533 | 0 | 0 |
-| S26 | 171 | 1897 | 1606 | 21.7953 | 11.3567 | 11.3567 | 0 | 0 |
-| A16ZSR006 | 59 | 1257 | 1241 | 33.2203 | 17.2712 | 17.2712 | 0 | 0 |
+| S2026 | 197 | 5373 | 4117 | 36.2792 | 19.2386 | 19.2386 | 0 | 0 |
+| S26 | 171 | 2169 | 1796 | 23.5205 | 12.4503 | 12.4503 | 0 | 0 |
+| A16ZSR006 | 59 | 1404 | 1388 | 33.661 | 17.8305 | 17.8305 | 0 | 0 |
 
 ## Diagnostic counts
 
 | Cohort | Post duplicate groups | URL duplicate groups | Eligibility rejects | Enabled rejects | Physical rows removed | Alias rows | URL findings | Publication gaps | Metric gaps | Evidence outliers | Company outliers B/A |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| S2026 | 0 | 0 | 1184 | 0 | 0 | 351 | 52 | 331 | 87 | 104 | 3/3 |
-| S26 | 0 | 0 | 291 | 0 | 0 | 154 | 34 | 181 | 45 | 39 | 1/1 |
-| A16ZSR006 | 0 | 0 | 16 | 0 | 0 | 75 | 2 | 34 | 12 | 41 | 1/1 |
+| S2026 | 0 | 0 | 1256 | 0 | 0 | 343 | 52 | 358 | 87 | 96 | 3/3 |
+| S26 | 0 | 0 | 373 | 0 | 0 | 154 | 34 | 197 | 45 | 41 | 1/1 |
+| A16ZSR006 | 0 | 0 | 16 | 0 | 0 | 69 | 2 | 45 | 12 | 43 | 0/0 |
 
 ## Batch/platform score and rank shifts
 
@@ -49,37 +49,37 @@ The after view is a diagnostic simulation only. It does not update the productio
 | S2026 | github | 300/142 | 27/27 | 0.8883/0.8883 | 0 | 0 | 0 | 0 |
 | S2026 | hacker_news | 607/42 | 25/25 | 0.3401/0.3401 | 0 | 0 | 0 | 0 |
 | S2026 | instagram | 169/168 | 12/12 | 0.7817/0.7817 | 0 | 0 | 0 | 0 |
-| S2026 | linkedin | 371/363 | 142/142 | 5.4365/5.4365 | 0 | 0 | 0 | 0 |
+| S2026 | linkedin | 614/604 | 156/156 | 6.0558/6.0558 | 0 | 0 | 0 | 0 |
 | S2026 | product_hunt | 6/3 | 2/2 | 0.0457/0.0457 | 0 | 0 | 0 | 0 |
 | S2026 | reddit | 1/1 | 1/1 | 0.0051/0.0051 | 0 | 0 | 0 | 0 |
-| S2026 | x | 3214/2907 | 158/158 | 9.2386/9.2386 | 0 | 0 | 0 | 0 |
-| S2026 | youtube | 342/200 | 158/158 | 1.9036/1.9036 | 0 | 0 | 0 | 0 |
+| S2026 | x | 3214/2908 | 158/158 | 9.2386/9.2386 | 0 | 0 | 0 | 0 |
+| S2026 | youtube | 462/249 | 158/158 | 1.9492/1.9492 | 0 | 0 | 0 | 0 |
 | S26 | bilibili | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
 | S26 | github | 167/98 | 28/28 | 1.0292/1.0292 | 0 | 0 | 0 | 0 |
 | S26 | hacker_news | 90/9 | 9/9 | 0.1345/0.1345 | 0 | 0 | 0 | 0 |
 | S26 | instagram | 16/16 | 3/3 | 0.1404/0.1404 | 0 | 0 | 0 | 0 |
-| S26 | linkedin | 180/179 | 84/84 | 3.9532/3.9532 | 0 | 0 | 0 | 0 |
+| S26 | linkedin | 259/258 | 111/111 | 4.924/4.924 | 0 | 0 | 0 | 0 |
 | S26 | product_hunt | 5/2 | 2/2 | 0.0468/0.0468 | 0 | 0 | 0 | 0 |
 | S26 | reddit | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
 | S26 | x | 1282/1207 | 87/87 | 5.3626/5.3626 | 0 | 0 | 0 | 0 |
-| S26 | youtube | 157/95 | 73/73 | 0.7427/0.7427 | 0 | 0 | 0 | 0 |
+| S26 | youtube | 350/206 | 74/74 | 0.8363/0.8363 | 0 | 0 | 0 | 0 |
 | A16ZSR006 | bilibili | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
 | A16ZSR006 | github | 28/16 | 5/5 | 0.4237/0.4237 | 0 | 0 | 0 | 0 |
 | A16ZSR006 | hacker_news | 0/0 | 0/0 | 0/0 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | instagram | 215/215 | 16/16 | 2.6949/2.6949 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | linkedin | 145/145 | 45/45 | 6.5254/6.5254 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | instagram | 216/216 | 16/16 | 2.6949/2.6949 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | linkedin | 217/217 | 48/48 | 7/7 | 0 | 0 | 0 | 0 |
 | A16ZSR006 | product_hunt | 5/3 | 1/1 | 0.0847/0.0847 | 0 | 0 | 0 | 0 |
 | A16ZSR006 | reddit | 10/8 | 6/6 | 0.1356/0.1356 | 0 | 0 | 0 | 0 |
 | A16ZSR006 | x | 722/722 | 38/38 | 6.5424/6.5424 | 0 | 0 | 0 | 0 |
-| A16ZSR006 | youtube | 132/132 | 15/15 | 0.9661/0.9661 | 0 | 0 | 0 | 0 |
+| A16ZSR006 | youtube | 206/206 | 15/15 | 1.0678/1.0678 | 0 | 0 | 0 | 0 |
 
 ## Platform concentration
 
 | Cohort | Leading platform B/A | Leading share B/A | HHI B/A | Single-platform companies B/A | Median dominant share B/A |
 | --- | --- | ---: | ---: | ---: | ---: |
-| S2026 | x/x | 49.8%/49.8% | 0.3474/0.3474 | 10.2%/10.2% | 59.16%/59.16% |
-| S26 | x/x | 47.26%/47.26% | 0.3548/0.3548 | 33.33%/33.33% | 70.78%/70.78% |
-| A16ZSR006 | x/x | 37.81%/37.81% | 0.3118/0.3118 | 26.79%/26.79% | 59.62%/59.62% |
+| S2026 | x/x | 48.01%/48.01% | 0.3433/0.3433 | 9.18%/9.18% | 57.83%/57.83% |
+| S26 | x/x | 43.1%/43.1% | 0.3525/0.3525 | 32.68%/32.68% | 75.29%/75.29% |
+| A16ZSR006 | linkedin/linkedin | 38.99%/38.99% | 0.3125/0.3125 | 25%/25% | 59.92%/59.92% |
 
 ## Evidence outliers by platform
 
@@ -89,36 +89,36 @@ The after view is a diagnostic simulation only. It does not update the productio
 | S2026 | github | 142 | 8 | 3/41.5 | 0/1470.9137 |
 | S2026 | hacker_news | 42 | 0 | 9.5/335.1244 | 0/60877.8094 |
 | S2026 | instagram | 168 | 1 | 25.3907/907.6868 | 0/183593.1128 |
-| S2026 | linkedin | 363 | 0 | 36.6988/328.3996 | 0.4596/8506.7817 |
+| S2026 | linkedin | 604 | 0 | 21.6/201.674 | 0/5441.9235 |
 | S2026 | product_hunt | 3 | 0 | n/a/n/a | n/a/n/a |
 | S2026 | reddit | 1 | 0 | n/a/n/a | n/a/n/a |
-| S2026 | x | 2907 | 82 | 12.37/135.7199 | 0/4469.7746 |
-| S2026 | youtube | 200 | 13 | 7.3687/22.7936 | 0.7457/113.0674 |
+| S2026 | x | 2908 | 82 | 12.36/135.66 | 0/4469.8854 |
+| S2026 | youtube | 249 | 5 | 4.35/21.725 | 0/197.9432 |
 | S26 | bilibili | 0 | 0 | n/a/n/a | n/a/n/a |
 | S26 | github | 98 | 5 | 4/58.1148 | 0/2402.175 |
 | S26 | hacker_news | 9 | 0 | 60.5/410.5 | 2.5533/7121.1633 |
 | S26 | instagram | 16 | 0 | 2.9938/60.106 | 0/3656.0181 |
-| S26 | linkedin | 179 | 0 | 55.0498/518.1185 | 0.9885/14631.0487 |
+| S26 | linkedin | 258 | 0 | 34.5449/408.5247 | 0/16014.2753 |
 | S26 | product_hunt | 2 | 0 | n/a/n/a | n/a/n/a |
 | S26 | reddit | 0 | 0 | n/a/n/a | n/a/n/a |
 | S26 | x | 1207 | 25 | 8.3597/105.1997 | 0/4057.9952 |
-| S26 | youtube | 95 | 9 | 3.0472/13.1728 | 0/91.876 |
+| S26 | youtube | 206 | 11 | 2.4312/14.3437 | 0/144.0953 |
 | A16ZSR006 | bilibili | 0 | 0 | n/a/n/a | n/a/n/a |
 | A16ZSR006 | github | 16 | 0 | 1.5/51.974 | 0/5166.0967 |
 | A16ZSR006 | hacker_news | 0 | 0 | n/a/n/a | n/a/n/a |
-| A16ZSR006 | instagram | 215 | 12 | 14.6578/159.5299 | 0/5268.7749 |
-| A16ZSR006 | linkedin | 145 | 0 | 48.2/455 | 0.7437/12865.6193 |
+| A16ZSR006 | instagram | 216 | 13 | 14.7884/164.5052 | 0/5616.2347 |
+| A16ZSR006 | linkedin | 217 | 0 | 21/306.6 | 0/16080.6945 |
 | A16ZSR006 | product_hunt | 3 | 0 | n/a/n/a | n/a/n/a |
 | A16ZSR006 | reddit | 8 | 0 | 5.0873/139.9069 | 0/15691.3883 |
 | A16ZSR006 | x | 722 | 27 | 5.25/52.8048 | 0/1358.0514 |
-| A16ZSR006 | youtube | 132 | 2 | 0.5937/43.4081 | 0/6530.9149 |
+| A16ZSR006 | youtube | 206 | 3 | 0.9624/50.7186 | 0/6996.4666 |
 
 ## Perturbation checks
 
 | Cohort | Monotonic tests | Company decreases | Reverse-order rank changes | +1% max rank shift | +24h max rank shift |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| S2026 | 244 | 0 | 0 | 9 | 0 |
-| S26 | 187 | 0 | 0 | 6 | 0 |
+| S2026 | 244 | 0 | 0 | 10 | 0 |
+| S26 | 187 | 0 | 0 | 11 | 0 |
 | A16ZSR006 | 187 | 0 | 0 | 2 | 0 |
 
 ## Largest cleanup rank changes
@@ -141,7 +141,7 @@ No score or rank changes.
 | --- | --- | --- |
 | versioned_runtime_parameter_hashes_complete | yes | {"category_hash_mismatch_count":0,"parameter_count":70,"parameter_mismatch_count":0} |
 | versioned_source_hashes_complete | yes | {"source_file_count":9,"source_mismatch_count":0} |
-| input_envelope_hash_consistent | yes | "600f9d025aadef810ee31aa73d83036889881b7478e5fc93b095e16627923940" |
+| input_envelope_hash_consistent | yes | "a7a087f148ad4d6a502b1d78b532a3e951ab8e74bc054303a6edbe4689691e94" |
 | required_cohort_coverage | yes | ["A16ZSR006","S2026","S26"] |
 | company_rankings_complete_unique_ordered_and_bounded | yes | 0 |
 | cleanup_row_accounting_exact | yes | 0 |

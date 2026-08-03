@@ -5,9 +5,33 @@
     "slug": "runtime",
     "name": "Runtime"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
   "events": [
+    {
+      "id": "tle-6466b9cb42920e8cbcfaf876",
+      "eventDate": "2026-06-30",
+      "eventDateType": "announcement_date",
+      "title": "Runtime released claudecodeforpms",
+      "summary": "Runtime is launching claudecodeforpms.com, a site where PMs can find and contribute best practices for shipping faster with Claude Code.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-41d48efa3e5a569465bb2fed",
+          "title": "We're launching claudecodeforpms.com, a site where PMs can find and contribute best practices for shipping faster with Claude Code.",
+          "publisher": "runtm",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-30T15:00:06.378Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/runtm_claude-code-for-pms-activity-7477737738058874880-WXVQ"
+        }
+      ]
+    },
     {
       "id": "tle-fe858265fc8c6afa4836fef3",
       "eventDate": "2026-04-14",
@@ -72,6 +96,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-06",
+          "count": 1
+        },
+        {
           "month": "2026-04",
           "count": 1
         },
@@ -84,8 +112,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

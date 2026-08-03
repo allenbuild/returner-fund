@@ -2,6 +2,7 @@ import { appendFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
 const HEALTHY_DAILY_STATES = new Set(["healthy", "awaiting_second_slot"]);
+const RECOGNIZED_DAILY_STATES = new Set([...HEALTHY_DAILY_STATES, "stale_day"]);
 const KNOWN_COLLECTION_STATES = new Set(["complete", "degraded"]);
 
 export function classifyAutonomousIngestionReceipt({
@@ -18,14 +19,23 @@ export function classifyAutonomousIngestionReceipt({
   const normalizedNewPhysicalSources = nonNegativeNumber(newPhysicalSources);
 
   if (normalizedRunnerStatus === "already_completed") {
-    if (normalizedDailySourceHealth === "stale_day") {
-      return failure("noop_stale_day", "The final daily receipt has no new physical sources.");
-    }
     if (normalizedPublicationStatus !== "already_completed" ||
         normalizedNewPhysicalSources === null ||
-        !HEALTHY_DAILY_STATES.has(normalizedDailySourceHealth) ||
+        !RECOGNIZED_DAILY_STATES.has(normalizedDailySourceHealth) ||
         !KNOWN_COLLECTION_STATES.has(normalizedCollectionHealth)) {
       return failure("noop_missing_receipt", "The completed run is missing a recognized health receipt.");
+    }
+    if (normalizedDailySourceHealth === "stale_day") {
+      if (normalizedNewPhysicalSources !== 0) {
+        return failure(
+          "noop_missing_receipt",
+          "The stale daily receipt contradicts its non-zero physical-source count."
+        );
+      }
+      return warning(
+        "noop_stale_day",
+        "The idempotent replay confirms a verified final slot with no new physical sources."
+      );
     }
     if (normalizedCollectionHealth === "degraded") {
       return warning("noop_degraded", "The completed run is healthy enough to retain, with degraded collection coverage.");
@@ -44,14 +54,7 @@ export function classifyAutonomousIngestionReceipt({
     );
   }
 
-  if (normalizedDailySourceHealth === "stale_day") {
-    return failure(
-      normalizedPublicationStatus === "no_changes" ? "no_changes_stale_day" : "published_stale_day",
-      "Both Central ingestion slots completed without a new physical source."
-    );
-  }
-
-  if (!HEALTHY_DAILY_STATES.has(normalizedDailySourceHealth) ||
+  if (!RECOGNIZED_DAILY_STATES.has(normalizedDailySourceHealth) ||
       !KNOWN_COLLECTION_STATES.has(normalizedCollectionHealth)) {
     return failure(
       normalizedPublicationStatus === "no_changes"
@@ -74,6 +77,21 @@ export function classifyAutonomousIngestionReceipt({
         ? "no_changes_missing_receipt"
         : "published_missing_receipt",
       "The refreshed run is missing its physical-source count."
+    );
+  }
+
+  if (normalizedDailySourceHealth === "stale_day") {
+    if (normalizedNewPhysicalSources !== 0) {
+      return failure(
+        normalizedPublicationStatus === "no_changes"
+          ? "no_changes_missing_receipt"
+          : "published_missing_receipt",
+        "The stale daily receipt contradicts its non-zero physical-source count."
+      );
+    }
+    return warning(
+      normalizedPublicationStatus === "no_changes" ? "no_changes_stale_day" : "published_stale_day",
+      "Both Central ingestion slots completed without a new physical source; verified publication remains successful."
     );
   }
 

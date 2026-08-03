@@ -20,8 +20,8 @@ describe("cohort-wide structural coverage audit", () => {
     }));
 
     assert.deepEqual(summary.filter((cohort) => cohort.batchSlug !== "S26"), [
-      { batchSlug: "S2026", companies: 197, founders: 397, mappings: 968 },
-      { batchSlug: "A16ZSR006", companies: 59, founders: 128, mappings: 328 }
+      { batchSlug: "S2026", companies: 197, founders: 397, mappings: 994 },
+      { batchSlug: "A16ZSR006", companies: 59, founders: 128, mappings: 339 }
     ]);
     const summerSummary = summary.find((cohort) => cohort.batchSlug === "S26");
     assert.ok(summerSummary.companies >= 167);
@@ -43,6 +43,19 @@ describe("cohort-wide structural coverage audit", () => {
     assert.equal(sharedHyperparticle[0].entityType, "founder");
     assert.equal(sharedHyperparticle[0].entityId, "founder-rekursivai-dan-kondratyuk-3527564");
 
+    const a16z = cohorts.find((cohort) => cohort.batchSlug === "A16ZSR006").catalog;
+    assert.deepEqual(
+      a16z.mappings
+        .filter((mapping) =>
+          mapping.entityId === "a16z-speedrun-006-sun" && mapping.platform === "reddit"
+        )
+        .map((mapping) => mapping.canonicalUrl),
+      [
+        "https://reddit.com/user/createvalue-dontspam",
+        "https://reddit.com/user/Total_Birthday8070"
+      ]
+    );
+
     const audit = auditCoverageInputs(cohorts);
     assert.equal(audit.status, "pass");
     assert.equal(audit.structuralFailureCount, 0);
@@ -52,7 +65,7 @@ describe("cohort-wide structural coverage audit", () => {
     );
     assert.equal(
       audit.batches.reduce((count, batch) => count + batch.debt.multiAccountOwnerMappings.length, 0),
-      4
+      5
     );
   });
 

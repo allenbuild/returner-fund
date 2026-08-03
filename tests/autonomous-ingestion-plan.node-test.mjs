@@ -854,15 +854,41 @@ globalThis.fetch = async (input) => {
   });
 
   it("keeps process retries, durable persistence, and lock-release headroom below the workflow timeout", () => {
-    const runnerTimeoutMs = 330 * 60_000;
+    const runnerTimeoutMs = 340 * 60_000;
 
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs, 6 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
-    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 90 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 70 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs, 2 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryCommandHeadroomMs, 30_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs, 3 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.durablePersistenceHeadroomMs, 25 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.lockReleaseHeadroomMs, 2 * 60_000);
     assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeoutMs);
+  });
+
+  it("accounts for both publication builds, every validation pass, and retry execution", () => {
+    const zeroBudgets = Object.fromEntries(
+      Object.keys(AUTONOMOUS_PROCESS_BUDGETS).map((key) => [key, 0])
+    );
+    zeroBudgets.collectorAttempts = 1;
+
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      productionBuildMs: 1
+    }), 4, "two builds must be budgeted for both initial publication and retry");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      artifactValidationMs: 1
+    }), 10, "five validation-budget commands must be budgeted for both publication attempts");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      timelineDiscoveryCommandHeadroomMs: 1
+    }), 2, "Timeline command headroom must be budgeted for both publication attempts");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      catalogRefreshMs: 1
+    }), 1, "mutable catalog refresh must be part of the runner budget");
   });
 
   it("queues unresolved discoverable founder targets again under every new run key", async () => {

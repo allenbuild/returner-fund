@@ -5,14 +5,49 @@
     "slug": "surtr-defense-systems",
     "name": "Surtr Defense Systems"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "events": [
+    {
+      "id": "tle-d6bb670fec923c649e49e580",
+      "eventDate": "2026-07-07",
+      "eventDateType": "announcement_date",
+      "title": "Surtr Defense Systems announced $4.8M pre-seed round",
+      "summary": "Surtr Defense Systems announced it was excited to share that Surtr has raised a $4.8M pre-seed round as we continue building the software that connects the modern battlefield.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-c97334a0c4661346c0785a44",
+          "title": "Today we're excited to share that Surtr has raised a $4.8M pre-seed round as we continue building the software that connects the modern battlefield.",
+          "publisher": "surtr-defense-systems",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-07T20:37:21.423Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/surtr-defense-systems_exclusive-surtr-raises-5m-pre-seed-for-activity-7480359325014777856-P7_b"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

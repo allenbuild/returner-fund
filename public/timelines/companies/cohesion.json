@@ -5,8 +5,8 @@
     "slug": "cohesion",
     "name": "Cohesion"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
   "events": [
     {
       "id": "tle-9e4ce4bd7a5ee758241c4b37",
@@ -47,7 +47,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

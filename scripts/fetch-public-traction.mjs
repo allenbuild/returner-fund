@@ -68,7 +68,11 @@ import {
   instagramRecentWindowObservation,
   persistRecentWindowProof
 } from "./lib/recent-window-proof-instrumentation.mjs";
-import { matchesHnCompanyStory } from "./lib/historical-backfill.mjs";
+import {
+  HISTORICAL_BACKFILL_LIMITS,
+  matchesHnCompanyStory,
+  readBoundedResponseText
+} from "./lib/historical-backfill.mjs";
 import {
   parseYouTubeFeed,
   parseYouTubePublicPage,
@@ -1527,8 +1531,11 @@ async function ingestRss(company) {
   for (const feedUrl of feedUrls.slice(0, 2)) {
     try {
       const response = await fetchPublic(feedUrl);
-      const xml = await response.text();
-      const items = parseFeedItems(xml).slice(0, 5);
+      const xml = await readBoundedResponseText(response, {
+        maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+        maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+      });
+      const items = parseFeedItems(xml);
       for (const item of items) {
         feedEvidence.push(
           evidenceItem({

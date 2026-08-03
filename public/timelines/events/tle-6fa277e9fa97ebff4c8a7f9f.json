@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-lamina-labs",
+    "slug": "lamina-labs",
+    "name": "Lamina Labs"
+  },
+  "event": {
+    "id": "tle-6fa277e9fa97ebff4c8a7f9f",
+    "eventDate": "2026-07-31",
+    "eventDateType": "announcement_date",
+    "title": "Lamina Labs announced $4.8M funding round",
+    "summary": "Lamina Labs Raised $4.8M to Build ChatGPT for Explainer Videos.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-54eec352535b240a1e798ad8",
+        "title": "We Raised $4.8M to Build ChatGPT for Explainer Videos",
+        "publisher": "We Raised $4.8M to Build ChatGPT for Explainer Videos",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-31T05:51:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=VToKZowGqw8"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-54eec352535b240a1e798ad8",
+        "title": "We Raised $4.8M to Build ChatGPT for Explainer Videos",
+        "publisher": "We Raised $4.8M to Build ChatGPT for Explainer Videos",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-31T05:51:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=VToKZowGqw8",
+        "publicationDate": "2026-07-31T05:51:36.000Z",
+        "excerpt": "We raised $4.8M to build Lamina Labs and make AI explain with video, not just text. Our first product is Simi, named after my lovely village, Simikot. Simi is ChatGPT for explainer videos. Give it a single prompt, document, article, PDF, slide deck, script, or workflow, and it generates a complete narrated whiteboard-style explainer video. On the fastest tier, a one-minute video can be ready in under 20 seconds. Simi works in 80+ languages and handles the script, visuals, animation, and…",
+        "sourceEventDate": "2026-07-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d3ea959bc119192d75362ff1",
+        "platform": "youtube",
+        "account": "We Raised $4.8M to Build ChatGPT for Explainer Videos",
+        "postDate": "2026-07-31",
+        "excerpt": "We raised $4.8M to build Lamina Labs and make AI explain with video, not just text. Our first product is Simi, named after my lovely village, Simikot. Simi is ChatGPT for explainer videos. Give it a single prompt, document, article, PDF, slide deck, script, or workflow, and it generates a complete narrated whiteboard-style explainer video. On the fastest tier, a one-minute video can be ready in under 20 seconds. Simi works in 80+ languages and handles the script, visuals, animation, and…",
+        "url": "https://youtube.com/watch?v=VToKZowGqw8",
+        "metrics": {
+          "views": 129
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

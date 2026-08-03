@@ -47,14 +47,14 @@
     ],
     "posts": [
       {
-        "id": "post-9e42888ef4d8815b525e7dff",
+        "id": "post-3fb65fc26feb6c2655129cc9",
         "platform": "youtube",
         "account": "Datost - Y-combinator - Launch Video",
         "postDate": "2026-04-15",
         "excerpt": "Check us out at https://datost.com/",
         "url": "https://youtube.com/watch?v=iIxir5wtX44",
         "metrics": {
-          "views": 336,
+          "views": 349,
           "likes": 3,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

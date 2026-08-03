@@ -47,14 +47,14 @@
     ],
     "posts": [
       {
-        "id": "post-b95c7b45b2c90c7c8ecfff0b",
+        "id": "post-551a697d5f50dd21cdc8b8af",
         "platform": "youtube",
         "account": "Launching Vendo (YC S26): Let your Users Build Their Own Features",
         "postDate": "2026-07-21",
         "excerpt": "Embedded in the official Vendo YC company page.",
         "url": "https://youtube.com/watch?v=JjtDhA7DZw8",
         "metrics": {
-          "views": 195,
+          "views": 202,
           "likes": 3,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

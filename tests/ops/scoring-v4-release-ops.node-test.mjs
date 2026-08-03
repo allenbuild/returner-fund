@@ -258,10 +258,12 @@ test("package scripts expose honest v4 operations and no false S2026 collector a
     packageJson.scripts["ingest:s26:company"],
     "node scripts/fetch-public-traction.mjs --social=company"
   );
-  assert.match(packageJson.scripts["check:release"], /test:scoring:experiments:v4/);
-  assert.match(packageJson.scripts["check:release"], /test:scoring:audit:v4/);
-  assert.match(packageJson.scripts["check:release"], /test:cohort-coverage/);
-  assert.match(packageJson.scripts["check:release"], /artifacts:manifest:validate/);
+  assert.match(packageJson.scripts["check:release"], /check:release:scoring/);
+  assert.match(packageJson.scripts["check:release"], /check:release:artifacts/);
+  assert.match(packageJson.scripts["check:release:scoring"], /test:scoring:experiments:v4/);
+  assert.match(packageJson.scripts["check:release:scoring"], /test:scoring:audit:v4/);
+  assert.match(packageJson.scripts["check:release:artifacts"], /test:cohort-coverage/);
+  assert.match(packageJson.scripts["check:release:artifacts"], /artifacts:manifest:validate/);
   assert.match(packageJson.scripts["test:cohort-coverage"], /cohort-coverage-audit\.node-test\.mjs/);
   assert.match(packageJson.scripts["test:cohort-coverage"], /audit-cohort-coverage\.mjs/);
   assert.match(packageJson.scripts["release:migrate:v4"], /apply-scoring-v4-migrations/);

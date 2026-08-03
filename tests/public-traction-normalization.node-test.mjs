@@ -360,6 +360,116 @@ globalThis.fetch = async (url) => new Response(
   assert.deepEqual(second.attempts["rss:eden-robotics"], receipt);
 });
 
+test("RSS feed collection keeps every unique entry in each bounded response", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-rss-depth-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+const entries = Array.from({ length: 7 }, (_, index) => {
+  const number = index + 1;
+  return "<item><title>Post " + number + "</title><link>https://www.edenrobotics.ai/blog/post-" + number + "</link><description>Eden Robotics update " + number + "</description><pubDate>Mon, " + String(number).padStart(2, "0") + " Jun 2026 12:00:00 GMT</pubDate></item>";
+}).join("");
+const duplicate = "<item><title>Duplicate title for post 3</title><link>https://www.edenrobotics.ai/blog/post-3</link><description>Duplicate feed entry</description><pubDate>Mon, 03 Jun 2026 12:00:00 GMT</pubDate></item>";
+const feed = '<?xml version="1.0"?><rss><channel>' + entries + duplicate + '</channel></rss>';
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (/\\/(?:feed(?:\\.xml)?|rss(?:\\.xml)?)$/.test(value)) {
+    return new Response(feed, { status: 200, headers: { "content-type": "application/rss+xml" } });
+  }
+  return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="/feed.xml"></head><body>Eden Robotics</body></html>', { status: 200 });
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=rss",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const rssRows = [...snapshot.evidence, ...snapshot.needsReview]
+    .filter((row) => row.platform === "rss");
+  assert.equal(rssRows.length, 7);
+  assert.ok(rssRows.some((row) => row.sourceUrl.endsWith("/blog/post-7")));
+  assert.equal(
+    rssRows.filter((row) => row.sourceUrl.endsWith("/blog/post-3")).length,
+    1,
+    "cross-feed and same-feed duplicates must still collapse by physical URL"
+  );
+});
+
+test("RSS feed collection rejects a response above the byte guard", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-rss-size-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (/\\/(?:feed(?:\\.xml)?|rss(?:\\.xml)?)$/.test(value)) {
+    return new Response("<rss><channel></channel></rss>", {
+      status: 200,
+      headers: { "content-type": "application/rss+xml", "content-length": String(2 * 1024 * 1024 + 1) }
+    });
+  }
+  return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="/feed.xml"></head><body>Eden Robotics</body></html>', { status: 200 });
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=rss",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const rssRows = [...snapshot.evidence, ...snapshot.needsReview]
+    .filter((row) => row.platform === "rss");
+  assert.equal(rssRows.length, 0);
+  assert.ok(snapshot.failures.some(
+    (row) => row.platform === "rss" && /above the 2097152-byte limit/.test(row.message)
+  ));
+});
+
 test("legacy fresh Hacker News rows rerun once into instrumented recent-window state", async () => {
   const directory = await mkdtemp(join(tmpdir(), "returner-public-legacy-hn-proof-"));
   const output = join(directory, "public-evidence.json");

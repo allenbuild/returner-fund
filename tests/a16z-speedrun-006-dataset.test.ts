@@ -472,7 +472,7 @@ describe("a16z speedrun 006 dataset", () => {
         socialAccountId:
           "acct:company:a16z-speedrun-006-snapp-stats:instagram:https%3A%2F%2Fwww.instagram.com%2Fsnappstats",
         postedAt: "2026-07-31T19:51:42.000Z",
-        metrics: { likes: 11, comments: 0, views: 112 }
+        metrics: { likes: 11, comments: 0, views: 113 }
       },
       {
         platformPostId: "DbbqOA8lhPV",
@@ -483,7 +483,7 @@ describe("a16z speedrun 006 dataset", () => {
         socialAccountId:
           "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
         postedAt: "2026-07-30T21:30:45.000Z",
-        metrics: { likes: 3467, comments: 28 }
+        metrics: { likes: 3529, comments: 28 }
       }
     ] as const;
 
@@ -576,7 +576,7 @@ describe("a16z speedrun 006 dataset", () => {
         "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
       postedAt: "2026-07-14T01:29:43.000Z",
       publishedAtPrecision: "exact",
-      metrics: { likes: 7341, comments: 61 }
+      metrics: { likes: 7425, comments: 61 }
     }));
     expect(seedAndLoggedPhysicalPost).toHaveLength(1);
     expect(seedAndLoggedPhysicalPost[0]).toEqual(expect.objectContaining({
@@ -1286,7 +1286,7 @@ describe("a16z speedrun 006 dataset", () => {
       (item) => item.sourceUrl === "https://www.youtube.com/watch?v=RqS_WpgsPdY"
     );
 
-    expect(sunYouTubeEvidence).toHaveLength(17);
+    expect(sunYouTubeEvidence).toHaveLength(27);
     expect(sunYouTubeEvidence.map((item) => item.sourceUrl)).toEqual(
       expect.arrayContaining([
         "https://www.youtube.com/watch?v=pHTVgy_HSS0",
@@ -1611,7 +1611,7 @@ describe("a16z speedrun 006 dataset", () => {
     expectA16zEvidence(graph.evidence, "https://github.com/Belong-dev/careers", "Belong", "github");
     expectA16zEvidence(
       graph.evidence,
-      "https://www.linkedin.com/posts/margaretczhang_i-joined-forces-with-david-s-huang-to-unlock-activity-7449510766657060864-g9St",
+      "https://linkedin.com/posts/margaretczhang_i-joined-forces-with-david-s-huang-to-unlock-activity-7449510766657060864-g9St",
       "Thirdbrain Labs",
       "linkedin"
     );

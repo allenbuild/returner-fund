@@ -5,14 +5,49 @@
     "slug": "andco",
     "name": "Andco"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "events": [
+    {
+      "id": "tle-995fc2dc64830e37eb211315",
+      "eventDate": "2026-07-28",
+      "eventDateType": "announcement_date",
+      "title": "Andco released Provider Routing by Andco",
+      "summary": "Andco introduced Provider Routing by Andco.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-a3a54967183582a035ec65e6",
+          "title": "Introducing Provider Routing by Andco.",
+          "publisher": "ryanxue",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-28T00:15:40.646Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/ryanxue_introducing-provider-routing-by-andco-every-activity-7487662024504725504-Fp4f"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

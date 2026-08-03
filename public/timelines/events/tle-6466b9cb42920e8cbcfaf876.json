@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-runtime",
+    "slug": "runtime",
+    "name": "Runtime"
+  },
+  "event": {
+    "id": "tle-6466b9cb42920e8cbcfaf876",
+    "eventDate": "2026-06-30",
+    "eventDateType": "announcement_date",
+    "title": "Runtime released claudecodeforpms",
+    "summary": "Runtime is launching claudecodeforpms.com, a site where PMs can find and contribute best practices for shipping faster with Claude Code.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-41d48efa3e5a569465bb2fed",
+        "title": "We're launching claudecodeforpms.com, a site where PMs can find and contribute best practices for shipping faster with Claude Code.",
+        "publisher": "runtm",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-30T15:00:06.378Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/runtm_claude-code-for-pms-activity-7477737738058874880-WXVQ"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-41d48efa3e5a569465bb2fed",
+        "title": "We're launching claudecodeforpms.com, a site where PMs can find and contribute best practices for shipping faster with Claude Code.",
+        "publisher": "runtm",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-30T15:00:06.378Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/runtm_claude-code-for-pms-activity-7477737738058874880-WXVQ",
+        "publicationDate": "2026-06-30T15:00:06.378Z",
+        "excerpt": "We're launching claudecodeforpms.com, a site where PMs can find and contribute best practices for shipping faster with Claude Code. Christopher Lee was our first contributor. He wrote a PRD on managing secrets with coding agents, used Runtime to build it into the site, and merged the first PR in minutes. See how he did it here: https://lnkd.in/gDHg-QK7 If you have a Claude Code practice worth adding, comment below. We'll give you a month of free Runtime premium if you contribute to our repo…",
+        "sourceEventDate": "2026-06-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c02a3ad7ed136d8c110a9c39",
+        "platform": "linkedin",
+        "account": "runtm",
+        "postDate": "2026-06-30",
+        "excerpt": "We're launching claudecodeforpms.com, a site where PMs can find and contribute best practices for shipping faster with Claude Code. Christopher Lee was our first contributor. He wrote a PRD on managing secrets with coding agents, used Runtime to build it into the site, and merged the first PR in minutes. See how he did it here: https://lnkd.in/gDHg-QK7 If you have a Claude Code practice worth adding, comment below. We'll give you a month of free Runtime premium if you contribute to our repo…",
+        "url": "https://linkedin.com/posts/runtm_claude-code-for-pms-activity-7477737738058874880-WXVQ",
+        "metrics": {
+          "reactions": 27,
+          "comments": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

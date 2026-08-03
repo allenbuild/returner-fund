@@ -5,14 +5,49 @@
     "slug": "snapp-stats",
     "name": "Snapp Stats"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "events": [
+    {
+      "id": "tle-e542dde7ced712f673804f8d",
+      "eventDate": "2026-05-19",
+      "eventDateType": "announcement_date",
+      "title": "Snapp Stats announced $4.4m funding round",
+      "summary": "Snapp Stats reported from Snapp AI today—we've raised a total of $4.4 million to deliver AI-powered personalized fan experiences to sports fanatics and teams.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6faa2b59cebd95e0cca829b4",
+          "title": "Exciting news from Snapp AI today—we've raised a total of $4.4 million to deliver AI-powered personalized fan experiences to sports fanatics and teams!",
+          "publisher": "andrewtamura",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-19T22:29:10.122Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/andrewtamura_exciting-news-from-snapp-ai-todayweve-raised-activity-7462630457973764097-K-hs"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

@@ -38,14 +38,14 @@
         "url": "https://www.linkedin.com/posts/aaryan-kushwah_we-got-into-y-combinator-p26-as-some-of-the-activity-7461110619740487681-qQOY"
       },
       {
-        "id": "src-e5ddd6fc10ea111dcd982b41",
-        "title": "We got into Y Combinator (P26).",
+        "id": "src-a30ad2e38519cac52130ca09",
+        "title": "We got into Y Combinator (P26)",
         "publisher": "saviomartin",
         "domain": "linkedin.com",
         "sourceType": "founder_post",
         "publishedAt": "2026-05-15T17:50:20.409Z",
         "evidenceRole": "primary",
-        "url": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7"
+        "url": "https://linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7"
       }
     ],
     "evidence": [
@@ -80,16 +80,16 @@
         "conflictDescription": null
       },
       {
-        "id": "src-e5ddd6fc10ea111dcd982b41",
-        "title": "We got into Y Combinator (P26).",
+        "id": "src-a30ad2e38519cac52130ca09",
+        "title": "We got into Y Combinator (P26)",
         "publisher": "saviomartin",
         "domain": "linkedin.com",
         "sourceType": "founder_post",
         "publishedAt": "2026-05-15T17:50:20.409Z",
         "evidenceRole": "primary",
-        "url": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7",
+        "url": "https://linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7",
         "publicationDate": "2026-05-15T17:50:20.409Z",
-        "excerpt": "We got into Y Combinator (P26). The founder says he is skipping college to build Result. The post reports scaling SimpleClaw to $40k MRR in under three weeks before the Result announcement. Visible metrics: 551 likes, 551 reactions, 37 comments.",
+        "excerpt": "We got into Y Combinator (P26) After scaling SimpleClaw to $40k MRR in <3 weeks, we learnt what our users were trying to accomplish - build companies with agents. SimpleClaw is shutting down; I’m now 19, and made the hard decision to skip college to build Result, my biggest bet so far. Company announcement tomorrow. ok, back to work",
         "sourceEventDate": "2026-05-15",
         "isConflicting": false,
         "conflictDescription": null
@@ -114,7 +114,7 @@
         "evidenceRole": "primary"
       },
       {
-        "id": "post-e35053d03ec3b827afc9f5ec",
+        "id": "post-4986824b9df95e6cac1bc3db",
         "platform": "linkedin",
         "account": "aaryan-kushwah",
         "postDate": "2026-05-15",
@@ -128,21 +128,20 @@
         "evidenceRole": "primary"
       },
       {
-        "id": "post-f56982f08a3601336d582af9",
+        "id": "post-6085233b519ff1a08db5608d",
         "platform": "linkedin",
         "account": "saviomartin",
         "postDate": "2026-05-15",
-        "excerpt": "We got into Y Combinator (P26). The founder says he is skipping college to build Result. The post reports scaling SimpleClaw to $40k MRR in under three weeks before the Result announcement. Visible metrics: 551 likes, 551 reactions, 37 comments.",
-        "url": "https://www.linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7",
+        "excerpt": "We got into Y Combinator (P26) After scaling SimpleClaw to $40k MRR in <3 weeks, we learnt what our users were trying to accomplish - build companies with agents. SimpleClaw is shutting down; I’m now 19, and made the hard decision to skip college to build Result, my biggest bet so far. Company announcement tomorrow. ok, back to work",
+        "url": "https://linkedin.com/posts/saviomartin_we-got-into-y-combinator-p26-after-scaling-activity-7461110736979857408-uzU7",
         "metrics": {
-          "likes": 551,
-          "comments": 37,
-          "reactions": 551
+          "reactions": 551,
+          "comments": 37
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

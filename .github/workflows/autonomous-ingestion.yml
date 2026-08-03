@@ -69,7 +69,7 @@ jobs:
     needs: resolve
     if: needs.resolve.outputs.should_run == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 360
     permissions:
       contents: write
     concurrency:
@@ -99,7 +99,7 @@ jobs:
 
       - name: Run autonomous ingestion
         id: ingestion
-        timeout-minutes: 330
+        timeout-minutes: 340
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

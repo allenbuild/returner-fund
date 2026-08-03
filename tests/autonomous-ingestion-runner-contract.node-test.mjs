@@ -138,11 +138,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(runner, /COLLECTION_COVERAGE_RECEIPT/);
   });
 
-  it("fails a stale final day before durable completion so the slot can be replayed", () => {
+  it("records a stale final day as a warning and still completes the verified run", () => {
     const staleGate = runner.indexOf('publicationInputs.sourceDelta.dailySourceHealth === "stale_day"');
     const completion = runner.indexOf('await completeRun("completed"');
     assert.ok(staleGate > -1 && completion > staleGate);
-    assert.match(runner, /published receipt is recoverable with a replay/);
+    const staleSection = runner.slice(staleGate, completion);
+    assert.match(staleSection, /"warning"/);
+    assert.match(staleSection, /verified publication/);
+    assert.doesNotMatch(staleSection, /throw new Error/);
   });
 
   it("does not fail a quiet morning slot merely because publication had no changes", () => {
@@ -238,6 +241,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(refreshIndex > -1 && refreshIndex < planningIndex);
     assert.ok(artifactPaths.includes('"src/lib/yc/summer-2026-companies.json"'));
     assert.ok(artifactPaths.includes('"src/lib/yc/summer-2026-company-aliases.json"'));
+    const refresh = section("async function refreshMutableYcCatalog", "function publicationBranch");
+    assert.ok(refresh.includes("AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs"));
+    assert.ok(refresh.includes('child.kill("SIGTERM")'));
+    assert.ok(refresh.includes('child.kill("SIGKILL")'));
   });
 
   it("carries the batch-resolved logged-in quarantine ledger into initial and rebased durable imports", () => {

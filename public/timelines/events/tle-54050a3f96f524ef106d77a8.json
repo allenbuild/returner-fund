@@ -72,21 +72,21 @@
     ],
     "posts": [
       {
-        "id": "post-a59a6883c870d74616666b72",
+        "id": "post-ed47c140e861af25f838f064",
         "platform": "youtube",
         "account": "Clawvisor Launch Video",
         "postDate": "2026-05-06",
         "excerpt": "Clawvisor is the authorization layer for AI agents. Approve a task once, and Clawvisor enforces it on every request — so your agent can use Gmail, Slack, and Google Drive without going rogue or ever seeing your credentials. ✅ No credential exposure — keys stay in a vault ✅ Real-time policy enforcement ✅ Context-aware guardrails ✅ Full audit trail ✅ Agent-agnostic (OpenClaw, Claude Code, Cowork, Hermes, Perplexity Computer) Get started → https://clawvisor.com Self-host or read the source →…",
         "url": "https://youtube.com/watch?v=2UWv557dg6M",
         "metrics": {
-          "views": 1993,
+          "views": 2014,
           "likes": 11,
           "comments": 0
         },
         "evidenceRole": "primary"
       },
       {
-        "id": "post-5d7b9a34e69b934b06f08af1",
+        "id": "post-995cb79f6a928a5894f9dcff",
         "platform": "x",
         "account": "clawvisor X post",
         "postDate": "2026-05-06",
@@ -102,6 +102,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

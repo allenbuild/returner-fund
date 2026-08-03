@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-andco",
+    "slug": "andco",
+    "name": "Andco"
+  },
+  "event": {
+    "id": "tle-995fc2dc64830e37eb211315",
+    "eventDate": "2026-07-28",
+    "eventDateType": "announcement_date",
+    "title": "Andco released Provider Routing by Andco",
+    "summary": "Andco introduced Provider Routing by Andco.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-a3a54967183582a035ec65e6",
+        "title": "Introducing Provider Routing by Andco.",
+        "publisher": "ryanxue",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-28T00:15:40.646Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/ryanxue_introducing-provider-routing-by-andco-every-activity-7487662024504725504-Fp4f"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a3a54967183582a035ec65e6",
+        "title": "Introducing Provider Routing by Andco.",
+        "publisher": "ryanxue",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-28T00:15:40.646Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/ryanxue_introducing-provider-routing-by-andco-every-activity-7487662024504725504-Fp4f",
+        "publicationDate": "2026-07-28T00:15:40.646Z",
+        "excerpt": "Introducing Provider Routing by Andco. Every firm has some version of it: a spreadsheet of go-to providers, notes on Post-its, a file named providers_v3_FINAL_updated.xlsx. We're replacing that. Andco's provider routing database is now open. Share your provider contact list - any format, we'll do the cleanup - and you get access to our vetted database: verified contacts for where to send records requests, whatever the department or organization. When you're ready to stop looking things up…",
+        "sourceEventDate": "2026-07-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2a9a5796a0109880334828f5",
+        "platform": "linkedin",
+        "account": "ryanxue",
+        "postDate": "2026-07-28",
+        "excerpt": "Introducing Provider Routing by Andco. Every firm has some version of it: a spreadsheet of go-to providers, notes on Post-its, a file named providers_v3_FINAL_updated.xlsx. We're replacing that. Andco's provider routing database is now open. Share your provider contact list - any format, we'll do the cleanup - and you get access to our vetted database: verified contacts for where to send records requests, whatever the department or organization. When you're ready to stop looking things up…",
+        "url": "https://linkedin.com/posts/ryanxue_introducing-provider-routing-by-andco-every-activity-7487662024504725504-Fp4f",
+        "metrics": {
+          "reactions": 22,
+          "comments": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

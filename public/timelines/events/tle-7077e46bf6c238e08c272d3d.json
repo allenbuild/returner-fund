@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-instaagent",
+    "slug": "instaagent",
+    "name": "InstaAgent"
+  },
+  "event": {
+    "id": "tle-7077e46bf6c238e08c272d3d",
+    "eventDate": "2026-05-11",
+    "eventDateType": "announcement_date",
+    "title": "InstaAgent launched on Y Combinator",
+    "summary": "InstaAgent Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-55824eba2fe0e4f6d2a4f00b",
+        "title": "InstaAgent Launch YC",
+        "publisher": "InstaAgent Launch YC",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-11T06:39:58-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=NM3l6c2cm0w"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-55824eba2fe0e4f6d2a4f00b",
+        "title": "InstaAgent Launch YC",
+        "publisher": "InstaAgent Launch YC",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-11T06:39:58-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=NM3l6c2cm0w",
+        "publicationDate": "2026-05-11T06:39:58-07:00",
+        "excerpt": "InstaAgent helps B2C companies scale a single marketing campaign across hundreds of specific audiences on Meta and TikTok, each with its own content, voice, and targeting.",
+        "sourceEventDate": "2026-05-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b8b8d71794ed8b59105bee20",
+        "platform": "youtube",
+        "account": "InstaAgent Launch YC",
+        "postDate": "2026-05-11",
+        "excerpt": "InstaAgent helps B2C companies scale a single marketing campaign across hundreds of specific audiences on Meta and TikTok, each with its own content, voice, and targeting.",
+        "url": "https://youtube.com/watch?v=NM3l6c2cm0w",
+        "metrics": {
+          "views": 1385,
+          "likes": 6,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

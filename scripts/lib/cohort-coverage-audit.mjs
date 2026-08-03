@@ -778,18 +778,21 @@ function mergeOwnerLinks(baseLinks = {}, overrideLinks = {}, retiredAccounts = [
     if (!platform || !canonicalUrl || !key || retiredKeys.has(key)) continue;
     byIdentity.set(key, { ...account, platform, url: account.url, overridePriority: 0 });
   }
-  for (const [rawPlatform, url] of Object.entries(overrideLinks ?? {})) {
-    if (typeof url !== "string" || !url.trim()) continue;
-    const platform = platformForUrl(rawPlatform, url);
-    const canonicalUrl = canonicalAccountUrl(platform, url);
-    const key = ownerAccountCanonicalKey(platform, url);
-    if (!platform || !canonicalUrl || !key) continue;
-    byIdentity.set(key, {
-      platform,
-      url,
-      review_state: "verified",
-      overridePriority: 1
-    });
+  for (const [rawPlatform, rawValue] of Object.entries(overrideLinks ?? {})) {
+    const urls = Array.isArray(rawValue) ? rawValue : [rawValue];
+    for (const url of urls) {
+      if (typeof url !== "string" || !url.trim()) continue;
+      const platform = platformForUrl(rawPlatform, url);
+      const canonicalUrl = canonicalAccountUrl(platform, url);
+      const key = ownerAccountCanonicalKey(platform, url);
+      if (!platform || !canonicalUrl || !key) continue;
+      byIdentity.set(key, {
+        platform,
+        url,
+        review_state: "verified",
+        overridePriority: 1
+      });
+    }
   }
   return [...byIdentity.values()].sort(
     (left, right) =>

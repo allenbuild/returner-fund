@@ -6,27 +6,17 @@
     "name": "Rise Reforming"
   },
   "event": {
-    "id": "tle-cfedcf7e85f68224a0c0c975",
-    "eventDate": "2026-07-13",
+    "id": "tle-e163e0c844c4f7038e6c48bd",
+    "eventDate": "2026-07-27",
     "eventDateType": "announcement_date",
-    "title": "Rise Reforming announced its public launch",
-    "summary": "Rise Reforming announced its public launch in a dated company video.",
+    "title": "Rise Reforming launched on Hacker News",
+    "summary": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals.",
     "category": "product_launch",
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
     "evidenceCount": 2,
     "sourcePreview": [
-      {
-        "id": "src-4ec8b786c51637770e61ad4a",
-        "title": "Rise Reforming Launch Video",
-        "publisher": "Rise Reforming Launch Video",
-        "domain": "youtube.com",
-        "sourceType": "video",
-        "publishedAt": "2026-07-13T08:21:00-07:00",
-        "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ"
-      },
       {
         "id": "src-5409937894f4bedb2f4e3880",
         "title": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals",
@@ -36,9 +26,7 @@
         "publishedAt": "2026-07-27T19:58:22Z",
         "evidenceRole": "primary",
         "url": "https://news.ycombinator.com/item?id=49074817"
-      }
-    ],
-    "evidence": [
+      },
       {
         "id": "src-4ec8b786c51637770e61ad4a",
         "title": "Rise Reforming Launch Video",
@@ -47,13 +35,10 @@
         "sourceType": "video",
         "publishedAt": "2026-07-13T08:21:00-07:00",
         "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ",
-        "publicationDate": "2026-07-13T08:21:00-07:00",
-        "excerpt": "Embedded in the official Rise Reforming YC company page.",
-        "sourceEventDate": "2026-07-13",
-        "isConflicting": false,
-        "conflictDescription": null
-      },
+        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ"
+      }
+    ],
+    "evidence": [
       {
         "id": "src-5409937894f4bedb2f4e3880",
         "title": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals",
@@ -65,31 +50,32 @@
         "url": "https://news.ycombinator.com/item?id=49074817",
         "publicationDate": "2026-07-27T19:58:22Z",
         "excerpt": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals",
-        "sourceEventDate": "2026-07-13",
+        "sourceEventDate": "2026-07-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-4ec8b786c51637770e61ad4a",
+        "title": "Rise Reforming Launch Video",
+        "publisher": "Rise Reforming Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-13T08:21:00-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ",
+        "publicationDate": "2026-07-13T08:21:00-07:00",
+        "excerpt": "Embedded in the official Rise Reforming YC company page.",
+        "sourceEventDate": "2026-07-27",
         "isConflicting": false,
         "conflictDescription": null
       }
     ],
     "posts": [
       {
-        "id": "post-34ac5b4ca99759c65ebc8318",
-        "platform": "youtube",
-        "account": "Rise Reforming Launch Video",
-        "postDate": "2026-07-13",
-        "excerpt": "Embedded in the official Rise Reforming YC company page.",
-        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ",
-        "metrics": {
-          "views": 71,
-          "likes": 0,
-          "comments": 0
-        },
-        "evidenceRole": "primary"
-      },
-      {
         "id": "post-5ae7c17818de40b9bd70f81e",
         "platform": "hacker_news",
         "account": null,
-        "postDate": "2026-07-13",
+        "postDate": "2026-07-27",
         "excerpt": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals",
         "url": "https://news.ycombinator.com/item?id=49074817",
         "metrics": {
@@ -97,9 +83,23 @@
           "comments": 38
         },
         "evidenceRole": "primary"
+      },
+      {
+        "id": "post-6663a1dad153f39491f9469e",
+        "platform": "youtube",
+        "account": "Rise Reforming Launch Video",
+        "postDate": "2026-07-27",
+        "excerpt": "Embedded in the official Rise Reforming YC company page.",
+        "url": "https://youtube.com/watch?v=Bx_ASPapxlQ",
+        "metrics": {
+          "views": 72,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

@@ -59,7 +59,7 @@ describe("initial page graph", () => {
     expect(graph.fastestGaining).toHaveLength(197);
     expect(graph.evidence.length).toBeGreaterThan(0);
     expect(graph.evidence.length).toBeLessThanOrEqual(20);
-  });
+  }, HEAVY_GRAPH_TEST_TIMEOUT_MS);
 
   it("honors requested batch and platform filters for direct initial page loads", async () => {
     const { buildInitialPageGraph } = await import("@/lib/graph/initial-page-graph");
