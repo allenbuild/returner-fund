@@ -863,7 +863,7 @@ test("fresh failed YouTube receipts retry into blocked-or-empty and then skip id
     (failure) =>
       failure.entityId === entityId &&
       failure.accountUrl === accountUrl &&
-      failure.message === "No visible native YouTube videos were exposed on the mapped account."
+      failure.message === "No visible native YouTube videos were exposed on the mapped account or its official Atom feed."
   ));
 
   execFileSync(process.execPath, args, {

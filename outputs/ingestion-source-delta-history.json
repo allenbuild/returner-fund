@@ -2974,5 +2974,285 @@
         "postedAt": "2026-04-17T23:59:23Z"
       }
     ]
+  },
+  {
+    "schemaVersion": 1,
+    "idempotencyKey": "manual-10000-source-backfill-2026-08-03",
+    "centralDay": null,
+    "observedAt": "2026-08-03T07:43:16.000Z",
+    "baselinePhysicalSources": 9140,
+    "publishedPhysicalSources": 10686,
+    "newPhysicalSources": 1546,
+    "newPhysicalSourcesThisAttempt": 1546,
+    "retainedPhysicalSources": 9140,
+    "removedPhysicalSources": 0,
+    "dailyNewPhysicalSources": 1553,
+    "dailySourceHealth": "healthy",
+    "collectionHealth": "complete",
+    "collectionHealthReasons": [],
+    "mappedExpected": 77,
+    "mappedSucceeded": 53,
+    "mappedNeedsReview": 24,
+    "mappedBlockedOrEmpty": 0,
+    "mappedFailures": 0,
+    "mappedNonTerminal": 0,
+    "mappedSuccessRate": 0.6883,
+    "newestNewSourcePostedAt": "2026-08-03T04:59:50.000Z",
+    "insertedByBatchPlatform": {
+      "A16ZSR006:instagram": 1419,
+      "S26:x": 127
+    },
+    "insertedSourceSamples": [
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/DX8fGmUlRDc/",
+        "platformPostId": "DX8fGmUlRDc",
+        "platformObjectId": null,
+        "postedAt": "2026-05-05T05:22:58.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/DWdqaGqCeNg/",
+        "platformPostId": "DWdqaGqCeNg",
+        "platformObjectId": null,
+        "postedAt": "2026-03-29T09:52:10.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/DWZo_JxCYCw/",
+        "platformPostId": "DWZo_JxCYCw",
+        "platformObjectId": null,
+        "postedAt": "2026-03-27T20:33:55.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/DWHyNkvEopw/",
+        "platformPostId": "DWHyNkvEopw",
+        "platformObjectId": null,
+        "postedAt": "2026-03-20T21:39:05.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/DUL8x8SEmpy/",
+        "platformPostId": "DUL8x8SEmpy",
+        "platformObjectId": null,
+        "postedAt": "2026-01-31T19:25:20.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/DS7-dvpj9tV/",
+        "platformPostId": "DS7-dvpj9tV",
+        "platformObjectId": null,
+        "postedAt": "2025-12-31T18:08:25.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/DS6lmTHiWkq/",
+        "platformPostId": "DS6lmTHiWkq",
+        "platformObjectId": null,
+        "postedAt": "2025-12-31T05:05:16.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/DS6hXE2DuHB/",
+        "platformPostId": "DS6hXE2DuHB",
+        "platformObjectId": null,
+        "postedAt": "2025-12-31T04:27:15.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/DIJ1jlxPSpj/",
+        "platformPostId": "DIJ1jlxPSpj",
+        "platformObjectId": null,
+        "postedAt": "2025-04-07T17:27:00.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/DDNDvvrxgu6/",
+        "platformPostId": "DDNDvvrxgu6",
+        "platformObjectId": null,
+        "postedAt": "2024-12-05T16:53:06.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/DDD59wrJF6t/",
+        "platformPostId": "DDD59wrJF6t",
+        "platformObjectId": null,
+        "postedAt": "2024-12-02T03:33:49.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/DCWA2R4xjAN/",
+        "platformPostId": "DCWA2R4xjAN",
+        "platformObjectId": null,
+        "postedAt": "2024-11-14T07:48:38.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/C9L8JVUNJUX/",
+        "platformPostId": "C9L8JVUNJUX",
+        "platformObjectId": null,
+        "postedAt": "2024-07-09T03:18:19.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/C8Lv3kYNdsA/",
+        "platformPostId": "C8Lv3kYNdsA",
+        "platformObjectId": null,
+        "postedAt": "2024-06-14T04:59:03.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/C28tO44rVlS/",
+        "platformPostId": "C28tO44rVlS",
+        "platformObjectId": null,
+        "postedAt": "2024-02-05T02:11:56.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/C0z_qvfveEI/",
+        "platformPostId": "C0z_qvfveEI",
+        "platformObjectId": null,
+        "postedAt": "2023-12-13T23:55:34.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/Cwv-RiYPiWV/",
+        "platformPostId": "Cwv-RiYPiWV",
+        "platformObjectId": null,
+        "postedAt": "2023-09-04T00:21:12.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/Cs5MfWNNtr0/",
+        "platformPostId": "Cs5MfWNNtr0",
+        "platformObjectId": null,
+        "postedAt": "2023-05-31T04:12:40.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/Csc2zU7NysC/",
+        "platformPostId": "Csc2zU7NysC",
+        "platformObjectId": null,
+        "postedAt": "2023-05-20T04:04:25.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/CsMQ9WUuV69/",
+        "platformPostId": "CsMQ9WUuV69",
+        "platformObjectId": null,
+        "postedAt": "2023-05-13T17:25:53.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/p/Crh1AAFAkYQ/",
+        "platformPostId": "Crh1AAFAkYQ",
+        "platformObjectId": null,
+        "postedAt": "2023-04-27T05:53:29.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/CpzInJ2giAD/",
+        "platformPostId": "CpzInJ2giAD",
+        "platformObjectId": null,
+        "postedAt": "2023-03-15T06:10:17.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/CppOe2pLkI4/",
+        "platformPostId": "CppOe2pLkI4",
+        "platformObjectId": null,
+        "postedAt": "2023-03-11T09:49:20.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/Cpb8QhgNnkF/",
+        "platformPostId": "Cpb8QhgNnkF",
+        "platformObjectId": null,
+        "postedAt": "2023-03-06T05:59:22.000Z"
+      },
+      {
+        "batchSlug": "A16ZSR006",
+        "platform": "instagram",
+        "entityType": "founder",
+        "entityId": "a16z-speedrun-006-sun-founder-artin-bogdanov",
+        "sourceUrl": "https://www.instagram.com/reel/Cpbbn7NIrrx/",
+        "platformPostId": "Cpbbn7NIrrx",
+        "platformObjectId": null,
+        "postedAt": "2023-03-06T01:14:01.000Z"
+      }
+    ]
   }
 ]

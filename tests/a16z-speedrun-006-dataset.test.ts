@@ -461,7 +461,7 @@ describe("a16z speedrun 006 dataset", () => {
         socialAccountId:
           "acct:founder:a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin:instagram:https%3A%2F%2Fwww.instagram.com%2Fyusan.lin",
         postedAt: "2026-08-01T09:32:04.000Z",
-        metrics: { likes: 467, comments: 3 }
+        metricMinimums: { likes: 467, comments: 3 }
       },
       {
         platformPostId: "DbeDhm-vd7M",
@@ -472,7 +472,7 @@ describe("a16z speedrun 006 dataset", () => {
         socialAccountId:
           "acct:company:a16z-speedrun-006-snapp-stats:instagram:https%3A%2F%2Fwww.instagram.com%2Fsnappstats",
         postedAt: "2026-07-31T19:51:42.000Z",
-        metrics: { likes: 11, comments: 0, views: 113 }
+        metricMinimums: { likes: 11, comments: 0, views: 113 }
       },
       {
         platformPostId: "DbbqOA8lhPV",
@@ -483,20 +483,25 @@ describe("a16z speedrun 006 dataset", () => {
         socialAccountId:
           "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
         postedAt: "2026-07-30T21:30:45.000Z",
-        metrics: { likes: 3529, comments: 28 }
+        metricMinimums: { likes: 3529, comments: 28 }
       }
     ] as const;
 
     for (const expected of cases) {
+      const { metricMinimums, ...identity } = expected;
       const matches = graph.evidence.filter(
         (item) => item.platform === "instagram" && item.platformPostId === expected.platformPostId
       );
       expect(matches).toHaveLength(1);
       expect(matches[0]).toEqual(expect.objectContaining({
-        ...expected,
+        ...identity,
         publishedAtPrecision: "exact",
         review_state: "verified"
       }));
+      for (const [metric, minimum] of Object.entries(metricMinimums)) {
+        expect(Number((matches[0].metrics as Record<string, number | null | undefined>)[metric] ?? 0))
+          .toBeGreaterThanOrEqual(minimum);
+      }
       expect(matches[0].contributionScore).toBeGreaterThan(0);
       expect(scoringEligibility(matches[0]).eligible).toBe(true);
     }
@@ -511,13 +516,13 @@ describe("a16z speedrun 006 dataset", () => {
       {
         platformPostId: "DZaUqGAB-5G",
         entityId: "a16z-speedrun-006-mirror-mirror-ai",
-        metrics: { likes: 403, comments: 16, views: 12_821 },
+        metricMinimums: { likes: 403, comments: 16, views: 12_821 },
         opening: "Introducing Digital Twin Studio!",
       },
       {
         platformPostId: "DW4VYvfidcr",
         entityId: "a16z-speedrun-006-syncere",
-        metrics: { likes: 78, comments: 10, views: 1_313 },
+        metricMinimums: { likes: 78, comments: 10, views: 1_313 },
         opening: "Introducing Lume.",
       },
     ] as const;
@@ -530,8 +535,11 @@ describe("a16z speedrun 006 dataset", () => {
       expect(matches[0]).toEqual(expect.objectContaining({
         entityType: "company",
         entityId: expected.entityId,
-        metrics: expect.objectContaining(expected.metrics),
       }));
+      for (const [metric, minimum] of Object.entries(expected.metricMinimums)) {
+        expect(Number((matches[0].metrics as Record<string, number | null | undefined>)[metric] ?? 0))
+          .toBeGreaterThanOrEqual(minimum);
+      }
       expect(matches[0]?.text.split(expected.opening)).toHaveLength(2);
     }
   });
@@ -575,9 +583,10 @@ describe("a16z speedrun 006 dataset", () => {
       socialAccountId:
         "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
       postedAt: "2026-07-14T01:29:43.000Z",
-      publishedAtPrecision: "exact",
-      metrics: { likes: 7425, comments: 61 }
+      publishedAtPrecision: "exact"
     }));
+    expect(instagramFounderPost[0].metrics.likes).toBeGreaterThanOrEqual(7425);
+    expect(instagramFounderPost[0].metrics.comments).toBeGreaterThanOrEqual(61);
     expect(seedAndLoggedPhysicalPost).toHaveLength(1);
     expect(seedAndLoggedPhysicalPost[0]).toEqual(expect.objectContaining({
       entityType: "company",
@@ -1436,17 +1445,23 @@ describe("a16z speedrun 006 dataset", () => {
       secondPassPhysicalRows.length
     );
 
-    // Two seed observations have deliberately been replaced by fresher
+    // Eight seed observations have deliberately been replaced by richer
     // canonical public receipts. Their physical native identities remain in
-    // the graph exactly once, while 25 rows retain the original import receipt.
-    expect(secondPassRows).toHaveLength(25);
-    expect(secondPassRows.filter(({ item }) => item.platform === "instagram")).toHaveLength(24);
+    // the graph exactly once, while 19 rows retain the original import receipt.
+    expect(secondPassRows).toHaveLength(19);
+    expect(secondPassRows.filter(({ item }) => item.platform === "instagram")).toHaveLength(18);
     expect(secondPassRows.filter(({ item }) => item.platform === "x")).toHaveLength(1);
     const retainedSeedIdentities = new Set(
       secondPassRows.map(({ item }) => `${item.platform}:${item.platformPostId}`)
     );
     expect(A16Z_SECOND_PASS_NATIVE_IDENTITIES.filter((identity) => !retainedSeedIdentities.has(identity)).sort()).toEqual([
+      "instagram:Da3JzWVBJKQ",
+      "instagram:Da3q_PqSmkm",
+      "instagram:Da526dyv09U",
+      "instagram:Da57Q5cBmsS",
       "instagram:Da5r6ONJJvs",
+      "instagram:Da6NVouSjPN",
+      "instagram:Da6PULkj2OH",
       "instagram:Da9FP68vX_n"
     ]);
     expect(new Set(secondPassRows.map(({ provenance }) => provenance.candidateId)).size).toBe(secondPassRows.length);
@@ -1514,25 +1529,23 @@ describe("a16z speedrun 006 dataset", () => {
         platform: "instagram",
         attachedCompanyName: "Clair Health",
         accountUrl: "https://www.instagram.com/clair_health",
-        metrics: expect.objectContaining({
-          likes: 5364,
-          comments: 104
-        })
+        platformPostId: "DWt6B3bieXE"
       })
     );
+    expect(clairInstagramEvidence?.metrics.likes).toBeGreaterThanOrEqual(5364);
+    expect(clairInstagramEvidence?.metrics.comments).toBeGreaterThanOrEqual(104);
     expect(yusanInstagramEvidence).toEqual(
       expect.objectContaining({
         entityType: "founder",
         platform: "instagram",
         attachedCompanyName: "Mirror Mirror AI",
         accountUrl: "https://www.instagram.com/yusan.lin",
-        sourceUrl: "https://instagram.com/p/DV9vi8vgUkp",
-        metrics: expect.objectContaining({
-          likes: 1979,
-          comments: 29
-        })
+        sourceUrl: "https://www.instagram.com/p/DV9vi8vgUkp/",
+        platformPostId: "DV9vi8vgUkp"
       })
     );
+    expect(yusanInstagramEvidence?.metrics.likes).toBeGreaterThanOrEqual(1979);
+    expect(yusanInstagramEvidence?.metrics.comments).toBeGreaterThanOrEqual(29);
     expect(clairInstagramEvidence?.contributionScore).toBeGreaterThan(0);
     expect(yusanInstagramEvidence?.contributionScore).toBeGreaterThan(0);
     expect(clair?.score).toBeGreaterThan(0);

@@ -5,8 +5,8 @@
     "slug": "pluvo",
     "name": "Pluvo"
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
   "events": [
     {
       "id": "tle-dacda55ef6d9f1cf9d1f8c98",
@@ -57,7 +57,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
+    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
   },
   "nextCursor": null
 }

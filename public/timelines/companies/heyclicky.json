@@ -5,8 +5,8 @@
     "slug": "heyclicky",
     "name": "HeyClicky"
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
   "events": [
     {
       "id": "tle-77f93837028afe22fcf028cc",
@@ -55,14 +55,14 @@
       "evidenceCount": 1,
       "sourcePreview": [
         {
-          "id": "src-f13bfd4f68dc4337f057ca9b",
+          "id": "src-b9d5239a7f59920e5eade2cb",
           "title": "i am celebrating $10k mrr at a gas station",
           "publisher": "_heyclicky",
           "domain": "instagram.com",
           "sourceType": "company_post",
-          "publishedAt": "2026-06-27T22:15:55.000Z",
+          "publishedAt": "2026-06-27T05:00:00.000Z",
           "evidenceRole": "primary",
-          "url": "https://instagram.com/reel/DaGxCB0Sm5N"
+          "url": "https://www.instagram.com/reel/DaGxCB0Sm5N"
         }
       ]
     },
@@ -165,7 +165,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 5,
-    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
+    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
   },
   "nextCursor": null
 }

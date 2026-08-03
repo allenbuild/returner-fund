@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-sun",
+    "slug": "sun",
+    "name": "SUN"
+  },
+  "event": {
+    "id": "tle-59ca1c356a2baf04b911eac9",
+    "eventDate": "2026-03-27",
+    "eventDateType": "announcement_date",
+    "title": "SUN released on Product Hunt on March 29",
+    "summary": "SUN is launching on Product Hunt on March 29.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-810d7a518157469077bdb2e1",
+        "title": "We’re launching on Product Hunt on March 29. Audio hasn’t really evolved. Search. Pick. Consume. With SUN, you don’t search. You create. You’re not the consumer. You’re the reason content exists. And it exists to help you become your best…",
+        "publisher": "artinbogdanov",
+        "domain": "instagram.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-27T20:33:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/DWZo_JxCYCw"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-810d7a518157469077bdb2e1",
+        "title": "We’re launching on Product Hunt on March 29. Audio hasn’t really evolved. Search. Pick. Consume. With SUN, you don’t search. You create. You’re not the consumer. You’re the reason content exists. And it exists to help you become your best…",
+        "publisher": "artinbogdanov",
+        "domain": "instagram.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-27T20:33:55.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/DWZo_JxCYCw",
+        "publicationDate": "2026-03-27T20:33:55.000Z",
+        "excerpt": "We’re launching on Product Hunt on March 29. Audio hasn’t really evolved. Search. Pick. Consume. With SUN, you don’t search. You create. You’re not the consumer. You’re the reason content exists. And it exists to help you become your best self. Comment “SUN” for early access.",
+        "sourceEventDate": "2026-03-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-55e088874b0090d09679377c",
+        "platform": "instagram",
+        "account": "artinbogdanov",
+        "postDate": "2026-03-27",
+        "excerpt": "We’re launching on Product Hunt on March 29. Audio hasn’t really evolved. Search. Pick. Consume. With SUN, you don’t search. You create. You’re not the consumer. You’re the reason content exists. And it exists to help you become your best self. Comment “SUN” for early access.",
+        "url": "https://www.instagram.com/reel/DWZo_JxCYCw",
+        "metrics": {
+          "likes": 78,
+          "comments": 40,
+          "views": 1381
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+}

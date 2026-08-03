@@ -5,8 +5,8 @@
     "slug": "mirror-mirror-ai",
     "name": "Mirror Mirror AI"
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
   "events": [
     {
       "id": "tle-c821ec3afe8e613fafb1b118",
@@ -21,14 +21,14 @@
       "evidenceCount": 2,
       "sourcePreview": [
         {
-          "id": "src-a5e7c256f5a5b2c9fc3819fb",
+          "id": "src-7d0250a52a0d01ed05dff0c7",
           "title": "Introducing Digital Twin Studio! Finally the solution to give you full control of how you’re represented. Link in bio to access our beta version!",
           "publisher": "mirrormirror.ai",
           "domain": "instagram.com",
           "sourceType": "company_post",
           "publishedAt": "2026-06-10T13:31:09.000Z",
           "evidenceRole": "primary",
-          "url": "https://instagram.com/reel/DZaUqGAB-5G"
+          "url": "https://www.instagram.com/reel/DZaUqGAB-5G"
         },
         {
           "id": "src-63255856eaae936e193c57f8",
@@ -95,7 +95,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
+    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
   },
   "nextCursor": null
 }

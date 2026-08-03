@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  instagramEvidenceMetrics,
+  instagramNativeFeedRequest,
   instagramPublicProfileRequest,
+  mergeInstagramNativeFeedPages,
+  overlayInstagramNativeFeedMetrics,
+  parseInstagramNativeFeedResponse,
   parseInstagramPublicProfileResponse
 } from "../scripts/lib/instagram-public-profile.mjs";
 
@@ -57,6 +62,48 @@ function payloadFor(username, edges, {
   };
 }
 
+function nativeFeedItem({
+  shortcode = "REEL_2",
+  pk = "3947842135164450123",
+  timestamp = 1_722_470_400,
+  authorUsername = "_heyclicky",
+  coauthors = [],
+  likes = 4_050,
+  comments = 64,
+  plays = 122_000,
+  overrides = {}
+} = {}) {
+  return {
+    pk,
+    code: shortcode,
+    media_type: 2,
+    product_type: "clips",
+    taken_at: timestamp,
+    user: { username: authorUsername },
+    coauthor_producers: coauthors.map((username) => ({ username })),
+    caption: { text: "Watch the demo" },
+    like_count: likes,
+    comment_count: comments,
+    play_count: plays,
+    ig_play_count: plays,
+    ...overrides
+  };
+}
+
+function nativeFeedPayload(username, items, {
+  moreAvailable = false,
+  nextMaxId = null
+} = {}) {
+  return {
+    status: "ok",
+    user: { username },
+    num_results: items.length,
+    more_available: moreAvailable,
+    next_max_id: nextMaxId,
+    items
+  };
+}
+
 test("builds a bounded anonymous web_profile_info request from an exact account", () => {
   const request = instagramPublicProfileRequest({
     accountUrl: "https://www.instagram.com/Tash.Cards/?token=must-not-propagate#bio"
@@ -86,6 +133,28 @@ test("builds a bounded anonymous web_profile_info request from an exact account"
   assert.ok(request.options.headers["user-agent"].length < 256);
   assert.equal(request.options.headers.referer.includes("?"), false);
   assert.equal(request.url.includes("must-not-propagate"), false);
+});
+
+test("builds a bounded credential-omitting native feed request with an optional cursor", () => {
+  const request = instagramNativeFeedRequest({
+    accountUrl: "https://www.instagram.com/Tash.Cards/?sessionid=discard#secret",
+    maxId: "cursor/+=="
+  });
+  const url = new URL(request.url);
+
+  assert.equal(request.username, "tash.cards");
+  assert.equal(url.origin + url.pathname, "https://www.instagram.com/api/v1/feed/user/tash.cards/username/");
+  assert.equal(url.searchParams.get("count"), "50");
+  assert.equal(url.searchParams.get("max_id"), "cursor/+==");
+  assert.equal(request.options.credentials, "omit");
+  assert.equal(request.options.redirect, "error");
+  assert.equal("cookie" in request.options.headers, false);
+  assert.equal("authorization" in request.options.headers, false);
+  assert.doesNotMatch(JSON.stringify(request), /sessionid=discard|#secret/);
+  assert.throws(
+    () => instagramNativeFeedRequest({ username: "tash.cards", maxId: "\u0000bad" }),
+    /cursor is invalid/i
+  );
 });
 
 test("request construction rejects invalid and mismatched profile identities", () => {
@@ -208,6 +277,184 @@ test("parses exact-profile image and reel edges, metrics, media, dedupe, and tru
   assert.doesNotMatch(JSON.stringify(result), /top-secret|sensitive|remove-me/);
 });
 
+test("native reel play_count overrides stale web_profile_info views without regressing engagement", () => {
+  const profile = parseInstagramPublicProfileResponse({
+    payload: payloadFor("_heyclicky", [mediaNode({
+      shortcode: "DbJjYFfy_VL",
+      type: "GraphVideo",
+      caption: "i am being shipped",
+      overrides: {
+        is_video: true,
+        owner: { username: "_heyclicky" },
+        edge_media_preview_like: { count: 4_060 },
+        edge_liked_by: { count: 4_060 },
+        edge_media_to_parent_comment: { count: 64 },
+        edge_media_to_comment: { count: 64 },
+        video_view_count: 4_290
+      }
+    })]),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  const feedPage = parseInstagramNativeFeedResponse({
+    payload: nativeFeedPayload("_heyclicky", [nativeFeedItem({
+      shortcode: "DbJjYFfy_VL",
+      likes: 4_050,
+      comments: 64,
+      plays: 122_000
+    })]),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  const feed = mergeInstagramNativeFeedPages([feedPage]);
+  const overlaid = overlayInstagramNativeFeedMetrics(profile, feed);
+  const post = overlaid.posts[0];
+
+  assert.equal(feed.verified, true);
+  assert.equal(overlaid.nativeFeedOverlayCount, 1);
+  assert.equal(overlaid.nativeFeedAddedPostCount, 0);
+  assert.deepEqual(post.nativeFeedMetrics, {
+    likes: 4_050,
+    comments: 64,
+    plays: 122_000,
+    videoViews: null
+  });
+  assert.deepEqual(instagramEvidenceMetrics(post), {
+    likes: 4_060,
+    comments: 64,
+    views: 122_000
+  });
+});
+
+test("paginates native feed receipts, deduplicates shortcodes, and adds older feed-only posts", () => {
+  const first = parseInstagramNativeFeedResponse({
+    payload: nativeFeedPayload("_heyclicky", [
+      nativeFeedItem({ shortcode: "NEW", pk: "100", plays: 100 }),
+      nativeFeedItem({ shortcode: "DUP", pk: "101", plays: 200 })
+    ], { moreAvailable: true, nextMaxId: "cursor-2" }),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  const second = parseInstagramNativeFeedResponse({
+    payload: nativeFeedPayload("_heyclicky", [
+      nativeFeedItem({ shortcode: "DUP", pk: "101", plays: 250 }),
+      nativeFeedItem({ shortcode: "OLD", pk: "102", plays: 300 })
+    ]),
+    requestedUsername: "_heyclicky",
+    fetchedAt: "2026-08-02T21:01:00.000Z"
+  });
+  const merged = mergeInstagramNativeFeedPages([first, second]);
+  const emptyProfile = parseInstagramPublicProfileResponse({
+    payload: payloadFor("_heyclicky", []),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  const overlaid = overlayInstagramNativeFeedMetrics(emptyProfile, merged);
+
+  assert.equal(merged.pageCount, 2);
+  assert.equal(merged.receivedItemCount, 4);
+  assert.equal(merged.uniqueItemCount, 3);
+  assert.equal(merged.duplicateItemCount, 1);
+  assert.equal(merged.sourceExhausted, true);
+  assert.equal(merged.truncated, false);
+  assert.deepEqual(merged.posts.map((post) => post.shortcode), ["NEW", "DUP", "OLD"]);
+  assert.equal(merged.posts.find((post) => post.shortcode === "DUP").metrics.plays, 250);
+  assert.equal(overlaid.nativeFeedAddedPostCount, 3);
+  assert.deepEqual(
+    overlaid.posts.map((post) => instagramEvidenceMetrics(post).views),
+    [100, 250, 300]
+  );
+});
+
+test("records an explicit truncation reason when the native feed item cap is reached", () => {
+  const page = parseInstagramNativeFeedResponse({
+    payload: nativeFeedPayload("_heyclicky", [
+      nativeFeedItem({ shortcode: "ONE", pk: "201" }),
+      nativeFeedItem({ shortcode: "TWO", pk: "202" }),
+      nativeFeedItem({ shortcode: "THREE", pk: "203" })
+    ], { moreAvailable: true, nextMaxId: "cursor-more" }),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  const merged = mergeInstagramNativeFeedPages([page], { maxItems: 2 });
+
+  assert.equal(merged.uniqueItemCount, 2);
+  assert.equal(merged.sourceExhausted, false);
+  assert.equal(merged.truncated, true);
+  assert.equal(merged.truncationReason, "item_limit");
+  assert.equal(merged.nextMaxId, "cursor-more");
+});
+
+test("marks verified native-feed pages partial when later pagination is interrupted", () => {
+  const page = parseInstagramNativeFeedResponse({
+    payload: nativeFeedPayload("_heyclicky", [
+      nativeFeedItem({ shortcode: "VERIFIED", pk: "204" })
+    ], { moreAvailable: true, nextMaxId: "cursor-next" }),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  const merged = mergeInstagramNativeFeedPages([page], {
+    interruptionReason: "http_500"
+  });
+
+  assert.equal(merged.verified, true);
+  assert.equal(merged.sourceExhausted, false);
+  assert.equal(merged.interrupted, true);
+  assert.equal(merged.truncated, true);
+  assert.equal(merged.truncationReason, "pagination_interrupted:http_500");
+  assert.deepEqual(merged.posts.map((post) => post.shortcode), ["VERIFIED"]);
+});
+
+test("native feed parsing fails closed on profile mismatch, malformed pages, and blocked payloads", () => {
+  const cases = [
+    [nativeFeedPayload("somebody_else", [nativeFeedItem()]), "instagram_native_feed_username_mismatch"],
+    [{ status: "ok", user: { username: "_heyclicky" }, items: [], num_results: 1, more_available: false }, "instagram_native_feed_page_malformed"],
+    [nativeFeedPayload("_heyclicky", [nativeFeedItem({ overrides: { user: { username: "bad username" } } })]), "instagram_native_feed_item_malformed"],
+    [{ status: "fail", status_code: 429, message: "Please wait" }, "instagram_native_feed_rate_limited"]
+  ];
+  for (const [payload, reason] of cases) {
+    const result = parseInstagramNativeFeedResponse({
+      payload,
+      requestedUsername: "_heyclicky",
+      fetchedAt
+    });
+    assert.equal(result.verified, false);
+    assert.equal(result.reason, reason);
+    assert.deepEqual(result.posts, []);
+  }
+  const oversized = parseInstagramNativeFeedResponse({
+    payload: "x".repeat(4_000_001),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  assert.equal(oversized.reason, "instagram_native_feed_payload_malformed");
+});
+
+test("native feed overlay rejects a same-shortcode observation with different ownership", () => {
+  const profile = parseInstagramPublicProfileResponse({
+    payload: payloadFor("_heyclicky", [mediaNode({
+      shortcode: "OWNER_TEST",
+      type: "GraphVideo",
+      overrides: { is_video: true, owner: { username: "_heyclicky" } }
+    })]),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  const feed = parseInstagramNativeFeedResponse({
+    payload: nativeFeedPayload("_heyclicky", [nativeFeedItem({
+      shortcode: "OWNER_TEST",
+      authorUsername: "somebody_else",
+      coauthors: ["_heyclicky"]
+    })]),
+    requestedUsername: "_heyclicky",
+    fetchedAt
+  });
+  const overlaid = overlayInstagramNativeFeedMetrics(profile, feed);
+  assert.equal(overlaid.nativeFeedOverlayCount, 0);
+  assert.equal(overlaid.nativeFeedAddedPostCount, 0);
+  assert.equal(overlaid.posts[0].nativeFeedMetrics, undefined);
+});
+
 test("parses bounded sidecar media URLs and reports sidecar truncation", () => {
   const children = Array.from({ length: 21 }, (_, index) => ({
     node: {
@@ -227,8 +474,33 @@ test("parses bounded sidecar media URLs and reports sidecar truncation", () => {
 
   assert.equal(result.verified, true);
   assert.equal(result.truncated, true);
-  assert.equal(result.posts[0].mediaUrls.length, 21);
+  assert.equal(result.posts[0].mediaUrls.length, 12);
   assert.ok(result.posts[0].mediaUrls.every((url) => !url.includes("secret")));
+});
+
+test("preserves public expiring signatures only on allowlisted Instagram CDN hosts", () => {
+  const signed = mediaNode({
+    displayUrl:
+      "https://scontent.cdninstagram.com/photo.jpg?oh=public-signature&oe=expires&access_token=discard"
+  });
+  const untrusted = mediaNode({
+    shortcode: "UNTRUSTED",
+    displayUrl:
+      "https://cdn.example/photo.jpg?oh=strip-me&oe=strip-me-too&access_token=discard"
+  });
+  const result = parseInstagramPublicProfileResponse({
+    payload: payloadFor("tash.cards", [signed, untrusted]),
+    requestedUsername: "tash.cards",
+    fetchedAt
+  });
+
+  assert.equal(result.verified, true);
+  assert.equal(
+    result.posts[0].mediaUrls[0],
+    "https://scontent.cdninstagram.com/photo.jpg?oh=public-signature&oe=expires"
+  );
+  assert.equal(result.posts[1].mediaUrls[0], "https://cdn.example/photo.jpg");
+  assert.doesNotMatch(JSON.stringify(result), /access_token|discard|strip-me/);
 });
 
 test("distinguishes primary, coauthor, and surface-only profile roles", () => {

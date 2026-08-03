@@ -105,7 +105,11 @@ const routeTraces = [
     forbidden: [
       `${normalize("/src/lib/social/public-evidence-current.json")}`,
       `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
-      `${normalize("/src/lib/social/targeted-evidence-current.json")}`
+      `${normalize("/src/lib/social/targeted-evidence-current.json")}`,
+      `${normalize("/public/graph/s2026-yc-partners.json")}`,
+      `${normalize("/public/graph/s26-yc-partners.json")}`,
+      `${normalize("/public/graph/a16zsr006-yc-partners.json")}`,
+      `${normalize("/public/graph/manifest.json")}`
     ]
   },
   {

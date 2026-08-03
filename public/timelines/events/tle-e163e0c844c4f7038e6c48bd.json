@@ -72,7 +72,7 @@
     ],
     "posts": [
       {
-        "id": "post-5ae7c17818de40b9bd70f81e",
+        "id": "post-df23b4929d8a05d35c3fb8f3",
         "platform": "hacker_news",
         "account": null,
         "postDate": "2026-07-27",
@@ -85,7 +85,7 @@
         "evidenceRole": "primary"
       },
       {
-        "id": "post-6663a1dad153f39491f9469e",
+        "id": "post-894d9ae804aacf86282f56dd",
         "platform": "youtube",
         "account": "Rise Reforming Launch Video",
         "postDate": "2026-07-27",
@@ -100,6 +100,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
 }

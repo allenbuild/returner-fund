@@ -91,6 +91,14 @@ const fullGraphTraceExcludes = [
   ...graphTraceExcludes,
   "public/graph/**/*"
 ];
+const insiderRecomputeTraceExcludes = [
+  ...graphTraceExcludes,
+  // The recompute route allowlists only base and Insider snapshots. Turbopack
+  // also discovers these sibling files through the bounded dynamic path, but
+  // they can never be opened by that route.
+  "public/graph/*-yc-partners.json",
+  "public/graph/manifest.json"
+];
 const insiderRuntimeSnapshots = [
   "public/graph/s2026.json",
   "public/graph/s2026-insiders.json",
@@ -169,7 +177,7 @@ const nextConfig = {
     [canonicalGraphTraceKey]: graphTraceExcludes,
     "/api/graph/full": fullGraphTraceExcludes,
     "/api/graph/refresh": graphTraceExcludes,
-    "/api/insiders/recompute": graphTraceExcludes,
+    "/api/insiders/recompute": insiderRecomputeTraceExcludes,
     "/api/admin/ingestion": adminDiagnosticsTraceExcludes,
     "/debug/duplicates": debugGraphTraceExcludes,
     "/debug/evidence": debugGraphTraceExcludes,

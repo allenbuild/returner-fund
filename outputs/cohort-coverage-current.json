@@ -2,7 +2,7 @@
   "schemaVersion": "cohort-coverage-audit.v1",
   "status": "pass",
   "planProvided": true,
-  "runOutputsProvided": true,
+  "runOutputsProvided": false,
   "structuralFailureCount": 0,
   "structuralFailureKinds": [],
   "batches": [
@@ -12,19 +12,19 @@
         "catalog": "src/lib/social/a16z-speedrun-006-social-accounts.json",
         "profileSource": "src/lib/graph/a16z-speedrun-006-dataset.ts",
         "graph": "public/graph/a16zsr006.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-1800-0c558b75472ad235/public-a16zsr006.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-1800-0c558b75472ad235/github-a16zsr006.json"
+        "publicRun": null,
+        "githubRun": null
       },
       "counts": {
         "companies": 59,
         "founders": 128,
-        "catalogOwnerMappings": 328,
+        "catalogOwnerMappings": 339,
         "graphOwnerMappings": 327,
-        "catalogOwnerPlatformGroups": 325,
-        "plannedOwnerMappings": 328,
-        "multiAccountOwnerMappings": 3,
-        "graphEvidence": 1001,
-        "graphNeedsReview": 0
+        "catalogOwnerPlatformGroups": 335,
+        "plannedOwnerMappings": 339,
+        "multiAccountOwnerMappings": 4,
+        "graphEvidence": 2807,
+        "graphNeedsReview": 2112
       },
       "structural": {
         "status": "pass",
@@ -58,6 +58,182 @@
               "a16z-speedrun-006-advocate"
             ],
             "key": "A16ZSR006|company|a16z-speedrun-006-advocate|linkedin|https://linkedin.com/company/advocate-wellbeing"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-antihero-studios",
+            "entityName": "Antihero Studios",
+            "sourceId": "a16z-speedrun-006-antihero-studios",
+            "companyEntityId": "a16z-speedrun-006-antihero-studios",
+            "companySlug": "antihero-studios",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/r/antihero_studios",
+            "originalUrl": "https://www.reddit.com/r/antihero_studios/",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-antihero-studios"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-antihero-studios|reddit|https://reddit.com/r/antihero_studios"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-emanate",
+            "entityName": "Emanate",
+            "sourceId": "a16z-speedrun-006-emanate",
+            "companyEntityId": "a16z-speedrun-006-emanate",
+            "companySlug": "emanate",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/user/kainjoo",
+            "originalUrl": "https://www.reddit.com/user/kainjoo",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-emanate"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-emanate|reddit|https://reddit.com/user/kainjoo"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-idilio",
+            "entityName": "Idilio",
+            "sourceId": "a16z-speedrun-006-idilio",
+            "companyEntityId": "a16z-speedrun-006-idilio",
+            "companySlug": "idilio",
+            "platform": "youtube",
+            "canonicalUrl": "https://youtube.com/@idiliotv",
+            "originalUrl": "https://www.youtube.com/@IdilioTV",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-idilio"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-idilio|youtube|https://youtube.com/@idiliotv"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-mirror-mirror-ai",
+            "entityName": "Mirror Mirror AI",
+            "sourceId": "a16z-speedrun-006-mirror-mirror-ai",
+            "companyEntityId": "a16z-speedrun-006-mirror-mirror-ai",
+            "companySlug": "mirror-mirror-ai",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/user/somuchblood",
+            "originalUrl": "https://www.reddit.com/user/somuchblood",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-mirror-mirror-ai"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-mirror-mirror-ai|reddit|https://reddit.com/user/somuchblood"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-modaic",
+            "entityName": "Modaic",
+            "sourceId": "a16z-speedrun-006-modaic",
+            "companyEntityId": "a16z-speedrun-006-modaic",
+            "companySlug": "modaic",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/user/Disneyskidney",
+            "originalUrl": "https://www.reddit.com/user/Disneyskidney",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-modaic"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-modaic|reddit|https://reddit.com/user/Disneyskidney"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-omi-health",
+            "entityName": "Omi Health",
+            "sourceId": "a16z-speedrun-006-omi-health",
+            "companyEntityId": "a16z-speedrun-006-omi-health",
+            "companySlug": "omi-health",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/user/Ok-Comfortable5583",
+            "originalUrl": "https://www.reddit.com/user/Ok-Comfortable5583",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-omi-health"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-omi-health|reddit|https://reddit.com/user/Ok-Comfortable5583"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-snapp-stats",
+            "entityName": "Snapp Stats",
+            "sourceId": "a16z-speedrun-006-snapp-stats",
+            "companyEntityId": "a16z-speedrun-006-snapp-stats",
+            "companySlug": "snapp-stats",
+            "platform": "youtube",
+            "canonicalUrl": "https://youtube.com/@snappstats",
+            "originalUrl": "https://www.youtube.com/@Snappstats",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-snapp-stats"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-snapp-stats|youtube|https://youtube.com/@snappstats"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-sun",
+            "entityName": "SUN",
+            "sourceId": "a16z-speedrun-006-sun",
+            "companyEntityId": "a16z-speedrun-006-sun",
+            "companySlug": "sun",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/user/createvalue-dontspam",
+            "originalUrl": "https://www.reddit.com/user/createvalue-dontspam",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-sun"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-sun|reddit|https://reddit.com/user/createvalue-dontspam"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-sun",
+            "entityName": "SUN",
+            "sourceId": "a16z-speedrun-006-sun",
+            "companyEntityId": "a16z-speedrun-006-sun",
+            "companySlug": "sun",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/user/Total_Birthday8070",
+            "originalUrl": "https://www.reddit.com/user/Total_Birthday8070",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-sun"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-sun|reddit|https://reddit.com/user/Total_Birthday8070"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-syncere",
+            "entityName": "Syncere",
+            "sourceId": "a16z-speedrun-006-syncere",
+            "companyEntityId": "a16z-speedrun-006-syncere",
+            "companySlug": "syncere",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/user/cirad",
+            "originalUrl": "https://www.reddit.com/user/cirad",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-syncere"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-syncere|reddit|https://reddit.com/user/cirad"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-variantnow",
+            "entityName": "VariantNow",
+            "sourceId": "a16z-speedrun-006-variantnow",
+            "companyEntityId": "a16z-speedrun-006-variantnow",
+            "companySlug": "variantnow",
+            "platform": "youtube",
+            "canonicalUrl": "https://youtube.com/channel/ucxphv6slevicu8rusx0ky5g",
+            "originalUrl": "https://www.youtube.com/channel/UCxpHV6SlEVicu8RuSx0KY5g",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-variantnow"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-variantnow|youtube|https://youtube.com/channel/ucxphv6slevicu8rusx0ky5g"
           }
         ],
         "unexpectedGraphOwnerMappings": [],
@@ -109,6 +285,22 @@
               "a16z-speedrun-006-smart-bricks"
             ],
             "key": "A16ZSR006|company|a16z-speedrun-006-smart-bricks|instagram|https://instagram.com/smartbricks.invest"
+          },
+          {
+            "batchSlug": "A16ZSR006",
+            "entityType": "company",
+            "entityId": "a16z-speedrun-006-sun",
+            "entityName": "SUN",
+            "sourceId": "a16z-speedrun-006-sun",
+            "companyEntityId": "a16z-speedrun-006-sun",
+            "companySlug": "sun",
+            "platform": "reddit",
+            "canonicalUrl": "https://reddit.com/user/Total_Birthday8070",
+            "originalUrl": "https://www.reddit.com/user/Total_Birthday8070",
+            "ownerReferenceCandidates": [
+              "a16z-speedrun-006-sun"
+            ],
+            "key": "A16ZSR006|company|a16z-speedrun-006-sun|reddit|https://reddit.com/user/Total_Birthday8070"
           }
         ],
         "mappingCoverage": {
@@ -143,8 +335,8 @@
             "founderMissing": 71
           },
           "youtube": {
-            "companyMapped": 7,
-            "companyMissing": 52,
+            "companyMapped": 10,
+            "companyMissing": 49,
             "founderMapped": 1,
             "founderMissing": 127
           }
@@ -202,11 +394,6 @@
         ],
         "zeroOwnNativeEvidenceCompanies": [
           {
-            "entityId": "a16z-speedrun-006-acceler8",
-            "name": "Acceler8",
-            "companyName": null
-          },
-          {
             "entityId": "a16z-speedrun-006-advocate",
             "name": "Advocate",
             "companyName": null
@@ -214,11 +401,6 @@
           {
             "entityId": "a16z-speedrun-006-alike",
             "name": "Alike",
-            "companyName": null
-          },
-          {
-            "entityId": "a16z-speedrun-006-amdahl",
-            "name": "Amdahl",
             "companyName": null
           },
           {
@@ -232,28 +414,8 @@
             "companyName": null
           },
           {
-            "entityId": "a16z-speedrun-006-bota",
-            "name": "Bota",
-            "companyName": null
-          },
-          {
-            "entityId": "a16z-speedrun-006-concorda",
-            "name": "Concorda",
-            "companyName": null
-          },
-          {
-            "entityId": "a16z-speedrun-006-grove-tax",
-            "name": "Grove Tax",
-            "companyName": null
-          },
-          {
             "entityId": "a16z-speedrun-006-heavi",
             "name": "Heavi",
-            "companyName": null
-          },
-          {
-            "entityId": "a16z-speedrun-006-kaaro",
-            "name": "Kaaro",
             "companyName": null
           },
           {
@@ -289,11 +451,6 @@
             "companyName": "Advocate"
           },
           {
-            "entityId": "a16z-speedrun-006-amdahl-founder-robert-khoury",
-            "name": "Robert Khoury",
-            "companyName": "Amdahl"
-          },
-          {
             "entityId": "a16z-speedrun-006-antihero-studios-founder-andre-parodi",
             "name": "Andre Parodi",
             "companyName": "Antihero Studios"
@@ -319,11 +476,6 @@
             "companyName": "Auto"
           },
           {
-            "entityId": "a16z-speedrun-006-bilrost-founder-peter-hsu",
-            "name": "Peter Hsu",
-            "companyName": "Bilrost"
-          },
-          {
             "entityId": "a16z-speedrun-006-bota-founder-qi-zhang",
             "name": "Qi Zhang",
             "companyName": "Bota"
@@ -334,24 +486,9 @@
             "companyName": "Cascade"
           },
           {
-            "entityId": "a16z-speedrun-006-cedar-founder-beier-cai",
-            "name": "Beier Cai",
-            "companyName": "Cedar"
-          },
-          {
-            "entityId": "a16z-speedrun-006-crebit-founder-jensen-coonradt",
-            "name": "Jensen Coonradt",
-            "companyName": "Crebit"
-          },
-          {
             "entityId": "a16z-speedrun-006-grove-tax-founder-uday-nandam",
             "name": "Uday Nandam",
             "companyName": "Grove Tax"
-          },
-          {
-            "entityId": "a16z-speedrun-006-heavi-founder-michael-holkesvik",
-            "name": "Michael Holkesvik",
-            "companyName": "Heavi"
           },
           {
             "entityId": "a16z-speedrun-006-idilio-founder-esteban-ramirez",
@@ -366,11 +503,6 @@
           {
             "entityId": "a16z-speedrun-006-loops-ai-founder-ilker-zorluoglu",
             "name": "Ilker Zorluoglu",
-            "companyName": "Loops AI"
-          },
-          {
-            "entityId": "a16z-speedrun-006-loops-ai-founder-yusuf-bahadir",
-            "name": "Yusuf Bahadir",
             "companyName": "Loops AI"
           },
           {
@@ -504,11 +636,6 @@
             "companyName": "Snapp Stats"
           },
           {
-            "entityId": "a16z-speedrun-006-snapp-stats-founder-andrew-tamura",
-            "name": "Andrew Tamura",
-            "companyName": "Snapp Stats"
-          },
-          {
             "entityId": "a16z-speedrun-006-sparta-founder-lalith-posam",
             "name": "Lalith Posam",
             "companyName": "Sparta"
@@ -517,16 +644,6 @@
             "entityId": "a16z-speedrun-006-sparta-founder-saad-asad",
             "name": "Saad Asad",
             "companyName": "Sparta"
-          },
-          {
-            "entityId": "a16z-speedrun-006-straia-founder-alan-chan",
-            "name": "Alan Chan",
-            "companyName": "Straia"
-          },
-          {
-            "entityId": "a16z-speedrun-006-straia-founder-gautam-narasimhan",
-            "name": "Gautam Narasimhan",
-            "companyName": "Straia"
           },
           {
             "entityId": "a16z-speedrun-006-straia-founder-nikki-dansey",
@@ -549,8 +666,280 @@
             "companyName": "Vereda"
           }
         ],
-        "reviewOnlyCompanies": [],
-        "reviewOnlyFounders": []
+        "reviewOnlyCompanies": [
+          {
+            "entityId": "a16z-speedrun-006-advocate",
+            "name": "Advocate",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-alike",
+            "name": "Alike",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-august",
+            "name": "August",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-bilrost",
+            "name": "Bilrost",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-heavi",
+            "name": "Heavi",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-modern-industrials",
+            "name": "Modern Industrials",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-paypath",
+            "name": "PayPath",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-prior-foundry",
+            "name": "Prior Foundry",
+            "companyName": null
+          },
+          {
+            "entityId": "a16z-speedrun-006-thirdbrain-labs",
+            "name": "Thirdbrain Labs",
+            "companyName": null
+          }
+        ],
+        "reviewOnlyFounders": [
+          {
+            "entityId": "a16z-speedrun-006-acceler8-founder-trisha-pathak",
+            "name": "Trisha Pathak",
+            "companyName": "Acceler8"
+          },
+          {
+            "entityId": "a16z-speedrun-006-advocate-founder-andrew-baran",
+            "name": "Andrew Baran",
+            "companyName": "Advocate"
+          },
+          {
+            "entityId": "a16z-speedrun-006-antihero-studios-founder-andre-parodi",
+            "name": "Andre Parodi",
+            "companyName": "Antihero Studios"
+          },
+          {
+            "entityId": "a16z-speedrun-006-antihero-studios-founder-brice-laville-saint-martin",
+            "name": "Brice Laville Saint Martin",
+            "companyName": "Antihero Studios"
+          },
+          {
+            "entityId": "a16z-speedrun-006-antihero-studios-founder-frank-yu-yan",
+            "name": "Frank Yu Yan",
+            "companyName": "Antihero Studios"
+          },
+          {
+            "entityId": "a16z-speedrun-006-august-founder-tom-tankilevitch",
+            "name": "Tom Tankilevitch",
+            "companyName": "August"
+          },
+          {
+            "entityId": "a16z-speedrun-006-auto-founder-sam-hare",
+            "name": "Sam Hare",
+            "companyName": "Auto"
+          },
+          {
+            "entityId": "a16z-speedrun-006-bota-founder-qi-zhang",
+            "name": "Qi Zhang",
+            "companyName": "Bota"
+          },
+          {
+            "entityId": "a16z-speedrun-006-cascade-founder-joana-ferreira",
+            "name": "Joana Ferreira",
+            "companyName": "Cascade"
+          },
+          {
+            "entityId": "a16z-speedrun-006-grove-tax-founder-uday-nandam",
+            "name": "Uday Nandam",
+            "companyName": "Grove Tax"
+          },
+          {
+            "entityId": "a16z-speedrun-006-idilio-founder-esteban-ramirez",
+            "name": "Esteban Ramirez",
+            "companyName": "Idilio"
+          },
+          {
+            "entityId": "a16z-speedrun-006-loops-ai-founder-hakan-bas",
+            "name": "Hakan Bas",
+            "companyName": "Loops AI"
+          },
+          {
+            "entityId": "a16z-speedrun-006-loops-ai-founder-ilker-zorluoglu",
+            "name": "Ilker Zorluoglu",
+            "companyName": "Loops AI"
+          },
+          {
+            "entityId": "a16z-speedrun-006-meridian-founder-chris-farrington",
+            "name": "Chris Farrington",
+            "companyName": "Meridian"
+          },
+          {
+            "entityId": "a16z-speedrun-006-miraka-founder-jesse-abeyta",
+            "name": "Jesse Abeyta",
+            "companyName": "Miraka"
+          },
+          {
+            "entityId": "a16z-speedrun-006-miraka-founder-kazuo-nakamura",
+            "name": "Kazuo Nakamura",
+            "companyName": "Miraka"
+          },
+          {
+            "entityId": "a16z-speedrun-006-miraka-founder-nolan-abeyta",
+            "name": "Nolan Abeyta",
+            "companyName": "Miraka"
+          },
+          {
+            "entityId": "a16z-speedrun-006-oasis-founder-naveen-sharma",
+            "name": "Naveen Sharma",
+            "companyName": "Oasis"
+          },
+          {
+            "entityId": "a16z-speedrun-006-oasiz-founder-jonathan-dinh",
+            "name": "Jonathan Dinh",
+            "companyName": "Oasiz"
+          },
+          {
+            "entityId": "a16z-speedrun-006-omi-health-founder-jakob-spiess",
+            "name": "Jakob Spiess",
+            "companyName": "Omi Health"
+          },
+          {
+            "entityId": "a16z-speedrun-006-panorama-founder-jaclyn-lunger",
+            "name": "Jaclyn Lunger",
+            "companyName": "Panorama"
+          },
+          {
+            "entityId": "a16z-speedrun-006-partyhat-founder-jarret-cuisinier",
+            "name": "Jarret Cuisinier",
+            "companyName": "PartyHat"
+          },
+          {
+            "entityId": "a16z-speedrun-006-partyhat-founder-vijay-myneni",
+            "name": "Vijay Myneni",
+            "companyName": "PartyHat"
+          },
+          {
+            "entityId": "a16z-speedrun-006-paypath-founder-dean-glas",
+            "name": "Dean Glas",
+            "companyName": "PayPath"
+          },
+          {
+            "entityId": "a16z-speedrun-006-paypath-founder-matthew-angelini",
+            "name": "Matthew Angelini",
+            "companyName": "PayPath"
+          },
+          {
+            "entityId": "a16z-speedrun-006-paypath-founder-matthew-lippl",
+            "name": "Matthew Lippl",
+            "companyName": "PayPath"
+          },
+          {
+            "entityId": "a16z-speedrun-006-picpet-founder-jimmy-huang",
+            "name": "Jimmy Huang",
+            "companyName": "PicPet"
+          },
+          {
+            "entityId": "a16z-speedrun-006-piper-ai-founder-erez-tepper",
+            "name": "Erez Tepper",
+            "companyName": "Piper-ai"
+          },
+          {
+            "entityId": "a16z-speedrun-006-piper-ai-founder-ido-gedanken",
+            "name": "Ido Gedanken",
+            "companyName": "Piper-ai"
+          },
+          {
+            "entityId": "a16z-speedrun-006-piper-ai-founder-roi-menzin",
+            "name": "Roi Menzin",
+            "companyName": "Piper-ai"
+          },
+          {
+            "entityId": "a16z-speedrun-006-pluvo-founder-andrew-ingram",
+            "name": "Andrew Ingram",
+            "companyName": "Pluvo"
+          },
+          {
+            "entityId": "a16z-speedrun-006-prior-foundry-founder-johne-kamphorst",
+            "name": "Johne Kamphorst",
+            "companyName": "Prior Foundry"
+          },
+          {
+            "entityId": "a16z-speedrun-006-prior-foundry-founder-keshav-sivakumar",
+            "name": "Keshav Sivakumar",
+            "companyName": "Prior Foundry"
+          },
+          {
+            "entityId": "a16z-speedrun-006-prior-foundry-founder-shirin-abrishami-kashani",
+            "name": "Shirin Abrishami Kashani",
+            "companyName": "Prior Foundry"
+          },
+          {
+            "entityId": "a16z-speedrun-006-quanto-founder-kajanth-nithiyananthan",
+            "name": "Kajanth Nithiyananthan",
+            "companyName": "Quanto"
+          },
+          {
+            "entityId": "a16z-speedrun-006-safeworld-founder-ding-zhao",
+            "name": "Ding Zhao",
+            "companyName": "SafeWorld"
+          },
+          {
+            "entityId": "a16z-speedrun-006-simula-founder-yizhen-zhen",
+            "name": "Yizhen Zhen",
+            "companyName": "Simula"
+          },
+          {
+            "entityId": "a16z-speedrun-006-snag-founder-niko-georgantas",
+            "name": "Niko Georgantas",
+            "companyName": "snag"
+          },
+          {
+            "entityId": "a16z-speedrun-006-snapp-stats-founder-alex-marshall",
+            "name": "Alex Marshall",
+            "companyName": "Snapp Stats"
+          },
+          {
+            "entityId": "a16z-speedrun-006-sparta-founder-lalith-posam",
+            "name": "Lalith Posam",
+            "companyName": "Sparta"
+          },
+          {
+            "entityId": "a16z-speedrun-006-sparta-founder-saad-asad",
+            "name": "Saad Asad",
+            "companyName": "Sparta"
+          },
+          {
+            "entityId": "a16z-speedrun-006-straia-founder-nikki-dansey",
+            "name": "Nikki Dansey",
+            "companyName": "Straia"
+          },
+          {
+            "entityId": "a16z-speedrun-006-straia-founder-ryan-lau",
+            "name": "Ryan Lau",
+            "companyName": "Straia"
+          },
+          {
+            "entityId": "a16z-speedrun-006-sun-founder-matt-gunhan-ertosun",
+            "name": "Matt Gunhan Ertosun",
+            "companyName": "SUN"
+          },
+          {
+            "entityId": "a16z-speedrun-006-vereda-founder-pedro-galindo",
+            "name": "Pedro Galindo",
+            "companyName": "Vereda"
+          }
+        ]
       }
     },
     {
@@ -559,19 +948,19 @@
         "catalog": "src/lib/yc/spring-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s2026.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-1800-0c558b75472ad235/public-s2026.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-1800-0c558b75472ad235/github-s2026.json"
+        "publicRun": null,
+        "githubRun": null
       },
       "counts": {
         "companies": 197,
         "founders": 397,
-        "catalogOwnerMappings": 968,
-        "graphOwnerMappings": 954,
-        "catalogOwnerPlatformGroups": 967,
-        "plannedOwnerMappings": 968,
+        "catalogOwnerMappings": 994,
+        "graphOwnerMappings": 980,
+        "catalogOwnerPlatformGroups": 993,
+        "plannedOwnerMappings": 994,
         "multiAccountOwnerMappings": 1,
-        "graphEvidence": 3823,
-        "graphNeedsReview": 5050
+        "graphEvidence": 4108,
+        "graphNeedsReview": 8976
       },
       "structural": {
         "status": "pass",
@@ -878,26 +1267,26 @@
             "founderMissing": 396
           },
           "linkedin": {
-            "companyMapped": 177,
-            "companyMissing": 20,
+            "companyMapped": 178,
+            "companyMissing": 19,
             "founderMapped": 394,
             "founderMissing": 3
           },
           "product_hunt": {
-            "companyMapped": 0,
-            "companyMissing": 197,
+            "companyMapped": 4,
+            "companyMissing": 193,
             "founderMapped": 0,
             "founderMissing": 397
           },
           "x": {
-            "companyMapped": 126,
-            "companyMissing": 71,
+            "companyMapped": 136,
+            "companyMissing": 61,
             "founderMapped": 242,
             "founderMissing": 155
           },
           "youtube": {
-            "companyMapped": 0,
-            "companyMissing": 197,
+            "companyMapped": 10,
+            "companyMissing": 187,
             "founderMapped": 0,
             "founderMissing": 397
           }
@@ -909,18 +1298,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-biostack-platforms",
-            "name": "BioStack Platforms",
-            "companyName": null
-          },
-          {
             "entityId": "company-chronicle-labs",
             "name": "Chronicle Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-clara-2",
-            "name": "Clara",
             "companyName": null
           },
           {
@@ -1040,18 +1419,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-korso",
-            "name": "Korso",
-            "companyName": null
-          },
-          {
             "entityId": "company-matforge",
             "name": "matforge",
-            "companyName": null
-          },
-          {
-            "entityId": "company-tryprism",
-            "name": "Prism",
             "companyName": null
           },
           {
@@ -1086,6 +1455,11 @@
           }
         ],
         "zeroOwnNativeEvidenceFounders": [
+          {
+            "entityId": "founder-9-mothers-corporation-bogdan-pyzh-1175122",
+            "name": "Bogdan Pyzh",
+            "companyName": "9 Mothers"
+          },
           {
             "entityId": "founder-9-mothers-corporation-roman-khomenko-164423",
             "name": "Roman Khomenko",
@@ -1237,6 +1611,11 @@
             "companyName": "Elyra"
           },
           {
+            "entityId": "founder-expanse-eren-mendi-2274795",
+            "name": "Eren Mendi",
+            "companyName": "Expanse"
+          },
+          {
             "entityId": "founder-expanse-yafet-melake-3409418",
             "name": "Yafet Melake",
             "companyName": "Expanse"
@@ -1347,11 +1726,6 @@
             "companyName": "Kimpton AI"
           },
           {
-            "entityId": "founder-kinro-parth-ainampudi-3399845",
-            "name": "Parth Ainampudi",
-            "companyName": "Kinro"
-          },
-          {
             "entityId": "founder-klaimee-julien-catonnet-1500510",
             "name": "Julien Catonnet",
             "companyName": "Klaimee"
@@ -1375,6 +1749,16 @@
             "entityId": "founder-lamina-labs-sudip-rokaya-2592448",
             "name": "Sudip Rokaya",
             "companyName": "Lamina Labs"
+          },
+          {
+            "entityId": "founder-lightsprint-ben-ong-2961528",
+            "name": "Ben Ong",
+            "companyName": "Lightsprint"
+          },
+          {
+            "entityId": "founder-limrun-muvaffak-onu-262589",
+            "name": "Muvaffak Onuş",
+            "companyName": "Limrun"
           },
           {
             "entityId": "founder-lumius-luca-menozzi-3128595",
@@ -1480,11 +1864,6 @@
             "entityId": "founder-tryprism-axel-la-pira-2374327",
             "name": "Axel La Pira",
             "companyName": "Prism"
-          },
-          {
-            "entityId": "founder-raspire-kareem-selim-2883773",
-            "name": "Kareem Selim",
-            "companyName": "RASPIRE"
           },
           {
             "entityId": "founder-reasonblocks-rohan-vij-3490183",
@@ -1650,11 +2029,6 @@
             "entityId": "founder-youart-harry-zheng-1404079",
             "name": "Harry Zheng",
             "companyName": "YouArt"
-          },
-          {
-            "entityId": "founder-zibra-labs-zac-policzer-3417957",
-            "name": "Zac Policzer",
-            "companyName": "Zibra Labs"
           }
         ],
         "reviewOnlyCompanies": [
@@ -1699,18 +2073,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-korso",
-            "name": "Korso",
-            "companyName": null
-          },
-          {
             "entityId": "company-matforge",
             "name": "matforge",
-            "companyName": null
-          },
-          {
-            "entityId": "company-tryprism",
-            "name": "Prism",
             "companyName": null
           },
           {
@@ -1745,6 +2109,11 @@
           }
         ],
         "reviewOnlyFounders": [
+          {
+            "entityId": "founder-9-mothers-corporation-bogdan-pyzh-1175122",
+            "name": "Bogdan Pyzh",
+            "companyName": "9 Mothers"
+          },
           {
             "entityId": "founder-9-mothers-corporation-roman-khomenko-164423",
             "name": "Roman Khomenko",
@@ -1896,6 +2265,11 @@
             "companyName": "Elyra"
           },
           {
+            "entityId": "founder-expanse-eren-mendi-2274795",
+            "name": "Eren Mendi",
+            "companyName": "Expanse"
+          },
+          {
             "entityId": "founder-expanse-yafet-melake-3409418",
             "name": "Yafet Melake",
             "companyName": "Expanse"
@@ -2006,11 +2380,6 @@
             "companyName": "Kimpton AI"
           },
           {
-            "entityId": "founder-kinro-parth-ainampudi-3399845",
-            "name": "Parth Ainampudi",
-            "companyName": "Kinro"
-          },
-          {
             "entityId": "founder-klaimee-julien-catonnet-1500510",
             "name": "Julien Catonnet",
             "companyName": "Klaimee"
@@ -2034,6 +2403,16 @@
             "entityId": "founder-lamina-labs-sudip-rokaya-2592448",
             "name": "Sudip Rokaya",
             "companyName": "Lamina Labs"
+          },
+          {
+            "entityId": "founder-lightsprint-ben-ong-2961528",
+            "name": "Ben Ong",
+            "companyName": "Lightsprint"
+          },
+          {
+            "entityId": "founder-limrun-muvaffak-onu-262589",
+            "name": "Muvaffak Onuş",
+            "companyName": "Limrun"
           },
           {
             "entityId": "founder-lumius-luca-menozzi-3128595",
@@ -2139,11 +2518,6 @@
             "entityId": "founder-tryprism-axel-la-pira-2374327",
             "name": "Axel La Pira",
             "companyName": "Prism"
-          },
-          {
-            "entityId": "founder-raspire-kareem-selim-2883773",
-            "name": "Kareem Selim",
-            "companyName": "RASPIRE"
           },
           {
             "entityId": "founder-reasonblocks-rohan-vij-3490183",
@@ -2304,11 +2678,6 @@
             "entityId": "founder-youart-harry-zheng-1404079",
             "name": "Harry Zheng",
             "companyName": "YouArt"
-          },
-          {
-            "entityId": "founder-zibra-labs-zac-policzer-3417957",
-            "name": "Zac Policzer",
-            "companyName": "Zibra Labs"
           }
         ]
       }
@@ -2319,19 +2688,19 @@
         "catalog": "src/lib/yc/summer-2026-companies.json",
         "profileSource": null,
         "graph": "public/graph/s26.json",
-        "publicRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-1800-0c558b75472ad235/public-s26.json",
-        "githubRun": "/home/runner/work/returner-fund/returner-fund/work/autonomous-ingestion/central-2026-08-01-1800-0c558b75472ad235/github-s26.json"
+        "publicRun": null,
+        "githubRun": null
       },
       "counts": {
-        "companies": 168,
-        "founders": 328,
-        "catalogOwnerMappings": 798,
-        "graphOwnerMappings": 797,
-        "catalogOwnerPlatformGroups": 798,
-        "plannedOwnerMappings": 798,
+        "companies": 171,
+        "founders": 333,
+        "catalogOwnerMappings": 836,
+        "graphOwnerMappings": 835,
+        "catalogOwnerPlatformGroups": 836,
+        "plannedOwnerMappings": 836,
         "multiAccountOwnerMappings": 0,
-        "graphEvidence": 1597,
-        "graphNeedsReview": 2770
+        "graphEvidence": 1916,
+        "graphNeedsReview": 6818
       },
       "structural": {
         "status": "pass",
@@ -2374,39 +2743,39 @@
         "mappingCoverage": {
           "github": {
             "companyMapped": 32,
-            "companyMissing": 136,
+            "companyMissing": 139,
             "founderMapped": 1,
-            "founderMissing": 327
+            "founderMissing": 332
           },
           "instagram": {
-            "companyMapped": 2,
-            "companyMissing": 166,
+            "companyMapped": 7,
+            "companyMissing": 164,
             "founderMapped": 0,
-            "founderMissing": 328
+            "founderMissing": 333
           },
           "linkedin": {
-            "companyMapped": 154,
-            "companyMissing": 14,
-            "founderMapped": 327,
+            "companyMapped": 156,
+            "companyMissing": 15,
+            "founderMapped": 332,
             "founderMissing": 1
           },
           "product_hunt": {
-            "companyMapped": 0,
-            "companyMissing": 168,
+            "companyMapped": 5,
+            "companyMissing": 166,
             "founderMapped": 0,
-            "founderMissing": 328
+            "founderMissing": 333
           },
           "x": {
-            "companyMapped": 90,
-            "companyMissing": 78,
-            "founderMapped": 192,
-            "founderMissing": 136
+            "companyMapped": 97,
+            "companyMissing": 74,
+            "founderMapped": 194,
+            "founderMissing": 139
           },
           "youtube": {
-            "companyMapped": 0,
-            "companyMissing": 168,
+            "companyMapped": 11,
+            "companyMissing": 160,
             "founderMapped": 0,
-            "founderMissing": 328
+            "founderMissing": 333
           }
         },
         "noMappedAccounts": [
@@ -2421,8 +2790,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-dock",
-            "name": "Dock",
+            "entityId": "company-carsignal",
+            "name": "CarSignal",
             "companyName": null
           },
           {
@@ -2433,16 +2802,6 @@
           {
             "entityId": "company-hyperprobe",
             "name": "HyperProbe",
-            "companyName": null
-          },
-          {
-            "entityId": "company-libra-robotics",
-            "name": "Libra Robotics",
-            "companyName": null
-          },
-          {
-            "entityId": "company-proprio-robotics",
-            "name": "Proprio Robotics",
             "companyName": null
           },
           {
@@ -2468,13 +2827,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-atomarine",
-            "name": "Atomarine",
+            "entityId": "company-buildbox",
+            "name": "Buildbox",
             "companyName": null
           },
           {
-            "entityId": "company-buildbox",
-            "name": "Buildbox",
+            "entityId": "company-carsignal",
+            "name": "CarSignal",
             "companyName": null
           },
           {
@@ -2483,23 +2842,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-decawork",
-            "name": "Decawork",
-            "companyName": null
-          },
-          {
             "entityId": "company-derya",
             "name": "Derya",
-            "companyName": null
-          },
-          {
-            "entityId": "company-dock",
-            "name": "Dock",
-            "companyName": null
-          },
-          {
-            "entityId": "company-ekho-labs",
-            "name": "Ekho Labs",
             "companyName": null
           },
           {
@@ -2523,36 +2867,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-hubble-ai",
-            "name": "Hubble",
-            "companyName": null
-          },
-          {
-            "entityId": "company-induction-labs",
-            "name": "Induction Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-kara",
-            "name": "Kara",
-            "companyName": null
-          },
-          {
-            "entityId": "company-lamb-labs",
-            "name": "Lamb Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-last-accounting-company",
-            "name": "Last Accounting Company",
-            "companyName": null
-          },
-          {
-            "entityId": "company-lumeria",
-            "name": "Lumeria",
-            "companyName": null
-          },
-          {
             "entityId": "company-maingen",
             "name": "Maingen",
             "companyName": null
@@ -2563,33 +2877,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-olam-labs",
-            "name": "Olam Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-orvixo",
-            "name": "Orvixo",
-            "companyName": null
-          },
-          {
-            "entityId": "company-pokerclubhub",
-            "name": "PokerClubHub",
-            "companyName": null
-          },
-          {
-            "entityId": "company-ronanrx-inc",
-            "name": "RonanRx Inc.",
-            "companyName": null
-          },
-          {
             "entityId": "company-shielded",
             "name": "Shielded",
             "companyName": null
           },
           {
-            "entityId": "company-standard-machines",
-            "name": "Standard Machines",
+            "entityId": "company-spaceflow-technologies-inc",
+            "name": "SpaceFlow Technologies, Inc.",
             "companyName": null
           },
           {
@@ -2600,16 +2894,6 @@
           {
             "entityId": "company-tarebio",
             "name": "TareBio",
-            "companyName": null
-          },
-          {
-            "entityId": "company-tash",
-            "name": "tash",
-            "companyName": null
-          },
-          {
-            "entityId": "company-trident",
-            "name": "Trident",
             "companyName": null
           },
           {
@@ -2625,13 +2909,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-atomarine",
-            "name": "Atomarine",
+            "entityId": "company-buildbox",
+            "name": "Buildbox",
             "companyName": null
           },
           {
-            "entityId": "company-buildbox",
-            "name": "Buildbox",
+            "entityId": "company-carsignal",
+            "name": "CarSignal",
             "companyName": null
           },
           {
@@ -2640,23 +2924,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-decawork",
-            "name": "Decawork",
-            "companyName": null
-          },
-          {
             "entityId": "company-derya",
             "name": "Derya",
-            "companyName": null
-          },
-          {
-            "entityId": "company-dock",
-            "name": "Dock",
-            "companyName": null
-          },
-          {
-            "entityId": "company-ekho-labs",
-            "name": "Ekho Labs",
             "companyName": null
           },
           {
@@ -2680,36 +2949,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-hubble-ai",
-            "name": "Hubble",
-            "companyName": null
-          },
-          {
-            "entityId": "company-induction-labs",
-            "name": "Induction Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-kara",
-            "name": "Kara",
-            "companyName": null
-          },
-          {
-            "entityId": "company-lamb-labs",
-            "name": "Lamb Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-last-accounting-company",
-            "name": "Last Accounting Company",
-            "companyName": null
-          },
-          {
-            "entityId": "company-lumeria",
-            "name": "Lumeria",
-            "companyName": null
-          },
-          {
             "entityId": "company-maingen",
             "name": "Maingen",
             "companyName": null
@@ -2720,33 +2959,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-olam-labs",
-            "name": "Olam Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-orvixo",
-            "name": "Orvixo",
-            "companyName": null
-          },
-          {
-            "entityId": "company-pokerclubhub",
-            "name": "PokerClubHub",
-            "companyName": null
-          },
-          {
-            "entityId": "company-ronanrx-inc",
-            "name": "RonanRx Inc.",
-            "companyName": null
-          },
-          {
             "entityId": "company-shielded",
             "name": "Shielded",
             "companyName": null
           },
           {
-            "entityId": "company-standard-machines",
-            "name": "Standard Machines",
+            "entityId": "company-spaceflow-technologies-inc",
+            "name": "SpaceFlow Technologies, Inc.",
             "companyName": null
           },
           {
@@ -2757,16 +2976,6 @@
           {
             "entityId": "company-tarebio",
             "name": "TareBio",
-            "companyName": null
-          },
-          {
-            "entityId": "company-tash",
-            "name": "tash",
-            "companyName": null
-          },
-          {
-            "entityId": "company-trident",
-            "name": "Trident",
             "companyName": null
           },
           {
@@ -2797,11 +3006,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-atomarine",
-            "name": "Atomarine",
-            "companyName": null
-          },
-          {
             "entityId": "company-axelrod",
             "name": "Axelrod",
             "companyName": null
@@ -2817,13 +3021,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-billow-ai-labs",
-            "name": "Billow AI Labs",
+            "entityId": "company-buildbox",
+            "name": "Buildbox",
             "companyName": null
           },
           {
-            "entityId": "company-buildbox",
-            "name": "Buildbox",
+            "entityId": "company-carsignal",
+            "name": "CarSignal",
             "companyName": null
           },
           {
@@ -2847,18 +3051,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-dock",
-            "name": "Dock",
-            "companyName": null
-          },
-          {
             "entityId": "company-edviro",
             "name": "Edviro",
-            "companyName": null
-          },
-          {
-            "entityId": "company-ekho-labs",
-            "name": "Ekho Labs",
             "companyName": null
           },
           {
@@ -2892,16 +3086,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-hubble-ai",
-            "name": "Hubble",
-            "companyName": null
-          },
-          {
-            "entityId": "company-induction-labs",
-            "name": "Induction Labs",
-            "companyName": null
-          },
-          {
             "entityId": "company-instaplay",
             "name": "Instaplay",
             "companyName": null
@@ -2909,21 +3093,6 @@
           {
             "entityId": "company-insurf",
             "name": "Insurf",
-            "companyName": null
-          },
-          {
-            "entityId": "company-kara",
-            "name": "Kara",
-            "companyName": null
-          },
-          {
-            "entityId": "company-lamb-labs",
-            "name": "Lamb Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-last-accounting-company",
-            "name": "Last Accounting Company",
             "companyName": null
           },
           {
@@ -2942,11 +3111,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-lumeria",
-            "name": "Lumeria",
-            "companyName": null
-          },
-          {
             "entityId": "company-maingen",
             "name": "Maingen",
             "companyName": null
@@ -2962,11 +3126,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-olam-labs",
-            "name": "Olam Labs",
-            "companyName": null
-          },
-          {
             "entityId": "company-ooak-data",
             "name": "Ooak Data",
             "companyName": null
@@ -2977,23 +3136,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-orvixo",
-            "name": "Orvixo",
-            "companyName": null
-          },
-          {
             "entityId": "company-os3",
             "name": "OS3",
-            "companyName": null
-          },
-          {
-            "entityId": "company-osseus",
-            "name": "Osseus",
-            "companyName": null
-          },
-          {
-            "entityId": "company-pokerclubhub",
-            "name": "PokerClubHub",
             "companyName": null
           },
           {
@@ -3009,6 +3153,11 @@
           {
             "entityId": "company-shielded",
             "name": "Shielded",
+            "companyName": null
+          },
+          {
+            "entityId": "company-spaceflow-technologies-inc",
+            "name": "SpaceFlow Technologies, Inc.",
             "companyName": null
           },
           {
@@ -3032,11 +3181,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-tash",
-            "name": "tash",
-            "companyName": null
-          },
-          {
             "entityId": "company-torus",
             "name": "Torus",
             "companyName": null
@@ -3044,11 +3188,6 @@
           {
             "entityId": "company-touchmark",
             "name": "Touchmark",
-            "companyName": null
-          },
-          {
-            "entityId": "company-trident",
-            "name": "Trident",
             "companyName": null
           },
           {
@@ -3089,11 +3228,6 @@
             "companyName": "83 Sciences"
           },
           {
-            "entityId": "founder-agency-tool-company-davis-foster-253511",
-            "name": "Davis Foster",
-            "companyName": "Agency Tool Company"
-          },
-          {
             "entityId": "founder-agency-tool-company-jack-morrison-3668961",
             "name": "Jack Morrison",
             "companyName": "Agency Tool Company"
@@ -3106,11 +3240,6 @@
           {
             "entityId": "founder-alkera-ai-andrew-tran-3673412",
             "name": "Andrew Tran",
-            "companyName": "Alkera AI"
-          },
-          {
-            "entityId": "founder-alkera-ai-rick-gao-3652826",
-            "name": "Rick Gao",
             "companyName": "Alkera AI"
           },
           {
@@ -3179,11 +3308,6 @@
             "companyName": "Avoca Systems"
           },
           {
-            "entityId": "founder-avoca-systems-max-shand-2570497",
-            "name": "Max Shand",
-            "companyName": "Avoca Systems"
-          },
-          {
             "entityId": "founder-axelrod-saman-sayahpour-2112304",
             "name": "Saman Sayahpour",
             "companyName": "Axelrod"
@@ -3209,6 +3333,11 @@
             "companyName": "Buildbox"
           },
           {
+            "entityId": "founder-carsignal-michael-muzzin-3650329",
+            "name": "Michael Muzzin",
+            "companyName": "CarSignal"
+          },
+          {
             "entityId": "founder-ai-coach-mathieu-perez-1619431",
             "name": "Mathieu Perez",
             "companyName": "COACH"
@@ -3216,11 +3345,6 @@
           {
             "entityId": "founder-ai-coach-nicolas-sebag-2929268",
             "name": "Nicolas Sebag",
-            "companyName": "COACH"
-          },
-          {
-            "entityId": "founder-ai-coach-thomas-perez-1977183",
-            "name": "Thomas Perez",
             "companyName": "COACH"
           },
           {
@@ -3242,11 +3366,6 @@
             "entityId": "founder-datoric-nikhil-reddy-1486120",
             "name": "Nikhil Reddy",
             "companyName": "Datoric"
-          },
-          {
-            "entityId": "founder-decawork-aman-raj-1632535",
-            "name": "Aman Raj",
-            "companyName": "Decawork"
           },
           {
             "entityId": "founder-decawork-sarthak-aggarwal-1049492",
@@ -3307,11 +3426,6 @@
             "entityId": "founder-earendil-robotics-james-walton-3723601",
             "name": "James Walton",
             "companyName": "Earendil Robotics"
-          },
-          {
-            "entityId": "founder-egoist-machines-david-khachaturov-1963978",
-            "name": "David Khachaturov",
-            "companyName": "Egoist Machines"
           },
           {
             "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
@@ -3384,11 +3498,6 @@
             "companyName": "Gutgutgoose"
           },
           {
-            "entityId": "founder-hardware-intelligence-rishov-sarkar-2565323",
-            "name": "Rishov Sarkar",
-            "companyName": "hardware intelligence"
-          },
-          {
             "entityId": "founder-hiloop-karan-brar-1714115",
             "name": "Karan Brar",
             "companyName": "hiloop"
@@ -3429,6 +3538,16 @@
             "companyName": "Illume Labs"
           },
           {
+            "entityId": "founder-impact-drones-alessandro-fiume-3677968",
+            "name": "Alessandro Fiume",
+            "companyName": "IMPACT Drones"
+          },
+          {
+            "entityId": "founder-impact-drones-jasper-lortije-3245067",
+            "name": "Jasper Lortije",
+            "companyName": "IMPACT Drones"
+          },
+          {
             "entityId": "founder-induction-labs-david-li-3212248",
             "name": "David Li",
             "companyName": "Induction Labs"
@@ -3447,11 +3566,6 @@
             "entityId": "founder-insurf-chang-lu-3378885",
             "name": "Chang Lu",
             "companyName": "Insurf"
-          },
-          {
-            "entityId": "founder-isengard-industries-inc-francisco-serra-martins-3554287",
-            "name": "Francisco Serra-Martins",
-            "companyName": "Isengard Industries Inc"
           },
           {
             "entityId": "founder-isengard-industries-inc-james-tennant-3752974",
@@ -3539,11 +3653,6 @@
             "companyName": "Lumeria"
           },
           {
-            "entityId": "founder-lumeria-maryanne-alhallak-3452622",
-            "name": "Maryanne Alhallak",
-            "companyName": "Lumeria"
-          },
-          {
             "entityId": "founder-maingen-david-yang-2362549",
             "name": "David Yang",
             "companyName": "Maingen"
@@ -3574,11 +3683,6 @@
             "companyName": "Nebula Security"
           },
           {
-            "entityId": "founder-neuron-industries-dennis-ren-3676531",
-            "name": "Dennis Ren",
-            "companyName": "Neuron Industries"
-          },
-          {
             "entityId": "founder-neuron-industries-kenneth-rhee-3732370",
             "name": "Kenneth Rhee",
             "companyName": "Neuron Industries"
@@ -3597,11 +3701,6 @@
             "entityId": "founder-onecli-guy-ben-aharon-1935982",
             "name": "Guy Ben Aharon",
             "companyName": "OneCLI"
-          },
-          {
-            "entityId": "founder-openrelay-jaden-wang-1876109",
-            "name": "Jaden Wang",
-            "companyName": "OpenRelay"
           },
           {
             "entityId": "founder-openvector-andrey-gizdov-633157",
@@ -3724,39 +3823,19 @@
             "companyName": "Robocurve"
           },
           {
-            "entityId": "founder-ronanrx-inc-emily-colman-3672671",
-            "name": "Emily Colman",
-            "companyName": "RonanRx Inc."
-          },
-          {
-            "entityId": "founder-ronanrx-inc-lloyd-armbrust-26799",
-            "name": "Lloyd Armbrust",
-            "companyName": "RonanRx Inc."
-          },
-          {
             "entityId": "founder-salem-robotics-inc-janak-crasun-panthi-3208433",
             "name": "Janak (Crasun) Panthi",
             "companyName": "Salem Robotics Inc"
           },
           {
-            "entityId": "founder-standard-machines-jacob-peake-1978488",
-            "name": "Jacob Peake",
-            "companyName": "Standard Machines"
+            "entityId": "founder-spaceflow-technologies-inc-emre-isik-1732874",
+            "name": "Emre Isik",
+            "companyName": "SpaceFlow Technologies, Inc."
           },
           {
-            "entityId": "founder-stoa-berat-celik-1961995",
-            "name": "Berat Celik",
-            "companyName": "Stoa"
-          },
-          {
-            "entityId": "founder-stoa-eren-berke-saglam-1960190",
-            "name": "Eren Berke Saglam",
-            "companyName": "Stoa"
-          },
-          {
-            "entityId": "founder-stoa-kaan-yigit-3415052",
-            "name": "Kaan Yigit",
-            "companyName": "Stoa"
+            "entityId": "founder-spaceflow-technologies-inc-hakan-enes-aksu-3610149",
+            "name": "Hakan Enes Aksu",
+            "companyName": "SpaceFlow Technologies, Inc."
           },
           {
             "entityId": "founder-stratum-industries-raj-jagiasi-1648613",
@@ -3789,18 +3868,8 @@
             "companyName": "tash"
           },
           {
-            "entityId": "founder-tash-nathan-borshell-1806514",
-            "name": "Nathan Borshell",
-            "companyName": "tash"
-          },
-          {
             "entityId": "founder-tash-nicolas-sharma-3063171",
             "name": "Nicolas Sharma",
-            "companyName": "tash"
-          },
-          {
-            "entityId": "founder-tash-victor-shammas-3232492",
-            "name": "Victor Shammas",
             "companyName": "tash"
           },
           {
@@ -3834,16 +3903,6 @@
             "companyName": "Understudy Labs"
           },
           {
-            "entityId": "founder-vendo-nour-zahzah-2705364",
-            "name": "Nour Zahzah",
-            "companyName": "Vendo"
-          },
-          {
-            "entityId": "founder-vendo-yousef-helal-1301156",
-            "name": "Yousef Helal",
-            "companyName": "Vendo"
-          },
-          {
             "entityId": "founder-waddle-labs-hanming-ye-2132817",
             "name": "Hanming Ye",
             "companyName": "Waddle Labs"
@@ -3857,16 +3916,6 @@
             "entityId": "founder-whitespace-leon-yao-3405544",
             "name": "Leon Yao",
             "companyName": "Whitespace"
-          },
-          {
-            "entityId": "founder-wondering-angelica-kosasih-3675432",
-            "name": "Angelica Kosasih",
-            "companyName": "Wondering"
-          },
-          {
-            "entityId": "founder-wondering-cheng-wei-hu-1422401",
-            "name": "Cheng-Wei Hu",
-            "companyName": "Wondering"
           },
           {
             "entityId": "founder-zaplar-axel-andersson-lingbert-3424482",
@@ -3921,11 +3970,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-atomarine",
-            "name": "Atomarine",
-            "companyName": null
-          },
-          {
             "entityId": "company-axelrod",
             "name": "Axelrod",
             "companyName": null
@@ -3941,13 +3985,13 @@
             "companyName": null
           },
           {
-            "entityId": "company-billow-ai-labs",
-            "name": "Billow AI Labs",
+            "entityId": "company-buildbox",
+            "name": "Buildbox",
             "companyName": null
           },
           {
-            "entityId": "company-buildbox",
-            "name": "Buildbox",
+            "entityId": "company-carsignal",
+            "name": "CarSignal",
             "companyName": null
           },
           {
@@ -3971,18 +4015,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-dock",
-            "name": "Dock",
-            "companyName": null
-          },
-          {
             "entityId": "company-edviro",
             "name": "Edviro",
-            "companyName": null
-          },
-          {
-            "entityId": "company-ekho-labs",
-            "name": "Ekho Labs",
             "companyName": null
           },
           {
@@ -4016,16 +4050,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-hubble-ai",
-            "name": "Hubble",
-            "companyName": null
-          },
-          {
-            "entityId": "company-induction-labs",
-            "name": "Induction Labs",
-            "companyName": null
-          },
-          {
             "entityId": "company-instaplay",
             "name": "Instaplay",
             "companyName": null
@@ -4033,21 +4057,6 @@
           {
             "entityId": "company-insurf",
             "name": "Insurf",
-            "companyName": null
-          },
-          {
-            "entityId": "company-kara",
-            "name": "Kara",
-            "companyName": null
-          },
-          {
-            "entityId": "company-lamb-labs",
-            "name": "Lamb Labs",
-            "companyName": null
-          },
-          {
-            "entityId": "company-last-accounting-company",
-            "name": "Last Accounting Company",
             "companyName": null
           },
           {
@@ -4066,11 +4075,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-lumeria",
-            "name": "Lumeria",
-            "companyName": null
-          },
-          {
             "entityId": "company-maingen",
             "name": "Maingen",
             "companyName": null
@@ -4086,11 +4090,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-olam-labs",
-            "name": "Olam Labs",
-            "companyName": null
-          },
-          {
             "entityId": "company-ooak-data",
             "name": "Ooak Data",
             "companyName": null
@@ -4101,23 +4100,8 @@
             "companyName": null
           },
           {
-            "entityId": "company-orvixo",
-            "name": "Orvixo",
-            "companyName": null
-          },
-          {
             "entityId": "company-os3",
             "name": "OS3",
-            "companyName": null
-          },
-          {
-            "entityId": "company-osseus",
-            "name": "Osseus",
-            "companyName": null
-          },
-          {
-            "entityId": "company-pokerclubhub",
-            "name": "PokerClubHub",
             "companyName": null
           },
           {
@@ -4133,6 +4117,11 @@
           {
             "entityId": "company-shielded",
             "name": "Shielded",
+            "companyName": null
+          },
+          {
+            "entityId": "company-spaceflow-technologies-inc",
+            "name": "SpaceFlow Technologies, Inc.",
             "companyName": null
           },
           {
@@ -4156,11 +4145,6 @@
             "companyName": null
           },
           {
-            "entityId": "company-tash",
-            "name": "tash",
-            "companyName": null
-          },
-          {
             "entityId": "company-torus",
             "name": "Torus",
             "companyName": null
@@ -4168,11 +4152,6 @@
           {
             "entityId": "company-touchmark",
             "name": "Touchmark",
-            "companyName": null
-          },
-          {
-            "entityId": "company-trident",
-            "name": "Trident",
             "companyName": null
           },
           {
@@ -4213,11 +4192,6 @@
             "companyName": "83 Sciences"
           },
           {
-            "entityId": "founder-agency-tool-company-davis-foster-253511",
-            "name": "Davis Foster",
-            "companyName": "Agency Tool Company"
-          },
-          {
             "entityId": "founder-agency-tool-company-jack-morrison-3668961",
             "name": "Jack Morrison",
             "companyName": "Agency Tool Company"
@@ -4230,11 +4204,6 @@
           {
             "entityId": "founder-alkera-ai-andrew-tran-3673412",
             "name": "Andrew Tran",
-            "companyName": "Alkera AI"
-          },
-          {
-            "entityId": "founder-alkera-ai-rick-gao-3652826",
-            "name": "Rick Gao",
             "companyName": "Alkera AI"
           },
           {
@@ -4303,11 +4272,6 @@
             "companyName": "Avoca Systems"
           },
           {
-            "entityId": "founder-avoca-systems-max-shand-2570497",
-            "name": "Max Shand",
-            "companyName": "Avoca Systems"
-          },
-          {
             "entityId": "founder-axelrod-saman-sayahpour-2112304",
             "name": "Saman Sayahpour",
             "companyName": "Axelrod"
@@ -4343,11 +4307,6 @@
             "companyName": "COACH"
           },
           {
-            "entityId": "founder-ai-coach-thomas-perez-1977183",
-            "name": "Thomas Perez",
-            "companyName": "COACH"
-          },
-          {
             "entityId": "founder-control-seat-jack-grodnick-3132492",
             "name": "Jack Grodnick",
             "companyName": "Control Seat"
@@ -4366,11 +4325,6 @@
             "entityId": "founder-datoric-nikhil-reddy-1486120",
             "name": "Nikhil Reddy",
             "companyName": "Datoric"
-          },
-          {
-            "entityId": "founder-decawork-aman-raj-1632535",
-            "name": "Aman Raj",
-            "companyName": "Decawork"
           },
           {
             "entityId": "founder-decawork-sarthak-aggarwal-1049492",
@@ -4431,11 +4385,6 @@
             "entityId": "founder-earendil-robotics-james-walton-3723601",
             "name": "James Walton",
             "companyName": "Earendil Robotics"
-          },
-          {
-            "entityId": "founder-egoist-machines-david-khachaturov-1963978",
-            "name": "David Khachaturov",
-            "companyName": "Egoist Machines"
           },
           {
             "entityId": "founder-egoist-machines-erin-mcgurk-3328552",
@@ -4508,11 +4457,6 @@
             "companyName": "Gutgutgoose"
           },
           {
-            "entityId": "founder-hardware-intelligence-rishov-sarkar-2565323",
-            "name": "Rishov Sarkar",
-            "companyName": "hardware intelligence"
-          },
-          {
             "entityId": "founder-hiloop-karan-brar-1714115",
             "name": "Karan Brar",
             "companyName": "hiloop"
@@ -4553,6 +4497,16 @@
             "companyName": "Illume Labs"
           },
           {
+            "entityId": "founder-impact-drones-alessandro-fiume-3677968",
+            "name": "Alessandro Fiume",
+            "companyName": "IMPACT Drones"
+          },
+          {
+            "entityId": "founder-impact-drones-jasper-lortije-3245067",
+            "name": "Jasper Lortije",
+            "companyName": "IMPACT Drones"
+          },
+          {
             "entityId": "founder-induction-labs-david-li-3212248",
             "name": "David Li",
             "companyName": "Induction Labs"
@@ -4571,11 +4525,6 @@
             "entityId": "founder-insurf-chang-lu-3378885",
             "name": "Chang Lu",
             "companyName": "Insurf"
-          },
-          {
-            "entityId": "founder-isengard-industries-inc-francisco-serra-martins-3554287",
-            "name": "Francisco Serra-Martins",
-            "companyName": "Isengard Industries Inc"
           },
           {
             "entityId": "founder-isengard-industries-inc-james-tennant-3752974",
@@ -4663,11 +4612,6 @@
             "companyName": "Lumeria"
           },
           {
-            "entityId": "founder-lumeria-maryanne-alhallak-3452622",
-            "name": "Maryanne Alhallak",
-            "companyName": "Lumeria"
-          },
-          {
             "entityId": "founder-maingen-david-yang-2362549",
             "name": "David Yang",
             "companyName": "Maingen"
@@ -4693,11 +4637,6 @@
             "companyName": "Molagri"
           },
           {
-            "entityId": "founder-neuron-industries-dennis-ren-3676531",
-            "name": "Dennis Ren",
-            "companyName": "Neuron Industries"
-          },
-          {
             "entityId": "founder-neuron-industries-kenneth-rhee-3732370",
             "name": "Kenneth Rhee",
             "companyName": "Neuron Industries"
@@ -4716,11 +4655,6 @@
             "entityId": "founder-onecli-guy-ben-aharon-1935982",
             "name": "Guy Ben Aharon",
             "companyName": "OneCLI"
-          },
-          {
-            "entityId": "founder-openrelay-jaden-wang-1876109",
-            "name": "Jaden Wang",
-            "companyName": "OpenRelay"
           },
           {
             "entityId": "founder-openvector-andrey-gizdov-633157",
@@ -4843,39 +4777,19 @@
             "companyName": "Robocurve"
           },
           {
-            "entityId": "founder-ronanrx-inc-emily-colman-3672671",
-            "name": "Emily Colman",
-            "companyName": "RonanRx Inc."
-          },
-          {
-            "entityId": "founder-ronanrx-inc-lloyd-armbrust-26799",
-            "name": "Lloyd Armbrust",
-            "companyName": "RonanRx Inc."
-          },
-          {
             "entityId": "founder-salem-robotics-inc-janak-crasun-panthi-3208433",
             "name": "Janak (Crasun) Panthi",
             "companyName": "Salem Robotics Inc"
           },
           {
-            "entityId": "founder-standard-machines-jacob-peake-1978488",
-            "name": "Jacob Peake",
-            "companyName": "Standard Machines"
+            "entityId": "founder-spaceflow-technologies-inc-emre-isik-1732874",
+            "name": "Emre Isik",
+            "companyName": "SpaceFlow Technologies, Inc."
           },
           {
-            "entityId": "founder-stoa-berat-celik-1961995",
-            "name": "Berat Celik",
-            "companyName": "Stoa"
-          },
-          {
-            "entityId": "founder-stoa-eren-berke-saglam-1960190",
-            "name": "Eren Berke Saglam",
-            "companyName": "Stoa"
-          },
-          {
-            "entityId": "founder-stoa-kaan-yigit-3415052",
-            "name": "Kaan Yigit",
-            "companyName": "Stoa"
+            "entityId": "founder-spaceflow-technologies-inc-hakan-enes-aksu-3610149",
+            "name": "Hakan Enes Aksu",
+            "companyName": "SpaceFlow Technologies, Inc."
           },
           {
             "entityId": "founder-stratum-industries-vihaan-jagiasi-1303141",
@@ -4903,18 +4817,8 @@
             "companyName": "tash"
           },
           {
-            "entityId": "founder-tash-nathan-borshell-1806514",
-            "name": "Nathan Borshell",
-            "companyName": "tash"
-          },
-          {
             "entityId": "founder-tash-nicolas-sharma-3063171",
             "name": "Nicolas Sharma",
-            "companyName": "tash"
-          },
-          {
-            "entityId": "founder-tash-victor-shammas-3232492",
-            "name": "Victor Shammas",
             "companyName": "tash"
           },
           {
@@ -4948,16 +4852,6 @@
             "companyName": "Understudy Labs"
           },
           {
-            "entityId": "founder-vendo-nour-zahzah-2705364",
-            "name": "Nour Zahzah",
-            "companyName": "Vendo"
-          },
-          {
-            "entityId": "founder-vendo-yousef-helal-1301156",
-            "name": "Yousef Helal",
-            "companyName": "Vendo"
-          },
-          {
             "entityId": "founder-waddle-labs-hanming-ye-2132817",
             "name": "Hanming Ye",
             "companyName": "Waddle Labs"
@@ -4971,16 +4865,6 @@
             "entityId": "founder-whitespace-leon-yao-3405544",
             "name": "Leon Yao",
             "companyName": "Whitespace"
-          },
-          {
-            "entityId": "founder-wondering-angelica-kosasih-3675432",
-            "name": "Angelica Kosasih",
-            "companyName": "Wondering"
-          },
-          {
-            "entityId": "founder-wondering-cheng-wei-hu-1422401",
-            "name": "Cheng-Wei Hu",
-            "companyName": "Wondering"
           },
           {
             "entityId": "founder-zaplar-axel-andersson-lingbert-3424482",

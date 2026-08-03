@@ -15,7 +15,7 @@
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 3,
+    "evidenceCount": 2,
     "sourcePreview": [
       {
         "id": "src-629adb0fad273f94f797ebe1",
@@ -36,16 +36,6 @@
         "publishedAt": "2026-07-14T15:00:00.000Z",
         "evidenceRole": "primary",
         "url": "https://x.com/screenpipe/status/2077045452579778664"
-      },
-      {
-        "id": "src-3f69097f6d07062145093c35",
-        "title": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
-        "publisher": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
-        "domain": "news.ycombinator.com",
-        "sourceType": "company_post",
-        "publishedAt": "2026-07-23T16:48:38Z",
-        "evidenceRole": "primary",
-        "url": "https://news.ycombinator.com/item?id=49024620"
       }
     ],
     "evidence": [
@@ -78,26 +68,11 @@
         "sourceEventDate": "2026-07-15",
         "isConflicting": false,
         "conflictDescription": null
-      },
-      {
-        "id": "src-3f69097f6d07062145093c35",
-        "title": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
-        "publisher": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
-        "domain": "news.ycombinator.com",
-        "sourceType": "company_post",
-        "publishedAt": "2026-07-23T16:48:38Z",
-        "evidenceRole": "primary",
-        "url": "https://news.ycombinator.com/item?id=49024620",
-        "publicationDate": "2026-07-23T16:48:38Z",
-        "excerpt": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
-        "sourceEventDate": "2026-07-15",
-        "isConflicting": false,
-        "conflictDescription": null
       }
     ],
     "posts": [
       {
-        "id": "post-71fe46a061279e2b44d4fba3",
+        "id": "post-ad3ee9daf790b42b8e71460d",
         "platform": "product_hunt",
         "account": "screenpipe",
         "postDate": "2026-07-15",
@@ -110,7 +85,7 @@
         "evidenceRole": "primary"
       },
       {
-        "id": "post-35f7b569bd896ed4a6483edc",
+        "id": "post-ee15b116a9f18cd20f1e36ef",
         "platform": "x",
         "account": "screenpipe",
         "postDate": "2026-07-15",
@@ -126,22 +101,9 @@
           "saves": 1359
         },
         "evidenceRole": "primary"
-      },
-      {
-        "id": "post-683e5e1ffd53d493f9084f23",
-        "platform": "hacker_news",
-        "account": null,
-        "postDate": "2026-07-15",
-        "excerpt": "Launch HN: Screenpipe (YC S26) – Record how you work and turn that into agents",
-        "url": "https://news.ycombinator.com/item?id=49024620",
-        "metrics": {
-          "upvotes": 88,
-          "comments": 67
-        },
-        "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
 }

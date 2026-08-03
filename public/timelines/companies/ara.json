@@ -5,8 +5,8 @@
     "slug": "ara",
     "name": "Ara"
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
   "events": [
     {
       "id": "tle-506573f769677aa9537729fc",
@@ -29,6 +29,30 @@
           "publishedAt": "2026-07-23T14:59:51.000Z",
           "evidenceRole": "primary",
           "url": "https://x.com/xadisingh/status/2080306905486930027"
+        }
+      ]
+    },
+    {
+      "id": "tle-a9c6664dd306b120dd877284",
+      "eventDate": "2026-07-15",
+      "eventDateType": "announcement_date",
+      "title": "Ara announced its public launch",
+      "summary": "Ara announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-0cfc7bc148fe871bf68e8203",
+          "title": "Ara (YC P26) Launch Video",
+          "publisher": "Arasoai",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-15T21:14:16.000Z",
+          "evidenceRole": "primary",
+          "url": "https://www.youtube.com/watch?v=6ASb9QW2QEw"
         }
       ]
     },
@@ -111,7 +135,7 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 2
+          "count": 3
         },
         {
           "month": "2026-06",
@@ -126,8 +150,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 4,
-    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
+    "publishedEventCount": 5,
+    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
   },
   "nextCursor": null
 }

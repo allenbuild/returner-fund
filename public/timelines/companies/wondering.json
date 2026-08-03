@@ -5,9 +5,33 @@
     "slug": "wondering",
     "name": "Wondering"
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
   "events": [
+    {
+      "id": "tle-3e00932323727397afd3d84c",
+      "eventDate": "2026-07-28",
+      "eventDateType": "announcement_date",
+      "title": "Wondering released Today we are launching Wondering Podcast",
+      "summary": "Wondering announced it was launching Wondering Podcast.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1ad50d173af16b558b3c3eb3",
+          "title": "Today we are launching Wondering Podcast.",
+          "publisher": "wonderingapp",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-28T19:55:33.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/wonderingapp/status/2082193259619815894"
+        }
+      ]
+    },
     {
       "id": "tle-5febdd99d3d1f0e514212fc1",
       "eventDate": "2026-07-24",
@@ -18,7 +42,7 @@
       "isMajor": true,
       "hasConflict": false,
       "conflictSummary": null,
-      "evidenceCount": 1,
+      "evidenceCount": 2,
       "sourcePreview": [
         {
           "id": "src-f7795a2307d980c37f660e4e",
@@ -29,6 +53,16 @@
           "publishedAt": "2026-07-24T18:09:13.380Z",
           "evidenceRole": "primary",
           "url": "https://linkedin.com/posts/wondering-app_today-we-are-excited-to-share-that-wondering-activity-7486482639583891456-tZSX"
+        },
+        {
+          "id": "src-9199660217810faa4b622d1a",
+          "title": "Today we are excited to share that Wondering joined Y Combinator! We’re a very small team building the most effective and fulfilling learning experience for everyone.",
+          "publisher": "wonderingapp",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-24T18:07:56.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/wonderingapp/status/2080716627734302884"
         }
       ]
     }
@@ -39,15 +73,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
   },
   "nextCursor": null
 }

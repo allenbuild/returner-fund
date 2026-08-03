@@ -5,8 +5,8 @@
     "slug": "prototyping-io",
     "name": "Prototyping.io"
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
   "events": [
     {
       "id": "tle-a1fb8789b02387a8e021b868",
@@ -45,14 +45,14 @@
       "evidenceCount": 2,
       "sourcePreview": [
         {
-          "id": "src-85c3c308a477b0c8374e1dd6",
+          "id": "src-5969a041cf82d570c7c120b3",
           "title": "We got into Y Combinator (P26)!",
           "publisher": "revanth279",
           "domain": "linkedin.com",
           "sourceType": "founder_post",
           "publishedAt": "2026-03-25T15:45:43.091Z",
           "evidenceRole": "primary",
-          "url": "https://linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX"
+          "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX"
         },
         {
           "id": "src-2064222f04e0f604db144096",
@@ -85,7 +85,7 @@
   "coverage": {
     "status": "partial",
     "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
+    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
   },
   "nextCursor": null
 }

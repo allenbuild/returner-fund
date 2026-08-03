@@ -21,9 +21,15 @@ import {
   extractLinkedInPublicProfileSurface
 } from "./lib/linkedin-public-jsonld.mjs";
 import {
+  instagramEvidenceMetrics,
+  instagramNativeFeedRequest,
   instagramPublicProfileRequest,
+  mergeInstagramNativeFeedPages,
+  overlayInstagramNativeFeedMetrics,
+  parseInstagramNativeFeedResponse,
   parseInstagramPublicProfileResponse
 } from "./lib/instagram-public-profile.mjs";
+import { extractXPublicProfileReceipt } from "./lib/x-public-profile-html.mjs";
 import {
   assessPublicEvidenceAttribution,
   assessLinkedInPrimaryPostBody,
@@ -134,6 +140,30 @@ const MAX_INSTAGRAM_WORKERS = 8;
 const instagramWorkerCount = Math.max(
   1,
   Math.min(MAX_INSTAGRAM_WORKERS, Math.floor(numberArg("--instagram-workers") ?? 2))
+);
+const MAX_INSTAGRAM_NATIVE_FEED_PAGES = 50;
+const MAX_INSTAGRAM_NATIVE_FEED_ITEMS = 500;
+const instagramNativeFeedMaxPages = Math.max(
+  1,
+  Math.min(
+    MAX_INSTAGRAM_NATIVE_FEED_PAGES,
+    Math.floor(numberArg("--instagram-native-feed-max-pages") ?? MAX_INSTAGRAM_NATIVE_FEED_PAGES)
+  )
+);
+const instagramNativeFeedMaxItems = Math.max(
+  1,
+  Math.min(
+    MAX_INSTAGRAM_NATIVE_FEED_ITEMS,
+    Math.floor(numberArg("--instagram-native-feed-max-items") ?? MAX_INSTAGRAM_NATIVE_FEED_ITEMS)
+  )
+);
+const MAX_CHECKPOINT_EVERY = 500;
+const checkpointEvery = Math.max(
+  1,
+  Math.min(
+    MAX_CHECKPOINT_EVERY,
+    Math.floor(numberArg("--checkpoint-every") ?? 25)
+  )
 );
 const forceRefresh = hasArg("--force");
 const prioritySeed = stringArg("--priority-seed") ?? now.slice(0, 10);
@@ -263,6 +293,7 @@ const currentBatchNativeOwnerIndex = buildNativeOwnerIndex(batchSnapshot.compani
 const officialLaunchPageCache = new Map();
 let exaFailureCount = 0;
 let checkpointWriteChain = Promise.resolve();
+let checkpointCompletionsSinceWrite = 0;
 const platformCooldowns = new Map();
 // Every lane retains its own conservative platform cap, while this shared
 // process-wide guard prevents those lane pools from multiplying into an
@@ -353,6 +384,9 @@ function usage() {
     `  --x-workers=N            X lane cap (1-${MAX_X_WORKERS})`,
     `  --linkedin-workers=N     LinkedIn lane cap (1-${MAX_LINKEDIN_WORKERS})`,
     `  --instagram-workers=N    Instagram lane cap (1-${MAX_INSTAGRAM_WORKERS})`,
+    `  --instagram-native-feed-max-pages=N  Native feed depth (1-${MAX_INSTAGRAM_NATIVE_FEED_PAGES}; default exhaustive/capped)`,
+    `  --instagram-native-feed-max-items=N  Native feed item cap (1-${MAX_INSTAGRAM_NATIVE_FEED_ITEMS})`,
+    `  --checkpoint-every=N     Persist after N task completions (1-${MAX_CHECKPOINT_EVERY}; default 25)`,
     "  --delay-ms=N",
     "  --fresh-for-hours=N",
     "  --discover-missing-social",
@@ -500,7 +534,7 @@ const payload = {
 await writeJson(outputPath, payload);
 await writeJson(discoveryAttemptsPath, dedupeDiscoveryAttempts(discoveryAttempts));
 await writeJson(sourceDiscoveryPathsPath, dedupeById(sourceDiscoveryPaths));
-await writeCheckpoint();
+await writeCheckpoint({ force: true });
 console.log(
   `Wrote ${payload.evidence.length} evidence items, ${payload.needsReview.length} review candidates, ${payload.failures.length} failures, ${dedupeById(discoveryAttempts).length} discovery attempts.`
 );
@@ -512,8 +546,12 @@ function buildCompanyTasks(company) {
     connectorTask("website", company.slug, company, () => ingestWebsite(company)),
     connectorTask("rss", company.slug, company, () => ingestRss(company)),
     connectorTask("hacker_news", company.slug, company, () => ingestHackerNews(company)),
-    hasMappedYouTube ? null : connectorTask("youtube", company.slug, company, () => ingestYouTube(company)),
-    hasMappedProductHunt ? null : connectorTask("product_hunt", company.slug, company, () => ingestProductHunt(company)),
+    hasMappedYouTube && socialMode !== "none"
+      ? null
+      : connectorTask("youtube", company.slug, company, () => ingestYouTube(company)),
+    hasMappedProductHunt && socialMode !== "none"
+      ? null
+      : connectorTask("product_hunt", company.slug, company, () => ingestProductHunt(company)),
     connectorTask("news_web", company.slug, company, () => ingestNewsWeb(company)),
     connectorTask("reddit", company.slug, company, () => ingestReddit(company))
   ];
@@ -821,6 +859,7 @@ async function attempt(platform, key, company, fn) {
       ...(recentProof?.coverageCutoff
         ? { recentWindowCoverageCutoff: recentProof.coverageCutoff }
         : {}),
+      ...(result?.coverageReceipt ? { coverageReceipt: result.coverageReceipt } : {}),
       retryable,
       outcomeStatus,
       outcomeReason: recentProof?.recentWindowProof
@@ -896,6 +935,16 @@ function summarizeConnectorResult(result) {
   const failureRows = result?.failures ?? [];
   const usefulResultCount = evidenceRows.filter((item) => item.contributionScore > 0 || item.review_state === "verified").length;
   const resultCount = evidenceRows.length + reviewRows.length;
+
+  if (result?.verifiedEmpty === true) {
+    return {
+      resultCount,
+      usefulResultCount,
+      status: "success",
+      failureReason: null,
+      verifiedEmpty: true
+    };
+  }
 
   if (usefulResultCount > 0) {
     return {
@@ -1212,6 +1261,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       ...(recentProof?.coverageCutoff
         ? { recentWindowCoverageCutoff: recentProof.coverageCutoff }
         : {}),
+      ...(result?.coverageReceipt ? { coverageReceipt: result.coverageReceipt } : {}),
       retryable: recentProof?.recentWindowProof
         ? false
         : providerBlocker
@@ -1404,6 +1454,7 @@ function collectorOutcomeStatus(summary) {
 
 function collectorOutcomeReason(summary) {
   const status = collectorOutcomeStatus(summary);
+  if (summary.verifiedEmpty === true) return "collector_verified_native_account_empty_public_window";
   if (status === "completed") return "collector_evidence_collected";
   if (status === "needs_review") return "collector_needs_review";
   if (status === "failed") return "collector_reported_failure";
@@ -2683,14 +2734,34 @@ async function ingestReddit(company) {
 }
 
 async function ingestSocialProfile(company, entity, entityType, platform, url) {
+  let directXFailures = [];
+  let directXCoverageReceipt = null;
   if (platform === "x") {
     const apiEvidence = xApiEvidenceForAccount(company, entity, entityType, url);
-    if (apiEvidence.length) {
+    const publicProfileResult = await ingestXPublicProfile(
+      company,
+      entity,
+      entityType,
+      url
+    );
+    directXFailures = publicProfileResult?.failures ?? [];
+    directXCoverageReceipt = publicProfileResult?.coverageReceipt ?? null;
+    const mergedEvidence = mergeXNativeEvidence(
+      publicProfileResult?.evidence ?? [],
+      apiEvidence
+    );
+    if (mergedEvidence.length || publicProfileResult?.receipt?.verified === true) {
+      const publicProfileVerified = publicProfileResult?.receipt?.verified === true;
       return {
-        evidence: apiEvidence,
-        failures: [],
-        needsReview: [],
-        source: "x_recent_search_api",
+        ...(publicProfileResult ?? {}),
+        evidence: mergedEvidence,
+        failures: directXFailures,
+        needsReview: publicProfileResult?.needsReview ?? [],
+        source: publicProfileVerified && apiEvidence.length
+          ? "x_public_profile_schema_org+x_recent_search_api"
+          : publicProfileVerified
+            ? publicProfileResult.source
+            : "x_recent_search_api",
         mergeOnly: true
       };
     }
@@ -2709,17 +2780,57 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
   const linkedInPublicSurface = platform === "linkedin"
     ? await fetchLinkedInPublicProfileSurface(url).catch(() => null)
     : null;
-  const page = linkedInPublicSurface?.verified
-    ? {
-        html: "",
-        title: linkedInPublicSurface.title,
-        text: cleanText([
-          linkedInPublicSurface.title,
-          linkedInPublicSurface.description,
-          ...linkedInPublicSurface.postCandidates.map((candidate) => candidate.url)
-        ].filter(Boolean).join("\n"))
-      }
-    : await fetchReader(url);
+  let page;
+  try {
+    page = linkedInPublicSurface?.verified
+      ? {
+          html: "",
+          title: linkedInPublicSurface.title,
+          text: cleanText([
+            linkedInPublicSurface.title,
+            linkedInPublicSurface.description,
+            ...linkedInPublicSurface.postCandidates.map((candidate) => candidate.url)
+          ].filter(Boolean).join("\n"))
+        }
+      : platform === "x" && directXCoverageReceipt
+        ? await fetchXPublicReaderFallback(url)
+        : await fetchReader(url);
+  } catch (error) {
+    if (platform !== "x" || !directXCoverageReceipt) throw error;
+    const readerMessage = `X public-reader fallback failed: ${errorMessage(error)}`;
+    const verificationNeedsReview = /(?:identity_mismatch|no_exact_owner_social_media_postings|x_public_profile_http_404)/.test(
+      directXCoverageReceipt.reason ?? ""
+    );
+    return {
+      evidence: [],
+      needsReview: verificationNeedsReview
+        ? [reviewCandidate(
+            company,
+            "x",
+            url,
+            `${directXFailures[0]?.message ?? "Anonymous X profile verification failed."} ${readerMessage}`,
+            entityType,
+            entityIdFor(company, entity, entityType),
+            entityName(entity, entityType)
+          )]
+        : [],
+      failures: [
+        ...directXFailures,
+        failure(
+          "x",
+          company,
+          url,
+          readerMessage,
+          entityType,
+          entityName(entity, entityType),
+          entityIdFor(company, entity, entityType)
+        )
+      ],
+      coverageReceipt: directXCoverageReceipt,
+      source: "x_public_profile_schema_org+x_public_reader_fallback",
+      mergeOnly: true
+    };
+  }
   if (isBlocked(page.text, { platform, url })) {
     const fallback = discoverMissingSocial
       ? await discoverAndVerifyPublicSocialPosts(
@@ -2735,6 +2846,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
       evidence: fallback.evidence,
       needsReview: fallback.needsReview,
       failures: [
+        ...directXFailures,
         failure(
           platform,
           company,
@@ -2747,6 +2859,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
         ...(fallback.failures ?? [])
       ],
       sourceDiscoveryPaths: fallback.sourceDiscoveryPaths,
+      ...(directXCoverageReceipt ? { coverageReceipt: directXCoverageReceipt } : {}),
       mergeOnly: true
     };
   }
@@ -2769,7 +2882,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
   if (!verified) {
     return {
       evidence: [],
-      failures: [],
+      failures: directXFailures,
       needsReview: [
         reviewCandidate(
           company,
@@ -2780,7 +2893,8 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
           entityIdFor(company, entity, entityType),
           name
         )
-      ]
+      ],
+      ...(directXCoverageReceipt ? { coverageReceipt: directXCoverageReceipt } : {})
     };
   }
 
@@ -2822,32 +2936,53 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     ...attributedPosts.needsReview,
     ...zeroPostFallback.needsReview
   ];
+  const directXVerificationNeedsReview =
+    platform === "x" &&
+    directXCoverageReceipt?.verified === false &&
+    /(?:identity_mismatch|no_exact_owner_social_media_postings|x_public_profile_http_404)/.test(
+      directXCoverageReceipt.reason ?? ""
+    )
+      ? [reviewCandidate(
+          company,
+          "x",
+          url,
+          directXFailures[0]?.message ??
+            "Anonymous X profile did not expose an exact native owner post.",
+          entityType,
+          entityIdFor(company, entity, entityType),
+          entityName(entity, entityType)
+        )]
+      : [];
 
   return {
     evidence: [
-      evidenceItem({
-        company,
-        entityType,
-        entityId: entityIdFor(company, entity, entityType),
-        platform,
-        sourceUrl: url,
-        title: page.title || name,
-        text: socialProfileSummary(platform, page.text, page.title || name),
-        rawVisibleText: page.text,
-        metrics,
-        contributionScore: 0,
-        review_state: "verified",
-        matchReason: `Verified public ${platform} profile readable without login. Stored as identity context only; profile followers are not counted as post traction.`
-      }),
+      ...(platform === "x" && directXCoverageReceipt?.verified === false
+        ? []
+        : [evidenceItem({
+            company,
+            entityType,
+            entityId: entityIdFor(company, entity, entityType),
+            platform,
+            sourceUrl: url,
+            title: page.title || name,
+            text: socialProfileSummary(platform, page.text, page.title || name),
+            rawVisibleText: page.text,
+            metrics,
+            contributionScore: 0,
+            review_state: "verified",
+            matchReason: `Verified public ${platform} profile readable without login. Stored as identity context only; profile followers are not counted as post traction.`
+          })]),
       ...attributedPosts.evidence,
       ...zeroPostFallback.evidence
     ],
-    needsReview: postNeedsReview,
+    needsReview: [...postNeedsReview, ...directXVerificationNeedsReview],
     failures: [
+      ...directXFailures,
       ...postResults.flatMap((result) => result.failures ?? []),
       ...(zeroPostFallback.failures ?? [])
     ],
     sourceDiscoveryPaths: zeroPostFallback.sourceDiscoveryPaths,
+    ...(directXCoverageReceipt ? { coverageReceipt: directXCoverageReceipt } : {}),
     // Public social surfaces and search responses are bounded windows, not
     // authoritative full-history snapshots. Always merge so a shallow refresh
     // cannot delete previously recovered native posts.
@@ -2855,56 +2990,449 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
   };
 }
 
-async function ingestInstagramPublicProfile(company, entity, entityType, accountUrl) {
-  const request = instagramPublicProfileRequest({ accountUrl });
-  const requestedAt = new Date().toISOString();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
+async function ingestXPublicProfile(company, entity, entityType, accountUrl) {
+  const handle = xUsernameFromUrl(accountUrl);
+  if (!handle) return null;
+
   let response;
-  let payloadText;
+  let html;
   try {
-    response = await fetch(request.url, {
-      ...request.options,
-      signal: controller.signal
-    });
-    payloadText = await response.text();
-  } finally {
-    clearTimeout(timeout);
+    ({ response, text: html } = await fetchPublicBoundedText(accountUrl, {
+      maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+      maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+    }));
+  } catch (error) {
+    return xPublicProfileFailureResult(
+      company,
+      entity,
+      entityType,
+      accountUrl,
+      `Anonymous X public profile request failed: ${errorMessage(error)}`,
+      { reason: "x_public_profile_request_failed", handle }
+    );
   }
-  const completedAt = new Date().toISOString();
-
   if (!response.ok) {
-    if ([401, 403, 429].includes(response.status)) {
+    if ([403, 429].includes(response.status)) {
       const cooldownMs = response.status === 429 ? 30 * 60_000 : 10 * 60_000;
-      const error = new Error(
-        `Instagram public profile endpoint returned HTTP ${response.status}.`
+      const cooldownError = new Error(
+        `Anonymous X public profile returned HTTP ${response.status}.`
       );
-      error.platformCooldownUntil = Date.now() + cooldownMs;
-      error.platformCooldownReason = `instagram_web_profile_info_http_${response.status}`;
-      throw error;
+      cooldownError.platformCooldownUntil = Date.now() + cooldownMs;
+      cooldownError.platformCooldownReason = `x_public_profile_http_${response.status}`;
+      recordPlatformCooldownIfNeeded("x", cooldownError);
     }
-    return null;
+    return xPublicProfileFailureResult(
+      company,
+      entity,
+      entityType,
+      accountUrl,
+      `Anonymous X public profile returned HTTP ${response.status}.`,
+      { reason: `x_public_profile_http_${response.status}`, handle }
+    );
   }
 
-  const receipt = parseInstagramPublicProfileResponse({
-    payload: payloadText,
-    requestedUsername: request.username,
-    fetchedAt: completedAt
+  const receipt = extractXPublicProfileReceipt({
+    html,
+    accountUrl,
+    requestedHandle: handle,
+    fetchedAt: new Date().toISOString(),
+    limit: 100
   });
   if (!receipt.verified) {
-    if (/_(?:auth_required|challenge|rate_limited)$/.test(receipt.reason ?? "")) {
-      const error = new Error(`Instagram public profile endpoint failed: ${receipt.reason}.`);
-      error.platformCooldownUntil = Date.now() + 30 * 60_000;
-      error.platformCooldownReason = receipt.reason;
-      throw error;
-    }
-    return null;
+    return xPublicProfileFailureResult(
+      company,
+      entity,
+      entityType,
+      accountUrl,
+      `Anonymous X public profile verification failed: ${receipt.reason}.`,
+      receipt
+    );
   }
 
   const entityId = entityIdFor(company, entity, entityType);
   const name = entityName(entity, entityType);
   const receiptSummary = {
-    source: "instagram_public_web_profile_info_v1",
+    source: "x_public_profile_schema_org_v1",
+    accountUrl: receipt.accountUrl,
+    handle: receipt.handle,
+    fetchedAt: receipt.fetchedAt,
+    surfacePostCount: receipt.surfacePostCount,
+    exactOwnerPostCount: receipt.exactOwnerPostCount,
+    returnedPostCount: receipt.returnedPostCount,
+    rejectedPostCount: receipt.rejectedPostCount,
+    truncated: receipt.truncated,
+    parserCapTruncated: receipt.truncated,
+    sourceWindow: "first_server_rendered_profile_page",
+    sourceExhausted: false
+  };
+  const evidence = receipt.posts.map((post) => {
+    const metrics = removeNullish(post.metrics ?? {});
+    const postReceipt = {
+      id: post.id,
+      url: post.url,
+      authorHandle: post.authorHandle,
+      authorName: post.authorName,
+      text: post.text,
+      postedAt: post.postedAt,
+      metrics,
+      mediaUrlCount: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 0,
+      quotedPostUrl: post.quotedPostUrl,
+      isQuote: post.isQuote
+    };
+    return evidenceItem({
+      company,
+      entityType,
+      entityId,
+      platform: "x",
+      sourceUrl: post.url,
+      platformPostId: post.id,
+      authorHandle: post.authorHandle,
+      title: firstUsefulText(post.text) ?? `${name} on X`,
+      text: post.text,
+      rawVisibleText: JSON.stringify({ receipt: receiptSummary, post: postReceipt }),
+      postedAt: post.postedAt,
+      metrics,
+      mediaUrls: post.mediaUrls,
+      contributionScore: scoreMetrics("x", metrics),
+      review_state: "verified",
+      attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+      attributionStatus: "verified",
+      attributionProvenance: "x_public_profile_schema_org_exact_owner_v1",
+      matchReason:
+        `Anonymous server-rendered X profile Schema.org data exposed this native post on the exact mapped @${receipt.handle} profile; ` +
+        `native author=@${post.authorHandle}, native status URL owner=@${post.urlHandle}. ` +
+        `The first public profile page exposed ${receipt.surfacePostCount} post surfaces, retained ${receipt.exactOwnerPostCount} exact-owner posts, ` +
+        `rejected ${receipt.rejectedPostCount} foreign or invalid nested posts, and returned ${receipt.returnedPostCount}; truncated=${receipt.truncated}.` +
+        " This is one bounded server-rendered profile page, not proof of historical exhaustion." +
+        (post.isQuote ? ` The exact-owner wrapper quotes ${post.quotedPostUrl}.` : "")
+    });
+  });
+
+  return {
+    evidence,
+    needsReview: [],
+    failures: [],
+    source: "x_public_profile_schema_org",
+    mergeOnly: true,
+    receipt: { ...receiptSummary, verified: true },
+    coverageReceipt: {
+      ...receiptSummary,
+      verified: true,
+      outcome: "collected_exact_owner_posts"
+    }
+  };
+}
+
+function xPublicProfileFailureResult(
+  company,
+  entity,
+  entityType,
+  accountUrl,
+  message,
+  receipt = {}
+) {
+  return {
+    evidence: [],
+    needsReview: [],
+    failures: [failure(
+      "x",
+      company,
+      accountUrl,
+      message,
+      entityType,
+      entityName(entity, entityType),
+      entityIdFor(company, entity, entityType)
+    )],
+    source: "x_public_profile_schema_org",
+    mergeOnly: true,
+    receipt: {
+      verified: false,
+      accountUrl,
+      handle: xUsernameFromUrl(accountUrl),
+      fetchedAt: new Date().toISOString(),
+      sourceWindow: "first_server_rendered_profile_page",
+      sourceExhausted: false,
+      ...receipt
+    },
+    coverageReceipt: {
+      verified: false,
+      accountUrl,
+      handle: xUsernameFromUrl(accountUrl),
+      sourceWindow: "first_server_rendered_profile_page",
+      sourceExhausted: false,
+      reason: receipt.reason ?? "x_public_profile_failure",
+      blocker: message
+    }
+  };
+}
+
+function mergeXNativeEvidence(publicProfileEvidence, apiEvidence) {
+  const byNativeIdentity = new Map();
+  for (const item of [...publicProfileEvidence, ...apiEvidence]) {
+    const nativeIdentity = item.platformPostId
+      ? `post:${item.platformPostId}`
+      : `url:${canonicalProfileUrl(item.sourceUrl, "x")}`;
+    const existing = byNativeIdentity.get(nativeIdentity);
+    if (!existing) {
+      byNativeIdentity.set(nativeIdentity, item);
+      continue;
+    }
+
+    const metrics = mergeMetricMaximums(existing.metrics, item.metrics);
+    const metricReceipt = xNativeMetricReceipt([existing, item], metrics);
+    const bothNativeSources = new Set([
+      existing.attributionProvenance,
+      item.attributionProvenance
+    ]).has("x_public_profile_schema_org_exact_owner_v1") &&
+      new Set([
+        existing.attributionProvenance,
+        item.attributionProvenance
+      ]).has("x_recent_search_exact_mapped_author_v1");
+    byNativeIdentity.set(nativeIdentity, {
+      ...existing,
+      metrics,
+      contributionScore: scoreMetrics("x", metrics),
+      postedAt: validEvidenceTimestamp(existing.postedAt) ?? validEvidenceTimestamp(item.postedAt),
+      rawVisibleText: xReconciledRawVisibleText(existing, metricReceipt),
+      xMetricReceipt: metricReceipt,
+      ...(bothNativeSources
+        ? {
+            attributionProvenance: "x_public_profile_schema_org+x_recent_search_exact_owner_v1",
+            matchReason: `${existing.matchReason} The credentialed X recent-search result independently matched the same native post ID; per-metric maxima were retained.`
+          }
+        : {}),
+      ...(metricReceipt.timestampConflict
+        ? {
+            contributionScore: 0,
+            review_state: "needs_review",
+            attributionStatus: "needs_review",
+            matchReason: `${existing.matchReason} Conflicting exact native timestamps were observed for the same X post ID; queued for review.`
+          }
+        : {})
+    });
+  }
+  return [...byNativeIdentity.values()].sort(
+    (left, right) => Date.parse(right.postedAt ?? 0) - Date.parse(left.postedAt ?? 0)
+  );
+}
+
+function mergeMetricMaximums(left = {}, right = {}) {
+  const merged = {};
+  for (const metric of new Set([...Object.keys(left), ...Object.keys(right)])) {
+    const values = [left[metric], right[metric]]
+      .map(Number)
+      .filter((value) => Number.isFinite(value) && value >= 0);
+    if (values.length) merged[metric] = Math.max(...values);
+  }
+  return merged;
+}
+
+function validEvidenceTimestamp(value) {
+  const timestamp = Date.parse(String(value ?? ""));
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+}
+
+function xNativeMetricReceipt(candidates, mergedMetrics) {
+  const timestamps = [...new Set(
+    candidates.flatMap((item) => [
+      item.postedAt,
+      ...(item.xMetricReceipt?.observedTimestamps ?? [])
+    ]).map(validEvidenceTimestamp).filter(Boolean)
+  )].sort();
+  const bySource = new Map();
+  const sourceObservations = candidates.flatMap((item) => [
+    {
+      source: item.attributionProvenance,
+      checkedAt: item.last_checked_at ?? item.checkedAt,
+      postedAt: item.postedAt,
+      metrics: item.metrics
+    },
+    ...(item.xMetricReceipt?.observations ?? [])
+  ]);
+  for (const item of sourceObservations) {
+    const source = String(item.source ?? "unknown_x_native_source");
+    const current = bySource.get(source);
+    const observation = {
+      source,
+      checkedAt: validEvidenceTimestamp(item.checkedAt),
+      postedAt: validEvidenceTimestamp(item.postedAt),
+      metrics: removeNullish(item.metrics ?? {})
+    };
+    if (!current) {
+      bySource.set(source, observation);
+      continue;
+    }
+    bySource.set(source, {
+      source,
+      checkedAt: latestIsoTimestamp(current.checkedAt, observation.checkedAt),
+      postedAt: current.postedAt ?? observation.postedAt,
+      metrics: mergeMetricMaximums(current.metrics, observation.metrics)
+    });
+  }
+  return {
+    source: "x_native_metric_reconciliation_v1",
+    nativePostId: String(candidates[0]?.platformPostId ?? ""),
+    mergedMetrics,
+    timestampConflict: timestamps.length > 1,
+    observedTimestamps: timestamps,
+    observations: [...bySource.values()]
+      .sort((left, right) => String(left.source).localeCompare(String(right.source)))
+      .slice(0, 12)
+  };
+}
+
+function xReconciledRawVisibleText(primary, metricReceipt) {
+  return JSON.stringify({
+    source: "x_native_evidence_reconciled_v1",
+    primary: {
+      id: primary.platformPostId ?? platformPostIdFromUrl("x", primary.sourceUrl),
+      sourceUrl: primary.sourceUrl,
+      authorHandle: primary.authorHandle,
+      title: primary.title,
+      text: primary.text,
+      postedAt: primary.postedAt,
+      attributionProvenance: primary.attributionProvenance
+    },
+    metricReceipt
+  });
+}
+
+function latestIsoTimestamp(...values) {
+  const timestamps = values
+    .map(validEvidenceTimestamp)
+    .filter(Boolean)
+    .sort();
+  return timestamps.at(-1) ?? null;
+}
+
+async function ingestInstagramPublicProfile(company, entity, entityType, accountUrl) {
+  const request = instagramPublicProfileRequest({ accountUrl });
+  const requestedAt = new Date().toISOString();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20_000);
+  let response = null;
+  let payloadText = "";
+  let profileRequestError = null;
+  try {
+    response = await fetch(request.url, {
+      ...request.options,
+      signal: controller.signal
+    });
+    payloadText = await readBoundedResponseText(response, {
+      maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+      maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+    });
+  } catch (error) {
+    profileRequestError = error;
+  } finally {
+    clearTimeout(timeout);
+  }
+  const completedAt = new Date().toISOString();
+
+  if (response && !response.ok && [401, 403, 429].includes(response.status)) {
+    const cooldownMs = response.status === 429 ? 30 * 60_000 : 10 * 60_000;
+    const error = new Error(
+      `Instagram public profile endpoint returned HTTP ${response.status}.`
+    );
+    error.platformCooldownUntil = Date.now() + cooldownMs;
+    error.platformCooldownReason = `instagram_web_profile_info_http_${response.status}`;
+    throw error;
+  }
+
+  let profileReceipt = null;
+  let profileFailureMessage = null;
+  if (!profileRequestError && response?.ok) {
+    profileReceipt = parseInstagramPublicProfileResponse({
+      payload: payloadText,
+      requestedUsername: request.username,
+      fetchedAt: completedAt
+    });
+  } else if (profileRequestError) {
+    profileFailureMessage =
+      `Instagram public profile request failed: ${errorMessage(profileRequestError)}`;
+  } else if (response) {
+    profileFailureMessage =
+      `Instagram public profile endpoint returned HTTP ${response.status}.`;
+  }
+
+  if (profileReceipt && !profileReceipt.verified) {
+    if (/_(?:auth_required|challenge|rate_limited)$/.test(profileReceipt.reason ?? "")) {
+      const error = new Error(`Instagram public profile endpoint failed: ${profileReceipt.reason}.`);
+      error.platformCooldownUntil = Date.now() + 30 * 60_000;
+      error.platformCooldownReason = profileReceipt.reason;
+      throw error;
+    }
+    profileFailureMessage =
+      `Instagram public profile verification failed: ${profileReceipt.reason}.`;
+  }
+
+  let nativeFeedReceipt = null;
+  let nativeFeedFailure = null;
+  try {
+    nativeFeedReceipt = await fetchInstagramNativeFeedMetricReceipt(accountUrl);
+  } catch (error) {
+    if (profileReceipt?.verified !== true) {
+      if (error?.platformCooldownUntil) throw error;
+      return null;
+    }
+    nativeFeedFailure = error;
+    recordPlatformCooldownIfNeeded("instagram", error);
+  }
+
+  // A non-auth web_profile_info failure is not terminal: Instagram's exact
+  // anonymous native feed can remain healthy when that separate asset is
+  // unavailable. Only the feed's exact username receipt authorizes fallback.
+  const nativeFeedOnly =
+    profileReceipt?.verified !== true && nativeFeedReceipt?.verified === true;
+  if (profileReceipt?.verified !== true && !nativeFeedOnly) return null;
+
+  const receipt = nativeFeedOnly
+    ? instagramProfileReceiptFromNativeFeed(nativeFeedReceipt)
+    : overlayInstagramNativeFeedMetrics(profileReceipt, nativeFeedReceipt);
+
+  const collectionFailures = [];
+  if (nativeFeedOnly && profileFailureMessage) {
+    collectionFailures.push(failure(
+      "instagram",
+      company,
+      accountUrl,
+      `${profileFailureMessage} Exact anonymous native-feed fallback succeeded.`,
+      entityType,
+      entityName(entity, entityType),
+      entityIdFor(company, entity, entityType)
+    ));
+  }
+  if (nativeFeedFailure) {
+    collectionFailures.push(failure(
+      "instagram",
+      company,
+      accountUrl,
+      `Instagram native-feed enrichment failed; verified profile rows were preserved: ${errorMessage(nativeFeedFailure)}`,
+      entityType,
+      entityName(entity, entityType),
+      entityIdFor(company, entity, entityType)
+    ));
+  }
+  if (nativeFeedReceipt?.paginationFailureMessage) {
+    collectionFailures.push(failure(
+      "instagram",
+      company,
+      accountUrl,
+      `Instagram native-feed pagination was interrupted after verified rows; partial rows were preserved: ${nativeFeedReceipt.paginationFailureMessage}`,
+      entityType,
+      entityName(entity, entityType),
+      entityIdFor(company, entity, entityType)
+    ));
+  }
+
+  const entityId = entityIdFor(company, entity, entityType);
+  const name = entityName(entity, entityType);
+  const receiptSummary = {
+    source: nativeFeedOnly
+      ? "instagram_anonymous_native_feed_standalone_v1"
+      : receipt.nativeFeedOverlayCount > 0 || receipt.nativeFeedAddedPostCount > 0
+        ? "instagram_public_web_profile_info_with_native_feed_metrics_v1"
+        : "instagram_public_web_profile_info_v1",
     username: receipt.username,
     accountUrl: receipt.accountUrl,
     fetchedAt: receipt.fetchedAt,
@@ -2913,9 +3441,12 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
     processedEdgeCount: receipt.processedEdgeCount,
     duplicateEdgeCount: receipt.duplicateEdgeCount,
     truncated: receipt.truncated,
-    hasNextPage: receipt.pageInfo?.hasNextPage === true
+    hasNextPage: receipt.pageInfo?.hasNextPage === true,
+    ...(receipt.nativeFeedReceipt
+      ? { nativeFeed: receipt.nativeFeedReceipt }
+      : {})
   };
-  const rows = receipt.posts.map((post) => {
+  const rowRecords = receipt.posts.map((post) => {
     const postReceipt = {
       shortcode: post.shortcode,
       url: post.url,
@@ -2926,19 +3457,24 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
       caption: post.caption,
       postedAt: post.postedAt,
       metrics: post.metrics,
+      ...(post.nativeFeedMetrics
+        ? {
+            nativeFeedMetrics: post.nativeFeedMetrics,
+            nativeFeedMetricSource: post.nativeFeedMetricSource,
+            nativeFeedOnly: post.nativeFeedOnly === true
+          }
+        : {}),
       mediaUrlCount: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 0
     };
-    const views = Math.max(
-      Number(post.metrics?.videoViews ?? 0),
-      Number(post.metrics?.videoPlays ?? 0)
-    );
-    const metrics = removeNullish({
-      likes: numberOrNull(post.metrics?.likes),
-      comments: numberOrNull(post.metrics?.comments),
-      views: views > 0 ? views : null
-    });
+    const metrics = removeNullish(instagramEvidenceMetrics(post));
     const caption = cleanText(post.caption) || `${name} Instagram ${post.mediaType}`;
-    return evidenceItem({
+    const accepted = post.profileRole === "primary";
+    const roleDisposition = accepted
+      ? "Exact primary author matches the mapped profile."
+      : post.profileRole === "coauthor"
+        ? "The mapped profile is a declared coauthor, not the native primary author; queued for review and excluded from scored evidence."
+        : "The post appeared on the profile surface without native owner or coauthor proof; queued for review and excluded from scored evidence.";
+    const row = evidenceItem({
       company,
       entityType,
       entityId,
@@ -2955,18 +3491,30 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
       postedAt: post.postedAt,
       metrics,
       mediaUrls: post.mediaUrls,
-      contributionScore: scoreMetrics("instagram", metrics),
-      review_state: post.profileRole === "surface_only" ? "needs_review" : "verified",
+      contributionScore: accepted ? scoreMetrics("instagram", metrics) : 0,
+      review_state: accepted ? "verified" : "needs_review",
       attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
-      attributionStatus: "verified",
-      attributionProvenance: "instagram_public_web_profile_info_native_owner_v1",
-      matchReason:
-        `Anonymous Instagram web_profile_info exposed this post on the exact mapped @${receipt.username} profile; ` +
-        `native primary author=@${post.authorUsername}, profileRole=${post.profileRole}. ` +
-        `The endpoint returned ${receipt.receivedEdgeCount}/${receipt.totalCount} post rows; truncated=${receipt.truncated}.`
+      attributionStatus: accepted ? "verified" : "needs_review",
+      attributionProvenance: post.nativeFeedOnly
+        ? "instagram_anonymous_native_feed_native_owner_v1"
+        : "instagram_public_web_profile_info_native_owner_v1",
+      matchReason: post.nativeFeedOnly
+        ? `Anonymous Instagram native feed exposed this post on the exact mapped @${receipt.username} profile; native primary author=@${post.authorUsername}, profileRole=${post.profileRole}. The feed recovered ${receipt.nativeFeedReceipt?.uniqueItemCount ?? 0} unique posts across ${receipt.nativeFeedReceipt?.pageCount ?? 0} page(s); sourceExhausted=${receipt.nativeFeedReceipt?.sourceExhausted === true}. ${roleDisposition}`
+        :
+          `Anonymous Instagram web_profile_info exposed this post on the exact mapped @${receipt.username} profile; ` +
+          `native primary author=@${post.authorUsername}, profileRole=${post.profileRole}. ` +
+          `The endpoint returned ${receipt.receivedEdgeCount}/${receipt.totalCount} post rows; truncated=${receipt.truncated}.` +
+          (post.nativeFeedMetrics
+            ? " Exact anonymous native-feed identity matched this shortcode and supplied its current native metrics."
+            : "") +
+          ` ${roleDisposition}`
     });
+    return {
+      accepted,
+      row: accepted ? row : { ...row, candidateUrl: row.sourceUrl }
+    };
   });
-  const recentWindowObservation = recentCoverageCutoff
+  const recentWindowObservation = recentCoverageCutoff && !nativeFeedOnly
     ? instagramRecentWindowObservation({
         requestUrl: request.url,
         requestedAt,
@@ -2978,14 +3526,160 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
     : null;
 
   return {
-    evidence: rows,
-    needsReview: [],
-    failures: [],
-    source: "instagram_public_web_profile_info",
+    evidence: rowRecords.filter((item) => item.accepted).map((item) => item.row),
+    needsReview: rowRecords.filter((item) => !item.accepted).map((item) => item.row),
+    failures: collectionFailures,
+    source: nativeFeedOnly
+      ? "instagram_anonymous_native_feed"
+      : "instagram_public_web_profile_info",
     mergeOnly: true,
     receipt: receiptSummary,
     ...(recentWindowObservation ? { recentWindowObservation } : {})
   };
+}
+
+function instagramProfileReceiptFromNativeFeed(feedReceipt) {
+  const observedPostCount =
+    feedReceipt.uniqueItemCount ?? feedReceipt.posts?.length ?? 0;
+  return {
+    ...overlayInstagramNativeFeedMetrics({
+      verified: true,
+      reason: "instagram_anonymous_native_feed_standalone_profile_verified",
+      username: feedReceipt.username,
+      accountUrl: feedReceipt.accountUrl,
+      fetchedAt: feedReceipt.fetchedAt,
+      totalCount: observedPostCount,
+      pageInfo: {
+        hasNextPage: feedReceipt.sourceExhausted !== true,
+        endCursor: feedReceipt.nextMaxId ?? null
+      },
+      receivedEdgeCount: 0,
+      processedEdgeCount: 0,
+      duplicateEdgeCount: 0,
+      truncated: feedReceipt.truncated === true,
+      posts: []
+    }, feedReceipt),
+    nativeFeedOnlyProfile: true
+  };
+}
+
+async function fetchInstagramNativeFeedMetricReceipt(accountUrl) {
+  const pages = [];
+  const seenCursors = new Set();
+  const seenShortcodes = new Set();
+  let maxId = null;
+  const partialReceipt = (reason, message) => ({
+    ...mergeInstagramNativeFeedPages(pages, {
+      maxItems: instagramNativeFeedMaxItems,
+      interruptionReason: reason
+    }),
+    paginationFailureMessage: message
+  });
+
+  for (let pageIndex = 0; pageIndex < instagramNativeFeedMaxPages; pageIndex += 1) {
+    const request = instagramNativeFeedRequest({ accountUrl, maxId });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20_000);
+    let response;
+    let payloadText;
+    try {
+      response = await fetch(request.url, {
+        ...request.options,
+        signal: controller.signal
+      });
+      payloadText = await readBoundedResponseText(response, {
+        maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+        maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+      });
+    } catch (error) {
+      if (pages.length > 0) {
+        return partialReceipt(
+          "request_failed",
+          `page ${pageIndex + 1} request failed: ${errorMessage(error)}`
+        );
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+    }
+    const completedAt = new Date().toISOString();
+
+    if (!response.ok) {
+      if ([401, 403, 429].includes(response.status)) {
+        const cooldownMs = response.status === 429 ? 30 * 60_000 : 10 * 60_000;
+        const error = new Error(
+          `Instagram anonymous native feed returned HTTP ${response.status}.`
+        );
+        error.platformCooldownUntil = Date.now() + cooldownMs;
+        error.platformCooldownReason = `instagram_native_feed_http_${response.status}`;
+        if (pages.length > 0) {
+          recordPlatformCooldownIfNeeded("instagram", error);
+          return partialReceipt(
+            `http_${response.status}`,
+            `page ${pageIndex + 1} returned HTTP ${response.status}`
+          );
+        }
+        throw error;
+      }
+      if (pages.length === 0) return null;
+      return partialReceipt(
+        `http_${response.status}`,
+        `page ${pageIndex + 1} returned HTTP ${response.status}`
+      );
+    }
+
+    const receipt = parseInstagramNativeFeedResponse({
+      payload: payloadText,
+      requestedUsername: request.username,
+      fetchedAt: completedAt
+    });
+    if (!receipt.verified) {
+      if (/_(?:auth_required|challenge|rate_limited)$/.test(receipt.reason ?? "")) {
+        const error = new Error(
+          `Instagram anonymous native feed failed: ${receipt.reason}.`
+        );
+        error.platformCooldownUntil = Date.now() + 30 * 60_000;
+        error.platformCooldownReason = receipt.reason;
+        if (pages.length > 0) {
+          recordPlatformCooldownIfNeeded("instagram", error);
+          return partialReceipt(
+            receipt.reason,
+            `page ${pageIndex + 1} failed verification: ${receipt.reason}`
+          );
+        }
+        throw error;
+      }
+      if (pages.length === 0) return null;
+      return partialReceipt(
+        receipt.reason,
+        `page ${pageIndex + 1} failed verification: ${receipt.reason}`
+      );
+    }
+    pages.push(receipt);
+    for (const post of receipt.posts) seenShortcodes.add(post.shortcode);
+
+    if (!receipt.moreAvailable || seenShortcodes.size >= instagramNativeFeedMaxItems) {
+      break;
+    }
+    const nextMaxId = receipt.nextMaxId;
+    if (!nextMaxId || seenCursors.has(nextMaxId)) {
+      return partialReceipt(
+        "cursor_missing_or_repeated",
+        `page ${pageIndex + 1} repeated or omitted its cursor`
+      );
+    }
+    seenCursors.add(nextMaxId);
+    maxId = nextMaxId;
+    await delay(Math.max(requestDelayMs, 450));
+  }
+
+  const lastPage = pages.at(-1);
+  return mergeInstagramNativeFeedPages(pages, {
+    maxItems: instagramNativeFeedMaxItems,
+    pageLimitReached:
+      pages.length >= instagramNativeFeedMaxPages &&
+      lastPage?.moreAvailable === true
+  });
 }
 
 function xApiEvidenceForAccount(company, entity, entityType, accountUrl) {
@@ -3512,6 +4206,7 @@ function isStrongSearchSnippetPostMatch(company, text) {
 function evidenceItem(input) {
   return {
     id: stableId(`${input.platform}:${input.entityId}:${input.sourceUrl}:${input.title}`),
+    batchSlug: batchConfig.slug,
     entityType: input.entityType,
     entityId: input.entityId,
     companySlug: input.company.slug,
@@ -3653,7 +4348,8 @@ function failure(
     entityType,
     entityId: entityIdValue,
     entityName: entityNameValue,
-    sourceUrl: url,
+    sourceUrl: url ?? null,
+    accountUrl: url ?? null,
     message,
     checkedAt: now
   };
@@ -3740,6 +4436,21 @@ async function fetchReader(url) {
   };
 }
 
+async function fetchXPublicReaderFallback(url) {
+  const cooldown = platformCooldowns.get("x_reader");
+  if (cooldown && cooldown.until > Date.now()) {
+    throw new Error(
+      `X public-reader fallback cooldown active until ${new Date(cooldown.until).toISOString()}: ${cooldown.reason}`
+    );
+  }
+  try {
+    return await fetchReader(url);
+  } catch (error) {
+    recordPlatformCooldownIfNeeded("x_reader", error);
+    throw error;
+  }
+}
+
 async function fetchPublic(url, options = {}) {
   const headers = publicRequestHeaders(options);
   if (isDuckDuckGoPublicSearchUrl(url)) {
@@ -3754,6 +4465,30 @@ async function fetchPublic(url, options = {}) {
       headers
     });
   } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function fetchPublicBoundedText(url, {
+  maxResponseBytes,
+  maxDecodedBytes,
+  ...options
+} = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20_000);
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: publicRequestHeaders(options)
+    });
+    const text = await readBoundedResponseText(response, {
+      maxResponseBytes,
+      maxDecodedBytes
+    });
+    return { response, text };
+  } finally {
+    // Keep the timeout live through the entire bounded body read. Clearing it
+    // after headers would allow a stalled X response body to hang the lane.
     clearTimeout(timeout);
   }
 }
@@ -5184,6 +5919,12 @@ function isObsoleteInternalFailure(item) {
 }
 
 function normalizeStoredEvidence(item) {
+  // A batch collector is authoritative only for its selected cohort. Preserve
+  // already-published rows from other cohorts byte-for-byte instead of
+  // revalidating them against the current batch's owner index and semantic
+  // context, which can otherwise demote valid cross-batch evidence.
+  if (item.batchSlug && item.batchSlug !== batchConfig.slug) return item;
+
   const platform = normalizePlatformArg(item.platform);
   const staleAttribution = {
     batchSlug: item.batchSlug ?? batchConfig.slug,
@@ -5364,6 +6105,7 @@ function normalizeStoredEvidence(item) {
 
   return {
     ...normalized,
+    batchSlug: item.batchSlug ?? batchConfig.slug,
     metrics,
     ...(persistLinkedInParentMetricReceipt
       ? {
@@ -5559,17 +6301,75 @@ function normalizeEvidenceForStorage(items) {
   }
 
   for (const candidates of candidatesByOwnerNativeIdentity.values()) {
+    const selectedCandidate = candidates.every(
+      (item) => item.platform === "x" && isNativeContentUrl("x", item.sourceUrl)
+    )
+      ? reconcileNormalizedXNativeCandidates(candidates)
+      : [...candidates].sort(
+          (left, right) =>
+            Number(right.contributionScore > 0) - Number(left.contributionScore > 0) ||
+            String(left.id).localeCompare(String(right.id))
+        )[0];
     appendNormalizedEvidenceCandidate(
-      [...candidates].sort(
-        (left, right) =>
-          Number(right.contributionScore > 0) - Number(left.contributionScore > 0) ||
-          String(left.id).localeCompare(String(right.id))
-      )[0],
+      selectedCandidate,
       normalizedEvidence,
       normalizationReview
     );
   }
   return { evidence: normalizedEvidence, needsReview: normalizationReview };
+}
+
+function reconcileNormalizedXNativeCandidates(candidates) {
+  const preferred = [...candidates].sort(
+    (left, right) =>
+      Number(isExactXSchemaEvidence(right)) - Number(isExactXSchemaEvidence(left)) ||
+      checkedAtMillis(right) - checkedAtMillis(left) ||
+      Number(right.contributionScore > 0) - Number(left.contributionScore > 0) ||
+      String(left.id).localeCompare(String(right.id))
+  )[0];
+  const metrics = candidates.reduce(
+    (merged, item) => mergeMetricMaximums(merged, item.metrics),
+    {}
+  );
+  const metricReceipt = xNativeMetricReceipt(candidates, metrics);
+  const firstSeenAt = earliestIsoTimestamp(
+    ...candidates.map((item) => item.first_seen_at)
+  );
+  const lastCheckedAt = latestIsoTimestamp(
+    ...candidates.map((item) => item.last_checked_at ?? item.checkedAt)
+  );
+  const conflictReason = metricReceipt.timestampConflict
+    ? " Conflicting exact native timestamps were observed for the same X post ID; queued for review."
+    : "";
+
+  return {
+    ...preferred,
+    metrics,
+    contributionScore: metricReceipt.timestampConflict ? 0 : scoreMetrics("x", metrics),
+    review_state: metricReceipt.timestampConflict ? "needs_review" : preferred.review_state,
+    attributionStatus: metricReceipt.timestampConflict ? "needs_review" : preferred.attributionStatus,
+    rawVisibleText: xReconciledRawVisibleText(preferred, metricReceipt),
+    xMetricReceipt: metricReceipt,
+    ...(firstSeenAt ? { first_seen_at: firstSeenAt } : {}),
+    ...(lastCheckedAt ? { last_checked_at: lastCheckedAt } : {}),
+    matchReason:
+      `${preferred.matchReason ?? "Verified native X evidence."} ` +
+      `Canonical write reconciled ${candidates.length} same-owner observations by native X post ID and retained per-metric maxima.` +
+      conflictReason
+  };
+}
+
+function isExactXSchemaEvidence(item) {
+  return String(item?.attributionProvenance ?? "")
+    .includes("x_public_profile_schema_org");
+}
+
+function earliestIsoTimestamp(...values) {
+  const timestamps = values
+    .map(validEvidenceTimestamp)
+    .filter(Boolean)
+    .sort();
+  return timestamps[0] ?? null;
 }
 
 function appendNormalizedEvidenceCandidate(item, normalizedEvidence, normalizationReview) {
@@ -5687,7 +6487,14 @@ function normalizeSocialHandle(value) {
   return String(value ?? "").replace(/^@/, "").trim().toLowerCase();
 }
 
-async function writeCheckpoint() {
+async function writeCheckpoint({ force = false } = {}) {
+  checkpointCompletionsSinceWrite += 1;
+  if (!force && checkpointCompletionsSinceWrite < checkpointEvery) return;
+  checkpointCompletionsSinceWrite = 0;
+
+  // Serialize one snapshot at a time and coalesce routine task completions.
+  // The canonical evidence set can be tens of megabytes, so cloning and
+  // stringifying it after every account creates avoidable peak heap pressure.
   checkpointWriteChain = checkpointWriteChain.then(async () => {
     const normalizedCheckpointEvidence = normalizeEvidenceForStorage(evidence);
     const checkpointPayload = {

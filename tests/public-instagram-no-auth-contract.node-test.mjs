@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import test from "node:test";
 
 import {
+  instagramNativeFeedRequest,
   instagramPublicProfileRequest
 } from "../scripts/lib/instagram-public-profile.mjs";
 
@@ -50,6 +51,20 @@ test("public Instagram profile requests omit account credentials and sensitive U
   );
   assert.equal(request.options.headers.referer, "https://www.instagram.com/tash.cards/");
   assert.doesNotMatch(JSON.stringify(request), /must-not-propagate|also-private/);
+
+  const nativeFeedRequest = instagramNativeFeedRequest({
+    accountUrl:
+      "https://www.instagram.com/Tash.Cards/?sessionid=must-not-propagate#authorization=also-private"
+  });
+  const nativeHeaders = new Headers(nativeFeedRequest.options.headers);
+  assert.equal(nativeFeedRequest.options.credentials, "omit");
+  assert.equal(nativeHeaders.has("cookie"), false);
+  assert.equal(nativeHeaders.has("authorization"), false);
+  assert.equal(nativeHeaders.has("proxy-authorization"), false);
+  assert.doesNotMatch(
+    JSON.stringify(nativeFeedRequest),
+    /must-not-propagate|also-private/
+  );
 });
 
 test("the public collector passes the anonymous request through without credential overrides", () => {
@@ -61,7 +76,7 @@ test("the public collector passes the anonymous request through without credenti
   const fetchCall = section(
     instagramIngest,
     "response = await fetch(request.url",
-    "payloadText = await response.text()"
+    "} catch (error) {"
   );
 
   assert.match(
@@ -70,6 +85,7 @@ test("the public collector passes the anonymous request through without credenti
   );
   assert.match(fetchCall, /\.\.\.request\.options/);
   assert.match(fetchCall, /signal: controller\.signal/);
+  assert.match(fetchCall, /readBoundedResponseText\(response/);
   assert.doesNotMatch(
     fetchCall,
     /\b(?:cookie|authorization|proxy-authorization)\b|credentials\s*:/i
@@ -90,13 +106,85 @@ test("embedded Instagram receipts stay compact while evidence retains media URLs
     /rawVisibleText: JSON\.stringify\(\{ receipt: receiptSummary, post: postReceipt \}\)/
   );
   assert.match(instagramIngest, /mediaUrls: post\.mediaUrls/);
+  assert.match(instagramIngest, /const accepted = post\.profileRole === "primary"/);
+  assert.match(
+    instagramIngest,
+    /needsReview: rowRecords\.filter\(\(item\) => !item\.accepted\)/
+  );
+  assert.match(instagramIngest, /instagramProfileReceiptFromNativeFeed/);
 
   const compactReceipt = section(
     instagramIngest,
     "const postReceipt = {",
-    "const views = Math.max"
+    "const metrics = removeNullish(instagramEvidenceMetrics(post))"
   );
   assert.doesNotMatch(compactReceipt, /^\s*mediaUrls:/m);
+});
+
+test("the native feed paginator stays anonymous, bounded, and cursor-limited", () => {
+  const nativeFeedIngest = section(
+    collector,
+    "async function fetchInstagramNativeFeedMetricReceipt",
+    "function xApiEvidenceForAccount"
+  );
+
+  assert.match(nativeFeedIngest, /instagramNativeFeedRequest\(\{ accountUrl, maxId \}\)/);
+  assert.match(nativeFeedIngest, /instagramNativeFeedMaxPages/);
+  assert.match(nativeFeedIngest, /instagramNativeFeedMaxItems/);
+  assert.match(nativeFeedIngest, /readBoundedResponseText/);
+  assert.match(nativeFeedIngest, /seenCursors\.has\(nextMaxId\)/);
+  assert.match(nativeFeedIngest, /partialReceipt/);
+  assert.match(nativeFeedIngest, /paginationFailureMessage/);
+  assert.match(nativeFeedIngest, /setTimeout\(\(\) => controller\.abort\(\), 20_000\)/);
+  assert.doesNotMatch(
+    nativeFeedIngest,
+    /\b(?:cookie|authorization|proxy-authorization)\b|credentials\s*:/i
+  );
+});
+
+test("checkpoint snapshots are coalesced and canonical evidence keeps durable batch scope", () => {
+  const checkpointWriter = section(
+    collector,
+    "async function writeCheckpoint",
+    "async function readJson"
+  );
+  const evidenceFactory = section(
+    collector,
+    "function evidenceItem",
+    "function reviewCandidate"
+  );
+  const normalizer = section(
+    collector,
+    "function normalizeStoredEvidence",
+    "function nativeAuthorMatchesCanonicalAttribution"
+  );
+
+  assert.match(collector, /await writeCheckpoint\(\{ force: true \}\);/);
+  assert.match(checkpointWriter, /checkpointCompletionsSinceWrite < checkpointEvery/);
+  assert.match(evidenceFactory, /batchSlug: batchConfig\.slug/);
+  assert.match(
+    normalizer,
+    /if \(item\.batchSlug && item\.batchSlug !== batchConfig\.slug\) return item;/
+  );
+  assert.match(normalizer, /batchSlug: item\.batchSlug \?\? batchConfig\.slug/);
+});
+
+test("exact native-feed fallback survives web profile failure and quarantines non-primary rows", async (context) => {
+  const snapshot = await runMockedTashInstagramCollector(context);
+  const accepted = snapshot.evidence.filter((row) => row.platform === "instagram");
+  const review = snapshot.needsReview.filter((row) => row.platform === "instagram");
+
+  assert.deepEqual(accepted.map((row) => row.platformPostId), ["PRIMARY"]);
+  assert.equal(accepted[0].batchSlug, "S26");
+  assert.equal(accepted[0].authorHandle, "tash.cards");
+  assert.deepEqual(
+    review.map((row) => row.platformPostId).sort(),
+    ["COAUTHOR", "SURFACE"]
+  );
+  assert.ok(review.every((row) => row.attributionStatus === "needs_review"));
+  assert.ok(snapshot.failures.some((row) =>
+    /native-feed fallback succeeded/i.test(row.message)
+  ));
 });
 
 test("--mapped-only disables discovery and exits before URL-less task fanout", () => {
@@ -177,4 +265,95 @@ function assertSafeSourceSnapshot(document, label) {
     /(?:\/Users\/|\/home\/|[a-z]:\\\\Users\\\\|file:\/\/|blob:http:\/\/localhost)/i,
     label
   );
+}
+
+async function runMockedTashInstagramCollector(context) {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-instagram-contract-"));
+  context.after(() => rm(directory, { recursive: true, force: true }));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  const items = [
+    nativeFeedFixture("PRIMARY", "1", "tash.cards", []),
+    nativeFeedFixture("COAUTHOR", "2", "other.author", ["tash.cards"]),
+    nativeFeedFixture("SURFACE", "3", "surface.author", ["someone.else"])
+  ];
+  await Promise.all([
+    writeFile(output, `${JSON.stringify({
+      source: {}, attempts: {}, evidence: [], needsReview: [], failures: [],
+      discoveryAttempts: [], sourceDiscoveryPaths: []
+    })}\n`),
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+const feed = ${JSON.stringify({
+  status: "ok",
+  user: { username: "tash.cards" },
+  num_results: items.length,
+  more_available: false,
+  next_max_id: null,
+  items
+})};
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (value.includes("/api/v1/users/web_profile_info/")) {
+    return new Response("asset unavailable", { status: 400 });
+  }
+  if (value.includes("/api/v1/feed/user/tash.cards/username/")) {
+    return new Response(JSON.stringify(feed), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  }
+  throw new Error("unexpected request: " + value);
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S26",
+    "--company=tash",
+    "--platforms=instagram",
+    "--social=company",
+    "--mapped-only",
+    "--workers=1",
+    "--instagram-workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: {
+      ...process.env,
+      X_BEARER_TOKEN: "",
+      EXA_API_KEY: "",
+      NODE_OPTIONS: `--max-old-space-size=1024 --import=${preload}`
+    },
+    stdio: "pipe"
+  });
+  return JSON.parse(await readFile(output, "utf8"));
+}
+
+function nativeFeedFixture(shortcode, pk, authorUsername, coauthors) {
+  return {
+    pk,
+    code: shortcode,
+    media_type: 1,
+    product_type: "feed",
+    taken_at: 1_722_470_400 + Number(pk),
+    user: { username: authorUsername },
+    coauthor_producers: coauthors.map((username) => ({ username })),
+    caption: { text: `tash launch ${shortcode}` },
+    like_count: 10,
+    comment_count: 2,
+    image_versions2: {
+      candidates: [{ url: `https://scontent.cdninstagram.com/${shortcode}.jpg?oh=signed&oe=expiry` }]
+    }
+  };
 }

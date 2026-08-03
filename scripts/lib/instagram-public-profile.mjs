@@ -1,5 +1,7 @@
 const INSTAGRAM_WEB_PROFILE_INFO_URL =
   "https://www.instagram.com/api/v1/users/web_profile_info/";
+const INSTAGRAM_NATIVE_FEED_URL =
+  "https://www.instagram.com/api/v1/feed/user/";
 const DEFAULT_INSTAGRAM_APP_ID = "936619743392459";
 const INSTAGRAM_PUBLIC_BROWSER_USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " +
@@ -10,9 +12,11 @@ const MAX_RECEIVED_EDGES = 5_000;
 const MAX_PROCESSED_EDGES = 50;
 const MAX_SIDECAR_CHILDREN = 20;
 const MAX_COAUTHOR_USERNAMES = 20;
+const MAX_MEDIA_URLS_PER_POST = 12;
 const MAX_CAPTION_CODE_UNITS = 20_000;
 const MAX_CURSOR_CODE_UNITS = 2_000;
 const MAX_MEDIA_URL_CODE_UNITS = 12_000;
+const NATIVE_FEED_PAGE_SIZE = 50;
 const RESERVED_PROFILE_PATHS = new Set([
   "about",
   "accounts",
@@ -31,6 +35,10 @@ const SENSITIVE_QUERY_PARAMETER =
   /^(?:access_token|api_key|auth|authorization|cookie|credential|key|oh|oe|password|secret|session|sessionid|sig|signature|token|_nc_ohc|_nc_rid|_nc_sid)$/i;
 const SENSITIVE_QUERY_PARAMETER_FRAGMENT =
   /(?:^|[_-])(?:access[_-]?token|auth|cookie|credential|password|secret|session|sig|signature|token)(?:$|[_-])/i;
+const INSTAGRAM_SIGNED_MEDIA_HOST =
+  /(?:^|\.)(?:cdninstagram\.com|fbcdn\.net)$/i;
+const INSTAGRAM_PUBLIC_CDN_SIGNATURE_PARAMETER =
+  /^(?:oh|oe|_nc_ohc|_nc_rid|_nc_sid)$/i;
 
 /**
  * Build a bounded, anonymous request for Instagram's public profile metadata.
@@ -77,6 +85,74 @@ export function instagramPublicProfileRequest({
 
   return {
     username: requestedUsername,
+    url: url.toString(),
+    options: {
+      method: "GET",
+      credentials: "omit",
+      redirect: "error",
+      headers: {
+        accept: "application/json",
+        "x-ig-app-id": normalizedAppId,
+        referer: `https://www.instagram.com/${requestedUsername}/`,
+        "user-agent": INSTAGRAM_PUBLIC_BROWSER_USER_AGENT
+      }
+    }
+  };
+}
+
+/**
+ * Build a bounded, anonymous request for Instagram's native profile feed.
+ * This endpoint exposes the reel play_count shown on the native surface,
+ * while web_profile_info currently exposes a different video_view_count.
+ * Cookies, authorization, and caller-provided headers are never forwarded.
+ */
+export function instagramNativeFeedRequest({
+  accountUrl,
+  username,
+  maxId = null,
+  appId = DEFAULT_INSTAGRAM_APP_ID
+} = {}) {
+  const requestedFromArgument = normalizeInstagramUsername(username);
+  const requestedFromUrl = instagramUsernameFromAccountUrl(accountUrl);
+  if (username != null && !requestedFromArgument) {
+    throw new TypeError("Instagram native feed username is invalid.");
+  }
+  if (accountUrl != null && !requestedFromUrl) {
+    throw new TypeError("Instagram native feed account URL is invalid.");
+  }
+  if (
+    requestedFromArgument &&
+    requestedFromUrl &&
+    requestedFromArgument !== requestedFromUrl
+  ) {
+    throw new TypeError("Instagram native feed account URL and username do not match.");
+  }
+
+  const requestedUsername = requestedFromArgument ?? requestedFromUrl;
+  if (!requestedUsername) {
+    throw new TypeError("Instagram native feed username or account URL is required.");
+  }
+  const normalizedAppId = normalizeAppId(appId);
+  if (!normalizedAppId) {
+    throw new TypeError("Instagram native feed app ID is invalid.");
+  }
+  const normalizedMaxId = normalizeCursor(maxId);
+  if (maxId != null && !normalizedMaxId) {
+    throw new TypeError("Instagram native feed cursor is invalid.");
+  }
+
+  const url = new URL(
+    `${INSTAGRAM_NATIVE_FEED_URL}${encodeURIComponent(requestedUsername)}/username/`
+  );
+  url.searchParams.set("count", String(NATIVE_FEED_PAGE_SIZE));
+  if (normalizedMaxId) url.searchParams.set("max_id", normalizedMaxId);
+  if (url.toString().length > 2_500) {
+    throw new TypeError("Instagram native feed request URL exceeded its bound.");
+  }
+
+  return {
+    username: requestedUsername,
+    maxId: normalizedMaxId,
     url: url.toString(),
     options: {
       method: "GET",
@@ -197,6 +273,345 @@ export function parseInstagramPublicProfileResponse({
   };
 }
 
+/**
+ * Parse one bounded page from Instagram's anonymous native profile feed.
+ * The envelope profile, every item's native author, shortcode, timestamp, and
+ * metrics must be structurally valid. No partial page is returned on failure.
+ */
+export function parseInstagramNativeFeedResponse({
+  payload,
+  requestedUsername,
+  fetchedAt
+} = {}) {
+  const username = normalizeInstagramUsername(requestedUsername);
+  const observedAt = validIsoDate(fetchedAt);
+  if (!username || !observedAt) {
+    return unverifiedNativeFeed(
+      "instagram_native_feed_input_invalid",
+      username,
+      observedAt
+    );
+  }
+
+  const parsedPayload = parseBoundedPayload(payload);
+  if (!parsedPayload.ok) {
+    return unverifiedNativeFeed(
+      "instagram_native_feed_payload_malformed",
+      username,
+      observedAt
+    );
+  }
+  const root = parsedPayload.value;
+  const failureReason = instagramPayloadFailureReason(root);
+  if (failureReason) {
+    return unverifiedNativeFeed(
+      failureReason.replace("instagram_public_profile_", "instagram_native_feed_"),
+      username,
+      observedAt
+    );
+  }
+
+  if (!isPlainObject(root.user)) {
+    return unverifiedNativeFeed(
+      "instagram_native_feed_user_missing",
+      username,
+      observedAt
+    );
+  }
+  const responseUsername = normalizePayloadInstagramUsername(root.user.username);
+  if (!responseUsername || responseUsername !== username) {
+    return unverifiedNativeFeed(
+      "instagram_native_feed_username_mismatch",
+      username,
+      observedAt
+    );
+  }
+
+  const page = normalizeNativeFeedPage(root);
+  if (!page.ok) {
+    return unverifiedNativeFeed(page.reason, username, observedAt);
+  }
+
+  const selectedItems = page.items.slice(0, MAX_PROCESSED_EDGES);
+  const byShortcode = new Map();
+  let duplicateItemCount = 0;
+  let nestedDataTruncated = false;
+  for (const item of selectedItems) {
+    const parsedItem = parseNativeFeedItem(item, username);
+    if (!parsedItem.ok) {
+      return unverifiedNativeFeed(parsedItem.reason, username, observedAt);
+    }
+    nestedDataTruncated ||= parsedItem.coauthorTruncated;
+    const existing = byShortcode.get(parsedItem.post.shortcode);
+    if (existing) {
+      duplicateItemCount += 1;
+      const merged = mergeDuplicateNativeFeedPost(
+        existing,
+        parsedItem.post,
+        username
+      );
+      if (!merged) {
+        return unverifiedNativeFeed(
+          "instagram_native_feed_item_malformed",
+          username,
+          observedAt
+        );
+      }
+      nestedDataTruncated ||= merged.coauthorTruncated;
+      byShortcode.set(parsedItem.post.shortcode, merged.post);
+    } else {
+      byShortcode.set(parsedItem.post.shortcode, parsedItem.post);
+    }
+  }
+
+  return {
+    verified: true,
+    reason: "instagram_anonymous_native_feed_exact_profile_verified",
+    username,
+    accountUrl: `https://www.instagram.com/${username}/`,
+    fetchedAt: observedAt,
+    receivedItemCount: page.items.length,
+    processedItemCount: selectedItems.length,
+    duplicateItemCount,
+    moreAvailable: page.moreAvailable,
+    nextMaxId: page.nextMaxId,
+    nestedDataTruncated,
+    truncated:
+      page.items.length > MAX_PROCESSED_EDGES ||
+      page.moreAvailable ||
+      nestedDataTruncated,
+    posts: [...byShortcode.values()]
+  };
+}
+
+export function mergeInstagramNativeFeedPages(
+  pageReceipts,
+  {
+    maxItems = 500,
+    pageLimitReached = false,
+    interruptionReason = null
+  } = {}
+) {
+  if (
+    !Array.isArray(pageReceipts) ||
+    pageReceipts.length === 0 ||
+    !Number.isSafeInteger(maxItems) ||
+    maxItems < 1 ||
+    maxItems > MAX_RECEIVED_EDGES
+  ) {
+    throw new TypeError("Instagram native feed page merge input is invalid.");
+  }
+  const first = pageReceipts[0];
+  if (first?.verified !== true || !normalizeInstagramUsername(first.username)) {
+    throw new TypeError("Instagram native feed page merge requires verified pages.");
+  }
+  const username = first.username;
+  const byShortcode = new Map();
+  let duplicateItemCount = 0;
+  let itemLimitReached = false;
+  for (const page of pageReceipts) {
+    if (
+      page?.verified !== true ||
+      page.username !== username ||
+      !Array.isArray(page.posts)
+    ) {
+      throw new TypeError("Instagram native feed pages do not share one verified profile.");
+    }
+    for (const post of page.posts) {
+      const existing = byShortcode.get(post.shortcode);
+      if (existing) {
+        duplicateItemCount += 1;
+        const merged = mergeDuplicateNativeFeedPost(existing, post, username);
+        if (!merged) {
+          throw new TypeError("Instagram native feed duplicate identity conflict.");
+        }
+        byShortcode.set(post.shortcode, merged.post);
+      } else if (byShortcode.size < maxItems) {
+        byShortcode.set(post.shortcode, post);
+      } else {
+        itemLimitReached = true;
+      }
+    }
+  }
+  const last = pageReceipts.at(-1);
+  itemLimitReached ||= byShortcode.size >= maxItems && last.moreAvailable;
+  const normalizedInterruptionReason = cleanMultilineText(interruptionReason)
+    .slice(0, 240) || null;
+  const sourceExhausted =
+    normalizedInterruptionReason === null && last.moreAvailable === false;
+  const responseWindowTruncated = pageReceipts.some(
+    (page) => page.processedItemCount < page.receivedItemCount
+  );
+  const nestedDataTruncated = pageReceipts.some(
+    (page) => page.nestedDataTruncated === true
+  );
+  const truncationReason = itemLimitReached
+    ? "item_limit"
+    : pageLimitReached
+      ? "page_limit"
+      : normalizedInterruptionReason
+        ? `pagination_interrupted:${normalizedInterruptionReason}`
+      : responseWindowTruncated
+        ? "response_window_limit"
+        : nestedDataTruncated
+          ? "nested_data_limit"
+        : sourceExhausted
+          ? null
+          : "source_not_exhausted";
+  return {
+    verified: true,
+    reason: "instagram_anonymous_native_feed_pages_verified",
+    username,
+    accountUrl: first.accountUrl,
+    fetchedAt: last.fetchedAt,
+    receivedItemCount: pageReceipts.reduce(
+      (sum, page) => sum + page.receivedItemCount,
+      0
+    ),
+    processedItemCount: pageReceipts.reduce(
+      (sum, page) => sum + page.processedItemCount,
+      0
+    ),
+    uniqueItemCount: byShortcode.size,
+    duplicateItemCount:
+      duplicateItemCount +
+      pageReceipts.reduce((sum, page) => sum + page.duplicateItemCount, 0),
+    pageCount: pageReceipts.length,
+    moreAvailable: !sourceExhausted,
+    nextMaxId: sourceExhausted ? null : last.nextMaxId,
+    sourceExhausted,
+    interrupted: normalizedInterruptionReason !== null,
+    truncated: Boolean(truncationReason),
+    truncationReason,
+    pages: pageReceipts.map((page, index) => ({
+      page: index + 1,
+      fetchedAt: page.fetchedAt,
+      receivedItemCount: page.receivedItemCount,
+      processedItemCount: page.processedItemCount,
+      duplicateItemCount: page.duplicateItemCount,
+      moreAvailable: page.moreAvailable,
+      nextMaxIdPresent: Boolean(page.nextMaxId)
+    })),
+    posts: [...byShortcode.values()]
+  };
+}
+
+/**
+ * Overlay native-feed metrics only when both independent observations prove
+ * the same exact profile, shortcode, owner/coauthor role, media kind, and
+ * publication timestamp. The original profile receipt remains authoritative
+ * for attribution and media provenance.
+ */
+export function overlayInstagramNativeFeedMetrics(profileReceipt, feedReceipt) {
+  if (
+    profileReceipt?.verified !== true ||
+    feedReceipt?.verified !== true ||
+    profileReceipt.username !== feedReceipt.username ||
+    !Array.isArray(profileReceipt.posts) ||
+    !Array.isArray(feedReceipt.posts)
+  ) {
+    return profileReceipt;
+  }
+
+  const feedPostsByShortcode = new Map(
+    feedReceipt.posts.map((post) => [post.shortcode, post])
+  );
+  let nativeFeedOverlayCount = 0;
+  const seenShortcodes = new Set();
+  const posts = profileReceipt.posts.map((post) => {
+    seenShortcodes.add(post.shortcode);
+    const feedPost = feedPostsByShortcode.get(post.shortcode);
+    if (!sameInstagramPostObservation(post, feedPost)) return post;
+    nativeFeedOverlayCount += 1;
+    return {
+      ...post,
+      nativeFeedMetrics: { ...feedPost.metrics },
+      nativeFeedMetricSource: "instagram_anonymous_native_feed_v1"
+    };
+  });
+  let nativeFeedAddedPostCount = 0;
+  for (const feedPost of feedReceipt.posts) {
+    if (seenShortcodes.has(feedPost.shortcode)) continue;
+    nativeFeedAddedPostCount += 1;
+    seenShortcodes.add(feedPost.shortcode);
+    posts.push({
+      shortcode: feedPost.shortcode,
+      url: feedPost.url,
+      mediaType: feedPost.mediaType,
+      authorUsername: feedPost.authorUsername,
+      coauthorUsernames: feedPost.coauthorUsernames,
+      profileRole: feedPost.profileRole,
+      caption: feedPost.caption,
+      postedAt: feedPost.postedAt,
+      metrics: {
+        likes: feedPost.metrics.likes,
+        comments: feedPost.metrics.comments,
+        videoViews: feedPost.metrics.videoViews,
+        videoPlays: feedPost.metrics.plays
+      },
+      mediaUrls: feedPost.mediaUrls,
+      nativeFeedMetrics: { ...feedPost.metrics },
+      nativeFeedMetricSource: "instagram_anonymous_native_feed_v1",
+      nativeFeedOnly: true
+    });
+  }
+
+  return {
+    ...profileReceipt,
+    posts,
+    nativeFeedOverlayCount,
+    nativeFeedAddedPostCount,
+    nativeFeedReceipt: {
+      source: "instagram_anonymous_native_feed_v1",
+      fetchedAt: feedReceipt.fetchedAt,
+      receivedItemCount: feedReceipt.receivedItemCount,
+      processedItemCount: feedReceipt.processedItemCount,
+      uniqueItemCount:
+        feedReceipt.uniqueItemCount ?? feedReceipt.posts.length,
+      duplicateItemCount: feedReceipt.duplicateItemCount,
+      pageCount: feedReceipt.pageCount ?? 1,
+      moreAvailable: feedReceipt.moreAvailable,
+      nextMaxIdPresent: Boolean(feedReceipt.nextMaxId),
+      sourceExhausted: feedReceipt.sourceExhausted ?? !feedReceipt.moreAvailable,
+      truncated: feedReceipt.truncated,
+      truncationReason: feedReceipt.truncationReason ?? null
+    }
+  };
+}
+
+/**
+ * Produce one canonical metric snapshot for evidence publication. When an
+ * exact native-feed overlay is present, native play_count is authoritative for
+ * reel reach even if web_profile_info reports a different video_view_count.
+ */
+export function instagramEvidenceMetrics(post) {
+  const profileMetrics = isPlainObject(post?.metrics) ? post.metrics : {};
+  const feedMetrics = isPlainObject(post?.nativeFeedMetrics)
+    ? post.nativeFeedMetrics
+    : null;
+  const feedPlays = finiteMetric(feedMetrics?.plays);
+  const profilePlays = finiteMetric(profileMetrics.videoPlays);
+  const profileViews = finiteMetric(profileMetrics.videoViews);
+  return {
+    likes: maxNullableMetric(
+      finiteMetric(feedMetrics?.likes),
+      finiteMetric(profileMetrics.likes)
+    ),
+    comments: maxNullableMetric(
+      finiteMetric(feedMetrics?.comments),
+      finiteMetric(profileMetrics.comments)
+    ),
+    views:
+      feedPlays !== null
+        ? maxNullableMetric(feedPlays, profilePlays)
+        : maxNullableMetric(
+            finiteMetric(feedMetrics?.videoViews),
+            profilePlays,
+            profileViews
+          )
+  };
+}
+
 function parseBoundedPayload(payload) {
   if (typeof payload === "string") {
     if (!payload.trim() || payload.length > MAX_PAYLOAD_CODE_UNITS) {
@@ -307,6 +722,227 @@ function normalizeTimelineShape(timeline) {
       endCursor: endCursor == null ? null : endCursor
     }
   };
+}
+
+function normalizeNativeFeedPage(root) {
+  if (!Array.isArray(root.items) || root.items.length > MAX_RECEIVED_EDGES) {
+    return { ok: false, reason: "instagram_native_feed_page_malformed" };
+  }
+  const numResults = nonnegativeSafeInteger(root.num_results);
+  if (numResults === null || numResults !== root.items.length) {
+    return { ok: false, reason: "instagram_native_feed_page_malformed" };
+  }
+  if (typeof root.more_available !== "boolean") {
+    return { ok: false, reason: "instagram_native_feed_page_malformed" };
+  }
+  const nextMaxId = normalizeCursor(root.next_max_id);
+  if (
+    (root.next_max_id != null && !nextMaxId) ||
+    (root.more_available && !nextMaxId)
+  ) {
+    return { ok: false, reason: "instagram_native_feed_page_malformed" };
+  }
+  return {
+    ok: true,
+    items: root.items,
+    moreAvailable: root.more_available,
+    nextMaxId
+  };
+}
+
+function parseNativeFeedItem(item, profileUsername) {
+  if (!isPlainObject(item) || !isPlainObject(item.user)) {
+    return { ok: false, reason: "instagram_native_feed_item_malformed" };
+  }
+  const shortcode = normalizeShortcode(item.code);
+  const nativeMediaId = normalizeNativeMediaId(item.pk);
+  const postedAt = timestampSecondsToIso(item.taken_at);
+  const authorUsername = normalizePayloadInstagramUsername(item.user.username);
+  const mediaType = nativeFeedMediaType(item);
+  if (!shortcode || !nativeMediaId || !postedAt || !authorUsername || !mediaType) {
+    return { ok: false, reason: "instagram_native_feed_item_malformed" };
+  }
+  const coauthors = instagramCoauthorUsernames(
+    item.coauthor_producers,
+    authorUsername
+  );
+  if (!coauthors.ok) {
+    return { ok: false, reason: "instagram_native_feed_item_malformed" };
+  }
+  const likes = metricFromCandidates([item.like_count]);
+  const comments = metricFromCandidates([item.comment_count]);
+  const plays = metricFromPreferredCandidates([
+    item.play_count,
+    item.ig_play_count,
+    item.video_play_count
+  ]);
+  const videoViews = metricFromPreferredCandidates([
+    item.view_count,
+    item.video_view_count
+  ]);
+  if ([likes, comments, plays, videoViews].some((metric) => !metric.ok)) {
+    return { ok: false, reason: "instagram_native_feed_item_malformed" };
+  }
+  const caption = nativeFeedCaption(item.caption);
+  const media = nativeFeedMediaUrls(item);
+  if (!caption.ok || !media.ok) {
+    return { ok: false, reason: "instagram_native_feed_item_malformed" };
+  }
+
+  return {
+    ok: true,
+    coauthorTruncated: coauthors.truncated || media.truncated,
+    post: {
+      shortcode,
+      nativeMediaId,
+      url: `https://www.instagram.com/${mediaType === "reel" ? "reel" : "p"}/${shortcode}/`,
+      mediaType,
+      authorUsername,
+      coauthorUsernames: coauthors.usernames,
+      profileRole: instagramProfileRole(
+        profileUsername,
+        authorUsername,
+        coauthors.usernames
+      ),
+      caption: caption.text,
+      postedAt,
+      metrics: {
+        likes: likes.value,
+        comments: comments.value,
+        plays: plays.value,
+        videoViews: videoViews.value
+      },
+      mediaUrls: media.urls
+    }
+  };
+}
+
+function nativeFeedCaption(value) {
+  if (value == null) return { ok: true, text: "" };
+  if (!isPlainObject(value) || typeof value.text !== "string") {
+    return { ok: false, text: "" };
+  }
+  return {
+    ok: true,
+    text: cleanMultilineText(value.text).slice(0, MAX_CAPTION_CODE_UNITS)
+  };
+}
+
+function nativeFeedMediaUrls(item) {
+  const candidates = [];
+  let truncated = false;
+  const appendMedia = (media) => {
+    if (!isPlainObject(media)) return false;
+    const images = media.image_versions2?.candidates;
+    const videos = media.video_versions;
+    if (images != null && !Array.isArray(images)) return false;
+    if (videos != null && !Array.isArray(videos)) return false;
+    for (const candidate of (images ?? []).slice(0, 4)) {
+      if (!isPlainObject(candidate)) return false;
+      candidates.push(candidate.url);
+    }
+    for (const candidate of (videos ?? []).slice(0, 2)) {
+      if (!isPlainObject(candidate)) return false;
+      candidates.push(candidate.url);
+    }
+    truncated ||= (images?.length ?? 0) > 4 || (videos?.length ?? 0) > 2;
+    return true;
+  };
+  if (!appendMedia(item)) return { ok: false, urls: [], truncated: false };
+  if (item.carousel_media != null) {
+    if (!Array.isArray(item.carousel_media)) {
+      return { ok: false, urls: [], truncated: false };
+    }
+    truncated ||= item.carousel_media.length > MAX_SIDECAR_CHILDREN;
+    for (const child of item.carousel_media.slice(0, MAX_SIDECAR_CHILDREN)) {
+      if (!appendMedia(child)) return { ok: false, urls: [], truncated: false };
+    }
+  }
+  const urls = [];
+  for (const candidate of candidates) {
+    if (candidate == null || candidate === "") continue;
+    const sanitized = sanitizedMediaUrl(candidate);
+    if (!sanitized) return { ok: false, urls: [], truncated };
+    if (urls.includes(sanitized)) continue;
+    if (urls.length >= MAX_MEDIA_URLS_PER_POST) {
+      truncated = true;
+      continue;
+    }
+    urls.push(sanitized);
+  }
+  return { ok: true, urls, truncated };
+}
+
+function nativeFeedMediaType(item) {
+  const mediaType = nonnegativeSafeInteger(item?.media_type);
+  const productType = String(item?.product_type ?? "").trim().toLowerCase();
+  if (["clips", "reel", "reels"].includes(productType) || mediaType === 2) {
+    return "reel";
+  }
+  if (["feed", "carousel_container"].includes(productType) || mediaType === 1 || mediaType === 8) {
+    return "post";
+  }
+  return null;
+}
+
+function mergeDuplicateNativeFeedPost(existing, incoming, profileUsername) {
+  if (
+    existing.nativeMediaId !== incoming.nativeMediaId ||
+    existing.authorUsername !== incoming.authorUsername ||
+    existing.mediaType !== incoming.mediaType ||
+    existing.postedAt !== incoming.postedAt
+  ) {
+    return null;
+  }
+  const allCoauthors = [...new Set([
+    ...existing.coauthorUsernames,
+    ...incoming.coauthorUsernames
+  ])];
+  const coauthorUsernames = allCoauthors.slice(0, MAX_COAUTHOR_USERNAMES);
+  const allMediaUrls = [...new Set([
+    ...existing.mediaUrls,
+    ...incoming.mediaUrls
+  ])];
+  const mediaUrls = allMediaUrls.slice(0, MAX_MEDIA_URLS_PER_POST);
+  return {
+    coauthorTruncated:
+      allCoauthors.length > MAX_COAUTHOR_USERNAMES ||
+      allMediaUrls.length > MAX_MEDIA_URLS_PER_POST,
+    post: {
+      ...existing,
+      coauthorUsernames,
+      profileRole: instagramProfileRole(
+        profileUsername,
+        existing.authorUsername,
+        coauthorUsernames
+      ),
+      metrics: {
+        likes: maxNullableMetric(existing.metrics.likes, incoming.metrics.likes),
+        comments: maxNullableMetric(
+          existing.metrics.comments,
+          incoming.metrics.comments
+        ),
+        plays: maxNullableMetric(existing.metrics.plays, incoming.metrics.plays),
+        videoViews: maxNullableMetric(
+          existing.metrics.videoViews,
+          incoming.metrics.videoViews
+        )
+      },
+      caption: existing.caption || incoming.caption,
+      mediaUrls
+    }
+  };
+}
+
+function sameInstagramPostObservation(profilePost, feedPost) {
+  return Boolean(
+    feedPost &&
+      profilePost.shortcode === feedPost.shortcode &&
+      profilePost.authorUsername === feedPost.authorUsername &&
+      profilePost.profileRole === feedPost.profileRole &&
+      profilePost.mediaType === feedPost.mediaType &&
+      profilePost.postedAt === feedPost.postedAt
+  );
 }
 
 function parseTimelineEdge(edge, profileUsername) {
@@ -467,6 +1103,17 @@ function metricFromCandidates(values) {
   };
 }
 
+function metricFromPreferredCandidates(values) {
+  let preferred = null;
+  for (const value of values) {
+    if (value == null) continue;
+    const count = nonnegativeSafeInteger(value);
+    if (count === null) return { ok: false, value: null };
+    if (preferred === null) preferred = count;
+  }
+  return { ok: true, value: preferred };
+}
+
 function instagramMediaUrls(node) {
   const candidates = [node.display_url, node.thumbnail_src, node.video_url];
   let truncated = false;
@@ -493,7 +1140,12 @@ function instagramMediaUrls(node) {
     if (candidate == null || candidate === "") continue;
     const sanitized = sanitizedMediaUrl(candidate);
     if (!sanitized) return { ok: false, urls: [], truncated };
-    if (!urls.includes(sanitized)) urls.push(sanitized);
+    if (urls.includes(sanitized)) continue;
+    if (urls.length >= MAX_MEDIA_URLS_PER_POST) {
+      truncated = true;
+      continue;
+    }
+    urls.push(sanitized);
   }
   return { ok: true, urls, truncated };
 }
@@ -506,11 +1158,21 @@ function sanitizedMediaUrl(value) {
     const parsed = new URL(value);
     if (parsed.protocol !== "https:" || parsed.username || parsed.password) return null;
     parsed.hash = "";
+    const signedInstagramCdn = INSTAGRAM_SIGNED_MEDIA_HOST.test(parsed.hostname);
     for (const key of [...parsed.searchParams.keys()]) {
       if (
         SENSITIVE_QUERY_PARAMETER.test(key) ||
         SENSITIVE_QUERY_PARAMETER_FRAGMENT.test(key)
       ) {
+        // Instagram and Meta CDN URLs rely on these public, expiring
+        // signature parameters. Retain them only on the exact CDN host
+        // allowlist; token/session-like parameters are stripped everywhere.
+        if (
+          signedInstagramCdn &&
+          INSTAGRAM_PUBLIC_CDN_SIGNATURE_PARAMETER.test(key)
+        ) {
+          continue;
+        }
         parsed.searchParams.delete(key);
       }
     }
@@ -533,8 +1195,15 @@ function mergeDuplicatePost(existing, incoming, profileUsername) {
     ...incoming.coauthorUsernames
   ])];
   const coauthorUsernames = allCoauthors.slice(0, MAX_COAUTHOR_USERNAMES);
+  const allMediaUrls = [...new Set([
+    ...existing.mediaUrls,
+    ...incoming.mediaUrls
+  ])];
+  const mediaUrls = allMediaUrls.slice(0, MAX_MEDIA_URLS_PER_POST);
   return {
-    coauthorTruncated: allCoauthors.length > MAX_COAUTHOR_USERNAMES,
+    coauthorTruncated:
+      allCoauthors.length > MAX_COAUTHOR_USERNAMES ||
+      allMediaUrls.length > MAX_MEDIA_URLS_PER_POST,
     post: {
       ...existing,
       coauthorUsernames,
@@ -556,7 +1225,7 @@ function mergeDuplicatePost(existing, incoming, profileUsername) {
           incoming.metrics.videoPlays
         )
       },
-      mediaUrls: [...new Set([...existing.mediaUrls, ...incoming.mediaUrls])]
+      mediaUrls
     }
   };
 }
@@ -611,6 +1280,22 @@ function normalizeAppId(value) {
   return /^\d{6,32}$/.test(appId) ? appId : null;
 }
 
+function normalizeCursor(value) {
+  if (value == null) return null;
+  if (typeof value !== "string") return null;
+  const cursor = value.trim();
+  return cursor &&
+    cursor.length <= MAX_CURSOR_CODE_UNITS &&
+    !/[\u0000-\u001f\u007f]/.test(cursor)
+    ? cursor
+    : null;
+}
+
+function normalizeNativeMediaId(value) {
+  const mediaId = String(value ?? "").trim();
+  return /^\d{1,64}$/.test(mediaId) ? mediaId : null;
+}
+
 function normalizeShortcode(value) {
   const shortcode = String(value ?? "").trim();
   return /^[A-Za-z0-9_-]{1,64}$/.test(shortcode) ? shortcode : null;
@@ -633,6 +1318,10 @@ function validIsoDate(value) {
 function nonnegativeSafeInteger(value) {
   const count = Number(value);
   return Number.isSafeInteger(count) && count >= 0 ? count : null;
+}
+
+function finiteMetric(value) {
+  return value == null ? null : nonnegativeSafeInteger(value);
 }
 
 function boundedErrorText(values) {
@@ -680,6 +1369,26 @@ function unverifiedProfile(reason, requestedUsername, fetchedAt) {
     receivedEdgeCount: 0,
     processedEdgeCount: 0,
     duplicateEdgeCount: 0,
+    truncated: false,
+    posts: []
+  };
+}
+
+function unverifiedNativeFeed(reason, requestedUsername, fetchedAt) {
+  return {
+    verified: false,
+    reason,
+    username: requestedUsername ?? null,
+    accountUrl: requestedUsername
+      ? `https://www.instagram.com/${requestedUsername}/`
+      : null,
+    fetchedAt: fetchedAt ?? null,
+    receivedItemCount: 0,
+    processedItemCount: 0,
+    duplicateItemCount: 0,
+    moreAvailable: false,
+    nextMaxId: null,
+    nestedDataTruncated: false,
     truncated: false,
     posts: []
   };

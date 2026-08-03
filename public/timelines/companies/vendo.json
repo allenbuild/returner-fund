@@ -5,9 +5,33 @@
     "slug": "vendo",
     "name": "Vendo"
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z",
   "events": [
+    {
+      "id": "tle-a1c87698c546455ef8bf820f",
+      "eventDate": "2026-07-21",
+      "eventDateType": "announcement_date",
+      "title": "Vendo announced its public launch",
+      "summary": "Vendo introduced Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-18f8d82d2a887122669c4d8e",
+          "title": "Introducing Vendo (YC S26), the customization layer that lets your users build their own features and micro-apps on top of your product For 50 years, software has been shipped one way for everyone.",
+          "publisher": "yousefhll",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-21T17:32:05.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/yousefhll/status/2079620440038002750"
+        }
+      ]
+    },
     {
       "id": "tle-06faef83b9d9e92539e3f537",
       "eventDate": "2026-07-21",
@@ -39,15 +63,15 @@
       "months": [
         {
           "month": "2026-07",
-          "count": 1
+          "count": 2
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-03T07:52:26.040Z"
   },
   "nextCursor": null
 }

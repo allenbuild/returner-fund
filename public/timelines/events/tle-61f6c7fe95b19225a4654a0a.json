@@ -18,28 +18,28 @@
     "evidenceCount": 1,
     "sourcePreview": [
       {
-        "id": "src-ad1a18b8f534e918feedcda3",
+        "id": "src-c59529b0254a21db25d42113",
         "title": "Lab0 (YC P26) Launch Video",
-        "publisher": "Lab0 (YC P26) Launch Video",
+        "publisher": "UCij7Db_BBYZHZ333OLQZ2AQ",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-18T06:28:05-07:00",
+        "publishedAt": "2026-05-18T13:28:05.000Z",
         "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=UDrqfnYWlLI"
+        "url": "https://www.youtube.com/watch?v=UDrqfnYWlLI"
       }
     ],
     "evidence": [
       {
-        "id": "src-ad1a18b8f534e918feedcda3",
+        "id": "src-c59529b0254a21db25d42113",
         "title": "Lab0 (YC P26) Launch Video",
-        "publisher": "Lab0 (YC P26) Launch Video",
+        "publisher": "UCij7Db_BBYZHZ333OLQZ2AQ",
         "domain": "youtube.com",
         "sourceType": "video",
-        "publishedAt": "2026-05-18T06:28:05-07:00",
+        "publishedAt": "2026-05-18T13:28:05.000Z",
         "evidenceRole": "primary",
-        "url": "https://youtube.com/watch?v=UDrqfnYWlLI",
-        "publicationDate": "2026-05-18T06:28:05-07:00",
-        "excerpt": "Lab0 builds AI agents that turn enterprise software from a consulting-heavy deployment into a self-serve product. Every rollout, whether it's a traditional ERP or a new AI system, requires months of manual integration, configuration, and tuning done by armies of system integrators and forward-deployed engineers. Lab0 builds agentic systems that automate this layer, compressing months-long implementations into weeks.",
+        "url": "https://www.youtube.com/watch?v=UDrqfnYWlLI",
+        "publicationDate": "2026-05-18T13:28:05.000Z",
+        "excerpt": "Lab0 (YC P26) Launch Video The native company-channel title identifies Lab0, P26, and the item as its launch video. Visible metrics: 274 views, 1 likes.",
         "sourceEventDate": "2026-05-18",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,21 +47,20 @@
     ],
     "posts": [
       {
-        "id": "post-5d4731a4c514dbdf3c5bc294",
+        "id": "post-48b1491a8734e304de1b384a",
         "platform": "youtube",
-        "account": "Lab0 (YC P26) Launch Video",
+        "account": "UCij7Db_BBYZHZ333OLQZ2AQ",
         "postDate": "2026-05-18",
-        "excerpt": "Lab0 builds AI agents that turn enterprise software from a consulting-heavy deployment into a self-serve product. Every rollout, whether it's a traditional ERP or a new AI system, requires months of manual integration, configuration, and tuning done by armies of system integrators and forward-deployed engineers. Lab0 builds agentic systems that automate this layer, compressing months-long implementations into weeks.",
-        "url": "https://youtube.com/watch?v=UDrqfnYWlLI",
+        "excerpt": "Lab0 (YC P26) Launch Video The native company-channel title identifies Lab0, P26, and the item as its launch video. Visible metrics: 274 views, 1 likes.",
+        "url": "https://www.youtube.com/watch?v=UDrqfnYWlLI",
         "metrics": {
-          "views": 298,
           "likes": 1,
-          "comments": 0
+          "views": 274
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T05:53:36.616Z",
-  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
 }

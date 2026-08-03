@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-a9c6664dd306b120dd877284",
+    "eventDate": "2026-07-15",
+    "eventDateType": "announcement_date",
+    "title": "Ara announced its public launch",
+    "summary": "Ara announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-0cfc7bc148fe871bf68e8203",
+        "title": "Ara (YC P26) Launch Video",
+        "publisher": "Arasoai",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-15T21:14:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=6ASb9QW2QEw"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0cfc7bc148fe871bf68e8203",
+        "title": "Ara (YC P26) Launch Video",
+        "publisher": "Arasoai",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-15T21:14:16.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=6ASb9QW2QEw",
+        "publicationDate": "2026-07-15T21:14:16.000Z",
+        "excerpt": "Official Ara YouTube launch video for the YC P26 launch.",
+        "sourceEventDate": "2026-07-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-2748578a8e4a8807b1f83407",
+        "platform": "youtube",
+        "account": "Arasoai",
+        "postDate": "2026-07-15",
+        "excerpt": "Official Ara YouTube launch video for the YC P26 launch.",
+        "url": "https://www.youtube.com/watch?v=6ASb9QW2QEw",
+        "metrics": {
+          "views": 1354
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T07:52:26.040Z",
+  "lastModifiedAt": "2026-08-03T07:52:26.040Z"
+}
