@@ -35,9 +35,9 @@ export function companyTimelineUrl(
   if (filters.categories.length) params.set("categories", filters.categories.join(","));
   if (cursor) params.set("cursor", cursor);
   // The public API remains bounded at 100 events and the generated artifact
-  // itself is capped at 100 KB. Loading the bounded maximum keeps the sticky
-  // date navigation and visible result count complete for normal company
-  // histories while preserving cursor pagination for larger histories.
+  // itself is capped at 100 KB. Loading the bounded maximum keeps the visible
+  // result count and month sections complete for normal company histories
+  // while preserving cursor pagination for larger histories.
   params.set("limit", "100");
   return `/api/companies/${encodeURIComponent(slug)}/timeline?${params.toString()}`;
 }

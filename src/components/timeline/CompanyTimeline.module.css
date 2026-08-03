@@ -42,8 +42,11 @@
 }
 
 .viewToggle {
-  min-width: 84px;
-  padding: 0 14px;
+  width: 96px;
+  min-width: 96px;
+  max-width: 96px;
+  height: 44px;
+  padding: 0 8px;
   white-space: nowrap;
 }
 
@@ -69,10 +72,8 @@
 .loadMoreButton:focus-visible,
 .detailError button:focus-visible,
 .eventToggle:focus-visible,
-.dateNav button:focus-visible,
 .filters select:focus-visible,
 .filters input:focus-visible,
-.categoryFilter summary:focus-visible,
 .sourceList a:focus-visible {
   outline: 3px solid var(--accent-outline);
   outline-offset: 2px;
@@ -81,12 +82,17 @@
 .timeline {
   display: grid;
   gap: 14px;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
+  overflow-x: hidden;
 }
 
 .filters {
   display: grid;
   gap: 12px;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -130,9 +136,11 @@
 
 .filterControls {
   display: grid;
-  grid-template-columns: minmax(118px, 0.85fr) minmax(230px, 1.4fr) minmax(150px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: end;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -156,6 +164,7 @@
 .filters select,
 .filters input[type="date"] {
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   min-height: 44px;
   border: 1px solid var(--panel-border);
@@ -181,190 +190,19 @@
 
 .dateInputs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   gap: 7px;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
-}
-
-.categoryFilter {
-  position: relative;
-  min-width: 0;
-}
-
-.categoryFilter summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 10px;
-  border: 1px solid var(--panel-border);
-  border-radius: 11px;
-  background: #fff;
-  color: var(--neutral-700);
-  font-size: 0.7rem;
-  cursor: pointer;
-  list-style: none;
-}
-
-.categoryFilter summary::-webkit-details-marker {
-  display: none;
-}
-
-.categoryFilter summary > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: 700;
-}
-
-.categoryFilter summary strong {
-  color: var(--accent-strong);
-  font-size: 0.66rem;
-  white-space: nowrap;
-}
-
-.categoryFilter fieldset {
-  position: absolute;
-  z-index: 8;
-  top: calc(100% + 6px);
-  right: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(130px, 1fr));
-  gap: 2px 8px;
-  width: min(430px, calc(100vw - 48px));
-  max-height: 276px;
-  margin: 0;
-  padding: 9px;
-  overflow: auto;
-  border: 1px solid var(--panel-border);
-  border-radius: 13px;
-  background: #fff;
-  box-shadow: 0 18px 42px rgba(16, 24, 40, 0.14);
-}
-
-.categoryFilter fieldset label {
-  display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  align-items: center;
-  gap: 7px;
-  min-height: 44px;
-  padding: 5px 7px;
-  border-radius: 8px;
-  color: var(--neutral-700);
-  font-size: 0.69rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.categoryFilter fieldset label:hover {
-  background: var(--accent-hover);
-}
-
-.categoryFilter input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.checkboxMark {
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--neutral-300);
-  border-radius: 5px;
-  background: #fff;
-  color: transparent;
-}
-
-.categoryFilter input:checked + .checkboxMark {
-  border-color: var(--accent);
-  background: var(--accent-fill);
-  color: var(--accent-ink);
-}
-
-.categoryFilter input:focus-visible + .checkboxMark {
-  outline: 3px solid var(--accent-outline);
-  outline-offset: 2px;
-}
-
-.timelineLayout {
-  display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
-  align-items: start;
-  gap: 12px;
-  min-width: 0;
-}
-
-.dateNav {
-  position: sticky;
-  top: -10px;
-  z-index: 4;
-  display: grid;
-  gap: 9px;
-  max-height: calc(100dvh - 72px);
-  padding: 10px 6px 10px 0;
-  overflow: auto;
-  background: linear-gradient(90deg, var(--panel) 82%, rgba(255, 255, 255, 0));
-  scrollbar-width: thin;
-}
-
-.dateNavYear {
-  display: grid;
-  gap: 4px;
-}
-
-.dateNav button {
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.yearButton {
-  min-height: 34px;
-  padding: 0 8px;
-  text-align: left;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.yearButton[aria-current="location"] {
-  color: var(--neutral-900);
-}
-
-.monthButtons {
-  display: grid;
-  gap: 2px;
-}
-
-.monthButtons button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  min-height: 36px;
-  padding: 0 8px;
-  font-size: 0.7rem;
-  font-weight: 650;
-}
-
-.monthButtons button small {
-  color: #6f6862;
-  font-size: 0.6rem;
-}
-
-.monthButtons button[aria-current="location"] {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
 }
 
 .eventColumn {
   position: relative;
   display: grid;
   gap: 4px;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
   padding-left: 18px;
 }
@@ -883,54 +721,6 @@
     min-height: 44px;
   }
 
-  .filterControls {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .timelineLayout {
-    display: block;
-  }
-
-  .dateNav {
-    top: -10px;
-    display: flex;
-    width: calc(100% + 4px);
-    max-height: none;
-    margin: 0 -2px 10px;
-    padding: 7px 2px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    background: rgba(255, 255, 255, 0.96);
-    border-top: 1px solid var(--panel-border);
-    border-bottom: 1px solid var(--panel-border);
-    backdrop-filter: blur(8px);
-    scrollbar-width: thin;
-  }
-
-  .dateNavYear {
-    display: flex;
-    align-items: center;
-    flex: 0 0 auto;
-    gap: 2px;
-  }
-
-  .yearButton,
-  .monthButtons button {
-    min-height: 44px;
-  }
-
-  .yearButton {
-    padding: 0 10px;
-  }
-
-  .monthButtons {
-    display: flex;
-  }
-
-  .monthButtons button {
-    min-width: 52px;
-  }
-
   .eventColumn {
     padding-left: 15px;
   }
@@ -947,14 +737,6 @@
     scroll-margin-top: 62px;
   }
 
-  .categoryFilter fieldset {
-    position: fixed;
-    z-index: 60;
-    inset: auto 12px 12px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: auto;
-    max-height: min(60dvh, 420px);
-  }
 }
 
 @media (max-width: 430px) {
@@ -967,21 +749,12 @@
     gap: 8px;
   }
 
-  .viewToggle {
-    min-width: 74px;
-    padding: 0 10px;
-  }
-
   .filterHeadingRow {
     align-items: flex-start;
   }
 
   .clearButton {
     min-width: 68px;
-  }
-
-  .categoryFilter fieldset {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .majorEvent .eventCollapsed,
