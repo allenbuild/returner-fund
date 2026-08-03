@@ -551,6 +551,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
         "tests/ingestion-coverage-adapter.node-test.mjs",
         "tests/historical-backfill.node-test.mjs",
         "tests/historical-coverage-adapter.node-test.mjs",
+        "tests/historical-coverage-bridge.node-test.mjs",
         "tests/public-search-circuit.node-test.mjs",
         "tests/public-search-circuit-integration.node-test.mjs",
         "tests/public-search-outage-integrity.node-test.mjs"
