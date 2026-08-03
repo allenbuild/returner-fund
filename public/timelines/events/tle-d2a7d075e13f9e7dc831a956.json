@@ -47,7 +47,7 @@
     ],
     "posts": [
       {
-        "id": "post-345ea4c5e73731f225eb111a",
+        "id": "post-d9accd49cbb8b92bda787207",
         "platform": "hacker_news",
         "account": "Show HN: We're open sourcing Superlog (YC P26), an autonomous monitoring tool",
         "postDate": "2026-06-08",
@@ -61,6 +61,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-02T21:14:13.078Z",
-  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+  "generatedAt": "2026-08-03T01:18:44.518Z",
+  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
 }

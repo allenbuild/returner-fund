@@ -5,14 +5,14 @@
     "slug": "thomas",
     "name": "Thomas"
   },
-  "generatedAt": "2026-08-02T21:14:13.078Z",
-  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "generatedAt": "2026-08-03T01:18:44.518Z",
+  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
   "events": [],
   "groups": [],
   "coverage": {
     "status": "partial",
     "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
   },
   "nextCursor": null
 }

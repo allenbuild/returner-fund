@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 import {
   canonicalEvidenceKey,
+  canonicalPostKey,
   dedupeEvidenceForScoring,
   dedupeEvidenceItems,
   nativeEvidenceIdentityFromUrl
@@ -17,6 +18,7 @@ import type {
   EvidenceItem,
   EvidenceMetrics,
   FounderRecord,
+  NeedsReviewItem,
   Platform,
   SocialAccountSummary
 } from "./types";
@@ -26,7 +28,9 @@ type A16zRuntimeJsonPath =
   | "src/lib/social/github-traction-a16z-speedrun-006.json"
   | "src/lib/social/a16z-speedrun-006-attribution-reconciliation.json"
   | "src/lib/social/a16z-speedrun-006-social-evidence.json"
+  | "generated-runtime/graph/logged-in-evidence-current.json"
   | "generated-runtime/graph/public-evidence-current.json"
+  | "generated-runtime/graph/targeted-evidence-current.json"
   | "src/lib/social/a16z-speedrun-006-social-accounts.json";
 
 const githubTractionSnapshot: unknown = readRuntimeJson(
@@ -38,8 +42,14 @@ const seededAttributionReconciliationSnapshot: unknown = readRuntimeJson(
 const seededSocialEvidenceSnapshot: unknown = readRuntimeJson(
   "src/lib/social/a16z-speedrun-006-social-evidence.json",
 );
+const loggedInEvidenceSnapshot: unknown = readRuntimeJson(
+  "generated-runtime/graph/logged-in-evidence-current.json",
+);
 const publicEvidenceSnapshot: unknown = readRuntimeJson(
   "generated-runtime/graph/public-evidence-current.json",
+);
+const targetedEvidenceSnapshot: unknown = readRuntimeJson(
+  "generated-runtime/graph/targeted-evidence-current.json",
 );
 const speedrunSocialAccountSnapshot: unknown = readRuntimeJson(
   "src/lib/social/a16z-speedrun-006-social-accounts.json",
@@ -183,6 +193,7 @@ interface PublicEvidenceSnapshot {
     fetchedAt: string;
   };
   evidence: PublicEvidenceRecord[];
+  needsReview: PublicNeedsReviewRecord[];
 }
 
 type PublicEvidenceRecord = Omit<EvidenceItem, "postedAt"> & {
@@ -193,7 +204,43 @@ type PublicEvidenceRecord = Omit<EvidenceItem, "postedAt"> & {
   companyName?: string;
   attributionVersion?: number;
   attributionStatus?: string;
+  nativeAuthorResolution?: {
+    status?: string;
+    author?: {
+      platform?: Platform;
+      key?: string;
+    };
+    owner?: {
+      batchSlug?: string;
+      entityType?: "company" | "founder";
+      entityId?: string;
+    };
+  };
 };
+
+interface PublicNeedsReviewRecord {
+  id: string;
+  batchSlug?: string;
+  batch_slug?: string;
+  entityType: "company" | "founder";
+  entityId: string;
+  entityName: string;
+  platform: Platform;
+  candidateUrl: string;
+  review_state: "verified" | "needs_review" | "rejected";
+  matchReason: string;
+}
+
+interface SpeedrunReviewOwner {
+  entityType: "company" | "founder";
+  entityId: string;
+  entityName: string;
+}
+
+interface CanonicalSpeedrunReviewCandidate {
+  key: string;
+  item: NeedsReviewItem;
+}
 
 interface PublicSocialEvidenceAttachment {
   sourceUrl: string;
@@ -202,6 +249,8 @@ interface PublicSocialEvidenceAttachment {
   matchReason: string;
   entityType?: "company" | "founder";
   entityId?: string;
+  accountUrl?: string;
+  observedAtFallback?: string;
 }
 
 interface SeededSocialEvidenceSnapshot {
@@ -302,6 +351,18 @@ interface SpeedrunSocialAccountRecord {
   evidenceUrl?: string;
   matchReason?: string;
   review_state?: "verified" | "needs_review" | "rejected";
+}
+
+interface MappedAccountOwner {
+  entityType: "company" | "founder";
+  entityId: string;
+  account: SocialAccountSummary;
+}
+
+interface LoggedInEvidenceMerge {
+  evidence: EvidenceItem[];
+  acceptedCount: number;
+  rejectedCount: number;
 }
 
 const speedrun006Profiles: SpeedrunCompanyProfile[] = [
@@ -844,16 +905,22 @@ const speedrun006Profiles: SpeedrunCompanyProfile[] = [
 const githubSnapshot = githubTractionSnapshot as unknown as GithubTractionSnapshot;
 const githubRepositoriesByIdentity = buildGithubRepositoryIndex(githubSnapshot);
 const publicSnapshot = publicEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
+const loggedInSnapshot = loggedInEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
+const targetedSnapshot = targetedEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
 const seededSocialSnapshot = seededSocialEvidenceSnapshot as unknown as SeededSocialEvidenceSnapshot;
 const seededAttributionReconciliation =
   seededAttributionReconciliationSnapshot as SeededAttributionReconciliationSnapshot;
 const socialAccountSnapshot = speedrunSocialAccountSnapshot as unknown as SpeedrunSocialAccountSnapshot;
 const speedrunProfileSlugs = new Set(speedrun006Profiles.map((profile) => slugify(profile.name)));
 const speedrunSocialAccountsByEntityId = groupSocialAccountsByEntity();
+const speedrunMappedAccountOwnersByKey = buildMappedAccountOwnersByKey();
+const speedrunReviewOwnersByEntityId = buildSpeedrunReviewOwnersByEntityId();
+const loggedInEvidenceMerge = buildLoggedInEvidenceMerge();
 const speedrunEvidenceItems = resolveEvidenceSocialAccountIds(
   buildSpeedrunEvidenceItems(),
   speedrunSocialAccountsByEntityId
 );
+const speedrunNeedsReviewItems = buildSpeedrunNeedsReviewItems();
 const speedrunEvidenceByEntityId = groupEvidenceByEntity(speedrunEvidenceItems);
 const speedrunCompanyRecords = calibrateBatchCompanyScores(speedrun006Profiles.map(toCompanyRecord));
 const speedrunFounderRecords = speedrun006Profiles.flatMap(toFounderRecords);
@@ -871,8 +938,8 @@ export const a16zSpeedrun006GraphDataset: DemoGraphDataset & { evidence: A16zSpe
   companies: speedrunCompanyRecords,
   founders: speedrunFounderRecords,
   evidence: speedrunEvidenceItems,
-  needsReview: [],
-  platformStatus: []
+  needsReview: speedrunNeedsReviewItems,
+  platformStatus: speedrunPlatformStatus(speedrunEvidenceItems)
 };
 
 function toCompanyRecord(profile: SpeedrunCompanyProfile): CompanyRecord {
@@ -1007,24 +1074,249 @@ function speedrunFounderUrl(companySlug: string, name: string): string {
 function buildSpeedrunEvidenceItems(): A16zSpeedrun006EvidenceItem[] {
   const githubEvidence = githubSnapshot.accounts.filter(isHighConfidenceGithubAccount).flatMap(githubEvidenceForAccount);
   const publicEvidence = [
-    ...publicSnapshot.evidence.flatMap(publicEvidenceItemFromCanonicalAttribution),
+    ...publicSnapshot.evidence.flatMap((source) => publicEvidenceItemFromCanonicalAttribution(source)),
+    ...targetedSnapshot.evidence.flatMap((source) =>
+      publicEvidenceItemFromCanonicalAttribution(source, targetedSnapshot.source.fetchedAt)
+    ),
     ...PUBLIC_SOCIAL_EVIDENCE_ATTACHMENTS.flatMap(publicEvidenceItemFromAttachment)
   ];
+  const loggedInEvidence = loggedInEvidenceMerge.evidence;
   const seededSocialEvidence = sanitizedSeededSocialEvidence().flatMap(seededSocialEvidenceItem);
   // The curated seed remains the canonical observation for physical posts it
-  // already contains. Canonical public evidence fills net-new native posts;
-  // it must not replace the seed's audited URL/provenance representation.
+  // already contains when another source disagrees on owner attribution. A
+  // canonical public receipt for the same owner is still admitted so the
+  // quality-aware deduper can retain richer, fresher metrics and clean text.
   const legacyEvidence = dedupeEvidenceItems([...githubEvidence, ...seededSocialEvidence]);
-  const legacyPhysicalAttributions = new Set(legacyEvidence.map(canonicalEvidenceKey));
-  const netNewPublicEvidence = dedupeEvidenceItems(publicEvidence).filter(
-    (item) => !legacyPhysicalAttributions.has(canonicalEvidenceKey(item))
+  const legacyPhysicalAttributions = new Set(legacyEvidence.map(canonicalPostKey));
+  const legacyOwnerAttributions = new Set(legacyEvidence.map(canonicalEvidenceKey));
+  const canonicalPublicEvidence = dedupeEvidenceItems(publicEvidence);
+  const canonicalPublicPhysicalAttributions = new Set(canonicalPublicEvidence.map(canonicalPostKey));
+  // A v3 canonical public receipt owns a physical post when a less-specific
+  // logged-in row disagrees on entity attribution. Logged-in rows only fill
+  // identities not already resolved by the canonical public projection.
+  const netNewLoggedInEvidence = dedupeEvidenceItems(loggedInEvidence).filter(
+    (item) => !canonicalPublicPhysicalAttributions.has(canonicalPostKey(item))
   );
+  const acceptedCanonicalPublicEvidence = canonicalPublicEvidence.filter((item) =>
+    !legacyPhysicalAttributions.has(canonicalPostKey(item))
+      || legacyOwnerAttributions.has(canonicalEvidenceKey(item))
+  );
+  const netNewSupplementalEvidence = dedupeEvidenceItems([
+    ...acceptedCanonicalPublicEvidence,
+    ...netNewLoggedInEvidence.filter(
+      (item) => !legacyPhysicalAttributions.has(canonicalPostKey(item))
+    )
+  ]);
 
   return normalizeEvidenceScores(
-    dedupeEvidenceItems([...legacyEvidence, ...netNewPublicEvidence])
+    dedupeEvidenceItems([...legacyEvidence, ...netNewSupplementalEvidence])
       .filter(isNativeSpeedrunEvidenceItem)
       .map(enrichEvidenceThumbnail)
   );
+}
+
+function buildSpeedrunReviewOwnersByEntityId(): Map<string, SpeedrunReviewOwner> {
+  const owners = new Map<string, SpeedrunReviewOwner>();
+
+  for (const profile of speedrun006Profiles) {
+    const companySlug = slugify(profile.name);
+    const companyId = companyIdFromSlug(companySlug);
+    owners.set(companyId, {
+      entityType: "company",
+      entityId: companyId,
+      entityName: profile.name
+    });
+    for (const founderName of profile.founders) {
+      const entityId = founderId(companySlug, founderName);
+      owners.set(entityId, {
+        entityType: "founder",
+        entityId,
+        entityName: founderName
+      });
+    }
+  }
+
+  return owners;
+}
+
+function buildSpeedrunNeedsReviewItems(): NeedsReviewItem[] {
+  const candidates = [
+    ...(publicSnapshot.needsReview ?? []),
+    ...(loggedInSnapshot.needsReview ?? []),
+    ...(targetedSnapshot.needsReview ?? [])
+  ]
+    .flatMap(speedrunNeedsReviewCandidate)
+    .sort((left, right) =>
+      compareStableText(left.key, right.key) ||
+      compareStableText(left.item.id, right.item.id)
+    );
+  const byKey = new Map<string, NeedsReviewItem>();
+
+  for (const candidate of candidates) {
+    const existing = byKey.get(candidate.key);
+    if (!existing || isPreferredSpeedrunReviewItem(candidate.item, existing)) {
+      byKey.set(candidate.key, candidate.item);
+    }
+  }
+
+  const canonicalItems = [...byKey.entries()]
+    .sort(([left], [right]) => compareStableText(left, right));
+
+  return withUniqueSpeedrunReviewIds(canonicalItems);
+}
+
+function withUniqueSpeedrunReviewIds(
+  entries: Array<[string, NeedsReviewItem]>
+): NeedsReviewItem[] {
+  const usedIds = new Set<string>();
+
+  return entries.map(([key, item]) => {
+    let id = item.id;
+    if (usedIds.has(id)) {
+      const exactIdentitySuffix = encodeURIComponent(key);
+      id = `${item.id}--${exactIdentitySuffix}`;
+      let collisionIndex = 2;
+      while (usedIds.has(id)) {
+        id = `${item.id}--${exactIdentitySuffix}-${collisionIndex}`;
+        collisionIndex += 1;
+      }
+    }
+    usedIds.add(id);
+    return id === item.id ? item : { ...item, id };
+  });
+}
+
+function speedrunNeedsReviewCandidate(
+  source: PublicNeedsReviewRecord
+): CanonicalSpeedrunReviewCandidate[] {
+  const explicitBatchSlug = String(source.batchSlug ?? source.batch_slug ?? "").trim().toUpperCase();
+  const owner = speedrunReviewOwnersByEntityId.get(String(source.entityId ?? "").trim());
+  const candidateUrl = a16zCanonicalReviewCandidateIdentity(source.platform, source.candidateUrl);
+  const id = String(source.id ?? "").trim();
+  if (
+    explicitBatchSlug !== A16Z_SPEEDRUN_006_BATCH_SLUG ||
+    source.review_state !== "needs_review" ||
+    !owner ||
+    owner.entityType !== source.entityType ||
+    !candidateUrl ||
+    !id
+  ) {
+    return [];
+  }
+
+  const matchReason = String(source.matchReason ?? "").trim() ||
+    "Needs review before A16Z Speedrun 006 graph attribution.";
+  const key = [owner.entityType, owner.entityId, source.platform, candidateUrl].join("\u0000");
+  return [{
+    key,
+    item: {
+      id,
+      batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG,
+      entityType: owner.entityType,
+      entityId: owner.entityId,
+      entityName: owner.entityName,
+      platform: source.platform,
+      candidateUrl,
+      review_state: "needs_review",
+      matchReason
+    }
+  }];
+}
+
+function isPreferredSpeedrunReviewItem(candidate: NeedsReviewItem, existing: NeedsReviewItem): boolean {
+  if (candidate.matchReason.length !== existing.matchReason.length) {
+    return candidate.matchReason.length > existing.matchReason.length;
+  }
+  return compareStableText(candidate.id, existing.id) < 0;
+}
+
+export function a16zCanonicalReviewCandidateIdentity(
+  platform: Platform,
+  value: string
+): string | null {
+  try {
+    const url = new URL(value);
+    if (
+      !["http:", "https:"].includes(url.protocol) ||
+      url.username ||
+      url.password ||
+      url.port
+    ) {
+      return null;
+    }
+
+    url.protocol = "https:";
+    url.hash = "";
+    url.hostname = url.hostname.replace(/^www\./i, "").toLowerCase();
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (platform === "x") {
+      if (["twitter.com", "mobile.twitter.com"].includes(url.hostname)) {
+        url.hostname = "x.com";
+      }
+      if (parts[0]) parts[0] = parts[0].toLowerCase();
+    } else if (platform === "instagram") {
+      if (["m.instagram.com", "mobile.instagram.com"].includes(url.hostname)) {
+        url.hostname = "instagram.com";
+      }
+      if (parts[0] && !["p", "reel", "tv"].includes(parts[0].toLowerCase())) {
+        parts[0] = parts[0].toLowerCase();
+      }
+    } else if (platform === "linkedin") {
+      const namespace = parts[0]?.toLowerCase();
+      if (namespace) parts[0] = namespace;
+      if (["company", "in", "school"].includes(namespace ?? "") && parts[1]) {
+        parts[1] = parts[1].toLowerCase();
+      }
+    } else if (platform === "github" && parts.length <= 2) {
+      for (let index = 0; index < parts.length; index += 1) {
+        parts[index] = parts[index].toLowerCase();
+      }
+    } else if (platform === "tiktok" && parts[0]?.startsWith("@")) {
+      parts[0] = `@${parts[0].slice(1).toLowerCase()}`;
+    } else if (platform === "bluesky" && parts[0]?.toLowerCase() === "profile" && parts[1]) {
+      parts[0] = "profile";
+      parts[1] = parts[1].toLowerCase();
+    }
+    url.pathname = parts.length ? `/${parts.join("/")}` : "/";
+    for (const key of [...url.searchParams.keys()]) {
+      if (/^(?:utm_|fbclid$|gclid$|igshid$|mc_|ref$|ref_src$|s$|t$)/i.test(key)) {
+        url.searchParams.delete(key);
+      }
+    }
+    url.searchParams.sort();
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function compareStableText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function speedrunPlatformStatus(
+  evidence: EvidenceItem[]
+): DemoGraphDataset["platformStatus"] {
+  const scoredInstagramRows = evidence.filter(
+    (item) =>
+      item.platform === "instagram" &&
+      item.review_state === "verified" &&
+      item.contributionScore > 0 &&
+      Object.values(item.metrics).some((value) => Number(value ?? 0) > 0)
+  ).length;
+
+  return [
+    {
+      platform: "instagram",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG],
+      status: scoredInstagramRows > 0 ? "working" : "public_only",
+      authMethod: "Verified mapped native accounts; anonymous public and opt-in read-only snapshots",
+      notes:
+        `Materialized ${scoredInstagramRows} verified positive A16Z Speedrun 006 Instagram posts. ` +
+        `The logged-in merge accepted ${loggedInEvidenceMerge.acceptedCount} exact roster/account/native-author rows ` +
+        `and rejected ${loggedInEvidenceMerge.rejectedCount}; physical post identities are deduplicated before scoring.`
+    }
+  ];
 }
 
 function sanitizedSeededSocialEvidence(): SeededSocialEvidenceRecord[] {
@@ -1152,7 +1444,10 @@ function publicEvidenceItemFromAttachment(attachment: PublicSocialEvidenceAttach
   return source ? publicEvidenceItemFromSource(source, attachment) : [];
 }
 
-function publicEvidenceItemFromCanonicalAttribution(source: PublicEvidenceRecord): EvidenceItem[] {
+function publicEvidenceItemFromCanonicalAttribution(
+  source: PublicEvidenceRecord,
+  observedAtFallback = publicSnapshot.source.fetchedAt
+): EvidenceItem[] {
   const explicitBatchSlug = String(source.batchSlug ?? source.batch_slug ?? "").trim().toUpperCase();
   if (
     explicitBatchSlug !== A16Z_SPEEDRUN_006_BATCH_SLUG ||
@@ -1174,8 +1469,9 @@ function publicEvidenceItemFromCanonicalAttribution(source: PublicEvidenceRecord
   if (
     !profile ||
     !attribution ||
+    !a16zIsAllowedNativeEvidenceUrl(source.platform, source.sourceUrl) ||
     !nativePostId ||
-    (source.platformPostId && source.platformPostId.toLowerCase() !== nativePostId.toLowerCase())
+    (source.platformPostId && !a16zNativePostIdsMatch(source.platform, source.platformPostId, nativePostId))
   ) {
     return [];
   }
@@ -1186,7 +1482,8 @@ function publicEvidenceItemFromCanonicalAttribution(source: PublicEvidenceRecord
     companyName: profile.name,
     matchReason: source.matchReason ?? "Verified canonical public attribution for a16z speedrun 006.",
     entityType: attribution.entityType,
-    entityId: attribution.entityId
+    entityId: attribution.entityId,
+    observedAtFallback
   });
 }
 
@@ -1222,6 +1519,256 @@ function canonicalPublicEvidenceAttribution(
   };
 }
 
+function buildLoggedInEvidenceMerge(): LoggedInEvidenceMerge {
+  const batchRows = loggedInSnapshot.evidence.filter(
+    (source) => String(source.batchSlug ?? source.batch_slug ?? "").trim().toUpperCase() === A16Z_SPEEDRUN_006_BATCH_SLUG
+  );
+  const evidence: EvidenceItem[] = [];
+  let acceptedCount = 0;
+
+  for (const source of batchRows) {
+    const attachment = loggedInEvidenceAttachment(source);
+    if (!attachment) continue;
+
+    const materialized = publicEvidenceItemFromSource(normalizeLoggedInEvidenceSource(source), attachment);
+    if (materialized.length !== 1) continue;
+    evidence.push(materialized[0]);
+    acceptedCount += 1;
+  }
+
+  return {
+    evidence,
+    acceptedCount,
+    rejectedCount: batchRows.length - acceptedCount
+  };
+}
+
+function normalizeLoggedInEvidenceSource(source: PublicEvidenceRecord): PublicEvidenceRecord {
+  if (source.platform !== "x") return source;
+
+  const metrics = { ...source.metrics };
+  if (metrics.comments !== undefined) {
+    metrics.replies = Math.max(metrics.replies ?? 0, metrics.comments);
+    delete metrics.comments;
+  }
+
+  let publishedAtPrecision = source.publishedAtPrecision;
+  if (!publishedAtPrecision && source.rawVisibleText) {
+    try {
+      const payload = JSON.parse(source.rawVisibleText) as { created_at?: string };
+      if (payload.created_at) {
+        publishedAtPrecision = /\d{1,2}:\d{2}/.test(payload.created_at) ? "exact" : "day";
+      }
+    } catch {
+      publishedAtPrecision = "unknown";
+    }
+  }
+
+  return {
+    ...source,
+    metrics,
+    ...(publishedAtPrecision ? { publishedAtPrecision } : {})
+  };
+}
+
+export function a16zNativePostIdsMatch(
+  platform: Platform,
+  explicitPostId: string,
+  nativePostId: string
+): boolean {
+  if (platform === "github" || platform === "product_hunt" || platform === "reddit") {
+    return explicitPostId.toLowerCase() === nativePostId.toLowerCase();
+  }
+
+  return explicitPostId === nativePostId;
+}
+
+function loggedInEvidenceAttachment(
+  source: PublicEvidenceRecord
+): PublicSocialEvidenceAttachment | null {
+  if (
+    source.review_state !== "verified" ||
+    source.linkStatus === "invalid" ||
+    source.linkStatus === "blocked" ||
+    !SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(source.platform)
+  ) {
+    return null;
+  }
+
+  const companySlug = slugify(source.companySlug ?? "");
+  const profile = speedrun006Profiles.find((candidate) => slugify(candidate.name) === companySlug);
+  const platformPostId = String(source.platformPostId ?? "").trim();
+  const nativePostId = nativeEvidenceIdentityFromUrl(source.platform, source.sourceUrl);
+  if (
+    !profile ||
+    !a16zIsAllowedNativeEvidenceUrl(source.platform, source.sourceUrl) ||
+    !platformPostId ||
+    !nativePostId ||
+    !a16zNativePostIdsMatch(source.platform, platformPostId, nativePostId)
+  ) {
+    return null;
+  }
+
+  let entityType: "company" | "founder";
+  let entityId: string;
+  if (source.entityType === "company") {
+    entityType = "company";
+    entityId = companyIdFromSlug(companySlug);
+    if (source.entityId !== entityId) return null;
+  } else if (source.entityType === "founder") {
+    const exactFounderId = profile.founders
+      .map((name) => founderId(companySlug, name))
+      .find((candidate) => candidate === source.entityId);
+    if (!exactFounderId) return null;
+    entityType = "founder";
+    entityId = exactFounderId;
+  } else {
+    return null;
+  }
+
+  const mappedAccountKey = mappedAccountOwnershipKey(source.platform, source.accountUrl);
+  const mappedOwners = mappedAccountKey
+    ? speedrunMappedAccountOwnersByKey.get(mappedAccountKey) ?? []
+    : [];
+  const mappedOwner = mappedOwners.find(
+    (owner) => owner.entityType === entityType && owner.entityId === entityId
+  );
+  if (!mappedOwner) return null;
+
+  const observedAuthorHandle = loggedInNativeAuthorHandle(source);
+  const mappedAuthorHandle = normalizeEvidenceHandle(
+    mappedOwner.account.handle ??
+      normalizeNativeAccountRoot(mappedOwner.account.platform, mappedOwner.account.url)?.handle
+  );
+  const receiptMatches = nativeAuthorReceiptMatches(source, entityType, entityId, mappedOwner.account);
+  if (!a16zNativeAuthorEvidenceMatches(observedAuthorHandle, mappedAuthorHandle, receiptMatches)) {
+    return null;
+  }
+
+  const distinctOwnerCount = new Set(
+    mappedOwners.map((owner) => `${owner.entityType}:${owner.entityId}`)
+  ).size;
+  if (distinctOwnerCount > 1 && !receiptMatches) {
+    return null;
+  }
+
+  return {
+    sourceUrl: source.sourceUrl,
+    companySlug,
+    companyName: profile.name,
+    matchReason: source.matchReason ?? "Verified mapped read-only logged-in evidence for a16z speedrun 006.",
+    entityType,
+    entityId,
+    accountUrl: mappedOwner.account.url,
+    observedAtFallback: loggedInSnapshot.source.fetchedAt
+  };
+}
+
+export function a16zNativeAuthorEvidenceMatches(
+  observedAuthorHandle: string | null,
+  mappedAuthorHandle: string | null,
+  receiptMatches: boolean
+): boolean {
+  const observed = normalizeEvidenceHandle(observedAuthorHandle);
+  const mapped = normalizeEvidenceHandle(mappedAuthorHandle);
+  if (!mapped) return false;
+  if (observed) return observed === mapped;
+  return receiptMatches;
+}
+
+function loggedInNativeAuthorHandle(source: PublicEvidenceRecord): string | null {
+  try {
+    if (source.platform === "x") {
+      const url = new URL(source.sourceUrl);
+      const handle = url.pathname.split("/").filter(Boolean)[0];
+      return handle?.toLowerCase() === "i" ? null : normalizeEvidenceHandle(handle);
+    }
+
+    if (source.platform === "linkedin") {
+      const url = new URL(source.sourceUrl);
+      const postSegment = url.pathname.match(/^\/posts\/([^/]+)$/i)?.[1];
+      if (!postSegment || /^activity[-:]/i.test(postSegment)) return null;
+      return normalizeEvidenceHandle(postSegment.split("_")[0]);
+    }
+
+    if (source.platform === "instagram") {
+      const payload = source.rawVisibleText
+        ? JSON.parse(source.rawVisibleText) as {
+            gridUrl?: { rawHref?: string };
+          }
+        : null;
+      return a16zInstagramGridAuthorHandle(
+        source.sourceUrl,
+        source.platformPostId ?? null,
+        payload?.gridUrl?.rawHref ?? null
+      );
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+export function a16zInstagramGridAuthorHandle(
+  sourceUrl: string,
+  explicitPostId: string | null,
+  rawHref: string | null
+): string | null {
+  if (
+    !rawHref ||
+    !a16zIsAllowedNativeEvidenceUrl("instagram", sourceUrl) ||
+    !a16zIsAllowedNativeEvidenceUrl("instagram", rawHref)
+  ) {
+    return null;
+  }
+
+  try {
+    const sourcePostId = nativeEvidenceIdentityFromUrl("instagram", sourceUrl);
+    const rawUrl = new URL(rawHref);
+    const parts = rawUrl.pathname.split("/").filter(Boolean);
+    if (parts.length !== 3 || !["p", "reel", "tv"].includes(parts[1]?.toLowerCase() ?? "")) {
+      return null;
+    }
+
+    const [authorSegment, , rawPostId] = parts;
+    if (
+      !sourcePostId ||
+      !rawPostId ||
+      !a16zNativePostIdsMatch("instagram", rawPostId, sourcePostId) ||
+      (explicitPostId && !a16zNativePostIdsMatch("instagram", rawPostId, explicitPostId))
+    ) {
+      return null;
+    }
+
+    return normalizeEvidenceHandle(authorSegment);
+  } catch {
+    return null;
+  }
+}
+
+function nativeAuthorReceiptMatches(
+  source: PublicEvidenceRecord,
+  entityType: "company" | "founder",
+  entityId: string,
+  account: SocialAccountSummary
+): boolean {
+  const receipt = source.nativeAuthorResolution;
+  const mappedHandle = normalizeEvidenceHandle(
+    account.handle ?? normalizeNativeAccountRoot(account.platform, account.url)?.handle
+  );
+  return Boolean(
+    Number(source.attributionVersion ?? 0) >= 3 &&
+    source.attributionStatus === "verified" &&
+    receipt?.status === "matched" &&
+    receipt.author?.platform === source.platform &&
+    normalizeEvidenceHandle(receipt.author?.key) === mappedHandle &&
+    String(receipt.owner?.batchSlug ?? "").trim().toUpperCase() === A16Z_SPEEDRUN_006_BATCH_SLUG &&
+    receipt.owner?.entityType === entityType &&
+    receipt.owner?.entityId === entityId
+  );
+}
+
 function publicEvidenceItemFromSource(
   source: PublicEvidenceRecord,
   attachment: PublicSocialEvidenceAttachment
@@ -1231,11 +1778,14 @@ function publicEvidenceItemFromSource(
   const companyId = companyIdFromSlug(attachment.companySlug);
   const entityType = attachment.entityType ?? "company";
   const entityId = attachment.entityId ?? companyId;
-  const normalizedAccount = publicEvidenceAccountForAttribution(source, entityId);
+  const normalizedAccount = attachment.accountUrl
+    ? normalizeNativeAccountRoot(source.platform, attachment.accountUrl)
+    : publicEvidenceAccountForAttribution(source, entityId);
   const accountUrl = normalizedAccount?.url ?? null;
   const handle = source.authorHandle ?? normalizedAccount?.handle ?? handleFromUrl(accountUrl);
   const isLinkedInActivityFragment = isLinkedInProfileActivityFragmentUrl(source.platform, source.sourceUrl);
-  const observedAt = source.observedAt ?? source.first_seen_at ?? publicSnapshot.source.fetchedAt;
+  const snapshotFetchedAt = attachment.observedAtFallback ?? publicSnapshot.source.fetchedAt;
+  const observedAt = source.observedAt ?? source.first_seen_at ?? snapshotFetchedAt;
   const githubRepository = resolveGithubRepository(
     source.platform,
     source.sourceUrl,
@@ -1252,9 +1802,12 @@ function publicEvidenceItemFromSource(
   return [
     {
       ...source,
-      id: entityType === "company"
-        ? `${source.platform}-a16z-${attachment.companySlug}-${slugify(source.platformPostId ?? source.sourceUrl)}`
-        : `${source.platform}-a16z-${slugify(entityId)}-${slugify(source.platformPostId ?? source.sourceUrl)}`,
+      id: a16zEvidenceItemId(
+        source.platform,
+        entityType,
+        entityId,
+        source.platformPostId ?? source.sourceUrl
+      ),
       entityType,
       entityId,
       postedAt: nativeGithubTimestamps?.postedAt ?? source.postedAt ?? publicSnapshot.source.fetchedAt,
@@ -1264,12 +1817,12 @@ function publicEvidenceItemFromSource(
           ? source.publishedAtPrecision ?? publicationTimestampPrecision(source.postedAt)
           : "unknown",
       observedAt,
-      metricsCheckedAt: source.metricsCheckedAt ?? source.last_checked_at ?? publicSnapshot.source.fetchedAt,
+      metricsCheckedAt: source.metricsCheckedAt ?? source.last_checked_at ?? snapshotFetchedAt,
       authorHandle: handle,
       contributionScore: isLinkedInActivityFragment ? 0 : source.contributionScore ?? 1,
-      first_seen_at: source.first_seen_at ?? publicSnapshot.source.fetchedAt,
-      last_checked_at: source.last_checked_at ?? publicSnapshot.source.fetchedAt,
-      last_updated_at: githubTimestamps?.lastUpdatedAt ?? source.last_updated_at ?? publicSnapshot.source.fetchedAt,
+      first_seen_at: source.first_seen_at ?? snapshotFetchedAt,
+      last_checked_at: source.last_checked_at ?? snapshotFetchedAt,
+      last_updated_at: githubTimestamps?.lastUpdatedAt ?? source.last_updated_at ?? snapshotFetchedAt,
       platformObjectId:
         source.platformObjectId ?? (githubRepository?.id == null ? null : String(githubRepository.id)),
       rawVisibleText: githubTimestamps
@@ -1814,6 +2367,42 @@ function groupSocialAccountsByEntity(): Map<string, SocialAccountSummary[]> {
   return grouped;
 }
 
+function buildMappedAccountOwnersByKey(): Map<string, MappedAccountOwner[]> {
+  const ownersByKey = new Map<string, MappedAccountOwner[]>();
+
+  const addOwners = (entityType: "company" | "founder", entityId: string): void => {
+    for (const account of speedrunSocialAccountsByEntityId.get(entityId) ?? []) {
+      if (account.review_state !== "verified") continue;
+      const key = mappedAccountOwnershipKey(account.platform, account.url);
+      if (!key) continue;
+
+      const owners = ownersByKey.get(key) ?? [];
+      if (!owners.some((owner) => owner.entityType === entityType && owner.entityId === entityId)) {
+        owners.push({ entityType, entityId, account });
+        ownersByKey.set(key, owners);
+      }
+    }
+  };
+
+  for (const profile of speedrun006Profiles) {
+    const companySlug = slugify(profile.name);
+    addOwners("company", companyIdFromSlug(companySlug));
+    for (const founderName of profile.founders) {
+      addOwners("founder", founderId(companySlug, founderName));
+    }
+  }
+
+  return ownersByKey;
+}
+
+function mappedAccountOwnershipKey(
+  platform: Platform,
+  rawUrl: string | null | undefined
+): string | null {
+  const canonicalUrl = canonicalNativeAccountUrl(platform, rawUrl);
+  return canonicalUrl ? `${platform}:${canonicalUrl}` : null;
+}
+
 function addSocialAccounts(
   grouped: Map<string, SocialAccountSummary[]>,
   entityType: EvidenceItem["entityType"],
@@ -1853,16 +2442,20 @@ function isNativeSpeedrunEvidenceItem(item: EvidenceItem): boolean {
   const media = item as EvidenceItem & { mediaUrl?: string | null; mediaUrls?: string[] | null };
   return (
     SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(item.platform) &&
-    isAllowedNativeEvidenceUrl(item.platform, item.sourceUrl) &&
-    (!item.accountUrl || isAllowedNativeEvidenceUrl(item.platform, item.accountUrl)) &&
+    a16zIsAllowedNativeEvidenceUrl(item.platform, item.sourceUrl) &&
+    (!item.accountUrl || a16zIsAllowedNativeEvidenceUrl(item.platform, item.accountUrl)) &&
     !isA16zProfileUrl(media.mediaUrl) &&
     !(media.mediaUrls ?? []).some(isA16zProfileUrl)
   );
 }
 
-function isAllowedNativeEvidenceUrl(platform: Platform, rawUrl: string | null | undefined): boolean {
-  const host = normalizedHost(rawUrl);
-  if (!host || isA16zProfileUrl(rawUrl)) return false;
+export function a16zIsAllowedNativeEvidenceUrl(
+  platform: Platform,
+  rawUrl: string | null | undefined
+): boolean {
+  const url = strictHttpsUrl(rawUrl);
+  if (!url || isA16zProfileUrl(rawUrl)) return false;
+  const host = url.hostname.replace(/^www\./i, "").toLowerCase();
 
   if (platform === "github") return host === "github.com";
   if (platform === "linkedin") return host === "linkedin.com" || host.endsWith(".linkedin.com");
@@ -1885,7 +2478,8 @@ function normalizeNativeAccountRoot(
   if (!rawUrl || isA16zProfileUrl(rawUrl)) return null;
 
   try {
-    const url = new URL(rawUrl);
+    const url = strictHttpsUrl(rawUrl);
+    if (!url) return null;
     const host = url.hostname.replace(/^www\./i, "").toLowerCase();
     const parts = url.pathname.split("/").filter(Boolean);
 
@@ -1982,6 +2576,19 @@ function normalizedHost(rawUrl: string | null | undefined): string | null {
   if (!rawUrl) return null;
   try {
     return new URL(rawUrl).hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function strictHttpsUrl(rawUrl: string | null | undefined): URL | null {
+  if (!rawUrl) return null;
+
+  try {
+    const url = new URL(rawUrl);
+    return url.protocol === "https:" && !url.username && !url.password && !url.port
+      ? url
+      : null;
   } catch {
     return null;
   }
@@ -2121,6 +2728,20 @@ function socialAccountId(
 ): string {
   const canonicalUrl = canonicalNativeAccountUrl(platform, url) ?? url.trim();
   return `acct:${entityType}:${entityId}:${platform}:${encodeURIComponent(canonicalUrl)}`;
+}
+
+export function a16zExactEvidenceIdentity(value: string): string {
+  return encodeURIComponent(value);
+}
+
+export function a16zEvidenceItemId(
+  platform: Platform,
+  entityType: EvidenceItem["entityType"],
+  entityId: string,
+  platformPostIdentity: string
+): string {
+  const exactIdentityTuple = JSON.stringify([entityType, entityId, platformPostIdentity]);
+  return `${platform}-a16z-${a16zExactEvidenceIdentity(exactIdentityTuple)}`;
 }
 
 function slugify(value: string): string {

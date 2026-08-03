@@ -12,6 +12,7 @@ const [runner, autonomousPlan] = await Promise.all([
   readFile(runnerPath, "utf8"),
   readFile(path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-plan.mjs"), "utf8")
 ]);
+const packageJson = JSON.parse(await readFile(path.join(repositoryRoot, "package.json"), "utf8"));
 const temporaryRoots = [];
 
 afterEach(async () => {
@@ -531,6 +532,38 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("publishes newly discovered raw Top Voice evidence with the generated graphs", () => {
     const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
     assert.ok(artifactPaths.includes('"src/lib/social/targeted-evidence-current.json"'));
+  });
+
+  it("publishes the GitHub authoritative quarantine ledger with every scheduled release", () => {
+    const artifactPaths = section("function repositoryArtifactPaths", "function publicationBranch");
+    assert.ok(artifactPaths.includes('"src/lib/social/github-traction-quarantine.json"'));
+  });
+
+  it("runs the ingestion safety contracts through the collector and release gates", () => {
+    const contractScript = packageJson.scripts["test:ingestion-contracts"];
+    assert.equal(
+      contractScript,
+      "node --test --test-concurrency=1 " + [
+        "tests/autonomous-ingestion-runner-contract.node-test.mjs",
+        "tests/github-api-client.node-test.mjs",
+        "tests/github-authoritative-reconciliation.node-test.mjs",
+        "tests/ingestion-coverage-receipt.node-test.mjs",
+        "tests/ingestion-coverage-adapter.node-test.mjs",
+        "tests/historical-backfill.node-test.mjs",
+        "tests/historical-coverage-adapter.node-test.mjs",
+        "tests/public-search-circuit.node-test.mjs",
+        "tests/public-search-circuit-integration.node-test.mjs",
+        "tests/public-search-outage-integrity.node-test.mjs"
+      ].join(" ")
+    );
+    assert.match(packageJson.scripts["test:collectors"], /npm run test:ingestion-contracts/);
+    assert.equal(packageJson.scripts["ingest:historical"], "node scripts/run-historical-backfill.mjs");
+    assert.equal(
+      packageJson.scripts["ingest:historical:plan"],
+      "node scripts/run-historical-backfill.mjs --plan"
+    );
+    assert.match(packageJson.scripts.check, /npm run test:collectors/);
+    assert.match(packageJson.scripts["check:release"], /npm run check/);
   });
 
   it("regenerates and stages scoring diagnostics with each evidence publication", () => {

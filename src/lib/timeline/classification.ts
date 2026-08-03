@@ -281,7 +281,8 @@ function detectCategory(text: string, source: TimelineClassificationSource): Tim
       && /^(?:We|I|we|i)\s+(?:founded|co-founded|started)\s+(?:the company|[A-Z@][\w.-]{2,})\b/.test(text)) return "founded";
   if (/\b(?:we|our company|i|[A-Z@][\w.-]+)\s+(?:were |was |have been |just |finally )?(?:accepted into|got into|joined)\s+(?:y combinator|yc\b|[A-Z][\w ]+ accelerator)\b/i.test(text)) return "accelerator";
   if (/\b(?:we |[A-Z@][\w.-]+ )?(?:have |has |just )?raised\b.{0,100}(?:[$€£]\s?\d|\b(?:pre-?seed|seed|series\s+[a-z]|funding|financing|round)\b)/i.test(text)
-      || /\b(?:announced|closed)\b.{0,80}\b(?:pre-?seed|seed|series\s+[a-z]|funding|financing|round)\b/i.test(text)) return "funding";
+      || /\b(?:announced|closed)\b.{0,80}\b(?:pre-?seed|seed|series\s+[a-z]|funding|financing|round)\b/i.test(text)
+      || /\b(?:announc(?:e|ed|es|ing)|closed)\b.{0,80}[$€£]\s?\d[\d,.]*(?:\s?(?:k|m|b|million|billion))?\s+(?:raise|funding|financing|round)\b/i.test(text)) return "funding";
   if (/\b(?:we|our (?:product|company|device|application))\b.{0,50}\b(?:received|secured|obtained|earned)\b.{0,30}\b(?:fda|regulatory)\s+(?:approval|clearance)\b/i.test(text)) return "regulatory";
 
   if (!prospective && !excludedRetrospective && hasExplicitAchievedMagnitude(text, "revenue")) return "revenue_milestone";
@@ -477,7 +478,7 @@ function claimantMatchesCompany(
   claim: string,
 ): boolean {
   const claimantVerbs: Partial<Record<TimelineCategory, RegExp>> = {
-    funding: /\b(?:raised|announced|closed)\b/i,
+    funding: /\b(?:raised|announc(?:e|ed|es|ing)|closed)\b/i,
     customer: /\b(?:signed|selected|deployed|onboarded)\b/i,
     partnership: /\b(?:partnered|partnering|partnership)\b/i,
     acquisition: /\b(?:acquired|acquisition)\b/i,
@@ -499,6 +500,10 @@ function claimantMatchesCompany(
 
   const identities = companyIdentityTerms(input);
   const beforeVerb = claim.slice(0, match.index).trim();
+  if (category === "funding" && !beforeVerb && source.authorRelationship === "company"
+      && /^announc(?:e|ed|es|ing)\s+our\b/i.test(claim)) {
+    return true;
+  }
   const immediateSubject = beforeVerb.match(/(?:^|\s)(@?[A-Za-z0-9_.-]{1,80}|the team|our company)\s+(?:has\s+)?$/i)?.[1] ?? null;
   if (immediateSubject) {
     if (/^(?:we|the team|our company)$/i.test(immediateSubject)) {
@@ -532,9 +537,13 @@ function directClaimWindow(text: string): string {
 }
 
 const sentenceSegmenter = new Intl.Segmenter("en", { granularity: "sentence" });
+const DECIMAL_POINT_SENTINEL = "\uE000";
 function firstSentence(value: string): string | null {
-  const segment = sentenceSegmenter.segment(value)[Symbol.iterator]().next().value?.segment?.trim();
-  return segment || null;
+  // Keep quantified claims intact even on runtimes whose sentence boundary
+  // implementation treats a decimal point as terminal punctuation.
+  const segmentable = value.replace(/(\d)\.(?=\d)/g, `$1${DECIMAL_POINT_SENTINEL}`);
+  const segment = sentenceSegmenter.segment(segmentable)[Symbol.iterator]().next().value?.segment?.trim();
+  return segment?.replaceAll(DECIMAL_POINT_SENTINEL, ".") || null;
 }
 
 function cleanClaimText(value: string): string {

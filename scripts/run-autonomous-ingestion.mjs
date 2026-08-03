@@ -12,12 +12,14 @@ import {
   buildCanonicalTargetedAttributionResolver,
   buildLegacyPublicEvidenceBatchResolver,
   buildAutonomousTaskPlan,
+  buildGithubAuthoritativeQuarantineLedger,
   classifyAutonomousCollectorTaskOutcome,
   countSuccessfulAutonomousCollectorRows,
   indexAutonomousCollectorTaskOutcomes,
   loadAutonomousCatalogs,
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
+  reconcileGithubTractionSnapshots,
   summarizeAutonomousCollectorTerminalTaskCoverage,
   summarizeTaskCoverage,
   validateAutonomousCollectorMatrix,
@@ -60,6 +62,7 @@ const publishedSourceDiscoveryPathsPath = join(root, "outputs", "source-discover
 const publishedCohortAuditPath = join(root, "outputs", "cohort-coverage-current.json");
 const publishedSourceDeltaPath = join(root, "outputs", "ingestion-source-delta-current.json");
 const publishedSourceDeltaHistoryPath = join(root, "outputs", "ingestion-source-delta-history.json");
+const publishedGithubQuarantinePath = join(root, "src", "lib", "social", "github-traction-quarantine.json");
 const topVoiceOutput = join(collectorRoot, "top-voice-refresh.json");
 const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
@@ -2555,16 +2558,49 @@ async function publishGithubExports(snapshots, { baseRef = null } = {}) {
     ])
   ));
 
+  const snapshotByBatch = new Map();
+  for (const snapshot of snapshots) {
+    const batchSlug = snapshot?.source?.batchSlug;
+    if (!destinations.has(batchSlug)) {
+      throw new Error(`No GitHub publication destination is configured for ${batchSlug ?? "unknown"}.`);
+    }
+    if (snapshotByBatch.has(batchSlug)) {
+      throw new Error(`Duplicate GitHub publication receipt for ${batchSlug}.`);
+    }
+    snapshotByBatch.set(batchSlug, snapshot);
+  }
+  const missingBatches = [...destinations.keys()].filter((batchSlug) => !snapshotByBatch.has(batchSlug));
+  if (missingBatches.length) {
+    throw new Error(`Missing required GitHub publication receipts: ${missingBatches.join(", ")}.`);
+  }
+
+  const publications = [];
   for (const snapshot of snapshots) {
     const batchSlug = snapshot.source.batchSlug;
     const destination = destinations.get(batchSlug);
-    if (!destination) throw new Error(`No GitHub publication destination is configured for ${batchSlug}.`);
     const relativeDestination = destination.slice(root.length + 1);
     const base = baseRef ? await readJsonFromGitRef(baseRef, relativeDestination, null) : null;
     const previous = previousByBatch.get(batchSlug);
     const synchronized = base ? mergeGithubTractionSnapshots(base, previous) : previous;
-    await writeJsonAtomic(destination, mergeGithubTractionSnapshots(synchronized, snapshot));
+    const reconciliation = reconcileGithubTractionSnapshots(synchronized, snapshot);
+    publications.push({ batchSlug, destination, reconciliation });
   }
+
+  // Compute the complete replacement set and its non-scoring quarantine ledger
+  // before mutating any canonical export. Whole authoritative receipts replace
+  // exactly; partial/failed receipts preserve last-good rows.
+  const existingLedger = await readJson(publishedGithubQuarantinePath, null);
+  const canonicalSnapshots = publications.map(({ reconciliation }) => reconciliation.snapshot);
+  const quarantineLedger = buildGithubAuthoritativeQuarantineLedger({
+    reconciliations: publications.map(({ reconciliation }) => reconciliation),
+    canonicalSnapshots,
+    existingLedger
+  });
+
+  for (const { destination, reconciliation } of publications) {
+    await writeJsonAtomic(destination, reconciliation.snapshot);
+  }
+  await writeJsonAtomic(publishedGithubQuarantinePath, quarantineLedger);
 }
 
 async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
@@ -2767,7 +2803,8 @@ function repositoryArtifactPaths() {
     "src/lib/social/targeted-evidence-current.json",
     "src/lib/social/github-traction.json",
     "src/lib/social/github-traction-summer-2026.json",
-    "src/lib/social/github-traction-a16z-speedrun-006.json"
+    "src/lib/social/github-traction-a16z-speedrun-006.json",
+    "src/lib/social/github-traction-quarantine.json"
   ];
 }
 

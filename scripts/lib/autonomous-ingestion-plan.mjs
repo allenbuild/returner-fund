@@ -21,6 +21,13 @@ import {
   publicAttribution,
   publicEvidenceAttributionText
 } from "./public-evidence-attribution.mjs";
+export {
+  buildGithubAuthoritativeQuarantineLedger,
+  githubTractionAccountKey,
+  isFullyAuthoritativeGithubReceipt,
+  mergeGithubTractionSnapshots,
+  reconcileGithubTractionSnapshots
+} from "./github-authoritative-reconciliation.mjs";
 
 export const AUTONOMOUS_BATCHES = Object.freeze([
   {
@@ -1680,57 +1687,6 @@ function mergePublicCollectorAttempts(snapshots) {
   return Object.fromEntries([...attempts.entries()].sort(([left], [right]) => left.localeCompare(right)));
 }
 
-export function mergeGithubTractionSnapshots(previous, fresh, { fetchedAt = new Date().toISOString() } = {}) {
-  const accounts = new Map();
-  const retiredMappingKeys = new Set(
-    (fresh?.source?.retiredAccountMappings ?? []).map(githubOwnerMappingKey)
-  );
-  let prunedRetired = 0;
-  for (const account of previous?.accounts ?? []) {
-    if (retiredMappingKeys.has(githubOwnerMappingKey({
-      entityType: account.entityType,
-      entityId: account.entityId ?? account.companySlug ?? account.companyName,
-      url: account.githubUrl ?? account.url
-    }))) {
-      prunedRetired += 1;
-      continue;
-    }
-    accounts.set(githubAccountKey(account), account);
-  }
-  let retainedLastGood = 0;
-  for (const account of fresh?.accounts ?? []) {
-    const key = githubAccountKey(account);
-    if (account.fetched === false && accounts.has(key)) {
-      retainedLastGood += 1;
-      continue;
-    }
-    accounts.set(key, account);
-  }
-  return {
-    source: {
-      ...(previous?.source ?? {}),
-      ...(fresh?.source ?? {}),
-      fetchedAt,
-      retainedLastGood,
-      prunedRetired,
-      notes: [
-        ...(fresh?.source?.notes ?? []),
-        ...(prunedRetired ? [`Pruned ${prunedRetired} confirmed retired GitHub account rows.`] : []),
-        ...(retainedLastGood ? [`Retained ${retainedLastGood} last-good account rows after failed refreshes.`] : [])
-      ]
-    },
-    accounts: [...accounts.values()]
-  };
-}
-
-function githubOwnerMappingKey(mapping) {
-  return [
-    mapping?.entityType ?? "company",
-    mapping?.entityId ?? "unknown",
-    canonicalSocialAccountUrl("github", mapping?.url).toLowerCase()
-  ].join(":");
-}
-
 function normalizeCompanyNode(node, batch) {
   return {
     entityType: "company",
@@ -1974,15 +1930,6 @@ function normalizeYcAccounts(links, { entityType, entitySourceKey, discoveredFro
         matchReason: "Linked from the official public YC profile."
       }];
     });
-}
-
-function githubAccountKey(account) {
-  return [
-    account.entityType ?? "company",
-    account.entityId ?? account.companySlug ?? account.companyName ?? "unknown",
-    String(account.login ?? "").toLowerCase(),
-    String(account.repo ?? "").toLowerCase()
-  ].join(":");
 }
 
 function normalizeAccounts(accounts) {

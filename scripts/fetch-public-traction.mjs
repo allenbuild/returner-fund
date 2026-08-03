@@ -51,6 +51,10 @@ import {
   isAutonomousCollectorFailureRetryable,
   prioritizeAutonomousCompaniesByCoverage
 } from "./lib/autonomous-ingestion-plan.mjs";
+import {
+  PublicSearchUnavailableError,
+  createPublicSearchCircuit
+} from "./lib/public-search-circuit.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -121,6 +125,13 @@ const planOnly = hasArg("--plan");
 const PUBLIC_ATTRIBUTION_VERSION = PUBLIC_EVIDENCE_ATTRIBUTION_VERSION;
 const xBearerToken = cleanEnv(process.env.X_BEARER_TOKEN);
 const exaApiKey = cleanEnv(process.env.EXA_API_KEY);
+const publicSearchCircuit = createPublicSearchCircuit({
+  // Search is a discovery fallback, so a short bounded probe is preferable to
+  // multiplying a 20-second outage across every unmapped owner.
+  timeoutMs: 8_000,
+  failureThreshold: 2,
+  cooldownMs: 15 * 60_000
+});
 
 if (hasArg("--help") || hasArg("-h")) {
   await writeStdout(`${usage()}\n`);
@@ -740,9 +751,12 @@ async function attempt(platform, key, company, fn) {
   } catch (error) {
     recordPlatformCooldownIfNeeded(normalizedPlatform, error);
     const message = errorMessage(error);
+    const publicSearchBlocked = error instanceof PublicSearchUnavailableError;
+    const blocker = publicSearchBlocked ? publicSearchBlockerFromError(error) : null;
     failures.push({
       ...failure(normalizedPlatform, company, null, message),
-      attemptKey
+      attemptKey,
+      ...(blocker ? { retryable: false, blocker } : {})
     });
     discoveryAttempts.push(
       discoveryAttempt({
@@ -754,7 +768,8 @@ async function attempt(platform, key, company, fn) {
         usefulResultCount: 0,
         selectedUrl: null,
         status: "failed",
-        failureReason: message
+        failureReason: message,
+        blocker
       })
     );
     attemptMap.set(attemptKey, socialAttemptRecord({
@@ -762,9 +777,12 @@ async function attempt(platform, key, company, fn) {
       status: "failed",
       checkedAt: now,
       error: message,
-      retryable: retryableCollectorFailure(message),
-      outcomeStatus: expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
-      outcomeReason: expectedAccessOrEmptyMessage(message)
+      ...(blocker ? { blocker } : {}),
+      retryable: publicSearchBlocked ? false : retryableCollectorFailure(message),
+      outcomeStatus: publicSearchBlocked || expectedAccessOrEmptyMessage(message)
+        ? "blocked_or_empty"
+        : "failed",
+      outcomeReason: publicSearchBlocked || expectedAccessOrEmptyMessage(message)
         ? "collector_checked_blocked_or_empty"
         : "collector_reported_failure"
     }, {
@@ -846,6 +864,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     const searchCandidates = discoverMissingSocial
       ? await discoverSocialCandidates(company, platform, entityType === "founder" ? entity : null)
       : [];
+    const publicSearchBlocker = searchCandidates.publicSearchBlocker ?? null;
     const candidates = dedupeSocialCandidates([...discoveredPathCandidates, ...searchCandidates], platform);
     if (candidates.length) {
       const postCandidates = selectPublicSocialCandidates(
@@ -883,6 +902,22 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       ];
       addItems(verifiedPosts, evidence);
       addItems(reviewItems, needsReview);
+      if (publicSearchBlocker) {
+        failures.push({
+          ...failure(
+            platform,
+            company,
+            null,
+            `Public account discovery was partially blocked: ${publicSearchBlocker.message}`,
+            entityType,
+            name,
+            entityId
+          ),
+          attemptKey: key,
+          retryable: false,
+          blocker: publicSearchBlocker
+        });
+      }
       addItems(
         candidates.map((candidate) =>
           sourceDiscoveryPath({
@@ -914,14 +949,19 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
           usefulResultCount: verifiedPosts.length,
           selectedUrl: verifiedPosts[0]?.sourceUrl ?? candidates[0].url,
           status: verifiedPosts.length ? "partial_success" : "needs_review",
-          failureReason: verifiedPosts.length ? null : "No batch-linked URL; public search candidates require review."
+          failureReason: publicSearchBlocker?.message ??
+            (verifiedPosts.length ? null : "No batch-linked URL; public search candidates require review."),
+          blocker: publicSearchBlocker
         })
       );
     } else {
-      const missingMessage = `No mapped public ${platform} URL for ${entityType} ${name}; public discovery returned no candidates.`;
+      const missingMessage = publicSearchBlocker
+        ? `No mapped public ${platform} URL for ${entityType} ${name}; public discovery was blocked: ${publicSearchBlocker.message}`
+        : `No mapped public ${platform} URL for ${entityType} ${name}; public discovery returned no candidates.`;
       failures.push({
         ...failure(platform, company, null, missingMessage, entityType, name, entityId),
-        attemptKey: key
+        attemptKey: key,
+        ...(publicSearchBlocker ? { retryable: false, blocker: publicSearchBlocker } : {})
       });
       discoveryAttempts.push(
         discoveryAttempt({
@@ -936,7 +976,8 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
           usefulResultCount: 0,
           selectedUrl: null,
           status: "failed",
-          failureReason: missingMessage
+          failureReason: missingMessage,
+          blocker: publicSearchBlocker
         })
       );
     }
@@ -945,6 +986,11 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       status: "done",
       checkedAt: now,
       count: candidates.length,
+      error: publicSearchBlocker?.message,
+      ...(publicSearchBlocker ? { blocker: publicSearchBlocker } : {}),
+      // The provider outage is terminal for this bounded run. The exact
+      // retry-at timestamp remains in the blocker so the next scheduled run
+      // can retry without making this campaign replay every shard.
       retryable: false,
       outcomeStatus: candidates.length ? "needs_review" : "blocked_or_empty",
       outcomeReason: candidates.length ? "collector_needs_review" : "collector_checked_blocked_or_empty"
@@ -1011,6 +1057,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
     addItems(attributedFailures, failures);
     addItems(result.sourceDiscoveryPaths ?? [], sourceDiscoveryPaths);
     const attemptSummary = summarizeConnectorResult(result);
+    const providerBlocker = attributedFailures.find((row) => row.blocker)?.blocker ?? null;
     discoveryAttempts.push(
       discoveryAttempt({
         company,
@@ -1024,7 +1071,8 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
         usefulResultCount: attemptSummary.usefulResultCount,
         selectedUrl: selectedResultUrl(result) ?? url,
         status: attemptSummary.status,
-        failureReason: attemptSummary.failureReason
+        failureReason: attemptSummary.failureReason,
+        blocker: providerBlocker
       })
     );
     const outcomeStatus = collectorOutcomeStatus(attemptSummary);
@@ -1034,7 +1082,8 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       status: "done",
       checkedAt: now,
       error: failureReason || undefined,
-      retryable: retryableCollectorFailure(failureReason),
+      ...(providerBlocker ? { blocker: providerBlocker } : {}),
+      retryable: providerBlocker ? false : retryableCollectorFailure(failureReason),
       outcomeStatus,
       outcomeReason: collectorOutcomeReason(attemptSummary)
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
@@ -1795,6 +1844,7 @@ async function searchProductHuntLinks(company) {
 async function discoverSocialCandidates(company, platform, entity = null) {
   const queries = socialDiscoveryQueries(company, platform, entity);
   const candidates = [];
+  const publicSearchFailures = [];
 
   const maxQueries = platform === "instagram" || platform === "x" ? 8 : 5;
   for (const query of queries.slice(0, maxQueries)) {
@@ -1820,8 +1870,10 @@ async function discoverSocialCandidates(company, platform, entity = null) {
             url: canonicalProfileUrl(url, platform)
           });
         });
-    } catch {
-      // Search discovery is opportunistic. Connector failures are captured at the parent attempt level.
+    } catch (error) {
+      const blocker = publicSearchBlockerFromError(error);
+      publicSearchFailures.push(blocker);
+      if (blocker.retryAt) break;
     }
   }
 
@@ -1857,9 +1909,18 @@ async function discoverSocialCandidates(company, platform, entity = null) {
     }
   }
 
-  return selectPublicSocialCandidates(firstSocialCandidatePerUrl(
+  const selected = selectPublicSocialCandidates(firstSocialCandidatePerUrl(
     candidates.filter((candidate) => !isLowValueSocialUrl(candidate.url, platform))
   ), platform, 5);
+  if (publicSearchFailures.length > 0) {
+    Object.defineProperty(selected, "publicSearchBlocker", {
+      configurable: false,
+      enumerable: false,
+      value: publicSearchFailures.at(-1),
+      writable: false
+    });
+  }
+  return selected;
 }
 
 function dedupeSocialCandidates(candidates, platform = null) {
@@ -2249,7 +2310,8 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
         evidence: apiEvidence,
         failures: [],
         needsReview: [],
-        source: "x_recent_search_api"
+        source: "x_recent_search_api",
+        mergeOnly: true
       };
     }
   }
@@ -2288,7 +2350,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
           entity,
           entityType
         )
-      : { evidence: [], needsReview: [], sourceDiscoveryPaths: [] };
+      : { evidence: [], needsReview: [], failures: [], sourceDiscoveryPaths: [] };
     return {
       evidence: fallback.evidence,
       needsReview: fallback.needsReview,
@@ -2301,9 +2363,11 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
           entityType,
           entityName(entity, entityType),
           entityIdFor(company, entity, entityType)
-        )
+        ),
+        ...(fallback.failures ?? [])
       ],
-      sourceDiscoveryPaths: fallback.sourceDiscoveryPaths
+      sourceDiscoveryPaths: fallback.sourceDiscoveryPaths,
+      mergeOnly: true
     };
   }
 
@@ -2372,7 +2436,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
           entity,
           entityType
         )
-      : { evidence: [], needsReview: [], sourceDiscoveryPaths: [] };
+      : { evidence: [], needsReview: [], failures: [], sourceDiscoveryPaths: [] };
   const postNeedsReview = [
     ...postResults.flatMap((result) => result.needsReview ?? []),
     ...attributedPosts.needsReview,
@@ -2399,8 +2463,12 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
       ...zeroPostFallback.evidence
     ],
     needsReview: postNeedsReview,
-    failures: [],
-    sourceDiscoveryPaths: zeroPostFallback.sourceDiscoveryPaths
+    failures: zeroPostFallback.failures ?? [],
+    sourceDiscoveryPaths: zeroPostFallback.sourceDiscoveryPaths,
+    // Public social surfaces and search responses are bounded windows, not
+    // authoritative full-history snapshots. Always merge so a shallow refresh
+    // cannot delete previously recovered native posts.
+    mergeOnly: true
   };
 }
 
@@ -2601,6 +2669,22 @@ async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, 
   return {
     evidence: attributedPosts.evidence,
     needsReview: reviewItems,
+    failures: searchCandidates.publicSearchBlocker
+      ? [{
+          ...failure(
+            platform,
+            company,
+            sourceUrl,
+            `Public post discovery was ${candidates.length ? "partially " : ""}blocked: ` +
+              searchCandidates.publicSearchBlocker.message,
+            entityType,
+            entityName(entity, entityType),
+            entityIdFor(company, entity, entityType)
+          ),
+          retryable: false,
+          blocker: searchCandidates.publicSearchBlocker
+        }]
+      : [],
     sourceDiscoveryPaths: candidates.map((candidate) =>
       sourceDiscoveryPath({
         company,
@@ -3082,7 +3166,8 @@ function discoveryAttempt({
   usefulResultCount,
   selectedUrl,
   status,
-  failureReason = null
+  failureReason = null,
+  blocker = null
 }) {
   return {
     id: stableId(`discovery:${batchConfig.slug}:${entityId}:${platform}:${source}:${query}:${selectedUrl ?? "none"}:${status}`),
@@ -3101,6 +3186,7 @@ function discoveryAttempt({
     selected_url: selectedUrl,
     status,
     failure_reason: failureReason,
+    ...(blocker ? { blocker } : {}),
     created_at: now
   };
 }
@@ -3230,18 +3316,32 @@ async function fetchReader(url) {
 }
 
 async function fetchPublic(url, options = {}) {
+  const headers = {
+    "User-Agent": "ReturnerNetworkIntelligence/0.2 read-only public ingestion",
+    Accept: options.accept ?? "text/html,application/xhtml+xml,application/xml,text/plain,application/json;q=0.9,*/*;q=0.8"
+  };
+  if (isDuckDuckGoPublicSearchUrl(url)) {
+    return publicSearchCircuit.fetch(url, { headers });
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20_000);
   try {
     return await fetch(url, {
       signal: controller.signal,
-      headers: {
-        "User-Agent": "ReturnerNetworkIntelligence/0.2 read-only public ingestion",
-        Accept: options.accept ?? "text/html,application/xhtml+xml,application/xml,text/plain,application/json;q=0.9,*/*;q=0.8"
-      }
+      headers
     });
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+function isDuckDuckGoPublicSearchUrl(input) {
+  try {
+    const url = new URL(String(input));
+    return /(^|\.)duckduckgo\.com$/i.test(url.hostname) && url.pathname.startsWith("/html");
+  } catch {
+    return false;
   }
 }
 
@@ -4604,7 +4704,9 @@ function failureSemanticIdentity(item) {
     item?.entityType ?? "company",
     item?.entityId ?? "",
     accountIdentity,
-    item?.message ?? item?.failure_reason ?? item?.error ?? ""
+    item?.blocker
+      ? `provider-blocker:${item.blocker.provider ?? "unknown"}:${item.blocker.code ?? "unknown"}`
+      : item?.message ?? item?.failure_reason ?? item?.error ?? ""
   ]);
 }
 
@@ -5290,6 +5392,13 @@ function isFreshCompletedAttempt(attempt) {
   if (attempt.platform === "youtube" && !attempt.accountUrl && staleAttributionVersion) {
     return false;
   }
+  const blockerRetryAt = Date.parse(attempt.blocker?.retryAt ?? "");
+  if (Number.isFinite(blockerRetryAt)) {
+    // A provider circuit is terminal only through its recorded cooldown. Once
+    // that instant passes, retry immediately even if the ordinary freshness
+    // window has not expired.
+    return Date.now() < blockerRetryAt;
+  }
   const checkedAt = Date.parse(attempt.checkedAt);
   if (!Number.isFinite(checkedAt)) return false;
   return Date.now() - checkedAt < freshForHours * 60 * 60 * 1000;
@@ -5341,6 +5450,16 @@ function resolveBatchConfig(value) {
 
 function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function publicSearchBlockerFromError(error) {
+  return Object.freeze({
+    provider: error?.provider ?? "duckduckgo_html",
+    code: error?.code ?? "public_search_discovery_failure",
+    retryAt: error?.retryAt ?? null,
+    httpStatus: Number.isInteger(error?.status) ? error.status : null,
+    message: errorMessage(error)
+  });
 }
 
 function cleanEnv(value) {

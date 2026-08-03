@@ -268,7 +268,8 @@ describe("NodePanel", () => {
       text: `Synthetic scored post ${index}`,
       contributionScore: 100 - index,
       sourceUrl: `https://example.com/synthetic-scored-${index}`,
-      platformPostId: `synthetic-scored-${index}`
+      platformPostId: `synthetic-scored-${index}`,
+      platformObjectId: String(9_000_000_000 + index)
     }));
 
     render(<NodePanel node={node!} relatedNodes={[]} evidence={evidence} />);

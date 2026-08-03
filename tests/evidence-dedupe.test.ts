@@ -174,6 +174,53 @@ describe("evidence dedupe", () => {
     ]);
   });
 
+  it("deduplicates a renamed or shared GitHub repository by immutable repository ID", () => {
+    const companyProjection = {
+      ...evidence("github-company", "https://github.com/acme/original-name", 40),
+      platform: "github" as const,
+      platformPostId: "acme/original-name",
+      platformObjectId: "123456789"
+    };
+    const founderProjection = {
+      ...evidence("github-founder", "https://github.com/acme-inc/renamed-repo", 50),
+      platform: "github" as const,
+      platformPostId: "acme-inc/renamed-repo",
+      platformObjectId: "123456789"
+    };
+
+    expect(canonicalPostKey(companyProjection)).toBe("github:repository-object:123456789");
+    expect(canonicalPostKey(founderProjection)).toBe("github:repository-object:123456789");
+    expect(dedupeEvidenceForScoring([companyProjection, founderProjection]).map((item) => item.id)).toEqual([
+      "github-founder"
+    ]);
+  });
+
+  it("does not collapse different immutable GitHub repositories that reused one URL", () => {
+    const original = {
+      ...evidence("github-original", "https://github.com/acme/reused-name", 40),
+      platform: "github" as const,
+      platformPostId: "acme/reused-name",
+      platformObjectId: "123456789"
+    };
+    const recreated = {
+      ...evidence("github-recreated", "https://github.com/acme/reused-name", 50),
+      platform: "github" as const,
+      platformPostId: "acme/reused-name",
+      platformObjectId: "987654321"
+    };
+    const legacyUrlOnly = {
+      ...evidence("github-legacy", "https://github.com/acme/reused-name", 30),
+      platform: "github" as const,
+      platformPostId: "acme/reused-name",
+      platformObjectId: null
+    };
+
+    expect(dedupeEvidenceForScoring([original, legacyUrlOnly, recreated]).map((item) => item.id)).toEqual([
+      "github-original",
+      "github-recreated"
+    ]);
+  });
+
   it("quarantines URL and explicit-ID conflicts from physical scoring", () => {
     const valid = {
       ...evidence("github-valid", "https://github.com/openai/returner", 50),

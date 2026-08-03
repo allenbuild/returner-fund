@@ -1,7 +1,7 @@
 import { momentumSort } from "./benchmarks";
 import { enrichEvidenceThumbnail } from "./evidence-thumbnails";
 import { getNodeRadius } from "./score-radius";
-import { canonicalPostKey, dedupeEvidenceForScoring } from "./dedupe";
+import { canonicalEvidenceUrl, canonicalPostKey, dedupeEvidenceForScoring } from "./dedupe";
 import { aggregateBalancedTractionScore, normalizeEvidenceScores } from "./traction-scoring";
 import { TRACTION_SCORING_CONFIG } from "./traction-scoring-config";
 import type {
@@ -496,18 +496,19 @@ function rebuildGraphScoreSurfaces(
       const scoreBreakdown = aggregateBalancedTractionScore(dedupeEvidenceForScoring(companyEvidence));
       return companyRecordForCalibration(node, scoreBreakdown);
     });
+  const calibratedCompanies = calibrateBatchCompanyScores(absoluteCompanies, absoluteCompanies);
   const publishedBenchmark = publishedGlobalCalibration(graph);
   const scoreScope = overlayScoreScope(graph, selectedPlatforms);
   const scoredCompanies = scoreScope === "all_platforms" && calibrationCohort
-    ? benchmarkGlobalCompanyScores(absoluteCompanies, calibrationCohort)
+    ? benchmarkGlobalCompanyScores(calibratedCompanies, calibrationCohort)
     : publishedBenchmark
       ? benchmarkCompanyScoresWithPublishedGlobalFactor(
-          absoluteCompanies,
+          calibratedCompanies,
           publishedBenchmark
         )
       : calibrationCohort
-        ? benchmarkGlobalCompanyScores(absoluteCompanies, calibrationCohort)
-        : calibrateBatchCompanyScores(absoluteCompanies, absoluteCompanies);
+        ? benchmarkGlobalCompanyScores(calibratedCompanies, calibrationCohort)
+        : calibratedCompanies;
   const scoredCompanyById = new Map(scoredCompanies.map((company) => [company.id, company]));
 
   const scoredNodes = graph.nodes.map((node) => {
@@ -784,18 +785,25 @@ function replayedLiveEvidence(
   companyIdForEvidence: EvidenceCompanyResolver
 ): EvidenceItem[] | null {
   const existingByCanonicalKey = new Map<string, EvidenceItem[]>();
+  const existingByReplayAlias = new Map<string, EvidenceItem[]>();
   for (const item of existingEvidence) {
     const key = canonicalLiveEvidenceKey(item, companyIdForEvidence);
     existingByCanonicalKey.set(key, [...(existingByCanonicalKey.get(key) ?? []), item]);
+    const alias = replayObservationAlias(item, companyIdForEvidence);
+    if (alias) {
+      existingByReplayAlias.set(alias, [...(existingByReplayAlias.get(alias) ?? []), item]);
+    }
   }
 
   const replayedByCanonicalKey = new Map<string, EvidenceItem>();
   for (const candidate of liveEvidence) {
     const key = canonicalLiveEvidenceKey(candidate, companyIdForEvidence);
     const signature = replayObservationSignature(candidate);
-    const existing = existingByCanonicalKey.get(key)?.find(
-      (item) => replayObservationSignature(item) === signature
-    );
+    const alias = replayObservationAlias(candidate, companyIdForEvidence);
+    const existing = [
+      ...(existingByCanonicalKey.get(key) ?? []),
+      ...(alias ? existingByReplayAlias.get(alias) ?? [] : [])
+    ].find((item) => replayObservationSignature(item) === signature);
     if (!existing) {
       return null;
     }
@@ -803,6 +811,18 @@ function replayedLiveEvidence(
   }
 
   return [...replayedByCanonicalKey.values()].sort(compareEvidence);
+}
+
+function replayObservationAlias(
+  item: EvidenceItem,
+  companyIdForEvidence: EvidenceCompanyResolver
+): string | null {
+  if (item.platform !== "github") {
+    return null;
+  }
+  const sourceUrl = canonicalEvidenceUrl(item.sourceUrl);
+  const companyId = companyIdForEvidence(item) ?? defaultCompanyIdForEvidence(item);
+  return sourceUrl ? `${normalizeIdentityPart(companyId)}:github:url:${sourceUrl}` : null;
 }
 
 /**

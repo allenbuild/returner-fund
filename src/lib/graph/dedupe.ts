@@ -42,6 +42,16 @@ export function canonicalPostKey(item: EvidenceItem): string {
     return `${item.platform}:conflict:${identities.urlId}:${identities.explicitId}`;
   }
 
+  // GitHub repository IDs are immutable across owner/name transfers. Prefer
+  // that native object identity when present, while retaining the URL/explicit
+  // ID conflict gate above so a malformed row cannot bypass quarantine.
+  const githubRepositoryId = item.platform === "github"
+    ? String(item.platformObjectId ?? "").trim()
+    : "";
+  if (/^\d+$/.test(githubRepositoryId)) {
+    return `github:repository-object:${githubRepositoryId}`;
+  }
+
   const nativeId = identities.urlId ?? identities.explicitId;
   if (nativeId) {
     return `${item.platform}:post:${nativeId}`;
@@ -99,35 +109,102 @@ export function canonicalEvidenceUrl(rawUrl: string): string {
 }
 
 export function dedupeEvidenceItems<T extends EvidenceItem>(items: T[]): T[] {
-  const byKey = new Map<string, T>();
-
-  for (const item of items) {
-    const key = canonicalEvidenceKey(item);
-    const existing = byKey.get(key);
-    if (!existing || shouldReplaceEvidence(existing, item)) {
-      byKey.set(key, item);
-    }
-  }
-
-  return [...byKey.values()];
+  return dedupeEvidenceByAliases(items, (item) => [
+    canonicalEvidenceKey(item),
+    ...githubUrlAliases(item, normalizeKeyPart(item.entityId)),
+  ]);
 }
 
 export function dedupeEvidenceForScoring<T extends EvidenceItem>(items: T[]): T[] {
-  const byKey = new Map<string, T>();
+  return dedupeEvidenceByAliases(
+    items.filter((item) => !hasEvidenceIdentityConflict(item)),
+    (item) => [canonicalPostKey(item), ...githubUrlAliases(item)],
+  );
+}
 
-  for (const item of items) {
-    if (hasEvidenceIdentityConflict(item)) {
-      continue;
+/**
+ * A current GitHub observation can identify a repository by both its immutable
+ * object ID and its owner/name URL, while an older snapshot may only have the
+ * URL. Treat both as aliases for the same physical row. The union step also
+ * preserves object-ID dedupe across repository renames and transfers.
+ */
+function dedupeEvidenceByAliases<T extends EvidenceItem>(
+  items: T[],
+  aliasesForItem: (item: T) => string[],
+): T[] {
+  const parents = items.map((_, index) => index);
+  const githubObjectIds = items.map((item) => {
+    const objectId = immutableGithubRepositoryObjectId(item);
+    return new Set(objectId ? [objectId] : []);
+  });
+  const aliasOwners = new Map<string, number>();
+
+  const find = (index: number): number => {
+    let root = index;
+    while (parents[root] !== root) root = parents[root];
+    while (parents[index] !== index) {
+      const next = parents[index];
+      parents[index] = root;
+      index = next;
     }
+    return root;
+  };
 
-    const key = canonicalPostKey(item);
-    const existing = byKey.get(key);
-    if (!existing || shouldReplaceEvidence(existing, item)) {
-      byKey.set(key, item);
+  const union = (left: number, right: number): boolean => {
+    const leftRoot = find(left);
+    const rightRoot = find(right);
+    if (leftRoot === rightRoot) return true;
+
+    const combinedObjectIds = new Set([
+      ...githubObjectIds[leftRoot],
+      ...githubObjectIds[rightRoot],
+    ]);
+    // Two different immutable IDs at the same owner/name can represent a
+    // deleted-and-recreated repository (or corrupt input). Never let a
+    // URL-only bridge collapse that conflict silently.
+    if (combinedObjectIds.size > 1) return false;
+
+    parents[rightRoot] = leftRoot;
+    githubObjectIds[leftRoot] = combinedObjectIds;
+    return true;
+  };
+
+  items.forEach((item, index) => {
+    for (const alias of new Set(aliasesForItem(item).filter(Boolean))) {
+      const existing = aliasOwners.get(alias);
+      if (existing === undefined) aliasOwners.set(alias, index);
+      else union(existing, index);
     }
-  }
+  });
 
-  return [...byKey.values()];
+  const groups = new Map<number, { firstIndex: number; preferred: T }>();
+  items.forEach((item, index) => {
+    const root = find(index);
+    const existing = groups.get(root);
+    if (!existing) {
+      groups.set(root, { firstIndex: index, preferred: item });
+    } else if (shouldReplaceEvidence(existing.preferred, item)) {
+      existing.preferred = item;
+    }
+  });
+
+  return [...groups.values()]
+    .sort((left, right) => left.firstIndex - right.firstIndex)
+    .map((group) => group.preferred);
+}
+
+function immutableGithubRepositoryObjectId(item: EvidenceItem): string | null {
+  if (item.platform !== "github") return null;
+  const objectId = String(item.platformObjectId ?? "").trim();
+  return /^\d+$/.test(objectId) ? objectId : null;
+}
+
+function githubUrlAliases(item: EvidenceItem, entityPrefix?: string): string[] {
+  if (item.platform !== "github" || hasEvidenceIdentityConflict(item)) return [];
+  const nativeId = nativeEvidenceIdentityFromUrl("github", item.sourceUrl);
+  if (!nativeId) return [];
+  const physicalAlias = `github:post:${nativeId}`;
+  return [entityPrefix === undefined ? physicalAlias : `${entityPrefix}:${physicalAlias}`];
 }
 
 /** Returns a platform-native object ID only when both host and path grammar are valid. */
