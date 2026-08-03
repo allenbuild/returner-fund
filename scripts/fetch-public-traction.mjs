@@ -69,6 +69,12 @@ import {
   persistRecentWindowProof
 } from "./lib/recent-window-proof-instrumentation.mjs";
 import { matchesHnCompanyStory } from "./lib/historical-backfill.mjs";
+import {
+  parseYouTubeFeed,
+  parseYouTubePublicPage,
+  youtubeChannelIdFromAccountUrl,
+  youtubeFeedUrl
+} from "./lib/historical-depth-sources.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -1901,27 +1907,130 @@ function canonicalYouTubeChannelUrl(value) {
 }
 
 async function ingestMappedYouTubeAccount(company, entity, entityType, accountUrl) {
-  const videosUrl = `${canonicalProfileUrl(accountUrl, "youtube").replace(/\/$/, "")}/videos`;
+  const canonicalAccountUrl = canonicalProfileUrl(accountUrl, "youtube").replace(/\/$/, "");
+  const videosUrl = `${canonicalAccountUrl}/videos`;
   const response = await fetchPublic(videosUrl);
   const html = await response.text();
-  const videos = parseYouTubeResults(html).slice(0, 5);
-  const entityId = entityIdFor(company, entity, entityType);
-  const name = entityName(entity, entityType);
-  if (!videos.length) {
+  const pageObservation = parseYouTubePublicPage(html);
+  const mappedChannelId = youtubeChannelIdFromAccountUrl(canonicalAccountUrl);
+  if (mappedChannelId && pageObservation.channelId && mappedChannelId !== pageObservation.channelId) {
     return {
       failures: [failure(
         "youtube",
         company,
         accountUrl,
-        "No visible native YouTube videos were exposed on the mapped account.",
+        `Mapped YouTube channel ${mappedChannelId} resolved to ${pageObservation.channelId}; refusing cross-channel evidence.`,
         entityType,
-        name,
-        entityId
+        entityName(entity, entityType),
+        entityIdFor(company, entity, entityType)
       )]
     };
   }
-  return {
-    evidence: videos.map((video) => evidenceItem({
+  const pageVideos = parseYouTubeResults(html);
+  const channelId = mappedChannelId ?? pageObservation.channelId ??
+    pageVideos.find((video) => video.youtubeChannelId)?.youtubeChannelId ?? null;
+  const entityId = entityIdFor(company, entity, entityType);
+  const name = entityName(entity, entityType);
+  let feed = null;
+  let feedFailure = null;
+  if (channelId) {
+    const feedSourceUrl = youtubeFeedUrl(channelId);
+    try {
+      const feedResponse = await fetchPublic(feedSourceUrl, { accept: "application/atom+xml,application/xml,text/xml" });
+      const feedBody = await feedResponse.text();
+      if (!feedResponse.ok) {
+        throw new Error(`Official YouTube Atom feed returned HTTP ${feedResponse.status}.`);
+      }
+      feed = parseYouTubeFeed(feedBody, {
+        target: {
+          accountUrl: canonicalAccountUrl,
+          accountId: channelId,
+          batchSlug: batchConfig.slug,
+          entityType,
+          entityId,
+          entityName: name,
+          companyId: companyId(company),
+          companyName: company.name
+        },
+        discoveredAt: new Date(now)
+      });
+    } catch (error) {
+      feedFailure = failure(
+        "youtube",
+        company,
+        feedSourceUrl,
+        `Official YouTube Atom feed could not be exhausted: ${errorMessage(error)}`,
+        entityType,
+        name,
+        entityId
+      );
+    }
+  }
+
+  const videosById = new Map();
+  for (const video of feed?.evidence ?? []) {
+    videosById.set(video.nativeId, {
+      videoId: video.nativeId,
+      title: video.title,
+      description: video.text,
+      postedAt: video.publishedAt,
+      views: video.metrics?.views ?? null,
+      youtubeChannelId: channelId,
+      youtubeChannelUrl: channelId ? `https://youtube.com/channel/${channelId}` : canonicalAccountUrl,
+      raw: JSON.stringify(video),
+      discoveryMethod: video.discoveryMethod
+    });
+  }
+  for (const video of pageVideos) {
+    const prior = videosById.get(video.videoId);
+    videosById.set(video.videoId, {
+      ...prior,
+      ...video,
+      postedAt: prior?.postedAt ?? null,
+      views: Number(video.views) > 0 ? video.views : prior?.views ?? video.views,
+      raw: cleanText(`${prior?.raw ?? ""} ${video.raw ?? ""}`),
+      discoveryMethod: prior?.discoveryMethod ?? "youtube_verified_channel_videos_page"
+    });
+  }
+  const videos = [...videosById.values()];
+  if (!videos.length) {
+    return {
+      failures: [
+        ...(feedFailure ? [feedFailure] : []),
+        failure(
+          "youtube",
+          company,
+          accountUrl,
+          "No visible native YouTube videos were exposed on the mapped account or its official Atom feed.",
+          entityType,
+          name,
+          entityId
+        )
+      ]
+    };
+  }
+  const evidence = [];
+  const needsReview = [];
+  for (const video of videos) {
+    if (!(Number(video.views) > 0)) {
+      needsReview.push({
+        ...reviewCandidate(
+          company,
+          "youtube",
+          `https://www.youtube.com/watch?v=${video.videoId}`,
+          `Verified mapped YouTube video for ${name} had no positive public view metric.`,
+          entityType,
+          entityId,
+          name
+        ),
+        platformPostId: video.videoId,
+        postedAt: video.postedAt ?? null,
+        youtubeChannelId: channelId,
+        youtubeChannelUrl: video.youtubeChannelUrl ?? canonicalAccountUrl
+      });
+      continue;
+    }
+    evidence.push(evidenceItem({
       company,
       entityType,
       entityId,
@@ -1931,11 +2040,22 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
       title: video.title,
       text: video.description || video.title,
       rawVisibleText: video.raw,
+      postedAt: video.postedAt ?? null,
       metrics: { views: video.views },
       contributionScore: scoreMetrics("youtube", { views: video.views }),
       review_state: "verified",
-      matchReason: `Native video listed directly on the verified mapped YouTube account for ${name}.`
-    }))
+      youtubeChannelId: channelId,
+      youtubeChannelUrl: video.youtubeChannelUrl ?? canonicalAccountUrl,
+      attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+      attributionStatus: "verified",
+      attributionProvenance: video.discoveryMethod,
+      matchReason: `Native video enumerated from the verified mapped YouTube account for ${name}.`
+    }));
+  }
+  return {
+    evidence,
+    needsReview,
+    failures: feedFailure ? [feedFailure] : []
   };
 }
 
@@ -3808,7 +3928,7 @@ function parseYouTubeResults(html) {
   const seen = new Set();
   const regex = /"videoId":"([^"]+)".{0,500}?"title":\{"runs":\[\{"text":"([^"]+)"/g;
   let match;
-  while ((match = regex.exec(html)) && results.length < 20) {
+  while ((match = regex.exec(html))) {
     const videoId = match[1];
     if (seen.has(videoId)) continue;
     seen.add(videoId);
