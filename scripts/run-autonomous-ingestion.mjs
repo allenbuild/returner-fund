@@ -85,12 +85,12 @@ if (!idempotencyKey) {
 
 const url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const serviceKey = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
-const durableStorageConfigured = Boolean(url && serviceKey);
+const supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey);
+const durableStorageConfigured = supabaseConfiguration.valid;
 const discoveryCredentialGaps = [
   !cleanEnv(process.env.X_BEARER_TOKEN) ? "X_BEARER_TOKEN" : null,
   !cleanEnv(process.env.EXA_API_KEY) ? "EXA_API_KEY" : null,
-  !url ? "NEXT_PUBLIC_SUPABASE_URL" : null,
-  !serviceKey ? "SUPABASE_SERVICE_ROLE_KEY" : null
+  ...supabaseConfiguration.blockers
 ].filter(Boolean);
 
 await Promise.all([
@@ -147,12 +147,8 @@ try {
     }
     run = await getOrCreateRun();
   } else {
-    const missing = [
-      !url ? "NEXT_PUBLIC_SUPABASE_URL" : null,
-      !serviceKey ? "SUPABASE_SERVICE_ROLE_KEY" : null
-    ].filter(Boolean);
     console.warn(
-      `Durable Supabase import skipped because required production configuration is incomplete (${missing.join(", ")}). ` +
+      `Durable Supabase import skipped because required production configuration is unusable (${supabaseConfiguration.blockers.join(", ")}). ` +
       "File-backed collection and publication will continue, and the workflow receipt will report degraded collection health."
     );
   }
@@ -3098,6 +3094,24 @@ function parseArgs(rawArgs) {
 function cleanEnv(value) {
   const trimmed = value?.trim();
   return trimmed || null;
+}
+
+function validateSupabaseConfiguration(url, serviceKey) {
+  const blockers = [];
+  if (!url) {
+    blockers.push("NEXT_PUBLIC_SUPABASE_URL");
+  } else {
+    try {
+      const parsed = new URL(url);
+      if (!/^https?:$/.test(parsed.protocol) || !parsed.hostname) {
+        blockers.push("NEXT_PUBLIC_SUPABASE_URL:invalid_http_url");
+      }
+    } catch {
+      blockers.push("NEXT_PUBLIC_SUPABASE_URL:invalid_http_url");
+    }
+  }
+  if (!serviceKey) blockers.push("SUPABASE_SERVICE_ROLE_KEY");
+  return { valid: blockers.length === 0, blockers };
 }
 
 function safePathSegment(value) {

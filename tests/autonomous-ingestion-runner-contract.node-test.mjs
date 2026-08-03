@@ -71,6 +71,26 @@ describe("autonomous ingestion runner CLI", () => {
     assert.match(result.stderr, /No collector completed successfully/);
     assert.doesNotMatch(result.stdout, /"status": "completed"/);
   });
+
+  it("records an invalid Supabase URL as a blocker and continues in file-backed mode", async () => {
+    const root = await createRunnerRoot("autonomous-ingestion-invalid-supabase-");
+    const env = {
+      ...process.env,
+      NEXT_PUBLIC_SUPABASE_URL: "masked-or-misconfigured-value",
+      SUPABASE_SERVICE_ROLE_KEY: "configured-but-not-used"
+    };
+
+    const result = spawnSync(
+      process.execPath,
+      [runnerPath, "--idempotency-key=invalid-supabase-contract", "--skip-network", "--skip-publish"],
+      { cwd: root, env, encoding: "utf8" }
+    );
+
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /NEXT_PUBLIC_SUPABASE_URL:invalid_http_url/);
+    assert.match(result.stderr, /File-backed collection and publication will continue/);
+    assert.doesNotMatch(result.stderr, /Invalid supabaseUrl/);
+  });
 });
 
 describe("autonomous ingestion runner static safety contracts", () => {
@@ -85,7 +105,9 @@ describe("autonomous ingestion runner static safety contracts", () => {
   });
 
   it("allows file-backed recovery without Supabase but explicitly degrades workflow health", () => {
-    assert.ok(runner.includes("const durableStorageConfigured = Boolean(url && serviceKey)"));
+    assert.ok(runner.includes("const supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey)"));
+    assert.ok(runner.includes("const durableStorageConfigured = supabaseConfiguration.valid"));
+    assert.ok(runner.includes('blockers.push("NEXT_PUBLIC_SUPABASE_URL:invalid_http_url")'));
     assert.doesNotMatch(runner, /SUPABASE_SERVICE_ROLE_KEY are required/);
     assert.ok(runner.includes("workflow receipt will report degraded collection health"));
     assert.doesNotMatch(runner, /workflow receipt will fail/);
