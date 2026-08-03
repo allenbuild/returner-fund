@@ -130,6 +130,32 @@ describe("daily benchmark updater", () => {
     ).resolves.toEqual({ status: "skipped" });
   });
 
+  it("accepts snapshots generated during the build that precedes the publisher process", async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "daily-benchmark-build-window-"));
+    const fixtureServer = createGraphFixtureServer({ failAfterReady: false });
+    await listenOnRandomPort(fixtureServer);
+    const address = fixtureServer.address();
+    const child = new FakeChildProcess();
+
+    try {
+      await expect(
+        main(
+          [
+            `--port=${address.port}`,
+            "--now=2026-07-16T05:02:00.000Z",
+            "--window-start=2026-07-16T05:00:00.000Z"
+          ],
+          {
+            rootDir,
+            graphServerOptions: graphServerTestOptions(child)
+          }
+        )
+      ).resolves.toMatchObject({ status: "updated" });
+    } finally {
+      await closeServer(fixtureServer);
+    }
+  });
+
   it("validates the exact v4 scoring model and coherent generated/input timestamps", () => {
     const generatedAt = new Date("2026-07-16T05:00:10.000Z");
     const snapshots = graphSnapshots(generatedAt);

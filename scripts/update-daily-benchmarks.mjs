@@ -66,6 +66,10 @@ export async function main(
   if (!Number.isFinite(runStartedAt.getTime())) {
     throw new Error(`Invalid benchmark run timestamp: ${args.now}`);
   }
+  const windowStart = args.windowStart ? new Date(args.windowStart) : runStartedAt;
+  if (!Number.isFinite(windowStart.getTime()) || windowStart.getTime() > runStartedAt.getTime()) {
+    throw new Error(`Invalid benchmark generation-window timestamp: ${args.windowStart}`);
+  }
 
   if (
     args.scheduledUtcHour !== undefined &&
@@ -104,7 +108,7 @@ export async function main(
       rootDir,
       recordedAt,
       validationNow: recordedAt,
-      windowStart: runStartedAt,
+      windowStart,
       publicationOptions
     });
     throwIfAborted(server.signal);
@@ -998,6 +1002,7 @@ function parseArgs(rawArgs) {
     diagnosticsSecret: process.env.GRAPH_DIAGNOSTICS_SECRET,
     port: Number(process.env.GRAPH_API_PORT) || DEFAULT_PORT,
     now: process.env.BENCHMARK_NOW,
+    windowStart: process.env.BENCHMARK_WINDOW_START,
     scheduledUtcHour: undefined
   };
 
@@ -1016,6 +1021,10 @@ function parseArgs(rawArgs) {
     }
     if (arg.startsWith("--now=")) {
       parsed.now = arg.slice("--now=".length);
+      continue;
+    }
+    if (arg.startsWith("--window-start=")) {
+      parsed.windowStart = arg.slice("--window-start=".length);
       continue;
     }
     if (arg.startsWith("--scheduled-utc-hour=")) {

@@ -41,8 +41,8 @@ describe("autonomous ingestion runner CLI", () => {
     const plan = JSON.parse(result.stdout);
     assert.equal(plan.idempotencyKey, "plan-contract");
     assert.deepEqual(plan.batches.filter((batch) => batch.slug !== "S26"), [
-      { slug: "S2026", companies: 197, founders: 397, accounts: 968 },
-      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
+      { slug: "S2026", companies: 197, founders: 397, accounts: 994 },
+      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 339 }
     ]);
     const summer = plan.batches.find((batch) => batch.slug === "S26");
     assert.ok(summer.companies >= 167);

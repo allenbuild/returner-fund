@@ -1837,15 +1837,7 @@ function mergeOwnerAccounts(entity, overrideLinks, { discoveredFromUrl, matchRea
         account
       ])
   );
-  for (const [rawPlatform, rawUrl] of Object.entries(overrideLinks ?? {})) {
-    if (typeof rawUrl !== "string" || !rawUrl.trim()) continue;
-    const platform = normalizePlatform(rawPlatform);
-    if (!socialUrlMatchesPlatform(platform, rawUrl)) {
-      throw new Error(`Verified ${platform} override URL does not match its platform: ${rawUrl}`);
-    }
-    const canonicalUrl = canonicalSocialAccountUrl(platform, rawUrl);
-    const handle = socialHandle(canonicalUrl);
-    if (!handle) throw new Error(`Verified ${platform} override URL has no account identity: ${rawUrl}`);
+  for (const { platform, rawUrl, canonicalUrl, handle } of normalizeVerifiedSocialOverrideLinks(overrideLinks)) {
     byOwnerIdentity.set(`${platform}:${canonicalUrl}`, {
       sourceKey: `acct:${entity.entityType}:${entity.sourceKey}:${platform}:${encodeURIComponent(canonicalUrl)}`,
       platform,
@@ -1865,6 +1857,49 @@ function mergeOwnerAccounts(entity, overrideLinks, { discoveredFromUrl, matchRea
       left.platform.localeCompare(right.platform) ||
       canonicalSocialAccountUrl(left.platform, left.url).localeCompare(canonicalSocialAccountUrl(right.platform, right.url))
   );
+}
+
+export function normalizeVerifiedSocialOverrideLinks(overrideLinks) {
+  if (overrideLinks === null || overrideLinks === undefined) return [];
+  if (typeof overrideLinks !== "object" || Array.isArray(overrideLinks)) {
+    throw new Error("Verified social override links must be an object keyed by platform.");
+  }
+
+  const links = [];
+  const seen = new Set();
+  for (const [rawPlatform, rawValue] of Object.entries(overrideLinks)) {
+    const isArray = Array.isArray(rawValue);
+    if (!isArray && typeof rawValue !== "string") {
+      throw new Error(`Verified ${rawPlatform} override must be a URL string or a non-empty URL array.`);
+    }
+    if (isArray && rawValue.length === 0) {
+      throw new Error(`Verified ${rawPlatform} override URL array must not be empty.`);
+    }
+    const rawUrls = isArray ? rawValue : [rawValue];
+    for (const rawUrl of rawUrls) {
+      if (typeof rawUrl !== "string" || !rawUrl.trim()) {
+        if (!isArray) continue;
+        throw new Error(`Verified ${rawPlatform} override URL array contains a malformed URL value.`);
+      }
+      const platform = normalizePlatform(rawPlatform);
+      if (!AUTONOMOUS_PLATFORMS.includes(platform)) {
+        throw new Error(`Verified social override uses unsupported platform: ${rawPlatform}`);
+      }
+      if (!socialUrlMatchesPlatform(platform, rawUrl)) {
+        throw new Error(`Verified ${platform} override URL does not match its platform: ${rawUrl}`);
+      }
+      const canonicalUrl = canonicalSocialAccountUrl(platform, rawUrl);
+      const handle = socialHandle(canonicalUrl);
+      if (!handle) throw new Error(`Verified ${platform} override URL has no account identity: ${rawUrl}`);
+      const identity = `${platform}:${canonicalUrl.toLowerCase()}`;
+      if (seen.has(identity)) {
+        throw new Error(`Verified ${platform} override contains duplicate account URL: ${rawUrl}`);
+      }
+      seen.add(identity);
+      links.push({ platform, rawUrl, canonicalUrl, handle });
+    }
+  }
+  return links;
 }
 
 function retiredOwnerAccounts(ownerOverride) {
@@ -2041,6 +2076,36 @@ function canonicalSocialAccountUrl(platform, rawUrl) {
       const handle = parts[0]?.replace(/^@/, "");
       if (handle) return `https://x.com/${handle.toLowerCase()}`;
     }
+    if (platform === "instagram" && (host === "instagram.com" || host.endsWith(".instagram.com"))) {
+      const handle = parts[0]?.replace(/^@/, "");
+      if (handle) return `https://instagram.com/${handle.toLowerCase()}`;
+    }
+    if (platform === "youtube" && host === "youtube.com") {
+      if (parts[0]?.startsWith("@") && parts[0].length > 1) {
+        return `https://youtube.com/@${parts[0].slice(1).toLowerCase()}`;
+      }
+      const namespace = parts[0]?.toLowerCase();
+      const handle = parts[1];
+      if (namespace && handle && ["channel", "c", "user"].includes(namespace)) {
+        return `https://youtube.com/${namespace}/${handle.toLowerCase()}`;
+      }
+    }
+    if (platform === "reddit" && (host === "reddit.com" || host.endsWith(".reddit.com"))) {
+      const namespace = parts[0]?.toLowerCase();
+      const handle = ["r", "u", "user"].includes(namespace ?? "") ? parts[1] : parts[0];
+      const pathNamespace = ["r", "u", "user"].includes(namespace ?? "") ? namespace : "user";
+      if (handle) return `https://reddit.com/${pathNamespace}/${handle.toLowerCase()}`;
+    }
+    if (platform === "product_hunt" && host === "producthunt.com") {
+      if (parts[0]?.startsWith("@") && parts[0].length > 1) {
+        return `https://producthunt.com/@${parts[0].slice(1).toLowerCase()}`;
+      }
+      const namespace = parts[0]?.toLowerCase();
+      const handle = parts[1];
+      if (namespace && handle && ["products", "posts"].includes(namespace)) {
+        return `https://producthunt.com/${namespace}/${handle.toLowerCase()}`;
+      }
+    }
     url.hash = "";
     url.search = "";
     url.protocol = "https:";
@@ -2061,6 +2126,9 @@ function socialUrlMatchesPlatform(platform, rawUrl) {
     if (platform === "instagram") return host === "instagram.com";
     if (platform === "tiktok") return host === "tiktok.com" || host === "m.tiktok.com";
     if (platform === "bluesky") return host === "bsky.app";
+    if (platform === "youtube") return host === "youtube.com";
+    if (platform === "product_hunt") return host === "producthunt.com";
+    if (platform === "reddit") return host === "reddit.com" || host.endsWith(".reddit.com");
     return true;
   } catch {
     return false;

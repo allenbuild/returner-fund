@@ -13,7 +13,7 @@ export interface RawInstagramSnapshotCompany {
 
 export interface RawInstagramOverrides {
   [companySlug: string]: {
-    companySocialLinks?: Record<string, string | null | undefined>;
+    companySocialLinks?: Record<string, RawVerifiedSocialLinkValue>;
     matchReason?: string;
     rejectedInstagram?: Array<{
       url?: string | null;
@@ -29,11 +29,13 @@ export interface RawInstagramOverrides {
     };
     founders?: Array<{
       name?: string;
-      socialLinks?: Record<string, string | null | undefined>;
+      socialLinks?: Record<string, RawVerifiedSocialLinkValue>;
       matchReason?: string;
     }>;
   };
 }
+
+export type RawVerifiedSocialLinkValue = string | readonly string[] | null | undefined;
 
 export interface RawInstagramDiscoveryReport {
   companies_checked?: number;
@@ -130,9 +132,11 @@ export function buildInstagramCoverageReport(input: {
       snapshotFounderProfiles: input.companies.flatMap((company) => company.founders ?? []).filter((founder) =>
         Boolean(founder.socialLinks?.instagram)
       ).length,
-      verifiedCompanyOverrides: overrides.filter((item) => Boolean(item.companySocialLinks?.instagram)).length,
+      verifiedCompanyOverrides: overrides.filter((item) =>
+        isVerifiedInstagramLinkValue(item.companySocialLinks?.instagram)
+      ).length,
       verifiedFounderOverrides: overrides.flatMap((item) => item.founders ?? []).filter((founder) =>
-        Boolean(founder.socialLinks?.instagram)
+        isVerifiedInstagramLinkValue(founder.socialLinks?.instagram)
       ).length,
       discoveredCandidates: discoveryCandidates.length,
       needsReviewCandidates: discoveryCandidates.filter((item) => item.review_state === "needs_review").length,
@@ -189,7 +193,7 @@ function rootCauseFindings(
     findings.push("The current YC snapshot has zero founder-level Instagram profile URLs.");
   }
   const verifiedOverrideCount = currentSnapshotOverrides(input.companies, input.overrides).filter(
-    (item) => item.companySocialLinks?.instagram
+    (item) => isVerifiedInstagramLinkValue(item.companySocialLinks?.instagram)
   ).length;
   if (verifiedOverrideCount === 0) {
     findings.push("No verified company Instagram overrides exist for the current YC snapshot.");
@@ -256,7 +260,7 @@ function missingReason(
   attempts: NonNullable<RawInstagramDiscoveryReport["attempts"]>
 ): string {
   const slug = companyId.replace(/^company-/, "");
-  if (input.overrides[slug]?.companySocialLinks?.instagram) {
+  if (isVerifiedInstagramLinkValue(input.overrides[slug]?.companySocialLinks?.instagram)) {
     return "Verified Instagram profile exists but no scored Instagram post evidence is attached yet.";
   }
   if (candidates.some((candidate) => candidate.companySlug === slug && candidate.review_state === "needs_review")) {
@@ -269,6 +273,32 @@ function missingReason(
     return "Instagram discovery attempted but found no useful profile candidates.";
   }
   return "No verified Instagram profile target is known yet.";
+}
+
+function isVerifiedInstagramLinkValue(value: RawVerifiedSocialLinkValue): boolean {
+  const urls = Array.isArray(value) ? value : [value];
+  return urls.length > 0 && urls.every((url) => isInstagramProfileUrl(url));
+}
+
+function isInstagramProfileUrl(value: unknown): value is string {
+  if (typeof value !== "string" || !value.trim()) return false;
+  try {
+    const url = new URL(value);
+    const pathParts = url.pathname.split("/").filter(Boolean);
+    return (
+      url.protocol === "https:" &&
+      (url.hostname === "instagram.com" || url.hostname === "www.instagram.com") &&
+      !url.username &&
+      !url.password &&
+      !url.port &&
+      !url.search &&
+      !url.hash &&
+      pathParts.length === 1 &&
+      /^[A-Za-z0-9._]+$/.test(pathParts[0])
+    );
+  } catch {
+    return false;
+  }
 }
 
 function isFallbackThumbnail(url: string | null | undefined): boolean {

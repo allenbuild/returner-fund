@@ -2507,6 +2507,7 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
   // evidence first so a clean runner never depends on an absent or stale
   // `.next` directory. A second build below captures the newly written graph
   // and Timeline artifacts in the deployable trace.
+  const benchmarkWindowStart = new Date().toISOString();
   await runCommand(process.execPath, ["scripts/prepare-graph-runtime-evidence.mjs"], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
     label: "pre-publication compact graph runtime preparation"
@@ -2518,7 +2519,10 @@ async function buildAndValidatePublication(publicationRunId, catalogState) {
   await runCommand(process.execPath, ["scripts/update-daily-benchmarks.mjs"], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.benchmarkPublicationMs,
     label: "graph and benchmark publication",
-    env: { INGESTION_RUN_ID: publicationRunId }
+    env: {
+      INGESTION_RUN_ID: publicationRunId,
+      BENCHMARK_WINDOW_START: benchmarkWindowStart
+    }
   });
   // Durable discovery runs against the just-refreshed canonical inventory and
   // must reach terminal source coverage before the artifact backfill reads

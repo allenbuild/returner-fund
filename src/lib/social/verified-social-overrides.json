@@ -17,9 +17,23 @@
     "sourceUrl": "https://advocatewellbeing.com",
     "matchReason": "The exact official Advocate website links to this native LinkedIn company page; verified during the A16Z Speedrun 006 low-coverage audit."
   },
+  "alkera-ai": {
+    "companySocialLinks": {
+      "x": "https://x.com/alkera_ai"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://alkera.ai",
+      "checkedAt": "2026-08-03T04:58:53.573Z"
+    },
+    "sourceUrl": "https://alkera.ai",
+    "matchReason": "The exact official Alkera AI website links directly to this verified native x company profile."
+  },
   "allowance": {
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/useallowance/"
+      "instagram": "https://www.instagram.com/useallowance/",
+      "linkedin": "https://www.linkedin.com/company/useallowance"
     },
     "instagramValidation": {
       "review_state": "verified",
@@ -36,7 +50,13 @@
         "previousMatchReason": "Web Instagram search found exact company/domain handle match for Allowance; query=\"\"Allowance\" Instagram\".",
         "source": "search-derived-instagram-quarantine"
       }
-    ]
+    ],
+    "linkedinValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_linkedin_profile",
+      "sourceUrl": "https://useallowance.com/",
+      "checkedAt": "2026-08-03T04:58:41.557Z"
+    }
   },
   "amboras": {
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://amboras.com.",
@@ -47,7 +67,17 @@
         "reason": "Instagram profile identity mismatch for @amboras.ai: visible profile name/bio/link did not match Amboras.",
         "source": "logged-in-instagram-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "x": "https://x.com/Amboras_inc"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://amboras.com",
+      "checkedAt": "2026-08-03T04:58:50.563Z"
+    },
+    "sourceUrl": "https://amboras.com"
   },
   "amdahl": {
     "companySocialLinks": {
@@ -65,9 +95,43 @@
   },
   "anoria": {
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/anoria.inc/"
+      "instagram": "https://www.instagram.com/anoria.inc/",
+      "youtube": "https://www.youtube.com/@Anoria_inc"
     },
-    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.anoria.com."
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.anoria.com.",
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://www.anoria.com",
+      "checkedAt": "2026-08-03T04:58:55.847Z"
+    },
+    "sourceUrl": "https://www.anoria.com"
+  },
+  "antihero-studios": {
+    "companySocialLinks": {
+      "reddit": "https://www.reddit.com/r/antihero_studios/"
+    },
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_reddit_profile",
+      "sourceUrl": "https://antiherostudios.com/",
+      "checkedAt": "2026-08-03T04:58:58.357Z"
+    },
+    "sourceUrl": "https://antiherostudios.com/",
+    "matchReason": "The exact official Antihero Studios website links directly to this verified native reddit company profile."
+  },
+  "applied-electrodynamics-inc": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@AppliedElectrodynamics"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://www.ae-dyn.com/",
+      "checkedAt": "2026-08-03T04:58:58.156Z"
+    },
+    "sourceUrl": "https://www.ae-dyn.com/",
+    "matchReason": "The exact official Applied Electrodynamics, Inc. website links directly to this verified native youtube company profile."
   },
   "aquashield": {
     "matchReason": "Web Instagram search found exact company/domain handle match for AquaShield; query=\"\"AquaShield\" Instagram\".",
@@ -120,7 +184,17 @@
         "reason": "Instagram profile identity mismatch for @arzana_automation: visible profile name/bio/link did not match Arzana.",
         "source": "logged-in-instagram-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@Arzana.Automation"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://www.arzana.com/",
+      "checkedAt": "2026-08-03T04:58:55.948Z"
+    },
+    "sourceUrl": "https://www.arzana.com/"
   },
   "asendia-ai": {
     "matchReason": "Web Instagram search found a full official-domain Instagram handle match (asendiaai) for Asendia AI; query=\"\"Asendia AI\" site:instagram.com\".",
@@ -146,14 +220,23 @@
     ]
   },
   "atrisa": {
-    "companySocialLinks": {},
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@AtrisaAI"
+    },
     "matchReason": "Web Instagram search found exact company/domain handle match for Atrisa; query=\"\"Atrisa\" Instagram\".",
     "prunedInstagram": {
       "url": "https://www.instagram.com/atrisa/",
       "matchReason": "Web Instagram search found exact company/domain handle match for Atrisa; query=\"\"Atrisa\" Instagram\".",
       "prunedAt": "2026-06-30T10:05:34.849Z",
       "pruneReason": "auto-verify rejected; exactHost=false, exactSlug=false, exactCompanyName=false, ambiguous=false"
-    }
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://refortif.ai",
+      "checkedAt": "2026-08-03T04:58:56.049Z"
+    },
+    "sourceUrl": "https://refortif.ai"
   },
   "autostep": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Autostep; query=\"\"autostep\" Instagram\".",
@@ -166,6 +249,19 @@
       }
     ]
   },
+  "biostack-platforms": {
+    "companySocialLinks": {
+      "x": "https://x.com/getbiostack"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://www.getbiostack.com/",
+      "checkedAt": "2026-08-03T04:58:50.815Z"
+    },
+    "sourceUrl": "https://www.getbiostack.com/",
+    "matchReason": "The exact official BioStack Platforms website links directly to this verified native x company profile."
+  },
   "callab-ai": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Callab AI; query=\"\"Callab AI\" site:instagram.com\".",
     "needsReviewInstagram": [
@@ -176,7 +272,30 @@
         "previousMatchReason": "Web Instagram search found exact company/domain handle match for Callab AI; query=\"\"Callab AI\" site:instagram.com\".",
         "source": "search-derived-instagram-quarantine"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@callabai"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://callab.ai",
+      "checkedAt": "2026-08-03T04:58:56.251Z"
+    },
+    "sourceUrl": "https://callab.ai"
+  },
+  "care-gp": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@CareGP-aus"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://caregp.com.au/",
+      "checkedAt": "2026-08-03T04:58:57.153Z"
+    },
+    "sourceUrl": "https://caregp.com.au/",
+    "matchReason": "The exact official Care GP website links directly to this verified native youtube company profile."
   },
   "centralcoms": {
     "companySocialLinks": {
@@ -191,6 +310,44 @@
         "source": "public_redirect_identity_resolution"
       }
     ]
+  },
+  "cerenovus": {
+    "companySocialLinks": {
+      "x": "https://x.com/Cerenovusai",
+      "product_hunt": "https://www.producthunt.com/products/compendium-2"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://www.cerenovus.ai/",
+      "checkedAt": "2026-08-03T04:58:55.081Z"
+    },
+    "sourceUrl": "https://www.cerenovus.ai/",
+    "matchReason": "The exact official Cerenovus website links directly to this verified native x company profile.",
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "product_hunt-source-hunt-company-cerenovus-compendium-2",
+      "sourceUrl": "https://www.producthunt.com/products/compendium-2",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:product_hunt-source-hunt-company-cerenovus-compendium-2"
+    }
+  },
+  "characterquilt": {
+    "companySocialLinks": {
+      "x": "https://x.com/characterquilt"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://characterquilt.com",
+      "checkedAt": "2026-08-03T04:58:51.066Z"
+    },
+    "sourceUrl": "https://characterquilt.com",
+    "matchReason": "The exact official CharacterQuilt website links directly to this verified native x company profile."
   },
   "chert": {
     "companySocialLinks": {
@@ -207,7 +364,42 @@
         "reason": "Instagram profile identity mismatch for @cignara: visible profile name/bio/link did not match Cignara.",
         "source": "logged-in-instagram-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "x": "https://x.com/cignara_ai",
+      "product_hunt": "https://www.producthunt.com/products/cignara"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://cignara.com/",
+      "checkedAt": "2026-08-03T04:58:51.318Z"
+    },
+    "sourceUrl": "https://cignara.com/",
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "product_hunt-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-cignara-nalin-gupta1-products-cignara",
+      "sourceUrl": "https://www.producthunt.com/products/cignara",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:product_hunt-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-cignara-nalin-gupta1-products-cignara"
+    }
+  },
+  "clara-2": {
+    "companySocialLinks": {
+      "x": "https://x.com/askclarahealth"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "http://askclara.com",
+      "checkedAt": "2026-08-03T04:58:51.567Z"
+    },
+    "sourceUrl": "http://askclara.com",
+    "matchReason": "The exact official Clara website links directly to this verified native x company profile."
   },
   "coasty": {
     "matchReason": "The official Coasty repository remains coasty-ai/open-cowork; the similarly named anthropics repository is third-party and must never be attributed to Coasty.",
@@ -218,11 +410,22 @@
         "reason": "Repository returns 404 and belongs to a third-party organization, not Coasty.",
         "source": "github-public-api-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@CoastyAI"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "http://coasty.ai/",
+      "checkedAt": "2026-08-03T04:58:57.253Z"
+    },
+    "sourceUrl": "http://coasty.ai/"
   },
   "codag": {
     "companySocialLinks": {
-      "github": "https://github.com/codag-megalith"
+      "github": "https://github.com/codag-megalith",
+      "product_hunt": "https://www.producthunt.com/products/codag"
     },
     "founders": [
       {
@@ -237,7 +440,18 @@
         "matchReason": "Eighth-pass source hunt verified live YC Codag founder identity and founder-linked native LinkedIn/GitHub/Product Hunt evidence."
       }
     ],
-    "matchReason": "Verified social override for Codag based on eighth-pass source hunt and live YC founder attribution."
+    "matchReason": "Verified social override for Codag based on eighth-pass source hunt and live YC founder attribution.",
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "product-hunt-eighth-pass-s26-company-codag-codag",
+      "sourceUrl": "https://www.producthunt.com/products/codag",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:product-hunt-eighth-pass-s26-company-codag-codag"
+    }
   },
   "cohesion": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Cohesion; query=\"\"Cohesion\" Instagram\".",
@@ -264,9 +478,29 @@
       }
     ]
   },
+  "contextdev": {
+    "companySocialLinks": {
+      "product_hunt": "https://www.producthunt.com/products/context-dev"
+    },
+    "sourceUrl": "https://www.producthunt.com/products/context-dev",
+    "matchReason": "Curated review_state=verified evidence resolved this canonical native Product Hunt product URL to the exact S26 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "product_hunt-source-hunt-company-contextdev-context-dev",
+      "sourceUrl": "https://www.producthunt.com/products/context-dev",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:product_hunt-source-hunt-company-contextdev-context-dev"
+    }
+  },
   "control-seat": {
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/controlseat/"
+      "instagram": "https://www.instagram.com/controlseat/",
+      "x": "https://x.com/Control_Seat",
+      "youtube": "https://www.youtube.com/@Control-Seat"
     },
     "instagramValidation": {
       "review_state": "verified",
@@ -274,7 +508,32 @@
       "sourceUrl": "https://www.controlseat.com/"
     },
     "sourceUrl": "https://www.controlseat.com/",
-    "matchReason": "The exact official Control Seat website links directly to this native Instagram company profile; verified during the batch-aware Instagram discovery audit."
+    "matchReason": "The exact official Control Seat website links directly to this native Instagram company profile; verified during the batch-aware Instagram discovery audit.",
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://www.controlseat.com",
+      "checkedAt": "2026-08-03T04:58:53.825Z"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://www.controlseat.com",
+      "checkedAt": "2026-08-03T04:58:57.353Z"
+    }
+  },
+  "cosmic-robotics": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@CosmicRobotics"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://www.cosmicrobotics.com/",
+      "checkedAt": "2026-08-03T04:58:57.453Z"
+    },
+    "sourceUrl": "https://www.cosmicrobotics.com/",
+    "matchReason": "The exact official Cosmic Robotics website links directly to this verified native youtube company profile."
   },
   "datost": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Datost; query=\"\"datost\" Instagram\".",
@@ -287,16 +546,44 @@
       }
     ]
   },
+  "definite": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@UseDefinite"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://www.usedefinite.com",
+      "checkedAt": "2026-08-03T04:58:57.956Z"
+    },
+    "sourceUrl": "https://www.usedefinite.com",
+    "matchReason": "The exact official Definite website links directly to this verified native youtube company profile."
+  },
   "dock": {
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/trydockai/"
+      "instagram": "https://www.instagram.com/trydockai/",
+      "x": "https://x.com/trydock",
+      "youtube": "https://www.youtube.com/@trydockai"
     },
     "instagramValidation": {
       "review_state": "verified",
       "method": "official_outbound_link",
       "sourceUrl": "https://trydock.ai/"
     },
-    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://trydock.ai. Official company-ownership gate passed: unique_strong_company_handle; snapshotVerified=false, uniquelyStrongCompanyHandle=true, founderLikeHandle=false."
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://trydock.ai. Official company-ownership gate passed: unique_strong_company_handle; snapshotVerified=false, uniquelyStrongCompanyHandle=true, founderLikeHandle=false.",
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://trydock.ai",
+      "checkedAt": "2026-08-03T04:58:54.579Z"
+    },
+    "sourceUrl": "https://trydock.ai",
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://trydock.ai",
+      "checkedAt": "2026-08-03T04:58:58.057Z"
+    }
   },
   "eden-robotics": {
     "companySocialLinks": {
@@ -345,6 +632,24 @@
       "sourceUrl": "https://ego.ist/"
     }
   },
+  "emanate": {
+    "companySocialLinks": {
+      "reddit": "https://www.reddit.com/user/kainjoo"
+    },
+    "sourceUrl": "https://old.reddit.com/r/kainjoo/comments/1u2vv0c/emanate_aidriven_solutions_revolutionizing/",
+    "matchReason": "Curated review_state=verified evidence resolved this canonical native Reddit profile URL to the exact A16Z Speedrun 006 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_profile_mapping",
+      "sourceFile": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "evidenceId": null,
+      "sourceUrl": "https://old.reddit.com/r/kainjoo/comments/1u2vv0c/emanate_aidriven_solutions_revolutionizing/",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_profile_url",
+      "attributionSource": "src/lib/social/a16z-speedrun-006-social-evidence.json:row_without_id"
+    }
+  },
   "enjamb-labs": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Enjamb Labs; query=\"\"enjamb\" Instagram\".",
     "rejectedInstagram": [
@@ -355,6 +660,19 @@
         "source": "logged-in-instagram-identity-guard"
       }
     ]
+  },
+  "expanse": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@Expanse-Labs"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://expanse.sh",
+      "checkedAt": "2026-08-03T04:58:56.350Z"
+    },
+    "sourceUrl": "https://expanse.sh",
+    "matchReason": "The exact official Expanse website links directly to this verified native youtube company profile."
   },
   "finaldose": {
     "matchReason": "Web Instagram search found exact company/domain handle match for FinalDose; query=\"\"finaldose\" Instagram\".",
@@ -410,7 +728,29 @@
         "reason": "Instagram profile identity mismatch for @gojiberry: visible profile name/bio/link did not match Gojiberry AI.",
         "source": "logged-in-instagram-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "x": "https://x.com/gojiberryai",
+      "reddit": "https://www.reddit.com/user/Ecstatic-Tough6503"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://www.gojiberry.ai",
+      "checkedAt": "2026-08-03T04:58:52.068Z"
+    },
+    "sourceUrl": "https://www.gojiberry.ai",
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_profile_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "reddit-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-gojiberry-ai-ecstatic-tough6503-comments-1sfb9cq-we-joined-yc-p26-at-70k-mrr",
+      "sourceUrl": "https://www.reddit.com/r/micro_saas/comments/1sfb9cq/we_joined_yc_p26_at_70k_mrr/",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_profile_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:reddit-all_batches_nonx_nonlinkedin_sol_ultra-s2026-company-gojiberry-ai-ecstatic-tough6503-comments-1sfb9cq-we-joined-yc-p26-at-70k-mrr"
+    }
   },
   "gutgutgoose": {
     "companySocialLinks": {
@@ -472,6 +812,19 @@
       }
     ]
   },
+  "idilio": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@IdilioTV"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://idilio.tv/en",
+      "checkedAt": "2026-08-03T04:58:58.458Z"
+    },
+    "sourceUrl": "https://idilio.tv/en",
+    "matchReason": "The exact official Idilio website links directly to this verified native youtube company profile."
+  },
   "incandor": {
     "matchReason": "Web Instagram search found exact company/domain handle match for Incandor; query=\"\"incandor\" Instagram\".",
     "rejectedInstagram": [
@@ -516,7 +869,21 @@
         "rejectedAt": "2026-06-30T11:16:34.756Z",
         "reason": "Visible Instagram profile is a Venezuelan management training institute, not YC InsForge."
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "product_hunt": "https://www.producthunt.com/products/insforge-alpha"
+    },
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "product_hunt-first-party-s2026-company-insforge-insforge-alpha-insforge-3",
+      "sourceUrl": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-3",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:product_hunt-first-party-s2026-company-insforge-insforge-alpha-insforge-3"
+    }
   },
   "instaagent": {
     "companySocialLinks": {
@@ -702,6 +1069,37 @@
       }
     ]
   },
+  "lemonlime": {
+    "companySocialLinks": {
+      "product_hunt": "https://www.producthunt.com/products/lemonlime"
+    },
+    "sourceUrl": "https://producthunt.com/products/lemonlime/launches/lemonlime",
+    "matchReason": "Curated review_state=verified evidence resolved this canonical native Product Hunt product URL to the exact S26 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "source-hunt-24552534f0e54f7ca54c",
+      "sourceUrl": "https://producthunt.com/products/lemonlime/launches/lemonlime",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:source-hunt-24552534f0e54f7ca54c"
+    }
+  },
+  "libra-robotics": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@LibraRobotics"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://www.librabots.com/",
+      "checkedAt": "2026-08-03T04:58:57.554Z"
+    },
+    "sourceUrl": "https://www.librabots.com/",
+    "matchReason": "The exact official Libra Robotics website links directly to this verified native youtube company profile."
+  },
   "light-anchor": {
     "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (lightanchor) for Light Anchor; query=\"\"Light Anchor\" site:instagram.com\".",
     "rejectedInstagram": [
@@ -737,6 +1135,19 @@
         "source": "public_redirect_identity_resolution"
       }
     ]
+  },
+  "luca-iq": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/channel/UCsKrXhK7dyIA_ATzzbzZ8bA"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://lucaiq.com/",
+      "checkedAt": "2026-08-03T04:58:58.257Z"
+    },
+    "sourceUrl": "https://lucaiq.com/",
+    "matchReason": "The exact official Luca IQ website links directly to this verified native youtube company profile."
   },
   "lumeria": {
     "companySocialLinks": {
@@ -818,6 +1229,24 @@
       }
     ]
   },
+  "mirror-mirror-ai": {
+    "companySocialLinks": {
+      "reddit": "https://www.reddit.com/user/somuchblood"
+    },
+    "sourceUrl": "https://old.reddit.com/r/a16zGames/comments/1o4r85b/still_waiting_on_a16z_speedrun_006_batch_youre/njg23rt/",
+    "matchReason": "Curated review_state=verified evidence resolved this canonical native Reddit profile URL to the exact A16Z Speedrun 006 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_profile_mapping",
+      "sourceFile": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "evidenceId": null,
+      "sourceUrl": "https://old.reddit.com/r/a16zGames/comments/1o4r85b/still_waiting_on_a16z_speedrun_006_batch_youre/njg23rt/",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_profile_url",
+      "attributionSource": "src/lib/social/a16z-speedrun-006-social-evidence.json:row_without_id"
+    }
+  },
   "miso-labs": {
     "companySocialLinks": {
       "instagram": "https://www.instagram.com/misolabsai/"
@@ -835,11 +1264,41 @@
       }
     ]
   },
+  "modaic": {
+    "companySocialLinks": {
+      "reddit": "https://www.reddit.com/user/Disneyskidney"
+    },
+    "sourceUrl": "https://old.reddit.com/r/LocalLLaMA/comments/1oarzhf/modaic_a_new_rl_native_agent_development_kit/",
+    "matchReason": "Curated review_state=verified evidence resolved this canonical native Reddit profile URL to the exact A16Z Speedrun 006 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_profile_mapping",
+      "sourceFile": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "evidenceId": null,
+      "sourceUrl": "https://old.reddit.com/r/LocalLLaMA/comments/1oarzhf/modaic_a_new_rl_native_agent_development_kit/",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_profile_url",
+      "attributionSource": "src/lib/social/a16z-speedrun-006-social-evidence.json:row_without_id"
+    }
+  },
   "napkin-math": {
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/napkinmath.club/"
+      "instagram": "https://www.instagram.com/napkinmath.club/",
+      "product_hunt": "https://www.producthunt.com/products/napkin-math"
     },
-    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://napkinmath.club."
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://napkinmath.club.",
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/public-evidence-current.json",
+      "evidenceId": "product-hunt-company-napkin-math-www-producthunt-com-products-napkin-math-launches-napkin-math-napkin-math-personalized-ai-food-journal-nutrition-coach-product-hunt",
+      "sourceUrl": "https://producthunt.com/products/napkin-math/launches/napkin-math",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/public-evidence-current.json:product-hunt-company-napkin-math-www-producthunt-com-products-napkin-math-launches-napkin-math-napkin-math-personalized-ai-food-journal-nutrition-coach-product-hunt"
+    }
   },
   "netter": {
     "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (netter) for Netter; query=\"\"Netter\" site:instagram.com\".",
@@ -861,7 +1320,35 @@
         "reason": "Instagram profile identity mismatch for @odd_pool: visible profile name/bio/link did not match Oddpool.",
         "source": "logged-in-instagram-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "x": "https://x.com/oddpool_alerts"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://www.oddpool.com",
+      "checkedAt": "2026-08-03T04:58:52.320Z"
+    },
+    "sourceUrl": "https://www.oddpool.com"
+  },
+  "omi-health": {
+    "companySocialLinks": {
+      "reddit": "https://www.reddit.com/user/Ok-Comfortable5583"
+    },
+    "sourceUrl": "https://old.reddit.com/r/DogAdvice/comments/1rz3vsp/is_this_whale_eye_and_is_it_bad/objjxcv/",
+    "matchReason": "Curated review_state=verified evidence resolved this canonical native Reddit profile URL to the exact A16Z Speedrun 006 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_profile_mapping",
+      "sourceFile": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "evidenceId": null,
+      "sourceUrl": "https://old.reddit.com/r/DogAdvice/comments/1rz3vsp/is_this_whale_eye_and_is_it_bad/objjxcv/",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_profile_url",
+      "attributionSource": "src/lib/social/a16z-speedrun-006-social-evidence.json:row_without_id"
+    }
   },
   "openprose": {
     "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (prose) for OpenProse; query=\"\"prose\" Instagram\".",
@@ -975,7 +1462,30 @@
         "reason": "Instagram profile identity mismatch for @panacea: visible profile name/bio/link did not match Panacea.",
         "source": "logged-in-instagram-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "x": "https://x.com/Panacea_Bio"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://withpanacea.com",
+      "checkedAt": "2026-08-03T04:58:52.571Z"
+    },
+    "sourceUrl": "https://withpanacea.com"
+  },
+  "parasma": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@ParasmaAI"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://parasma.com",
+      "checkedAt": "2026-08-03T04:58:57.653Z"
+    },
+    "sourceUrl": "https://parasma.com",
+    "matchReason": "The exact official Parasma website links directly to this verified native youtube company profile."
   },
   "pavoot": {
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://pavoot.com.",
@@ -988,8 +1498,16 @@
       }
     ],
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/pavoot_com/"
-    }
+      "instagram": "https://www.instagram.com/pavoot_com/",
+      "youtube": "https://www.youtube.com/@pavoot_com"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://pavoot.com",
+      "checkedAt": "2026-08-03T04:58:56.550Z"
+    },
+    "sourceUrl": "https://pavoot.com"
   },
   "playablai": {
     "matchReason": "The previously mapped Instagram profile failed native identity validation and is excluded from verified collection targets.",
@@ -1000,13 +1518,31 @@
         "reason": "Instagram profile identity did not match Playabl.ai; a shared handle alone is not sufficient owner proof.",
         "source": "logged-in-instagram-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@playabl_ai"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://playabl.ai",
+      "checkedAt": "2026-08-03T04:58:56.850Z"
+    },
+    "sourceUrl": "https://playabl.ai"
   },
   "pops": {
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/pops.fyi/"
+      "instagram": "https://www.instagram.com/pops.fyi/",
+      "youtube": "https://www.youtube.com/@pops_fyi"
     },
-    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://pops.fyi."
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://pops.fyi.",
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://pops.fyi",
+      "checkedAt": "2026-08-03T04:58:56.651Z"
+    },
+    "sourceUrl": "https://pops.fyi"
   },
   "praxis-ai-2": {
     "companySocialLinks": {
@@ -1039,6 +1575,19 @@
         "source": "logged-in-instagram-identity-guard"
       }
     ]
+  },
+  "proprio-robotics": {
+    "companySocialLinks": {
+      "x": "https://x.com/propriorobotics"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://www.propriorobotics.com/",
+      "checkedAt": "2026-08-03T04:58:54.830Z"
+    },
+    "sourceUrl": "https://www.propriorobotics.com/",
+    "matchReason": "The exact official Proprio Robotics website links directly to this verified native x company profile."
   },
   "prototypingio": {
     "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (prototyping) for Prototyping.io; query=\"\"prototyping\" Instagram\".",
@@ -1083,6 +1632,24 @@
       "pruneReason": "auto-verify rejected; exactHost=false, exactSlug=false, exactCompanyName=false, ambiguous=false"
     }
   },
+  "runtime": {
+    "companySocialLinks": {
+      "product_hunt": "https://www.producthunt.com/products/runtime"
+    },
+    "sourceUrl": "https://www.producthunt.com/products/runtime",
+    "matchReason": "Curated review_state=verified evidence resolved this canonical native Product Hunt product URL to the exact S2026 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "product_hunt-product_hunt_launch-s2026-company-runtime-products-runtime",
+      "sourceUrl": "https://www.producthunt.com/products/runtime",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:product_hunt-product_hunt_launch-s2026-company-runtime-products-runtime"
+    }
+  },
   "saffron": {
     "matchReason": "Web Instagram search found an exact YC slug Instagram handle match (saffron) for Saffron; query=\"\"Saffron\" site:instagram.com\".",
     "rejectedInstagram": [
@@ -1111,6 +1678,38 @@
       }
     ]
   },
+  "screenpipe": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@screen_pipe",
+      "reddit": "https://www.reddit.com/r/screen_pipe/",
+      "product_hunt": "https://www.producthunt.com/products/screenpipe"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://screenpipe.com",
+      "checkedAt": "2026-08-03T04:58:57.754Z"
+    },
+    "sourceUrl": "https://screenpipe.com",
+    "matchReason": "The exact official screenpipe website links directly to this verified native youtube company profile.",
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_reddit_profile",
+      "sourceUrl": "https://screenpipe.com",
+      "checkedAt": "2026-08-03T04:58:57.854Z"
+    },
+    "productHuntValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_product_mapping",
+      "sourceFile": "src/lib/social/targeted-evidence-current.json",
+      "evidenceId": "product_hunt-first-party-s26-company-screenpipe-screenpipe-screenpipe-2",
+      "sourceUrl": "https://www.producthunt.com/products/screenpipe/launches/screenpipe-2",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_product_url",
+      "attributionSource": "src/lib/social/targeted-evidence-current.json:product_hunt-first-party-s26-company-screenpipe-screenpipe-screenpipe-2"
+    }
+  },
   "smartbase": {
     "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (smartbase) for Smartbase; query=\"\"smartbase\" Instagram\".",
     "rejectedInstagram": [
@@ -1132,6 +1731,19 @@
         "source": "logged-in-instagram-identity-guard"
       }
     ]
+  },
+  "snapp-stats": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/@Snappstats"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://trysnapp.ai",
+      "checkedAt": "2026-08-03T04:58:58.659Z"
+    },
+    "sourceUrl": "https://trysnapp.ai",
+    "matchReason": "The exact official Snapp Stats website links directly to this verified native youtube company profile."
   },
   "stage": {
     "companySocialLinks": {
@@ -1193,6 +1805,38 @@
       }
     ]
   },
+  "sun": {
+    "companySocialLinks": {
+      "reddit": [
+        "https://www.reddit.com/user/createvalue-dontspam",
+        "https://www.reddit.com/user/Total_Birthday8070"
+      ]
+    },
+    "sourceUrl": "https://old.reddit.com/r/GrowthHacking/comments/1s6tgjc/what_if_you_could_learn_anything_without_ever/",
+    "matchReason": "Curated review_state=verified evidence resolved both canonical native Reddit profile URLs to the exact A16Z Speedrun 006 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_profile_mapping",
+      "sourceFile": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_profile_url",
+      "accounts": [
+        {
+          "accountUrl": "https://www.reddit.com/user/createvalue-dontspam",
+          "evidenceId": null,
+          "sourceUrl": "https://old.reddit.com/r/GrowthHacking/comments/1s6tgjc/what_if_you_could_learn_anything_without_ever/",
+          "attributionSource": "src/lib/social/a16z-speedrun-006-social-evidence.json:row_without_id"
+        },
+        {
+          "accountUrl": "https://www.reddit.com/user/Total_Birthday8070",
+          "evidenceId": null,
+          "sourceUrl": "https://old.reddit.com/r/founder/comments/1savgpt/my_ph_launch_just_hit_2_but_we_were_shadowbanned/",
+          "attributionSource": "src/lib/social/a16z-speedrun-006-social-evidence.json:row_without_id"
+        }
+      ]
+    }
+  },
   "superlog": {
     "matchReason": "Web Instagram search found an exact official-domain Instagram handle match (superlog) for Superlog; query=\"\"superlog\" Instagram\".",
     "rejectedInstagram": [
@@ -1226,6 +1870,24 @@
     },
     "sourceUrl": "https://x.com/surtrdefense",
     "matchReason": "The Surtr Defense X profile linked by the Spring 2026 cohort record directly identifies and links this native Instagram company profile."
+  },
+  "syncere": {
+    "companySocialLinks": {
+      "reddit": "https://www.reddit.com/user/cirad"
+    },
+    "sourceUrl": "https://old.reddit.com/r/robotsinaction/comments/1sl8km1/lume_by_syncere_floor_lamp_that_is_a_robot_arm/",
+    "matchReason": "Curated review_state=verified evidence resolved this canonical native Reddit profile URL to the exact A16Z Speedrun 006 company owner by batch, entity type, and immutable entity ID; no name-only matching was used.",
+    "redditValidation": {
+      "review_state": "verified",
+      "method": "curated_verified_evidence_exact_native_profile_mapping",
+      "sourceFile": "src/lib/social/a16z-speedrun-006-social-evidence.json",
+      "evidenceId": null,
+      "sourceUrl": "https://old.reddit.com/r/robotsinaction/comments/1sl8km1/lume_by_syncere_floor_lamp_that_is_a_robot_arm/",
+      "checkedAt": "2026-08-03T05:10:36.693Z",
+      "ownerResolution": "exact_batch_entity_type_immutable_entity_id",
+      "nativeAccountShape": "canonical_exact_platform_profile_url",
+      "attributionSource": "src/lib/social/a16z-speedrun-006-social-evidence.json:row_without_id"
+    }
   },
   "synphony": {
     "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://www.synphony.co/.",
@@ -1341,9 +2003,24 @@
   },
   "trellistech": {
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/usetrellis/"
+      "instagram": "https://www.instagram.com/usetrellis/",
+      "x": "https://x.com/usetrellis",
+      "youtube": "https://www.youtube.com/@usetrellis"
     },
-    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://trellistech.com."
+    "matchReason": "Found as an outbound Instagram profile link on the official company website. Source chain starts from https://trellistech.com.",
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://trellistech.com",
+      "checkedAt": "2026-08-03T04:58:53.322Z"
+    },
+    "sourceUrl": "https://trellistech.com",
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://trellistech.com",
+      "checkedAt": "2026-08-03T04:58:56.950Z"
+    }
   },
   "twolabs": {
     "matchReason": "Web Instagram search found a full official-domain Instagram handle match (twolabsai) for Twolabs; query=\"\"Twolabs\" Instagram\".",
@@ -1378,7 +2055,30 @@
         "reason": "Instagram profile identity mismatch for @UseParrot: visible profile name/bio/link did not match Parrot.",
         "source": "logged-in-instagram-identity-guard"
       }
-    ]
+    ],
+    "companySocialLinks": {
+      "x": "https://x.com/parrot"
+    },
+    "xValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_exact_native_x_profile",
+      "sourceUrl": "https://www.useparrot.com/",
+      "checkedAt": "2026-08-03T04:58:52.820Z"
+    },
+    "sourceUrl": "https://www.useparrot.com/"
+  },
+  "variantnow": {
+    "companySocialLinks": {
+      "youtube": "https://www.youtube.com/channel/UCxpHV6SlEVicu8RuSx0KY5g"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://variantnow.com",
+      "checkedAt": "2026-08-03T04:58:58.760Z"
+    },
+    "sourceUrl": "https://variantnow.com",
+    "matchReason": "The exact official VariantNow website links directly to this verified native youtube company profile."
   },
   "vestris": {
     "companySocialLinks": {
@@ -1428,7 +2128,15 @@
       }
     ],
     "companySocialLinks": {
-      "instagram": "https://www.instagram.com/youart_studio/"
-    }
+      "instagram": "https://www.instagram.com/youart_studio/",
+      "youtube": "https://www.youtube.com/@YouArt-Studio"
+    },
+    "youtubeValidation": {
+      "review_state": "verified",
+      "method": "official_site_outbound_link_and_reachable_native_youtube_profile",
+      "sourceUrl": "https://youart.ai",
+      "checkedAt": "2026-08-03T04:58:56.750Z"
+    },
+    "sourceUrl": "https://youart.ai"
   }
 }

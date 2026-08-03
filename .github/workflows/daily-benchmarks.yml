@@ -97,6 +97,9 @@ jobs:
         timeout-minutes: 10
         run: npm run test:benchmarks:daily
 
+      - name: Record graph generation window
+        run: echo "BENCHMARK_WINDOW_START=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" >> "$GITHUB_ENV"
+
       - name: Build app
         timeout-minutes: 15
         run: npm run build
@@ -212,6 +215,7 @@ jobs:
             fi
 
             timeout 10m npm ci
+            export BENCHMARK_WINDOW_START="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
             timeout 15m npm run build
             scheduled_args=()
             if [ -n "$SCHEDULED_UTC_HOUR" ]; then

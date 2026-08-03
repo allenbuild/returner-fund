@@ -10,23 +10,33 @@ const workflow = readFileSync(
 );
 
 describe("Public Artifact Validation workflow", () => {
-  it("budgets enough time for the complete release gate and preserves job headroom", () => {
-    const validateJob = workflow.match(/\n  validate:[\s\S]*$/)?.[0] ?? "";
-    const jobTimeout = Number(validateJob.match(/^\s{4}timeout-minutes:\s*(\d+)/m)?.[1]);
-    const installTimeout = Number(
-      validateJob.match(
-        /- name: Install dependencies[\s\S]*?^\s{8}timeout-minutes:\s*(\d+)/m
-      )?.[1]
-    );
-    const releaseGateTimeout = Number(
-      validateJob.match(
-        /- name: Run release gate[\s\S]*?^\s{8}timeout-minutes:\s*(\d+)/m
-      )?.[1]
-    );
+  it("runs independent release gates in parallel behind one required result", () => {
+    for (const [job, command] of [
+      ["application", "npm run check"],
+      ["scoring", "npm run check:release:scoring"],
+      ["artifacts", "npm run check:release:artifacts"]
+    ]) {
+      const section = workflow.match(
+        new RegExp(`\\n  ${job}:[\\s\\S]*?(?=\\n  [a-z][a-z-]*:|$)`)
+      )?.[0] ?? "";
+      expect(section).toContain("timeout-minutes: 70");
+      expect(section).toContain("timeout-minutes: 10");
+      expect(section).toContain("timeout-minutes: 55");
+      expect(section).toContain("run: npm ci");
+      expect(section).toContain(`run: ${command}`);
+    }
 
-    expect(jobTimeout).toBe(120);
-    expect(installTimeout).toBe(10);
-    expect(releaseGateTimeout).toBe(105);
-    expect(installTimeout + releaseGateTimeout).toBeLessThan(jobTimeout);
+    const validateJob = workflow.match(/\n  validate:[\s\S]*$/)?.[0] ?? "";
+    expect(validateJob).toContain("if: always()");
+    expect(validateJob).toContain("- application");
+    expect(validateJob).toContain("- scoring");
+    expect(validateJob).toContain("- artifacts");
+    expect(validateJob).toContain("APPLICATION_RESULT: ${{ needs.application.result }}");
+    expect(validateJob).toContain('test "$APPLICATION_RESULT" = success');
+  });
+
+  it("validates branch pushes only on main while keeping pull requests", () => {
+    expect(workflow).toContain("pull_request:");
+    expect(workflow).toMatch(/push:\s*\n\s+branches:\s*\n\s+- main/);
   });
 });
