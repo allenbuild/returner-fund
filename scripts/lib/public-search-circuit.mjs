@@ -1,7 +1,16 @@
 const DEFAULT_TIMEOUT_MS = 8_000;
+const DEFAULT_MAX_BODY_BYTES = 2 * 1024 * 1024;
 const DEFAULT_FAILURE_THRESHOLD = 2;
 const DEFAULT_COOLDOWN_MS = 15 * 60_000;
 const IMMEDIATE_BLOCK_STATUSES = new Set([401, 403, 429, 451]);
+
+class PublicSearchBodyLimitError extends Error {
+  constructor(limit) {
+    super(`DuckDuckGo public search exceeded the ${limit}-byte response limit`);
+    this.name = "PublicSearchBodyLimitError";
+    this.limit = limit;
+  }
+}
 
 export class PublicSearchUnavailableError extends Error {
   constructor(message, {
@@ -38,6 +47,10 @@ export function createPublicSearchCircuit(options = {}) {
   }
 
   const timeoutMs = positiveInteger(options.timeoutMs ?? DEFAULT_TIMEOUT_MS, "timeoutMs");
+  const maxBodyBytes = positiveInteger(
+    options.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES,
+    "maxBodyBytes"
+  );
   const failureThreshold = positiveInteger(
     options.failureThreshold ?? DEFAULT_FAILURE_THRESHOLD,
     "failureThreshold"
@@ -75,13 +88,14 @@ export function createPublicSearchCircuit(options = {}) {
       const parentSignal = init.signal;
 
       try {
-        const response = await fetchWithDeadline({
+        const { response, responseText } = await fetchWithDeadline({
           fetchImplementation,
           input,
           init,
           controller,
           parentSignal,
           timeoutMs,
+          maxBodyBytes,
           setTimer,
           clearTimer
         });
@@ -95,7 +109,6 @@ export function createPublicSearchCircuit(options = {}) {
           });
         }
 
-        const responseText = await response.clone().text();
         if (looksLikePublicSearchSoftBlock(responseText)) {
           const failure = "DuckDuckGo public search returned an HTTP 200 challenge/block page";
           recordFailure(failure, { immediate: true });
@@ -111,6 +124,12 @@ export function createPublicSearchCircuit(options = {}) {
       } catch (error) {
         if (error instanceof PublicSearchUnavailableError) throw error;
         if (parentSignal?.aborted) throw error;
+        if (error instanceof PublicSearchBodyLimitError) {
+          throw unavailableError(error.message, {
+            code: "public_search_body_limit",
+            cause: error
+          });
+        }
 
         const failure = controller.signal.aborted
           ? `DuckDuckGo public search timed out after ${timeoutMs}ms`
@@ -187,6 +206,7 @@ async function fetchWithDeadline({
   controller,
   parentSignal,
   timeoutMs,
+  maxBodyBytes,
   setTimer,
   clearTimer
 }) {
@@ -214,7 +234,17 @@ async function fetchWithDeadline({
 
   try {
     return await Promise.race([
-      Promise.resolve().then(() => fetchImplementation(input, { ...init, signal: controller.signal })),
+      Promise.resolve().then(async () => {
+        const response = await fetchImplementation(input, { ...init, signal: controller.signal });
+        if (isProviderFailureStatus(response.status)) {
+          return { response, responseText: "" };
+        }
+        const responseText = await boundedResponseText(response.clone(), maxBodyBytes, {
+          signal: controller.signal,
+          siblingBody: response.body
+        });
+        return { response, responseText };
+      }),
       deadline,
       callerAbort
     ]);
@@ -222,6 +252,61 @@ async function fetchWithDeadline({
     clearTimer(timer);
     parentSignal?.removeEventListener("abort", onParentAbort);
   }
+}
+
+async function boundedResponseText(response, maxBodyBytes, { signal, siblingBody } = {}) {
+  const contentLength = Number(response.headers?.get?.("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > maxBodyBytes) {
+    cancelBody(response.body);
+    cancelBody(siblingBody);
+    throw new PublicSearchBodyLimitError(maxBodyBytes);
+  }
+  if (!response.body?.getReader) {
+    const text = await response.text();
+    if (new TextEncoder().encode(text).byteLength > maxBodyBytes) {
+      throw new PublicSearchBodyLimitError(maxBodyBytes);
+    }
+    return text;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let totalBytes = 0;
+  let text = "";
+  const onAbort = () => {
+    const reason = abortReason(signal);
+    cancelReader(reader, reason);
+    cancelBody(siblingBody, reason);
+  };
+  if (signal?.aborted) onAbort();
+  else signal?.addEventListener("abort", onAbort, { once: true });
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > maxBodyBytes) {
+        cancelReader(reader);
+        cancelBody(siblingBody);
+        throw new PublicSearchBodyLimitError(maxBodyBytes);
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+    return text;
+  } finally {
+    signal?.removeEventListener("abort", onAbort);
+    reader.releaseLock();
+  }
+}
+
+function cancelReader(reader, reason) {
+  void reader.cancel(reason).catch(() => {});
+}
+
+function cancelBody(body, reason) {
+  if (!body?.cancel) return;
+  void body.cancel(reason).catch(() => {});
 }
 
 function abortReason(signal) {

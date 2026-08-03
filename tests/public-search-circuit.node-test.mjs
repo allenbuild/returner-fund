@@ -124,3 +124,48 @@ test("serializes concurrent probes so queued work observes an opened circuit", a
   await Promise.all([firstRejection, queuedRejection]);
   assert.equal(calls, 1);
 });
+
+test("the deadline covers a stalled response body, not only response headers", async () => {
+  const circuit = createPublicSearchCircuit({
+    fetch: async () => new Response(new ReadableStream({ start() {} })),
+    timeoutMs: 10,
+    failureThreshold: 1,
+    cooldownMs: 60_000,
+    now: () => Date.parse("2026-08-02T00:00:00.000Z"),
+    setTimeout: (callback) => {
+      queueMicrotask(callback);
+      return 1;
+    },
+    clearTimeout: () => {}
+  });
+
+  await assert.rejects(
+    circuit.fetch("https://duckduckgo.com/html/?q=stalled-body"),
+    (error) => error.code === "public_search_timeout" &&
+      error.retryAt === "2026-08-02T00:01:00.000Z"
+  );
+});
+
+test("oversized response bodies are bounded without poisoning the provider circuit", async () => {
+  let calls = 0;
+  const circuit = createPublicSearchCircuit({
+    fetch: async () => {
+      calls += 1;
+      return new Response("12345", { status: 200 });
+    },
+    maxBodyBytes: 4,
+    failureThreshold: 1,
+    cooldownMs: 60_000
+  });
+
+  await assert.rejects(
+    circuit.fetch("https://duckduckgo.com/html/?q=oversized"),
+    (error) => error.code === "public_search_body_limit" && error.retryAt === null
+  );
+  await assert.rejects(
+    circuit.fetch("https://duckduckgo.com/html/?q=also-oversized"),
+    (error) => error.code === "public_search_body_limit" && error.retryAt === null
+  );
+  assert.equal(calls, 2);
+  assert.equal(circuit.snapshot().state, "closed");
+});
