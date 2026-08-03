@@ -12,6 +12,10 @@ const [runner, autonomousPlan] = await Promise.all([
   readFile(runnerPath, "utf8"),
   readFile(path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-plan.mjs"), "utf8")
 ]);
+const supabaseConfiguration = await readFile(
+  path.join(repositoryRoot, "scripts", "lib", "supabase-configuration.mjs"),
+  "utf8"
+);
 const packageJson = JSON.parse(await readFile(path.join(repositoryRoot, "package.json"), "utf8"));
 const temporaryRoots = [];
 
@@ -107,7 +111,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("allows file-backed recovery without Supabase but explicitly degrades workflow health", () => {
     assert.ok(runner.includes("const supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey)"));
     assert.ok(runner.includes("const durableStorageConfigured = supabaseConfiguration.valid"));
-    assert.ok(runner.includes('blockers.push("NEXT_PUBLIC_SUPABASE_URL:invalid_http_url")'));
+    assert.ok(supabaseConfiguration.includes('`${SUPABASE_URL_BLOCKER}:invalid_http_url`'));
     assert.doesNotMatch(runner, /SUPABASE_SERVICE_ROLE_KEY are required/);
     assert.ok(runner.includes("workflow receipt will report degraded collection health"));
     assert.doesNotMatch(runner, /workflow receipt will fail/);
@@ -677,7 +681,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const merge = section("async function mergePublicationInputs", "async function mergeCollectorDiscoveryState");
 
     assert.ok(synchronizeIndex > -1 && mergeIndex > synchronizeIndex);
-    assert.ok(preparation.includes("previousPublicSnapshot = await readRequiredCanonicalJson"));
+    assert.ok(preparation.includes("await readPublicEvidenceArtifact"));
     assert.ok(preparation.includes("basePublicSnapshot"));
     assert.ok(preparation.includes("mergePublicEvidenceSnapshots"));
     assert.ok(preparation.includes("resolveBatchSlug: resolveLegacyPublicEvidenceBatch"));

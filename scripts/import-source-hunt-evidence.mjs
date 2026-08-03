@@ -6,6 +6,10 @@ import {
   sourceAuthorsCompatible,
   sourceContentIdentity
 } from "./lib/source-content-identity.mjs";
+import {
+  readPublicEvidenceArtifact,
+  writePublicEvidenceArtifactPairAtomic
+} from "./lib/public-evidence-artifact.mjs";
 
 const DISPLAY_METRICS = {
   github: new Set(["stars", "forks", "recent_commits_30d", "issues", "watchers", "subscribers"]),
@@ -37,6 +41,10 @@ const targetPath = resolve(root, targetArg === "yc"
   : targetArg === "a16z"
     ? "src/lib/social/a16z-speedrun-006-social-evidence.json"
     : targetArg);
+const canonicalPublicEvidencePath = resolve(
+  root,
+  "src/lib/social/public-evidence-current.json"
+);
 const externalEvidenceRoot = resolve(root, stringArg("--external-evidence-root") ?? ".");
 const auditPath = stringArg("--audit-output");
 const dryRun = process.argv.includes("--dry-run");
@@ -59,7 +67,10 @@ if (inputPaths.length === 0) {
 if (!observedAt) throw new Error("Pass a deterministic --observed-at=<ISO timestamp>.");
 if (dryRun === writeMode) throw new Error("Pass exactly one of --dry-run or --write.");
 
-const target = await readJson(targetPath);
+const targetPublicArtifact = targetPath === canonicalPublicEvidencePath
+  ? await readPublicEvidenceArtifact(targetPath, { rootDir: root })
+  : null;
+const target = targetPublicArtifact?.snapshot ?? await readJson(targetPath);
 const inputs = await Promise.all(inputPaths.map(readJson));
 const entitiesById = targetKind === "a16z" ? await knownA16zEntities() : await knownYcEntities();
 const existingRows = Array.isArray(target.evidence) ? target.evidence : [];
@@ -229,7 +240,17 @@ if (strict && audit.rejected > 0) {
   throw new Error(`Strict import rejected ${audit.rejected} row(s); target was not written.`);
 }
 if (writeMode) {
-  await writeJsonAtomic(targetPath, target);
+  if (targetPublicArtifact) {
+    await writePublicEvidenceArtifactPairAtomic({
+      rootDir: root,
+      canonicalPath: targetPath,
+      snapshot: target,
+      expectedCanonicalSha256: targetPublicArtifact.canonicalSha256,
+      expectedLedgerSha256: targetPublicArtifact.ledgerSha256
+    });
+  } else {
+    await writeJsonAtomic(targetPath, target);
+  }
 }
 
 console.log(JSON.stringify({

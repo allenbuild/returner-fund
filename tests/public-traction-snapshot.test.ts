@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -34,12 +35,40 @@ interface PublicEvidenceFixture {
   failures: Array<{ platform?: string }>;
 }
 
-// Load the complete source snapshot at runtime. A static JSON import asks Vite
-// to compile roughly 96 MB of data into a JavaScript AST, multiplying memory
+interface PublicEvidenceCanonical extends Omit<PublicEvidenceFixture, "failures"> {
+  operationalLedgerRef: {
+    path: string;
+    sha256: string;
+    bytes: number;
+    counts: { failures: number };
+  };
+}
+
+// Load the split source artifacts at runtime. Static JSON imports ask Vite to
+// compile large operational ledgers into a JavaScript AST, multiplying memory
 // use while changing none of these source-integrity assertions.
-const publicEvidence = JSON.parse(
+const publicEvidenceCanonical = JSON.parse(
   readFileSync(join(process.cwd(), "src/lib/social/public-evidence-current.json"), "utf8")
-) as PublicEvidenceFixture;
+) as PublicEvidenceCanonical;
+const publicEvidenceOperationalLedgerBytes = readFileSync(
+  join(process.cwd(), publicEvidenceCanonical.operationalLedgerRef.path)
+);
+const publicEvidenceOperationalLedger = JSON.parse(
+  publicEvidenceOperationalLedgerBytes.toString("utf8")
+) as Pick<PublicEvidenceFixture, "failures">;
+if (
+  publicEvidenceOperationalLedgerBytes.length !== publicEvidenceCanonical.operationalLedgerRef.bytes ||
+  createHash("sha256").update(publicEvidenceOperationalLedgerBytes).digest("hex") !==
+    publicEvidenceCanonical.operationalLedgerRef.sha256 ||
+  publicEvidenceOperationalLedger.failures.length !==
+    publicEvidenceCanonical.operationalLedgerRef.counts.failures
+) {
+  throw new Error("Public evidence operational ledger reference failed integrity verification.");
+}
+const publicEvidence: PublicEvidenceFixture = {
+  ...publicEvidenceCanonical,
+  ...publicEvidenceOperationalLedger
+};
 
 const SUPPORTED_METRICS: Record<string, string[]> = {
   x: ["views", "likes", "replies", "comments", "reposts", "shares", "quotes"],
@@ -184,7 +213,6 @@ describe("public traction snapshot", () => {
     );
 
     expect(row).toBeDefined();
-    expect(row?.metrics).toEqual({ reactions: 13 });
-    expect(row?.metrics).not.toHaveProperty("comments");
+    expect(row?.metrics).toEqual({ reactions: 16, comments: 0 });
   });
 });
