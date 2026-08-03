@@ -62,6 +62,12 @@ const debugGraphTraceExcludes = [
   ".github/**/*",
   "artifacts/**/*",
   "docs/**/*",
+  // Vercel's Node functions run the linux-x64 glibc Sharp build. Sharp selects
+  // exactly one libc family at runtime, but Node File Trace conservatively
+  // discovers the parallel musl packages as well. They cannot be loaded on the
+  // deployed runtime and add roughly 16 MiB to every server-rendered debug page.
+  "node_modules/@img/sharp-libvips-linuxmusl-*/**/*",
+  "node_modules/@img/sharp-linuxmusl-*/**/*",
   "public/brand/**/*",
   "public/evidence-thumbnails/**/*",
   "public/timelines/**/*",

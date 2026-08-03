@@ -33,6 +33,12 @@ const RAW_EVIDENCE_FRAGMENTS = [
   `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
   `${normalize("/src/lib/social/targeted-evidence-current.json")}`
 ];
+const UNSUPPORTED_DEBUG_NATIVE_FRAGMENTS = [
+  `${normalize("/node_modules/@img/sharp-libvips-linuxmusl-arm64/")}`,
+  `${normalize("/node_modules/@img/sharp-libvips-linuxmusl-x64/")}`,
+  `${normalize("/node_modules/@img/sharp-linuxmusl-arm64/")}`,
+  `${normalize("/node_modules/@img/sharp-linuxmusl-x64/")}`
+];
 const debugRouteTraces = [
   "duplicates",
   "evidence",
@@ -45,7 +51,11 @@ const debugRouteTraces = [
   manifest: `.next/server/app/debug/${route}/page.js.nft.json`,
   maxBytes: MAX_DEBUG_TRACE_BYTES,
   required: GRAPH_RUNTIME_PROJECTIONS,
-  forbidden: [...WHOLE_REPOSITORY_TRACE_FRAGMENTS, ...RAW_EVIDENCE_FRAGMENTS]
+  forbidden: [
+    ...WHOLE_REPOSITORY_TRACE_FRAGMENTS,
+    ...RAW_EVIDENCE_FRAGMENTS,
+    ...UNSUPPORTED_DEBUG_NATIVE_FRAGMENTS
+  ]
 }));
 const routeTraces = [
   {

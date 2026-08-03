@@ -65,6 +65,18 @@ describe("graph runtime trace contract", () => {
     expect(result.output).toContain("trace-leak-sentinel.json");
   });
 
+  it("keeps the unusable Sharp musl family out of glibc debug traces", () => {
+    const config = readFileSync(join(process.cwd(), "next.config.mjs"), "utf8");
+    expect(config).toContain("node_modules/@img/sharp-libvips-linuxmusl-*/**/*");
+    expect(config).toContain("node_modules/@img/sharp-linuxmusl-*/**/*");
+
+    const result = runValidator({ leakMuslSharpIntoDebug: true });
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("debug duplicates trace contains forbidden runtime artifacts:");
+    expect(result.output).toContain("sharp-libvips-linuxmusl-x64");
+  });
+
   it("keeps Turbopack ignore directives on both dynamic path construction and filesystem consumers", () => {
     for (const file of [
       "src/lib/graph/a16z-speedrun-006-dataset.ts",
@@ -82,6 +94,7 @@ function runValidator(options: {
   missingFromFull?: string;
   leakWholeRepositoryFileIntoFull?: boolean;
   leakRepositoryWorkFileIntoFull?: boolean;
+  leakMuslSharpIntoDebug?: boolean;
   runUnderWorkParent?: boolean;
 } = {}) {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "graph-trace-contract-"));
@@ -132,10 +145,16 @@ function runValidator(options: {
       "thumbnails",
       "workers"
     ]) {
+      const debugTraceFiles = [...graphRuntimeProjections];
+      if (options.leakMuslSharpIntoDebug && route === "duplicates") {
+        const leakPath = "node_modules/@img/sharp-libvips-linuxmusl-x64/lib/libvips-cpp.so";
+        writeFixtureFile(root, leakPath);
+        debugTraceFiles.push(leakPath);
+      }
       writeManifest(
         root,
         `.next/server/app/debug/${route}/page.js.nft.json`,
-        graphRuntimeProjections,
+        debugTraceFiles,
       );
     }
 
