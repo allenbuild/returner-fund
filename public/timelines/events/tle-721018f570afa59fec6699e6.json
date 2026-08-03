@@ -47,14 +47,14 @@
     ],
     "posts": [
       {
-        "id": "post-901aac28a9d81aa7d376cf21",
+        "id": "post-1f9ee484745e6e95d03ce33e",
         "platform": "youtube",
         "account": "Alkera AI (S26) | Launch Video",
         "postDate": "2026-07-17",
         "excerpt": "Try the Alkera agent today at https://alkera.ai to build your data engineering pipelines, run complex analyses on your data, or execute parallel data science experiments. Book a call to learn more about how Alkera can supercharge your data teams.",
         "url": "https://youtube.com/watch?v=fQEVpQPYNxg",
         "metrics": {
-          "views": 193,
+          "views": 197,
           "likes": 7,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

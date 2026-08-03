@@ -3,6 +3,8 @@ name: Public Artifact Validation
 on:
   pull_request:
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -13,9 +15,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
+  application:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 70
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -30,6 +32,67 @@ jobs:
         timeout-minutes: 10
         run: npm ci
 
-      - name: Run release gate
-        timeout-minutes: 105
-        run: npm run check:release
+      - name: Run application gate
+        timeout-minutes: 55
+        run: npm run check
+
+  scoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: npm ci
+
+      - name: Run scoring release gate
+        timeout-minutes: 55
+        run: npm run check:release:scoring
+
+  artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: npm ci
+
+      - name: Run artifact release gate
+        timeout-minutes: 55
+        run: npm run check:release:artifacts
+
+  validate:
+    if: always()
+    needs:
+      - application
+      - scoring
+      - artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every release gate
+        env:
+          APPLICATION_RESULT: ${{ needs.application.result }}
+          SCORING_RESULT: ${{ needs.scoring.result }}
+          ARTIFACTS_RESULT: ${{ needs.artifacts.result }}
+        run: |
+          test "$APPLICATION_RESULT" = success
+          test "$SCORING_RESULT" = success
+          test "$ARTIFACTS_RESULT" = success

@@ -5,9 +5,33 @@
     "slug": "lamina-labs",
     "name": "Lamina Labs"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
   "events": [
+    {
+      "id": "tle-6fa277e9fa97ebff4c8a7f9f",
+      "eventDate": "2026-07-31",
+      "eventDateType": "announcement_date",
+      "title": "Lamina Labs announced $4.8M funding round",
+      "summary": "Lamina Labs Raised $4.8M to Build ChatGPT for Explainer Videos.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-54eec352535b240a1e798ad8",
+          "title": "We Raised $4.8M to Build ChatGPT for Explainer Videos",
+          "publisher": "We Raised $4.8M to Build ChatGPT for Explainer Videos",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-31T05:51:36.000Z",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=VToKZowGqw8"
+        }
+      ]
+    },
     {
       "id": "tle-de38df40176816720babff7d",
       "eventDate": "2026-06-04",
@@ -62,6 +86,10 @@
       "year": 2026,
       "months": [
         {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
           "month": "2026-06",
           "count": 2
         }
@@ -70,8 +98,8 @@
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 2,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

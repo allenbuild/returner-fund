@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { access, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -249,6 +250,46 @@ test("experiment parity gate is isolated and validates the complete parity surfa
     experimentParityMain(["--dry-run"], { rootDir: REPOSITORY_ROOT, env: {} })
   );
   assert.equal(dryRun.repositoryArtifactsWritten, false);
+
+  const calls = [];
+  const parity = await withMutedConsole(() =>
+    experimentParityMain([], {
+      rootDir: REPOSITORY_ROOT,
+      env: { PARITY_TEST_SENTINEL: "present" },
+      commandRunner: async (command, args, options) => {
+        calls.push({ command, args, options });
+        const runtimeRoot = path.join(options.cwd, "generated-runtime", "graph");
+        if (calls.length === 1) {
+          assert.equal(path.basename(args[0]), "prepare-graph-runtime-evidence.mjs");
+          await mkdir(runtimeRoot, { recursive: true });
+          await Promise.all(
+            ["public", "logged-in", "targeted"].map((name) =>
+              writeFile(path.join(runtimeRoot, `${name}-evidence-current.json`), "{}\n", "utf8")
+            )
+          );
+          return { stdout: "", stderr: "" };
+        }
+
+        assert.equal(path.basename(args.at(-1)), "run-scoring-experiments.mjs");
+        await access(path.join(runtimeRoot, "public-evidence-current.json"));
+        await access(path.join(runtimeRoot, "logged-in-evidence-current.json"));
+        await access(path.join(runtimeRoot, "targeted-evidence-current.json"));
+        const outputRoot = path.join(options.cwd, "docs", "outputs");
+        await mkdir(outputRoot, { recursive: true });
+        await writeFile(
+          path.join(outputRoot, "scoring-experiments-v4.json"),
+          `${JSON.stringify(report)}\n`,
+          "utf8"
+        );
+        return { stdout: "", stderr: "" };
+      }
+    })
+  );
+  assert.equal(parity.cohorts, 3);
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].options.cwd, calls[1].options.cwd);
+  assert.notEqual(calls[0].options.cwd, REPOSITORY_ROOT);
+  assert.equal(calls[0].options.env.PARITY_TEST_SENTINEL, "present");
 });
 
 test("package scripts expose honest v4 operations and no false S2026 collector alias", () => {
@@ -258,10 +299,13 @@ test("package scripts expose honest v4 operations and no false S2026 collector a
     packageJson.scripts["ingest:s26:company"],
     "node scripts/fetch-public-traction.mjs --social=company"
   );
-  assert.match(packageJson.scripts["check:release"], /test:scoring:experiments:v4/);
-  assert.match(packageJson.scripts["check:release"], /test:scoring:audit:v4/);
-  assert.match(packageJson.scripts["check:release"], /test:cohort-coverage/);
-  assert.match(packageJson.scripts["check:release"], /artifacts:manifest:validate/);
+  assert.match(packageJson.scripts["check:release"], /check:release:scoring/);
+  assert.match(packageJson.scripts["check:release"], /check:release:artifacts/);
+  assert.match(packageJson.scripts["check:release:scoring"], /test:scoring:experiments:v4/);
+  assert.match(packageJson.scripts["check:release:scoring"], /test:scoring:audit:v4/);
+  assert.match(packageJson.scripts["check:release:artifacts"], /prepare:graph-runtime/);
+  assert.match(packageJson.scripts["check:release:artifacts"], /test:cohort-coverage/);
+  assert.match(packageJson.scripts["check:release:artifacts"], /artifacts:manifest:validate/);
   assert.match(packageJson.scripts["test:cohort-coverage"], /cohort-coverage-audit\.node-test\.mjs/);
   assert.match(packageJson.scripts["test:cohort-coverage"], /audit-cohort-coverage\.mjs/);
   assert.match(packageJson.scripts["release:migrate:v4"], /apply-scoring-v4-migrations/);

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-snapp-stats",
+    "slug": "snapp-stats",
+    "name": "Snapp Stats"
+  },
+  "event": {
+    "id": "tle-e542dde7ced712f673804f8d",
+    "eventDate": "2026-05-19",
+    "eventDateType": "announcement_date",
+    "title": "Snapp Stats announced $4.4m funding round",
+    "summary": "Snapp Stats reported from Snapp AI today—we've raised a total of $4.4 million to deliver AI-powered personalized fan experiences to sports fanatics and teams.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-6faa2b59cebd95e0cca829b4",
+        "title": "Exciting news from Snapp AI today—we've raised a total of $4.4 million to deliver AI-powered personalized fan experiences to sports fanatics and teams!",
+        "publisher": "andrewtamura",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T22:29:10.122Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/andrewtamura_exciting-news-from-snapp-ai-todayweve-raised-activity-7462630457973764097-K-hs"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-6faa2b59cebd95e0cca829b4",
+        "title": "Exciting news from Snapp AI today—we've raised a total of $4.4 million to deliver AI-powered personalized fan experiences to sports fanatics and teams!",
+        "publisher": "andrewtamura",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-19T22:29:10.122Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/andrewtamura_exciting-news-from-snapp-ai-todayweve-raised-activity-7462630457973764097-K-hs",
+        "publicationDate": "2026-05-19T22:29:10.122Z",
+        "excerpt": "Exciting news from Snapp AI today—we've raised a total of $4.4 million to deliver AI-powered personalized fan experiences to sports fanatics and teams! Big thanks to our lead investors a16z speedrun, Gold House, Dorm Room Fund and to Valia Ventures, Symphony Ventures, Bridge Ventures, Operator Stack Fund, Great Oaks Venture Capital, Bling Capital, The House Fund, as well as notable angels from Nextdoor, Boston Celtics ownership and other talented technology, sports and finance individuals…",
+        "sourceEventDate": "2026-05-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-20945a038339e13a988b7cca",
+        "platform": "linkedin",
+        "account": "andrewtamura",
+        "postDate": "2026-05-19",
+        "excerpt": "Exciting news from Snapp AI today—we've raised a total of $4.4 million to deliver AI-powered personalized fan experiences to sports fanatics and teams! Big thanks to our lead investors a16z speedrun, Gold House, Dorm Room Fund and to Valia Ventures, Symphony Ventures, Bridge Ventures, Operator Stack Fund, Great Oaks Venture Capital, Bling Capital, The House Fund, as well as notable angels from Nextdoor, Boston Celtics ownership and other talented technology, sports and finance individuals…",
+        "url": "https://linkedin.com/posts/andrewtamura_exciting-news-from-snapp-ai-todayweve-raised-activity-7462630457973764097-K-hs",
+        "metrics": {
+          "reactions": 59,
+          "comments": 4
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

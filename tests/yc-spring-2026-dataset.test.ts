@@ -351,8 +351,8 @@ describe("YC Summer 2026 official snapshot", () => {
       entityType: "company",
       entityId: "company-earendil-robotics",
       authorHandle: "earendil-robotics",
-      accountUrl: "https://www.linkedin.com/company/earendil-robotics",
-      metrics: { reactions: 30, comments: 2 }
+      accountUrl: "https://linkedin.com/company/earendil-robotics",
+      metrics: { reactions: 31, comments: 2 }
     }));
     expect(scoringEligibility(evidence[0]!)).toEqual({ eligible: true, reason: "eligible" });
     expect(earendil?.score).toBeGreaterThan(0);
@@ -897,6 +897,32 @@ describe("YC Summer 2026 official snapshot", () => {
         .filter((account) => account.review_state === "verified")
         .filter((account) => !account.handle || ["admin", "dashboard", "about", "posts"].includes(account.handle))
     ).toEqual([]);
+  });
+
+  it("encodes canonical platform URLs in materialized YouTube, Reddit, and Product Hunt account IDs", () => {
+    const accounts = ycSpring2026GraphDataset.companies.flatMap((company) => company.socialAccounts);
+    const expectedIdsByUrl = new Map([
+      [
+        "https://www.youtube.com/@Anoria_inc",
+        "acct:company:company-anoria:youtube:https%3A%2F%2Fyoutube.com%2F%40anoria_inc"
+      ],
+      [
+        "https://www.youtube.com/channel/UCsKrXhK7dyIA_ATzzbzZ8bA",
+        "acct:company:company-luca-iq:youtube:https%3A%2F%2Fyoutube.com%2Fchannel%2Fucskrxhk7dyia_atzzbzz8ba"
+      ],
+      [
+        "https://www.reddit.com/user/Ecstatic-Tough6503",
+        "acct:company:company-gojiberry-ai:reddit:https%3A%2F%2Freddit.com%2Fuser%2Fecstatic-tough6503"
+      ],
+      [
+        "https://www.producthunt.com/products/runtime",
+        "acct:company:company-runtime:product_hunt:https%3A%2F%2Fproducthunt.com%2Fproducts%2Fruntime"
+      ]
+    ]);
+
+    for (const [url, expectedId] of expectedIdsByUrl) {
+      expect(accounts.find((account) => account.url === url)?.id).toBe(expectedId);
+    }
   });
 
   it("keeps evidence account lineage materialized, owner-scoped, and score-neutral", () => {

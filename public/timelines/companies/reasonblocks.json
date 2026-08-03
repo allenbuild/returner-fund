@@ -5,14 +5,49 @@
     "slug": "reasonblocks",
     "name": "ReasonBlocks"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "events": [
+    {
+      "id": "tle-0bd1c296b8e0e7ac4f9114ed",
+      "eventDate": "2026-04-08",
+      "eventDateType": "announcement_date",
+      "title": "ReasonBlocks released We're launching ReasonBlocks",
+      "summary": "ReasonBlocks is launching ReasonBlocks.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-82f49298b607ae18d7a27c01",
+          "title": "We're launching ReasonBlocks!",
+          "publisher": "reason-blocks",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-08T01:43:32.545Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/reason-blocks_reasonblocks-activity-7447459083332411392-iQux"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

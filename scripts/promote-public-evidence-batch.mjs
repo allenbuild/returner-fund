@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createHash, randomBytes } from "node:crypto";
+import { createHash } from "node:crypto";
 import { readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +14,10 @@ import {
   canonicalInstagramPostUrl,
   instagramPostIdFromUrl
 } from "./lib/logged-in-instagram-collection.mjs";
+import {
+  hydratePublicEvidenceArtifactWithLoader,
+  writePublicEvidenceArtifactPairAtomic
+} from "./lib/public-evidence-artifact.mjs";
 
 const CANONICAL_RELATIVE_PATH = "src/lib/social/public-evidence-current.json";
 const REFERENCE_RELATIVE_PATHS = Object.freeze([
@@ -200,13 +204,22 @@ export async function promotePublicEvidenceBatch(
 
   const canonicalBytes = await readFileImpl(canonicalPath);
   const canonicalHash = sha256(canonicalBytes);
-  const canonicalMode = (await statImpl(canonicalPath)).mode & 0o777;
   const [candidateBytes, catalogs, ...referenceBytes] = await Promise.all([
     readFileImpl(candidatePath),
     loadCatalogs(rootDir),
     ...referencePaths.map((referencePath) => readFileImpl(referencePath))
   ]);
-  const canonical = parseJson(canonicalBytes, canonicalPath);
+  const canonicalDocument = parseJson(canonicalBytes, canonicalPath);
+  let canonicalOperationalLedgerBytes = null;
+  const canonical = await hydratePublicEvidenceArtifactWithLoader(
+    canonicalDocument,
+    {
+      loadLedger: async (relativePath) => {
+        canonicalOperationalLedgerBytes = await readFileImpl(path.resolve(rootDir, relativePath));
+        return canonicalOperationalLedgerBytes;
+      }
+    }
+  );
   const candidate = parseJson(candidateBytes, candidatePath);
   const references = referenceBytes.map((bytes, index) =>
     parseJson(bytes, referencePaths[index])
@@ -236,7 +249,10 @@ export async function promotePublicEvidenceBatch(
     addedEvidence: plan.addedEvidence.length,
     addedReviews: plan.addedReviews.length,
     removedEvidence: plan.removedEvidence.length,
-    canonicalHashBefore: canonicalHash
+    canonicalHashBefore: canonicalHash,
+    operationalLedgerHashBefore: canonicalOperationalLedgerBytes
+      ? sha256(canonicalOperationalLedgerBytes)
+      : null
   };
 
   if (plan.status === "no_op") {
@@ -254,23 +270,26 @@ export async function promotePublicEvidenceBatch(
     });
   }
 
-  const temporaryPath = `${canonicalPath}.batch-promotion-${process.pid}-${randomBytes(6).toString("hex")}.tmp`;
-  try {
-    await writeFileImpl(
-      temporaryPath,
-      `${JSON.stringify(plan.promoted, null, 2)}\n`,
-      { flag: "wx", mode: canonicalMode }
-    );
-    await assertCanonicalHash(canonicalPath, canonicalHash, readFileImpl);
-    await renameImpl(temporaryPath, canonicalPath);
-  } finally {
-    await removeImpl(temporaryPath, { force: true });
-  }
+  const published = await writePublicEvidenceArtifactPairAtomic({
+    rootDir,
+    canonicalPath,
+    snapshot: plan.promoted,
+    expectedCanonicalSha256: canonicalHash,
+    expectedLedgerSha256: canonicalOperationalLedgerBytes
+      ? sha256(canonicalOperationalLedgerBytes)
+      : null,
+    readFileImpl,
+    writeFileImpl,
+    renameImpl,
+    removeImpl,
+    statImpl
+  });
 
   return writeReceipt(stdout, {
     status: "promoted",
     ...baseReceipt,
-    canonicalHashAfter: sha256(await readFileImpl(canonicalPath))
+    canonicalHashAfter: sha256(await readFileImpl(canonicalPath)),
+    operationalLedgerHashAfter: published.ledgerSha256
   });
 }
 

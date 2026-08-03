@@ -76,7 +76,7 @@ describe("logged-in social batch selection", () => {
   });
 
   it.each([
-    ["S2026", 197, 397, 1_783, 2_971, 956],
+    ["S2026", 197, 397, 1_783, 2_971, 967],
     ["S26", null, null, null, null, null],
     ["A16ZSR006", 59, 128, 564, 938, 289]
   ])("covers every exact %s account target and matches the public plan", (

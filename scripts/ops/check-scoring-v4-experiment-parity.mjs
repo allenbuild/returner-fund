@@ -59,7 +59,18 @@ export async function main(
       "lib",
       "scoring-diagnostics-ts-loader.mjs"
     );
+    const prepareRuntimePath = path.join(
+      temporaryRoot,
+      "scripts",
+      "prepare-graph-runtime-evidence.mjs"
+    );
     const scriptPath = path.join(temporaryRoot, "scripts", "run-scoring-experiments.mjs");
+    await commandRunner(process.execPath, [prepareRuntimePath], {
+      cwd: temporaryRoot,
+      env: { ...env },
+      capture: true,
+      timeoutMs: 2 * 60_000
+    });
     await commandRunner(
       process.execPath,
       ["--experimental-strip-types", "--loader", loaderPath, scriptPath],

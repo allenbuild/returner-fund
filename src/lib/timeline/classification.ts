@@ -252,6 +252,11 @@ function materialMagnitude(value: string): { value: string; unit: string } | nul
 }
 
 export function timelineClassificationSourceFromGraphEvidence(evidence: EvidenceItem): TimelineClassificationSource {
+  const text = typeof evidence.text === "string"
+    ? evidence.text
+    : typeof evidence.title === "string"
+      ? evidence.title
+      : "";
   return {
     id: evidence.id,
     url: evidence.sourceUrl,
@@ -261,8 +266,8 @@ export function timelineClassificationSourceFromGraphEvidence(evidence: Evidence
     platform: evidence.platform,
     publicationTimestamp: evidence.postedAt || null,
     publicationDatePrecision: evidence.publishedAtPrecision ?? "unknown",
-    text: evidence.text,
-    evidenceExcerpt: sanitizeEvidenceExcerpt(evidence.text, 600),
+    text,
+    evidenceExcerpt: sanitizeEvidenceExcerpt(text, 600),
     sourceQualityTier: evidence.entityType === "company" || evidence.entityType === "founder" ? 1 : 2,
     attributionStatus: evidence.review_state === "verified" ? "verified" : "needs_review",
     linkStatus: evidence.linkStatus ?? "unchecked",

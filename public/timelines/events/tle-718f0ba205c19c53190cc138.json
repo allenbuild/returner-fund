@@ -47,14 +47,14 @@
     ],
     "posts": [
       {
-        "id": "post-bec3b670c32fe4fe830dfd5e",
+        "id": "post-76b5b72a0f3c2a9de824ccc9",
         "platform": "youtube",
         "account": "Synphony(YC P26) Launch Video",
         "postDate": "2026-05-21",
         "excerpt": "Embedded in the official Synphony YC company page.",
         "url": "https://youtube.com/watch?v=2DJM9p5Lnk4",
         "metrics": {
-          "views": 614,
+          "views": 636,
           "likes": 2,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

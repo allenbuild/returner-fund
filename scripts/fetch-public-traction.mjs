@@ -9,6 +9,10 @@ import {
 } from "./lib/social-native-identity.mjs";
 import { readRequiredCanonicalJson } from "./lib/canonical-json.mjs";
 import {
+  readPublicEvidenceArtifact,
+  writePublicEvidenceArtifactPairAtomic
+} from "./lib/public-evidence-artifact.mjs";
+import {
   extractLinkedInParentPostMetrics,
   isLinkedInPublicReaderPayload
 } from "./lib/linkedin-parent-metrics.mjs";
@@ -55,6 +59,26 @@ import {
   PublicSearchUnavailableError,
   createPublicSearchCircuit
 } from "./lib/public-search-circuit.mjs";
+import {
+  createLinkedInPublicCircuit,
+  linkedinPublicBlockerFromError
+} from "./lib/linkedin-public-circuit.mjs";
+import {
+  collectHackerNewsRecentWindow,
+  instagramRecentWindowObservation,
+  persistRecentWindowProof
+} from "./lib/recent-window-proof-instrumentation.mjs";
+import {
+  HISTORICAL_BACKFILL_LIMITS,
+  matchesHnCompanyStory,
+  readBoundedResponseText
+} from "./lib/historical-backfill.mjs";
+import {
+  parseYouTubeFeed,
+  parseYouTubePublicPage,
+  youtubeChannelIdFromAccountUrl,
+  youtubeFeedUrl
+} from "./lib/historical-depth-sources.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -65,7 +89,14 @@ const outputPath = resolvePathArg(
 const checkpointPath = resolvePathArg(
   stringArg("--checkpoint") ?? join(root, "work", `public-traction-checkpoint-${batchConfig.slug.toLowerCase()}.json`)
 );
+const recentProofJournalDir = stringArg("--recent-proof-journal-dir")
+  ? resolvePathArg(stringArg("--recent-proof-journal-dir"))
+  : null;
 const now = new Date().toISOString();
+const recentCoverageCutoff = optionalCanonicalTimestampArg(
+  stringArg("--recent-coverage-cutoff"),
+  "--recent-coverage-cutoff"
+);
 const companyLimit = numberArg("--max-companies") ?? Number.POSITIVE_INFINITY;
 const companyFilter = stringArg("--company")?.toLowerCase();
 const companyShardCount = Math.max(1, Math.floor(numberArg("--company-shard-count") ?? 1));
@@ -132,10 +163,28 @@ const publicSearchCircuit = createPublicSearchCircuit({
   failureThreshold: 2,
   cooldownMs: 15 * 60_000
 });
+const linkedinPublicCircuit = createLinkedInPublicCircuit({
+  // Keep the lane anonymous and serial. The first probe gets enough time for a
+  // healthy public response; a second degraded probe is shorter, then every
+  // remaining mapped target receives the same exact cooldown blocker without
+  // another network timeout.
+  directTimeoutMs: 8_000,
+  directDegradedTimeoutMs: 5_000,
+  readerTimeoutMs: 10_000,
+  readerDegradedTimeoutMs: 6_000,
+  failureThreshold: 2,
+  cooldownMs: 15 * 60_000
+});
 
 if (hasArg("--help") || hasArg("-h")) {
   await writeStdout(`${usage()}\n`);
   process.exit(0);
+}
+if (recentProofJournalDir && !recentCoverageCutoff) {
+  throw new Error("--recent-proof-journal-dir requires --recent-coverage-cutoff.");
+}
+if (recentCoverageCutoff && recentCoverageCutoff > now) {
+  throw new Error("--recent-coverage-cutoff cannot be later than collector startup.");
 }
 
 const verifiedSocialOverrides = await readRequiredCanonicalJson(
@@ -162,10 +211,15 @@ const companySlugByEntityId = new Map(
 );
 const canonicalCompanyCatalog = await loadCanonicalCompanyCatalog(batchSnapshot, batchConfig);
 const currentBatchContext = batchContextFromSnapshot(batchSnapshot);
-const currentOutput = await readJson(outputPath, { evidence: [], needsReview: [], failures: [] });
-const previousMergedOutput = outputPath === canonicalPublicEvidencePath
+const currentCanonicalArtifact = outputPath === canonicalPublicEvidencePath
+  ? await readPublicEvidenceArtifact(canonicalPublicEvidencePath, { rootDir: root })
+  : null;
+const currentOutput = currentCanonicalArtifact?.snapshot ??
+  await readJson(outputPath, { evidence: [], needsReview: [], failures: [] });
+const previousCanonicalArtifact = outputPath === canonicalPublicEvidencePath
   ? null
-  : await readJson(canonicalPublicEvidencePath, null);
+  : await readPublicEvidenceArtifact(canonicalPublicEvidencePath, { rootDir: root });
+const previousMergedOutput = previousCanonicalArtifact?.snapshot ?? null;
 const currentDiscoveryAttempts = await readJson(discoveryAttemptsPath, []);
 const currentSourceDiscoveryPaths = await readJson(sourceDiscoveryPathsPath, []);
 const checkpoint = await readJson(checkpointPath, {
@@ -308,6 +362,8 @@ function usage() {
     "  --checkpoint=PATH",
     "  --discovery-attempts=PATH",
     "  --source-discovery-paths=PATH",
+    "  --recent-proof-journal-dir=PATH  Persist only provably exhaustive native request journals",
+    "  --recent-coverage-cutoff=ISO      Immutable recent-window end pinned before requests",
     "  --plan                    Print the read-only target plan and exit",
     "  --help, -h"
   ].join("\n");
@@ -386,6 +442,7 @@ const payload = {
     batchSlug: batchConfig.slug,
     batchLabel: batchConfig.label,
     fetchedAt: now,
+    ...(recentCoverageCutoff ? { recentCoverageCutoff } : {}),
     companiesAttemptedThisRun: companies.length,
     checkpointFlushOnly: taskPlan.length === 0,
     checkpointCompanyCount: new Set([
@@ -637,12 +694,18 @@ async function runLane(lane, tasks, limit) {
                 attemptKey: identity?.attemptKey ?? null
               });
           if (identity) {
+            const recentWindowFields = recentWindowTerminalFields(
+              lane,
+              "platform_cooldown_active"
+            );
             attemptMap.set(identity.attemptKey, socialAttemptRecord({
               attemptKey: identity.attemptKey,
               status: "failed",
               checkedAt: now,
               error: message,
-              retryable: retryableCollectorFailure(message),
+              ...recentWindowFields,
+              retryable: Object.keys(recentWindowFields).length === 0 &&
+                retryableCollectorFailure(message),
               outcomeStatus: "blocked_or_empty",
               outcomeReason: "collector_checked_blocked_or_empty"
             }, identity));
@@ -706,6 +769,12 @@ async function attempt(platform, key, company, fn) {
 
   try {
     const result = await fn();
+    const recentProof = await finalizeRecentWindowAttempt(result, {
+      attemptKey,
+      platform: normalizedPlatform,
+      entityType: "company",
+      entityId: companyId(company)
+    });
     if (hasValidatedReplacement(result)) {
       removeCompanyPlatformRows(company, normalizedPlatform);
     }
@@ -717,8 +786,12 @@ async function attempt(platform, key, company, fn) {
     );
     addItems(result?.sourceDiscoveryPaths ?? [], sourceDiscoveryPaths);
     const attemptSummary = summarizeConnectorResult(result);
-    const outcomeStatus = collectorOutcomeStatus(attemptSummary);
-    const retryable = retryableCollectorFailure(attemptSummary.failureReason);
+    const outcomeStatus = recentProof?.recentWindowProof
+      ? "completed"
+      : collectorOutcomeStatus(attemptSummary);
+    const retryable = recentProof?.recentWindowProof
+      ? false
+      : retryableCollectorFailure(attemptSummary.failureReason);
     discoveryAttempts.push(
       discoveryAttempt({
         company,
@@ -735,11 +808,24 @@ async function attempt(platform, key, company, fn) {
     attemptMap.set(attemptKey, socialAttemptRecord({
       attemptKey,
       status: "done",
-      checkedAt: now,
-      ...(attemptSummary.failureReason ? { error: attemptSummary.failureReason } : {}),
+      ...(recentProof?.startedAt ? { startedAt: recentProof.startedAt } : {}),
+      checkedAt: recentProof?.checkedAt ?? now,
+      ...(!recentProof?.recentWindowProof && attemptSummary.failureReason
+        ? { error: attemptSummary.failureReason }
+        : {}),
+      ...(recentProof?.recentWindowProof
+        ? { recentWindowProof: recentProof.recentWindowProof }
+        : recentProof?.blocker
+          ? { recentWindowProofBlocker: recentProof.blocker }
+          : {}),
+      ...(recentProof?.coverageCutoff
+        ? { recentWindowCoverageCutoff: recentProof.coverageCutoff }
+        : {}),
       retryable,
       outcomeStatus,
-      outcomeReason: collectorOutcomeReason(attemptSummary)
+      outcomeReason: recentProof?.recentWindowProof
+        ? "collector_native_recent_window_exhausted"
+        : collectorOutcomeReason(attemptSummary)
     }, {
       platform: normalizedPlatform,
       companySlug: company.slug,
@@ -753,6 +839,10 @@ async function attempt(platform, key, company, fn) {
     const message = errorMessage(error);
     const publicSearchBlocked = error instanceof PublicSearchUnavailableError;
     const blocker = publicSearchBlocked ? publicSearchBlockerFromError(error) : null;
+    const recentWindowFields = recentWindowTerminalFields(
+      normalizedPlatform,
+      `native_recent_window_request_failed:${message}`
+    );
     failures.push({
       ...failure(normalizedPlatform, company, null, message),
       attemptKey,
@@ -778,6 +868,7 @@ async function attempt(platform, key, company, fn) {
       checkedAt: now,
       error: message,
       ...(blocker ? { blocker } : {}),
+      ...recentWindowFields,
       retryable: publicSearchBlocked ? false : retryableCollectorFailure(message),
       outcomeStatus: publicSearchBlocked || expectedAccessOrEmptyMessage(message)
         ? "blocked_or_empty"
@@ -865,6 +956,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       ? await discoverSocialCandidates(company, platform, entityType === "founder" ? entity : null)
       : [];
     const publicSearchBlocker = searchCandidates.publicSearchBlocker ?? null;
+    let terminalProviderBlocker = publicSearchBlocker;
     const candidates = dedupeSocialCandidates([...discoveredPathCandidates, ...searchCandidates], platform);
     if (candidates.length) {
       const postCandidates = selectPublicSocialCandidates(
@@ -873,6 +965,9 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
         2
       );
       const verifiedPostResults = await verifyPublicSocialPostCandidates(company, platform, postCandidates);
+      const verificationFailures = verifiedPostResults.flatMap((result) => result.failures ?? []);
+      const verificationBlocker = verificationFailures.find((row) => row.blocker)?.blocker ?? null;
+      terminalProviderBlocker = publicSearchBlocker ?? verificationBlocker;
       const rawVerifiedPosts = verifiedPostResults.flatMap((result) => result.evidence ?? []);
       const attributedPosts = attributePostEvidenceToEntity(
         company,
@@ -902,6 +997,16 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       ];
       addItems(verifiedPosts, evidence);
       addItems(reviewItems, needsReview);
+      addItems(
+        verificationFailures.map((row) => ({
+          ...row,
+          entityType,
+          entityId,
+          entityName: name,
+          attemptKey: key
+        })),
+        failures
+      );
       if (publicSearchBlocker) {
         failures.push({
           ...failure(
@@ -949,9 +1054,9 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
           usefulResultCount: verifiedPosts.length,
           selectedUrl: verifiedPosts[0]?.sourceUrl ?? candidates[0].url,
           status: verifiedPosts.length ? "partial_success" : "needs_review",
-          failureReason: publicSearchBlocker?.message ??
+          failureReason: terminalProviderBlocker?.message ??
             (verifiedPosts.length ? null : "No batch-linked URL; public search candidates require review."),
-          blocker: publicSearchBlocker
+          blocker: terminalProviderBlocker
         })
       );
     } else {
@@ -986,12 +1091,18 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       status: "done",
       checkedAt: now,
       count: candidates.length,
-      error: publicSearchBlocker?.message,
-      ...(publicSearchBlocker ? { blocker: publicSearchBlocker } : {}),
+      error: terminalProviderBlocker?.message,
+      ...(terminalProviderBlocker ? { blocker: terminalProviderBlocker } : {}),
+      ...recentWindowTerminalFields(
+        platform,
+        candidates.length
+          ? "native_account_mapping_requires_review"
+          : "native_account_mapping_missing_or_unverifiable"
+      ),
       // The provider outage is terminal for this bounded run. The exact
       // retry-at timestamp remains in the blocker so the next scheduled run
       // can retry without making this campaign replay every shard.
-      retryable: false,
+      retryable: terminalProviderBlocker ? !terminalProviderBlocker.retryAt : false,
       outcomeStatus: candidates.length ? "needs_review" : "blocked_or_empty",
       outcomeReason: candidates.length ? "collector_needs_review" : "collector_checked_blocked_or_empty"
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: null }));
@@ -1031,6 +1142,7 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       attemptKey: key,
       status: "done",
       checkedAt: now,
+      ...recentWindowTerminalFields(platform, "native_account_url_platform_mismatch"),
       retryable: false,
       outcomeStatus: "needs_review",
       outcomeReason: "collector_needs_review"
@@ -1045,6 +1157,12 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       await ingestMappedAccount(company, entity, entityType, platform, url),
       url
     );
+    const recentProof = await finalizeRecentWindowAttempt(result, {
+      attemptKey: key,
+      platform,
+      entityType,
+      entityId
+    });
     if (hasValidatedReplacement(result)) {
       removeEntityPlatformRows(company, entityId, entityType, platform, url);
     }
@@ -1075,24 +1193,52 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
         blocker: providerBlocker
       })
     );
-    const outcomeStatus = collectorOutcomeStatus(attemptSummary);
+    const outcomeStatus = recentProof?.recentWindowProof
+      ? "completed"
+      : collectorOutcomeStatus(attemptSummary);
     const failureReason = String(attemptSummary.failureReason ?? "").trim();
     attemptMap.set(key, socialAttemptRecord({
       attemptKey: key,
       status: "done",
-      checkedAt: now,
-      error: failureReason || undefined,
+      ...(recentProof?.startedAt ? { startedAt: recentProof.startedAt } : {}),
+      checkedAt: recentProof?.checkedAt ?? now,
+      error: recentProof?.recentWindowProof ? undefined : failureReason || undefined,
       ...(providerBlocker ? { blocker: providerBlocker } : {}),
-      retryable: providerBlocker ? false : retryableCollectorFailure(failureReason),
+      ...(recentProof?.recentWindowProof
+        ? { recentWindowProof: recentProof.recentWindowProof }
+        : recentProof?.blocker
+          ? { recentWindowProofBlocker: recentProof.blocker }
+          : {}),
+      ...(recentProof?.coverageCutoff
+        ? { recentWindowCoverageCutoff: recentProof.coverageCutoff }
+        : {}),
+      retryable: recentProof?.recentWindowProof
+        ? false
+        : providerBlocker
+        ? !providerBlocker.retryAt
+        : retryableCollectorFailure(failureReason),
       outcomeStatus,
-      outcomeReason: collectorOutcomeReason(attemptSummary)
+      outcomeReason: recentProof?.recentWindowProof
+        ? "collector_native_recent_window_exhausted"
+        : collectorOutcomeReason(attemptSummary)
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
   } catch (error) {
     recordPlatformCooldownIfNeeded(platform, error);
+    const providerBlocker = linkedinPublicBlockerFromError(error);
+    const retryable = providerBlocker
+      ? !providerBlocker.retryAt
+      : error?.platformCooldownUntil
+        ? false
+        : retryableCollectorFailure(errorMessage(error));
+    const recentWindowFields = recentWindowTerminalFields(
+      platform,
+      `native_recent_window_request_failed:${errorMessage(error)}`
+    );
     failures.push({
       ...failure(platform, company, url, errorMessage(error), entityType, name, entityId),
       accountUrl: url,
-      attemptKey: key
+      attemptKey: key,
+      ...(providerBlocker ? { retryable, blocker: providerBlocker } : {})
     });
     discoveryAttempts.push(
       discoveryAttempt({
@@ -1107,7 +1253,8 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
         usefulResultCount: 0,
         selectedUrl: url,
         status: "failed",
-        failureReason: errorMessage(error)
+        failureReason: errorMessage(error),
+        blocker: providerBlocker
       })
     );
     const message = errorMessage(error);
@@ -1116,9 +1263,11 @@ async function attemptSocialProfile(company, entity, entityType, platform, accou
       status: "failed",
       checkedAt: now,
       error: message,
-      retryable: retryableCollectorFailure(message),
-      outcomeStatus: expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
-      outcomeReason: expectedAccessOrEmptyMessage(message)
+      ...(providerBlocker ? { blocker: providerBlocker } : {}),
+      ...recentWindowFields,
+      retryable,
+      outcomeStatus: providerBlocker || expectedAccessOrEmptyMessage(message) ? "blocked_or_empty" : "failed",
+      outcomeReason: providerBlocker || expectedAccessOrEmptyMessage(message)
         ? "collector_checked_blocked_or_empty"
         : "collector_reported_failure"
     }, { platform, companySlug: company.slug, entityType, entityId, name, accountUrl: url }));
@@ -1145,6 +1294,67 @@ function annotateSocialResultAccount(result, accountUrl) {
     evidence: (result?.evidence ?? []).map(annotate),
     needsReview: (result?.needsReview ?? []).map(annotate),
     failures: (result?.failures ?? []).map(annotate)
+  };
+}
+
+async function finalizeRecentWindowAttempt(result, {
+  attemptKey,
+  platform,
+  entityType,
+  entityId
+}) {
+  const observation = result?.recentWindowObservation;
+  if (!recentWindowProofLane(platform) || !recentProofJournalDir) return null;
+  if (!observation) {
+    return {
+      recentWindowProof: null,
+      blocker: "native_recent_window_observation_missing",
+      startedAt: null,
+      checkedAt: null,
+      coverageCutoff: recentCoverageCutoff
+    };
+  }
+  if (observation.coveredThrough !== recentCoverageCutoff) {
+    return {
+      recentWindowProof: null,
+      blocker: "native_recent_window_cutoff_mismatch",
+      startedAt: observation.startedAt ?? null,
+      checkedAt: observation.checkedAt ?? null,
+      coverageCutoff: recentCoverageCutoff
+    };
+  }
+  if (!recentProofJournalDir) {
+    return {
+      recentWindowProof: null,
+      blocker: observation.complete
+        ? "recent_window_journal_not_configured"
+        : observation.blocker ?? "native_recent_window_unverifiable",
+      startedAt: observation.startedAt ?? null,
+      checkedAt: observation.checkedAt ?? null,
+      coverageCutoff: recentCoverageCutoff
+    };
+  }
+  const proof = await persistRecentWindowProof({
+    observation,
+    attemptKey,
+    pairKey: `${batchConfig.slug}:${entityType}:${entityId}:${platform}`,
+    journalDirectory: recentProofJournalDir,
+    descriptorRoot: dirname(outputPath)
+  });
+  return { ...proof, coverageCutoff: recentCoverageCutoff };
+}
+
+function recentWindowProofLane(platform) {
+  return ["instagram", "hacker_news"].includes(normalizePlatformArg(platform));
+}
+
+function recentWindowTerminalFields(platform, blocker) {
+  if (!recentProofJournalDir || !recentCoverageCutoff || !recentWindowProofLane(platform)) {
+    return {};
+  }
+  return {
+    recentWindowCoverageCutoff: recentCoverageCutoff,
+    recentWindowProofBlocker: String(blocker ?? "native_recent_window_unverifiable")
   };
 }
 
@@ -1321,8 +1531,11 @@ async function ingestRss(company) {
   for (const feedUrl of feedUrls.slice(0, 2)) {
     try {
       const response = await fetchPublic(feedUrl);
-      const xml = await response.text();
-      const items = parseFeedItems(xml).slice(0, 5);
+      const xml = await readBoundedResponseText(response, {
+        maxResponseBytes: HISTORICAL_BACKFILL_LIMITS.maxResponseBytes,
+        maxDecodedBytes: HISTORICAL_BACKFILL_LIMITS.maxDecodedBytes
+      });
+      const items = parseFeedItems(xml);
       for (const item of items) {
         feedEvidence.push(
           evidenceItem({
@@ -1351,6 +1564,59 @@ async function ingestRss(company) {
 }
 
 async function ingestHackerNews(company) {
+  const officialDomain = hostFromUrl(company.websiteUrl);
+  if (recentProofJournalDir && officialDomain) {
+    const target = {
+      entityName: company.name,
+      officialDomain
+    };
+    const recent = await collectHackerNewsRecentWindow({
+      target,
+      checkedThrough: recentCoverageCutoff
+    });
+    const hits = recent.hits.filter((hit) => matchesHnCompanyStory(hit, target));
+    return {
+      evidence: hits.map((hit) => {
+        const nativeUrl = `https://news.ycombinator.com/item?id=${hit.objectID}`;
+        return evidenceItem({
+          company,
+          entityType: "company",
+          entityId: companyId(company),
+          platform: "hacker_news",
+          sourceUrl: nativeUrl,
+          submittedUrl: hit.url ?? null,
+          platformPostId: String(hit.objectID),
+          title: hit.title || company.name,
+          text: hit.title || company.name,
+          rawVisibleText: JSON.stringify(hit),
+          postedAt: hit.created_at,
+          metrics: {
+            upvotes: numberOrNull(hit.points),
+            comments: numberOrNull(hit.num_comments)
+          },
+          contributionScore: scoreMetrics("hacker_news", {
+            upvotes: numberOrNull(hit.points),
+            comments: numberOrNull(hit.num_comments)
+          }),
+          review_state: "verified",
+          matchReason:
+            "Exact company-name plus official-domain match in an exhaustively paged, date-bounded Hacker News Algolia result window."
+        });
+      }),
+      failures: recent.observation.complete
+        ? []
+        : [failure(
+            "hacker_news",
+            company,
+            null,
+            `Recent Hacker News window remained incomplete: ${recent.observation.blocker}.`
+          )],
+      source: "hacker_news_algolia_recent_window",
+      recentWindowObservation: recent.observation,
+      mergeOnly: true
+    };
+  }
+
   const query = encodeURIComponent(`"${company.name}"`);
   const url = `https://hn.algolia.com/api/v1/search?query=${query}&tags=story&hitsPerPage=5`;
   const response = await fetchPublic(url, { accept: "application/json" });
@@ -1648,27 +1914,130 @@ function canonicalYouTubeChannelUrl(value) {
 }
 
 async function ingestMappedYouTubeAccount(company, entity, entityType, accountUrl) {
-  const videosUrl = `${canonicalProfileUrl(accountUrl, "youtube").replace(/\/$/, "")}/videos`;
+  const canonicalAccountUrl = canonicalProfileUrl(accountUrl, "youtube").replace(/\/$/, "");
+  const videosUrl = `${canonicalAccountUrl}/videos`;
   const response = await fetchPublic(videosUrl);
   const html = await response.text();
-  const videos = parseYouTubeResults(html).slice(0, 5);
-  const entityId = entityIdFor(company, entity, entityType);
-  const name = entityName(entity, entityType);
-  if (!videos.length) {
+  const pageObservation = parseYouTubePublicPage(html);
+  const mappedChannelId = youtubeChannelIdFromAccountUrl(canonicalAccountUrl);
+  if (mappedChannelId && pageObservation.channelId && mappedChannelId !== pageObservation.channelId) {
     return {
       failures: [failure(
         "youtube",
         company,
         accountUrl,
-        "No visible native YouTube videos were exposed on the mapped account.",
+        `Mapped YouTube channel ${mappedChannelId} resolved to ${pageObservation.channelId}; refusing cross-channel evidence.`,
         entityType,
-        name,
-        entityId
+        entityName(entity, entityType),
+        entityIdFor(company, entity, entityType)
       )]
     };
   }
-  return {
-    evidence: videos.map((video) => evidenceItem({
+  const pageVideos = parseYouTubeResults(html);
+  const channelId = mappedChannelId ?? pageObservation.channelId ??
+    pageVideos.find((video) => video.youtubeChannelId)?.youtubeChannelId ?? null;
+  const entityId = entityIdFor(company, entity, entityType);
+  const name = entityName(entity, entityType);
+  let feed = null;
+  let feedFailure = null;
+  if (channelId) {
+    const feedSourceUrl = youtubeFeedUrl(channelId);
+    try {
+      const feedResponse = await fetchPublic(feedSourceUrl, { accept: "application/atom+xml,application/xml,text/xml" });
+      const feedBody = await feedResponse.text();
+      if (!feedResponse.ok) {
+        throw new Error(`Official YouTube Atom feed returned HTTP ${feedResponse.status}.`);
+      }
+      feed = parseYouTubeFeed(feedBody, {
+        target: {
+          accountUrl: canonicalAccountUrl,
+          accountId: channelId,
+          batchSlug: batchConfig.slug,
+          entityType,
+          entityId,
+          entityName: name,
+          companyId: companyId(company),
+          companyName: company.name
+        },
+        discoveredAt: new Date(now)
+      });
+    } catch (error) {
+      feedFailure = failure(
+        "youtube",
+        company,
+        feedSourceUrl,
+        `Official YouTube Atom feed could not be exhausted: ${errorMessage(error)}`,
+        entityType,
+        name,
+        entityId
+      );
+    }
+  }
+
+  const videosById = new Map();
+  for (const video of feed?.evidence ?? []) {
+    videosById.set(video.nativeId, {
+      videoId: video.nativeId,
+      title: video.title,
+      description: video.text,
+      postedAt: video.publishedAt,
+      views: video.metrics?.views ?? null,
+      youtubeChannelId: channelId,
+      youtubeChannelUrl: channelId ? `https://youtube.com/channel/${channelId}` : canonicalAccountUrl,
+      raw: JSON.stringify(video),
+      discoveryMethod: video.discoveryMethod
+    });
+  }
+  for (const video of pageVideos) {
+    const prior = videosById.get(video.videoId);
+    videosById.set(video.videoId, {
+      ...prior,
+      ...video,
+      postedAt: prior?.postedAt ?? null,
+      views: Number(video.views) > 0 ? video.views : prior?.views ?? video.views,
+      raw: cleanText(`${prior?.raw ?? ""} ${video.raw ?? ""}`),
+      discoveryMethod: prior?.discoveryMethod ?? "youtube_verified_channel_videos_page"
+    });
+  }
+  const videos = [...videosById.values()];
+  if (!videos.length) {
+    return {
+      failures: [
+        ...(feedFailure ? [feedFailure] : []),
+        failure(
+          "youtube",
+          company,
+          accountUrl,
+          "No visible native YouTube videos were exposed on the mapped account or its official Atom feed.",
+          entityType,
+          name,
+          entityId
+        )
+      ]
+    };
+  }
+  const evidence = [];
+  const needsReview = [];
+  for (const video of videos) {
+    if (!(Number(video.views) > 0)) {
+      needsReview.push({
+        ...reviewCandidate(
+          company,
+          "youtube",
+          `https://www.youtube.com/watch?v=${video.videoId}`,
+          `Verified mapped YouTube video for ${name} had no positive public view metric.`,
+          entityType,
+          entityId,
+          name
+        ),
+        platformPostId: video.videoId,
+        postedAt: video.postedAt ?? null,
+        youtubeChannelId: channelId,
+        youtubeChannelUrl: video.youtubeChannelUrl ?? canonicalAccountUrl
+      });
+      continue;
+    }
+    evidence.push(evidenceItem({
       company,
       entityType,
       entityId,
@@ -1678,11 +2047,22 @@ async function ingestMappedYouTubeAccount(company, entity, entityType, accountUr
       title: video.title,
       text: video.description || video.title,
       rawVisibleText: video.raw,
+      postedAt: video.postedAt ?? null,
       metrics: { views: video.views },
       contributionScore: scoreMetrics("youtube", { views: video.views }),
       review_state: "verified",
-      matchReason: `Native video listed directly on the verified mapped YouTube account for ${name}.`
-    }))
+      youtubeChannelId: channelId,
+      youtubeChannelUrl: video.youtubeChannelUrl ?? canonicalAccountUrl,
+      attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+      attributionStatus: "verified",
+      attributionProvenance: video.discoveryMethod,
+      matchReason: `Native video enumerated from the verified mapped YouTube account for ${name}.`
+    }));
+  }
+  return {
+    evidence,
+    needsReview,
+    failures: feedFailure ? [feedFailure] : []
   };
 }
 
@@ -2463,7 +2843,10 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
       ...zeroPostFallback.evidence
     ],
     needsReview: postNeedsReview,
-    failures: zeroPostFallback.failures ?? [],
+    failures: [
+      ...postResults.flatMap((result) => result.failures ?? []),
+      ...(zeroPostFallback.failures ?? [])
+    ],
     sourceDiscoveryPaths: zeroPostFallback.sourceDiscoveryPaths,
     // Public social surfaces and search responses are bounded windows, not
     // authoritative full-history snapshots. Always merge so a shallow refresh
@@ -2474,6 +2857,7 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
 
 async function ingestInstagramPublicProfile(company, entity, entityType, accountUrl) {
   const request = instagramPublicProfileRequest({ accountUrl });
+  const requestedAt = new Date().toISOString();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20_000);
   let response;
@@ -2487,6 +2871,7 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
   } finally {
     clearTimeout(timeout);
   }
+  const completedAt = new Date().toISOString();
 
   if (!response.ok) {
     if ([401, 403, 429].includes(response.status)) {
@@ -2504,7 +2889,7 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
   const receipt = parseInstagramPublicProfileResponse({
     payload: payloadText,
     requestedUsername: request.username,
-    fetchedAt: now
+    fetchedAt: completedAt
   });
   if (!receipt.verified) {
     if (/_(?:auth_required|challenge|rate_limited)$/.test(receipt.reason ?? "")) {
@@ -2581,6 +2966,16 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
         `The endpoint returned ${receipt.receivedEdgeCount}/${receipt.totalCount} post rows; truncated=${receipt.truncated}.`
     });
   });
+  const recentWindowObservation = recentCoverageCutoff
+    ? instagramRecentWindowObservation({
+        requestUrl: request.url,
+        requestedAt,
+        completedAt,
+        coverageCutoff: recentCoverageCutoff,
+        responseBody: payloadText,
+        receipt
+      })
+    : null;
 
   return {
     evidence: rows,
@@ -2588,7 +2983,8 @@ async function ingestInstagramPublicProfile(company, entity, entityType, account
     failures: [],
     source: "instagram_public_web_profile_info",
     mergeOnly: true,
-    receipt: receiptSummary
+    receipt: receiptSummary,
+    ...(recentWindowObservation ? { recentWindowObservation } : {})
   };
 }
 
@@ -2669,8 +3065,10 @@ async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, 
   return {
     evidence: attributedPosts.evidence,
     needsReview: reviewItems,
-    failures: searchCandidates.publicSearchBlocker
-      ? [{
+    failures: [
+      ...postResults.flatMap((result) => result.failures ?? []),
+      ...(searchCandidates.publicSearchBlocker
+        ? [{
           ...failure(
             platform,
             company,
@@ -2684,7 +3082,8 @@ async function discoverAndVerifyPublicSocialPosts(company, platform, sourceUrl, 
           retryable: false,
           blocker: searchCandidates.publicSearchBlocker
         }]
-      : [],
+        : [])
+    ],
     sourceDiscoveryPaths: candidates.map((candidate) =>
       sourceDiscoveryPath({
         company,
@@ -2939,6 +3338,19 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
       ]
     };
   } catch (error) {
+    const providerBlocker = linkedinPublicBlockerFromError(error);
+    const providerFailure = providerBlocker
+      ? {
+          ...failure(
+            platform,
+            company,
+            candidate.url,
+            `Public ${platform} post verification was blocked: ${providerBlocker.message}`
+          ),
+          retryable: !providerBlocker.retryAt,
+          blocker: providerBlocker
+        }
+      : null;
     const fallback = evidenceFromSearchSnippet(
       company,
       platform,
@@ -2946,7 +3358,10 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
       `Reader verification failed: ${errorMessage(error)}`
     );
     if (fallback) {
-      return { evidence: [fallback] };
+      return {
+        evidence: [fallback],
+        ...(providerFailure ? { failures: [providerFailure] } : {})
+      };
     }
     return {
       needsReview: [
@@ -2956,7 +3371,8 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
           candidate.url,
           `Public ${platform} post candidate verification failed: ${errorMessage(error)}.`
         )
-      ]
+      ],
+      ...(providerFailure ? { failures: [providerFailure] } : {})
     };
   }
 }
@@ -3284,8 +3700,10 @@ async function fetchReadable(url, options = {}) {
 }
 
 async function fetchLinkedInPublicProfileSurface(profileUrl) {
-  const response = await fetchPublic(profileUrl);
-  const html = await response.text();
+  const { response, text: html } = await fetchLinkedInPublicText(
+    profileUrl,
+    "linkedin_public_html"
+  );
   throwIfPlatformCooldown(response, html);
   if (!response.ok) {
     throw new Error(`LinkedIn public profile returned HTTP ${response.status}.`);
@@ -3294,8 +3712,10 @@ async function fetchLinkedInPublicProfileSurface(profileUrl) {
 }
 
 async function fetchLinkedInPublicPostReceipt(postUrl, expectedAccountUrl) {
-  const response = await fetchPublic(postUrl);
-  const html = await response.text();
+  const { response, text: html } = await fetchLinkedInPublicText(
+    postUrl,
+    "linkedin_public_html"
+  );
   throwIfPlatformCooldown(response, html);
   if (!response.ok) {
     throw new Error(`LinkedIn public post returned HTTP ${response.status}.`);
@@ -3305,8 +3725,13 @@ async function fetchLinkedInPublicPostReceipt(postUrl, expectedAccountUrl) {
 
 async function fetchReader(url) {
   const pageUrl = `https://r.jina.ai/http://${url}`;
-  const response = await fetchPublic(pageUrl);
-  const text = await response.text();
+  const linkedInReader = urlMatchesPlatform(url, "linkedin");
+  const { response, text } = linkedInReader
+    ? await fetchLinkedInPublicText(pageUrl, "jina_linkedin_reader")
+    : await fetchPublic(pageUrl).then(async (publicResponse) => ({
+        response: publicResponse,
+        text: await publicResponse.text()
+      }));
   throwIfPlatformCooldown(response, text);
   return {
     html: text,
@@ -3316,10 +3741,7 @@ async function fetchReader(url) {
 }
 
 async function fetchPublic(url, options = {}) {
-  const headers = {
-    "User-Agent": "ReturnerNetworkIntelligence/0.2 read-only public ingestion",
-    Accept: options.accept ?? "text/html,application/xhtml+xml,application/xml,text/plain,application/json;q=0.9,*/*;q=0.8"
-  };
+  const headers = publicRequestHeaders(options);
   if (isDuckDuckGoPublicSearchUrl(url)) {
     return publicSearchCircuit.fetch(url, { headers });
   }
@@ -3334,6 +3756,20 @@ async function fetchPublic(url, options = {}) {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+function fetchLinkedInPublicText(url, provider, options = {}) {
+  return linkedinPublicCircuit.fetchText(url, {
+    headers: publicRequestHeaders(options),
+    provider
+  });
+}
+
+function publicRequestHeaders(options = {}) {
+  return {
+    "User-Agent": "ReturnerNetworkIntelligence/0.2 read-only public ingestion",
+    Accept: options.accept ?? "text/html,application/xhtml+xml,application/xml,text/plain,application/json;q=0.9,*/*;q=0.8"
+  };
 }
 
 function isDuckDuckGoPublicSearchUrl(input) {
@@ -3499,7 +3935,7 @@ function parseYouTubeResults(html) {
   const seen = new Set();
   const regex = /"videoId":"([^"]+)".{0,500}?"title":\{"runs":\[\{"text":"([^"]+)"/g;
   let match;
-  while ((match = regex.exec(html)) && results.length < 20) {
+  while ((match = regex.exec(html))) {
     const videoId = match[1];
     if (seen.has(videoId)) continue;
     seen.add(videoId);
@@ -5290,12 +5726,30 @@ function batchScopedRows(rows, _snapshot, batchSlug) {
 }
 
 async function writeJson(path, value) {
+  const compactPublicEvidence = resolve(path) === resolve(canonicalPublicEvidencePath);
+  if (compactPublicEvidence) {
+    const sanitized = JSON.parse(serializeJson(value, { compact: true }));
+    await writePublicEvidenceArtifactPairAtomic({
+      rootDir: root,
+      canonicalPath: path,
+      snapshot: sanitized,
+      expectedCanonicalSha256: currentCanonicalArtifact?.canonicalSha256,
+      expectedLedgerSha256: currentCanonicalArtifact?.ledgerSha256 ?? null,
+      renameImpl: renameWithRetries
+    });
+    return;
+  }
   await mkdir(dirname(path), { recursive: true });
   const tempPath = `${path}.${process.pid}.${Date.now()}.tmp`;
-  await writeFile(tempPath, `${serializeJson(value)}\n`);
+  const body = `${serializeJson(value)}\n`;
+  await writeFile(tempPath, body);
+  await renameWithRetries(tempPath, path);
+}
+
+async function renameWithRetries(source, destination) {
   for (let attemptIndex = 0; attemptIndex < 8; attemptIndex += 1) {
     try {
-      await rename(tempPath, path);
+      await rename(source, destination);
       return;
     } catch (error) {
       if (!["EPERM", "UNKNOWN"].includes(error?.code) || attemptIndex === 7) {
@@ -5312,8 +5766,10 @@ function writeStdout(value) {
   });
 }
 
-function serializeJson(value) {
-  return redactTokenLikeStrings(JSON.stringify(withWellFormedJsonStrings(value), null, 2));
+function serializeJson(value, { compact = false } = {}) {
+  return redactTokenLikeStrings(
+    JSON.stringify(withWellFormedJsonStrings(value), null, compact ? undefined : 2)
+  );
 }
 
 function withWellFormedJsonStrings(value) {
@@ -5356,6 +5812,15 @@ function stringArg(name) {
   return process.argv.find((arg) => arg.startsWith(`${name}=`))?.split("=").slice(1).join("=");
 }
 
+function optionalCanonicalTimestampArg(value, label) {
+  if (value == null || value === "") return null;
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed)) throw new TypeError(`${label} must be a canonical ISO timestamp.`);
+  const canonical = new Date(parsed).toISOString();
+  if (canonical !== value) throw new TypeError(`${label} must be a canonical ISO timestamp.`);
+  return canonical;
+}
+
 function hasArg(name) {
   return process.argv.includes(name);
 }
@@ -5369,6 +5834,27 @@ function isFreshCompletedAttempt(attempt) {
     !attempt.entityId ||
     !String(attempt.outcomeReason ?? "").trim()
   ) {
+    return false;
+  }
+  if (
+    recentProofJournalDir &&
+    ["instagram", "hacker_news"].includes(attempt.platform) &&
+    (
+      attempt.recentWindowCoverageCutoff !== recentCoverageCutoff ||
+      (
+        !attempt.recentWindowProof &&
+        !String(attempt.recentWindowProofBlocker ?? "").trim()
+      ) ||
+      (
+        attempt.recentWindowProof &&
+        attempt.recentWindowProof.coveredThrough !== recentCoverageCutoff
+      )
+    )
+  ) {
+    // A legacy terminal row proves only that a shallow request happened. Force
+    // one instrumented replay so the row gains either the exact native proof
+    // or a versioned blocker; current blocked/capped rows then retain ordinary
+    // freshness and do not hammer a public endpoint during process recovery.
     return false;
   }
   const error = String(attempt.error ?? "").trim();

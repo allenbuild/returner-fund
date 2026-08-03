@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-kugelaudio",
+    "slug": "kugelaudio",
+    "name": "KugelAudio"
+  },
+  "event": {
+    "id": "tle-ee45a94a9d6be2d1e3bfce43",
+    "eventDate": "2026-04-21",
+    "eventDateType": "announcement_date",
+    "title": "KugelAudio was accepted into Y Combinator",
+    "summary": "share that KugelAudio has joined Y Combinator.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c0f2516322d8b4f79b933ee0",
+        "title": "We're excited to share that KugelAudio has joined Y Combinator.",
+        "publisher": "kugelaudio",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-21T06:35:38.269Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/kugelaudio_were-excited-to-share-that-kugelaudio-has-activity-7452243633787023360-8XRA"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c0f2516322d8b4f79b933ee0",
+        "title": "We're excited to share that KugelAudio has joined Y Combinator.",
+        "publisher": "kugelaudio",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-21T06:35:38.269Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/kugelaudio_were-excited-to-share-that-kugelaudio-has-activity-7452243633787023360-8XRA",
+        "publicationDate": "2026-04-21T06:35:38.269Z",
+        "excerpt": "We're excited to share that KugelAudio has joined Y Combinator. We're building a sovereign foundational voice model for Europe. 30 languages, natural pronunciation, on-prem deployment, and EU-hosted by default. Six months ago we open-sourced our first model. It now sits at 100k+ monthly downloads on Hugging Face. Today we're part of Y Combinator Spring 2026 batch, working alongside some of the strongest founders building right now. This lets us push our mission forward with full force: giving…",
+        "sourceEventDate": "2026-04-21",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ed67479c153ff9cb049c7cc6",
+        "platform": "linkedin",
+        "account": "kugelaudio",
+        "postDate": "2026-04-21",
+        "excerpt": "We're excited to share that KugelAudio has joined Y Combinator. We're building a sovereign foundational voice model for Europe. 30 languages, natural pronunciation, on-prem deployment, and EU-hosted by default. Six months ago we open-sourced our first model. It now sits at 100k+ monthly downloads on Hugging Face. Today we're part of Y Combinator Spring 2026 batch, working alongside some of the strongest founders building right now. This lets us push our mission forward with full force: giving…",
+        "url": "https://linkedin.com/posts/kugelaudio_were-excited-to-share-that-kugelaudio-has-activity-7452243633787023360-8XRA",
+        "metrics": {
+          "reactions": 163,
+          "comments": 12
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

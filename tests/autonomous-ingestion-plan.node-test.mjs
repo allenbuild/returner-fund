@@ -19,6 +19,7 @@ import {
   maxAutonomousRunnerProcessBudgetMs,
   mergeGithubTractionSnapshots,
   mergePublicEvidenceSnapshots,
+  normalizeVerifiedSocialOverrideLinks,
   normalizeAutonomousFailureEntityId,
   prioritizeAutonomousCompaniesByCoverage,
   summarizeAutonomousCollectorTerminalTaskCoverage,
@@ -129,8 +130,8 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
 
     const summaries = catalogs.map(summarizeCatalog);
     assert.deepEqual(summaries.filter((catalog) => catalog.slug !== "S26"), [
-      { slug: "S2026", companies: 197, founders: 397, accounts: 968 },
-      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
+      { slug: "S2026", companies: 197, founders: 397, accounts: 994 },
+      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 339 }
     ]);
     const summer = catalogs.find((catalog) => catalog.slug === "S26");
     const summerSummary = summaries.find((catalog) => catalog.slug === "S26");
@@ -248,6 +249,95 @@ describe("autonomous ingestion planning against the collector catalogs", () => {
     assert.equal(sharedHyperparticle.length, 1);
     assert.equal(sharedHyperparticle[0].entity.entityType, "founder");
     assert.equal(sharedHyperparticle[0].entity.sourceKey, "founder-rekursivai-dan-kondratyuk-3527564");
+  });
+
+  it("loads every staged Product Hunt and Reddit mapping, including multiple same-platform owner accounts", async () => {
+    const expected = [
+      ["S2026", "company-napkin-math", "product_hunt", "https://www.producthunt.com/products/napkin-math"],
+      ["S26", "company-lemonlime", "product_hunt", "https://www.producthunt.com/products/lemonlime"],
+      ["S2026", "company-cignara", "product_hunt", "https://www.producthunt.com/products/cignara"],
+      ["S2026", "company-gojiberry-ai", "reddit", "https://www.reddit.com/user/Ecstatic-Tough6503"],
+      ["S26", "company-cerenovus", "product_hunt", "https://www.producthunt.com/products/compendium-2"],
+      ["S26", "company-contextdev", "product_hunt", "https://www.producthunt.com/products/context-dev"],
+      ["S26", "company-codag", "product_hunt", "https://www.producthunt.com/products/codag"],
+      ["S2026", "company-runtime", "product_hunt", "https://www.producthunt.com/products/runtime"],
+      ["S2026", "company-insforge", "product_hunt", "https://www.producthunt.com/products/insforge-alpha"],
+      ["S26", "company-screenpipe", "product_hunt", "https://www.producthunt.com/products/screenpipe"],
+      ["A16ZSR006", "a16z-speedrun-006-mirror-mirror-ai", "reddit", "https://www.reddit.com/user/somuchblood"],
+      ["A16ZSR006", "a16z-speedrun-006-modaic", "reddit", "https://www.reddit.com/user/Disneyskidney"],
+      ["A16ZSR006", "a16z-speedrun-006-omi-health", "reddit", "https://www.reddit.com/user/Ok-Comfortable5583"],
+      ["A16ZSR006", "a16z-speedrun-006-sun", "reddit", "https://www.reddit.com/user/createvalue-dontspam"],
+      ["A16ZSR006", "a16z-speedrun-006-sun", "reddit", "https://www.reddit.com/user/Total_Birthday8070"],
+      ["A16ZSR006", "a16z-speedrun-006-syncere", "reddit", "https://www.reddit.com/user/cirad"],
+      ["A16ZSR006", "a16z-speedrun-006-emanate", "reddit", "https://www.reddit.com/user/kainjoo"]
+    ];
+    const catalogs = await loadAutonomousCatalogs(repositoryRoot);
+    const missing = expected.filter(([batchSlug, entityId, platform, url]) => {
+      const company = catalogs
+        .find((catalog) => catalog.slug === batchSlug)
+        ?.companies.find((candidate) => candidate.sourceKey === entityId);
+      return !company?.accounts.some((account) =>
+        account.platform === platform &&
+        account.url.toLowerCase().replace(/\/$/, "") === url.toLowerCase().replace(/\/$/, "") &&
+        account.reviewState === "verified"
+      );
+    });
+    assert.equal(expected.length, 17);
+    assert.deepEqual(missing, []);
+
+    const sun = catalogs
+      .find((catalog) => catalog.slug === "A16ZSR006")
+      .companies.find((company) => company.sourceKey === "a16z-speedrun-006-sun");
+    assert.deepEqual(
+      sun.accounts.filter((account) => account.platform === "reddit").map((account) => account.url),
+      [
+        "https://www.reddit.com/user/createvalue-dontspam",
+        "https://www.reddit.com/user/Total_Birthday8070"
+      ]
+    );
+
+    for (const [batchSlug, entityId, platform, expectedCanonicalUrl] of [
+      ["S2026", "company-anoria", "youtube", "https://youtube.com/@anoria_inc"],
+      ["S26", "company-luca-iq", "youtube", "https://youtube.com/channel/ucskrxhk7dyia_atzzbzz8ba"],
+      ["S2026", "company-gojiberry-ai", "reddit", "https://reddit.com/user/ecstatic-tough6503"],
+      ["S2026", "company-napkin-math", "product_hunt", "https://producthunt.com/products/napkin-math"]
+    ]) {
+      const company = catalogs
+        .find((catalog) => catalog.slug === batchSlug)
+        ?.companies.find((candidate) => candidate.sourceKey === entityId);
+      const account = company?.accounts.find((candidate) => candidate.platform === platform);
+      assert.equal(
+        account?.sourceKey,
+        `acct:company:${entityId}:${platform}:${encodeURIComponent(expectedCanonicalUrl)}`
+      );
+    }
+
+    assert.equal(normalizeVerifiedSocialOverrideLinks({ reddit: "https://www.reddit.com/user/one" }).length, 1);
+    assert.equal(normalizeVerifiedSocialOverrideLinks({
+      reddit: ["https://www.reddit.com/user/one", "https://www.reddit.com/user/two"]
+    }).length, 2);
+    assert.throws(
+      () => normalizeVerifiedSocialOverrideLinks({ reddit: [] }),
+      /URL array must not be empty/
+    );
+    assert.throws(
+      () => normalizeVerifiedSocialOverrideLinks({ reddit: ["https://www.reddit.com/user/one", null] }),
+      /contains a malformed URL value/
+    );
+    assert.throws(
+      () => normalizeVerifiedSocialOverrideLinks({ reddit: ["https://example.com/user/not-reddit"] }),
+      /does not match its platform/
+    );
+    assert.throws(
+      () => normalizeVerifiedSocialOverrideLinks({ youtube: "https://example.com/@not-youtube" }),
+      /does not match its platform/
+    );
+    assert.throws(
+      () => normalizeVerifiedSocialOverrideLinks({
+        reddit: ["https://www.reddit.com/user/one", "https://www.reddit.com/user/one/"]
+      }),
+      /contains duplicate account URL/
+    );
   });
 
   it("retires dead owner mappings while retaining replacement URLs and audit history", async () => {
@@ -674,7 +764,7 @@ globalThis.fetch = async (input) => {
     );
     assert.ok(canonicalAccountCount > 0);
     assert.equal(first.filter((task) => task.account).length, canonicalAccountCount);
-    assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length + 4);
+    assert.equal(first.length, expectedEntityCount * AUTONOMOUS_PLATFORMS.length + 5);
     assert.equal(new Set(first.map((task) => task.checkpointKey)).size, first.length);
     assert.deepEqual(first.map((task) => task.checkpointKey),
       [...first.map((task) => task.checkpointKey)].sort((left, right) => left.localeCompare(right))
@@ -696,13 +786,15 @@ globalThis.fetch = async (input) => {
       "founder-eden-robotics-stamatios-floratos-1956825",
       "a16z-speedrun-006-antihero-studios",
       "a16z-speedrun-006-quinn",
-      "a16z-speedrun-006-smart-bricks"
+      "a16z-speedrun-006-smart-bricks",
+      "a16z-speedrun-006-sun"
     ].includes(task.entitySourceKey) && task.account);
     for (const [entitySourceKey, platform, expectedUrls] of [
       ["founder-eden-robotics-stamatios-floratos-1956825", "x", ["cybermetheus", "StamatisTWIY"]],
       ["a16z-speedrun-006-antihero-studios", "linkedin", ["antihero-studios", "antiherostudios-games"]],
       ["a16z-speedrun-006-quinn", "linkedin", ["meetquinn", "meetquinnai"]],
-      ["a16z-speedrun-006-smart-bricks", "instagram", ["smartbricks_invest", "smartbricks.invest"]]
+      ["a16z-speedrun-006-smart-bricks", "instagram", ["smartbricks_invest", "smartbricks.invest"]],
+      ["a16z-speedrun-006-sun", "reddit", ["createvalue-dontspam", "Total_Birthday8070"]]
     ]) {
       const tasks = multiplyMapped.filter(
         (task) => task.entitySourceKey === entitySourceKey && task.platform === platform
@@ -756,21 +848,47 @@ globalThis.fetch = async (input) => {
       Object.fromEntries(AUTONOMOUS_PLATFORMS.map((platform) => [platform, coverage.byPlatform[platform].expected])),
       Object.fromEntries(AUTONOMOUS_PLATFORMS.map((platform) => [
         platform,
-        expectedEntityCount + ({ x: 1, linkedin: 2, instagram: 1 }[platform] ?? 0)
+        expectedEntityCount + ({ x: 1, linkedin: 2, instagram: 1, reddit: 1 }[platform] ?? 0)
       ]))
     );
   });
 
   it("keeps process retries, durable persistence, and lock-release headroom below the workflow timeout", () => {
-    const runnerTimeoutMs = 330 * 60_000;
+    const runnerTimeoutMs = 340 * 60_000;
 
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs, 6 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorAttempts, 2);
-    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 90 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.publicCollectorAttemptMs, 70 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.collectorCheckpointFlushMs, 2 * 60_000);
+    assert.equal(AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryCommandHeadroomMs, 30_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.scoringDiagnosticsMs, 3 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.durablePersistenceHeadroomMs, 25 * 60_000);
     assert.equal(AUTONOMOUS_PROCESS_BUDGETS.lockReleaseHeadroomMs, 2 * 60_000);
     assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeoutMs);
+  });
+
+  it("accounts for both publication builds, every validation pass, and retry execution", () => {
+    const zeroBudgets = Object.fromEntries(
+      Object.keys(AUTONOMOUS_PROCESS_BUDGETS).map((key) => [key, 0])
+    );
+    zeroBudgets.collectorAttempts = 1;
+
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      productionBuildMs: 1
+    }), 4, "two builds must be budgeted for both initial publication and retry");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      artifactValidationMs: 1
+    }), 10, "five validation-budget commands must be budgeted for both publication attempts");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      timelineDiscoveryCommandHeadroomMs: 1
+    }), 2, "Timeline command headroom must be budgeted for both publication attempts");
+    assert.equal(maxAutonomousRunnerProcessBudgetMs({
+      ...zeroBudgets,
+      catalogRefreshMs: 1
+    }), 1, "mutable catalog refresh must be part of the runner budget");
   });
 
   it("queues unresolved discoverable founder targets again under every new run key", async () => {

@@ -6,6 +6,38 @@ import companiesSnapshot from "@/lib/yc/summer-2026-companies.json";
 import overridesSnapshot from "@/lib/social/verified-social-overrides.json";
 
 describe("instagram coverage debug report", () => {
+  it("accepts multi-account override values without treating invalid Instagram arrays as verified", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const company = companiesSnapshot.companies[0];
+    const baseInput = {
+      graph,
+      companies: [company],
+      discovery: null
+    };
+    const validInstagramArray = {
+      [company.slug]: {
+        companySocialLinks: {
+          instagram: ["https://www.instagram.com/verified.one/", "https://instagram.com/verified_two"],
+          reddit: ["https://www.reddit.com/r/example/", "https://www.reddit.com/user/example/"]
+        }
+      }
+    };
+    const invalidInstagramArray = {
+      [company.slug]: {
+        companySocialLinks: {
+          instagram: ["https://www.instagram.com/verified.one/", "https://instagram.com.evil.test/imposter"]
+        }
+      }
+    };
+
+    expect(
+      buildInstagramCoverageReport({ ...baseInput, overrides: validInstagramArray }).profiles.verifiedCompanyOverrides
+    ).toBe(1);
+    expect(
+      buildInstagramCoverageReport({ ...baseInput, overrides: invalidInstagramArray }).profiles.verifiedCompanyOverrides
+    ).toBe(0);
+  });
+
   it("explains the current Summer 2026 Instagram coverage without counting old Spring overrides", () => {
     const currentCompanySlugs = new Set(companiesSnapshot.companies.map((company) => company.slug));
     const allVerifiedCompanyOverrides = Object.entries(overridesSnapshot).filter(([, override]) =>

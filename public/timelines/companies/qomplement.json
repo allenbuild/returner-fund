@@ -5,14 +5,49 @@
     "slug": "qomplement",
     "name": "qomplement"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
-  "events": [],
-  "groups": [],
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
+  "events": [
+    {
+      "id": "tle-e8597ecf1d71ebab47302e01",
+      "eventDate": "2025-05-03",
+      "eventDateType": "announcement_date",
+      "title": "qomplement released qomplement: The First Desktop AI Agent",
+      "summary": "Launching qomplement: The First Desktop AI Agent.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2dbd0a7ec9bde70c2e806be2",
+          "title": "Launching qomplement: The First Desktop AI Agent",
+          "publisher": "Launching qomplement: The First Desktop AI Agent",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2025-05-03T04:56:18.000Z",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=doG6NlUPaH0"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 0,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

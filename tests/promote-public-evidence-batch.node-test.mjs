@@ -8,6 +8,7 @@ import {
   planPublicEvidenceBatchPromotion,
   promotePublicEvidenceBatch
 } from "../scripts/promote-public-evidence-batch.mjs";
+import { readPublicEvidenceArtifact } from "../scripts/lib/public-evidence-artifact.mjs";
 
 describe("public evidence batch promotion arguments", () => {
   it("parses the bounded Instagram contract and rejects unsafe variants", () => {
@@ -192,7 +193,7 @@ describe("public evidence batch promotion publication", () => {
       assert.equal(receipt.status, "promoted");
       assert.equal(receipt.addedEvidence, 1);
       assert.equal(receipt.addedReviews, 1);
-      assert.equal(renameCalls, 1);
+      assert.equal(renameCalls, 2);
       assert.equal(fixture.mergeCalls.length, 1);
       assert.equal(fixture.mergeCalls[0].snapshots.length, 2);
       assert.deepEqual(
@@ -202,7 +203,9 @@ describe("public evidence batch promotion publication", () => {
       assert.equal(typeof fixture.mergeCalls[0].options.resolveBatchSlug, "function");
       assert.equal(typeof fixture.mergeCalls[0].options.resolveNativeAuthor, "function");
 
-      const promoted = JSON.parse(await readFile(fixture.canonicalPath, "utf8"));
+      const promoted = (await readPublicEvidenceArtifact(fixture.canonicalPath, {
+        rootDir: fixture.rootDir
+      })).snapshot;
       assert.deepEqual(promoted.evidence, [...canonical.evidence, added]);
       assert.deepEqual(promoted.needsReview, [...canonical.needsReview, review]);
       assert.deepEqual(promoted.failures, canonical.failures);

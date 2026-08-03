@@ -47,14 +47,14 @@
     ],
     "posts": [
       {
-        "id": "post-3beed567562258c195f298d5",
+        "id": "post-4bd4a4ea138c9935f8fb9e57",
         "platform": "youtube",
         "account": "Memoir Launch Video",
         "postDate": "2026-06-01",
         "excerpt": "Embedded in the official Memoir YC company page.",
         "url": "https://youtube.com/watch?v=qAfRjaRQw3g",
         "metrics": {
-          "views": 497,
+          "views": 518,
           "likes": 1,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

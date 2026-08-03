@@ -130,7 +130,7 @@ test("autonomous runner receives optional durability secrets and owns validated 
   )?.[1];
   assert.ok(runnerStep, "missing autonomous ingestion step");
   assert.match(runnerStep, /id:\s*ingestion/);
-  assert.match(runnerStep, /timeout-minutes:\s*330/);
+  assert.match(runnerStep, /timeout-minutes:\s*340/);
   assert.match(runnerStep, /NEXT_PUBLIC_SUPABASE_URL:\s*\$\{\{ secrets\.NEXT_PUBLIC_SUPABASE_URL \}\}/);
   assert.match(runnerStep, /SUPABASE_SERVICE_ROLE_KEY:\s*\$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
   assert.match(runnerStep, /GITHUB_TOKEN:\s*\$\{\{ github\.token \}\}/);
@@ -161,13 +161,17 @@ test("workflow step budgets leave setup and scheduling headroom", () => {
   const runnerTimeout = Number(workflow.match(/- name: Run autonomous ingestion[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
   const validationTimeout = Number(workflow.match(/- name: Validate generated public artifacts[\s\S]*?timeout-minutes:\s*(\d+)/)?.[1]);
 
-  assert.equal(jobTimeout, 350);
+  assert.equal(jobTimeout, 360);
   assert.equal(installTimeout, 10);
-  assert.equal(runnerTimeout, 330);
+  assert.equal(runnerTimeout, 340);
   assert.equal(validationTimeout, 5);
   assert.ok(runnerTimeout < jobTimeout);
   assert.ok(installTimeout + runnerTimeout + validationTimeout < jobTimeout);
   assert.ok(maxAutonomousRunnerProcessBudgetMs() < runnerTimeout * 60_000);
+  assert.ok(
+    (installTimeout + validationTimeout) * 60_000 + maxAutonomousRunnerProcessBudgetMs() <
+      jobTimeout * 60_000
+  );
 });
 
 test("workflow never invokes a logged-in collector", () => {
@@ -193,12 +197,13 @@ test("inactive candidates and accepted publication outcomes have distinct audita
   for (const warningStatus of [
     "published_degraded",
     "published_no_new_sources",
+    "published_stale_day",
+    "no_changes_stale_day",
     "noop_degraded",
-    "noop_no_new_sources"
+    "noop_no_new_sources",
+    "noop_stale_day"
   ]) assert.ok(receiptPolicy.includes(`"${warningStatus}"`));
   for (const failureStatus of [
-    "published_stale_day",
-    "noop_stale_day",
     "noop_missing_receipt"
   ]) assert.ok(receiptPolicy.includes(`"${failureStatus}"`));
   const runnerSource = readFileSync(path.join(repositoryRoot, "scripts", "run-autonomous-ingestion.mjs"), "utf8");

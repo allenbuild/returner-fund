@@ -1,10 +1,17 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { loadAutonomousCatalogs } from "../scripts/lib/autonomous-ingestion-plan.mjs";
+import {
+  PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES,
+  PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
+  PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH,
+  assertPublicEvidenceArtifactSize,
+  serializeCompactPublicEvidenceArtifact
+} from "../scripts/lib/public-evidence-artifact.mjs";
 import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs";
 
 const root = process.cwd();
@@ -56,6 +63,68 @@ function assertJqParsesIfAvailable(path) {
     throw error;
   }
 }
+
+test("compact public evidence serialization is deterministic and preserves every semantic field", () => {
+  const fixture = {
+    source: { evidenceCount: 1, failureCount: 1 },
+    evidence: [{
+      id: "evidence-1",
+      entityId: "company-example",
+      text: "Whitespace inside evidence text stays exact:  a  b\nline two",
+      rawVisibleText: JSON.stringify({ post: { id: "native-1", text: "raw  body" } }),
+      postedAt: "2026-08-02T12:00:00.000Z",
+      metrics: { views: 12, comments: 3 },
+      attribution: { entityType: "company", entityId: "company-example" }
+    }],
+    needsReview: [],
+    failures: [{ id: "failure-1", message: "blocked", checkedAt: "2026-08-02T12:01:00.000Z" }]
+  };
+
+  const first = serializeCompactPublicEvidenceArtifact(fixture);
+  const second = serializeCompactPublicEvidenceArtifact(fixture);
+  assert.equal(first, second);
+  assert.deepEqual(JSON.parse(first), fixture);
+  assert.equal(first.indexOf("\n"), first.length - 1);
+  assert.equal(assertPublicEvidenceArtifactSize(first), Buffer.byteLength(first));
+  assert.throws(
+    () => serializeCompactPublicEvidenceArtifact(fixture, { maxBytes: Buffer.byteLength(first) }),
+    /must remain below/
+  );
+});
+
+test("canonical public evidence and its operational ledger stay below 75 MiB", async () => {
+  const artifactPath = join(root, "src", "lib", "social", "public-evidence-current.json");
+  const ledgerPath = join(root, PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_PATH);
+  const [artifact, ledger] = await Promise.all([stat(artifactPath), stat(ledgerPath)]);
+  assert.ok(
+    artifact.size < PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES,
+    `public evidence is ${artifact.size} bytes; expected less than ${PUBLIC_EVIDENCE_ARTIFACT_MAX_BYTES}`
+  );
+  assert.ok(
+    ledger.size < PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES,
+    `public evidence ledger is ${ledger.size} bytes; expected less than ${PUBLIC_EVIDENCE_OPERATIONAL_LEDGER_MAX_BYTES}`
+  );
+  assertJqParsesIfAvailable(artifactPath);
+  assertJqParsesIfAvailable(ledgerPath);
+
+  const [runner, collector, batchPromotion, candidatePromotion, thumbnailBackfill] = await Promise.all([
+    readFile(join(root, "scripts", "run-autonomous-ingestion.mjs"), "utf8"),
+    readFile(join(root, "scripts", "fetch-public-traction.mjs"), "utf8"),
+    readFile(join(root, "scripts", "promote-public-evidence-batch.mjs"), "utf8"),
+    readFile(join(root, "scripts", "promote-public-evidence-candidate.mjs"), "utf8"),
+    readFile(join(root, "scripts", "backfill-evidence-thumbnails.mjs"), "utf8")
+  ]);
+  assert.match(runner, /writePublicEvidenceArtifactPairAtomic\(\{/);
+  assert.match(runner, /"outputs\/public-ingestion-operational-ledger-current\.json"/);
+  assert.match(collector, /writePublicEvidenceArtifactPairAtomic\(\{/);
+  assert.match(collector, /expectedLedgerSha256:/);
+  assert.match(batchPromotion, /writePublicEvidenceArtifactPairAtomic\(\{/);
+  assert.match(candidatePromotion, /writePublicEvidenceArtifactPairAtomic\(\{/);
+  assert.match(thumbnailBackfill, /readPublicEvidenceArtifact\(absolutePath/);
+  assert.match(thumbnailBackfill, /writePublicEvidenceCanonicalArtifactAtomic\(\{/);
+  assert.match(thumbnailBackfill, /expectedCanonicalSha256:/);
+  assert.match(thumbnailBackfill, /expectedLedgerSha256:/);
+});
 
 test("public collection globally bounds tasks and safely clamps lane overrides", () => {
   const runPlan = (...args) => JSON.parse(execFileSync(process.execPath, [
@@ -289,6 +358,221 @@ globalThis.fetch = async (url) => new Response(
   });
   const second = JSON.parse(await readFile(output, "utf8"));
   assert.deepEqual(second.attempts["rss:eden-robotics"], receipt);
+});
+
+test("RSS feed collection keeps every unique entry in each bounded response", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-rss-depth-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+const entries = Array.from({ length: 7 }, (_, index) => {
+  const number = index + 1;
+  return "<item><title>Post " + number + "</title><link>https://www.edenrobotics.ai/blog/post-" + number + "</link><description>Eden Robotics update " + number + "</description><pubDate>Mon, " + String(number).padStart(2, "0") + " Jun 2026 12:00:00 GMT</pubDate></item>";
+}).join("");
+const duplicate = "<item><title>Duplicate title for post 3</title><link>https://www.edenrobotics.ai/blog/post-3</link><description>Duplicate feed entry</description><pubDate>Mon, 03 Jun 2026 12:00:00 GMT</pubDate></item>";
+const feed = '<?xml version="1.0"?><rss><channel>' + entries + duplicate + '</channel></rss>';
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (/\\/(?:feed(?:\\.xml)?|rss(?:\\.xml)?)$/.test(value)) {
+    return new Response(feed, { status: 200, headers: { "content-type": "application/rss+xml" } });
+  }
+  return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="/feed.xml"></head><body>Eden Robotics</body></html>', { status: 200 });
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=rss",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const rssRows = [...snapshot.evidence, ...snapshot.needsReview]
+    .filter((row) => row.platform === "rss");
+  assert.equal(rssRows.length, 7);
+  assert.ok(rssRows.some((row) => row.sourceUrl.endsWith("/blog/post-7")));
+  assert.equal(
+    rssRows.filter((row) => row.sourceUrl.endsWith("/blog/post-3")).length,
+    1,
+    "cross-feed and same-feed duplicates must still collapse by physical URL"
+  );
+});
+
+test("RSS feed collection rejects a response above the byte guard", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-rss-size-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const preload = join(directory, "mock-fetch.mjs");
+  await Promise.all([
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(preload, `
+globalThis.fetch = async (url) => {
+  const value = String(url);
+  if (/\\/(?:feed(?:\\.xml)?|rss(?:\\.xml)?)$/.test(value)) {
+    return new Response("<rss><channel></channel></rss>", {
+      status: 200,
+      headers: { "content-type": "application/rss+xml", "content-length": String(2 * 1024 * 1024 + 1) }
+    });
+  }
+  return new Response('<html><head><link rel="alternate" type="application/rss+xml" href="/feed.xml"></head><body>Eden Robotics</body></html>', { status: 200 });
+};
+`)
+  ]);
+
+  execFileSync(process.execPath, [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=eden-robotics",
+    "--platforms=rss",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    "--force",
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ], {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+
+  const snapshot = JSON.parse(await readFile(output, "utf8"));
+  const rssRows = [...snapshot.evidence, ...snapshot.needsReview]
+    .filter((row) => row.platform === "rss");
+  assert.equal(rssRows.length, 0);
+  assert.ok(snapshot.failures.some(
+    (row) => row.platform === "rss" && /above the 2097152-byte limit/.test(row.message)
+  ));
+});
+
+test("legacy fresh Hacker News rows rerun once into instrumented recent-window state", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "returner-public-legacy-hn-proof-"));
+  const output = join(directory, "public-evidence.json");
+  const checkpoint = join(directory, "checkpoint.json");
+  const discoveryAttempts = join(directory, "discovery-attempts.json");
+  const sourceDiscoveryPaths = join(directory, "source-discovery-paths.json");
+  const journals = join(directory, "recent-window-journals");
+  const preload = join(directory, "mock-fetch.mjs");
+  const noFetchPreload = join(directory, "no-fetch.mjs");
+  const attemptKey = "hacker_news:9-mothers-corporation";
+  const legacyCheckedAt = new Date().toISOString();
+  const recentCoverageCutoff = new Date().toISOString();
+  await Promise.all([
+    writeFile(output, `${JSON.stringify({
+      source: {}, evidence: [], needsReview: [], failures: []
+    })}\n`),
+    writeFile(discoveryAttempts, "[]\n"),
+    writeFile(sourceDiscoveryPaths, "[]\n"),
+    writeFile(checkpoint, `${JSON.stringify({
+      attempts: {
+        [attemptKey]: {
+          attemptKey,
+          batchSlug: "S2026",
+          companySlug: "9-mothers-corporation",
+          platform: "hacker_news",
+          entityType: "company",
+          entityId: "company-9-mothers-corporation",
+          entityName: "9 Mothers",
+          accountUrl: null,
+          status: "done",
+          checkedAt: legacyCheckedAt,
+          retryable: false,
+          outcomeStatus: "completed",
+          outcomeReason: "collector_evidence_collected"
+        }
+      },
+      evidence: [], needsReview: [], failures: [], discoveryAttempts: [], sourceDiscoveryPaths: []
+    }, null, 2)}\n`),
+    writeFile(preload, `
+globalThis.fetch = async (url) => {
+  if (!String(url).startsWith("https://hn.algolia.com/api/v1/search_by_date")) {
+    throw new Error("unexpected URL: " + url);
+  }
+  return new Response(JSON.stringify({ page: 0, nbHits: 0, nbPages: 0, hits: [] }), {
+    status: 200,
+    headers: { "content-type": "application/json" }
+  });
+};
+`),
+    writeFile(noFetchPreload, `globalThis.fetch = async () => { throw new Error("instrumented terminal HN receipt must skip network"); };\n`)
+  ]);
+  const args = [
+    "scripts/fetch-public-traction.mjs",
+    "--batch=S2026",
+    "--company=9-mothers-corporation",
+    "--platforms=hacker_news",
+    "--social=none",
+    "--workers=1",
+    "--delay-ms=0",
+    `--recent-proof-journal-dir=${journals}`,
+    `--recent-coverage-cutoff=${recentCoverageCutoff}`,
+    `--output=${output}`,
+    `--checkpoint=${checkpoint}`,
+    `--discovery-attempts=${discoveryAttempts}`,
+    `--source-discovery-paths=${sourceDiscoveryPaths}`
+  ];
+  execFileSync(process.execPath, args, {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+  const first = JSON.parse(await readFile(output, "utf8"));
+  const instrumented = first.attempts[attemptKey];
+  assert.notEqual(instrumented.checkedAt, legacyCheckedAt);
+  assert.equal(instrumented.recentWindowCoverageCutoff, recentCoverageCutoff);
+  assert.equal(instrumented.recentWindowProof.coveredThrough, recentCoverageCutoff);
+  assert.equal(instrumented.recentWindowProof.status, "complete");
+
+  execFileSync(process.execPath, args, {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${noFetchPreload}` },
+    stdio: "pipe"
+  });
+  const second = JSON.parse(await readFile(output, "utf8"));
+  assert.deepEqual(second.attempts[attemptKey], instrumented);
+
+  const nextCoverageCutoff = new Date().toISOString();
+  const refreshedArgs = args.map((argument) =>
+    argument.startsWith("--recent-coverage-cutoff=")
+      ? `--recent-coverage-cutoff=${nextCoverageCutoff}`
+      : argument
+  );
+  execFileSync(process.execPath, refreshedArgs, {
+    cwd: root,
+    env: { ...process.env, NODE_OPTIONS: `--import=${preload}` },
+    stdio: "pipe"
+  });
+  const refreshed = JSON.parse(await readFile(output, "utf8"));
+  assert.equal(
+    refreshed.attempts[attemptKey].recentWindowCoverageCutoff,
+    nextCoverageCutoff
+  );
+  assert.notDeepEqual(refreshed.attempts[attemptKey], instrumented);
 });
 
 test("fresh deterministic failed receipts are terminal and do not repeat network work", async () => {

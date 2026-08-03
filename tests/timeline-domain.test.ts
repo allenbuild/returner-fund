@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { classifySourceDeterministically } from "@/lib/timeline/classification";
+import type { EvidenceItem } from "@/lib/graph/types";
+import {
+  classifySourceDeterministically,
+  timelineClassificationSourceFromGraphEvidence,
+} from "@/lib/timeline/classification";
 import { clusterTimelineEvents, shouldMergeTimelineEvents } from "@/lib/timeline/dedupe";
 import { calculateTimelineImportance } from "@/lib/timeline/importance";
 import type {
@@ -15,6 +19,29 @@ const company = {
   websiteUrl: "https://graphify.com",
   founderNames: ["Safi Shamsi"],
 };
+
+describe("timeline graph evidence adaptation", () => {
+  it("uses the title when a canonical video has no text body", () => {
+    const source = timelineClassificationSourceFromGraphEvidence({
+      id: "ev-title-only-video",
+      entityType: "company",
+      platform: "youtube",
+      sourceUrl: "https://youtube.com/watch?v=title-only",
+      title: "Title-only canonical video",
+      text: null,
+      authorHandle: "example",
+      authorName: "Example",
+      postedAt: "2026-08-01T12:00:00.000Z",
+      publishedAtPrecision: "exact",
+      review_state: "verified",
+      linkStatus: "verified",
+      topics: [],
+    } as unknown as EvidenceItem);
+
+    expect(source.text).toBe("Title-only canonical video");
+    expect(source.evidenceExcerpt).toBe("Title-only canonical video");
+  });
+});
 
 describe("timeline deterministic publication gating", () => {
   it.each([

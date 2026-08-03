@@ -5,8 +5,8 @@
     "slug": "kugelaudio",
     "name": "KugelAudio"
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z",
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z",
   "events": [
     {
       "id": "tle-363995df6f8883b100864fef",
@@ -31,6 +31,30 @@
           "url": "https://x.com/kugelaudio/status/2060121416230699428"
         }
       ]
+    },
+    {
+      "id": "tle-ee45a94a9d6be2d1e3bfce43",
+      "eventDate": "2026-04-21",
+      "eventDateType": "announcement_date",
+      "title": "KugelAudio was accepted into Y Combinator",
+      "summary": "share that KugelAudio has joined Y Combinator.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-c0f2516322d8b4f79b933ee0",
+          "title": "We're excited to share that KugelAudio has joined Y Combinator.",
+          "publisher": "kugelaudio",
+          "domain": "linkedin.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-21T06:35:38.269Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/kugelaudio_were-excited-to-share-that-kugelaudio-has-activity-7452243633787023360-8XRA"
+        }
+      ]
     }
   ],
   "groups": [
@@ -40,14 +64,18 @@
         {
           "month": "2026-05",
           "count": 1
+        },
+        {
+          "month": "2026-04",
+          "count": 1
         }
       ]
     }
   ],
   "coverage": {
     "status": "partial",
-    "publishedEventCount": 1,
-    "lastSuccessfulArtifactAt": "2026-08-03T01:18:44.518Z"
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-03T05:53:36.616Z"
   },
   "nextCursor": null
 }

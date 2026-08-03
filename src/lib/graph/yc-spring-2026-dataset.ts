@@ -1113,6 +1113,10 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     item.platform === "github" && githubTimestamps?.publishedAtPrecision !== "unknown"
       ? githubTimestamps
       : null;
+  const rawAuthorHandle = nativeAuthor.handle ?? item.authorHandle ?? null;
+  const authorHandle = item.platform === "linkedin"
+    ? linkedInProfileHandle(rawAuthorHandle ?? undefined) ?? rawAuthorHandle
+    : rawAuthorHandle;
 
   return enrichEvidenceThumbnail({
     id: item.id,
@@ -1121,7 +1125,7 @@ function publicEvidenceItem(item: PublicEvidenceRecord): EvidenceItem {
     entityId: item.entityId,
     platform: item.platform,
     authorName: nativeAuthor.name ?? item.authorName ?? item.title ?? item.companyName,
-    authorHandle: nativeAuthor.handle ?? item.authorHandle ?? null,
+    authorHandle,
     postedAt: nativeGithubTimestamps
       ? nativeGithubTimestamps.postedAt
       : item.postedAt ?? item.last_updated_at ?? publicSnapshot.source.fetchedAt,
@@ -2556,6 +2560,37 @@ function canonicalAccountUrl(rawUrl: string): string {
       if (handle) return `https://bsky.app/profile/${handle.toLowerCase()}`;
     }
 
+    if (host === "youtube.com") {
+      if (parts[0]?.startsWith("@")) {
+        const handle = parts[0].slice(1);
+        if (handle) return `https://youtube.com/@${handle.toLowerCase()}`;
+      }
+      const namespace = parts[0]?.toLowerCase();
+      const handle = parts[1];
+      if (namespace && handle && ["channel", "c", "user"].includes(namespace)) {
+        return `https://youtube.com/${namespace}/${handle.toLowerCase()}`;
+      }
+    }
+
+    if (host === "reddit.com" || host.endsWith(".reddit.com")) {
+      const namespace = parts[0]?.toLowerCase();
+      const handle = ["r", "u", "user"].includes(namespace ?? "") ? parts[1] : parts[0];
+      const pathNamespace = ["r", "u", "user"].includes(namespace ?? "") ? namespace : "user";
+      if (handle) return `https://reddit.com/${pathNamespace}/${handle.toLowerCase()}`;
+    }
+
+    if (host === "producthunt.com") {
+      if (parts[0]?.startsWith("@")) {
+        const handle = parts[0].slice(1);
+        if (handle) return `https://producthunt.com/@${handle.toLowerCase()}`;
+      }
+      const namespace = parts[0]?.toLowerCase();
+      const handle = parts[1];
+      if (namespace && handle && ["products", "posts"].includes(namespace)) {
+        return `https://producthunt.com/${namespace}/${handle.toLowerCase()}`;
+      }
+    }
+
     url.pathname = `/${parts.join("/")}`.replace(/\/$/, "");
     return url.toString();
   } catch {
@@ -2563,7 +2598,7 @@ function canonicalAccountUrl(rawUrl: string): string {
   }
 }
 
-function urlMatchesPlatform(url: string, platform: keyof RawSocialLinks): boolean {
+function urlMatchesPlatform(url: string, platform: string): boolean {
   try {
     const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
     if (platform === "x") return host === "x.com" || host === "twitter.com";
@@ -2572,6 +2607,9 @@ function urlMatchesPlatform(url: string, platform: keyof RawSocialLinks): boolea
     if (platform === "instagram") return host === "instagram.com";
     if (platform === "tiktok") return host === "tiktok.com" || host === "m.tiktok.com";
     if (platform === "bluesky") return host === "bsky.app";
+    if (platform === "youtube") return host === "youtube.com";
+    if (platform === "reddit") return host === "reddit.com" || host.endsWith(".reddit.com");
+    if (platform === "product_hunt") return host === "producthunt.com";
     return true;
   } catch {
     return false;

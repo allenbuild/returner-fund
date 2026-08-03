@@ -47,14 +47,14 @@
     ],
     "posts": [
       {
-        "id": "post-ba521093236deb21e085e19d",
+        "id": "post-f2e0f619f90d501a446b2292",
         "platform": "youtube",
         "account": "Vega Launch Video",
         "postDate": "2026-07-23",
         "excerpt": "We are launching VEGA, the mythos level cybersecurity agent, your first security engineer in your team",
         "url": "https://youtube.com/watch?v=gOzg5M5DhXI",
         "metrics": {
-          "views": 76,
+          "views": 78,
           "likes": 1,
           "comments": 0
         },
@@ -62,6 +62,6 @@
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

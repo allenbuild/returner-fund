@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-surtr-defense-systems",
+    "slug": "surtr-defense-systems",
+    "name": "Surtr Defense Systems"
+  },
+  "event": {
+    "id": "tle-d6bb670fec923c649e49e580",
+    "eventDate": "2026-07-07",
+    "eventDateType": "announcement_date",
+    "title": "Surtr Defense Systems announced $4.8M pre-seed round",
+    "summary": "Surtr Defense Systems announced it was excited to share that Surtr has raised a $4.8M pre-seed round as we continue building the software that connects the modern battlefield.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c97334a0c4661346c0785a44",
+        "title": "Today we're excited to share that Surtr has raised a $4.8M pre-seed round as we continue building the software that connects the modern battlefield.",
+        "publisher": "surtr-defense-systems",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-07T20:37:21.423Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/surtr-defense-systems_exclusive-surtr-raises-5m-pre-seed-for-activity-7480359325014777856-P7_b"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c97334a0c4661346c0785a44",
+        "title": "Today we're excited to share that Surtr has raised a $4.8M pre-seed round as we continue building the software that connects the modern battlefield.",
+        "publisher": "surtr-defense-systems",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-07T20:37:21.423Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/surtr-defense-systems_exclusive-surtr-raises-5m-pre-seed-for-activity-7480359325014777856-P7_b",
+        "publicationDate": "2026-07-07T20:37:21.423Z",
+        "excerpt": "Today we're excited to share that Surtr has raised a $4.8M pre-seed round as we continue building the software that connects the modern battlefield. A sincere thank you to our investors Allegis Capital, Eniac Ventures, Gaingels, Robinhood Ventures, Streamlined, and the incredible angel investors backing our mission. All of the support we have received gives us the opportunity to keep building. #DefenseTech #CounterUAS #Interoperability #Autonomy #NationalSecurity Read the full article by…",
+        "sourceEventDate": "2026-07-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-31fa6817d38b7ed54e1e8b6a",
+        "platform": "linkedin",
+        "account": "surtr-defense-systems",
+        "postDate": "2026-07-07",
+        "excerpt": "Today we're excited to share that Surtr has raised a $4.8M pre-seed round as we continue building the software that connects the modern battlefield. A sincere thank you to our investors Allegis Capital, Eniac Ventures, Gaingels, Robinhood Ventures, Streamlined, and the incredible angel investors backing our mission. All of the support we have received gives us the opportunity to keep building. #DefenseTech #CounterUAS #Interoperability #Autonomy #NationalSecurity Read the full article by…",
+        "url": "https://linkedin.com/posts/surtr-defense-systems_exclusive-surtr-raises-5m-pre-seed-for-activity-7480359325014777856-P7_b",
+        "metrics": {
+          "reactions": 36,
+          "comments": 4
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

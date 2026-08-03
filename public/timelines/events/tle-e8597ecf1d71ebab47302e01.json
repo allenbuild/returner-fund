@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-qomplement",
+    "slug": "qomplement",
+    "name": "qomplement"
+  },
+  "event": {
+    "id": "tle-e8597ecf1d71ebab47302e01",
+    "eventDate": "2025-05-03",
+    "eventDateType": "announcement_date",
+    "title": "qomplement released qomplement: The First Desktop AI Agent",
+    "summary": "Launching qomplement: The First Desktop AI Agent.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2dbd0a7ec9bde70c2e806be2",
+        "title": "Launching qomplement: The First Desktop AI Agent",
+        "publisher": "Launching qomplement: The First Desktop AI Agent",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2025-05-03T04:56:18.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=doG6NlUPaH0"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2dbd0a7ec9bde70c2e806be2",
+        "title": "Launching qomplement: The First Desktop AI Agent",
+        "publisher": "Launching qomplement: The First Desktop AI Agent",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2025-05-03T04:56:18.000Z",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=doG6NlUPaH0",
+        "publicationDate": "2025-05-03T04:56:18.000Z",
+        "excerpt": "Hello! We're launching qomplement.com — the first desktop AI agent. It opens apps, clicks buttons, types, and navigates — just like a human would. Just type what you need, and qomplement gets it done across any desktop software. No integrations. No APIs. Just your computer, finally with AI.",
+        "sourceEventDate": "2025-05-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-23268e93ddc131ac15802ba1",
+        "platform": "youtube",
+        "account": "Launching qomplement: The First Desktop AI Agent",
+        "postDate": "2025-05-03",
+        "excerpt": "Hello! We're launching qomplement.com — the first desktop AI agent. It opens apps, clicks buttons, types, and navigates — just like a human would. Just type what you need, and qomplement gets it done across any desktop software. No integrations. No APIs. Just your computer, finally with AI.",
+        "url": "https://youtube.com/watch?v=doG6NlUPaH0",
+        "metrics": {
+          "views": 1344
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
+}

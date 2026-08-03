@@ -6,6 +6,11 @@ import {
   openCliAvailable,
   runOpenCli as executeOpenCli
 } from "./lib/opencli-runtime.mjs";
+import {
+  readPublicEvidenceArtifact,
+  serializeCompactPublicEvidenceArtifact,
+  writePublicEvidenceCanonicalArtifactAtomic
+} from "./lib/public-evidence-artifact.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
@@ -44,7 +49,20 @@ for (const relativePath of evidenceFiles) {
     continue;
   }
 
-  const snapshot = JSON.parse(fs.readFileSync(absolutePath, "utf8"));
+  let snapshot;
+  let publicEvidenceWriteState = null;
+  if (isCanonicalPublicEvidencePath(absolutePath)) {
+    const loaded = await readPublicEvidenceArtifact(absolutePath, { rootDir: repoRoot });
+    snapshot = loaded.canonical;
+    if (loaded.split) {
+      publicEvidenceWriteState = {
+        expectedCanonicalSha256: loaded.canonicalSha256,
+        expectedLedgerSha256: loaded.ledgerSha256
+      };
+    }
+  } else {
+    snapshot = JSON.parse(fs.readFileSync(absolutePath, "utf8"));
+  }
   const evidence = Array.isArray(snapshot.evidence) ? snapshot.evidence : [];
   let fileUpdates = 0;
   let fileUpdatesSinceWrite = 0;
@@ -97,7 +115,7 @@ for (const relativePath of evidenceFiles) {
     fileUpdatesSinceWrite += 1;
     updatedRows += 1;
     if (write && fileUpdatesSinceWrite >= args.checkpointRows) {
-      await writeJsonWithRetries(absolutePath, snapshot);
+      await writeJsonWithRetries(absolutePath, snapshot, publicEvidenceWriteState);
       fileUpdatesSinceWrite = 0;
     }
     if (args.delayMs > 0) {
@@ -107,7 +125,7 @@ for (const relativePath of evidenceFiles) {
 
   summaries.push({ file: relativePath, scanned: evidence.length, updated: fileUpdates });
   if (fileUpdatesSinceWrite > 0 && write) {
-    await writeJsonWithRetries(absolutePath, snapshot);
+    await writeJsonWithRetries(absolutePath, snapshot, publicEvidenceWriteState);
   }
 
   if (reachedMaxRows) {
@@ -1427,11 +1445,42 @@ function escapeXml(value) {
     .replace(/"/g, "&quot;");
 }
 
-async function writeJsonWithRetries(absolutePath, value, attempts = 6) {
-  const payload = `${JSON.stringify(value, null, 2)}\n`;
+async function writeJsonWithRetries(
+  absolutePath,
+  value,
+  publicEvidenceWriteState,
+  attempts = 6
+) {
+  const canonicalPublicEvidence = isCanonicalPublicEvidencePath(absolutePath);
+  const splitCanonicalPublicEvidence = Boolean(
+    canonicalPublicEvidence && value.operationalLedgerRef
+  );
+  let payload = null;
+  if (!splitCanonicalPublicEvidence) {
+    payload = canonicalPublicEvidence
+      ? serializeCompactPublicEvidenceArtifact(value)
+      : `${JSON.stringify(value, null, 2)}\n`;
+  }
   let lastError = null;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
+      if (splitCanonicalPublicEvidence) {
+        if (!publicEvidenceWriteState) {
+          throw new Error(
+            "Split public evidence checkpoint is missing its initial integrity hashes."
+          );
+        }
+        const published = await writePublicEvidenceCanonicalArtifactAtomic({
+          rootDir: repoRoot,
+          canonicalPath: absolutePath,
+          canonical: value,
+          expectedCanonicalSha256: publicEvidenceWriteState.expectedCanonicalSha256,
+          expectedLedgerSha256: publicEvidenceWriteState.expectedLedgerSha256
+        });
+        publicEvidenceWriteState.expectedCanonicalSha256 = published.canonicalSha256;
+        publicEvidenceWriteState.expectedLedgerSha256 = published.ledgerSha256;
+        return;
+      }
       fs.writeFileSync(absolutePath, payload);
       return;
     } catch (error) {
@@ -1440,6 +1489,16 @@ async function writeJsonWithRetries(absolutePath, value, attempts = 6) {
     }
   }
   throw lastError;
+}
+
+function isCanonicalPublicEvidencePath(absolutePath) {
+  return path.resolve(absolutePath) === path.resolve(
+    repoRoot,
+    "src",
+    "lib",
+    "social",
+    "public-evidence-current.json"
+  );
 }
 
 function delay(ms) {

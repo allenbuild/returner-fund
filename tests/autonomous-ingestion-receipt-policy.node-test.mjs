@@ -51,7 +51,7 @@ describe("autonomous ingestion receipt policy", () => {
     assert.match(unchanged.message, /final daily slot remains pending/);
   });
 
-  it("fails the final stale slot even when collection coverage itself is complete", () => {
+  it("keeps the verified final stale slot successful with a warning", () => {
     const result = classifyAutonomousIngestionReceipt({
       ...healthyPublication,
       newPhysicalSources: 0,
@@ -59,27 +59,29 @@ describe("autonomous ingestion receipt policy", () => {
     });
 
     assert.equal(result.receiptStatus, "published_stale_day");
-    assert.equal(result.conclusion, "failure");
+    assert.equal(result.conclusion, "warning");
     assert.match(result.message, /Both Central ingestion slots/);
   });
 
-  it("fails stale no-change publications and stale idempotent replays", () => {
+  it("keeps verified stale no-change publications and idempotent replays successful", () => {
     const unchanged = classifyAutonomousIngestionReceipt({
       ...healthyPublication,
       publicationStatus: "no_changes",
+      newPhysicalSources: 0,
       dailySourceHealth: "stale_day"
     });
     const replay = classifyAutonomousIngestionReceipt({
       ...healthyPublication,
       runnerStatus: "already_completed",
       publicationStatus: "already_completed",
+      newPhysicalSources: 0,
       dailySourceHealth: "stale_day"
     });
 
     assert.equal(unchanged.receiptStatus, "no_changes_stale_day");
-    assert.equal(unchanged.conclusion, "failure");
+    assert.equal(unchanged.conclusion, "warning");
     assert.equal(replay.receiptStatus, "noop_stale_day");
-    assert.equal(replay.conclusion, "failure");
+    assert.equal(replay.conclusion, "warning");
   });
 
   it("fails unknown outcomes and incomplete health receipts", () => {
@@ -110,6 +112,10 @@ describe("autonomous ingestion receipt policy", () => {
       publicationStatus: "already_completed",
       newPhysicalSources: ""
     }).receiptStatus, "noop_missing_receipt");
+    assert.equal(classifyAutonomousIngestionReceipt({
+      ...healthyPublication,
+      dailySourceHealth: "stale_day"
+    }).receiptStatus, "published_missing_receipt");
   });
 
   it("writes auditable outputs and a summary without changing warning into failure", async () => {

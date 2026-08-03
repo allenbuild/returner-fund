@@ -15,31 +15,56 @@
     "isMajor": true,
     "hasConflict": false,
     "conflictSummary": null,
-    "evidenceCount": 1,
+    "evidenceCount": 2,
     "sourcePreview": [
       {
-        "id": "src-5969a041cf82d570c7c120b3",
+        "id": "src-85c3c308a477b0c8374e1dd6",
         "title": "We got into Y Combinator (P26)!",
         "publisher": "revanth279",
         "domain": "linkedin.com",
         "sourceType": "founder_post",
         "publishedAt": "2026-03-25T15:45:43.091Z",
         "evidenceRole": "primary",
-        "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX"
+        "url": "https://linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX"
+      },
+      {
+        "id": "src-2064222f04e0f604db144096",
+        "title": "Excited to share that we got into Y Combinator (P26)!",
+        "publisher": "preritoberai",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-25T16:13:03.023Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/preritoberai_excited-to-share-that-we-got-into-y-combinator-activity-7442604472083599360-6IsL"
       }
     ],
     "evidence": [
       {
-        "id": "src-5969a041cf82d570c7c120b3",
+        "id": "src-85c3c308a477b0c8374e1dd6",
         "title": "We got into Y Combinator (P26)!",
         "publisher": "revanth279",
         "domain": "linkedin.com",
         "sourceType": "founder_post",
         "publishedAt": "2026-03-25T15:45:43.091Z",
         "evidenceRole": "primary",
-        "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX",
+        "url": "https://linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX",
         "publicationDate": "2026-03-25T15:45:43.091Z",
-        "excerpt": "We got into Y Combinator (P26)! The founder names Prototyping.io. The post says it moves mechanical engineers from design to prototype parts to production faster. Visible metrics: 481 likes, 481 reactions, 94 comments.",
+        "excerpt": "We got into Y Combinator (P26)! For years, I’ve watched the same thing happen across hardware teams: You need parts fast → you overpay You optimize for cost → you wait You push for quality → everything slows down And somehow, this is still considered normal. And it stopped making sense. So decided to build something better! Prototyping.io helps mechanical engineers move from design → prototype parts → production faster, without the usual tradeoffs. If you’re building hardware, Prerit Oberai &…",
+        "sourceEventDate": "2026-03-25",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-2064222f04e0f604db144096",
+        "title": "Excited to share that we got into Y Combinator (P26)!",
+        "publisher": "preritoberai",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-03-25T16:13:03.023Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/preritoberai_excited-to-share-that-we-got-into-y-combinator-activity-7442604472083599360-6IsL",
+        "publicationDate": "2026-03-25T16:13:03.023Z",
+        "excerpt": "Excited to share that we got into Y Combinator (P26)! Revanth Bodepudi and I are building Prototyping.io - an AI-native manufacturing platform for hardware teams turning designs into prototype-ready parts, faster and with fewer surprises along the way. Hardware development moves slowly, not because engineers are slow, but because the process between design and manufacturing is broken. We’re fixing that. If you’re a mechanical engineer, hardware founder, or work in manufacturing, we’d love to…",
         "sourceEventDate": "2026-03-25",
         "isConflicting": false,
         "conflictDescription": null
@@ -47,21 +72,33 @@
     ],
     "posts": [
       {
-        "id": "post-975c9d88bfa5e7f4b82352d5",
+        "id": "post-f2512466e668dcdc27e5be1c",
         "platform": "linkedin",
         "account": "revanth279",
         "postDate": "2026-03-25",
-        "excerpt": "We got into Y Combinator (P26)! The founder names Prototyping.io. The post says it moves mechanical engineers from design to prototype parts to production faster. Visible metrics: 481 likes, 481 reactions, 94 comments.",
-        "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX",
+        "excerpt": "We got into Y Combinator (P26)! For years, I’ve watched the same thing happen across hardware teams: You need parts fast → you overpay You optimize for cost → you wait You push for quality → everything slows down And somehow, this is still considered normal. And it stopped making sense. So decided to build something better! Prototyping.io helps mechanical engineers move from design → prototype parts → production faster, without the usual tradeoffs. If you’re building hardware, Prerit Oberai &…",
+        "url": "https://linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX",
         "metrics": {
-          "likes": 481,
-          "comments": 94,
-          "reactions": 481
+          "reactions": 481,
+          "comments": 92
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-5d629a11217c1462e883a398",
+        "platform": "linkedin",
+        "account": "preritoberai",
+        "postDate": "2026-03-25",
+        "excerpt": "Excited to share that we got into Y Combinator (P26)! Revanth Bodepudi and I are building Prototyping.io - an AI-native manufacturing platform for hardware teams turning designs into prototype-ready parts, faster and with fewer surprises along the way. Hardware development moves slowly, not because engineers are slow, but because the process between design and manufacturing is broken. We’re fixing that. If you’re a mechanical engineer, hardware founder, or work in manufacturing, we’d love to…",
+        "url": "https://linkedin.com/posts/preritoberai_excited-to-share-that-we-got-into-y-combinator-activity-7442604472083599360-6IsL",
+        "metrics": {
+          "reactions": 284,
+          "comments": 36
         },
         "evidenceRole": "primary"
       }
     ]
   },
-  "generatedAt": "2026-08-03T01:18:44.518Z",
-  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+  "generatedAt": "2026-08-03T05:53:36.616Z",
+  "lastModifiedAt": "2026-08-03T05:53:36.616Z"
 }

@@ -12,6 +12,10 @@ const [runner, autonomousPlan] = await Promise.all([
   readFile(runnerPath, "utf8"),
   readFile(path.join(repositoryRoot, "scripts", "lib", "autonomous-ingestion-plan.mjs"), "utf8")
 ]);
+const supabaseConfiguration = await readFile(
+  path.join(repositoryRoot, "scripts", "lib", "supabase-configuration.mjs"),
+  "utf8"
+);
 const packageJson = JSON.parse(await readFile(path.join(repositoryRoot, "package.json"), "utf8"));
 const temporaryRoots = [];
 
@@ -37,8 +41,8 @@ describe("autonomous ingestion runner CLI", () => {
     const plan = JSON.parse(result.stdout);
     assert.equal(plan.idempotencyKey, "plan-contract");
     assert.deepEqual(plan.batches.filter((batch) => batch.slug !== "S26"), [
-      { slug: "S2026", companies: 197, founders: 397, accounts: 968 },
-      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 328 }
+      { slug: "S2026", companies: 197, founders: 397, accounts: 994 },
+      { slug: "A16ZSR006", companies: 59, founders: 128, accounts: 339 }
     ]);
     const summer = plan.batches.find((batch) => batch.slug === "S26");
     assert.ok(summer.companies >= 167);
@@ -107,7 +111,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
   it("allows file-backed recovery without Supabase but explicitly degrades workflow health", () => {
     assert.ok(runner.includes("const supabaseConfiguration = validateSupabaseConfiguration(url, serviceKey)"));
     assert.ok(runner.includes("const durableStorageConfigured = supabaseConfiguration.valid"));
-    assert.ok(runner.includes('blockers.push("NEXT_PUBLIC_SUPABASE_URL:invalid_http_url")'));
+    assert.ok(supabaseConfiguration.includes('`${SUPABASE_URL_BLOCKER}:invalid_http_url`'));
     assert.doesNotMatch(runner, /SUPABASE_SERVICE_ROLE_KEY are required/);
     assert.ok(runner.includes("workflow receipt will report degraded collection health"));
     assert.doesNotMatch(runner, /workflow receipt will fail/);
@@ -134,11 +138,14 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.match(runner, /COLLECTION_COVERAGE_RECEIPT/);
   });
 
-  it("fails a stale final day before durable completion so the slot can be replayed", () => {
+  it("records a stale final day as a warning and still completes the verified run", () => {
     const staleGate = runner.indexOf('publicationInputs.sourceDelta.dailySourceHealth === "stale_day"');
     const completion = runner.indexOf('await completeRun("completed"');
     assert.ok(staleGate > -1 && completion > staleGate);
-    assert.match(runner, /published receipt is recoverable with a replay/);
+    const staleSection = runner.slice(staleGate, completion);
+    assert.match(staleSection, /"warning"/);
+    assert.match(staleSection, /verified publication/);
+    assert.doesNotMatch(staleSection, /throw new Error/);
   });
 
   it("does not fail a quiet morning slot merely because publication had no changes", () => {
@@ -234,6 +241,10 @@ describe("autonomous ingestion runner static safety contracts", () => {
     assert.ok(refreshIndex > -1 && refreshIndex < planningIndex);
     assert.ok(artifactPaths.includes('"src/lib/yc/summer-2026-companies.json"'));
     assert.ok(artifactPaths.includes('"src/lib/yc/summer-2026-company-aliases.json"'));
+    const refresh = section("async function refreshMutableYcCatalog", "function publicationBranch");
+    assert.ok(refresh.includes("AUTONOMOUS_PROCESS_BUDGETS.catalogRefreshMs"));
+    assert.ok(refresh.includes('child.kill("SIGTERM")'));
+    assert.ok(refresh.includes('child.kill("SIGKILL")'));
   });
 
   it("carries the batch-resolved logged-in quarantine ledger into initial and rebased durable imports", () => {
@@ -677,7 +688,7 @@ describe("autonomous ingestion runner static safety contracts", () => {
     const merge = section("async function mergePublicationInputs", "async function mergeCollectorDiscoveryState");
 
     assert.ok(synchronizeIndex > -1 && mergeIndex > synchronizeIndex);
-    assert.ok(preparation.includes("previousPublicSnapshot = await readRequiredCanonicalJson"));
+    assert.ok(preparation.includes("await readPublicEvidenceArtifact"));
     assert.ok(preparation.includes("basePublicSnapshot"));
     assert.ok(preparation.includes("mergePublicEvidenceSnapshots"));
     assert.ok(preparation.includes("resolveBatchSlug: resolveLegacyPublicEvidenceBatch"));
