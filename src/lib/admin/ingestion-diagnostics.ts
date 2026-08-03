@@ -381,10 +381,13 @@ async function readFilesystemDiagnostics(
   const artifacts = await Promise.all(FILESYSTEM_ARTIFACTS.map(async (
     relativePath,
   ): Promise<IngestionArtifactDiagnostic | null> => {
-    const absolutePath = path.resolve(cwd, relativePath);
+    // This allowlisted filesystem view is development-only. Ignore the dynamic
+    // caller cwd during production tracing; otherwise Turbopack conservatively
+    // includes the entire repository in every route importing diagnostics.
+    const absolutePath = path.resolve(/* turbopackIgnore: true */ cwd, relativePath);
     if (!isInsideDirectory(absolutePath, cwd)) return null;
     try {
-      const details = await stat(absolutePath);
+      const details = await stat(/* turbopackIgnore: true */ absolutePath);
       if (!details.isFile()) return null;
       return {
         id: relativePath,

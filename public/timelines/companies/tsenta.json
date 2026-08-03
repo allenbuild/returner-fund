@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-tsenta",
+    "slug": "tsenta",
+    "name": "Tsenta"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-a3926f1205e29e2526d8ab03",
+      "eventDate": "2026-07-19",
+      "eventDateType": "announcement_date",
+      "title": "Tsenta released Tsenta as a career-maxxing product",
+      "summary": "Tsenta introduced Tsenta as a career-maxxing product.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-6ec93b7d700aadfa3030cbce",
+          "title": "Introducing Tsenta as a career-maxxing product",
+          "publisher": "AgnaySrivastava",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-19T03:18:57.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/AgnaySrivastava/status/2078680968366628924"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

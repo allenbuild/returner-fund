@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-trybloom",
+    "slug": "bloom",
+    "name": "Bloom"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-8674ef48150c3a3d1f8ffd2f",
+      "eventDate": "2026-06-01",
+      "eventDateType": "announcement_date",
+      "title": "Bloom released on YC",
+      "summary": "Bloom launched on YC.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-94cbe2498944e10a3da5d668",
+          "title": "We launched on YC!",
+          "publisher": "trybloomai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-01T15:25:40.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/trybloomai/status/2061469236871225652"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-klaimee",
+    "slug": "klaimee",
+    "name": "Klaimee"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-7206f84613b8162d01648fb5",
+      "eventDate": "2026-07-21",
+      "eventDateType": "announcement_date",
+      "title": "Klaimee announced $5.5M funding round",
+      "summary": "Klaimee just raised $5.5M to answer one question: Who pays when your AI agent **** up .",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-89a1ea39f43512eca55a3de5",
+          "title": "We just raised $5.5M to answer one question: Who pays when your AI agent **** up ? Until now, nobody had a good answer. That's why we ...",
+          "publisher": "inesboutem",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-21T19:52:39.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/inesboutem/status/2079655816261455880"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

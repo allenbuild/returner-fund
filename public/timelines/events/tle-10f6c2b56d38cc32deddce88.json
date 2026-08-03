@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-projectx",
+    "slug": "projectx",
+    "name": "ProjectX"
+  },
+  "event": {
+    "id": "tle-10f6c2b56d38cc32deddce88",
+    "eventDate": "2026-05-27",
+    "eventDateType": "announcement_date",
+    "title": "ProjectX released InfinityOS- YC Launch",
+    "summary": "ProjectX reported infinityOS- YC Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e4651961a4992280750bfe3f",
+        "title": "InfinityOS- YC Launch",
+        "publisher": "InfinityOS- YC Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-27T02:27:44-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=ZYf2vdWMkDk"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e4651961a4992280750bfe3f",
+        "title": "InfinityOS- YC Launch",
+        "publisher": "InfinityOS- YC Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-27T02:27:44-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=ZYf2vdWMkDk",
+        "publicationDate": "2026-05-27T02:27:44-07:00",
+        "excerpt": "Embedded in the official ProjectX YC company page.",
+        "sourceEventDate": "2026-05-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9a98fccf6af506409301b06f",
+        "platform": "youtube",
+        "account": "InfinityOS- YC Launch",
+        "postDate": "2026-05-27",
+        "excerpt": "Embedded in the official ProjectX YC company page.",
+        "url": "https://youtube.com/watch?v=ZYf2vdWMkDk",
+        "metrics": {
+          "views": 1077,
+          "likes": 19,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-gojiberry-ai",
+    "slug": "gojiberry-ai",
+    "name": "Gojiberry AI"
+  },
+  "event": {
+    "id": "tle-3022fc1867f778b67929d841",
+    "eventDate": "2026-07-23",
+    "eventDateType": "announcement_date",
+    "title": "Gojiberry AI reached $300k MRR",
+    "summary": "GojiberryAI just crossed $300k MRR.",
+    "category": "revenue_milestone",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-07b372a19fbc7d74f4a29d6b",
+        "title": "GojiberryAI just crossed $300k MRR. Building GojiberryAI taught us something surprising. Most AI startups never make it past $1k MRR. A few scale to millions. The difference usually isn't better features. It's two simple things almost…",
+        "publisher": "pierreeliottlal",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-23T08:57:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/pierreeliottlal/status/2080215814045643011"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-07b372a19fbc7d74f4a29d6b",
+        "title": "GojiberryAI just crossed $300k MRR. Building GojiberryAI taught us something surprising. Most AI startups never make it past $1k MRR. A few scale to millions. The difference usually isn't better features. It's two simple things almost…",
+        "publisher": "pierreeliottlal",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-23T08:57:53.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/pierreeliottlal/status/2080215814045643011",
+        "publicationDate": "2026-07-23T08:57:53.000Z",
+        "excerpt": "GojiberryAI just crossed $300k MRR. Building GojiberryAI taught us something surprising. Most AI startups never make it past $1k MRR. A few scale to millions. The difference usually isn't better features. It's two simple things almost everyone underestimates. If you're",
+        "sourceEventDate": "2026-07-23",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7aafea3ecb9b4d665c17501c",
+        "platform": "x",
+        "account": "pierreeliottlal",
+        "postDate": "2026-07-23",
+        "excerpt": "GojiberryAI just crossed $300k MRR. Building GojiberryAI taught us something surprising. Most AI startups never make it past $1k MRR. A few scale to millions. The difference usually isn't better features. It's two simple things almost everyone underestimates. If you're",
+        "url": "https://x.com/pierreeliottlal/status/2080215814045643011",
+        "metrics": {
+          "likes": 307,
+          "reposts": 97,
+          "quotes": 6,
+          "replies": 277,
+          "views": 32130
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

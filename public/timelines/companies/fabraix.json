@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-fabraix",
+    "slug": "fabraix",
+    "name": "Fabraix"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-bb2d1a469f2b27f0f21723c8",
+      "eventDate": "2026-07-18",
+      "eventDateType": "announcement_date",
+      "title": "Fabraix released Nyx",
+      "summary": "Fabraix reported launching Nyx: The World's Frontier Hacker for AI Agents.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-0c0ea587f14ef2fb01611300",
+          "title": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+          "publisher": "Launching Nyx: The World's Frontier Hacker for AI Agents.",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-17T22:48:35-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=WHmJIMIuAEM"
+        },
+        {
+          "id": "src-83ba0ae807450f5995182b56",
+          "title": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+          "publisher": "Introducing Nyx, the world’s frontier hacker of AI agents.",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-20T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/fabraixhq/status/2079227721905999970"
+        }
+      ]
+    },
+    {
+      "id": "tle-8263db816d7ac654d7c987a2",
+      "eventDate": "2026-07-13",
+      "eventDateType": "announcement_date",
+      "title": "Fabraix announced its public launch",
+      "summary": "Fabraix announced it was launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-681c3fced5be54954898fb05",
+          "title": "Today we're launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents.",
+          "publisher": "Today we're launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents.",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-13T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/fabraixhq/status/2076730125052461435"
+        }
+      ]
+    },
+    {
+      "id": "tle-9055c8a59fcd7ca0c97bceca",
+      "eventDate": "2026-07-06",
+      "eventDateType": "announcement_date",
+      "title": "Fabraix enabled New feature alert: Nyx to test your voice agents",
+      "summary": "Fabraix reported new feature alert: Nyx can now test your voice agents.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-27ebb3cf22462e40ab1413fc",
+          "title": "🚨 New feature alert: Nyx can now test your voice agents. Lots of companies are putting voice agents into support and scheduling roles in critical domains like healthcare and in...",
+          "publisher": "FabraixHQ",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-06T18:12:54.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/FabraixHQ/status/2074194896228065426"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 3
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

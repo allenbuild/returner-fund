@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-kimpton-ai",
+    "slug": "kimpton-ai",
+    "name": "Kimpton AI"
+  },
+  "event": {
+    "id": "tle-5f4c75c3a25fa4253bda380c",
+    "eventDate": "2026-06-12",
+    "eventDateType": "announcement_date",
+    "title": "Kimpton AI released Kimpton Email Agent",
+    "summary": "Kimpton AI introduced Kimpton Email Agent.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-78b211fd2e5f54f4b6482efc",
+        "title": "Introducing Kimpton Email Agent. Forward any email to - [redacted-email] - and Kimpton replies in the thread, grounded in: - Your portfolio...",
+        "publisher": "kimptonai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-12T18:56:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KimptonAI/status/2065508671694716976"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-78b211fd2e5f54f4b6482efc",
+        "title": "Introducing Kimpton Email Agent. Forward any email to - [redacted-email] - and Kimpton replies in the thread, grounded in: - Your portfolio...",
+        "publisher": "kimptonai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-12T18:56:57.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KimptonAI/status/2065508671694716976",
+        "publicationDate": "2026-06-12T18:56:57.000Z",
+        "excerpt": "Introducing Kimpton Email Agent. Forward any email to - [redacted-email] - and Kimpton replies in the thread, grounded in: - Your portfolios - Your transactions - Your vault - Tens of thousands of global real-time and historical prices - SEC filings, options chains, news, company fundamentals, earnings transcripts, and more!",
+        "sourceEventDate": "2026-06-12",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a70ec832083b16ade643b492",
+        "platform": "x",
+        "account": "kimptonai",
+        "postDate": "2026-06-12",
+        "excerpt": "Introducing Kimpton Email Agent. Forward any email to - [redacted-email] - and Kimpton replies in the thread, grounded in: - Your portfolios - Your transactions - Your vault - Tens of thousands of global real-time and historical prices - SEC filings, options chains, news, company fundamentals, earnings transcripts, and more!",
+        "url": "https://x.com/KimptonAI/status/2065508671694716976",
+        "metrics": {
+          "views": 428,
+          "likes": 6,
+          "comments": 1,
+          "replies": 1,
+          "reposts": 2,
+          "quotes": 1,
+          "saves": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

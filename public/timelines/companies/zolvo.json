@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-zolvo",
+    "slug": "zolvo",
+    "name": "Zolvo"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-d4fbf8954ec28f6d447c15ff",
+      "eventDate": "2026-04-29",
+      "eventDateType": "announcement_date",
+      "title": "Zolvo released Zolvo YC Launch YCP26",
+      "summary": "Zolvo YC Launch YCP26.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-54daa4c19d63d54c50c51452",
+          "title": "Zolvo YC Launch YCP26",
+          "publisher": "Zolvo YC Launch YCP26",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-04-28T17:13:42-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=Mku41_sYeXk"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-ardent",
+    "slug": "ardent",
+    "name": "Ardent"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-ff2e94420468c0bfe1ba8b94",
+      "eventDate": "2026-05-13",
+      "eventDateType": "announcement_date",
+      "title": "Ardent launched on Hacker News",
+      "summary": "Launch HN: Ardent (YC P26) – Postgres sandboxes in seconds with zero migration.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ebf7c656db5953f9c8140030",
+          "title": "Launch HN: Ardent (YC P26) – Postgres sandboxes in seconds with zero migration",
+          "publisher": "vc289",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-13T16:54:03Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48124436"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

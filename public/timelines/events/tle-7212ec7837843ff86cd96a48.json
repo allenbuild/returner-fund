@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-avea-robotics",
+    "slug": "avea-robotics",
+    "name": "Avea Robotics"
+  },
+  "event": {
+    "id": "tle-7212ec7837843ff86cd96a48",
+    "eventDate": "2026-05-26",
+    "eventDateType": "announcement_date",
+    "title": "Avea Robotics announced a product update",
+    "summary": "Avea Robotics just shipped a crazy update to Sentinel- we doubled the quality of video without affecting latency.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2f239b7f08db1e50250a15da",
+        "title": "We just shipped a crazy update to Sentinel- we doubled the quality of video without affecting latency. This is teleoperation from ~2k miles away. Scaling teleop is now possible @AveaRobotics",
+        "publisher": "aryind_ X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-26T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aryind_/status/2059303554754707569"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2f239b7f08db1e50250a15da",
+        "title": "We just shipped a crazy update to Sentinel- we doubled the quality of video without affecting latency. This is teleoperation from ~2k miles away. Scaling teleop is now possible @AveaRobotics",
+        "publisher": "aryind_ X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-26T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aryind_/status/2059303554754707569",
+        "publicationDate": "2026-05-26T00:00:00.000Z",
+        "excerpt": "We just shipped a crazy update to Sentinel- we doubled the quality of video without affecting latency. This is teleoperation from ~2k miles away. Scaling teleop is now possible @AveaRobotics",
+        "sourceEventDate": "2026-05-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-586091b751d18cd2b0a06f2e",
+        "platform": "x",
+        "account": "aryind_ X post",
+        "postDate": "2026-05-26",
+        "excerpt": "We just shipped a crazy update to Sentinel- we doubled the quality of video without affecting latency. This is teleoperation from ~2k miles away. Scaling teleop is now possible @AveaRobotics",
+        "url": "https://x.com/aryind_/status/2059303554754707569",
+        "metrics": {
+          "likes": 54,
+          "reposts": 8,
+          "comments": 6,
+          "views": 5780
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

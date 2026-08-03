@@ -5,9 +5,6 @@ import { ycSpring2026GraphDataset } from "@/lib/graph/yc-spring-2026-dataset";
 import { buildInstagramCoverageReport } from "@/lib/ingestion/instagram-debug";
 import companiesSnapshot from "@/lib/yc/summer-2026-companies.json";
 import overridesSnapshot from "@/lib/social/verified-social-overrides.json";
-import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
-import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.json";
-import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 import type { RawInstagramDiscoveryReport } from "@/lib/ingestion/instagram-debug";
 
 export default async function InstagramCoverageDebugPage() {
@@ -17,7 +14,6 @@ export default async function InstagramCoverageDebugPage() {
     graph,
     companies: companiesSnapshot.companies,
     overrides: overridesSnapshot,
-    snapshots: [publicEvidenceSnapshot, loggedInEvidenceSnapshot, targetedEvidenceSnapshot],
     discovery
   });
 

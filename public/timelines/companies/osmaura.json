@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-osmaura",
+    "slug": "osmaura",
+    "name": "Osmaura"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-0a1661590552263a94cf38b2",
+      "eventDate": "2026-07-01",
+      "eventDateType": "announcement_date",
+      "title": "Osmaura announced its public launch",
+      "summary": "Osmaura introduced Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-17eba2fc44d13441c1917ff7",
+          "title": "Introducing Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities. 🧵 If you want access to ou...",
+          "publisher": "rookunderfire",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-01T01:40:17.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rookunderfire/status/2072133157315600451"
+        },
+        {
+          "id": "src-61a2ef013c0144777b4917be",
+          "title": "Introducing Osmaura (YC S26) a tool that surfaces new matter opportunities for corporate law firm partners. 🧵",
+          "publisher": "abe_yebe",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-01T01:40:32.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/abe_yebe/status/2072133219949158572"
+        }
+      ]
+    },
+    {
+      "id": "tle-653173ad91a24a46dec50420",
+      "eventDate": "2026-06-25",
+      "eventDateType": "announcement_date",
+      "title": "Osmaura was accepted into Y Combinator",
+      "summary": "Osmaura is excited to share that Osmaura has joined Y Combinator's S26 batch.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5c2033b510a3e75e47df1fe6",
+          "title": "I’m excited to share that Osmaura has joined Y Combinator’s S26 batch. Yeabkal and I left MIT last semester to work on our startup toget...",
+          "publisher": "rookunderfire",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-25T16:53:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/rookunderfire/status/2070188523563708454"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

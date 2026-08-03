@@ -370,6 +370,76 @@ describe("daily benchmark updater", () => {
     }
   });
 
+  it("sends the per-run publication token only when explicitly supplied", async () => {
+    const received = [];
+    const server = http.createServer((request, response) => {
+      received.push({
+        publicationToken: request.headers["x-returner-publication-build"],
+        authorization: request.headers.authorization,
+        url: request.url
+      });
+      response.writeHead(200, { "content-type": "application/json" });
+      response.end("{}\n");
+    });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const address = server.address();
+    const baseUrl = `http://127.0.0.1:${address.port}`;
+
+    try {
+      await fetchGraph(baseUrl, "S2026", undefined, {
+        publicationToken: "per-run-secret-token"
+      });
+      await fetchGraph(baseUrl, "S2026");
+      await fetchGraph(baseUrl, "S2026", undefined, {
+        diagnosticsSecret: "diagnostics-secret"
+      });
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+
+    expect(received).toEqual([
+      {
+        publicationToken: "per-run-secret-token",
+        authorization: undefined,
+        url: "/api/graph/full?batch=S2026"
+      },
+      {
+        publicationToken: undefined,
+        authorization: undefined,
+        url: "/api/graph/full?batch=S2026&includeRaw=true"
+      },
+      {
+        publicationToken: undefined,
+        authorization: "Bearer diagnostics-secret",
+        url: "/api/graph/full?batch=S2026&includeRaw=true"
+      }
+    ]);
+  });
+
+  it("injects a high-entropy publication token only into its loopback child", async () => {
+    const child = new FakeChildProcess();
+    const parentToken = process.env.GRAPH_PUBLICATION_BUILD_TOKEN;
+    let spawnOptions;
+    const server = getGraphApiServer(
+      { port: 3212 },
+      graphServerTestOptions(child, {
+        env: { SAFE_PARENT_VALUE: "present" },
+        spawnImpl: (_execPath, _args, options) => {
+          spawnOptions = options;
+          return child;
+        }
+      })
+    );
+
+    expect(server.publicationToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(spawnOptions.env).toEqual({
+      SAFE_PARENT_VALUE: "present",
+      GRAPH_PUBLICATION_BUILD_TOKEN: server.publicationToken
+    });
+    expect(process.env.GRAPH_PUBLICATION_BUILD_TOKEN).toBe(parentToken);
+    await server.finish();
+  });
+
   it.each([
     { outcome: "success", failAfterReady: false },
     { outcome: "failure", failAfterReady: true }
@@ -580,8 +650,17 @@ describe("daily benchmark updater", () => {
   it("does not spawn or install lifecycle handlers for an external base URL", async () => {
     const signalTarget = new EventEmitter();
     let spawned = false;
-    const server = getGraphApiServer(
+    expect(() => getGraphApiServer(
       { baseUrl: "https://graph.example.test/" },
+      { signalTarget }
+    )).toThrow(/requires GRAPH_PUBLICATION_BUILD_TOKEN or GRAPH_DIAGNOSTICS_SECRET/);
+
+    const server = getGraphApiServer(
+      {
+        baseUrl: "https://graph.example.test/",
+        diagnosticsSecret: "diagnostics-secret",
+        publicationToken: "must-not-leave-loopback"
+      },
       {
         signalTarget,
         spawnImpl: () => {
@@ -591,6 +670,8 @@ describe("daily benchmark updater", () => {
     );
 
     expect(server.baseUrl).toBe("https://graph.example.test");
+    expect(server.publicationToken).toBeUndefined();
+    expect(server.diagnosticsSecret).toBe("diagnostics-secret");
     expect(server.signal).toBeUndefined();
     await server.finish();
     expect(spawned).toBe(false);

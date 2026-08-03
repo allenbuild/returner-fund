@@ -53,9 +53,83 @@ test("batches exact mapped X owners and returns posts keyed by expanded author",
   assert.equal(requests.length, 1);
   assert.match(requests[0].url, /tweets\/search\/recent/);
   assert.match(new URL(requests[0].url).searchParams.get("query"), /from:joshwqngsr OR from:with_sherpa/);
+  assert.equal(
+    new URL(requests[0].url).searchParams.get("start_time"),
+    "2026-07-19T12:00:00.000Z"
+  );
   assert.equal(requests[0].options.headers.Authorization, "Bearer test-token");
+  assert.equal(result.requestCount, 1);
   assert.equal(result.successfulRequestCount, 1);
   assert.equal(result.postsByHandle.get("with_sherpa")[0].id, "123");
+});
+
+test("follows bounded X recent-search pagination and preserves posts from later pages", async () => {
+  const requests = [];
+  const result = await fetchRecentXPostsForTargets({
+    targets: [
+      { accountUrl: "https://x.com/with_sherpa" },
+      { accountUrl: "https://x.com/joshwqngsr" }
+    ],
+    bearerToken: "test-token",
+    now: new Date("2026-07-22T12:00:00.000Z"),
+    fetchImpl: async (url) => {
+      const requestUrl = new URL(url);
+      requests.push(requestUrl);
+      const nextToken = requestUrl.searchParams.get("next_token");
+      if (!nextToken) {
+        return new Response(JSON.stringify({
+          data: [{ id: "page-1", author_id: "1", text: "First page" }],
+          includes: { users: [{ id: "1", username: "with_sherpa", name: "Sherpa" }] },
+          meta: { result_count: 1, next_token: "page-2-token" }
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      assert.equal(nextToken, "page-2-token");
+      return new Response(JSON.stringify({
+        data: [{ id: "page-2", author_id: "2", text: "Second page" }],
+        includes: { users: [{ id: "2", username: "joshwqngsr", name: "Josh" }] },
+        meta: { result_count: 1 }
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+  });
+
+  assert.equal(requests.length, 2);
+  assert.equal(requests[0].searchParams.has("next_token"), false);
+  assert.equal(requests[1].searchParams.get("next_token"), "page-2-token");
+  assert.equal(result.requestCount, 2);
+  assert.equal(result.successfulRequestCount, 2);
+  assert.equal(result.postsByHandle.get("with_sherpa")[0].id, "page-1");
+  assert.equal(result.postsByHandle.get("joshwqngsr")[0].id, "page-2");
+  assert.deepEqual(result.errors, []);
+});
+
+test("stops X pagination at the configured safety limit with an explicit partial receipt", async () => {
+  const requests = [];
+  const result = await fetchRecentXPostsForTargets({
+    targets: [{ accountUrl: "https://x.com/with_sherpa" }],
+    bearerToken: "test-token",
+    maxPagesPerGroup: 2,
+    fetchImpl: async (url) => {
+      const requestUrl = new URL(url);
+      requests.push(requestUrl);
+      const page = requests.length;
+      return new Response(JSON.stringify({
+        data: [{ id: `page-${page}`, author_id: "1", text: `Page ${page}` }],
+        includes: { users: [{ id: "1", username: "with_sherpa", name: "Sherpa" }] },
+        meta: { result_count: 1, next_token: `page-${page + 1}-token` }
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+  });
+
+  assert.equal(requests.length, 2);
+  assert.equal(result.requestCount, 2);
+  assert.equal(result.successfulRequestCount, 2);
+  assert.deepEqual(
+    result.postsByHandle.get("with_sherpa").map((post) => post.id),
+    ["page-1", "page-2"]
+  );
+  assert.equal(result.errors.length, 1);
+  assert.equal(result.errors[0].status, 206);
+  assert.match(result.errors[0].reason, /2-page safety limit/);
 });
 
 test("uses the documented Exa search contract and preserves evidence snippets", async () => {

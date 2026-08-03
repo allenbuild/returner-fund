@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-minicor",
+    "slug": "minicor",
+    "name": "Minicor"
+  },
+  "event": {
+    "id": "tle-4f1406d3910450241b829011",
+    "eventDate": "2026-05-26",
+    "eventDateType": "announcement_date",
+    "title": "Minicor launched on Hacker News",
+    "summary": "Launch HN: Minicor (YC P26) – Windows desktop automations at scale.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-b9ad08f4e0e6a11ae67c985b",
+        "title": "Launch HN: Minicor (YC P26) – Windows desktop automations at scale",
+        "publisher": "fchishtie",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-26T14:57:27Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48280729"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-b9ad08f4e0e6a11ae67c985b",
+        "title": "Launch HN: Minicor (YC P26) – Windows desktop automations at scale",
+        "publisher": "fchishtie",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-26T14:57:27Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48280729",
+        "publicationDate": "2026-05-26T14:57:27Z",
+        "excerpt": "Hey we’re Faiz and Saheed and we built Minicor so AI companies who need to integrate to desktop systems with no API can quickly build scalable desktop RPAs. Demo: https: www.youtube.com watch?v=MD0GHZIJ1cw Edit: RPA is an acronym for Robotic Process Automation - things like triggering mouse clicks and key strokes to perform tasks programmatically. Sorry if this wasn t clear! We were working on non-RPA integrations when a customer promised to sign a deal in 2 days if we could unblock a sale of…",
+        "sourceEventDate": "2026-05-26",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-938c6c89c52cb73b7218c623",
+        "platform": "hacker_news",
+        "account": "fchishtie",
+        "postDate": "2026-05-26",
+        "excerpt": "Hey we’re Faiz and Saheed and we built Minicor so AI companies who need to integrate to desktop systems with no API can quickly build scalable desktop RPAs. Demo: https: www.youtube.com watch?v=MD0GHZIJ1cw Edit: RPA is an acronym for Robotic Process Automation - things like triggering mouse clicks and key strokes to perform tasks programmatically. Sorry if this wasn t clear! We were working on non-RPA integrations when a customer promised to sign a deal in 2 days if we could unblock a sale of…",
+        "url": "https://news.ycombinator.com/item?id=48280729",
+        "metrics": {
+          "points": 105,
+          "upvotes": 105,
+          "comments": 64
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

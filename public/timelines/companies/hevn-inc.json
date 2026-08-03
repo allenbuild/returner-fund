@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-hevn-inc",
+    "slug": "hevn-inc",
+    "name": "HEVN, inc"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-687852945f90b44d6043f076",
+      "eventDate": "2026-04-29",
+      "eventDateType": "announcement_date",
+      "title": "HEVN, inc announced its public launch",
+      "summary": "HEVN, inc announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7b60913c192195e7a9aedb98",
+          "title": "HEVN (YC P26): Launch video",
+          "publisher": "HEVN",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-04-29T14:13:25-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=RBr87D4AZKk"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

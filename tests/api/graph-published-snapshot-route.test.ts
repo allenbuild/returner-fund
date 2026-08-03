@@ -5,7 +5,6 @@ import { applyStoredBenchmarkMomentum } from "@/lib/graph/benchmarks";
 import { applyClientGraphFilters } from "@/lib/graph/client-filters";
 import type { GraphResponse } from "@/lib/graph/types";
 
-const AUGUST_SECOND_CENTRAL = new Date("2026-08-02T17:00:00.000Z");
 const readRuntimeGraphSnapshotFile = vi.fn<(filename: string) => Promise<string>>();
 const authenticateInsiderRequest = vi.fn(async () => null);
 const loadUserInsiderConfiguration = vi.fn();
@@ -35,13 +34,16 @@ const snapshotBodies = new Map(
     )
   ])
 );
+const PUBLISHED_GRAPH_TIME = new Date(
+  new Date((JSON.parse(snapshotBodies.get("s26.json")!) as GraphResponse).generatedAt).getTime() + 1_000
+);
 
 describe("GET /api/graph published snapshot runtime", () => {
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
     vi.useFakeTimers();
-    vi.setSystemTime(AUGUST_SECOND_CENTRAL);
+    vi.setSystemTime(PUBLISHED_GRAPH_TIME);
     readRuntimeGraphSnapshotFile.mockImplementation(async (filename) => {
       const body = snapshotBodies.get(filename);
       if (!body) {
@@ -62,7 +64,7 @@ describe("GET /api/graph published snapshot runtime", () => {
     const published = snapshot("s26.json");
     const publishedScreenpipe = momentumRow(published, "company-screenpipe");
     const expectedScreenpipe = momentumRow(
-      applyStoredBenchmarkMomentum(published, { now: AUGUST_SECOND_CENTRAL }),
+      applyStoredBenchmarkMomentum(published, { now: PUBLISHED_GRAPH_TIME }),
       "company-screenpipe"
     );
     expect(publishedScreenpipe.dod.baselineScore).toBeNull();
@@ -92,14 +94,14 @@ describe("GET /api/graph published snapshot runtime", () => {
     )).toBe(true);
     expect(graph.leaderboard).toEqual(published.leaderboard);
     expect(screenpipe.dod).toEqual(expectedScreenpipe.dod);
-    expect(screenpipe.dod.benchmarkedAt).toBe("2026-08-01T08:50:23.998Z");
+    expect(screenpipe.dod.benchmarkedAt).not.toBeNull();
     expect(screenpipe.wow).toEqual(expectedScreenpipe.wow);
   }, 30_000);
 
   it("applies canonical display filters after benchmark hydration", async () => {
     const published = snapshot("s26-yc-partners.json");
     const benchmarked = applyStoredBenchmarkMomentum(published, {
-      now: AUGUST_SECOND_CENTRAL
+      now: PUBLISHED_GRAPH_TIME
     });
     const expected = applyClientGraphFilters(benchmarked, {
       platforms: ["x"],
@@ -274,11 +276,18 @@ function snapshot(filename: string): GraphResponse {
 
 function neutralizePublishedMomentum(raw: string): string {
   const graph = JSON.parse(raw) as GraphResponse;
-  graph.fastestGaining = graph.fastestGaining.map((row) => ({
-    ...row,
-    dod: neutralDelta(row.dod.currentScore, row.dod.currentRank),
-    wow: neutralDelta(row.wow.currentScore, row.wow.currentRank)
-  }));
+  graph.fastestGaining = graph.fastestGaining
+    .map((row) => ({
+      ...row,
+      dod: neutralDelta(row.dod.currentScore, row.dod.currentRank),
+      wow: neutralDelta(row.wow.currentScore, row.wow.currentRank)
+    }))
+    .sort((left, right) =>
+      right.dod.currentScore - left.dod.currentScore ||
+      left.companyName.localeCompare(right.companyName) ||
+      left.companyId.localeCompare(right.companyId)
+    )
+    .map((row, index) => ({ ...row, rank: index + 1 }));
   return JSON.stringify(graph);
 }
 

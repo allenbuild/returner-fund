@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-onecli",
+    "slug": "onecli",
+    "name": "OneCLI"
+  },
+  "event": {
+    "id": "tle-8e5cf189d732fa866dba0386",
+    "eventDate": "2026-07-23",
+    "eventDateType": "announcement_date",
+    "title": "OneCLI was introduced",
+    "summary": "OneCLI introduced OneCLI, lets AI agents do real work in companies without storing passwords.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-31f516eb636b3ced46cebdec",
+        "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+        "publisher": "jonathanfishner",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-23T14:51:46.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jonathanfishner/status/2080304874282258697"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-31f516eb636b3ced46cebdec",
+        "title": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+        "publisher": "jonathanfishner",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-23T14:51:46.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/jonathanfishner/status/2080304874282258697",
+        "publicationDate": "2026-07-23T14:51:46.000Z",
+        "excerpt": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+        "sourceEventDate": "2026-07-23",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f1612a09dc6a8f04effad0b4",
+        "platform": "x",
+        "account": "jonathanfishner",
+        "postDate": "2026-07-23",
+        "excerpt": "Introducing OneCLI, lets AI agents do real work in companies without storing passwords. Here's how it works 🧵",
+        "url": "https://x.com/jonathanfishner/status/2080304874282258697",
+        "metrics": {
+          "views": 24912,
+          "likes": 41,
+          "replies": 4,
+          "reposts": 2,
+          "quotes": 1,
+          "bookmarks": 38
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

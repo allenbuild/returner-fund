@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "a16z-speedrun-006-syncere",
+    "slug": "syncere",
+    "name": "Syncere"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-1ead686a0735a925012af525",
+      "eventDate": "2026-04-08",
+      "eventDateType": "announcement_date",
+      "title": "Syncere released Lume",
+      "summary": "Syncere introduced Lume.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-902aa508af8f00b64ce78723",
+          "title": "Introducing Lume. A lamp that does your chores. Order now. Shipping this summer.",
+          "publisher": "bysyncere",
+          "domain": "instagram.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-08T18:10:29.000Z",
+          "evidenceRole": "primary",
+          "url": "https://instagram.com/reel/DW4VYvfidcr"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

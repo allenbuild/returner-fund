@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-finaldose",
+    "slug": "finaldose",
+    "name": "FinalDose"
+  },
+  "event": {
+    "id": "tle-1521988b139749033bbf951f",
+    "eventDate": "2026-05-11",
+    "eventDateType": "announcement_date",
+    "title": "FinalDose announced its public launch",
+    "summary": "FinalDose YC Launch - A programmable drug that kills cancer by reading its DNA.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-0b4ee16d71593affa17eaf35",
+        "title": "FinalDose YC Launch - A programmable drug that kills cancer by reading its DNA",
+        "publisher": "FinalDose YC Launch - A programmable drug that kills cancer by reading its DNA",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-11T06:58:09-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=446etIvaYCM"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0b4ee16d71593affa17eaf35",
+        "title": "FinalDose YC Launch - A programmable drug that kills cancer by reading its DNA",
+        "publisher": "FinalDose YC Launch - A programmable drug that kills cancer by reading its DNA",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-11T06:58:09-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=446etIvaYCM",
+        "publicationDate": "2026-05-11T06:58:09-07:00",
+        "excerpt": "For 60 years, drug discovery has chased proteins. But ~85% of disease drivers don't have a druggable protein, making them unreachable for modern medicine. The deeper issue: most disease doesn't start at the protein, it starts in the DNA that codes for it. We built a programmable drug that reads DNA inside the cell, decides if it's diseased, and destroys the cell if it is. One platform, reprogrammed to any disease distinguishable on a DNA level. In the future, we believe this is the most…",
+        "sourceEventDate": "2026-05-11",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4e9bb231ccbc14052fbd7902",
+        "platform": "youtube",
+        "account": null,
+        "postDate": "2026-05-11",
+        "excerpt": "For 60 years, drug discovery has chased proteins. But ~85% of disease drivers don't have a druggable protein, making them unreachable for modern medicine. The deeper issue: most disease doesn't start at the protein, it starts in the DNA that codes for it. We built a programmable drug that reads DNA inside the cell, decides if it's diseased, and destroys the cell if it is. One platform, reprogrammed to any disease distinguishable on a DNA level. In the future, we believe this is the most…",
+        "url": "https://youtube.com/watch?v=446etIvaYCM",
+        "metrics": {
+          "views": 679,
+          "likes": 5,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

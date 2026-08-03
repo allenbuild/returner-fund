@@ -1527,6 +1527,14 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      apply_timeline_admin_action: {
+        Args: {
+          p_scope: string;
+          p_action: Json;
+          p_actor: Json;
+        };
+        Returns: Json;
+      };
       save_user_insider_configuration: {
         Args: {
           p_expected_version: number;
@@ -1578,6 +1586,15 @@ export interface Database {
           p_lease_duration?: string;
           p_ingestion_run_id?: string | null;
           p_platform?: string | null;
+        };
+        Returns: Database["public"]["Tables"]["ingestion_tasks"]["Row"][];
+      };
+      claim_timeline_admin_tasks: {
+        Args: {
+          p_worker_id: string;
+          p_limit?: number;
+          p_lease_duration?: string;
+          p_source_class?: string | null;
         };
         Returns: Database["public"]["Tables"]["ingestion_tasks"]["Row"][];
       };

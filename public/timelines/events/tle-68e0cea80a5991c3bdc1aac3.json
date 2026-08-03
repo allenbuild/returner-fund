@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-amboras",
+    "slug": "amboras",
+    "name": "Amboras"
+  },
+  "event": {
+    "id": "tle-68e0cea80a5991c3bdc1aac3",
+    "eventDate": "2026-05-19",
+    "eventDateType": "announcement_date",
+    "title": "Amboras released Amboras Launch YCP26",
+    "summary": "Amboras Launch YCP26.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-13956f8bbb73daad1bc01010",
+        "title": "Amboras Launch YCP26",
+        "publisher": "Amboras Launch YCP26",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T06:45:47-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=xr0VEaJPJow"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-13956f8bbb73daad1bc01010",
+        "title": "Amboras Launch YCP26",
+        "publisher": "Amboras Launch YCP26",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T06:45:47-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=xr0VEaJPJow",
+        "publicationDate": "2026-05-19T06:45:47-07:00",
+        "excerpt": "Embedded in the official Amboras YC company page.",
+        "sourceEventDate": "2026-05-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-bccf8f58c634de21b967171b",
+        "platform": "youtube",
+        "account": "Amboras Launch YCP26",
+        "postDate": "2026-05-19",
+        "excerpt": "Embedded in the official Amboras YC company page.",
+        "url": "https://youtube.com/watch?v=xr0VEaJPJow",
+        "metrics": {
+          "views": 2293,
+          "likes": 47,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

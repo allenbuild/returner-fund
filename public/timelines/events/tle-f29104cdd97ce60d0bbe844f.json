@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-belong",
+    "slug": "belong",
+    "name": "Belong"
+  },
+  "event": {
+    "id": "tle-f29104cdd97ce60d0bbe844f",
+    "eventDate": "2026-01-06",
+    "eventDateType": "announcement_date",
+    "title": "Belong announced $2.7M Seed",
+    "summary": "Belong reported share that @belongrewards has raised $2.7M in Seed capital 🚀 Grateful to be backed by an incredible group of investors, including a16z Speedrun, Lakestar, Backwards Capital, and Prevail, alongside an outstanding group of angel operators and entrepreneurs.",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2ce26d8609f0cbb1edacbaad",
+        "title": "Excited to share that @belongrewards has raised $2.7M in Seed capital 🚀 Grateful to be backed by an incredible group of investors, incl...",
+        "publisher": "nickmanic",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-01-06T06:02:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nickmanic/status/2008418873540817239"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2ce26d8609f0cbb1edacbaad",
+        "title": "Excited to share that @belongrewards has raised $2.7M in Seed capital 🚀 Grateful to be backed by an incredible group of investors, incl...",
+        "publisher": "nickmanic",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-01-06T06:02:28.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/nickmanic/status/2008418873540817239",
+        "publicationDate": "2026-01-06T06:02:28.000Z",
+        "excerpt": "Excited to share that @belongrewards has raised $2.7M in Seed capital 🚀 Grateful to be backed by an incredible group of investors, including a16z Speedrun, Lakestar, Backwards Capital, and Prevail, alongside an outstanding group of angel operators and entrepreneurs. Belong is building the world’s first FanTech company — with a bold mission: To recognize fans for their passion, help artists truly own their audience, and turn culture into a new financial system.",
+        "sourceEventDate": "2026-01-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a22a98bb0f2c96c4ba7cf24f",
+        "platform": "x",
+        "account": "nickmanic",
+        "postDate": "2026-01-06",
+        "excerpt": "Excited to share that @belongrewards has raised $2.7M in Seed capital 🚀 Grateful to be backed by an incredible group of investors, including a16z Speedrun, Lakestar, Backwards Capital, and Prevail, alongside an outstanding group of angel operators and entrepreneurs. Belong is building the world’s first FanTech company — with a bold mission: To recognize fans for their passion, help artists truly own their audience, and turn culture into a new financial system.",
+        "url": "https://x.com/nickmanic/status/2008418873540817239",
+        "metrics": {
+          "views": 168,
+          "likes": 2,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 0,
+          "bookmarks": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

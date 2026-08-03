@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-openvector",
+    "slug": "openvector",
+    "name": "OpenVector"
+  },
+  "event": {
+    "id": "tle-b233a1760797e3a4677c7749",
+    "eventDate": "2026-07-30",
+    "eventDateType": "announcement_date",
+    "title": "OpenVector announced its public launch",
+    "summary": "OpenVector announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-c0daa2ac8c13d80618c875c7",
+        "title": "OpenVector Launch Video",
+        "publisher": "OpenVector Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-29T17:26:57-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=36OaIJ4FPZ8"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-c0daa2ac8c13d80618c875c7",
+        "title": "OpenVector Launch Video",
+        "publisher": "OpenVector Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-29T17:26:57-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=36OaIJ4FPZ8",
+        "publicationDate": "2026-07-29T17:26:57-07:00",
+        "excerpt": "Embedded in the official OpenVector YC company page.",
+        "sourceEventDate": "2026-07-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0005c815da5027adab989dc4",
+        "platform": "youtube",
+        "account": "OpenVector Launch Video",
+        "postDate": "2026-07-30",
+        "excerpt": "Embedded in the official OpenVector YC company page.",
+        "url": "https://youtube.com/watch?v=36OaIJ4FPZ8",
+        "metrics": {
+          "views": 65,
+          "likes": 3,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

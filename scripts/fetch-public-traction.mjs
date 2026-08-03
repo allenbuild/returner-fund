@@ -13,6 +13,14 @@ import {
   isLinkedInPublicReaderPayload
 } from "./lib/linkedin-parent-metrics.mjs";
 import {
+  extractLinkedInPublicPostReceipt,
+  extractLinkedInPublicProfileSurface
+} from "./lib/linkedin-public-jsonld.mjs";
+import {
+  instagramPublicProfileRequest,
+  parseInstagramPublicProfileResponse
+} from "./lib/instagram-public-profile.mjs";
+import {
   assessPublicEvidenceAttribution,
   assessLinkedInPrimaryPostBody,
   containsExactTokenSequence,
@@ -72,7 +80,11 @@ const platformFilter = new Set(
     .filter(Boolean)
 );
 const requestDelayMs = numberArg("--delay-ms") ?? 450;
-const workerCount = numberArg("--workers") ?? 8;
+const MAX_PUBLIC_TASK_WORKERS = 16;
+const workerCount = Math.max(
+  1,
+  Math.min(MAX_PUBLIC_TASK_WORKERS, Math.floor(numberArg("--workers") ?? 8))
+);
 const MAX_X_WORKERS = 8;
 const xWorkerCount = Math.max(
   1,
@@ -91,7 +103,10 @@ const instagramWorkerCount = Math.max(
 const forceRefresh = hasArg("--force");
 const prioritySeed = stringArg("--priority-seed") ?? now.slice(0, 10);
 const freshForHours = Math.max(0, numberArg("--fresh-for-hours") ?? 12);
-const discoverMissingSocial = hasArg("--discover-missing-social") || platformFilter.size > 0;
+const mappedAccountsOnly = hasArg("--mapped-only");
+const discoverMissingSocial =
+  !mappedAccountsOnly &&
+  (hasArg("--discover-missing-social") || platformFilter.size > 0);
 const discoveryAttemptsPath = resolvePathArg(
   stringArg("--discovery-attempts") ??
     join(root, "outputs", `discovery-attempts-${batchConfig.slug.toLowerCase()}.json`)
@@ -106,6 +121,11 @@ const planOnly = hasArg("--plan");
 const PUBLIC_ATTRIBUTION_VERSION = PUBLIC_EVIDENCE_ATTRIBUTION_VERSION;
 const xBearerToken = cleanEnv(process.env.X_BEARER_TOKEN);
 const exaApiKey = cleanEnv(process.env.EXA_API_KEY);
+
+if (hasArg("--help") || hasArg("-h")) {
+  await writeStdout(`${usage()}\n`);
+  process.exit(0);
+}
 
 const verifiedSocialOverrides = await readRequiredCanonicalJson(
   verifiedSocialOverridesPath,
@@ -179,6 +199,10 @@ const officialLaunchPageCache = new Map();
 let exaFailureCount = 0;
 let checkpointWriteChain = Promise.resolve();
 const platformCooldowns = new Map();
+// Every lane retains its own conservative platform cap, while this shared
+// process-wide guard prevents those lane pools from multiplying into an
+// unbounded number of simultaneous collector tasks.
+const publicTaskConcurrencyGuard = createConcurrencyGuard(workerCount);
 const INGEST_METRIC_WEIGHTS = {
   github: { stars: 1.5, forks: 4, watchers: 2, issues: 0.5, open_issues: 0.5 },
   x: { views: 0.02, likes: 1, replies: 3, comments: 3, reposts: 4, shares: 4, quotes: 4 },
@@ -247,6 +271,36 @@ function attemptedPlatformsForRun() {
     ? PUBLIC_COLLECTION_PLATFORMS.filter((platform) => platformFilter.has(platform))
     : [...PUBLIC_COLLECTION_PLATFORMS];
 }
+
+function usage() {
+  return [
+    "Usage: node scripts/fetch-public-traction.mjs [options]",
+    "",
+    "Options:",
+    "  --batch=S26|S2026|A16ZSR006",
+    "  --platforms=x,linkedin,instagram,product_hunt,youtube,web,rss,hacker_news,reddit",
+    "  --social=company|all|none",
+    "  --company=NAME_OR_SLUG",
+    "  --max-companies=N",
+    "  --company-shard-count=N",
+    "  --company-shard-index=N",
+    `  --workers=N              Global task cap (1-${MAX_PUBLIC_TASK_WORKERS})`,
+    `  --x-workers=N            X lane cap (1-${MAX_X_WORKERS})`,
+    `  --linkedin-workers=N     LinkedIn lane cap (1-${MAX_LINKEDIN_WORKERS})`,
+    `  --instagram-workers=N    Instagram lane cap (1-${MAX_INSTAGRAM_WORKERS})`,
+    "  --delay-ms=N",
+    "  --fresh-for-hours=N",
+    "  --discover-missing-social",
+    "  --mapped-only             Skip every URL-less social discovery task",
+    "  --force",
+    "  --output=PATH",
+    "  --checkpoint=PATH",
+    "  --discovery-attempts=PATH",
+    "  --source-discovery-paths=PATH",
+    "  --plan                    Print the read-only target plan and exit",
+    "  --help, -h"
+  ].join("\n");
+}
 // Keep explicit attribution demotions independently from the mutable evidence
 // arrays. Successful replacement collection removes prior platform rows, but
 // must never erase a target-specific durable retirement directive.
@@ -287,6 +341,7 @@ if (planOnly) {
     companyShardIndex,
     companyCount: companies.length,
     founderCount: companies.reduce((count, company) => count + (company.founders?.length ?? 0), 0),
+    taskConcurrencyCap: workerCount,
     laneConcurrency: {
       x: Math.max(1, Math.min(workerCount, platformConcurrency("x"))),
       linkedin: Math.max(1, Math.min(workerCount, platformConcurrency("linkedin"))),
@@ -330,6 +385,7 @@ const payload = {
     taskCountThisRun: taskPlan.length,
     checkpointAttemptCount: attemptMap.size,
     workerCount,
+    taskConcurrencyCap: workerCount,
     laneConcurrency: {
       x: Math.max(1, Math.min(workerCount, platformConcurrency("x"))),
       linkedin: Math.max(1, Math.min(workerCount, platformConcurrency("linkedin"))),
@@ -351,6 +407,7 @@ const payload = {
       "Read-only public requests only.",
       "No account login, cookies, browser sessions, or mutations.",
       "Official X recent-search and Exa web-search APIs are used only when their workflow credentials are configured.",
+      "Mapped Instagram accounts first use the anonymous web_profile_info endpoint with credentials omitted; any incomplete profile response is recorded as truncated rather than complete.",
       "Blocked platforms are logged per company and do not fail the batch.",
       "Batch profile text is not used as traction evidence.",
       ...(taskPlan.length === 0
@@ -500,6 +557,7 @@ function socialTasksForEntity(company, entity, entityType) {
   return MAPPED_ACCOUNT_PLATFORMS.flatMap((platform) => {
     if (!platformAllowed(platform)) return [];
     const accountUrls = socialAccountUrls(entity, platform);
+    if (!accountUrls.length && mappedAccountsOnly) return [];
     if (!accountUrls.length && !DISCOVERABLE_SOCIAL_PLATFORMS.includes(platform)) return [];
     // Exactly one URL-less task preserves recurring discovery for unmapped owners.
     return (accountUrls.length ? accountUrls : [null]).map((accountUrl) => {
@@ -543,47 +601,78 @@ async function runLane(lane, tasks, limit) {
     while (cursor < tasks.length) {
       const task = tasks[cursor];
       cursor += 1;
-      console.log(`[${lane}/worker-${workerIndex + 1}] ${task.label}`);
-      const cooldown = platformCooldowns.get(lane);
-      if (cooldown && cooldown.until > Date.now()) {
-        const message = `Platform cooldown active until ${new Date(cooldown.until).toISOString()}: ${cooldown.reason}`;
-        const identity = task.terminalIdentity;
-        failures.push(identity
-          ? {
-              ...failure(
-                lane,
-                task.company,
-                identity.accountUrl,
-                message,
-                identity.entityType,
-                identity.name,
-                identity.entityId
-              ),
-              accountUrl: identity.accountUrl,
-              attemptKey: identity.attemptKey
-            }
-          : {
-              ...failure(lane, task.company, null, message),
-              attemptKey: identity?.attemptKey ?? null
-            });
-        if (identity) {
-          attemptMap.set(identity.attemptKey, socialAttemptRecord({
-            attemptKey: identity.attemptKey,
-            status: "failed",
-            checkedAt: now,
-            error: message,
-            retryable: retryableCollectorFailure(message),
-            outcomeStatus: "blocked_or_empty",
-            outcomeReason: "collector_checked_blocked_or_empty"
-          }, identity));
+      await publicTaskConcurrencyGuard(async () => {
+        console.log(`[${lane}/worker-${workerIndex + 1}] ${task.label}`);
+        const cooldown = platformCooldowns.get(lane);
+        if (cooldown && cooldown.until > Date.now()) {
+          const message = `Platform cooldown active until ${new Date(cooldown.until).toISOString()}: ${cooldown.reason}`;
+          const identity = task.terminalIdentity;
+          failures.push(identity
+            ? {
+                ...failure(
+                  lane,
+                  task.company,
+                  identity.accountUrl,
+                  message,
+                  identity.entityType,
+                  identity.name,
+                  identity.entityId
+                ),
+                accountUrl: identity.accountUrl,
+                attemptKey: identity.attemptKey
+              }
+            : {
+                ...failure(lane, task.company, null, message),
+                attemptKey: identity?.attemptKey ?? null
+              });
+          if (identity) {
+            attemptMap.set(identity.attemptKey, socialAttemptRecord({
+              attemptKey: identity.attemptKey,
+              status: "failed",
+              checkedAt: now,
+              error: message,
+              retryable: retryableCollectorFailure(message),
+              outcomeStatus: "blocked_or_empty",
+              outcomeReason: "collector_checked_blocked_or_empty"
+            }, identity));
+          }
+          await writeCheckpoint();
+          return;
         }
-        await writeCheckpoint();
-        continue;
-      }
-      await task.run();
+        await task.run();
+      });
     }
   });
   await Promise.all(workers);
+}
+
+function createConcurrencyGuard(limit) {
+  let active = 0;
+  const waiters = [];
+  const acquire = () => new Promise((resolve) => {
+    if (active < limit) {
+      active += 1;
+      resolve();
+      return;
+    }
+    waiters.push(resolve);
+  });
+  const release = () => {
+    const next = waiters.shift();
+    if (next) {
+      next();
+      return;
+    }
+    active -= 1;
+  };
+  return async (operation) => {
+    await acquire();
+    try {
+      return await operation();
+    } finally {
+      release();
+    }
+  };
 }
 
 function platformConcurrency(lane) {
@@ -735,7 +824,7 @@ function summarizeConnectorResult(result) {
 }
 
 function hasValidatedReplacement(result) {
-  return (result?.evidence?.length ?? 0) > 0;
+  return result?.mergeOnly !== true && (result?.evidence?.length ?? 0) > 0;
 }
 
 async function attemptSocialProfile(company, entity, entityType, platform, accountUrl) {
@@ -2165,8 +2254,31 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     }
   }
 
-  const page = await fetchReader(url);
-  if (isBlocked(page.text)) {
+  if (platform === "instagram") {
+    const publicProfileResult = await ingestInstagramPublicProfile(
+      company,
+      entity,
+      entityType,
+      url
+    );
+    if (publicProfileResult) return publicProfileResult;
+  }
+
+  const linkedInPublicSurface = platform === "linkedin"
+    ? await fetchLinkedInPublicProfileSurface(url).catch(() => null)
+    : null;
+  const page = linkedInPublicSurface?.verified
+    ? {
+        html: "",
+        title: linkedInPublicSurface.title,
+        text: cleanText([
+          linkedInPublicSurface.title,
+          linkedInPublicSurface.description,
+          ...linkedInPublicSurface.postCandidates.map((candidate) => candidate.url)
+        ].filter(Boolean).join("\n"))
+      }
+    : await fetchReader(url);
+  if (isBlocked(page.text, { platform, url })) {
     const fallback = discoverMissingSocial
       ? await discoverAndVerifyPublicSocialPosts(
           company,
@@ -2199,13 +2311,16 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
   const linkedInProfileAlias = socialProfileNameAlias(url, platform);
   const visibleProfileIdentity = cleanText(`${page.title}\n${page.text}`).toLowerCase();
   const verified =
+    linkedInPublicSurface?.verified === true ||
     isCompanyMatch({ name, websiteUrl: company.websiteUrl }, page.text) ||
     page.title.toLowerCase().includes(name.toLowerCase()) ||
     Boolean(
       linkedInProfileAlias &&
       visibleProfileIdentity.includes(linkedInProfileAlias.toLowerCase())
     );
-  const metrics = metricsFromPublicProfile(platform, page.text, page.title);
+  const metrics = platform === "linkedin" && linkedInPublicSurface?.followers != null
+    ? { followers: linkedInPublicSurface.followers }
+    : metricsFromPublicProfile(platform, page.text, page.title);
 
   if (!verified) {
     return {
@@ -2225,8 +2340,22 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     };
   }
 
+  const directLinkedInCandidates = linkedInPublicSurface?.verified
+    ? linkedInPublicSurface.postCandidates.map((candidate) => ({
+        query: `${company.name} LinkedIn public profile native posts`,
+        searchUrl: url,
+        title: candidate.title || company.name,
+        snippet: linkedInPublicSurface.description,
+        url: candidate.url,
+        accountUrl: url,
+        source: "linkedin_public_profile_html"
+      }))
+    : [];
   const profilePostCandidates = selectPublicSocialCandidates(
-    extractSocialPostCandidates(page.text, platform, company),
+    dedupeSocialCandidates([
+      ...directLinkedInCandidates,
+      ...extractSocialPostCandidates(page.text, platform, company)
+    ], platform),
     platform,
     3
   );
@@ -2272,6 +2401,126 @@ async function ingestSocialProfile(company, entity, entityType, platform, url) {
     needsReview: postNeedsReview,
     failures: [],
     sourceDiscoveryPaths: zeroPostFallback.sourceDiscoveryPaths
+  };
+}
+
+async function ingestInstagramPublicProfile(company, entity, entityType, accountUrl) {
+  const request = instagramPublicProfileRequest({ accountUrl });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20_000);
+  let response;
+  let payloadText;
+  try {
+    response = await fetch(request.url, {
+      ...request.options,
+      signal: controller.signal
+    });
+    payloadText = await response.text();
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    if ([401, 403, 429].includes(response.status)) {
+      const cooldownMs = response.status === 429 ? 30 * 60_000 : 10 * 60_000;
+      const error = new Error(
+        `Instagram public profile endpoint returned HTTP ${response.status}.`
+      );
+      error.platformCooldownUntil = Date.now() + cooldownMs;
+      error.platformCooldownReason = `instagram_web_profile_info_http_${response.status}`;
+      throw error;
+    }
+    return null;
+  }
+
+  const receipt = parseInstagramPublicProfileResponse({
+    payload: payloadText,
+    requestedUsername: request.username,
+    fetchedAt: now
+  });
+  if (!receipt.verified) {
+    if (/_(?:auth_required|challenge|rate_limited)$/.test(receipt.reason ?? "")) {
+      const error = new Error(`Instagram public profile endpoint failed: ${receipt.reason}.`);
+      error.platformCooldownUntil = Date.now() + 30 * 60_000;
+      error.platformCooldownReason = receipt.reason;
+      throw error;
+    }
+    return null;
+  }
+
+  const entityId = entityIdFor(company, entity, entityType);
+  const name = entityName(entity, entityType);
+  const receiptSummary = {
+    source: "instagram_public_web_profile_info_v1",
+    username: receipt.username,
+    accountUrl: receipt.accountUrl,
+    fetchedAt: receipt.fetchedAt,
+    totalCount: receipt.totalCount,
+    receivedEdgeCount: receipt.receivedEdgeCount,
+    processedEdgeCount: receipt.processedEdgeCount,
+    duplicateEdgeCount: receipt.duplicateEdgeCount,
+    truncated: receipt.truncated,
+    hasNextPage: receipt.pageInfo?.hasNextPage === true
+  };
+  const rows = receipt.posts.map((post) => {
+    const postReceipt = {
+      shortcode: post.shortcode,
+      url: post.url,
+      mediaType: post.mediaType,
+      authorUsername: post.authorUsername,
+      coauthorUsernames: post.coauthorUsernames,
+      profileRole: post.profileRole,
+      caption: post.caption,
+      postedAt: post.postedAt,
+      metrics: post.metrics,
+      mediaUrlCount: Array.isArray(post.mediaUrls) ? post.mediaUrls.length : 0
+    };
+    const views = Math.max(
+      Number(post.metrics?.videoViews ?? 0),
+      Number(post.metrics?.videoPlays ?? 0)
+    );
+    const metrics = removeNullish({
+      likes: numberOrNull(post.metrics?.likes),
+      comments: numberOrNull(post.metrics?.comments),
+      views: views > 0 ? views : null
+    });
+    const caption = cleanText(post.caption) || `${name} Instagram ${post.mediaType}`;
+    return evidenceItem({
+      company,
+      entityType,
+      entityId,
+      platform: "instagram",
+      sourceUrl: post.url,
+      platformPostId: post.shortcode,
+      authorHandle: post.authorUsername,
+      title: caption,
+      text: caption,
+      // Media URLs remain available in the evidence row, but excluding them
+      // from the embedded receipt keeps carousel provenance valid JSON after
+      // the canonical 6 KB raw-text cap.
+      rawVisibleText: JSON.stringify({ receipt: receiptSummary, post: postReceipt }),
+      postedAt: post.postedAt,
+      metrics,
+      mediaUrls: post.mediaUrls,
+      contributionScore: scoreMetrics("instagram", metrics),
+      review_state: post.profileRole === "surface_only" ? "needs_review" : "verified",
+      attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+      attributionStatus: "verified",
+      attributionProvenance: "instagram_public_web_profile_info_native_owner_v1",
+      matchReason:
+        `Anonymous Instagram web_profile_info exposed this post on the exact mapped @${receipt.username} profile; ` +
+        `native primary author=@${post.authorUsername}, profileRole=${post.profileRole}. ` +
+        `The endpoint returned ${receipt.receivedEdgeCount}/${receipt.totalCount} post rows; truncated=${receipt.truncated}.`
+    });
+  });
+
+  return {
+    evidence: rows,
+    needsReview: [],
+    failures: [],
+    source: "instagram_public_web_profile_info",
+    mergeOnly: true,
+    receipt: receiptSummary
   };
 }
 
@@ -2474,10 +2723,15 @@ function normalizeLinkedInSlug(value) {
 }
 
 async function verifyPublicSocialPostCandidate(company, platform, candidate) {
+  if (platform === "linkedin") {
+    const direct = await verifyLinkedInPublicJsonLdCandidate(company, candidate).catch(() => null);
+    if (direct) return direct;
+  }
+
   try {
     const page = await fetchReader(candidate.url);
     const combined = `${candidate.title} ${candidate.snippet} ${page.title} ${page.text}`;
-    if (isBlocked(page.text)) {
+    if (isBlocked(page.text, { platform, url: candidate.url })) {
       const fallback = evidenceFromSearchSnippet(company, platform, candidate, "Reader page was blocked or login-walled");
       if (fallback) {
         return { evidence: [fallback] };
@@ -2623,6 +2877,85 @@ async function verifyPublicSocialPostCandidate(company, platform, candidate) {
   }
 }
 
+async function verifyLinkedInPublicJsonLdCandidate(company, candidate) {
+  const nativeAuthorSlug = linkedinNativeAuthorSlugFromUrl(candidate.url);
+  const expectedAccountUrl = candidate.accountUrl ??
+    (nativeAuthorSlug ? `https://www.linkedin.com/company/${nativeAuthorSlug}` : null);
+  if (!expectedAccountUrl) return null;
+
+  const direct = await fetchLinkedInPublicPostReceipt(candidate.url, expectedAccountUrl);
+  if (!direct?.verified) return null;
+
+  const receipt = direct.receipt;
+  const rawVisibleText = JSON.stringify(receipt);
+  const linkedInBody = assessLinkedInPrimaryPostBody({
+    sourceUrl: candidate.url,
+    accountUrl: expectedAccountUrl,
+    platformPostId: receipt.post.id,
+    rawVisibleText
+  });
+  if (!linkedInBody.verified) return null;
+
+  const canonicalSourceUrl = canonicalProfileUrl(receipt.post.url, "linkedin");
+  const candidateAttribution = {
+    entityType: "company",
+    entityId: companyId(company),
+    companySlug: company.slug,
+    platform: "linkedin",
+    sourceUrl: canonicalSourceUrl,
+    accountUrl: expectedAccountUrl,
+    title: "",
+    text: linkedInBody.text,
+    rawVisibleText
+  };
+  candidateAttribution.nativeAuthorResolution = resolveCurrentBatchNativeOwner(candidateAttribution);
+  const semanticAttribution = publicEvidenceAttributionAssessment(company, candidateAttribution);
+  if (!semanticAttribution.verified) {
+    return {
+      needsReview: [
+        reviewCandidate(
+          company,
+          "linkedin",
+          canonicalSourceUrl,
+          `Public LinkedIn JSON-LD matched the exact activity and author, but semantic company attribution failed (${semanticAttribution.reason}).`
+        )
+      ]
+    };
+  }
+
+  const metrics = metricsFromPublicPost("linkedin", rawVisibleText, {
+    linkedinReader: true,
+    linkedinPostId: receipt.post.id
+  });
+  return {
+    evidence: [
+      evidenceItem({
+        company,
+        entityType: "company",
+        entityId: companyId(company),
+        platform: "linkedin",
+        sourceUrl: canonicalSourceUrl,
+        authorHandle: receipt.post.author.url,
+        title: receipt.post.headline || candidate.title || company.name,
+        text: linkedInBody.text,
+        rawVisibleText,
+        attributionVersion: PUBLIC_ATTRIBUTION_VERSION,
+        attributionStatus: "verified",
+        attributionProvenance: "verified_linkedin_public_jsonld_v1",
+        attributionSignals: semanticAttribution.signals,
+        attributionDescriptorMatches: semanticAttribution.descriptorMatches,
+        linkedinPrimaryPostBodyStatus: "verified",
+        linkedinPrimaryPostBodyReason: linkedInBody.reason,
+        postedAt: receipt.post.datePublished,
+        metrics,
+        contributionScore: scoreMetrics("linkedin", metrics),
+        review_state: "verified",
+        matchReason: `Verified exact LinkedIn activity ID, mapped native author, bounded primary JSON-LD body, and parent engagement counters; semantic attribution passed (${semanticAttribution.reason}).`
+      })
+    ]
+  };
+}
+
 function evidenceFromSearchSnippet(company, platform, candidate, reason) {
   const snippetText = cleanText(`${candidate.title ?? ""} ${candidate.snippet ?? ""}`);
   if (!snippetText) return null;
@@ -2705,6 +3038,9 @@ function evidenceItem(input) {
     platformPostId: input.platformPostId ?? platformPostIdFromUrl(input.platform, input.sourceUrl),
     text: truncatePublicText(input.text, 600),
     rawVisibleText: truncatePublicText(input.rawVisibleText, 6000),
+    ...(Array.isArray(input.mediaUrls) && input.mediaUrls.length
+      ? { mediaUrls: input.mediaUrls.slice(0, 4) }
+      : {}),
     postedAt: input.postedAt ?? null,
     metrics: removeNullish(input.metrics ?? {}),
     contributionScore: input.contributionScore ?? 0,
@@ -2859,6 +3195,26 @@ async function fetchReadable(url, options = {}) {
     if (!options.readerFallback) throw error;
     return fetchReader(url);
   }
+}
+
+async function fetchLinkedInPublicProfileSurface(profileUrl) {
+  const response = await fetchPublic(profileUrl);
+  const html = await response.text();
+  throwIfPlatformCooldown(response, html);
+  if (!response.ok) {
+    throw new Error(`LinkedIn public profile returned HTTP ${response.status}.`);
+  }
+  return extractLinkedInPublicProfileSurface({ html, profileUrl });
+}
+
+async function fetchLinkedInPublicPostReceipt(postUrl, expectedAccountUrl) {
+  const response = await fetchPublic(postUrl);
+  const html = await response.text();
+  throwIfPlatformCooldown(response, html);
+  if (!response.ok) {
+    throw new Error(`LinkedIn public post returned HTTP ${response.status}.`);
+  }
+  return extractLinkedInPublicPostReceipt({ html, postUrl, expectedAccountUrl });
 }
 
 async function fetchReader(url) {
@@ -3238,6 +3594,23 @@ function trimMetricDecimal(value) {
 }
 
 function scoreMetrics(platform, metrics) {
+  if (platform === "instagram") {
+    const likes = Number(metrics?.likes ?? 0);
+    const comments = Number(metrics?.comments ?? 0);
+    const shares = Number(metrics?.shares ?? metrics?.reposts ?? 0);
+    const views = Number(metrics?.views ?? 0);
+    const raw =
+      (Number.isFinite(likes) ? likes * 1.1 : 0) +
+      (Number.isFinite(comments) ? comments * 5 : 0) +
+      (Number.isFinite(shares) ? shares * 4 : 0) +
+      (Number.isFinite(views) ? views * 0.05 : 0);
+    if (raw <= 0) return 0;
+    return Math.max(
+      1,
+      Math.min(100, Math.round((Math.log1p(raw) / Math.log1p(120_000)) * 100))
+    );
+  }
+
   const weights = INGEST_METRIC_WEIGHTS[platform] ?? INGEST_METRIC_WEIGHTS.x;
   const raw = Object.entries(metrics ?? {}).reduce((sum, [metric, rawValue]) => {
     const value = Number(rawValue);
@@ -3549,8 +3922,27 @@ function isSocialPostUrl(url, platform) {
   }
 }
 
-function isBlocked(text) {
-  return /captcha|blocked by network security|target url returned error 403|forbidden|access denied|temporarily blocked|unusual traffic|enable javascript to continue|to continue, log in|sign up\s*\|\s*linkedin|agree\s*&\s*join|join linkedin/i.test(text);
+function isBlocked(text, { platform = null, url = null } = {}) {
+  const value = String(text ?? "");
+  if (/captcha|blocked by network security|target url returned error 403|forbidden|access denied|temporarily blocked|unusual traffic|enable javascript to continue|SecurityCompromiseError|anonymous access .* blocked until/i.test(value)) {
+    return true;
+  }
+
+  const loginChromeVisible = /to continue, log in|sign up\s*\|\s*linkedin|agree\s*&\s*join|join linkedin/i.test(value);
+  if (!loginChromeVisible) return false;
+  if (platform !== "linkedin") return true;
+
+  // LinkedIn appends guest sign-up chrome to otherwise complete public pages.
+  // Treat it as a hard wall only when the exact requested native payload is
+  // absent; the post body and metrics still pass independent strict gates.
+  if (linkedinPostIdFromUrl(url) && isLinkedInPublicReaderPayload(value)) return false;
+  const expectedProfileSlug = linkedinAccountSlugFromUrl(url);
+  if (expectedProfileSlug) {
+    const exposesExactNativePost = [...value.matchAll(/https?:\/\/(?:[a-z]+\.)?linkedin\.com\/posts\/[^\s)"'<>]+/gi)]
+      .some((match) => linkedinNativeAuthorSlugFromUrl(match[0]) === expectedProfileSlug);
+    if (exposesExactNativePost) return false;
+  }
+  return true;
 }
 
 function isThirdPartyMention(company, sourceUrl) {

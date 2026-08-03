@@ -94,6 +94,10 @@ class ScriptedQuery<T> implements SupabaseQuery<T> {
     return this.record("in", column, values);
   }
 
+  limit(value: number): SupabaseQuery<T> {
+    return this.record("limit", value);
+  }
+
   is(column: string, value: null): SupabaseQuery<T> {
     return this.record("is", column, value);
   }

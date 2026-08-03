@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-flowmanual",
+    "slug": "flowmanual",
+    "name": "FlowManual"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-bedae06d884bbffbb5744fc8",
+      "eventDate": "2026-06-08",
+      "eventDateType": "announcement_date",
+      "title": "FlowManual announced $500K funding round",
+      "summary": "FlowManual reported founder says the team raised $500K with YC.",
+      "category": "funding",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-e30e3513b788cd15033c211a",
+          "title": "Founder says the team raised $500K with YC. Post names FlowManual YC S26.",
+          "publisher": "shijoonbae",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-08T21:00:16.929Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/shijoonbae_we-started-building-on-april-18-a-month-activity-7469855846215229440-gUNz"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

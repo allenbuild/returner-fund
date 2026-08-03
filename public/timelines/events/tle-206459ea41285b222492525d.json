@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-andustry",
+    "slug": "andustry",
+    "name": "Andustry"
+  },
+  "event": {
+    "id": "tle-206459ea41285b222492525d",
+    "eventDate": "2026-05-18",
+    "eventDateType": "announcement_date",
+    "title": "Andustry released Andustry (YC P26)",
+    "summary": "Launch Andustry (YC P26).",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-19a576e813991ffb22bf7963",
+        "title": "Launch Andustry (YC P26)",
+        "publisher": "Launch Andustry (YC P26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-17T18:19:29-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=TP0OlikXS9o"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-19a576e813991ffb22bf7963",
+        "title": "Launch Andustry (YC P26)",
+        "publisher": "Launch Andustry (YC P26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-17T18:19:29-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=TP0OlikXS9o",
+        "publicationDate": "2026-05-17T18:19:29-07:00",
+        "excerpt": "https://www.andustry.com/",
+        "sourceEventDate": "2026-05-18",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9bd31ae9714b9eb743208543",
+        "platform": "youtube",
+        "account": "Launch Andustry (YC P26)",
+        "postDate": "2026-05-18",
+        "excerpt": "https://www.andustry.com/",
+        "url": "https://youtube.com/watch?v=TP0OlikXS9o",
+        "metrics": {
+          "views": 159,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

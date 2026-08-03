@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-lamina-labs",
+    "slug": "lamina-labs",
+    "name": "Lamina Labs"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-de38df40176816720babff7d",
+      "eventDate": "2026-06-04",
+      "eventDateType": "announcement_date",
+      "title": "Lamina Labs released Simi",
+      "summary": "Lamina Labs just launched Simi.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-53ef3ccaa52568527bd5094f",
+          "title": "We just launched Simi! It's the fastest infra for turning your docs and prompts into whiteboard explainer videos instantly.",
+          "publisher": "mk314k",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-04T17:39:55.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/mk314k/status/2062590182524903642"
+        }
+      ]
+    },
+    {
+      "id": "tle-5754f8238456500b121a7adf",
+      "eventDate": "2026-06-04",
+      "eventDateType": "announcement_date",
+      "title": "Lamina Labs announced its public launch",
+      "summary": "Lamina Labs is officially live.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-f3f5d97d7872aac8461e7a8e",
+          "title": "We are officially live! Simi turns any document or prompt into a clean whiteboard explainer video in seconds. Built for: • Course lessons generated in minutes • Customer training for enterprise teams • Breaking down complex topics for…",
+          "publisher": "laminalabs X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-04T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/laminalabs/status/2062589838369669592"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

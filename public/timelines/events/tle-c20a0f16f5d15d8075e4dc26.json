@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-result",
+    "slug": "result",
+    "name": "Result"
+  },
+  "event": {
+    "id": "tle-c20a0f16f5d15d8075e4dc26",
+    "eventDate": "2026-05-16",
+    "eventDateType": "announcement_date",
+    "title": "Result released operating system",
+    "summary": "Result reported announcing The operating system for the next generation of internet companies.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-bc3b7765ce5d4895220a91a9",
+        "title": "Announcing http://Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and gro...",
+        "publisher": "saviomartin7",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-16T16:30:30.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/saviomartin7/status/2055687342812488107"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-bc3b7765ce5d4895220a91a9",
+        "title": "Announcing http://Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and gro...",
+        "publisher": "saviomartin7",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-16T16:30:30.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/saviomartin7/status/2055687342812488107",
+        "publicationDate": "2026-05-16T16:30:30.000Z",
+        "excerpt": "Announcing http://Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and grow an internet business — incorporation to your first dollar. Then your millionth. Limited capacity. Private beta opens today.",
+        "sourceEventDate": "2026-05-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-622c38357ea2544d6774a775",
+        "platform": "x",
+        "account": "saviomartin7",
+        "postDate": "2026-05-16",
+        "excerpt": "Announcing http://Result.dev The operating system for the next generation of internet companies. The fastest way to start, run, and grow an internet business — incorporation to your first dollar. Then your millionth. Limited capacity. Private beta opens today.",
+        "url": "https://x.com/saviomartin7/status/2055687342812488107",
+        "metrics": {
+          "views": 21876,
+          "likes": 257,
+          "replies": 26,
+          "reposts": 14,
+          "quotes": 6,
+          "bookmarks": 143
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

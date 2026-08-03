@@ -2,7 +2,7 @@ node_modules/
 .next/
 out/
 dist/
-coverage/
+/coverage/
 .env
 .env.*
 !.env.example
@@ -18,3 +18,7 @@ sessions/
 supabase/.branches/
 supabase/.temp/
 work/
+generated-runtime/
+.vercel
+.env.local
+outputs/timeline-public-discovery-current.json

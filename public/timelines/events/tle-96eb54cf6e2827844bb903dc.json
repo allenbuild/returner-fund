@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-prized",
+    "slug": "prized",
+    "name": "Prized"
+  },
+  "event": {
+    "id": "tle-96eb54cf6e2827844bb903dc",
+    "eventDate": "2026-07-15",
+    "eventDateType": "announcement_date",
+    "title": "Prized released Prized: Agentic builder for internal tools",
+    "summary": "Prized introduced Prized: Agentic builder for internal tools.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-0f244da5693ee37bc18a004b",
+        "title": "Introducing Prized: Agentic builder for internal tools",
+        "publisher": "agupta",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-15T16:04:26Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agupta/status/2077424054966088137"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-0f244da5693ee37bc18a004b",
+        "title": "Introducing Prized: Agentic builder for internal tools",
+        "publisher": "agupta",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-15T16:04:26Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/agupta/status/2077424054966088137",
+        "publicationDate": "2026-07-15T16:04:26Z",
+        "excerpt": "Ankit Gupta's native X article introduces Prized, links prized.dev, and names founders Marinos Eliades and Hudson Griffith as his YC batch founders.",
+        "sourceEventDate": "2026-07-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-18d7bab6ed367adc549a7a88",
+        "platform": "x",
+        "account": "agupta",
+        "postDate": "2026-07-15",
+        "excerpt": "Ankit Gupta's native X article introduces Prized, links prized.dev, and names founders Marinos Eliades and Hudson Griffith as his YC batch founders.",
+        "url": "https://x.com/agupta/status/2077424054966088137",
+        "metrics": {
+          "views": 4129,
+          "likes": 21,
+          "comments": 3,
+          "replies": 3,
+          "reposts": 3,
+          "retweets": 3,
+          "quotes": 1,
+          "saves": 16,
+          "bookmarks": 16
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

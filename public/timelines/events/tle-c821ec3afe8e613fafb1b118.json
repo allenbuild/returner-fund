@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-mirror-mirror-ai",
+    "slug": "mirror-mirror-ai",
+    "name": "Mirror Mirror AI"
+  },
+  "event": {
+    "id": "tle-c821ec3afe8e613fafb1b118",
+    "eventDate": "2026-06-10",
+    "eventDateType": "announcement_date",
+    "title": "Mirror Mirror AI released Digital Twin Studio",
+    "summary": "Mirror Mirror AI introduced Digital Twin Studio.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-a5e7c256f5a5b2c9fc3819fb",
+        "title": "Introducing Digital Twin Studio! Finally the solution to give you full control of how you’re represented. Link in bio to access our beta version!",
+        "publisher": "mirrormirror.ai",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-10T13:31:09.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/reel/DZaUqGAB-5G"
+      },
+      {
+        "id": "src-63255856eaae936e193c57f8",
+        "title": "Introducing Digital Twin Studio, a new feature on Mirror Mirror AI. Build your own AI likeness for licensing through an iterative process...",
+        "publisher": "mirrormirror_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-10T14:46:06.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/mirrormirror_ai/status/2064720768668192966"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-a5e7c256f5a5b2c9fc3819fb",
+        "title": "Introducing Digital Twin Studio! Finally the solution to give you full control of how you’re represented. Link in bio to access our beta version!",
+        "publisher": "mirrormirror.ai",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-10T13:31:09.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/reel/DZaUqGAB-5G",
+        "publicationDate": "2026-06-10T13:31:09.000Z",
+        "excerpt": "Introducing Digital Twin Studio! Finally the solution to give you full control of how you’re represented. Link in bio to access our beta version!",
+        "sourceEventDate": "2026-06-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-63255856eaae936e193c57f8",
+        "title": "Introducing Digital Twin Studio, a new feature on Mirror Mirror AI. Build your own AI likeness for licensing through an iterative process...",
+        "publisher": "mirrormirror_ai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-10T14:46:06.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/mirrormirror_ai/status/2064720768668192966",
+        "publicationDate": "2026-06-10T14:46:06.000Z",
+        "excerpt": "Introducing Digital Twin Studio, a new feature on Mirror Mirror AI. Build your own AI likeness for licensing through an iterative process, so how you're portrayed stays true to you. Sign up for beta access: https://form.typeform.com/to/M8BLOJ3Z",
+        "sourceEventDate": "2026-06-10",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5d15bd80bfa95e5a414be31e",
+        "platform": "instagram",
+        "account": "mirrormirror.ai",
+        "postDate": "2026-06-10",
+        "excerpt": "Introducing Digital Twin Studio! Finally the solution to give you full control of how you’re represented. Link in bio to access our beta version!",
+        "url": "https://instagram.com/reel/DZaUqGAB-5G",
+        "metrics": {
+          "likes": 403,
+          "comments": 16,
+          "views": 12821
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-4e1eb4361c58c8ab7b9d1efb",
+        "platform": "x",
+        "account": "mirrormirror_ai",
+        "postDate": "2026-06-10",
+        "excerpt": "Introducing Digital Twin Studio, a new feature on Mirror Mirror AI. Build your own AI likeness for licensing through an iterative process, so how you're portrayed stays true to you. Sign up for beta access: https://form.typeform.com/to/M8BLOJ3Z",
+        "url": "https://x.com/mirrormirror_ai/status/2064720768668192966",
+        "metrics": {
+          "views": 3073,
+          "likes": 5,
+          "replies": 0,
+          "reposts": 0,
+          "quotes": 1,
+          "bookmarks": 2
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

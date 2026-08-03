@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-lamina-labs",
+    "slug": "lamina-labs",
+    "name": "Lamina Labs"
+  },
+  "event": {
+    "id": "tle-5754f8238456500b121a7adf",
+    "eventDate": "2026-06-04",
+    "eventDateType": "announcement_date",
+    "title": "Lamina Labs announced its public launch",
+    "summary": "Lamina Labs is officially live.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-f3f5d97d7872aac8461e7a8e",
+        "title": "We are officially live! Simi turns any document or prompt into a clean whiteboard explainer video in seconds. Built for: • Course lessons generated in minutes • Customer training for enterprise teams • Breaking down complex topics for…",
+        "publisher": "laminalabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-04T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/laminalabs/status/2062589838369669592"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f3f5d97d7872aac8461e7a8e",
+        "title": "We are officially live! Simi turns any document or prompt into a clean whiteboard explainer video in seconds. Built for: • Course lessons generated in minutes • Customer training for enterprise teams • Breaking down complex topics for…",
+        "publisher": "laminalabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-04T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/laminalabs/status/2062589838369669592",
+        "publicationDate": "2026-06-04T00:00:00.000Z",
+        "excerpt": "We are officially live! Simi turns any document or prompt into a clean whiteboard explainer video in seconds. Built for: • Course lessons generated in minutes • Customer training for enterprise teams • Breaking down complex topics for students • Fast explainer videos Show more Quote Y Combinator @ycombinator · Jun 4 Lamina Labs is building the fastest infra for explainer videos. The first product from @laminalabs, Simi, turns any prompt or document into a whiteboard-style explainer video in…",
+        "sourceEventDate": "2026-06-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-69e3b5616b344263e5ca9445",
+        "platform": "x",
+        "account": "laminalabs X post",
+        "postDate": "2026-06-04",
+        "excerpt": "We are officially live! Simi turns any document or prompt into a clean whiteboard explainer video in seconds. Built for: • Course lessons generated in minutes • Customer training for enterprise teams • Breaking down complex topics for students • Fast explainer videos Show more Quote Y Combinator @ycombinator · Jun 4 Lamina Labs is building the fastest infra for explainer videos. The first product from @laminalabs, Simi, turns any prompt or document into a whiteboard-style explainer video in…",
+        "url": "https://x.com/laminalabs/status/2062589838369669592",
+        "metrics": {
+          "likes": 23,
+          "reposts": 3,
+          "comments": 6,
+          "views": 3016
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -2,10 +2,9 @@ import ycSummer2026Snapshot from "@/lib/yc/summer-2026-companies.json";
 import ycSpring2026Snapshot from "@/lib/yc/spring-2026-companies.json";
 import githubTractionSnapshot from "@/lib/social/github-traction-summer-2026.json";
 import springGithubTractionSnapshot from "@/lib/social/github-traction.json";
-import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
-import loggedInEvidenceSnapshot from "@/lib/social/logged-in-evidence-current.json";
-import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 import verifiedSocialOverridesJson from "@/lib/social/verified-social-overrides.json";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
 import { benchmarkGlobalCompanyScores } from "@/lib/scoring/global-score-benchmark";
 import { a16zSpeedrun006GraphDataset } from "./a16z-speedrun-006-dataset";
@@ -56,6 +55,44 @@ interface RawSnapshot {
     observedCompanyCount: number;
   };
   companies: RawCompany[];
+}
+
+// These evidence snapshots are intentionally loaded as data at runtime rather
+// than compiled as JSON modules. The largest file is roughly 90 MB; asking
+// Vite/webpack to turn it into a JavaScript AST multiplies memory use by orders
+// of magnitude and previously exhausted both local test runs and Vercel builds.
+// Next's output-file tracing explicitly includes these files for every route
+// that imports the full graph dataset.
+type GraphRuntimeProjectionPath =
+  | "generated-runtime/graph/public-evidence-current.json"
+  | "generated-runtime/graph/logged-in-evidence-current.json"
+  | "generated-runtime/graph/targeted-evidence-current.json";
+
+const publicEvidenceSnapshot: unknown = readRuntimeJson(
+  "generated-runtime/graph/public-evidence-current.json",
+);
+const loggedInEvidenceSnapshot: unknown = readRuntimeJson(
+  "generated-runtime/graph/logged-in-evidence-current.json",
+);
+const targetedEvidenceSnapshot: unknown = readRuntimeJson(
+  "generated-runtime/graph/targeted-evidence-current.json",
+);
+
+function readRuntimeJson(relativePath: GraphRuntimeProjectionPath): unknown {
+  const runtimePath = resolveRuntimeDataPath(relativePath);
+  // These exact files are declared in outputFileTracingIncludes. Ignoring the
+  // resolved argument here prevents Turbopack from treating it as a repo-wide
+  // filesystem glob while preserving cwd-independent local/test resolution.
+  return JSON.parse(readFileSync(/* turbopackIgnore: true */ runtimePath, "utf8"));
+}
+
+function resolveRuntimeDataPath(relativePath: GraphRuntimeProjectionPath): string {
+  for (const root of [process.cwd(), process.env.INIT_CWD, process.env.PWD]) {
+    if (!root) continue;
+    const runtimePath = join(/* turbopackIgnore: true */ root, relativePath);
+    if (existsSync(/* turbopackIgnore: true */ runtimePath)) return runtimePath;
+  }
+  return join(/* turbopackIgnore: true */ process.cwd(), relativePath);
 }
 
 interface RawCompany {

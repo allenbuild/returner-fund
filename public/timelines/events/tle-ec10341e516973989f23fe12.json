@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-insforge",
+    "slug": "insforge",
+    "name": "InsForge"
+  },
+  "event": {
+    "id": "tle-ec10341e516973989f23fe12",
+    "eventDate": "2026-07-15",
+    "eventDateType": "occurrence_date",
+    "title": "InsForge launched Backend Branching on Product Hunt",
+    "summary": "InsForge Backend Branching.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-bf9adde99e349fa39acfda53",
+        "title": "InsForge Backend Branching",
+        "publisher": "InsForge",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-07-15T22:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-backend-branching"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-bf9adde99e349fa39acfda53",
+        "title": "InsForge Backend Branching",
+        "publisher": "InsForge",
+        "domain": "producthunt.com",
+        "sourceType": "product_hunt",
+        "publishedAt": "2026-07-15T22:30:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-backend-branching",
+        "publicationDate": "2026-07-15T22:30:00.000Z",
+        "excerpt": "InsForge Backend Branching. Product Hunt launch page is native to InsForge and links company info to insforge.dev; YC S2026 snapshot lists InsForge.",
+        "sourceEventDate": "2026-07-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1666aee08956d09ec7a97b96",
+        "platform": "product_hunt",
+        "account": "InsForge",
+        "postDate": "2026-07-15",
+        "excerpt": "InsForge Backend Branching. Product Hunt launch page is native to InsForge and links company info to insforge.dev; YC S2026 snapshot lists InsForge.",
+        "url": "https://www.producthunt.com/products/insforge-alpha/launches/insforge-backend-branching",
+        "metrics": {
+          "upvotes": 569,
+          "comments": 186
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

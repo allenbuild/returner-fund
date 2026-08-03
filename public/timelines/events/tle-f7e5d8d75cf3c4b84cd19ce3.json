@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-scope",
+    "slug": "scope",
+    "name": "Scope"
+  },
+  "event": {
+    "id": "tle-f7e5d8d75cf3c4b84cd19ce3",
+    "eventDate": "2026-05-06",
+    "eventDateType": "announcement_date",
+    "title": "Scope released Original Audio BF Launch Final",
+    "summary": "Scope reported original Audio BF Launch Final.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4350e3b5cdae4ea43a90e9ae",
+        "title": "Original Audio BF Launch Final",
+        "publisher": "Original Audio BF Launch Final",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-06T00:07:32-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=OqtaJbjMbiQ"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4350e3b5cdae4ea43a90e9ae",
+        "title": "Original Audio BF Launch Final",
+        "publisher": "Original Audio BF Launch Final",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-06T00:07:32-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=OqtaJbjMbiQ",
+        "publicationDate": "2026-05-06T00:07:32-07:00",
+        "excerpt": "Embedded in the official Scope YC company page.",
+        "sourceEventDate": "2026-05-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-b66c168affa4a321d6e0bae1",
+        "platform": "youtube",
+        "account": "Original Audio BF Launch Final",
+        "postDate": "2026-05-06",
+        "excerpt": "Embedded in the official Scope YC company page.",
+        "url": "https://youtube.com/watch?v=OqtaJbjMbiQ",
+        "metrics": {
+          "views": 347,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

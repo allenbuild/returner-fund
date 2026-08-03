@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-cignara",
+    "slug": "cignara",
+    "name": "Cignara"
+  },
+  "event": {
+    "id": "tle-c7d1292510e0c196c7188b49",
+    "eventDate": "2026-05-28",
+    "eventDateType": "announcement_date",
+    "title": "Cignara announced its public launch",
+    "summary": "Cignara announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-acdf3df687987f1fbf0c02d4",
+        "title": "Cignara - YC Product launch video",
+        "publisher": "Cignara - YC Product launch video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-28T10:28:26-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=eBVqdW-yJ7I"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-acdf3df687987f1fbf0c02d4",
+        "title": "Cignara - YC Product launch video",
+        "publisher": "Cignara - YC Product launch video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-28T10:28:26-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=eBVqdW-yJ7I",
+        "publicationDate": "2026-05-28T10:28:26-07:00",
+        "excerpt": "Embedded in the official Cignara YC company page.",
+        "sourceEventDate": "2026-05-28",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ed513cab3ee5eaaefab5335f",
+        "platform": "youtube",
+        "account": "Cignara - YC Product launch video",
+        "postDate": "2026-05-28",
+        "excerpt": "Embedded in the official Cignara YC company page.",
+        "url": "https://youtube.com/watch?v=eBVqdW-yJ7I",
+        "metrics": {
+          "views": 418,
+          "likes": 3,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

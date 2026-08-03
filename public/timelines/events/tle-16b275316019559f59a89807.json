@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-16b275316019559f59a89807",
+    "eventDate": "2026-06-01",
+    "eventDateType": "announcement_date",
+    "title": "Ara released AraBrowser",
+    "summary": "Ara introduced AraBrowser a browser built into the IDE for product work open GitHub, docs, profiles, and live sites without leaving the agent loop keep the page, chat, and project context visible while you build with cookies imported so your api/mcp logins are instant.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-cd867a461d795304a5dc710b",
+        "title": "introducing AraBrowser a browser built into the IDE for product work open GitHub, docs, profiles, and live sites without leaving the agent loop keep the page, chat, and project context visible while you build with cookies imported so your…",
+        "publisher": "aradotso X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2061335553292009531"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-cd867a461d795304a5dc710b",
+        "title": "introducing AraBrowser a browser built into the IDE for product work open GitHub, docs, profiles, and live sites without leaving the agent loop keep the page, chat, and project context visible while you build with cookies imported so your…",
+        "publisher": "aradotso X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2061335553292009531",
+        "publicationDate": "2026-06-01T00:00:00.000Z",
+        "excerpt": "introducing AraBrowser a browser built into the IDE for product work open GitHub, docs, profiles, and live sites without leaving the agent loop keep the page, chat, and project context visible while you build with cookies imported so your api/mcp logins are instant",
+        "sourceEventDate": "2026-06-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7d22474fbdf2d2ca57e0e1b1",
+        "platform": "x",
+        "account": "aradotso X post",
+        "postDate": "2026-06-01",
+        "excerpt": "introducing AraBrowser a browser built into the IDE for product work open GitHub, docs, profiles, and live sites without leaving the agent loop keep the page, chat, and project context visible while you build with cookies imported so your api/mcp logins are instant",
+        "url": "https://x.com/aradotso/status/2061335553292009531",
+        "metrics": {
+          "likes": 57,
+          "reposts": 2,
+          "comments": 12,
+          "views": 4422
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ontora",
+    "slug": "ontora",
+    "name": "Ontora"
+  },
+  "event": {
+    "id": "tle-31b007a7488ba1bc38a3fdf5",
+    "eventDate": "2026-06-08",
+    "eventDateType": "announcement_date",
+    "title": "Ontora released 1 Month of Ontora (YC P26)",
+    "summary": "Launch: 1 Month of Ontora (YC P26).",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5a20ec1a34df5dc751aa3d67",
+        "title": "Launch: 1 Month of Ontora (YC P26)",
+        "publisher": "Ontora",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-06-08",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=vI8shNqqmRE"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5a20ec1a34df5dc751aa3d67",
+        "title": "Launch: 1 Month of Ontora (YC P26)",
+        "publisher": "Ontora",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-06-08",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=vI8shNqqmRE",
+        "publicationDate": "2026-06-08",
+        "excerpt": "Launch: 1 Month of Ontora (YC P26)",
+        "sourceEventDate": "2026-06-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-788684190b8448729d80c273",
+        "platform": "youtube",
+        "account": "Ontora",
+        "postDate": "2026-06-08",
+        "excerpt": "Launch: 1 Month of Ontora (YC P26)",
+        "url": "https://www.youtube.com/watch?v=vI8shNqqmRE",
+        "metrics": {
+          "views": 597,
+          "likes": 8
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

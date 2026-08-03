@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-rudus",
+    "slug": "rudus",
+    "name": "Rudus"
+  },
+  "event": {
+    "id": "tle-b866c7050cdf152cc0eed5d4",
+    "eventDate": "2026-06-02",
+    "eventDateType": "announcement_date",
+    "title": "Rudus launched on Hacker News",
+    "summary": "Launch HN: Rudus (YC P26) – AI for concrete contractors.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-557d149438550095d6b3ca80",
+        "title": "Launch HN: Rudus (YC P26) – AI for concrete contractors",
+        "publisher": "rishipankhaniya",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-02T18:51:09Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48374528"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-557d149438550095d6b3ca80",
+        "title": "Launch HN: Rudus (YC P26) – AI for concrete contractors",
+        "publisher": "rishipankhaniya",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-02T18:51:09Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48374528",
+        "publicationDate": "2026-06-02T18:51:09Z",
+        "excerpt": "Hi HN, we’re Rishi and Sahil. We’ve developed Rudus ( https: www.rudus.ai ), an AI-powered takeoff and estimation platform built for concrete subcontractors. Takeoff is the process of measuring and quantifying materials from concrete plan sheets. Rudus identifies every concrete structure (footings, walls, columns, slabs), pulls in related details, and eliminates hours of manual quantity calculation. Here’s a demo: https: www.youtube.com watch?v=PAMNDRWEdlI . The problem: Concrete…",
+        "sourceEventDate": "2026-06-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c45e1cf34afcdf5519c29cee",
+        "platform": "hacker_news",
+        "account": "rishipankhaniya",
+        "postDate": "2026-06-02",
+        "excerpt": "Hi HN, we’re Rishi and Sahil. We’ve developed Rudus ( https: www.rudus.ai ), an AI-powered takeoff and estimation platform built for concrete subcontractors. Takeoff is the process of measuring and quantifying materials from concrete plan sheets. Rudus identifies every concrete structure (footings, walls, columns, slabs), pulls in related details, and eliminates hours of manual quantity calculation. Here’s a demo: https: www.youtube.com watch?v=PAMNDRWEdlI . The problem: Concrete…",
+        "url": "https://news.ycombinator.com/item?id=48374528",
+        "metrics": {
+          "points": 41,
+          "upvotes": 41,
+          "comments": 14
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

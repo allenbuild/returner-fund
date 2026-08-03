@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-coasty",
+    "slug": "coasty",
+    "name": "Coasty"
+  },
+  "event": {
+    "id": "tle-6c0a1f7eab7cd5702b4fadcc",
+    "eventDate": "2026-07-15",
+    "eventDateType": "announcement_date",
+    "title": "Coasty launched on Hacker News",
+    "summary": "Launch HN: Coasty (YC S26) - An API for computer-use agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d31b1cd459e0939b0320101f",
+        "title": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
+        "publisher": "nkov47",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-15T15:51:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48922706"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d31b1cd459e0939b0320101f",
+        "title": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
+        "publisher": "nkov47",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-15T15:51:20.000Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48922706",
+        "publicationDate": "2026-07-15T15:51:20.000Z",
+        "excerpt": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
+        "sourceEventDate": "2026-07-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c9f451dabdc604450b7f2630",
+        "platform": "hacker_news",
+        "account": "nkov47",
+        "postDate": "2026-07-15",
+        "excerpt": "Launch HN: Coasty (YC S26) - An API for computer-use agents",
+        "url": "https://news.ycombinator.com/item?id=48922706",
+        "metrics": {
+          "points": 25,
+          "comments": 3,
+          "upvotes": 25
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

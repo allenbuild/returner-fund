@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-stage",
+    "slug": "stage",
+    "name": "Stage"
+  },
+  "event": {
+    "id": "tle-ccbf9b83fda9b66c2b48261e",
+    "eventDate": "2026-04-24",
+    "eventDateType": "announcement_date",
+    "title": "Stage released Stage, a modern code review platform that you'll actually want to use",
+    "summary": "Stage introduced Stage, a modern code review platform that you'll actually want to use.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5fb428d24525f08a75957b8e",
+        "title": "Introducing Stage, a modern code review platform that you’ll actually want to use.",
+        "publisher": "Introducing Stage, a modern code review platform that you’ll actually want to use.",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-24T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/stagereviewapp/status/2047736351702086017"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5fb428d24525f08a75957b8e",
+        "title": "Introducing Stage, a modern code review platform that you’ll actually want to use.",
+        "publisher": "Introducing Stage, a modern code review platform that you’ll actually want to use.",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-24T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/stagereviewapp/status/2047736351702086017",
+        "publicationDate": "2026-04-24T00:00:00.000Z",
+        "excerpt": "Introducing Stage, a modern code review platform that you’ll actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out Show more",
+        "sourceEventDate": "2026-04-24",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-39819f8413bd5a3f4a628ea5",
+        "platform": "x",
+        "account": null,
+        "postDate": "2026-04-24",
+        "excerpt": "Introducing Stage, a modern code review platform that you’ll actually want to use. We got tired of using GitHub to review AI generated code so we rebuilt the review process around the way you already naturally think, letting you ship faster and with more confidence. Try it out Show more",
+        "url": "https://x.com/stagereviewapp/status/2047736351702086017",
+        "metrics": {
+          "likes": 89,
+          "reposts": 18,
+          "comments": 25,
+          "views": 10532
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

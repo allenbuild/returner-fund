@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-rise-reforming",
+    "slug": "rise-reforming",
+    "name": "Rise Reforming"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-cfedcf7e85f68224a0c0c975",
+      "eventDate": "2026-07-13",
+      "eventDateType": "announcement_date",
+      "title": "Rise Reforming announced its public launch",
+      "summary": "Rise Reforming announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-4ec8b786c51637770e61ad4a",
+          "title": "Rise Reforming Launch Video",
+          "publisher": "Rise Reforming Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-13T08:21:00-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=Bx_ASPapxlQ"
+        },
+        {
+          "id": "src-5409937894f4bedb2f4e3880",
+          "title": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals",
+          "publisher": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-27T19:58:22Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=49074817"
+        }
+      ]
+    },
+    {
+      "id": "tle-474ce6d23251a2cf08fa4f62",
+      "eventDate": "2024-02-29",
+      "eventDateType": "announcement_date",
+      "title": "Rise Reforming was introduced",
+      "summary": "Announcing Rise Reforming.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-d1e8fd30ba281ccfb864ca13",
+          "title": "Announcing Rise Reforming",
+          "publisher": "jonavanoord",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2024-02-29T18:03:21.951Z",
+          "evidenceRole": "primary",
+          "url": "https://linkedin.com/posts/jonavanoord_i-am-excited-and-proud-to-announce-that-rise-activity-7169029395410571265-v_zv"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "year": 2024,
+      "months": [
+        {
+          "month": "2024-02",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

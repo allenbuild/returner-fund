@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-joinmarble",
+    "slug": "marble",
+    "name": "Marble"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-e74778b6aea56ee937fbf22f",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Marble announced its public launch",
+      "summary": "Marble announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-95f5393865afe923d27a74f6",
+          "title": "Marble Launch Video",
+          "publisher": "Marble Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-29T20:59:28-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=Sbib-QYUH_Y"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { access, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -81,11 +81,17 @@ export async function main(
   const server = getGraphApiServer(args, graphServerOptions);
 
   try {
-    await waitForGraphApi(server.baseUrl, { signal: server.signal });
+    await waitForGraphApi(server.baseUrl, {
+      publicationToken: server.publicationToken,
+      diagnosticsSecret: server.diagnosticsSecret,
+      signal: server.signal
+    });
     const snapshots = [];
 
     for (const descriptor of BATCH_SNAPSHOTS) {
       const graph = await fetchGraphImpl(server.baseUrl, descriptor.slug, descriptor.topVoices, {
+        publicationToken: server.publicationToken,
+        diagnosticsSecret: server.diagnosticsSecret,
         signal: server.signal
       });
       snapshots.push({ descriptor, graph });
@@ -715,8 +721,19 @@ async function cleanupPublicationFiles(staged, { removeImpl }) {
 
 export function getGraphApiServer(args, options = {}) {
   if (args.baseUrl) {
+    const publicationToken = isLoopbackBaseUrl(args.baseUrl)
+      ? cleanSecret(args.publicationToken)
+      : undefined;
+    const diagnosticsSecret = cleanSecret(args.diagnosticsSecret);
+    if (!publicationToken && !diagnosticsSecret) {
+      throw new Error(
+        "External graph recomputation requires GRAPH_PUBLICATION_BUILD_TOKEN or GRAPH_DIAGNOSTICS_SECRET; refusing to publish from a stale public snapshot."
+      );
+    }
     return {
       baseUrl: trimTrailingSlash(args.baseUrl),
+      publicationToken,
+      diagnosticsSecret,
       signal: undefined,
       stop: async () => undefined,
       finish: async () => undefined
@@ -735,10 +752,15 @@ export function getGraphApiServer(args, options = {}) {
   const stopTimeoutMs = options.stopTimeoutMs ?? SERVER_STOP_TIMEOUT_MS;
   const stdout = options.stdout ?? process.stdout;
   const stderr = options.stderr ?? process.stderr;
+  const publicationToken = randomBytes(32).toString("base64url");
+  const childEnv = {
+    ...(options.env ?? process.env),
+    GRAPH_PUBLICATION_BUILD_TOKEN: publicationToken
+  };
   const child = spawnImpl(execPath, [nextCliPath, "start", "--hostname", "127.0.0.1", "--port", String(port)], {
     cwd,
     detached: false,
-    env: options.env ?? process.env,
+    env: childEnv,
     windowsHide: true,
     stdio: ["ignore", "pipe", "pipe"]
   });
@@ -811,6 +833,8 @@ export function getGraphApiServer(args, options = {}) {
 
   return {
     baseUrl,
+    publicationToken,
+    diagnosticsSecret: undefined,
     signal: controller.signal,
     stop,
     finish
@@ -870,7 +894,7 @@ function childHasExited(child) {
   return child.exitCode !== null || child.signalCode !== null;
 }
 
-async function waitForGraphApi(baseUrl, { signal } = {}) {
+async function waitForGraphApi(baseUrl, { publicationToken, diagnosticsSecret, signal } = {}) {
   const startedAt = Date.now();
   let lastError = null;
 
@@ -878,6 +902,8 @@ async function waitForGraphApi(baseUrl, { signal } = {}) {
     throwIfAborted(signal);
     try {
       await fetchGraph(baseUrl, BATCH_SNAPSHOTS[0].slug, undefined, {
+        publicationToken,
+        diagnosticsSecret,
         signal,
         timeoutMs: SERVER_READY_FETCH_TIMEOUT_MS
       });
@@ -896,12 +922,20 @@ export async function fetchGraph(
   baseUrl,
   batchSlug,
   topVoices,
-  { signal, timeoutMs = GRAPH_FETCH_TIMEOUT_MS } = {}
+  { publicationToken, diagnosticsSecret, signal, timeoutMs = GRAPH_FETCH_TIMEOUT_MS } = {}
 ) {
-  const url = new URL("/api/graph", `${trimTrailingSlash(baseUrl)}/`);
+  // Daily publication must recompute the graph from canonical evidence. The
+  // public /api/graph route intentionally serves the last published snapshot,
+  // which cannot be used to create its own next generation.
+  const url = new URL("/api/graph/full", `${trimTrailingSlash(baseUrl)}/`);
   url.searchParams.set("batch", batchSlug);
   if (topVoices) {
     url.searchParams.set("topVoices", topVoices);
+  }
+  if (!publicationToken) {
+    // External servers use the authenticated diagnostics contract. At least
+    // one explicit diagnostic flag is required by the full-graph route.
+    url.searchParams.set("includeRaw", "true");
   }
 
   const controller = new AbortController();
@@ -918,8 +952,14 @@ export async function fetchGraph(
   timeout.unref();
 
   try {
+    const headers = { accept: "application/json" };
+    if (publicationToken) {
+      headers["x-returner-publication-build"] = publicationToken;
+    } else if (diagnosticsSecret) {
+      headers.authorization = `Bearer ${diagnosticsSecret}`;
+    }
     const response = await fetch(url, {
-      headers: { accept: "application/json" },
+      headers,
       signal: controller.signal
     });
     if (!response.ok) {
@@ -954,6 +994,8 @@ export function scheduledUtcHourRepresentsCentralMidnight(date, scheduledUtcHour
 function parseArgs(rawArgs) {
   const parsed = {
     baseUrl: process.env.GRAPH_API_BASE_URL,
+    publicationToken: process.env.GRAPH_PUBLICATION_BUILD_TOKEN,
+    diagnosticsSecret: process.env.GRAPH_DIAGNOSTICS_SECRET,
     port: Number(process.env.GRAPH_API_PORT) || DEFAULT_PORT,
     now: process.env.BENCHMARK_NOW,
     scheduledUtcHour: undefined
@@ -988,6 +1030,20 @@ function parseArgs(rawArgs) {
   }
 
   return parsed;
+}
+
+function cleanSecret(value) {
+  const cleaned = String(value ?? "").trim();
+  return cleaned || undefined;
+}
+
+function isLoopbackBaseUrl(value) {
+  try {
+    const hostname = new URL(value).hostname.replace(/^\[|\]$/g, "").toLowerCase();
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  } catch {
+    return false;
+  }
 }
 
 function snapshotKey({ slug, topVoices }) {

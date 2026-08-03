@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-river-markets",
+    "slug": "river-markets",
+    "name": "River Markets"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-4581e21277023ef717ff7305",
+      "eventDate": "2026-05-23",
+      "eventDateType": "announcement_date",
+      "title": "River Markets announced its public launch",
+      "summary": "River Markets announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-ed644bd264b74cd8bf4e04f3",
+          "title": "River Markets - Launch Video",
+          "publisher": "River Markets - Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-22T18:54:37-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=J-YJlAgkYCA"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

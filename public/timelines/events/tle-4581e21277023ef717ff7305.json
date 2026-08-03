@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-river-markets",
+    "slug": "river-markets",
+    "name": "River Markets"
+  },
+  "event": {
+    "id": "tle-4581e21277023ef717ff7305",
+    "eventDate": "2026-05-23",
+    "eventDateType": "announcement_date",
+    "title": "River Markets announced its public launch",
+    "summary": "River Markets announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-ed644bd264b74cd8bf4e04f3",
+        "title": "River Markets - Launch Video",
+        "publisher": "River Markets - Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-22T18:54:37-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=J-YJlAgkYCA"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-ed644bd264b74cd8bf4e04f3",
+        "title": "River Markets - Launch Video",
+        "publisher": "River Markets - Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-22T18:54:37-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=J-YJlAgkYCA",
+        "publicationDate": "2026-05-22T18:54:37-07:00",
+        "excerpt": "Embedded in the official River Markets YC company page.",
+        "sourceEventDate": "2026-05-23",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-31f89bae1ea01c7c2fa895a9",
+        "platform": "youtube",
+        "account": "River Markets - Launch Video",
+        "postDate": "2026-05-23",
+        "excerpt": "Embedded in the official River Markets YC company page.",
+        "url": "https://youtube.com/watch?v=J-YJlAgkYCA",
+        "metrics": {
+          "views": 166,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

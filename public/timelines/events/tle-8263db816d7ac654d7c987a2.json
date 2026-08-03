@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-fabraix",
+    "slug": "fabraix",
+    "name": "Fabraix"
+  },
+  "event": {
+    "id": "tle-8263db816d7ac654d7c987a2",
+    "eventDate": "2026-07-13",
+    "eventDateType": "announcement_date",
+    "title": "Fabraix announced its public launch",
+    "summary": "Fabraix announced it was launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-681c3fced5be54954898fb05",
+        "title": "Today we're launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents.",
+        "publisher": "Today we're launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents.",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-13T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/fabraixhq/status/2076730125052461435"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-681c3fced5be54954898fb05",
+        "title": "Today we're launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents.",
+        "publisher": "Today we're launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents.",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-13T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/fabraixhq/status/2076730125052461435",
+        "publicationDate": "2026-07-13T00:00:00.000Z",
+        "excerpt": "Today we're launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents. Playground is an open-source CTF for AI agents. Every Monday, we publish a new challenge and invite anyone to break it. Each challenge is a live AI agent with real tools, Show more",
+        "sourceEventDate": "2026-07-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-e803600ff1571e72b1c5aa2b",
+        "platform": "x",
+        "account": null,
+        "postDate": "2026-07-13",
+        "excerpt": "Today we're launching the biggest AI security experiment with $100K+ in weekly rewards to hack AI agents. Playground is an open-source CTF for AI agents. Every Monday, we publish a new challenge and invite anyone to break it. Each challenge is a live AI agent with real tools, Show more",
+        "url": "https://x.com/fabraixhq/status/2076730125052461435",
+        "metrics": {
+          "likes": 307,
+          "reposts": 186,
+          "comments": 100,
+          "views": 335312
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

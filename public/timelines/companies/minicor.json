@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-minicor",
+    "slug": "minicor",
+    "name": "Minicor"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-4f1406d3910450241b829011",
+      "eventDate": "2026-05-26",
+      "eventDateType": "announcement_date",
+      "title": "Minicor launched on Hacker News",
+      "summary": "Launch HN: Minicor (YC P26) – Windows desktop automations at scale.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b9ad08f4e0e6a11ae67c985b",
+          "title": "Launch HN: Minicor (YC P26) – Windows desktop automations at scale",
+          "publisher": "fchishtie",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-26T14:57:27Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48280729"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

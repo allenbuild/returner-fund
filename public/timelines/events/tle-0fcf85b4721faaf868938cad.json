@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-testerarmy",
+    "slug": "testerarmy",
+    "name": "TesterArmy"
+  },
+  "event": {
+    "id": "tle-0fcf85b4721faaf868938cad",
+    "eventDate": "2026-07-27",
+    "eventDateType": "announcement_date",
+    "title": "TesterArmy released TesterArmy Agent",
+    "summary": "TesterArmy introduced TesterArmy Agent: ask an agent to create a project, define tests, analyze results, improve existing tests, and expand test coverage with one prompt.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-34af9dc8d92c4029cc1f349e",
+        "title": "Introducing TesterArmy Agent",
+        "publisher": "TesterArmy",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-27T17:05:14.859Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TesterArmy/status/2081788013638484261"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-34af9dc8d92c4029cc1f349e",
+        "title": "Introducing TesterArmy Agent",
+        "publisher": "TesterArmy",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-27T17:05:14.859Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/TesterArmy/status/2081788013638484261",
+        "publicationDate": "2026-07-27T17:05:14.859Z",
+        "excerpt": "Introducing TesterArmy Agent: ask an agent to create a project, define tests, analyze results, improve existing tests, and expand test coverage with one prompt.",
+        "sourceEventDate": "2026-07-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6d21ea218394bca3d2c3ee43",
+        "platform": "x",
+        "account": "TesterArmy",
+        "postDate": "2026-07-27",
+        "excerpt": "Introducing TesterArmy Agent: ask an agent to create a project, define tests, analyze results, improve existing tests, and expand test coverage with one prompt.",
+        "url": "https://x.com/TesterArmy/status/2081788013638484261",
+        "metrics": {
+          "views": 2100
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

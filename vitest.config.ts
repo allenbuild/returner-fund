@@ -9,9 +9,11 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./tests/setup.ts"],
-    // Real-data graph suites rebuild every batch. Keep GitHub's smaller runner
-    // from starving parallel workers and timing out otherwise healthy tests.
-    maxWorkers: isCi ? 2 : undefined,
+    // Several suites materialize the complete multi-batch graph. A single
+    // worker keeps direct Vitest invocations from duplicating that graph in
+    // memory; the npm test runner recycles the worker between bounded batches.
+    maxWorkers: 1,
+    fileParallelism: false,
     testTimeout: isCi ? 180_000 : 30_000,
     coverage: {
       reporter: ["text", "json", "html"]

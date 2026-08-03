@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-chert",
+    "slug": "chert",
+    "name": "Chert"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-e13b344d5664753d372d3014",
+      "eventDate": "2026-05-25",
+      "eventDateType": "announcement_date",
+      "title": "Chert launched on Hacker News",
+      "summary": "Launch HN: Chert (YC P26) – Twilio for iMessage.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-881b04a54b4e6a58db5bbb10",
+          "title": "Launch HN: Chert (YC P26) – Twilio for iMessage",
+          "publisher": "garygao",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-25T15:12:33Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48267829"
+        },
+        {
+          "id": "src-3bec964f0219486686dd11aa",
+          "title": "Hey everyone, @Cherthq is now live on Product Hunt! https:// producthunt.com/products/chert Try out our agent builder, which lets you build and deploy conversational iMessage agents for customer service, inbound lead capture, and more by…",
+          "publisher": "GaryGao891219 X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-19T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/GaryGao891219/status/2056644892965912819"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

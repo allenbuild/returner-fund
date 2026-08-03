@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-astraea",
+    "slug": "astraea",
+    "name": "Astraea"
+  },
+  "event": {
+    "id": "tle-58b0e067b91907104ee17bde",
+    "eventDate": "2026-05-14",
+    "eventDateType": "announcement_date",
+    "title": "Astraea launched on Y Combinator",
+    "summary": "Astraea just launched on @ycombinator's Launch YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4c69dab93581eebd575eb369",
+        "title": "Astraea just launched on @ycombinator's Launch YC!",
+        "publisher": "joshwqngsr",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-14T18:39:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/joshwqngsr/status/2054995057518989535"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4c69dab93581eebd575eb369",
+        "title": "Astraea just launched on @ycombinator's Launch YC!",
+        "publisher": "joshwqngsr",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-05-14T18:39:36.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/joshwqngsr/status/2054995057518989535",
+        "publicationDate": "2026-05-14T18:39:36.000Z",
+        "excerpt": "Astraea just launched on @ycombinator's Launch YC!",
+        "sourceEventDate": "2026-05-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-96926eb0b162f4c9e04b1afd",
+        "platform": "x",
+        "account": "joshwqngsr",
+        "postDate": "2026-05-14",
+        "excerpt": "Astraea just launched on @ycombinator's Launch YC!",
+        "url": "https://x.com/joshwqngsr/status/2054995057518989535",
+        "metrics": {
+          "views": 96,
+          "likes": 3,
+          "replies": 2,
+          "retweets": 0,
+          "quotes": 0,
+          "bookmarks": 0,
+          "comments": 2,
+          "reposts": 0,
+          "saves": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

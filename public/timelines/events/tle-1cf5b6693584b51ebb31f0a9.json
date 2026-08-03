@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-kimpton-ai",
+    "slug": "kimpton-ai",
+    "name": "Kimpton AI"
+  },
+  "event": {
+    "id": "tle-1cf5b6693584b51ebb31f0a9",
+    "eventDate": "2026-04-02",
+    "eventDateType": "announcement_date",
+    "title": "Kimpton AI released Dashboards",
+    "summary": "Kimpton AI introduced Dashboards.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e80d6b24aee68344ba3766d7",
+        "title": "Introducing Dashboards. Dashboards are a collection of AI-generated widgets on a flexible canvas that maintain themselves, indefinitely. Real-time data is critical to financial markets. When you create a visualization you review every…",
+        "publisher": "KimptonAI X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-02T20:07:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KimptonAI/status/2039796865965908134"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e80d6b24aee68344ba3766d7",
+        "title": "Introducing Dashboards. Dashboards are a collection of AI-generated widgets on a flexible canvas that maintain themselves, indefinitely. Real-time data is critical to financial markets. When you create a visualization you review every…",
+        "publisher": "KimptonAI X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-02T20:07:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/KimptonAI/status/2039796865965908134",
+        "publicationDate": "2026-04-02T20:07:25.000Z",
+        "excerpt": "Introducing Dashboards. Dashboards are a collection of AI-generated widgets on a flexible canvas that maintain themselves, indefinitely. Real-time data is critical to financial markets. When you create a visualization you review every morning before the open, it better maintain itself. Create one in seconds. Describe what you want to monitor. \"Build me a Bridgewater All-Weather dashboard.\" Kimpton researches, computes, and assembles a live dashboard with metrics, charts, heatmaps, and news…",
+        "sourceEventDate": "2026-04-02",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f4182ae2ac9ae76bbdcb432c",
+        "platform": "x",
+        "account": "KimptonAI X post",
+        "postDate": "2026-04-02",
+        "excerpt": "Introducing Dashboards. Dashboards are a collection of AI-generated widgets on a flexible canvas that maintain themselves, indefinitely. Real-time data is critical to financial markets. When you create a visualization you review every morning before the open, it better maintain itself. Create one in seconds. Describe what you want to monitor. \"Build me a Bridgewater All-Weather dashboard.\" Kimpton researches, computes, and assembles a live dashboard with metrics, charts, heatmaps, and news…",
+        "url": "https://x.com/KimptonAI/status/2039796865965908134",
+        "metrics": {
+          "likes": 22,
+          "reposts": 3,
+          "comments": 3,
+          "views": 1193
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

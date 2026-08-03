@@ -66,6 +66,10 @@ const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S26: 2,
   A16ZSR006: 1
 });
+const PUBLIC_SHARD_PROCESS_CONCURRENCY = 2;
+const PUBLIC_COLLECTOR_TASK_CONCURRENCY = 8;
+const PUBLIC_SOCIAL_LANE_CONCURRENCY = 1;
+const runWithPublicShardProcessSlot = createConcurrencyGuard(PUBLIC_SHARD_PROCESS_CONCURRENCY);
 const GITHUB_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -102,7 +106,20 @@ const plannedTaskByCheckpointKey = new Map(plannedTasks.map((task) => [task.chec
 const plannedCoverage = summarizeTaskCoverage(plannedTasks);
 
 if (args.plan) {
-  console.log(JSON.stringify({ idempotencyKey, batches: catalogSummary(catalogs), coverage: plannedCoverage }, null, 2));
+  console.log(JSON.stringify({
+    idempotencyKey,
+    batches: catalogSummary(catalogs),
+    coverage: plannedCoverage,
+    concurrency: {
+      publicShardProcesses: PUBLIC_SHARD_PROCESS_CONCURRENCY,
+      publicTasksPerProcess: PUBLIC_COLLECTOR_TASK_CONCURRENCY,
+      publicTasksAcrossProcesses:
+        PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_COLLECTOR_TASK_CONCURRENCY,
+      publicSocialLanePerProcess: PUBLIC_SOCIAL_LANE_CONCURRENCY,
+      publicSocialLaneAcrossProcesses:
+        PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_SOCIAL_LANE_CONCURRENCY
+    }
+  }, null, 2));
   process.exit(0);
 }
 
@@ -324,7 +341,11 @@ try {
 
     let publicationReceipt = { status: "skipped", publishedCommit: null };
     if (!args.skipPublish) {
-      await buildAndValidatePublication(publicationRunId);
+      // Freeze the exact invalidation set represented by this build. Admin
+      // edits that arrive after this claim remain pending for the next build
+      // instead of being incorrectly consumed by the publication below.
+      const timelineInvalidationClaim = await claimTimelineArtifactInvalidationsForBuild();
+      await buildAndValidatePublication(publicationRunId, catalogState);
       if (run) {
         await persistArtifactManifest(run.id);
       } else {
@@ -336,6 +357,7 @@ try {
         );
       }
       publicationReceipt = await publishRepositoryArtifacts(publicationRunId, publicationInputs);
+      await completePublishedTimelineInvalidations(publicationReceipt, timelineInvalidationClaim);
     }
 
     if (!args.skipPublish && publicationInputs.sourceDelta.dailySourceHealth === "stale_day") {
@@ -562,7 +584,10 @@ async function syncCatalogs(allCatalogs) {
     check(companyError, `upsert companies for ${catalog.slug}`);
     for (const company of companies ?? []) {
       companyByBatchSourceKey.set(batchCompanyKey(catalog.slug, company.source_key), company.id);
-      if (!companyBySourceKey.has(company.source_key)) companyBySourceKey.set(company.source_key, company.id);
+      const canonicalCompanyId = companyBySourceKey.get(company.source_key);
+      if (!canonicalCompanyId || String(company.id).localeCompare(String(canonicalCompanyId)) < 0) {
+        companyBySourceKey.set(company.source_key, company.id);
+      }
     }
 
     const founderRows = [...new Map(catalog.companies.flatMap((company) =>
@@ -1178,7 +1203,15 @@ function withSnapshotBatchProvenance(snapshot) {
 
 async function runCollectors() {
   await prepareBatchDiscoveryState();
-  await event("collection.started", "info", "Public collectors started in parallel.", {});
+  await event("collection.started", "info", "Public collectors started with bounded parallelism.", {
+    publicShardProcessConcurrency: PUBLIC_SHARD_PROCESS_CONCURRENCY,
+    publicTaskConcurrencyPerProcess: PUBLIC_COLLECTOR_TASK_CONCURRENCY,
+    publicTaskConcurrencyAcrossProcesses:
+      PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_COLLECTOR_TASK_CONCURRENCY,
+    publicSocialLaneConcurrencyPerProcess: PUBLIC_SOCIAL_LANE_CONCURRENCY,
+    publicSocialLaneConcurrencyAcrossProcesses:
+      PUBLIC_SHARD_PROCESS_CONCURRENCY * PUBLIC_SOCIAL_LANE_CONCURRENCY
+  });
   const githubSearchArg = process.env.GITHUB_TOKEN?.trim() ? "--search" : "--no-search";
   const commands = [
     ...AUTONOMOUS_BATCHES.map(({ slug: batchSlug }) => ({
@@ -1194,10 +1227,10 @@ async function runCollectors() {
           `--batch=${batchSlug}`,
           "--social=all",
           "--discover-missing-social",
-          "--workers=16",
-          "--x-workers=4",
-          "--linkedin-workers=4",
-          "--instagram-workers=8",
+          `--workers=${PUBLIC_COLLECTOR_TASK_CONCURRENCY}`,
+          `--x-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`,
+          `--linkedin-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`,
+          `--instagram-workers=${PUBLIC_SOCIAL_LANE_CONCURRENCY}`,
           "--fresh-for-hours=11",
           `--priority-seed=${idempotencyKey}`
         ]
@@ -1298,7 +1331,7 @@ async function runShardedPublicCollector({
   // rejects as soon as one shard fails, which can leave sibling collectors
   // writing the same checkpoint paths while the retry starts.
   const shardResults = await Promise.allSettled(shards.map((shard) =>
-    runPublicCollectorWithCheckpointRecovery({
+    runWithPublicShardProcessSlot(() => runPublicCollectorWithCheckpointRecovery({
       batchSlug,
       shardIndex: shard.shardIndex,
       shardCount,
@@ -1313,7 +1346,7 @@ async function runShardedPublicCollector({
         `--discovery-attempts=${shard.discoveryAttemptsPath}`,
         `--source-discovery-paths=${shard.sourceDiscoveryPathsPath}`
       ]
-    })
+    }))
   ));
   const shardFailures = shardResults.flatMap((result, shardIndex) =>
     result.status === "rejected"
@@ -2177,15 +2210,281 @@ async function persistArtifactManifest(runId) {
   check(error, "persist artifact manifest");
 }
 
-async function buildAndValidatePublication(publicationRunId) {
+async function claimTimelineArtifactInvalidationsForBuild() {
+  if (!supabase) return { ids: [], claimedAt: null };
+  const claimedAt = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("timeline_artifact_invalidations")
+    .update({ status: "processing", processed_at: null, last_error: null })
+    .in("status", ["pending", "processing", "failed"])
+    .select("id,company_id,invalidated_at");
+  if (error && isTimelineMigrationUnavailable(error)) return { ids: [], claimedAt: null };
+  check(error, "claim Timeline artifact invalidations for publication build");
+  const ids = [...new Set((data ?? []).map((row) => row.id).filter(Boolean))].sort();
+  await event(
+    "timeline.invalidations.claimed",
+    "info",
+    "Timeline artifact invalidations were frozen before publication build.",
+    { count: ids.length, claimedAt }
+  );
+  return { ids, claimedAt };
+}
+
+async function completePublishedTimelineInvalidations(publicationReceipt, invalidationClaim) {
+  if (
+    !supabase
+    || !["published", "no_changes"].includes(publicationReceipt.status)
+    || !invalidationClaim?.ids?.length
+  ) return;
+  const processedAt = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("timeline_artifact_invalidations")
+    .update({ status: "completed", processed_at: processedAt, last_error: null })
+    .eq("status", "processing")
+    .in("id", invalidationClaim.ids)
+    .select("id,company_id");
+  if (error && isTimelineMigrationUnavailable(error)) return;
+  check(error, "complete published Timeline artifact invalidations");
+  await event(
+    "timeline.invalidations.completed",
+    "info",
+    "Published Timeline artifact invalidations were consumed after remote publication verification.",
+    {
+      count: data?.length ?? 0,
+      claimedCount: invalidationClaim.ids.length,
+      claimedAt: invalidationClaim.claimedAt,
+      processedAt,
+      publishedCommit: publicationReceipt.publishedCommit
+    }
+  );
+}
+
+async function runTimelineDiscoveryBeforeBackfill(catalogState) {
+  if (!durableStorageConfigured || !supabase || !run?.id) {
+    if (args.skipNetwork) {
+      await event(
+        "timeline.discovery.skipped",
+        "warning",
+        "File-backed Company Timeline discovery was skipped because network collection is disabled.",
+        { reason: "network_collection_explicitly_skipped" }
+      );
+      return { status: "skipped", reason: "network_collection_explicitly_skipped" };
+    }
+    try {
+      const result = await runCommand(process.execPath, [
+        "--experimental-strip-types",
+        "--loader",
+        "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
+        "scripts/discover-company-timeline-public-sources.mjs",
+        `--budget-ms=${AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryMs}`,
+        "--concurrency=2",
+        "--max-companies=12",
+        "--per-fetch-timeout-ms=6000"
+      ], {
+        timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryMs + 30_000,
+        label: "file-backed Company Timeline public discovery",
+        captureLimit: 100_000
+      });
+      const receipt = JSON.parse(result.stdout.trim());
+      await event(
+        "timeline.discovery.file_backed",
+        receipt.status === "budget_exhausted" ? "warning" : "info",
+        "Bounded public Company Timeline discovery was cached without production database access.",
+        receipt
+      );
+      return receipt;
+    } catch (error) {
+      await event(
+        "timeline.discovery.file_backed_failed",
+        "warning",
+        "File-backed Company Timeline discovery failed; the last verified discovery cache will be preserved.",
+        { error: error instanceof Error ? error.message : String(error) }
+      );
+      return { status: "skipped", reason: "file_backed_discovery_failed" };
+    }
+  }
+  if (!catalogState) {
+    await event(
+      "timeline.discovery.skipped",
+      "warning",
+      "Durable Company Timeline discovery was skipped because canonical durable inventory is unavailable.",
+      { reason: "durable_catalog_not_available" }
+    );
+    return { status: "skipped", reason: "durable_storage_unavailable" };
+  }
+
+  const { error: migrationError } = await supabase
+    .from("timeline_source_coverage")
+    .select("company_id", { count: "exact", head: true });
+  if (migrationError && isTimelineMigrationUnavailable(migrationError)) {
+    await event(
+      "timeline.discovery.skipped",
+      "warning",
+      "Company Timeline migration is not applied; durable discovery was skipped and last-good graph artifacts were preserved.",
+      { reason: "timeline_migration_unavailable", code: migrationError.code ?? null }
+    );
+    throw new Error(
+      "Company Timeline migration is unavailable; refusing to rebuild or publish graph-only timeline artifacts over the last-good durable timeline."
+    );
+  }
+  check(migrationError, "preflight Company Timeline migration");
+
+  const inventory = await buildCanonicalTimelineIngestionInventory(catalogState);
+  const inventoryPath = join(workRoot, "timeline-company-inventory.json");
+  await writeJsonAtomic(inventoryPath, inventory);
+  const result = await runCommand(process.execPath, [
+    "--experimental-strip-types",
+    "--loader",
+    "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
+    "scripts/run-company-timeline-ingestion.mjs",
+    `--run-id=${run.id}`,
+    `--worker-id=${workerId}:timeline`,
+    `--inventory=${inventoryPath}`,
+    `--budget-ms=${AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryMs}`
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineDiscoveryMs + 30_000,
+    label: "durable Company Timeline discovery",
+    captureLimit: 100_000
+  });
+  const receipt = JSON.parse(result.stdout.trim());
+  await event(
+    "timeline.discovery.persisted",
+    receipt.deadLetteredTasks ? "warning" : "info",
+    "Durable Company Timeline discovery reached terminal coverage.",
+    receipt
+  );
+  return receipt;
+}
+
+async function buildCanonicalTimelineIngestionInventory(catalogState) {
+  const evidenceByCompany = new Map();
+  const graphCompanyIds = new Set();
+  for (const batch of AUTONOMOUS_BATCHES) {
+    const graph = await readRequiredCanonicalJson(
+      join(root, "public", "graph", batch.graphFile),
+      `Published ${batch.slug} graph for Timeline inventory`
+    );
+    for (const node of graph.nodes ?? []) {
+      if (node?.entityType === "company" && node.entityId) graphCompanyIds.add(node.entityId);
+    }
+    for (const evidence of graph.evidence ?? []) {
+      const companyId = evidence.attachedCompanyId ?? (evidence.entityType === "company" ? evidence.entityId : null);
+      if (!companyId) continue;
+      const identity = `${evidence.platform}|${evidence.platformObjectId ?? evidence.platformPostId ?? evidence.id}|${evidence.sourceUrl}`;
+      const current = evidenceByCompany.get(companyId) ?? new Map();
+      if (!current.has(identity)) current.set(identity, evidence);
+      evidenceByCompany.set(companyId, current);
+    }
+  }
+
+  // A company may appear in more than one cohort (currently one duplicate).
+  // Timeline identity is canonical by source key. Use the lexicographically
+  // lowest durable UUID, matching the atomic admin RPC, and union aliases and
+  // evidence across cohort rows.
+  const byCanonicalId = new Map();
+  for (const catalog of [...catalogs].sort((left, right) => left.slug.localeCompare(right.slug))) {
+    for (const company of [...catalog.companies].sort((left, right) => left.sourceKey.localeCompare(right.sourceKey))) {
+      const databaseId = catalogState.companyBySourceKey.get(company.sourceKey);
+      const batchId = catalogState.batchBySlug.get(catalog.slug) ?? null;
+      if (!databaseId) throw new Error(`Timeline inventory could not map ${catalog.slug}/${company.sourceKey} to durable companies.id.`);
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(databaseId)) {
+        throw new Error(`Timeline inventory received a non-UUID durable company id for ${catalog.slug}/${company.sourceKey}.`);
+      }
+      const existing = byCanonicalId.get(company.sourceKey);
+      if (existing) {
+        existing.aliases = [...new Set([...existing.aliases, company.name])].sort();
+        existing.founderNames = [...new Set([...existing.founderNames, ...company.founders.map((founder) => founder.name)])].sort();
+        existing.existingEvidence = [...(evidenceByCompany.get(company.sourceKey)?.values() ?? [])]
+          .sort((left, right) => left.postedAt.localeCompare(right.postedAt) || left.id.localeCompare(right.id));
+        existing.existingEvidenceCount = existing.existingEvidence.length;
+        if (!existing.websiteUrl && company.websiteUrl) existing.websiteUrl = company.websiteUrl;
+        continue;
+      }
+      byCanonicalId.set(company.sourceKey, {
+        id: company.sourceKey,
+        databaseId,
+        batchId,
+        slug: plannedCompanySlug(company),
+        name: company.name,
+        aliases: [company.name],
+        websiteUrl: company.websiteUrl ?? null,
+        profileUrl: company.profileUrl ?? null,
+        founderNames: [...new Set(company.founders.map((founder) => founder.name))].sort(),
+        existingEvidence: [...(evidenceByCompany.get(company.sourceKey)?.values() ?? [])]
+          .sort((left, right) => left.postedAt.localeCompare(right.postedAt) || left.id.localeCompare(right.id)),
+        existingEvidenceCount: evidenceByCompany.get(company.sourceKey)?.size ?? 0
+      });
+    }
+  }
+  const inventory = [...byCanonicalId.values()].sort((left, right) => left.id.localeCompare(right.id));
+  const catalogCompanyIds = new Set(catalogs.flatMap((catalog) => catalog.companies.map((company) => company.sourceKey)));
+  if (inventory.length !== catalogCompanyIds.size) {
+    throw new Error("Timeline inventory did not retain every canonical company identity.");
+  }
+  const missingFromDurableInventory = [...graphCompanyIds].filter((id) => !byCanonicalId.has(id));
+  const missingFromPublishedGraph = [...catalogCompanyIds].filter((id) => !graphCompanyIds.has(id));
+  if (missingFromDurableInventory.length || missingFromPublishedGraph.length) {
+    throw new Error(
+      `Timeline inventory diverged from published graphs: ` +
+      `missing durable=${missingFromDurableInventory.slice(0, 10).join(",") || "none"}; ` +
+      `missing graph=${missingFromPublishedGraph.slice(0, 10).join(",") || "none"}.`
+    );
+  }
+  return inventory;
+}
+
+function isTimelineMigrationUnavailable(error) {
+  return ["42P01", "PGRST205", "PGRST204"].includes(String(error?.code ?? ""))
+    || /timeline_source_coverage.*(?:not found|does not exist|schema cache)/i.test(String(error?.message ?? ""));
+}
+
+async function buildAndValidatePublication(publicationRunId, catalogState) {
+  // The benchmark publisher boots `next start`; build the current canonical
+  // evidence first so a clean runner never depends on an absent or stale
+  // `.next` directory. A second build below captures the newly written graph
+  // and Timeline artifacts in the deployable trace.
+  await runCommand(process.execPath, ["scripts/prepare-graph-runtime-evidence.mjs"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
+    label: "pre-publication compact graph runtime preparation"
+  });
   await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.productionBuildMs,
-    label: "production build"
+    label: "pre-publication production build"
   });
   await runCommand(process.execPath, ["scripts/update-daily-benchmarks.mjs"], {
     timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.benchmarkPublicationMs,
     label: "graph and benchmark publication",
     env: { INGESTION_RUN_ID: publicationRunId }
+  });
+  // Durable discovery runs against the just-refreshed canonical inventory and
+  // must reach terminal source coverage before the artifact backfill reads
+  // published database events. A failure aborts publication, preserving the
+  // repository's last-good timeline artifacts.
+  await runTimelineDiscoveryBeforeBackfill(catalogState);
+  await runCommand(process.execPath, [
+    "--experimental-strip-types",
+    "--loader",
+    "./scripts/lib/scoring-diagnostics-ts-loader.mjs",
+    "scripts/backfill-company-timelines.mjs",
+    "--resume"
+  ], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.timelineBackfillMs,
+    label: "company timeline backfill"
+  });
+  await runCommand(process.execPath, ["scripts/validate-timeline-artifacts.mjs"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
+    label: "company timeline artifact validation"
+  });
+  await runCommand(process.execPath, ["scripts/prepare-graph-runtime-evidence.mjs"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.artifactValidationMs,
+    label: "compact graph runtime preparation"
+  });
+  // Build only after all public graph + Timeline artifacts have been rebuilt
+  // and strictly validated, so the deployable trace is the exact publication
+  // we are about to commit rather than the previous artifact generation.
+  await runCommand(process.execPath, ["node_modules/next/dist/bin/next", "build"], {
+    timeoutMs: AUTONOMOUS_PROCESS_BUDGETS.productionBuildMs,
+    label: "production build"
   });
   await runCommand(process.execPath, [
     "--experimental-strip-types",
@@ -2390,7 +2689,7 @@ async function publishRepositoryArtifacts(publicationRunId, publicationInputs) {
       credentialGaps: publicationInputs.credentialGaps
     });
     await writeSourceDeltaReceipt(rebasedPublicationInputs.sourceDelta, rebasedSourceDeltaHistory);
-    await buildAndValidatePublication(publicationRunId);
+    await buildAndValidatePublication(publicationRunId, publicationInputs.catalogState);
     if (run) await persistArtifactManifest(run.id);
     await stageRepositoryArtifacts();
     const rebuiltDiff = await runCommand("git", ["diff", "--cached", "--quiet"], {
@@ -2454,6 +2753,8 @@ function repositoryArtifactPaths() {
     "src/lib/yc/summer-2026-companies.json",
     "src/lib/yc/summer-2026-company-aliases.json",
     "public/graph",
+    "public/timelines",
+    "artifacts/company-timeline/coverage.json",
     "outputs/benchmarks",
     "outputs/cohort-coverage-current.json",
     "outputs/ingestion-source-delta-current.json",
@@ -2787,6 +3088,35 @@ async function mapWithConcurrency(values, concurrency, mapper) {
   const settled = await Promise.allSettled(workers);
   const failure = settled.find((result) => result.status === "rejected");
   if (failure) throw failure.reason;
+}
+
+function createConcurrencyGuard(limit) {
+  let active = 0;
+  const waiters = [];
+  const acquire = () => new Promise((resolve) => {
+    if (active < limit) {
+      active += 1;
+      resolve();
+      return;
+    }
+    waiters.push(resolve);
+  });
+  const release = () => {
+    const next = waiters.shift();
+    if (next) {
+      next();
+      return;
+    }
+    active -= 1;
+  };
+  return async (operation) => {
+    await acquire();
+    try {
+      return await operation();
+    } finally {
+      release();
+    }
+  };
 }
 
 function delay(milliseconds) {

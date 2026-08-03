@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-regbase",
+    "slug": "regbase",
+    "name": "Regbase"
+  },
+  "event": {
+    "id": "tle-114046b430d985a88c9d5654",
+    "eventDate": "2026-04-17",
+    "eventDateType": "announcement_date",
+    "title": "Regbase was introduced",
+    "summary": "Regbase introduced Regbase: The AI-native Legal Research Platform Built alongside big law firms, Regbase cuts 100-hour research projects into down to just one.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 3,
+    "sourcePreview": [
+      {
+        "id": "src-291a5917480a4b974cf09f0d",
+        "title": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, Regbase cuts 100-hour research projects into down to just one.",
+        "publisher": "theregbase X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-17T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/theregbase/status/2045236858154807379"
+      },
+      {
+        "id": "src-90db06ec3dc4f36e830e9ebf",
+        "title": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, @theregbase cuts 100-hour research projects into work that can be done in just one.",
+        "publisher": "ethshea X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-16T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ethshea/status/2044889586040713438"
+      },
+      {
+        "id": "src-eb85e675daccaaa7945c92de",
+        "title": "Introducing Regbase",
+        "publisher": "Introducing Regbase",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-13T15:21:43-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=lY1La0A4iaw"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-291a5917480a4b974cf09f0d",
+        "title": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, Regbase cuts 100-hour research projects into down to just one.",
+        "publisher": "theregbase X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-17T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/theregbase/status/2045236858154807379",
+        "publicationDate": "2026-04-17T00:00:00.000Z",
+        "excerpt": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, Regbase cuts 100-hour research projects into down to just one.",
+        "sourceEventDate": "2026-04-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-90db06ec3dc4f36e830e9ebf",
+        "title": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, @theregbase cuts 100-hour research projects into work that can be done in just one.",
+        "publisher": "ethshea X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-16T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/ethshea/status/2044889586040713438",
+        "publicationDate": "2026-04-16T00:00:00.000Z",
+        "excerpt": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, @theregbase cuts 100-hour research projects into work that can be done in just one.",
+        "sourceEventDate": "2026-04-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-eb85e675daccaaa7945c92de",
+        "title": "Introducing Regbase",
+        "publisher": "Introducing Regbase",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-13T15:21:43-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=lY1La0A4iaw",
+        "publicationDate": "2026-04-13T15:21:43-07:00",
+        "excerpt": "Visit us at https://regbase.com",
+        "sourceEventDate": "2026-04-17",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-690b6fd6e83004f8534c5880",
+        "platform": "x",
+        "account": "theregbase X post",
+        "postDate": "2026-04-17",
+        "excerpt": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, Regbase cuts 100-hour research projects into down to just one.",
+        "url": "https://x.com/theregbase/status/2045236858154807379",
+        "metrics": {
+          "likes": 6,
+          "reposts": 2,
+          "comments": 1,
+          "views": 496
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-9babc0ff801ea175de429068",
+        "platform": "x",
+        "account": "ethshea X post",
+        "postDate": "2026-04-17",
+        "excerpt": "Introducing Regbase: The AI-native Legal Research Platform Built alongside big law firms, @theregbase cuts 100-hour research projects into work that can be done in just one.",
+        "url": "https://x.com/ethshea/status/2044889586040713438",
+        "metrics": {
+          "likes": 8,
+          "reposts": 0,
+          "comments": 3,
+          "views": 298
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-c74c58b0b6a6fbf918d5805d",
+        "platform": "youtube",
+        "account": "Introducing Regbase",
+        "postDate": "2026-04-17",
+        "excerpt": "Visit us at https://regbase.com",
+        "url": "https://youtube.com/watch?v=lY1La0A4iaw",
+        "metrics": {
+          "views": 525,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-heyclicky",
+    "slug": "heyclicky",
+    "name": "HeyClicky"
+  },
+  "event": {
+    "id": "tle-65f8d37a84080e58a1de1299",
+    "eventDate": "2026-04-07",
+    "eventDateType": "announcement_date",
+    "title": "HeyClicky released Clicky as open source",
+    "summary": "HeyClicky is open-sourcing Clicky.",
+    "category": "open_source",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-dfaeaa1c11ce751f03903016",
+        "title": "Hey, I'm open-sourcing Clicky. Go forth into the wild and build the future of education and the future of AI interfaces, my friends. I'm happy to have given a spark. Enjoy! https:// github.com/farzaa/clicky Quote Farza @FarzaTV · Apr 6 I…",
+        "publisher": "FarzaTV X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-07T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FarzaTV/status/2041691382008705321"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-dfaeaa1c11ce751f03903016",
+        "title": "Hey, I'm open-sourcing Clicky. Go forth into the wild and build the future of education and the future of AI interfaces, my friends. I'm happy to have given a spark. Enjoy! https:// github.com/farzaa/clicky Quote Farza @FarzaTV · Apr 6 I…",
+        "publisher": "FarzaTV X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-04-07T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FarzaTV/status/2041691382008705321",
+        "publicationDate": "2026-04-07T00:00:00.000Z",
+        "excerpt": "Hey, I'm open-sourcing Clicky. Go forth into the wild and build the future of education and the future of AI interfaces, my friends. I'm happy to have given a spark. Enjoy! https:// github.com/farzaa/clicky Quote Farza @FarzaTV · Apr 6 I built this thing called Clicky. It's an AI teacher that lives as a buddy next to your cursor. It can see your screen, talk to you, and even point at stuff, kinda like having a real teacher next to you. I've been using it the past few days to learn Davinci…",
+        "sourceEventDate": "2026-04-07",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-82eb75c07f2b96df028727ad",
+        "platform": "x",
+        "account": "FarzaTV X post",
+        "postDate": "2026-04-07",
+        "excerpt": "Hey, I'm open-sourcing Clicky. Go forth into the wild and build the future of education and the future of AI interfaces, my friends. I'm happy to have given a spark. Enjoy! https:// github.com/farzaa/clicky Quote Farza @FarzaTV · Apr 6 I built this thing called Clicky. It's an AI teacher that lives as a buddy next to your cursor. It can see your screen, talk to you, and even point at stuff, kinda like having a real teacher next to you. I've been using it the past few days to learn Davinci…",
+        "url": "https://x.com/FarzaTV/status/2041691382008705321",
+        "metrics": {
+          "likes": 5937,
+          "reposts": 527,
+          "comments": 281,
+          "views": 635694
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

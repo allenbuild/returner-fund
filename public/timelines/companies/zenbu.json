@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-zenbu-2",
+    "slug": "zenbu",
+    "name": "Zenbu"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-c14eeaecd8f72e50755df93b",
+      "eventDate": "2026-06-03",
+      "eventDateType": "announcement_date",
+      "title": "Zenbu announced its public launch",
+      "summary": "Zenbu announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2f69dbf3d5743bbea0c830f3",
+          "title": "Zenbu (YC P26) Launch Video",
+          "publisher": "Zenbu (YC P26) Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-06-03T01:55:53-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=ZUbY8zdv7Rc"
+        }
+      ]
+    },
+    {
+      "id": "tle-c4b4a97893d091fe90edfe24",
+      "eventDate": "2026-05-11",
+      "eventDateType": "announcement_date",
+      "title": "Zenbu released Zenbu.js - The framework for hackable software",
+      "summary": "Zenbu introduced Zenbu.js - The framework for hackable software.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-890483abe67e64f7cc81be95",
+          "title": "Introducing Zenbu.js - The framework for hackable software",
+          "publisher": "RobKnight__",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-11T16:00:41.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/RobKnight__/status/2053867901028110592"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        },
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

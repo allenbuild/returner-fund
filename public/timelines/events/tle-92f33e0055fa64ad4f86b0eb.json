@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-daqstra",
+    "slug": "daqstra",
+    "name": "Daqstra"
+  },
+  "event": {
+    "id": "tle-92f33e0055fa64ad4f86b0eb",
+    "eventDate": "2026-07-23",
+    "eventDateType": "announcement_date",
+    "title": "Daqstra released We're launching today",
+    "summary": "Daqstra is launching today.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2b2ea7026be6cda2305b1fce",
+        "title": "We’re launching today!",
+        "publisher": "We’re launching today!",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-23T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/daqstra/status/2080394228082024734"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2b2ea7026be6cda2305b1fce",
+        "title": "We’re launching today!",
+        "publisher": "We’re launching today!",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-23T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/daqstra/status/2080394228082024734",
+        "publicationDate": "2026-07-23T00:00:00.000Z",
+        "excerpt": "We’re launching today! Quote Darell @heyitsdarell · Jul 23 Test infrastructure shouldn’t bottleneck great engineering. Today, we’re launching @daqstra with @ycombinator. Daqstra turns complex test infrastructure into an AI-native operating layer. We’re Anchit and Darell, the founders of Daqstra. We first met while testing liquid 0:01 / 1:16",
+        "sourceEventDate": "2026-07-23",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5a721dce8e37bd1559fb3cff",
+        "platform": "x",
+        "account": "We’re launching today!",
+        "postDate": "2026-07-23",
+        "excerpt": "We’re launching today! Quote Darell @heyitsdarell · Jul 23 Test infrastructure shouldn’t bottleneck great engineering. Today, we’re launching @daqstra with @ycombinator. Daqstra turns complex test infrastructure into an AI-native operating layer. We’re Anchit and Darell, the founders of Daqstra. We first met while testing liquid 0:01 / 1:16",
+        "url": "https://x.com/daqstra/status/2080394228082024734",
+        "metrics": {
+          "likes": 1,
+          "reposts": 0,
+          "comments": 0,
+          "views": 32
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

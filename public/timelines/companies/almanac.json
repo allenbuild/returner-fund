@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-almanac",
+    "slug": "almanac",
+    "name": "Almanac"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-5bd7e5ea31d0906a35d6c588",
+      "eventDate": "2026-07-23",
+      "eventDateType": "announcement_date",
+      "title": "Almanac released CodeAlmanac",
+      "summary": "Almanac introduced CodeAlmanac, the context layer for your engineering team.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7ab14df80af71ae8d190d4f1",
+          "title": "Introducing CodeAlmanac, the context layer for your engineering team. For years, critical codebase knowledge has lived across people, docs, and old conversations. Agents start from scratch every time. That era is over. CodeAlmanac let’s…",
+          "publisher": "kushagrchitkar",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-23T16:20:51.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/kushagrchitkar/status/2080327292866474047"
+        }
+      ]
+    },
+    {
+      "id": "tle-35854b85ffa940117a62df32",
+      "eventDate": "2026-03-16",
+      "eventDateType": "announcement_date",
+      "title": "Almanac enabled Monday update: you to edit articles directly on OpenAlmanac using Quill",
+      "summary": "Almanac reported monday update:, so users can now edit articles directly on OpenAlmanac using Quill.",
+      "category": "product_update",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-133695894bdfa3ad568077e7",
+          "title": "Monday update: you can now edit articles directly on OpenAlmanac using Quill.",
+          "publisher": "usealmanac",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-03-16T23:55:44.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/usealmanac/status/2033693731552170192"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-03",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

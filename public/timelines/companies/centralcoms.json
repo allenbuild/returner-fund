@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-centralcoms",
+    "slug": "centralcoms",
+    "name": "CentralComs"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-ed9a07a65e2e2e6970ab5420",
+      "eventDate": "2026-05-28",
+      "eventDateType": "announcement_date",
+      "title": "CentralComs announced its public launch",
+      "summary": "CentralComs announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2beade3c77375eee8c6a8014",
+          "title": "Launch Video",
+          "publisher": "Launch Video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-28T11:16:35-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=A3NjiCcbBNY"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

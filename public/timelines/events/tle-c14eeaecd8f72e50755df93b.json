@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-zenbu-2",
+    "slug": "zenbu",
+    "name": "Zenbu"
+  },
+  "event": {
+    "id": "tle-c14eeaecd8f72e50755df93b",
+    "eventDate": "2026-06-03",
+    "eventDateType": "announcement_date",
+    "title": "Zenbu announced its public launch",
+    "summary": "Zenbu announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-2f69dbf3d5743bbea0c830f3",
+        "title": "Zenbu (YC P26) Launch Video",
+        "publisher": "Zenbu (YC P26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-06-03T01:55:53-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=ZUbY8zdv7Rc"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-2f69dbf3d5743bbea0c830f3",
+        "title": "Zenbu (YC P26) Launch Video",
+        "publisher": "Zenbu (YC P26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-06-03T01:55:53-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=ZUbY8zdv7Rc",
+        "publicationDate": "2026-06-03T01:55:53-07:00",
+        "excerpt": "A highly extensible IDE for managing coding agents Try today at https://zenbu.dev",
+        "sourceEventDate": "2026-06-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-384b9ced90619a69034b3839",
+        "platform": "youtube",
+        "account": "Zenbu (YC P26) Launch Video",
+        "postDate": "2026-06-03",
+        "excerpt": "A highly extensible IDE for managing coding agents Try today at https://zenbu.dev",
+        "url": "https://youtube.com/watch?v=ZUbY8zdv7Rc",
+        "metrics": {
+          "views": 128,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

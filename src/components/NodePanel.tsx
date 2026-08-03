@@ -1,11 +1,23 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { dedupeEvidenceItems } from "@/lib/graph/dedupe";
 import { getCompanyVerticalDefinition } from "@/lib/graph/company-verticals";
 import { TOP_POSTS_LIMIT } from "@/lib/graph/presentation-limits";
 import type { EvidenceItem, GraphNode } from "@/lib/graph/types";
+import { timelineCompanyRefFromGraphNode } from "@/lib/timeline/company-identity";
 import { EvidenceMediaCard } from "./EvidenceMediaCard";
 import { PlatformIdentity } from "./PlatformLogo";
+import timelineStyles from "./timeline/CompanyTimeline.module.css";
+
+const CompanyTimeline = dynamic(
+  () => import("./timeline/CompanyTimeline").then((module) => module.CompanyTimeline),
+  {
+    ssr: false,
+    loading: () => <div role="status" aria-label="Loading company timeline" />,
+  },
+);
 
 interface NodePanelProps {
   node: GraphNode | null;
@@ -14,10 +26,63 @@ interface NodePanelProps {
   highlightedFounderId?: string | null;
 }
 
+type CompanyPanelView = "posts" | "timeline";
+
 export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelProps) {
+  const [view, setView] = useState<CompanyPanelView>("posts");
+  const panelRef = useRef<HTMLElement | null>(null);
+  const viewRef = useRef<CompanyPanelView>("posts");
+  const savedScrollRef = useRef<Record<CompanyPanelView, number>>({ posts: 0, timeline: 0 });
+  const timelineCompany = useMemo(() => node ? timelineCompanyRefFromGraphNode(node) : null, [node]);
+
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+
+  useEffect(() => {
+    savedScrollRef.current = { posts: 0, timeline: 0 };
+    if (panelRef.current) panelRef.current.scrollTop = 0;
+  }, [timelineCompany?.slug]);
+
+  useEffect(() => {
+    const syncViewFromUrl = () => {
+      const requested = new URLSearchParams(window.location.search).get("view") === "timeline"
+        ? "timeline"
+        : "posts";
+      const next = timelineCompany ? requested : "posts";
+      changeVisibleView(next, false);
+    };
+    syncViewFromUrl();
+    window.addEventListener("popstate", syncViewFromUrl);
+    return () => window.removeEventListener("popstate", syncViewFromUrl);
+  // The company identity is deliberately the only dependency: popstate reads
+  // the live view from viewRef, avoiding a listener replacement on every click.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timelineCompany?.slug]);
+
+  useEffect(() => {
+    if (!timelineCompany) return;
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const prefetch = () => {
+      void Promise.all([
+        import("./timeline/CompanyTimeline"),
+        import("./timeline/client").then(({ prefetchCompanyTimeline }) => prefetchCompanyTimeline(timelineCompany.slug)),
+      ]).catch(() => undefined);
+    };
+    if (idleWindow.requestIdleCallback) {
+      const handle = idleWindow.requestIdleCallback(prefetch, { timeout: 2_000 });
+      return () => idleWindow.cancelIdleCallback?.(handle);
+    }
+    const handle = window.setTimeout(prefetch, 1_200);
+    return () => window.clearTimeout(handle);
+  }, [timelineCompany]);
+
   if (!node) {
     return (
-      <aside className="node-panel">
+      <aside className="node-panel" ref={panelRef}>
         <div className="empty-state">No node selected.</div>
       </aside>
     );
@@ -33,17 +98,41 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
     founder.socialAccounts.map((account) => ({ founderName: founder.name, account }))
   );
 
-  return (
-    <aside className="node-panel">
-      <header className="node-panel-header">
-        <div className="node-title-row">
-          <h2>{node.label}</h2>
-          <div className="score-orb" aria-label={`Score ${node.score}`}>
-            <span>{node.score}</span>
-          </div>
-        </div>
-      </header>
+  function changeVisibleView(next: CompanyPanelView, restoreScroll = true) {
+    const current = viewRef.current;
+    if (panelRef.current) savedScrollRef.current[current] = panelRef.current.scrollTop;
+    viewRef.current = next;
+    setView(next);
+    if (!restoreScroll) return;
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        if (panelRef.current) panelRef.current.scrollTop = savedScrollRef.current[next];
+      });
+    });
+  }
 
+  function switchView() {
+    const next: CompanyPanelView = view === "timeline" ? "posts" : "timeline";
+    if (next === "timeline") {
+      const measuredWindow = window as Window & {
+        __returnerTimelineSwitchAt?: number;
+        __returnerTimelineSwitchSequence?: number;
+      };
+      measuredWindow.__returnerTimelineSwitchAt = window.performance.now();
+      measuredWindow.__returnerTimelineSwitchSequence = (measuredWindow.__returnerTimelineSwitchSequence ?? 0) + 1;
+      window.performance.clearMarks?.("returner:timeline-switch");
+      window.performance.clearMeasures?.("returner:timeline-click-to-visible");
+      window.performance.mark?.("returner:timeline-switch");
+    }
+    const url = new URL(window.location.href);
+    if (next === "timeline") url.searchParams.set("view", "timeline");
+    else url.searchParams.delete("view");
+    window.history.pushState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    changeVisibleView(next);
+  }
+
+  const postsView = (
+    <>
       {node.entityType === "company" && (node.verticals?.length ?? 0) > 0 && (
         <section className="node-verticals" aria-label="Company verticals">
           {node.verticals?.map((vertical) => (
@@ -123,6 +212,36 @@ export function NodePanel({ node, evidence, highlightedFounderId }: NodePanelPro
           {!topItems.length && <div className="empty-state">No scored traction posts yet.</div>}
         </div>
       </section>
+    </>
+  );
+
+  return (
+    <aside className="node-panel" ref={panelRef}>
+      <header className={`node-panel-header ${timelineStyles.panelHeader}`}>
+        <div className={`node-title-row ${timelineStyles.panelTitleRow}`}>
+          <div className={timelineStyles.panelTitleCluster}>
+            <h2>{node.label}</h2>
+            <div className="score-orb" aria-label={`Score ${node.score}`}>
+              <span>{node.score}</span>
+            </div>
+          </div>
+          {timelineCompany ? (
+            <button
+              type="button"
+              className={timelineStyles.viewToggle}
+              aria-label={`Show ${node.label} ${view === "timeline" ? "posts" : "timeline"}`}
+              aria-pressed={view === "timeline"}
+              onClick={switchView}
+            >
+              {view === "timeline" ? "Posts" : "Timeline"}
+            </button>
+          ) : null}
+        </div>
+      </header>
+
+      {view === "timeline" && timelineCompany
+        ? <CompanyTimeline key={timelineCompany.slug} companySlug={timelineCompany.slug} companyName={timelineCompany.name} />
+        : postsView}
     </aside>
   );
 }

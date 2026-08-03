@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-palisade-2",
+    "slug": "palisade",
+    "name": "Palisade"
+  },
+  "event": {
+    "id": "tle-e18279d51c75389c5ec6756d",
+    "eventDate": "2026-07-22",
+    "eventDateType": "announcement_date",
+    "title": "Palisade announced its public launch",
+    "summary": "Palisade announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8f8413b728cad78899ccb291",
+        "title": "Palisade Launch Video",
+        "publisher": "Palisade Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-22T14:22:20-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=CTVhq7jfTPY"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8f8413b728cad78899ccb291",
+        "title": "Palisade Launch Video",
+        "publisher": "Palisade Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-22T14:22:20-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=CTVhq7jfTPY",
+        "publicationDate": "2026-07-22T14:22:20-07:00",
+        "excerpt": "Introducing Palisade (YC S26)",
+        "sourceEventDate": "2026-07-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0c3039cc23458f47c973dd97",
+        "platform": "youtube",
+        "account": "Palisade Launch Video",
+        "postDate": "2026-07-22",
+        "excerpt": "Introducing Palisade (YC S26)",
+        "url": "https://youtube.com/watch?v=CTVhq7jfTPY",
+        "metrics": {
+          "views": 275,
+          "likes": 5,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

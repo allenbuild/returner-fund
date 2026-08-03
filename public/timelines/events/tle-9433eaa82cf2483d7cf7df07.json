@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-ara",
+    "slug": "ara",
+    "name": "Ara"
+  },
+  "event": {
+    "id": "tle-9433eaa82cf2483d7cf7df07",
+    "eventDate": "2026-05-31",
+    "eventDateType": "announcement_date",
+    "title": "Ara released Autosuggest",
+    "summary": "Ara introduced Autosuggest imagine an IDE that surfaces the next useful thing to build before you ask hover to preview the task, inspect the plan, then start the run when it feels right for anyone who wants the product loop to move faster follow the changelog and more here.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-fd39997da505c75623216ace",
+        "title": "introducing Autosuggest imagine an IDE that surfaces the next useful thing to build before you ask hover to preview the task, inspect the plan, then start the run when it feels right for anyone who wants the product loop to move faster…",
+        "publisher": "aradotso X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-31T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2061179503830053354"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-fd39997da505c75623216ace",
+        "title": "introducing Autosuggest imagine an IDE that surfaces the next useful thing to build before you ask hover to preview the task, inspect the plan, then start the run when it feels right for anyone who wants the product loop to move faster…",
+        "publisher": "aradotso X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-31T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/aradotso/status/2061179503830053354",
+        "publicationDate": "2026-05-31T00:00:00.000Z",
+        "excerpt": "introducing Autosuggest imagine an IDE that surfaces the next useful thing to build before you ask hover to preview the task, inspect the plan, then start the run when it feels right for anyone who wants the product loop to move faster follow the changelog and more here",
+        "sourceEventDate": "2026-05-31",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-7725c1cb28d510f1559e7798",
+        "platform": "x",
+        "account": "aradotso X post",
+        "postDate": "2026-05-31",
+        "excerpt": "introducing Autosuggest imagine an IDE that surfaces the next useful thing to build before you ask hover to preview the task, inspect the plan, then start the run when it feels right for anyone who wants the product loop to move faster follow the changelog and more here",
+        "url": "https://x.com/aradotso/status/2061179503830053354",
+        "metrics": {
+          "likes": 196,
+          "reposts": 7,
+          "comments": 17,
+          "views": 28604
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-eden-robotics",
+    "slug": "eden-robotics",
+    "name": "Eden Robotics"
+  },
+  "event": {
+    "id": "tle-744cb64d0c69df79379c1b5c",
+    "eventDate": "2026-05-27",
+    "eventDateType": "announcement_date",
+    "title": "Eden Robotics released Eden I and Theta",
+    "summary": "Eden Robotics introduced Eden I and Theta.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e87e62192739b3146ef3ca50",
+        "title": "Introducing Eden I and Theta",
+        "publisher": "Introducing Eden I and Theta",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-27T00:44:44-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=oKlgnHUq0jo"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e87e62192739b3146ef3ca50",
+        "title": "Introducing Eden I and Theta",
+        "publisher": "Introducing Eden I and Theta",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-27T00:44:44-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=oKlgnHUq0jo",
+        "publicationDate": "2026-05-27T00:44:44-07:00",
+        "excerpt": "Today we are launching Eden I, our industrial semi-humanoid robot you can hire by the hour.",
+        "sourceEventDate": "2026-05-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-16bb789e9b72d43e7907a9c9",
+        "platform": "youtube",
+        "account": "Introducing Eden I and Theta",
+        "postDate": "2026-05-27",
+        "excerpt": "Today we are launching Eden I, our industrial semi-humanoid robot you can hire by the hour.",
+        "url": "https://youtube.com/watch?v=oKlgnHUq0jo",
+        "metrics": {
+          "views": 360,
+          "likes": 5,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

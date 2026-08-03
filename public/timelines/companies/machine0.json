@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-machine0",
+    "slug": "machine0",
+    "name": "machine0"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-36916e4d5689431dae77870b",
+      "eventDate": "2026-08-01",
+      "eventDateType": "announcement_date",
+      "title": "machine0 announced its public launch",
+      "summary": "machine0 reported launching today, @machine__0 the compute layer agents WANT to run on.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1712949e1497d5cb44c7229e",
+          "title": "Launching today, @machine__0 the compute layer agents WANT to run on. Barnaby spent years running engineering at Upflow and decided to bui...",
+          "publisher": "bradflora",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-08-01T00:55:53.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/bradflora/status/2083356005455548601"
+        }
+      ]
+    },
+    {
+      "id": "tle-abedd2756da6f6e33f1318e0",
+      "eventDate": "2026-07-24",
+      "eventDateType": "announcement_date",
+      "title": "machine0 released Profiles Define MCP servers",
+      "summary": "machine0 introduced Profiles Define MCP servers, credentials, and prompts once.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-3d07c263c2bcec6289e88f14",
+          "title": "Introducing Profiles Define MCP servers, credentials, and prompts once. Inject them into your machine0 VM. Claude and Codex pick them up...",
+          "publisher": "barnabymalet",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-24T03:05:41.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/barnabymalet/status/2080489569334759889"
+        }
+      ]
+    },
+    {
+      "id": "tle-b94acb52142a8a5422dd3153",
+      "eventDate": "2026-07-01",
+      "eventDateType": "announcement_date",
+      "title": "machine0 released Environments",
+      "summary": "machine0 just launched Environments, which allows you to inject variables into VMs at creation time.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-1479e87fa2b632542882b882",
+          "title": "We just launched Environments, which allows you to inject variables into VMs at creation time.",
+          "publisher": "We just launched Environments, which allows you to inject variables into VMs at creation time.",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-01T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/machine__0/status/2072344325686755678"
+        }
+      ]
+    },
+    {
+      "id": "tle-8b4c50e4a9a24cbd8b8e64fb",
+      "eventDate": "2026-06-15",
+      "eventDateType": "announcement_date",
+      "title": "machine0 released machine0: Persistent, powerful NixOS and Ubuntu VMS from your CLI",
+      "summary": "machine0 introduced machine0: Persistent, powerful NixOS and Ubuntu VMS from your CLI.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-16b509d2517a1929b68189cc",
+          "title": "Introducing machine0: Persistent, powerful NixOS and Ubuntu VMS from your CLI.",
+          "publisher": "machine__0",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-15T14:33:51.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/machine__0/status/2066529624872399032"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-08",
+          "count": 1
+        },
+        {
+          "month": "2026-07",
+          "count": 2
+        },
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 4,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

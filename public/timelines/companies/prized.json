@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-prized",
+    "slug": "prized",
+    "name": "Prized"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-96eb54cf6e2827844bb903dc",
+      "eventDate": "2026-07-15",
+      "eventDateType": "announcement_date",
+      "title": "Prized released Prized: Agentic builder for internal tools",
+      "summary": "Prized introduced Prized: Agentic builder for internal tools.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-0f244da5693ee37bc18a004b",
+          "title": "Introducing Prized: Agentic builder for internal tools",
+          "publisher": "agupta",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-15T16:04:26Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/agupta/status/2077424054966088137"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

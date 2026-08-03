@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-saudara-ai",
+    "slug": "saudara-ai",
+    "name": "Saudara AI"
+  },
+  "event": {
+    "id": "tle-b43f853f488b581da13cb2dd",
+    "eventDate": "2026-04-30",
+    "eventDateType": "announcement_date",
+    "title": "Saudara AI announced its public launch",
+    "summary": "Saudara AI just launched on @ycombinator.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-9e18a51f62f9ae766dfd5dd5",
+        "title": "We just launched on @ycombinator . 🚀 We're an AI broker connecting US brands with Indonesia's best factories — real humans doing the work, supercharged by AI, at 10x the speed and a fraction of the cost of a traditional sourcing agent.…",
+        "publisher": "saudara.ai",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-30T05:30:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/DXvlr5dOecC"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-9e18a51f62f9ae766dfd5dd5",
+        "title": "We just launched on @ycombinator . 🚀 We're an AI broker connecting US brands with Indonesia's best factories — real humans doing the work, supercharged by AI, at 10x the speed and a fraction of the cost of a traditional sourcing agent.…",
+        "publisher": "saudara.ai",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-04-30T05:30:34.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/DXvlr5dOecC",
+        "publicationDate": "2026-04-30T05:30:34.000Z",
+        "excerpt": "We just launched on @ycombinator . 🚀 We're an AI broker connecting US brands with Indonesia's best factories — real humans doing the work, supercharged by AI, at 10x the speed and a fraction of the cost of a traditional sourcing agent. ➡️ Start sourcing: https://www.saudara.ai 📆 Book a demo: https://calendly.com/jennifer-saudara/quick-chat-manufacturing-sourcing 🎬 Watch our full launch on LinkedIn (link in bio) #YCombinator #FounderStory #SupplyChain #MadeInIndonesia #StartupLaunch",
+        "sourceEventDate": "2026-04-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-79178cfeac6bfbe4b13e92d5",
+        "platform": "instagram",
+        "account": "saudara.ai",
+        "postDate": "2026-04-30",
+        "excerpt": "We just launched on @ycombinator . 🚀 We're an AI broker connecting US brands with Indonesia's best factories — real humans doing the work, supercharged by AI, at 10x the speed and a fraction of the cost of a traditional sourcing agent. ➡️ Start sourcing: https://www.saudara.ai 📆 Book a demo: https://calendly.com/jennifer-saudara/quick-chat-manufacturing-sourcing 🎬 Watch our full launch on LinkedIn (link in bio) #YCombinator #FounderStory #SupplyChain #MadeInIndonesia #StartupLaunch",
+        "url": "https://www.instagram.com/reel/DXvlr5dOecC",
+        "metrics": {
+          "likes": 441,
+          "comments": 17
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

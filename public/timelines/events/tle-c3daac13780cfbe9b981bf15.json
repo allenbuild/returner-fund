@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-armature",
+    "slug": "armature",
+    "name": "Armature"
+  },
+  "event": {
+    "id": "tle-c3daac13780cfbe9b981bf15",
+    "eventDate": "2026-05-19",
+    "eventDateType": "announcement_date",
+    "title": "Armature announced its public launch",
+    "summary": "Armature announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-bd36feb4cb2339df0a982bcd",
+        "title": "Armature - Launch video",
+        "publisher": "Armature - Launch video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T08:29:56-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=3Gtc5RzGxJ0"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-bd36feb4cb2339df0a982bcd",
+        "title": "Armature - Launch video",
+        "publisher": "Armature - Launch video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T08:29:56-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=3Gtc5RzGxJ0",
+        "publicationDate": "2026-05-19T08:29:56-07:00",
+        "excerpt": "Armature helps companies monitor, analyze, and optimize how AI agents experience their products. It runs real agent workflows & benchmarks to give concrete actions to improve your MCP and CLI.",
+        "sourceEventDate": "2026-05-19",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4d9143dea4b64dfa439899cd",
+        "platform": "youtube",
+        "account": "Armature - Launch video",
+        "postDate": "2026-05-19",
+        "excerpt": "Armature helps companies monitor, analyze, and optimize how AI agents experience their products. It runs real agent workflows & benchmarks to give concrete actions to improve your MCP and CLI.",
+        "url": "https://youtube.com/watch?v=3Gtc5RzGxJ0",
+        "metrics": {
+          "views": 123,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

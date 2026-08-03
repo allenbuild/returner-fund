@@ -131,6 +131,15 @@ describe("autonomous database types", () => {
     expectTypeOf<Functions["claim_ingestion_tasks"]["Returns"]>().toEqualTypeOf<
       TableRow<"ingestion_tasks">[]
     >();
+    expectTypeOf<Functions["claim_timeline_admin_tasks"]["Args"]>().toEqualTypeOf<{
+      p_worker_id: string;
+      p_limit?: number;
+      p_lease_duration?: string;
+      p_source_class?: string | null;
+    }>();
+    expectTypeOf<Functions["claim_timeline_admin_tasks"]["Returns"]>().toEqualTypeOf<
+      TableRow<"ingestion_tasks">[]
+    >();
     expectTypeOf<Functions["requeue_expired_ingestion_tasks"]["Args"]>().toEqualTypeOf<{
       p_limit?: number;
     }>();

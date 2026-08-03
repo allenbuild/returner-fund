@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-miso-labs",
+    "slug": "miso-labs",
+    "name": "Miso Labs"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-4b82f079c2ea8050d4e61622",
+      "eventDate": "2026-06-03",
+      "eventDateType": "announcement_date",
+      "title": "Miso Labs released Miso One",
+      "summary": "Miso Labs reported launching Miso One: The Most Emotive AI Voice Model.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-455fa042f6c3998996bfc084",
+          "title": "Launching Miso One: The Most Emotive AI Voice Model",
+          "publisher": "Launching Miso One: The Most Emotive AI Voice Model",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-06-03T10:07:59-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=HizlJgDbac8"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

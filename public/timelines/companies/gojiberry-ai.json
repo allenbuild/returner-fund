@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-gojiberry-ai",
+    "slug": "gojiberry-ai",
+    "name": "Gojiberry AI"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-3022fc1867f778b67929d841",
+      "eventDate": "2026-07-23",
+      "eventDateType": "announcement_date",
+      "title": "Gojiberry AI reached $300k MRR",
+      "summary": "GojiberryAI just crossed $300k MRR.",
+      "category": "revenue_milestone",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-07b372a19fbc7d74f4a29d6b",
+          "title": "GojiberryAI just crossed $300k MRR. Building GojiberryAI taught us something surprising. Most AI startups never make it past $1k MRR. A few scale to millions. The difference usually isn't better features. It's two simple things almost…",
+          "publisher": "pierreeliottlal",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-23T08:57:53.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/pierreeliottlal/status/2080215814045643011"
+        }
+      ]
+    },
+    {
+      "id": "tle-405a7044c9b675bc2c63f984",
+      "eventDate": "2026-05-03",
+      "eventDateType": "announcement_date",
+      "title": "Gojiberry AI reached $2M ARR",
+      "summary": "How Gojiberry AI Hit $2M ARR With Cold Outreach That Actually Works.",
+      "category": "revenue_milestone",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-e3b2b382b07746d1b16223b9",
+          "title": "How Gojiberry AI Hit $2M ARR With Cold Outreach That Actually Works",
+          "publisher": "buildersgrowthlab",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-03",
+          "evidenceRole": "primary",
+          "url": "https://www.youtube.com/watch?v=jHsd4voiRZQ"
+        }
+      ]
+    },
+    {
+      "id": "tle-f26204be62aa29cf7f2676a0",
+      "eventDate": "2026-04-07",
+      "eventDateType": "announcement_date",
+      "title": "Gojiberry AI was accepted into Y Combinator P26",
+      "summary": "Gojiberry AI joined YC P26 at $70K MRR.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-04455c9e72ca7a5803a306b2",
+          "title": "We joined YC P26 at $70K MRR",
+          "publisher": "Ecstatic-Tough6503",
+          "domain": "reddit.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-07",
+          "evidenceRole": "primary",
+          "url": "https://www.reddit.com/r/micro_saas/comments/1sfb9cq/we_joined_yc_p26_at_70k_mrr"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-05",
+          "count": 1
+        },
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

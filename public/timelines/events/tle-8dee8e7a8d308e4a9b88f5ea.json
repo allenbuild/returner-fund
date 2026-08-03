@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-bentolabs-ai",
+    "slug": "bentolabs-ai",
+    "name": "BentoLabs AI"
+  },
+  "event": {
+    "id": "tle-8dee8e7a8d308e4a9b88f5ea",
+    "eventDate": "2026-06-15",
+    "eventDateType": "announcement_date",
+    "title": "BentoLabs AI released Issues",
+    "summary": "BentoLabs AI introduced Issues.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-e1bdcb3bf8334b5a971c9584",
+        "title": "Introducing Issues! Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run…",
+        "publisher": "BentoLabsAI X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-15T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/BentoLabsAI/status/2066482910241390800"
+      },
+      {
+        "id": "src-208775be8afd0576b9180dcd",
+        "title": "Introducing Issues. Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run…",
+        "publisher": "Abhinavv_soni X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-15T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/Abhinavv_soni/status/2066508222459220347"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e1bdcb3bf8334b5a971c9584",
+        "title": "Introducing Issues! Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run…",
+        "publisher": "BentoLabsAI X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-15T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/BentoLabsAI/status/2066482910241390800",
+        "publicationDate": "2026-06-15T00:00:00.000Z",
+        "excerpt": "Introducing Issues! Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run as a one-off, Bento groups similar agent failures into clear, trackable Issues into a",
+        "sourceEventDate": "2026-06-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-208775be8afd0576b9180dcd",
+        "title": "Introducing Issues. Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run…",
+        "publisher": "Abhinavv_soni X post",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-15T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/Abhinavv_soni/status/2066508222459220347",
+        "publicationDate": "2026-06-15T00:00:00.000Z",
+        "excerpt": "Introducing Issues. Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run as a one-off, Bento groups similar agent failures into clear, trackable Issues into a",
+        "sourceEventDate": "2026-06-15",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0055dee937f5a4090e6a842c",
+        "platform": "x",
+        "account": "BentoLabsAI X post",
+        "postDate": "2026-06-15",
+        "excerpt": "Introducing Issues! Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run as a one-off, Bento groups similar agent failures into clear, trackable Issues into a",
+        "url": "https://x.com/BentoLabsAI/status/2066482910241390800",
+        "metrics": {
+          "likes": 3,
+          "reposts": 2,
+          "comments": 0,
+          "views": 110
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-3e2304031a19c4a3fc21bd6f",
+        "platform": "x",
+        "account": "Abhinavv_soni X post",
+        "postDate": "2026-06-15",
+        "excerpt": "Introducing Issues. Quote Kaushik @kacppian · Jun 15 We’re introducing Issues by @BentoLabsAI. Issues are recurring production problems Bento surfaces directly from your agent’s traces, logs, and runs. Instead of treating every failed run as a one-off, Bento groups similar agent failures into clear, trackable Issues into a",
+        "url": "https://x.com/Abhinavv_soni/status/2066508222459220347",
+        "metrics": {
+          "likes": 3,
+          "reposts": 0,
+          "comments": 0,
+          "views": 86
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

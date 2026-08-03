@@ -2280,6 +2280,7 @@ async function buildInputHashManifest() {
   const explicitFiles = [
     path.join(REPOSITORY_ROOT, "package.json"),
     path.join(REPOSITORY_ROOT, "tsconfig.json"),
+    path.join(REPOSITORY_ROOT, "scripts", "prepare-graph-runtime-evidence.mjs"),
     path.join(REPOSITORY_ROOT, "scripts", "run-scoring-diagnostics-v4.mjs"),
     path.join(REPOSITORY_ROOT, "scripts", "lib", "scoring-diagnostics-ts-loader.mjs")
   ];

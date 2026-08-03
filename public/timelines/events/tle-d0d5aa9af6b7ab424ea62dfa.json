@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-stage",
+    "slug": "stage",
+    "name": "Stage"
+  },
+  "event": {
+    "id": "tle-d0d5aa9af6b7ab424ea62dfa",
+    "eventDate": "2026-05-20",
+    "eventDateType": "announcement_date",
+    "title": "Stage was introduced",
+    "summary": "Stage introduced Stage.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4f2dc620c07b5548266e796c",
+        "title": "Introducing Stage",
+        "publisher": "Introducing Stage",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T18:05:59-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=EjMjGAqSLvo"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4f2dc620c07b5548266e796c",
+        "title": "Introducing Stage",
+        "publisher": "Introducing Stage",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-19T18:05:59-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=EjMjGAqSLvo",
+        "publicationDate": "2026-05-19T18:05:59-07:00",
+        "excerpt": "A better code review platform.",
+        "sourceEventDate": "2026-05-20",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a02458e563239de586923529",
+        "platform": "youtube",
+        "account": "Introducing Stage",
+        "postDate": "2026-05-20",
+        "excerpt": "A better code review platform.",
+        "url": "https://youtube.com/watch?v=EjMjGAqSLvo",
+        "metrics": {
+          "views": 281,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

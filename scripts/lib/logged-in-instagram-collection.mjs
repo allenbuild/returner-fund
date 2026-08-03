@@ -1,5 +1,41 @@
 const INSTAGRAM_HOST_RE = /^(?:www\.)?instagram\.com$/i;
 const INSTAGRAM_SHORTCODE_RE = /^[A-Za-z0-9_-]+$/;
+const INSTAGRAM_EARLIEST_PUBLICATION_MS = Date.UTC(2010, 0, 1);
+const INSTAGRAM_PUBLICATION_DATE_FIELDS = Object.freeze([
+  "postedAt",
+  "publishedAt",
+  "taken_at",
+  "takenAt",
+  "timestamp",
+  "date",
+  "dateLabel"
+]);
+const MONTH_NUMBER_BY_NAME = Object.freeze({
+  jan: 1,
+  january: 1,
+  feb: 2,
+  february: 2,
+  mar: 3,
+  march: 3,
+  apr: 4,
+  april: 4,
+  may: 5,
+  jun: 6,
+  june: 6,
+  jul: 7,
+  july: 7,
+  aug: 8,
+  august: 8,
+  sep: 9,
+  sept: 9,
+  september: 9,
+  oct: 10,
+  october: 10,
+  nov: 11,
+  november: 11,
+  dec: 12,
+  december: 12
+});
 
 export function canonicalInstagramPostUrl(value) {
   try {
@@ -214,6 +250,47 @@ export function instagramTargetIsVerifiedForIngestion({
     /visible read-only social profiles/i,
     /native social account (?:exposed|found).*(?:profile|audit)/i
   ].some((pattern) => pattern.test(reason));
+}
+
+/**
+ * Normalizes publication dates exposed by Instagram adapters and post-detail
+ * readers. Native epoch fields take precedence over display labels, while an
+ * explicitly supplied postedAt/publishedAt remains authoritative. Ambiguous,
+ * malformed, pre-Instagram, and future values fail closed.
+ */
+export function instagramPublicationDate(observation, now = Date.now()) {
+  const nowMs = normalizedNowMilliseconds(now);
+  if (!Number.isFinite(nowMs)) return unknownInstagramPublicationDate();
+
+  const value = firstInstagramPublicationDateValue(observation);
+  if (value === null) return unknownInstagramPublicationDate();
+
+  const exactMs = instagramEpochMilliseconds(value);
+  if (Number.isFinite(exactMs)) {
+    return validInstagramExactTimestamp(exactMs, nowMs)
+      ? {
+          postedAt: new Date(exactMs).toISOString(),
+          publishedAtPrecision: "exact"
+        }
+      : unknownInstagramPublicationDate();
+  }
+
+  const text = String(value).trim();
+  const canonicalDay = instagramCalendarDay(text);
+  if (canonicalDay) {
+    const currentDay = new Date(nowMs).toISOString().slice(0, 10);
+    return canonicalDay >= "2010-01-01" && canonicalDay <= currentDay
+      ? { postedAt: canonicalDay, publishedAtPrecision: "day" }
+      : unknownInstagramPublicationDate();
+  }
+
+  const exactTimestamp = instagramIsoTimestampMilliseconds(text);
+  return validInstagramExactTimestamp(exactTimestamp, nowMs)
+    ? {
+        postedAt: new Date(exactTimestamp).toISOString(),
+        publishedAtPrecision: "exact"
+      }
+    : unknownInstagramPublicationDate();
 }
 
 export function instagramRecencyDecision(postedAt, cutoffMs) {
@@ -516,6 +593,123 @@ function defaultAttemptKey(target) {
     target?.entityId,
     target?.url
   ].join(":");
+}
+
+function firstInstagramPublicationDateValue(observation) {
+  if (
+    observation !== null &&
+    typeof observation === "object" &&
+    !Array.isArray(observation) &&
+    !(observation instanceof Date)
+  ) {
+    for (const field of INSTAGRAM_PUBLICATION_DATE_FIELDS) {
+      const value = observation[field];
+      if (value === undefined || value === null || value === "") continue;
+      return value;
+    }
+    return null;
+  }
+  return observation === undefined || observation === null || observation === ""
+    ? null
+    : observation;
+}
+
+function normalizedNowMilliseconds(value) {
+  if (value instanceof Date) return value.getTime();
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : Number.NaN;
+}
+
+function instagramEpochMilliseconds(value) {
+  if (value instanceof Date) return value.getTime();
+  const text = typeof value === "number"
+    ? String(value)
+    : String(value ?? "").trim();
+  if (!/^\d+(?:\.\d{1,3})?$/.test(text)) return Number.NaN;
+
+  const numeric = Number(text);
+  if (!Number.isFinite(numeric) || numeric <= 0) return Number.NaN;
+  const integerDigits = text.split(".", 1)[0].length;
+  if (integerDigits >= 9 && integerDigits <= 10) {
+    const milliseconds = Math.round(numeric * 1_000);
+    return Number.isSafeInteger(milliseconds) ? milliseconds : Number.NaN;
+  }
+  if (
+    !text.includes(".") &&
+    integerDigits >= 12 &&
+    integerDigits <= 13 &&
+    Number.isSafeInteger(numeric)
+  ) {
+    return numeric;
+  }
+  return Number.NaN;
+}
+
+function instagramCalendarDay(value) {
+  const canonical = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (canonical) {
+    const year = Number(canonical[1]);
+    const month = Number(canonical[2]);
+    const day = Number(canonical[3]);
+    return validCalendarDay(year, month, day) ? value : null;
+  }
+
+  const named = value.match(
+    /^(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2}),?\s+(\d{4})$/i
+  );
+  if (!named) return null;
+  const year = Number(named[3]);
+  const month = MONTH_NUMBER_BY_NAME[named[1].toLowerCase()];
+  const day = Number(named[2]);
+  if (!validCalendarDay(year, month, day)) return null;
+  return [year, month, day]
+    .map((part, index) => String(part).padStart(index === 0 ? 4 : 2, "0"))
+    .join("-");
+}
+
+function instagramIsoTimestampMilliseconds(value) {
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:Z|[+-]\d{2}:?\d{2})$/i
+  );
+  if (!match) return Number.NaN;
+  if (!validCalendarDay(Number(match[1]), Number(match[2]), Number(match[3]))) {
+    return Number.NaN;
+  }
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : Number.NaN;
+}
+
+function validInstagramExactTimestamp(timestamp, nowMs) {
+  return (
+    Number.isFinite(timestamp) &&
+    timestamp >= INSTAGRAM_EARLIEST_PUBLICATION_MS &&
+    timestamp <= nowMs
+  );
+}
+
+function validCalendarDay(year, month, day) {
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    !Number.isInteger(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return false;
+  }
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
+function unknownInstagramPublicationDate() {
+  return { postedAt: null, publishedAtPrecision: "unknown" };
 }
 
 function finiteTimestamp(value) {

@@ -61,6 +61,10 @@ describe("logged-in social collector help", () => {
 
         assert.equal(result.status, 0, result.stderr);
         assert.match(result.stdout, /^Usage: node scripts\//);
+        assert.match(
+          result.stdout,
+          /--fresh-for-hours=N\s+Re-run completed targets after N hours \(default: 12\)/
+        );
         assert.doesNotMatch(result.stdout, /Logged-in social targets:|Wrote/);
         assert.equal(result.stderr, "");
         assert.equal(readFileSync(evidencePath, "utf8"), evidenceSentinel);

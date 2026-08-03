@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-arden",
+    "slug": "arden",
+    "name": "Arden"
+  },
+  "event": {
+    "id": "tle-d2791b533a16ffe13e8673ce",
+    "eventDate": "2026-05-06",
+    "eventDateType": "announcement_date",
+    "title": "Arden released Arden YC Launch",
+    "summary": "Arden YC Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4bcd1579eff8b15abe43d6e1",
+        "title": "Arden YC Launch",
+        "publisher": "Arden YC Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-06T10:36:00-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=kgOVq8En4yg"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4bcd1579eff8b15abe43d6e1",
+        "title": "Arden YC Launch",
+        "publisher": "Arden YC Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-06T10:36:00-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=kgOVq8En4yg",
+        "publicationDate": "2026-05-06T10:36:00-07:00",
+        "excerpt": "Learn more at ardentech.ai",
+        "sourceEventDate": "2026-05-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-8b9baef571c3c03190f4b1d2",
+        "platform": "youtube",
+        "account": "Arden YC Launch",
+        "postDate": "2026-05-06",
+        "excerpt": "Learn more at ardentech.ai",
+        "url": "https://youtube.com/watch?v=kgOVq8En4yg",
+        "metrics": {
+          "views": 329,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-contextdev",
+    "slug": "context-dev",
+    "name": "Context.dev"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-77aee5df8db1c72138488c71",
+      "eventDate": "2026-07-09",
+      "eventDateType": "announcement_date",
+      "title": "Context.dev launched on Hacker News",
+      "summary": "Launch HN: Context.dev (YC S26) – API to get structured data from any website.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-e2d0bc40d203392c29a47c0c",
+          "title": "Launch HN: Context.dev (YC S26) – API to get structured data from any website",
+          "publisher": "TheYahiaBakour",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-09T15:28:39Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48847562"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

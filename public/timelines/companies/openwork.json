@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-openwork",
+    "slug": "openwork",
+    "name": "OpenWork"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-ab893d80478f236309dc1328",
+      "eventDate": "2026-06-18",
+      "eventDateType": "announcement_date",
+      "title": "OpenWork announced its public launch",
+      "summary": "OpenWork introduced \"OpenWork Coworker\".",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-39514f314c1276ae57e202a6",
+          "title": "Introducing \"OpenWork Coworker\". OpenWork is all about helping you create and share workflows with the rest of your team. We've talked to many teams who deploy AI Coworkers onto Slack, emails, and beyond. They all make you either: a) make…",
+          "publisher": "benjaminshafii X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-06-18T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/benjaminshafii/status/2067665463715549526"
+        },
+        {
+          "id": "src-4a4d0a3900d198d0dd59d0ad",
+          "title": "Today we’re releasing OpenWork Connect. OpenWork started as a free, open-source desktop app. The goal was to make the fully configured a...",
+          "publisher": "benjaminshafii",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-17T01:35:10.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/benjaminshafii/status/2077930072850440564"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

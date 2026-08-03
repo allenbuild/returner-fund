@@ -340,6 +340,11 @@ const DEFAULT_X_CONCURRENCY = 10;
 const DEFAULT_X_REQUEST_TIMEOUT_MS = 4_500;
 const TOP_VOICE_X_MISS_CACHE_TTL_MS = 10 * 60 * 1000;
 const TARGETED_EVIDENCE_PATH = join("src", "lib", "social", "targeted-evidence-current.json");
+const GENERATED_TARGETED_EVIDENCE_PATH = join(
+  "generated-runtime",
+  "graph",
+  "targeted-evidence-current.json",
+);
 const A16Z_SOCIAL_ACCOUNTS_PATH = join("src", "lib", "social", "a16z-speedrun-006-social-accounts.json");
 const VERIFIED_SOCIAL_OVERRIDES_PATH = join("src", "lib", "social", "verified-social-overrides.json");
 const STAGE_LOG_PATH = join("outputs", "ingestion-refresh-stage-log-current.json");
@@ -638,7 +643,12 @@ export async function loadLiveEvidenceRecords(
 ): Promise<LiveEvidenceRecord[]> {
   const targetedEvidencePath =
     options.targetedEvidencePath ??
-    join(/* turbopackIgnore: true */ rootDir, TARGETED_EVIDENCE_PATH);
+    join(
+      /* turbopackIgnore: true */ rootDir,
+      process.env.NODE_ENV === "production"
+        ? GENERATED_TARGETED_EVIDENCE_PATH
+        : TARGETED_EVIDENCE_PATH,
+    );
   const fileStat = await stat(
     /* turbopackIgnore: true */ targetedEvidencePath
   ).catch(() => null);

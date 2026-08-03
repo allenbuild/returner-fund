@@ -8,6 +8,8 @@ import {
 } from "../scripts/lib/logged-in-social-target-selection.mjs";
 
 const attemptKey = (target) => target.id;
+const now = "2026-08-02T12:00:00.000Z";
+const freshCheckedAt = "2026-08-02T06:00:00.001Z";
 
 describe("logged-in social runnable target selection", () => {
   it("applies the limit after completed targets are removed", () => {
@@ -19,8 +21,8 @@ describe("logged-in social runnable target selection", () => {
       { id: "new-two" }
     ];
     const attempts = new Map([
-      ["done-positive", { status: "done", count: 3 }],
-      ["done-empty", { status: "done", count: 0 }],
+      ["done-positive", { status: "done", count: 3, checkedAt: freshCheckedAt }],
+      ["done-empty", { status: "done", count: 0, checkedAt: freshCheckedAt }],
       ["failed", { status: "failed", count: 0 }]
     ]);
 
@@ -28,6 +30,7 @@ describe("logged-in social runnable target selection", () => {
       selectRunnableCollectionTargets(targets, {
         attempts,
         attemptKey,
+        now,
         limit: 2
       }).map((target) => target.id),
       ["failed", "new-one"]
@@ -36,16 +39,82 @@ describe("logged-in social runnable target selection", () => {
 
   it("retries confirmed empties only when explicitly requested", () => {
     const target = { id: "done-empty" };
-    const attempts = new Map([["done-empty", { status: "done", count: 0 }]]);
+    const attempts = new Map([
+      ["done-empty", { status: "done", count: 0, checkedAt: freshCheckedAt }]
+    ]);
     assert.equal(
-      collectionTargetShouldRun(target, { attempts, attemptKey }),
+      collectionTargetShouldRun(target, { attempts, attemptKey, now }),
       false
     );
     assert.equal(
       collectionTargetShouldRun(target, {
         attempts,
         attemptKey,
+        now,
         retryEmpty: true
+      }),
+      true
+    );
+  });
+
+  it("re-runs completed targets when the default 12-hour freshness window expires", () => {
+    const target = { id: "completed" };
+    const attempts = new Map([
+      ["completed", { status: "done", count: 3, checkedAt: "2026-08-02T00:00:00.000Z" }]
+    ]);
+
+    assert.equal(
+      collectionTargetShouldRun(target, {
+        attempts,
+        attemptKey,
+        now: "2026-08-02T11:59:59.999Z"
+      }),
+      false
+    );
+    assert.equal(
+      collectionTargetShouldRun(target, { attempts, attemptKey, now }),
+      true
+    );
+  });
+
+  it("supports a custom freshness SLA and treats missing timestamps as stale", () => {
+    const target = { id: "completed" };
+    const attempts = new Map([
+      ["completed", { status: "done", count: 3, checkedAt: "2026-08-01T23:00:00.000Z" }]
+    ]);
+
+    assert.equal(
+      collectionTargetShouldRun(target, {
+        attempts,
+        attemptKey,
+        freshForHours: 24,
+        now
+      }),
+      false
+    );
+    assert.equal(
+      collectionTargetShouldRun(target, {
+        attempts: new Map([["completed", { status: "done", count: 3 }]]),
+        attemptKey,
+        freshForHours: 24,
+        now
+      }),
+      true
+    );
+  });
+
+  it("allows a zero-hour SLA to refresh every completed target", () => {
+    const target = { id: "completed" };
+    const attempts = new Map([
+      ["completed", { status: "done", count: 1, checkedAt: now }]
+    ]);
+
+    assert.equal(
+      collectionTargetShouldRun(target, {
+        attempts,
+        attemptKey,
+        freshForHours: 0,
+        now
       }),
       true
     );
@@ -54,13 +123,17 @@ describe("logged-in social runnable target selection", () => {
   it("force mode includes every target before applying the work limit", () => {
     const targets = [{ id: "one" }, { id: "two" }, { id: "three" }];
     const attempts = new Map(
-      targets.map((target) => [target.id, { status: "done", count: 1 }])
+      targets.map((target) => [
+        target.id,
+        { status: "done", count: 1, checkedAt: freshCheckedAt }
+      ])
     );
     assert.deepEqual(
       selectRunnableCollectionTargets(targets, {
         attempts,
         attemptKey,
         force: true,
+        now,
         limit: 2
       }).map((target) => target.id),
       ["one", "two"]

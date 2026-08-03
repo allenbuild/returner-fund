@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-vendo",
+    "slug": "vendo",
+    "name": "Vendo"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-06faef83b9d9e92539e3f537",
+      "eventDate": "2026-07-21",
+      "eventDateType": "announcement_date",
+      "title": "Vendo released Vendo (YC S26): Let your Users Build Their Own Features",
+      "summary": "Launching Vendo (YC S26): Let your Users Build Their Own Features.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-afe12230466f334eacd82a67",
+          "title": "Launching Vendo (YC S26): Let your Users Build Their Own Features",
+          "publisher": "Launching Vendo (YC S26): Let your Users Build Their Own Features",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-21T01:07:01-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=JjtDhA7DZw8"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

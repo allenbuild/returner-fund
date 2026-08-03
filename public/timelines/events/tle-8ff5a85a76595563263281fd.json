@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-expanse",
+    "slug": "expanse",
+    "name": "Expanse"
+  },
+  "event": {
+    "id": "tle-8ff5a85a76595563263281fd",
+    "eventDate": "2026-06-01",
+    "eventDateType": "announcement_date",
+    "title": "Expanse launched on Hacker News",
+    "summary": "Launch HN: Expanse (YC P26) – Unlock Wasted GPU Capacity.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-41bb602549cf600f62ada2af",
+        "title": "Launch HN: Expanse (YC P26) – Unlock Wasted GPU Capacity",
+        "publisher": "ismaeel_bashir",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T13:05:02Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48356312"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-41bb602549cf600f62ada2af",
+        "title": "Launch HN: Expanse (YC P26) – Unlock Wasted GPU Capacity",
+        "publisher": "ismaeel_bashir",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T13:05:02Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48356312",
+        "publicationDate": "2026-06-01T13:05:02Z",
+        "excerpt": "Hey HN, we’re Ismaeel, Eren, Yafet and Nikodem. We built Expanse ( https: expanse.sh ) to increase the effective capacity of your HPC GPU clusters running schedulers orchestrators like Kubernetes and SLURM. We read the source code, job submission script, and the hardware a workload is about to run on to predict what the job actually needs before the cluster sees it. We also flag failures we think are about to happen and surface line-level optimisations the researcher can apply themselves. The…",
+        "sourceEventDate": "2026-06-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-20d06d2c1693a7968a73e4ae",
+        "platform": "hacker_news",
+        "account": "ismaeel_bashir",
+        "postDate": "2026-06-01",
+        "excerpt": "Hey HN, we’re Ismaeel, Eren, Yafet and Nikodem. We built Expanse ( https: expanse.sh ) to increase the effective capacity of your HPC GPU clusters running schedulers orchestrators like Kubernetes and SLURM. We read the source code, job submission script, and the hardware a workload is about to run on to predict what the job actually needs before the cluster sees it. We also flag failures we think are about to happen and surface line-level optimisations the researcher can apply themselves. The…",
+        "url": "https://news.ycombinator.com/item?id=48356312",
+        "metrics": {
+          "points": 103,
+          "upvotes": 103,
+          "comments": 28
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

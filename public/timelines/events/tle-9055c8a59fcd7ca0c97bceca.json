@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-fabraix",
+    "slug": "fabraix",
+    "name": "Fabraix"
+  },
+  "event": {
+    "id": "tle-9055c8a59fcd7ca0c97bceca",
+    "eventDate": "2026-07-06",
+    "eventDateType": "announcement_date",
+    "title": "Fabraix enabled New feature alert: Nyx to test your voice agents",
+    "summary": "Fabraix reported new feature alert: Nyx can now test your voice agents.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-27ebb3cf22462e40ab1413fc",
+        "title": "🚨 New feature alert: Nyx can now test your voice agents. Lots of companies are putting voice agents into support and scheduling roles in critical domains like healthcare and in...",
+        "publisher": "FabraixHQ",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-06T18:12:54.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FabraixHQ/status/2074194896228065426"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-27ebb3cf22462e40ab1413fc",
+        "title": "🚨 New feature alert: Nyx can now test your voice agents. Lots of companies are putting voice agents into support and scheduling roles in critical domains like healthcare and in...",
+        "publisher": "FabraixHQ",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-06T18:12:54.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FabraixHQ/status/2074194896228065426",
+        "publicationDate": "2026-07-06T18:12:54.000Z",
+        "excerpt": "🚨 New feature alert: Nyx can now test your voice agents. Lots of companies are putting voice agents into support and scheduling roles in critical domains like healthcare and in...",
+        "sourceEventDate": "2026-07-06",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-49cf2b69f569bcbda754975e",
+        "platform": "x",
+        "account": "FabraixHQ",
+        "postDate": "2026-07-06",
+        "excerpt": "🚨 New feature alert: Nyx can now test your voice agents. Lots of companies are putting voice agents into support and scheduling roles in critical domains like healthcare and in...",
+        "url": "https://x.com/FabraixHQ/status/2074194896228065426",
+        "metrics": {
+          "views": 1512,
+          "likes": 7,
+          "replies": 2,
+          "reposts": 1,
+          "bookmarks": 3
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

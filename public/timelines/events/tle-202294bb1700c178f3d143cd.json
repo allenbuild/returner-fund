@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-heyclicky",
+    "slug": "heyclicky",
+    "name": "HeyClicky"
+  },
+  "event": {
+    "id": "tle-202294bb1700c178f3d143cd",
+    "eventDate": "2026-06-09",
+    "eventDateType": "announcement_date",
+    "title": "HeyClicky added drag-and-drop file chat",
+    "summary": "HeyClicky reported drag your files in and start chatting available now.",
+    "category": "product_update",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-45171f81598493eac1769907",
+        "title": "drag your files in and start chatting available now",
+        "publisher": "heyclicky X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-09T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/heyclicky/status/2064520227455705579"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-45171f81598493eac1769907",
+        "title": "drag your files in and start chatting available now",
+        "publisher": "heyclicky X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-09T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/heyclicky/status/2064520227455705579",
+        "publicationDate": "2026-06-09T00:00:00.000Z",
+        "excerpt": "drag your files in and start chatting available now",
+        "sourceEventDate": "2026-06-09",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-447432362d527905a171d268",
+        "platform": "x",
+        "account": "heyclicky X post",
+        "postDate": "2026-06-09",
+        "excerpt": "drag your files in and start chatting available now",
+        "url": "https://x.com/heyclicky/status/2064520227455705579",
+        "metrics": {
+          "likes": 192,
+          "reposts": 4,
+          "comments": 18,
+          "views": 12195
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

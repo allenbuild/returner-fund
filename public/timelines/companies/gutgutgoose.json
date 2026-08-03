@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-gutgutgoose",
+    "slug": "gutgutgoose",
+    "name": "Gutgutgoose"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-ededd81f7e12e32f34218590",
+      "eventDate": "2026-07-30",
+      "eventDateType": "announcement_date",
+      "title": "Gutgutgoose announced its public launch",
+      "summary": "Gutgutgoose announced its public launch in a dated company video.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-f43e99041602f8f4edae552c",
+          "title": "GutGutGoose launch video",
+          "publisher": "GutGutGoose launch video",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-07-30T04:46:06-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=Cn6oGduZosc"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

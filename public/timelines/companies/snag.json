@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "a16z-speedrun-006-snag",
+    "slug": "snag",
+    "name": "snag"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-c6c482e135835468314821de",
+      "eventDate": "2025-04-17",
+      "eventDateType": "announcement_date",
+      "title": "snag released SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+      "summary": "SNAG IS LIVE.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5aace73e54ceff1cfbf742f7",
+          "title": "SNAG IS LIVE!! 🎆🥳🎉🥹🤩 feels surreal!! app link in bio ✨",
+          "publisher": "subletgirl",
+          "domain": "instagram.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2025-04-17T22:40:17Z",
+          "evidenceRole": "primary",
+          "url": "https://www.instagram.com/reel/DIkJC8Vp-Gl"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2025,
+      "months": [
+        {
+          "month": "2025-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

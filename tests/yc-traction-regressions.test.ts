@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { selectedNodeEvidence } from "@/lib/graph/evidence-selection";
 import { dedupeEvidenceForScoring } from "@/lib/graph/dedupe";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
@@ -13,7 +15,18 @@ import {
   isVerifiedOfficialYcCompanyPageYouTubeEmbed,
   ycSpring2026GraphDataset
 } from "@/lib/graph/yc-spring-2026-dataset";
-import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
+
+const targetedEvidenceSnapshot = JSON.parse(
+  readFileSync(join(process.cwd(), "src/lib/social/targeted-evidence-current.json"), "utf8")
+) as {
+  evidence: EvidenceItem[];
+  needsReview: Array<{
+    entityId: string;
+    platformPostId?: string | null;
+    review_state: string;
+    quarantineReasons?: string[];
+  }>;
+};
 
 describe("YC traction scoring regressions", () => {
   it("scores Eden from verified founder posts while quarantining the cohort roundup", () => {
@@ -88,7 +101,7 @@ describe("YC traction scoring regressions", () => {
     expect(edenYouTube).toBeTruthy();
     expect(isVerifiedOfficialYcCompanyPageYouTubeEmbed(edenYouTube)).toBe(true);
 
-    const receipt = JSON.parse(edenYouTube!.rawVisibleText);
+    const receipt = JSON.parse(edenYouTube!.rawVisibleText ?? "{}");
     const withReceipt = (nextReceipt: unknown) => ({
       ...edenYouTube,
       rawVisibleText: JSON.stringify(nextReceipt)

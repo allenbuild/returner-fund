@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-prototypingio",
+    "slug": "prototyping-io",
+    "name": "Prototyping.io"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-a1fb8789b02387a8e021b868",
+      "eventDate": "2026-05-06",
+      "eventDateType": "announcement_date",
+      "title": "Prototyping.io released Prototyping",
+      "summary": "Prototyping.io introduced Prototyping.io.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b72251ba8e044c618affe919",
+          "title": "Introducing Prototyping.io",
+          "publisher": "Introducing Prototyping.io",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-06T12:26:49-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=q8G9q_MEzug"
+        }
+      ]
+    },
+    {
+      "id": "tle-1aaebf43848eec81de62345f",
+      "eventDate": "2026-03-25",
+      "eventDateType": "announcement_date",
+      "title": "Prototyping.io was accepted into Y Combinator",
+      "summary": "Prototyping.io got into Y Combinator (P26).",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-5969a041cf82d570c7c120b3",
+          "title": "We got into Y Combinator (P26)!",
+          "publisher": "revanth279",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-03-25T15:45:43.091Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/revanth279_we-got-into-y-combinator-p26-for-years-activity-7442597593697902592-t6LX"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        },
+        {
+          "month": "2026-03",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 2,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

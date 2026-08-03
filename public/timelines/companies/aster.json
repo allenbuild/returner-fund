@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-asterlab",
+    "slug": "aster",
+    "name": "Aster"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-e6f8a2e36d0a9c07580e0402",
+      "eventDate": "2026-07-16",
+      "eventDateType": "announcement_date",
+      "title": "Aster released Aster Inference",
+      "summary": "Launching Aster Inference.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-46e430ad2061ad837001f062",
+          "title": "Launching Aster Inference",
+          "publisher": "asterailabs",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-07-16",
+          "evidenceRole": "primary",
+          "url": "https://x.com/asterailabs/status/2077556435085574429"
+        }
+      ]
+    },
+    {
+      "id": "tle-97fa37c574cd303a4b712760",
+      "eventDate": "2026-06-22",
+      "eventDateType": "announcement_date",
+      "title": "Aster published new research",
+      "summary": "Aster reported in 2 days, we set the record on Andrej Karpathy's NanoChat benchmark, with 1000x less funding than competitors.",
+      "category": "research",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-96265e75045f7a7535680357",
+          "title": "In 2 days, we set the record on Andrej Karpathy’s NanoChat benchmark, with 1000x less funding than competitors. We used massively parallelized research agents to set this record as well as discover novel circuit-based LLM architectures…",
+          "publisher": "asterailabs X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-22T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/asterailabs/status/2069128901620867254"
+        }
+      ]
+    },
+    {
+      "id": "tle-99acbbc9efe6b56467247dcb",
+      "eventDate": "2026-06-13",
+      "eventDateType": "announcement_date",
+      "title": "Aster announced its public launch",
+      "summary": "Aster introduced Aster — a major breakthrough for research intelligence.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-7a25a1baf2e532c48cecbf69",
+          "title": "Introducing Aster — a major breakthrough for research intelligence. Aster isn’t a single agent. It is the first autonomous lab orchestrating thousands of research agents in parallel. We pointed Aster towards ProteinGym, a benchmark that…",
+          "publisher": "asterailabs X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-13T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/asterailabs/status/2065873907530510357"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        },
+        {
+          "month": "2026-06",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

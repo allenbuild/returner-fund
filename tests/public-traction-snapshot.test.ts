@@ -1,5 +1,45 @@
 import { describe, expect, it } from "vitest";
-import publicEvidence from "@/lib/social/public-evidence-current.json";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+interface PublicEvidenceRow {
+  platform: string;
+  sourceUrl: string;
+  rawVisibleText: string;
+  first_seen_at: string;
+  last_checked_at: string;
+  last_updated_at: string;
+  review_state: string;
+  contributionScore: number;
+  metrics: Record<string, number | null | undefined>;
+  matchReason?: string;
+  companySlug?: string;
+  platformPostId?: string | null;
+}
+
+interface PublicReviewRow {
+  platform: string;
+  candidateUrl: string;
+  entityType?: string;
+  entityId: string;
+  review_state: string;
+  contributionScore?: number;
+  reason?: string;
+  matchReason?: string;
+}
+
+interface PublicEvidenceFixture {
+  evidence: PublicEvidenceRow[];
+  needsReview: PublicReviewRow[];
+  failures: Array<{ platform?: string }>;
+}
+
+// Load the complete source snapshot at runtime. A static JSON import asks Vite
+// to compile roughly 96 MB of data into a JavaScript AST, multiplying memory
+// use while changing none of these source-integrity assertions.
+const publicEvidence = JSON.parse(
+  readFileSync(join(process.cwd(), "src/lib/social/public-evidence-current.json"), "utf8")
+) as PublicEvidenceFixture;
 
 const SUPPORTED_METRICS: Record<string, string[]> = {
   x: ["views", "likes", "replies", "comments", "reposts", "shares", "quotes"],

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-trope",
+    "slug": "trope",
+    "name": "Trope"
+  },
+  "event": {
+    "id": "tle-fd7548f0c9c74dd6ecad769f",
+    "eventDate": "2026-07-08",
+    "eventDateType": "announcement_date",
+    "title": "Trope announced its public launch",
+    "summary": "Trope announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-58fcdf2c9bbfc0d681aa76e9",
+        "title": "Trope (YC S26) Launch Video",
+        "publisher": "Trope (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-08T02:18:40-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=mhDiw0nKB34"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-58fcdf2c9bbfc0d681aa76e9",
+        "title": "Trope (YC S26) Launch Video",
+        "publisher": "Trope (YC S26) Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-08T02:18:40-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=mhDiw0nKB34",
+        "publicationDate": "2026-07-08T02:18:40-07:00",
+        "excerpt": "https://trope.ai/",
+        "sourceEventDate": "2026-07-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6f8999df2c13d49c15ac652c",
+        "platform": "youtube",
+        "account": "Trope (YC S26) Launch Video",
+        "postDate": "2026-07-08",
+        "excerpt": "https://trope.ai/",
+        "url": "https://youtube.com/watch?v=mhDiw0nKB34",
+        "metrics": {
+          "views": 497,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

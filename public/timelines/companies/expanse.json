@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-expanse",
+    "slug": "expanse",
+    "name": "Expanse"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-8ff5a85a76595563263281fd",
+      "eventDate": "2026-06-01",
+      "eventDateType": "announcement_date",
+      "title": "Expanse launched on Hacker News",
+      "summary": "Launch HN: Expanse (YC P26) – Unlock Wasted GPU Capacity.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-41bb602549cf600f62ada2af",
+          "title": "Launch HN: Expanse (YC P26) – Unlock Wasted GPU Capacity",
+          "publisher": "ismaeel_bashir",
+          "domain": "news.ycombinator.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-01T13:05:02Z",
+          "evidenceRole": "primary",
+          "url": "https://news.ycombinator.com/item?id=48356312"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

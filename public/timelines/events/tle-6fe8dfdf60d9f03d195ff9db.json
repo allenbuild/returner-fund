@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-rapidfolio",
+    "slug": "rapidfolio",
+    "name": "Rapidfolio"
+  },
+  "event": {
+    "id": "tle-6fe8dfdf60d9f03d195ff9db",
+    "eventDate": "2026-07-22",
+    "eventDateType": "announcement_date",
+    "title": "Rapidfolio released Rapidfolio (Y Combinator S26)",
+    "summary": "Rapidfolio introduced Rapidfolio (Y Combinator S26).",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-fefcbe3a6c9c7b19c45d2076",
+        "title": "Introducing Rapidfolio (Y Combinator S26)",
+        "publisher": "Introducing Rapidfolio (Y Combinator S26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-22T12:22:26-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=0UBIfRhNh08"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-fefcbe3a6c9c7b19c45d2076",
+        "title": "Introducing Rapidfolio (Y Combinator S26)",
+        "publisher": "Introducing Rapidfolio (Y Combinator S26)",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-22T12:22:26-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=0UBIfRhNh08",
+        "publicationDate": "2026-07-22T12:22:26-07:00",
+        "excerpt": "Rapidfolio, the AI platform for banks and fintechs. Backed by Y Combinator. Rapidfolio automates all manual back-office workflows for banks and fintechs, like KYB reviews, limit increases, transaction monitoring, disputes and chargebacks, and many more. Book a demo: https://rapidfolio.com",
+        "sourceEventDate": "2026-07-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-fa26088700714985cffb1ce1",
+        "platform": "youtube",
+        "account": "Introducing Rapidfolio (Y Combinator S26)",
+        "postDate": "2026-07-22",
+        "excerpt": "Rapidfolio, the AI platform for banks and fintechs. Backed by Y Combinator. Rapidfolio automates all manual back-office workflows for banks and fintechs, like KYB reviews, limit increases, transaction monitoring, disputes and chargebacks, and many more. Book a demo: https://rapidfolio.com",
+        "url": "https://youtube.com/watch?v=0UBIfRhNh08",
+        "metrics": {
+          "views": 69,
+          "likes": 2,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

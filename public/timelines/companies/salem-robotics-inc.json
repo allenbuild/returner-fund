@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-salem-robotics-inc",
+    "slug": "salem-robotics-inc",
+    "name": "Salem Robotics Inc"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-34a96891e6682732aec084e6",
+      "eventDate": "2026-07-01",
+      "eventDateType": "announcement_date",
+      "title": "Salem Robotics Inc was accepted into Y Combinator S26",
+      "summary": "Salem Robotics Inc reported share that Salem Robotics (YC S26) has joined Y Combinator.",
+      "category": "accelerator",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-b4facc66ee67282dbd13fe9e",
+          "title": "We're excited to share that Salem Robotics (YC S26) has joined Y Combinator.",
+          "publisher": "caleb-horan",
+          "domain": "linkedin.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-07-01T04:03:58.036Z",
+          "evidenceRole": "primary",
+          "url": "https://www.linkedin.com/posts/caleb-horan_robotics-ai-industrialautomation-activity-7477935003184578560-tFKV"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-07",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-trybloom",
+    "slug": "bloom",
+    "name": "Bloom"
+  },
+  "event": {
+    "id": "tle-8674ef48150c3a3d1f8ffd2f",
+    "eventDate": "2026-06-01",
+    "eventDateType": "announcement_date",
+    "title": "Bloom released on YC",
+    "summary": "Bloom launched on YC.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-94cbe2498944e10a3da5d668",
+        "title": "We launched on YC!",
+        "publisher": "trybloomai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T15:25:40.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/trybloomai/status/2061469236871225652"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-94cbe2498944e10a3da5d668",
+        "title": "We launched on YC!",
+        "publisher": "trybloomai",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-01T15:25:40.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/trybloomai/status/2061469236871225652",
+        "publicationDate": "2026-06-01T15:25:40.000Z",
+        "excerpt": "We launched on YC!",
+        "sourceEventDate": "2026-06-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-56d534a0364c4725fc4cd8ba",
+        "platform": "x",
+        "account": "trybloomai",
+        "postDate": "2026-06-01",
+        "excerpt": "We launched on YC!",
+        "url": "https://x.com/trybloomai/status/2061469236871225652",
+        "metrics": {
+          "views": 7610,
+          "likes": 18,
+          "comments": 3,
+          "replies": 3,
+          "reposts": 2,
+          "saves": 19
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

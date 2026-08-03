@@ -1,11 +1,9 @@
-import githubTractionSnapshot from "@/lib/social/github-traction-a16z-speedrun-006.json";
-import seededAttributionReconciliationSnapshot from "@/lib/social/a16z-speedrun-006-attribution-reconciliation.json";
-import seededSocialEvidenceSnapshot from "@/lib/social/a16z-speedrun-006-social-evidence.json";
-import publicEvidenceSnapshot from "@/lib/social/public-evidence-current.json";
-import speedrunSocialAccountSnapshot from "@/lib/social/a16z-speedrun-006-social-accounts.json";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import {
+  canonicalEvidenceKey,
   dedupeEvidenceForScoring,
   dedupeEvidenceItems,
   nativeEvidenceIdentityFromUrl
@@ -23,6 +21,46 @@ import type {
   SocialAccountSummary
 } from "./types";
 import { githubRepositoryEvidenceTimestamps } from "./github-repository-timestamps";
+
+type A16zRuntimeJsonPath =
+  | "src/lib/social/github-traction-a16z-speedrun-006.json"
+  | "src/lib/social/a16z-speedrun-006-attribution-reconciliation.json"
+  | "src/lib/social/a16z-speedrun-006-social-evidence.json"
+  | "generated-runtime/graph/public-evidence-current.json"
+  | "src/lib/social/a16z-speedrun-006-social-accounts.json";
+
+const githubTractionSnapshot: unknown = readRuntimeJson(
+  "src/lib/social/github-traction-a16z-speedrun-006.json",
+);
+const seededAttributionReconciliationSnapshot: unknown = readRuntimeJson(
+  "src/lib/social/a16z-speedrun-006-attribution-reconciliation.json",
+);
+const seededSocialEvidenceSnapshot: unknown = readRuntimeJson(
+  "src/lib/social/a16z-speedrun-006-social-evidence.json",
+);
+const publicEvidenceSnapshot: unknown = readRuntimeJson(
+  "generated-runtime/graph/public-evidence-current.json",
+);
+const speedrunSocialAccountSnapshot: unknown = readRuntimeJson(
+  "src/lib/social/a16z-speedrun-006-social-accounts.json",
+);
+
+function readRuntimeJson(relativePath: A16zRuntimeJsonPath): unknown {
+  const runtimePath = resolveRuntimeDataPath(relativePath);
+  // These exact files are declared in outputFileTracingIncludes. Ignoring the
+  // resolved argument here prevents Turbopack from treating it as a repo-wide
+  // filesystem glob while preserving cwd-independent local/test resolution.
+  return JSON.parse(readFileSync(/* turbopackIgnore: true */ runtimePath, "utf8"));
+}
+
+function resolveRuntimeDataPath(relativePath: A16zRuntimeJsonPath): string {
+  for (const root of [process.cwd(), process.env.INIT_CWD, process.env.PWD]) {
+    if (!root) continue;
+    const runtimePath = join(/* turbopackIgnore: true */ root, relativePath);
+    if (existsSync(/* turbopackIgnore: true */ runtimePath)) return runtimePath;
+  }
+  return join(/* turbopackIgnore: true */ process.cwd(), relativePath);
+}
 
 export const A16Z_SPEEDRUN_006_BATCH_SLUG = "A16ZSR006";
 export const A16Z_SPEEDRUN_006_BATCH_LABEL = "a16z speedrun 006";
@@ -162,6 +200,8 @@ interface PublicSocialEvidenceAttachment {
   companySlug: string;
   companyName: string;
   matchReason: string;
+  entityType?: "company" | "founder";
+  entityId?: string;
 }
 
 interface SeededSocialEvidenceSnapshot {
@@ -971,9 +1011,17 @@ function buildSpeedrunEvidenceItems(): A16zSpeedrun006EvidenceItem[] {
     ...PUBLIC_SOCIAL_EVIDENCE_ATTACHMENTS.flatMap(publicEvidenceItemFromAttachment)
   ];
   const seededSocialEvidence = sanitizedSeededSocialEvidence().flatMap(seededSocialEvidenceItem);
+  // The curated seed remains the canonical observation for physical posts it
+  // already contains. Canonical public evidence fills net-new native posts;
+  // it must not replace the seed's audited URL/provenance representation.
+  const legacyEvidence = dedupeEvidenceItems([...githubEvidence, ...seededSocialEvidence]);
+  const legacyPhysicalAttributions = new Set(legacyEvidence.map(canonicalEvidenceKey));
+  const netNewPublicEvidence = dedupeEvidenceItems(publicEvidence).filter(
+    (item) => !legacyPhysicalAttributions.has(canonicalEvidenceKey(item))
+  );
 
   return normalizeEvidenceScores(
-    dedupeEvidenceItems([...githubEvidence, ...publicEvidence, ...seededSocialEvidence])
+    dedupeEvidenceItems([...legacyEvidence, ...netNewPublicEvidence])
       .filter(isNativeSpeedrunEvidenceItem)
       .map(enrichEvidenceThumbnail)
   );
@@ -1111,7 +1159,6 @@ function publicEvidenceItemFromCanonicalAttribution(source: PublicEvidenceRecord
     source.review_state !== "verified" ||
     Number(source.attributionVersion ?? 0) < 3 ||
     source.attributionStatus !== "verified" ||
-    source.entityType !== "company" ||
     source.linkStatus === "invalid" ||
     source.linkStatus === "blocked"
   ) {
@@ -1121,8 +1168,12 @@ function publicEvidenceItemFromCanonicalAttribution(source: PublicEvidenceRecord
   const companySlug = slugify(source.companySlug ?? "");
   const profile = speedrun006Profiles.find((candidate) => slugify(candidate.name) === companySlug);
   const nativePostId = nativeEvidenceIdentityFromUrl(source.platform, source.sourceUrl);
+  const attribution = profile
+    ? canonicalPublicEvidenceAttribution(source, profile, companySlug)
+    : null;
   if (
     !profile ||
+    !attribution ||
     !nativePostId ||
     (source.platformPostId && source.platformPostId.toLowerCase() !== nativePostId.toLowerCase())
   ) {
@@ -1133,8 +1184,42 @@ function publicEvidenceItemFromCanonicalAttribution(source: PublicEvidenceRecord
     sourceUrl: source.sourceUrl,
     companySlug,
     companyName: profile.name,
-    matchReason: source.matchReason ?? "Verified canonical public attribution for a16z speedrun 006."
+    matchReason: source.matchReason ?? "Verified canonical public attribution for a16z speedrun 006.",
+    entityType: attribution.entityType,
+    entityId: attribution.entityId
   });
+}
+
+function canonicalPublicEvidenceAttribution(
+  source: PublicEvidenceRecord,
+  profile: SpeedrunCompanyProfile,
+  companySlug: string
+): Pick<PublicSocialEvidenceAttachment, "entityType" | "entityId"> | null {
+  if (source.entityType === "company") {
+    // Older accepted A16Z rows used the shared YC-style `company-*` ID. Keep
+    // that compatibility at the graph boundary, but materialize the exact
+    // Speedrun company ID so rows cannot leak into another cohort.
+    return {
+      entityType: "company",
+      entityId: companyIdFromSlug(companySlug)
+    };
+  }
+
+  if (source.entityType !== "founder") return null;
+
+  // Founder evidence is only accepted when the canonical receipt already
+  // names an exact founder in this company's immutable Speedrun roster. This
+  // preserves native-author attribution instead of silently promoting a
+  // founder post to the company node.
+  const founderName = profile.founders.find(
+    (name) => founderId(companySlug, name) === source.entityId
+  );
+  if (!founderName) return null;
+
+  return {
+    entityType: "founder",
+    entityId: founderId(companySlug, founderName)
+  };
 }
 
 function publicEvidenceItemFromSource(
@@ -1144,7 +1229,9 @@ function publicEvidenceItemFromSource(
   if (!SPEEDRUN_NATIVE_EVIDENCE_PLATFORMS.has(source.platform)) return [];
 
   const companyId = companyIdFromSlug(attachment.companySlug);
-  const normalizedAccount = normalizeNativeAccountRoot(source.platform, source.accountUrl ?? null);
+  const entityType = attachment.entityType ?? "company";
+  const entityId = attachment.entityId ?? companyId;
+  const normalizedAccount = publicEvidenceAccountForAttribution(source, entityId);
   const accountUrl = normalizedAccount?.url ?? null;
   const handle = source.authorHandle ?? normalizedAccount?.handle ?? handleFromUrl(accountUrl);
   const isLinkedInActivityFragment = isLinkedInProfileActivityFragmentUrl(source.platform, source.sourceUrl);
@@ -1165,9 +1252,11 @@ function publicEvidenceItemFromSource(
   return [
     {
       ...source,
-      id: `${source.platform}-a16z-${attachment.companySlug}-${slugify(source.platformPostId ?? source.sourceUrl)}`,
-      entityType: "company",
-      entityId: companyId,
+      id: entityType === "company"
+        ? `${source.platform}-a16z-${attachment.companySlug}-${slugify(source.platformPostId ?? source.sourceUrl)}`
+        : `${source.platform}-a16z-${slugify(entityId)}-${slugify(source.platformPostId ?? source.sourceUrl)}`,
+      entityType,
+      entityId,
       postedAt: nativeGithubTimestamps?.postedAt ?? source.postedAt ?? publicSnapshot.source.fetchedAt,
       publishedAtPrecision: source.platform === "github"
         ? nativeGithubTimestamps?.publishedAtPrecision ?? "unknown"
@@ -1197,6 +1286,26 @@ function publicEvidenceItemFromSource(
       review_state: "verified"
     }
   ];
+}
+
+function publicEvidenceAccountForAttribution(
+  source: PublicEvidenceRecord,
+  entityId: string
+): { url: string; handle: string | null } | null {
+  const nativeAuthorHandle = normalizeEvidenceHandle(source.authorHandle);
+  const mappedAccount = (speedrunSocialAccountsByEntityId.get(entityId) ?? []).find((account) => {
+    if (account.platform !== source.platform || account.review_state !== "verified") return false;
+    const normalized = normalizeNativeAccountRoot(account.platform, account.url);
+    return Boolean(
+      nativeAuthorHandle &&
+      normalizeEvidenceHandle(account.handle ?? normalized?.handle) === nativeAuthorHandle
+    );
+  });
+  if (mappedAccount) {
+    return normalizeNativeAccountRoot(mappedAccount.platform, mappedAccount.url);
+  }
+
+  return normalizeNativeAccountRoot(source.platform, source.accountUrl ?? null);
 }
 
 function seededSocialEvidenceItem(seed: SeededSocialEvidenceRecord): A16zSpeedrun006EvidenceItem[] {

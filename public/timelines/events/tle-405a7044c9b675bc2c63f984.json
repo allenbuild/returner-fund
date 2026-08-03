@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-gojiberry-ai",
+    "slug": "gojiberry-ai",
+    "name": "Gojiberry AI"
+  },
+  "event": {
+    "id": "tle-405a7044c9b675bc2c63f984",
+    "eventDate": "2026-05-03",
+    "eventDateType": "announcement_date",
+    "title": "Gojiberry AI reached $2M ARR",
+    "summary": "How Gojiberry AI Hit $2M ARR With Cold Outreach That Actually Works.",
+    "category": "revenue_milestone",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-e3b2b382b07746d1b16223b9",
+        "title": "How Gojiberry AI Hit $2M ARR With Cold Outreach That Actually Works",
+        "publisher": "buildersgrowthlab",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-03",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=jHsd4voiRZQ"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-e3b2b382b07746d1b16223b9",
+        "title": "How Gojiberry AI Hit $2M ARR With Cold Outreach That Actually Works",
+        "publisher": "buildersgrowthlab",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-03",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=jHsd4voiRZQ",
+        "publicationDate": "2026-05-03",
+        "excerpt": "How Gojiberry AI Hit $2M ARR With Cold Outreach That Actually Works",
+        "sourceEventDate": "2026-05-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c065276fb4d8102f5946a5e0",
+        "platform": "youtube",
+        "account": "buildersgrowthlab",
+        "postDate": "2026-05-03",
+        "excerpt": "How Gojiberry AI Hit $2M ARR With Cold Outreach That Actually Works",
+        "url": "https://www.youtube.com/watch?v=jHsd4voiRZQ",
+        "metrics": {
+          "views": 52,
+          "likes": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

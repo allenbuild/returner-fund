@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-allowance",
+    "slug": "allowance",
+    "name": "Allowance"
+  },
+  "event": {
+    "id": "tle-8c9fdd4b376df44e0afcc173",
+    "eventDate": "2026-06-04",
+    "eventDateType": "announcement_date",
+    "title": "Allowance announced its public launch",
+    "summary": "This week, Allowance launched Chat tab.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-8ee961f5502bee0435a3c9a8",
+        "title": "This week, Allowance launched Chat tab. No technical set up required to make agentic purchases. Describe what you want to buy, and an AI agent can complete the purchase for you—with spend limits, merchant controls, and approvals built in.…",
+        "publisher": "useallowance",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-04T16:45:40.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/reel/DZK6ormuvro"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-8ee961f5502bee0435a3c9a8",
+        "title": "This week, Allowance launched Chat tab. No technical set up required to make agentic purchases. Describe what you want to buy, and an AI agent can complete the purchase for you—with spend limits, merchant controls, and approvals built in.…",
+        "publisher": "useallowance",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-04T16:45:40.000Z",
+        "evidenceRole": "primary",
+        "url": "https://instagram.com/reel/DZK6ormuvro",
+        "publicationDate": "2026-06-04T16:45:40.000Z",
+        "excerpt": "This week, Allowance launched Chat tab. No technical set up required to make agentic purchases. Describe what you want to buy, and an AI agent can complete the purchase for you—with spend limits, merchant controls, and approvals built in. 🚀",
+        "sourceEventDate": "2026-06-04",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-ecd920399e7fc6240814cd9b",
+        "platform": "instagram",
+        "account": "useallowance",
+        "postDate": "2026-06-04",
+        "excerpt": "This week, Allowance launched Chat tab. No technical set up required to make agentic purchases. Describe what you want to buy, and an AI agent can complete the purchase for you—with spend limits, merchant controls, and approvals built in. 🚀",
+        "url": "https://instagram.com/reel/DZK6ormuvro",
+        "metrics": {
+          "likes": 45,
+          "comments": 1,
+          "views": 468
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

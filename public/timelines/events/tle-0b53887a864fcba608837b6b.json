@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-hyperprobe",
+    "slug": "hyperprobe",
+    "name": "HyperProbe"
+  },
+  "event": {
+    "id": "tle-0b53887a864fcba608837b6b",
+    "eventDate": "2026-06-30",
+    "eventDateType": "announcement_date",
+    "title": "HyperProbe was accepted into Y Combinator S26",
+    "summary": "HyperProbe announced that we got into YC S26.",
+    "category": "accelerator",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-4d0d9bc35859d5233fb748ad",
+        "title": "We are excited to announce that we got into YC S26!",
+        "publisher": "shailendra-singh-shekhawat",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-30T03:00:02.138Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4d0d9bc35859d5233fb748ad",
+        "title": "We are excited to announce that we got into YC S26!",
+        "publisher": "shailendra-singh-shekhawat",
+        "domain": "linkedin.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-30T03:00:02.138Z",
+        "evidenceRole": "primary",
+        "url": "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT",
+        "publicationDate": "2026-06-30T03:00:02.138Z",
+        "excerpt": "We are excited to announce that we got into YC S26! The founder says HyperTest became HyperProbe and explains its remote debugging infrastructure for coding agents. The YC S26 roster lists Shailendra Singh as a HyperProbe founder. The founder says HyperTest became HyperProbe and explains its remote debugging infrastructure for coding agents.",
+        "sourceEventDate": "2026-06-30",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-d3b539e9b0632c2dfc961f30",
+        "platform": "linkedin",
+        "account": "shailendra-singh-shekhawat",
+        "postDate": "2026-06-30",
+        "excerpt": "We are excited to announce that we got into YC S26! The founder says HyperTest became HyperProbe and explains its remote debugging infrastructure for coding agents. The YC S26 roster lists Shailendra Singh as a HyperProbe founder. The founder says HyperTest became HyperProbe and explains its remote debugging infrastructure for coding agents.",
+        "url": "https://www.linkedin.com/posts/shailendra-singh-shekhawat_hyperprobe-yc-summerbatch-activity-7477556526430482432-X6nT",
+        "metrics": {
+          "reactions": 153,
+          "comments": 41
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

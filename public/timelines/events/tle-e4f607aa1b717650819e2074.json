@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-general-instinct",
+    "slug": "general-instinct",
+    "name": "General Instinct"
+  },
+  "event": {
+    "id": "tle-e4f607aa1b717650819e2074",
+    "eventDate": "2026-06-05",
+    "eventDateType": "announcement_date",
+    "title": "General Instinct launched on Hacker News",
+    "summary": "Launch HN: General Instinct (YC P26) – Frontier models on edge devices.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-3b6e469f31e5558336ef3e70",
+        "title": "Launch HN: General Instinct (YC P26) – Frontier models on edge devices",
+        "publisher": "guanming0717",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-05T16:33:00Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48414869"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-3b6e469f31e5558336ef3e70",
+        "title": "Launch HN: General Instinct (YC P26) – Frontier models on edge devices",
+        "publisher": "guanming0717",
+        "domain": "news.ycombinator.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-05T16:33:00Z",
+        "evidenceRole": "primary",
+        "url": "https://news.ycombinator.com/item?id=48414869",
+        "publicationDate": "2026-06-05T16:33:00Z",
+        "excerpt": "Hey HN, Guanming and Bill here from General Instinct ( https: general-instinct.com ). After years of working in robotics, we kept running into the same problem: the best models never fit the hardware we actually had available. The models that performed best were usually designed around datacenter assumptions: large GPUs, lots of memory bandwidth, and reliable network access. But most physical systems have the opposite constraints. That led us down the path of figuring out how much of a…",
+        "sourceEventDate": "2026-06-05",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-53ddaa7828fe67cdf34af6d5",
+        "platform": "hacker_news",
+        "account": "guanming0717",
+        "postDate": "2026-06-05",
+        "excerpt": "Hey HN, Guanming and Bill here from General Instinct ( https: general-instinct.com ). After years of working in robotics, we kept running into the same problem: the best models never fit the hardware we actually had available. The models that performed best were usually designed around datacenter assumptions: large GPUs, lots of memory bandwidth, and reliable network access. But most physical systems have the opposite constraints. That led us down the path of figuring out how much of a…",
+        "url": "https://news.ycombinator.com/item?id=48414869",
+        "metrics": {
+          "points": 63,
+          "upvotes": 63,
+          "comments": 16
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

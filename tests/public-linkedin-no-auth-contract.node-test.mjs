@@ -57,7 +57,8 @@ test("S26 autonomous collection keeps LinkedIn on the public lane", () => {
   assert.match(collectors, /"scripts\/fetch-public-traction\.mjs"/);
   assert.match(collectors, /`--batch=\$\{batchSlug\}`/);
   assert.match(collectors, /"--social=all"/);
-  assert.match(collectors, /"--linkedin-workers=4"/);
+  assert.match(collectors, /`--linkedin-workers=\$\{PUBLIC_SOCIAL_LANE_CONCURRENCY\}`/);
+  assert.match(autonomousRunner, /const PUBLIC_SOCIAL_LANE_CONCURRENCY = 1/);
   assert.doesNotMatch(
     collectors,
     /fetch-logged-in-social-traction|ingest:logged-social|--allow-linkedin/

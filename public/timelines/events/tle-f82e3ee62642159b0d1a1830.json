@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-arga-labs",
+    "slug": "arga-labs",
+    "name": "Arga Labs"
+  },
+  "event": {
+    "id": "tle-f82e3ee62642159b0d1a1830",
+    "eventDate": "2026-04-13",
+    "eventDateType": "announcement_date",
+    "title": "Arga Labs announced its public launch",
+    "summary": "Arga Labs announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-545dc47a365b79dc38ab9f69",
+        "title": "Arga Labs Launch Video",
+        "publisher": "Arga Labs Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-13T12:14:15-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=OzEk5pYTvak"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-545dc47a365b79dc38ab9f69",
+        "title": "Arga Labs Launch Video",
+        "publisher": "Arga Labs Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-13T12:14:15-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=OzEk5pYTvak",
+        "publicationDate": "2026-04-13T12:14:15-07:00",
+        "excerpt": "Embedded in the official Arga Labs YC company page.",
+        "sourceEventDate": "2026-04-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-6e6c64fb67eb0dd7962496b7",
+        "platform": "youtube",
+        "account": "Arga Labs Launch Video",
+        "postDate": "2026-04-13",
+        "excerpt": "Embedded in the official Arga Labs YC company page.",
+        "url": "https://youtube.com/watch?v=OzEk5pYTvak",
+        "metrics": {
+          "views": 529,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-osmaura",
+    "slug": "osmaura",
+    "name": "Osmaura"
+  },
+  "event": {
+    "id": "tle-0a1661590552263a94cf38b2",
+    "eventDate": "2026-07-01",
+    "eventDateType": "announcement_date",
+    "title": "Osmaura announced its public launch",
+    "summary": "Osmaura introduced Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-17eba2fc44d13441c1917ff7",
+        "title": "Introducing Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities. 🧵 If you want access to ou...",
+        "publisher": "rookunderfire",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-01T01:40:17.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rookunderfire/status/2072133157315600451"
+      },
+      {
+        "id": "src-61a2ef013c0144777b4917be",
+        "title": "Introducing Osmaura (YC S26) a tool that surfaces new matter opportunities for corporate law firm partners. 🧵",
+        "publisher": "abe_yebe",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-01T01:40:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/abe_yebe/status/2072133219949158572"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-17eba2fc44d13441c1917ff7",
+        "title": "Introducing Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities. 🧵 If you want access to ou...",
+        "publisher": "rookunderfire",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-01T01:40:17.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/rookunderfire/status/2072133157315600451",
+        "publicationDate": "2026-07-01T01:40:17.000Z",
+        "excerpt": "Introducing Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities. 🧵 If you want access to our tool, reply with “early access” and we’ll reach out to you!",
+        "sourceEventDate": "2026-07-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-61a2ef013c0144777b4917be",
+        "title": "Introducing Osmaura (YC S26) a tool that surfaces new matter opportunities for corporate law firm partners. 🧵",
+        "publisher": "abe_yebe",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-01T01:40:32.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/abe_yebe/status/2072133219949158572",
+        "publicationDate": "2026-07-01T01:40:32.000Z",
+        "excerpt": "Introducing Osmaura (YC S26) a tool that surfaces new matter opportunities for corporate law firm partners. 🧵",
+        "sourceEventDate": "2026-07-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-c1aee58427b44cfe1bbf15f5",
+        "platform": "x",
+        "account": "rookunderfire",
+        "postDate": "2026-07-01",
+        "excerpt": "Introducing Osmaura (YC S26), AI agents that help corporate law firm partners find new matter opportunities. 🧵 If you want access to our tool, reply with “early access” and we’ll reach out to you!",
+        "url": "https://x.com/rookunderfire/status/2072133157315600451",
+        "metrics": {
+          "views": 13947,
+          "likes": 129,
+          "replies": 22,
+          "reposts": 13,
+          "quotes": 0,
+          "bookmarks": 29
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-e9f827cbe9253a8c598eb681",
+        "platform": "x",
+        "account": "abe_yebe",
+        "postDate": "2026-07-01",
+        "excerpt": "Introducing Osmaura (YC S26) a tool that surfaces new matter opportunities for corporate law firm partners. 🧵",
+        "url": "https://x.com/abe_yebe/status/2072133219949158572",
+        "metrics": {
+          "views": 530,
+          "likes": 14,
+          "replies": 2,
+          "reposts": 1,
+          "quotes": 0,
+          "bookmarks": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

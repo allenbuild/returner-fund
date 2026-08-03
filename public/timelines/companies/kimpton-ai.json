@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-kimpton-ai",
+    "slug": "kimpton-ai",
+    "name": "Kimpton AI"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-5f4c75c3a25fa4253bda380c",
+      "eventDate": "2026-06-12",
+      "eventDateType": "announcement_date",
+      "title": "Kimpton AI released Kimpton Email Agent",
+      "summary": "Kimpton AI introduced Kimpton Email Agent.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-78b211fd2e5f54f4b6482efc",
+          "title": "Introducing Kimpton Email Agent. Forward any email to - [redacted-email] - and Kimpton replies in the thread, grounded in: - Your portfolio...",
+          "publisher": "kimptonai",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-06-12T18:56:57.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/KimptonAI/status/2065508671694716976"
+        }
+      ]
+    },
+    {
+      "id": "tle-8b4b1407672028766dc843d1",
+      "eventDate": "2026-05-28",
+      "eventDateType": "announcement_date",
+      "title": "Kimpton AI launched on Y Combinator",
+      "summary": "Launch YC: Kimpton AI.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-2e550c4611ca0be8438eee4a",
+          "title": "Launch YC: Kimpton AI",
+          "publisher": "Kimpton AI",
+          "domain": "youtube.com",
+          "sourceType": "video",
+          "publishedAt": "2026-05-27T23:13:09-07:00",
+          "evidenceRole": "primary",
+          "url": "https://youtube.com/watch?v=3aED4nL3G50"
+        }
+      ]
+    },
+    {
+      "id": "tle-1cf5b6693584b51ebb31f0a9",
+      "eventDate": "2026-04-02",
+      "eventDateType": "announcement_date",
+      "title": "Kimpton AI released Dashboards",
+      "summary": "Kimpton AI introduced Dashboards.",
+      "category": "product_launch",
+      "isMajor": false,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 1,
+      "sourcePreview": [
+        {
+          "id": "src-e80d6b24aee68344ba3766d7",
+          "title": "Introducing Dashboards. Dashboards are a collection of AI-generated widgets on a flexible canvas that maintain themselves, indefinitely. Real-time data is critical to financial markets. When you create a visualization you review every…",
+          "publisher": "KimptonAI X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-04-02T20:07:25.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/KimptonAI/status/2039796865965908134"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-06",
+          "count": 1
+        },
+        {
+          "month": "2026-05",
+          "count": 1
+        },
+        {
+          "month": "2026-04",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 3,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

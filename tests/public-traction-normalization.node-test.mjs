@@ -9,6 +9,14 @@ import { canonicalSocialAccountUrl } from "../scripts/lib/social-account-url.mjs
 
 const root = process.cwd();
 
+test("public lane pools share one process-wide task concurrency guard", async () => {
+  const collector = await readFile(join(root, "scripts", "fetch-public-traction.mjs"), "utf8");
+  assert.match(collector, /const MAX_PUBLIC_TASK_WORKERS = 16/);
+  assert.match(collector, /const publicTaskConcurrencyGuard = createConcurrencyGuard\(workerCount\)/);
+  assert.match(collector, /await publicTaskConcurrencyGuard\(async \(\) =>/);
+  assert.match(collector, /taskConcurrencyCap: workerCount/);
+});
+
 function assertWellFormedStrings(value, path = "$") {
   if (typeof value === "string") {
     for (let index = 0; index < value.length; index += 1) {
@@ -49,7 +57,7 @@ function assertJqParsesIfAvailable(path) {
   }
 }
 
-test("public collection defaults and safely clamps LinkedIn and Instagram lane overrides", () => {
+test("public collection globally bounds tasks and safely clamps lane overrides", () => {
   const runPlan = (...args) => JSON.parse(execFileSync(process.execPath, [
     "scripts/fetch-public-traction.mjs",
     "--batch=S2026",
@@ -60,8 +68,11 @@ test("public collection defaults and safely clamps LinkedIn and Instagram lane o
     ...args
   ], { cwd: root, encoding: "utf8" }));
 
+  assert.equal(runPlan().taskConcurrencyCap, 8);
   assert.equal(runPlan().laneConcurrency.linkedin, 1);
   assert.equal(runPlan().laneConcurrency.instagram, 2);
+  assert.equal(runPlan("--workers=999").taskConcurrencyCap, 16);
+  assert.equal(runPlan("--workers=0").taskConcurrencyCap, 1);
   assert.equal(runPlan("--workers=16", "--linkedin-workers=99").laneConcurrency.linkedin, 4);
   assert.equal(runPlan("--workers=16", "--instagram-workers=99").laneConcurrency.instagram, 8);
   assert.equal(runPlan("--workers=2", "--linkedin-workers=4").laneConcurrency.linkedin, 2);

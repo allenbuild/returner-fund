@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-asterlab",
+    "slug": "aster",
+    "name": "Aster"
+  },
+  "event": {
+    "id": "tle-99acbbc9efe6b56467247dcb",
+    "eventDate": "2026-06-13",
+    "eventDateType": "announcement_date",
+    "title": "Aster announced its public launch",
+    "summary": "Aster introduced Aster — a major breakthrough for research intelligence.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7a25a1baf2e532c48cecbf69",
+        "title": "Introducing Aster — a major breakthrough for research intelligence. Aster isn’t a single agent. It is the first autonomous lab orchestrating thousands of research agents in parallel. We pointed Aster towards ProteinGym, a benchmark that…",
+        "publisher": "asterailabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-13T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/asterailabs/status/2065873907530510357"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7a25a1baf2e532c48cecbf69",
+        "title": "Introducing Aster — a major breakthrough for research intelligence. Aster isn’t a single agent. It is the first autonomous lab orchestrating thousands of research agents in parallel. We pointed Aster towards ProteinGym, a benchmark that…",
+        "publisher": "asterailabs X post",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-06-13T00:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/asterailabs/status/2065873907530510357",
+        "publicationDate": "2026-06-13T00:00:00.000Z",
+        "excerpt": "Introducing Aster — a major breakthrough for research intelligence. Aster isn’t a single agent. It is the first autonomous lab orchestrating thousands of research agents in parallel. We pointed Aster towards ProteinGym, a benchmark that measures how accurately models predict Show more Quote Y Combinator @ycombinator · Jun 13 Aster (@asterailabs) is building the autonomous research lab. They run thousands of AI agents in parallel to achieve 1000x speedups in autonomous research. Their lab just…",
+        "sourceEventDate": "2026-06-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-f3c25ae57ee0bb2a3636bc02",
+        "platform": "x",
+        "account": "asterailabs X post",
+        "postDate": "2026-06-13",
+        "excerpt": "Introducing Aster — a major breakthrough for research intelligence. Aster isn’t a single agent. It is the first autonomous lab orchestrating thousands of research agents in parallel. We pointed Aster towards ProteinGym, a benchmark that measures how accurately models predict Show more Quote Y Combinator @ycombinator · Jun 13 Aster (@asterailabs) is building the autonomous research lab. They run thousands of AI agents in parallel to achieve 1000x speedups in autonomous research. Their lab just…",
+        "url": "https://x.com/asterailabs/status/2065873907530510357",
+        "metrics": {
+          "likes": 122,
+          "reposts": 9,
+          "comments": 32,
+          "views": 326764
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-heyclicky",
+    "slug": "heyclicky",
+    "name": "HeyClicky"
+  },
+  "event": {
+    "id": "tle-77f93837028afe22fcf028cc",
+    "eventDate": "2026-07-14",
+    "eventDateType": "announcement_date",
+    "title": "HeyClicky released screen-aware dictation",
+    "summary": "HeyClicky announced it was shipping screen-aware dictation.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-f01cef9038173e9d8254d435",
+        "title": "Today we're shipping screen-aware dictation. First, we built a speedy speech-to-text (very fast, ~450ms). But, many products do this! So...",
+        "publisher": "farzatv",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-14T20:37:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FarzaTV/status/2077130366230639022"
+      },
+      {
+        "id": "src-273382fd80635e669ae184e8",
+        "title": "introducing screen-aware dictation.",
+        "publisher": "heyclicky",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-14T14:38:07-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=km54y7Xd_7g"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-f01cef9038173e9d8254d435",
+        "title": "Today we're shipping screen-aware dictation. First, we built a speedy speech-to-text (very fast, ~450ms). But, many products do this! So...",
+        "publisher": "farzatv",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-07-14T20:37:25.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/FarzaTV/status/2077130366230639022",
+        "publicationDate": "2026-07-14T20:37:25.000Z",
+        "excerpt": "Today we're shipping screen-aware dictation. First, we built a speedy speech-to-text (very fast, ~450ms). But, many products do this! So we went further. Now dictate using your screen as context. In Claude Code, it writes the prompt. In G-Mail, it replies in your voice. Demo:",
+        "sourceEventDate": "2026-07-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-273382fd80635e669ae184e8",
+        "title": "introducing screen-aware dictation.",
+        "publisher": "heyclicky",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-14T14:38:07-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=km54y7Xd_7g",
+        "publicationDate": "2026-07-14T14:38:07-07:00",
+        "excerpt": "introducing screen-aware dictation.",
+        "sourceEventDate": "2026-07-14",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-4f107950e08de370aefc8340",
+        "platform": "x",
+        "account": "farzatv",
+        "postDate": "2026-07-14",
+        "excerpt": "Today we're shipping screen-aware dictation. First, we built a speedy speech-to-text (very fast, ~450ms). But, many products do this! So we went further. Now dictate using your screen as context. In Claude Code, it writes the prompt. In G-Mail, it replies in your voice. Demo:",
+        "url": "https://x.com/FarzaTV/status/2077130366230639022",
+        "metrics": {
+          "views": 2691586,
+          "likes": 10613,
+          "comments": 544,
+          "replies": 544,
+          "reposts": 465,
+          "quotes": 291,
+          "saves": 8905
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-79f4a6af3278c404f5227242",
+        "platform": "youtube",
+        "account": "heyclicky",
+        "postDate": "2026-07-14",
+        "excerpt": "introducing screen-aware dictation.",
+        "url": "https://youtube.com/watch?v=km54y7Xd_7g",
+        "metrics": {
+          "views": 8398,
+          "likes": 252
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "company-timeline.v1",
+  "company": {
+    "id": "company-rentahuman",
+    "slug": "rentahuman",
+    "name": "RentAHuman"
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z",
+  "events": [
+    {
+      "id": "tle-102f6edb84efbc2dac95944f",
+      "eventDate": "2026-05-27",
+      "eventDateType": "announcement_date",
+      "title": "RentAHuman announced its public launch",
+      "summary": "RentAHuman launched.",
+      "category": "product_launch",
+      "isMajor": true,
+      "hasConflict": false,
+      "conflictSummary": null,
+      "evidenceCount": 2,
+      "sourcePreview": [
+        {
+          "id": "src-b540625d71969ce3a23cdf4c",
+          "title": "We launched! Quote Y Combinator @ycombinator · May 27 Rentahuman (@RentAHumanX) allows AI agents to communicate with and pay humans to do tasks in the real world. Their mission is to use AI to create new jobs and coordinate workers at…",
+          "publisher": "AlexanderTw33ts X post",
+          "domain": "x.com",
+          "sourceType": "founder_post",
+          "publishedAt": "2026-05-27T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/AlexanderTw33ts/status/2059683426152886559"
+        },
+        {
+          "id": "src-2bc3788e99f2617a042a2efa",
+          "title": "Rentahuman is live! Quote Y Combinator @ycombinator · May 27 Rentahuman (@RentAHumanX) allows AI agents to communicate with and pay humans to do tasks in the real world. Their mission is to use AI to create new jobs and coordinate workers…",
+          "publisher": "RentAHumanX X post",
+          "domain": "x.com",
+          "sourceType": "company_post",
+          "publishedAt": "2026-05-27T00:00:00.000Z",
+          "evidenceRole": "primary",
+          "url": "https://x.com/RentAHumanX/status/2059685540732219761"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "year": 2026,
+      "months": [
+        {
+          "month": "2026-05",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "status": "partial",
+    "publishedEventCount": 1,
+    "lastSuccessfulArtifactAt": "2026-08-02T21:14:13.078Z"
+  },
+  "nextCursor": null
+}

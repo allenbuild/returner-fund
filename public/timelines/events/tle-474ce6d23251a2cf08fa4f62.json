@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-rise-reforming",
+    "slug": "rise-reforming",
+    "name": "Rise Reforming"
+  },
+  "event": {
+    "id": "tle-474ce6d23251a2cf08fa4f62",
+    "eventDate": "2024-02-29",
+    "eventDateType": "announcement_date",
+    "title": "Rise Reforming was introduced",
+    "summary": "Announcing Rise Reforming.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-d1e8fd30ba281ccfb864ca13",
+        "title": "Announcing Rise Reforming",
+        "publisher": "jonavanoord",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2024-02-29T18:03:21.951Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/jonavanoord_i-am-excited-and-proud-to-announce-that-rise-activity-7169029395410571265-v_zv"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-d1e8fd30ba281ccfb864ca13",
+        "title": "Announcing Rise Reforming",
+        "publisher": "jonavanoord",
+        "domain": "linkedin.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2024-02-29T18:03:21.951Z",
+        "evidenceRole": "primary",
+        "url": "https://linkedin.com/posts/jonavanoord_i-am-excited-and-proud-to-announce-that-rise-activity-7169029395410571265-v_zv",
+        "publicationDate": "2024-02-29T18:03:21.951Z",
+        "excerpt": "I am excited and proud to announce that Rise Reforming, the start-up co-founded by our team, is a DOE finalist.",
+        "sourceEventDate": "2024-02-29",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1239abbc9c8ba928a87c94d8",
+        "platform": "linkedin",
+        "account": "jonavanoord",
+        "postDate": "2024-02-29",
+        "excerpt": "I am excited and proud to announce that Rise Reforming, the start-up co-founded by our team, is a DOE finalist.",
+        "url": "https://linkedin.com/posts/jonavanoord_i-am-excited-and-proud-to-announce-that-rise-activity-7169029395410571265-v_zv",
+        "metrics": {
+          "reactions": 141,
+          "comments": 33
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

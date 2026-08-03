@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-petrarch",
+    "slug": "petrarch",
+    "name": "Petrarch"
+  },
+  "event": {
+    "id": "tle-2f57a4b3be235276178a00c7",
+    "eventDate": "2026-07-13",
+    "eventDateType": "announcement_date",
+    "title": "Petrarch released Petrarch Launch",
+    "summary": "Petrarch Launch.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-5c3abbfc65fa5ece996def39",
+        "title": "Petrarch Launch",
+        "publisher": "Petrarch Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-13T09:04:12-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=YRflyEOuVYo"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-5c3abbfc65fa5ece996def39",
+        "title": "Petrarch Launch",
+        "publisher": "Petrarch Launch",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-07-13T09:04:12-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=YRflyEOuVYo",
+        "publicationDate": "2026-07-13T09:04:12-07:00",
+        "excerpt": "Embedded in the official Petrarch YC company page.",
+        "sourceEventDate": "2026-07-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-93bff5776a5a9a743c98a995",
+        "platform": "youtube",
+        "account": "Petrarch Launch",
+        "postDate": "2026-07-13",
+        "excerpt": "Embedded in the official Petrarch YC company page.",
+        "url": "https://youtube.com/watch?v=YRflyEOuVYo",
+        "metrics": {
+          "views": 348,
+          "likes": 6,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

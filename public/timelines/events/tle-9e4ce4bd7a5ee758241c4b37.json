@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-cohesion",
+    "slug": "cohesion",
+    "name": "Cohesion"
+  },
+  "event": {
+    "id": "tle-9e4ce4bd7a5ee758241c4b37",
+    "eventDate": "2026-04-16",
+    "eventDateType": "announcement_date",
+    "title": "Cohesion announced its public launch",
+    "summary": "Cohesion announced its public launch in a dated company video.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-7550421bd1af9800cab66f94",
+        "title": "Cohesion Launch Video",
+        "publisher": "Cohesion Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-16T08:25:36-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=DZMmSVwp2Pk"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-7550421bd1af9800cab66f94",
+        "title": "Cohesion Launch Video",
+        "publisher": "Cohesion Launch Video",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-04-16T08:25:36-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=DZMmSVwp2Pk",
+        "publicationDate": "2026-04-16T08:25:36-07:00",
+        "excerpt": "cohesionplatform.com",
+        "sourceEventDate": "2026-04-16",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-5540d400ee996ea22dd3d9f5",
+        "platform": "youtube",
+        "account": "Cohesion Launch Video",
+        "postDate": "2026-04-16",
+        "excerpt": "cohesionplatform.com",
+        "url": "https://youtube.com/watch?v=DZMmSVwp2Pk",
+        "metrics": {
+          "views": 1875,
+          "likes": 1,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

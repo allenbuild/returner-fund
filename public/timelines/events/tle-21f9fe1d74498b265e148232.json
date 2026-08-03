@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-drafted",
+    "slug": "drafted",
+    "name": "Drafted"
+  },
+  "event": {
+    "id": "tle-21f9fe1d74498b265e148232",
+    "eventDate": "2026-07-23",
+    "eventDateType": "announcement_date",
+    "title": "Drafted released Projects & Collaborators in Drafted",
+    "summary": "Drafted introduced Projects & Collaborators in Drafted.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-056d1c337ea40b2d1866bd63",
+        "title": "Introducing Projects &amp; Collaborators in Drafted. Create a project, invite collaborators, design together in one shared space, and approve or reject designs as a team.",
+        "publisher": "DraftedAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-23T17:05:03.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/DraftedAI/status/2080338414675902844"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-056d1c337ea40b2d1866bd63",
+        "title": "Introducing Projects &amp; Collaborators in Drafted. Create a project, invite collaborators, design together in one shared space, and approve or reject designs as a team.",
+        "publisher": "DraftedAI",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-07-23T17:05:03.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/DraftedAI/status/2080338414675902844",
+        "publicationDate": "2026-07-23T17:05:03.000Z",
+        "excerpt": "Introducing Projects &amp; Collaborators in Drafted. Create a project, invite collaborators, design together in one shared space, and approve or reject designs as a team.",
+        "sourceEventDate": "2026-07-23",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-9372288c3fb72d0f265bd6a2",
+        "platform": "x",
+        "account": "DraftedAI",
+        "postDate": "2026-07-23",
+        "excerpt": "Introducing Projects &amp; Collaborators in Drafted. Create a project, invite collaborators, design together in one shared space, and approve or reject designs as a team.",
+        "url": "https://x.com/DraftedAI/status/2080338414675902844",
+        "metrics": {
+          "likes": 32,
+          "reposts": 2,
+          "quotes": 1,
+          "replies": 2,
+          "views": 2954
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

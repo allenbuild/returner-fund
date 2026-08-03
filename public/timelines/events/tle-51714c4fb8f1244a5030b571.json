@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-allowance",
+    "slug": "allowance",
+    "name": "Allowance"
+  },
+  "event": {
+    "id": "tle-51714c4fb8f1244a5030b571",
+    "eventDate": "2026-06-01",
+    "eventDateType": "announcement_date",
+    "title": "Allowance released Chat tab",
+    "summary": "Allowance introduced Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-795bf6cf71c013edd99fd96d",
+        "title": "Introducing Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat.",
+        "publisher": "Introducing Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat.",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-01T18:27:06.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/dasmersingh/status/2061514893355000219"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-795bf6cf71c013edd99fd96d",
+        "title": "Introducing Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat.",
+        "publisher": "Introducing Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat.",
+        "domain": "x.com",
+        "sourceType": "founder_post",
+        "publishedAt": "2026-06-01T18:27:06.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/dasmersingh/status/2061514893355000219",
+        "publicationDate": "2026-06-01T18:27:06.000Z",
+        "excerpt": "Introducing Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat. You can always still connect via CLI or MCP if you want to connect @useallowance to Codex, OpenClaw or your favorite desktop agent. Skip the fric, use Allowance. https://t.co/pVisrCHq9P",
+        "sourceEventDate": "2026-06-01",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-0379ab82a4e226a208d2d6fe",
+        "platform": "x",
+        "account": null,
+        "postDate": "2026-06-01",
+        "excerpt": "Introducing Chat tab: Make purchases immediately by talking to an AI agent in Allowance Chat. You can always still connect via CLI or MCP if you want to connect @useallowance to Codex, OpenClaw or your favorite desktop agent. Skip the fric, use Allowance. https://t.co/pVisrCHq9P",
+        "url": "https://x.com/dasmersingh/status/2061514893355000219",
+        "metrics": {
+          "likes": 13,
+          "reposts": 4,
+          "comments": 6,
+          "views": 957
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

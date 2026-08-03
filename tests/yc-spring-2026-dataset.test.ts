@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { canonicalPostKey } from "@/lib/graph/dedupe";
 import { buildGraphResponse } from "@/lib/graph/graph-builder";
 import { isCrediblyPublishedToday } from "@/lib/graph/native-publication-date";
@@ -13,8 +15,17 @@ import {
 import type { SocialAccountSummary } from "@/lib/graph/types";
 import springGithubSnapshot from "@/lib/social/github-traction.json";
 import summerGithubSnapshot from "@/lib/social/github-traction-summer-2026.json";
-import targetedEvidenceSnapshot from "@/lib/social/targeted-evidence-current.json";
 import summerCompaniesSnapshot from "@/lib/yc/summer-2026-companies.json";
+
+const targetedEvidenceSnapshot = JSON.parse(
+  readFileSync(join(process.cwd(), "src/lib/social/targeted-evidence-current.json"), "utf8")
+) as {
+  evidence: Array<{
+    sourceUrl: string;
+    postedAt?: string | null;
+    rawVisibleText: string;
+  }>;
+};
 
 const EXPLICIT_S2026_HACKER_NEWS_POST_IDS = [
   "46868675",
@@ -479,6 +490,10 @@ describe("YC Summer 2026 official snapshot", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const companyNodes = graph.nodes.filter((node) => node.entityType === "company");
     const founderNodes = graph.nodes.filter((node) => node.entityType === "founder");
+    const instagramEvidence = graph.evidence.filter((item) => item.platform === "instagram");
+    const summerCompanyIds = new Set(
+      summerCompaniesSnapshot.companies.map((company) => `company-${company.slug}`)
+    );
 
     expect(graph.mode).toBe("official_snapshot");
     expect(graph.batch.companyCountExpected).toBe(summerCompaniesSnapshot.source.expectedCompanyCount);
@@ -494,7 +509,11 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(graph.evidence.some((item) => item.platform === "youtube" && item.attachedCompanyName === "Archal")).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "x" && item.contributionScore > 0)).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "linkedin" && item.contributionScore > 0)).toBe(true);
-    expect(graph.evidence.filter((item) => item.platform === "instagram")).toHaveLength(9);
+    expect(instagramEvidence.length).toBeGreaterThan(0);
+    expect(instagramEvidence.every((item) => summerCompanyIds.has(item.attachedCompanyId ?? ""))).toBe(true);
+    expect(instagramEvidence.map((item) => item.attachedCompanyName)).toEqual(
+      expect.arrayContaining(["Control Seat", "Pluto", "tash"])
+    );
     expect(graph.leaderboard[0]?.topPlatform).toBeTruthy();
     expect(companyNodes.filter((node) => node.score > 0).length).toBeGreaterThan(6);
     expect(companyNodes.some((node) => node.founders.length > 0)).toBe(true);

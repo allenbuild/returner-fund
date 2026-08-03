@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-miso-labs",
+    "slug": "miso-labs",
+    "name": "Miso Labs"
+  },
+  "event": {
+    "id": "tle-4b82f079c2ea8050d4e61622",
+    "eventDate": "2026-06-03",
+    "eventDateType": "announcement_date",
+    "title": "Miso Labs released Miso One",
+    "summary": "Miso Labs reported launching Miso One: The Most Emotive AI Voice Model.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-455fa042f6c3998996bfc084",
+        "title": "Launching Miso One: The Most Emotive AI Voice Model",
+        "publisher": "Launching Miso One: The Most Emotive AI Voice Model",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-06-03T10:07:59-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=HizlJgDbac8"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-455fa042f6c3998996bfc084",
+        "title": "Launching Miso One: The Most Emotive AI Voice Model",
+        "publisher": "Launching Miso One: The Most Emotive AI Voice Model",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-06-03T10:07:59-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=HizlJgDbac8",
+        "publicationDate": "2026-06-03T10:07:59-07:00",
+        "excerpt": "Today, we’re excited to introduce Miso One, the most emotive voice model in the world. Miso One is an 8-billion-parameter text-to-speech model for highly expressive speech generation. It emotes like a human and responds faster than a human, with just 110 milliseconds of latency. We’ve open-sourced the model weights, with API access coming soon. To download the model, check out our repo on Github: MisoLabsAI/MisoTTS You can also test out the model directly at misolabs.ai.",
+        "sourceEventDate": "2026-06-03",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-a45fe3c87350454a914fd1a7",
+        "platform": "youtube",
+        "account": "Launching Miso One: The Most Emotive AI Voice Model",
+        "postDate": "2026-06-03",
+        "excerpt": "Today, we’re excited to introduce Miso One, the most emotive voice model in the world. Miso One is an 8-billion-parameter text-to-speech model for highly expressive speech generation. It emotes like a human and responds faster than a human, with just 110 milliseconds of latency. We’ve open-sourced the model weights, with API access coming soon. To download the model, check out our repo on Github: MisoLabsAI/MisoTTS You can also test out the model directly at misolabs.ai.",
+        "url": "https://youtube.com/watch?v=HizlJgDbac8",
+        "metrics": {
+          "views": 4288,
+          "likes": 134,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}

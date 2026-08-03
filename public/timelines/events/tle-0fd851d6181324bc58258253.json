@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "company-takecareos",
+    "slug": "takecareos",
+    "name": "TakeCareOS"
+  },
+  "event": {
+    "id": "tle-0fd851d6181324bc58258253",
+    "eventDate": "2026-05-13",
+    "eventDateType": "announcement_date",
+    "title": "TakeCareOS released TakeCareOS | The Care Management Platform that you can put to work",
+    "summary": "Launching TakeCareOS | The Care Management Platform that you can put to work.",
+    "category": "product_launch",
+    "isMajor": false,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-09a4d30e3ac03eec17b944c1",
+        "title": "Launching TakeCareOS | The Care Management Platform that you can put to work",
+        "publisher": "Launching TakeCareOS | The Care Management Platform that you can put to work",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-12T22:25:44-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=6G3sDJdRLc4"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-09a4d30e3ac03eec17b944c1",
+        "title": "Launching TakeCareOS | The Care Management Platform that you can put to work",
+        "publisher": "Launching TakeCareOS | The Care Management Platform that you can put to work",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-05-12T22:25:44-07:00",
+        "evidenceRole": "primary",
+        "url": "https://youtube.com/watch?v=6G3sDJdRLc4",
+        "publicationDate": "2026-05-12T22:25:44-07:00",
+        "excerpt": "TakeCareOS is an AI-first operating system for care agencies. The platform consolidates every function an agency runs on — rostering, shifts, CRM, care notes, messaging, invoicing, timesheets, and compliance — into one place, with AI agents that automate the admin work managers currently do by hand.",
+        "sourceEventDate": "2026-05-13",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-51b5bd0d3f29498c8811ba7e",
+        "platform": "youtube",
+        "account": null,
+        "postDate": "2026-05-13",
+        "excerpt": "TakeCareOS is an AI-first operating system for care agencies. The platform consolidates every function an agency runs on — rostering, shifts, CRM, care notes, messaging, invoicing, timesheets, and compliance — into one place, with AI agents that automate the admin work managers currently do by hand.",
+        "url": "https://youtube.com/watch?v=6G3sDJdRLc4",
+        "metrics": {
+          "views": 261,
+          "likes": 0,
+          "comments": 0
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-02T21:14:13.078Z",
+  "lastModifiedAt": "2026-08-02T21:14:13.078Z"
+}
