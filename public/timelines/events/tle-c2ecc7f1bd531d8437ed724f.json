@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-oasiz",
+    "slug": "oasiz",
+    "name": "Oasiz"
+  },
+  "event": {
+    "id": "tle-c2ecc7f1bd531d8437ed724f",
+    "eventDate": "2025-10-08",
+    "eventDateType": "announcement_date",
+    "title": "Oasiz announced $2.5m funding round",
+    "summary": "Oasiz reported announcing our $2.5m raise led by @TheVRFund and @speedrun .",
+    "category": "funding",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 1,
+    "sourcePreview": [
+      {
+        "id": "src-884aab276bb4494cdd4e8636",
+        "title": "Announcing our $2.5m raise led by @TheVRFund and @speedrun !",
+        "publisher": "playoasiz",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2025-10-08T05:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/playoasiz/status/1975996861510291753"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-884aab276bb4494cdd4e8636",
+        "title": "Announcing our $2.5m raise led by @TheVRFund and @speedrun !",
+        "publisher": "playoasiz",
+        "domain": "x.com",
+        "sourceType": "company_post",
+        "publishedAt": "2025-10-08T05:00:00.000Z",
+        "evidenceRole": "primary",
+        "url": "https://x.com/playoasiz/status/1975996861510291753",
+        "publicationDate": "2025-10-08T05:00:00.000Z",
+        "excerpt": "Announcing our $2.5m raise led by @TheVRFund and @speedrun ! We've all used AI for work, school ... but for fun? Imagine game nights with friends but you create the games. Inside jokes become interactive experiences. Moments you can play instead of just scroll. This week, we’re Show more",
+        "sourceEventDate": "2025-10-08",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1222c148bc7e9808e2da56af",
+        "platform": "x",
+        "account": "playoasiz",
+        "postDate": "2025-10-08",
+        "excerpt": "Announcing our $2.5m raise led by @TheVRFund and @speedrun ! We've all used AI for work, school ... but for fun? Imagine game nights with friends but you create the games. Inside jokes become interactive experiences. Moments you can play instead of just scroll. This week, we’re Show more",
+        "url": "https://x.com/playoasiz/status/1975996861510291753",
+        "metrics": {
+          "likes": 11,
+          "reposts": 7,
+          "views": 2161,
+          "replies": 1
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T01:18:44.518Z",
+  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+}

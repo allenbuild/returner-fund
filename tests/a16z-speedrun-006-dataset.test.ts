@@ -4,6 +4,13 @@ import { join } from "node:path";
 import {
   A16Z_SPEEDRUN_006_BATCH_LABEL,
   A16Z_SPEEDRUN_006_BATCH_SLUG,
+  a16zCanonicalReviewCandidateIdentity,
+  a16zEvidenceItemId,
+  a16zExactEvidenceIdentity,
+  a16zInstagramGridAuthorHandle,
+  a16zIsAllowedNativeEvidenceUrl,
+  a16zNativeAuthorEvidenceMatches,
+  a16zNativePostIdsMatch,
   a16zSpeedrun006GraphDataset
 } from "@/lib/graph/a16z-speedrun-006-dataset";
 import { calibrateBatchCompanyScores } from "@/lib/scoring/batch-calibration";
@@ -32,10 +39,37 @@ interface GithubTractionSnapshot {
   }>;
 }
 
+interface RuntimeReviewRow {
+  id: string;
+  batchSlug?: string;
+  batch_slug?: string;
+  entityType: "company" | "founder";
+  entityId: string;
+  entityName: string;
+  platform: Platform;
+  candidateUrl: string;
+  review_state: string;
+  matchReason: string;
+}
+
+interface RuntimeEvidenceProjection {
+  evidence: Array<{
+    batchSlug?: string;
+    batch_slug?: string;
+    attributionStatus?: string;
+    attributionVersion?: number;
+    review_state?: string;
+  }>;
+  needsReview: RuntimeReviewRow[];
+}
+
 const socialAccountSeedSnapshot = readTestJson("src/lib/social/a16z-speedrun-006-social-accounts.json");
 const seededSocialEvidenceSnapshot = readTestJson<SeededSocialEvidenceSnapshot>("src/lib/social/a16z-speedrun-006-social-evidence.json");
 const seededAttributionReconciliationSnapshot = readTestJson("src/lib/social/a16z-speedrun-006-attribution-reconciliation.json");
 const githubTractionSnapshot = readTestJson<GithubTractionSnapshot>("src/lib/social/github-traction-a16z-speedrun-006.json");
+const publicRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/public-evidence-current.json");
+const loggedInRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/logged-in-evidence-current.json");
+const targetedRuntimeProjection = readTestJson<RuntimeEvidenceProjection>("generated-runtime/graph/targeted-evidence-current.json");
 
 function readTestJson<T = unknown>(relativePath: string): T {
   return JSON.parse(readFileSync(join(process.cwd(), relativePath), "utf8")) as T;
@@ -410,6 +444,479 @@ describe("a16z speedrun 006 dataset", () => {
       entityId: "a16z-speedrun-006-sun-founder-artin-bogdanov",
       attachedCompanyId: "a16z-speedrun-006-sun"
     }));
+  });
+
+  it("preserves the three newest canonical public Instagram ownership anchors", () => {
+    const graph = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
+      ycSpring2026GraphDataset
+    );
+    const cases = [
+      {
+        platformPostId: "DbfhU8Yu7Pn",
+        entityType: "founder",
+        entityId: "a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin",
+        attachedCompanyId: "a16z-speedrun-006-mirror-mirror-ai",
+        accountUrl: "https://www.instagram.com/yusan.lin",
+        socialAccountId:
+          "acct:founder:a16z-speedrun-006-mirror-mirror-ai-founder-yusan-lin:instagram:https%3A%2F%2Fwww.instagram.com%2Fyusan.lin",
+        postedAt: "2026-08-01T09:32:04.000Z",
+        metrics: { likes: 467, comments: 3 }
+      },
+      {
+        platformPostId: "DbeDhm-vd7M",
+        entityType: "company",
+        entityId: "a16z-speedrun-006-snapp-stats",
+        attachedCompanyId: "a16z-speedrun-006-snapp-stats",
+        accountUrl: "https://www.instagram.com/snappstats",
+        socialAccountId:
+          "acct:company:a16z-speedrun-006-snapp-stats:instagram:https%3A%2F%2Fwww.instagram.com%2Fsnappstats",
+        postedAt: "2026-07-31T19:51:42.000Z",
+        metrics: { likes: 11, comments: 0, views: 112 }
+      },
+      {
+        platformPostId: "DbbqOA8lhPV",
+        entityType: "founder",
+        entityId: "a16z-speedrun-006-idilio-founder-gabriela-tafur",
+        attachedCompanyId: "a16z-speedrun-006-idilio",
+        accountUrl: "https://www.instagram.com/gabrielatafur",
+        socialAccountId:
+          "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
+        postedAt: "2026-07-30T21:30:45.000Z",
+        metrics: { likes: 3467, comments: 28 }
+      }
+    ] as const;
+
+    for (const expected of cases) {
+      const matches = graph.evidence.filter(
+        (item) => item.platform === "instagram" && item.platformPostId === expected.platformPostId
+      );
+      expect(matches).toHaveLength(1);
+      expect(matches[0]).toEqual(expect.objectContaining({
+        ...expected,
+        publishedAtPrecision: "exact",
+        review_state: "verified"
+      }));
+      expect(matches[0].contributionScore).toBeGreaterThan(0);
+      expect(scoringEligibility(matches[0]).eligible).toBe(true);
+    }
+  });
+
+  it("prefers richer canonical public observations over same-owner legacy Instagram seeds", () => {
+    const graph = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
+      ycSpring2026GraphDataset
+    );
+    const cases = [
+      {
+        platformPostId: "DZaUqGAB-5G",
+        entityId: "a16z-speedrun-006-mirror-mirror-ai",
+        metrics: { likes: 403, comments: 16, views: 12_821 },
+        opening: "Introducing Digital Twin Studio!",
+      },
+      {
+        platformPostId: "DW4VYvfidcr",
+        entityId: "a16z-speedrun-006-syncere",
+        metrics: { likes: 78, comments: 10, views: 1_313 },
+        opening: "Introducing Lume.",
+      },
+    ] as const;
+
+    for (const expected of cases) {
+      const matches = graph.evidence.filter(
+        (item) => item.platform === "instagram" && item.platformPostId === expected.platformPostId
+      );
+      expect(matches).toHaveLength(1);
+      expect(matches[0]).toEqual(expect.objectContaining({
+        entityType: "company",
+        entityId: expected.entityId,
+        metrics: expect.objectContaining(expected.metrics),
+      }));
+      expect(matches[0]?.text.split(expected.opening)).toHaveLength(2);
+    }
+  });
+
+  it("merges exact logged-in founder posts, rejects mismatched authors, and preserves seed precedence", () => {
+    const graph = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
+      ycSpring2026GraphDataset
+    );
+    const xFounderPost = graph.evidence.filter(
+      (item) => item.platform === "x" && item.platformPostId === "2081970466714173599"
+    );
+    const instagramFounderPost = graph.evidence.filter(
+      (item) => item.platform === "instagram" && item.platformPostId === "DawUDejlnT3"
+    );
+    const seedAndLoggedPhysicalPost = graph.evidence.filter(
+      (item) => item.platform === "instagram" && item.platformPostId === "DPTAEA5jM-q"
+    );
+    const dateOnlyXPost = graph.evidence.find(
+      (item) => item.platform === "x" && item.platformPostId === "2046626219584889327"
+    );
+
+    expect(xFounderPost).toHaveLength(1);
+    expect(xFounderPost[0]).toEqual(expect.objectContaining({
+      entityType: "founder",
+      entityId: "a16z-speedrun-006-snapp-stats-founder-min-park",
+      attachedCompanyId: "a16z-speedrun-006-snapp-stats",
+      accountUrl: "https://x.com/themichelinmin",
+      socialAccountId:
+        "acct:founder:a16z-speedrun-006-snapp-stats-founder-min-park:x:https%3A%2F%2Fx.com%2Fthemichelinmin",
+      postedAt: "2026-07-28T05:10:15.000Z",
+      publishedAtPrecision: "exact",
+      metrics: { likes: 3, reposts: 1, replies: 1, views: 150 }
+    }));
+    expect(instagramFounderPost).toHaveLength(1);
+    expect(instagramFounderPost[0]).toEqual(expect.objectContaining({
+      entityType: "founder",
+      entityId: "a16z-speedrun-006-idilio-founder-gabriela-tafur",
+      attachedCompanyId: "a16z-speedrun-006-idilio",
+      accountUrl: "https://www.instagram.com/gabrielatafur",
+      socialAccountId:
+        "acct:founder:a16z-speedrun-006-idilio-founder-gabriela-tafur:instagram:https%3A%2F%2Fwww.instagram.com%2Fgabrielatafur",
+      postedAt: "2026-07-14T01:29:43.000Z",
+      publishedAtPrecision: "exact",
+      metrics: { likes: 7341, comments: 61 }
+    }));
+    expect(seedAndLoggedPhysicalPost).toHaveLength(1);
+    expect(seedAndLoggedPhysicalPost[0]).toEqual(expect.objectContaining({
+      entityType: "company",
+      entityId: "a16z-speedrun-006-antihero-studios",
+      metrics: { likes: 220, comments: 8 }
+    }));
+    expect(dateOnlyXPost?.publishedAtPrecision).toBe("day");
+    expect(graph.evidence.some((item) => item.platformPostId === "DafmJgmjm0D")).toBe(false);
+    expect(graph.evidence.some((item) => item.platformPostId === "DbWVA8WAdbR")).toBe(false);
+  });
+
+  it("reports the conservative logged-in merge and working Instagram materialization", () => {
+    const instagramStatus = a16zSpeedrun006GraphDataset.platformStatus.find(
+      (item) => item.platform === "instagram"
+    );
+    const scoredInstagramRows = a16zSpeedrun006GraphDataset.evidence.filter(
+      (item) =>
+        item.platform === "instagram" &&
+        item.review_state === "verified" &&
+        item.contributionScore > 0 &&
+        Object.values(item.metrics).some((value) => Number(value ?? 0) > 0)
+    ).length;
+
+    expect(instagramStatus).toEqual(expect.objectContaining({
+      status: "working",
+      batchSlugs: [A16Z_SPEEDRUN_006_BATCH_SLUG]
+    }));
+    expect(instagramStatus?.notes).toContain(`Materialized ${scoredInstagramRows}`);
+    const mergeCounts = instagramStatus?.notes.match(/accepted (\d+).*rejected (\d+)/);
+    const scopedLoggedInRows = loggedInRuntimeProjection.evidence.filter(
+      (item) => String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase() ===
+        A16Z_SPEEDRUN_006_BATCH_SLUG
+    );
+
+    expect(mergeCounts).not.toBeNull();
+    expect(Number(mergeCounts?.[1])).toBeGreaterThan(0);
+    expect(Number(mergeCounts?.[1]) + Number(mergeCounts?.[2])).toBe(scopedLoggedInRows.length);
+  });
+
+  it("materializes a deterministic exact-roster A16Z review queue", () => {
+    const reviews = a16zSpeedrun006GraphDataset.needsReview ?? [];
+    const roster = new Map<string, { entityType: "company" | "founder"; entityName: string }>([
+      ...a16zSpeedrun006GraphDataset.companies.map((company) => [
+        company.id,
+        { entityType: "company", entityName: company.name }
+      ] as const),
+      ...a16zSpeedrun006GraphDataset.founders.map((founder) => [
+        founder.id,
+        { entityType: "founder", entityName: founder.name }
+      ] as const)
+    ]);
+    const keys = reviews.map((item) =>
+      [item.entityType, item.entityId, item.platform, item.candidateUrl].join("\u0000")
+    );
+
+    expect(reviews.length).toBeGreaterThan(0);
+    expect(new Set(keys).size).toBe(reviews.length);
+    expect(new Set(reviews.map((item) => item.id)).size).toBe(reviews.length);
+    expect(keys).toEqual([...keys].sort());
+    expect(reviews.every((item) => {
+      const owner = roster.get(item.entityId);
+      return (
+        item.batchSlug === A16Z_SPEEDRUN_006_BATCH_SLUG &&
+        item.review_state === "needs_review" &&
+        owner?.entityType === item.entityType &&
+        owner.entityName === item.entityName &&
+        item.matchReason.trim().length > 0
+      );
+    })).toBe(true);
+    expect(reviews.some((item) =>
+      item.matchReason.includes("Quarantined during logged-in evidence finalization")
+    )).toBe(true);
+    expect(reviews.filter((item) =>
+      item.entityId === "a16z-speedrun-006-paypath-founder-dean-glas" &&
+      item.platform === "x" &&
+      item.candidateUrl === "https://x.com/deanglas"
+    )).toHaveLength(1);
+
+    const sourceRows = [
+      ...publicRuntimeProjection.needsReview,
+      ...loggedInRuntimeProjection.needsReview,
+      ...targetedRuntimeProjection.needsReview
+    ].filter((item) =>
+      String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase() ===
+        A16Z_SPEEDRUN_006_BATCH_SLUG &&
+      item.review_state === "needs_review"
+    );
+    const rejectedSourceRows = sourceRows.filter((item) => {
+      const owner = roster.get(item.entityId);
+      return !owner || owner.entityType !== item.entityType;
+    });
+    const materializedIds = new Set(reviews.map((item) => item.id));
+
+    expect(rejectedSourceRows.length).toBeGreaterThan(0);
+    expect(rejectedSourceRows.some((item) => item.entityId.startsWith("company-"))).toBe(true);
+    expect(rejectedSourceRows.some((item) => item.entityId.startsWith("founder-"))).toBe(true);
+    expect(rejectedSourceRows.every((item) => !materializedIds.has(item.id))).toBe(true);
+  });
+
+  it("canonicalizes case-insensitive review accounts without merging distinct posts", () => {
+    const accountVariants = [
+      "https://x.com/DeanGlas",
+      "https://x.com/deanglas/",
+      "http://twitter.com/DEANGLAS?utm_source=collector"
+    ].map((url) => a16zCanonicalReviewCandidateIdentity("x", url));
+
+    expect(accountVariants).toEqual([
+      "https://x.com/deanglas",
+      "https://x.com/deanglas",
+      "https://x.com/deanglas"
+    ]);
+    expect(a16zCanonicalReviewCandidateIdentity(
+      "x",
+      "https://x.com/DeanGlas/status/1"
+    )).not.toBe(a16zCanonicalReviewCandidateIdentity(
+      "x",
+      "https://x.com/deanglas/status/2"
+    ));
+    expect(a16zCanonicalReviewCandidateIdentity(
+      "x",
+      "https://user@x.com/deanglas"
+    )).toBeNull();
+    expect(a16zCanonicalReviewCandidateIdentity(
+      "x",
+      "https://x.com:444/deanglas"
+    )).toBeNull();
+  });
+
+  it("reads all compact review sources and keeps future targeted evidence on the strict v3 path", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/lib/graph/a16z-speedrun-006-dataset.ts"),
+      "utf8"
+    );
+    const rosterIds = new Set([
+      ...a16zSpeedrun006GraphDataset.companies.map((company) => company.id),
+      ...a16zSpeedrun006GraphDataset.founders.map((founder) => founder.id)
+    ]);
+    const exactReviewCount = (projection: RuntimeEvidenceProjection) =>
+      projection.needsReview.filter((item) =>
+        String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase() ===
+          A16Z_SPEEDRUN_006_BATCH_SLUG &&
+        item.review_state === "needs_review" &&
+        rosterIds.has(item.entityId)
+      ).length;
+
+    const sourceReviewCounts = [
+      exactReviewCount(publicRuntimeProjection),
+      exactReviewCount(loggedInRuntimeProjection),
+      exactReviewCount(targetedRuntimeProjection)
+    ];
+    const targetedBatchEvidence = targetedRuntimeProjection.evidence.filter((item) =>
+      String(item.batchSlug ?? item.batch_slug ?? "").trim().toUpperCase() ===
+      A16Z_SPEEDRUN_006_BATCH_SLUG
+    );
+
+    expect(sourceReviewCounts[0]).toBeGreaterThan(0);
+    expect(sourceReviewCounts[1]).toBeGreaterThan(0);
+    expect(sourceReviewCounts.reduce((total, count) => total + count, 0)).toBeGreaterThanOrEqual(
+      a16zSpeedrun006GraphDataset.needsReview?.length ?? 0
+    );
+    expect(targetedBatchEvidence.every((item) =>
+      item.review_state === "verified" &&
+      Number(item.attributionVersion ?? 0) >= 3 &&
+      item.attributionStatus === "verified"
+    )).toBe(true);
+    expect(source).toContain('"generated-runtime/graph/targeted-evidence-current.json"');
+    expect(source).toMatch(
+      /targetedSnapshot\.evidence\.flatMap\(\(source\)\s*=>\s*publicEvidenceItemFromCanonicalAttribution\(source, targetedSnapshot\.source\.fetchedAt\)/
+    );
+  });
+
+  it("adds review context without changing accepted A16Z evidence or scoring", () => {
+    const eligibleCount = a16zSpeedrun006GraphDataset.evidence.filter(
+      (item) => scoringEligibility(item).eligible
+    ).length;
+    const evidenceIds = new Set(a16zSpeedrun006GraphDataset.evidence.map((item) => item.id));
+    const rosterIds = new Set([
+      ...a16zSpeedrun006GraphDataset.companies.map((company) => company.id),
+      ...a16zSpeedrun006GraphDataset.founders.map((founder) => founder.id)
+    ]);
+    const withReviewContext = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
+      a16zSpeedrun006GraphDataset
+    );
+    const withoutReviewContext = buildGraphResponse(
+      { batchSlug: A16Z_SPEEDRUN_006_BATCH_SLUG },
+      { ...a16zSpeedrun006GraphDataset, needsReview: [] }
+    );
+
+    expect(a16zSpeedrun006GraphDataset.evidence.length).toBeGreaterThan(0);
+    expect(eligibleCount).toBeGreaterThan(0);
+    expect(eligibleCount).toBeLessThanOrEqual(a16zSpeedrun006GraphDataset.evidence.length);
+    expect(evidenceIds.size).toBe(a16zSpeedrun006GraphDataset.evidence.length);
+    expect(a16zSpeedrun006GraphDataset.evidence.every((item) => rosterIds.has(item.entityId))).toBe(true);
+    expect(a16zSpeedrun006GraphDataset.companies.every((company) =>
+      Number.isFinite(company.totalScore) && company.totalScore >= 0 && company.totalScore <= 100
+    )).toBe(true);
+    expect((a16zSpeedrun006GraphDataset.needsReview ?? []).every(
+      (item) => !evidenceIds.has(item.id)
+    )).toBe(true);
+    expect(withReviewContext.evidence).toEqual(withoutReviewContext.evidence);
+    expect(withReviewContext.nodes).toEqual(withoutReviewContext.nodes);
+    expect(withReviewContext.leaderboard).toEqual(withoutReviewContext.leaderboard);
+  });
+
+  it("binds Instagram grid author proof to an allowed host and the exact native shortcode", () => {
+    const sourceUrl = "https://www.instagram.com/reel/AbC_123/";
+
+    expect(
+      a16zInstagramGridAuthorHandle(
+        sourceUrl,
+        "AbC_123",
+        "https://www.instagram.com/snappstats/reel/AbC_123/"
+      )
+    ).toBe("snappstats");
+    expect(
+      a16zInstagramGridAuthorHandle(
+        sourceUrl,
+        "AbC_123",
+        "https://example.com/snappstats/reel/AbC_123/"
+      )
+    ).toBeNull();
+    expect(
+      a16zInstagramGridAuthorHandle(
+        sourceUrl,
+        "AbC_123",
+        "https://www.instagram.com/snappstats/reel/Different123/"
+      )
+    ).toBeNull();
+    expect(
+      a16zInstagramGridAuthorHandle(
+        sourceUrl,
+        "abc_123",
+        "https://www.instagram.com/snappstats/reel/AbC_123/"
+      )
+    ).toBeNull();
+
+    const malformedNativeUrls = [
+      "http://www.instagram.com/snappstats/reel/AbC_123/",
+      "ftp://www.instagram.com/snappstats/reel/AbC_123/",
+      "https://user@www.instagram.com/snappstats/reel/AbC_123/",
+      "https://user:pass@www.instagram.com/snappstats/reel/AbC_123/",
+      "https://www.instagram.com:444/snappstats/reel/AbC_123/",
+      "https://instagram.com.evil.test/snappstats/reel/AbC_123/"
+    ];
+    for (const malformedUrl of malformedNativeUrls) {
+      expect(a16zInstagramGridAuthorHandle(
+        malformedUrl.replace("/snappstats", ""),
+        "AbC_123",
+        "https://www.instagram.com/snappstats/reel/AbC_123/"
+      )).toBeNull();
+      expect(a16zInstagramGridAuthorHandle(
+        sourceUrl,
+        "AbC_123",
+        malformedUrl
+      )).toBeNull();
+    }
+  });
+
+  it("accepts only credential-free HTTPS native URLs on approved hosts and ports", () => {
+    const rejectedInstagramUrls = [
+      "http://instagram.com/reel/AbC_123/",
+      "ftp://instagram.com/reel/AbC_123/",
+      "https://user@instagram.com/reel/AbC_123/",
+      "https://user:pass@instagram.com/reel/AbC_123/",
+      "https://instagram.com:444/reel/AbC_123/",
+      "https://instagram.com.evil.test/reel/AbC_123/"
+    ];
+
+    expect(a16zIsAllowedNativeEvidenceUrl(
+      "instagram",
+      "https://instagram.com:443/reel/AbC_123/"
+    )).toBe(true);
+    for (const url of rejectedInstagramUrls) {
+      expect(a16zIsAllowedNativeEvidenceUrl("instagram", url)).toBe(false);
+    }
+    for (const item of a16zSpeedrun006GraphDataset.evidence) {
+      expect(a16zIsAllowedNativeEvidenceUrl(item.platform, item.sourceUrl)).toBe(true);
+      if (item.accountUrl) {
+        expect(a16zIsAllowedNativeEvidenceUrl(item.platform, item.accountUrl)).toBe(true);
+      }
+    }
+    for (const account of [
+      ...a16zSpeedrun006GraphDataset.companies.flatMap((company) => company.socialAccounts),
+      ...a16zSpeedrun006GraphDataset.founders.flatMap((founder) => founder.socialAccounts)
+    ]) {
+      expect(a16zIsAllowedNativeEvidenceUrl(account.platform, account.url)).toBe(true);
+    }
+  });
+
+  it("uses receipts only when no native author was observed", () => {
+    expect(a16zNativeAuthorEvidenceMatches("other-account", "mapped-account", true)).toBe(false);
+    expect(a16zNativeAuthorEvidenceMatches("Mapped-Account", "mapped-account", false)).toBe(true);
+    expect(a16zNativeAuthorEvidenceMatches(null, "mapped-account", true)).toBe(true);
+    expect(a16zNativeAuthorEvidenceMatches(null, "mapped-account", false)).toBe(false);
+  });
+
+  it("compares opaque native post IDs case-sensitively", () => {
+    expect(a16zNativePostIdsMatch("instagram", "AbC_123", "AbC_123")).toBe(true);
+    expect(a16zNativePostIdsMatch("instagram", "abc_123", "AbC_123")).toBe(false);
+    expect(a16zNativePostIdsMatch("youtube", "VideoAbC", "videoabc")).toBe(false);
+    expect(a16zNativePostIdsMatch("x", "2081970466714173599", "2081970466714173599")).toBe(true);
+    expect(a16zNativePostIdsMatch("github", "Owner/Repo", "owner/repo")).toBe(true);
+  });
+
+  it("uses a lossless deterministic evidence ID component for opaque native IDs", () => {
+    const nativeIds = ["AbC_123", "abc_123", "AbC-123"];
+    const identityComponents = nativeIds.map(a16zExactEvidenceIdentity);
+    const evidenceIds = nativeIds.map((platformPostId) => a16zEvidenceItemId(
+      "instagram",
+      "company",
+      "a16z-speedrun-006-snapp-stats",
+      platformPostId
+    ));
+    const materializedAnchor = a16zSpeedrun006GraphDataset.evidence.find(
+      (item) => item.platform === "instagram" && item.platformPostId === "DbeDhm-vd7M"
+    );
+
+    expect(new Set(identityComponents).size).toBe(nativeIds.length);
+    expect(new Set(evidenceIds).size).toBe(nativeIds.length);
+    expect(identityComponents.map(decodeURIComponent)).toEqual(nativeIds);
+    expect(a16zExactEvidenceIdentity("AbC_123")).toBe(identityComponents[0]);
+    expect(a16zEvidenceItemId(
+      "instagram",
+      "company",
+      "entity-a",
+      "native-b-c"
+    )).not.toBe(a16zEvidenceItemId(
+      "instagram",
+      "company",
+      "entity-a-native-b",
+      "c"
+    ));
+    expect(materializedAnchor?.id).toBe(a16zEvidenceItemId(
+      "instagram",
+      materializedAnchor!.entityType,
+      materializedAnchor!.entityId,
+      "DbeDhm-vd7M"
+    ));
   });
 
   it("scores Quanto only from the exact founder post, not its Product Hunt product profile", () => {
@@ -875,7 +1382,7 @@ describe("a16z speedrun 006 dataset", () => {
     }
   });
 
-  it("strictly imports every accepted Jul 19 A16Z second-pass row once", () => {
+  it("keeps every accepted Jul 19 A16Z second-pass physical post once", () => {
     const seededSnapshot = seededSocialEvidenceSnapshot as unknown as {
       source: {
         evidenceCount: number;
@@ -900,6 +1407,15 @@ describe("a16z speedrun 006 dataset", () => {
         return [];
       }
     });
+    const secondPassPhysicalRows = A16Z_SECOND_PASS_NATIVE_IDENTITIES.map((identity) => {
+      const [platform, ...postIdParts] = identity.split(":");
+      const platformPostId = postIdParts.join(":");
+      const matches = a16zSpeedrun006GraphDataset.evidence.filter(
+        (item) => item.platform === platform && item.platformPostId === platformPostId
+      );
+      expect(matches).toHaveLength(1);
+      return matches[0]!;
+    });
 
     expect(seededSnapshot.source.evidenceCount).toBe(seededSnapshot.evidence.length);
     expect(seededSnapshot.source.latestSourceHuntImport).toEqual({
@@ -912,16 +1428,27 @@ describe("a16z speedrun 006 dataset", () => {
       acceptedByPlatform: { instagram: 26, x: 1 },
       rejectedRowsByPlatform: { instagram: 1, x: 1, youtube: 3, hacker_news: 1, reddit: 1 }
     });
-    expect(secondPassRows).toHaveLength(27);
-    expect(secondPassRows.filter(({ item }) => item.platform === "instagram")).toHaveLength(26);
+    expect(secondPassPhysicalRows).toHaveLength(27);
+    expect(secondPassPhysicalRows.filter((item) => item.platform === "instagram")).toHaveLength(26);
+    expect(secondPassPhysicalRows.filter((item) => item.platform === "x")).toHaveLength(1);
+    expect(new Set(secondPassPhysicalRows.map((item) => item.sourceUrl)).size).toBe(secondPassPhysicalRows.length);
+    expect(new Set(secondPassPhysicalRows.map((item) => `${item.platform}:${item.platformPostId}`)).size).toBe(
+      secondPassPhysicalRows.length
+    );
+
+    // Two seed observations have deliberately been replaced by fresher
+    // canonical public receipts. Their physical native identities remain in
+    // the graph exactly once, while 25 rows retain the original import receipt.
+    expect(secondPassRows).toHaveLength(25);
+    expect(secondPassRows.filter(({ item }) => item.platform === "instagram")).toHaveLength(24);
     expect(secondPassRows.filter(({ item }) => item.platform === "x")).toHaveLength(1);
-    expect(secondPassRows.map(({ item }) => `${item.platform}:${item.platformPostId}`).sort()).toEqual(
-      [...A16Z_SECOND_PASS_NATIVE_IDENTITIES].sort()
+    const retainedSeedIdentities = new Set(
+      secondPassRows.map(({ item }) => `${item.platform}:${item.platformPostId}`)
     );
-    expect(new Set(secondPassRows.map(({ item }) => item.sourceUrl)).size).toBe(secondPassRows.length);
-    expect(new Set(secondPassRows.map(({ item }) => `${item.platform}:${item.platformPostId}`)).size).toBe(
-      secondPassRows.length
-    );
+    expect(A16Z_SECOND_PASS_NATIVE_IDENTITIES.filter((identity) => !retainedSeedIdentities.has(identity)).sort()).toEqual([
+      "instagram:Da5r6ONJJvs",
+      "instagram:Da9FP68vX_n"
+    ]);
     expect(new Set(secondPassRows.map(({ provenance }) => provenance.candidateId)).size).toBe(secondPassRows.length);
 
     for (const { item, provenance } of secondPassRows) {
@@ -978,7 +1505,7 @@ describe("a16z speedrun 006 dataset", () => {
       (item) => item.sourceUrl === "https://www.instagram.com/reel/DWt6B3bieXE/"
     );
     const yusanInstagramEvidence = graph.evidence.find(
-      (item) => item.sourceUrl === "https://www.instagram.com/p/DV9vi8vgUkp/"
+      (item) => item.platform === "instagram" && item.platformPostId === "DV9vi8vgUkp"
     );
 
     expect(clairInstagramEvidence).toEqual(
@@ -999,8 +1526,9 @@ describe("a16z speedrun 006 dataset", () => {
         platform: "instagram",
         attachedCompanyName: "Mirror Mirror AI",
         accountUrl: "https://www.instagram.com/yusan.lin",
+        sourceUrl: "https://instagram.com/p/DV9vi8vgUkp",
         metrics: expect.objectContaining({
-          likes: 1961,
+          likes: 1979,
           comments: 29
         })
       })

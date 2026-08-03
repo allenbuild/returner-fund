@@ -12,6 +12,11 @@ import {
   fetchGithubCollectionPages,
   MAX_GITHUB_COLLECTION_PAGE_LIMIT
 } from "./lib/github-api-pagination.mjs";
+import {
+  fetchGitHubJsonResponse,
+  githubApiFailureReceipt,
+  githubCollectorFailureOutcomeReason
+} from "./lib/github-api-client.mjs";
 
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
@@ -104,14 +109,14 @@ await runWorkerPool(githubTargets, workers, async (target) => {
     });
     console.log(`Fetched GitHub traction for ${target.companyName}: ${target.login}${target.repo ? `/${target.repo}` : ""}`);
   } catch (error) {
+    const failure = githubApiFailureReceipt(error);
     results.push({
       ...target,
       attemptKey: githubTargetAttemptKey(target),
       fetched: false,
-      error: errorMessage(error),
-      retryable: isAutonomousCollectorFailureRetryable(errorMessage(error))
+      ...failure
     });
-    console.warn(`GitHub fetch failed for ${target.login}${target.repo ? `/${target.repo}` : ""}: ${errorMessage(error)}`);
+    console.warn(`GitHub fetch failed for ${target.login}${target.repo ? `/${target.repo}` : ""}: ${failure.error}`);
   }
 });
 
@@ -269,7 +274,7 @@ function githubOwnerAttempts(owners, results, discovery) {
       outcomeReason = "collector_discovery_candidate_needs_review";
     } else if (ownerResults.some((result) => result.fetched === false)) {
       outcomeStatus = "failed";
-      outcomeReason = "collector_reported_failure";
+      outcomeReason = githubCollectorFailureOutcomeReason(ownerResults);
     } else if (successfulSourceChecks.length) {
       outcomeStatus = "blocked_or_empty";
       outcomeReason = "collector_official_sources_checked_empty_or_blocked";
@@ -279,6 +284,11 @@ function githubOwnerAttempts(owners, results, discovery) {
       ...sourceChecks.filter((check) => check.status === "failed").map((check) => check.error)
     ].map((error) => String(error ?? "").trim()).filter(Boolean);
     const retryableError = errors.find(isAutonomousCollectorFailureRetryable) ?? null;
+    const structuredFailure = ownerResults.find((result) =>
+      result.fetched === false && result.failureReason === "github_rate_limit_exhausted"
+    ) ?? ownerResults.find((result) =>
+      result.fetched === false && result.failureReason
+    ) ?? null;
     rows[attemptKey] = {
       attemptKey,
       platform: "github",
@@ -300,7 +310,16 @@ function githubOwnerAttempts(owners, results, discovery) {
       failedSourceCheckCount: sourceChecks.length - successfulSourceChecks.length,
       status: "done",
       ...(retryableError ?? errors[0] ? { error: retryableError ?? errors[0] } : {}),
-      retryable: outcomeStatus === "failed" && Boolean(retryableError),
+      ...(structuredFailure ? {
+        failureReason: structuredFailure.failureReason,
+        endpoint: structuredFailure.endpoint,
+        httpStatus: structuredFailure.httpStatus,
+        rateLimitRemaining: structuredFailure.rateLimitRemaining,
+        rateLimitResetAt: structuredFailure.rateLimitResetAt,
+        attempts: structuredFailure.attempts
+      } : {}),
+      retryable: outcomeStatus === "failed" &&
+        (structuredFailure?.retryable === true || Boolean(retryableError)),
       outcomeStatus,
       outcomeReason,
       reviewCandidates: reviewCandidates.map((candidate) => candidate.githubUrl),
@@ -603,27 +622,7 @@ async function fetchJsonResponse(url) {
     headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    const response = await fetch(url, { headers });
-    if (response.ok) {
-      return {
-        data: await response.json(),
-        headers: response.headers
-      };
-    }
-    if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0") {
-      const resetAt = Number(response.headers.get("x-ratelimit-reset") ?? 0) * 1000;
-      const waitMs = Math.min(Math.max(resetAt - Date.now() + 1_000, 5_000), 65_000);
-      await delay(waitMs);
-      continue;
-    }
-    if (response.status >= 500 && attempt < 2) {
-      await delay(1_000 * (attempt + 1));
-      continue;
-    }
-    throw new Error(`${response.status} ${response.statusText}`);
-  }
-  throw new Error("GitHub request failed after retries.");
+  return fetchGitHubJsonResponse(url, { headers });
 }
 
 function normalizeTarget(target, account, repos, repositoryPagination) {
@@ -784,10 +783,6 @@ function hasArg(name) {
 
 function resolveOutputPath(value) {
   return resolve(root, value);
-}
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function errorMessage(error) {

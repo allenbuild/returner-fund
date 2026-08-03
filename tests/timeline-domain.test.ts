@@ -38,6 +38,33 @@ describe("timeline deterministic publication gating", () => {
     });
   });
 
+  it("classifies an announced quantified raise as funding instead of a product launch", () => {
+    const text = "Announcing our $2.5m raise led by @TheVRFund and @speedrun!";
+    const result = classify({
+      company: {
+        id: "a16z-speedrun-006-oasiz",
+        slug: "oasiz",
+        name: "Oasiz",
+        aliases: ["Oasiz", "playoasiz"],
+        websiteUrl: "https://oasiz.gg",
+        founderNames: ["Abel Dagne"],
+      },
+      source: source({
+        text,
+        title: text,
+        publisher: "playoasiz",
+        authorRelationship: "company",
+      }),
+    });
+
+    expect(result).toMatchObject({
+      isMeaningfulEvent: true,
+      category: "funding",
+      title: "Oasiz announced $2.5m funding round",
+      isMajor: true,
+    });
+  });
+
   it.each([
     "i am being shipped",
     "i got shipped",

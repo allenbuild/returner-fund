@@ -27,6 +27,31 @@ const targetedEvidenceSnapshot = JSON.parse(
   }>;
 };
 
+const githubQuarantineSnapshot = JSON.parse(
+  readFileSync(join(process.cwd(), "src/lib/social/github-traction-quarantine.json"), "utf8")
+) as {
+  source: {
+    scoringEligible: false;
+    rowCount: number;
+  };
+  rows: Array<{
+    batchSlug: string;
+    category: string;
+    currentCanonicality: string;
+    scoringEligible: false;
+    physicalRepresentation: {
+      status: string;
+    };
+    legacyRow: {
+      entityId?: string;
+      companySlug?: string;
+      login?: string;
+      repo?: string | null;
+      repos?: unknown[];
+    };
+  }>;
+};
+
 const EXPLICIT_S2026_HACKER_NEWS_POST_IDS = [
   "46868675",
   "47950283",
@@ -680,26 +705,31 @@ describe("YC Summer 2026 official snapshot", () => {
       )?.contributionScore
     ).toBeGreaterThan(0);
 
-    expect(summer.evidence).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: "evidence-github-profile-company-definite",
-          entityId: "company-definite",
-          review_state: "verified"
-        }),
-        expect.objectContaining({
-          id: "evidence-github-repo-company-definite-usebylaw-python-sdk",
-          entityId: "company-definite",
-          review_state: "verified",
-          contributionScore: expect.any(Number)
-        })
-      ])
-    );
     expect(
-      summer.evidence.find(
-        (item) => item.id === "evidence-github-repo-company-definite-usebylaw-python-sdk"
-      )?.contributionScore
-    ).toBeGreaterThan(0);
+      summer.evidence.some((item) =>
+        item.id === "evidence-github-profile-company-definite" ||
+        item.id === "evidence-github-repo-company-definite-usebylaw-python-sdk"
+      )
+    ).toBe(false);
+    expect(
+      githubQuarantineSnapshot.rows.find(
+        (row) => row.batchSlug === "S26" && row.legacyRow.companySlug === "bylaw"
+      )
+    ).toEqual(
+      expect.objectContaining({
+        category: "legacy_account_mapping_absent_from_authoritative_targets",
+        currentCanonicality: "absent_from_current_canonical_receipt",
+        scoringEligible: false,
+        physicalRepresentation: expect.objectContaining({
+          status: "not_represented_in_current_canonical_receipt"
+        }),
+        legacyRow: expect.objectContaining({
+          entityId: "company-bylaw",
+          login: "UseBylaw",
+          repos: expect.any(Array)
+        })
+      })
+    );
   }, 30_000);
 
   it("provides a thumbnail URL for every evidence item in YC and a16z batches", () => {
@@ -738,19 +768,26 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(new Set(spring.evidence.map((item) => item.id)).size).toBe(spring.evidence.length);
     expect(profileRows.every((item) => item.contributionScore === 0)).toBe(true);
     expect(
-      profileRows
-        .filter(
-          (item) =>
-            item.entityType === "founder" &&
-            item.entityId === "founder-smol-machines-binbin-he-1655532" &&
-            item.attachedCompanyId === "company-smol-machines"
-        )
-        .map((item) => item.id)
+      profileRows.some(
+        (item) =>
+          item.entityType === "founder" &&
+          item.entityId === "founder-smol-machines-binbin-he-1655532"
+      )
+    ).toBe(false);
+    const quarantinedSmolFounderRows = githubQuarantineSnapshot.rows.filter(
+      (row) => row.legacyRow.entityId === "founder-smol-machines-binbin-he-1655532"
+    );
+    expect(quarantinedSmolFounderRows).toHaveLength(4);
+    expect(quarantinedSmolFounderRows.every((row) => row.scoringEligible === false)).toBe(true);
+    expect(
+      quarantinedSmolFounderRows
+        .filter((row) => row.legacyRow.repo)
+        .map((row) => `${row.legacyRow.login}/${row.legacyRow.repo}`)
         .sort()
     ).toEqual([
-      "evidence-github-profile-founder-smol-machines-binbin-he-1655532-binsquare",
-      "evidence-github-profile-founder-smol-machines-binbin-he-1655532-containers",
-      "evidence-github-profile-founder-smol-machines-binbin-he-1655532-smol-machines"
+      "containers/libkrun",
+      "smol-machines/libkrunfw",
+      "smol-machines/smolvm"
     ]);
 
     const summer = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);

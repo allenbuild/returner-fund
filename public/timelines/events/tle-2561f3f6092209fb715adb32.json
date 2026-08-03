@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "company-timeline-event.v1",
+  "company": {
+    "id": "a16z-speedrun-006-mirror-mirror-ai",
+    "slug": "mirror-mirror-ai",
+    "name": "Mirror Mirror AI"
+  },
+  "event": {
+    "id": "tle-2561f3f6092209fb715adb32",
+    "eventDate": "2026-03-22",
+    "eventDateType": "announcement_date",
+    "title": "Mirror Mirror AI became publicly available",
+    "summary": "Mirror Mirror AI introduced e-commerce imagery, now live on Mirror Mirror AI.",
+    "category": "product_launch",
+    "isMajor": true,
+    "hasConflict": false,
+    "conflictSummary": null,
+    "evidenceCount": 2,
+    "sourcePreview": [
+      {
+        "id": "src-4efaec54563b8a83fd5e44c7",
+        "title": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image.…",
+        "publisher": "mirrormirror.ai",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-27T18:31:50.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/DY2iw5kRRvZ"
+      },
+      {
+        "id": "src-7068fb04546d01a80e5f7b65",
+        "title": "Mirror Mirror AI Launch Video",
+        "publisher": "Mirror Mirror AI",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-03-22T07:36:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=SnIE-Rqr2bw"
+      }
+    ],
+    "evidence": [
+      {
+        "id": "src-4efaec54563b8a83fd5e44c7",
+        "title": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image.…",
+        "publisher": "mirrormirror.ai",
+        "domain": "instagram.com",
+        "sourceType": "company_post",
+        "publishedAt": "2026-05-27T18:31:50.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.instagram.com/reel/DY2iw5kRRvZ",
+        "publicationDate": "2026-05-27T18:31:50.000Z",
+        "excerpt": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image. Link in bio to get started.",
+        "sourceEventDate": "2026-05-27",
+        "isConflicting": false,
+        "conflictDescription": null
+      },
+      {
+        "id": "src-7068fb04546d01a80e5f7b65",
+        "title": "Mirror Mirror AI Launch Video",
+        "publisher": "Mirror Mirror AI",
+        "domain": "youtube.com",
+        "sourceType": "video",
+        "publishedAt": "2026-03-22T07:36:33.000Z",
+        "evidenceRole": "primary",
+        "url": "https://www.youtube.com/watch?v=SnIE-Rqr2bw",
+        "publicationDate": "2026-03-22T07:36:33.000Z",
+        "excerpt": "The official Mirror Mirror AI YouTube channel published a native launch video.",
+        "sourceEventDate": "2026-03-22",
+        "isConflicting": false,
+        "conflictDescription": null
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-3e321227812b0ede65ff27b4",
+        "platform": "instagram",
+        "account": "mirrormirror.ai",
+        "postDate": "2026-05-27",
+        "excerpt": "Introducing e-commerce imagery, now live on Mirror Mirror AI. A complete e-commerce shoot with real models, done in hours, not weeks. Every shot consistent across the catalog. Consent, licensing, and compensation built into every image. Link in bio to get started.",
+        "url": "https://www.instagram.com/reel/DY2iw5kRRvZ",
+        "metrics": {
+          "likes": 21,
+          "comments": 3
+        },
+        "evidenceRole": "primary"
+      },
+      {
+        "id": "post-c8a3e985f181ba06680296f8",
+        "platform": "youtube",
+        "account": "Mirror Mirror AI",
+        "postDate": "2026-03-22",
+        "excerpt": "The official Mirror Mirror AI YouTube channel published a native launch video.",
+        "url": "https://www.youtube.com/watch?v=SnIE-Rqr2bw",
+        "metrics": {
+          "views": 386,
+          "likes": 5
+        },
+        "evidenceRole": "primary"
+      }
+    ]
+  },
+  "generatedAt": "2026-08-03T01:18:44.518Z",
+  "lastModifiedAt": "2026-08-03T01:18:44.518Z"
+}
