@@ -1,6 +1,4 @@
-import { CalendarRange, Check, ListFilter, RotateCcw } from "lucide-react";
-import { TIMELINE_CATEGORIES, type TimelineCategory } from "@/lib/timeline/contracts";
-import { TIMELINE_CATEGORY_LABELS } from "@/lib/timeline/taxonomy";
+import { CalendarRange, RotateCcw } from "lucide-react";
 import type { TimelineFiltersState } from "./client";
 import styles from "./CompanyTimeline.module.css";
 
@@ -14,8 +12,7 @@ interface TimelineFiltersProps {
 type DatePreset = "all" | "past-year" | "past-three-years" | "custom";
 
 export function TimelineFilters({ filters, resultCount, loading, onChange }: TimelineFiltersProps) {
-  const selectedCategorySet = new Set(filters.categories);
-  const hasFilters = Boolean(filters.from || filters.to || filters.categories.length);
+  const hasFilters = Boolean(filters.from || filters.to);
 
   function setPreset(preset: DatePreset) {
     if (preset === "all") {
@@ -27,13 +24,6 @@ export function TimelineFilters({ filters, resultCount, loading, onChange }: Tim
     const start = new Date(today);
     start.setUTCFullYear(today.getUTCFullYear() - (preset === "past-year" ? 1 : 3));
     onChange({ ...filters, from: isoDay(start), to: isoDay(today) });
-  }
-
-  function toggleCategory(category: TimelineCategory) {
-    const categories = selectedCategorySet.has(category)
-      ? filters.categories.filter((value) => value !== category)
-      : TIMELINE_CATEGORIES.filter((value) => selectedCategorySet.has(value) || value === category);
-    onChange({ ...filters, categories });
   }
 
   return (
@@ -93,28 +83,6 @@ export function TimelineFilters({ filters, resultCount, loading, onChange }: Tim
           </label>
         </div>
 
-        <details className={styles.categoryFilter}>
-          <summary>
-            <span><ListFilter size={15} aria-hidden="true" /> Event type</span>
-            <strong>{filters.categories.length ? `${filters.categories.length} selected` : "All types"}</strong>
-          </summary>
-          <fieldset>
-            <legend className="sr-only">Filter timeline by event type</legend>
-            {TIMELINE_CATEGORIES.map((category) => (
-              <label key={category}>
-                <input
-                  type="checkbox"
-                  checked={selectedCategorySet.has(category)}
-                  onChange={() => toggleCategory(category)}
-                />
-                <span className={styles.checkboxMark} aria-hidden="true">
-                  <Check size={13} />
-                </span>
-                <span>{TIMELINE_CATEGORY_LABELS[category]}</span>
-              </label>
-            ))}
-          </fieldset>
-        </details>
       </div>
     </section>
   );

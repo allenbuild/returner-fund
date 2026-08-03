@@ -154,7 +154,7 @@ describe("Company Timeline", () => {
     expect(parseCompanyTimelineQuery(url.searchParams).limit).toBe(100);
   });
 
-  it("renders exact-date events newest first with major hierarchy, conflict text, and date navigation", async () => {
+  it("renders exact-date events newest first with month headings and no date or event-type navigation", async () => {
     mockTimelineFetch();
     render(<CompanyTimeline companySlug="conifer" companyName="Conifer" />);
 
@@ -168,8 +168,12 @@ describe("Company Timeline", () => {
     expect(screen.getByText("Major event")).toBeVisible();
     expect(screen.getAllByText("Funding").some((element) => element.className.includes("category"))).toBe(true);
     expect(screen.getByText(launchEvent.conflictSummary!)).toBeVisible();
-    expect(screen.getByRole("navigation", { name: "Timeline dates" })).toBeVisible();
-    expect(screen.getByRole("button", { name: /March, 1 event/i })).toHaveAttribute("aria-current", "location");
+    expect(screen.getByRole("heading", { name: "2026", level: 3 })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "March", level: 4 })).toBeVisible();
+    expect(screen.queryByRole("navigation", { name: "Timeline dates" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Event type")).not.toBeInTheDocument();
+    expect(screen.queryByText("All types")).not.toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
   });
 
   it("loads complete web and post evidence only when an event expands", async () => {
@@ -224,7 +228,7 @@ describe("Company Timeline", () => {
     expect(within(evidenceRegion).getAllByRole("link")).toHaveLength(1);
   });
 
-  it("does not advertise an unloaded month beyond the 100-event cursor page", async () => {
+  it("does not render an unloaded month beyond the 100-event cursor page", async () => {
     const firstPageEvents = Array.from({ length: 100 }, (_, index): PublishedTimelineEvent => ({
       ...fundingEvent,
       id: `event-current-${index}`,
@@ -260,12 +264,13 @@ describe("Company Timeline", () => {
 
     render(<CompanyTimeline companySlug="conifer" companyName="Conifer" />);
     await screen.findByRole("heading", { name: "Current event 1" });
-    expect(screen.getByRole("button", { name: /March, 100 events/i })).toBeVisible();
-    expect(screen.queryByRole("button", { name: /January, 1 event/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "March", level: 4 })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "January", level: 4 })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: olderEvent.title })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Show older events" }));
-    expect(await screen.findByRole("button", { name: /January, 1 event/i })).toBeVisible();
-    expect(screen.getByRole("heading", { name: olderEvent.title })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: olderEvent.title })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "January", level: 4 })).toBeVisible();
   });
 
   it("identifies the selected conflict date, rationale, and alternate exact date accessibly", async () => {
@@ -284,9 +289,14 @@ describe("Company Timeline", () => {
   });
 
   it("backs filters with timeline-specific URL keys while sending canonical API parameters", async () => {
+    window.history.replaceState({}, "", "/?timelineCategories=funding");
     const fetchMock = mockTimelineFetch();
     render(<CompanyTimeline companySlug="conifer" companyName="Conifer" />);
     await screen.findByRole("heading", { name: fundingEvent.title });
+    await waitFor(() => expect(window.location.search).not.toContain("timelineCategories"));
+    expect(fetchMock.mock.calls.every(([url]) => !String(url).includes("categories="))).toBe(true);
+    expect(screen.queryByText("Event type")).not.toBeInTheDocument();
+    expect(screen.queryByText("All types")).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("From"), { target: { value: "2026-01-01" } });
     await waitFor(() => expect(window.location.search).toContain("timelineFrom=2026-01-01"));
@@ -295,8 +305,6 @@ describe("Company Timeline", () => {
       return request.includes("from=2026-01-01") && !request.includes("timelineFrom");
     })).toBe(true));
 
-    fireEvent.click(screen.getByLabelText("Funding"));
-    await waitFor(() => expect(window.location.search).toContain("timelineCategories=funding"));
     expect(screen.getByRole("button", { name: "Clear timeline filters" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("button", { name: "Clear timeline filters" }));
@@ -342,12 +350,16 @@ describe("Company Timeline", () => {
     expect(window.location.search).toContain("view=timeline");
     expect(screen.getByRole("heading", { name: "Conifer" })).toBeVisible();
     expect(screen.getByLabelText("Score 37")).toBeVisible();
-    expect(await screen.findByRole("button", { name: "Show Conifer posts" })).toHaveAttribute("aria-pressed", "true");
+    const postsButton = await screen.findByRole("button", { name: "Show Conifer posts" });
+    expect(postsButton).toBe(timelineButton);
+    expect(postsButton).toHaveAttribute("aria-pressed", "true");
+    expect(postsButton.className).toBe(timelineButton.className);
 
-    fireEvent.click(screen.getByRole("button", { name: "Show Conifer posts" }));
+    fireEvent.click(postsButton);
     expect(pushState).toHaveBeenCalledTimes(2);
     expect(window.location.search).not.toContain("view=timeline");
     expect(screen.getByRole("heading", { name: "Top Posts" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Show Conifer timeline" })).toBe(timelineButton);
   });
 
   it("shows useful API error and filtered-empty states", async () => {
@@ -357,7 +369,7 @@ describe("Company Timeline", () => {
     unmount();
 
     clearTimelineClientCache();
-    window.history.replaceState({}, "", "/?timelineCategories=research");
+    window.history.replaceState({}, "", "/?timelineFrom=2026-01-01");
     vi.mocked(fetch).mockResolvedValueOnce(jsonResponse({
       ...timelinePage,
       events: [],
@@ -366,7 +378,7 @@ describe("Company Timeline", () => {
     }));
     render(<CompanyTimeline companySlug="conifer" companyName="Conifer" />);
     expect(await screen.findByText("No timeline events found")).toBeVisible();
-    expect(screen.getByText(/match the selected date range and event types/i)).toBeVisible();
+    expect(screen.getByText(/match the selected date range/i)).toBeVisible();
   });
 
   it("aborts collapsed detail loads and can fetch cleanly when reopened", async () => {

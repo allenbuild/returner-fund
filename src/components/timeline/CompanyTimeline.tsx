@@ -2,9 +2,8 @@
 
 import { LoaderCircle, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { TIMELINE_CATEGORIES, type PublishedTimelineEvent, type TimelineCategory, type TimelineMonthGroup } from "@/lib/timeline/contracts";
+import type { PublishedTimelineEvent } from "@/lib/timeline/contracts";
 import { loadCompanyTimeline, type TimelineFiltersState } from "./client";
-import { TimelineDateNav } from "./TimelineDateNav";
 import { TimelineEventCard } from "./TimelineEventCard";
 import { TimelineFilters } from "./TimelineFilters";
 import styles from "./CompanyTimeline.module.css";
@@ -21,7 +20,6 @@ interface EventMonth {
 }
 
 const EMPTY_FILTERS: TimelineFiltersState = { from: null, to: null, categories: [] };
-const CATEGORY_SET = new Set<string>(TIMELINE_CATEGORIES);
 
 export function CompanyTimeline({ companySlug, companyName }: CompanyTimelineProps) {
   const [filters, setFilters] = useState<TimelineFiltersState>(EMPTY_FILTERS);
@@ -33,7 +31,6 @@ export function CompanyTimeline({ companySlug, companyName }: CompanyTimelinePro
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeMonth, setActiveMonth] = useState<string | null>(null);
   const shellRef = useRef<HTMLDivElement | null>(null);
   const requestSequenceRef = useRef(0);
   const requestAbortRef = useRef<AbortController | null>(null);
@@ -41,7 +38,11 @@ export function CompanyTimeline({ companySlug, companyName }: CompanyTimelinePro
 
   useEffect(() => {
     const syncFromUrl = () => {
-      setFilters(readTimelineFilters(window.location.search));
+      const nextFilters = readTimelineFilters(window.location.search);
+      setFilters(nextFilters);
+      if (new URLSearchParams(window.location.search).has("timelineCategories")) {
+        writeTimelineFilters(nextFilters);
+      }
       setUrlHydrated(true);
     };
     syncFromUrl();
@@ -101,7 +102,6 @@ export function CompanyTimeline({ companySlug, companyName }: CompanyTimelinePro
       ));
       setNextCursor(page.nextCursor);
       setCoverageStatus(page.coverage.status);
-      setActiveMonth(sortedEvents[0]?.eventDate.slice(0, 7) ?? null);
     } catch (caught) {
       if (requestSequenceRef.current !== requestId || controller.signal.aborted) return;
       setEvents([]);
@@ -120,29 +120,6 @@ export function CompanyTimeline({ companySlug, companyName }: CompanyTimelinePro
   }, [fetchFirstPage, urlHydrated]);
 
   const eventMonths = useMemo(() => groupEventsByMonth(events), [events]);
-  // The API's groups describe the complete filtered result so the filter
-  // summary can report an accurate total. Cursor pagination means some of
-  // those months may not have a DOM target yet. Date navigation must only
-  // advertise months represented by the pages currently rendered; loading
-  // an older page adds its months to the navigation at the same time.
-  const visibleGroups = useMemo(() => groupsForMonths(eventMonths), [eventMonths]);
-  const visibleActiveMonth = activeMonth ?? eventMonths[0]?.month ?? null;
-
-  useEffect(() => {
-    if (!eventMonths.length || typeof IntersectionObserver === "undefined") return;
-
-    const root = shellRef.current?.closest<HTMLElement>(".node-panel") ?? null;
-    const sections = [...(shellRef.current?.querySelectorAll<HTMLElement>("[data-timeline-month]") ?? [])];
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((left, right) => left.boundingClientRect.top - right.boundingClientRect.top);
-      const month = (visible[0]?.target as HTMLElement | undefined)?.dataset.timelineMonth;
-      if (month) setActiveMonth(month);
-    }, { root, rootMargin: "-18% 0px -64% 0px", threshold: [0, 0.1, 0.5] });
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, [eventMonths]);
 
   function changeFilters(nextFilters: TimelineFiltersState) {
     // Cancel an in-flight older-page request immediately. Waiting for the
@@ -181,15 +158,6 @@ export function CompanyTimeline({ companySlug, companyName }: CompanyTimelinePro
     }
   }
 
-  function navigateToMonth(month: string) {
-    const target = [...(shellRef.current?.querySelectorAll<HTMLElement>("[data-timeline-month]") ?? [])]
-      .find((section) => section.dataset.timelineMonth === month);
-    if (!target) return;
-    setActiveMonth(month);
-    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    target.scrollIntoView?.({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-  }
-
   return (
     <div className={styles.timeline} ref={shellRef} aria-busy={loading}>
       <TimelineFilters filters={filters} resultCount={resultCount} loading={loading} onChange={changeFilters} />
@@ -208,62 +176,59 @@ export function CompanyTimeline({ companySlug, companyName }: CompanyTimelinePro
         <div className={styles.stateCard}>
           <strong>No timeline events found</strong>
           <p>
-            {filters.from || filters.to || filters.categories.length
-              ? "No published events match the selected date range and event types."
+            {filters.from || filters.to
+              ? "No published events match the selected date range."
               : `No directly evidenced events are published for ${companyName} yet.`}
           </p>
-          {(filters.from || filters.to || filters.categories.length) ? (
+          {(filters.from || filters.to) ? (
             <button type="button" onClick={() => changeFilters(EMPTY_FILTERS)}>Clear filters</button>
           ) : null}
         </div>
       ) : null}
 
       {events.length ? (
-        <div className={styles.timelineLayout}>
-          <TimelineDateNav groups={visibleGroups} activeMonth={visibleActiveMonth} onNavigate={navigateToMonth} />
-          <div className={styles.eventColumn}>
-            {eventMonths.map((group, groupIndex) => {
-              const priorYear = eventMonths[groupIndex - 1]?.year;
-              return (
-                <section
-                  className={styles.monthSection}
-                  data-timeline-month={group.month}
-                  id={`timeline-${group.month}`}
-                  key={group.month}
-                  aria-labelledby={`timeline-heading-${group.month}`}
-                >
-                  {priorYear !== group.year ? <h3 className={styles.yearHeading}>{group.year}</h3> : null}
-                  <h4 className={styles.monthHeading} id={`timeline-heading-${group.month}`}>
-                    {formatMonthHeading(group.month)}
-                  </h4>
-                  <ol className={styles.eventList}>
-                    {group.events.map((event) => (
-                      <li key={event.id}>
-                        <span className={styles.timelineMarker} aria-hidden="true" />
-                        <TimelineEventCard event={event} />
-                      </li>
-                    ))}
-                  </ol>
-                </section>
-              );
-            })}
-
-            {error ? <p className={styles.inlineError} role="alert">{error}</p> : null}
-            {nextCursor ? (
-              <button
-                type="button"
-                className={styles.loadMoreButton}
-                disabled={loadingMore}
-                onClick={() => void loadOlderEvents()}
+        <div className={styles.eventColumn}>
+          {eventMonths.map((group, groupIndex) => {
+            const priorYear = eventMonths[groupIndex - 1]?.year;
+            return (
+              <section
+                className={styles.monthSection}
+                data-timeline-month={group.month}
+                id={`timeline-${group.month}`}
+                key={group.month}
+                aria-labelledby={`timeline-heading-${group.month}`}
               >
-                {loadingMore ? <LoaderCircle className={styles.spinner} size={17} aria-hidden="true" /> : null}
-                {loadingMore ? "Loading older events…" : "Show older events"}
-              </button>
-            ) : null}
-            {coverageStatus && coverageStatus !== "complete" ? (
-              <p className={styles.coverageNote}>Historical source coverage is still being expanded.</p>
-            ) : null}
-          </div>
+                {priorYear !== group.year ? <h3 className={styles.yearHeading}>{group.year}</h3> : null}
+                <h4 className={styles.monthHeading} id={`timeline-heading-${group.month}`}>
+                  {formatMonthHeading(group.month)}
+                </h4>
+                <ol className={styles.eventList}>
+                  {group.events.map((event) => (
+                    <li key={event.id}>
+                      <span className={styles.timelineMarker} aria-hidden="true" />
+                      <TimelineEventCard event={event} />
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            );
+          })}
+
+          {error ? <p className={styles.inlineError} role="alert">{error}</p> : null}
+          {nextCursor ? (
+            <button
+              type="button"
+              className={styles.loadMoreButton}
+              disabled={loadingMore}
+              onClick={() => void loadOlderEvents()}
+            >
+              {loadingMore ? <LoaderCircle className={styles.spinner} size={17} aria-hidden="true" /> : null}
+              {loadingMore ? "Loading older events…" : "Show older events"}
+            </button>
+          ) : null}
+          {coverageStatus && coverageStatus !== "complete" ? (
+            <p className={styles.coverageNote}>Historical source coverage is still being expanded.</p>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -285,7 +250,7 @@ function readTimelineFilters(search: string): TimelineFiltersState {
   return {
     from: validIsoDay(params.get("timelineFrom")),
     to: validIsoDay(params.get("timelineTo")),
-    categories: uniqueCategories(params.get("timelineCategories")),
+    categories: [],
   };
 }
 
@@ -293,7 +258,7 @@ function writeTimelineFilters(filters: TimelineFiltersState) {
   const url = new URL(window.location.href);
   setParameter(url, "timelineFrom", filters.from);
   setParameter(url, "timelineTo", filters.to);
-  setParameter(url, "timelineCategories", filters.categories.length ? filters.categories.join(",") : null);
+  url.searchParams.delete("timelineCategories");
   const next = `${url.pathname}${url.search}${url.hash}`;
   const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
   if (next !== current) window.history.replaceState(window.history.state, "", next);
@@ -312,11 +277,6 @@ function validIsoDay(value: string | null): string | null {
     : null;
 }
 
-function uniqueCategories(value: string | null): TimelineCategory[] {
-  const selected = new Set((value ?? "").split(",").map((item) => item.trim()).filter((item) => CATEGORY_SET.has(item)));
-  return TIMELINE_CATEGORIES.filter((category) => selected.has(category));
-}
-
 function uniqueNewestFirst(events: PublishedTimelineEvent[]): PublishedTimelineEvent[] {
   return [...new Map(events.map((event) => [event.id, event])).values()]
     .sort((left, right) => right.eventDate.localeCompare(left.eventDate) || left.id.localeCompare(right.id));
@@ -333,14 +293,6 @@ function groupEventsByMonth(events: PublishedTimelineEvent[]): EventMonth[] {
     year: Number(month.slice(0, 4)),
     events: monthEvents,
   }));
-}
-
-function groupsForMonths(months: EventMonth[]): TimelineMonthGroup[] {
-  const years = new Map<number, TimelineMonthGroup["months"]>();
-  for (const month of months) {
-    years.set(month.year, [...(years.get(month.year) ?? []), { month: month.month, count: month.events.length }]);
-  }
-  return [...years.entries()].map(([year, yearMonths]) => ({ year, months: yearMonths }));
 }
 
 function formatMonthHeading(month: string): string {
