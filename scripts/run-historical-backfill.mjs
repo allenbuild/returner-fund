@@ -42,6 +42,7 @@ try {
     outputDir,
     batches: args.batches,
     platforms: args.platforms,
+    limits: args.limits,
     resume: args.resume,
     signal: controller.signal
   });
@@ -66,7 +67,8 @@ function parseArgs(argv) {
     batches: null,
     platforms: null,
     outputDir: null,
-    runId: null
+    runId: null,
+    limits: {}
   };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -77,6 +79,11 @@ function parseArgs(argv) {
     else if (argument === "--platforms") result.platforms = csv(requiredValue(argv, ++index, argument));
     else if (argument === "--output-dir") result.outputDir = requiredValue(argv, ++index, argument);
     else if (argument === "--run-id") result.runId = requiredValue(argv, ++index, argument);
+    else if (argument.startsWith("--site-max-depth=")) result.limits.siteMaxDepth = positiveNumber(argument, "--site-max-depth");
+    else if (argument.startsWith("--site-max-urls=")) result.limits.siteMaxUrls = positiveNumber(argument, "--site-max-urls");
+    else if (argument.startsWith("--site-max-responses=")) result.limits.siteMaxResponses = positiveNumber(argument, "--site-max-responses");
+    else if (argument.startsWith("--site-max-items=")) result.limits.siteMaxItems = positiveNumber(argument, "--site-max-items");
+    else if (argument.startsWith("--global-concurrency=")) result.limits.globalConcurrency = positiveNumber(argument, "--global-concurrency");
     else if (argument.startsWith("--batches=")) result.batches = csv(argument.slice("--batches=".length));
     else if (argument.startsWith("--platforms=")) result.platforms = csv(argument.slice("--platforms=".length));
     else if (argument.startsWith("--output-dir=")) result.outputDir = argument.slice("--output-dir=".length);
@@ -116,5 +123,16 @@ function helpText() {
     `                            Restrict providers (default: all historical providers)\n` +
     `  --output-dir=PATH         Explicit resumable output directory\n` +
     `  --run-id=ID               Safe default output-directory suffix\n` +
+    `  --site-max-depth=N        Raise bounded official-site crawl depth (default: 3)\n` +
+    `  --site-max-urls=N         Raise bounded official-site URL queue (default: 200)\n` +
+    `  --site-max-responses=N    Raise bounded official-site response count (default: 40)\n` +
+    `  --site-max-items=N        Raise bounded official-site item count (default: 2000)\n` +
+    `  --global-concurrency=N    Historical worker pool size, max 8 (default: 8)\n` +
     `  --help                    Show this help\n`;
+}
+
+function positiveNumber(argument, flag) {
+  const value = Number(argument.slice(`${flag}=`.length));
+  if (!Number.isInteger(value) || value <= 0) throw new Error(`${flag}=N requires a positive integer.`);
+  return value;
 }
