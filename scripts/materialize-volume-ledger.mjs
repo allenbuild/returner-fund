@@ -32,6 +32,7 @@ const sourceFiles = [
   ["supplemental-x-worker-candidate", "work/volume-target-2026-08-05/supplemental-x-worker-candidate.json"],
   ["supplemental-enjamb-x-candidate", "work/volume-target-2026-08-05/supplemental-enjamb-candidate.json"],
   ["supplemental-live-linkedin-s2026", "work/volume-target-2026-08-05/supplemental-live-linkedin-s2026.json"],
+  ["supplemental-web-retry-new", "work/volume-target-2026-08-05/supplemental-web-retry-new.json"],
   ["public-linkedin-a16z", "work/public-linkedin-volume-2026-08-05/public-9853.json"],
   ["public-linkedin-s2026", "work/public-linkedin-volume-2026-08-05/public-9851.json"],
   ["public-linkedin-s26", "work/public-linkedin-volume-2026-08-05/public-9852.json"]
