@@ -404,7 +404,7 @@ export class LosslessPostArchive {
   }
 
   async _append(fileName, record) {
-    const line = `${canonicalJson(record)}\n`;
+    const line = `${canonicalJson(record).replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029")}\n`;
     const bytes = Buffer.byteLength(line);
     if (bytes > this.maxRecordBytes) {
       throw new LosslessArchiveBoundsError(fileName, bytes, this.maxRecordBytes);

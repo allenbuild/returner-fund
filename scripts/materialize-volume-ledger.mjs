@@ -48,6 +48,7 @@ const sourceFiles = [
   ["supplemental-additional-native-continuation", "work/volume-target-2026-08-05/supplemental-additional-native-continuation.json"],
   ["supplemental-review-audit", "work/volume-target-2026-08-05/supplemental-review-audit.json"],
   ["supplemental-review-audit-expanded", "work/volume-target-2026-08-05/supplemental-review-audit-expanded.json"],
+  ["supplemental-x-native-history", "work/volume-target-2026-08-05/supplemental-x-native-history.json"],
   ["supplemental-youtube-continuation", "work/volume-target-2026-08-05/supplemental-youtube-continuation.json"],
   ["supplemental-additional-native-continuation-2", "work/volume-target-2026-08-05/supplemental-additional-native-continuation-2.json"],
   ["supplemental-mapping-volume-recovery", "work/volume-target-2026-08-05/supplemental-mapping-volume-recovery.json"],
@@ -141,8 +142,8 @@ for (const relativePath of historicalJournals) {
 }
 
 await mkdir(dirname(outputPath), { recursive: true });
-await writeFile(outputPath, ledger.map((row) => `${JSON.stringify(row)}\n`).join(""));
-await writeFile(uniquePath, [...unique.values()].map((row) => `${JSON.stringify(row)}\n`).join(""));
+await writeFile(outputPath, ledger.map((row) => `${ndjsonJson(row)}\n`).join(""));
+await writeFile(uniquePath, [...unique.values()].map((row) => `${ndjsonJson(row)}\n`).join(""));
 
 const summary = {
   schemaVersion: 1,
@@ -231,6 +232,10 @@ function nativePostId(row) {
   if (value === null || value === undefined) return null;
   const normalized = String(value).trim();
   return normalized || null;
+}
+
+function ndjsonJson(value) {
+  return JSON.stringify(value).replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 }
 
 function argValue(name) {
