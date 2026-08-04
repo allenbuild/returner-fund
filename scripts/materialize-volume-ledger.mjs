@@ -24,6 +24,10 @@ const sourceFiles = [
   ["public-social-s2026-refresh", "work/public-volume-expansion-2026-08-05/social-s2026-refresh.json"],
   ["public-social-s26-refresh", "work/public-volume-expansion-2026-08-05/social-s26-refresh.json"],
   ["public-social-a16z-refresh", "work/public-volume-expansion-2026-08-05/social-a16zsr006-refresh.json"],
+  ["a16z-seeded-source-hunt", "src/lib/social/a16z-speedrun-006-social-evidence.json"],
+  ["source-hunt-s26-recent", "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json"],
+  ["source-hunt-community-video", "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json"],
+  ["source-hunt-s2026-youtube", "outputs/source-hunt/2026-07-22-two-hour-official-youtube-s2026.json"],
   ["public-linkedin-a16z", "work/public-linkedin-volume-2026-08-05/public-9853.json"],
   ["public-linkedin-s2026", "work/public-linkedin-volume-2026-08-05/public-9851.json"],
   ["public-linkedin-s26", "work/public-linkedin-volume-2026-08-05/public-9852.json"]
