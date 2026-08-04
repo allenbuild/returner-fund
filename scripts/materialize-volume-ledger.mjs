@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createReadStream } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { createInterface } from "node:readline";
 
 const root = process.cwd();
 const outputDir = resolve(root, argValue("--output-dir") ?? "work/volume-target-2026-08-05");
@@ -16,6 +18,9 @@ const sourceFiles = [
   ["public-volume-a16z", "work/public-volume-expansion-2026-08-05/public-a16zsr006.json"],
   ["public-volume-s2026", "work/public-volume-expansion-2026-08-05/public-s2026.json"],
   ["public-volume-s26", "work/public-volume-expansion-2026-08-05/public-s26.json"],
+  ["public-youtube-s2026-all", "work/public-volume-expansion-2026-08-05/youtube-s2026-all.json"],
+  ["public-youtube-s26-all", "work/public-volume-expansion-2026-08-05/youtube-s26-all.json"],
+  ["public-youtube-a16z-all", "work/public-volume-expansion-2026-08-05/youtube-a16zsr006-all.json"],
   ["public-linkedin-a16z", "work/public-linkedin-volume-2026-08-05/public-9853.json"],
   ["public-linkedin-s2026", "work/public-linkedin-volume-2026-08-05/public-9851.json"],
   ["public-linkedin-s26", "work/public-linkedin-volume-2026-08-05/public-9852.json"]
@@ -24,7 +29,9 @@ const historicalJournals = [
   "work/historical-backfill/volume-expansion-2026-08-05/pages.ndjson",
   "work/historical-backfill/historical-web-highcap-2026-08-05/pages.ndjson",
   "work/historical-backfill/historical-web-highcap-s2026-2026-08-05/pages.ndjson",
-  "work/historical-backfill/historical-web-highcap-a16z-2026-08-05/pages.ndjson"
+  "work/historical-backfill/historical-web-highcap-a16z-2026-08-05/pages.ndjson",
+  "work/historical-backfill/historical-rss-highcap-2026-08-05/pages.ndjson",
+  "work/historical-backfill/historical-web-deep-2026-08-05/pages.ndjson"
 ];
 const externalVerifiedNdjson = "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/collection-throughput/new-verified-42-20260803T050615Z/evidence-global-new-union-284.ndjson";
 
@@ -77,30 +84,26 @@ try {
 
 for (const relativePath of historicalJournals) {
   const historicalJournal = resolve(root, relativePath);
-  let journalText;
   try {
-    journalText = await readFile(historicalJournal, "utf8");
+    await streamNdjson(historicalJournal, (event) => {
+      if (event.type !== "page_checkpoint") return;
+      for (const [index, row] of (event.evidence ?? []).entries()) {
+        addRow(row, "historical", {
+          label: "historical-volume-expansion",
+          path: relativePath,
+          pageSequence: event.sequence,
+          pageEvidenceIndex: index,
+          targetKey: event.targetKey
+        });
+        counters.historicalEvidenceRows += 1;
+      }
+    });
   } catch (error) {
     if (error?.code === "ENOENT") {
       counters.skippedMissingSources += 1;
       continue;
     }
     throw error;
-  }
-  for (const line of journalText.split(/\r?\n/)) {
-    if (!line.trim()) continue;
-    const event = JSON.parse(line);
-    if (event.type !== "page_checkpoint") continue;
-    for (const [index, row] of (event.evidence ?? []).entries()) {
-      addRow(row, "historical", {
-        label: "historical-volume-expansion",
-        path: relativePath,
-        pageSequence: event.sequence,
-        pageEvidenceIndex: index,
-        targetKey: event.targetKey
-      });
-      counters.historicalEvidenceRows += 1;
-    }
   }
 }
 
@@ -173,6 +176,20 @@ function rank(row) {
   if (row.status === "accepted") return 0;
   if (row.status === "historical") return 1;
   return 2;
+}
+
+async function streamNdjson(path, onRecord) {
+  const input = createReadStream(path, { encoding: "utf8" });
+  const reader = createInterface({ input, crlfDelay: Infinity });
+  try {
+    for await (const line of reader) {
+      if (!line.trim()) continue;
+      await onRecord(JSON.parse(line));
+    }
+  } finally {
+    reader.close();
+    input.destroy();
+  }
 }
 
 function nativePostId(row) {
