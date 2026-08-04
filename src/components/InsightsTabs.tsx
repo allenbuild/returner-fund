@@ -787,9 +787,15 @@ function buildDatabaseStats(graph: GraphResponse): DatabaseStats {
   });
   const pointsByDay = new Map(dailyGrowth.map((point) => [point.dayKey, point]));
 
-  for (const { timestamp } of sourceDates) {
-    const point = pointsByDay.get(dayKey(timestamp));
-    if (point) point.sources += 1;
+  if (graph.evidenceStats) {
+    for (const point of dailyGrowth) {
+      point.sources = graph.evidenceStats.firstSeenByDay[point.dayKey] ?? 0;
+    }
+  } else {
+    for (const { timestamp } of sourceDates) {
+      const point = pointsByDay.get(dayKey(timestamp));
+      if (point) point.sources += 1;
+    }
   }
   for (const timestamp of companyFirstSeen.values()) {
     const point = pointsByDay.get(dayKey(timestamp));
@@ -801,7 +807,7 @@ function buildDatabaseStats(graph: GraphResponse): DatabaseStats {
   }
 
   return {
-    sourceCount: graph.evidence.length,
+    sourceCount: graph.evidenceStats?.totalCount ?? graph.evidence.length,
     companyCount: companyIds.size,
     founderCount: founderIds.size,
     sourcesToday: dailyGrowth.at(-1)?.sources ?? 0,

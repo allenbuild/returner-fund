@@ -505,6 +505,7 @@ export interface GraphResponse {
   fastestGaining: FastestGainingRow[];
   needsReview: NeedsReviewItem[];
   evidence: EvidenceItem[];
+  evidenceStats?: EvidenceStats;
   platformStatus: PlatformStatus[];
   selectedTopVoiceAudience: TopVoiceAudienceSummary;
   topVoiceAudiences: TopVoiceAudienceSummary[];
@@ -514,4 +515,11 @@ export interface GraphResponse {
   generatedAt: string;
   scoringContext?: ScoringContext;
   mode: "demo" | "database" | "official_snapshot";
+}
+
+export interface EvidenceStats {
+  totalCount: number;
+  scoringEligibleCount: number;
+  byPlatform: Partial<Record<Platform, number>>;
+  firstSeenByDay: Record<string, number>;
 }

@@ -528,8 +528,13 @@ describe("YC Summer 2026 official snapshot", () => {
     expect(graph.leaderboard).toHaveLength(summerCompaniesSnapshot.companies.length);
     expect(graph.evidence.length).toBeGreaterThan(39);
     expect(new Set(graph.evidence.map((item) => item.platform))).toEqual(
-      new Set(["github", "youtube", "x", "linkedin", "instagram", "hacker_news", "product_hunt"])
+      new Set(["github", "youtube", "x", "linkedin", "instagram", "hacker_news", "product_hunt", "rss", "web"])
     );
+    expect(
+      graph.evidence
+        .filter((item) => item.platform === "rss" || item.platform === "web")
+        .every((item) => item.contributionScore === 0)
+    ).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "github" && item.thumbnailUrl)).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "youtube" && item.attachedCompanyName === "Archal")).toBe(true);
     expect(graph.evidence.some((item) => item.platform === "x" && item.contributionScore > 0)).toBe(true);
@@ -617,9 +622,7 @@ describe("YC Summer 2026 official snapshot", () => {
 
     expect(
       summer.evidence.find(
-        (item) =>
-          item.sourceUrl ===
-          "https://x.com/BenceRedmond/status/2069484935464042689"
+        (item) => item.platform === "x" && item.platformPostId === "2069484935464042689"
       )
     ).toMatchObject({
       entityId: "founder-hoplite-bence-redmond-2614746",

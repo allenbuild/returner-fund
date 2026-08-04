@@ -66,7 +66,8 @@ interface RawSnapshot {
 type GraphRuntimeProjectionPath =
   | "generated-runtime/graph/public-evidence-current.json"
   | "generated-runtime/graph/logged-in-evidence-current.json"
-  | "generated-runtime/graph/targeted-evidence-current.json";
+  | "generated-runtime/graph/targeted-evidence-current.json"
+  | "generated-runtime/graph/volume-evidence-current.json";
 
 const publicEvidenceSnapshot: unknown = readRuntimeJson(
   "generated-runtime/graph/public-evidence-current.json",
@@ -76,6 +77,9 @@ const loggedInEvidenceSnapshot: unknown = readRuntimeJson(
 );
 const targetedEvidenceSnapshot: unknown = readRuntimeJson(
   "generated-runtime/graph/targeted-evidence-current.json",
+);
+const volumeEvidenceSnapshot: unknown = readRuntimeJson(
+  "generated-runtime/graph/volume-evidence-current.json",
 );
 
 function readRuntimeJson(relativePath: GraphRuntimeProjectionPath): unknown {
@@ -367,6 +371,7 @@ const githubRepositoriesByIdentity = buildGithubRepositoryIndex([
 const publicSnapshot = publicEvidenceSnapshot as PublicEvidenceSnapshot;
 const loggedInSnapshot = loggedInEvidenceSnapshot as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as PublicEvidenceSnapshot;
+const volumeSnapshot = volumeEvidenceSnapshot as PublicEvidenceSnapshot;
 const verifiedSocialOverrides = verifiedSocialOverridesJson as Record<string, VerifiedSocialOverride>;
 const summerVerifiedFounderAliases = buildVerifiedFounderAliases(snapshot.companies);
 const springVerifiedFounderAliases = buildVerifiedFounderAliases(springSnapshot.companies);
@@ -394,7 +399,12 @@ const allowedLoggedInEvidence = loggedInSnapshot.evidence.filter((item) =>
 const allowedLoggedInNeedsReview = loggedInSnapshot.needsReview.filter((item) =>
   allowedLoggedInPlatforms.has(item.platform)
 );
-const rawPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEvidence, ...targetedSnapshot.evidence]
+const rawPublicEvidenceItems = [
+  ...publicSnapshot.evidence,
+  ...allowedLoggedInEvidence,
+  ...targetedSnapshot.evidence,
+  ...volumeSnapshot.evidence
+]
   .map(canonicalizeRenamedSummerEntity)
   .map((item) => canonicalizeVerifiedFounderEntity(item, summerVerifiedFounderAliases))
   .filter((item) => item.review_state === "verified")
@@ -580,7 +590,12 @@ export const ycSpring2026GraphDataset = yc2026GraphDataset;
 
 function buildSpring2026GraphDataset(): DemoGraphDataset {
   const springAttributionContext = buildAttributionContext(springSnapshot.companies.map(attributionCompanyProfile));
-  const springPublicEvidenceItems = [...publicSnapshot.evidence, ...allowedLoggedInEvidence, ...targetedSnapshot.evidence]
+  const springPublicEvidenceItems = [
+    ...publicSnapshot.evidence,
+    ...allowedLoggedInEvidence,
+    ...targetedSnapshot.evidence,
+    ...volumeSnapshot.evidence
+  ]
     .map((item) => canonicalizeVerifiedFounderEntity(item, springVerifiedFounderAliases))
     .filter((item) => item.review_state === "verified")
     .filter((item) => springKnownEntityIds.has(item.entityId))
@@ -2294,7 +2309,17 @@ function canonicalizeBatchEvidence(items: EvidenceItem[]): EvidenceItem[] {
 function dedupeBatchEvidence(items: EvidenceItem[]): EvidenceItem[] {
   const physicalItems = items.filter((item) => !hasEvidenceIdentityConflict(item));
   const contextItems = items.filter(hasEvidenceIdentityConflict);
-  return [...dedupeEvidenceItems(physicalItems), ...contextItems];
+  const relativeXPostKeys = new Set(
+    physicalItems
+      .filter((item) => item.platform === "x" && hasRelativeXPublicationLabel(item.rawVisibleText ?? ""))
+      .map(canonicalPostKey)
+  );
+  const dedupedPhysicalItems = dedupeEvidenceItems(physicalItems).map((item) => {
+    return relativeXPostKeys.has(canonicalPostKey(item))
+      ? { ...item, publishedAtPrecision: "unknown" as const }
+      : item;
+  });
+  return [...dedupedPhysicalItems, ...contextItems];
 }
 
 function canonicalEvidenceObservation(items: EvidenceItem[]): EvidenceItem {
@@ -2318,6 +2343,13 @@ function canonicalEvidenceObservation(items: EvidenceItem[]): EvidenceItem {
     // Keep one real observation intact. Per-field maxima can synthesize a
     // metric snapshot that never existed and can resurrect stale corrections.
     metrics: payload.metrics,
+    // If any same-post X observation came from a relative display label, keep
+    // publication precision conservative even when another observation has a
+    // materialized timestamp. Relative UI text is not evidence of an exact
+    // historical publication time.
+    publishedAtPrecision: hasRelativeXObservation(candidates)
+      ? "unknown"
+      : payload.publishedAtPrecision,
     matchReason,
     why
   };
@@ -2339,6 +2371,10 @@ function canonicalEvidenceObservation(items: EvidenceItem[]): EvidenceItem {
     thumbnailUrl: founderAttribution.thumbnailUrl ?? canonical.thumbnailUrl,
     thumbnailSource: founderAttribution.thumbnailSource ?? canonical.thumbnailSource
   };
+}
+
+function hasRelativeXObservation(items: EvidenceItem[]): boolean {
+  return items.some((item) => item.platform === "x" && hasRelativeXPublicationLabel(item.rawVisibleText ?? ""));
 }
 
 function strongestEvidenceObservation(items: EvidenceItem[]): EvidenceItem {

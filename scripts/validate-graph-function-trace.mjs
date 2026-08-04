@@ -9,17 +9,20 @@ const MAX_TRACE_BYTES = 75 * MEBIBYTE;
 const MAX_FULL_GRAPH_TRACE_BYTES = 140 * MEBIBYTE;
 // Vercel traces both the glibc and musl Sharp binary families for these
 // server-rendered debug pages, while local macOS builds trace one native
-// family. Keep a route-specific ceiling with headroom for that platform delta.
-const MAX_DEBUG_TRACE_BYTES = 100 * MEBIBYTE;
-// The refresh route intentionally carries the nine static graph fallbacks.
-// The 52-company S26 census expansion increases only those bounded artifacts,
-// so retain a separate ceiling while staying well below the deployment limit.
-const MAX_REFRESH_TRACE_BYTES = 150 * MEBIBYTE;
+// family. The complete verified volume projection adds roughly 65 MiB to the
+// graph runtime, so keep a route-specific ceiling below the platform limit
+// while leaving room for the platform-native Sharp delta.
+const MAX_DEBUG_TRACE_BYTES = 170 * MEBIBYTE;
+// The refresh route intentionally carries the nine static graph fallbacks and
+// the complete volume projection. Keep a separate ceiling below the platform
+// function budget for those release-time refresh inputs.
+const MAX_REFRESH_TRACE_BYTES = 220 * MEBIBYTE;
 const REPOSITORY_ROOT = resolve(".");
 const GRAPH_RUNTIME_PROJECTIONS = [
   "generated-runtime/graph/public-evidence-current.json",
   "generated-runtime/graph/logged-in-evidence-current.json",
-  "generated-runtime/graph/targeted-evidence-current.json"
+  "generated-runtime/graph/targeted-evidence-current.json",
+  "generated-runtime/graph/volume-evidence-current.json"
 ];
 const WHOLE_REPOSITORY_TRACE_FRAGMENTS = [
   `${normalize("/artifacts/")}`,
@@ -34,7 +37,8 @@ const WHOLE_REPOSITORY_TRACE_FRAGMENTS = [
 const RAW_EVIDENCE_FRAGMENTS = [
   `${normalize("/src/lib/social/public-evidence-current.json")}`,
   `${normalize("/src/lib/social/logged-in-evidence-current.json")}`,
-  `${normalize("/src/lib/social/targeted-evidence-current.json")}`
+  `${normalize("/src/lib/social/targeted-evidence-current.json")}`,
+  `${normalize("/src/lib/social/volume-evidence-current.json")}`
 ];
 const UNSUPPORTED_DEBUG_NATIVE_FRAGMENTS = [
   `${normalize("/node_modules/@img/sharp-libvips-linuxmusl-arm64/")}`,

@@ -114,7 +114,7 @@ export function getCatalog(): Catalog {
       batchSlug: graph.batch.slug,
       label: graph.batch.label,
       companies: cohortCompanies,
-      evidenceCount: cohortCompanies.reduce((sum, company) => sum + company.evidence.length, 0)
+      evidenceCount: graph.evidenceStats?.totalCount ?? cohortCompanies.reduce((sum, company) => sum + company.evidence.length, 0)
     } satisfies PublicCohort;
   });
 

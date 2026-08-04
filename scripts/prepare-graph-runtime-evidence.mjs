@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 
 const root = resolve(process.cwd());
 const outputRoot = join(root, "generated-runtime", "graph");
-const snapshotNames = ["public", "logged-in", "targeted"];
+const snapshotNames = ["public", "logged-in", "targeted", "volume"];
 const acceptedBatches = new Set(["S26", "S2026", "P26", "A16ZSR006"]);
 const historicalSlugs = new Set(["blueprints", "bylaw", "litmus-build", "perceptron-ml"]);
 const reviewKeys = [

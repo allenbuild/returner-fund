@@ -31,6 +31,7 @@ type A16zRuntimeJsonPath =
   | "generated-runtime/graph/logged-in-evidence-current.json"
   | "generated-runtime/graph/public-evidence-current.json"
   | "generated-runtime/graph/targeted-evidence-current.json"
+  | "generated-runtime/graph/volume-evidence-current.json"
   | "src/lib/social/a16z-speedrun-006-social-accounts.json";
 
 const githubTractionSnapshot: unknown = readRuntimeJson(
@@ -50,6 +51,9 @@ const publicEvidenceSnapshot: unknown = readRuntimeJson(
 );
 const targetedEvidenceSnapshot: unknown = readRuntimeJson(
   "generated-runtime/graph/targeted-evidence-current.json",
+);
+const volumeEvidenceSnapshot: unknown = readRuntimeJson(
+  "generated-runtime/graph/volume-evidence-current.json",
 );
 const speedrunSocialAccountSnapshot: unknown = readRuntimeJson(
   "src/lib/social/a16z-speedrun-006-social-accounts.json",
@@ -907,6 +911,7 @@ const githubRepositoriesByIdentity = buildGithubRepositoryIndex(githubSnapshot);
 const publicSnapshot = publicEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
 const loggedInSnapshot = loggedInEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
 const targetedSnapshot = targetedEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
+const volumeSnapshot = volumeEvidenceSnapshot as unknown as PublicEvidenceSnapshot;
 const seededSocialSnapshot = seededSocialEvidenceSnapshot as unknown as SeededSocialEvidenceSnapshot;
 const seededAttributionReconciliation =
   seededAttributionReconciliationSnapshot as SeededAttributionReconciliationSnapshot;
@@ -1077,6 +1082,9 @@ function buildSpeedrunEvidenceItems(): A16zSpeedrun006EvidenceItem[] {
     ...publicSnapshot.evidence.flatMap((source) => publicEvidenceItemFromCanonicalAttribution(source)),
     ...targetedSnapshot.evidence.flatMap((source) =>
       publicEvidenceItemFromCanonicalAttribution(source, targetedSnapshot.source.fetchedAt)
+    ),
+    ...volumeSnapshot.evidence.flatMap((source) =>
+      publicEvidenceItemFromCanonicalAttribution(source, volumeSnapshot.source.fetchedAt)
     ),
     ...PUBLIC_SOCIAL_EVIDENCE_ATTACHMENTS.flatMap(publicEvidenceItemFromAttachment)
   ];

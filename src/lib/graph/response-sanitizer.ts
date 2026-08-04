@@ -5,7 +5,10 @@ interface SanitizeGraphOptions {
   includeNonScoring?: boolean;
   compactIds?: boolean;
   includeWhy?: boolean;
+  maxEvidence?: number;
 }
+
+export const PUBLIC_GRAPH_EVIDENCE_LIMIT = 5_000;
 
 export function sanitizeGraphResponse(
   graph: GraphResponse,
@@ -17,8 +20,12 @@ export function sanitizeGraphResponse(
 
   const compactIds = options.compactIds ?? (!options.includeRaw && !options.includeNonScoring);
   const includeWhy = options.includeWhy ?? Boolean(options.includeRaw);
-  const rawEvidence = graph.evidence.filter(
+  const eligibleEvidence = graph.evidence.filter(
     (item) => options.includeNonScoring || item.contributionScore > 0 || item.tractionStatus === "unscored"
+  );
+  const rawEvidence = limitPublicEvidence(
+    eligibleEvidence,
+    options.maxEvidence ?? PUBLIC_GRAPH_EVIDENCE_LIMIT
   );
   const evidenceIdByOriginalId = new Map(
     rawEvidence.map((item, index) => [item.id, compactIds ? `ev-${index.toString(36)}` : item.id])
@@ -59,6 +66,20 @@ export function sanitizeGraphResponse(
   };
 }
 
+function limitPublicEvidence(evidence: EvidenceItem[], maxEvidence: number): EvidenceItem[] {
+  if (!Number.isFinite(maxEvidence) || maxEvidence <= 0 || evidence.length <= maxEvidence) {
+    return evidence;
+  }
+  return [...evidence]
+    .sort(
+      (left, right) =>
+        right.contributionScore - left.contributionScore ||
+        String(right.postedAt ?? "").localeCompare(String(left.postedAt ?? "")) ||
+        left.id.localeCompare(right.id)
+    )
+    .slice(0, Math.floor(maxEvidence));
+}
+
 function compactTopVoiceConnectionEvidenceIds<
   T extends { topEvidenceId: string | null }[] | undefined
 >(connections: T, evidenceIdByOriginalId: Map<string, string>): T {
@@ -86,6 +107,7 @@ function sanitizeEvidenceItem(
   const {
     rawVisibleText: _rawVisibleText,
     matchReason: _matchReason,
+    topicClassification: _topicClassification,
     why,
     ...safeItem
   } = item;

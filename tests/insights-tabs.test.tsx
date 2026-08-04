@@ -228,7 +228,7 @@ describe("insights tabs", () => {
     expect(screen.getByRole("heading", { name: "Database growth" })).toBeInTheDocument();
     expect(screen.getByText(graph.batch.label)).toBeInTheDocument();
     expect(screen.getByText("Sources").closest(".stats-metric")).toHaveTextContent(
-      graph.evidence.length.toLocaleString()
+      graph.evidenceStats!.totalCount.toLocaleString()
     );
     expect(screen.getByText("Companies").closest(".stats-metric")).toHaveTextContent(
       companyCount.toLocaleString()
@@ -237,7 +237,7 @@ describe("insights tabs", () => {
       founderCount.toLocaleString()
     );
     const sourceSpline = screen.getByRole("slider", { name: /Total sources by day for the last 14 days/i });
-    expect(sourceSpline).toHaveAttribute("aria-valuenow", graph.evidence.length.toString());
+    expect(sourceSpline).toHaveAttribute("aria-valuenow", graph.evidenceStats!.totalCount.toString());
     expect(screen.getByRole("slider", { name: /Total companies by day for the last 14 days/i })).toHaveAttribute(
       "aria-valuenow",
       companyCount.toString()

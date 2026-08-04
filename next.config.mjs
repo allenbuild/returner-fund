@@ -5,6 +5,7 @@ const graphEvidenceRuntimeData = [
   "generated-runtime/graph/public-evidence-current.json",
   "generated-runtime/graph/logged-in-evidence-current.json",
   "generated-runtime/graph/targeted-evidence-current.json",
+  "generated-runtime/graph/volume-evidence-current.json",
 ];
 const timelineRuntimeData = [
   "public/timelines/**/*.json",
@@ -41,6 +42,7 @@ const graphTraceExcludes = [
   "src/lib/social/logged-in-evidence-current.json",
   "src/lib/social/public-evidence-current.json",
   "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/volume-evidence-current.json",
   "src/**/*.{css,ts,tsx}",
   "supabase/**/*",
   "tests/**/*",
@@ -75,6 +77,7 @@ const debugGraphTraceExcludes = [
   "src/lib/social/logged-in-evidence-current.json",
   "src/lib/social/public-evidence-current.json",
   "src/lib/social/targeted-evidence-current.json",
+  "src/lib/social/volume-evidence-current.json",
   "supabase/**/*",
   "tests/**/*",
   "work/**/*"
