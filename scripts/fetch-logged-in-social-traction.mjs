@@ -1,5 +1,5 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve as resolvePath } from "node:path";
 import { runOpenCli as executeOpenCli } from "./lib/opencli-runtime.mjs";
 import {
   linkedinPostIdFromUrl
@@ -70,19 +70,26 @@ if (booleanArg("--help") || booleanArg("-h")) {
 const root = process.cwd();
 const batchConfig = resolveBatchConfig(stringArg("--batch") ?? stringArg("--batch-slug") ?? "S26");
 const ycSnapshotPath = batchConfig.snapshotPath;
-const outputPath = join(root, "src", "lib", "social", "logged-in-evidence-current.json");
-const checkpointPath = join(
-  root,
-  "work",
-  batchConfig.slug === "S26"
-    ? "logged-in-social-checkpoint.json"
-    : `logged-in-social-checkpoint-${batchConfig.slug.toLowerCase()}.json`
-);
+const isolatedOutputPath = stringArg("--output-path");
+const isolatedCheckpointPath = stringArg("--checkpoint-path");
+const outputPath = isolatedOutputPath
+  ? resolvePath(root, isolatedOutputPath)
+  : join(root, "src", "lib", "social", "logged-in-evidence-current.json");
+const checkpointPath = isolatedCheckpointPath
+  ? resolvePath(root, isolatedCheckpointPath)
+  : join(
+      root,
+      "work",
+      batchConfig.slug === "S26"
+        ? "logged-in-social-checkpoint.json"
+        : `logged-in-social-checkpoint-${batchConfig.slug.toLowerCase()}.json`
+    );
 const checkpointPaths = [
+  ...(isolatedCheckpointPath ? [checkpointPath] : []),
   join(root, "work", "logged-in-social-checkpoint.json"),
   join(root, "work", "logged-in-social-checkpoint-s2026.json"),
   join(root, "work", "logged-in-social-checkpoint-a16zsr006.json")
-];
+].filter((path, index, paths) => paths.indexOf(path) === index);
 const verifiedSocialOverridesPath = join(root, "src", "lib", "social", "verified-social-overrides.json");
 const priorityEvidencePaths = [
   join(root, "src", "lib", "social", "public-evidence-current.json"),
@@ -2174,6 +2181,8 @@ function usage() {
     "  --workers=N",
     "  --limit=N",
     "  --scrolls=N",
+    "  --output-path=PATH          Isolate the evidence output path",
+    "  --checkpoint-path=PATH      Isolate the active checkpoint path",
     "  --timeout-ms=N",
     "  --delay-ms=N",
     "  --allow-linkedin",
