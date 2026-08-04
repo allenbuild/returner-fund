@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
+import { createReadStream } from "node:fs";
 import { resolve } from "node:path";
+import { createInterface } from "node:readline";
 import { openLosslessPostArchive, LosslessArchiveConflictError } from "./lib/lossless-post-archive.mjs";
 
 const root = process.cwd();
@@ -11,13 +13,9 @@ const summaryPath = resolve(root, argValue("--summary") ?? "work/volume-target-2
 const observedBase = Date.parse("2026-08-05T00:00:00.000Z");
 
 const archive = await openLosslessPostArchive(archiveDir);
-const ledger = (await readFile(ledgerPath, "utf8"))
-  .split(/\r?\n/)
-  .filter(Boolean)
-  .map((line) => JSON.parse(line));
 
 const counts = {
-  ledgerRows: ledger.length,
+  ledgerRows: 0,
   rowsWithNativeId: 0,
   archivedRows: 0,
   alreadyMaterializedRows: 0,
@@ -29,16 +27,8 @@ const counts = {
 };
 const groups = new Map();
 const alreadyMaterialized = new Map();
-const ledgerNativeKeys = new Set(
-  ledger
-    .filter((entry) => entry.platform && entry.nativeId)
-    .map((entry) => `${entry.platform}:${entry.nativeId}`)
-);
 try {
-  const rawText = await readFile(resolve(archiveDir, "raw-envelopes.ndjson"), "utf8");
-  for (const line of rawText.split(/\r?\n/)) {
-    if (!line.trim()) continue;
-    const record = JSON.parse(line);
+  await streamNdjson(resolve(archiveDir, "raw-envelopes.ndjson"), (record) => {
     const source = record?.content?.source?.ledgerSource;
     const token = sourceToken(source);
     const nativeKey = record?.key ?? nativeKeyFromRecord(record);
@@ -47,21 +37,25 @@ try {
       keys.add(nativeKey);
       alreadyMaterialized.set(token, keys);
     }
-  }
+  });
 } catch (error) {
   if (error?.code !== "ENOENT") throw error;
 }
 
-for (const [index, entry] of ledger.entries()) {
+const ledgerNativeKeys = new Set();
+await streamNdjson(ledgerPath, async (entry) => {
+  const index = counts.ledgerRows;
+  counts.ledgerRows += 1;
   if (!entry.platform || !entry.nativeId) {
     counts.skippedWithoutNativeId += 1;
-    continue;
+    return;
   }
+  ledgerNativeKeys.add(`${entry.platform}:${entry.nativeId}`);
   counts.rowsWithNativeId += 1;
   const token = sourceToken(entry.source);
   if (token && alreadyMaterialized.get(token)?.has(entry.nativeKey)) {
     counts.alreadyMaterializedRows += 1;
-    continue;
+    return;
   }
   const source = {
     kind: "volume-ledger",
@@ -117,7 +111,7 @@ for (const [index, entry] of ledger.entries()) {
   groups.set(key, group);
   if (result?.normalized?.status === "appended") counts.appendedRows += 1;
   else counts.replayedRows += 1;
-}
+});
 
 for (const group of groups.values()) {
   await archive.updateCheckpoint({
@@ -174,6 +168,20 @@ function nativeKeyFromRecord(record) {
   const platform = String(record?.content?.platform ?? "").trim().toLowerCase();
   const nativeId = String(record?.content?.nativeId ?? "").trim();
   return platform && nativeId ? `${platform}:${nativeId}` : null;
+}
+
+async function streamNdjson(path, onRecord) {
+  const input = createReadStream(path, { encoding: "utf8" });
+  const reader = createInterface({ input, crlfDelay: Infinity });
+  try {
+    for await (const line of reader) {
+      if (!line.trim()) continue;
+      await onRecord(JSON.parse(line));
+    }
+  } finally {
+    reader.close();
+    input.destroy();
+  }
 }
 
 function argValue(name) {

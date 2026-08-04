@@ -28,6 +28,10 @@ const sourceFiles = [
   ["source-hunt-s26-recent", "outputs/source-hunt/2026-07-19-s26-new-companies-recent.json"],
   ["source-hunt-community-video", "outputs/source-hunt/2026-07-19-cross-batch-community-video-recent.json"],
   ["source-hunt-s2026-youtube", "outputs/source-hunt/2026-07-22-two-hour-official-youtube-s2026.json"],
+  ["supplemental-social-candidates", "work/volume-target-2026-08-05/supplemental-social-candidate.json"],
+  ["supplemental-x-worker-candidate", "work/volume-target-2026-08-05/supplemental-x-worker-candidate.json"],
+  ["supplemental-enjamb-x-candidate", "work/volume-target-2026-08-05/supplemental-enjamb-candidate.json"],
+  ["supplemental-live-linkedin-s2026", "work/volume-target-2026-08-05/supplemental-live-linkedin-s2026.json"],
   ["public-linkedin-a16z", "work/public-linkedin-volume-2026-08-05/public-9853.json"],
   ["public-linkedin-s2026", "work/public-linkedin-volume-2026-08-05/public-9851.json"],
   ["public-linkedin-s26", "work/public-linkedin-volume-2026-08-05/public-9852.json"]
@@ -38,7 +42,8 @@ const historicalJournals = [
   "work/historical-backfill/historical-web-highcap-s2026-2026-08-05/pages.ndjson",
   "work/historical-backfill/historical-web-highcap-a16z-2026-08-05/pages.ndjson",
   "work/historical-backfill/historical-rss-highcap-2026-08-05/pages.ndjson",
-  "work/historical-backfill/historical-web-deep-2026-08-05/pages.ndjson"
+  "work/historical-backfill/historical-web-deep-2026-08-05/pages.ndjson",
+  "work/historical-backfill/youtube-depth-worker-2026-08-05/pages.ndjson"
 ];
 const externalVerifiedNdjson = "/Users/allenxu/Documents/Codex/2026-07-09/pu/returner-fund/work/collection-throughput/new-verified-42-20260803T050615Z/evidence-global-new-union-284.ndjson";
 
