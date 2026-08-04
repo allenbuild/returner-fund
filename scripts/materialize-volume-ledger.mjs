@@ -21,6 +21,9 @@ const sourceFiles = [
   ["public-youtube-s2026-all", "work/public-volume-expansion-2026-08-05/youtube-s2026-all.json"],
   ["public-youtube-s26-all", "work/public-volume-expansion-2026-08-05/youtube-s26-all.json"],
   ["public-youtube-a16z-all", "work/public-volume-expansion-2026-08-05/youtube-a16zsr006-all.json"],
+  ["public-social-s2026-refresh", "work/public-volume-expansion-2026-08-05/social-s2026-refresh.json"],
+  ["public-social-s26-refresh", "work/public-volume-expansion-2026-08-05/social-s26-refresh.json"],
+  ["public-social-a16z-refresh", "work/public-volume-expansion-2026-08-05/social-a16zsr006-refresh.json"],
   ["public-linkedin-a16z", "work/public-linkedin-volume-2026-08-05/public-9853.json"],
   ["public-linkedin-s2026", "work/public-linkedin-volume-2026-08-05/public-9851.json"],
   ["public-linkedin-s26", "work/public-linkedin-volume-2026-08-05/public-9852.json"]
