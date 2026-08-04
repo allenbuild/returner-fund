@@ -37,6 +37,7 @@ const sourceFiles = [
   ["supplemental-identity-audit", "work/volume-target-2026-08-05/supplemental-identity-audit.json"],
   ["supplemental-artifact-reconciliation", "work/volume-target-2026-08-05/supplemental-artifact-reconciliation.json"],
   ["supplemental-deep-native-recovery", "work/volume-target-2026-08-05/supplemental-deep-native-recovery.json"],
+  ["supplemental-deep-feed-recovery", "work/volume-target-2026-08-05/supplemental-deep-feed-recovery.json"],
   ["supplemental-x-public-rerun", "work/volume-target-2026-08-05/supplemental-x-public-rerun.json"],
   ["public-linkedin-a16z", "work/public-linkedin-volume-2026-08-05/public-9853.json"],
   ["public-linkedin-s2026", "work/public-linkedin-volume-2026-08-05/public-9851.json"],
