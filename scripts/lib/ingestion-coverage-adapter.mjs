@@ -15,6 +15,16 @@ const PLATFORM_SET = new Set([
   ...INGESTION_CORE_PLATFORMS,
   ...INGESTION_EXTENDED_ONLY_PLATFORMS
 ]);
+const HTTPS_UPGRADEABLE_ACCOUNT_HOSTS = Object.freeze({
+  x: new Set(["x.com", "twitter.com", "mobile.twitter.com"]),
+  linkedin: new Set(["linkedin.com", "www.linkedin.com"]),
+  instagram: new Set(["instagram.com", "www.instagram.com", "m.instagram.com"]),
+  github: new Set(["github.com", "www.github.com"]),
+  youtube: new Set(["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"]),
+  product_hunt: new Set(["producthunt.com", "www.producthunt.com"]),
+  reddit: new Set(["reddit.com", "www.reddit.com", "old.reddit.com", "redd.it"]),
+  hacker_news: new Set(["news.ycombinator.com"])
+});
 const SHA256 = /^[a-f0-9]{64}$/;
 const ENTITY_TYPES = new Set(["company", "founder"]);
 
@@ -32,6 +42,7 @@ export async function adaptAutonomousIngestionCoverage({
   idempotencyKey,
   campaignKey,
   generatedAt,
+  recentCoverageCutoff = null,
   catalogs,
   expectedCatalogManifest,
   taskPlan,
@@ -53,10 +64,22 @@ export async function adaptAutonomousIngestionCoverage({
     idempotencyKey: normalizedIdempotencyKey,
     campaignKey: normalizedCampaignKey,
     startedAt: logState.startedAt,
-    completedAt: logState.completedAt
+    completedAt: logState.completedAt,
+    ...(recentCoverageCutoff ? {
+      recentCoverageCutoff: canonicalTimestamp(
+        recentCoverageCutoff,
+        "recentCoverageCutoff"
+      )
+    } : {})
   };
   if (Date.parse(run.completedAt) > Date.parse(receiptTime)) {
     throw new Error("Runner completion cannot be later than generatedAt.");
+  }
+  if (
+    run.recentCoverageCutoff &&
+    Date.parse(run.recentCoverageCutoff) > Date.parse(run.startedAt)
+  ) {
+    throw new Error("recentCoverageCutoff must be pinned no later than runner start.");
   }
 
   const normalizedCatalogs = normalizeAutonomousIngestionCatalogs(catalogs);
@@ -370,6 +393,7 @@ function consumePublicSnapshot(snapshot, artifact, state) {
   const attempts = normalizedAttemptEntries(snapshot.attempts, "public snapshot.attempts");
   const sourceBatch = clean(snapshot.source?.batchSlug) || null;
   const context = [];
+  const usedTaskAttempts = new Set();
   for (const [entryKey, attempt] of attempts) {
     const identity = normalizePairIdentity(
       { ...attempt, batchSlug: attempt.batchSlug ?? sourceBatch },
@@ -383,13 +407,41 @@ function consumePublicSnapshot(snapshot, artifact, state) {
           `public attempt ${entryKey}.account`
         )
       : null;
-    const task = resolvePlanTask(state, identity, account?.url ?? null, {
-      label: `public attempt ${entryKey}`
-    });
+    let task;
+    try {
+      task = resolvePlanTask(state, identity, account?.url ?? null, {
+        label: `public attempt ${entryKey}`
+      });
+    } catch (error) {
+      if (
+        !account &&
+        error instanceof Error &&
+        error.message.includes("requires an exact task key or account")
+      ) {
+        const sourceAttemptKey = attempt.attemptKey ?? entryKey;
+        const supplementalTaskKey =
+          `public-attempt:${artifact.sha256}:${pairIdentityKey(identity)}:${sha256(sourceAttemptKey)}`;
+        task = addSupplementalTask(state, supplementalTaskKey, identity, null);
+      } else {
+        throw error;
+      }
+    }
+    if (usedTaskAttempts.has(task.output.taskKey)) {
+      const sourceAttemptKey = attempt.attemptKey ?? entryKey;
+      const supplementalTaskKey =
+        `public-attempt:${artifact.sha256}:${pairIdentityKey(identity)}:${sha256(sourceAttemptKey)}`;
+      task = addSupplementalTask(state, supplementalTaskKey, identity, account);
+    }
+    usedTaskAttempts.add(task.output.taskKey);
     const timing = currentRunTiming(attempt, artifact, state.run, `public attempt ${entryKey}`);
     const status = normalizedCollectorStatus(attempt);
     const reason = collectorReason(attempt, status, `public attempt ${entryKey}`);
     const reasonCode = reasonCodeFor(status, reason);
+    // A collector can spell a mapped account differently from the canonical
+    // task (for example, a YouTube channel ID may arrive with different case).
+    // Bind mapped outcomes to the task's canonical account identity while
+    // retaining discovered account URLs for URL-less discovery tasks.
+    const resolvedAccount = task.output.account ?? account;
     const attemptId = normalizedAttemptId(
       attempt.attemptId,
       artifact.sha256,
@@ -399,7 +451,7 @@ function consumePublicSnapshot(snapshot, artifact, state) {
     const pending = {
       ...identity,
       taskKey: task.output.taskKey,
-      account,
+      account: resolvedAccount,
       attemptId,
       startedAt: timing.startedAt,
       checkedAt: timing.checkedAt,
@@ -409,7 +461,7 @@ function consumePublicSnapshot(snapshot, artifact, state) {
       nextAction: nextActionFor(reasonCode, task.output.taskKey),
       profileReceipt: profileReceiptFor({
         status,
-        account,
+        account: resolvedAccount,
         checkedAt: timing.checkedAt,
         attemptId,
         artifactHash: artifact.sha256,
@@ -420,7 +472,13 @@ function consumePublicSnapshot(snapshot, artifact, state) {
       sourceArtifact: artifact.path,
       sourceAttemptKey: attempt.attemptKey ?? entryKey
     });
-    context.push({ pending, task, accountComparisonKey: task.accountComparisonKey });
+    context.push({
+      pending,
+      task,
+      accountComparisonKey: task.accountComparisonKey,
+      sourceAttemptKey: attempt.attemptKey ?? entryKey,
+      mayExpandStartedAt: !clean(attempt.startedAt)
+    });
   }
 
   let evidenceCount = 0;
@@ -463,6 +521,8 @@ function consumeGithubSnapshot(snapshot, artifact, state) {
   const attempts = normalizedAttemptEntries(snapshot.attempts, "github snapshot.attempts");
   const batchSlug = requiredText(snapshot.source?.batchSlug, "github snapshot.source.batchSlug");
   const accountEntities = new Set();
+  const seenAccounts = new Set();
+  const usedTaskAccounts = new Map();
   let evidenceCount = 0;
 
   for (let index = 0; index < (snapshot.accounts ?? []).length; index += 1) {
@@ -486,9 +546,22 @@ function consumeGithubSnapshot(snapshot, artifact, state) {
       "github",
       `github account ${index}`
     );
-    const task = resolvePlanTask(state, identity, account.url, {
+    const comparison = accountComparisonKey(account.platform, account.url);
+    const accountIdentity = `${entityIdentityKey(identity)}\u0000${comparison}`;
+    if (seenAccounts.has(accountIdentity)) {
+      throw new Error(`Duplicate GitHub account row for ${account.url} on ${entityIdentityKey(identity)}.`);
+    }
+    seenAccounts.add(accountIdentity);
+    let task = resolvePlanTask(state, identity, account.url, {
       label: `github account ${index}`
     });
+    const priorComparison = usedTaskAccounts.get(task.output.taskKey);
+    if (priorComparison && priorComparison !== comparison) {
+      const supplementalTaskKey =
+        `github-discovered:${artifact.sha256}:${pairIdentityKey(identity)}:${sha256(comparison)}`;
+      task = addSupplementalTask(state, supplementalTaskKey, identity, account);
+    }
+    usedTaskAccounts.set(task.output.taskKey, comparison);
     const timing = currentRunTiming(
       { checkedAt: row.checkedAt ?? snapshot.source?.fetchedAt },
       artifact,
@@ -512,10 +585,11 @@ function consumeGithubSnapshot(snapshot, artifact, state) {
       row.attemptKey ?? `account:${identity.entityType}:${identity.entityId}:${account.url}`,
       timing.checkedAt
     );
+    const resolvedAccount = task.output.account ?? account;
     addOutcome(state, {
       ...identity,
       taskKey: task.output.taskKey,
-      account,
+      account: resolvedAccount,
       attemptId,
       startedAt: timing.startedAt,
       checkedAt: timing.checkedAt,
@@ -525,7 +599,7 @@ function consumeGithubSnapshot(snapshot, artifact, state) {
       nextAction: nextActionFor(reasonCode, task.output.taskKey),
       profileReceipt: profileReceiptFor({
         status,
-        account,
+        account: resolvedAccount,
         checkedAt: timing.checkedAt,
         attemptId,
         artifactHash: artifact.sha256,
@@ -713,6 +787,12 @@ function normalizeNativeEvidence(row, {
     .filter((candidate) => pairIdentityKey(candidate.pending) === pairIdentityKey(identity))
     .filter((candidate) => isSuccessStatus(candidate.pending.status));
   const rowAccountUrl = clean(row.accountUrl);
+  const observedAt = currentObservationTimestamp(
+    row,
+    artifact,
+    state.run,
+    `${sourceKind} evidence`
+  );
   let matched = rowAccountUrl
     ? candidates.filter((candidate) =>
         candidate.pending.account &&
@@ -722,28 +802,43 @@ function normalizeNativeEvidence(row, {
     : candidates;
   if (!matched.length) {
     const taskKey = `${sourceKind}-native:${artifact.sha256}:${pairIdentityKey(identity)}`;
-    const task = state.tasks.get(taskKey) ?? addSupplementalTask(state, taskKey, identity, null);
-    const checkedAt = currentObservationTimestamp(row, artifact, state.run, `${sourceKind} evidence`);
-    const pending = {
-      ...identity,
-      taskKey,
-      account: null,
-      attemptId: normalizedAttemptId(null, artifact.sha256, taskKey, checkedAt),
-      startedAt: checkedAt,
-      checkedAt,
-      status: "completed",
-      reasonCode: null,
-      reason: `${sourceKind} artifact contains verified native evidence for ${pairIdentityKey(identity)}.`,
-      nextAction: nextActionFor(null, taskKey),
-      profileReceipt: null
-    };
-    addOutcome(state, pending, {
-      sourceArtifact: artifact.path,
-      sourceAttemptKey: taskKey
-    });
-    const supplemental = { pending, task, accountComparisonKey: null };
-    context.push(supplemental);
+    let supplemental = context.find((candidate) => candidate.pending.taskKey === taskKey);
+    if (!supplemental) {
+      const task = state.tasks.get(taskKey) ?? addSupplementalTask(state, taskKey, identity, null);
+      const checkedAt = currentObservationTimestamp(row, artifact, state.run, `${sourceKind} evidence`);
+      const pending = {
+        ...identity,
+        taskKey,
+        account: null,
+        attemptId: normalizedAttemptId(null, artifact.sha256, taskKey, checkedAt),
+        startedAt: checkedAt,
+        checkedAt,
+        status: "completed",
+        reasonCode: null,
+        reason: `${sourceKind} artifact contains verified native evidence for ${pairIdentityKey(identity)}.`,
+        nextAction: nextActionFor(null, taskKey),
+        profileReceipt: null
+      };
+      addOutcome(state, pending, {
+        sourceArtifact: artifact.path,
+        sourceAttemptKey: taskKey
+      });
+      supplemental = {
+        pending,
+        task,
+        accountComparisonKey: null,
+        mayExpandStartedAt: true,
+        mayExpandCheckedAt: true
+      };
+      context.push(supplemental);
+    }
     matched = [supplemental];
+  }
+  if (!rowAccountUrl && matched.length > 1) {
+    const nonSupplemental = matched.filter(
+      (candidate) => !candidate.pending.taskKey.startsWith(`${sourceKind}-native:`)
+    );
+    if (nonSupplemental.length === 1) matched = nonSupplemental;
   }
   const distinctTasks = new Set(matched.map((candidate) => candidate.pending.taskKey));
   if (distinctTasks.size > 1) {
@@ -756,7 +851,75 @@ function normalizeNativeEvidence(row, {
     left.pending.checkedAt.localeCompare(right.pending.checkedAt) ||
     left.pending.attemptId.localeCompare(right.pending.attemptId)
   );
-  const selected = matched.at(-1).pending;
+  let selectedContext = matched.at(-1);
+  let selected = selectedContext.pending;
+  const selectedAccountUrl = rowAccountUrl || selected.account?.url || null;
+  const outsideAttemptWindow =
+    observedAt < selected.startedAt ||
+    Date.parse(observedAt) > Date.parse(selected.checkedAt) + 5 * 60 * 1_000;
+  if (outsideAttemptWindow && !(selectedContext.mayExpandStartedAt || selectedContext.mayExpandCheckedAt)) {
+    const nativeTaskKey =
+      `${sourceKind}-native:${artifact.sha256}:${pairIdentityKey(identity)}:` +
+      sha256(rowAccountUrl || selected.account?.url || "pair");
+    const existingNativeContext = context.find(
+      (candidate) => candidate.pending.taskKey === nativeTaskKey
+    );
+    if (existingNativeContext) {
+      selectedContext = existingNativeContext;
+      selected = existingNativeContext.pending;
+    } else {
+      const nativeTask = state.tasks.get(nativeTaskKey) ?? addSupplementalTask(
+        state,
+        nativeTaskKey,
+        identity,
+        null
+      );
+      const nativePending = {
+        ...identity,
+        taskKey: nativeTask.output.taskKey,
+        account: null,
+        attemptId: normalizedAttemptId(null, artifact.sha256, nativeTaskKey, observedAt),
+        startedAt: observedAt,
+        checkedAt: observedAt,
+        status: "completed",
+        reasonCode: null,
+        reason: `${sourceKind} artifact contains verified native evidence observed at ${observedAt}.`,
+        nextAction: nextActionFor(null, nativeTask.output.taskKey),
+        profileReceipt: null
+      };
+      addOutcome(state, nativePending, {
+        sourceArtifact: artifact.path,
+        sourceAttemptKey: nativeTaskKey
+      });
+      selected = nativePending;
+      selectedContext = {
+        pending: nativePending,
+        task: nativeTask,
+        accountComparisonKey: null,
+        mayExpandStartedAt: true,
+        mayExpandCheckedAt: true
+      };
+      context.push(selectedContext);
+    }
+  }
+  if (
+    observedAt < selected.startedAt &&
+    observedAt <= selected.checkedAt &&
+    selectedContext.mayExpandStartedAt === true
+  ) {
+    // Merged resumable snapshots can retain evidence observed by an earlier
+    // checkpoint while replacing the logical attempt's checkedAt. When the
+    // source omitted an explicit startedAt, bind that same attempt to the
+    // earliest exact in-run evidence observation instead of inventing a fresh
+    // collection or dropping the retained native row.
+    selected.startedAt = observedAt;
+  }
+  if (
+    observedAt > selected.checkedAt &&
+    selectedContext.mayExpandCheckedAt === true
+  ) {
+    selected.checkedAt = observedAt;
+  }
   const canonicalUrl = clean(row.canonicalUrl ?? row.sourceUrl ?? row.url) || null;
   const nativeId = clean(
     row.nativeId ?? row.platformPostId ?? row.platform_post_id ?? row.platformObjectId
@@ -767,12 +930,6 @@ function normalizeNativeEvidence(row, {
   const publishedAt = canonicalTimestamp(
     row.publishedAt ?? row.postedAt ?? row.last_updated_at,
     `${sourceKind} evidence.publishedAt`
-  );
-  const observedAt = currentObservationTimestamp(
-    row,
-    artifact,
-    state.run,
-    `${sourceKind} evidence`
   );
   return compact({
     ...identity,
@@ -785,7 +942,7 @@ function normalizeNativeEvidence(row, {
     observedAt,
     taskKey: selected.taskKey,
     attemptId: selected.attemptId,
-    accountUrl: rowAccountUrl || selected.account?.url || null,
+    accountUrl: rowAccountUrl || selectedAccountUrl || null,
     storedUnpublished: row.storedUnpublished === true || row.stored_unpublished === true
   });
 }
@@ -849,8 +1006,7 @@ function consumeUnrepresentedReviewRows(rows, context) {
     const taskKey = `${context.sourceKind}-review:${context.artifact.sha256}:${pairIdentityKey(identity)}`;
     const task = addSupplementalTask(context.state, taskKey, identity, null);
     const reason = requireOperationalReason(
-      row.matchReason ?? row.reason ?? row.message ??
-        `Collector requires manual review for ${pairIdentityKey(identity)}.`,
+      `Collector requires manual review for ${pairIdentityKey(identity)} because the candidate was not verified as native evidence.`,
       `${taskKey}.reason`
     );
     const pending = {
@@ -881,25 +1037,56 @@ function consumeUnrepresentedFailureRows(rows, context) {
       { ...row, batchSlug: row.batchSlug ?? row.batch_slug ?? context.sourceBatch },
       `${context.sourceKind} failure row`
     );
-    if (context.context.some((candidate) =>
-      pairIdentityKey(candidate.pending) === pairIdentityKey(identity)
-    )) continue;
-    const task = resolvePlanTask(context.state, identity, null, {
-      label: `${context.sourceKind} failure row`
-    });
+    const sourceAttemptKey = row.attemptKey ?? row.id;
     const reason = requireOperationalReason(
       row.message ?? row.error ?? row.failure_reason,
       `${context.sourceKind} failure reason`
     );
+    const sourceFailureKey = row.id ?? sha256(stableJson({ sourceAttemptKey, reason }));
+    if (context.context.some((candidate) =>
+      pairIdentityKey(candidate.pending) === pairIdentityKey(identity) &&
+      candidate.sourceAttemptKey === sourceAttemptKey &&
+      candidate.sourceFailureKey === sourceFailureKey
+    )) continue;
+    const accountUrl = discoveryAccountUrl(row.accountUrl, identity.platform);
+    let task;
+    try {
+      task = resolvePlanTask(context.state, identity, accountUrl, {
+        label: `${context.sourceKind} failure row`
+      });
+    } catch (error) {
+      // A pair-level discovery failure can legitimately coexist with several
+      // mapped account tasks. Keep it as a supplemental outcome instead of
+      // guessing which native account was checked; the mapped tasks remain
+      // unresolved and therefore continue to count as incomplete coverage.
+      if (
+        accountUrl === null &&
+        error instanceof Error &&
+        error.message.includes("requires an exact task key or account")
+      ) {
+        const supplementalTaskKey =
+          `${context.sourceKind}-failure:${context.artifact.sha256}:` +
+          `${pairIdentityKey(identity)}:${sha256(`${sourceAttemptKey ?? "unknown"}\u0000${sourceFailureKey}`)}`;
+        task = addSupplementalTask(context.state, supplementalTaskKey, identity, null);
+      } else {
+        throw error;
+      }
+    }
+    if ((context.state.outcomesByTask.get(task.output.taskKey) ?? []).length) {
+      const supplementalTaskKey =
+        `${context.sourceKind}-failure:${context.artifact.sha256}:` +
+        `${pairIdentityKey(identity)}:${sha256(`${sourceAttemptKey ?? "unknown"}\u0000${sourceFailureKey}`)}`;
+      task = addSupplementalTask(context.state, supplementalTaskKey, identity, null);
+    }
     const reasonCode = reasonCodeFor("failed", reason);
-    addOutcome(context.state, {
+    const pending = {
       ...identity,
       taskKey: task.output.taskKey,
       account: null,
       attemptId: normalizedAttemptId(
         null,
         context.artifact.sha256,
-        row.attemptKey ?? row.id ?? task.output.taskKey,
+        `${sourceAttemptKey ?? "unknown"}\u0000${sourceFailureKey}`,
         context.artifact.observedAt
       ),
       startedAt: context.artifact.observedAt,
@@ -909,11 +1096,34 @@ function consumeUnrepresentedFailureRows(rows, context) {
       reason,
       nextAction: nextActionFor(reasonCode, task.output.taskKey),
       profileReceipt: null
-    }, {
+    };
+    addOutcome(context.state, pending, {
       sourceArtifact: context.artifact.path,
-      sourceAttemptKey: row.attemptKey ?? row.id ?? task.output.taskKey
+      sourceAttemptKey: sourceAttemptKey ?? task.output.taskKey
+    });
+    context.context.push({
+      pending,
+      task,
+      accountComparisonKey: null,
+      sourceAttemptKey,
+      sourceFailureKey
     });
   }
+}
+
+function discoveryAccountUrl(rawUrl, platform) {
+  const value = clean(rawUrl);
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    const pathname = url.pathname.toLowerCase();
+    if (platform === "reddit" && (pathname === "/search.json" || pathname === "/search")) {
+      return null;
+    }
+  } catch {
+    return value;
+  }
+  return value;
 }
 
 function applyRunnerCollectorFailures(failures, state) {
@@ -1135,7 +1345,19 @@ function normalizeAccount(account, forcedPlatform, label) {
   } catch {
     throw new TypeError(`${label}.url must be absolute.`);
   }
-  if (url.protocol !== "https:" || url.username || url.password || url.port) {
+  if (url.username || url.password || url.port) {
+    throw new Error(`${label}.url must use credential-free HTTPS and the default port.`);
+  }
+  if (
+    url.protocol === "http:" &&
+    (
+      HTTPS_UPGRADEABLE_ACCOUNT_HOSTS[platform]?.has(url.hostname.toLowerCase()) ||
+      (platform === "linkedin" && url.hostname.toLowerCase().endsWith(".linkedin.com"))
+    )
+  ) {
+    url.protocol = "https:";
+  }
+  if (url.protocol !== "https:") {
     throw new Error(`${label}.url must use credential-free HTTPS and the default port.`);
   }
   url.hash = "";
@@ -1144,15 +1366,25 @@ function normalizeAccount(account, forcedPlatform, label) {
   const parts = url.pathname.split("/").filter(Boolean);
   if (platform === "linkedin" && ["company", "in", "school"].includes(parts[0]?.toLowerCase())) {
     url.pathname = `/${parts.slice(0, 2).join("/")}`;
+  } else if (
+    platform === "github" &&
+    parts.length === 2 &&
+    ["orgs", "users"].includes(parts[0]?.toLowerCase())
+  ) {
+    url.pathname = `/${parts[1]}`;
   } else if (["x", "instagram"].includes(platform) && parts.length) {
     url.pathname = `/${parts[0]}`;
   } else {
     url.pathname = url.pathname === "/" ? "/" : url.pathname.replace(/\/+$/, "");
   }
+  const suppliedHandle = clean(account.handle ?? account.login) || null;
+  const canonicalHandle = platform === "github" && suppliedHandle
+    ? url.pathname.split("/").filter(Boolean).map((part) => decodeURIComponent(part)).join("/").toLowerCase()
+    : suppliedHandle;
   return {
     platform,
     url: url.toString().replace(/\/$/, ""),
-    handle: clean(account.handle ?? account.login) || null,
+    handle: canonicalHandle,
     verificationStatus: verificationStatus(account)
   };
 }
@@ -1272,11 +1504,20 @@ function normalizedCollectorStatus(value) {
 }
 
 function collectorReason(value, status, label) {
+  if (["needs_review", "manual_review"].includes(status)) {
+    return requireOperationalReason(
+      `${label} requires manual review because the collector did not verify a native public post URL.`,
+      `${label}.reason`
+    );
+  }
   const success = isSuccessStatus(status);
   let reason = success
     ? clean(value.outcomeReason ?? value.reason) || `${label} reported native collection success.`
     : clean(value.error ?? value.outcomeReason ?? value.reason);
-  if (reason === "collector_checked_blocked_or_empty") {
+  if (
+    reason === "collector_checked_blocked_or_empty" ||
+    /checked_empty.*blocked|blocked.*checked_empty/.test(reason)
+  ) {
     reason = "Collector reported a legacy combined access-or-zero-result outcome without an exact cause.";
   }
   if (/login.?wall/i.test(reason) &&
@@ -1303,6 +1544,7 @@ function reasonCodeFor(status, reason) {
   if (/network|timeout|timed out|socket|econn|fetch failed|\b5\d\d\b/.test(text)) {
     return "network_error";
   }
+  if (/login.?wall/.test(text)) return "access_denied";
   if (/manual review|needs review|requires manual|attribution review/.test(text) ||
       status === "needs_review" || status === "manual_review") {
     return "manual_review_required";
@@ -1420,6 +1662,7 @@ function normalizePlatform(value) {
 function canonicalHost(platform, value) {
   let host = value.toLowerCase().replace(/^www\./, "");
   if (platform === "x" && host === "twitter.com") host = "x.com";
+  if (platform === "linkedin" && host.endsWith(".linkedin.com")) host = "linkedin.com";
   if (platform === "reddit" && host === "old.reddit.com") host = "reddit.com";
   return host;
 }

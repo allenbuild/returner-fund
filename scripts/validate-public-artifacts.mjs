@@ -1349,6 +1349,7 @@ function githubRepositoryPublicationProvenance(item) {
     sourceProvenance?.kind === "github_commit" ||
     (sourceProvenanceUrl !== null && /\/commit\/[a-f0-9]{7,64}(?:\/|$)/i.test(sourceProvenanceUrl));
   const timestampRecords = [
+    recordAt(item, "publicationProvenance"),
     recordAt(raw, "repositoryTimestamps"),
     recordAt(recordAt(raw, "repo"), "repositoryTimestamps"),
     recordAt(raw, "repo"),

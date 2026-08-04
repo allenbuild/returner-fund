@@ -89,9 +89,53 @@ function sanitizeEvidenceItem(
     why,
     ...safeItem
   } = item;
+  const publicationProvenance = item.platform === "github"
+    ? githubPublicationProvenance(_rawVisibleText)
+    : undefined;
+  const publishedAtPrecision = item.platform === "github" && publicationProvenance?.createdAt === null
+    ? "unknown"
+    : item.publishedAtPrecision;
   return {
     ...safeItem,
     id,
+    publishedAtPrecision,
+    ...(publicationProvenance ? { publicationProvenance } : {}),
     why: options.includeWhy ? why : ""
   };
+}
+
+function githubPublicationProvenance(rawVisibleText?: string): EvidenceItem["publicationProvenance"] {
+  if (typeof rawVisibleText !== "string" || !rawVisibleText.trim().startsWith("{")) {
+    return undefined;
+  }
+
+  try {
+    const raw = JSON.parse(rawVisibleText) as Record<string, unknown>;
+    const candidates = [
+      raw.repositoryTimestamps,
+      (raw.repo as Record<string, unknown> | undefined)?.repositoryTimestamps,
+      raw.repo,
+      raw.repository,
+      (raw.canonicalRepository as Record<string, unknown> | undefined)?.repositoryTimestamps,
+      raw.canonicalRepository
+    ];
+    const timestamps = candidates.find(
+      (candidate): candidate is Record<string, unknown> =>
+        Boolean(candidate) && typeof candidate === "object" && !Array.isArray(candidate)
+    );
+    if (!timestamps) return undefined;
+
+    const timestamp = (value: unknown): string | null =>
+      typeof value === "string" && Number.isFinite(Date.parse(value)) ? value : null;
+    const createdAt = timestamp(timestamps.createdAt ?? timestamps.created_at ?? timestamps.repositoryCreatedAt);
+    const updatedAt = timestamp(timestamps.updatedAt ?? timestamps.updated_at);
+    const pushedAt = timestamp(timestamps.pushedAt ?? timestamps.pushed_at);
+    const observedAt = timestamp(timestamps.observedAt ?? timestamps.observed_at);
+    if (createdAt === null && updatedAt === null && pushedAt === null && observedAt === null) {
+      return undefined;
+    }
+    return { kind: "github_repository", createdAt, updatedAt, pushedAt, observedAt };
+  } catch {
+    return undefined;
+  }
 }

@@ -34,6 +34,39 @@ describe("graph response sanitizer", () => {
     expect(sanitizeGraphResponse(graph, { includeRaw: true })).toBe(graph);
   });
 
+  it("keeps public-safe GitHub creation provenance when raw payloads are removed", () => {
+    const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
+    const evidence = graph.evidence[0];
+    const nativeCreation = "2025-01-02T03:04:05.000Z";
+    const sanitized = sanitizeGraphResponse({
+      ...graph,
+      evidence: [{
+        ...evidence,
+        platform: "github",
+        sourceUrl: "https://github.com/returner/example-repository",
+        postedAt: nativeCreation,
+        publishedAtPrecision: "exact",
+        rawVisibleText: JSON.stringify({
+          repositoryTimestamps: {
+            createdAt: nativeCreation,
+            updatedAt: "2026-07-14T10:00:00.000Z",
+            pushedAt: "2026-07-15T10:00:00.000Z",
+            observedAt: "2026-07-16T10:00:00.000Z"
+          }
+        })
+      }]
+    }, { includeNonScoring: true, compactIds: false });
+
+    expect(sanitized.evidence[0]).not.toHaveProperty("rawVisibleText");
+    expect(sanitized.evidence[0]?.publicationProvenance).toEqual({
+      kind: "github_repository",
+      createdAt: nativeCreation,
+      updatedAt: "2026-07-14T10:00:00.000Z",
+      pushedAt: "2026-07-15T10:00:00.000Z",
+      observedAt: "2026-07-16T10:00:00.000Z"
+    });
+  });
+
   it("can keep explanations for debug views without keeping raw scrape text", () => {
     const graph = buildGraphResponse({ batchSlug: "S26" }, ycSpring2026GraphDataset);
     const sanitized = sanitizeGraphResponse(graph, { includeWhy: true });

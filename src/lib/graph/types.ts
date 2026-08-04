@@ -119,6 +119,18 @@ export interface EvidenceItem {
    */
   platformObjectId?: string | null;
   rawVisibleText?: string;
+  /**
+   * Public-safe provenance for derived publication timestamps. Raw provider
+   * payloads stay private, while release validators can still distinguish a
+   * native GitHub repository createdAt from refresh or activity timestamps.
+   */
+  publicationProvenance?: {
+    kind: "github_repository";
+    createdAt: string | null;
+    updatedAt: string | null;
+    pushedAt: string | null;
+    observedAt: string | null;
+  };
   first_seen_at?: string;
   last_checked_at?: string;
   last_updated_at?: string;

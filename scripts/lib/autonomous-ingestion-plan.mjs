@@ -1966,7 +1966,7 @@ function normalizeYcAccounts(links, { entityType, entitySourceKey, discoveredFro
         sourceKey: `acct:${entityType}:${entitySourceKey}:${platform}:${encodeURIComponent(canonicalUrl)}`,
         platform,
         handle,
-        url,
+        url: canonicalUrl,
         accountId: null,
         reviewState: "verified",
         verified: true,

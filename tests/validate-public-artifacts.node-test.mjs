@@ -283,6 +283,22 @@ test("rejects GitHub repository publication dates sourced from refresh or commit
   });
   assert.equal(publicationViolations(matchingCreation), "");
 
+  const sanitizedNativeCreation = makeGithubGraph({
+    postedAt: nativeCreation,
+    publishedAtPrecision: "exact",
+    observedAt: GENERATED_AT,
+    metricsCheckedAt: GENERATED_AT,
+    last_updated_at: pushedAt,
+    publicationProvenance: {
+      kind: "github_repository",
+      createdAt: nativeCreation,
+      updatedAt,
+      pushedAt,
+      observedAt: GENERATED_AT
+    }
+  });
+  assert.equal(publicationViolations(sanitizedNativeCreation), "");
+
   const pushedAsPublication = makeGithubGraph({
     postedAt: pushedAt,
     publishedAtPrecision: "exact",

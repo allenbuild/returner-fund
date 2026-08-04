@@ -182,6 +182,36 @@ async function adapt({
 }
 
 describe("autonomous ingestion coverage adapter", () => {
+  it("canonicalizes legacy HTTP social catalog links to credential-free HTTPS", () => {
+    const normalized = normalizeAutonomousIngestionCatalogs(liveCatalog({
+      accounts: [{
+        platform: "linkedin",
+        url: "http://de.linkedin.com/company/acme?trk=legacy#about",
+        verified: true
+      }, {
+        platform: "github",
+        url: "https://github.com/orgs/Acme-Inc/",
+        verified: true
+      }]
+    }));
+
+    assert.equal(
+      normalized[0].companies[0].accounts[0].url,
+      "https://linkedin.com/company/acme"
+    );
+    assert.equal(normalized[0].companies[0].accounts[0].verificationStatus, "verified");
+    assert.equal(normalized[0].companies[0].accounts[1].url, "https://github.com/Acme-Inc");
+  });
+
+  it("does not upgrade HTTP merely because an untrusted host claims a social platform", () => {
+    assert.throws(
+      () => normalizeAutonomousIngestionCatalogs(liveCatalog({
+        accounts: [{ platform: "linkedin", url: "http://example.com/company/acme" }]
+      })),
+      /credential-free HTTPS/
+    );
+  });
+
   it("folds a discovered account into its URL-less plan task without double-counting", async () => {
     const envelope = {
       ...artifact("public", HASH_A, "public-test.json"),
@@ -210,6 +240,87 @@ describe("autonomous ingestion coverage adapter", () => {
     assert.equal(pair.accountOutcomes.length, 1);
     assert.equal(pair.accountOutcomes[0].status, "collected");
     assert.equal(pair.terminal.status, "collected");
+  });
+
+  it("reuses one supplemental attempt for multiple native rows on an unmatched pair", async () => {
+    const envelope = {
+      ...artifact("public", HASH_A, "public-unmatched-native.json"),
+      snapshot: publicSnapshot({
+        evidence: [
+          nativeXEvidence({ last_checked_at: "2026-08-02T18:25:00.000Z" }),
+          nativeXEvidence({
+            id: "x-company-acme-43",
+            sourceUrl: "https://x.com/acme/status/43",
+            platformPostId: "43",
+            last_checked_at: CHECKED_AT
+          })
+        ]
+      })
+    };
+
+    const normalized = await adapt({ collectorArtifacts: [envelope] });
+    const supplemental = normalized.outcomes.filter((outcome) =>
+      outcome.taskKey.startsWith(`public-native:${HASH_A}:`)
+    );
+    assert.equal(supplemental.length, 1);
+    assert.equal(normalized.evidence.length, 2);
+    assert.equal(normalized.evidence[0].attemptId, supplemental[0].attemptId);
+    assert.equal(normalized.evidence[1].attemptId, supplemental[0].attemptId);
+    assert.equal(supplemental[0].startedAt, "2026-08-02T18:25:00.000Z");
+    assert.equal(supplemental[0].checkedAt, CHECKED_AT);
+    assert.doesNotThrow(() => buildIngestionCoverageReceipt(normalized));
+  });
+
+  it("keeps multiple public source attempts on one pair as distinct task observations", async () => {
+    const task = planTask({ platform: "web" });
+    const baseAttempt = {
+      batchSlug: "TEST",
+      entityType: "company",
+      entityId: "company-acme",
+      platform: "web",
+      accountUrl: null,
+      status: "done",
+      checkedAt: CHECKED_AT,
+      retryable: false
+    };
+    const envelope = {
+      ...artifact("public", HASH_A, "public-multiple-web-attempts.json"),
+      snapshot: {
+        ...publicSnapshot(),
+        attempts: {
+          "news:company-acme": {
+            ...baseAttempt,
+            attemptKey: "news:company-acme",
+            outcomeStatus: "blocked_or_empty",
+            outcomeReason: "No verified public news result was exposed."
+          },
+          "website:company-acme": {
+            ...baseAttempt,
+            attemptKey: "website:company-acme",
+            outcomeStatus: "completed",
+            outcomeReason: "collector_evidence_collected"
+          }
+        },
+        evidence: [nativeXEvidence({
+          platform: "web",
+          sourceUrl: "https://acme.example/news/launch",
+          platformPostId: "https://acme.example/news/launch",
+          accountUrl: null
+        })]
+      }
+    };
+
+    const normalized = await adapt({ taskPlan: [task], collectorArtifacts: [envelope] });
+    assert.equal(normalized.tasks.length, 2);
+    assert.equal(normalized.outcomes.length, 2);
+    assert.equal(new Set(normalized.outcomes.map((outcome) => outcome.taskKey)).size, 2);
+    assert.equal(normalized.evidence.length, 1);
+    const receipt = buildIngestionCoverageReceipt(normalized);
+    const pair = receipt.pairs.find((candidate) =>
+      candidate.pairKey === "TEST:company:company-acme:web"
+    );
+    assert.equal(pair.terminal.status, "queued");
+    assert.equal(pair.evidence.postCount, 1);
   });
 
   it("never infers collected from a numeric evidence count", async () => {
@@ -249,7 +360,7 @@ describe("autonomous ingestion coverage adapter", () => {
             entityType: "company",
             entityId: "company-acme",
             platform: "github",
-            mappedAccountCount: 1,
+            mappedAccountCount: 2,
             status: "done",
             outcomeStatus: "completed",
             outcomeReason: "collector_account_fetched",
@@ -275,24 +386,104 @@ describe("autonomous ingestion coverage adapter", () => {
             openIssues: 0,
             pushedAt: "2026-08-02T18:00:00.000Z"
           }]
+        }, {
+          entityType: "company",
+          entityId: "company-acme",
+          githubUrl: "https://github.com/AcmeResearch",
+          login: "AcmeResearch",
+          fetched: true,
+          attemptKey: "account:company:company-acme:https://github.com/AcmeResearch",
+          account: { login: "AcmeResearch", followers: 3, publicRepos: 1 },
+          aggregate: { repoCount: 1, totalStars: 4 },
+          repos: [{
+            id: 456,
+            fullName: "AcmeResearch/model",
+            htmlUrl: "https://github.com/AcmeResearch/model",
+            stars: 4,
+            forks: 0,
+            watchers: 4,
+            openIssues: 0,
+            pushedAt: "2026-08-02T17:00:00.000Z"
+          }]
         }]
       }
     };
     const normalized = await adapt({ taskPlan: [task], collectorArtifacts: [envelope] });
-    assert.equal(normalized.tasks.length, 1);
-    assert.equal(normalized.outcomes[0].taskKey, task.checkpointKey);
-    assert.equal(normalized.outcomes[0].account.url, "https://github.com/AcmeOrg");
-    assert.equal(normalized.outcomes[0].profileReceipt.status, "scraped");
-    assert.equal(normalized.evidence[0].nativeId, "123");
-    assert.equal(normalized.evidence[0].taskKey, task.checkpointKey);
+    assert.equal(normalized.tasks.length, 2);
+    assert.equal(normalized.outcomes.length, 2);
+    assert.equal(normalized.evidence.length, 2);
+    const primaryOutcome = normalized.outcomes.find((outcome) => outcome.taskKey === task.checkpointKey);
+    const supplementalOutcome = normalized.outcomes.find((outcome) =>
+      outcome.taskKey.startsWith(`github-discovered:${HASH_A}:`)
+    );
+    const primaryEvidence = normalized.evidence.find((evidence) => evidence.nativeId === "123");
+    const supplementalEvidence = normalized.evidence.find((evidence) => evidence.nativeId === "456");
+    assert.equal(primaryOutcome.account.url, "https://github.com/AcmeOrg");
+    assert.equal(primaryOutcome.profileReceipt.status, "scraped");
+    assert.equal(primaryEvidence.taskKey, task.checkpointKey);
+    assert.equal(supplementalOutcome.account.url, "https://github.com/AcmeResearch");
+    assert.equal(supplementalEvidence.taskKey, supplementalOutcome.taskKey);
 
     const receipt = buildIngestionCoverageReceipt(normalized);
     const pair = receipt.pairs.find((candidate) =>
       candidate.pairKey === "TEST:company:company-acme:github"
     );
-    assert.equal(pair.mapping.accountCount, 1);
-    assert.equal(pair.accountOutcomes.length, 1);
+    assert.equal(pair.mapping.accountCount, 2);
+    assert.equal(pair.accountOutcomes.length, 2);
     assert.equal(pair.accountOutcomes[0].status, "collected");
+    assert.equal(pair.accountOutcomes[1].status, "collected");
+  });
+
+  it("canonicalizes GitHub repository account handles from the URL identity", async () => {
+    const repoAccount = {
+      platform: "github",
+      url: "https://github.com/AcmeOrg/widget",
+      handle: "widget",
+      reviewState: "verified"
+    };
+    const task = planTask({
+      platform: "github",
+      account: repoAccount,
+      taskKey: "run:TEST:company:company-acme:github:repo-account"
+    });
+    const envelope = {
+      ...artifact("github", HASH_A, "github-repo-account.json"),
+      snapshot: {
+        source: { batchSlug: "TEST", fetchedAt: CHECKED_AT },
+        attempts: {},
+        accounts: [{
+          entityType: "company",
+          entityId: "company-acme",
+          githubUrl: repoAccount.url,
+          login: "AcmeOrg",
+          fetched: true,
+          attemptKey: `account:company:company-acme:${repoAccount.url}`,
+          account: { login: "AcmeOrg", followers: 8, publicRepos: 1 },
+          aggregate: { repoCount: 1, totalStars: 10 },
+          repos: [{
+            id: 123,
+            fullName: "AcmeOrg/widget",
+            htmlUrl: repoAccount.url,
+            stars: 10,
+            forks: 2,
+            watchers: 10,
+            openIssues: 0,
+            pushedAt: "2026-08-02T18:00:00.000Z"
+          }]
+        }]
+      }
+    };
+
+    const normalized = await adapt({
+      catalogs: liveCatalog({ accounts: [repoAccount] }),
+      taskPlan: [task],
+      collectorArtifacts: [envelope]
+    });
+    assert.equal(normalized.outcomes[0].account.handle, "acmeorg/widget");
+    const receipt = buildIngestionCoverageReceipt(normalized);
+    const pair = receipt.pairs.find((candidate) => candidate.platform === "github");
+    assert.equal(pair.mapping.accounts[0].handle, "acmeorg/widget");
+    assert.equal(pair.terminal.status, "collected");
   });
 
   it("records exact blocked and queued reasons without claiming exhaustive absence", async () => {
@@ -357,6 +548,186 @@ describe("autonomous ingestion coverage adapter", () => {
     assert.equal(xPair.terminal.reasonCode, "access_denied");
     assert.equal(githubPair.terminal.status, "queued");
     assert.equal(githubPair.terminal.reasonCode, "no_match");
+  });
+
+  it("separates manual review from multiple exact blockers on one public attempt", async () => {
+    const linkedinAccount = {
+      platform: "linkedin",
+      url: "https://linkedin.com/company/acme",
+      reviewState: "verified"
+    };
+    const linkedinTask = planTask({
+      platform: "linkedin",
+      account: linkedinAccount,
+      taskKey: "run:TEST:company:company-acme:linkedin:account"
+    });
+    const attemptKey = "linkedin:company:company-acme:https://linkedin.com/company/acme";
+    const envelope = {
+      ...artifact("public", HASH_A, "public-linkedin-mixed-blockers.json"),
+      snapshot: publicSnapshot({
+        attempt: {
+          attemptKey,
+          platform: "linkedin",
+          accountUrl: linkedinAccount.url,
+          outcomeStatus: "needs_review",
+          outcomeReason: "collector_needs_review",
+          error: "Batch-linked linkedin profile was blocked/login-walled. Candidate needs review."
+        },
+        needsReview: [{
+          id: "review-linkedin-company-acme",
+          entityType: "company",
+          entityId: "company-acme",
+          platform: "linkedin",
+          accountUrl: linkedinAccount.url,
+          matchReason: "Candidate needs review because it is not a verified public post URL."
+        }],
+        failures: [{
+          id: "failure-linkedin-company-acme-login-wall",
+          attemptKey,
+          entityType: "company",
+          entityId: "company-acme",
+          platform: "linkedin",
+          accountUrl: linkedinAccount.url,
+          message: "Public page blocked or login-walled."
+        }, {
+          id: "failure-linkedin-company-acme-search-timeout",
+          attemptKey,
+          entityType: "company",
+          entityId: "company-acme",
+          platform: "linkedin",
+          accountUrl: linkedinAccount.url,
+          message: "Public post discovery was partially blocked: search circuit open after the request timed out."
+        }]
+      })
+    };
+
+    const normalized = await adapt({
+      catalogs: liveCatalog({ accounts: [linkedinAccount] }),
+      taskPlan: [linkedinTask],
+      collectorArtifacts: [envelope]
+    });
+    assert.equal(normalized.outcomes.length, 3);
+    assert.deepEqual(
+      normalized.outcomes.map((outcome) => outcome.reasonCode).sort(),
+      ["access_denied", "manual_review_required", "network_error"]
+    );
+    assert.equal(new Set(normalized.outcomes.map((outcome) => outcome.attemptId)).size, 3);
+    const manual = normalized.outcomes.find((outcome) =>
+      outcome.reasonCode === "manual_review_required"
+    );
+    assert.match(manual.reason, /requires manual review/i);
+    assert.doesNotMatch(manual.reason, /login.?wall|timed out|circuit open/i);
+
+    const receipt = buildIngestionCoverageReceipt(normalized);
+    const pair = receipt.pairs.find((candidate) =>
+      candidate.pairKey === "TEST:company:company-acme:linkedin"
+    );
+    assert.equal(pair.accountOutcomes.length, 3);
+    assert.equal(pair.terminal.status, "queued");
+  });
+
+  it("separates collected evidence from a rate-limit blocker and review candidate", async () => {
+    const linkedinAccount = {
+      platform: "linkedin",
+      url: "https://linkedin.com/company/acme",
+      reviewState: "verified"
+    };
+    const linkedinTask = planTask({
+      platform: "linkedin",
+      account: linkedinAccount,
+      taskKey: "run:TEST:company:company-acme:linkedin:collected-with-blocker"
+    });
+    const attemptKey = "linkedin:company:company-acme:https://linkedin.com/company/acme";
+    const envelope = {
+      ...artifact("public", HASH_A, "public-linkedin-collected-with-blocker.json"),
+      snapshot: publicSnapshot({
+        attempt: {
+          attemptKey,
+          platform: "linkedin",
+          accountUrl: linkedinAccount.url,
+          outcomeStatus: "completed",
+          outcomeReason: "collector_evidence_collected",
+          error: "Post verification was blocked by HTTP 429 after other native rows were collected."
+        },
+        evidence: [nativeXEvidence({
+          platform: "linkedin",
+          sourceUrl: "https://linkedin.com/posts/acme_launch-activity-123",
+          platformPostId: "123",
+          accountUrl: linkedinAccount.url
+        })],
+        needsReview: [{
+          id: "review-linkedin-company-acme-rate-limit",
+          entityType: "company",
+          entityId: "company-acme",
+          platform: "linkedin",
+          accountUrl: linkedinAccount.url,
+          matchReason: "Candidate verification failed after HTTP 429; needs review."
+        }],
+        failures: [{
+          id: "failure-linkedin-company-acme-rate-limit",
+          attemptKey,
+          entityType: "company",
+          entityId: "company-acme",
+          platform: "linkedin",
+          accountUrl: linkedinAccount.url,
+          message: "Public post verification was rate limited by HTTP 429."
+        }]
+      })
+    };
+
+    const normalized = await adapt({
+      catalogs: liveCatalog({ accounts: [linkedinAccount] }),
+      taskPlan: [linkedinTask],
+      collectorArtifacts: [envelope]
+    });
+    assert.deepEqual(
+      normalized.outcomes.map((outcome) => outcome.reasonCode ?? null).sort((left, right) =>
+        String(left).localeCompare(String(right))
+      ),
+      ["manual_review_required", null, "rate_limited"]
+    );
+    const manual = normalized.outcomes.find((outcome) =>
+      outcome.reasonCode === "manual_review_required"
+    );
+    assert.doesNotMatch(manual.reason, /429|rate.?limit/i);
+
+    const receipt = buildIngestionCoverageReceipt(normalized);
+    const pair = receipt.pairs.find((candidate) =>
+      candidate.pairKey === "TEST:company:company-acme:linkedin"
+    );
+    assert.equal(pair.evidence.postCount, 1);
+    assert.equal(pair.terminal.status, "queued");
+  });
+
+  it("keeps a legacy GitHub checked-empty-or-blocked result explicitly ambiguous", async () => {
+    const githubTask = planTask({ platform: "github" });
+    const envelope = {
+      ...artifact("github", HASH_A, "github-legacy-combined.json"),
+      snapshot: {
+        source: { batchSlug: "TEST", fetchedAt: CHECKED_AT },
+        accounts: [],
+        attempts: {
+          "company:company-acme": {
+            attemptKey: "company:company-acme",
+            entityType: "company",
+            entityId: "company-acme",
+            mappedAccountCount: 0,
+            status: "done",
+            outcomeStatus: "blocked_or_empty",
+            outcomeReason: "collector_official_sources_checked_empty_or_blocked",
+            checkedAt: CHECKED_AT
+          }
+        }
+      }
+    };
+
+    const normalized = await adapt({ taskPlan: [githubTask], collectorArtifacts: [envelope] });
+    assert.equal(normalized.outcomes[0].reasonCode, "ambiguous_legacy_outcome");
+    assert.match(normalized.outcomes[0].reason, /legacy combined access-or-zero-result/);
+    const receipt = buildIngestionCoverageReceipt(normalized);
+    const pair = receipt.pairs.find((candidate) => candidate.platform === "github");
+    assert.equal(pair.terminal.status, "queued");
+    assert.equal(pair.terminal.reasonCode, "ambiguous_legacy_outcome");
   });
 
   it("normalizes targeted native evidence without inventing a company account mapping", async () => {
@@ -504,6 +875,24 @@ describe("autonomous ingestion coverage adapter", () => {
     const normalized = await adapt({ collectorArtifacts: [envelope] });
     assert.equal(normalized.outcomes[0].checkedAt, CHECKED_AT);
     assert.equal(normalized.evidence[0].observedAt, CHECKED_AT);
+    assert.doesNotThrow(() => buildIngestionCoverageReceipt(normalized));
+  });
+
+  it("expands an implicit resumable attempt window to retained in-run evidence", async () => {
+    const envelope = {
+      ...artifact("public", HASH_A, "resumed-current-run-evidence.json"),
+      snapshot: publicSnapshot({
+        attempt: {
+          accountUrl: "https://x.com/acme",
+          checkedAt: CHECKED_AT
+        },
+        evidence: [nativeXEvidence({ last_checked_at: "2026-08-02T18:25:00.000Z" })]
+      })
+    };
+    const normalized = await adapt({ collectorArtifacts: [envelope] });
+    assert.equal(normalized.outcomes[0].startedAt, "2026-08-02T18:25:00.000Z");
+    assert.equal(normalized.outcomes[0].checkedAt, CHECKED_AT);
+    assert.equal(normalized.evidence[0].observedAt, "2026-08-02T18:25:00.000Z");
     assert.doesNotThrow(() => buildIngestionCoverageReceipt(normalized));
   });
 

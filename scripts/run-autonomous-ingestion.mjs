@@ -44,6 +44,8 @@ import {
 } from "./lib/ingestion-source-delta.mjs";
 import { resumeValidatedSnapshotOrRun } from "./lib/autonomous-ingestion-resume.mjs";
 import { mergeTargetedEvidenceSnapshots } from "./lib/targeted-evidence-merge.mjs";
+import { archiveAcceptedPublicSnapshot } from "./lib/archive-public-ingestion.mjs";
+import { openLosslessPostArchive } from "./lib/lossless-post-archive.mjs";
 
 const root = process.cwd();
 const args = parseArgs(process.argv.slice(2));
@@ -73,6 +75,7 @@ const publishedSourceDeltaPath = join(root, "outputs", "ingestion-source-delta-c
 const publishedSourceDeltaHistoryPath = join(root, "outputs", "ingestion-source-delta-history.json");
 const publishedGithubQuarantinePath = join(root, "src", "lib", "social", "github-traction-quarantine.json");
 const topVoiceOutput = join(collectorRoot, "top-voice-refresh.json");
+const losslessPublicArchiveRoot = join(collectorRoot, "lossless-public-post-archive");
 const PUBLIC_COLLECTOR_SHARDS = Object.freeze({
   S2026: 4,
   S26: 2,
@@ -290,6 +293,20 @@ try {
     publicationInputs.sanitizedPublicSnapshot = await prepareSanitizedPublicSnapshot(
       publicSnapshots,
       { contentIdentityReferenceRows }
+    );
+    const losslessPublicArchive = await openLosslessPostArchive(losslessPublicArchiveRoot);
+    const losslessArchiveReceipt = publicationInputs.sanitizedPublicSnapshot
+      ? await archiveAcceptedPublicSnapshot({
+          archive: losslessPublicArchive,
+          snapshot: publicationInputs.sanitizedPublicSnapshot,
+          checkpointScope: `autonomous-public-ingestion:${idempotencyKey}`
+        })
+      : { archived: 0, skippedWithoutNativeId: 0, checkpointsAdvanced: 0 };
+    await event(
+      "evidence.lossless_archive_completed",
+      "info",
+      "Accepted native public posts were written to the lossless archive before its checkpoints advanced.",
+      { archiveRoot: losslessPublicArchiveRoot, ...losslessArchiveReceipt }
     );
     const sanitizedEvidenceSnapshots = [
       publicationInputs.sanitizedPublicSnapshot,

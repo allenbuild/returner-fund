@@ -2,12 +2,15 @@ import { readFileSync, statSync } from "node:fs";
 import { dirname, isAbsolute, normalize, relative, resolve, sep } from "node:path";
 
 const MEBIBYTE = 1024 * 1024;
-const MAX_TRACE_BYTES = 55 * MEBIBYTE;
+// The protected release now carries the complete refreshed 1,297-entity
+// catalog and its reconciled evidence projection. Keep headroom above the
+// measured graph trace without permitting repository-wide data leakage.
+const MAX_TRACE_BYTES = 75 * MEBIBYTE;
 const MAX_FULL_GRAPH_TRACE_BYTES = 140 * MEBIBYTE;
 // Vercel traces both the glibc and musl Sharp binary families for these
 // server-rendered debug pages, while local macOS builds trace one native
 // family. Keep a route-specific ceiling with headroom for that platform delta.
-const MAX_DEBUG_TRACE_BYTES = 85 * MEBIBYTE;
+const MAX_DEBUG_TRACE_BYTES = 100 * MEBIBYTE;
 // The refresh route intentionally carries the nine static graph fallbacks.
 // The 52-company S26 census expansion increases only those bounded artifacts,
 // so retain a separate ceiling while staying well below the deployment limit.
@@ -103,7 +106,7 @@ const routeTraces = [
   {
     label: "insider recompute",
     manifest: ".next/server/app/api/insiders/recompute/route.js.nft.json",
-    maxBytes: 45 * MEBIBYTE,
+    maxBytes: 70 * MEBIBYTE,
     required: [
       "public/graph/s2026.json",
       "public/graph/s2026-insiders.json",

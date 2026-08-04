@@ -939,8 +939,14 @@ export async function fetchGraph(
   if (!publicationToken) {
     // External servers use the authenticated diagnostics contract. At least
     // one explicit diagnostic flag is required by the full-graph route.
-    url.searchParams.set("includeRaw", "true");
+    // Non-scoring owners are required for catalog census reconciliation; raw
+    // provider payloads must not be copied into the published graph bundle.
+    url.searchParams.set("includeNonScoring", "true");
   }
+  // Release snapshots must retain catalog owners even when a company has no
+  // scored evidence yet; otherwise a zero-score owner silently disappears
+  // from the graph and the graph/catalog census no longer reconciles.
+  url.searchParams.set("includeNonScoring", "true");
 
   const controller = new AbortController();
   const abortFromParent = () => controller.abort(signal?.reason ?? new Error("Graph fetch aborted."));
