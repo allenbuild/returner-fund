@@ -13,14 +13,17 @@ const sourcePath = process.env.SUPPLEMENT_SOURCE_PATH ?? "work/historical-backfi
 const existingPath = process.env.SUPPLEMENT_EXISTING_PATH ? resolve(root, process.env.SUPPLEMENT_EXISTING_PATH) : null;
 const ignoreSourceLabel = process.env.SUPPLEMENT_IGNORE_SOURCE_LABEL ?? null;
 const requireNativeId = process.env.SUPPLEMENT_REQUIRE_NATIVE_ID === "1";
+const allowReviewKeys = process.env.SUPPLEMENT_ALLOW_REVIEW_KEYS === "1";
 
 const ledgerKeys = new Set();
+const acceptedLedgerKeys = new Set();
 const ledgerSources = new Map();
 for (const line of (await readFile(ledgerPath, "utf8")).split(/\r?\n/)) {
   if (!line.trim()) continue;
   const row = JSON.parse(line);
   if (!row.nativeKey) continue;
   ledgerKeys.add(row.nativeKey);
+  if (row.status !== "review") acceptedLedgerKeys.add(row.nativeKey);
   if (ignoreSourceLabel) {
     if (!ledgerSources.has(row.nativeKey)) ledgerSources.set(row.nativeKey, new Set());
     ledgerSources.get(row.nativeKey).add(row.source?.label ?? "unknown");
@@ -28,6 +31,7 @@ for (const line of (await readFile(ledgerPath, "utf8")).split(/\r?\n/)) {
 }
 
 const excludedByLedger = (key) => {
+  if (allowReviewKeys) return acceptedLedgerKeys.has(key);
   if (!ignoreSourceLabel) return ledgerKeys.has(key);
   const sources = ledgerSources.get(key);
   return sources?.size > 0 && [...sources].some((source) => source !== ignoreSourceLabel);
