@@ -49,6 +49,7 @@ const sourceFiles = [
   ["supplemental-review-audit", "work/volume-target-2026-08-05/supplemental-review-audit.json"],
   ["supplemental-youtube-continuation", "work/volume-target-2026-08-05/supplemental-youtube-continuation.json"],
   ["supplemental-additional-native-continuation-2", "work/volume-target-2026-08-05/supplemental-additional-native-continuation-2.json"],
+  ["supplemental-mapping-volume-recovery", "work/volume-target-2026-08-05/supplemental-mapping-volume-recovery.json"],
   ["supplemental-x-public-rerun", "work/volume-target-2026-08-05/supplemental-x-public-rerun.json"],
   ["public-linkedin-a16z", "work/public-linkedin-volume-2026-08-05/public-9853.json"],
   ["public-linkedin-s2026", "work/public-linkedin-volume-2026-08-05/public-9851.json"],
