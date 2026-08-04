@@ -58,9 +58,10 @@ if (existingPath) {
 
 const inputText = await readFile(inputPath, "utf8");
 let inputRows;
-if (inputText.trimStart().startsWith("{")) {
-  inputRows = JSON.parse(inputText).evidence ?? [];
-} else {
+try {
+  const parsed = JSON.parse(inputText);
+  inputRows = parsed.evidence ?? [];
+} catch {
   inputRows = inputText.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
 }
 for (const row of inputRows) addRow(row);
