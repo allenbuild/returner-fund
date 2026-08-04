@@ -47,6 +47,7 @@ const sourceFiles = [
   ["supplemental-additional-native-recovery", "work/volume-target-2026-08-05/supplemental-additional-native-recovery.json"],
   ["supplemental-additional-native-continuation", "work/volume-target-2026-08-05/supplemental-additional-native-continuation.json"],
   ["supplemental-review-audit", "work/volume-target-2026-08-05/supplemental-review-audit.json"],
+  ["supplemental-review-audit-expanded", "work/volume-target-2026-08-05/supplemental-review-audit-expanded.json"],
   ["supplemental-youtube-continuation", "work/volume-target-2026-08-05/supplemental-youtube-continuation.json"],
   ["supplemental-additional-native-continuation-2", "work/volume-target-2026-08-05/supplemental-additional-native-continuation-2.json"],
   ["supplemental-mapping-volume-recovery", "work/volume-target-2026-08-05/supplemental-mapping-volume-recovery.json"],
