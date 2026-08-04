@@ -64,7 +64,7 @@ const inputText = await readFile(inputPath, "utf8");
 let inputRows;
 try {
   const parsed = JSON.parse(inputText);
-  inputRows = parsed.evidence ?? [];
+  inputRows = Array.isArray(parsed.evidence) ? parsed.evidence : [parsed];
 } catch {
   inputRows = inputText.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
 }
