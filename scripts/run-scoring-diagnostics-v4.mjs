@@ -157,10 +157,11 @@ const audit = {
       "src/lib/scoring/traction-config.ts#TRACTION_SCORING_CONFIG",
       "src/lib/scoring/traction-config.ts#normalizeMetricsForScoring"
     ],
-    // The executing commit is logged to stdout below. Embedding it here would
-    // make a checked-in artifact stale as soon as its regeneration is committed.
+    // The executing commit and runtime are logged to stdout below. Embedding
+    // either here would make a checked-in artifact stale across CI runtimes or
+    // as soon as its regeneration is committed.
     git_sha: null,
-    node_version: process.version,
+    node_version: null,
     command: PACKAGE_COMMAND,
     direct_command: PORTABLE_COMMAND,
     package_script_declared: true,
